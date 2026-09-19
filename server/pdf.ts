@@ -14,6 +14,7 @@ import { nextMarriageWindow } from "@shared/marriage";
 import { nextChildWindow } from "@shared/children";
 import { CHARA_KARAKA_INFO, SAVYA, influencesOn, type CharaDashaPeriod } from "@shared/jaimini";
 import { JAIMINI_GROUP_LABEL } from "@shared/rules-jaimini";
+import { JAIMINI_AREAS, RAO_SOURCE, currentFor, isHot, readAreas } from "@shared/jaimini-areas";
 
 const INK = "#2b241e";
 const MUTED = "#7a6f66";
@@ -284,6 +285,9 @@ function jaiminiSection(doc: Doc, result: ChartResult) {
     for (const p of second) drawRow(p);
   }
 
+  // life areas (Rao: the running dasha sign as a temporary lagna)
+  jaiminiAreasSection(doc, result);
+
   // findings
   ensureSpace(doc, 80);
   sectionTitle(doc, "What the sutras say", `${j.findings.length} findings · Karakamsa rules read in the navamsa, pada rules in the rasi`);
@@ -306,6 +310,85 @@ function jaiminiSection(doc: Doc, result: ChartResult) {
     }
   }
   if (!j.findings.length) doc.font("Helvetica").fontSize(8.5).fillColor(MUTED).text("No rule in the current set fires for this chart.", PAGE.m, doc.y);
+}
+
+function jaiminiAreasSection(doc: Doc, result: ChartResult) {
+  const areas = readAreas(result.jaimini, result.positions);
+  const nowIso = result.now.asOf;
+  const now = DateTime.fromISO(nowIso);
+  const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
+  const ordinal = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
+  ensureSpace(doc, 120);
+  sectionTitle(doc, "Life areas", "K.N. Rao: the running dasha sign read as the lagna");
+  doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(
+    `Each area rests on a chara karaka, its arudha pada and a house from the Karakamsa. For timing the running Chara dasha sign is treated as the lagna and the houses from it are read for the area; antardashas the same way. Rao asks that these be confirmed against Vimshottari and the navamsa. ${RAO_SOURCE.url}`,
+    PAGE.m,
+    doc.y,
+    { width: CONTENT_W, link: RAO_SOURCE.url },
+  );
+  doc.moveDown(0.6);
+  const toneColor = (t: string) => (t === "support" ? "#3f6b55" : t === "strain" ? "#9b3a2a" : MUTED);
+  const bullet = (text: string, tone: string, indent = 0) => {
+    doc.font("Helvetica").fontSize(8);
+    const h = doc.heightOfString(text, { width: CONTENT_W - 12 - indent }) + 2;
+    ensureSpace(doc, h);
+    const y = doc.y;
+    doc.circle(PAGE.m + 3 + indent, y + 4, 1.6).fillColor(toneColor(tone)).fill();
+    doc.fillColor(INK).text(text, PAGE.m + 12 + indent, y, { width: CONTENT_W - 12 - indent });
+    doc.y += 2;
+  };
+  for (const a of areas) {
+    const spec = JAIMINI_AREAS[a.area];
+    const cur = currentFor(a.timing, nowIso);
+    ensureSpace(doc, 110);
+    doc.moveDown(0.5);
+    const y = doc.y;
+    const balance = a.balance >= 2 ? "supported" : a.balance <= -2 ? "strained" : "mixed";
+    doc.font("Helvetica-Bold").fontSize(10).fillColor(INK).text(a.label, PAGE.m, y, { lineBreak: false });
+    const labelW = doc.widthOfString(a.label);
+    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(balance, PAGE.m + labelW + 8, y + 2, { lineBreak: false });
+    if (cur.period) {
+      const status = isHot(cur.period.triggers) || cur.window ? "active" : "quiet";
+      doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`now ${SIGNS[cur.period.sign]}${cur.window ? ` / ${SIGNS[cur.window.adSign]}` : ""} · ${status}`, PAGE.m, y + 2, { width: CONTENT_W, align: "right", lineBreak: false });
+    }
+    doc.y = y + 14;
+    // foundations line
+    const found: string[] = [
+      ...a.karakas.map((k) => `${k.karaka} ${k.planet} in ${SIGNS[k.sign]} (${k.dignity.toLowerCase()}), ${ordinal(k.houseFromLagna)} house, D9 ${SIGNS[k.d9Sign]}`),
+      ...a.padas.map((p) => `${p.label} ${SIGNS[p.sign]}${p.occupants.length ? ` with ${p.occupants.join(", ")}` : " (empty)"}${p.aspectedBy.length ? `, aspected by ${p.aspectedBy.join(", ")}` : ""}`),
+      ...a.karakamsa.map((x) => `${ordinal(x.house)} from the Karakamsa: ${x.planets.join(", ")}`),
+    ];
+    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(found.join(" · "), PAGE.m, doc.y, { width: CONTENT_W });
+    doc.y += 3;
+    const notes = [...a.karakas.flatMap((k) => k.notes), ...a.padas.flatMap((p) => p.notes)].slice(0, 5);
+    for (const n of notes) bullet(n.text, n.tone);
+    const findings = a.findingIds.map((id) => result.jaimini.findings.find((f) => f.id === id)!).filter(Boolean);
+    for (const f of findings.slice(0, 3)) bullet(`${f.text} (${f.source.label})`, "neutral");
+    // timing
+    if (cur.period) {
+      doc.y += 2;
+      ensureSpace(doc, 48);
+      doc.font("Helvetica-Bold").fontSize(8).fillColor(INDIGO).text(`Now: ${SIGNS[cur.period.sign]} mahadasha, age ${cur.period.ageStart}–${cur.period.ageStart + cur.period.years}`, PAGE.m, doc.y);
+      doc.y += 1;
+      if (!cur.period.triggers.length) bullet(`Nothing in this period points at ${spec.short}.`, "neutral");
+      for (const t of cur.period.triggers.slice(0, 4)) bullet(t.text, t.tone);
+      if (cur.window) {
+        doc.font("Helvetica-Bold").fontSize(7.5).fillColor(MUTED).text(`${SIGNS[cur.window.adSign]} antardasha, ${fmt(cur.window.start)} – ${fmt(cur.window.end)}`, PAGE.m + 12, doc.y + 1);
+        doc.y += 1;
+        for (const t of cur.window.triggers.slice(0, 3)) bullet(t.text, t.tone, 12);
+      }
+    }
+    const upcoming = a.timing.periods
+      .flatMap((p) => p.windows)
+      .filter((w) => DateTime.fromISO(w.start) > now)
+      .slice(0, 3);
+    if (upcoming.length) {
+      ensureSpace(doc, 48);
+      doc.font("Helvetica-Bold").fontSize(8).fillColor(INDIGO).text("Next antardashas that carry the area", PAGE.m, doc.y + 2);
+      doc.y += 1;
+      for (const w of upcoming) bullet(`${SIGNS[w.mdSign]} / ${SIGNS[w.adSign]}, ${fmt(w.start)} – ${fmt(w.end)}: ${w.triggers.map((t) => t.text).join(" ")}`, w.triggers.some((t) => t.tone === "strain") && !w.triggers.some((t) => t.tone === "support") ? "strain" : w.triggers.some((t) => t.tone === "support") ? "support" : "neutral");
+    }
+  }
 }
 
 function planetTable(doc: Doc, x: number, y: number, w: number, positions: PlanetPosition[], strength: PlanetStrength[]) {

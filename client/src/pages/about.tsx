@@ -379,6 +379,44 @@ function JaiminiMethod() {
         </a>
         . Other schools (Raghava Bhatta, Sanjay Rath's Narayana dasha) differ on direction and on the ±1 adjustments; only Rao's method is implemented.
       </p>
+      <h2>Life areas and timing</h2>
+      <p>
+        The Life areas view groups the chart into self, career, wealth, marriage, children, family and health. Each area rests on three things: its chara karaka (Amatyakaraka for career, Darakaraka for
+        the spouse, Putrakaraka for children, Matri-, Pitri- and Bhratrikaraka for the family, Gnatikaraka for illness and rivals), its arudha pada (A10, UL and A7, A5, A4, A9 and A3, A6 and A8) and the
+        matching house from the Karakamsa in the navamsa. A karaka is read by its dignity in the rasi and navamsa, by the planets joined with it and aspecting it by rasi drishti, and by Rao's rules
+        that the Amatyakaraka in a kendra, trine or 11th from the Atmakaraka gives position with less struggle, while Atmakaraka or Amatyakaraka in the 6th, 8th or 12th makes it a struggle. A pada
+        is read by its occupants, its aspects and unobstructed argala.
+      </p>
+      <ul>
+        <li>
+          Timing follows Rao's checklist: treat the running Chara dasha sign as the lagna and read the houses from it; the 10th for career, the 7th for marriage, the 5th for children and learning, the
+          2nd and 11th for money and the 12th for outflow, the 4th and 9th for home and parents, the 6th and 8th for illness, disputes and reversals. Each antardasha sign is read the same way.
+        </li>
+        <li>
+          A period also carries an area when its sign is the area's pada, holds the area's karaka, or is on the 1–7 axis with either or aspects it by rasi drishti. For marriage the Darakaraka's navamsa
+          sign and the 7th lord are added to the anchors, as Rao does.
+        </li>
+        <li>
+          Cautions from Rao are shown as strain: an antardasha 6th or 8th from the mahadasha sign (more so when the Atmakaraka aspects it); the Atmakaraka in the 8th from the running sign; Leo and
+          Sagittarius as signs of rise and fall, Sagittarius under the Atmakaraka's aspect for violent events; the 6th from the lagna as a maraka house for children; the Atmakaraka's own period as one
+          that can bring a fall as well as a rise.
+        </li>
+        <li>
+          Rao insists that Chara dasha results be confirmed against Vimshottari and the navamsa. The app keeps the systems apart, so this view reads Jaimini alone; treat it as one witness, not a
+          verdict.
+        </li>
+      </ul>
+      <p>
+        Sources:{" "}
+        <a href="https://pdfcoffee.com/jyotish-predicting-through-jaiminix27s-chara-dasa-kn-rao-pdf-free.html" {...ext}>
+          K.N. Rao, Predicting through Jaimini's Chara Dasa
+        </a>
+        ,{" "}
+        <a href="https://www.scribd.com/document/397026238/K-N-RAO-JAIMINI" {...ext}>
+          K.N. Rao, Jaimini notes on karakas and marriage timing
+        </a>
+        .
+      </p>
       <h2>Benefics and malefics</h2>
       <p>
         For the Arudha and Upapada rules Jupiter, Venus and Mercury are benefic; Mars, Saturn, Rahu and Ketu are malefic; the Sun counts as benefic when exalted, in its own sign or in a friend's sign

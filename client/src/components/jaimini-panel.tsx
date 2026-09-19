@@ -6,6 +6,7 @@ import { PLANET_ABBR, SIGNS, SIGN_ABBR, SIGN_QUALITY, fmtDegShort, houseFrom, ty
 import { CHARA_KARAKA_INFO, SAVYA, argalaOn, influencesOn, signsAspectedBy, type CharaDashaPeriod, type JaiminiFinding } from "@shared/jaimini";
 import { JAIMINI_GROUP_LABEL } from "@shared/rules-jaimini";
 import { SouthIndianChart } from "@/components/south-indian-chart";
+import { JaiminiAreas } from "@/components/jaimini-areas";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -396,6 +397,8 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           })}
         </ul>
       </section>
+
+      <JaiminiAreas result={result} />
 
       <section className="mt-10" data-testid="section-jaimini-findings">
         <h2 className="text-base font-semibold">What the sutras say</h2>
