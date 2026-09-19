@@ -35,29 +35,34 @@ export function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
+// Simple per-client rate limit for the API (chart computation is not free).
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX = 120;
+const rateBuckets = new Map<string, { count: number; reset: number }>();
+app.use("/api", (req, res, next) => {
+  const key = req.ip ?? "unknown";
+  const now = Date.now();
+  let b = rateBuckets.get(key);
+  if (!b || b.reset < now) {
+    b = { count: 0, reset: now + RATE_WINDOW_MS };
+    rateBuckets.set(key, b);
+  }
+  b.count += 1;
+  if (rateBuckets.size > 5000) rateBuckets.forEach((v, k) => { if (v.reset < now) rateBuckets.delete(k); });
+  if (b.count > RATE_MAX) {
+    res.setHeader("Retry-After", Math.ceil((b.reset - now) / 1000));
+    return res.status(429).json({ message: "Too many requests, please slow down" });
+  }
+  next();
+});
+
+// Request log: method, path, status and duration only. Response bodies hold birth data and are never logged.
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
   res.on("finish", () => {
-    const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      log(logLine);
-    }
+    if (path.startsWith("/api")) log(`${req.method} ${path} ${res.statusCode} in ${Date.now() - start}ms`);
   });
-
   next();
 });
 
