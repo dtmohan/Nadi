@@ -22,8 +22,8 @@ export default function AboutPage() {
         <ul>
           <li>Conjunction: same sign. The strongest link.</li>
           <li>2nd and 12th: the adjacent signs. A planet behind (12th) pushes its qualities into the one ahead; a planet ahead (2nd) is where the subject is heading.</li>
-          <li>Trines: the 5th and 9th signs, harmonious support.</li>
-          <li>7th: opposition, a face-to-face influence.</li>
+          <li>Trines: the 5th and 9th signs share a direction (east 1-5-9, south 2-6-10, west 3-7-11, north 4-8-12) and are read as being in combination, at about three-quarter strength. Three-planet combinations count through trines as well.</li>
+          <li>7th: opposition, a face-to-face influence at about half strength.</li>
           <li>Retrograde: a retrograde classical planet also delivers results from the previous sign, so it is evaluated from both.</li>
         </ul>
         <h2>Strength, the Nadi way</h2>

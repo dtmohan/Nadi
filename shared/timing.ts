@@ -29,7 +29,7 @@ export interface TransitReading {
   activated: Finding[];
   /** Returns, double transits and other period notes. */
   notes: string[];
-  /** 0 quiet · 1 trine/7th only · 2 over a natal planet · 3 over a natal cluster or double transit */
+  /** 0 quiet · 1 single trine or 7th · 2 over a natal planet or two-plus trines · 3 over a natal cluster or double transit */
   weight: 0 | 1 | 2 | 3;
 }
 
@@ -85,17 +85,19 @@ function ageAt(iso: string, birthIso: string): number {
 }
 
 /** Rank the reading's findings by how directly this passage touches them. */
-function activatedFindings(findings: Finding[], strong: Set<Planet>, weak: Set<Planet>, limit: number): Finding[] {
+function activatedFindings(findings: Finding[], strong: Set<Planet>, mid: Set<Planet>, weak: Set<Planet>, limit: number): Finding[] {
   const scored = findings
     .map((f) => {
       const inStrong = f.planets.filter((p) => strong.has(p)).length;
+      const inMid = f.planets.filter((p) => mid.has(p)).length;
       const inWeak = f.planets.filter((p) => weak.has(p)).length;
-      if (inStrong === 0 && inWeak === 0) return null;
+      if (inStrong === 0 && inMid === 0 && inWeak === 0) return null;
       let w = f.score;
       if (inStrong > 0) w *= 1 + 0.5 * inStrong;
       if (inStrong > 0 && strong.has(f.planets[0])) w *= 1.25; // subject of the rule is directly touched
       if (inStrong === f.planets.length && f.planets.length > 1) w *= 1.3; // whole combination under the transit
-      if (inStrong === 0) w *= 0.5; // trine / 7th only
+      if (inStrong === 0 && inMid > 0) w *= 0.75; // trine only: same direction, in combination
+      if (inStrong === 0 && inMid === 0) w *= 0.5; // 7th only
       return { f, w };
     })
     .filter((x): x is { f: Finding; w: number } => x !== null)
@@ -131,9 +133,12 @@ export function readTransit(
   const fromJeeva = houseFrom(natalJu.signIndex, t.signIndex);
   const fromKarma = houseFrom(natalSa.signIndex, t.signIndex);
 
+  // Nadi: planets in the same direction (1-5-9) are in combination, so a passage through a
+  // trine sign is a genuine trigger (~75%), the 7th a weaker one (~50%).
   const strong = new Set(conjunct);
-  const weak = new Set([...trine, ...opposite]);
-  const activated = activatedFindings(findings, strong, weak, conjunct.length ? 4 : 2);
+  const mid = new Set(trine);
+  const weak = new Set(opposite);
+  const activated = activatedFindings(findings, strong, mid, weak, conjunct.length ? 4 : trine.length ? 3 : 2);
   const areas: LifeArea[] = [];
   for (const f of activated) if (!areas.includes(f.area)) areas.push(f.area);
 
@@ -189,10 +194,14 @@ export function readTransit(
         ? `${t.planet} enters the natal ${t.sign} cluster of ${list(conjunct)}: ${what} all come due at once.`
         : `${t.planet} over natal ${list(conjunct)}: ${what} come to the fore.`;
     weight = conjunct.length >= 2 || double ? 3 : 2;
-  } else if (trine.length || opposite.length) {
-    const parts = [trine.length ? `in trine to ${list(trine)}` : null, opposite.length ? `facing ${list(opposite)}` : null].filter(Boolean).join(" and ");
+  } else if (trine.length) {
+    const what = areas.length ? list(areas.slice(0, 3).map((a) => AREA_SHORT[a])) : TRANSIT_ACTIVATION[t.planet][trine[0]];
+    const extra = opposite.length ? `, and faces ${list(opposite)}` : "";
+    headline = `${t.planet} in trine to natal ${list(trine)}${extra}: same direction, so ${what} ripen at about three-quarter strength.`;
+    weight = trine.length >= 2 ? 2 : 1;
+  } else if (opposite.length) {
     const what = areas.length ? list(areas.slice(0, 2).map((a) => AREA_SHORT[a])) : "their matters";
-    headline = `${t.planet} ${parts}: ${what} stir, at lesser strength.`;
+    headline = `${t.planet} faces natal ${list(opposite)} from the 7th: ${what} stir, at about half strength.`;
     weight = 1;
   } else {
     headline = `No natal planet in ${t.sign}; a quieter passage. ${progression}.`;

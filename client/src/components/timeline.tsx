@@ -91,12 +91,12 @@ export function Timeline({
         const end = DateTime.fromISO(r.period.end);
         return { r, start, end, age: start.diff(birth, "years").years, current: now >= start && now < end, past: end < now, days: end.diff(start, "days").days };
       })
-      .filter((x) => !onlyTouches || x.r.conjunct.length > 0)
+      .filter((x) => !onlyTouches || x.r.conjunct.length > 0 || x.r.trine.length > 0)
       .filter((x) => !selected || x.r.conjunct.includes(selected) || x.r.trine.includes(selected) || x.r.opposite.includes(selected));
   }, [readings, track, onlyTouches, birth, now, selected]);
 
   const next = useMemo(() => {
-    return readings.find((r) => r.period.planet === track && r.conjunct.length > 0 && DateTime.fromISO(r.period.start) > now);
+    return readings.find((r) => r.period.planet === track && (r.conjunct.length > 0 || r.trine.length > 0) && DateTime.fromISO(r.period.start) > now);
   }, [readings, track, now]);
 
   return (
@@ -126,21 +126,21 @@ export function Timeline({
         <div className="flex items-center gap-2">
           <Switch id="touches" checked={onlyTouches} onCheckedChange={setOnlyTouches} data-testid="switch-touches" />
           <Label htmlFor="touches" className="text-sm text-muted-foreground">
-            Only periods over a natal planet
+            Only passages over or in trine to a natal planet
           </Label>
         </div>
       </div>
 
       <p className="mt-3 text-sm text-muted-foreground">
         {track === "Jupiter"
-          ? "Transiting Jupiter, the Jeeva, wakes whichever natal planet it passes over, together with everything that planet is combined with; trines and the 7th are secondary triggers. Each row is one sign passage, so retrograde re-entries appear as short repeats."
+          ? "Transiting Jupiter, the Jeeva, wakes whichever natal planet it passes over, together with everything that planet is combined with. Signs of the same direction count too: a passage in trine to a natal planet is a real trigger at about three-quarter strength, the 7th at half. Each row is one sign passage, so retrograde re-entries appear as short repeats."
           : "Transiting Saturn, the Karma, brings duty, pressure and consolidation to whatever natal planet it passes over, and to the combinations that planet belongs to."}
         {selected && <span> Showing passages that touch {selected}.</span>}
         {next && (
           <span>
             {" "}
-            Next passage over a natal planet: {next.period.sign}, {fmt(next.period.start)} ({PLANET_ABBR[next.conjunct[0]]}
-            {next.conjunct.length > 1 ? ` +${next.conjunct.length - 1}` : ""}).
+            Next passage touching a natal planet: {next.period.sign}, {fmt(next.period.start)} ({next.conjunct.length ? "over" : "trine"}{" "}
+            {(next.conjunct.length ? next.conjunct : next.trine).map((p) => PLANET_ABBR[p]).join(" ")}).
           </span>
         )}
       </p>
@@ -195,7 +195,7 @@ export function Timeline({
             <div className="col-span-2 mt-1.5 text-sm sm:col-span-1 sm:mt-0">
               <p className={cn(r.weight === 0 && "text-muted-foreground")}>{r.headline}</p>
               {r.weight >= 2 && <Activated items={r.activated.slice(0, isCurrent ? 4 : 3)} compact />}
-              {r.weight === 1 && <Activated items={r.activated.slice(0, 1)} compact />}
+              {r.weight === 1 && <Activated items={r.activated.slice(0, 2)} compact />}
               <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
                 {r.notes.slice(0, r.weight >= 2 ? 3 : 1).map((n, k) => (
                   <li key={k}>{n}</li>

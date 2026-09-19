@@ -269,9 +269,9 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   }
 
   for (const track of ["Jupiter", "Saturn"] as const) {
-    sectionTitle(doc, `${track} passages over natal planets`, track === "Jupiter" ? "one sign a year, twelve-year cycle" : "about two and a half years a sign");
+    sectionTitle(doc, `${track} passages over or in trine to natal planets`, track === "Jupiter" ? "one sign a year, twelve-year cycle" : "about two and a half years a sign");
     const rows = timing
-      .filter((r) => r.period.planet === track && r.conjunct.length > 0)
+      .filter((r) => r.period.planet === track && (r.conjunct.length > 0 || r.trine.length >= 2))
       .map((r) => {
         const start = DateTime.fromISO(r.period.start);
         const end = DateTime.fromISO(r.period.end);
@@ -299,7 +299,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
       doc.moveTo(PAGE.m, y - 3).lineTo(PAGE.w - PAGE.m, y - 3).lineWidth(0.3).strokeColor(RULE).stroke();
       doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text(age < 0.02 ? "Birth" : `Age ${Math.floor(age)}`, c[0], y, { lineBreak: false });
       doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(`${t.sign}${t.retrogradeEntry ? " R" : ""}`, c[1], y, { lineBreak: false });
-      doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(`over ${r.conjunct.map((p) => PLANET_ABBR[p]).join(" ")}`, c[1], y + 11, { lineBreak: false });
+      doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(r.conjunct.length ? `over ${r.conjunct.map((p) => PLANET_ABBR[p]).join(" ")}` : `trine ${r.trine.map((p) => PLANET_ABBR[p]).join(" ")}`, c[1], y + 11, { lineBreak: false });
       doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`${start.toFormat("d LLL yyyy")} – ${end.toFormat("d LLL yyyy")}`, c[2], y, { width: 118, lineBreak: false });
       doc.font("Helvetica").fontSize(8).fillColor(INK).text(r.headline, c[3], y, { width: colW });
       if (bullets.length) doc.fontSize(7.5).fillColor(INK).text(bullets.join("\n"), c[3] + 6, doc.y + 2, { width: colW - 6 });

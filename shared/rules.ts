@@ -99,11 +99,13 @@ export interface Reading {
 }
 
 const RELATION_STRENGTH: Record<Relation, number> = {
+  // Nadi hierarchy: same sign, then trines (~75%), then the 7th (~50%); the 2nd/12th are
+  // directional links (ahead/behind) that Rao's rules lean on, so they keep a working weight.
   conjunct: 1,
-  prev: 0.8,
-  next: 0.75,
-  trine: 0.7,
-  opposite: 0.6,
+  trine: 0.75,
+  prev: 0.7,
+  next: 0.65,
+  opposite: 0.5,
   none: 0,
 };
 

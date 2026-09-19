@@ -9,7 +9,8 @@ import type { Rule, LifeArea } from "./rules";
 const RAO = "R.G. Rao, Bhrigu Nandi Nadi";
 const NAIK = "S. Naik, Prediction Secrets: Naadi Astrology";
 
-const NEAR: Relation[] = ["conjunct", "prev", "next"];
+// Rao: a trio "may be in one sign or 5th or 9th to each other" — trines count as combination.
+const NEAR: Relation[] = ["conjunct", "trine", "prev", "next"];
 const ALL: Relation[] = ["conjunct", "prev", "next", "trine", "opposite"];
 
 const pair = (id: string, area: LifeArea, subject: Planet, object: Planet, text: string, weight: 1 | 2 | 3 = 2, relation: Relation[] = ALL, source = RAO): Rule => ({
