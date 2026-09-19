@@ -268,18 +268,17 @@ export function signOf(lon: number): number {
 }
 
 export function fmtDeg(lon: number): string {
-  const d = norm360(lon) % 30;
-  const deg = Math.floor(d);
-  const minF = (d - deg) * 60;
-  const min = Math.floor(minF);
-  const sec = Math.round((minF - min) * 60);
+  const total = Math.round((norm360(lon) % 30) * 3600) % (30 * 3600);
+  const deg = Math.floor(total / 3600);
+  const min = Math.floor((total % 3600) / 60);
+  const sec = total % 60;
   return `${String(deg).padStart(2, "0")}°${String(min).padStart(2, "0")}'${String(sec).padStart(2, "0")}"`;
 }
 
 export function fmtDegShort(lon: number): string {
-  const d = norm360(lon) % 30;
-  const deg = Math.floor(d);
-  const min = Math.round((d - deg) * 60);
+  const total = Math.round((norm360(lon) % 30) * 60) % (30 * 60);
+  const deg = Math.floor(total / 60);
+  const min = total % 60;
   return `${deg}°${String(min).padStart(2, "0")}'`;
 }
 
