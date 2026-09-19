@@ -129,7 +129,7 @@ export const FEMALE_RULES: Rule[] = [
   pair("f-ju-ra", "marriage", "Jupiter", "Rahu", "Jupiter with Rahu in a female chart: the husband's side has a foreign or unconventional strand; ambition in the marriage.", 1, ["conjunct"]),
 
   // ───────────── Children and career for the female native ─────────────
-  pair("f-ju-mo-child", "family", "Jupiter", "Moon", "Jupiter with the Moon: children and motherhood are a source of joy; the native's mother is a strong support.", 2, ["conjunct", "trine"]),
+  pair("f-ju-mo-child", "children", "Jupiter", "Moon", "Jupiter with the Moon: children and motherhood are a source of joy; the native's mother is a strong support.", 2, ["conjunct", "trine"]),
   pair("f-sa-ve-career", "career", "Saturn", "Venus", "Saturn with the Jeeva (Venus): the native works; finance, arts, design, luxury goods, beauty or hospitality are her fields.", 2, ["conjunct", "trine"]),
   pair("f-sa-ma-career", "career", "Saturn", "Mars", "Saturn with Mars in a female chart: the husband's work is technical or laborious, and the couple's fortunes rise through property or engineering.", 2, ["conjunct", "trine"]),
   pair("f-ve-me-career", "career", "Venus", "Mercury", "Venus with Mercury: livelihood through communication, teaching, media, design or trade.", 1, ["conjunct", "trine"]),

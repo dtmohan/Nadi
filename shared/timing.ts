@@ -67,6 +67,7 @@ const AREA_SHORT: Record<LifeArea, string> = {
   self: "self",
   career: "career",
   marriage: "marriage",
+  children: "children",
   wealth: "wealth",
   education: "learning",
   family: "family",
@@ -150,7 +151,7 @@ export function readTransit(
 
   // Returns and karaka crossings.
   if (t.planet === "Jupiter" && conjunct.includes("Jupiter") && age > 1) {
-    notes.push(`Jupiter return around age ${Math.round(age)}: a twelve-year chapter closes and a new one opens for the native.`);
+    notes.push(`Jupiter return around age ${Math.round(age)}: a twelve-year chapter closes and a new one opens for the native${age >= 18 ? "; in Nadi this is the classic window for a child" : ""}.`);
   }
   if (t.planet === "Saturn" && conjunct.includes("Saturn") && age > 1) {
     notes.push(`Saturn return around age ${Math.round(age)}: the profession and duties are restructured; what was built is tested.`);

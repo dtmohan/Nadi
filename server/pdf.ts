@@ -10,6 +10,7 @@ import type { PlanetStrength } from "@shared/strength";
 import { readTransits, type TransitReading } from "@shared/timing";
 import { chainSummary } from "@shared/flow";
 import { nextMarriageWindow } from "@shared/marriage";
+import { nextChildWindow } from "@shared/children";
 
 const INK = "#2b241e";
 const MUTED = "#7a6f66";
@@ -186,6 +187,30 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
     for (const n of m.notes) doc.text(`• ${n}`, PAGE.m + 8, doc.y + 1, { width: CONTENT_W - 8 });
     doc.font("Helvetica").fontSize(8).fillColor(MUTED).text(
       `Triggers: Jupiter over ${m.spouseSign} (full) or its trines ${m.triggerSigns.slice(1).join(", ")} (three-quarter).${win ? ` Next: Jupiter ${win.kind === "over" ? "over" : "in trine from"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.` : ""}`,
+      PAGE.m,
+      doc.y + 2,
+      { width: CONTENT_W },
+    );
+    doc.moveDown(0.5);
+  }
+  {
+    const c = reading.children;
+    const win = nextChildWindow(c, transits, now.asOf.slice(0, 10), result.utc);
+    const counted = c.inFifth.length + c.aspectingFifth.length;
+    ensureSpace(doc, 60);
+    doc.font("Helvetica-Bold").fontSize(10).fillColor(planetColor("Jupiter")).text(`Jupiter · Putra karaka · children`);
+    doc.font("Helvetica").fontSize(8).fillColor(MUTED).text(`No 5th lord: promise from Jupiter's link with Venus; count and sex from the planets in and aspecting the 5th from Jupiter (${c.karakaSign} to ${c.fifthSign}).`, { width: CONTENT_W });
+    const label = { strong: "Promised, strong", moderate: "Promised, moderate", weak: "Promised, lesser strength", faint: "Faint signature", unsigned: "No Venus signature" }[c.promised];
+    doc.font("Helvetica").fontSize(9).fillColor(INK).text(`${label}. ${c.headline}`, { width: CONTENT_W });
+    if (counted > 0) {
+      doc.text(
+        `Count from the 5th: ${counted} planet${counted === 1 ? "" : "s"}, giving ${c.sons} son${c.sons === 1 ? "" : "s"}, ${c.daughters} daughter${c.daughters === 1 ? "" : "s"}${c.undecided.filter((p) => p === "Rahu" || p === "Ketu").length ? `, ${c.undecided.filter((p) => p === "Rahu" || p === "Ketu").join(" and ")} left open` : ""}${c.undecided.filter((p) => p === "Mercury" || p === "Saturn").length ? ` (${c.undecided.filter((p) => p === "Mercury" || p === "Saturn").join(", ")} by sign parity)` : ""}. An upper bound, not a promise.`,
+        { width: CONTENT_W },
+      );
+    }
+    for (const n of c.notes) doc.text(`• ${n}`, PAGE.m + 8, doc.y + 1, { width: CONTENT_W - 8 });
+    doc.font("Helvetica").fontSize(8).fillColor(MUTED).text(
+      `Triggers: Jupiter's return over ${c.karakaSign}, or his passage over ${c.fifthSign} and its trines.${win ? ` Next (from age 18): Jupiter ${win.kind === "return" ? "returns to" : win.kind === "fifth" ? "over the 5th," : "in trine,"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.` : ""}`,
       PAGE.m,
       doc.y + 2,
       { width: CONTENT_W },

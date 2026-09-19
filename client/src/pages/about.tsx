@@ -48,6 +48,35 @@ export default function AboutPage() {
           </a>
           .
         </p>
+        <h2>Children from Jupiter</h2>
+        <p>
+          There is no 5th lord and no saptamsa here. Jupiter is the putra karaka in both charts, and the question is answered in three steps. Promise: the link between Jupiter and Venus, full in one
+          sign, three-quarter in trine, half in the 7th, faint on the 2/12 axis, absent in the 4th, 6th, 8th or 10th. Count and sex: the planets standing in the 5th from Jupiter, and those aspecting
+          it, give the number of children; Sun, Mars and Jupiter denote sons, Venus and the Moon daughters, Mercury and Saturn follow the parity of their sign (odd male, even female), and the nodes are
+          left open. The app shows this count as an upper bound. Obstruction: Saturn with Jupiter delays and reduces, Rahu diverts through medical help or foreign places, Ketu brings anxiety around
+          the first child (the old texts read loss, modern teachers a delay), a watery 5th from Jupiter troubles conception, and Naik's aspects to the Sun and Venus tell son from daughter. Timing:
+          Jupiter's return over natal Jupiter is the classic window for a child, with his passage over the 5th from Jupiter and its trines next. Sources:{" "}
+          <a href="https://astroindus.com/bhrigu-nandi-nadi/children-progeny/" target="_blank" rel="noreferrer">
+            Children and progeny in BNN (Astroindus)
+          </a>
+          ,{" "}
+          <a href="https://www.scribd.com/document/976539938/Bhrigu-Nandi-Nadi" target="_blank" rel="noreferrer">
+            Bhrigu Naadi principles (5th from Jupiter)
+          </a>
+          ,{" "}
+          <a href="https://saptarishisshop.com/community/bhrigu-nandi-nadi/progeny-part-1-bhrigu-nandi-nadi/" target="_blank" rel="noreferrer">
+            Sakurkar, Progeny in BNN
+          </a>
+          ,{" "}
+          <a href="https://www.scribd.com/doc/208041853/Nadi-Astrology-R-G-Rao" target="_blank" rel="noreferrer">
+            Rao, Nadi Astrology
+          </a>{" "}
+          and{" "}
+          <a href="https://pdfcoffee.com/jyotish-satyanarayana-naik-prediction-secrets-naadi-astrology-pdf-free.html" target="_blank" rel="noreferrer">
+            Naik, Prediction Secrets
+          </a>
+          .
+        </p>
         <h2>Marriage without house lords</h2>
         <p>
           Nadi never asks who rules the 7th. Marriage is read between karakas: in a male chart Jupiter is the native and Venus the wife; in a female chart Venus is the native and Mars the

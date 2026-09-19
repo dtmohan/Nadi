@@ -16,6 +16,8 @@ import {
 } from "./astro";
 import { EXTRA_RULES } from "./rules-bnn";
 import { FEMALE_RULES, MALE_FRAME_IDS } from "./rules-female";
+import { CHILDREN_RULES } from "./rules-children";
+import { assessChildren, type ChildrenReading } from "./children";
 import { assessStrength, type PlanetStrength } from "./strength";
 import { degreeChains, flowBetween, type DegreeChain, type Flow } from "./flow";
 import { assessMarriage, type Gender, type MarriageReading } from "./marriage";
@@ -24,6 +26,7 @@ export type LifeArea =
   | "self"
   | "career"
   | "marriage"
+  | "children"
   | "wealth"
   | "education"
   | "family"
@@ -35,6 +38,7 @@ export const LIFE_AREAS: Record<LifeArea, { label: string; karaka: Planet }> = {
   self: { label: "Self & temperament", karaka: "Jupiter" },
   career: { label: "Career & livelihood", karaka: "Saturn" },
   marriage: { label: "Marriage & partnership", karaka: "Venus" },
+  children: { label: "Children & progeny", karaka: "Jupiter" },
   wealth: { label: "Wealth & assets", karaka: "Jupiter" },
   education: { label: "Education & intellect", karaka: "Mercury" },
   family: { label: "Parents & family", karaka: "Sun" },
@@ -128,6 +132,7 @@ export interface Reading {
   chains: DegreeChain[];
   /** Marriage read between karakas, gender-aware (no house lords). */
   marriage: MarriageReading;
+  children: ChildrenReading;
   roles: Roles;
   jeeva: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
   karma: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
@@ -337,8 +342,6 @@ export const RULES: Rule[] = [
   pair("ma-sa-fam", "family", "Mars", "Saturn", "Mars with Saturn: siblings face struggles; disputes over property are possible.", 2),
   pair("ma-ra-fam", "family", "Mars", "Rahu", "Mars with Rahu: a sibling settles abroad or takes an unusual path; caution with land dealings.", 1),
   pair("ma-ju-fam", "family", "Mars", "Jupiter", "Mars with Jupiter: supportive siblings; property is acquired.", 1),
-  pair("ju-ke-children", "family", "Jupiter", "Ketu", "Jupiter with Ketu: delay or anxiety around children; a child with a spiritual or medical inclination.", 1),
-  pair("ju-ra-children", "family", "Jupiter", "Rahu", "Jupiter with Rahu: children settle abroad or pursue technology.", 1),
 
   // ───────────── Health ─────────────
   pair("su-sa-health", "health", "Sun", "Saturn", "Sun with Saturn: vitality is drained by overwork; bones, teeth and circulation need care.", 1),
@@ -391,6 +394,7 @@ RULES.push(...EXTRA_RULES);
 // Male-framed rules are replaced by FEMALE_RULES in a female chart.
 for (const r of RULES) if (MALE_FRAME_IDS.some((re) => re.test(r.id))) r.frame = "male";
 RULES.push(...FEMALE_RULES);
+RULES.push(...CHILDREN_RULES);
 
 // Guard against duplicate ids while authoring rules.
 {
@@ -567,6 +571,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
     strength,
     chains: degreeChains(positions),
     marriage: assessMarriage(positions, gender),
+    children: assessChildren(positions, gender),
     roles,
     jeeva: summarise(byPlanet[roles.native], "Jeeva karaka"),
     karma: summarise(byPlanet.Saturn, "Karma karaka"),

@@ -7,6 +7,7 @@ import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition, KARAKA } from "@shared/astro";
 import { GIVES, RECEIVES, flowGloss, type DegreeChain } from "@shared/flow";
 import { nextMarriageWindow, type MarriageReading } from "@shared/marriage";
+import { nextChildWindow, type ChildrenReading } from "@shared/children";
 import { LIFE_AREAS, RELATION_LABEL, areaKaraka, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
 import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
@@ -159,6 +160,63 @@ function MarriageCard({ m, positions, transits, asOf }: { m: MarriageReading; po
   );
 }
 
+const CHILD_PROMISE_LABEL: Record<ChildrenReading["promised"], string> = {
+  strong: "Promised, strong",
+  moderate: "Promised, moderate",
+  weak: "Promised, lesser strength",
+  faint: "Faint signature",
+  unsigned: "No Venus signature",
+};
+
+function ChildrenCard({ c, positions, transits, asOf, birthIso }: { c: ChildrenReading; positions: PlanetPosition[]; transits: ChartResult["transits"]; asOf: string; birthIso: string }) {
+  const ju = positions.find((x) => x.planet === "Jupiter")!;
+  const win = nextChildWindow(c, transits, asOf.slice(0, 10), birthIso);
+  const counted = c.inFifth.length + c.aspectingFifth.length;
+  return (
+    <Card data-testid="card-children">
+      <CardContent className="p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+          <h3 className="text-base font-semibold">
+            <span className="text-primary">Jupiter</span> · Putra karaka · children
+          </h3>
+          <span className="tabular text-xs text-muted-foreground">
+            5th from Jupiter: {c.fifthSign}
+          </span>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          No 5th lord: children are read from Jupiter in both charts, promise from his link with Venus, count and sex from the planets in and aspecting the 5th from Jupiter ({ju.sign} → {c.fifthSign}).
+        </p>
+        <p className="mt-2 text-sm leading-relaxed">
+          <Badge variant="secondary" className="no-default-hover-elevate mr-1.5 font-normal" data-testid="badge-children-promise">
+            {CHILD_PROMISE_LABEL[c.promised]}
+          </Badge>
+          {c.headline}
+        </p>
+        {counted > 0 && (
+          <p className="mt-2 text-sm leading-relaxed" data-testid="text-children-count">
+            Count from the 5th: {counted} planet{counted === 1 ? "" : "s"} → {c.sons} son{c.sons === 1 ? "" : "s"}, {c.daughters} daughter{c.daughters === 1 ? "" : "s"}
+            {c.undecided.filter((p) => p === "Rahu" || p === "Ketu").length ? `, ${c.undecided.filter((p) => p === "Rahu" || p === "Ketu").join(" and ")} left open` : ""}
+            {c.undecided.filter((p) => p === "Mercury" || p === "Saturn").length ? ` (${c.undecided.filter((p) => p === "Mercury" || p === "Saturn").join(", ")} by sign parity)` : ""}. Read as an upper bound, not a promise.
+          </p>
+        )}
+        {c.notes.length > 0 && (
+          <ul className="mt-2 space-y-1 text-sm leading-relaxed text-muted-foreground">
+            {c.notes.map((n) => (
+              <li key={n}>{n}</li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-3 text-xs text-muted-foreground" data-testid="text-children-window">
+          Triggers: Jupiter's return over {c.karakaSign}, or his passage over {c.fifthSign} and its trine {c.triggerSigns.filter((x) => x !== c.karakaSign && x !== c.fifthSign).join(", ")}.
+          {win
+            ? ` Next (from age 18): Jupiter ${win.kind === "return" ? "returns to" : win.kind === "fifth" ? "over the 5th," : "in trine,"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.`
+            : ""}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
 function ScoreDots({ score }: { score: number }) {
   const n = Math.max(1, Math.min(3, Math.round(score)));
   return (
@@ -188,6 +246,9 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
         <KarakaCard title="Karma karaka · the profession" planet="Saturn" data={reading.karma} positions={positions} tone="karma" />
         <div className="lg:col-span-2">
           <MarriageCard m={reading.marriage} positions={positions} transits={result.transits} asOf={result.now.asOf} />
+        </div>
+        <div className="lg:col-span-2">
+          <ChildrenCard c={reading.children} positions={positions} transits={result.transits} asOf={result.now.asOf} birthIso={result.utc} />
         </div>
       </div>
 
