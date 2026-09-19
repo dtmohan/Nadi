@@ -26,6 +26,15 @@ export default function AboutPage() {
           <li>7th: opposition, a face-to-face influence at about half strength.</li>
           <li>Retrograde: a retrograde classical planet also delivers results from the previous sign, so it is evaluated from both.</li>
         </ul>
+        <h2>Direction matters</h2>
+        <p>
+          Two planets in one sign are not read symmetrically. Rao's first rule is that "degree-wise a planet ahead will give its karakatwa to the planet behind", and the bond is tightest when
+          the two share a pada (3°20'), then a nakshatra, then merely the sign. So Saturn ahead of Mercury colours learning and commerce with work and duty, while Mercury ahead of Saturn makes
+          the profession itself Mercurial. The reading shows this hand-off under each same-sign finding and lists the full degree order for every occupied sign. Across signs the direction is
+          by sign order: the planet in the 2nd "indicates the next step in action" and the one in the 12th "the background under which the matter is progressed" (Naik), which is why the
+          rule book has separate entries for a karaka with a planet ahead and behind it. Some modern teachers reverse the degree rule and treat the lower-degree planet as the giver, on the
+          logic that it is moving toward the other; the app follows Rao and Naik.
+        </p>
         <h2>Strength, the Nadi way</h2>
         <p>
           BNN keeps the classical words exalted, debilitated, friend and enemy, but not the Parashari mechanics. Dignity is conditional and degree order matters. The app applies these rules and

@@ -16,6 +16,7 @@ import {
 } from "./astro";
 import { EXTRA_RULES } from "./rules-bnn";
 import { assessStrength, type PlanetStrength } from "./strength";
+import { degreeChains, flowBetween, type DegreeChain, type Flow } from "./flow";
 
 export type LifeArea =
   | "self"
@@ -78,6 +79,8 @@ export interface Finding {
   viaRetro: boolean;
   /** Nadi strength modifier applied to the score, e.g. combustion of the subject. */
   modifier?: string;
+  /** Degree order when the pair shares a sign: the planet ahead hands its matters to the one behind. */
+  flow?: Flow;
   source?: string;
 }
 
@@ -94,6 +97,8 @@ export interface Reading {
   findings: Finding[];
   relations: PairRelation[];
   strength: PlanetStrength[];
+  /** Planets sharing a sign, in degree order, with hand-offs. */
+  chains: DegreeChain[];
   jeeva: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
   karma: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
 }
@@ -466,6 +471,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES): Re
       const strength = w.exchange ? Math.max(0.9, RELATION_STRENGTH[relation]) : RELATION_STRENGTH[relation];
       const viaRetro = (rel?.viaRetro ?? false) || extraRetro;
       const score = rule.weight * strength * Math.max(extraStrength, 0.6) * (viaRetro ? 0.85 : 1);
+      const flow = relation === "conjunct" && !viaRetro ? flowBetween(s, o) ?? undefined : undefined;
       push({
         ruleId: rule.id,
         area: rule.area,
@@ -475,6 +481,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES): Re
         relation: w.exchange && relation === "none" ? null : relation,
         viaRetro,
         source: rule.source,
+        flow,
       });
     } else if (extra.length) {
       const score = rule.weight * Math.max(extraStrength, 0.6) * (extraRetro ? 0.85 : 1);
@@ -522,6 +529,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES): Re
     findings,
     relations,
     strength,
+    chains: degreeChains(positions),
     jeeva: summarise(byPlanet.Jupiter, "Jeeva karaka"),
     karma: summarise(byPlanet.Saturn, "Karma karaka"),
   };

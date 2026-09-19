@@ -8,6 +8,7 @@ import { PLANETS, PLANET_ABBR, SIGNS, SIGN_ABBR, SOUTH_INDIAN_CELLS, fmtDeg, fmt
 import { LIFE_AREAS, RELATION_LABEL, type LifeArea } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
 import { readTransits, type TransitReading } from "@shared/timing";
+import { chainSummary } from "@shared/flow";
 
 const INK = "#2b241e";
 const MUTED = "#7a6f66";
@@ -172,7 +173,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
 
   // ── Strength notes ──
   const strengthRows = reading.strength.filter((st) => st.notes.length);
-  if (strengthRows.length) {
+  if (strengthRows.length || reading.chains.length) {
     sectionTitle(doc, "Planetary strength", "Rao's basic rules · Naik");
     for (const st of strengthRows) {
       doc.font("Helvetica").fontSize(8.5);
@@ -183,6 +184,19 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
       doc.font("Helvetica-Bold").fontSize(8.5).fillColor(planetColor(st.planet)).text(st.planet, PAGE.m, y, { lineBreak: false });
       doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(text, PAGE.m + 60, y, { width: CONTENT_W - 60 });
       doc.y = y + h;
+    }
+    if (reading.chains.length) {
+      doc.moveDown(0.4);
+      doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text("Degree order within a sign", PAGE.m, doc.y, { width: CONTENT_W });
+      doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text("The planet ahead by degree hands its matters to the one behind (Rao, rule 1); a shared pada is the tightest bond.", PAGE.m, doc.y + 1, { width: CONTENT_W });
+      for (const c of reading.chains) {
+        const text = chainSummary(c);
+        doc.font("Helvetica").fontSize(8.5);
+        const h = doc.heightOfString(text, { width: CONTENT_W }) + 4;
+        ensureSpace(doc, h);
+        doc.fillColor(INK).text(text, PAGE.m, doc.y + 2, { width: CONTENT_W });
+      }
+      doc.moveDown(0.3);
     }
   }
 
@@ -204,7 +218,8 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
       const y = doc.y;
       scoreDots(doc, PAGE.m + 3, y + 5, f.score);
       doc.fillColor(INK).text(f.text, textX, y, { width: textW });
-      const meta = [f.planets.join(" · "), f.relation ? RELATION_LABEL[f.relation] : null, f.viaRetro ? "via retrogression" : null, f.modifier ?? null, f.source ?? null].filter(Boolean).join(" — ");
+      const flow = f.flow ? `${f.flow.from} ahead > ${f.flow.to}${f.flow.tier === "pada" ? " (same pada)" : f.flow.tier === "nakshatra" ? " (same nakshatra)" : ""}` : null;
+      const meta = [f.planets.join(" · "), f.relation ? RELATION_LABEL[f.relation] : null, flow, f.viaRetro ? "via retrogression" : null, f.modifier ?? null, f.source ?? null].filter(Boolean).join(" — ");
       doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(meta, textX, doc.y, { width: textW });
       doc.y += 6;
     }

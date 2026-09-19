@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { ArrowLeft, Eye, EyeOff, FileDown } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
-import { PLANETS, PLANET_ABBR, SIGNS, fmtDeg, houseFrom, type Planet, type PlanetPosition, KARAKA } from "@shared/astro";
+import { PLANETS, PLANET_ABBR, SIGNS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition, KARAKA } from "@shared/astro";
+import { GIVES, RECEIVES, flowGloss, type DegreeChain } from "@shared/flow";
 import { LIFE_AREAS, RELATION_LABEL, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
 import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
@@ -135,7 +136,7 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
         <KarakaCard title="Karma karaka · the profession" planet="Saturn" data={reading.karma} positions={positions} />
       </div>
 
-      <StrengthNotes strength={reading.strength} selected={selected} />
+      <StrengthNotes strength={reading.strength} chains={reading.chains} selected={selected} />
 
       {selected && (
         <p className="text-sm text-muted-foreground">
@@ -169,6 +170,12 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
                       {f.modifier && ` · ${f.modifier}`}
                       {f.source && ` · ${f.source}`}
                     </p>
+                    {f.flow && (
+                      <p className="mt-0.5 text-xs text-muted-foreground" title={flowGloss(f.flow)}>
+                        <span className="font-medium text-foreground/80">{f.flow.from} ahead</span> → {f.flow.to}
+                        {f.flow.tier === "pada" ? " · same pada" : f.flow.tier === "nakshatra" ? " · same nakshatra" : ""}: {GIVES[f.flow.from]} colour {RECEIVES[f.flow.to]}.
+                      </p>
+                    )}
                   </div>
                 </li>
               ))}
@@ -180,9 +187,10 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
   );
 }
 
-function StrengthNotes({ strength, selected }: { strength: PlanetStrength[]; selected: Planet | null }) {
+function StrengthNotes({ strength, chains, selected }: { strength: PlanetStrength[]; chains: DegreeChain[]; selected: Planet | null }) {
   const rows = strength.filter((s) => s.notes.length && (!selected || s.planet === selected));
-  if (!rows.length) return null;
+  const shownChains = chains.filter((c) => !selected || c.order.some((p) => p.planet === selected));
+  if (!rows.length && !shownChains.length) return null;
   return (
     <section aria-labelledby="strength-heading" data-testid="section-strength">
       <div className="flex items-baseline justify-between border-b pb-2">
@@ -205,6 +213,38 @@ function StrengthNotes({ strength, selected }: { strength: PlanetStrength[]; sel
           </li>
         ))}
       </ul>
+      {shownChains.length > 0 && (
+        <div className="mt-4" data-testid="section-chains">
+          <h4 className="text-sm font-medium">Degree order within a sign</h4>
+          <p className="mt-0.5 text-xs text-muted-foreground">The planet ahead by degree hands its matters to the one behind (Rao, rule 1). Bonds within one pada are the tightest.</p>
+          <ul className="mt-2 space-y-2 text-sm">
+            {shownChains.map((c) => (
+              <li key={c.signIndex} className="grid grid-cols-[4.5rem_1fr] gap-x-2" data-testid={`chain-${c.sign}`}>
+                <span className="font-medium">{c.sign}</span>
+                <span>
+                  <span className="tabular">
+                    {c.order.map((p, i) => (
+                      <span key={p.planet}>
+                        {i > 0 && <span className="text-muted-foreground"> › </span>}
+                        <span className={cn("font-medium", p.planet === "Jupiter" && "text-primary", p.planet === "Saturn" && "text-[hsl(var(--chart-2))]")}>{p.planet}</span>
+                        <span className="text-muted-foreground"> {fmtDegShort(p.degInSign)}</span>
+                      </span>
+                    ))}
+                  </span>
+                  <span className="block text-xs leading-relaxed text-muted-foreground">
+                    {c.links.map((l) => (
+                      <span key={`${l.from}-${l.to}`} className="block">
+                        {l.from} → {l.to}
+                        {l.tier === "pada" ? " (same pada)" : l.tier === "nakshatra" ? " (same nakshatra)" : ""}: {GIVES[l.from]} colour {RECEIVES[l.to]}.
+                      </span>
+                    ))}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }
