@@ -5,7 +5,7 @@ import PDFDocument from "pdfkit";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, SIGN_ABBR, SOUTH_INDIAN_CELLS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition } from "@shared/astro";
-import { LIFE_AREAS, RELATION_LABEL, type LifeArea } from "@shared/rules";
+import { LIFE_AREAS, RELATION_LABEL, type LifeArea, areaKaraka } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
 import { readTransits, type TransitReading } from "@shared/timing";
 import { chainSummary } from "@shared/flow";
@@ -20,8 +20,9 @@ const PAPER = "#f4f0e6";
 
 const CLASSICAL = new Set<Planet>(["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]);
 
+let JEEVA: Planet = "Jupiter";
 function planetColor(p: Planet): string {
-  if (p === "Jupiter") return VERMILION;
+  if (p === JEEVA) return VERMILION;
   if (p === "Saturn") return INDIGO;
   return INK;
 }
@@ -138,6 +139,7 @@ function scoreDots(doc: Doc, x: number, y: number, score: number) {
 export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   const doc = new PDFDocument({ size: "A4", margins: { top: PAGE.m, bottom: 20, left: PAGE.m, right: PAGE.m }, bufferPages: true, info: { Title: `${result.chart.name} — Nadi reading`, Author: "Nadi" } });
   const { chart, positions, reading, transits, now } = result;
+  JEEVA = reading.roles.native;
   const birthLocal = DateTime.fromISO(result.utc).setZone(chart.timezone);
   const birthStr = birthLocal.toFormat("d LLLL yyyy, HH:mm");
 
@@ -157,13 +159,13 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   const tableX = PAGE.m + chartSize + 18;
   const tableEnd = planetTable(doc, tableX, chartY + 2, PAGE.w - PAGE.m - tableX, positions, reading.strength);
   doc.font("Helvetica").fontSize(6.5).fillColor(MUTED);
-  doc.text(`Ju Jeeva · Sa Karma · R retrograde · c combust (Sun's pada) · w leads an enemy by degree · struck dignity set aside by a Nadi rule · tJu tSa transits as of ${DateTime.fromISO(now.asOf).toFormat("d LLL yyyy")}`, PAGE.m, chartY + chartSize + 6, { width: chartSize });
+  doc.text(`${PLANET_ABBR[reading.roles.native]} Jeeva${reading.roles.gender === "female" ? " (female chart)" : ""} · Sa Karma · R retrograde · c combust (Sun's pada) · w leads an enemy by degree · struck dignity set aside by a Nadi rule · tJu tSa transits as of ${DateTime.fromISO(now.asOf).toFormat("d LLL yyyy")}`, PAGE.m, chartY + chartSize + 6, { width: chartSize });
   doc.y = Math.max(chartY + chartSize + 36, tableEnd + 6);
 
   // ── Karakas ──
   sectionTitle(doc, "Jeeva and Karma");
   for (const [label, data, planet] of [
-    ["Jupiter · Jeeva karaka · the native", reading.jeeva, "Jupiter"],
+    [`${reading.roles.native} · Jeeva karaka · the native${reading.roles.gender === "female" ? " (female chart: Venus is the Jeeva, Mars the husband)" : ""}`, reading.jeeva, reading.roles.native],
     ["Saturn · Karma karaka · the profession", reading.karma, "Saturn"],
   ] as const) {
     ensureSpace(doc, 40);
@@ -227,7 +229,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
     if (!items.length) continue;
     ensureSpace(doc, 50);
     doc.font("Helvetica-Bold").fontSize(10.5).fillColor(INK).text(LIFE_AREAS[area].label, PAGE.m, doc.y);
-    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`karaka ${LIFE_AREAS[area].karaka}`, PAGE.m, doc.y - 11, { width: CONTENT_W, align: "right" });
+    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`karaka ${areaKaraka(area, reading.roles.gender)}`, PAGE.m, doc.y - 11, { width: CONTENT_W, align: "right" });
     doc.y += 4;
     for (const f of items) {
       const textX = PAGE.m + 24;
@@ -278,7 +280,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   // ── Timing ──
   const birth = DateTime.fromISO(result.utc);
   const nowDt = DateTime.fromISO(now.asOf);
-  const timing = readTransits(transits, positions, reading.findings, result.utc);
+  const timing = readTransits(transits, positions, reading.findings, result.utc, reading.roles);
 
   // Current passages first.
   const currentReadings = (["Jupiter", "Saturn"] as const)

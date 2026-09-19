@@ -30,16 +30,18 @@ export default function RulesPage() {
   const [area, setArea] = useState<LifeArea | "all">("all");
   const [planet, setPlanet] = useState<Planet | "all">("all");
   const [q, setQ] = useState("");
+  const [frame, setFrame] = useState<"all" | "male" | "female" | "common">("all");
 
   const filtered = useMemo(
     () =>
       (rules ?? []).filter(
         (r) =>
           (area === "all" || r.area === area) &&
+          (frame === "all" || (frame === "common" ? !r.frame : r.frame === frame)) &&
           (planet === "all" || r.when.subject === planet || r.when.object === planet || (r.when.with ?? []).some((c) => c.planet === planet)) &&
           (!q || r.text.toLowerCase().includes(q.toLowerCase()) || r.id.includes(q.toLowerCase())),
       ),
-    [rules, area, planet, q],
+    [rules, area, planet, q, frame],
   );
 
   return (
@@ -47,11 +49,18 @@ export default function RulesPage() {
       <h1 className="font-display text-xl font-bold tracking-tight">Rule book</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
         Every reading is produced by these declarative rules. A rule names a subject planet, an optional object planet with the sign relations that count, and conditions on retrogression,
-        dignity, sign lord or element. Add rules in <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules.ts</code> and they apply to every chart.
+        dignity, sign lord or element. Rules marked male or female belong to one frame: in a male chart Jupiter is the native and Venus the wife; in a female chart Venus is the native and Mars the husband. Add rules in <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules.ts</code> and they apply to every chart.
       </p>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
         <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search rule text" className="w-56" data-testid="input-rule-search" />
+        <div className="flex flex-wrap gap-1" role="group" aria-label="Chart frame">
+          {(["all", "common", "male", "female"] as const).map((fr) => (
+            <Button key={fr} size="sm" variant={frame === fr ? "secondary" : "ghost"} onClick={() => setFrame(fr)} data-testid={`filter-frame-${fr}`}>
+              {fr === "all" ? "All frames" : fr === "common" ? "Both charts" : fr === "male" ? "Male chart" : "Female chart"}
+            </Button>
+          ))}
+        </div>
         <div className="flex flex-wrap gap-1">
           <Button size="sm" variant={area === "all" ? "secondary" : "ghost"} onClick={() => setArea("all")} data-testid="filter-area-all">
             All areas
@@ -85,6 +94,7 @@ export default function RulesPage() {
               <div className="text-sm font-medium">{LIFE_AREAS[r.area].label}</div>
               <div className="mt-0.5 text-xs text-muted-foreground">
                 <span className="tabular">weight {r.weight}</span> · <span className="font-mono">{r.id}</span>
+                {r.frame && <span className="ml-1 rounded bg-muted px-1 py-0.5">{r.frame} chart</span>}
               </div>
             </div>
             <div>

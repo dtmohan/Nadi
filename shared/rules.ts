@@ -15,6 +15,7 @@ import {
   SIGNS,
 } from "./astro";
 import { EXTRA_RULES } from "./rules-bnn";
+import { FEMALE_RULES, MALE_FRAME_IDS } from "./rules-female";
 import { assessStrength, type PlanetStrength } from "./strength";
 import { degreeChains, flowBetween, type DegreeChain, type Flow } from "./flow";
 import { assessMarriage, type Gender, type MarriageReading } from "./marriage";
@@ -68,6 +69,31 @@ export interface Rule {
   text: string;
   weight: 1 | 2 | 3;
   source?: string;
+  /** Which chart the rule is written for. Undefined: both. "male": Jupiter is the native and Venus the wife. "female": Venus is the native and Mars the husband. */
+  frame?: "male" | "female";
+}
+
+/** Who plays which part in a chart (Rao). */
+export interface Roles {
+  gender: Gender;
+  /** The Jeeva karaka: Jupiter in a male chart, Venus in a female chart. */
+  native: Planet;
+  /** The spouse karaka: Venus (wife) in a male chart, Mars (husband) in a female chart. */
+  spouse: Planet;
+  karma: Planet;
+}
+
+export function rolesFor(gender: Gender): Roles {
+  const female = gender === "female";
+  return { gender, native: female ? "Venus" : "Jupiter", spouse: female ? "Mars" : "Venus", karma: "Saturn" };
+}
+
+/** Area karakas, gender-aware: "self" follows the Jeeva, "marriage" the spouse karaka. */
+export function areaKaraka(area: LifeArea, gender: Gender): Planet {
+  const roles = rolesFor(gender);
+  if (area === "self") return roles.native;
+  if (area === "marriage") return roles.spouse;
+  return LIFE_AREAS[area].karaka;
 }
 
 export interface Finding {
@@ -102,6 +128,7 @@ export interface Reading {
   chains: DegreeChain[];
   /** Marriage read between karakas, gender-aware (no house lords). */
   marriage: MarriageReading;
+  roles: Roles;
   jeeva: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
   karma: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
 }
@@ -361,6 +388,9 @@ for (const [subject, area, prefix] of [
 }
 
 RULES.push(...EXTRA_RULES);
+// Male-framed rules are replaced by FEMALE_RULES in a female chart.
+for (const r of RULES) if (MALE_FRAME_IDS.some((re) => re.test(r.id))) r.frame = "male";
+RULES.push(...FEMALE_RULES);
 
 // Guard against duplicate ids while authoring rules.
 {
@@ -426,7 +456,10 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
     }
     findings.push(f);
   };
+  const roles = rolesFor(gender);
+  const frame = roles.gender === "female" ? "female" : "male";
   for (const rule of rules) {
+    if (rule.frame && rule.frame !== frame) continue;
     const s = byPlanet[rule.when.subject];
     if (!s) continue;
     const st = strengthOf[s.planet];
@@ -534,7 +567,8 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
     strength,
     chains: degreeChains(positions),
     marriage: assessMarriage(positions, gender),
-    jeeva: summarise(byPlanet.Jupiter, "Jeeva karaka"),
+    roles,
+    jeeva: summarise(byPlanet[roles.native], "Jeeva karaka"),
     karma: summarise(byPlanet.Saturn, "Karma karaka"),
   };
 }

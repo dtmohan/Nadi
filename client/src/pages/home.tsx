@@ -144,7 +144,7 @@ export default function Home() {
                 <Input id="name" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Who is this chart for?" data-testid="input-name" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="gender">Gender</Label>
+                <Label htmlFor="gender" title="Female charts are read with Venus as the native and Mars as the husband (Rao). Unspecified reads as male.">Gender</Label>
                 <Select value={form.gender} onValueChange={(v) => set("gender", v)}>
                   <SelectTrigger id="gender" data-testid="select-gender">
                     <SelectValue />

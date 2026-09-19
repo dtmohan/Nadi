@@ -3,8 +3,8 @@ import { SOUTH_INDIAN_CELLS, SIGN_ABBR, SIGNS, PLANET_ABBR, type PlanetPosition,
 const CELL = 100;
 const PAD = 2;
 
-export function planetClass(p: Planet) {
-  if (p === "Jupiter") return "fill-primary font-semibold";
+export function planetClass(p: Planet, jeeva: Planet = "Jupiter") {
+  if (p === jeeva) return "fill-primary font-semibold";
   if (p === "Saturn") return "fill-[hsl(var(--chart-2))] font-semibold";
   return "fill-foreground";
 }
@@ -16,7 +16,9 @@ export function SouthIndianChart({
   subtitle,
   highlightSign,
   onSignClick,
+  jeeva = "Jupiter",
 }: {
+  jeeva?: Planet;
   positions: PlanetPosition[];
   transit?: PlanetPosition[];
   title?: string;
@@ -56,7 +58,7 @@ export function SouthIndianChart({
               const px = x + 8 + c * 46;
               const py = y + 34 + r * 20;
               return (
-                <text key={p.planet} x={px} y={py} fontSize={14} className={planetClass(p.planet)}>
+                <text key={p.planet} x={px} y={py} fontSize={14} className={planetClass(p.planet, jeeva)}>
                   {PLANET_ABBR[p.planet]}
                   {p.retrograde && p.planet !== "Rahu" && p.planet !== "Ketu" ? "\u211e" : ""}
                   <tspan fontSize={10} className="fill-muted-foreground tabular" dx={2}>

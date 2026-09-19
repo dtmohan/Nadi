@@ -26,6 +26,28 @@ export default function AboutPage() {
           <li>7th: opposition, a face-to-face influence at about half strength.</li>
           <li>Retrograde: a retrograde classical planet also delivers results from the previous sign, so it is evaluated from both.</li>
         </ul>
+        <h2>Female charts</h2>
+        <p>
+          Rao reads a woman's chart from a different seat. Venus, not Jupiter, is her Jeeva, the planet that stands for the native herself; Mars is the husband, and "the husband, his nature and
+          profession" are read from the planets with Mars and in the 2nd, 5th, 7th and 9th from him. Saturn stays the Karma karaka, Jupiter keeps his own matters (children, wisdom, wealth,
+          dharma) and, for many teachers, also speaks for the husband's character, so Jupiter with Venus or Mars is read as a blessing on the marriage. When a chart is saved as female the app
+          switches frame: the Jeeva card, the chart legend, the "self" and "marriage" rule sets, the marriage promise (Mars counted from Venus), the degree order and the timing progression all
+          follow Venus and Mars. The male-framed rules (Jupiter as the native, Venus as the wife) are set aside and replaced by Rao's female rules, for example Mars with the Sun for a proud,
+          short-tempered husband from a well-to-do family, Mars with Saturn for a marriage in Saturn's second round, or Mars, Saturn and Venus for a husband in banking or a luxury trade. Jupiter
+          remains the universal timer: his passages over Venus or Mars, or their trines, bring the marriage. The Rule book lets you filter rules by frame. Sources:{" "}
+          <a href="https://astrofoxx.wordpress.com/wp-content/uploads/2018/11/jyotish_fundamentals-of-raos-system-of-nadi-1.pdf" target="_blank" rel="noreferrer">
+            Fundamentals of Rao's System of Nadi Astrology
+          </a>
+          ,{" "}
+          <a href="https://saptarishisastrology.com/nadi-principles-for-marriage-and-married-life-by-bhausaheb-sakurkar/" target="_blank" rel="noreferrer">
+            Sakurkar on female horoscopy
+          </a>{" "}
+          and{" "}
+          <a href="https://nikhilastroworld.com/2016/12/17/nadi-astrology-and-married-life/" target="_blank" rel="noreferrer">
+            Nikhil Astro World on Nadi and married life
+          </a>
+          .
+        </p>
         <h2>Marriage without house lords</h2>
         <p>
           Nadi never asks who rules the 7th. Marriage is read between karakas: in a male chart Jupiter is the native and Venus the wife; in a female chart Venus is the native and Mars the

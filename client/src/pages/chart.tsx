@@ -7,7 +7,7 @@ import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition, KARAKA } from "@shared/astro";
 import { GIVES, RECEIVES, flowGloss, type DegreeChain } from "@shared/flow";
 import { nextMarriageWindow, type MarriageReading } from "@shared/marriage";
-import { LIFE_AREAS, RELATION_LABEL, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
+import { LIFE_AREAS, RELATION_LABEL, areaKaraka, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
 import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
 import { Timeline } from "@/components/timeline";
@@ -82,14 +82,14 @@ function PlanetTable({ positions, strength, selected, onSelect }: { positions: P
   );
 }
 
-function KarakaCard({ title, planet, data, positions }: { title: string; planet: Planet; data: ChartResult["reading"]["jeeva"]; positions: PlanetPosition[] }) {
+function KarakaCard({ title, planet, data, positions, tone }: { title: string; planet: Planet; data: ChartResult["reading"]["jeeva"]; positions: PlanetPosition[]; tone: "jeeva" | "karma" }) {
   const p = positions.find((x) => x.planet === planet)!;
   return (
-    <Card>
+    <Card data-testid={`card-${tone}`}>
       <CardContent className="p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3">
           <h3 className="text-base font-semibold">
-            <span className={planet === "Jupiter" ? "text-primary" : "text-[hsl(var(--chart-2))]"}>{planet}</span> · {title}
+            <span className={tone === "jeeva" ? "text-primary" : "text-[hsl(var(--chart-2))]"}>{planet}</span> · {title}
           </h3>
           <span className="tabular text-xs text-muted-foreground">
             {p.sign} {fmtDeg(p.lon)}
@@ -97,7 +97,7 @@ function KarakaCard({ title, planet, data, positions }: { title: string; planet:
         </div>
         <p className="mt-2 text-sm leading-relaxed">{data.summary}</p>
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {KARAKA[planet].significations.map((s) => (
+          {(tone === "jeeva" && planet === "Venus" ? ["the native", "charm", "comforts", "arts", "finance"] : KARAKA[planet].significations).map((s) => (
             <Badge key={s} variant="secondary" className="no-default-hover-elevate font-normal">
               {s}
             </Badge>
@@ -184,8 +184,8 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
   return (
     <div className="space-y-8">
       <div className="grid gap-4 lg:grid-cols-2">
-        <KarakaCard title="Jeeva karaka · the native" planet="Jupiter" data={reading.jeeva} positions={positions} />
-        <KarakaCard title="Karma karaka · the profession" planet="Saturn" data={reading.karma} positions={positions} />
+        <KarakaCard title={reading.roles.gender === "female" ? "Jeeva karaka · the native (female chart)" : "Jeeva karaka · the native"} planet={reading.roles.native} data={reading.jeeva} positions={positions} tone="jeeva" />
+        <KarakaCard title="Karma karaka · the profession" planet="Saturn" data={reading.karma} positions={positions} tone="karma" />
         <div className="lg:col-span-2">
           <MarriageCard m={reading.marriage} positions={positions} transits={result.transits} asOf={result.now.asOf} />
         </div>
@@ -208,7 +208,7 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
               <h3 id={`area-${area}`} className="text-base font-semibold">
                 {LIFE_AREAS[area].label}
               </h3>
-              <span className="text-xs text-muted-foreground">karaka {LIFE_AREAS[area].karaka}</span>
+              <span className="text-xs text-muted-foreground">karaka {areaKaraka(area, reading.roles.gender)}</span>
             </div>
             <ul className="mt-3 space-y-3">
               {items.map((f) => (
@@ -454,6 +454,7 @@ export default function ChartPage() {
             title={chart.name}
             subtitle={birthLocal.toFormat("d LLL yyyy · HH:mm")}
             highlightSign={selectedSign}
+            jeeva={data.reading.roles.native}
             onSignClick={(s) => {
               const p = positions.find((x) => x.signIndex === s);
               setSelected(p ? (selected === p.planet ? null : p.planet) : null);
@@ -461,7 +462,7 @@ export default function ChartPage() {
           />
           <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              <span className="font-semibold text-primary">Ju</span> Jeeva · <span className="font-semibold text-[hsl(var(--chart-2))]">Sa</span> Karma · ℞ retrograde · <span className="italic">tJu tSa</span> transits today
+              <span className="font-semibold text-primary">{PLANET_ABBR[data.reading.roles.native]}</span> Jeeva{data.reading.roles.gender === "female" ? " (female chart)" : ""} · <span className="font-semibold text-[hsl(var(--chart-2))]">Sa</span> Karma · ℞ retrograde · <span className="italic">tJu tSa</span> transits today
             </span>
             <Button variant="ghost" size="sm" onClick={() => setShowTransit((v) => !v)} data-testid="button-toggle-transit">
               {showTransit ? <EyeOff /> : <Eye />}
@@ -491,7 +492,7 @@ export default function ChartPage() {
           <Reading result={data} selected={selected} />
         </TabsContent>
         <TabsContent value="timeline" className="mt-6">
-          <Timeline transits={data.transits} positions={positions} findings={data.reading.findings} birthIso={data.utc} selected={selected} />
+          <Timeline transits={data.transits} positions={positions} findings={data.reading.findings} birthIso={data.utc} selected={selected} roles={data.reading.roles} />
         </TabsContent>
         <TabsContent value="relations" className="mt-6">
           <Relations relations={data.reading.relations} positions={positions} />

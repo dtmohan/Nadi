@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import { PLANET_ABBR, type PlanetPosition, type TransitPeriod, type Planet } from "@shared/astro";
-import { LIFE_AREAS, type Finding } from "@shared/rules";
+import { LIFE_AREAS, type Finding, type Roles } from "@shared/rules";
 import { readTransits, type TransitReading } from "@shared/timing";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -63,19 +63,21 @@ export function Timeline({
   findings,
   birthIso,
   selected,
+  roles,
 }: {
   transits: TransitPeriod[];
   positions: PlanetPosition[];
   findings: Finding[];
   birthIso: string;
   selected: Planet | null;
+  roles?: Roles;
 }) {
   const [track, setTrack] = useState<"Jupiter" | "Saturn">("Jupiter");
   const [onlyTouches, setOnlyTouches] = useState(false);
   const now = DateTime.utc();
   const birth = DateTime.fromISO(birthIso);
 
-  const readings = useMemo(() => readTransits(transits, positions, findings, birthIso), [transits, positions, findings, birthIso]);
+  const readings = useMemo(() => readTransits(transits, positions, findings, birthIso, roles), [transits, positions, findings, birthIso, roles]);
 
   const current = useMemo(() => {
     const cur = (planet: "Jupiter" | "Saturn") =>
@@ -133,7 +135,7 @@ export function Timeline({
 
       <p className="mt-3 text-sm text-muted-foreground">
         {track === "Jupiter"
-          ? "Transiting Jupiter, the Jeeva, wakes whichever natal planet it passes over, together with everything that planet is combined with. Signs of the same direction count too: a passage in trine to a natal planet is a real trigger at about three-quarter strength, the 7th at half. Each row is one sign passage, so retrograde re-entries appear as short repeats."
+          ? `Transiting Jupiter${roles?.gender === "female" ? ", the universal timer (Venus is this native's Jeeva)," : ", the Jeeva,"} wakes whichever natal planet it passes over, together with everything that planet is combined with. Signs of the same direction count too: a passage in trine to a natal planet is a real trigger at about three-quarter strength, the 7th at half. Each row is one sign passage, so retrograde re-entries appear as short repeats.`
           : "Transiting Saturn, the Karma, brings duty, pressure and consolidation to whatever natal planet it passes over, and to the combinations that planet belongs to."}
         {selected && <span> Showing passages that touch {selected}.</span>}
         {next && (

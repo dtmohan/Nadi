@@ -1,5 +1,5 @@
 import { houseFrom, type Planet, type PlanetPosition, type TransitPeriod } from "./astro";
-import { TRANSIT_ACTIVATION, type Finding, type LifeArea } from "./rules";
+import { TRANSIT_ACTIVATION, type Finding, type LifeArea, type Roles } from "./rules";
 
 /**
  * Personalised Nadi timing.
@@ -124,11 +124,14 @@ export function readTransit(
   findings: Finding[],
   allTransits: TransitPeriod[],
   birthIso: string,
+  roles?: Roles,
 ): TransitReading {
+  const jeevaPlanet: Planet = roles?.native ?? "Jupiter";
+  const female = roles?.gender === "female";
   const conjunct = positions.filter((p) => p.signIndex === t.signIndex).map((p) => p.planet);
   const trine = positions.filter((p) => [5, 9].includes(houseFrom(t.signIndex, p.signIndex))).map((p) => p.planet);
   const opposite = positions.filter((p) => houseFrom(t.signIndex, p.signIndex) === 7).map((p) => p.planet);
-  const natalJu = positions.find((p) => p.planet === "Jupiter")!;
+  const natalJu = positions.find((p) => p.planet === jeevaPlanet)!;
   const natalSa = positions.find((p) => p.planet === "Saturn")!;
   const fromJeeva = houseFrom(natalJu.signIndex, t.signIndex);
   const fromKarma = houseFrom(natalSa.signIndex, t.signIndex);
@@ -152,8 +155,17 @@ export function readTransit(
   if (t.planet === "Saturn" && conjunct.includes("Saturn") && age > 1) {
     notes.push(`Saturn return around age ${Math.round(age)}: the profession and duties are restructured; what was built is tested.`);
   }
-  if (t.planet === "Saturn" && conjunct.includes("Jupiter")) {
+  if (t.planet === "Saturn" && conjunct.includes(jeevaPlanet)) {
     notes.push("Saturn over the Jeeva: responsibility, slower pace and care for health; maturity is forced rather than chosen.");
+  }
+  if (female && t.planet === "Jupiter" && conjunct.includes("Venus")) {
+    notes.push("Jupiter over the Jeeva (Venus): a fresh chapter for the native herself; marriage, children or a move are favoured.");
+  }
+  if (female && t.planet === "Jupiter" && conjunct.includes("Mars")) {
+    notes.push("Jupiter over the husband's karaka (Mars): marriage, or a turn in the husband's fortunes and position.");
+  }
+  if (female && t.planet === "Saturn" && conjunct.includes("Mars")) {
+    notes.push("Saturn over the husband's karaka (Mars): a delayed marriage may now be released; the husband's work grows heavier.");
   }
   if (t.planet === "Jupiter" && conjunct.includes("Saturn")) {
     notes.push("Jupiter over the Karma: the profession is blessed; promotion, a new role or a long-awaited outcome at work.");
@@ -211,7 +223,7 @@ export function readTransit(
   return { period: t, conjunct, trine, opposite, fromJeeva, fromKarma, headline, areas, activated, notes, weight };
 }
 
-export function readTransits(transits: TransitPeriod[], positions: PlanetPosition[], findings: Finding[], birthIso: string): TransitReading[] {
-  return transits.map((t) => readTransit(t, positions, findings, transits, birthIso));
+export function readTransits(transits: TransitPeriod[], positions: PlanetPosition[], findings: Finding[], birthIso: string, roles?: Roles): TransitReading[] {
+  return transits.map((t) => readTransit(t, positions, findings, transits, birthIso, roles));
 }
 
