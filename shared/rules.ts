@@ -15,6 +15,7 @@ import {
   SIGNS,
 } from "./astro";
 import { EXTRA_RULES } from "./rules-bnn";
+import { assessStrength, type PlanetStrength } from "./strength";
 
 export type LifeArea =
   | "self"
@@ -75,6 +76,8 @@ export interface Finding {
   planets: Planet[];
   relation: Relation | null;
   viaRetro: boolean;
+  /** Nadi strength modifier applied to the score, e.g. combustion of the subject. */
+  modifier?: string;
   source?: string;
 }
 
@@ -90,6 +93,7 @@ export interface PairRelation {
 export interface Reading {
   findings: Finding[];
   relations: PairRelation[];
+  strength: PlanetStrength[];
   jeeva: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
   karma: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
 }
@@ -399,14 +403,27 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES): Re
     }
   }
 
+  const strength = assessStrength(positions);
+  const strengthOf = Object.fromEntries(strength.map((x) => [x.planet, x])) as Record<Planet, PlanetStrength>;
+
   const findings: Finding[] = [];
+  const push = (f: Finding) => {
+    // A combust subject (not cancelled) delivers "in lesser degree" unless the rule is about the Sun pairing itself.
+    const st = strengthOf[f.planets[0]];
+    if (st?.effectiveCombust && !f.planets.includes("Sun")) {
+      f.score = Math.round(f.score * 0.7 * 100) / 100;
+      f.modifier = "combust: reduced";
+    }
+    findings.push(f);
+  };
   for (const rule of rules) {
     const s = byPlanet[rule.when.subject];
     if (!s) continue;
+    const st = strengthOf[s.planet];
     const w = rule.when;
     if (w.subjectRetro !== undefined && s.retrograde !== w.subjectRetro) continue;
-    if (w.subjectCombust !== undefined && s.combust !== w.subjectCombust) continue;
-    if (w.subjectDignity && !w.subjectDignity.includes(s.dignity)) continue;
+    if (w.subjectCombust !== undefined && st.effectiveCombust !== w.subjectCombust) continue;
+    if (w.subjectDignity && !w.subjectDignity.includes(st.effectiveDignity)) continue;
     if (w.subjectSign && !w.subjectSign.includes(s.signIndex)) continue;
     if (w.subjectSignLord && !w.subjectSignLord.includes(SIGN_LORD[s.signIndex])) continue;
     if (w.subjectNakshatraLord && !w.subjectNakshatraLord.includes(s.nakshatraLord)) continue;
@@ -447,7 +464,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES): Re
       const strength = w.exchange ? Math.max(0.9, RELATION_STRENGTH[relation]) : RELATION_STRENGTH[relation];
       const viaRetro = (rel?.viaRetro ?? false) || extraRetro;
       const score = rule.weight * strength * Math.max(extraStrength, 0.6) * (viaRetro ? 0.85 : 1);
-      findings.push({
+      push({
         ruleId: rule.id,
         area: rule.area,
         text: rule.text,
@@ -459,7 +476,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES): Re
       });
     } else if (extra.length) {
       const score = rule.weight * Math.max(extraStrength, 0.6) * (extraRetro ? 0.85 : 1);
-      findings.push({
+      push({
         ruleId: rule.id,
         area: rule.area,
         text: rule.text,
@@ -470,7 +487,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES): Re
         source: rule.source,
       });
     } else {
-      findings.push({
+      push({
         ruleId: rule.id,
         area: rule.area,
         text: rule.text,
@@ -486,17 +503,23 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES): Re
 
   const summarise = (p: PlanetPosition, role: string): Reading["jeeva"] => {
     const companions = positions.filter((q) => q.planet !== p.planet && q.signIndex === p.signIndex).map((q) => q.planet);
+    const st = strengthOf[p.planet];
     const parts: string[] = [];
-    parts.push(`${p.planet} (${role}) in ${SIGNS[p.signIndex]}${p.retrograde && CLASSICAL.includes(p.planet) ? ", retrograde" : ""}, ${p.dignity.toLowerCase()}.`);
+    parts.push(`${p.planet} (${role}) in ${SIGNS[p.signIndex]}${p.retrograde && CLASSICAL.includes(p.planet) ? ", retrograde" : ""}, ${p.dignity.toLowerCase()}${st.effectiveDignity !== p.dignity ? " by sign but set aside" : ""}.`);
+    if (st.dignityNote) parts.push(`${st.dignityNote}.`);
     if (companions.length) parts.push(`Conjunct ${companions.join(", ")}.`);
+    if (st.winningOver.length) parts.push(`Leads ${st.winningOver.join(", ")} by degree.`);
+    if (st.losingTo.length) parts.push(`Yields to ${st.losingTo.join(", ")} by degree.`);
+    if (p.combust) parts.push(`${st.combustNote ?? "Combust within the Sun's pada"}.`);
     if (p.retrograde && CLASSICAL.includes(p.planet)) parts.push(`Also reads from ${SIGNS[(p.signIndex + 11) % 12]}.`);
     parts.push(`Sign lord ${SIGN_LORD[p.signIndex]}; nakshatra ${p.nakshatra} (${p.nakshatraLord}).`);
-    return { sign: SIGNS[p.signIndex], retro: p.retrograde, dignity: p.dignity, companions, summary: parts.join(" ") };
+    return { sign: SIGNS[p.signIndex], retro: p.retrograde, dignity: st.effectiveDignity, companions, summary: parts.join(" ") };
   };
 
   return {
     findings,
     relations,
+    strength,
     jeeva: summarise(byPlanet.Jupiter, "Jeeva karaka"),
     karma: summarise(byPlanet.Saturn, "Karma karaka"),
   };

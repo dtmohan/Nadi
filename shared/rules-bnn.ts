@@ -133,9 +133,9 @@ export const EXTRA_RULES: Rule[] = [
 
   // ───────────── Retrogression and combustion ─────────────
   { id: "ma-retro", area: "wealth", when: { subject: "Mars", subjectRetro: true }, text: "Retrograde Mars: property is lost and regained, or disputes return; energy is spent in bursts.", weight: 1, source: NAIK },
-  { id: "me-combust", area: "education", when: { subject: "Mercury", subjectCombust: true }, text: "Mercury combust: the father's or an authority's voice overshadows the native's own; speech gains confidence with age.", weight: 1 },
-  { id: "ve-combust", area: "marriage", when: { subject: "Venus", subjectCombust: true }, text: "Venus combust: the spouse lives in the shadow of the native's father or of status concerns; romance is restrained.", weight: 1 },
-  { id: "ma-combust", area: "health", when: { subject: "Mars", subjectCombust: true }, text: "Mars combust: heat, haste and inflammation; rashness with authority figures.", weight: 1 },
+  { id: "me-combust", area: "education", when: { subject: "Mercury", subjectCombust: true }, text: "Mercury within the Sun's pada: learning and speech carry the father's or an institution's stamp; the native's own voice matures late, and results come in lesser degree.", weight: 1 },
+  { id: "ve-combust", area: "marriage", when: { subject: "Venus", subjectCombust: true }, text: "Venus within the Sun's pada: marriage and comforts are arranged around the father, status or authority; romance is restrained and arrives in lesser degree.", weight: 1 },
+  { id: "ma-combust", area: "health", when: { subject: "Mars", subjectCombust: true }, text: "Mars within the Sun's pada: courage is spent in the father's or an authority's cause; heat, haste and friction with superiors.", weight: 1 },
   { id: "sa-combust", area: "career", when: { subject: "Saturn", subjectCombust: true }, text: "Saturn combust: the profession is tied to the father or to government; hard work goes unrecognised early.", weight: 1 },
 
   // ───────────── Elements for Jeeva and Kalatra ─────────────

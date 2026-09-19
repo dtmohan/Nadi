@@ -26,6 +26,24 @@ export default function AboutPage() {
           <li>7th: opposition, a face-to-face influence.</li>
           <li>Retrograde: a retrograde classical planet also delivers results from the previous sign, so it is evaluated from both.</li>
         </ul>
+        <h2>Strength, the Nadi way</h2>
+        <p>
+          BNN keeps the classical words exalted, debilitated, friend and enemy, but not the Parashari mechanics. Dignity is conditional and degree order matters. The app applies these rules and
+          shows the result in the planet table and the Planetary strength notes; a dignity struck through has been set aside by one of them.
+        </p>
+        <ul>
+          <li>
+            An exalted planet with an enemy conjunct or in its 2nd or 12th gives no exalted benefit (Rao, rule 5); nor does one with nothing in its 2nd, 12th, 7th or trines to deliver it
+            (rule 8). An exchange of signs also replaces the exaltation with the exchange partner's story.
+          </li>
+          <li>A debilitated planet in exchange loses its debilitation (Naik); a friend conjunct, beside, opposite or in trine softens it.</li>
+          <li>Among enemies sharing a sign, the one further along by degree is the winning planet and dictates the outcome.</li>
+          <li>Friends on both sides (2nd and 12th) let a planet's significations flow; enemies on both sides obstruct them.</li>
+          <li>
+            Combustion is a planet within the Sun's pada, 3°20'. It is read as a Sun combination first: results still come, in lesser degree and coloured by the father, authority and status.
+            A friendly association or exchange cancels the reduction. The wide Parashari orbs are not used.
+          </li>
+        </ul>
         <h2>Timing by transit</h2>
         <p>
           Nadi timing follows Jupiter's passage through the signs, about one sign a year in a twelve-year cycle. When transiting Jupiter reaches a natal planet, that planet's significations

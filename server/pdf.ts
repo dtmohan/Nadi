@@ -6,6 +6,7 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, SIGN_ABBR, SOUTH_INDIAN_CELLS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition } from "@shared/astro";
 import { LIFE_AREAS, RELATION_LABEL, TRANSIT_ACTIVATION, type LifeArea } from "@shared/rules";
+import type { PlanetStrength } from "@shared/strength";
 
 const INK = "#2b241e";
 const MUTED = "#7a6f66";
@@ -94,7 +95,8 @@ function drawSouthIndianChart(doc: Doc, x: number, y: number, size: number, posi
   doc.restore();
 }
 
-function planetTable(doc: Doc, x: number, y: number, w: number, positions: PlanetPosition[]) {
+function planetTable(doc: Doc, x: number, y: number, w: number, positions: PlanetPosition[], strength: PlanetStrength[]) {
+  const stOf = (p: Planet) => strength.find((q) => q.planet === p);
   const cols = [0, 0.18, 0.36, 0.55, 0.82].map((f) => x + f * w);
   doc.font("Helvetica").fontSize(7.5).fillColor(MUTED);
   const headers = ["Planet", "Sign", "Degree", "Nakshatra", "Dignity"];
@@ -103,7 +105,8 @@ function planetTable(doc: Doc, x: number, y: number, w: number, positions: Plane
   doc.moveTo(x, ry - 2).lineTo(x + w, ry - 2).lineWidth(0.5).strokeColor(RULE).stroke();
   for (const p of positions) {
     doc.font("Helvetica-Bold").fontSize(8.5).fillColor(planetColor(p.planet)).text(p.planet, cols[0], ry, { lineBreak: false });
-    const flags = `${p.retrograde && CLASSICAL.has(p.planet) ? " R" : ""}${p.combust ? " c" : ""}`;
+    const st = stOf(p.planet);
+    const flags = `${p.retrograde && CLASSICAL.has(p.planet) ? " R" : ""}${p.combust ? " c" : ""}${st?.winningOver.length ? " w" : ""}`;
     if (flags) {
       const pw = doc.widthOfString(p.planet);
       doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(flags, cols[0] + pw + 1, ry + 1, { lineBreak: false });
@@ -111,7 +114,11 @@ function planetTable(doc: Doc, x: number, y: number, w: number, positions: Plane
     doc.font("Helvetica").fontSize(8).fillColor(INK).text(p.sign, cols[1], ry, { lineBreak: false });
     doc.text(fmtDeg(p.lon), cols[2], ry, { lineBreak: false });
     doc.text(`${p.nakshatra} ${p.pada}`, cols[3], ry, { lineBreak: false });
-    doc.fillColor(MUTED).text(p.dignity, cols[4], ry, { lineBreak: false });
+    if (st && st.effectiveDignity !== p.dignity) {
+      doc.fillColor(MUTED).text(p.dignity, cols[4], ry, { lineBreak: false, strike: true });
+    } else {
+      doc.fillColor(MUTED).text(p.dignity, cols[4], ry, { lineBreak: false });
+    }
     ry += 14;
     doc.moveTo(x, ry - 3).lineTo(x + w, ry - 3).lineWidth(0.3).strokeColor(RULE).stroke();
   }
@@ -145,10 +152,10 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   const transitNow = now.positions.filter((p) => p.planet === "Jupiter" || p.planet === "Saturn");
   drawSouthIndianChart(doc, PAGE.m, chartY, chartSize, positions, transitNow, chart.name, birthLocal.toFormat("d LLL yyyy · HH:mm"));
   const tableX = PAGE.m + chartSize + 18;
-  const tableEnd = planetTable(doc, tableX, chartY + 2, PAGE.w - PAGE.m - tableX, positions);
+  const tableEnd = planetTable(doc, tableX, chartY + 2, PAGE.w - PAGE.m - tableX, positions, reading.strength);
   doc.font("Helvetica").fontSize(6.5).fillColor(MUTED);
-  doc.text(`Ju Jeeva · Sa Karma · R retrograde · tJu tSa transits as of ${DateTime.fromISO(now.asOf).toFormat("d LLL yyyy")}`, PAGE.m, chartY + chartSize + 6, { width: chartSize });
-  doc.y = Math.max(chartY + chartSize + 20, tableEnd + 6);
+  doc.text(`Ju Jeeva · Sa Karma · R retrograde · c combust (Sun's pada) · w leads an enemy by degree · struck dignity set aside by a Nadi rule · tJu tSa transits as of ${DateTime.fromISO(now.asOf).toFormat("d LLL yyyy")}`, PAGE.m, chartY + chartSize + 6, { width: chartSize });
+  doc.y = Math.max(chartY + chartSize + 36, tableEnd + 6);
 
   // ── Karakas ──
   sectionTitle(doc, "Jeeva and Karma");
@@ -160,6 +167,22 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
     doc.font("Helvetica-Bold").fontSize(10).fillColor(planetColor(planet)).text(label);
     doc.font("Helvetica").fontSize(9).fillColor(INK).text(data.summary, { width: CONTENT_W });
     doc.moveDown(0.5);
+  }
+
+  // ── Strength notes ──
+  const strengthRows = reading.strength.filter((st) => st.notes.length);
+  if (strengthRows.length) {
+    sectionTitle(doc, "Planetary strength", "Rao's basic rules · Naik");
+    for (const st of strengthRows) {
+      doc.font("Helvetica").fontSize(8.5);
+      const text = st.notes.join(". ") + ".";
+      const h = doc.heightOfString(text, { width: CONTENT_W - 60 }) + 5;
+      ensureSpace(doc, h);
+      const y = doc.y;
+      doc.font("Helvetica-Bold").fontSize(8.5).fillColor(planetColor(st.planet)).text(st.planet, PAGE.m, y, { lineBreak: false });
+      doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(text, PAGE.m + 60, y, { width: CONTENT_W - 60 });
+      doc.y = y + h;
+    }
   }
 
   // ── Reading ──
@@ -180,7 +203,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
       const y = doc.y;
       scoreDots(doc, PAGE.m + 3, y + 5, f.score);
       doc.fillColor(INK).text(f.text, textX, y, { width: textW });
-      const meta = [f.planets.join(" · "), f.relation ? RELATION_LABEL[f.relation] : null, f.viaRetro ? "via retrogression" : null, f.source ?? null].filter(Boolean).join(" — ");
+      const meta = [f.planets.join(" · "), f.relation ? RELATION_LABEL[f.relation] : null, f.viaRetro ? "via retrogression" : null, f.modifier ?? null, f.source ?? null].filter(Boolean).join(" — ");
       doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(meta, textX, doc.y, { width: textW });
       doc.y += 6;
     }

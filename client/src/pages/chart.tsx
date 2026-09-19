@@ -6,6 +6,7 @@ import { ArrowLeft, Eye, EyeOff, FileDown } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, fmtDeg, houseFrom, type Planet, type PlanetPosition, KARAKA } from "@shared/astro";
 import { LIFE_AREAS, RELATION_LABEL, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
+import type { PlanetStrength } from "@shared/strength";
 import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
 import { Timeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,7 +19,8 @@ import { API_BASE } from "@/lib/queryClient";
 
 const CLASSICAL = new Set<Planet>(["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]);
 
-function PlanetTable({ positions, selected, onSelect }: { positions: PlanetPosition[]; selected: Planet | null; onSelect: (p: Planet | null) => void }) {
+function PlanetTable({ positions, strength, selected, onSelect }: { positions: PlanetPosition[]; strength: PlanetStrength[]; selected: Planet | null; onSelect: (p: Planet | null) => void }) {
+  const stOf = (p: Planet) => strength.find((x) => x.planet === p);
   return (
     <Table className="tabular">
       <TableHeader>
@@ -46,8 +48,13 @@ function PlanetTable({ positions, selected, onSelect }: { positions: PlanetPosit
                 </span>
               )}
               {p.combust && (
-                <span className="ml-1.5 text-xs text-muted-foreground" title="Combust">
+                <span className={cn("ml-1.5 text-xs", stOf(p.planet)?.effectiveCombust ? "text-primary" : "text-muted-foreground")} title={stOf(p.planet)?.notes.find((n) => n.startsWith("Combust")) ?? "Combust (within the Sun's pada)"}>
                   c
+                </span>
+              )}
+              {!!stOf(p.planet)?.winningOver.length && (
+                <span className="ml-1.5 text-xs text-muted-foreground" title={`Leads ${stOf(p.planet)!.winningOver.join(", ")} by degree`}>
+                  w
                 </span>
               )}
             </TableCell>
@@ -56,7 +63,16 @@ function PlanetTable({ positions, selected, onSelect }: { positions: PlanetPosit
             <TableCell className="hidden py-2 sm:table-cell">
               {p.nakshatra} <span className="text-muted-foreground">{p.pada}</span>
             </TableCell>
-            <TableCell className="hidden py-2 text-muted-foreground md:table-cell">{p.dignity}</TableCell>
+            <TableCell className="hidden py-2 text-muted-foreground md:table-cell" title={stOf(p.planet)?.dignityNote ?? undefined}>
+              {stOf(p.planet) && stOf(p.planet)!.effectiveDignity !== p.dignity ? (
+                <span>
+                  <span className="line-through decoration-muted-foreground/60">{p.dignity}</span>
+                  <span className="ml-1.5 text-xs">set aside</span>
+                </span>
+              ) : (
+                p.dignity
+              )}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -119,6 +135,8 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
         <KarakaCard title="Karma karaka · the profession" planet="Saturn" data={reading.karma} positions={positions} />
       </div>
 
+      <StrengthNotes strength={reading.strength} selected={selected} />
+
       {selected && (
         <p className="text-sm text-muted-foreground">
           Showing findings that involve <span className="font-medium text-foreground">{selected}</span>. Click the row again to clear.
@@ -148,6 +166,7 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
                       {f.planets.join(" · ")}
                       {f.relation && ` — ${RELATION_LABEL[f.relation]}`}
                       {f.viaRetro && " (via retrogression)"}
+                      {f.modifier && ` · ${f.modifier}`}
                       {f.source && ` · ${f.source}`}
                     </p>
                   </div>
@@ -158,6 +177,35 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
         );
       })}
     </div>
+  );
+}
+
+function StrengthNotes({ strength, selected }: { strength: PlanetStrength[]; selected: Planet | null }) {
+  const rows = strength.filter((s) => s.notes.length && (!selected || s.planet === selected));
+  if (!rows.length) return null;
+  return (
+    <section aria-labelledby="strength-heading" data-testid="section-strength">
+      <div className="flex items-baseline justify-between border-b pb-2">
+        <h3 id="strength-heading" className="text-base font-semibold">
+          Planetary strength
+        </h3>
+        <span className="text-xs text-muted-foreground">Rao's basic rules · Naik</span>
+      </div>
+      <ul className="mt-3 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
+        {rows.map((s) => (
+          <li key={s.planet} className="grid grid-cols-[4.5rem_1fr] gap-x-2" data-testid={`strength-${s.planet}`}>
+            <span className={cn("font-medium", s.planet === "Jupiter" && "text-primary", s.planet === "Saturn" && "text-[hsl(var(--chart-2))]")}>{s.planet}</span>
+            <span className="text-muted-foreground">
+              {s.notes.map((n, i) => (
+                <span key={i} className="block leading-relaxed">
+                  {n}
+                </span>
+              ))}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -327,8 +375,8 @@ export default function ChartPage() {
           </div>
         </div>
         <div className="min-w-0">
-          <PlanetTable positions={positions} selected={selected} onSelect={setSelected} />
-          <p className="mt-2 text-xs text-muted-foreground">Click a planet to focus the reading on it. Longitudes are sidereal; degrees shown within the sign.</p>
+          <PlanetTable positions={positions} strength={data.reading.strength} selected={selected} onSelect={setSelected} />
+          <p className="mt-2 text-xs text-muted-foreground">Click a planet to focus the reading on it. Longitudes are sidereal. c combust (within the Sun's pada) · w leads an enemy by degree · struck dignity is set aside by a Nadi rule.</p>
         </div>
       </div>
 

@@ -193,35 +193,34 @@ export const MOOLATRIKONA: Partial<Record<Planet, number>> = {
   Saturn: 10,
 };
 
-// Natural friendships (classical). Used only for descriptive dignity.
-export const FRIENDS: Partial<Record<Planet, Planet[]>> = {
+// Natural friendships as used in the Nadi texts (Rao, Naik). The nodes follow the
+// Nadi convention: Rahu behaves like Saturn, Ketu like Mars; both are hostile to the luminaries.
+export const FRIENDS: Record<Planet, Planet[]> = {
   Sun: ["Moon", "Mars", "Jupiter"],
   Moon: ["Sun", "Mercury"],
-  Mars: ["Sun", "Moon", "Jupiter"],
-  Mercury: ["Sun", "Venus"],
-  Jupiter: ["Sun", "Moon", "Mars"],
-  Venus: ["Mercury", "Saturn"],
-  Saturn: ["Mercury", "Venus"],
+  Mars: ["Sun", "Moon", "Jupiter", "Ketu"],
+  Mercury: ["Sun", "Venus", "Rahu"],
+  Jupiter: ["Sun", "Moon", "Mars", "Ketu"],
+  Venus: ["Mercury", "Saturn", "Rahu"],
+  Saturn: ["Mercury", "Venus", "Rahu"],
+  Rahu: ["Saturn", "Venus", "Mercury"],
+  Ketu: ["Mars", "Jupiter"],
 };
-export const ENEMIES: Partial<Record<Planet, Planet[]>> = {
-  Sun: ["Venus", "Saturn"],
-  Moon: [],
-  Mars: ["Mercury"],
+export const ENEMIES: Record<Planet, Planet[]> = {
+  Sun: ["Venus", "Saturn", "Rahu"],
+  Moon: ["Rahu", "Ketu"],
+  Mars: ["Mercury", "Rahu"],
   Mercury: ["Moon"],
-  Jupiter: ["Mercury", "Venus"],
+  Jupiter: ["Mercury", "Venus", "Rahu"],
   Venus: ["Sun", "Moon"],
   Saturn: ["Sun", "Moon", "Mars"],
+  Rahu: ["Sun", "Moon", "Mars"],
+  Ketu: ["Sun", "Moon"],
 };
 
-// Combustion orb (degrees from Sun). Retrograde values for Mercury/Venus.
-export const COMBUSTION_ORB: Partial<Record<Planet, { direct: number; retro: number }>> = {
-  Moon: { direct: 12, retro: 12 },
-  Mars: { direct: 17, retro: 17 },
-  Mercury: { direct: 14, retro: 12 },
-  Jupiter: { direct: 11, retro: 11 },
-  Venus: { direct: 10, retro: 8 },
-  Saturn: { direct: 15, retro: 15 },
-};
+// Nadi combustion: a planet within the same pada of the Sun, i.e. within 3°20' (Naik).
+// Standard Parashari orbs are deliberately not used; BNN reads Sun + planet as a combination.
+export const COMBUSTION_ORB_DEG = 10 / 3;
 
 export type Dignity =
   | "Exalted"
@@ -307,10 +306,9 @@ export function describePosition(planet: Planet, lon: number, speed: number, sun
   const pada = Math.floor((L - nakshatraIndex * nakLen) / (nakLen / 4)) + 1;
   const retrograde = planet === "Rahu" || planet === "Ketu" ? true : speed < 0;
   let combust = false;
-  if (sunLon !== undefined && COMBUSTION_ORB[planet]) {
-    const orb = COMBUSTION_ORB[planet]!;
+  if (sunLon !== undefined && planet !== "Sun" && planet !== "Rahu" && planet !== "Ketu") {
     const dist = Math.abs(((L - sunLon + 540) % 360) - 180);
-    combust = dist <= (speed < 0 ? orb.retro : orb.direct);
+    combust = dist <= COMBUSTION_ORB_DEG;
   }
   return {
     planet,
