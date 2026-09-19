@@ -203,11 +203,18 @@ function jaiminiSection(doc: Doc, result: ChartResult) {
   // drishti / argala
   ensureSpace(doc, 70);
   sectionTitle(doc, "Rasi drishti and argala", "on the lagna, the Arudha lagna and the Upapada");
+  doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(
+    "Jaimini aspects are between signs, not planets, and there is no universal 7th aspect: a movable sign sees the fixed signs except the adjacent one (its 5th, 8th and 11th), a fixed sign sees the movable signs except the one before it (its 3rd, 6th and 9th), and the dual signs see one another (4th, 7th, 10th). A planet inherits the aspects of its sign. Argala is positional intervention from the 2nd, 4th and 11th (5th weakly), obstructed from the 12th, 10th and 3rd (9th).",
+    PAGE.m,
+    doc.y,
+    { width: CONTENT_W },
+  );
+  doc.moveDown(0.5);
   for (const g of j.argala) {
     const inf = influencesOn(g.sign, positions);
     const lines = [
       `${g.target} ${SIGNS[g.sign]}: occupied by ${inf.occupants.length ? inf.occupants.join(", ") : "no planet"}; aspected by ${inf.aspecting.length ? inf.aspecting.join(", ") : "no planet"}.`,
-      ...g.items.map((it) => `  ${ORD(it.house)}${it.kind === "secondary" ? " (secondary)" : ""} argala: ${it.planets.join(", ")}${it.obstructedBy.length ? ` · ${ORD(it.obstructingHouse)} ${it.obstructedBy.join(", ")} ${it.obstructed ? "obstructs" : "resists"}` : ""}`),
+      ...g.items.map((it) => `  ${ORD(it.house)}${it.kind === "secondary" ? " (secondary)" : ""} argala: ${it.planets.join(", ")}${it.obstructedBy.length ? ` · ${ORD(it.obstructingHouse)} ${it.obstructedBy.join(", ")} ${it.obstructed ? (it.obstructedBy.length === 1 ? "obstructs" : "obstruct") : it.obstructedBy.length === 1 ? "resists" : "resist"}` : ""}`),
     ];
     if (!g.items.length) lines.push("  No argala.");
     doc.font("Helvetica").fontSize(8);

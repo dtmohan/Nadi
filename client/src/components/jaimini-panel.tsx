@@ -2,8 +2,8 @@ import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
-import { PLANET_ABBR, SIGNS, SIGN_ABBR, fmtDegShort, houseFrom, type Planet } from "@shared/astro";
-import { CHARA_KARAKA_INFO, SAVYA, influencesOn, signsAspectedBy, type CharaDashaPeriod, type JaiminiFinding } from "@shared/jaimini";
+import { PLANET_ABBR, SIGNS, SIGN_ABBR, SIGN_QUALITY, fmtDegShort, houseFrom, type Planet } from "@shared/astro";
+import { CHARA_KARAKA_INFO, SAVYA, argalaOn, influencesOn, signsAspectedBy, type CharaDashaPeriod, type JaiminiFinding } from "@shared/jaimini";
 import { JAIMINI_GROUP_LABEL } from "@shared/rules-jaimini";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Badge } from "@/components/ui/badge";
@@ -77,6 +77,8 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
     return cur ? `${cur.cycle}-${cur.sign}` : null;
   });
   const [showAll, setShowAll] = useState(false);
+  const [focusSign, setFocusSign] = useState<number>(j.lagna.signIndex);
+  const [showPrimer, setShowPrimer] = useState(false);
 
   const tags = useMemo(() => Object.fromEntries(j.karakas.map((k) => [k.planet, k.karaka])) as Partial<Record<Planet, string>>, [j.karakas]);
   const rasiBadges = useMemo(() => {
@@ -140,10 +142,22 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
         <div>
-          <SouthIndianChart positions={positions} title={chart.name} subtitle="Rasi with lagna and padas" lagnaSign={j.lagna.signIndex} badges={rasiBadges} accent={[ak]} footer="Rasi · houses from the lagna" />
+          <SouthIndianChart
+            positions={positions}
+            title={chart.name}
+            subtitle="Rasi with lagna and padas"
+            lagnaSign={j.lagna.signIndex}
+            badges={rasiBadges}
+            accent={[ak]}
+            footer="Rasi · houses from the lagna"
+            highlightSign={focusSign}
+            secondarySigns={signsAspectedBy(focusSign)}
+            onSignClick={setFocusSign}
+          />
           <p className="mt-2 text-xs text-muted-foreground">
             <span className="font-semibold text-primary">As</span> ascendant · numbers are houses from the lagna · <span className="font-semibold text-[hsl(var(--chart-3))]">AL</span> Arudha lagna ·{" "}
-            <span className="font-semibold text-[hsl(var(--chart-3))]">UL</span> Upapada · <span className="font-semibold text-primary">{PLANET_ABBR[ak]}</span> Atmakaraka
+            <span className="font-semibold text-[hsl(var(--chart-3))]">UL</span> Upapada · <span className="font-semibold text-primary">{PLANET_ABBR[ak]}</span> Atmakaraka. Click a sign to see its rasi drishti: the solid cell is the chosen sign,
+            dashed cells are the signs it aspects.
           </p>
         </div>
         <div>
@@ -219,6 +233,99 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           Signs aspect signs: movable signs see the fixed signs except the next one, fixed signs see the movable signs except the previous one, dual signs see each other. Planets in the 2nd, 4th and 11th from a sign intervene in
           its affairs (argala); the 12th, 10th and 3rd obstruct them.
         </p>
+        <Button variant="ghost" size="sm" className="mt-2 -ml-2" onClick={() => setShowPrimer((v) => !v)} data-testid="button-drishti-primer" aria-expanded={showPrimer}>
+          {showPrimer ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          How this differs from Parashari aspects
+        </Button>
+        {showPrimer && (
+          <div className="mt-1 grid gap-3 rounded-md border bg-muted/30 p-4 text-sm md:grid-cols-2" data-testid="drishti-primer">
+            <div>
+              <div className="font-medium">Parashari (graha drishti)</div>
+              <ul className="mt-1 list-disc space-y-1 pl-5 text-muted-foreground">
+                <li>Planets aspect. Every planet sees the 7th house from itself.</li>
+                <li>Special aspects: Mars 4th and 8th, Jupiter 5th and 9th, Saturn 3rd and 10th.</li>
+                <li>Counted by house or by degree; the 7th is always present.</li>
+              </ul>
+            </div>
+            <div>
+              <div className="font-medium">Jaimini (rasi drishti)</div>
+              <ul className="mt-1 list-disc space-y-1 pl-5 text-muted-foreground">
+                <li>Signs aspect. A planet simply inherits the aspects of the sign it occupies, so a whole group in one sign aspects together.</li>
+                <li>Movable sees fixed (except the adjacent one), fixed sees movable (except the one before it), dual sees dual. In house terms that is the 5th, 8th and 11th from a movable sign; the 3rd, 6th and 9th from a fixed sign; the 4th, 7th and 10th from a dual sign.</li>
+                <li>There is no universal 7th: Aries and Libra do not see each other, nor do Taurus and Scorpio. Only the dual signs share a 7th aspect.</li>
+                <li>Aspect is mutual: if Libra sees Taurus, Taurus sees Libra.</li>
+              </ul>
+            </div>
+            <div className="md:col-span-2">
+              <div className="font-medium">Argala is not an aspect</div>
+              <p className="mt-1 text-muted-foreground">
+                Argala is positional intervention, read from a sign regardless of aspect: planets in the 2nd, 4th and 11th from it press on its affairs (the 5th weakly). Planets in the 12th, 10th and 3rd respectively push back
+                (the 9th for the 5th); when the obstructing house holds as many or more planets, the argala is cancelled. Jaimini reads a sign through what occupies it, what aspects it and what gives it argala; this app's
+                "influencing" rules use all three.
+              </p>
+            </div>
+          </div>
+        )}
+        <Card className="mt-3 border-primary/40" data-testid="card-drishti-explorer">
+          <CardContent className="p-3 text-sm">
+            {(() => {
+              const q = SIGN_QUALITY[focusSign];
+              const seen = signsAspectedBy(focusSign);
+              const skipped = q === "Movable" ? (focusSign + 1) % 12 : q === "Fixed" ? (focusSign + 11) % 12 : undefined;
+              const inf = influencesOn(focusSign, positions);
+              const occupants = positions.filter((p) => p.signIndex === focusSign);
+              const arg = argalaOn(focusSign, positions);
+              const labels = [
+                focusSign === j.lagna.signIndex ? "lagna" : null,
+                focusSign === al.signIndex ? "Arudha lagna" : null,
+                focusSign === ul.signIndex ? "Upapada" : null,
+                focusSign === j.karakamsa.signIndex ? "Karakamsa sign" : null,
+              ].filter(Boolean);
+              return (
+                <>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <div className="font-medium">
+                      {SIGNS[focusSign]} <span className="text-muted-foreground">({q.toLowerCase()} sign, {ordinal(houseFrom(j.lagna.signIndex, focusSign))} house{labels.length ? `, ${labels.join(", ")}` : ""})</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {[j.lagna.signIndex, al.signIndex, ul.signIndex, j.karakamsa.signIndex]
+                        .filter((v, i, arr) => arr.indexOf(v) === i)
+                        .map((sg) => (
+                          <Button key={sg} size="sm" variant={focusSign === sg ? "secondary" : "ghost"} className="h-7 px-2 text-xs" onClick={() => setFocusSign(sg)} data-testid={`button-focus-${sg}`}>
+                            {sg === j.lagna.signIndex ? "Lagna" : sg === al.signIndex ? "AL" : sg === ul.signIndex ? "UL" : "Karakamsa"} {SIGN_ABBR[sg]}
+                          </Button>
+                        ))}
+                    </div>
+                  </div>
+                  <div className="mt-2 grid gap-x-6 gap-y-1 text-xs md:grid-cols-2">
+                    <div>
+                      <span className="text-muted-foreground">Aspects </span>
+                      {seen.map((sg) => `${SIGNS[sg]} (${ordinal(houseFrom(focusSign, sg))})`).join(", ")}
+                      {skipped !== undefined && <span className="text-muted-foreground">; skips {SIGNS[skipped]}, the adjacent {SIGN_QUALITY[skipped].toLowerCase()} sign</span>}
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Planets here </span>
+                      {occupants.length ? `${occupants.map((p) => p.planet).join(", ")} therefore aspect ${seen.map((sg) => SIGN_ABBR[sg]).join(", ")}` : "none"}
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Aspected by </span>
+                      {inf.aspecting.length ? inf.aspecting.map((pl) => `${pl} (${SIGN_ABBR[positions.find((p) => p.planet === pl)!.signIndex]})`).join(", ") : "no planet"}
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Argala </span>
+                      {arg.filter((a) => a.planets.length).length === 0
+                        ? "none"
+                        : arg
+                            .filter((a) => a.planets.length)
+                            .map((a) => `${ordinal(a.house)} ${a.planets.join(", ")}${a.obstructed ? ` (obstructed by ${a.obstructedBy.join(", ")} in the ${ordinal(a.obstructingHouse)})` : a.obstructedBy.length ? ` (${a.obstructedBy.join(", ")} in the ${ordinal(a.obstructingHouse)} ${a.obstructedBy.length === 1 ? "resists" : "resist"})` : ""}`)
+                            .join("; ")}
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
+          </CardContent>
+        </Card>
         <div className="mt-3 grid gap-3 md:grid-cols-3">
           {j.argala.map((g) => {
             const inf = rasiInfluence(g.sign);
@@ -241,7 +348,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
                         {it.obstructedBy.length > 0 && (
                           <span className="text-muted-foreground">
                             {" "}
-                            · {ordinal(it.obstructingHouse)} {it.obstructedBy.join(", ")} {it.obstructed ? "obstructs" : "resists"}
+                            · {ordinal(it.obstructingHouse)} {it.obstructedBy.join(", ")} {it.obstructed ? (it.obstructedBy.length === 1 ? "obstructs" : "obstruct") : it.obstructedBy.length === 1 ? "resists" : "resist"}
                           </span>
                         )}
                       </li>

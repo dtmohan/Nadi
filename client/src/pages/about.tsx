@@ -309,7 +309,9 @@ function JaiminiMethod() {
       <h2>Rasi drishti</h2>
       <p>
         Jaimini's aspects are between signs, not planets. A movable sign aspects the three fixed signs except the one next to it; a fixed sign aspects the three movable signs except the one before it;
-        the dual signs aspect one another. A planet aspects whatever its sign aspects (
+        the dual signs aspect one another. A planet aspects whatever its sign aspects. In house terms a movable sign sees its 5th, 8th and 11th, a fixed sign its 3rd, 6th and 9th, and a dual sign its 4th, 7th and 10th.
+        This is where readers used to Parashari aspects are most often surprised: there is no universal 7th aspect (Aries and Libra do not see each other), a group of planets in one sign always aspects together, and a
+        movable sign's 8th is a full aspect. The chart page has a click-to-explore view of this (
         <a href="https://moonketu.com/learn/jaimini/rashi-drishti" {...ext}>
           Moonketu on rasi drishti
         </a>

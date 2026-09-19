@@ -33,7 +33,10 @@ export function SouthIndianChart({
   tags,
   footer,
   accent,
+  secondarySigns,
 }: {
+  /** Signs tinted as "aspected" (Jaimini rasi drishti explorer). */
+  secondarySigns?: number[];
   jeeva?: Planet;
   /** Female chart: Venus, the native as a person, drawn in the third accent. */
   deha?: Planet;
@@ -79,7 +82,15 @@ export function SouthIndianChart({
             className={onSignClick ? "cursor-pointer" : undefined}
             data-testid={`cell-sign-${signIndex}`}
           >
-            <rect x={x} y={y} width={CELL} height={CELL} className={active ? "fill-primary/10 stroke-foreground" : "fill-transparent stroke-foreground"} strokeWidth={1} />
+            <rect
+              x={x}
+              y={y}
+              width={CELL}
+              height={CELL}
+              className={active ? "fill-primary/10 stroke-foreground" : secondarySigns?.includes(signIndex) ? "fill-[hsl(var(--chart-3))]/15 stroke-foreground" : "fill-transparent stroke-foreground"}
+              strokeWidth={1}
+            />
+            {secondarySigns?.includes(signIndex) && !active && <rect x={x + 3} y={y + 3} width={CELL - 6} height={CELL - 6} className="fill-transparent stroke-[hsl(var(--chart-3))]" strokeWidth={1} strokeDasharray="3 3" />}
             <text x={x + 6} y={y + 14} className="fill-muted-foreground" fontSize={11} fontWeight={500}>
               {SIGN_ABBR[signIndex]}
             </text>
