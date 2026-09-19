@@ -207,6 +207,43 @@ export interface AreaReading {
   timing: AreaTiming;
 }
 
+/** What each chara karaka "means" when a period brings it forward: the concrete matters it carries. */
+export const KARAKA_MATTERS: Record<CharaKarakaId, string> = {
+  AK: "the self, its purpose and standing",
+  AmK: "work, position, advisers and one's role in the world",
+  BK: "siblings, the guru and one's own initiative",
+  MK: "mother, home, property and inner comfort",
+  PiK: "father, lineage, dharma and protection",
+  PK: "children, students, creativity and merit",
+  GK: "relatives, rivals, disputes and illness",
+  DK: "the spouse, partnerships and close alliances",
+};
+
+/** What each arudha pada shows: the area as the world sees it. Keyed by house number. */
+export const PADA_MATTERS: Record<number, string> = {
+  1: "image, name and public standing",
+  2: "savings, family wealth and what is accumulated",
+  3: "siblings, courage and undertakings",
+  4: "home, property, mother and comfort",
+  5: "children, students and one's visible talents",
+  6: "enemies, disputes, debts and illness",
+  7: "partnership, business and the partner as seen by others",
+  8: "reversals, inheritance and hidden trouble",
+  9: "father, teachers, fortune and travel",
+  10: "career, rank and recognition",
+  11: "income, gains and allies",
+  12: "the marriage, the spouse's family and the marital home",
+};
+
+/** How a karaka in the running sign is likely to play out, from its dignity there. */
+function karakaState(ctx: Ctx, planet: Planet): string {
+  const p = ctx.at(planet);
+  if (planet === "Rahu" || planet === "Ketu") return "";
+  if (GOOD_DIGNITY.has(p.dignity)) return ` ${planet} is ${p.dignity.toLowerCase()} there, so they tend to prosper.`;
+  if (BAD_DIGNITY.has(p.dignity)) return ` ${planet} is ${p.dignity.toLowerCase()} there, so they come with effort or delay.`;
+  return "";
+}
+
 const KENDRA_TRIKONA = new Set([1, 4, 5, 7, 9, 10]);
 const DUSTHANA = new Set([6, 8, 12]);
 const GOOD_DIGNITY = new Set<Dignity>(["Exalted", "Moolatrikona", "Own sign", "Friendly"]);
@@ -268,7 +305,7 @@ function readKaraka(ctx: Ctx, id: CharaKarakaId): KarakaReading {
   const goodCompany = withP.filter((x) => ctx.benefic.has(x));
   const badCompany = withP.filter((x) => ctx.malefic.has(x));
   if (goodCompany.length) notes.push({ text: `Joined by ${list(goodCompany)}: benefic company increases what the karaka promises.`, tone: "support" });
-  if (badCompany.length) notes.push({ text: `Joined by ${list(badCompany)}: the karaka is afflicted and its matters meet resistance.`, tone: "strain" });
+  if (badCompany.length) notes.push({ text: `Joined by ${list(badCompany)}: the karaka is afflicted, so ${KARAKA_MATTERS[id]} meet resistance.`, tone: "strain" });
   const goodAsp = aspectedBy.filter((x) => ctx.benefic.has(x));
   const badAsp = aspectedBy.filter((x) => ctx.malefic.has(x));
   if (goodAsp.length && !goodCompany.length) notes.push({ text: `Aspected by ${list(goodAsp)} (rasi drishti): support from outside its own sign.`, tone: "support" });
@@ -359,7 +396,7 @@ function signTriggers(ctx: Ctx, area: JaiminiArea, sign: number, level: "mahadas
     const ben = here.filter((p) => ctx.benefic.has(p));
     const mal = here.filter((p) => ctx.malefic.has(p));
     if (dh.tone === "support") {
-      if (kar.length) out.push({ text: `${list(kar)} (${spec.karakas.filter((k) => kar.includes(ctx.j.karakas.find((x) => x.karaka === k)!.planet)).join(", ")}) in the ${ordinal(dh.house)} from ${name}: the area's own karaka stands in its house, ${dh.gloss}.`, tone: "support", weight: 2 });
+      if (kar.length) out.push({ text: `${list(kar)} (${spec.karakas.filter((k) => kar.includes(ctx.j.karakas.find((x) => x.karaka === k)!.planet)).join(", ")}) in the ${ordinal(dh.house)} from ${name}: the area's own karaka stands in its house, the strongest sign for ${dh.gloss}.`, tone: "support", weight: 2 });
       if (ben.filter((p) => !kar.includes(p)).length) out.push({ text: `${list(ben.filter((p) => !kar.includes(p)))} in the ${ordinal(dh.house)} from ${name}: benefic support for ${dh.gloss}.`, tone: "support", weight: 1 });
       if (mal.filter((p) => !kar.includes(p)).length) out.push({ text: `${list(mal.filter((p) => !kar.includes(p)))} in the ${ordinal(dh.house)} from ${name}: effort or conflict around ${dh.gloss}.`, tone: "strain", weight: 1 });
     } else {
@@ -371,23 +408,24 @@ function signTriggers(ctx: Ctx, area: JaiminiArea, sign: number, level: "mahadas
   // The dasha sign is, aspects, or faces (1-7 axis) the area's pada.
   for (const h of spec.padas) {
     const a = ctx.j.arudhas[h - 1];
-    if (a.signIndex === sign) out.push({ text: `${name} is the ${a.label} sign: the area is on stage.`, tone: "neutral", weight: 2 });
-    else if (houseFrom(a.signIndex, sign) === 7) out.push({ text: `${name} is 7th from the ${a.label}: on its axis (Rao).`, tone: "neutral", weight: 1 });
-    else if (rasiAspects(sign, a.signIndex)) out.push({ text: `${name} aspects the ${a.label} (${SIGNS[a.signIndex]}) by rasi drishti.`, tone: "neutral", weight: 1 });
+    const shows = PADA_MATTERS[h];
+    if (a.signIndex === sign) out.push({ text: `${name} is the ${a.label} sign: ${shows} are on stage.`, tone: "neutral", weight: 2 });
+    else if (houseFrom(a.signIndex, sign) === 7) out.push({ text: `${name} is 7th from the ${a.label}: it faces the pada across the 1–7 axis, so ${shows} are activated (Rao).`, tone: "neutral", weight: 1 });
+    else if (rasiAspects(sign, a.signIndex)) out.push({ text: `${name} aspects the ${a.label} (${SIGNS[a.signIndex]}) by rasi drishti: a lighter touch on ${shows}.`, tone: "neutral", weight: 1 });
   }
 
   // The dasha sign holds, aspects, or faces the area's karaka (and, for marriage, the DK's navamsa sign and the 7th lord).
-  const anchors: Array<{ label: string; sign: number }> = spec.karakas.map((k) => {
+  const anchors: Array<{ label: string; sign: number; matters: string; planet?: Planet }> = spec.karakas.map((k) => {
     const kp = ctx.j.karakas.find((x) => x.karaka === k)!;
-    return { label: `${k} ${kp.planet}`, sign: ctx.at(kp.planet).signIndex };
+    return { label: `${k} ${kp.planet}`, sign: ctx.at(kp.planet).signIndex, matters: KARAKA_MATTERS[k], planet: kp.planet };
   });
   if (area === "marriage") {
     const dk = ctx.j.karakas.find((x) => x.karaka === "DK")!.planet;
-    anchors.push({ label: `the navamsa sign of DK ${dk}`, sign: ctx.d9(dk).signIndex });
+    anchors.push({ label: `the navamsa sign of DK ${dk}`, sign: ctx.d9(dk).signIndex, matters: "the spouse and the marriage" });
     const seventhLord = SIGN_LORD[(ctx.j.lagna.signIndex + 6) % 12];
-    anchors.push({ label: `the 7th lord ${seventhLord}`, sign: ctx.at(seventhLord).signIndex });
+    anchors.push({ label: `the 7th lord ${seventhLord}`, sign: ctx.at(seventhLord).signIndex, matters: "marriage and partnership", planet: seventhLord });
   }
-  if (area === "self") anchors.push({ label: "the Karakamsa", sign: ctx.j.karakamsa.signIndex });
+  if (area === "self") anchors.push({ label: "the Karakamsa", sign: ctx.j.karakamsa.signIndex, matters: "the soul's own agenda" });
   const dedupe = new Set<string>();
   for (const an of anchors) {
     const key = `${an.sign}`;
@@ -396,10 +434,10 @@ function signTriggers(ctx: Ctx, area: JaiminiArea, sign: number, level: "mahadas
     if (an.sign === sign) {
       if (area === "self" && an.label.startsWith("AK")) out.push({ text: `${name} holds the Atmakaraka: a period that tests the self; Rao asks for care, since AK periods can bring a fall as well as a rise.`, tone: "neutral", weight: 2 });
       else if (an.label === "the Karakamsa") out.push({ text: `${name} is the Karakamsa sign (Swamsa): the soul's own agenda comes forward.`, tone: "neutral", weight: 2 });
-      else if (an.label.startsWith("the navamsa sign")) out.push({ text: `${name} is ${an.label}: the spouse's matters come to the front.`, tone: "neutral", weight: 2 });
-      else out.push({ text: `${name} holds ${an.label}: its matters come to the front.`, tone: "neutral", weight: 2 });
-    } else if (houseFrom(an.sign, sign) === 7) out.push({ text: `${name} is 7th from ${an.label}: on its axis.`, tone: "neutral", weight: 1 });
-    else if (rasiAspects(sign, an.sign)) out.push({ text: `${name} aspects ${an.label} by rasi drishti.`, tone: "neutral", weight: 1 });
+      else if (an.label.startsWith("the navamsa sign")) out.push({ text: `${name} is ${an.label}: ${an.matters} come to the front.`, tone: "neutral", weight: 2 });
+      else out.push({ text: `${name} holds ${an.label}: ${an.matters} come to the front.${an.planet ? karakaState(ctx, an.planet) : ""}`, tone: "neutral", weight: 2 });
+    } else if (houseFrom(an.sign, sign) === 7) out.push({ text: `${name} is 7th from ${an.label}: it faces the karaka across the 1–7 axis, so ${an.matters} are activated.`, tone: "neutral", weight: 1 });
+    else if (rasiAspects(sign, an.sign)) out.push({ text: `${name} aspects ${an.label} by rasi drishti: a lighter touch on ${an.matters}.`, tone: "neutral", weight: 1 });
   }
 
   // Area-specific cautions from Rao.
