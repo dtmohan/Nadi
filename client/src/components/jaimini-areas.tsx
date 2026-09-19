@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { SourceLink } from "@/components/source-link";
 
 function ordinal(n: number) {
   return `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
@@ -222,9 +223,9 @@ function AreaCard({ a, result, now }: { a: AreaReading; result: ChartResult; now
                   {findings.map((f) => (
                     <li key={f.id} className="leading-snug" data-testid={`jarea-finding-${f.id}`}>
                       {f.text}{" "}
-                      <a href={f.source.url} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
-                        {f.source.label}
-                      </a>
+                      <span className="text-xs text-muted-foreground">
+                        <SourceLink source={f.source} />
+                      </span>
                     </li>
                   ))}
                 </ul>

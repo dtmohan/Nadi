@@ -8,6 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useParams } from "wouter";
+import { SourceLink } from "@/components/source-link";
+import { SutraLibrary } from "@/components/sutra-library";
 
 const SHORT_REL: Record<string, string> = { conjunct: "conjunction", next: "2nd", prev: "12th", trine: "trine", opposite: "7th" };
 
@@ -71,9 +74,7 @@ function JaiminiRules() {
               <div className="text-sm">{r.text}</div>
               <div className="mt-1 text-xs text-muted-foreground">
                 when {r.when} ·{" "}
-                <a href={r.source.url} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
-                  {r.source.label}
-                </a>
+                <SourceLink source={r.source} />
               </div>
             </div>
           </li>
@@ -84,6 +85,8 @@ function JaiminiRules() {
 }
 
 export default function RulesPage() {
+  const params = useParams<{ ref?: string }>();
+  const sutraRef = params.ref ? decodeURIComponent(params.ref) : undefined;
   const { data: rules, isLoading } = useQuery<Rule[]>({ queryKey: ["/api/rules"] });
   const [area, setArea] = useState<LifeArea | "all">("all");
   const [planet, setPlanet] = useState<Planet | "all">("all");
@@ -105,7 +108,7 @@ export default function RulesPage() {
   return (
     <div className="mx-auto max-w-5xl px-5 py-8 md:px-10">
       <h1 className="font-display text-xl font-bold tracking-tight">Rule book</h1>
-      <Tabs defaultValue="bnn" className="mt-4">
+      <Tabs key={sutraRef ?? "rules"} defaultValue={sutraRef !== undefined ? "sutras" : "bnn"} className="mt-4">
         <TabsList>
           <TabsTrigger value="bnn" data-testid="tab-rules-bnn">
             Bhrigu Nandi Nadi
@@ -113,9 +116,15 @@ export default function RulesPage() {
           <TabsTrigger value="jaimini" data-testid="tab-rules-jaimini">
             Jaimini
           </TabsTrigger>
+          <TabsTrigger value="sutras" data-testid="tab-rules-sutras">
+            Sutra text
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="jaimini">
           <JaiminiRules />
+        </TabsContent>
+        <TabsContent value="sutras">
+          <SutraLibrary initialRef={sutraRef} />
         </TabsContent>
         <TabsContent value="bnn">
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">

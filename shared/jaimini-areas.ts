@@ -4,6 +4,7 @@
 // area; the antardasha sign is read the same way. Pure functions over JaiminiResult.
 
 import { DateTime } from "luxon";
+import { SUTRA_RULE_AREA } from "./rules-jaimini-sutras";
 import { SIGNS, SIGN_LORD, dignityOf, houseFrom, type Dignity, type Planet, type PlanetPosition } from "./astro";
 import { isBenefic, rasiAspects, type CharaKarakaId, type JaiminiResult } from "./jaimini";
 
@@ -106,6 +107,7 @@ export const JAIMINI_AREAS: Record<JaiminiArea, AreaSpec> = {
 
 /** Which life area an existing sutra finding speaks to. Unmapped rules stay under 'What the sutras say' only. */
 export const AREA_OF_RULE: Record<string, JaiminiArea> = {
+  ...SUTRA_RULE_AREA,
   "jk-ak-sign": "self",
   "jk-ak-amk-together": "career",
   "jks-sun": "career",

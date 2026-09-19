@@ -423,6 +423,33 @@ function JaiminiMethod() {
         </a>
         .
       </p>
+      <h2>The sutra text and the rules drawn from it</h2>
+      <p>
+        The Rule book carries the text of Jaimini Sutras, Adhyayas 1 and 2 (388 sutras), in{" "}
+        <a href="https://archive.org/details/in.ernet.dli.2015.134405" {...ext}>
+          B. Suryanarain Rao's English translation
+        </a>{" "}
+        with his notes, recovered from a scanned copy and not yet proofread. Every finding that cites a sutra links to the passage, so the reading can be checked against the words. A second set of
+        rules was written from that text: from 1.2, Ketu in the Karakamsa under different aspects, the 10th from the Karakamsa for steadiness and standing at work, the 4th and 5th for health and for
+        skills, Venus or Mercury aspecting the Karakamsa and the Moon for vocation, Saturn and Venus in a malefic sign, and Rahu in the 5th or 9th; from 1.3, the planets in the 11th and 12th from
+        the Arudha lagna as the sources of gain and expense, the nodes on the 7th, the Arudha lagna's house from the lagna, padas in the 6th, 8th and 12th, argala on the Arudha lagna, a planet aspecting
+        the lagna, Hora lagna and Ghatika lagna together, and the lords' aspects of 1.3.38-41; from 1.4, the Atmakaraka on the 2nd of the Upapada, the 2nd for the spouse's health, the 7th and its
+        5th for children, the 3rd and 11th for siblings, and the nodes on the 8th. The sutras that name a spouse's death or a marriage's end are phrased as strain or separation risk; the raw text stays
+        in the library. Sutras 1.4.44-49 are not applied.
+      </p>
+      <p>
+        Hora lagna and Ghatika lagna (1.1.31-32) are the Sun's sidereal position at the preceding sunrise advanced by 30° and 75° for each hour of birth; sunrise is taken from the Swiss Ephemeris for the
+        birth place. Where the Karakamsa rules of 1.2.102-116 name "the Karakamsa or the 5th from it", both houses are now read.
+      </p>
+      <h2>Span of life, Adhyaya 2.1</h2>
+      <p>
+        The text's first method pairs three couples of signs, the lords of the lagna and the 8th, the Moon and Saturn, and the lagna with the Hora lagna, and reads each pair by the nature of its signs:
+        two movable or two dual signs give a long span, two fixed a short one, one movable with one fixed a middle span, movable with dual a short span, fixed with dual a long span (2.1.1-6). The
+        majority decides (2.1.7); when all three differ the lagna and Hora lagna pair is preferred (2.1.8); when the Moon is in the lagna or the 7th the Moon and Saturn pair decides (2.1.9). Saturn in
+        the lagna or the 7th lowers the bracket by one step unless it is exalted, in its own sign, or under two or more malefic influences (2.1.10-13); Jupiter there, free of malefics, raises it
+        (2.1.14). The app stops at this classification and does not attempt the Rudra, Maheswara and Brahma timing that follows in the text. The three brackets are wide, translators differ on the
+        pair table, and the section is shown as a description of the chart's classical sort, not a forecast.
+      </p>
       <h2>Benefics and malefics</h2>
       <p>
         For the Arudha and Upapada rules Jupiter, Venus and Mercury are benefic; Mars, Saturn, Rahu and Ketu are malefic; the Sun counts as benefic when exalted, in its own sign or in a friend's sign

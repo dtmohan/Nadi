@@ -2,9 +2,10 @@ import type { Express } from "express";
 import type { Server } from "node:http";
 import { insertChartSchema, type Chart, type ChartResult, type GeoHit } from "@shared/schema";
 import { RULES, evaluate } from "@shared/rules";
-import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, ascendantAt, type EphemerisOptions } from "./ephemeris";
+import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, ascendantAt, specialLagnas, type EphemerisOptions } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
 import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
+import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
 import { DateTime } from "luxon";
 import { buildChartPdf } from "./pdf";
 
@@ -23,7 +24,13 @@ export function computeChart(chart: Chart): ChartResult {
   const endJd = jd + 100 * 365.25;
   const transits = [...transitPeriods("Jupiter", jd, endJd, opts), ...transitPeriods("Saturn", jd, endJd, opts)];
   const nj = nowJd();
-  const jaimini = computeJaimini(positions, ascendantAt(jd, chart.latitude, chart.longitude, opts), utc.toISO()!);
+  let special: { horaLagna: number; ghatikaLagna: number } | undefined;
+  try {
+    special = specialLagnas(jd, chart.latitude, chart.longitude, opts);
+  } catch {
+    special = undefined;
+  }
+  const jaimini = computeJaimini(positions, ascendantAt(jd, chart.latitude, chart.longitude, opts), utc.toISO()!, special);
   const result: ChartResult = {
     chart,
     utc: utc.toISO()!,
@@ -74,6 +81,11 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
   app.get("/api/jaimini-rules", (_req, res) => {
     res.json(JAIMINI_RULE_INFO);
+  });
+
+  app.get("/api/jaimini-sutras", (_req, res) => {
+    res.setHeader("Cache-Control", "public, max-age=3600");
+    res.json(JAIMINI_SUTRAS);
   });
 
   // Place search via Open-Meteo geocoding (no key required)

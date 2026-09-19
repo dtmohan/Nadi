@@ -6,6 +6,7 @@
 import { DateTime } from "luxon";
 import { SIGNS, SIGN_LORD, SIGN_QUALITY, houseFrom, type Planet, type PlanetPosition, type Sign } from "./astro";
 import { evaluateJaimini } from "./rules-jaimini";
+import { computeAyur, type AyurResult } from "./jaimini-ayur";
 
 // ── Chara karakas ─────────────────────────────────────────────────────────────
 
@@ -288,7 +289,7 @@ export interface JaiminiFinding {
   text: string;
   planets: Planet[];
   weight: 1 | 2 | 3;
-  source: { label: string; url: string };
+  source: { label: string; url: string; sutra?: string };
   /** Where the rule was read: rasi chart or navamsa. */
   chart: "rasi" | "navamsa";
 }
@@ -306,6 +307,10 @@ export interface JaiminiResult {
   argala: { target: string; sign: number; items: Argala[] }[];
   charaDasha: CharaDasha;
   findings: JaiminiFinding[];
+  /** Hora and Ghatika lagnas (need place and time); absent when the server could not compute sunrise. */
+  special?: { horaLagna: JaiminiLagna; ghatikaLagna: JaiminiLagna };
+  /** Longevity classification per Jaimini 2.1. */
+  ayur: AyurResult;
 }
 
 /** Natural benefics for Jaimini purposes. The Sun counts as a benefic when exalted or in a friendly sign (Jaimini 1.4). The Moon is a benefic in its bright half. */
@@ -323,9 +328,15 @@ export function isBenefic(p: PlanetPosition, sunLon?: number): boolean {
 // ── Assembly (pure; the server supplies the sidereal ascendant) ───────────────
 
 
-export function computeJaimini(positions: PlanetPosition[], lagnaLon: number, birthIso: string): JaiminiResult {
+function lagnaAt(lon: number): JaiminiLagna {
+  const signIndex = Math.floor(lon / 30);
+  return { lon, signIndex, sign: SIGNS[signIndex], degInSign: lon - signIndex * 30 };
+}
+
+export function computeJaimini(positions: PlanetPosition[], lagnaLon: number, birthIso: string, specialLons?: { horaLagna: number; ghatikaLagna: number }): JaiminiResult {
   const lagnaSign = Math.floor(lagnaLon / 30);
-  const lagna: JaiminiLagna = { lon: lagnaLon, signIndex: lagnaSign, sign: SIGNS[lagnaSign], degInSign: lagnaLon - lagnaSign * 30 };
+  const lagna = lagnaAt(lagnaLon);
+  const special = specialLons ? { horaLagna: lagnaAt(specialLons.horaLagna), ghatikaLagna: lagnaAt(specialLons.ghatikaLagna) } : undefined;
   const nl = navamsaOf(lagnaLon);
   const karakas = charaKarakas(positions);
   const navamsa = navamsaPositions(positions);
@@ -337,7 +348,8 @@ export function computeJaimini(positions: PlanetPosition[], lagnaLon: number, bi
     { target: "Arudha lagna", sign: arudhas[0].signIndex, items: argalaOn(arudhas[0].signIndex, positions) },
     { target: "Upapada", sign: arudhas[11].signIndex, items: argalaOn(arudhas[11].signIndex, positions) },
   ];
-  const findings = evaluateJaimini({ positions, navamsa, lagnaSign, karakas, karakamsa: karakamsa.signIndex, arudhas });
+  const findings = evaluateJaimini({ positions, navamsa, lagnaSign, karakas, karakamsa: karakamsa.signIndex, arudhas, horaLagna: special?.horaLagna.signIndex, ghatikaLagna: special?.ghatikaLagna.signIndex });
+  const ayur = computeAyur(positions, lagnaSign, special?.horaLagna.signIndex);
   return {
     lagna,
     navamsaLagna: { signIndex: nl.signIndex, sign: SIGNS[nl.signIndex] },
@@ -348,5 +360,7 @@ export function computeJaimini(positions: PlanetPosition[], lagnaLon: number, bi
     argala,
     charaDasha: charaDasha(lagnaSign, positions, birthIso),
     findings,
+    special,
+    ayur,
   };
 }

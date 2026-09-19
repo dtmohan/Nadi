@@ -2,6 +2,7 @@
 // Each rule is a small predicate over the assembled Jaimini data; the rule book lists them as text.
 
 import { SIGN_LORD, houseFrom, type Planet, type PlanetPosition } from "./astro";
+import { SUTRA_RULES, sutraRuleText } from "./rules-jaimini-sutras";
 import { isBenefic, rasiAspects, type ArudhaPada, type CharaKaraka, type JaiminiFinding, type JaiminiRuleGroup, type VargaPosition } from "./jaimini";
 
 export interface JaiminiContext {
@@ -11,6 +12,9 @@ export interface JaiminiContext {
   karakas: CharaKaraka[];
   karakamsa: number;
   arudhas: ArudhaPada[];
+  /** Sign indices of the Hora and Ghatika lagnas when known. */
+  horaLagna?: number;
+  ghatikaLagna?: number;
 }
 
 export interface JaiminiRule {
@@ -20,7 +24,7 @@ export interface JaiminiRule {
   when: string;
   text: string;
   weight: 1 | 2 | 3;
-  source: { label: string; url: string };
+  source: JaiminiSource;
   chart: "rasi" | "navamsa";
   /** Planets that satisfy the rule, or null when it does not apply. */
   test: (ctx: JaiminiContext) => Planet[] | null;
@@ -29,7 +33,10 @@ export interface JaiminiRule {
 /** Rule-book view: everything except the predicate. */
 export type JaiminiRuleInfo = Omit<JaiminiRule, "test">;
 
-const JS = (n: string) => ({ label: `Jaimini Sutras ${n}`, url: "https://vedichora.org/classical/jaimini-sutras" });
+/** A source; `sutra` is a Jaimini Sutras reference ("1.2.16" or "1.2.2-13") that the in-app sutra library can open. */
+export type JaiminiSource = { label: string; url: string; sutra?: string };
+export const JAIMINI_TEXT_SOURCE = { label: "Jaimini Sutras, tr. B. Suryanarain Rao", url: "https://archive.org/details/in.ernet.dli.2015.134405" };
+const JS = (n: string): JaiminiSource => ({ label: `Jaimini Sutras ${n}`, url: "https://vedichora.org/classical/jaimini-sutras", sutra: n });
 const BPHS30 = (n: string) => ({ label: `Parashara, Upapada chapter ${n}`, url: "http://jyotishvidya.com/ch30.htm" });
 const BPHS29 = (n: string) => ({ label: `Parashara, Arudha chapter ${n}`, url: "https://www.scribd.com/doc/263063282/Arudha-Lagna-and-Finances-Vedangajyotish" });
 
@@ -52,6 +59,10 @@ function malefics(ctx: JaiminiContext): Set<Planet> {
 /** Planets in the nth house from the Karakamsa, in the navamsa. */
 function d9House(ctx: JaiminiContext, n: number): Planet[] {
   return ctx.navamsa.filter((p) => houseFrom(ctx.karakamsa, p.signIndex) === n).map((p) => p.planet);
+}
+/** Planets in the Karakamsa or its 5th, the Atmakaraka itself excluded (Jaimini 1.2.102-116 read both houses alike). */
+function d9House15(ctx: JaiminiContext): Planet[] {
+  return [...d9House(ctx, 1), ...d9House(ctx, 5)].filter((p) => p !== ctx.karakas[0].planet);
 }
 /** Planets in the nth house from a rasi sign, or aspecting it by rasi drishti when `aspect` is set. */
 function rasiHouse(ctx: JaiminiContext, sign: number, n: number, aspect = false): Planet[] {
@@ -175,81 +186,81 @@ export const JAIMINI_RULES: JaiminiRule[] = [
     id: "jks-5th-venus",
     group: "karakamsa",
     chart: "navamsa",
-    when: "Venus in the 5th from the Karakamsa",
-    text: "Venus in the 5th from the Karakamsa: a poet, eloquent, a connoisseur of literature.",
+    when: "Venus in the Karakamsa or the 5th from it",
+    text: "Venus in the Karakamsa or its 5th: a poet, eloquent, a connoisseur of literature.",
     weight: 1,
     source: JS("1.2.105"),
-    test: (ctx) => nonEmpty(d9House(ctx, 5).filter((p) => p === "Venus")),
+    test: (ctx) => nonEmpty(d9House15(ctx).filter((p) => p === "Venus")),
   },
   {
     id: "jks-5th-jupiter",
     group: "karakamsa",
     chart: "navamsa",
-    when: "Jupiter in the 5th from the Karakamsa",
-    text: "Jupiter in the 5th from the Karakamsa: broad learning, well-versed in books, a grammarian or knower of scripture.",
+    when: "Jupiter in the Karakamsa or the 5th from it",
+    text: "Jupiter in the Karakamsa or its 5th: broad learning, well-versed in books, a grammarian or knower of scripture.",
     weight: 1,
     source: JS("1.2.106-108"),
-    test: (ctx) => nonEmpty(d9House(ctx, 5).filter((p) => p === "Jupiter")),
+    test: (ctx) => nonEmpty(d9House15(ctx).filter((p) => p === "Jupiter")),
   },
   {
     id: "jks-5th-mercury",
     group: "karakamsa",
     chart: "navamsa",
-    when: "Mercury in the 5th from the Karakamsa",
-    text: "Mercury in the 5th from the Karakamsa: a scholar of interpretation and analysis (Mimamsa).",
+    when: "Mercury in the Karakamsa or the 5th from it",
+    text: "Mercury in the Karakamsa or its 5th: a scholar of interpretation and analysis (Mimamsa).",
     weight: 1,
     source: JS("1.2.110"),
-    test: (ctx) => nonEmpty(d9House(ctx, 5).filter((p) => p === "Mercury")),
+    test: (ctx) => nonEmpty(d9House15(ctx).filter((p) => p === "Mercury")),
   },
   {
     id: "jks-5th-mars",
     group: "karakamsa",
     chart: "navamsa",
-    when: "Mars in the 5th from the Karakamsa",
-    text: "Mars in the 5th from the Karakamsa: a logician, sharp in argument.",
+    when: "Mars in the Karakamsa or the 5th from it",
+    text: "Mars in the Karakamsa or its 5th: a logician, sharp in argument.",
     weight: 1,
     source: JS("1.2.111"),
-    test: (ctx) => nonEmpty(d9House(ctx, 5).filter((p) => p === "Mars")),
+    test: (ctx) => nonEmpty(d9House15(ctx).filter((p) => p === "Mars")),
   },
   {
     id: "jks-5th-moon",
     group: "karakamsa",
     chart: "navamsa",
-    when: "Moon in the 5th from the Karakamsa",
-    text: "Moon in the 5th from the Karakamsa: versed in Sankhya and Yoga, in literature, and a singer.",
+    when: "Moon in the Karakamsa or the 5th from it",
+    text: "Moon in the Karakamsa or its 5th: versed in Sankhya and Yoga, in literature, and a singer.",
     weight: 1,
     source: JS("1.2.112"),
-    test: (ctx) => nonEmpty(d9House(ctx, 5).filter((p) => p === "Moon")),
+    test: (ctx) => nonEmpty(d9House15(ctx).filter((p) => p === "Moon")),
   },
   {
     id: "jks-5th-sun",
     group: "karakamsa",
     chart: "navamsa",
-    when: "Sun in the 5th from the Karakamsa",
-    text: "Sun in the 5th from the Karakamsa: a knower of Vedanta and of music.",
+    when: "Sun in the Karakamsa or the 5th from it",
+    text: "Sun in the Karakamsa or its 5th: a knower of Vedanta and of music.",
     weight: 1,
     source: JS("1.2.113"),
-    test: (ctx) => nonEmpty(d9House(ctx, 5).filter((p) => p === "Sun")),
+    test: (ctx) => nonEmpty(d9House15(ctx).filter((p) => p === "Sun")),
   },
   {
     id: "jks-5th-ketu",
     group: "karakamsa",
     chart: "navamsa",
-    when: "Ketu in the 5th from the Karakamsa",
-    text: "Ketu in the 5th from the Karakamsa: a mathematician.",
+    when: "Ketu in the Karakamsa or the 5th from it",
+    text: "Ketu in the Karakamsa or its 5th: a mathematician.",
     weight: 1,
     source: JS("1.2.114"),
-    test: (ctx) => nonEmpty(d9House(ctx, 5).filter((p) => p === "Ketu")),
+    test: (ctx) => nonEmpty(d9House15(ctx).filter((p) => p === "Ketu")),
   },
   {
     id: "jks-5th-saturn",
     group: "karakamsa",
     chart: "navamsa",
-    when: "Saturn in the 5th from the Karakamsa",
-    text: "Saturn in the 5th from the Karakamsa: slow to speak in an assembly.",
+    when: "Saturn in the Karakamsa or the 5th from it",
+    text: "Saturn in the Karakamsa or its 5th: slow to speak in an assembly.",
     weight: 1,
     source: JS("1.2.109"),
-    test: (ctx) => nonEmpty(d9House(ctx, 5).filter((p) => p === "Saturn")),
+    test: (ctx) => nonEmpty(d9House15(ctx).filter((p) => p === "Saturn")),
   },
   {
     id: "jks-3rd-malefic",
@@ -642,6 +653,8 @@ export const JAIMINI_RULES: JaiminiRule[] = [
   },
 ];
 
+JAIMINI_RULES.push(...SUTRA_RULES);
+
 export const JAIMINI_RULE_INFO: JaiminiRuleInfo[] = JAIMINI_RULES.map(({ test: _t, ...rest }) => rest);
 
 export function evaluateJaimini(ctx: JaiminiContext): JaiminiFinding[] {
@@ -649,7 +662,7 @@ export function evaluateJaimini(ctx: JaiminiContext): JaiminiFinding[] {
   for (const r of JAIMINI_RULES) {
     const planets = r.test(ctx);
     if (planets === null) continue;
-    let text = r.text;
+    let text = sutraRuleText(r.id, planets, ctx) ?? r.text;
     if (r.id === "jk-ak-sign") text = `Karakamsa in ${KARAKAMSA_SIGN[ctx.karakamsa]}`;
     if (r.id === "jks-12th-deity") {
       const forms = DEITY.filter((d) => d.planets.every((p) => planets.includes(p))).map((d) => d.text);

@@ -19,6 +19,7 @@ function AppRouter() {
       <Route path="/" component={Home} />
       <Route path="/chart/:id" component={ChartPage} />
       <Route path="/rules" component={RulesPage} />
+      <Route path="/sutras/:ref?" component={RulesPage} />
       <Route path="/about" component={AboutPage} />
       <Route component={NotFound} />
     </Switch>

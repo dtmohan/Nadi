@@ -156,3 +156,30 @@ export function ascendantAt(jd: number, latitude: number, longitude: number, opt
 export function nowJd(): number {
   return julianDay(DateTime.utc());
 }
+
+/** Julian day of the last sunrise (upper limb, standard refraction) at or before `jd` for the given place. */
+export function sunriseBefore(jd: number, latitude: number, longitude: number): number {
+  const rise = (start: number) => {
+    const r = sweph.rise_trans(start, C.SE_SUN, "", C.SEFLG_SWIEPH, C.SE_CALC_RISE, [longitude, latitude, 0], 1013.25, 15) as unknown as { flag: number; data: number[] | number };
+    if (r.flag < 0) throw new Error("Could not compute sunrise");
+    return Array.isArray(r.data) ? r.data[0] : r.data;
+  };
+  let t = rise(jd - 1.05);
+  // Step forward while the next sunrise is still not after `jd`.
+  for (let i = 0; i < 3; i++) {
+    const next = rise(t + 0.5);
+    if (next > jd) break;
+    t = next;
+  }
+  return t;
+}
+
+/** Jaimini special lagnas: Hora lagna advances one sign per hour and Ghatika lagna one sign per ghati (24 min) from the Sun's sidereal longitude at sunrise. */
+export function specialLagnas(jd: number, latitude: number, longitude: number, opts: EphemerisOptions): { horaLagna: number; ghatikaLagna: number; sunriseJd: number } {
+  const sunriseJd = sunriseBefore(jd, latitude, longitude);
+  setMode(opts);
+  const sun = sweph.calc_ut(sunriseJd, C.SE_SUN, FLAGS) as unknown as { flag: number; data: number[] };
+  const sunLon = norm360(sun.data[0]);
+  const hours = (jd - sunriseJd) * 24;
+  return { horaLagna: norm360(sunLon + hours * 30), ghatikaLagna: norm360(sunLon + hours * 75), sunriseJd };
+}

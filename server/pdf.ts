@@ -14,6 +14,7 @@ import { nextMarriageWindow } from "@shared/marriage";
 import { nextChildWindow } from "@shared/children";
 import { CHARA_KARAKA_INFO, SAVYA, influencesOn, type CharaDashaPeriod } from "@shared/jaimini";
 import { JAIMINI_GROUP_LABEL } from "@shared/rules-jaimini";
+import { AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
 import { JAIMINI_AREAS, RAO_SOURCE, currentFor, isHot, readAreas, type TransitTarget } from "@shared/jaimini-areas";
 import { TRANSIT_GRADE_LABEL, confirmTransits, summarizeTouches } from "@shared/jaimini-transit";
 
@@ -311,6 +312,23 @@ function jaiminiSection(doc: Doc, result: ChartResult) {
     }
   }
   if (!j.findings.length) doc.font("Helvetica").fontSize(8.5).fillColor(MUTED).text("No rule in the current set fires for this chart.", PAGE.m, doc.y);
+
+  // span of life (Jaimini 2.1), a classification, not a forecast
+  ensureSpace(doc, 110);
+  sectionTitle(doc, "Span of life (Ayurdaya)", "a classical classification, Jaimini Sutras 2.1.1-14 · not a forecast");
+  doc.font("Helvetica").fontSize(8.5).fillColor(INK);
+  for (const p of j.ayur.pairs) {
+    const a = `${p.a.planet ? p.a.planet + " in " : ""}${p.a.sign} (${p.a.nature})`;
+    const b = `${p.b.planet ? p.b.planet + " in " : ""}${p.b.sign} (${p.b.nature})`;
+    const rowY = doc.y;
+    doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(`${p.label} (${p.sutra}): ${a} and ${b}`, PAGE.m, rowY, { width: CONTENT_W - 120, lineBreak: false });
+    doc.font("Helvetica").fontSize(8.5).fillColor(MUTED).text(AYUR_TERM_LABEL[p.term], PAGE.m + CONTENT_W - 115, rowY, { width: 115, lineBreak: false });
+    doc.y = rowY + 12;
+  }
+  doc.y += 2;
+  doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text(`${AYUR_TERM_LABEL[j.ayur.term]}, ${j.ayur.range} in the classical scheme.`, PAGE.m, doc.y, { width: CONTENT_W });
+  doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`Decided by: ${j.ayur.decidedBy}.${j.ayur.adjustments.length ? " " + j.ayur.adjustments.map((a) => a.text).join(" ") : ""}`, PAGE.m, doc.y + 1, { width: CONTENT_W });
+  doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text("The brackets are wide and the tradition disputes the pair table; no chart reading stands in for medical care. Text: https://archive.org/details/in.ernet.dli.2015.134405", PAGE.m, doc.y + 1, { width: CONTENT_W });
 }
 
 function jaiminiAreasSection(doc: Doc, result: ChartResult) {
