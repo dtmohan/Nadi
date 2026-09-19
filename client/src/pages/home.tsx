@@ -3,7 +3,7 @@ import { useLocation, Link } from "wouter";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { MapPin, Trash2, ArrowRight, Loader2, Download, Upload } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import { chartsStore, useSavedCharts } from "@/lib/charts-store";
+import { chartsStore, useSavedCharts, useStorageKind } from "@/lib/charts-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,13 +101,14 @@ export default function Home() {
   const set = <K extends keyof InsertChart>(k: K, v: InsertChart[K]) => setForm((f) => ({ ...f, [k]: v }));
 
   const { data: charts, isLoading } = useSavedCharts();
+  const storageKind = useStorageKind();
   const fileInput = useRef<HTMLInputElement>(null);
 
   const create = useMutation({
     mutationFn: async (data: InsertChart) => {
       // The server validates and computes; the chart itself is kept in this browser only.
       await apiRequest("POST", "/api/compute", data);
-      return chartsStore.create(data);
+      return await chartsStore.create(data);
     },
     onSuccess: (chart: Chart) => navigate(`/chart/${chart.id}`),
     onError: (e: Error) => toast({ title: "Could not cast chart", description: e.message, variant: "destructive" }),
@@ -115,8 +116,8 @@ export default function Home() {
 
   const remove = useMutation({ mutationFn: async (id: number) => chartsStore.remove(id) });
 
-  const exportCharts = () => {
-    const blob = new Blob([chartsStore.exportJson()], { type: "application/json" });
+  const exportCharts = async () => {
+    const blob = new Blob([await chartsStore.exportJson()], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -128,7 +129,7 @@ export default function Home() {
   const importCharts = async (file: File | undefined) => {
     if (!file) return;
     try {
-      const added = chartsStore.importJson(await file.text());
+      const added = await chartsStore.importJson(await file.text());
       toast({
         title: added ? `Imported ${added} chart${added === 1 ? "" : "s"}` : "Nothing new to import",
         description: added ? undefined : "Every chart in the file is already saved here.",
@@ -287,7 +288,9 @@ export default function Home() {
             </div>
           </div>
           <p className="mt-1 text-xs text-muted-foreground" data-testid="text-storage-note">
-            Saved in this browser only. Nothing is stored online; export a backup to keep them or move them to another device.
+            {storageKind === "memory"
+              ? "This preview cannot keep charts between reloads; the published site saves them on your device. Nothing is stored online."
+              : "Saved on this device only. Nothing is stored online; export a backup to keep them or move them to another device."}
           </p>
 
           {isLoading && (

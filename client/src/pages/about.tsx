@@ -234,7 +234,7 @@ export default function AboutPage() {
         </ul>
         <h2>Where your charts live</h2>
         <p>
-          Saved charts are kept in this browser's local storage, on your device only. The server receives birth data to compute a reading or a PDF and
+          Saved charts are kept in this browser's own storage, on your device only. The server receives birth data to compute a reading or a PDF and
           keeps nothing. Other visitors to the site never see your charts. Because the list belongs to the browser, it does not follow you to another
           device or survive clearing site data: use Export on the home page to download a backup file, and Import to restore or move it.
         </p>

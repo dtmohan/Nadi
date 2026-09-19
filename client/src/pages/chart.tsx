@@ -535,7 +535,7 @@ export default function ChartPage() {
   const { data, isLoading, error } = useQuery<ChartResult>({
     queryKey: ["chart-result", id],
     queryFn: async () => {
-      const chart = chartsStore.get(Number(id));
+      const chart = await chartsStore.get(Number(id));
       if (!chart) throw new Error("Chart not found in this browser");
       const result = (await (await apiRequest("POST", "/api/compute", chart)).json()) as ChartResult;
       return { ...result, chart };
