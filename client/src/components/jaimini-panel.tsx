@@ -1,0 +1,319 @@
+import { useMemo, useState } from "react";
+import { DateTime } from "luxon";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import type { ChartResult } from "@shared/schema";
+import { PLANET_ABBR, SIGNS, SIGN_ABBR, fmtDegShort, houseFrom, type Planet } from "@shared/astro";
+import { CHARA_KARAKA_INFO, SAVYA, influencesOn, signsAspectedBy, type CharaDashaPeriod, type JaiminiFinding } from "@shared/jaimini";
+import { JAIMINI_GROUP_LABEL } from "@shared/rules-jaimini";
+import { SouthIndianChart } from "@/components/south-indian-chart";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+
+function ordinal(n: number) {
+  return `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
+}
+
+function fmt(iso: string) {
+  return DateTime.fromISO(iso).toFormat("d LLL yyyy");
+}
+
+function DashaRow({ p, now, birth, open, onToggle }: { p: CharaDashaPeriod; now: DateTime; birth: DateTime; open: boolean; onToggle: () => void }) {
+  const start = DateTime.fromISO(p.start);
+  const end = DateTime.fromISO(p.end);
+  const current = now >= start && now < end;
+  const past = now >= end;
+  return (
+    <li className={cn("rounded-md border", current && "border-primary/60 bg-primary/5")} data-testid={`dasha-${p.cycle}-${p.sign}`}>
+      <button type="button" onClick={onToggle} className="flex w-full flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 text-left" data-testid={`button-dasha-${p.cycle}-${p.sign}`} aria-expanded={open}>
+        {open ? <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
+        <span className={cn("w-24 font-medium", past && !current && "text-muted-foreground")}>{p.signName}</span>
+        <span className="tabular w-16 text-sm text-muted-foreground">{p.years} {p.years === 1 ? "year" : "years"}</span>
+        <span className="tabular text-sm text-muted-foreground">
+          {fmt(p.start)} – {fmt(p.end)}
+        </span>
+        <span className="tabular text-xs text-muted-foreground">age {p.ageStart}–{p.ageStart + p.years}</span>
+        {current && (
+          <Badge variant="secondary" className="no-default-hover-elevate ml-auto text-[10px]">
+            now
+          </Badge>
+        )}
+      </button>
+      {open && (
+        <div className="border-t px-3 py-2 text-xs">
+          <p className="text-muted-foreground">
+            {p.lord} in {SIGNS[p.lordSign]}, counted {SAVYA.has(p.sign) ? "forward" : "backward"} from {p.signName}
+            {p.note ? `; ${p.note}` : ""}. Antardashas run {SAVYA.has(p.sign) ? "forward" : "backward"} from the next sign and end on {p.signName}.
+          </p>
+          <ul className="mt-2 grid gap-x-4 sm:grid-cols-2 lg:grid-cols-3" data-testid={`antardashas-${p.cycle}-${p.sign}`}>
+            {p.antardashas.map((a) => {
+              const s = DateTime.fromISO(a.start);
+              const e = DateTime.fromISO(a.end);
+              const cur = now >= s && now < e;
+              return (
+                <li key={a.sign} className={cn("tabular flex justify-between gap-2 border-b py-1", cur && "font-semibold text-primary")}>
+                  <span>{a.signName}</span>
+                  <span className="text-muted-foreground">
+                    {s.toFormat("LLL yyyy")} – {e.toFormat("LLL yyyy")}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </li>
+  );
+}
+
+export function JaiminiPanel({ result }: { result: ChartResult }) {
+  const { jaimini: j, positions, chart } = result;
+  const now = DateTime.fromISO(result.now.asOf);
+  const birth = DateTime.fromISO(result.utc);
+  const [openDasha, setOpenDasha] = useState<string | null>(() => {
+    const cur = j.charaDasha.periods.find((p) => now >= DateTime.fromISO(p.start) && now < DateTime.fromISO(p.end));
+    return cur ? `${cur.cycle}-${cur.sign}` : null;
+  });
+  const [showAll, setShowAll] = useState(false);
+
+  const tags = useMemo(() => Object.fromEntries(j.karakas.map((k) => [k.planet, k.karaka])) as Partial<Record<Planet, string>>, [j.karakas]);
+  const rasiBadges = useMemo(() => {
+    const b: Record<number, string[]> = {};
+    for (const a of j.arudhas) if (a.label === "AL" || a.label === "UL") (b[a.signIndex] ??= []).push(a.label);
+    return b;
+  }, [j.arudhas]);
+  const d9Badges = useMemo(() => ({ [j.karakamsa.signIndex]: ["Karakamsa"] }), [j.karakamsa.signIndex]);
+  const ak = j.karakas[0].planet;
+
+  const currentMd = j.charaDasha.periods.find((p) => now >= DateTime.fromISO(p.start) && now < DateTime.fromISO(p.end));
+  const currentAd = currentMd?.antardashas.find((a) => now >= DateTime.fromISO(a.start) && now < DateTime.fromISO(a.end));
+  const visiblePeriods = showAll ? j.charaDasha.periods : j.charaDasha.periods.filter((p) => p.cycle === 1);
+
+  const grouped = useMemo(() => {
+    const g = new Map<string, JaiminiFinding[]>();
+    for (const f of j.findings) g.set(f.group, [...(g.get(f.group) ?? []), f]);
+    return g;
+  }, [j.findings]);
+
+  const al = j.arudhas[0];
+  const ul = j.arudhas[11];
+  const rasiInfluence = (sign: number) => influencesOn(sign, positions);
+  const dashaSignNotes = (p: CharaDashaPeriod) => {
+    const notes: string[] = [];
+    const occ = positions.filter((x) => x.signIndex === p.sign).map((x) => x.planet);
+    if (occ.length) notes.push(`holds ${occ.join(", ")}`);
+    const asp = positions.filter((x) => signsAspectedBy(x.signIndex).includes(p.sign)).map((x) => x.planet);
+    if (asp.length) notes.push(`is aspected by ${asp.join(", ")}`);
+    if (p.sign === al.signIndex) notes.push("is the Arudha lagna sign: a period about image and standing");
+    if (p.sign === ul.signIndex) notes.push("is the Upapada sign: marriage and the spouse's family come forward");
+    if (p.sign === j.karakamsa.signIndex) notes.push("is the Karakamsa sign (Swamsa): the soul's own agenda");
+    const ks = j.karakas.filter((k) => positions.find((x) => x.planet === k.planet)!.signIndex === p.sign).map((k) => `${k.karaka} ${k.planet}`);
+    if (ks.length) notes.push(`holds the ${ks.join(" and ")}`);
+    notes.push(`is the ${ordinal(houseFrom(j.lagna.signIndex, p.sign))} from the lagna and the ${ordinal(houseFrom(al.signIndex, p.sign))} from the Arudha lagna`);
+    return notes;
+  };
+
+  return (
+    <div data-testid="jaimini-panel">
+      <div className="flex flex-wrap items-center gap-1.5 text-xs">
+        <Badge variant="outline" className="no-default-hover-elevate tabular" data-testid="text-jaimini-lagna">
+          Lagna {j.lagna.sign} {fmtDegShort(j.lagna.lon)}
+        </Badge>
+        <Badge variant="outline" className="no-default-hover-elevate">
+          Navamsa lagna {j.navamsaLagna.sign}
+        </Badge>
+        <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-karakamsa">
+          Karakamsa {j.karakamsa.sign} ({PLANET_ABBR[ak]} AK)
+        </Badge>
+        <Badge variant="outline" className="no-default-hover-elevate">
+          Chara dasha {j.charaDasha.direction}
+        </Badge>
+        {currentMd && (
+          <Badge variant="secondary" className="no-default-hover-elevate" data-testid="text-current-dasha">
+            Now: {currentMd.signName}
+            {currentAd ? ` / ${currentAd.signName}` : ""}
+          </Badge>
+        )}
+      </div>
+
+      <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
+        <div>
+          <SouthIndianChart positions={positions} title={chart.name} subtitle="Rasi with lagna and padas" lagnaSign={j.lagna.signIndex} badges={rasiBadges} accent={[ak]} footer="Rasi · houses from the lagna" />
+          <p className="mt-2 text-xs text-muted-foreground">
+            <span className="font-semibold text-primary">As</span> ascendant · numbers are houses from the lagna · <span className="font-semibold text-[hsl(var(--chart-3))]">AL</span> Arudha lagna ·{" "}
+            <span className="font-semibold text-[hsl(var(--chart-3))]">UL</span> Upapada · <span className="font-semibold text-primary">{PLANET_ABBR[ak]}</span> Atmakaraka
+          </p>
+        </div>
+        <div>
+          <SouthIndianChart positions={j.navamsa} title="Navamsa" subtitle="D9 with chara karakas" lagnaSign={j.navamsaLagna.signIndex} badges={d9Badges} tags={tags} accent={[ak]} footer="Navamsa · houses from the D9 lagna" />
+          <p className="mt-2 text-xs text-muted-foreground">Planets carry their chara karaka. The Atmakaraka's D9 sign is the Karakamsa; Jaimini reads career, temperament and devotion from the houses counted from it.</p>
+        </div>
+      </div>
+
+      <section className="mt-10" data-testid="section-karakas">
+        <h2 className="text-base font-semibold">Chara karakas</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Eight movable significators ranked by degree within sign; Rahu is ranked by thirty minus its degree because it moves backward.</p>
+        <Table className="tabular mt-3">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Karaka</TableHead>
+              <TableHead>Planet</TableHead>
+              <TableHead className="text-right">Rank degree</TableHead>
+              <TableHead className="hidden sm:table-cell">Rasi</TableHead>
+              <TableHead className="hidden sm:table-cell">Navamsa</TableHead>
+              <TableHead className="hidden md:table-cell">Signifies</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {j.karakas.map((k) => {
+              const rp = positions.find((p) => p.planet === k.planet)!;
+              const dp = j.navamsa.find((p) => p.planet === k.planet)!;
+              return (
+                <TableRow key={k.karaka} data-testid={`row-karaka-${k.karaka}`}>
+                  <TableCell className="py-2">
+                    <span className="font-semibold text-primary">{k.karaka}</span> <span className="text-muted-foreground">{CHARA_KARAKA_INFO[k.karaka].name}</span>
+                  </TableCell>
+                  <TableCell className="py-2 font-medium">{k.planet}</TableCell>
+                  <TableCell className="py-2 text-right">{k.rankDegree.toFixed(2)}°</TableCell>
+                  <TableCell className="hidden py-2 sm:table-cell">{rp.sign}</TableCell>
+                  <TableCell className="hidden py-2 sm:table-cell">{dp.sign}</TableCell>
+                  <TableCell className="hidden py-2 text-muted-foreground md:table-cell">{CHARA_KARAKA_INFO[k.karaka].meaning}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </section>
+
+      <section className="mt-10" data-testid="section-arudhas">
+        <h2 className="text-base font-semibold">Arudha padas</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Count from a house to its lord, then as far again. When the reflection lands in the house or its 7th it is moved to the 10th from there (marked with an asterisk). Traditional lords are used for Scorpio and Aquarius.
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          {j.arudhas.map((a) => (
+            <Card key={a.label} className={cn(a.label === "AL" || a.label === "UL" ? "border-primary/40" : "")} data-testid={`arudha-${a.label}`}>
+              <CardContent className="p-3">
+                <div className="flex items-baseline justify-between">
+                  <span className="font-semibold">
+                    {a.label}
+                    {a.corrected ? "*" : ""}
+                  </span>
+                  <span className="text-sm">{a.sign}</span>
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">
+                  {ordinal(a.house)} house {SIGN_ABBR[a.houseSign]}, lord {a.lord} in {SIGN_ABBR[a.lordSign]}
+                </div>
+                <div className="mt-1 text-xs text-muted-foreground">{a.name}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-10" data-testid="section-drishti">
+        <h2 className="text-base font-semibold">Rasi drishti and argala</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Signs aspect signs: movable signs see the fixed signs except the next one, fixed signs see the movable signs except the previous one, dual signs see each other. Planets in the 2nd, 4th and 11th from a sign intervene in
+          its affairs (argala); the 12th, 10th and 3rd obstruct them.
+        </p>
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
+          {j.argala.map((g) => {
+            const inf = rasiInfluence(g.sign);
+            return (
+              <Card key={g.target} data-testid={`drishti-${g.target.replace(/\s+/g, "-").toLowerCase()}`}>
+                <CardContent className="p-3 text-sm">
+                  <div className="font-medium">
+                    {g.target} <span className="text-muted-foreground">{SIGNS[g.sign]}</span>
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">Occupied by {inf.occupants.length ? inf.occupants.join(", ") : "no planet"}</div>
+                  <div className="text-xs text-muted-foreground">Aspected by {inf.aspecting.length ? inf.aspecting.join(", ") : "no planet"}</div>
+                  <ul className="mt-2 space-y-1 text-xs">
+                    {g.items.length === 0 && <li className="text-muted-foreground">No argala.</li>}
+                    {g.items.map((it) => (
+                      <li key={it.house}>
+                        <span className={cn(it.obstructed && "text-muted-foreground line-through decoration-muted-foreground/60")}>
+                          {ordinal(it.house)} {it.kind === "secondary" ? "(secondary) " : ""}
+                          {it.planets.join(", ")}
+                        </span>
+                        {it.obstructedBy.length > 0 && (
+                          <span className="text-muted-foreground">
+                            {" "}
+                            · {ordinal(it.obstructingHouse)} {it.obstructedBy.join(", ")} {it.obstructed ? "obstructs" : "resists"}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mt-10" data-testid="section-chara-dasha">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 className="text-base font-semibold">Chara dasha (K.N. Rao)</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Sequence from the lagna, {j.charaDasha.direction} because the 9th house ({SIGNS[j.charaDasha.ninthSign]}) is {SAVYA.has(j.charaDasha.ninthSign) ? "a savya sign" : "an apasavya sign"}. Years: count from the sign to its lord, less one; a lord in its own sign gives twelve. No exaltation or debilitation adjustment.
+            </p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => setShowAll((v) => !v)} data-testid="button-toggle-second-cycle">
+            {showAll ? "First cycle only" : "Show second cycle"}
+          </Button>
+        </div>
+        {currentMd && (
+          <Card className="mt-3 border-primary/40" data-testid="card-current-dasha">
+            <CardContent className="p-3 text-sm">
+              <div className="font-medium">
+                {currentMd.signName} mahadasha{currentAd ? `, ${currentAd.signName} antardasha` : ""} <span className="text-muted-foreground">(age {Math.floor(now.diff(birth, "years").years)})</span>
+              </div>
+              <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
+                {dashaSignNotes(currentMd).map((n, i) => (
+                  <li key={i}>
+                    {currentMd.signName} {n}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+        <ul className="mt-3 space-y-1.5">
+          {visiblePeriods.map((p) => {
+            const key = `${p.cycle}-${p.sign}`;
+            return <DashaRow key={key} p={p} now={now} birth={birth} open={openDasha === key} onToggle={() => setOpenDasha(openDasha === key ? null : key)} />;
+          })}
+        </ul>
+      </section>
+
+      <section className="mt-10" data-testid="section-jaimini-findings">
+        <h2 className="text-base font-semibold">What the sutras say</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Karakamsa rules are read in the navamsa; Arudha and Upapada rules in the rasi chart with rasi drishti. Each finding names its sutra.</p>
+        {j.findings.length === 0 && <p className="mt-3 text-sm text-muted-foreground">No rule in the current set fires for this chart.</p>}
+        {Array.from(grouped.entries()).map(([group, items]) => (
+          <div key={group} className="mt-4">
+            <h3 className="text-sm font-semibold text-muted-foreground">{JAIMINI_GROUP_LABEL[group as keyof typeof JAIMINI_GROUP_LABEL]}</h3>
+            <ul className="mt-1 divide-y">
+              {items.map((f) => (
+                <li key={f.id} className="py-2" data-testid={`jaimini-finding-${f.id}`}>
+                  <div className="text-sm">{f.text}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {f.planets.length ? `${f.planets.join(" · ")} — ` : ""}
+                    {f.chart === "navamsa" ? "navamsa" : "rasi"} · weight {f.weight} ·{" "}
+                    <a href={f.source.url} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
+                      {f.source.label}
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}

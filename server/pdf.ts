@@ -12,6 +12,8 @@ import { chainSummary, tierLabel } from "@shared/flow";
 import { housesFrom, retroNotes, HOUSE_CLASS_LABEL } from "@shared/houses";
 import { nextMarriageWindow } from "@shared/marriage";
 import { nextChildWindow } from "@shared/children";
+import { CHARA_KARAKA_INFO, SAVYA, influencesOn, type CharaDashaPeriod } from "@shared/jaimini";
+import { JAIMINI_GROUP_LABEL } from "@shared/rules-jaimini";
 
 const INK = "#2b241e";
 const MUTED = "#7a6f66";
@@ -50,8 +52,28 @@ function sectionTitle(doc: Doc, title: string, note?: string) {
   doc.y = y + 30;
 }
 
-function drawSouthIndianChart(doc: Doc, x: number, y: number, size: number, positions: PlanetPosition[], transit: PlanetPosition[], title: string, subtitle: string) {
+interface DrawPlanet {
+  planet: Planet;
+  signIndex: number;
+  degInSign: number;
+  lon?: number;
+  retrograde?: boolean;
+}
+interface DrawOpts {
+  /** Mark the ascendant sign. */
+  lagnaSign?: number;
+  /** Superscript tag after a planet; replaces the degree. */
+  tags?: Partial<Record<Planet, string>>;
+  /** Labels at the foot of a cell. */
+  badges?: Record<number, string[]>;
+  footer?: string;
+  /** Planets drawn in vermilion (overrides BNN colouring). */
+  accent?: Planet[];
+}
+
+function drawSouthIndianChart(doc: Doc, x: number, y: number, size: number, positions: DrawPlanet[], transit: PlanetPosition[], title: string, subtitle: string, opts: DrawOpts = {}) {
   const cell = size / 4;
+  const colorOf = (pl: Planet) => (opts.accent ? (opts.accent.includes(pl) ? VERMILION : INK) : planetColor(pl));
   doc.save();
   doc.rect(x, y, size, size).fillColor(PAPER).fill();
   // grid
@@ -64,7 +86,7 @@ function drawSouthIndianChart(doc: Doc, x: number, y: number, size: number, posi
   doc.rect(x + cell, y + cell, cell * 2, cell * 2).fillColor(PAPER).fill();
   doc.rect(x + cell, y + cell, cell * 2, cell * 2).lineWidth(0.8).strokeColor(INK).stroke();
 
-  const bySign = new Map<number, PlanetPosition[]>();
+  const bySign = new Map<number, DrawPlanet[]>();
   for (const p of positions) bySign.set(p.signIndex, [...(bySign.get(p.signIndex) ?? []), p]);
   const tBySign = new Map<number, PlanetPosition[]>();
   for (const p of transit) tBySign.set(p.signIndex, [...(tBySign.get(p.signIndex) ?? []), p]);
@@ -73,6 +95,8 @@ function drawSouthIndianChart(doc: Doc, x: number, y: number, size: number, posi
     const cx = x + c.col * cell;
     const cy = y + c.row * cell;
     doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(SIGN_ABBR[c.signIndex], cx + 4, cy + 4, { lineBreak: false });
+    if (opts.lagnaSign === c.signIndex) doc.font("Helvetica-Bold").fontSize(6.5).fillColor(VERMILION).text("As", cx + 4, cy + cell - 11, { lineBreak: false });
+    if (opts.badges?.[c.signIndex]?.length) doc.font("Helvetica-Bold").fontSize(6).fillColor(INDIGO).text(opts.badges[c.signIndex].join(" "), cx, cy + cell - 11, { width: cell - 4, align: "right", lineBreak: false });
     const ps = bySign.get(c.signIndex) ?? [];
     const twoCol = ps.length > 3;
     ps.forEach((p, i) => {
@@ -81,12 +105,18 @@ function drawSouthIndianChart(doc: Doc, x: number, y: number, size: number, posi
       const px = cx + 5 + col * (cell / 2 - 2);
       const py = cy + 15 + row * 11;
       if (py > cy + cell - 10) return;
-      doc.font("Helvetica-Bold").fontSize(8.5).fillColor(planetColor(p.planet));
+      doc.font("Helvetica-Bold").fontSize(8.5).fillColor(colorOf(p.planet));
       const label = PLANET_ABBR[p.planet];
       doc.text(label, px, py, { lineBreak: false });
       const lw = doc.widthOfString(label);
-      const deg = twoCol ? `${Math.floor(p.degInSign)}°` : fmtDegShort(p.lon);
-      doc.font("Helvetica").fontSize(6).fillColor(MUTED).text(`${deg}${p.retrograde && CLASSICAL.has(p.planet) ? " R" : ""}`, px + lw + 2, py + 1.5, { lineBreak: false });
+      const tag = opts.tags?.[p.planet];
+      if (tag) {
+        doc.font("Helvetica-Bold").fontSize(5.5).fillColor(VERMILION).text(tag, px + lw + 1.5, py - 1, { lineBreak: false });
+      } else {
+        const lon = p.lon ?? p.signIndex * 30 + p.degInSign;
+        const deg = twoCol ? `${Math.floor(p.degInSign)}°` : fmtDegShort(lon);
+        doc.font("Helvetica").fontSize(6).fillColor(MUTED).text(`${deg}${p.retrograde && CLASSICAL.has(p.planet) ? " R" : ""}`, px + lw + 2, py + 1.5, { lineBreak: false });
+      }
     });
     const ts = tBySign.get(c.signIndex) ?? [];
     if (ts.length) {
@@ -97,8 +127,178 @@ function drawSouthIndianChart(doc: Doc, x: number, y: number, size: number, posi
   // centre text
   doc.font("Times-Bold").fontSize(11).fillColor(INK).text(title, x + cell, y + cell + cell * 0.75, { width: cell * 2, align: "center" });
   doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(subtitle, x + cell, doc.y + 2, { width: cell * 2, align: "center" });
-  doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text("Rasi · sidereal", x + cell, y + cell * 3 - 14, { width: cell * 2, align: "center" });
+  doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(opts.footer ?? "Rasi · sidereal", x + cell, y + cell * 3 - 14, { width: cell * 2, align: "center" });
   doc.restore();
+}
+
+const ORD = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
+
+function jaiminiSection(doc: Doc, result: ChartResult) {
+  const { chart, positions, jaimini: j } = result;
+  const birth = DateTime.fromISO(result.utc);
+  const nowDt = DateTime.fromISO(result.now.asOf);
+  const ak = j.karakas[0].planet;
+  const al = j.arudhas[0];
+  const ul = j.arudhas[11];
+
+  doc.addPage();
+  sectionTitle(doc, "Jaimini", "a separate, ascendant-based reading; nothing here feeds the Nadi reading above");
+  doc.font("Helvetica").fontSize(8.5).fillColor(INK);
+  doc.text(
+    `Lagna ${j.lagna.sign} ${fmtDegShort(j.lagna.lon)} · Navamsa lagna ${j.navamsaLagna.sign} · Atmakaraka ${ak} · Karakamsa ${j.karakamsa.sign} · Arudha lagna ${al.sign} · Upapada ${ul.sign} · Chara dasha runs ${j.charaDasha.direction} (9th house ${SIGNS[j.charaDasha.ninthSign]})`,
+    PAGE.m,
+    doc.y,
+    { width: CONTENT_W },
+  );
+  doc.moveDown(0.6);
+
+  // two charts side by side
+  const size = (CONTENT_W - 16) / 2;
+  const top = doc.y;
+  const rasiBadges: Record<number, string[]> = {};
+  for (const a of j.arudhas) if (a.label === "AL" || a.label === "UL") (rasiBadges[a.signIndex] ??= []).push(a.label);
+  const tags = Object.fromEntries(j.karakas.map((k) => [k.planet, k.karaka])) as Partial<Record<Planet, string>>;
+  drawSouthIndianChart(doc, PAGE.m, top, size, positions, [], chart.name, "Rasi · lagna and padas", { lagnaSign: j.lagna.signIndex, badges: rasiBadges, accent: [ak], footer: "As ascendant · AL, UL padas" });
+  drawSouthIndianChart(doc, PAGE.m + size + 16, top, size, j.navamsa, [], "Navamsa", "D9 · chara karakas", { lagnaSign: j.navamsaLagna.signIndex, badges: { [j.karakamsa.signIndex]: ["Karakamsa"] }, tags, accent: [ak], footer: "planets carry their karaka" });
+  doc.y = top + size + 12;
+
+  // karaka table
+  sectionTitle(doc, "Chara karakas", "ranked by degree in sign; Rahu by 30 minus its degree");
+  const kc = [PAGE.m, PAGE.m + 34, PAGE.m + 120, PAGE.m + 180, PAGE.m + 240, PAGE.m + 300];
+  doc.font("Helvetica").fontSize(7.5).fillColor(MUTED);
+  ["Karaka", "Name", "Planet", "Degree", "Rasi", "Navamsa · signifies"].forEach((h, i) => doc.text(h, kc[i], doc.y, { lineBreak: false }));
+  doc.y += 11;
+  for (const k of j.karakas) {
+    const rp = positions.find((p) => p.planet === k.planet)!;
+    const dp = j.navamsa.find((p) => p.planet === k.planet)!;
+    const y = doc.y;
+    doc.moveTo(PAGE.m, y - 2).lineTo(PAGE.w - PAGE.m, y - 2).lineWidth(0.3).strokeColor(RULE).stroke();
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(VERMILION).text(k.karaka, kc[0], y, { lineBreak: false });
+    doc.font("Helvetica").fontSize(8).fillColor(INK).text(CHARA_KARAKA_INFO[k.karaka].name, kc[1], y, { lineBreak: false });
+    doc.text(k.planet, kc[2], y, { lineBreak: false });
+    doc.fillColor(MUTED).text(`${k.rankDegree.toFixed(2)}°`, kc[3], y, { lineBreak: false });
+    doc.fillColor(INK).text(rp.sign, kc[4], y, { lineBreak: false });
+    doc.text(`${dp.sign} · `, kc[5], y, { continued: true, width: CONTENT_W - 300 }).fillColor(MUTED).text(CHARA_KARAKA_INFO[k.karaka].meaning);
+    doc.y = Math.max(doc.y, y + 11) + 1;
+  }
+
+  // arudhas
+  ensureSpace(doc, 90);
+  sectionTitle(doc, "Arudha padas", "* moved to the 10th because the reflection fell in the house or its 7th");
+  const ac = [PAGE.m, PAGE.m + 40, PAGE.m + 110, PAGE.m + 200];
+  doc.font("Helvetica").fontSize(7.5).fillColor(MUTED);
+  ["Pada", "Sign", "From", "Governs"].forEach((h, i) => doc.text(h, ac[i], doc.y, { lineBreak: false }));
+  doc.y += 11;
+  for (const a of j.arudhas) {
+    const y = doc.y;
+    doc.moveTo(PAGE.m, y - 2).lineTo(PAGE.w - PAGE.m, y - 2).lineWidth(0.3).strokeColor(RULE).stroke();
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(a.label === "AL" || a.label === "UL" ? VERMILION : INK).text(`${a.label}${a.corrected ? "*" : ""}`, ac[0], y, { lineBreak: false });
+    doc.font("Helvetica").fontSize(8).fillColor(INK).text(a.sign, ac[1], y, { lineBreak: false });
+    doc.fillColor(MUTED).text(`${ORD(a.house)} ${SIGN_ABBR[a.houseSign]}, ${a.lord} in ${SIGN_ABBR[a.lordSign]}`, ac[2], y, { lineBreak: false });
+    doc.fillColor(INK).text(a.name, ac[3], y, { lineBreak: false });
+    doc.y = y + 11;
+  }
+  doc.moveDown(0.4);
+
+  // drishti / argala
+  ensureSpace(doc, 70);
+  sectionTitle(doc, "Rasi drishti and argala", "on the lagna, the Arudha lagna and the Upapada");
+  for (const g of j.argala) {
+    const inf = influencesOn(g.sign, positions);
+    const lines = [
+      `${g.target} ${SIGNS[g.sign]}: occupied by ${inf.occupants.length ? inf.occupants.join(", ") : "no planet"}; aspected by ${inf.aspecting.length ? inf.aspecting.join(", ") : "no planet"}.`,
+      ...g.items.map((it) => `  ${ORD(it.house)}${it.kind === "secondary" ? " (secondary)" : ""} argala: ${it.planets.join(", ")}${it.obstructedBy.length ? ` · ${ORD(it.obstructingHouse)} ${it.obstructedBy.join(", ")} ${it.obstructed ? "obstructs" : "resists"}` : ""}`),
+    ];
+    if (!g.items.length) lines.push("  No argala.");
+    doc.font("Helvetica").fontSize(8);
+    ensureSpace(doc, doc.heightOfString(lines.join("\n"), { width: CONTENT_W }) + 6);
+    doc.fillColor(INK).text(lines[0], PAGE.m, doc.y, { width: CONTENT_W });
+    doc.fillColor(MUTED).text(lines.slice(1).join("\n"), PAGE.m, doc.y, { width: CONTENT_W });
+    doc.moveDown(0.3);
+  }
+
+  // chara dasha
+  ensureSpace(doc, 320);
+  sectionTitle(doc, "Chara dasha (K.N. Rao)", `from ${j.lagna.sign}, ${j.charaDasha.direction} (9th house ${SIGNS[j.charaDasha.ninthSign]})`);
+  doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(
+    "Years are the count from a sign to its lord less one, savya signs forward and apasavya backward; a lord in its own sign gives twelve. No exaltation or debilitation adjustment. Antardashas are twelve equal parts, starting from the next sign in the dasha sign's direction.",
+    PAGE.m,
+    doc.y,
+    { width: CONTENT_W },
+  );
+  doc.moveDown(0.6);
+  const current = j.charaDasha.periods.find((p) => nowDt >= DateTime.fromISO(p.start) && nowDt < DateTime.fromISO(p.end));
+  const dc = [PAGE.m, PAGE.m + 40, PAGE.m + 110, PAGE.m + 150, PAGE.m + 260];
+  doc.font("Helvetica").fontSize(7.5).fillColor(MUTED);
+  ["Age", "Sign", "Years", "Period", "Lord and count"].forEach((h, i) => doc.text(h, dc[i], doc.y, { lineBreak: false }));
+  doc.y += 12;
+  const drawRow = (p: CharaDashaPeriod) => {
+    const isCur = p === current;
+    const start = DateTime.fromISO(p.start);
+    const end = DateTime.fromISO(p.end);
+    const note = `${p.lord} in ${SIGNS[p.lordSign]}, ${SAVYA.has(p.sign) ? "forward" : "backward"}${p.note ? ` · ${p.note}` : ""}`;
+    doc.font("Helvetica").fontSize(7.5);
+    const hNote = doc.heightOfString(note, { width: CONTENT_W - 260 });
+    const h = Math.max(13, hNote + 3);
+    ensureSpace(doc, h + (isCur ? 80 : 0));
+    const y = doc.y;
+    if (isCur) doc.rect(PAGE.m - 4, y - 3, CONTENT_W + 8, h).fillColor("#f3e4dc").fill();
+    doc.moveTo(PAGE.m, y - 3).lineTo(PAGE.w - PAGE.m, y - 3).lineWidth(0.3).strokeColor(RULE).stroke();
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text(p.ageStart === 0 && p.cycle === 1 ? "Birth" : `${p.ageStart}`, dc[0], y, { lineBreak: false });
+    doc.font(isCur ? "Helvetica-Bold" : "Helvetica").fontSize(8.5).fillColor(INK).text(p.signName, dc[1], y, { lineBreak: false });
+    doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(`${p.years}`, dc[2], y, { lineBreak: false });
+    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`${start.toFormat("d LLL yyyy")} – ${end.toFormat("d LLL yyyy")}`, dc[3], y, { width: 108, lineBreak: false });
+    doc.text(note, dc[4], y, { width: CONTENT_W - 260 });
+    doc.y = y + h;
+    if (isCur) {
+      // antardashas of the running dasha
+      doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(`Antardashas of ${p.signName}, ${SAVYA.has(p.sign) ? "forward" : "backward"} from the next sign:`, dc[1], doc.y + 1, { width: CONTENT_W - 40 });
+      const cols = 3;
+      const cw = (CONTENT_W - 40) / cols;
+      const y0 = doc.y + 2;
+      p.antardashas.forEach((a, i) => {
+        const s = DateTime.fromISO(a.start);
+        const e = DateTime.fromISO(a.end);
+        const cur = nowDt >= s && nowDt < e;
+        const cx = dc[1] + (i % cols) * cw;
+        const cy = y0 + Math.floor(i / cols) * 10;
+        doc.font(cur ? "Helvetica-Bold" : "Helvetica").fontSize(7).fillColor(cur ? VERMILION : INK).text(a.signName, cx, cy, { lineBreak: false });
+        doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(`${s.toFormat("LLL yyyy")} – ${e.toFormat("LLL yyyy")}`, cx + 50, cy, { lineBreak: false });
+      });
+      doc.y = y0 + Math.ceil(p.antardashas.length / cols) * 10 + 6;
+    }
+  };
+  for (const p of j.charaDasha.periods.filter((p) => p.cycle === 1)) drawRow(p);
+  const second = j.charaDasha.periods.filter((p) => p.cycle === 2 && p.ageStart < 100);
+  if (second.length) {
+    doc.moveDown(0.4);
+    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text("Second cycle (same years)", PAGE.m, doc.y);
+    doc.y += 4;
+    for (const p of second) drawRow(p);
+  }
+
+  // findings
+  ensureSpace(doc, 80);
+  sectionTitle(doc, "What the sutras say", `${j.findings.length} findings · Karakamsa rules read in the navamsa, pada rules in the rasi`);
+  const groups = new Map<string, typeof j.findings>();
+  for (const f of j.findings) groups.set(f.group, [...(groups.get(f.group) ?? []), f]);
+  for (const [g, items] of Array.from(groups.entries())) {
+    ensureSpace(doc, 40);
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INDIGO).text(JAIMINI_GROUP_LABEL[g as keyof typeof JAIMINI_GROUP_LABEL], PAGE.m, doc.y + 4);
+    doc.y += 2;
+    for (const f of items) {
+      doc.font("Helvetica").fontSize(8.5);
+      const meta = `${f.planets.length ? f.planets.join(", ") + " · " : ""}${f.chart} · ${f.source.label} · ${f.source.url}`;
+      const h = doc.heightOfString(f.text, { width: CONTENT_W - 10 }) + doc.heightOfString(meta, { width: CONTENT_W - 10 }) + 8;
+      ensureSpace(doc, h);
+      const y = doc.y;
+      scoreDots(doc, PAGE.m, y + 3, f.weight);
+      doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(f.text, PAGE.m + 22, y, { width: CONTENT_W - 22 });
+      doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(meta, PAGE.m + 22, doc.y + 1, { width: CONTENT_W - 22, link: f.source.url });
+      doc.y += 5;
+    }
+  }
+  if (!j.findings.length) doc.font("Helvetica").fontSize(8.5).fillColor(MUTED).text("No rule in the current set fires for this chart.", PAGE.m, doc.y);
 }
 
 function planetTable(doc: Doc, x: number, y: number, w: number, positions: PlanetPosition[], strength: PlanetStrength[]) {
@@ -397,6 +597,9 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
     doc.moveDown(0.5);
   }
 
+  // ── Jaimini (separate system) ──
+  jaiminiSection(doc, result);
+
   // ── Footer on every page ──
   const range = doc.bufferedPageRange();
   for (let i = range.start; i < range.start + range.count; i++) {
@@ -408,7 +611,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   doc.switchToPage(range.start + range.count - 1);
   doc.font("Helvetica").fontSize(7).fillColor(MUTED);
   doc.text(
-    "Positions from the Swiss Ephemeris (Astrodienst). Interpretive text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik; it is a starting set of rules meant to be extended, not a verdict.",
+    "Positions from the Swiss Ephemeris (Astrodienst). Nadi text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik; Jaimini text follows the Jaimini Sutras and BPHS chapter 30, with Chara dasha by K.N. Rao's method. Both are starting sets of rules meant to be extended, not a verdict.",
     PAGE.m,
     PAGE.h - PAGE.m - 14,
     { width: CONTENT_W },

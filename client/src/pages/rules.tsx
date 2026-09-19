@@ -2,6 +2,9 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PLANETS, SIGNS, type Planet } from "@shared/astro";
 import { LIFE_AREAS, RELATION_LABEL, type LifeArea, type Rule } from "@shared/rules";
+import { JAIMINI_GROUP_LABEL, type JaiminiRuleInfo } from "@shared/rules-jaimini";
+import type { JaiminiRuleGroup } from "@shared/jaimini";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -26,6 +29,60 @@ function describeCondition(w: Rule["when"]) {
   return parts.join(" · ");
 }
 
+function JaiminiRules() {
+  const { data: rules, isLoading } = useQuery<JaiminiRuleInfo[]>({ queryKey: ["/api/jaimini-rules"] });
+  const [group, setGroup] = useState<JaiminiRuleGroup | "all">("all");
+  const [q, setQ] = useState("");
+  const filtered = useMemo(
+    () => (rules ?? []).filter((r) => (group === "all" || r.group === group) && (!q || r.text.toLowerCase().includes(q.toLowerCase()) || r.when.toLowerCase().includes(q.toLowerCase()) || r.id.includes(q.toLowerCase()))),
+    [rules, group, q],
+  );
+  return (
+    <div>
+      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+        The Jaimini rules read the Karakamsa in the navamsa, and the Arudha lagna and Upapada in the rasi chart with rasi drishti. Each rule names the sutra it comes from. Chara dasha is computed, not
+        interpreted, except for the sign notes on the chart page. Add rules in <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules-jaimini.ts</code>.
+      </p>
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search rule text" className="w-56" data-testid="input-jaimini-rule-search" />
+        <div className="flex flex-wrap gap-1" role="group" aria-label="Rule group">
+          <Button size="sm" variant={group === "all" ? "secondary" : "ghost"} onClick={() => setGroup("all")} data-testid="filter-jgroup-all">
+            All groups
+          </Button>
+          {(Object.keys(JAIMINI_GROUP_LABEL) as JaiminiRuleGroup[]).map((g) => (
+            <Button key={g} size="sm" variant={group === g ? "secondary" : "ghost"} onClick={() => setGroup(g)} data-testid={`filter-jgroup-${g}`}>
+              {JAIMINI_GROUP_LABEL[g]}
+            </Button>
+          ))}
+        </div>
+      </div>
+      <div className="mt-6 text-xs text-muted-foreground tabular">{isLoading ? "Loading…" : `${filtered.length} of ${rules?.length ?? 0} rules`}</div>
+      <ul className="mt-2 divide-y">
+        {filtered.map((r) => (
+          <li key={r.id} className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]" data-testid={`jrule-${r.id}`}>
+            <div>
+              <div className="text-sm font-medium">{JAIMINI_GROUP_LABEL[r.group]}</div>
+              <div className="mt-0.5 text-xs text-muted-foreground">
+                <span className="tabular">weight {r.weight}</span> · <span className="font-mono">{r.id}</span>
+                <span className="ml-1 rounded bg-muted px-1 py-0.5">{r.chart}</span>
+              </div>
+            </div>
+            <div>
+              <div className="text-sm">{r.text}</div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                when {r.when} ·{" "}
+                <a href={r.source.url} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
+                  {r.source.label}
+                </a>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export default function RulesPage() {
   const { data: rules, isLoading } = useQuery<Rule[]>({ queryKey: ["/api/rules"] });
   const [area, setArea] = useState<LifeArea | "all">("all");
@@ -48,6 +105,19 @@ export default function RulesPage() {
   return (
     <div className="mx-auto max-w-5xl px-5 py-8 md:px-10">
       <h1 className="font-display text-xl font-bold tracking-tight">Rule book</h1>
+      <Tabs defaultValue="bnn" className="mt-4">
+        <TabsList>
+          <TabsTrigger value="bnn" data-testid="tab-rules-bnn">
+            Bhrigu Nandi Nadi
+          </TabsTrigger>
+          <TabsTrigger value="jaimini" data-testid="tab-rules-jaimini">
+            Jaimini
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="jaimini">
+          <JaiminiRules />
+        </TabsContent>
+        <TabsContent value="bnn">
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
         Every reading is produced by these declarative rules. A rule names a subject planet, an optional object planet with the sign relations that count, and conditions on retrogression,
         dignity, sign lord or element. Rules marked male or female belong to one frame: Jupiter is the Jeeva in both; in a male chart Venus is the wife, in a female chart Venus is the native's own person (Deha) and Mars the husband. Add rules in <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules.ts</code> and they apply to every chart.
@@ -108,6 +178,8 @@ export default function RulesPage() {
           </li>
         ))}
       </ul>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

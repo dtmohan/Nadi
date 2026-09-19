@@ -10,6 +10,14 @@ export function planetClass(p: Planet, jeeva: Planet = "Jupiter", deha?: Planet)
   return "fill-foreground";
 }
 
+/** Minimal planet placement accepted by the chart (rasi positions and divisional positions alike). */
+export interface ChartPlanet {
+  planet: Planet;
+  signIndex: number;
+  degInSign: number;
+  retrograde?: boolean;
+}
+
 export function SouthIndianChart({
   positions,
   transit,
@@ -20,24 +28,40 @@ export function SouthIndianChart({
   jeeva = "Jupiter",
   deha,
   houseKaraka,
+  lagnaSign,
+  badges,
+  tags,
+  footer,
+  accent,
 }: {
   jeeva?: Planet;
   /** Female chart: Venus, the native as a person, drawn in the third accent. */
   deha?: Planet;
   /** Number the cells as whole-sign houses counted from this planet's sign. */
   houseKaraka?: Planet | null;
-  positions: PlanetPosition[];
+  /** Jaimini: mark the ascendant sign and number houses from it. */
+  lagnaSign?: number | null;
+  /** Small labels drawn at the foot of a cell (arudha padas, karakamsa). */
+  badges?: Record<number, string[]>;
+  /** Superscript tag after a planet (chara karaka). */
+  tags?: Partial<Record<Planet, string>>;
+  /** Centre caption; defaults to the BNN caption. */
+  footer?: string;
+  /** Planets drawn in the primary colour (overrides the BNN jeeva/karma colouring). */
+  accent?: Planet[];
+  positions: ChartPlanet[];
   transit?: PlanetPosition[];
   title?: string;
   subtitle?: string;
   highlightSign?: number | null;
   onSignClick?: (signIndex: number) => void;
 }) {
-  const bySign = new Map<number, PlanetPosition[]>();
+  const bySign = new Map<number, ChartPlanet[]>();
   for (const p of positions) bySign.set(p.signIndex, [...(bySign.get(p.signIndex) ?? []), p]);
   const transitBySign = new Map<number, PlanetPosition[]>();
   for (const p of transit ?? []) transitBySign.set(p.signIndex, [...(transitBySign.get(p.signIndex) ?? []), p]);
-  const karakaSign = houseKaraka ? positions.find((p) => p.planet === houseKaraka)?.signIndex ?? null : null;
+  const karakaSign = houseKaraka ? positions.find((p) => p.planet === houseKaraka)?.signIndex ?? null : lagnaSign ?? null;
+  const colorOf = (p: Planet) => (accent ? (accent.includes(p) ? "fill-primary font-semibold" : "fill-foreground") : planetClass(p, jeeva, deha));
 
   return (
     <svg viewBox={`0 0 ${CELL * 4 + PAD * 2} ${CELL * 4 + PAD * 2}`} className="h-auto w-full" role="img" aria-label="South Indian chart">
@@ -67,22 +91,39 @@ export function SouthIndianChart({
                 </text>
               </g>
             )}
+            {lagnaSign === signIndex && (
+              <text x={x + 6} y={y + 26} fontSize={10} fontWeight={700} className="fill-primary" data-testid="lagna-marker">
+                As
+              </text>
+            )}
             {natal.map((p, i) => {
               const perRow = 2;
               const r = Math.floor(i / perRow);
               const c = i % perRow;
               const px = x + 8 + c * 46;
-              const py = y + 34 + r * 20;
+              const py = y + (lagnaSign === signIndex ? 40 : 34) + r * 20;
+              const tag = tags?.[p.planet];
               return (
-                <text key={p.planet} x={px} y={py} fontSize={14} className={planetClass(p.planet, jeeva, deha)}>
+                <text key={p.planet} x={px} y={py} fontSize={14} className={colorOf(p.planet)}>
                   {PLANET_ABBR[p.planet]}
                   {p.retrograde && p.planet !== "Rahu" && p.planet !== "Ketu" ? "\u211e" : ""}
-                  <tspan fontSize={10} className="fill-muted-foreground tabular" dx={2}>
-                    {Math.floor(p.degInSign)}°
-                  </tspan>
+                  {tag ? (
+                    <tspan fontSize={8} className="fill-primary" dx={1} dy={-5}>
+                      {tag}
+                    </tspan>
+                  ) : (
+                    <tspan fontSize={10} className="fill-muted-foreground tabular" dx={2}>
+                      {Math.floor(p.degInSign)}°
+                    </tspan>
+                  )}
                 </text>
               );
             })}
+            {badges?.[signIndex]?.length ? (
+              <text x={x + 6} y={y + CELL - 7} fontSize={9} fontWeight={600} className="fill-[hsl(var(--chart-3))]">
+                {badges[signIndex].join(" ")}
+              </text>
+            ) : null}
             {tr.length > 0 && (
               <text x={x + CELL - 6} y={y + CELL - 8} fontSize={11} textAnchor="end" className="fill-muted-foreground" fontStyle="italic">
                 {tr.map((p) => `t${PLANET_ABBR[p.planet]}`).join(" ")}
@@ -105,7 +146,7 @@ export function SouthIndianChart({
           </text>
         )}
         <text x={PAD + CELL * 2} y={PAD + CELL * 3 - 12} textAnchor="middle" fontSize={10} className="fill-muted-foreground">
-          Rasi · sidereal{houseKaraka ? ` · houses from ${houseKaraka}` : ""}
+          {footer ?? `Rasi · sidereal${houseKaraka ? ` · houses from ${houseKaraka}` : ""}`}
         </text>
       </g>
     </svg>

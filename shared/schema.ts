@@ -3,6 +3,7 @@ import { createInsertSchema } from "drizzle-zod";
 import type * as z from "zod/mini";
 import type { PlanetPosition, TransitPeriod } from "./astro";
 import type { Reading } from "./rules";
+import type { JaiminiResult } from "./jaimini";
 
 export const charts = sqliteTable("charts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -40,6 +41,8 @@ export interface ChartResult {
   reading: Reading;
   transits: TransitPeriod[];
   now: { positions: PlanetPosition[]; asOf: string };
+  /** Jaimini module: ascendant-based, kept separate from the BNN reading. */
+  jaimini: JaiminiResult;
 }
 
 export interface GeoHit {

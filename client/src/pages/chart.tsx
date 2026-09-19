@@ -12,6 +12,7 @@ import { LIFE_AREAS, RELATION_LABEL, areaKarakaLabel, type Finding, type LifeAre
 import type { PlanetStrength } from "@shared/strength";
 import { housesFrom, retroNotes, HOUSE_CLASS_LABEL, type HouseClass } from "@shared/houses";
 import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
+import { JaiminiPanel } from "@/components/jaimini-panel";
 import { Timeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -564,6 +565,7 @@ export default function ChartPage() {
   const [selected, setSelected] = useState<Planet | null>(null);
   const [showTransit, setShowTransit] = useState(true);
   const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
+  const [mode, setMode] = useState<"bnn" | "jaimini">("bnn");
 
   if (isLoading) {
     return (
@@ -628,6 +630,40 @@ export default function ChartPage() {
         </div>
       </header>
 
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-b pb-3">
+        <div role="tablist" aria-label="Reading system" className="inline-flex rounded-md border p-0.5 text-sm">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "bnn"}
+            onClick={() => setMode("bnn")}
+            className={cn("rounded px-3 py-1", mode === "bnn" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            data-testid="mode-bnn"
+          >
+            Bhrigu Nandi Nadi
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "jaimini"}
+            onClick={() => setMode("jaimini")}
+            className={cn("rounded px-3 py-1", mode === "jaimini" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            data-testid="mode-jaimini"
+          >
+            Jaimini
+          </button>
+        </div>
+        <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading."}</p>
+      </div>
+
+      {mode === "jaimini" && (
+        <div className="mt-8">
+          <JaiminiPanel result={data} />
+        </div>
+      )}
+
+      {mode === "bnn" && (
+      <>
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,26rem)_1fr] lg:items-start">
         <div>
           <SouthIndianChart
@@ -690,9 +726,13 @@ export default function ChartPage() {
           <Relations relations={data.reading.relations} positions={positions} />
         </TabsContent>
       </Tabs>
+      </>
+      )}
 
       <footer className="mt-12 border-t pt-4 text-xs text-muted-foreground">
-        Interpretive text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik. It is a starting set of rules meant to be extended, not a verdict.
+        {mode === "bnn"
+          ? "Interpretive text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik. It is a starting set of rules meant to be extended, not a verdict."
+          : "Jaimini text follows the Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; Chara dasha follows K.N. Rao's method. It is a starting set of rules meant to be extended, not a verdict."}
       </footer>
     </div>
   );

@@ -145,6 +145,14 @@ export function transitPeriods(planet: "Jupiter" | "Saturn", jdStart: number, jd
   return periods;
 }
 
+/** Sidereal ascendant (Placidus cusps are irrelevant; only the ascendant is used). */
+export function ascendantAt(jd: number, latitude: number, longitude: number, opts: EphemerisOptions): number {
+  setMode(opts);
+  const r = sweph.houses_ex(jd, C.SEFLG_SIDEREAL, latitude, longitude, "P") as unknown as { flag: number; data: { houses: number[]; points: number[] } };
+  if (r.flag < 0) throw new Error("Could not compute the ascendant");
+  return norm360(r.data.points[0]);
+}
+
 export function nowJd(): number {
   return julianDay(DateTime.utc());
 }

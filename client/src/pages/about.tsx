@@ -1,9 +1,26 @@
 import { KARAKA, PLANETS } from "@shared/astro";
+import { CHARA_KARAKAS, CHARA_KARAKA_INFO } from "@shared/jaimini";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+const ext = { target: "_blank", rel: "noreferrer" } as const;
 
 export default function AboutPage() {
   return (
     <article className="mx-auto max-w-3xl px-5 py-8 md:px-10">
       <h1 className="font-display text-xl font-bold tracking-tight">How Nadi reads a chart</h1>
+      <Tabs defaultValue="bnn" className="mt-4">
+        <TabsList>
+          <TabsTrigger value="bnn" data-testid="tab-about-bnn">
+            Bhrigu Nandi Nadi
+          </TabsTrigger>
+          <TabsTrigger value="jaimini" data-testid="tab-about-jaimini">
+            Jaimini
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="jaimini">
+          <JaiminiMethod />
+        </TabsContent>
+        <TabsContent value="bnn">
       <div className="prose prose-sm mt-4 max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-base">
         <p>
           Bhrigu Nandi Nadi (BNN) is a branch of Nadi astrology systematised by R.G. Rao from palm-leaf manuscripts. It differs from Parashari practice in three ways that shape this app.
@@ -245,6 +262,131 @@ export default function AboutPage() {
           <li>Swiss Ephemeris, Astrodienst AG.</li>
         </ul>
       </div>
+        </TabsContent>
+      </Tabs>
     </article>
+  );
+}
+
+function JaiminiMethod() {
+  return (
+    <div className="prose prose-sm mt-4 max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-base" data-testid="about-jaimini">
+      <p>
+        The Jaimini module is a separate mode on the chart page. It is ascendant-based and house-based, so nothing from it feeds the Nadi reading, and nothing from the Nadi reading feeds it. Both are
+        computed from the same sidereal positions.
+      </p>
+      <h2>Eight chara karakas</h2>
+      <p>
+        The seven planets and Rahu are ranked by their degree within sign; the highest is the Atmakaraka (AK), the soul's significator, and the rest follow in order. Rahu moves backward, so it is ranked by
+        thirty degrees minus its degree. This is the eight-karaka scheme K.N. Rao and most modern Jaimini authors use; the seven-karaka scheme (no Rahu, and the Putrakaraka doubling as Matrikaraka) is
+        not offered. See{" "}
+        <a href="https://astroshruti.ai/jyotish/jaimini-karakas" {...ext}>
+          AstroShruti on chara karakas
+        </a>{" "}
+        and{" "}
+        <a href="https://wiki.openfate.ai/en/vedic/jaimini-and-karakas/seven-vs-eight-chara-karakas" {...ext}>
+          OpenFate on seven versus eight karakas
+        </a>
+        .
+      </p>
+      <ul>
+        {CHARA_KARAKAS.map((k) => (
+          <li key={k}>
+            <strong>{k}</strong> {CHARA_KARAKA_INFO[k].name}: {CHARA_KARAKA_INFO[k].meaning}
+          </li>
+        ))}
+      </ul>
+      <h2>Navamsa and Karakamsa</h2>
+      <p>
+        Each sign is divided into nine parts of 3°20'. Movable signs start their navamsa count from themselves, fixed signs from the ninth sign from themselves, dual signs from the fifth; this is the usual
+        Parashari scheme and the same for both systems. The navamsa sign of the Atmakaraka is the Karakamsa (Swamsa). Jaimini Sutras 1.2 read the native's temperament, profession and devotion from the
+        Karakamsa sign, the planets in it, and the houses counted from it in the navamsa; the app applies those sutras there (
+        <a href="https://vedichora.org/classical/jaimini-sutras" {...ext}>
+          Jaimini Sutras, Vedic Hora
+        </a>
+        ).
+      </p>
+      <h2>Rasi drishti</h2>
+      <p>
+        Jaimini's aspects are between signs, not planets. A movable sign aspects the three fixed signs except the one next to it; a fixed sign aspects the three movable signs except the one before it;
+        the dual signs aspect one another. A planet aspects whatever its sign aspects (
+        <a href="https://moonketu.com/learn/jaimini/rashi-drishti" {...ext}>
+          Moonketu on rasi drishti
+        </a>
+        ).
+      </p>
+      <h2>Argala</h2>
+      <p>
+        Planets in the 2nd, 4th and 11th from a sign intervene in its affairs; the 5th gives a weaker, secondary intervention. Planets in the 12th, 10th, 3rd and 9th respectively obstruct them. The app
+        treats an argala as obstructed when the obstructing house holds at least as many planets as the intervening one; the special reversal for Ketu is not implemented. Argala is shown for the lagna,
+        the Arudha lagna and the Upapada (
+        <a href="https://srath.com/jyoti%E1%B9%A3a/amateur/argala-planetary-intervention/" {...ext}>
+          Sanjay Rath on argala
+        </a>
+        ).
+      </p>
+      <h2>Arudha padas</h2>
+      <p>
+        Count from a house to its lord, then the same distance again; the sign reached is the house's pada. When it falls in the house itself or the 7th from it, the pada is moved to the 10th from that
+        sign. AL (the pada of the 1st) is how the world sees the native; UL (the pada of the 12th, the Upapada) governs marriage. The seven traditional lords are used, so Scorpio is read from Mars and
+        Aquarius from Saturn, which is the common practice for padas (
+        <a href="https://astroshruti.ai/jyotish/jaimini-arudha" {...ext}>
+          AstroShruti on arudha padas
+        </a>
+        ). Interpretations of AL and UL follow Jaimini Sutras 1.3 and the Upapada chapter of Brihat Parashara Hora Sastra (
+        <a href="http://jyotishvidya.com/ch30.htm" {...ext}>
+          BPHS chapter 30
+        </a>
+        ).
+      </p>
+      <h2>Chara dasha, K.N. Rao's method</h2>
+      <ul>
+        <li>
+          The first dasha is the lagna sign. The sequence runs forward when the 9th house from the lagna is a savya sign (Aries, Taurus, Gemini, Libra, Scorpio, Sagittarius) and backward when it is
+          apasavya (Cancer, Leo, Virgo, Capricorn, Aquarius, Pisces).
+        </li>
+        <li>
+          A sign's years are the count from the sign to its lord, less one. Savya signs count forward, apasavya signs backward. A lord in its own sign gives twelve years. There is no addition or
+          deduction for exaltation or debilitation.
+        </li>
+        <li>
+          Scorpio has Mars and Ketu, Aquarius Saturn and Rahu. If both lords sit in the sign it gets twelve years; if one sits in it, the other gives the count; otherwise the lord whose sign holds more
+          planets gives the count, and on a tie the one higher by degree.
+        </li>
+        <li>
+          Each dasha has twelve antardashas of equal length. They begin from the sign next to the dasha sign, in the dasha sign's own direction, and end on the dasha sign itself.
+        </li>
+        <li>The second cycle repeats the same years, so the table covers 120 years.</li>
+      </ul>
+      <p>
+        Sources:{" "}
+        <a href="https://saptarishisastrology.com/jaiminis-chara-dasha-my-approach-part-1-k-n-rao/" {...ext}>
+          K.N. Rao, "Jaimini's Chara Dasha, my approach" (Saptarishis Astrology)
+        </a>
+        ,{" "}
+        <a href="https://fr.scribd.com/doc/250665140/Method-of-Calculation-of-Jaimini-Chara-Dasha" {...ext}>
+          Method of calculation of Jaimini Chara Dasha (Rao's rules, Scribd)
+        </a>
+        ,{" "}
+        <a href="https://moonketu.com/learn/jaimini/jaimini-chara-dasha" {...ext}>
+          Moonketu on Chara dasha
+        </a>
+        ,{" "}
+        <a href="https://astroleaf.in/chara-dasha-calculator/" {...ext}>
+          Astroleaf Chara dasha notes
+        </a>
+        . Other schools (Raghava Bhatta, Sanjay Rath's Narayana dasha) differ on direction and on the ±1 adjustments; only Rao's method is implemented.
+      </p>
+      <h2>Benefics and malefics</h2>
+      <p>
+        For the Arudha and Upapada rules Jupiter, Venus and Mercury are benefic; Mars, Saturn, Rahu and Ketu are malefic; the Sun counts as benefic when exalted, in its own sign or in a friend's sign
+        (Jaimini Sutras 1.4); the Moon is benefic in the bright half of the month, from new to full.
+      </p>
+      <h2>Ascendant</h2>
+      <p>
+        The ascendant is the sidereal rising degree computed by the Swiss Ephemeris for the birth time and place. Birth time precision matters far more here than in the Nadi reading: a few minutes can
+        change the lagna sign and, with it, every pada and the whole Chara dasha sequence.
+      </p>
+    </div>
   );
 }
