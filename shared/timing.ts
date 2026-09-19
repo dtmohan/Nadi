@@ -160,7 +160,10 @@ export function readTransit(
     notes.push("Saturn over the Jeeva: responsibility, slower pace and care for health; maturity is forced rather than chosen.");
   }
   if (female && t.planet === "Jupiter" && conjunct.includes("Venus")) {
-    notes.push("Jupiter over the Jeeva (Venus): a fresh chapter for the native herself; marriage, children or a move are favoured.");
+    notes.push("Jupiter over the Deha (Venus, the native herself): a fresh chapter in her own life; marriage, children or a move are favoured.");
+  }
+  if (female && t.planet === "Saturn" && conjunct.includes("Venus")) {
+    notes.push("Saturn over the Deha (Venus): duties weigh on her personally; health and comforts need care, and a marriage matter is settled slowly.");
   }
   if (female && t.planet === "Jupiter" && conjunct.includes("Mars")) {
     notes.push("Jupiter over the husband's karaka (Mars): marriage, or a turn in the husband's fortunes and position.");

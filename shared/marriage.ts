@@ -3,7 +3,7 @@ import { SIGNS, houseFrom, relationOf, type Planet, type PlanetPosition, type Re
 /**
  * Marriage, the Nadi way. There are no house lords: marriage is read between karakas.
  *
- * Male chart: Jupiter is the native, Venus the wife. Female chart: Venus is the native,
+ * Male chart: Jupiter is the native, Venus the wife. Female chart: Venus is the native as a person (Deha),
  * Mars the husband (Rao; some teachers read Jupiter for the husband, which the app notes).
  * Rao's rule: marriage is promised when the spouse karaka stands in the 1st, 2nd, 3rd, 5th,
  * 7th, 9th, 11th or 12th from the native's karaka, or from Saturn (then it comes by karma,

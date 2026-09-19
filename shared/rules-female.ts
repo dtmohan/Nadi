@@ -1,9 +1,10 @@
-// Female-chart Bhrigu Nandi Nadi rules. Rao: in a female horoscope Venus represents the
-// native and Mars the husband; the husband, his nature and profession are read from the
-// planets with Mars and in the 2nd, 5th, 7th and 9th from him. Jupiter keeps his own
+// Female-chart Bhrigu Nandi Nadi rules, dual reference (Naik): Jupiter stays the Jeeva, the
+// native at the subtle level, in both sexes; in a female chart Venus is the Deha, the native as
+// a person and body, and Mars the husband. The husband, his nature and profession are read from
+// the planets with Mars and in the 2nd, 5th, 7th and 9th from him (Rao). Jupiter keeps his own
 // karakatwa (children, wisdom, wealth, dharma) and, for many teachers, also speaks for the
 // husband's dharma, so Jupiter with Venus or Mars is read as a blessing on the marriage.
-// These rules replace the male-framed Jupiter-as-Jeeva and Venus-as-wife rules.
+// These rules replace only the male-framed Venus-as-wife rules; Jupiter self rules run in both.
 
 import type { Planet, Relation } from "./astro";
 import { KARAKA } from "./astro";
@@ -34,15 +35,15 @@ const quad = (id: string, area: LifeArea, subject: Planet, object: Planet, third
   f({ id, area, when: { subject, object, relation: NEAR, with: [{ planet: third, relation: NEAR }, { planet: fourth, relation: NEAR }] }, text, weight, source: RAO });
 
 export const FEMALE_RULES: Rule[] = [
-  // ───────────── Venus as Jeeva: the native herself ─────────────
-  pair("f-ve-sa", "self", "Venus", "Saturn", "Jeeva (Venus) bound to Karma: a working woman whose life is organised around duty and profession; maturity early, comforts earned slowly.", 3),
-  pair("f-ve-ju", "self", "Venus", "Jupiter", "Jeeva (Venus) with Jupiter: a fortunate, principled native; wisdom, children and a blessed marriage shape the life path.", 3),
-  pair("f-ve-me", "self", "Venus", "Mercury", "Jeeva (Venus) with Mercury: articulate, sociable and quick; learning, communication, trade or the arts are her field.", 3),
-  pair("f-ve-ma", "self", "Venus", "Mars", "Jeeva (Venus) with Mars, the husband: the marriage is central to her life; a strong bond from a previous birth, with occasional heat and temporary separations.", 3),
-  pair("f-ve-su", "self", "Venus", "Sun", "Jeeva (Venus) with the Sun: dignity and closeness to authority; the father's standing marks her life; she may work with government or in a position of status.", 3),
-  pair("f-ve-mo", "self", "Venus", "Moon", "Jeeva (Venus) with the Moon: a sensitive, popular and mobile nature; the mother and the public are prominent; strong feeling, romance before or around marriage.", 3),
-  pair("f-ve-ra", "self", "Venus", "Rahu", "Jeeva (Venus) with Rahu: an unconventional life; foreign ties, ambition and modern professions; she crosses her family's tradition.", 3),
-  pair("f-ve-ke", "self", "Venus", "Ketu", "Jeeva (Venus) with Ketu: introspective and detached; periods of withdrawal; interest in healing, research or the spiritual.", 3),
+  // ───────────── Venus as Deha: the native herself ─────────────
+  pair("f-ve-sa", "self", "Venus", "Saturn", "Deha (Venus) bound to Karma: a working woman whose life is organised around duty and profession; maturity early, comforts earned slowly.", 3),
+  pair("f-ve-ju", "self", "Venus", "Jupiter", "Deha (Venus) with Jupiter: a fortunate, principled native; wisdom, children and a blessed marriage shape the life path.", 3),
+  pair("f-ve-me", "self", "Venus", "Mercury", "Deha (Venus) with Mercury: articulate, sociable and quick; learning, communication, trade or the arts are her field.", 3),
+  pair("f-ve-ma", "self", "Venus", "Mars", "Deha (Venus) with Mars, the husband: the marriage is central to her life; a strong bond from a previous birth, with occasional heat and temporary separations.", 3),
+  pair("f-ve-su", "self", "Venus", "Sun", "Deha (Venus) with the Sun: dignity and closeness to authority; the father's standing marks her life; she may work with government or in a position of status.", 3),
+  pair("f-ve-mo", "self", "Venus", "Moon", "Deha (Venus) with the Moon: a sensitive, popular and mobile nature; the mother and the public are prominent; strong feeling, romance before or around marriage.", 3),
+  pair("f-ve-ra", "self", "Venus", "Rahu", "Deha (Venus) with Rahu: an unconventional life; foreign ties, ambition and modern professions; she crosses her family's tradition.", 3),
+  pair("f-ve-ke", "self", "Venus", "Ketu", "Deha (Venus) with Ketu: introspective and detached; periods of withdrawal; interest in healing, research or the spiritual.", 3),
   f({ id: "f-ve-retro", area: "self", when: { subject: "Venus", subjectRetro: true }, text: "Retrograde Venus, the Jeeva: the native revisits her choices and also carries the qualities of the previous sign.", weight: 2, source: NAIK }),
   f({ id: "f-alone-ve", area: "self", when: { subject: "Venus", alone: true }, text: "Venus, the Jeeva, stands alone: a self-made woman who relies on her own judgement; an independent path with few early helpers.", weight: 1, source: NAIK }),
   f({ id: "f-ve-fire", area: "self", when: { subject: "Venus", subjectElement: ["Fire"] }, text: "Venus in a fiery sign: confident, ambitious, drawn to leadership and initiative.", weight: 1 }),
@@ -57,7 +58,7 @@ export const FEMALE_RULES: Rule[] = [
   f({ id: "f-ju-exalt", area: "wealth", when: { subject: "Jupiter", subjectDignity: ["Exalted", "Own sign", "Moolatrikona"] }, text: "Jupiter dignified: fortune, children and sound counsel protect the native; the husband's side is respected.", weight: 2 }),
   f({ id: "f-ju-debil", area: "wealth", when: { subject: "Jupiter", subjectDignity: ["Debilitated"] }, text: "Jupiter debilitated: fortune and guidance must be built by effort; delays with children or learning.", weight: 2 }),
 
-  // ───────────── Direction around the Jeeva (Venus) ─────────────
+  // ───────────── Direction around the Deha (Venus) ─────────────
   ahead("f-ve-next-sa", "career", "Venus", "Saturn", "Saturn ahead of Venus: the native moves toward work; a career taken up by choice, gains through patience.", 2),
   behind("f-ve-prev-sa", "career", "Venus", "Saturn", "Saturn behind Venus: Karma pushes the Jeeva; work begins early, often from necessity, and becomes the ground she stands on.", 2),
   ahead("f-ve-next-ma", "marriage", "Venus", "Mars", "Mars ahead of Venus: the native moves toward the husband; marriage is a chosen step, the husband's affairs become her next chapter.", 2),
@@ -74,7 +75,7 @@ export const FEMALE_RULES: Rule[] = [
   pair("f-ma-mo", "marriage", "Mars", "Moon", "Husband (Mars) with the Moon: a husband with a travelling job, emotional and changeable; misunderstandings if the Moon is weak.", 3),
   pair("f-ma-me", "marriage", "Mars", "Mercury", "Husband (Mars) with Mercury: an intellectual, commercial or technical husband; sharp words and never-ending arguments, yet property and wealth are gained together.", 3),
   pair("f-ma-ju", "marriage", "Mars", "Jupiter", "Husband (Mars) with Jupiter: early or timely marriage; a principled husband, an administrator, manager, teacher or guide.", 3),
-  pair("f-ma-ve", "marriage", "Mars", "Venus", "Husband (Mars) with the Jeeva (Venus): union of husband and wife promised from a previous birth; strong attraction, with Mars's heat bringing temporary separations.", 3),
+  pair("f-ma-ve", "marriage", "Mars", "Venus", "Husband (Mars) with the Deha (Venus): union of husband and wife promised from a previous birth; strong attraction, with Mars's heat bringing temporary separations.", 3),
   pair("f-ma-sa", "marriage", "Mars", "Saturn", "Husband (Mars) with Saturn: delayed marriage, generally in Saturn's second round; a hard-working, older or duty-bound husband.", 3, ALL, SAKURKAR),
   pair("f-ma-ra", "marriage", "Mars", "Rahu", "Husband (Mars) with Rahu: a very short-tempered husband, possibly from another community or country; late marriage and obstacles before it.", 3),
   pair("f-ma-ke", "marriage", "Mars", "Ketu", "Husband (Mars) with Ketu: a husband in an ordinary job or one given to detachment; misunderstandings between the couple unless Jupiter joins.", 3),
@@ -125,17 +126,17 @@ export const FEMALE_RULES: Rule[] = [
   quad("f-q-ma-sa-ju-ke", "marriage", "Mars", "Saturn", "Jupiter", "Ketu", "Mars, Saturn, Jupiter and Ketu together: the husband is a doctor or in a healing, research or technical-medical profession."),
 
   // ───────────── Jupiter's blessing on the marriage (many teachers read Jupiter for the husband) ─────────────
-  pair("f-ju-ve-bless", "marriage", "Jupiter", "Venus", "Jupiter with the Jeeva (Venus): timely marriage and a husband of good character; Jupiter is also read for the husband's dharma in a female chart.", 2, ["conjunct", "trine"]),
+  pair("f-ju-ve-bless", "marriage", "Jupiter", "Venus", "Jupiter with the Deha (Venus): timely marriage and a husband of good character; Jupiter is also read for the husband's dharma in a female chart.", 2, ["conjunct", "trine"]),
   pair("f-ju-ra", "marriage", "Jupiter", "Rahu", "Jupiter with Rahu in a female chart: the husband's side has a foreign or unconventional strand; ambition in the marriage.", 1, ["conjunct"]),
 
   // ───────────── Children and career for the female native ─────────────
   pair("f-ju-mo-child", "children", "Jupiter", "Moon", "Jupiter with the Moon: children and motherhood are a source of joy; the native's mother is a strong support.", 2, ["conjunct", "trine"]),
-  pair("f-sa-ve-career", "career", "Saturn", "Venus", "Saturn with the Jeeva (Venus): the native works; finance, arts, design, luxury goods, beauty or hospitality are her fields.", 2, ["conjunct", "trine"]),
+  pair("f-sa-ve-career", "career", "Saturn", "Venus", "Saturn with the Deha (Venus): the native works; finance, arts, design, luxury goods, beauty or hospitality are her fields.", 2, ["conjunct", "trine"]),
   pair("f-sa-ma-career", "career", "Saturn", "Mars", "Saturn with Mars in a female chart: the husband's work is technical or laborious, and the couple's fortunes rise through property or engineering.", 2, ["conjunct", "trine"]),
   pair("f-ve-me-career", "career", "Venus", "Mercury", "Venus with Mercury: livelihood through communication, teaching, media, design or trade.", 1, ["conjunct", "trine"]),
 ];
 
-// Sign-lord and nakshatra-lord colouring for the female Jeeva and the husband.
+// Sign-lord and nakshatra-lord colouring for the Deha (Venus) and the husband.
 const LORDS: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 for (const [subject, area, prefix] of [
   ["Venus", "self", "The native's nature takes the colour of"],
@@ -185,14 +186,10 @@ for (const [subject, area, what] of [
   }
 }
 
-/** Male-framed rule ids (Jupiter as the native, Venus as the wife) that female charts replace. */
+/** Male-framed rule ids (Venus as the wife, Jupiter-with-Venus as native-with-spouse) that female charts replace. Plain Jupiter-as-Jeeva rules stay in both frames. */
 export const MALE_FRAME_IDS: RegExp[] = [
-  /^ju-(sa|ve|me|ma|su|mo|ra|ke|retro)$/,
-  /^ju-(next|prev)-/,
-  /^ju-(fire|earth|air|water)$/,
-  /^ju-lord-/,
-  /^ju-star-/,
-  /^alone-ju$/,
+  /^ju-ve$/,
+  /^ju-(next|prev)-ve$/,
   /^ve-(sa|ma|me|ju|su|mo|ra|ke|retro|combust|exalt|debil)$/,
   /^ju-(exalt|debil)$/,
   /^ve-(fire|earth|air|water)$/,

@@ -8,7 +8,7 @@ import { PLANETS, PLANET_ABBR, SIGNS, fmtDeg, fmtDegShort, houseFrom, type Plane
 import { GIVES, RECEIVES, flowGloss, tierLabel, approachLabel, type DegreeChain } from "@shared/flow";
 import { nextMarriageWindow, type MarriageReading } from "@shared/marriage";
 import { nextChildWindow, type ChildrenReading } from "@shared/children";
-import { LIFE_AREAS, RELATION_LABEL, areaKaraka, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
+import { LIFE_AREAS, RELATION_LABEL, areaKarakaLabel, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
 import { housesFrom, HOUSE_CLASS_LABEL, type HouseClass } from "@shared/houses";
 import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
@@ -84,14 +84,14 @@ function PlanetTable({ positions, strength, selected, onSelect }: { positions: P
   );
 }
 
-function KarakaCard({ title, planet, data, positions, tone }: { title: string; planet: Planet; data: ChartResult["reading"]["jeeva"]; positions: PlanetPosition[]; tone: "jeeva" | "karma" }) {
+function KarakaCard({ title, planet, data, positions, tone }: { title: string; planet: Planet; data: ChartResult["reading"]["jeeva"]; positions: PlanetPosition[]; tone: "jeeva" | "karma" | "deha" }) {
   const p = positions.find((x) => x.planet === planet)!;
   return (
     <Card data-testid={`card-${tone}`}>
       <CardContent className="p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3">
           <h3 className="text-base font-semibold">
-            <span className={tone === "jeeva" ? "text-primary" : "text-[hsl(var(--chart-2))]"}>{planet}</span> · {title}
+            <span className={tone === "jeeva" ? "text-primary" : tone === "deha" ? "text-[hsl(var(--chart-3))]" : "text-[hsl(var(--chart-2))]"}>{planet}</span> · {title}
           </h3>
           <span className="tabular text-xs text-muted-foreground">
             {p.sign} {fmtDeg(p.lon)}
@@ -99,7 +99,7 @@ function KarakaCard({ title, planet, data, positions, tone }: { title: string; p
         </div>
         <p className="mt-2 text-sm leading-relaxed">{data.summary}</p>
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {(tone === "jeeva" && planet === "Venus" ? ["the native", "charm", "comforts", "arts", "finance"] : KARAKA[planet].significations).map((s) => (
+          {(tone === "deha" ? ["her person", "body", "charm", "comforts", "arts", "finance"] : KARAKA[planet].significations).map((s) => (
             <Badge key={s} variant="secondary" className="no-default-hover-elevate font-normal">
               {s}
             </Badge>
@@ -135,7 +135,7 @@ function MarriageCard({ m, positions, transits, asOf }: { m: MarriageReading; po
           </span>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          {gender}: {m.native} is the native, {m.spouse} the {m.gender === "female" ? "husband" : m.gender === "male" ? "wife" : "spouse"}. No house lords; the two karakas are read against each other.
+          {gender}: {m.native} is the native{m.gender === "female" ? " as a person (Deha)" : ""}, {m.spouse} the {m.gender === "female" ? "husband" : m.gender === "male" ? "wife" : "spouse"}. No house lords; the two karakas are read against each other.
         </p>
         <p className="mt-2 text-sm leading-relaxed">
           <Badge variant="secondary" className="no-default-hover-elevate mr-1.5 font-normal" data-testid="badge-marriage-promise">
@@ -243,8 +243,13 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
   return (
     <div className="space-y-8">
       <div className="grid gap-4 lg:grid-cols-2">
-        <KarakaCard title={reading.roles.gender === "female" ? "Jeeva karaka · the native (female chart)" : "Jeeva karaka · the native"} planet={reading.roles.native} data={reading.jeeva} positions={positions} tone="jeeva" />
+        <KarakaCard title={reading.roles.gender === "female" ? "Jeeva karaka · the life force (both charts)" : "Jeeva karaka · the native"} planet={reading.roles.native} data={reading.jeeva} positions={positions} tone="jeeva" />
         <KarakaCard title="Karma karaka · the profession" planet="Saturn" data={reading.karma} positions={positions} tone="karma" />
+        {reading.deha && (
+          <div className="lg:col-span-2">
+            <KarakaCard title="Deha karaka · the native herself (female chart)" planet={reading.roles.deha} data={reading.deha} positions={positions} tone="deha" />
+          </div>
+        )}
         <div className="lg:col-span-2">
           <MarriageCard m={reading.marriage} positions={positions} transits={result.transits} asOf={result.now.asOf} />
         </div>
@@ -270,7 +275,7 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
               <h3 id={`area-${area}`} className="text-base font-semibold">
                 {LIFE_AREAS[area].label}
               </h3>
-              <span className="text-xs text-muted-foreground">karaka {areaKaraka(area, reading.roles.gender)}</span>
+              <span className="text-xs text-muted-foreground">karaka {areaKarakaLabel(area, reading.roles.gender)}</span>
             </div>
             <ul className="mt-3 space-y-3">
               {items.map((f) => (
@@ -397,10 +402,11 @@ const HOUSE_CLASS_TONE: Record<HouseClass, string> = {
 
 const HOUSE_KARAKAS: Planet[] = ["Jupiter", "Saturn", "Venus"];
 
-function HousesPanel({ positions, karaka, native, onChange, selected }: { positions: PlanetPosition[]; karaka: Planet; native: Planet; onChange: (p: Planet) => void; selected: Planet | null }) {
+function HousesPanel({ positions, karaka, native, deha, onChange, selected }: { positions: PlanetPosition[]; karaka: Planet; native: Planet; deha: Planet; onChange: (p: Planet) => void; selected: Planet | null }) {
   const houses = housesFrom(positions, karaka);
   if (!houses.length) return null;
-  const roleWord = karaka === native ? "the native" : karaka === "Saturn" ? "the work" : karaka === "Venus" ? "the spouse" : "the life force";
+  const female = deha !== native;
+  const roleWord = karaka === native ? "the life force" : karaka === "Saturn" ? "the work" : female ? "the native herself" : "the spouse";
   return (
     <section className="mt-6" data-testid="section-houses">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -409,7 +415,7 @@ function HousesPanel({ positions, karaka, native, onChange, selected }: { positi
           {HOUSE_KARAKAS.map((k) => (
             <Button key={k} size="sm" variant={k === karaka ? "secondary" : "ghost"} onClick={() => onChange(k)} data-testid={`house-from-${k}`}>
               {k}
-              {k === native ? <span className="ml-1 text-[0.7em] text-muted-foreground">Jeeva</span> : null}
+              {k === native ? <span className="ml-1 text-[0.7em] text-muted-foreground">Jeeva</span> : female && k === deha ? <span className="ml-1 text-[0.7em] text-muted-foreground">Deha</span> : null}
             </Button>
           ))}
         </div>
@@ -592,6 +598,7 @@ export default function ChartPage() {
             subtitle={birthLocal.toFormat("d LLL yyyy · HH:mm")}
             highlightSign={selectedSign}
             jeeva={data.reading.roles.native}
+            deha={data.reading.roles.deha !== data.reading.roles.native ? data.reading.roles.deha : undefined}
             houseKaraka={houseKaraka ?? data.reading.roles.native}
             onSignClick={(s) => {
               const p = positions.find((x) => x.signIndex === s);
@@ -600,14 +607,21 @@ export default function ChartPage() {
           />
           <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              <span className="font-semibold text-primary">{PLANET_ABBR[data.reading.roles.native]}</span> Jeeva{data.reading.roles.gender === "female" ? " (female chart)" : ""} · <span className="font-semibold text-[hsl(var(--chart-2))]">Sa</span> Karma · ℞ retrograde · <span className="italic">tJu tSa</span> transits today
+              <span className="font-semibold text-primary">{PLANET_ABBR[data.reading.roles.native]}</span> Jeeva · <span className="font-semibold text-[hsl(var(--chart-2))]">Sa</span> Karma
+              {data.reading.roles.deha !== data.reading.roles.native && (
+                <>
+                  {" · "}
+                  <span className="font-semibold text-[hsl(var(--chart-3))]">{PLANET_ABBR[data.reading.roles.deha]}</span> Deha (female chart)
+                </>
+              )}{" "}
+              · ℞ retrograde · <span className="italic">tJu tSa</span> transits today
             </span>
             <Button variant="ghost" size="sm" onClick={() => setShowTransit((v) => !v)} data-testid="button-toggle-transit">
               {showTransit ? <EyeOff /> : <Eye />}
               Transits
             </Button>
           </div>
-          <HousesPanel positions={positions} karaka={houseKaraka ?? data.reading.roles.native} native={data.reading.roles.native} onChange={setHouseKaraka} selected={selected} />
+          <HousesPanel positions={positions} karaka={houseKaraka ?? data.reading.roles.native} native={data.reading.roles.native} deha={data.reading.roles.deha} onChange={setHouseKaraka} selected={selected} />
         </div>
         <div className="min-w-0">
           <PlanetTable positions={positions} strength={data.reading.strength} selected={selected} onSelect={setSelected} />

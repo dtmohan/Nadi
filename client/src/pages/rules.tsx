@@ -50,7 +50,7 @@ export default function RulesPage() {
       <h1 className="font-display text-xl font-bold tracking-tight">Rule book</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
         Every reading is produced by these declarative rules. A rule names a subject planet, an optional object planet with the sign relations that count, and conditions on retrogression,
-        dignity, sign lord or element. Rules marked male or female belong to one frame: in a male chart Jupiter is the native and Venus the wife; in a female chart Venus is the native and Mars the husband. Add rules in <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules.ts</code> and they apply to every chart.
+        dignity, sign lord or element. Rules marked male or female belong to one frame: Jupiter is the Jeeva in both; in a male chart Venus is the wife, in a female chart Venus is the native's own person (Deha) and Mars the husband. Add rules in <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules.ts</code> and they apply to every chart.
       </p>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">

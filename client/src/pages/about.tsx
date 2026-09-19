@@ -45,13 +45,24 @@ export default function AboutPage() {
         </ul>
         <h2>Female charts</h2>
         <p>
-          Rao reads a woman's chart from a different seat. Venus, not Jupiter, is her Jeeva, the planet that stands for the native herself; Mars is the husband, and "the husband, his nature and
-          profession" are read from the planets with Mars and in the 2nd, 5th, 7th and 9th from him. Saturn stays the Karma karaka, Jupiter keeps his own matters (children, wisdom, wealth,
-          dharma) and, for many teachers, also speaks for the husband's character, so Jupiter with Venus or Mars is read as a blessing on the marriage. When a chart is saved as female the app
-          switches frame: the Jeeva card, the chart legend, the "self" and "marriage" rule sets, the marriage promise (Mars counted from Venus), the degree order and the timing progression all
-          follow Venus and Mars. The male-framed rules (Jupiter as the native, Venus as the wife) are set aside and replaced by Rao's female rules, for example Mars with the Sun for a proud,
-          short-tempered husband from a well-to-do family, Mars with Saturn for a marriage in Saturn's second round, or Mars, Saturn and Venus for a husband in banking or a luxury trade. Jupiter
-          remains the universal timer: his passages over Venus or Mars, or their trines, bring the marriage. The Rule book lets you filter rules by frame. Sources:{" "}
+          Who stands for a woman in her own chart is debated. The popular teaching swaps the seat: Jupiter is the "male Jeeva" and Venus the "female Jeeva" (
+          <a href="https://astroindus.com/bhrigu-nandi-nadi/marriage-timing/" target="_blank" rel="noreferrer">
+            Astroindus
+          </a>
+          ). Naik keeps two levels: "in male and in female charts Jupiter represents Jeevakaraka, and Venus also becomes Jeevakaraka in female charts" (
+          <a href="https://ia601601.us.archive.org/2/items/RevelationFromNaadiJyotisha/Revelation%20from%20naadi%20jyotisha.pdf" target="_blank" rel="noreferrer">
+            Revelation from Naadi Jyotisha
+          </a>
+          ); Guru is the native at the subtle level as Jeeva, and the body, the Deha, is Mars for a man and Venus for a woman (
+          <a href="https://www.barnesandnoble.com/w/celestial-matrix-in-naadi-astrology-satyanarayana-naik/1141985051" target="_blank" rel="noreferrer">
+            Celestial Matrix in Naadi Astrology
+          </a>
+          ). The app follows Naik's dual reference. Jupiter remains the Jeeva in every chart: the self rules, the life-force houses and the Jupiter-Saturn timing read from him for both
+          sexes. When a chart is saved as female, Venus is added as the Deha, the native as a person: her own card, the "self" rules that describe her temperament, the marriage promise (Mars
+          counted from Venus), the husband's nature and profession from the planets with Mars and in the 2nd, 5th, 7th and 9th from him (Rao), and the transits of Jupiter and Saturn over
+          Venus. Only the male-framed Venus-as-wife rules are set aside, replaced by Rao's female rules, for example Mars with the Sun for a proud, short-tempered husband from a well-to-do
+          family, Mars with Saturn for a marriage in Saturn's second round, or Mars, Saturn and Venus for a husband in banking or a luxury trade. Jupiter remains the universal timer: his
+          passages over Venus or Mars, or their trines, bring the marriage. The Rule book lets you filter rules by frame. Further sources:{" "}
           <a href="https://astrofoxx.wordpress.com/wp-content/uploads/2018/11/jyotish_fundamentals-of-raos-system-of-nadi-1.pdf" target="_blank" rel="noreferrer">
             Fundamentals of Rao's System of Nadi Astrology
           </a>

@@ -5,7 +5,7 @@ import PDFDocument from "pdfkit";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, SIGN_ABBR, SOUTH_INDIAN_CELLS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition } from "@shared/astro";
-import { LIFE_AREAS, RELATION_LABEL, type LifeArea, areaKaraka } from "@shared/rules";
+import { LIFE_AREAS, RELATION_LABEL, type LifeArea, areaKarakaLabel } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
 import { readTransits, type TransitReading } from "@shared/timing";
 import { chainSummary, tierLabel } from "@shared/flow";
@@ -161,15 +161,17 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   const tableX = PAGE.m + chartSize + 18;
   const tableEnd = planetTable(doc, tableX, chartY + 2, PAGE.w - PAGE.m - tableX, positions, reading.strength);
   doc.font("Helvetica").fontSize(6.5).fillColor(MUTED);
-  doc.text(`${PLANET_ABBR[reading.roles.native]} Jeeva${reading.roles.gender === "female" ? " (female chart)" : ""} · Sa Karma · R retrograde · c combust (Sun's pada) · w leads an enemy by degree · struck dignity set aside by a Nadi rule · tJu tSa transits as of ${DateTime.fromISO(now.asOf).toFormat("d LLL yyyy")}`, PAGE.m, chartY + chartSize + 6, { width: chartSize });
+  doc.text(`${PLANET_ABBR[reading.roles.native]} Jeeva · Sa Karma${reading.roles.deha !== reading.roles.native ? ` · ${PLANET_ABBR[reading.roles.deha]} Deha (female chart)` : ""} · R retrograde · c combust (Sun's pada) · w leads an enemy by degree · struck dignity set aside by a Nadi rule · tJu tSa transits as of ${DateTime.fromISO(now.asOf).toFormat("d LLL yyyy")}`, PAGE.m, chartY + chartSize + 6, { width: chartSize });
   doc.y = Math.max(chartY + chartSize + 36, tableEnd + 6);
 
   // ── Karakas ──
   sectionTitle(doc, "Jeeva and Karma");
-  for (const [label, data, planet] of [
-    [`${reading.roles.native} · Jeeva karaka · the native${reading.roles.gender === "female" ? " (female chart: Venus is the Jeeva, Mars the husband)" : ""}`, reading.jeeva, reading.roles.native],
+  const karakaBlocks: Array<readonly [string, typeof reading.jeeva, Planet]> = [
+    [`${reading.roles.native} · Jeeva karaka · the native${reading.roles.gender === "female" ? " at the subtle level (female chart)" : ""}`, reading.jeeva, reading.roles.native],
     ["Saturn · Karma karaka · the profession", reading.karma, "Saturn"],
-  ] as const) {
+  ];
+  if (reading.deha) karakaBlocks.push([`${reading.roles.deha} · Deha karaka · the native herself (female chart: Venus is her person, Mars the husband)`, reading.deha, reading.roles.deha]);
+  for (const [label, data, planet] of karakaBlocks) {
     ensureSpace(doc, 40);
     doc.font("Helvetica-Bold").fontSize(10).fillColor(planetColor(planet)).text(label);
     doc.font("Helvetica").fontSize(9).fillColor(INK).text(data.summary, { width: CONTENT_W });
@@ -182,7 +184,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
     const genderNote = m.gender === "female" ? "female chart" : m.gender === "male" ? "male chart" : "gender not set, read as male";
     ensureSpace(doc, 60);
     doc.font("Helvetica-Bold").fontSize(10).fillColor(planetColor(m.spouse)).text(`${m.spouse} · Kalatra karaka · marriage`);
-    doc.font("Helvetica").fontSize(8).fillColor(MUTED).text(`${genderNote}: ${m.native} is the native, ${m.spouse} the ${spouseWord}; no house lords, the karakas are read against each other.`, { width: CONTENT_W });
+    doc.font("Helvetica").fontSize(8).fillColor(MUTED).text(`${genderNote}: ${m.native} is the native${m.gender === "female" ? " as a person (Deha)" : ""}, ${m.spouse} the ${spouseWord}; no house lords, the karakas are read against each other.`, { width: CONTENT_W });
     const label = { strong: "Promised, strong", moderate: "Promised, half strength", weak: "Promised, lesser strength", "by-karma": "Promised through Saturn", "through-dispositor": "Indirect, via dispositor", absent: "No structural signature" }[m.promised];
     doc.font("Helvetica").fontSize(9).fillColor(INK).text(`${label}. ${m.headline}`, { width: CONTENT_W });
     for (const n of m.notes) doc.text(`• ${n}`, PAGE.m + 8, doc.y + 1, { width: CONTENT_W - 8 });
@@ -249,7 +251,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   }
 
   // ── Houses from the Jeeva karaka and from Saturn ──
-  for (const karaka of Array.from(new Set([reading.roles.native, "Saturn" as const]))) {
+  for (const karaka of Array.from(new Set<Planet>([reading.roles.native, reading.roles.deha, "Saturn"]))) {
     const houses = housesFrom(positions, karaka).filter((h) => h.planets.length || h.house === 1);
     ensureSpace(doc, 40);
     doc.moveDown(0.5);
@@ -273,7 +275,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
     if (!items.length) continue;
     ensureSpace(doc, 50);
     doc.font("Helvetica-Bold").fontSize(10.5).fillColor(INK).text(LIFE_AREAS[area].label, PAGE.m, doc.y);
-    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`karaka ${areaKaraka(area, reading.roles.gender)}`, PAGE.m, doc.y - 11, { width: CONTENT_W, align: "right" });
+    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`karaka ${areaKarakaLabel(area, reading.roles.gender)}`, PAGE.m, doc.y - 11, { width: CONTENT_W, align: "right" });
     doc.y += 4;
     for (const f of items) {
       const textX = PAGE.m + 24;

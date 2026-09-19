@@ -77,15 +77,17 @@ export interface Rule {
   text: string;
   weight: 1 | 2 | 3;
   source?: string;
-  /** Which chart the rule is written for. Undefined: both. "male": Jupiter is the native and Venus the wife. "female": Venus is the native and Mars the husband. */
+  /** Which chart the rule is written for. Undefined: both. "male": Venus is the wife. "female": Venus is the native's own person (Deha) and Mars the husband. Jupiter is the Jeeva in both. */
   frame?: "male" | "female";
 }
 
 /** Who plays which part in a chart (Rao). */
 export interface Roles {
   gender: Gender;
-  /** The Jeeva karaka: Jupiter in a male chart, Venus in a female chart. */
+  /** The Jeeva karaka: Jupiter in every chart (Naik: Guru is the native at the subtle level). */
   native: Planet;
+  /** The native as a person, the Deha: Jupiter in a male chart; Venus in a female chart (Naik). Marriage, husband and comforts are counted from it. */
+  deha: Planet;
   /** The spouse karaka: Venus (wife) in a male chart, Mars (husband) in a female chart. */
   spouse: Planet;
   karma: Planet;
@@ -93,7 +95,7 @@ export interface Roles {
 
 export function rolesFor(gender: Gender): Roles {
   const female = gender === "female";
-  return { gender, native: female ? "Venus" : "Jupiter", spouse: female ? "Mars" : "Venus", karma: "Saturn" };
+  return { gender, native: "Jupiter", deha: female ? "Venus" : "Jupiter", spouse: female ? "Mars" : "Venus", karma: "Saturn" };
 }
 
 /** Area karakas, gender-aware: "self" follows the Jeeva, "marriage" the spouse karaka. */
@@ -102,6 +104,13 @@ export function areaKaraka(area: LifeArea, gender: Gender): Planet {
   if (area === "self") return roles.native;
   if (area === "marriage") return roles.spouse;
   return LIFE_AREAS[area].karaka;
+}
+
+/** Karaka label for an area heading; the female "self" reads from both the Jeeva and the Deha. */
+export function areaKarakaLabel(area: LifeArea, gender: Gender): string {
+  const roles = rolesFor(gender);
+  if (area === "self" && roles.deha !== roles.native) return `${roles.native} (Jeeva) · ${roles.deha} (Deha)`;
+  return areaKaraka(area, gender);
 }
 
 export interface Finding {
@@ -142,6 +151,8 @@ export interface Reading {
   roles: Roles;
   jeeva: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
   karma: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
+  /** Female chart only: Venus as the native's own person (Deha). */
+  deha?: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
 }
 
 const RELATION_STRENGTH: Record<Relation, number> = {
@@ -397,7 +408,7 @@ for (const [subject, area, prefix] of [
 }
 
 RULES.push(...EXTRA_RULES);
-// Male-framed rules are replaced by FEMALE_RULES in a female chart.
+// Male-framed rules (Venus as the wife) are replaced by FEMALE_RULES in a female chart; Jupiter self rules apply to both.
 for (const r of RULES) if (MALE_FRAME_IDS.some((re) => re.test(r.id))) r.frame = "male";
 RULES.push(...FEMALE_RULES);
 RULES.push(...CHILDREN_RULES);
@@ -612,6 +623,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
     roles,
     jeeva: summarise(byPlanet[roles.native], "Jeeva karaka"),
     karma: summarise(byPlanet.Saturn, "Karma karaka"),
+    deha: roles.deha !== roles.native ? summarise(byPlanet[roles.deha], "Deha karaka") : undefined,
   };
 }
 

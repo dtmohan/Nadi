@@ -3,9 +3,10 @@ import { SOUTH_INDIAN_CELLS, SIGN_ABBR, SIGNS, PLANET_ABBR, houseFrom, type Plan
 const CELL = 100;
 const PAD = 2;
 
-export function planetClass(p: Planet, jeeva: Planet = "Jupiter") {
+export function planetClass(p: Planet, jeeva: Planet = "Jupiter", deha?: Planet) {
   if (p === jeeva) return "fill-primary font-semibold";
   if (p === "Saturn") return "fill-[hsl(var(--chart-2))] font-semibold";
+  if (deha && p === deha) return "fill-[hsl(var(--chart-3))] font-semibold";
   return "fill-foreground";
 }
 
@@ -17,9 +18,12 @@ export function SouthIndianChart({
   highlightSign,
   onSignClick,
   jeeva = "Jupiter",
+  deha,
   houseKaraka,
 }: {
   jeeva?: Planet;
+  /** Female chart: Venus, the native as a person, drawn in the third accent. */
+  deha?: Planet;
   /** Number the cells as whole-sign houses counted from this planet's sign. */
   houseKaraka?: Planet | null;
   positions: PlanetPosition[];
@@ -70,7 +74,7 @@ export function SouthIndianChart({
               const px = x + 8 + c * 46;
               const py = y + 34 + r * 20;
               return (
-                <text key={p.planet} x={px} y={py} fontSize={14} className={planetClass(p.planet, jeeva)}>
+                <text key={p.planet} x={px} y={py} fontSize={14} className={planetClass(p.planet, jeeva, deha)}>
                   {PLANET_ABBR[p.planet]}
                   {p.retrograde && p.planet !== "Rahu" && p.planet !== "Ketu" ? "\u211e" : ""}
                   <tspan fontSize={10} className="fill-muted-foreground tabular" dx={2}>
