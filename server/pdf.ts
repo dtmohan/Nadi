@@ -9,6 +9,7 @@ import { LIFE_AREAS, RELATION_LABEL, type LifeArea } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
 import { readTransits, type TransitReading } from "@shared/timing";
 import { chainSummary } from "@shared/flow";
+import { nextMarriageWindow } from "@shared/marriage";
 
 const INK = "#2b241e";
 const MUTED = "#7a6f66";
@@ -168,6 +169,25 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
     ensureSpace(doc, 40);
     doc.font("Helvetica-Bold").fontSize(10).fillColor(planetColor(planet)).text(label);
     doc.font("Helvetica").fontSize(9).fillColor(INK).text(data.summary, { width: CONTENT_W });
+    doc.moveDown(0.5);
+  }
+  {
+    const m = reading.marriage;
+    const win = nextMarriageWindow(m, transits, now.asOf.slice(0, 10));
+    const spouseWord = m.gender === "female" ? "husband" : m.gender === "male" ? "wife" : "spouse";
+    const genderNote = m.gender === "female" ? "female chart" : m.gender === "male" ? "male chart" : "gender not set, read as male";
+    ensureSpace(doc, 60);
+    doc.font("Helvetica-Bold").fontSize(10).fillColor(planetColor(m.spouse)).text(`${m.spouse} · Kalatra karaka · marriage`);
+    doc.font("Helvetica").fontSize(8).fillColor(MUTED).text(`${genderNote}: ${m.native} is the native, ${m.spouse} the ${spouseWord}; no house lords, the karakas are read against each other.`, { width: CONTENT_W });
+    const label = { strong: "Promised, strong", moderate: "Promised, half strength", weak: "Promised, lesser strength", "by-karma": "Promised through Saturn", "through-dispositor": "Indirect, via dispositor", absent: "No structural signature" }[m.promised];
+    doc.font("Helvetica").fontSize(9).fillColor(INK).text(`${label}. ${m.headline}`, { width: CONTENT_W });
+    for (const n of m.notes) doc.text(`• ${n}`, PAGE.m + 8, doc.y + 1, { width: CONTENT_W - 8 });
+    doc.font("Helvetica").fontSize(8).fillColor(MUTED).text(
+      `Triggers: Jupiter over ${m.spouseSign} (full) or its trines ${m.triggerSigns.slice(1).join(", ")} (three-quarter).${win ? ` Next: Jupiter ${win.kind === "over" ? "over" : "in trine from"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.` : ""}`,
+      PAGE.m,
+      doc.y + 2,
+      { width: CONTENT_W },
+    );
     doc.moveDown(0.5);
   }
 

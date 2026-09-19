@@ -17,6 +17,7 @@ import {
 import { EXTRA_RULES } from "./rules-bnn";
 import { assessStrength, type PlanetStrength } from "./strength";
 import { degreeChains, flowBetween, type DegreeChain, type Flow } from "./flow";
+import { assessMarriage, type Gender, type MarriageReading } from "./marriage";
 
 export type LifeArea =
   | "self"
@@ -99,6 +100,8 @@ export interface Reading {
   strength: PlanetStrength[];
   /** Planets sharing a sign, in degree order, with hand-offs. */
   chains: DegreeChain[];
+  /** Marriage read between karakas, gender-aware (no house lords). */
+  marriage: MarriageReading;
   jeeva: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
   karma: { sign: string; retro: boolean; dignity: Dignity; companions: Planet[]; summary: string };
 }
@@ -393,7 +396,7 @@ function bestRelation(a: PlanetPosition, b: PlanetPosition): { relation: Relatio
   return best;
 }
 
-export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES): Reading {
+export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gender: Gender = "unspecified"): Reading {
   const byPlanet = Object.fromEntries(positions.map((p) => [p.planet, p])) as Record<Planet, PlanetPosition>;
 
   // Pairwise relations
@@ -530,6 +533,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES): Re
     relations,
     strength,
     chains: degreeChains(positions),
+    marriage: assessMarriage(positions, gender),
     jeeva: summarise(byPlanet.Jupiter, "Jeeva karaka"),
     karma: summarise(byPlanet.Saturn, "Karma karaka"),
   };

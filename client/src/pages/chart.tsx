@@ -6,6 +6,7 @@ import { ArrowLeft, Eye, EyeOff, FileDown } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition, KARAKA } from "@shared/astro";
 import { GIVES, RECEIVES, flowGloss, type DegreeChain } from "@shared/flow";
+import { nextMarriageWindow, type MarriageReading } from "@shared/marriage";
 import { LIFE_AREAS, RELATION_LABEL, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
 import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
@@ -107,6 +108,57 @@ function KarakaCard({ title, planet, data, positions }: { title: string; planet:
   );
 }
 
+const PROMISE_LABEL: Record<MarriageReading["promised"], string> = {
+  strong: "Promised, strong",
+  moderate: "Promised, half strength",
+  weak: "Promised, lesser strength",
+  "by-karma": "Promised through Saturn",
+  "through-dispositor": "Indirect, via dispositor",
+  absent: "No structural signature",
+};
+
+function MarriageCard({ m, positions, transits, asOf }: { m: MarriageReading; positions: PlanetPosition[]; transits: ChartResult["transits"]; asOf: string }) {
+  const sp = positions.find((x) => x.planet === m.spouse)!;
+  const win = nextMarriageWindow(m, transits, asOf.slice(0, 10));
+  const gender = m.gender === "female" ? "female chart" : m.gender === "male" ? "male chart" : "gender not set, read as male";
+  return (
+    <Card data-testid="card-marriage">
+      <CardContent className="p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+          <h3 className="text-base font-semibold">
+            <span className="text-[hsl(var(--chart-3))]">{m.spouse}</span> · Kalatra karaka · marriage
+          </h3>
+          <span className="tabular text-xs text-muted-foreground">
+            {sp.sign} {fmtDeg(sp.lon)}
+          </span>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {gender}: {m.native} is the native, {m.spouse} the {m.gender === "female" ? "husband" : m.gender === "male" ? "wife" : "spouse"}. No house lords; the two karakas are read against each other.
+        </p>
+        <p className="mt-2 text-sm leading-relaxed">
+          <Badge variant="secondary" className="no-default-hover-elevate mr-1.5 font-normal" data-testid="badge-marriage-promise">
+            {PROMISE_LABEL[m.promised]}
+          </Badge>
+          {m.headline}
+        </p>
+        {m.notes.length > 0 && (
+          <ul className="mt-2 space-y-1 text-sm leading-relaxed text-muted-foreground">
+            {m.notes.map((n) => (
+              <li key={n}>{n}</li>
+            ))}
+          </ul>
+        )}
+        <p className="mt-3 text-xs text-muted-foreground" data-testid="text-marriage-window">
+          Triggers: Jupiter over {m.spouseSign} (full) or its trines {m.triggerSigns.slice(1).join(", ")} (three-quarter).
+          {win
+            ? ` Next: Jupiter ${win.kind === "over" ? "over" : "in trine from"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.`
+            : ""}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
 function ScoreDots({ score }: { score: number }) {
   const n = Math.max(1, Math.min(3, Math.round(score)));
   return (
@@ -134,6 +186,9 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
       <div className="grid gap-4 lg:grid-cols-2">
         <KarakaCard title="Jeeva karaka · the native" planet="Jupiter" data={reading.jeeva} positions={positions} />
         <KarakaCard title="Karma karaka · the profession" planet="Saturn" data={reading.karma} positions={positions} />
+        <div className="lg:col-span-2">
+          <MarriageCard m={reading.marriage} positions={positions} transits={result.transits} asOf={result.now.asOf} />
+        </div>
       </div>
 
       <StrengthNotes strength={reading.strength} chains={reading.chains} selected={selected} />

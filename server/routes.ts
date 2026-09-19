@@ -18,7 +18,7 @@ export function computeChart(chart: Chart): ChartResult {
   const utc = localToUtc(chart.birthDate, chart.birthTime, chart.timezone);
   const jd = julianDay(utc);
   const positions = positionsAt(jd, opts);
-  const reading = evaluate(positions);
+  const reading = evaluate(positions, undefined, (chart.gender as "male" | "female" | "unspecified") ?? "unspecified");
   const endJd = jd + 100 * 365.25;
   const transits = [...transitPeriods("Jupiter", jd, endJd, opts), ...transitPeriods("Saturn", jd, endJd, opts)];
   const nj = nowJd();

@@ -26,6 +26,28 @@ export default function AboutPage() {
           <li>7th: opposition, a face-to-face influence at about half strength.</li>
           <li>Retrograde: a retrograde classical planet also delivers results from the previous sign, so it is evaluated from both.</li>
         </ul>
+        <h2>Marriage without house lords</h2>
+        <p>
+          Nadi never asks who rules the 7th. Marriage is read between karakas: in a male chart Jupiter is the native and Venus the wife; in a female chart Venus is the native and Mars the
+          husband, following Rao (many teachers also read Jupiter for the husband, and the app notes when Jupiter supports Venus in a female chart). Rao's rule is that marriage is promised
+          when the spouse karaka stands in the 1st, 5th or 9th (same direction), 3rd, 7th or 11th (mutual aspect) or 2nd or 12th (adjacent) from the native's karaka, or from Saturn, in which
+          case it comes by karma and later. The 4th, 6th, 8th and 10th carry no signature; the dispositor of the spouse karaka is then read instead. Saturn with or in trine to the spouse karaka
+          delays, Jupiter hastens, Rahu and Ketu bring obstacles and disputes, and Saturn with a node on the karaka approaches denial unless Jupiter aspects it. Timing is Jupiter's passage over
+          the spouse karaka's sign or its trines, with Saturn's passage releasing a delayed marriage. The Marriage card on each chart applies these rules using the gender saved with the chart.
+          Sources: R.G. Rao's rules as summarised in{" "}
+          <a href="https://ijcrd.dvpublication.com/uploads/666011e4de3cf_223.pdf" target="_blank" rel="noreferrer">
+            Marriage Life through Bhrigu Nandi Nadi (IJCRD)
+          </a>
+          , Bhausaheb Sakurkar's{" "}
+          <a href="https://saptarishisastrology.com/nadi-principles-for-marriage-and-married-life-by-bhausaheb-sakurkar/" target="_blank" rel="noreferrer">
+            Nadi principles for marriage
+          </a>{" "}
+          and{" "}
+          <a href="https://astroindus.com/bhrigu-nandi-nadi/marriage-timing/" target="_blank" rel="noreferrer">
+            Astroindus on marriage timing
+          </a>
+          .
+        </p>
         <h2>Direction matters</h2>
         <p>
           Two planets in one sign are not read symmetrically. Rao's first rule is that "degree-wise a planet ahead will give its karakatwa to the planet behind", and the bond is tightest when
