@@ -511,7 +511,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
       const strength = w.exchange ? Math.max(0.9, RELATION_STRENGTH[relation]) : RELATION_STRENGTH[relation];
       const viaRetro = (rel?.viaRetro ?? false) || extraRetro;
       const score = rule.weight * strength * Math.max(extraStrength, 0.6) * (viaRetro ? 0.85 : 1);
-      const flow = relation === "conjunct" && !viaRetro ? flowBetween(s, o) ?? undefined : undefined;
+      const flow = (relation === "conjunct" || relation === "trine") && !viaRetro ? flowBetween(s, o) ?? undefined : undefined;
       push({
         ruleId: rule.id,
         area: rule.area,

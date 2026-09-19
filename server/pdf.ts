@@ -8,7 +8,7 @@ import { PLANETS, PLANET_ABBR, SIGNS, SIGN_ABBR, SOUTH_INDIAN_CELLS, fmtDeg, fmt
 import { LIFE_AREAS, RELATION_LABEL, type LifeArea, areaKaraka } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
 import { readTransits, type TransitReading } from "@shared/timing";
-import { chainSummary } from "@shared/flow";
+import { chainSummary, tierLabel } from "@shared/flow";
 import { nextMarriageWindow } from "@shared/marriage";
 import { nextChildWindow } from "@shared/children";
 
@@ -234,8 +234,8 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
     }
     if (reading.chains.length) {
       doc.moveDown(0.4);
-      doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text("Degree order within a sign", PAGE.m, doc.y, { width: CONTENT_W });
-      doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text("The planet ahead by degree hands its matters to the one behind (Rao, rule 1); a shared pada is the tightest bond.", PAGE.m, doc.y + 1, { width: CONTENT_W });
+      doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text("Degree order by direction", PAGE.m, doc.y, { width: CONTENT_W });
+      doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text("The three signs of a trine are one direction, read as one combination in degree order: the planet ahead hands its matters to the one behind (Rao, rule 1). A shared pada is the tightest bond; across signs, planets within a degree stand at the same degree. Direct planets move to higher degrees, retrograde ones and the nodes to lower, so closing pairs bind more strongly.", PAGE.m, doc.y + 1, { width: CONTENT_W });
       for (const c of reading.chains) {
         const text = chainSummary(c);
         doc.font("Helvetica").fontSize(8.5);
@@ -265,7 +265,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
       const y = doc.y;
       scoreDots(doc, PAGE.m + 3, y + 5, f.score);
       doc.fillColor(INK).text(f.text, textX, y, { width: textW });
-      const flow = f.flow ? `${f.flow.from} ahead > ${f.flow.to}${f.flow.tier === "pada" ? " (same pada)" : f.flow.tier === "nakshatra" ? " (same nakshatra)" : ""}` : null;
+      const flow = f.flow ? `${f.flow.from} ahead > ${f.flow.to}${f.flow.tier !== "sign" ? ` (${tierLabel(f.flow.tier)})` : ""}${f.flow.approach === "closing" ? " closing" : ""}` : null;
       const meta = [f.planets.join(" · "), f.relation ? RELATION_LABEL[f.relation] : null, flow, f.viaRetro ? "via retrogression" : null, f.modifier ?? null, f.source ?? null].filter(Boolean).join(" — ");
       doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(meta, textX, doc.y, { width: textW });
       doc.y += 6;

@@ -5,7 +5,7 @@ import { DateTime } from "luxon";
 import { ArrowLeft, Eye, EyeOff, FileDown } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition, KARAKA } from "@shared/astro";
-import { GIVES, RECEIVES, flowGloss, type DegreeChain } from "@shared/flow";
+import { GIVES, RECEIVES, flowGloss, tierLabel, approachLabel, type DegreeChain } from "@shared/flow";
 import { nextMarriageWindow, type MarriageReading } from "@shared/marriage";
 import { nextChildWindow, type ChildrenReading } from "@shared/children";
 import { LIFE_AREAS, RELATION_LABEL, areaKaraka, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
@@ -289,7 +289,7 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
                     {f.flow && (
                       <p className="mt-0.5 text-xs text-muted-foreground" title={flowGloss(f.flow)}>
                         <span className="font-medium text-foreground/80">{f.flow.from} ahead</span> → {f.flow.to}
-                        {f.flow.tier === "pada" ? " · same pada" : f.flow.tier === "nakshatra" ? " · same nakshatra" : ""}: {GIVES[f.flow.from]} colour {RECEIVES[f.flow.to]}.
+                        {f.flow.tier !== "sign" ? ` · ${tierLabel(f.flow.tier)}` : ""}{f.flow.approach === "closing" ? " · closing" : ""}: {GIVES[f.flow.from]} colour {RECEIVES[f.flow.to]}.
                       </p>
                     )}
                   </div>
@@ -331,27 +331,37 @@ function StrengthNotes({ strength, chains, selected }: { strength: PlanetStrengt
       </ul>
       {shownChains.length > 0 && (
         <div className="mt-4" data-testid="section-chains">
-          <h4 className="text-sm font-medium">Degree order within a sign</h4>
-          <p className="mt-0.5 text-xs text-muted-foreground">The planet ahead by degree hands its matters to the one behind (Rao, rule 1). Bonds within one pada are the tightest.</p>
+          <h4 className="text-sm font-medium">Degree order by direction</h4>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            The three signs of a trine are one direction and their planets are read as one combination in degree order: the planet ahead hands its matters to the one behind (Rao, rule 1).
+            Bonds within one pada are the tightest; across signs, planets within a degree stand "at the same degree". Direct planets move to higher degrees, retrograde ones and the nodes to
+            lower, so a closing pair binds more strongly than a separating one.
+          </p>
           <ul className="mt-2 space-y-2 text-sm">
             {shownChains.map((c) => (
-              <li key={c.signIndex} className="grid grid-cols-[4.5rem_1fr] gap-x-2" data-testid={`chain-${c.sign}`}>
-                <span className="font-medium">{c.sign}</span>
+              <li key={c.direction} className="grid grid-cols-[4.5rem_1fr] gap-x-2" data-testid={`chain-${c.direction}`}>
+                <span>
+                  <span className="block font-medium">{c.direction}</span>
+                  <span className="block text-xs text-muted-foreground">{c.signs.map((sg) => sg.slice(0, 3)).join(" ")}</span>
+                </span>
                 <span>
                   <span className="tabular">
                     {c.order.map((p, i) => (
                       <span key={p.planet}>
                         {i > 0 && <span className="text-muted-foreground"> › </span>}
                         <span className={cn("font-medium", p.planet === "Jupiter" && "text-primary", p.planet === "Saturn" && "text-[hsl(var(--chart-2))]")}>{p.planet}</span>
-                        <span className="text-muted-foreground"> {fmtDegShort(p.degInSign)}</span>
+                        <span className="text-muted-foreground">
+                          {" "}
+                          {fmtDegShort(p.degInSign)}
+                          {c.signs.length > 1 ? ` ${p.sign.slice(0, 3)}` : ""}
+                        </span>
                       </span>
                     ))}
                   </span>
                   <span className="block text-xs leading-relaxed text-muted-foreground">
                     {c.links.map((l) => (
                       <span key={`${l.from}-${l.to}`} className="block">
-                        {l.from} → {l.to}
-                        {l.tier === "pada" ? " (same pada)" : l.tier === "nakshatra" ? " (same nakshatra)" : ""}: {GIVES[l.from]} colour {RECEIVES[l.to]}.
+                        {l.from} → {l.to} ({tierLabel(l.tier)}, {approachLabel(l.approach)}): {GIVES[l.from]} colour {RECEIVES[l.to]}.
                       </span>
                     ))}
                   </span>

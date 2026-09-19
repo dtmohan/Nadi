@@ -101,9 +101,21 @@ export default function AboutPage() {
         </p>
         <h2>Direction matters</h2>
         <p>
-          Two planets in one sign are not read symmetrically. Rao's first rule is that "degree-wise a planet ahead will give its karakatwa to the planet behind", and the bond is tightest when
+          Two planets that combine are not read symmetrically. Rao's first rule is that "degree-wise a planet ahead will give its karakatwa to the planet behind", and the bond is tightest when
           the two share a pada (3°20'), then a nakshatra, then merely the sign. So Saturn ahead of Mercury colours learning and commerce with work and duty, while Mercury ahead of Saturn makes
-          the profession itself Mercurial. The reading shows this hand-off under each same-sign finding and lists the full degree order for every occupied sign. Across signs the direction is
+          the profession itself Mercurial. This is applied across the whole trine, not just the sign: the three signs of a trine are one direction (East Aries-Leo-Sagittarius, South
+          Taurus-Virgo-Capricorn, West Gemini-Libra-Aquarius, North Cancer-Scorpio-Pisces), "planets in the same direction are conjunct, irrespective of their signs" and are "written in the
+          ascending order of their degrees" (
+          <a href="https://anandamoyee.home.blog/2021/02/10/bhrigu-nandi-nadi-principles-with-chart-analysis/" target="_blank" rel="noreferrer">
+            Anandamoyee, BNN principles
+          </a>
+          ;{" "}
+          <a href="https://www.scribd.com/document/915304966/Bhrigu-Nandi-Nadi-Diploma-Class-3-Astro-Vaibhav-Gupta" target="_blank" rel="noreferrer">
+            Vaibhav Gupta, class 3
+          </a>
+          ). Planets within a degree of each other across signs stand "at the same degree", a tighter bond than a bare trine. Retrogression shows the direction of approach: a direct
+          planet moves to higher degrees, a retrograde one and the nodes to lower, so two planets closing on each other bind more strongly than two separating. The reading shows this
+          hand-off under each same-sign or trine finding and lists the full degree order for every occupied direction. Between the 2nd and 12th signs the direction is
           by sign order: the planet in the 2nd "indicates the next step in action" and the one in the 12th "the background under which the matter is progressed" (Naik), which is why the
           rule book has separate entries for a karaka with a planet ahead and behind it. Some modern teachers reverse the degree rule and treat the lower-degree planet as the giver, on the
           logic that it is moving toward the other; the app follows Rao and Naik.
