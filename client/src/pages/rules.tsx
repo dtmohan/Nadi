@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { PLANETS, type Planet } from "@shared/astro";
+import { PLANETS, SIGNS, type Planet } from "@shared/astro";
 import { LIFE_AREAS, RELATION_LABEL, type LifeArea, type Rule } from "@shared/rules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,12 +10,17 @@ const SHORT_REL: Record<string, string> = { conjunct: "conjunction", next: "2nd"
 
 function describeCondition(w: Rule["when"]) {
   const parts: string[] = [];
-  if (w.object) parts.push(`${w.subject} → ${w.object} by ${(w.relation ?? ["conjunct"]).map((r) => SHORT_REL[r] ?? RELATION_LABEL[r]).join(", ")}`);
+  if (w.object && w.exchange) parts.push(`${w.subject} and ${w.object} exchange signs`);
+  else if (w.object) parts.push(`${w.subject} → ${w.object} by ${(w.relation ?? ["conjunct"]).map((r) => SHORT_REL[r] ?? RELATION_LABEL[r]).join(", ")}`);
   else parts.push(w.subject);
+  for (const c of w.with ?? []) parts.push(`with ${c.planet} (${(c.relation ?? ["conjunct", "prev", "next"]).map((r) => SHORT_REL[r]).join(", ")})`);
+  if (w.alone) parts.push("no planet conjunct, 2nd or 12th");
   if (w.subjectRetro) parts.push("retrograde");
   if (w.subjectCombust) parts.push("combust");
   if (w.subjectDignity) parts.push(w.subjectDignity.join(" or ").toLowerCase());
+  if (w.subjectSign) parts.push(`in ${w.subjectSign.map((i) => SIGNS[i]).join("/")}`);
   if (w.subjectSignLord) parts.push(`in a sign of ${w.subjectSignLord.join("/")}`);
+  if (w.subjectNakshatraLord) parts.push(`in a nakshatra of ${w.subjectNakshatraLord.join("/")}`);
   if (w.subjectElement) parts.push(`in a ${w.subjectElement.join("/").toLowerCase()} sign`);
   return parts.join(" · ");
 }
@@ -31,7 +36,7 @@ export default function RulesPage() {
       (rules ?? []).filter(
         (r) =>
           (area === "all" || r.area === area) &&
-          (planet === "all" || r.when.subject === planet || r.when.object === planet) &&
+          (planet === "all" || r.when.subject === planet || r.when.object === planet || (r.when.with ?? []).some((c) => c.planet === planet)) &&
           (!q || r.text.toLowerCase().includes(q.toLowerCase()) || r.id.includes(q.toLowerCase())),
       ),
     [rules, area, planet, q],

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, FileDown } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, fmtDeg, houseFrom, type Planet, type PlanetPosition, KARAKA } from "@shared/astro";
 import { LIFE_AREAS, RELATION_LABEL, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { API_BASE } from "@/lib/queryClient";
 
 const CLASSICAL = new Set<Planet>(["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]);
 
@@ -283,7 +284,7 @@ export default function ChartPage() {
             {birthLocal.toFormat("d LLLL yyyy, HH:mm")} · {chart.place}
           </p>
         </div>
-        <div className="flex flex-wrap gap-1.5 text-xs">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <Badge variant="outline" className="no-default-hover-elevate tabular">
             Ayanamsa {chart.ayanamsa} {data.ayanamsaValue.toFixed(3)}°
           </Badge>
@@ -293,6 +294,12 @@ export default function ChartPage() {
           <Badge variant="outline" className="no-default-hover-elevate">
             {chart.timezone}
           </Badge>
+          <Button asChild size="sm" variant="outline" className="ml-1">
+            <a href={`${API_BASE}/api/charts/${chart.id}/pdf`} target="_blank" rel="noopener noreferrer" data-testid="button-export-pdf">
+              <FileDown className="h-4 w-4" />
+              Export PDF
+            </a>
+          </Button>
         </div>
       </header>
 

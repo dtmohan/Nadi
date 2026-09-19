@@ -5,6 +5,7 @@ import { insertChartSchema, type Chart, type ChartResult, type GeoHit } from "@s
 import { RULES, evaluate } from "@shared/rules";
 import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, type EphemerisOptions } from "./ephemeris";
 import { DateTime } from "luxon";
+import { buildChartPdf } from "./pdf";
 
 const resultCache = new Map<string, ChartResult>();
 
@@ -46,6 +47,20 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     if (!chart) return res.status(404).json({ message: "Chart not found" });
     try {
       res.json(computeChart(chart));
+    } catch (e: any) {
+      res.status(400).json({ message: e.message });
+    }
+  });
+
+  app.get("/api/charts/:id/pdf", async (req, res) => {
+    const chart = await storage.getChart(Number(req.params.id));
+    if (!chart) return res.status(404).json({ message: "Chart not found" });
+    try {
+      const result = computeChart(chart);
+      const safe = chart.name.replace(/[^\w.-]+/g, "_").slice(0, 60) || "chart";
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="nadi-${safe}.pdf"`);
+      buildChartPdf(result).pipe(res);
     } catch (e: any) {
       res.status(400).json({ message: e.message });
     }

@@ -14,6 +14,7 @@ import {
   KARAKA,
   SIGNS,
 } from "./astro";
+import { EXTRA_RULES } from "./rules-bnn";
 
 export type LifeArea =
   | "self"
@@ -42,9 +43,17 @@ export interface RuleCondition {
   subject: Planet;
   object?: Planet;
   relation?: Relation[]; // default ["conjunct"]
+  /** Further planets that must also relate to the subject (three- and four-planet yogas). */
+  with?: Array<{ planet: Planet; relation?: Relation[] }>;
+  /** Subject and object occupy each other's signs (parivartana). */
+  exchange?: boolean;
+  /** No other planet conjunct, in the 2nd or in the 12th from the subject. */
+  alone?: boolean;
   subjectRetro?: boolean;
   subjectDignity?: Dignity[];
+  subjectSign?: number[]; // 0 = Aries
   subjectSignLord?: Planet[];
+  subjectNakshatraLord?: Planet[];
   subjectElement?: Array<"Fire" | "Earth" | "Air" | "Water">;
   subjectCombust?: boolean;
 }
@@ -337,6 +346,17 @@ for (const [subject, area, prefix] of [
   }
 }
 
+RULES.push(...EXTRA_RULES);
+
+// Guard against duplicate ids while authoring rules.
+{
+  const seen = new Set<string>();
+  for (const r of RULES) {
+    if (seen.has(r.id)) throw new Error(`Duplicate rule id: ${r.id}`);
+    seen.add(r.id);
+  }
+}
+
 const CLASSICAL: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 
 // Effective signs a planet acts from. Retrograde classical planets also act from the previous sign.
@@ -387,24 +407,66 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES): Re
     if (w.subjectRetro !== undefined && s.retrograde !== w.subjectRetro) continue;
     if (w.subjectCombust !== undefined && s.combust !== w.subjectCombust) continue;
     if (w.subjectDignity && !w.subjectDignity.includes(s.dignity)) continue;
+    if (w.subjectSign && !w.subjectSign.includes(s.signIndex)) continue;
     if (w.subjectSignLord && !w.subjectSignLord.includes(SIGN_LORD[s.signIndex])) continue;
+    if (w.subjectNakshatraLord && !w.subjectNakshatraLord.includes(s.nakshatraLord)) continue;
     if (w.subjectElement && !w.subjectElement.includes(SIGN_ELEMENT[s.signIndex])) continue;
+    if (w.alone) {
+      const neighbours = positions.filter((p) => p.planet !== s.planet && ["conjunct", "next", "prev"].includes(relationOf(s.signIndex, p.signIndex)));
+      if (neighbours.length > 0) continue;
+    }
+
+    // Extra companions (three- and four-planet combinations)
+    const extra: Planet[] = [];
+    let extraOk = true;
+    let extraStrength = 1;
+    let extraRetro = false;
+    for (const c of w.with ?? []) {
+      const o = byPlanet[c.planet];
+      const rel = o ? bestRelation(s, o) : null;
+      const allowed = c.relation ?? ["conjunct", "prev", "next"];
+      if (!rel || !allowed.includes(rel.relation)) {
+        extraOk = false;
+        break;
+      }
+      extra.push(c.planet);
+      extraStrength = Math.min(extraStrength, RELATION_STRENGTH[rel.relation]);
+      extraRetro = extraRetro || rel.viaRetro;
+    }
+    if (!extraOk) continue;
 
     if (w.object) {
       const o = byPlanet[w.object];
       if (!o) continue;
+      if (w.exchange && !(s.signLord === o.planet && o.signLord === s.planet)) continue;
       const rel = bestRelation(s, o);
-      const allowed = w.relation ?? ["conjunct"];
-      if (!rel || !allowed.includes(rel.relation)) continue;
-      const score = rule.weight * RELATION_STRENGTH[rel.relation] * (rel.viaRetro ? 0.85 : 1);
+      const allowed = w.exchange ? (w.relation ?? ["conjunct", "prev", "next", "trine", "opposite", "none"]) : (w.relation ?? ["conjunct"]);
+      const relation: Relation = rel?.relation ?? "none";
+      if (!w.exchange && (!rel || !allowed.includes(relation))) continue;
+      if (w.exchange && rel && !allowed.includes(relation)) continue;
+      const strength = w.exchange ? Math.max(0.9, RELATION_STRENGTH[relation]) : RELATION_STRENGTH[relation];
+      const viaRetro = (rel?.viaRetro ?? false) || extraRetro;
+      const score = rule.weight * strength * Math.max(extraStrength, 0.6) * (viaRetro ? 0.85 : 1);
       findings.push({
         ruleId: rule.id,
         area: rule.area,
         text: rule.text,
         score: Math.round(score * 100) / 100,
-        planets: [s.planet, o.planet],
-        relation: rel.relation,
-        viaRetro: rel.viaRetro,
+        planets: [s.planet, o.planet, ...extra],
+        relation: w.exchange && relation === "none" ? null : relation,
+        viaRetro,
+        source: rule.source,
+      });
+    } else if (extra.length) {
+      const score = rule.weight * Math.max(extraStrength, 0.6) * (extraRetro ? 0.85 : 1);
+      findings.push({
+        ruleId: rule.id,
+        area: rule.area,
+        text: rule.text,
+        score: Math.round(score * 100) / 100,
+        planets: [s.planet, ...extra],
+        relation: null,
+        viaRetro: extraRetro,
         source: rule.source,
       });
     } else {
