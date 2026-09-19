@@ -1,4 +1,5 @@
 import { SIGNS, houseFrom, type Planet, type PlanetPosition, type Sign } from "./astro";
+import { readsFromPreviousSign } from "./flow";
 
 /**
  * Houses in BNN are whole signs counted from a karaka, never from the ascendant.
@@ -86,8 +87,39 @@ export interface HouseFromKaraka {
   signIndex: number;
   sign: Sign;
   planets: Planet[];
+  /** Retrograde planets in the next sign that also read from this house, at half strength (Rao: "aspect the rear sign by 1/2 strength"). */
+  viaRetro: Planet[];
   cls: HouseClass;
   meaning: string;
+}
+
+/** A retrograde planet that stays put: it does not read from the previous house, and why. */
+export interface RetroNote {
+  planet: Planet;
+  house: number;
+  reason: string;
+}
+
+/**
+ * Retrograde planets that keep their house only. A retrograde planet's placement never moves:
+ * the house it occupies is read at full strength; the previous house is added at half strength
+ * unless rule 11 (it backed into this sign) or rule 12 (under Rahu or Ketu) applies.
+ */
+export function retroNotes(positions: PlanetPosition[], karaka: Planet): RetroNote[] {
+  const k = positions.find((p) => p.planet === karaka);
+  if (!k) return [];
+  const out: RetroNote[] = [];
+  for (const p of positions) {
+    if (!p.retrograde || p.planet === "Rahu" || p.planet === "Ketu" || readsFromPreviousSign(p, positions)) continue;
+    const node = positions.find((o) => (o.planet === "Rahu" || o.planet === "Ketu") && [1, 5, 9].includes(houseFrom(p.signIndex, o.signIndex)));
+    const reason = p.retrogradeEntry
+      ? `backed into ${SIGNS[p.signIndex]} from ${SIGNS[(p.signIndex + 1) % 12]}, so it is not counted again from the sign before (rule 11)`
+      : node
+        ? `under ${node.planet}${node.signIndex === p.signIndex ? " in the same sign" : ` by trine from ${SIGNS[node.signIndex]}`}, so the retrogression gives no effect on the previous sign (rule 12)`
+        : "";
+    if (reason) out.push({ planet: p.planet, house: houseFrom(k.signIndex, p.signIndex), reason });
+  }
+  return out;
 }
 
 export function housesFrom(positions: PlanetPosition[], karaka: Planet): HouseFromKaraka[] {
@@ -102,6 +134,7 @@ export function housesFrom(positions: PlanetPosition[], karaka: Planet): HouseFr
       signIndex,
       sign: SIGNS[signIndex],
       planets: positions.filter((p) => p.signIndex === signIndex && p.planet !== karaka).map((p) => p.planet),
+      viaRetro: positions.filter((p) => p.planet !== karaka && p.signIndex === (signIndex + 1) % 12 && readsFromPreviousSign(p, positions)).map((p) => p.planet),
       cls: houseClass(house),
       meaning: meanings[i],
     };

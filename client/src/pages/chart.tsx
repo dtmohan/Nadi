@@ -10,7 +10,7 @@ import { nextMarriageWindow, type MarriageReading } from "@shared/marriage";
 import { nextChildWindow, type ChildrenReading } from "@shared/children";
 import { LIFE_AREAS, RELATION_LABEL, areaKarakaLabel, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
-import { housesFrom, HOUSE_CLASS_LABEL, type HouseClass } from "@shared/houses";
+import { housesFrom, retroNotes, HOUSE_CLASS_LABEL, type HouseClass } from "@shared/houses";
 import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
 import { Timeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -405,6 +405,7 @@ const HOUSE_KARAKAS: Planet[] = ["Jupiter", "Saturn", "Venus"];
 function HousesPanel({ positions, karaka, native, deha, onChange, selected }: { positions: PlanetPosition[]; karaka: Planet; native: Planet; deha: Planet; onChange: (p: Planet) => void; selected: Planet | null }) {
   const houses = housesFrom(positions, karaka);
   if (!houses.length) return null;
+  const stayPut = retroNotes(positions, karaka);
   const female = deha !== native;
   const roleWord = karaka === native ? "the life force" : karaka === "Saturn" ? "the work" : female ? "the native herself" : "the spouse";
   return (
@@ -434,6 +435,11 @@ function HousesPanel({ positions, karaka, native, deha, onChange, selected }: { 
               <span className="min-w-0">
                 <span className="flex flex-wrap items-baseline gap-x-2">
                   <span className="font-medium">{h.house === 1 ? [karaka, ...h.planets].join(", ") : h.planets.length ? h.planets.join(", ") : <span className="font-normal text-muted-foreground">empty</span>}</span>
+                  {h.viaRetro.length > 0 && (
+                    <span className="text-xs text-muted-foreground" data-testid={`house-${h.house}-retro`}>
+                      + {h.viaRetro.join(", ")} by retro, half strength
+                    </span>
+                  )}
                   <span className={cn("rounded-sm border px-1 text-[0.68rem] leading-4", HOUSE_CLASS_TONE[h.cls])}>{HOUSE_CLASS_LABEL[h.cls]}</span>
                 </span>
                 <span className="block text-xs leading-relaxed text-muted-foreground">{h.meaning}</span>
@@ -442,6 +448,11 @@ function HousesPanel({ positions, karaka, native, deha, onChange, selected }: { 
           );
         })}
       </ul>
+      {stayPut.length > 0 && (
+        <p className="mt-2 text-xs text-muted-foreground" data-testid="houses-retro-note">
+          {stayPut.map((n) => `${n.planet} is retrograde but stays in the ${ordinal(n.house)}: ${n.reason}.`).join(" ")} A retrograde planet's own house is always read at full strength.
+        </p>
+      )}
     </section>
   );
 }

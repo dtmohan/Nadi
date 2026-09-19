@@ -528,9 +528,16 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
       // House rule: whole-sign count from the subject, no retrograde alternates.
       const o = byPlanet[w.object];
       if (!o) continue;
-      const h = houseFrom(s.signIndex, o.signIndex);
-      if (!w.house.includes(h)) continue;
-      const score = rule.weight * HOUSE_STRENGTH * Math.max(extraStrength, 0.6);
+      let h = houseFrom(s.signIndex, o.signIndex);
+      let viaRetro = false;
+      if (!w.house.includes(h)) {
+        // Rao: a retrograde planet also aspects the rear sign at half strength (rules 11/12 permitting).
+        const back = houseFrom(s.signIndex, (o.signIndex + 11) % 12);
+        if (!(readsFromPreviousSign(o, positions) && w.house.includes(back))) continue;
+        h = back;
+        viaRetro = true;
+      }
+      const score = rule.weight * HOUSE_STRENGTH * Math.max(extraStrength, 0.6) * (viaRetro ? RETRO_STRENGTH : 1);
       push({
         ruleId: rule.id,
         area: rule.area,
@@ -538,7 +545,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
         score: Math.round(score * 100) / 100,
         planets: [s.planet, o.planet, ...extra],
         relation: null,
-        viaRetro: false,
+        viaRetro,
         house: h,
         source: rule.source,
       });

@@ -9,7 +9,7 @@ import { LIFE_AREAS, RELATION_LABEL, type LifeArea, areaKarakaLabel } from "@sha
 import type { PlanetStrength } from "@shared/strength";
 import { readTransits, type TransitReading } from "@shared/timing";
 import { chainSummary, tierLabel } from "@shared/flow";
-import { housesFrom, HOUSE_CLASS_LABEL } from "@shared/houses";
+import { housesFrom, retroNotes, HOUSE_CLASS_LABEL } from "@shared/houses";
 import { nextMarriageWindow } from "@shared/marriage";
 import { nextChildWindow } from "@shared/children";
 
@@ -252,18 +252,22 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
 
   // ── Houses from the Jeeva karaka and from Saturn ──
   for (const karaka of Array.from(new Set<Planet>([reading.roles.native, reading.roles.deha, "Saturn"]))) {
-    const houses = housesFrom(positions, karaka).filter((h) => h.planets.length || h.house === 1);
+    const houses = housesFrom(positions, karaka).filter((h) => h.planets.length || h.viaRetro.length || h.house === 1);
+    const stayPut = retroNotes(positions, karaka);
     ensureSpace(doc, 40);
     doc.moveDown(0.5);
     doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text(`Houses from ${karaka}`, PAGE.m, doc.y, { width: CONTENT_W });
     doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`Whole signs counted from ${karaka}'s rashi as the 1st; no ascendant is used. Only occupied houses are listed.`, PAGE.m, doc.y + 1, { width: CONTENT_W });
     for (const h of houses) {
       const planets = h.house === 1 ? [karaka, ...h.planets] : h.planets;
-      const text = `${h.house}. ${h.sign} (${HOUSE_CLASS_LABEL[h.cls]}): ${planets.join(", ")}. ${h.meaning}`;
+      const text = `${h.house}. ${h.sign} (${HOUSE_CLASS_LABEL[h.cls]}): ${planets.length ? planets.join(", ") : "empty"}${h.viaRetro.length ? ` (+ ${h.viaRetro.join(", ")} by retrogression, half strength)` : ""}. ${h.meaning}`;
       doc.font("Helvetica").fontSize(8.5);
       const hh = doc.heightOfString(text, { width: CONTENT_W }) + 3;
       ensureSpace(doc, hh);
       doc.fillColor(INK).text(text, PAGE.m, doc.y + 2, { width: CONTENT_W });
+    }
+    if (stayPut.length) {
+      doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(stayPut.map((n) => `${n.planet} is retrograde but stays in house ${n.house}: ${n.reason}.`).join(" "), PAGE.m, doc.y + 2, { width: CONTENT_W });
     }
   }
   doc.moveDown(0.3);

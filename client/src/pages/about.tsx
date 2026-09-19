@@ -154,7 +154,9 @@ export default function AboutPage() {
           </a>{" "}
           (the 12th from Saturn is the work environment; Saturn's 3rd, 7th and 10th mark the start, middle and end of the career). The 1st, 2nd, 12th, 5th, 9th and 7th are read by the
           combination rules; the rule book's h-* rules read planets in the 3rd, 4th, 6th, 8th, 10th and 11th from Jupiter and the 3rd, 7th, 10th and 12th from Saturn, at a lower weight
-          than a true combination since these planets do not combine with the karaka.
+          than a true combination since these planets do not combine with the karaka. A retrograde planet does not move house: its own house is read at full strength, and the previous house is
+          added at half strength only when rules 11 and 12 allow it (not when it backed into the sign, and not when it is under Rahu or Ketu). The houses panel marks such additions "by
+          retro" and explains why a retrograde planet stays put.
         </p>
         <h2>Direction matters</h2>
         <p>
