@@ -9,6 +9,7 @@ import { LIFE_AREAS, RELATION_LABEL, type LifeArea, areaKaraka } from "@shared/r
 import type { PlanetStrength } from "@shared/strength";
 import { readTransits, type TransitReading } from "@shared/timing";
 import { chainSummary, tierLabel } from "@shared/flow";
+import { housesFrom, HOUSE_CLASS_LABEL } from "@shared/houses";
 import { nextMarriageWindow } from "@shared/marriage";
 import { nextChildWindow } from "@shared/children";
 
@@ -247,6 +248,24 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
     }
   }
 
+  // ── Houses from the Jeeva karaka and from Saturn ──
+  for (const karaka of Array.from(new Set([reading.roles.native, "Saturn" as const]))) {
+    const houses = housesFrom(positions, karaka).filter((h) => h.planets.length || h.house === 1);
+    ensureSpace(doc, 40);
+    doc.moveDown(0.5);
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text(`Houses from ${karaka}`, PAGE.m, doc.y, { width: CONTENT_W });
+    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`Whole signs counted from ${karaka}'s rashi as the 1st; no ascendant is used. Only occupied houses are listed.`, PAGE.m, doc.y + 1, { width: CONTENT_W });
+    for (const h of houses) {
+      const planets = h.house === 1 ? [karaka, ...h.planets] : h.planets;
+      const text = `${h.house}. ${h.sign} (${HOUSE_CLASS_LABEL[h.cls]}): ${planets.join(", ")}. ${h.meaning}`;
+      doc.font("Helvetica").fontSize(8.5);
+      const hh = doc.heightOfString(text, { width: CONTENT_W }) + 3;
+      ensureSpace(doc, hh);
+      doc.fillColor(INK).text(text, PAGE.m, doc.y + 2, { width: CONTENT_W });
+    }
+  }
+  doc.moveDown(0.3);
+
   // ── Reading ──
   sectionTitle(doc, "Reading", `${reading.findings.length} findings from ${reading.findings.length ? "the rule book" : "no rules"}`);
   for (const area of Object.keys(LIFE_AREAS) as LifeArea[]) {
@@ -266,7 +285,8 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
       scoreDots(doc, PAGE.m + 3, y + 5, f.score);
       doc.fillColor(INK).text(f.text, textX, y, { width: textW });
       const flow = f.flow ? `${f.flow.from} ahead > ${f.flow.to}${f.flow.tier !== "sign" ? ` (${tierLabel(f.flow.tier)})` : ""}${f.flow.approach === "closing" ? " closing" : ""}` : null;
-      const meta = [f.planets.join(" · "), f.relation ? RELATION_LABEL[f.relation] : null, flow, f.viaRetro ? "via retrogression" : null, f.modifier ?? null, f.source ?? null].filter(Boolean).join(" — ");
+      const house = f.house ? `in the ${f.house}${f.house === 1 ? "st" : f.house === 2 ? "nd" : f.house === 3 ? "rd" : "th"} from ${f.planets[0]}` : null;
+      const meta = [f.planets.join(" · "), f.relation ? RELATION_LABEL[f.relation] : null, house, flow, f.viaRetro ? "via retrogression" : null, f.modifier ?? null, f.source ?? null].filter(Boolean).join(" — ");
       doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(meta, textX, doc.y, { width: textW });
       doc.y += 6;
     }

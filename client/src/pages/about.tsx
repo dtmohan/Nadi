@@ -116,6 +116,35 @@ export default function AboutPage() {
           </a>
           .
         </p>
+        <h2>Houses without an ascendant</h2>
+        <p>
+          BNN does use houses, but they are whole signs counted from a karaka, not from the rising degree. "Sage Brighu has not concentrated on Ascendent (Lagna); on the other hand, he
+          concentrates on Jupiter, calling it the life force ... the author treats Jupiter as the ascendent and the 12 houses therefrom", and from that reference "trine 1, 5, 9 are best,
+          quadrants 1, 4, 7, 10 good, 6, 8, 12 bad, and 2, 3, 11 not so good" (
+          <a href="https://www.scribd.com/document/976539938/Bhrigu-Nandi-Nadi" target="_blank" rel="noreferrer">
+            Bhrigu Naadi principles
+          </a>
+          ). Jupiter's whole rashi is the 1st house whatever its degree; there is no bhava madhya and no chalit. The reference planet shifts with the topic: Rao counts from Saturn for
+          profession and from Venus for the spouse and comforts, and in a female chart Venus takes the 1st house (
+          <a href="https://sitharsastrology.com/blog/bhrigu-nandi-nadi-rule-one-why-jupiter-becomes-your-first-house" target="_blank" rel="noreferrer">
+            Sitharsastrology, rule one
+          </a>
+          ;{" "}
+          <a href="https://mokshatrikona.com/2026/05/25/bhrigu-nandi-nadi-a-summary/" target="_blank" rel="noreferrer">
+            Mokshatrikona summary
+          </a>
+          ). The chart page numbers every sign from the chosen karaka and lists what sits in each house with its meaning, condensed from{" "}
+          <a href="https://sitharsastrology.com/blog/the-12-houses-counted-from-jupiter-bhrigu-nandi-nadi" target="_blank" rel="noreferrer">
+            the 12 houses counted from Jupiter
+          </a>{" "}
+          and, for Saturn, from the{" "}
+          <a href="https://www.scribd.com/document/746652825/BNN-Bootcamp-10-Profession" target="_blank" rel="noreferrer">
+            BNN profession bootcamp
+          </a>{" "}
+          (the 12th from Saturn is the work environment; Saturn's 3rd, 7th and 10th mark the start, middle and end of the career). The 1st, 2nd, 12th, 5th, 9th and 7th are read by the
+          combination rules; the rule book's h-* rules read planets in the 3rd, 4th, 6th, 8th, 10th and 11th from Jupiter and the 3rd, 7th, 10th and 12th from Saturn, at a lower weight
+          than a true combination since these planets do not combine with the karaka.
+        </p>
         <h2>Direction matters</h2>
         <p>
           Two planets that combine are not read symmetrically. Rao's first rule is that "degree-wise a planet ahead will give its karakatwa to the planet behind", and the bond is tightest when

@@ -13,10 +13,12 @@ import {
   SIGN_ELEMENT,
   KARAKA,
   SIGNS,
+  houseFrom,
 } from "./astro";
 import { EXTRA_RULES } from "./rules-bnn";
 import { FEMALE_RULES, MALE_FRAME_IDS } from "./rules-female";
 import { CHILDREN_RULES } from "./rules-children";
+import { HOUSE_RULES } from "./rules-houses";
 import { assessChildren, type ChildrenReading } from "./children";
 import { assessStrength, type PlanetStrength } from "./strength";
 import { degreeChains, flowBetween, readsFromPreviousSign, type DegreeChain, type Flow } from "./flow";
@@ -57,6 +59,8 @@ export interface RuleCondition {
   exchange?: boolean;
   /** No other planet conjunct, in the 2nd or in the 12th from the subject. */
   alone?: boolean;
+  /** Object sits in one of these whole-sign houses counted from the subject (1 = same sign). Replaces `relation`. */
+  house?: number[];
   subjectRetro?: boolean;
   subjectDignity?: Dignity[];
   subjectSign?: number[]; // 0 = Aries
@@ -112,6 +116,8 @@ export interface Finding {
   modifier?: string;
   /** Degree order when the pair shares a sign: the planet ahead hands its matters to the one behind. */
   flow?: Flow;
+  /** Whole-sign house of the object counted from the subject, for house rules. */
+  house?: number;
   source?: string;
 }
 
@@ -395,6 +401,7 @@ RULES.push(...EXTRA_RULES);
 for (const r of RULES) if (MALE_FRAME_IDS.some((re) => re.test(r.id))) r.frame = "male";
 RULES.push(...FEMALE_RULES);
 RULES.push(...CHILDREN_RULES);
+RULES.push(...HOUSE_RULES);
 
 // Guard against duplicate ids while authoring rules.
 {
@@ -406,6 +413,9 @@ RULES.push(...CHILDREN_RULES);
 }
 
 const CLASSICAL: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+
+// A planet merely in a house from the karaka, without combining with it (below the 7th's 0.5).
+export const HOUSE_STRENGTH = 0.45;
 
 // Rao: a retro planet "will aspect the rear sign by 1/2 strength".
 export const RETRO_STRENGTH = 0.5;
@@ -502,6 +512,27 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
       extraRetro = extraRetro || rel.viaRetro;
     }
     if (!extraOk) continue;
+
+    if (w.object && w.house) {
+      // House rule: whole-sign count from the subject, no retrograde alternates.
+      const o = byPlanet[w.object];
+      if (!o) continue;
+      const h = houseFrom(s.signIndex, o.signIndex);
+      if (!w.house.includes(h)) continue;
+      const score = rule.weight * HOUSE_STRENGTH * Math.max(extraStrength, 0.6);
+      push({
+        ruleId: rule.id,
+        area: rule.area,
+        text: rule.text,
+        score: Math.round(score * 100) / 100,
+        planets: [s.planet, o.planet, ...extra],
+        relation: null,
+        viaRetro: false,
+        house: h,
+        source: rule.source,
+      });
+      continue;
+    }
 
     if (w.object) {
       const o = byPlanet[w.object];

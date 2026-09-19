@@ -10,6 +10,7 @@ import { nextMarriageWindow, type MarriageReading } from "@shared/marriage";
 import { nextChildWindow, type ChildrenReading } from "@shared/children";
 import { LIFE_AREAS, RELATION_LABEL, areaKaraka, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
+import { housesFrom, HOUSE_CLASS_LABEL, type HouseClass } from "@shared/houses";
 import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
 import { Timeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -282,6 +283,7 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {f.planets.join(" · ")}
                       {f.relation && ` — ${RELATION_LABEL[f.relation]}`}
+                      {f.house && ` — in the ${ordinal(f.house)} from ${f.planets[0]}`}
                       {f.viaRetro && " (via retrogression)"}
                       {f.modifier && ` · ${f.modifier}`}
                       {f.source && ` · ${f.source}`}
@@ -380,6 +382,64 @@ function StrengthNotes({ strength, chains, selected }: { strength: PlanetStrengt
   );
 }
 
+function ordinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return `${n}${s[(v - 20) % 10] ?? s[v] ?? s[0]}`;
+}
+
+const HOUSE_CLASS_TONE: Record<HouseClass, string> = {
+  best: "border-primary/40 text-primary",
+  good: "border-foreground/30 text-foreground/80",
+  middling: "border-border text-muted-foreground",
+  adverse: "border-destructive/40 text-destructive",
+};
+
+const HOUSE_KARAKAS: Planet[] = ["Jupiter", "Saturn", "Venus"];
+
+function HousesPanel({ positions, karaka, native, onChange, selected }: { positions: PlanetPosition[]; karaka: Planet; native: Planet; onChange: (p: Planet) => void; selected: Planet | null }) {
+  const houses = housesFrom(positions, karaka);
+  if (!houses.length) return null;
+  const roleWord = karaka === native ? "the native" : karaka === "Saturn" ? "the work" : karaka === "Venus" ? "the spouse" : "the life force";
+  return (
+    <section className="mt-6" data-testid="section-houses">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-base font-semibold">Houses from {karaka}</h3>
+        <div className="flex gap-1" role="group" aria-label="Count houses from">
+          {HOUSE_KARAKAS.map((k) => (
+            <Button key={k} size="sm" variant={k === karaka ? "secondary" : "ghost"} onClick={() => onChange(k)} data-testid={`house-from-${k}`}>
+              {k}
+              {k === native ? <span className="ml-1 text-[0.7em] text-muted-foreground">Jeeva</span> : null}
+            </Button>
+          ))}
+        </div>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Whole signs counted from {karaka}'s rashi as the 1st: {roleWord} is the reference, not the ascendant, and {karaka}'s degree moves no boundary. Trines are best, quadrants good,
+        the 6th, 8th and 12th adverse; 2, 3 and 11 not so good.
+      </p>
+      <ul className="mt-3 divide-y divide-border text-sm">
+        {houses.map((h) => {
+          const dim = selected && !h.planets.includes(selected) && h.house !== 1;
+          return (
+            <li key={h.house} className={cn("grid grid-cols-[1.5rem_2.5rem_1fr] gap-x-2 py-1.5", dim && "opacity-50", h.planets.length === 0 && !dim && "opacity-75")} data-testid={`house-${h.house}`}>
+              <span className={cn("tabular font-semibold", h.house === 1 && "text-primary")}>{h.house}</span>
+              <span className="text-muted-foreground">{h.sign.slice(0, 3)}</span>
+              <span className="min-w-0">
+                <span className="flex flex-wrap items-baseline gap-x-2">
+                  <span className="font-medium">{h.house === 1 ? [karaka, ...h.planets].join(", ") : h.planets.length ? h.planets.join(", ") : <span className="font-normal text-muted-foreground">empty</span>}</span>
+                  <span className={cn("rounded-sm border px-1 text-[0.68rem] leading-4", HOUSE_CLASS_TONE[h.cls])}>{HOUSE_CLASS_LABEL[h.cls]}</span>
+                </span>
+                <span className="block text-xs leading-relaxed text-muted-foreground">{h.meaning}</span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 const REL_ABBR: Record<string, string> = { conjunct: "C", next: "2", prev: "12", trine: "T", opposite: "7", none: "" };
 
 function Relations({ relations, positions }: { relations: PairRelation[]; positions: PlanetPosition[] }) {
@@ -456,6 +516,7 @@ export default function ChartPage() {
   const { data, isLoading, error } = useQuery<ChartResult>({ queryKey: ["/api/charts", id] });
   const [selected, setSelected] = useState<Planet | null>(null);
   const [showTransit, setShowTransit] = useState(true);
+  const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
 
   if (isLoading) {
     return (
@@ -531,6 +592,7 @@ export default function ChartPage() {
             subtitle={birthLocal.toFormat("d LLL yyyy · HH:mm")}
             highlightSign={selectedSign}
             jeeva={data.reading.roles.native}
+            houseKaraka={houseKaraka ?? data.reading.roles.native}
             onSignClick={(s) => {
               const p = positions.find((x) => x.signIndex === s);
               setSelected(p ? (selected === p.planet ? null : p.planet) : null);
@@ -545,6 +607,7 @@ export default function ChartPage() {
               Transits
             </Button>
           </div>
+          <HousesPanel positions={positions} karaka={houseKaraka ?? data.reading.roles.native} native={data.reading.roles.native} onChange={setHouseKaraka} selected={selected} />
         </div>
         <div className="min-w-0">
           <PlanetTable positions={positions} strength={data.reading.strength} selected={selected} onSelect={setSelected} />

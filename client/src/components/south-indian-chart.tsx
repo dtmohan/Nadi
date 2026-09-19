@@ -1,4 +1,4 @@
-import { SOUTH_INDIAN_CELLS, SIGN_ABBR, SIGNS, PLANET_ABBR, type PlanetPosition, type Planet } from "@shared/astro";
+import { SOUTH_INDIAN_CELLS, SIGN_ABBR, SIGNS, PLANET_ABBR, houseFrom, type PlanetPosition, type Planet } from "@shared/astro";
 
 const CELL = 100;
 const PAD = 2;
@@ -17,8 +17,11 @@ export function SouthIndianChart({
   highlightSign,
   onSignClick,
   jeeva = "Jupiter",
+  houseKaraka,
 }: {
   jeeva?: Planet;
+  /** Number the cells as whole-sign houses counted from this planet's sign. */
+  houseKaraka?: Planet | null;
   positions: PlanetPosition[];
   transit?: PlanetPosition[];
   title?: string;
@@ -30,6 +33,7 @@ export function SouthIndianChart({
   for (const p of positions) bySign.set(p.signIndex, [...(bySign.get(p.signIndex) ?? []), p]);
   const transitBySign = new Map<number, PlanetPosition[]>();
   for (const p of transit ?? []) transitBySign.set(p.signIndex, [...(transitBySign.get(p.signIndex) ?? []), p]);
+  const karakaSign = houseKaraka ? positions.find((p) => p.planet === houseKaraka)?.signIndex ?? null : null;
 
   return (
     <svg viewBox={`0 0 ${CELL * 4 + PAD * 2} ${CELL * 4 + PAD * 2}`} className="h-auto w-full" role="img" aria-label="South Indian chart">
@@ -51,6 +55,14 @@ export function SouthIndianChart({
             <text x={x + 6} y={y + 14} className="fill-muted-foreground" fontSize={11} fontWeight={500}>
               {SIGN_ABBR[signIndex]}
             </text>
+            {karakaSign !== null && (
+              <g data-testid={`house-number-${signIndex}`}>
+                <circle cx={x + CELL - 13} cy={y + 12} r={8} className={houseFrom(karakaSign, signIndex) === 1 ? "fill-primary" : "fill-muted"} />
+                <text x={x + CELL - 13} y={y + 15.5} textAnchor="middle" fontSize={9.5} fontWeight={600} className={houseFrom(karakaSign, signIndex) === 1 ? "fill-primary-foreground" : "fill-foreground"}>
+                  {houseFrom(karakaSign, signIndex)}
+                </text>
+              </g>
+            )}
             {natal.map((p, i) => {
               const perRow = 2;
               const r = Math.floor(i / perRow);
@@ -89,7 +101,7 @@ export function SouthIndianChart({
           </text>
         )}
         <text x={PAD + CELL * 2} y={PAD + CELL * 3 - 12} textAnchor="middle" fontSize={10} className="fill-muted-foreground">
-          Rasi · sidereal
+          Rasi · sidereal{houseKaraka ? ` · houses from ${houseKaraka}` : ""}
         </text>
       </g>
     </svg>

@@ -11,6 +11,7 @@ const SHORT_REL: Record<string, string> = { conjunct: "conjunction", next: "2nd"
 function describeCondition(w: Rule["when"]) {
   const parts: string[] = [];
   if (w.object && w.exchange) parts.push(`${w.subject} and ${w.object} exchange signs`);
+  else if (w.object && w.house) parts.push(`${w.object} in the ${w.house.map((h) => `${h}${h === 1 ? "st" : h === 2 ? "nd" : h === 3 ? "rd" : "th"}`).join(" or ")} from ${w.subject}`);
   else if (w.object) parts.push(`${w.subject} → ${w.object} by ${(w.relation ?? ["conjunct"]).map((r) => SHORT_REL[r] ?? RELATION_LABEL[r]).join(", ")}`);
   else parts.push(w.subject);
   for (const c of w.with ?? []) parts.push(`with ${c.planet} (${(c.relation ?? ["conjunct", "prev", "next"]).map((r) => SHORT_REL[r]).join(", ")})`);
