@@ -1,0 +1,137 @@
+// Swiss Ephemeris wrapper. Everything sidereal; ayanamsa selectable.
+import sweph from "sweph";
+import path from "node:path";
+import fs from "node:fs";
+import { DateTime } from "luxon";
+import {
+  PLANETS,
+  type Planet,
+  type PlanetPosition,
+  type TransitPeriod,
+  describePosition,
+  norm360,
+  signOf,
+  SIGNS,
+} from "@shared/astro";
+
+const C = sweph.constants;
+
+// Locate ephemeris data files (works from project root in dev and prod).
+for (const candidate of [path.resolve(process.cwd(), "ephe"), path.resolve(process.cwd(), "../ephe"), process.env.EPHE_PATH ?? ""]) {
+  if (!candidate) continue;
+  if (fs.existsSync(path.join(candidate, "sepl_18.se1"))) {
+    sweph.set_ephe_path(candidate);
+    break;
+  }
+}
+
+const AYANAMSA_MODE: Record<string, number> = {
+  lahiri: C.SE_SIDM_LAHIRI,
+  raman: C.SE_SIDM_RAMAN,
+  kp: C.SE_SIDM_KRISHNAMURTI,
+  yukteshwar: C.SE_SIDM_YUKTESHWAR,
+};
+
+const BODY: Record<Planet, number> = {
+  Sun: C.SE_SUN,
+  Moon: C.SE_MOON,
+  Mars: C.SE_MARS,
+  Mercury: C.SE_MERCURY,
+  Jupiter: C.SE_JUPITER,
+  Venus: C.SE_VENUS,
+  Saturn: C.SE_SATURN,
+  Rahu: C.SE_MEAN_NODE,
+  Ketu: C.SE_MEAN_NODE,
+};
+
+const FLAGS = C.SEFLG_SWIEPH | C.SEFLG_SIDEREAL | C.SEFLG_SPEED;
+
+export interface EphemerisOptions {
+  ayanamsa: string; // key of AYANAMSA_MODE
+  nodeType: "mean" | "true";
+}
+
+function setMode(opts: EphemerisOptions) {
+  sweph.set_sid_mode(AYANAMSA_MODE[opts.ayanamsa] ?? C.SE_SIDM_LAHIRI, 0, 0);
+}
+
+export function localToUtc(date: string, time: string, zone: string): DateTime {
+  const dt = DateTime.fromISO(`${date}T${time}`, { zone });
+  if (!dt.isValid) throw new Error(`Invalid birth datetime: ${dt.invalidExplanation}`);
+  return dt.toUTC();
+}
+
+export function julianDay(utc: DateTime): number {
+  const r = sweph.utc_to_jd(utc.year, utc.month, utc.day, utc.hour, utc.minute, utc.second + utc.millisecond / 1000, C.SE_GREG_CAL);
+  if (r.flag < 0) throw new Error(r.error);
+  return r.data[1]; // UT
+}
+
+export function jdToIso(jd: number): string {
+  const r = sweph.jdut1_to_utc(jd, C.SE_GREG_CAL) as unknown as { year: number; month: number; day: number; hour: number; minute: number; second: number };
+  return DateTime.utc(r.year, r.month, r.day, r.hour, r.minute, Math.floor(r.second)).toISO()!;
+}
+
+function siderealLon(jd: number, body: number, opts: EphemerisOptions): { lon: number; speed: number } {
+  setMode(opts);
+  const b = body === C.SE_MEAN_NODE && opts.nodeType === "true" ? C.SE_TRUE_NODE : body;
+  const r = sweph.calc_ut(jd, b, FLAGS);
+  if (r.flag < 0) throw new Error(r.error);
+  return { lon: norm360(r.data[0]), speed: r.data[3] };
+}
+
+export function ayanamsaAt(jd: number, opts: EphemerisOptions): number {
+  setMode(opts);
+  return sweph.get_ayanamsa_ut(jd);
+}
+
+export function positionsAt(jd: number, opts: EphemerisOptions): PlanetPosition[] {
+  const sun = siderealLon(jd, C.SE_SUN, opts);
+  return PLANETS.map((planet) => {
+    let { lon, speed } = siderealLon(jd, BODY[planet], opts);
+    if (planet === "Ketu") lon = norm360(lon + 180);
+    return describePosition(planet, lon, speed, planet === "Sun" ? undefined : sun.lon);
+  });
+}
+
+// Sign-ingress periods for a slow planet between two Julian days.
+export function transitPeriods(planet: "Jupiter" | "Saturn", jdStart: number, jdEnd: number, opts: EphemerisOptions): TransitPeriod[] {
+  const body = BODY[planet];
+  const step = planet === "Jupiter" ? 2 : 5;
+  const signAt = (jd: number) => signOf(siderealLon(jd, body, opts).lon);
+
+  const periods: TransitPeriod[] = [];
+  let t0 = jdStart;
+  let s0 = signAt(t0);
+  let periodStart = jdStart;
+
+  while (t0 < jdEnd) {
+    let t1 = Math.min(t0 + step, jdEnd);
+    let s1 = signAt(t1);
+    if (s1 !== s0) {
+      // bisect to ~10 seconds
+      let lo = t0;
+      let hi = t1;
+      while (hi - lo > 1e-4) {
+        const mid = (lo + hi) / 2;
+        if (signAt(mid) === s0) lo = mid;
+        else hi = mid;
+      }
+      periods.push({ planet, signIndex: s0, sign: SIGNS[s0], start: jdToIso(periodStart), end: jdToIso(hi), retrogradeEntry: false });
+      periodStart = hi;
+      s0 = s1;
+    }
+    t0 = t1;
+  }
+  periods.push({ planet, signIndex: s0, sign: SIGNS[s0], start: jdToIso(periodStart), end: jdToIso(jdEnd), retrogradeEntry: false });
+
+  // A period is entered by retrograde motion when its sign is the one before the previous period's sign.
+  for (let i = 1; i < periods.length; i++) {
+    periods[i].retrogradeEntry = (periods[i - 1].signIndex - periods[i].signIndex + 12) % 12 === 1;
+  }
+  return periods;
+}
+
+export function nowJd(): number {
+  return julianDay(DateTime.utc());
+}
