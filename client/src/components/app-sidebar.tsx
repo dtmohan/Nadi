@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useSavedCharts } from "@/lib/charts-store";
 import { PlusCircle, BookOpen, Info, Moon, Sun } from "lucide-react";
 import {
   Sidebar,
@@ -43,7 +43,7 @@ export function Logo({ size = 28 }: { size?: number }) {
 
 export function AppSidebar() {
   const [location] = useLocation();
-  const { data: charts } = useQuery<Chart[]>({ queryKey: ["/api/charts"] });
+  const { data: charts } = useSavedCharts();
   const { theme, toggle } = useTheme();
 
   return (

@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { MapPin, Trash2, ArrowRight, Loader2 } from "lucide-react";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { MapPin, Trash2, ArrowRight, Loader2, Download, Upload } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { chartsStore, useSavedCharts } from "@/lib/charts-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -99,21 +100,44 @@ export default function Home() {
   const [form, setForm] = useState<InsertChart>(EMPTY);
   const set = <K extends keyof InsertChart>(k: K, v: InsertChart[K]) => setForm((f) => ({ ...f, [k]: v }));
 
-  const { data: charts, isLoading } = useQuery<Chart[]>({ queryKey: ["/api/charts"] });
+  const { data: charts, isLoading } = useSavedCharts();
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const create = useMutation({
-    mutationFn: async (data: InsertChart) => (await apiRequest("POST", "/api/charts", data)).json() as Promise<Chart>,
-    onSuccess: (chart) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/charts"] });
-      navigate(`/chart/${chart.id}`);
+    mutationFn: async (data: InsertChart) => {
+      // The server validates and computes; the chart itself is kept in this browser only.
+      await apiRequest("POST", "/api/compute", data);
+      return chartsStore.create(data);
     },
+    onSuccess: (chart: Chart) => navigate(`/chart/${chart.id}`),
     onError: (e: Error) => toast({ title: "Could not cast chart", description: e.message, variant: "destructive" }),
   });
 
-  const remove = useMutation({
-    mutationFn: async (id: number) => apiRequest("DELETE", `/api/charts/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/charts"] }),
-  });
+  const remove = useMutation({ mutationFn: async (id: number) => chartsStore.remove(id) });
+
+  const exportCharts = () => {
+    const blob = new Blob([chartsStore.exportJson()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `nadi-charts-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importCharts = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      const added = chartsStore.importJson(await file.text());
+      toast({
+        title: added ? `Imported ${added} chart${added === 1 ? "" : "s"}` : "Nothing new to import",
+        description: added ? undefined : "Every chart in the file is already saved here.",
+      });
+    } catch (e: any) {
+      toast({ title: "Could not import", description: e.message, variant: "destructive" });
+    }
+    if (fileInput.current) fileInput.current.value = "";
+  };
 
   const valid = useMemo(
     () => form.name.trim() && form.birthDate && form.birthTime && form.timezone && form.place && (form.latitude !== 0 || form.longitude !== 0),
@@ -249,8 +273,22 @@ export default function Home() {
             <h2 id="recent-heading" className="text-lg font-semibold">
               Saved charts
             </h2>
-            {charts && charts.length > 0 && <span className="text-xs text-muted-foreground tabular">{charts.length}</span>}
+            <div className="flex items-center gap-1">
+              {charts && charts.length > 0 && <span className="mr-1 text-xs text-muted-foreground tabular">{charts.length}</span>}
+              <Button variant="ghost" size="sm" onClick={() => fileInput.current?.click()} data-testid="button-import-charts" title="Import charts from a backup file">
+                <Upload className="h-4 w-4" />
+                Import
+              </Button>
+              <Button variant="ghost" size="sm" onClick={exportCharts} disabled={!charts?.length} data-testid="button-export-charts" title="Download every saved chart as a backup file">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
+              <input ref={fileInput} type="file" accept="application/json,.json" className="hidden" onChange={(e) => importCharts(e.target.files?.[0])} data-testid="input-import-charts" />
+            </div>
           </div>
+          <p className="mt-1 text-xs text-muted-foreground" data-testid="text-storage-note">
+            Saved in this browser only. Nothing is stored online; export a backup to keep them or move them to another device.
+          </p>
 
           {isLoading && (
             <div className="mt-4 space-y-2">

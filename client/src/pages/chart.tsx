@@ -19,7 +19,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { API_BASE } from "@/lib/queryClient";
+import { apiRequest } from "@/lib/queryClient";
+import { chartsStore } from "@/lib/charts-store";
+import { useToast } from "@/hooks/use-toast";
 
 const CLASSICAL = new Set<Planet>(["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]);
 
@@ -530,7 +532,35 @@ function Relations({ relations, positions }: { relations: PairRelation[]; positi
 
 export default function ChartPage() {
   const { id } = useParams<{ id: string }>();
-  const { data, isLoading, error } = useQuery<ChartResult>({ queryKey: ["/api/charts", id] });
+  const { data, isLoading, error } = useQuery<ChartResult>({
+    queryKey: ["chart-result", id],
+    queryFn: async () => {
+      const chart = chartsStore.get(Number(id));
+      if (!chart) throw new Error("Chart not found in this browser");
+      const result = (await (await apiRequest("POST", "/api/compute", chart)).json()) as ChartResult;
+      return { ...result, chart };
+    },
+  });
+  const { toast } = useToast();
+  const [exporting, setExporting] = useState(false);
+  const exportPdf = async () => {
+    if (!data) return;
+    setExporting(true);
+    try {
+      const res = await apiRequest("POST", "/api/pdf", data.chart);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `nadi-${data.chart.name.replace(/[^\w.-]+/g, "_").slice(0, 60) || "chart"}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      toast({ title: "Could not export PDF", description: e.message, variant: "destructive" });
+    } finally {
+      setExporting(false);
+    }
+  };
   const [selected, setSelected] = useState<Planet | null>(null);
   const [showTransit, setShowTransit] = useState(true);
   const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
@@ -591,11 +621,9 @@ export default function ChartPage() {
           <Badge variant="outline" className="no-default-hover-elevate">
             {chart.timezone}
           </Badge>
-          <Button asChild size="sm" variant="outline" className="ml-1">
-            <a href={`${API_BASE}/api/charts/${chart.id}/pdf`} target="_blank" rel="noopener noreferrer" data-testid="button-export-pdf">
-              <FileDown className="h-4 w-4" />
-              Export PDF
-            </a>
+          <Button size="sm" variant="outline" className="ml-1" onClick={exportPdf} disabled={exporting} data-testid="button-export-pdf">
+            <FileDown className="h-4 w-4" />
+            {exporting ? "Preparing PDF" : "Export PDF"}
           </Button>
         </div>
       </header>

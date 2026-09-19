@@ -1,6 +1,5 @@
 import type { Express } from "express";
 import type { Server } from "node:http";
-import { storage } from "./storage";
 import { insertChartSchema, type Chart, type ChartResult, type GeoHit } from "@shared/schema";
 import { RULES, evaluate } from "@shared/rules";
 import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, type EphemerisOptions } from "./ephemeris";
@@ -38,24 +37,12 @@ export function computeChart(chart: Chart): ChartResult {
 }
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
-  app.get("/api/charts", async (_req, res) => {
-    res.json(await storage.listCharts());
-  });
-
-  app.get("/api/charts/:id", async (req, res) => {
-    const chart = await storage.getChart(Number(req.params.id));
-    if (!chart) return res.status(404).json({ message: "Chart not found" });
+  // Charts are kept in the visitor's browser. The server only computes: nothing sent here is stored.
+  app.post("/api/pdf", async (req, res) => {
+    const parsed = insertChartSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid chart", issues: parsed.error.issues });
     try {
-      res.json(computeChart(chart));
-    } catch (e: any) {
-      res.status(400).json({ message: e.message });
-    }
-  });
-
-  app.get("/api/charts/:id/pdf", async (req, res) => {
-    const chart = await storage.getChart(Number(req.params.id));
-    if (!chart) return res.status(404).json({ message: "Chart not found" });
-    try {
+      const chart = { id: 0, ...parsed.data } as Chart;
       const result = computeChart(chart);
       const safe = chart.name.replace(/[^\w.-]+/g, "_").slice(0, 60) || "chart";
       res.setHeader("Content-Type", "application/pdf");
@@ -66,34 +53,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     }
   });
 
-  app.post("/api/charts", async (req, res) => {
-    const parsed = insertChartSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ message: "Invalid chart", issues: parsed.error.issues });
-    try {
-      // Validate the datetime before saving
-      localToUtc(parsed.data.birthDate, parsed.data.birthTime, parsed.data.timezone);
-    } catch (e: any) {
-      return res.status(400).json({ message: e.message });
-    }
-    const chart = await storage.createChart(parsed.data);
-    res.status(201).json(chart);
-  });
-
-  app.patch("/api/charts/:id", async (req, res) => {
-    const parsed = insertChartSchema.partial().safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ message: "Invalid chart", issues: parsed.error.issues });
-    const chart = await storage.updateChart(Number(req.params.id), parsed.data);
-    if (!chart) return res.status(404).json({ message: "Chart not found" });
-    res.json(chart);
-  });
-
-  app.delete("/api/charts/:id", async (req, res) => {
-    const ok = await storage.deleteChart(Number(req.params.id));
-    if (!ok) return res.status(404).json({ message: "Chart not found" });
-    res.status(204).end();
-  });
-
-  // Preview without saving
+  // Compute a reading (used for both new and saved charts; nothing is stored)
   app.post("/api/compute", async (req, res) => {
     const parsed = insertChartSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: "Invalid chart", issues: parsed.error.issues });
