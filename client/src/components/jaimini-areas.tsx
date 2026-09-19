@@ -3,6 +3,7 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { SIGNS, SIGN_ABBR } from "@shared/astro";
 import { JAIMINI_AREAS, RAO_SOURCE, RAO_NOTES_SOURCE, currentFor, isHot, readAreas, type AreaPeriod, type AreaReading, type JaiminiArea, type Tone } from "@shared/jaimini-areas";
+import { TRANSIT_GRADE_LABEL, confirmTransits, summarizeTouches, type TransitConfirmation } from "@shared/jaimini-transit";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -81,6 +82,61 @@ function HeatStrip({ periods, selected, onSelect, now }: { periods: AreaPeriod[]
           </button>
         );
       })}
+    </div>
+  );
+}
+
+function gradeClass(g: TransitConfirmation["grade"]) {
+  return g === 3 ? "border-chart-4/60 bg-chart-4/10 text-foreground" : g === 2 ? "border-primary/40 bg-primary/10 text-foreground" : "text-muted-foreground";
+}
+
+/** Rao's transit check for one window: where Jupiter and Saturn stand, which anchors they touch, and when both touch the same one. */
+function TransitCheck({ c, compact, testId }: { c: TransitConfirmation; compact?: boolean; testId: string }) {
+  const [open, setOpen] = useState(false);
+  const ju = summarizeTouches(c.touches, "Jupiter");
+  const sa = summarizeTouches(c.touches, "Saturn");
+  const shownDouble = open || !compact ? c.double : c.double.slice(0, 3);
+  return (
+    <div className={cn("mt-2 rounded border border-dashed px-2 py-1.5", compact ? "text-[11px]" : "text-xs")} data-testid={testId}>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="font-semibold text-muted-foreground">Transit check</span>
+        <Badge variant="outline" className={cn("no-default-hover-elevate text-[9px]", gradeClass(c.grade))}>
+          {TRANSIT_GRADE_LABEL[c.grade]}
+        </Badge>
+      </div>
+      {c.grade === 0 ? (
+        <p className="mt-1 text-muted-foreground">Neither Jupiter nor Saturn is on or aspecting the area's anchors in this window; Rao would hold the result lightly.</p>
+      ) : (
+        <>
+          {shownDouble.length > 0 && (
+            <ul className="mt-1 space-y-0.5">
+              {shownDouble.map((d, i) => (
+                <li key={i} className="leading-snug">
+                  <span className="font-medium">Double transit on {d.target.label}</span> <span className="tabular">{fmt(d.start)} – {fmt(d.end)}</span>
+                  <span className="text-muted-foreground">
+                    {" "}
+                    (Jupiter {d.jupiter.relation === "in" ? "in" : "aspecting from"} {SIGNS[d.jupiter.from]}, Saturn {d.saturn.relation === "in" ? "in" : "aspecting from"} {SIGNS[d.saturn.from]})
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {compact && c.double.length > 3 && (
+            <Button variant="ghost" size="sm" className="mt-0.5 h-6 px-1.5 text-[11px]" onClick={() => setOpen((v) => !v)}>
+              {open ? "Fewer" : `${c.double.length - 3} more double transits`}
+            </Button>
+          )}
+          {(!compact || open || c.double.length === 0) && (
+            <ul className="mt-1 space-y-0.5 text-muted-foreground">
+              {[...ju, ...sa].map((line, i) => (
+                <li key={i} className="leading-snug">
+                  {line}
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -204,6 +260,11 @@ function AreaCard({ a, result, now }: { a: AreaReading; result: ChartResult; now
                     ))}
                   </ul>
                 )}
+                <TransitCheck
+                  c={confirmTransits([...a.anchors, { label: `${SIGNS[period.sign]} (dasha sign)`, sign: period.sign }], result.transits, period.start, period.end)}
+                  compact
+                  testId={`jarea-transit-${a.area}-${period.sign}`}
+                />
                 {period.windows.length > 0 && (
                   <div className="mt-3">
                     <div className="font-semibold text-muted-foreground">Antardashas that carry {spec.short}</div>
@@ -233,6 +294,13 @@ function AreaCard({ a, result, now }: { a: AreaReading; result: ChartResult; now
                                 </li>
                               ))}
                             </ul>
+                            <div className="font-normal">
+                              <TransitCheck
+                                c={confirmTransits([...a.anchors, { label: `${SIGNS[w.adSign]} (antardasha sign)`, sign: w.adSign }, { label: `${SIGNS[w.mdSign]} (dasha sign)`, sign: w.mdSign }].filter((t, i, arr) => arr.findIndex((x) => x.sign === t.sign) === i), result.transits, w.start, w.end)}
+                                compact
+                                testId={`jarea-transit-${a.area}-${w.mdSign}-${w.adSign}`}
+                              />
+                            </div>
                           </li>
                         );
                       })}
@@ -258,7 +326,7 @@ export function JaiminiAreas({ result }: { result: ChartResult }) {
       <h2 className="text-base font-semibold">Life areas</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         Each area rests on a chara karaka, its arudha pada and a house from the Karakamsa. Timing follows K.N. Rao: the running Chara dasha sign is treated as the lagna and the houses from it are read for the area, then each antardasha
-        the same way. A period is marked when the area's karaka or pada is involved, or several weaker links add up. Rao asks that Chara dasha results be confirmed against Vimshottari and the navamsa; this view reads Jaimini alone.{" "}
+        the same way. A period is marked when the area's karaka or pada is involved, or several weaker links add up. Rao asks that Chara dasha results be confirmed against Vimshottari and the navamsa; the dasha reading here is Jaimini alone, and the transit check under each period follows Rao's confirming step: Jupiter and Saturn on or aspecting the area's anchors, ideally both at once (double transit).{" "}
         <a href={RAO_SOURCE.url} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
           {RAO_SOURCE.label}
         </a>

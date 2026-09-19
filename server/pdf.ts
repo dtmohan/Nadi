@@ -14,7 +14,8 @@ import { nextMarriageWindow } from "@shared/marriage";
 import { nextChildWindow } from "@shared/children";
 import { CHARA_KARAKA_INFO, SAVYA, influencesOn, type CharaDashaPeriod } from "@shared/jaimini";
 import { JAIMINI_GROUP_LABEL } from "@shared/rules-jaimini";
-import { JAIMINI_AREAS, RAO_SOURCE, currentFor, isHot, readAreas } from "@shared/jaimini-areas";
+import { JAIMINI_AREAS, RAO_SOURCE, currentFor, isHot, readAreas, type TransitTarget } from "@shared/jaimini-areas";
+import { TRANSIT_GRADE_LABEL, confirmTransits, summarizeTouches } from "@shared/jaimini-transit";
 
 const INK = "#2b241e";
 const MUTED = "#7a6f66";
@@ -321,7 +322,7 @@ function jaiminiAreasSection(doc: Doc, result: ChartResult) {
   ensureSpace(doc, 120);
   sectionTitle(doc, "Life areas", "K.N. Rao: the running dasha sign read as the lagna");
   doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(
-    `Each area rests on a chara karaka, its arudha pada and a house from the Karakamsa. For timing the running Chara dasha sign is treated as the lagna and the houses from it are read for the area; antardashas the same way. Rao asks that these be confirmed against Vimshottari and the navamsa. ${RAO_SOURCE.url}`,
+    `Each area rests on a chara karaka, its arudha pada and a house from the Karakamsa. For timing the running Chara dasha sign is treated as the lagna and the houses from it are read for the area; antardashas the same way. The transit check under each period is Rao's confirming step: Jupiter and Saturn on or aspecting the area's anchors (Jupiter 5/7/9, Saturn 3/7/10), best both at once. Rao also asks for confirmation against Vimshottari and the navamsa. ${RAO_SOURCE.url}`,
     PAGE.m,
     doc.y,
     { width: CONTENT_W, link: RAO_SOURCE.url },
@@ -335,6 +336,17 @@ function jaiminiAreasSection(doc: Doc, result: ChartResult) {
     const y = doc.y;
     doc.circle(PAGE.m + 3 + indent, y + 4, 1.6).fillColor(toneColor(tone)).fill();
     doc.fillColor(INK).text(text, PAGE.m + 12 + indent, y, { width: CONTENT_W - 12 - indent });
+    doc.y += 2;
+  };
+  const transitLine = (targets: TransitTarget[], start: string, end: string, indent: number) => {
+    const c = confirmTransits(targets, result.transits, start, end);
+    doc.font("Helvetica").fontSize(7);
+    const dbl = c.double.slice(0, 3).map((d) => `${d.target.label} ${fmt(d.start)} – ${fmt(d.end)} (Jupiter ${d.jupiter.relation === "in" ? "in" : "from"} ${SIGNS[d.jupiter.from]}, Saturn ${d.saturn.relation === "in" ? "in" : "from"} ${SIGNS[d.saturn.from]})`);
+    const single = c.double.length ? [] : [...summarizeTouches(c.touches, "Jupiter"), ...summarizeTouches(c.touches, "Saturn")].slice(0, 2);
+    const text = `Transit check: ${TRANSIT_GRADE_LABEL[c.grade]}${dbl.length ? `. Double transit on ${dbl.join("; ")}${c.double.length > 3 ? ` and ${c.double.length - 3} more` : ""}` : single.length ? `. ${single.join(". ")}` : ""}.`;
+    const h = doc.heightOfString(text, { width: CONTENT_W - 12 - indent }) + 2;
+    ensureSpace(doc, h);
+    doc.fillColor(MUTED).text(text, PAGE.m + 12 + indent, doc.y, { width: CONTENT_W - 12 - indent });
     doc.y += 2;
   };
   for (const a of areas) {
@@ -372,10 +384,12 @@ function jaiminiAreasSection(doc: Doc, result: ChartResult) {
       doc.y += 1;
       if (!cur.period.triggers.length) bullet(`Nothing in this period points at ${spec.short}.`, "neutral");
       for (const t of cur.period.triggers.slice(0, 4)) bullet(t.text, t.tone);
+      transitLine([...a.anchors, { label: `${SIGNS[cur.period.sign]} (dasha sign)`, sign: cur.period.sign }], cur.period.start, cur.period.end, 0);
       if (cur.window) {
         doc.font("Helvetica-Bold").fontSize(7.5).fillColor(MUTED).text(`${SIGNS[cur.window.adSign]} antardasha, ${fmt(cur.window.start)} – ${fmt(cur.window.end)}`, PAGE.m + 12, doc.y + 1);
         doc.y += 1;
         for (const t of cur.window.triggers.slice(0, 3)) bullet(t.text, t.tone, 12);
+        transitLine([...a.anchors, { label: `${SIGNS[cur.window.adSign]} (antardasha sign)`, sign: cur.window.adSign }], cur.window.start, cur.window.end, 12);
       }
     }
     const upcoming = a.timing.periods
@@ -386,7 +400,10 @@ function jaiminiAreasSection(doc: Doc, result: ChartResult) {
       ensureSpace(doc, 48);
       doc.font("Helvetica-Bold").fontSize(8).fillColor(INDIGO).text("Next antardashas that carry the area", PAGE.m, doc.y + 2);
       doc.y += 1;
-      for (const w of upcoming) bullet(`${SIGNS[w.mdSign]} / ${SIGNS[w.adSign]}, ${fmt(w.start)} – ${fmt(w.end)}: ${w.triggers.map((t) => t.text).join(" ")}`, w.triggers.some((t) => t.tone === "strain") && !w.triggers.some((t) => t.tone === "support") ? "strain" : w.triggers.some((t) => t.tone === "support") ? "support" : "neutral");
+      for (const w of upcoming) {
+        bullet(`${SIGNS[w.mdSign]} / ${SIGNS[w.adSign]}, ${fmt(w.start)} – ${fmt(w.end)}: ${w.triggers.map((t) => t.text).join(" ")}`, w.triggers.some((t) => t.tone === "strain") && !w.triggers.some((t) => t.tone === "support") ? "strain" : w.triggers.some((t) => t.tone === "support") ? "support" : "neutral");
+        transitLine([...a.anchors, { label: `${SIGNS[w.adSign]} (antardasha sign)`, sign: w.adSign }], w.start, w.end, 12);
+      }
     }
   }
 }

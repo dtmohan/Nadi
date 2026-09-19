@@ -402,8 +402,14 @@ function JaiminiMethod() {
           that can bring a fall as well as a rise.
         </li>
         <li>
-          Rao insists that Chara dasha results be confirmed against Vimshottari and the navamsa. The app keeps the systems apart, so this view reads Jaimini alone; treat it as one witness, not a
-          verdict.
+          Transit check. Rao's confirming step is the transit of Jupiter and Saturn: a period is trusted when one of them, and best both at once (double transit), is on or aspecting the area's
+          anchors, its karaka, its pada, its house from the lagna, or the running dasha sign. The check under each period and antardasha lists where the two planets stand, which anchors they touch,
+          and the months in which both touch the same anchor. Rao reads these transits with the planets' own aspects, Jupiter to the 5th, 7th and 9th and Saturn to the 3rd, 7th and 10th, so that is
+          what the check uses; it is kept apart from the rasi drishti of the dasha reading, and transits are read from the natal signs, not from the dasha sign as lagna.
+        </li>
+        <li>
+          Rao also insists that Chara dasha results be confirmed against Vimshottari and the navamsa. The app keeps the dasha systems apart, so the dasha reading here is Jaimini alone; treat it as
+          one witness, not a verdict.
         </li>
       </ul>
       <p>

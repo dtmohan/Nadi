@@ -194,6 +194,12 @@ export interface PadaReading {
   notes: Note[];
 }
 
+/** A natal sign the area hangs on, used for the transit confirmation. */
+export interface TransitTarget {
+  label: string;
+  sign: number;
+}
+
 export interface AreaReading {
   area: JaiminiArea;
   label: string;
@@ -205,6 +211,8 @@ export interface AreaReading {
   /** Overall balance of support and strain, -n..+n. */
   balance: number;
   timing: AreaTiming;
+  /** Natal anchors (karakas, padas, the area's house from the lagna) for Jupiter/Saturn transit checks. */
+  anchors: TransitTarget[];
 }
 
 /** What each chara karaka "means" when a period brings it forward: the concrete matters it carries. */
@@ -503,8 +511,35 @@ export function readAreas(j: JaiminiResult, positions: PlanetPosition[]): AreaRe
     const findingIds = j.findings.filter((f) => AREA_OF_RULE[f.id] === area).map((f) => f.id);
     const notes = [...karakas.flatMap((k) => k.notes), ...padas.flatMap((p) => p.notes)];
     const balance = notes.reduce((s, n) => s + (n.tone === "support" ? 1 : n.tone === "strain" ? -1 : 0), 0);
-    return { area, label: spec.label, blurb: spec.blurb, karakas, padas, karakamsa, findingIds, balance, timing: timingFor(ctx, area) };
+    return { area, label: spec.label, blurb: spec.blurb, karakas, padas, karakamsa, findingIds, balance, timing: timingFor(ctx, area), anchors: transitAnchors(ctx, area) };
   });
+}
+
+/** Natal signs Rao checks Jupiter and Saturn against for an area: its karakas, its padas, its house from the lagna (and, for marriage, the 7th lord). */
+function transitAnchors(ctx: Ctx, area: JaiminiArea): TransitTarget[] {
+  const spec = JAIMINI_AREAS[area];
+  const raw: TransitTarget[] = [];
+  for (const k of spec.karakas) {
+    const kp = ctx.j.karakas.find((x) => x.karaka === k)!;
+    raw.push({ label: `${k} ${kp.planet}`, sign: ctx.at(kp.planet).signIndex });
+  }
+  for (const h of spec.padas) {
+    const a = ctx.j.arudhas[h - 1];
+    raw.push({ label: a.label, sign: a.signIndex });
+  }
+  for (const dh of spec.dashaHouses.filter((d) => d.tone === "support")) {
+    raw.push({ label: `${ordinal(dh.house)} house`, sign: (ctx.j.lagna.signIndex + dh.house - 1) % 12 });
+  }
+  if (area === "self") raw.push({ label: "lagna", sign: ctx.j.lagna.signIndex });
+  if (area === "marriage") {
+    const seventhLord = SIGN_LORD[(ctx.j.lagna.signIndex + 6) % 12];
+    raw.push({ label: `7th lord ${seventhLord}`, sign: ctx.at(seventhLord).signIndex });
+  }
+  if (area === "health") raw.push({ label: "lagna", sign: ctx.j.lagna.signIndex });
+  // merge labels that share a sign
+  const bySign = new Map<number, string[]>();
+  for (const t of raw) bySign.set(t.sign, [...(bySign.get(t.sign) ?? []), t.label]);
+  return Array.from(bySign.entries()).map(([sign, labels]) => ({ sign, label: labels.join(", ") }));
 }
 
 /** The period and window (if any) running at `asOf`, for one area. */
