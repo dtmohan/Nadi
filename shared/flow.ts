@@ -19,6 +19,33 @@ import { SIGNS, SIGN_ABBR, fmtDegShort, houseFrom, type Planet, type PlanetPosit
  */
 
 export type BondTier = "pada" | "nakshatra" | "sign" | "degree" | "trine";
+
+const CLASSICAL: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+
+/**
+ * Does this planet also act from the previous sign by retrogression?
+ *
+ * Rao: "when a planet is retro, such a planet will aspect the rear sign by 1/2 strength";
+ * the principle "does not apply to Dragon Head and Dragon Tail, which always move in
+ * anti-clockwise direction". Two Bhrigu Naadi caveats: a retrograde planet that has already
+ * backed into its sign from the sign ahead "need not again be accounted for" from the sign
+ * before that (rule 11), and a retro planet "under an influence of Rahu or Ketu ... will not
+ * have effect on previous sign" (rule 12; taken as a node in the same sign or trine).
+ */
+export function readsFromPreviousSign(p: PlanetPosition, positions: PlanetPosition[]): boolean {
+  if (!p.retrograde || !CLASSICAL.includes(p.planet)) return false;
+  if (p.retrogradeEntry) return false;
+  const underNode = positions.some((o) => (o.planet === "Rahu" || o.planet === "Ketu") && [1, 5, 9].includes(houseFrom(p.signIndex, o.signIndex)));
+  return !underNode;
+}
+
+export type ChainEntry = PlanetPosition & { viaRetro?: boolean };
+
+/** A planet's shadow in the previous sign, for the second directional chart. */
+export function retroShadow(p: PlanetPosition): ChainEntry {
+  const signIndex = (p.signIndex + 11) % 12;
+  return { ...p, signIndex, sign: SIGNS[signIndex], viaRetro: true };
+}
 export type Approach = "closing" | "separating" | "following";
 
 export interface Flow {
@@ -31,6 +58,8 @@ export interface Flow {
   approach: Approach;
   /** Whether the two share a sign; otherwise they are in trine. */
   sameSign: boolean;
+  /** One of the two is read here from its previous sign by retrogression. */
+  viaRetro?: boolean;
 }
 
 export type Direction = "East" | "South" | "West" | "North";
@@ -50,7 +79,7 @@ export interface DegreeChain {
   /** Signs of this direction that hold a planet. */
   signs: Sign[];
   /** Highest degree first: the planet furthest ahead leads the chain. */
-  order: PlanetPosition[];
+  order: ChainEntry[];
   /** Adjacent hand-offs along the chain. */
   links: Flow[];
 }
@@ -110,11 +139,13 @@ export function approachOf(ahead: PlanetPosition, behind: PlanetPosition): Appro
 }
 
 /** Flow between two planets in the same sign or in trine, or null if they do not combine. */
-export function flowBetween(a: PlanetPosition, b: PlanetPosition): Flow | null {
+export function flowBetween(a: ChainEntry, b: ChainEntry): Flow | null {
   const tier = bondTier(a, b);
   if (!tier) return null;
   const [ahead, behind] = a.degInSign >= b.degInSign ? [a, b] : [b, a];
-  return { from: ahead.planet, to: behind.planet, tier, approach: approachOf(ahead, behind), sameSign: a.signIndex === b.signIndex };
+  const f: Flow = { from: ahead.planet, to: behind.planet, tier, approach: approachOf(ahead, behind), sameSign: a.signIndex === b.signIndex };
+  if (a.viaRetro || b.viaRetro) f.viaRetro = true;
+  return f;
 }
 
 export function tierLabel(t: BondTier): string {
@@ -130,10 +161,17 @@ export function flowGloss(f: Flow): string {
   return `${f.from} ahead by degree hands ${GIVES[f.from]} to ${f.to}: read ${RECEIVES[f.to]} in that light (${bond}, ${approachLabel(f.approach)}).`;
 }
 
+/**
+ * One chain per occupied direction. A retrograde planet that reads from its previous sign is
+ * also entered in that sign's direction ("cast two sets of directional combination chart",
+ * Bhrigu Naadi rule 13), marked viaRetro. Retrogression does not change the degree order
+ * itself: "if it is in retrograde ... we are concerned with that degree only".
+ */
 export function degreeChains(positions: PlanetPosition[]): DegreeChain[] {
+  const entries: ChainEntry[] = [...positions, ...positions.filter((p) => readsFromPreviousSign(p, positions)).map(retroShadow)];
   const chains: DegreeChain[] = [];
   for (const direction of DIRECTIONS) {
-    const ps = positions.filter((p) => directionOf(p.signIndex) === direction);
+    const ps = entries.filter((p) => directionOf(p.signIndex) === direction);
     if (ps.length < 2) continue;
     const order = [...ps].sort((a, b) => b.degInSign - a.degInSign);
     const links: Flow[] = [];
@@ -145,8 +183,10 @@ export function degreeChains(positions: PlanetPosition[]): DegreeChain[] {
 }
 
 /** "Saturn 3°09' Li" when the chain spans several signs, else just the degree. */
-export function chainPlanetLabel(p: PlanetPosition, c: DegreeChain): string {
-  return `${p.planet} ${fmtDegShort(p.degInSign)}${c.signs.length > 1 ? ` ${SIGN_ABBR[p.signIndex]}` : ""}`;
+export function chainPlanetLabel(p: ChainEntry, c: DegreeChain): string {
+  const retro = p.retrograde && CLASSICAL.includes(p.planet) ? " R" : "";
+  const sign = c.signs.length > 1 || p.viaRetro ? ` ${SIGN_ABBR[p.signIndex]}` : "";
+  return `${p.planet}${retro} ${fmtDegShort(p.degInSign)}${sign}${p.viaRetro ? " (by retrogression)" : ""}`;
 }
 
 export function chainSummary(c: DegreeChain): string {

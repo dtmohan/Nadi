@@ -240,6 +240,8 @@ export interface PlanetPosition {
   degInSign: number;
   speed: number; // deg/day
   retrograde: boolean;
+  /** Retrograde planet that entered its current sign moving backward (from the sign ahead). */
+  retrogradeEntry?: boolean;
   nakshatraIndex: number;
   nakshatra: string;
   nakshatraLord: Planet;

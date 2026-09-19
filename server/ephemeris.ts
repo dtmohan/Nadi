@@ -90,8 +90,21 @@ export function positionsAt(jd: number, opts: EphemerisOptions): PlanetPosition[
   return PLANETS.map((planet) => {
     let { lon, speed } = siderealLon(jd, BODY[planet], opts);
     if (planet === "Ketu") lon = norm360(lon + 180);
-    return describePosition(planet, lon, speed, planet === "Sun" ? undefined : sun.lon);
+    const pos = describePosition(planet, lon, speed, planet === "Sun" ? undefined : sun.lon);
+    if (pos.retrograde && planet !== "Rahu" && planet !== "Ketu") pos.retrogradeEntry = enteredByRetrogression(jd, planet, pos.signIndex, opts);
+    return pos;
   });
+}
+
+// Did a retrograde planet back into its current sign from the sign ahead? Walk back until the sign changes.
+function enteredByRetrogression(jd: number, planet: Planet, signIndex: number, opts: EphemerisOptions): boolean {
+  const step = planet === "Mercury" || planet === "Venus" ? 0.25 : 1;
+  for (let t = jd - step; t > jd - 220; t -= step) {
+    const { lon } = siderealLon(t, BODY[planet], opts);
+    const s = Math.floor(norm360(lon) / 30);
+    if (s !== signIndex) return s === (signIndex + 1) % 12;
+  }
+  return false;
 }
 
 // Sign-ingress periods for a slow planet between two Julian days.

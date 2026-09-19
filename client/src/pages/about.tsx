@@ -24,7 +24,24 @@ export default function AboutPage() {
           <li>2nd and 12th: the adjacent signs. A planet behind (12th) pushes its qualities into the one ahead; a planet ahead (2nd) is where the subject is heading.</li>
           <li>Trines: the 5th and 9th signs share a direction (east 1-5-9, south 2-6-10, west 3-7-11, north 4-8-12) and are read as being in combination, at about three-quarter strength. Three-planet combinations count through trines as well.</li>
           <li>7th: opposition, a face-to-face influence at about half strength.</li>
-          <li>Retrograde: a retrograde classical planet also delivers results from the previous sign, so it is evaluated from both.</li>
+          <li>
+            Retrograde: a retrograde classical planet "will aspect the rear sign by 1/2 strength" (
+            <a href="https://astrofoxx.wordpress.com/wp-content/uploads/2018/11/jyotish_fundamentals-of-raos-system-of-nadi-1.pdf" target="_blank" rel="noreferrer">
+              Rao, Fundamentals
+            </a>
+            ), so it is evaluated from both signs, the previous one at half weight, and appears in both directional chains. Two caveats from the{" "}
+            <a href="https://www.scribd.com/document/961070390/Brighu-Nandi-Naadi" target="_blank" rel="noreferrer">
+              Bhrigu Naadi rules
+            </a>
+            : a planet that has already backed into its sign from the sign ahead is not read from the sign before that (rule 11), and a retro planet under Rahu or Ketu, taken here as a
+            node in the same sign or trine, "will not have effect on previous sign" (rule 12). Rao is explicit that the principle "does not apply to Dragon Head and Dragon Tail, which
+            always move in anti-clockwise direction": the nodes' perpetual retrogression is part of their nature, not a retrograde state, so it only fixes their direction of motion in the
+            degree chains. Retrogression does not alter the degree order itself; "we count the degrees" (
+            <a href="https://www.youtube.com/watch?v=qojbWOwQQks" target="_blank" rel="noreferrer">
+              Vaibhav Gupta
+            </a>
+            ).
+          </li>
         </ul>
         <h2>Female charts</h2>
         <p>

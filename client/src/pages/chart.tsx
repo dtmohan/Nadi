@@ -335,7 +335,8 @@ function StrengthNotes({ strength, chains, selected }: { strength: PlanetStrengt
           <p className="mt-0.5 text-xs text-muted-foreground">
             The three signs of a trine are one direction and their planets are read as one combination in degree order: the planet ahead hands its matters to the one behind (Rao, rule 1).
             Bonds within one pada are the tightest; across signs, planets within a degree stand "at the same degree". Direct planets move to higher degrees, retrograde ones and the nodes to
-            lower, so a closing pair binds more strongly than a separating one.
+            lower, so a closing pair binds more strongly than a separating one. A retrograde planet keeps its place by degree but is also entered, at half strength, in the direction of
+            its previous sign; Rahu and Ketu are always retrograde, so this rule does not apply to them.
           </p>
           <ul className="mt-2 space-y-2 text-sm">
             {shownChains.map((c) => (
@@ -349,11 +350,15 @@ function StrengthNotes({ strength, chains, selected }: { strength: PlanetStrengt
                     {c.order.map((p, i) => (
                       <span key={p.planet}>
                         {i > 0 && <span className="text-muted-foreground"> › </span>}
-                        <span className={cn("font-medium", p.planet === "Jupiter" && "text-primary", p.planet === "Saturn" && "text-[hsl(var(--chart-2))]")}>{p.planet}</span>
+                        <span className={cn("font-medium", p.viaRetro && "opacity-70", p.planet === "Jupiter" && "text-primary", p.planet === "Saturn" && "text-[hsl(var(--chart-2))]")}>
+                          {p.planet}
+                          {p.retrograde && p.planet !== "Rahu" && p.planet !== "Ketu" ? <sup className="ml-0.5 text-[0.65em]">R</sup> : null}
+                        </span>
                         <span className="text-muted-foreground">
                           {" "}
                           {fmtDegShort(p.degInSign)}
-                          {c.signs.length > 1 ? ` ${p.sign.slice(0, 3)}` : ""}
+                          {c.signs.length > 1 || p.viaRetro ? ` ${p.sign.slice(0, 3)}` : ""}
+                          {p.viaRetro ? <span className="ml-1 rounded-sm border border-border px-1 text-[0.7em] align-middle" title="Read here from its previous sign by retrogression, at half strength">by retro</span> : null}
                         </span>
                       </span>
                     ))}
@@ -361,7 +366,7 @@ function StrengthNotes({ strength, chains, selected }: { strength: PlanetStrengt
                   <span className="block text-xs leading-relaxed text-muted-foreground">
                     {c.links.map((l) => (
                       <span key={`${l.from}-${l.to}`} className="block">
-                        {l.from} → {l.to} ({tierLabel(l.tier)}, {approachLabel(l.approach)}): {GIVES[l.from]} colour {RECEIVES[l.to]}.
+                        {l.from} → {l.to} ({tierLabel(l.tier)}, {approachLabel(l.approach)}{l.viaRetro ? ", by retrogression at half strength" : ""}): {GIVES[l.from]} colour {RECEIVES[l.to]}.
                       </span>
                     ))}
                   </span>

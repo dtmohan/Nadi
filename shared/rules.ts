@@ -19,7 +19,7 @@ import { FEMALE_RULES, MALE_FRAME_IDS } from "./rules-female";
 import { CHILDREN_RULES } from "./rules-children";
 import { assessChildren, type ChildrenReading } from "./children";
 import { assessStrength, type PlanetStrength } from "./strength";
-import { degreeChains, flowBetween, type DegreeChain, type Flow } from "./flow";
+import { degreeChains, flowBetween, readsFromPreviousSign, type DegreeChain, type Flow } from "./flow";
 import { assessMarriage, type Gender, type MarriageReading } from "./marriage";
 
 export type LifeArea =
@@ -407,23 +407,27 @@ RULES.push(...CHILDREN_RULES);
 
 const CLASSICAL: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 
-// Effective signs a planet acts from. Retrograde classical planets also act from the previous sign.
-function effectiveSigns(p: PlanetPosition): Array<{ sign: number; viaRetro: boolean }> {
+// Rao: a retro planet "will aspect the rear sign by 1/2 strength".
+export const RETRO_STRENGTH = 0.5;
+
+// Effective signs a planet acts from. A retrograde classical planet also acts from the previous
+// sign, unless it backed into its sign from the sign ahead or sits under Rahu/Ketu (see flow.ts).
+function effectiveSigns(p: PlanetPosition, positions: PlanetPosition[]): Array<{ sign: number; viaRetro: boolean }> {
   const out = [{ sign: p.signIndex, viaRetro: false }];
-  if (p.retrograde && CLASSICAL.includes(p.planet)) out.push({ sign: (p.signIndex + 11) % 12, viaRetro: true });
+  if (readsFromPreviousSign(p, positions)) out.push({ sign: (p.signIndex + 11) % 12, viaRetro: true });
   return out;
 }
 
 // Best relation between two planets, considering retrograde alternates.
-function bestRelation(a: PlanetPosition, b: PlanetPosition): { relation: Relation; viaRetro: boolean; aSign: number; bSign: number } | null {
+function bestRelation(a: PlanetPosition, b: PlanetPosition, positions: PlanetPosition[]): { relation: Relation; viaRetro: boolean; aSign: number; bSign: number } | null {
   let best: { relation: Relation; viaRetro: boolean; aSign: number; bSign: number } | null = null;
-  for (const ea of effectiveSigns(a)) {
-    for (const eb of effectiveSigns(b)) {
+  for (const ea of effectiveSigns(a, positions)) {
+    for (const eb of effectiveSigns(b, positions)) {
       const r = relationOf(ea.sign, eb.sign);
       if (r === "none") continue;
       const cand = { relation: r, viaRetro: ea.viaRetro || eb.viaRetro, aSign: ea.sign, bSign: eb.sign };
-      const score = RELATION_STRENGTH[r] * (cand.viaRetro ? 0.85 : 1);
-      const bestScore = best ? RELATION_STRENGTH[best.relation] * (best.viaRetro ? 0.85 : 1) : -1;
+      const score = RELATION_STRENGTH[r] * (cand.viaRetro ? RETRO_STRENGTH : 1);
+      const bestScore = best ? RELATION_STRENGTH[best.relation] * (best.viaRetro ? RETRO_STRENGTH : 1) : -1;
       if (score > bestScore) best = cand;
     }
   }
@@ -442,7 +446,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
       const b = positions[j];
       // Rahu-Ketu are always opposite; skip that trivial pair.
       if ((a.planet === "Rahu" && b.planet === "Ketu") || (a.planet === "Ketu" && b.planet === "Rahu")) continue;
-      const r = bestRelation(a, b);
+      const r = bestRelation(a, b, positions);
       if (r) relations.push({ subject: a.planet, object: b.planet, relation: r.relation, viaRetro: r.viaRetro, subjectSign: r.aSign, objectSign: r.bSign });
     }
   }
@@ -487,7 +491,7 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
     let extraRetro = false;
     for (const c of w.with ?? []) {
       const o = byPlanet[c.planet];
-      const rel = o ? bestRelation(s, o) : null;
+      const rel = o ? bestRelation(s, o, positions) : null;
       const allowed = c.relation ?? ["conjunct", "prev", "next"];
       if (!rel || !allowed.includes(rel.relation)) {
         extraOk = false;
@@ -503,14 +507,14 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
       const o = byPlanet[w.object];
       if (!o) continue;
       if (w.exchange && !(s.signLord === o.planet && o.signLord === s.planet)) continue;
-      const rel = bestRelation(s, o);
+      const rel = bestRelation(s, o, positions);
       const allowed = w.exchange ? (w.relation ?? ["conjunct", "prev", "next", "trine", "opposite", "none"]) : (w.relation ?? ["conjunct"]);
       const relation: Relation = rel?.relation ?? "none";
       if (!w.exchange && (!rel || !allowed.includes(relation))) continue;
       if (w.exchange && rel && !allowed.includes(relation)) continue;
       const strength = w.exchange ? Math.max(0.9, RELATION_STRENGTH[relation]) : RELATION_STRENGTH[relation];
       const viaRetro = (rel?.viaRetro ?? false) || extraRetro;
-      const score = rule.weight * strength * Math.max(extraStrength, 0.6) * (viaRetro ? 0.85 : 1);
+      const score = rule.weight * strength * Math.max(extraStrength, 0.6) * (viaRetro ? RETRO_STRENGTH : 1);
       const flow = (relation === "conjunct" || relation === "trine") && !viaRetro ? flowBetween(s, o) ?? undefined : undefined;
       push({
         ruleId: rule.id,
@@ -560,7 +564,9 @@ export function evaluate(positions: PlanetPosition[], rules: Rule[] = RULES, gen
     if (st.winningOver.length) parts.push(`Leads ${st.winningOver.join(", ")} by degree.`);
     if (st.losingTo.length) parts.push(`Yields to ${st.losingTo.join(", ")} by degree.`);
     if (p.combust) parts.push(`${st.combustNote ?? "Combust within the Sun's pada"}.`);
-    if (p.retrograde && CLASSICAL.includes(p.planet)) parts.push(`Also reads from ${SIGNS[(p.signIndex + 11) % 12]}.`);
+    if (readsFromPreviousSign(p, positions)) parts.push(`Also reads from ${SIGNS[(p.signIndex + 11) % 12]} by retrogression, at half strength.`);
+    else if (p.retrograde && CLASSICAL.includes(p.planet))
+      parts.push(p.retrogradeEntry ? `Backed into ${SIGNS[p.signIndex]} from ${SIGNS[(p.signIndex + 1) % 12]}, so it is not read from the sign before.` : `Under Rahu or Ketu, so it is not read from the previous sign.`);
     parts.push(`Sign lord ${SIGN_LORD[p.signIndex]}; nakshatra ${p.nakshatra} (${p.nakshatraLord}).`);
     return { sign: SIGNS[p.signIndex], retro: p.retrograde, dignity: st.effectiveDignity, companions, summary: parts.join(" ") };
   };
