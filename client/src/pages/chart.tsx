@@ -396,7 +396,7 @@ export default function ChartPage() {
           <Reading result={data} selected={selected} />
         </TabsContent>
         <TabsContent value="timeline" className="mt-6">
-          <Timeline transits={data.transits} positions={positions} birthIso={data.utc} />
+          <Timeline transits={data.transits} positions={positions} findings={data.reading.findings} birthIso={data.utc} selected={selected} />
         </TabsContent>
         <TabsContent value="relations" className="mt-6">
           <Relations relations={data.reading.relations} positions={positions} />

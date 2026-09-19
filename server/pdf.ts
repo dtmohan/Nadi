@@ -5,8 +5,9 @@ import PDFDocument from "pdfkit";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, SIGN_ABBR, SOUTH_INDIAN_CELLS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition } from "@shared/astro";
-import { LIFE_AREAS, RELATION_LABEL, TRANSIT_ACTIVATION, type LifeArea } from "@shared/rules";
+import { LIFE_AREAS, RELATION_LABEL, type LifeArea } from "@shared/rules";
 import type { PlanetStrength } from "@shared/strength";
+import { readTransits, type TransitReading } from "@shared/timing";
 
 const INK = "#2b241e";
 const MUTED = "#7a6f66";
@@ -242,38 +243,67 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   // ── Timing ──
   const birth = DateTime.fromISO(result.utc);
   const nowDt = DateTime.fromISO(now.asOf);
-  for (const track of ["Jupiter", "Saturn"] as const) {
-    sectionTitle(doc, `${track} passages over natal planets`, track === "Jupiter" ? "one sign a year, twelve-year cycle" : "about two and a half years a sign");
-    const rows = transits
-      .filter((t) => t.planet === track)
-      .map((t) => {
-        const start = DateTime.fromISO(t.start);
-        const end = DateTime.fromISO(t.end);
-        const conj = positions.filter((p) => p.signIndex === t.signIndex);
-        const trine = positions.filter((p) => [5, 9].includes(houseFrom(t.signIndex, p.signIndex)));
-        const opp = positions.filter((p) => houseFrom(t.signIndex, p.signIndex) === 7);
-        return { ...t, start, end, conj, trine, opp, age: Math.max(0, start.diff(birth, "years").years), current: nowDt >= start && nowDt < end };
-      })
-      .filter((r) => r.conj.length > 0);
-    const c = [PAGE.m, PAGE.m + 48, PAGE.m + 118, PAGE.m + 240];
-    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED);
-    ["Age", "Sign", "Period", "Activates"].forEach((h, i) => doc.text(h, c[i], doc.y, { lineBreak: false }));
-    doc.y += 12;
-    for (const r of rows) {
-      const act = r.conj.map((p) => `${p.planet}: ${TRANSIT_ACTIVATION[track][p.planet]}`).join("\n");
-      const extra = [r.trine.length ? `trine ${r.trine.map((p) => PLANET_ABBR[p.planet]).join(" ")}` : null, r.opp.length ? `7th ${r.opp.map((p) => PLANET_ABBR[p.planet]).join(" ")}` : null].filter(Boolean).join(" · ");
-      doc.font("Helvetica").fontSize(8);
-      const actH = doc.heightOfString(act, { width: CONTENT_W - 240 }) + (extra ? 10 : 0);
-      const h = Math.max(22, actH + 8);
+  const timing = readTransits(transits, positions, reading.findings, result.utc);
+
+  // Current passages first.
+  const currentReadings = (["Jupiter", "Saturn"] as const)
+    .map((pl) => timing.find((r) => r.period.planet === pl && nowDt >= DateTime.fromISO(r.period.start) && nowDt < DateTime.fromISO(r.period.end)))
+    .filter((r): r is TransitReading => !!r);
+  if (currentReadings.length) {
+    sectionTitle(doc, "Where the karakas stand now", `as of ${nowDt.toFormat("d LLL yyyy")}`);
+    for (const r of currentReadings) {
+      const t = r.period;
+      doc.font("Helvetica").fontSize(8.5);
+      const body = [r.headline, ...r.activated.slice(0, 3).map((f) => `• ${LIFE_AREAS[f.area].label}: ${f.text}`), ...r.notes].join("\n");
+      const h = doc.heightOfString(body, { width: CONTENT_W }) + 26;
       ensureSpace(doc, h);
       const y = doc.y;
-      if (r.current) doc.rect(PAGE.m - 4, y - 3, CONTENT_W + 8, h).fillColor("#f3e4dc").fill();
+      doc.font("Helvetica-Bold").fontSize(9.5).fillColor(planetColor(t.planet)).text(`${t.planet} in ${t.sign}`, PAGE.m, y, { lineBreak: false });
+      doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`${DateTime.fromISO(t.start).toFormat("d LLL yyyy")} – ${DateTime.fromISO(t.end).toFormat("d LLL yyyy")}`, PAGE.m, y + 1, { width: CONTENT_W, align: "right", lineBreak: false });
+      doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(r.headline, PAGE.m, y + 14, { width: CONTENT_W });
+      for (const f of r.activated.slice(0, 3)) doc.fillColor(INK).text(`• ${LIFE_AREAS[f.area].label}: ${f.text}`, PAGE.m + 8, doc.y + 1, { width: CONTENT_W - 8 });
+      doc.fontSize(7.5).fillColor(MUTED);
+      for (const n of r.notes) doc.text(n, PAGE.m, doc.y + 1, { width: CONTENT_W });
+      doc.y += 8;
+    }
+  }
+
+  for (const track of ["Jupiter", "Saturn"] as const) {
+    sectionTitle(doc, `${track} passages over natal planets`, track === "Jupiter" ? "one sign a year, twelve-year cycle" : "about two and a half years a sign");
+    const rows = timing
+      .filter((r) => r.period.planet === track && r.conjunct.length > 0)
+      .map((r) => {
+        const start = DateTime.fromISO(r.period.start);
+        const end = DateTime.fromISO(r.period.end);
+        return { r, start, end, age: Math.max(0, start.diff(birth, "years").years), current: nowDt >= start && nowDt < end };
+      });
+    const c = [PAGE.m, PAGE.m + 48, PAGE.m + 118, PAGE.m + 240];
+    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED);
+    ["Age", "Sign", "Period", "What ripens"].forEach((h, i) => doc.text(h, c[i], doc.y, { lineBreak: false }));
+    doc.y += 12;
+    const colW = CONTENT_W - 240;
+    for (const { r, start, end, age, current } of rows) {
+      const t = r.period;
+      const bullets = r.activated.slice(0, current ? 3 : 2).map((f) => `• ${f.text}`);
+      const notes = r.notes.slice(0, 2);
+      doc.font("Helvetica").fontSize(8);
+      const hHead = doc.heightOfString(r.headline, { width: colW });
+      doc.fontSize(7.5);
+      const hBul = bullets.length ? doc.heightOfString(bullets.join("\n"), { width: colW - 6 }) + 2 : 0;
+      doc.fontSize(7);
+      const hNotes = notes.length ? doc.heightOfString(notes.join("\n"), { width: colW }) + 2 : 0;
+      const h = Math.max(22, hHead + hBul + hNotes + 9);
+      ensureSpace(doc, h);
+      const y = doc.y;
+      if (current) doc.rect(PAGE.m - 4, y - 3, CONTENT_W + 8, h).fillColor("#f3e4dc").fill();
       doc.moveTo(PAGE.m, y - 3).lineTo(PAGE.w - PAGE.m, y - 3).lineWidth(0.3).strokeColor(RULE).stroke();
-      doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text(r.age < 0.02 ? "Birth" : `Age ${Math.floor(r.age)}`, c[0], y, { lineBreak: false });
-      doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(`${r.sign}${r.retrogradeEntry ? " R" : ""}`, c[1], y, { lineBreak: false });
-      doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`${r.start.toFormat("d LLL yyyy")} – ${r.end.toFormat("d LLL yyyy")}`, c[2], y, { width: 118, lineBreak: false });
-      doc.font("Helvetica").fontSize(8).fillColor(INK).text(act, c[3], y, { width: CONTENT_W - 240 });
-      if (extra) doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(extra, c[3], doc.y, { width: CONTENT_W - 240 });
+      doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text(age < 0.02 ? "Birth" : `Age ${Math.floor(age)}`, c[0], y, { lineBreak: false });
+      doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(`${t.sign}${t.retrogradeEntry ? " R" : ""}`, c[1], y, { lineBreak: false });
+      doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(`over ${r.conjunct.map((p) => PLANET_ABBR[p]).join(" ")}`, c[1], y + 11, { lineBreak: false });
+      doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`${start.toFormat("d LLL yyyy")} – ${end.toFormat("d LLL yyyy")}`, c[2], y, { width: 118, lineBreak: false });
+      doc.font("Helvetica").fontSize(8).fillColor(INK).text(r.headline, c[3], y, { width: colW });
+      if (bullets.length) doc.fontSize(7.5).fillColor(INK).text(bullets.join("\n"), c[3] + 6, doc.y + 2, { width: colW - 6 });
+      if (notes.length) doc.fontSize(7).fillColor(MUTED).text(notes.join("\n"), c[3], doc.y + 2, { width: colW });
       doc.y = y + h;
     }
     doc.moveDown(0.5);
