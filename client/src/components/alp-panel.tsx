@@ -160,22 +160,22 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               The Moon was born in <span className="font-medium">{arp.natalMoon.nakshatra}</span> ({arp.natalMoon.sign}). Shifting one nakshatra with each Vimshottari dasa it has reached <span className="font-medium">{arp.point.nakshatra}</span> pada {arp.point.pada}, so the Akshaya rasi is <span className="font-medium">{arp.point.sign}</span>: the {ordinal(arp.houseFromAlp)} from the ALP lagna, the {ordinal(arp.houseFromJanma)} natally.
             </li>
             <li>
-              The running dasa is <span className="font-medium">{arp.dasa.lord}</span> (ages {arp.dasa.ageStart.toFixed(1)}–{arp.dasa.ageEnd.toFixed(1)}), bhukti <span className="font-medium">{arp.bhukti.lord}</span> until {fmt(arp.bhukti.end)}. The dasa lord sits in {SIGNS[arp.dasaLord.signIndex]}, the {ordinal(arp.dasaLord.houseFromArp)} from the Akshaya rasi: the condition of the mind is read from there. The bhukti lord is the {ordinal(arp.bhuktiLord.houseFromDasaLord)} from the dasa lord.
+              The running dasa is <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> (ages {arp.dasa.ageStart.toFixed(1)}–{arp.dasa.ageEnd.toFixed(1)}), bhukti <PlanetName planet={arp.bhukti.lord} tone className="font-medium" /> until {fmt(arp.bhukti.end)}. The dasa lord <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> sits in {SIGNS[arp.dasaLord.signIndex]}, the {ordinal(arp.dasaLord.houseFromArp)} from the Akshaya rasi: the condition of the mind is read from there. The bhukti lord <PlanetName planet={arp.bhukti.lord} tone className="font-medium" /> is the {ordinal(arp.bhuktiLord.houseFromDasaLord)} from the dasa lord.
             </li>
             <li>
               {arpLordSame ? (
                 <>
-                  <span className="font-medium">{a.point.lord}</span> rules both the ALP lagna and the Akshaya rasi: body and mind answer to one planet, placed in the {ordinal(arp.arpLord.houseFromAlp)} from the ALP lagna.
+                  <PlanetName planet={a.point.lord} tone className="font-medium" /> rules both the ALP lagna and the Akshaya rasi: body and mind answer to one planet, placed in the {ordinal(arp.arpLord.houseFromAlp)} from the ALP lagna.
                 </>
               ) : (
                 <>
-                  The Akshaya rasi lord <span className="font-medium">{arp.point.lord}</span> is in {SIGNS[arp.arpLord.signIndex]}, the {ordinal(arp.arpLord.houseFromAlpLord)} from the ALP lagna lord {a.point.lord}; the dasa lord is the {ordinal(arp.nakLordsMutual)} from the ALP nakshatra lord {a.point.nakshatraLord}.
+                  The Akshaya rasi lord <PlanetName planet={arp.point.lord} tone className="font-medium" /> is in {SIGNS[arp.arpLord.signIndex]}, the {ordinal(arp.arpLord.houseFromAlpLord)} from the ALP lagna lord <PlanetName planet={a.point.lord} tone className="font-medium" />; the dasa lord <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> is the {ordinal(arp.nakLordsMutual)} from the ALP nakshatra lord <PlanetName planet={a.point.nakshatraLord} tone className="font-medium" />.
                 </>
               )}{" "}
               The pada's navamsa is {SIGNS[arp.point.navamsaSign ?? 0]}, the subtle point of the mind.
             </li>
             <li data-testid="text-alp-questions">
-              Questions to expect: the ALP nakshatra lord <span className="font-medium">{a.point.nakshatraLord}</span> stands in the {ordinal(nakLordHouse)} from the ALP lagna, so that house's matters are asked about first; the dasa lord {arp.dasa.lord} is in the {ordinal(arp.dasaLord.houseFromAlp)} and the bhukti lord {arp.bhukti.lord} in the {ordinal(arp.bhuktiLord.houseFromAlp)} from the ALP lagna, the {ordinal(arp.dasaLord.houseFromArp)} and {ordinal(arp.bhuktiLord.houseFromArp)} from the Akshaya rasi (Book 2 pp. 95-96).
+              Questions to expect: the ALP nakshatra lord <PlanetName planet={a.point.nakshatraLord} tone className="font-medium" /> stands in the {ordinal(nakLordHouse)} from the ALP lagna, so that house's matters are asked about first; the dasa lord <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> is in the {ordinal(arp.dasaLord.houseFromAlp)} and the bhukti lord <PlanetName planet={arp.bhukti.lord} tone className="font-medium" /> in the {ordinal(arp.bhuktiLord.houseFromAlp)} from the ALP lagna, the {ordinal(arp.dasaLord.houseFromArp)} and {ordinal(arp.bhuktiLord.houseFromArp)} from the Akshaya rasi (Book 2 pp. 95-96).
               <ul className="mt-1.5 space-y-1 text-xs text-muted-foreground" data-testid="list-alp-questions-gloss">
                 {[
                   { who: "ALP nakshatra lord", planet: a.point.nakshatraLord, house: nakLordHouse },
@@ -290,13 +290,13 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               The ALP lagna has reached <span className="font-medium">{a.point.sign}</span>, the {ordinal(a.houseFromJanma)} from the janma lagna, for ages {a.signPeriods.find((p) => p.current)?.ageStart.toFixed(1)}–{a.signPeriods.find((p) => p.current)?.ageEnd.toFixed(1)}.
             </li>
             <li>
-              Its lord <span className="font-medium">{lordP.planet}</span> sits in {SIGNS[lordP.signIndex]}: the {ordinal(lordP.houseFromAlp)} from the ALP lagna, the {ordinal(lordP.houseFromJanma)} natally.
+              Its lord <PlanetName planet={lordP.planet} tone className="font-medium" /> sits in {SIGNS[lordP.signIndex]}: the {ordinal(lordP.houseFromAlp)} from the ALP lagna, the {ordinal(lordP.houseFromJanma)} natally.
             </li>
             <li>
-              The janma lagna lord <span className="font-medium">{janmaP.planet}</span> falls in the {ordinal(janmaP.houseFromAlp)} from the ALP lagna.
+              The janma lagna lord <PlanetName planet={janmaP.planet} tone className="font-medium" /> falls in the {ordinal(janmaP.houseFromAlp)} from the ALP lagna.
             </li>
             <li>
-              Within {a.point.sign} the lagna is in <span className="font-medium">{a.point.nakshatra}</span> (pada {a.point.pada}), ages {curNak?.ageStart.toFixed(1)}–{curNak?.ageEnd.toFixed(1)}; the nakshatra lord <span className="font-medium">{nakP.planet}</span> is in the {ordinal(nakP.houseFromAlp)} from the ALP lagna, the {ordinal(nakP.houseFromJanma)} natally.
+              Within {a.point.sign} the lagna is in <span className="font-medium">{a.point.nakshatra}</span> (pada {a.point.pada}), ages {curNak?.ageStart.toFixed(1)}–{curNak?.ageEnd.toFixed(1)}; the nakshatra lord <PlanetName planet={nakP.planet} tone className="font-medium" /> is in the {ordinal(nakP.houseFromAlp)} from the ALP lagna, the {ordinal(nakP.houseFromJanma)} natally.
               {nextNak && (
                 <>
                   {" "}Next comes {nextNak.nakshatra} ({nextNak.nakshatraLord}) from {fmt(nextNak.start)}.
@@ -304,7 +304,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               )}
             </li>
             <li>
-              The pada's navamsa sign is {SIGNS[a.point.navamsaSign]}, the {ordinal(activatedHouse)} from the ALP lagna; its lord <span className="font-medium">{navP.planet}</span> is in the {ordinal(navP.houseFromAlp)}.
+              The pada's navamsa sign is {SIGNS[a.point.navamsaSign]}, the {ordinal(activatedHouse)} from the ALP lagna; its lord <PlanetName planet={navP.planet} tone className="font-medium" /> is in the {ordinal(navP.houseFromAlp)}.
             </li>
           </ul>
 
@@ -417,7 +417,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               const placed = a.placements.find((p) => p.planet === r.planet) ?? a.houses.flatMap((h) => h.planets.map((pl) => ({ planet: pl, houseFromAlp: h.house }))).find((p) => p.planet === r.planet);
               return (
                 <TableRow key={r.planet} data-testid={`row-alp-sign-reading-${r.planet}`}>
-                  <TableCell className="py-1.5 align-top font-medium">{r.planet}</TableCell>
+                  <TableCell className="py-1.5 align-top font-medium"><PlanetName planet={r.planet} /></TableCell>
                   <TableCell className="py-1.5 align-top whitespace-nowrap">{r.houses.join(", ")}</TableCell>
                   <TableCell className="hidden py-1.5 align-top text-muted-foreground sm:table-cell">{placed ? ordinal(placed.houseFromAlp) : "—"}</TableCell>
                   <TableCell className="py-1.5 align-top text-xs">
@@ -440,7 +440,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             const at = a.houses.find((x) => x.planets.includes(lord));
             return (
               <li key={h}>
-                <span className="font-medium">{h}th lord {lord}</span> stands in the {at ? ordinal(at.house) : "?"}{at ? ` (${at.sign})` : ""}: {at && at.house === h ? `its own house, so the ${h}th's matters (${ALP_HOUSE_THEMES[h]}) are lived directly.` : `the ${h}th's matters (${ALP_HOUSE_THEMES[h]}) are felt through the ${at ? ordinal(at.house) : "?"}${at ? `, ${ALP_HOUSE_THEMES[at.house]}` : ""}.`}
+                <span className="font-medium">{h}th lord <PlanetName planet={lord} tone /></span> stands in the {at ? ordinal(at.house) : "?"}{at ? ` (${at.sign})` : ""}: {at && at.house === h ? `its own house, so the ${h}th's matters (${ALP_HOUSE_THEMES[h]}) are lived directly.` : `the ${h}th's matters (${ALP_HOUSE_THEMES[h]}) are felt through the ${at ? ordinal(at.house) : "?"}${at ? `, ${ALP_HOUSE_THEMES[at.house]}` : ""}.`}
               </li>
             );
           })}
@@ -451,7 +451,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             const owns = a.houses.filter((x) => x.lord === pl).map((x) => x.house);
             return (
               <li key={`${h}-${pl}`}>
-                <span className="font-medium">{pl}</span> in the {ordinal(h)} ({a.houses[h - 1].sign}){owns.length ? `, owning the ${owns.map(ordinal).join(" and ")}: those houses (${owns.map((o) => ALP_HOUSE_THEMES[o]).join("; ")}) meet the ${ordinal(h)}'s ${h === 6 ? "short-term issues" : h === 8 ? "long-term issues" : h === 10 ? "pressure" : "losses"}.` : ": a node, owning nothing; it colours the house it sits in."}
+                <PlanetName planet={pl} tone className="font-medium" /> in the {ordinal(h)} ({a.houses[h - 1].sign}){owns.length ? `, owning the ${owns.map(ordinal).join(" and ")}: those houses (${owns.map((o) => ALP_HOUSE_THEMES[o]).join("; ")}) meet the ${ordinal(h)}'s ${h === 6 ? "short-term issues" : h === 8 ? "long-term issues" : h === 10 ? "pressure" : "losses"}.` : ": a node, owning nothing; it colours the house it sits in."}
               </li>
             );
           }))}
