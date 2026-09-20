@@ -32,7 +32,9 @@ export const ALP_CHAPTERS: AlpChapter[] = [
   // Printed volumes, titled from the publisher's table of contents (alpastrology.org/books). Rules are entered from the books themselves.
   { id: "book1", book: "Book 1", title: "Introduction to ALP; planetary characteristics; the three karmas; dasa-bhukti and gochar; remedial temples", note: "Not in hand: the practitioner does not own this volume; nothing is entered from it." },
   { id: "book2-calc", book: "Book 2, ch. 2", title: "Calculating the ALP point; case studies 1-6 (pp. 32-42)", note: "Entered from the printed volume." },
-  { id: "book2-ch3", book: "Book 2, ch. 3", title: "Bhavas signifying the present (p. 43 onward)", note: "First page entered; the rest of the chapter is pending." },
+  { id: "book2-ch3", book: "Book 2, ch. 3", title: "Bhavas signifying the present: 1, 4, 7, 10 and their karma bhavas (pp. 43-47)", note: "Entered from the printed volume; the karma-bhava table is shown on the chart page." },
+  { id: "book2-ch4", book: "Book 2, ch. 4", title: "Bhavas signifying the past: 2, 5, 8, 11 (pp. 48-52)", note: "Entered from the printed volume." },
+  { id: "book2-ch5", book: "Book 2, ch. 5", title: "Bhavas signifying the future: 3, 6, 9, 12 (p. 53 onward)", note: "First page entered; the rest of the chapter is pending." },
   { id: "book2-rest", book: "Book 2, later chapters", title: "Akshaya Rasi; purpose of this birth; karma and time", note: "Pending. Defines the Akshaya rasi (ARP)." },
   { id: "book3", book: "Book 3", title: "Introduction to gochar; the nakshatras of Leo; Aries-lagna ALP; the planets through the 12 bhavas by gochar", note: "Pending. Nakshatra-by-nakshatra readings begin here (Magha, Purva Phalguni, Uttara Phalguni)." },
   { id: "book4", book: "Book 4", title: "The nakshatras of Sagittarius; marriage matching; horoscope analysis", note: "Pending. Continues the nakshatra readings (Mula, Purva Ashadha, Uttara Ashadha)." },
@@ -71,6 +73,8 @@ export interface AlpRuleWhen {
   activatedNakLordShashtashtaka?: boolean;
   /** The current nakshatra runs on past the end of the current sign, so a sign change falls inside it. */
   nakshatraStraddlesAhead?: boolean;
+  /** The lords of these two houses from the ALP lagna share a sign (nodes excluded). */
+  lordsTogether?: [number, number];
 }
 
 export interface AlpRule {
@@ -283,9 +287,9 @@ export const ALP_RULES: AlpRule[] = [
     id: "b2-nak-lord-rahu",
     chapter: "book2-calc",
     when: { nakshatraLord: ["Rahu"] },
-    text: "The lagna is passing through a nakshatra of Rahu: pressure, unusual turns and a sense of being pushed mark the stretch; the house Rahu occupies from the ALP lagna names the field.",
+    text: "The lagna is passing through a nakshatra of Rahu: pressure, unusual turns and a sense of being pushed mark the stretch; the bhava Rahu occupies from the ALP lagna is activated and names the field.",
     weight: 2,
-    source: BOOK2("pp. 36-37, case study 3: ALP nakshatra point travelling in the nakshatra of Rahu"),
+    source: BOOK2("pp. 36-37, case study 3: ALP nakshatra point travelling in the nakshatra of Rahu; p. 44: if Rahu or Ketu becomes the star lord it activates the bhava in which it is positioned"),
     sourceUrl: ALP_SOURCE_BOOKS,
   },
   {
@@ -362,7 +366,108 @@ export const ALP_RULES: AlpRule[] = [
     source: BOOK2("p. 43: Gemini ALP with Mercury in Aquarius, the 9th, the native experiences all his bhagya through his father"),
     sourceUrl: ALP_SOURCE_BOOKS,
   },
+  {
+    id: "b2c3-nak-lord-past",
+    chapter: "book2-ch3",
+    when: { role: "nakshatra-lord", roleInHouse: [2, 5, 8, 11] },
+    text: "The lord of the ALP nakshatra stands in the 2nd, 5th, 8th or 11th from the ALP lagna: what the period brings is rooted in the past; the native lives out the fruit of earlier deeds rather than starting new ones.",
+    weight: 2,
+    source: BOOK2("p. 44: if the nakshatra lord is placed in 2, 5, 8, 11 positions the native will have experiences based on his past"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c3-nak-lord-future",
+    chapter: "book2-ch3",
+    when: { role: "nakshatra-lord", roleInHouse: [3, 6, 9, 12] },
+    text: "The lord of the ALP nakshatra stands in the 3rd, 6th, 9th or 12th from the ALP lagna: the native plans and succeeds in undertakings aimed at the future; the period is for building rather than reaping.",
+    weight: 2,
+    source: BOOK2("p. 44: if the nakshatra lord is placed in 3, 6, 9, 12 positions the native will plan and succeed in his future endeavours"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c3-nak-lord-ketu",
+    chapter: "book2-ch3",
+    when: { nakshatraLord: ["Ketu"] },
+    text: "The lagna is passing through a nakshatra of Ketu: the bhava Ketu occupies from the ALP lagna is activated for the stretch; its matters come up in a detached, concluding way.",
+    weight: 2,
+    source: BOOK2("p. 44: if Rahu and Ketu become the star lord, it will activate the bhava in which they are positioned"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c3-kendras-strong",
+    chapter: "book2-ch3",
+    when: { role: "alp-lord", roleInHouse: [1, 4, 7, 10] },
+    text: "The ALP lagna lord stands in a kendra from the ALP lagna (1, 4, 7, 10, the bhavas of the present): the karma received through the mother and the body is lived out directly and, the book says, is very beneficial when these four bhavas are well placed.",
+    weight: 2,
+    source: BOOK2("p. 44: if these four bhavas, 1, 4, 7, 10, are positioned well, then the karma from the mother is very beneficial to the natal"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c4-lords-2-11-together",
+    chapter: "book2-ch4",
+    when: { lordsTogether: [2, 11] },
+    text: "The lords of the 2nd and the 11th from the ALP lagna share a sign: the 2nd is the karma bhava of the 11th, and their union is the yoga the book describes; gains come, and the 2nd (family, speech, income) is the door to open for them.",
+    weight: 3,
+    source: BOOK2("p. 49: by combining both these houses (2nd and 11th lords) the native can achieve yoga; p. 51: the 2nd and the 11th bhava function hand-in-hand"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c4-lords-8-11-together",
+    chapter: "book2-ch4",
+    when: { lordsTogether: [8, 11] },
+    text: "The lords of the 8th and the 11th from the ALP lagna share a sign: the 11th is the karma bhava of the 8th; the book reads the pair as sudden luck, name and fame, with the 8th's health and debt themes tied to the gains.",
+    weight: 2,
+    source: BOOK2("p. 49: the good and the bad, the growth and the downfall is indicated by the connection of the 8th and the 11th bhava; the two work parallelly and give sudden name, fame and luck"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c4-lords-5-8-together",
+    chapter: "book2-ch4",
+    when: { lordsTogether: [5, 8] },
+    text: "The lords of the 5th and the 8th from the ALP lagna share a sign: the 8th is the karma bhava of the 5th; children, the mind and the kula devata are bound up with longevity and sudden fortune, and the book's remedy runs through both lords.",
+    weight: 2,
+    source: BOOK2("pp. 50, 52: for the 8th bhava it is essential to get hold of the kula devatha indicated by the 5th bhava; to achieve 5th house characteristics one has to activate the 8th bhava"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c4-lords-2-5-together",
+    chapter: "book2-ch4",
+    when: { lordsTogether: [2, 5] },
+    text: "The lords of the 2nd and the 5th from the ALP lagna share a sign: the 5th is the karma bhava of the 2nd; income, speech and education draw on the merit of the 5th (mind, children, kula devata).",
+    weight: 2,
+    source: BOOK2("pp. 51-52: the negative impact ... is exhibited by the 5th bhava; if the kula devatha, mind, children, intelligence, income are good then the 2nd bhava aspects are assured"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
 ];
+
+/** Book 2, ch. 3-5: every bhava's "past-life karma bhava" is the 4th from it (the 10th counted backwards). */
+export interface KarmaBhavaRow {
+  house: number;
+  group: "present" | "past" | "future";
+  karmaHouse: number;
+  theme: string;
+  karmaNote: string;
+  page: string;
+}
+
+export const KARMA_BHAVAS: KarmaBhavaRow[] = [
+  { house: 1, group: "present", karmaHouse: 4, theme: "the native, the body, how life is handled", karmaNote: "Past karma is experienced through the body the mother gave; medicine from the mother's hand is itself a remedy.", page: "pp. 43-44" },
+  { house: 2, group: "past", karmaHouse: 5, theme: "family income, speech, commitments, education", karmaNote: "Commitments not honoured and money wrongly earned in the past show through the 5th; strengthen the 5th to gain the 2nd.", page: "pp. 51-52" },
+  { house: 3, group: "future", karmaHouse: 6, theme: "success, courage, vigour", karmaNote: "The 6th is the sookshma bhava of the 3rd, the source of all its happenings.", page: "p. 53" },
+  { house: 4, group: "present", karmaHouse: 7, theme: "mother, home, property", karmaNote: "\"Wife is his second mother\": the spouse depends on how the native treats the mother; neglect of her is paid through the 7th.", page: "p. 45" },
+  { house: 5, group: "past", karmaHouse: 8, theme: "children, mind, kula devata, research, grandfather, maternal uncle", karmaNote: "An afflicted 5th brings depression, fear and near-death situations; activate the 8th to gain the 5th.", page: "pp. 50, 52" },
+  { house: 6, group: "future", karmaHouse: 9, theme: "debt, disease, dispute, service", karmaNote: "Pending: the rest of chapter 5 is not yet entered.", page: "ch. 5" },
+  { house: 7, group: "present", karmaHouse: 10, theme: "spouse, friends, the people met (the mirror of the 1st)", karmaNote: "Harm done to spouse or friend is given back through the 10th; two parties are needed for any event.", page: "pp. 46-47" },
+  { house: 8, group: "past", karmaHouse: 11, theme: "long illness, debts, expenses, losses from previous-birth deeds; sudden luck", karmaNote: "8th and 11th work in parallel: growth and downfall both; for health and longevity activate the 11th.", page: "pp. 49, 51" },
+  { house: 9, group: "future", karmaHouse: 12, theme: "father, fortune, belief", karmaNote: "Pending: the rest of chapter 5 is not yet entered.", page: "ch. 5" },
+  { house: 10, group: "present", karmaHouse: 1, theme: "profession, name, position; all deeds, carried to the next birth", karmaNote: "The 10th is also the remedy bhava that washes away sins; what is gained wrongly through it leaves the same way.", page: "pp. 46-47" },
+  { house: 11, group: "past", karmaHouse: 2, theme: "efforts, profits, gains, second marriage, elder siblings", karmaNote: "No gains without a strong 2nd; fake talk and wrong earning in the past leave the 11th barren.", page: "pp. 48, 51" },
+  { house: 12, group: "future", karmaHouse: 3, theme: "expenditure, loss, distant places", karmaNote: "Pending: the rest of chapter 5 is not yet entered.", page: "ch. 5" },
+];
+
+/** Book 2 p. 49-50: to activate a bhava, strengthen the lords of that bhava and of its karma bhava (e.g. puja on one lord's weekday in the other lord's hora). */
+export const KARMA_REMEDY_NOTE =
+  "To bring a bhava's results, the book strengthens the lords of the bhava and of its karma bhava together, for instance worship on the weekday of one lord during the hora of the other (Aries ALP: Venus and Saturn for the 11th on Saturday in Venus hora, p. 49; Sun and Mars for the 5th on Sunday in Mars hora, p. 50).";
 
 export interface AlpContext {
   positions: PlanetPosition[];
@@ -402,6 +507,16 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
       if (nl) planets.push(nl.planet);
     }
     if (w.nakshatraStraddlesAhead !== undefined && ctx.nakStraddlesAhead !== w.nakshatraStraddlesAhead) continue;
+    if (w.lordsTogether) {
+      const [h1, h2] = w.lordsTogether;
+      const l1 = ctx.houses[h1 - 1].lord;
+      const l2 = ctx.houses[h2 - 1].lord;
+      if (l1 === l2) continue;
+      const p1 = ctx.positions.find((x) => x.planet === l1);
+      const p2 = ctx.positions.find((x) => x.planet === l2);
+      if (!p1 || !p2 || p1.signIndex !== p2.signIndex) continue;
+      planets.push(l1, l2);
+    }
     if (w.lordOf) {
       const lord = ctx.houses[w.lordOf - 1].lord;
       const p = ctx.positions.find((x) => x.planet === lord);

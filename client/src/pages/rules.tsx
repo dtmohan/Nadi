@@ -26,6 +26,7 @@ function describeAlpCondition(w: AlpRuleWhen) {
   if (w.lordOf) parts.push(`lord of the ${ord(w.lordOf)} from the ALP lagna${w.lordOfInHouse ? ` in the ${w.lordOfInHouse.map(ord).join("/")}` : ""}`);
   if (w.activatedTouches !== undefined) parts.push(w.activatedTouches ? "pada's navamsa touches ALP lagna, its 7th, janma lagna or its 7th" : "pada's navamsa touches none of ALP lagna, its 7th, janma lagna, its 7th");
   if (w.activatedNakLordShashtashtaka !== undefined) parts.push(`pada's navamsa and the nakshatra lord's sign ${w.activatedNakLordShashtashtaka ? "" : "not "}in 6/8`);
+  if (w.lordsTogether) parts.push(`lords of the ${ord(w.lordsTogether[0])} and ${ord(w.lordsTogether[1])} from the ALP lagna in one sign`);
   if (w.nakshatraStraddlesAhead !== undefined) parts.push(w.nakshatraStraddlesAhead ? "current nakshatra runs into the next sign" : "current nakshatra ends within the sign");
   if (w.alpHouseFromJanma) parts.push(`ALP lagna in the ${w.alpHouseFromJanma.map(ord).join("/")} from the janma lagna`);
   return parts.join(" · ");
