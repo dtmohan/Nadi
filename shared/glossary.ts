@@ -4,7 +4,7 @@
 export interface GlossaryEntry {
   term: string;
   short: string;
-  system: "bnn" | "jaimini" | "both";
+  system: "bnn" | "jaimini" | "alp" | "both";
 }
 
 export const GLOSSARY: Record<string, GlossaryEntry> = {
@@ -48,7 +48,9 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
   "double-transit": { term: "Double transit", short: "Jupiter and Saturn both touching the same natal point at once, by placement or aspect. The strongest timing signal.", system: "both" },
   nakshatra: { term: "Nakshatra", short: "One of the 27 lunar mansions of 13° 20'. A planet takes the flavour of its nakshatra's lord.", system: "both" },
   ayanamsa: { term: "Ayanamsa", short: "The offset between the tropical and sidereal zodiacs. Lahiri is the Indian standard.", system: "both" },
+  "alp-lagna": { term: "ALP lagna", short: "The ascendant moved forward with age: ten years to a sign, one pada in about 1 year 1 month 10 days (Akshaya Lagna Paddhati). Natal planets are read as houses from it.", system: "alp" },
+  "alp-pada": { term: "ALP pada", short: "The quarter of a nakshatra the ALP lagna currently occupies; nine padas make a sign. Its navamsa sign is said to be activated for the period.", system: "alp" },
   lagna: { term: "Lagna", short: "The ascendant: the sign rising in the east at birth. Nadi does not use it; Jaimini counts from it.", system: "both" },
 };
 
-export const glossaryFor = (system: "bnn" | "jaimini") => Object.values(GLOSSARY).filter((g) => g.system === system || g.system === "both");
+export const glossaryFor = (system: "bnn" | "jaimini" | "alp") => Object.values(GLOSSARY).filter((g) => g.system === system || g.system === "both");

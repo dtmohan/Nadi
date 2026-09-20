@@ -132,7 +132,7 @@ export function SouthIndianChart({
             })}
             {badges?.[signIndex]?.length ? (
               <text x={x + 6} y={y + CELL - 7} fontSize={9} fontWeight={600} className="fill-[hsl(var(--chart-3))]">
-                {badges[signIndex].join(" ")}
+                {badges[signIndex].join(" · ")}
               </text>
             ) : null}
             {tr.length > 0 && (

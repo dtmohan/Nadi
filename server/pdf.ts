@@ -737,7 +737,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   // ── Glossary ──
   doc.addPage();
   sectionTitle(doc, "Glossary", "the terms this reading leans on, in plain language");
-  for (const g of Object.values(GLOSSARY)) {
+  for (const g of Object.values(GLOSSARY).filter((g) => g.system !== "alp")) {
     doc.font("Helvetica").fontSize(8.5);
     const h = doc.heightOfString(`${g.term}. ${g.short}`, { width: CONTENT_W }) + 4;
     ensureSpace(doc, h);

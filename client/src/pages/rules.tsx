@@ -11,6 +11,69 @@ import { cn } from "@/lib/utils";
 import { useParams } from "wouter";
 import { SourceLink } from "@/components/source-link";
 import { SutraLibrary } from "@/components/sutra-library";
+import { ALP_CHAPTERS, ALP_RULES, ALP_ROLE_LABEL, type AlpRuleWhen } from "@shared/rules-alp";
+
+function describeAlpCondition(w: AlpRuleWhen) {
+  const ord = (h: number) => `${h}${h === 1 ? "st" : h === 2 ? "nd" : h === 3 ? "rd" : "th"}`;
+  const parts: string[] = [];
+  if (w.role) parts.push(`${ALP_ROLE_LABEL[w.role]}${w.roleInHouse ? ` in the ${w.roleInHouse.map(ord).join("/")} from the ALP lagna` : ""}${w.roleWith ? ` with ${w.roleWith.join(" or ")}` : ""}`);
+  if (w.planet) parts.push(`${w.planet}${w.planetInHouse ? ` in the ${w.planetInHouse.map(ord).join("/")} from the ALP lagna` : ""}`);
+  if (w.activatedHouse) parts.push(`current pada activates the ${w.activatedHouse.map(ord).join("/")}`);
+  if (w.alpHouseFromJanma) parts.push(`ALP lagna in the ${w.alpHouseFromJanma.map(ord).join("/")} from the janma lagna`);
+  return parts.join(" · ");
+}
+
+function AlpRules() {
+  return (
+    <div>
+      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+        Akshaya Lagna Paddhati rules, grouped by the chapter they come from. A rule names a role (the ALP lagna lord, the janma lagna lord, the lord of the ALP nakshatra or of the activated navamsa sign) and the houses from the ALP lagna that count. Chapters from the printed volumes are added one at a time in{" "}
+        <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules-alp.ts</code>.
+      </p>
+      <div className="mt-6 space-y-8">
+        {ALP_CHAPTERS.map((c) => {
+          const rules = ALP_RULES.filter((r) => r.chapter === c.id);
+          return (
+            <section key={c.id} data-testid={`alp-chapter-${c.id}`}>
+              <h2 className="text-sm font-semibold">
+                {c.book} · {c.title}{" "}
+                <span className="font-normal text-muted-foreground">
+                  {rules.length ? `(${rules.length})` : "· pending"}
+                </span>
+              </h2>
+              {c.note && !rules.length && <p className="mt-1 text-xs text-muted-foreground">{c.note}</p>}
+              {rules.length > 0 && (
+                <ul className="mt-2 divide-y">
+                  {rules.map((r) => (
+                    <li key={r.id} className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]" data-testid={`alp-rule-${r.id}`}>
+                      <div className="text-xs text-muted-foreground">
+                        <div className="font-mono">{r.id}</div>
+                        <div className="mt-1">weight {r.weight}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs font-medium text-primary">{describeAlpCondition(r.when)}</div>
+                        <p className="mt-1 text-sm">{r.text}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {r.sourceUrl ? (
+                            <a href={r.sourceUrl} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
+                              {r.source}
+                            </a>
+                          ) : (
+                            r.source
+                          )}
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 const SHORT_REL: Record<string, string> = { conjunct: "conjunction", next: "2nd", prev: "12th", trine: "trine", opposite: "7th" };
 
@@ -119,7 +182,13 @@ export default function RulesPage() {
           <TabsTrigger value="sutras" data-testid="tab-rules-sutras">
             Sutra text
           </TabsTrigger>
+          <TabsTrigger value="alp" data-testid="tab-rules-alp">
+            ALP
+          </TabsTrigger>
         </TabsList>
+        <TabsContent value="alp">
+          <AlpRules />
+        </TabsContent>
         <TabsContent value="jaimini">
           <JaiminiRules />
         </TabsContent>
