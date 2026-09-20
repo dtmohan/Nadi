@@ -22,6 +22,7 @@ export const ALP_SOURCE_SITE = "https://www.alpastrology.org/";
 export const ALP_SOURCE_MAGAZINE = "https://www.alpastrology.com/ebook/ALP_BOOK_EBOOK_MAGAZINE_01.pdf";
 export const ALP_SOURCE_MAGAZINE_2 = "https://www.alpastrology.com/ebook/ALP_EBOOK_MAGAZINE_PART_02.pdf";
 export const ALP_SOURCE_BOOKS = "https://www.alpastrology.org/books";
+const CLASS1 = "Book 1 class notes (basic ALP class), rules 1-5";
 const BOOK2 = (pages: string) => `Akshaya Lagna Paddhati Vol. 2, Dr. S. Pothuvudaimoorthy, ${pages}`;
 
 /** Chapter scaffold. Titles for the printed volumes are placeholders until each is read. */
@@ -30,7 +31,8 @@ export const ALP_CHAPTERS: AlpChapter[] = [
   { id: "web-magazine", book: "ALP e-magazine 1", title: "Worked examples (Dhoni retirement, a sibling's child)", note: "Principles read off the published examples." },
   { id: "web-magazine-2", book: "ALP e-magazine 2", title: "Marriage timing, the nakshatra lord, houses from the ALP lagna", note: "Principles read off the marriage-timing and property/bereavement examples." },
   // Printed volumes, titled from the publisher's table of contents (alpastrology.org/books). Rules are entered from the books themselves.
-  { id: "book1", book: "Book 1", title: "Introduction to ALP; planetary characteristics; the three karmas; dasa-bhukti and gochar; remedial temples", note: "Not in hand: the practitioner does not own this volume; nothing is entered from it." },
+  { id: "book1", book: "Book 1", title: "Introduction to ALP; planetary characteristics; the three karmas; dasa-bhukti and gochar; remedial temples", note: "The volume itself is not in hand; the class notes below stand in for it." },
+  { id: "book1-notes", book: "Book 1, class notes", title: "Rules 1-5: the ALP lord and the ALP nakshatra lord in the 6th, 8th, 10th and 12th; the lords of those houses; the general reading for each ALP sign", note: "Entered from the practitioner's handwritten notes of the basic class (Aries reading complete, Taurus partial; the other signs are built from the house themes)." },
   { id: "book2-calc", book: "Book 2, ch. 2", title: "Calculating the ALP point; case studies 1-6 (pp. 32-42)", note: "Entered from the printed volume." },
   { id: "book2-ch3", book: "Book 2, ch. 3", title: "Bhavas signifying the present: 1, 4, 7, 10 and their karma bhavas (pp. 43-47)", note: "Entered from the printed volume; the karma-bhava table is shown on the chart page." },
   { id: "book2-ch4", book: "Book 2, ch. 4", title: "Bhavas signifying the past: 2, 5, 8, 11 (pp. 48-52)", note: "Entered from the printed volume." },
@@ -105,6 +107,8 @@ export interface AlpRuleWhen {
   bhuktiLordFromAlp?: number[];
   /** The ALP lagna lord and the Akshaya rasi lord share a sign (two different planets), and that sign is one of these houses from the janma lagna. */
   alpArpLordsTogetherFromJanma?: number[];
+  /** The ALP nakshatra lord stands in one of these houses counted from the ALP lagna lord's sign (different planets only). */
+  nakLordFromAlpLord?: number[];
 }
 
 export interface AlpRule {
@@ -810,6 +814,79 @@ export const ALP_RULES: AlpRule[] = [
     source: BOOK2("p. 99"),
     sourceUrl: ALP_SOURCE_BOOKS,
   },
+  // Book 1 class notes, rules 1-5.
+  {
+    id: "b1n-alp-lord-6",
+    chapter: "book1-notes",
+    when: { role: "alp-lord", roleInHouse: [6] },
+    text: "Rule 1: the ALP lagna lord should not stand in the 6th; here it does, and the decade brings short-term issues: debts, disease and disputes that can be resolved.",
+    weight: 1,
+    source: CLASS1,
+  },
+  {
+    id: "b1n-alp-lord-8",
+    chapter: "book1-notes",
+    when: { role: "alp-lord", roleInHouse: [8] },
+    text: "Rule 1: the ALP lagna lord should not stand in the 8th; here it does, and the decade brings long-term issues: unresolved debts, disease, disputes, accidents, and also sudden and unexpected turns.",
+    weight: 1,
+    source: CLASS1,
+  },
+  {
+    id: "b1n-alp-lord-10",
+    chapter: "book1-notes",
+    when: { role: "alp-lord", roleInHouse: [10] },
+    text: "Rule 1: the ALP lagna lord should not stand in the 10th; here it does, and the decade brings pressure, through job, business and profession.",
+    weight: 2,
+    source: CLASS1,
+  },
+  {
+    id: "b1n-alp-lord-12",
+    chapter: "book1-notes",
+    when: { role: "alp-lord", roleInHouse: [12] },
+    text: "Rule 1: the ALP lagna lord should not stand in the 12th; here it does, and the decade brings losses: expenses, travel, foreign lands, investments, sleep.",
+    weight: 1,
+    source: CLASS1,
+  },
+  {
+    id: "b1n-nak-lord-6",
+    chapter: "book1-notes",
+    when: { role: "nakshatra-lord", roleInHouse: [6] },
+    text: "Rule 2: the ALP nakshatra lord should not stand in the 6th; here it does, so this nakshatra's stretch carries short-term debts, disease and disputes.",
+    weight: 1,
+    source: CLASS1,
+  },
+  {
+    id: "b1n-nak-lord-8",
+    chapter: "book1-notes",
+    when: { role: "nakshatra-lord", roleInHouse: [8] },
+    text: "Rule 2: the ALP nakshatra lord should not stand in the 8th; here it does, so this nakshatra's stretch carries long-term, unresolved matters and sudden turns.",
+    weight: 1,
+    source: CLASS1,
+  },
+  {
+    id: "b1n-nak-lord-10",
+    chapter: "book1-notes",
+    when: { role: "nakshatra-lord", roleInHouse: [10] },
+    text: "Rule 2: the ALP nakshatra lord should not stand in the 10th; here it does, so this nakshatra's stretch carries pressure from work and profession.",
+    weight: 2,
+    source: CLASS1,
+  },
+  {
+    id: "b1n-nak-lord-12",
+    chapter: "book1-notes",
+    when: { role: "nakshatra-lord", roleInHouse: [12] },
+    text: "Rule 2: the ALP nakshatra lord should not stand in the 12th; here it does, so this nakshatra's stretch carries losses and expenses, travel and foreign connections.",
+    weight: 1,
+    source: CLASS1,
+  },
+  {
+    id: "b1n-nak-lord-from-alp-lord-6-8",
+    chapter: "book1-notes",
+    when: { nakLordFromAlpLord: [6, 8] },
+    text: "Rule 3: the ALP nakshatra lord stands 6/8 from the ALP lagna lord: no fulfilment or satisfaction from this nakshatra's stretch, whatever the two planets promise separately.",
+    weight: 2,
+    source: CLASS1,
+  },
 ];
 
 /** Book 2 ch. 15 (p. 91): the ten features to observe before predicting. */
@@ -939,6 +1016,16 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
       if (!w.bhuktiLordFromAlp.includes(ctx.arp.bhuktiLord.houseFromAlp)) continue;
       planets.push(ctx.arp.bhuktiLord.planet);
     }
+    if (w.nakLordFromAlpLord) {
+      const l1 = ctx.point.lord;
+      const l2 = ctx.point.nakshatraLord;
+      if (l1 === l2) continue;
+      const p1 = ctx.positions.find((x) => x.planet === l1);
+      const p2 = ctx.positions.find((x) => x.planet === l2);
+      if (!p1 || !p2) continue;
+      if (!w.nakLordFromAlpLord.includes(((p2.signIndex - p1.signIndex + 12) % 12) + 1)) continue;
+      planets.push(l1, l2);
+    }
     if (w.alpArpLordsTogetherFromJanma) {
       const l1 = ctx.point.lord;
       const l2 = ctx.arp.point.lord;
@@ -998,3 +1085,64 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
 }
 
 export const ALP_ROLE_LABEL = ROLE_LABEL;
+
+/** Book 1 class notes: what each house from the ALP lagna stands for (body part included). */
+export const ALP_HOUSE_THEMES: Record<number, string> = {
+  1: "self, the body, how life is handled",
+  2: "income, education, vision, family, speech, eyes, face",
+  3: "efforts, communication, competitive exams, younger sibling, neck, shoulders, hands",
+  4: "house, vehicles, customers, business partners, mother",
+  5: "mind, love, children, maternal uncle, purva punya, grandparents",
+  6: "short-term debts, diseases, enemies, disputes, lower abdomen",
+  7: "marriage, spouse, friends, partnership, spinal cord",
+  8: "long-term unresolved debts, diseases, disputes, accidents, court cases, sudden luck, occult, lottery, lower leg",
+  9: "blessings, father, ishta devata, spiritual travel, thigh",
+  10: "pressure, job, business, profession, promotion, knee",
+  11: "gains, promotion, increment, elder sibling, second marriage",
+  12: "losses, travel, foreign lands, expenses, sleep, investments, maids and employees, foot",
+};
+
+/** Book 1 class notes, rules 4 and 5. */
+export const DUSTHANA_NOTE =
+  "Class notes, rules 4 and 5: wherever the lords of the 6th, 8th, 10th and 12th from the ALP lagna are positioned, problems of that lord's house are felt in the house it occupies (destiny); and whichever planets occupy the 6th, 8th, 10th or 12th trouble the houses they own (free will). 6th: short-term issues; 8th: long-term issues; 10th: pressure; 12th: losses.";
+
+/** Class-note text for a sign's general reading, keyed by the planet that rules the listed houses. */
+export interface AlpSignReadingRow {
+  planet: Planet;
+  houses: number[];
+  text: string;
+  /** True when the text is the practitioner's class note; false when generated from the house themes. */
+  fromNotes: boolean;
+}
+
+const NOTE_TEXT: Partial<Record<string, string>> = {
+  // Aries ALP (class notes, complete).
+  "Aries:Mars": "Self is connected to unknown or unresolved long-term debts, diseases and court cases. Mars carries this; check the status of Mars.",
+  "Aries:Venus": "Income, education, vision, family, speech, eyes and face join marriage, friends, spouse, spine and partnership: the native gets income from spouse, friends or partnerships, and decides on education with help from friends or the partner if married.",
+  "Aries:Mercury": "Efforts, communication, competitive exams, neck, shoulders and hands join short-term debts, diseases and enemies: any effort the native takes can end in short-term debts, disease, enemies, and short-term disputes with a younger sibling.",
+  "Aries:Moon": "House, vehicles, customers, business partners and the mother: the mother is very caring.",
+  "Aries:Sun": "Mind, love, children, maternal uncle, purva punya and grandparents.",
+  "Aries:Jupiter": "Blessings, father, ishta devata and thigh join sleep, loss and foreign travel: through the father the native experiences expenses; spiritual travels.",
+  "Aries:Saturn": "Pressure, business and profession join gains, promotion, increment, second marriage and the elder sibling: profit and gains are expected through the profession, with pressure along the way.",
+  // Taurus ALP (class notes, partial).
+  "Taurus:Jupiter": "Long-term debts, diseases and disputes, accidents, court cases, enemies, lower leg join the second marriage and the elder sibling: long-term disputes with an elder sibling, sudden unexpected profits or gains (8 and 11), possible surgery on the lower leg, and problems with promotion or increment.",
+  "Taurus:Saturn": "Blessings and father join profession: pressure from the father; the father's business or profession can be taken over by the native; professional relationships with the spiritual field.",
+};
+
+const SIGN_LORD: Planet[] = ["Mars", "Venus", "Mercury", "Moon", "Sun", "Mercury", "Venus", "Mars", "Jupiter", "Saturn", "Saturn", "Jupiter"];
+const ORDER: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+
+/** Book 1 class notes: the general reading for an ALP sign, one row per ruling planet, houses it owns from that lagna. */
+export function alpSignReading(alpSignIndex: number, signName: string): AlpSignReadingRow[] {
+  const byPlanet = new Map<Planet, number[]>();
+  for (let h = 1; h <= 12; h++) {
+    const lord = SIGN_LORD[(alpSignIndex + h - 1) % 12];
+    byPlanet.set(lord, [...(byPlanet.get(lord) ?? []), h]);
+  }
+  return ORDER.filter((p) => byPlanet.has(p)).map((planet) => {
+    const houses = byPlanet.get(planet)!;
+    const note = NOTE_TEXT[`${signName}:${planet}`];
+    const text = note ?? houses.map((h) => `${h}: ${ALP_HOUSE_THEMES[h]}`).join(". ") + (houses.length > 1 ? `. The two houses are lived through one planet: what happens in one shows in the other.` : ".");
+    return { planet, houses, text, fromNotes: Boolean(note) };
+  }).sort((x, y) => x.houses[0] - y.houses[0]);
+}

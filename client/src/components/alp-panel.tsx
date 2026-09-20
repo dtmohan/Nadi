@@ -5,7 +5,7 @@ import { NAKSHATRAS, PLANET_ABBR, SIGNS, fmtDegShort, type Planet } from "@share
 
 const NAK_ARC = 360 / 27;
 import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "@shared/alp";
-import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES } from "@shared/rules-alp";
+import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES, ALP_HOUSE_THEMES, DUSTHANA_NOTE, alpSignReading } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
 import { Term } from "@/components/term";
@@ -66,6 +66,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
   badges[a.arp.point.signIndex] = [...(badges[a.arp.point.signIndex] ?? []), "AR"];
   const arp = a.arp;
   const arpLordSame = arp.point.lord === a.point.lord;
+  const signReading = useMemo(() => alpSignReading(a.point.signIndex, a.point.sign), [a.point.signIndex, a.point.sign]);
   const nakLordHouse = a.placements.find((p) => p.planet === a.point.nakshatraLord)?.houseFromAlp ?? 0;
   const planetsIn = (sign: number) => positions.filter((p) => p.signIndex === sign).map((p) => PLANET_ABBR[p.planet]).join(" ");
   const pendingChapters = ALP_CHAPTERS.filter((c) => !ALP_RULES.some((r) => r.chapter === c.id));
@@ -359,10 +360,70 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         <p className="mt-2 text-xs text-muted-foreground">{KARMA_REMEDY_NOTE}</p>
       </Working>
 
+      <Working id="alp-sign-reading" label={`Show the general reading for a ${a.point.sign} ALP lagna (Book 1 class notes)`} className="mt-4">
+        <p className="mb-2 text-xs text-muted-foreground">
+          Each planet rules one or two houses from the ALP lagna; the two houses are read as one theme carried by that planet. Rows marked "class note" are the practitioner's notes from the basic class; the others are built from the same house themes and wait for the notes on this sign.
+        </p>
+        <div className="overflow-x-auto"><Table className="tabular [&_td]:px-2 [&_th]:px-2">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Planet</TableHead>
+              <TableHead>Houses</TableHead>
+              <TableHead className="hidden sm:table-cell">Placed</TableHead>
+              <TableHead>Reading</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {signReading.map((r) => {
+              const placed = a.placements.find((p) => p.planet === r.planet) ?? a.houses.flatMap((h) => h.planets.map((pl) => ({ planet: pl, houseFromAlp: h.house }))).find((p) => p.planet === r.planet);
+              return (
+                <TableRow key={r.planet} data-testid={`row-alp-sign-reading-${r.planet}`}>
+                  <TableCell className="py-1.5 align-top font-medium">{r.planet}</TableCell>
+                  <TableCell className="py-1.5 align-top whitespace-nowrap">{r.houses.join(", ")}</TableCell>
+                  <TableCell className="hidden py-1.5 align-top text-muted-foreground sm:table-cell">{placed ? ordinal(placed.houseFromAlp) : "—"}</TableCell>
+                  <TableCell className="py-1.5 align-top text-xs">
+                    {r.text}{" "}
+                    <span className="text-muted-foreground">({r.fromNotes ? "class note" : "from house themes"})</span>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table></div>
+      </Working>
+
+      <Working id="alp-dusthana" label="Show the 6th, 8th, 10th and 12th (class notes, rules 4-5)" className="mt-4">
+        <p className="mb-2 text-xs text-muted-foreground">{DUSTHANA_NOTE}</p>
+        <p className="text-xs font-medium">Rule 4: where the lords of the 6th, 8th, 10th and 12th stand</p>
+        <ul className="mt-1 space-y-1 text-xs" data-testid="list-alp-dusthana-lords">
+          {[6, 8, 10, 12].map((h) => {
+            const lord = a.houses[h - 1].lord;
+            const at = a.houses.find((x) => x.planets.includes(lord));
+            return (
+              <li key={h}>
+                <span className="font-medium">{h}th lord {lord}</span> stands in the {at ? ordinal(at.house) : "?"}{at ? ` (${at.sign})` : ""}: {at && at.house === h ? `its own house, so the ${h}th's matters (${ALP_HOUSE_THEMES[h]}) are lived directly.` : `the ${h}th's matters (${ALP_HOUSE_THEMES[h]}) are felt through the ${at ? ordinal(at.house) : "?"}${at ? `, ${ALP_HOUSE_THEMES[at.house]}` : ""}.`}
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-3 text-xs font-medium">Rule 5: planets standing in the 6th, 8th, 10th and 12th</p>
+        <ul className="mt-1 space-y-1 text-xs" data-testid="list-alp-dusthana-occupants">
+          {[6, 8, 10, 12].flatMap((h) => a.houses[h - 1].planets.map((pl) => {
+            const owns = a.houses.filter((x) => x.lord === pl).map((x) => x.house);
+            return (
+              <li key={`${h}-${pl}`}>
+                <span className="font-medium">{pl}</span> in the {ordinal(h)} ({a.houses[h - 1].sign}){owns.length ? `, owning the ${owns.map(ordinal).join(" and ")}: those houses (${owns.map((o) => ALP_HOUSE_THEMES[o]).join("; ")}) meet the ${ordinal(h)}'s ${h === 6 ? "short-term issues" : h === 8 ? "long-term issues" : h === 10 ? "pressure" : "losses"}.` : ": a node, owning nothing; it colours the house it sits in."}
+              </li>
+            );
+          }))}
+          {![6, 8, 10, 12].some((h) => a.houses[h - 1].planets.length) && <li className="text-muted-foreground">No planet stands in the 6th, 8th, 10th or 12th from the ALP lagna.</li>}
+        </ul>
+      </Working>
+
       <section className="mt-10" data-testid="section-alp-findings">
         <h2 className="text-base font-semibold">Reading</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 16 (pp. 32-99). The remaining chapters are entered one at a time.
+          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 16 (pp. 32-99), and the Book 1 class notes (rules 1-5). The remaining chapters are entered one at a time.
         </p>
         {a.findings.length ? (
           <ul className="mt-3 space-y-3">
