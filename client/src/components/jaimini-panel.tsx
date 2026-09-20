@@ -25,6 +25,8 @@ import {
   JAIMINI_TEXT_SOURCE,
 } from "@shared/rules-jaimini";
 import { AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
+import { Working } from "@/components/working";
+import { Term } from "@/components/term";
 import { SourceLink } from "@/components/source-link";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { JaiminiAreas } from "@/components/jaimini-areas";
@@ -244,17 +246,17 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           className="no-default-hover-elevate tabular"
           data-testid="text-jaimini-lagna"
         >
-          Lagna {j.lagna.sign} {fmtDegShort(j.lagna.lon)}
+          <Term k="lagna">Lagna</Term>&nbsp;{j.lagna.sign} {fmtDegShort(j.lagna.lon)}
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate">
-          Navamsa lagna {j.navamsaLagna.sign}
+          <Term k="d9">Navamsa lagna</Term>&nbsp;{j.navamsaLagna.sign}
         </Badge>
         <Badge
           variant="outline"
           className="no-default-hover-elevate"
           data-testid="text-karakamsa"
         >
-          Karakamsa {j.karakamsa.sign} ({PLANET_ABBR[ak]} AK)
+          <Term k="karakamsa">Karakamsa</Term>&nbsp;{j.karakamsa.sign} ({PLANET_ABBR[ak]}&nbsp;<Term k="ak">AK</Term>)
         </Badge>
         {j.special && (
           <Badge
@@ -263,11 +265,11 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             data-testid="text-special-lagnas"
             title="Hora lagna and Ghatika lagna (Jaimini 1.1.31-32): the Sun's position at sunrise advanced by 30° and 75° per hour of birth"
           >
-            HL {j.special.horaLagna.sign} · GL {j.special.ghatikaLagna.sign}
+            <Term k="hl">HL</Term>&nbsp;{j.special.horaLagna.sign}&nbsp;·&nbsp;<Term k="gl">GL</Term>&nbsp;{j.special.ghatikaLagna.sign}
           </Badge>
         )}
         <Badge variant="outline" className="no-default-hover-elevate">
-          Chara dasha {j.charaDasha.direction}
+          <Term k="chara-dasha">Chara dasha</Term>&nbsp;{j.charaDasha.direction}
         </Badge>
         {currentMd && (
           <Badge
@@ -299,13 +301,13 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             <span className="font-semibold text-primary">As</span> ascendant ·
             numbers are houses from the lagna ·{" "}
             <span className="font-semibold text-[hsl(var(--chart-3))]">AL</span>{" "}
-            Arudha lagna ·{" "}
+            <Term k="al">Arudha lagna</Term> ·{" "}
             <span className="font-semibold text-[hsl(var(--chart-3))]">UL</span>{" "}
-            Upapada ·{" "}
+            <Term k="ul">Upapada</Term> ·{" "}
             <span className="font-semibold text-primary">
               {PLANET_ABBR[ak]}
             </span>{" "}
-            Atmakaraka. Click a sign to see its rasi drishti: the solid cell is
+            <Term k="ak">Atmakaraka</Term>. Click a sign to see its <Term k="rasi-drishti">rasi drishti</Term>: the solid cell is
             the chosen sign, dashed cells are the signs it aspects.
           </p>
         </div>
@@ -334,6 +336,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           Eight movable significators ranked by degree within sign; Rahu is
           ranked by thirty minus its degree because it moves backward.
         </p>
+        <Working id="karakas" label="Show the karaka table" className="mt-3">
         <Table className="tabular mt-3">
           <TableHeader>
             <TableRow>
@@ -377,6 +380,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             })}
           </TableBody>
         </Table>
+        </Working>
       </section>
 
       <section className="mt-10" data-testid="section-arudhas">
@@ -387,6 +391,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           (marked with an asterisk). Traditional lords are used for Scorpio and
           Aquarius.
         </p>
+        <Working id="arudhas" label="Show the arudha padas" className="mt-3">
         <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {j.arudhas.map((a) => (
             <Card
@@ -415,6 +420,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             </Card>
           ))}
         </div>
+        </Working>
       </section>
 
       <section className="mt-10" data-testid="section-drishti">
@@ -426,6 +432,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           intervene in its affairs (argala); the 12th, 10th and 3rd obstruct
           them.
         </p>
+        <Working id="drishti" label="Show the aspect and argala tables" className="mt-3">
         <Button
           variant="ghost"
           size="sm"
@@ -685,6 +692,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             );
           })}
         </div>
+        </Working>
       </section>
 
       <section className="mt-10" data-testid="section-chara-dasha">
@@ -758,6 +766,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           Karakamsa rules are read in the navamsa; Arudha and Upapada rules in
           the rasi chart with rasi drishti. Each finding names its sutra.
         </p>
+        <Working id="sutra-findings" label="Show every finding with its sutra" className="mt-3">
         {j.findings.length === 0 && (
           <p className="mt-3 text-sm text-muted-foreground">
             No rule in the current set fires for this chart.
@@ -786,6 +795,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             </ul>
           </div>
         ))}
+        </Working>
       </section>
 
       <section className="mt-10" data-testid="section-ayur">
@@ -807,6 +817,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             }}
           />
         </p>
+        <Working id="ayur" label="Show the classification" className="mt-3">
         <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_20rem]">
           <ul className="divide-y sm:hidden">
             {j.ayur.pairs.map((p) => (
@@ -920,6 +931,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             </CardContent>
           </Card>
         </div>
+        </Working>
       </section>
     </div>
   );

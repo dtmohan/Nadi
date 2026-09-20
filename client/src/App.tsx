@@ -4,6 +4,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ReadingModeProvider } from "@/lib/reading-mode";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme";
@@ -32,6 +33,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
+        <ReadingModeProvider>
           <Router hook={useHashLocation}>
             <SidebarProvider style={style as React.CSSProperties} className="h-svh max-h-svh overflow-hidden">
               <div className="flex h-full min-h-0 w-full">
@@ -49,6 +51,7 @@ function App() {
             </SidebarProvider>
           </Router>
           <Toaster />
+        </ReadingModeProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

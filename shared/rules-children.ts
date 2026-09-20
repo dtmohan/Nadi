@@ -46,7 +46,7 @@ export const CHILDREN_RULES: Rule[] = [
   r("ch-ke-su", "Ketu", "Sun", CLOSE, "Ketu with or in trine to the Sun: obstacles in having a child, especially a son.", 1, NAIK),
   r("ch-mo-ve", "Moon", "Venus", ["conjunct"], "Moon with Venus: conception may be delicate; Naik warns of difficulty conceiving or of a pregnancy that does not hold, so care is advised.", 1, NAIK),
   { id: "ch-t-ju-sa-node", area: "children", when: { subject: "Jupiter", object: "Saturn", relation: NEAR, with: [{ planet: "Ketu", relation: NEAR }] }, text: "Jupiter, Saturn and Ketu combined: the heaviest progeny signature; a very late child, or one raised as one's own by adoption.", weight: 3 },
-  { id: "ch-t-ju-sa-rahu", area: "children", when: { subject: "Jupiter", object: "Saturn", relation: NEAR, with: [{ planet: "Rahu", relation: NEAR }] }, text: "Jupiter, Saturn and Rahu combined: children after long delay and by an unconventional path; medical intervention is common.", weight: 3 },
+  { id: "ch-t-ju-sa-rahu", area: "children", when: { subject: "Jupiter", object: "Saturn", relation: NEAR, with: [{ planet: "Rahu", relation: NEAR }] }, text: "Jupiter, Saturn and Rahu combined: children after long delay and by an unconventional path; medical intervention is common.", weight: 3, source: NAIK },
 
   // The 5th from Jupiter.
   r("ch-ju-water", "Jupiter", undefined, undefined, "Jupiter in a watery sign, so the 5th from Jupiter is watery too: trouble or delay in getting children; care in pregnancy.", 2, "Bhrigu Naadi principles (Srinivasan)", { subjectElement: ["Water"] }),

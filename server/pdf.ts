@@ -6,6 +6,9 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, SIGN_ABBR, SOUTH_INDIAN_CELLS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition } from "@shared/astro";
 import { LIFE_AREAS, RELATION_LABEL, type LifeArea, areaKarakaLabel } from "@shared/rules";
+import { synthesize, AREA_TONE_LABEL } from "@shared/synthesis";
+import { GLOSSARY } from "@shared/glossary";
+import type { Gender } from "@shared/marriage";
 import type { PlanetStrength } from "@shared/strength";
 import { readTransits, type TransitReading } from "@shared/timing";
 import { chainSummary, tierLabel } from "@shared/flow";
@@ -599,14 +602,20 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
 
   // ── Reading ──
   sectionTitle(doc, "Reading", `${reading.findings.length} findings from ${reading.findings.length ? "the rule book" : "no rules"}`);
-  for (const area of Object.keys(LIFE_AREAS) as LifeArea[]) {
-    const items = reading.findings.filter((f) => f.area === area);
-    if (!items.length) continue;
-    ensureSpace(doc, 50);
+  doc.font("Helvetica").fontSize(8.5).fillColor(MUTED).text("Each area opens with the balance of what the Nadi rules say and the signatures that carry it; the working follows, strongest first. A finding marked with a dagger is already said within a larger combination above it.", PAGE.m, doc.y, { width: CONTENT_W });
+  doc.moveDown(0.5);
+  for (const s of synthesize(reading, reading.roles.gender as Gender)) {
+    const area = s.area;
+    const items = [...s.key, ...s.rest];
+    ensureSpace(doc, 70);
     doc.font("Helvetica-Bold").fontSize(10.5).fillColor(INK).text(LIFE_AREAS[area].label, PAGE.m, doc.y);
-    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`karaka ${areaKarakaLabel(area, reading.roles.gender)}`, PAGE.m, doc.y - 11, { width: CONTENT_W, align: "right" });
+    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(`${AREA_TONE_LABEL[s.tone]} · karaka ${areaKarakaLabel(area, reading.roles.gender)}`, PAGE.m, doc.y - 11, { width: CONTENT_W, align: "right" });
     doc.y += 4;
+    doc.font("Helvetica").fontSize(9.5).fillColor(INK).text(s.headline, PAGE.m, doc.y, { width: CONTENT_W });
+    if (s.reconciliation) doc.font("Helvetica").fontSize(8.5).fillColor(MUTED).text(s.reconciliation, PAGE.m, doc.y + 1, { width: CONTENT_W });
+    doc.y += 6;
     for (const f of items) {
+      const covered = s.coveredBy[f.ruleId];
       const textX = PAGE.m + 24;
       const textW = CONTENT_W - 24;
       doc.font("Helvetica").fontSize(9);
@@ -614,7 +623,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
       ensureSpace(doc, h + 6);
       const y = doc.y;
       scoreDots(doc, PAGE.m + 3, y + 5, f.score);
-      doc.fillColor(INK).text(f.text, textX, y, { width: textW });
+      doc.fillColor(covered ? MUTED : INK).text(`${covered ? "† " : ""}${f.text}`, textX, y, { width: textW });
       const flow = f.flow ? `${f.flow.from} ahead > ${f.flow.to}${f.flow.tier !== "sign" ? ` (${tierLabel(f.flow.tier)})` : ""}${f.flow.approach === "closing" ? " closing" : ""}` : null;
       const house = f.house ? `in the ${f.house}${f.house === 1 ? "st" : f.house === 2 ? "nd" : f.house === 3 ? "rd" : "th"} from ${f.planets[0]}` : null;
       const meta = [f.planets.join(" · "), f.relation ? RELATION_LABEL[f.relation] : null, house, flow, f.viaRetro ? "via retrogression" : null, f.modifier ?? null, f.source ?? null].filter(Boolean).join(" — ");
@@ -724,6 +733,19 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
 
   // ── Jaimini (separate system) ──
   jaiminiSection(doc, result);
+
+  // ── Glossary ──
+  doc.addPage();
+  sectionTitle(doc, "Glossary", "the terms this reading leans on, in plain language");
+  for (const g of Object.values(GLOSSARY)) {
+    doc.font("Helvetica").fontSize(8.5);
+    const h = doc.heightOfString(`${g.term}. ${g.short}`, { width: CONTENT_W }) + 4;
+    ensureSpace(doc, h);
+    const y = doc.y;
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text(`${g.term}.`, PAGE.m, y, { continued: true, width: CONTENT_W });
+    doc.font("Helvetica").fillColor(MUTED).text(` ${g.short}`, { width: CONTENT_W });
+    doc.y += 3;
+  }
 
   // ── Footer on every page ──
   const range = doc.bufferedPageRange();

@@ -6,9 +6,13 @@ import { ArrowLeft, Eye, EyeOff, FileDown } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition, KARAKA } from "@shared/astro";
 import { GIVES, RECEIVES, flowGloss, tierLabel, approachLabel, type DegreeChain } from "@shared/flow";
-import { nextMarriageWindow, type MarriageReading } from "@shared/marriage";
+import { nextMarriageWindow, type Gender, type MarriageReading } from "@shared/marriage";
 import { nextChildWindow, type ChildrenReading } from "@shared/children";
-import { LIFE_AREAS, RELATION_LABEL, areaKarakaLabel, type Finding, type LifeArea, type PairRelation } from "@shared/rules";
+import { LIFE_AREAS, RELATION_LABEL, areaKarakaLabel, type Finding, type LifeArea, type PairRelation, type Reading as BnnReading } from "@shared/rules";
+import { synthesize, toneOf, AREA_TONE_LABEL, type AreaSynthesis, type AreaTone } from "@shared/synthesis";
+import { Term } from "@/components/term";
+import { Working, ReadingModeToggle } from "@/components/working";
+import { useReadingMode } from "@/lib/reading-mode";
 import type { PlanetStrength } from "@shared/strength";
 import { housesFrom, retroNotes, HOUSE_CLASS_LABEL, type HouseClass } from "@shared/houses";
 import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
@@ -232,16 +236,120 @@ function ScoreDots({ score }: { score: number }) {
   );
 }
 
+const TONE_CLASS: Record<AreaTone, string> = {
+  supportive: "border-emerald-600/40 text-emerald-700 dark:text-emerald-400",
+  mixed: "border-amber-600/40 text-amber-700 dark:text-amber-400",
+  care: "border-rose-600/40 text-rose-700 dark:text-rose-400",
+  quiet: "border-border text-muted-foreground",
+};
+
+/** Relation of each companion to the subject, so "Saturn · Mercury · Rahu" says which is conjunct and which in trine. */
+function companionLabels(f: Finding, relations: PairRelation[]): string {
+  if (f.planets.length < 3) return f.planets.join(" · ") + (f.relation ? ` — ${RELATION_LABEL[f.relation]}` : "");
+  const [subject, ...rest] = f.planets;
+  return `${subject} · ${rest
+    .map((p) => {
+      const r = relations.find((x) => x.subject === subject && x.object === p);
+      return r ? `${p} (${RELATION_LABEL[r.relation]})` : p;
+    })
+    .join(" · ")}`;
+}
+
+function FindingMeta({ f, relations, coveredBy }: { f: Finding; relations: PairRelation[]; coveredBy?: string }) {
+  return (
+    <>
+      <p className="mt-0.5 text-xs text-muted-foreground">
+        {companionLabels(f, relations)}
+        {f.house && ` — in the ${ordinal(f.house)} from ${f.planets[0]}`}
+        {f.viaRetro && " (via retrogression)"}
+        {f.modifier && ` · ${f.modifier}`}
+        {f.source && ` · ${f.source}`}
+        {coveredBy && <span className="italic"> · said within the combination above</span>}
+      </p>
+      {f.flow && (
+        <p className="mt-0.5 text-xs text-muted-foreground" title={flowGloss(f.flow)}>
+          <span className="font-medium text-foreground/80">{f.flow.from} ahead</span> → {f.flow.to}
+          {f.flow.tier !== "sign" ? ` · ${tierLabel(f.flow.tier)}` : ""}{f.flow.approach === "closing" ? " · closing" : ""}: {GIVES[f.flow.from]} colour {RECEIVES[f.flow.to]}.
+        </p>
+      )}
+    </>
+  );
+}
+
+function FindingItem({ f, relations, full, coveredBy }: { f: Finding; relations: PairRelation[]; full: boolean; coveredBy?: string }) {
+  const tone = toneOf(f);
+  return (
+    <li className="grid grid-cols-[auto_1fr] gap-x-3 text-sm" data-testid={`finding-${f.ruleId}`}>
+      <div className="pt-1.5">
+        <ScoreDots score={f.score} />
+      </div>
+      <div className={cn(coveredBy && "text-muted-foreground")}>
+        <p className="leading-relaxed">
+          {f.text}
+          {!full && f.source && (
+            <span className="ml-1.5 text-xs text-muted-foreground" title={`${f.planets.join(", ")}${f.relation ? `, ${RELATION_LABEL[f.relation]}` : ""}`}>
+              {f.source.split(/[,(]/)[0].trim()}
+            </span>
+          )}
+        </p>
+        {full && <FindingMeta f={f} relations={relations} coveredBy={coveredBy} />}
+        {!full && tone !== "neutral" && <span className="sr-only">{tone === "good" ? "supportive" : "caution"}</span>}
+      </div>
+    </li>
+  );
+}
+
+function AreaSection({ s, reading, gender }: { s: AreaSynthesis; reading: BnnReading; gender: Gender }) {
+  const { mode } = useReadingMode();
+  const full = mode === "practitioner";
+  const area = s.area;
+  return (
+    <section aria-labelledby={`area-${area}`} data-testid={`section-area-${area}`}>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b pb-2">
+        <h3 id={`area-${area}`} className="text-base font-semibold">
+          {LIFE_AREAS[area].label}
+          <Badge variant="outline" className={cn("no-default-hover-elevate ml-2 align-middle font-normal", TONE_CLASS[s.tone])} data-testid={`badge-tone-${area}`}>
+            {AREA_TONE_LABEL[s.tone]}
+          </Badge>
+        </h3>
+        <span className="text-xs text-muted-foreground">
+          <Term k="karaka">karaka</Term> {areaKarakaLabel(area, gender as Gender)}
+          {full && <span className="tabular"> · balance {s.balance > 0 ? "+" : ""}{s.balance} · {s.total} findings</span>}
+        </span>
+      </div>
+      <p className="mt-3 text-sm leading-relaxed" data-testid={`text-verdict-${area}`}>
+        {s.headline}
+      </p>
+      {s.reconciliation && (
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground" data-testid={`text-reconcile-${area}`}>
+          {s.reconciliation}
+        </p>
+      )}
+      <ul className="mt-3 space-y-3">
+        {s.key.map((f) => (
+          <FindingItem key={f.ruleId} f={f} relations={reading.relations} full={full} />
+        ))}
+      </ul>
+      {s.rest.length > 0 && (
+        <Working id={area} label="Show the working" count={s.rest.length} className="mt-3">
+          <ul className="space-y-3">
+            {s.rest.map((f) => (
+              <FindingItem key={f.ruleId} f={f} relations={reading.relations} full coveredBy={s.coveredBy[f.ruleId]} />
+            ))}
+          </ul>
+        </Working>
+      )}
+    </section>
+  );
+}
+
 function Reading({ result, selected }: { result: ChartResult; selected: Planet | null }) {
-  const { reading, positions } = result;
-  const grouped = useMemo(() => {
-    const g = new Map<LifeArea, Finding[]>();
-    for (const f of reading.findings) {
-      if (selected && !f.planets.includes(selected)) continue;
-      g.set(f.area, [...(g.get(f.area) ?? []), f]);
-    }
-    return g;
-  }, [reading, selected]);
+  const { reading, positions, chart } = result;
+  const { mode } = useReadingMode();
+  const areas = useMemo(() => {
+    const findings = selected ? reading.findings.filter((f) => f.planets.includes(selected)) : reading.findings;
+    return synthesize(reading, chart.gender as Gender, findings);
+  }, [reading, selected, chart.gender]);
 
   return (
     <div className="space-y-8">
@@ -261,7 +369,9 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
         </div>
       </div>
 
-      <StrengthNotes strength={reading.strength} chains={reading.chains} selected={selected} />
+      <Working id="strength" label="Show planetary strength and degree order">
+        <StrengthNotes strength={reading.strength} chains={reading.chains} selected={selected} />
+      </Working>
 
       {selected && (
         <p className="text-sm text-muted-foreground">
@@ -269,46 +379,15 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
         </p>
       )}
 
-      {(Object.keys(LIFE_AREAS) as LifeArea[]).map((area) => {
-        const items = grouped.get(area);
-        if (!items?.length) return null;
-        return (
-          <section key={area} aria-labelledby={`area-${area}`}>
-            <div className="flex items-baseline justify-between border-b pb-2">
-              <h3 id={`area-${area}`} className="text-base font-semibold">
-                {LIFE_AREAS[area].label}
-              </h3>
-              <span className="text-xs text-muted-foreground">karaka {areaKarakaLabel(area, reading.roles.gender)}</span>
-            </div>
-            <ul className="mt-3 space-y-3">
-              {items.map((f) => (
-                <li key={f.ruleId} className="grid grid-cols-[auto_1fr] gap-x-3 text-sm" data-testid={`finding-${f.ruleId}`}>
-                  <div className="pt-1.5">
-                    <ScoreDots score={f.score} />
-                  </div>
-                  <div>
-                    <p className="leading-relaxed">{f.text}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      {f.planets.join(" · ")}
-                      {f.relation && ` — ${RELATION_LABEL[f.relation]}`}
-                      {f.house && ` — in the ${ordinal(f.house)} from ${f.planets[0]}`}
-                      {f.viaRetro && " (via retrogression)"}
-                      {f.modifier && ` · ${f.modifier}`}
-                      {f.source && ` · ${f.source}`}
-                    </p>
-                    {f.flow && (
-                      <p className="mt-0.5 text-xs text-muted-foreground" title={flowGloss(f.flow)}>
-                        <span className="font-medium text-foreground/80">{f.flow.from} ahead</span> → {f.flow.to}
-                        {f.flow.tier !== "sign" ? ` · ${tierLabel(f.flow.tier)}` : ""}{f.flow.approach === "closing" ? " · closing" : ""}: {GIVES[f.flow.from]} colour {RECEIVES[f.flow.to]}.
-                      </p>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        );
-      })}
+      {mode === "plain" && (
+        <p className="text-xs text-muted-foreground" data-testid="text-plain-note">
+          Each area opens with the balance of what the Nadi rules say, then the two or three signatures that carry it. "Show the working" lists every rule that fired, with its source.
+        </p>
+      )}
+
+      {areas.map((s) => (
+        <AreaSection key={s.area} s={s} reading={reading} gender={chart.gender as Gender} />
+      ))}
     </div>
   );
 }
@@ -653,7 +732,10 @@ export default function ChartPage() {
             Jaimini
           </button>
         </div>
-        <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading."}</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading."}</p>
+          <ReadingModeToggle />
+        </div>
       </div>
 
       {mode === "jaimini" && (
@@ -700,7 +782,9 @@ export default function ChartPage() {
         </div>
         <div className="min-w-0">
           <PlanetTable positions={positions} strength={data.reading.strength} selected={selected} onSelect={setSelected} />
-          <p className="mt-2 text-xs text-muted-foreground">Click a planet to focus the reading on it. Longitudes are sidereal. c combust (within the Sun's pada) · w leads an enemy by degree · struck dignity is set aside by a Nadi rule.</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Click a planet to focus the reading on it. Longitudes are sidereal. c <Term k="combust">combust</Term> · w leads an enemy by <Term k="degree-order">degree</Term> · struck dignity is <Term k="set-aside">set aside</Term> by a Nadi rule.
+          </p>
         </div>
       </div>
 

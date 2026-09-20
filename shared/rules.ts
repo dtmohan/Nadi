@@ -361,13 +361,13 @@ export const RULES: Rule[] = [
   pair("ma-ju-fam", "family", "Mars", "Jupiter", "Mars with Jupiter: supportive siblings; property is acquired.", 1),
 
   // ───────────── Health ─────────────
-  pair("su-sa-health", "health", "Sun", "Saturn", "Sun with Saturn: vitality is drained by overwork; bones, teeth and circulation need care.", 1),
-  pair("su-ma-health", "health", "Sun", "Mars", "Sun with Mars: heat-related complaints, blood pressure, injuries from haste.", 1),
-  pair("mo-sa-health", "health", "Moon", "Saturn", "Moon with Saturn: low moods, cold and damp ailments; the mind needs routine.", 1),
-  pair("mo-ma-health", "health", "Moon", "Mars", "Moon with Mars: quick temper; blood or inflammatory conditions.", 1),
-  pair("ju-sa-health", "health", "Jupiter", "Saturn", "Jupiter with Saturn: slow metabolism, liver and joint stiffness in later years.", 1),
-  pair("ju-ma-health", "health", "Jupiter", "Mars", "Jupiter with Mars: accidents from over-confidence; watch the liver and blood sugar.", 1),
-  pair("ju-ra-health", "health", "Jupiter", "Rahu", "Jupiter with Rahu: obscure diagnoses; toxicity or allergies.", 1),
+  pair("su-sa-health", "health", "Sun", "Saturn", "Sun with Saturn: energy runs down when work is unrelenting; rest, bones, teeth and circulation deserve attention.", 1),
+  pair("su-ma-health", "health", "Sun", "Mars", "Sun with Mars: a hot constitution; blood pressure and the small accidents of hurry are the things to watch.", 1),
+  pair("mo-sa-health", "health", "Moon", "Saturn", "Moon with Saturn: moods can run low and colds linger; routine and warmth steady the mind.", 1),
+  pair("mo-ma-health", "health", "Moon", "Mars", "Moon with Mars: a quick temper; inflammation and blood-related complaints respond to cooling habits.", 1),
+  pair("ju-sa-health", "health", "Jupiter", "Saturn", "Jupiter with Saturn: a slow metabolism; the liver and the joints want movement, more so in later years.", 1),
+  pair("ju-ma-health", "health", "Jupiter", "Mars", "Jupiter with Mars: over-confidence is the usual cause of mishaps; the liver and blood sugar reward moderation.", 1),
+  pair("ju-ra-health", "health", "Jupiter", "Rahu", "Jupiter with Rahu: complaints that take time to diagnose; allergies and sensitivities are the common form.", 1),
 
   // ───────────── Spirituality ─────────────
   pair("ke-ju-spirit", "spirituality", "Ketu", "Jupiter", "Ketu with Jupiter: a genuine spiritual guide appears; wisdom through renunciation of some worldly aim.", 3),
@@ -413,6 +413,8 @@ for (const r of RULES) if (MALE_FRAME_IDS.some((re) => re.test(r.id))) r.frame =
 RULES.push(...FEMALE_RULES);
 RULES.push(...CHILDREN_RULES);
 RULES.push(...HOUSE_RULES);
+// Dignity, element and combustion notes are general Nadi principles rather than a numbered sutra.
+for (const r of RULES) if (!r.source) r.source = "General Nadi principles (Rao, Naik)";
 
 // Guard against duplicate ids while authoring rules.
 {

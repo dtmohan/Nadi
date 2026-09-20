@@ -120,7 +120,7 @@ export function assessStrength(positions: PlanetPosition[]): PlanetStrength[] {
       const friendsAround = [...conj, ...second, ...twelfth, ...seventh, ...trines].filter((o) => o !== "Sun" && isFriend(planet, o));
       const enemiesAround = [...conj, ...second, ...twelfth].filter((o) => o !== "Sun" && isEnemy(planet, o));
       if (exchangeWith && isFriend(planet, exchangeWith)) combustNote = `Combustion cancelled by the exchange with friend ${exchangeWith}`;
-      else if (friendsAround.length) combustNote = `Combustion eased by friend ${list(friendsAround)}; the Sun's themes lead but results come`;
+      else if (friendsAround.length) combustNote = `Combustion eased by friend ${list(friendsAround)}; the Sun's themes lead, and the planet's own results still come, in lesser degree`;
       notes.push(combustNote ?? (enemiesAround.length ? `Combust within the Sun's pada with enemy ${list(enemiesAround)} nearby: results much reduced` : "Combust within the Sun's pada: results come in lesser degree, coloured by the Sun"));
     }
 

@@ -490,7 +490,12 @@ function timingFor(ctx: Ctx, area: JaiminiArea, maxAge = 100): AreaTiming {
     const triggers = signTriggers(ctx, area, p.sign, "mahadasha");
     const windows: AreaWindow[] = p.antardashas
       .map((a) => {
-        const ts = [...signTriggers(ctx, area, a.sign, "antardasha"), ...adRelationTriggers(ctx, area, p.sign, a.sign)];
+        const own = signTriggers(ctx, area, a.sign, "antardasha");
+        // The antardasha of the dasha's own sign repeats every mahadasha trigger word for word; say it once.
+        const ts =
+          a.sign === p.sign
+            ? [{ text: `${SIGNS[a.sign]} is the dasha sign itself: the mahadasha themes for this area come forward on their own, without a second lens.`, tone: "neutral" as const, weight: (score(own) >= 2 ? 2 : 1) as 1 | 2 }, ...adRelationTriggers(ctx, area, p.sign, a.sign)]
+            : [...own, ...adRelationTriggers(ctx, area, p.sign, a.sign)];
         return { cycle: p.cycle, mdSign: p.sign, adSign: a.sign, start: a.start, end: a.end, score: score(ts), triggers: ts };
       })
       .filter((w) => isHot(w.triggers));
