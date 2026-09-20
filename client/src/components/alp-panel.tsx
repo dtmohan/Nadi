@@ -42,14 +42,21 @@ function PeriodRow({ p, planets, cols }: { p: AlpPeriod; planets: string; cols: 
   );
 }
 
+function fmtLon360(lon: number): string {
+  const l = ((lon % 360) + 360) % 360;
+  const d = Math.floor(l);
+  const m = Math.round((l - d) * 60);
+  return m === 60 ? `${d + 1}°00'` : `${d}°${String(m).padStart(2, "0")}'`;
+}
+
 export function AlpPanel({ result }: { result: ChartResult }) {
   const { chart, positions } = result;
   const [asOf, setAsOf] = useState(() => DateTime.local().toISODate()!);
-  const [config, setConfig] = useState<AlpConfig>(DEFAULT_ALP_CONFIG);
+  const config: AlpConfig = DEFAULT_ALP_CONFIG;
   const a = useMemo(() => {
     const iso = DateTime.fromISO(asOf, { zone: chart.timezone }).isValid ? DateTime.fromISO(asOf, { zone: chart.timezone }).toISO()! : DateTime.local().toISO()!;
     return computeAlp(positions, result.jaimini.lagna.lon, result.utc, iso, config);
-  }, [asOf, config, positions, result.jaimini.lagna.lon, result.utc, chart.timezone]);
+  }, [asOf, positions, result.jaimini.lagna.lon, result.utc, chart.timezone]);
 
   const alpLord = a.point.lord;
   const badges: Record<number, string[]> = {};
@@ -107,22 +114,6 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             Today
           </Button>
         </label>
-        <div role="radiogroup" aria-label="Progression start" className="inline-flex rounded-md border p-0.5">
-          {(["degree", "sign"] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              role="radio"
-              aria-checked={config.start === s}
-              onClick={() => setConfig({ ...config, start: s })}
-              className={cn("rounded px-2 py-0.5", config.start === s ? "bg-foreground text-background" : "hover:text-foreground")}
-              data-testid={`alp-start-${s}`}
-              title={s === "degree" ? "Count from the exact lagna degree; the birth sign is lived through only for its remaining arc." : "Count from the start of the lagna sign; every sign gets the full ten years."}
-            >
-              {s === "degree" ? "From lagna degree" : "From sign start"}
-            </button>
-          ))}
-        </div>
         <span>
           Next pada {a.nextPadaChange ? fmt(a.nextPadaChange) : "—"} · next nakshatra {a.nextNakshatraChange ? fmt(a.nextNakshatraChange) : "—"} · next sign {a.nextSignChange ? fmt(a.nextSignChange) : "—"}
         </span>
@@ -171,6 +162,22 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             </li>
           </ul>
 
+          <Working id="alp-book-arithmetic" label="Show the Book 2 arithmetic" className="mt-4">
+            <div className="rounded-md border bg-muted/30 p-3 text-sm tabular" data-testid="text-alp-book-arithmetic">
+              <div>
+                Age {a.book.years} {a.book.years === 1 ? "year" : "years"} {a.book.months} {a.book.months === 1 ? "month" : "months"} → {a.book.years} × 3° = {a.book.degFromYears}°{a.book.degFromMonths ? `, plus ${a.book.degFromMonths}° for ${a.book.months} months (1° per four months)` : ""} = {a.book.degTravelled}° travelled.
+              </div>
+              <div className="mt-1">
+                Birth lagna point {fmtLon360(a.natalLagna.lon)} ({a.natalLagna.sign}) + {a.book.degTravelled}° = {fmtLon360(a.book.point.lon)} from Aries → {a.book.point.sign} {fmtDegShort(a.book.point.degInSign)}, {a.book.point.nakshatra} pada {a.book.point.pada}.
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {a.book.agreesWithContinuous
+                  ? "The book counts in whole degrees; the continuous point above lands in the same pada."
+                  : `The book's whole-degree count lands in ${a.book.point.nakshatra} pada ${a.book.point.pada}, while the continuous point is in ${a.point.nakshatra} pada ${a.point.pada}; the lagna is near a boundary, so read both.`}
+              </p>
+            </div>
+          </Working>
+
           <Working id="alp-houses" label="Show the houses from the ALP lagna" className="mt-4">
             <Table className="tabular">
               <TableHeader>
@@ -201,7 +208,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
       <section className="mt-10" data-testid="section-alp-findings">
         <h2 className="text-base font-semibold">Reading</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {ALP_RULES.length} starting rules, taken from the published material. The book chapters are entered one at a time; until then this is a framework, not a reading.
+          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapter 2 (case studies) with the first page of chapter 3. The remaining chapters are entered one at a time.
         </p>
         {a.findings.length ? (
           <ul className="mt-3 space-y-3">
@@ -240,7 +247,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
       <section className="mt-10" data-testid="section-alp-timeline">
         <h2 className="text-base font-semibold">The lagna through the signs</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {config.yearsPerSign} years per sign, {config.start === "degree" ? "counted from the natal lagna degree, so the birth sign gets only its remaining arc" : "counted from the start of the natal lagna sign"}.
+          {config.yearsPerSign} years per sign, counted from the natal lagna degree (Book 2 adds the travelled degrees to the birth lagna point), so the birth sign gets only its remaining arc.
         </p>
         <Table className="tabular mt-3">
           <TableHeader>
@@ -362,7 +369,8 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               ALP e-magazine 2
             </a>
           </li>
-          <li>Open points to settle from the books: whether the count starts from the lagna degree or the sign start; whether the year is solar (365.25 days, used here) or savana (360 days); how the moving rasi (ARP, Book 2) is derived; the nakshatra-by-nakshatra readings (Books 3 and 4).</li>
+          <li>Book 2 (pp. 32-41) settles the start: travelled degrees are added to the birth lagna degree, with 3° for each completed year and 1° for every four months of the remainder. The continuous point used here moves smoothly between those whole-degree steps; the arithmetic is shown in the working above.</li>
+          <li>Still open: whether the year is solar (365.25 days, used here) or savana (360 days); how the Akshaya rasi (ARP) is derived (Book 2, later chapters); the nakshatra-by-nakshatra readings (Books 3 and 4).</li>
           <li>Kept separate from the Nadi and Jaimini readings; nothing here feeds them.</li>
         </ul>
       </section>

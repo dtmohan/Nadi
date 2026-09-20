@@ -104,7 +104,40 @@ export interface AlpResult {
   nextSignChange: string | null;
   nextNakshatraChange: string | null;
   nextPadaChange: string | null;
+  /** The whole-degree arithmetic as Book 2 lays it out: completed years x 3, plus 1 degree per four months. */
+  book: AlpBookArithmetic;
   findings: AlpFinding[];
+}
+
+export interface AlpBookArithmetic {
+  years: number;
+  months: number;
+  degFromYears: number;
+  degFromMonths: number;
+  degTravelled: number;
+  point: AlpPoint;
+  /** True when the whole-degree point lands in the same nakshatra pada as the continuous one. */
+  agreesWithContinuous: boolean;
+}
+
+/** Book 2 (pp. 32-41): degrees = completed years x 3 + one degree per four months of the remainder (7 months -> 2, 8 -> 2, 9 -> 2, 5 -> 1, 1 -> 0). */
+export function bookArithmetic(natalLon: number, birth: DateTime, asOf: DateTime, continuous: AlpPoint): AlpBookArithmetic {
+  const d = asOf.diff(birth, ["years", "months"]);
+  const years = Math.max(0, Math.floor(d.years));
+  const months = Math.max(0, Math.floor(d.months));
+  const degFromYears = years * 3;
+  const degFromMonths = Math.floor(months / 4 + 0.5);
+  const degTravelled = degFromYears + degFromMonths;
+  const point = alpPointAt(norm360(natalLon) + degTravelled);
+  return {
+    years,
+    months,
+    degFromYears,
+    degFromMonths,
+    degTravelled,
+    point,
+    agreesWithContinuous: point.nakshatraIndex === continuous.nakshatraIndex && point.pada === continuous.pada,
+  };
 }
 
 export function alpPointAt(lon: number): AlpPoint {
@@ -254,7 +287,14 @@ export function computeAlp(positions: PlanetPosition[], natalLagnaLon: number, b
   const curNak = nakshatraPeriods.find((s) => s.current);
   const nakshatraTimeline = periodsBetween(natalLagnaLon, birth, asOf, config, NAK_ARC, 120);
 
-  const findings = evaluateAlp({ positions, janma, alp, point, natalLagna, houses, placements });
+  const book = bookArithmetic(natalLagnaLon, birth, asOf, point);
+  const nakStraddlesAhead = (() => {
+    // The current nakshatra continues past the end of the current sign (Book 2 p. 42: a "split" nakshatra).
+    const nakEnd = (point.nakshatraIndex + 1) * NAK_ARC;
+    const signEnd = (point.signIndex + 1) * 30;
+    return nakEnd > signEnd + 1e-9;
+  })();
+  const findings = evaluateAlp({ positions, janma, alp, point, natalLagna, houses, placements, nakStraddlesAhead });
 
   return {
     config,
@@ -272,6 +312,7 @@ export function computeAlp(positions: PlanetPosition[], natalLagnaLon: number, b
     nextSignChange: curSign ? curSign.end : null,
     nextNakshatraChange: curNak ? curNak.end : null,
     nextPadaChange: curPada ? curPada.end : null,
+    book,
     findings,
   };
 }

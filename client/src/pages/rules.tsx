@@ -21,6 +21,12 @@ function describeAlpCondition(w: AlpRuleWhen) {
   if (w.activatedHouse) parts.push(`current pada activates the ${w.activatedHouse.map(ord).join("/")}`);
   if (w.nakshatraLord) parts.push(`ALP lagna in a nakshatra of ${w.nakshatraLord.join("/")}`);
   if (w.activatedFromJanma) parts.push(`current pada's navamsa is the ${w.activatedFromJanma.map(ord).join("/")} from the janma lagna`);
+  if (w.roleInHouseFromJanma) parts.push(`role planet in the ${w.roleInHouseFromJanma.map(ord).join("/")} from the janma lagna`);
+  if (w.roleOwnsHouse) parts.push(`role planet owns the ${w.roleOwnsHouse.map(ord).join("/")} from the ALP lagna`);
+  if (w.lordOf) parts.push(`lord of the ${ord(w.lordOf)} from the ALP lagna${w.lordOfInHouse ? ` in the ${w.lordOfInHouse.map(ord).join("/")}` : ""}`);
+  if (w.activatedTouches !== undefined) parts.push(w.activatedTouches ? "pada's navamsa touches ALP lagna, its 7th, janma lagna or its 7th" : "pada's navamsa touches none of ALP lagna, its 7th, janma lagna, its 7th");
+  if (w.activatedNakLordShashtashtaka !== undefined) parts.push(`pada's navamsa and the nakshatra lord's sign ${w.activatedNakLordShashtashtaka ? "" : "not "}in 6/8`);
+  if (w.nakshatraStraddlesAhead !== undefined) parts.push(w.nakshatraStraddlesAhead ? "current nakshatra runs into the next sign" : "current nakshatra ends within the sign");
   if (w.alpHouseFromJanma) parts.push(`ALP lagna in the ${w.alpHouseFromJanma.map(ord).join("/")} from the janma lagna`);
   return parts.join(" · ");
 }
