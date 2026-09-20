@@ -39,6 +39,7 @@ function describeAlpCondition(w: AlpRuleWhen) {
   if (w.dasaLordFromArp) parts.push(`dasa lord in the ${w.dasaLordFromArp.map(ord).join("/")} from the Akshaya rasi`);
   if (w.dasaLordFromAlp) parts.push(`dasa lord in the ${w.dasaLordFromAlp.map(ord).join("/")} from the ALP lagna`);
   if (w.bhuktiLordFromAlp) parts.push(`bhukti lord in the ${w.bhuktiLordFromAlp.map(ord).join("/")} from the ALP lagna`);
+  if (w.threeWays) parts.push(`the three ways: ${w.threeWays.present} present, ${w.threeWays.past} past, ${w.threeWays.future} future`);
   if (w.nakLordFromAlpLord) parts.push(`ALP nakshatra lord in the ${w.nakLordFromAlpLord.map(ord).join("/")} from the ALP lagna lord`);
   if (w.alpArpLordsTogetherFromJanma) parts.push(`ALP lagna lord and Akshaya rasi lord in one sign, the ${w.alpArpLordsTogetherFromJanma.map(ord).join("/")} from the janma lagna`);
   return parts.join(" · ");

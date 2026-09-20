@@ -5,7 +5,7 @@ import { NAKSHATRAS, PLANET_ABBR, SIGNS, fmtDegShort, type Planet } from "@share
 
 const NAK_ARC = 360 / 27;
 import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "@shared/alp";
-import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES, ALP_HOUSE_THEMES, DUSTHANA_NOTE, alpSignReading } from "@shared/rules-alp";
+import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES, ALP_HOUSE_THEMES, DUSTHANA_NOTE, alpSignReading, threeWaysFor, threeWaysCount, THREE_WAYS_NOTE } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
 import { Term } from "@/components/term";
@@ -66,6 +66,8 @@ export function AlpPanel({ result }: { result: ChartResult }) {
   badges[a.arp.point.signIndex] = [...(badges[a.arp.point.signIndex] ?? []), "AR"];
   const arp = a.arp;
   const arpLordSame = arp.point.lord === a.point.lord;
+  const threeWaysJanma = useMemo(() => threeWaysFor(a.natalLagna, a.natalLagna.signIndex, positions), [a.natalLagna, positions]);
+  const threeWaysAlp = useMemo(() => threeWaysFor(a.point, a.point.signIndex, positions), [a.point, positions]);
   const signReading = useMemo(() => alpSignReading(a.point.signIndex, a.point.sign), [a.point.signIndex, a.point.sign]);
   const nakLordHouse = a.placements.find((p) => p.planet === a.point.nakshatraLord)?.houseFromAlp ?? 0;
   const planetsIn = (sign: number) => positions.filter((p) => p.signIndex === sign).map((p) => PLANET_ABBR[p.planet]).join(" ");
@@ -423,7 +425,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
       <section className="mt-10" data-testid="section-alp-findings">
         <h2 className="text-base font-semibold">Reading</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 16 (pp. 32-99), and the Book 1 class notes (rules 1-5). The remaining chapters are entered one at a time.
+          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 17 (pp. 32-99, 137-143), and the Book 1 class notes (rules 1-5). The remaining chapters are entered one at a time.
         </p>
         {a.findings.length ? (
           <ul className="mt-3 space-y-3">
@@ -514,6 +516,45 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             ))}
           </TableBody>
         </Table>
+
+        <Working id="alp-three-ways" label="Show the three ways: present, past, future (Book 2, ch. 17)" className="mt-4">
+          <p className="mb-2 text-xs text-muted-foreground">{THREE_WAYS_NOTE}</p>
+          {[
+            { key: "janma", title: `Birth lagna (the book's reading)`, ways: threeWaysJanma },
+            { key: "alp", title: `The same three ways from the ALP lagna (not in the text; shown for comparison)`, ways: threeWaysAlp },
+          ].map(({ key, title, ways }) => {
+            const c = threeWaysCount(ways);
+            return (
+              <div key={key} className="mt-3" data-testid={`three-ways-${key}`}>
+                <p className="text-xs font-medium">{title}</p>
+                <div className="overflow-x-auto"><Table className="tabular mt-1 [&_td]:px-2 [&_th]:px-2">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Way</TableHead>
+                      <TableHead>House</TableHead>
+                      <TableHead>Time</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {ways.map((w) => (
+                      <TableRow key={w.label}>
+                        <TableCell className="py-1.5 align-top text-xs">
+                          <span className="font-medium">{w.label}</span>
+                          <div className="text-muted-foreground">{w.detail}</div>
+                        </TableCell>
+                        <TableCell className="py-1.5 align-top">{ordinal(w.house)}</TableCell>
+                        <TableCell className="py-1.5 align-top capitalize">{w.group}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table></div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {c.present} present, {c.past} past, {c.future} future.{key === "janma" ? " The matching line from p. 139 appears in the reading below." : ""}
+                </p>
+              </div>
+            );
+          })}
+        </Working>
 
         <Working id="alp-nak-timeline" label="Show every nakshatra over the 120 years" count={a.nakshatraTimeline.length} className="mt-4">
           <Table className="tabular">

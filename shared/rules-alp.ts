@@ -44,6 +44,7 @@ export const ALP_CHAPTERS: AlpChapter[] = [
   { id: "book2-ch12", book: "Book 2, ch. 12-13", title: "Karma and time: what is taken is returned; Akshaya lagna with Akshaya rasi, their lords together from the birth lagna (pp. 86-89)", note: "Entered from the printed volume." },
   { id: "book2-ch14", book: "Book 2, ch. 14-15", title: "ALP point with dasa-bhukti; the ten features to be noted (pp. 90-91)", note: "Entered from the printed volume; the ten-point checklist is in the method notes." },
   { id: "book2-ch16", book: "Book 2, ch. 16", title: "Example horoscopes 1-5: reading the questions from the ALP nakshatra lord, the dasa and bhukti lords, and the Akshaya rasi (pp. 92-99 so far)", note: "Examples 1-4 entered; example 5 continues on the next pages." },
+  { id: "book2-ch17", book: "Book 2, ch. 17", title: "Understanding the nakshatra and its sookshma: the three ways (lagna nakshatra point, its lord, the lagna lord) and the present/past/future mix; the activated nakshatra lord's lordship and placement (pp. 137-143)", note: "pp. 140-141 (the sookshma working and example horoscope 1) are not yet photographed." },
   { id: "book2-rest", book: "Book 2, later chapters", title: "Characteristics of the nakshatras; prasna", note: "Pending." },
   { id: "book3", book: "Book 3", title: "Introduction to gochar; the nakshatras of Leo; Aries-lagna ALP; the planets through the 12 bhavas by gochar", note: "Pending. Nakshatra-by-nakshatra readings begin here (Magha, Purva Phalguni, Uttara Phalguni)." },
   { id: "book4", book: "Book 4", title: "The nakshatras of Sagittarius; marriage matching; horoscope analysis", note: "Pending. Continues the nakshatra readings (Mula, Purva Ashadha, Uttara Ashadha)." },
@@ -109,6 +110,8 @@ export interface AlpRuleWhen {
   alpArpLordsTogetherFromJanma?: number[];
   /** The ALP nakshatra lord stands in one of these houses counted from the ALP lagna lord's sign (different planets only). */
   nakLordFromAlpLord?: number[];
+  /** Book 2 ch. 17: how many of the three ways (birth lagna nakshatra point by kalapurusha, its lord from the lagna, the lagna lord from the lagna) fall in present (1-4-7-10), past (2-5-8-11) and future (3-6-9-12) houses. */
+  threeWays?: { present: number; past: number; future: number };
 }
 
 export interface AlpRule {
@@ -887,6 +890,134 @@ export const ALP_RULES: AlpRule[] = [
     weight: 2,
     source: CLASS1,
   },
+  // Book 2 ch. 17: the three ways and the present/past/future mix (p. 139).
+  {
+    id: "ch17-3w-present-3",
+    chapter: "book2-ch17",
+    when: { threeWays: { present: 3, past: 0, future: 0 } },
+    text: "The three ways all fall in present houses (1-4-7-10): the results come in the present.",
+    weight: 2,
+    source: BOOK2("p. 139"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-3w-past-3",
+    chapter: "book2-ch17",
+    when: { threeWays: { present: 0, past: 3, future: 0 } },
+    text: "The three ways all fall in past houses (2-5-8-11): the native does not live in the present or plan for the future, but experiences past karmic deeds through others and struggles in life.",
+    weight: 2,
+    source: BOOK2("p. 139"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-3w-future-3",
+    chapter: "book2-ch17",
+    when: { threeWays: { present: 0, past: 0, future: 3 } },
+    text: "The three ways all fall in future houses (3-6-9-12): the results come in the future.",
+    weight: 2,
+    source: BOOK2("p. 139"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-3w-all-three",
+    chapter: "book2-ch17",
+    when: { threeWays: { present: 1, past: 1, future: 1 } },
+    text: "The three ways touch present, past and future, one each: a magnificent yoga; the native creates a name and an everlasting history.",
+    weight: 3,
+    source: BOOK2("p. 139"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-3w-past-2-present-1",
+    chapter: "book2-ch17",
+    when: { threeWays: { present: 1, past: 2, future: 0 } },
+    text: "Two of the three ways are in past houses and one in the present: the native is born to experience the problems and losses of past lives.",
+    weight: 2,
+    source: BOOK2("p. 139"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-3w-past-1-present-2",
+    chapter: "book2-ch17",
+    when: { threeWays: { present: 2, past: 1, future: 0 } },
+    text: "One of the three ways is in a past house and two in the present: some loss, and many profits and yogas in this life.",
+    weight: 2,
+    source: BOOK2("p. 139"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-3w-past-1-future-2",
+    chapter: "book2-ch17",
+    when: { threeWays: { present: 0, past: 1, future: 2 } },
+    text: "One of the three ways is in a past house and two in the future: the native is born to plan for the future, on the strength of good deeds in past lives.",
+    weight: 2,
+    source: BOOK2("p. 139"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-3w-past-2-future-1",
+    chapter: "book2-ch17",
+    when: { threeWays: { present: 0, past: 2, future: 1 } },
+    text: "Two of the three ways are in past houses and one in the future: the mind is carried away by whims and fancies, faces struggles, and educates the next generation from its experience of life.",
+    weight: 2,
+    source: BOOK2("p. 139"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-3w-present-1-future-2",
+    chapter: "book2-ch17",
+    when: { threeWays: { present: 1, past: 0, future: 2 } },
+    text: "One of the three ways is in the present and two in the future: through hard work and self-effort the native makes a prosperous life in the future.",
+    weight: 2,
+    source: BOOK2("p. 139"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-3w-present-2-future-1",
+    chapter: "book2-ch17",
+    when: { threeWays: { present: 2, past: 0, future: 1 } },
+    text: "Two of the three ways are in the present and one in the future: the native lives in the present and the future for wealth, honour, status, name, fame and success.",
+    weight: 2,
+    source: BOOK2("p. 139"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  // Book 2 ch. 17, example horoscopes (pp. 142-143).
+  {
+    id: "ch17-nak-lord-6-body",
+    chapter: "book2-ch17",
+    when: { role: "nakshatra-lord", roleInHouse: [6] },
+    text: "The activated nakshatra lord stands in the 6th, the house of disease: the illness shows in the body parts of the houses this planet owns from the ALP lagna (a 3rd lord in the 6th gave throat trouble in the book's example).",
+    weight: 1,
+    source: BOOK2("p. 143"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-nak-lord-12-janma",
+    chapter: "book2-ch17",
+    when: { role: "nakshatra-lord", roleInHouseFromJanma: [12] },
+    text: "The activated nakshatra lord stands in the 12th from the birth lagna: this stretch brings expenses, in the book's example on account of disease.",
+    weight: 1,
+    source: BOOK2("p. 143"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-dasa-1-bhukti-9",
+    chapter: "book2-ch17",
+    when: { dasaLordFromAlp: [1], bhuktiLordFromAlp: [9] },
+    text: "The dasa lord stands on the ALP lagna and the bhukti lord in the 9th from it: the 1st and the 9th are connected, so the native and the father share this bhukti's experience.",
+    weight: 1,
+    source: BOOK2("p. 142"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-dasa-1-bhukti-9-nak-8",
+    chapter: "book2-ch17",
+    when: { dasaLordFromAlp: [1], bhuktiLordFromAlp: [9], role: "nakshatra-lord", roleInHouse: [8] },
+    text: "The dasa lord on the ALP lagna, the bhukti lord in the 9th and the activated nakshatra lord in the 8th: the 1st is joined to both the 9th and the 8th, and the book reads a dreadful experience, equivalent to death, for the native and the father.",
+    weight: 3,
+    source: BOOK2("p. 142"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
 ];
 
 /** Book 2 ch. 15 (p. 91): the ten features to observe before predicting. */
@@ -1015,6 +1146,12 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
     if (w.bhuktiLordFromAlp) {
       if (!w.bhuktiLordFromAlp.includes(ctx.arp.bhuktiLord.houseFromAlp)) continue;
       planets.push(ctx.arp.bhuktiLord.planet);
+    }
+    if (w.threeWays) {
+      const tw = threeWaysFor(ctx.natalLagna, ctx.natalLagna.signIndex, ctx.positions);
+      const c = threeWaysCount(tw);
+      if (c.present !== w.threeWays.present || c.past !== w.threeWays.past || c.future !== w.threeWays.future) continue;
+      planets.push(ctx.natalLagna.nakshatraLord, ctx.natalLagna.lord);
     }
     if (w.nakLordFromAlpLord) {
       const l1 = ctx.point.lord;
@@ -1146,3 +1283,44 @@ export function alpSignReading(alpSignIndex: number, signName: string): AlpSignR
     return { planet, houses, text, fromNotes: Boolean(note) };
   }).sort((x, y) => x.houses[0] - y.houses[0]);
 }
+
+// Book 2 ch. 17 (pp. 137-139): the three ways of reading a lagna, and the present/past/future grouping of houses.
+export type TimeGroup = "present" | "past" | "future";
+export function timeGroupOf(house: number): TimeGroup {
+  return [1, 4, 7, 10].includes(house) ? "present" : [2, 5, 8, 11].includes(house) ? "past" : "future";
+}
+export interface ThreeWay {
+  label: string;
+  detail: string;
+  house: number;
+  group: TimeGroup;
+}
+/**
+ * The three ways for a lagna point: (1) the nakshatra point's bhava by the kalapurusha (its sign counted from Aries),
+ * (2) the nakshatra lord's house counted from the lagna, (3) the lagna lord's house counted from the lagna.
+ */
+export function threeWaysFor(point: AlpPoint, fromSign: number, positions: PlanetPosition[]): ThreeWay[] {
+  const h = (sign: number) => ((sign - fromSign + 12) % 12) + 1;
+  const nl = positions.find((p) => p.planet === point.nakshatraLord);
+  const ll = positions.find((p) => p.planet === point.lord);
+  const kala = point.signIndex + 1;
+  const out: ThreeWay[] = [
+    { label: "Lagna nakshatra point", detail: `${point.nakshatra} ${point.pada}, in ${point.sign}: the ${kala}${["st", "nd", "rd"][kala - 1] ?? "th"} sign of the kalapurusha`, house: kala, group: timeGroupOf(kala) },
+  ];
+  if (nl) {
+    const hh = h(nl.signIndex);
+    out.push({ label: "Lagna nakshatra lord", detail: `${point.nakshatraLord}, in the ${hh}${["st", "nd", "rd"][hh - 1] ?? "th"} from the lagna`, house: hh, group: timeGroupOf(hh) });
+  }
+  if (ll) {
+    const hh = h(ll.signIndex);
+    out.push({ label: "Lagna lord", detail: `${point.lord}, in the ${hh}${["st", "nd", "rd"][hh - 1] ?? "th"} from the lagna`, house: hh, group: timeGroupOf(hh) });
+  }
+  return out;
+}
+export function threeWaysCount(ways: ThreeWay[]): Record<TimeGroup, number> {
+  const c: Record<TimeGroup, number> = { present: 0, past: 0, future: 0 };
+  for (const w of ways) c[w.group]++;
+  return c;
+}
+export const THREE_WAYS_NOTE =
+  "Book 2 ch. 17 (pp. 137-139): the lagna nakshatra point is the beginning of the previous birth, read by the bhava it holds for the kalapurusha; the bhava of the lagna nakshatra lord from the lagna is where the native's deeds are relevant; the bhava of the lagna lord defines the future path and how the native plans. Houses 1-4-7-10 give the present, 2-5-8-11 the past, 3-6-9-12 the future.";
