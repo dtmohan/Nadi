@@ -34,8 +34,9 @@ export const ALP_CHAPTERS: AlpChapter[] = [
   { id: "book2-calc", book: "Book 2, ch. 2", title: "Calculating the ALP point; case studies 1-6 (pp. 32-42)", note: "Entered from the printed volume." },
   { id: "book2-ch3", book: "Book 2, ch. 3", title: "Bhavas signifying the present: 1, 4, 7, 10 and their karma bhavas (pp. 43-47)", note: "Entered from the printed volume; the karma-bhava table is shown on the chart page." },
   { id: "book2-ch4", book: "Book 2, ch. 4", title: "Bhavas signifying the past: 2, 5, 8, 11 (pp. 48-52)", note: "Entered from the printed volume." },
-  { id: "book2-ch5", book: "Book 2, ch. 5", title: "Bhavas signifying the future: 3, 6, 9, 12 (p. 53 onward)", note: "First page entered; the rest of the chapter is pending." },
-  { id: "book2-rest", book: "Book 2, later chapters", title: "Akshaya Rasi; purpose of this birth; karma and time", note: "Pending. Defines the Akshaya rasi (ARP)." },
+  { id: "book2-ch5", book: "Book 2, ch. 5", title: "Bhavas signifying the future: 3, 6, 9, 12; free-will and destined bhavas; birth lagna and ALP lagna (pp. 53-67)", note: "Entered from the printed volume; the two-planet tables (pp. 59-67) are shown as a column in the houses working." },
+  { id: "book2-ch6", book: "Book 2, ch. 6", title: "AR - Akshaya Rasi (p. 68 onward)", note: "Introduction entered (the Akshaya rasi tracks the mind as the Akshaya lagna tracks the body); how it is computed is on the pages not yet photographed." },
+  { id: "book2-rest", book: "Book 2, later chapters", title: "Purpose of this birth; karma and time", note: "Pending." },
   { id: "book3", book: "Book 3", title: "Introduction to gochar; the nakshatras of Leo; Aries-lagna ALP; the planets through the 12 bhavas by gochar", note: "Pending. Nakshatra-by-nakshatra readings begin here (Magha, Purva Phalguni, Uttara Phalguni)." },
   { id: "book4", book: "Book 4", title: "The nakshatras of Sagittarius; marriage matching; horoscope analysis", note: "Pending. Continues the nakshatra readings (Mula, Purva Ashadha, Uttara Ashadha)." },
 ];
@@ -438,12 +439,52 @@ export const ALP_RULES: AlpRule[] = [
     source: BOOK2("pp. 51-52: the negative impact ... is exhibited by the 5th bhava; if the kula devatha, mind, children, intelligence, income are good then the 2nd bhava aspects are assured"),
     sourceUrl: ALP_SOURCE_BOOKS,
   },
+
+  // Book 2, chapter 5 (pp. 53-67).
+  {
+    id: "b2c5-nak-lord-destined",
+    chapter: "book2-ch5",
+    when: { role: "nakshatra-lord", roleInHouse: [4, 5, 6, 7, 8, 9] },
+    text: "The ALP nakshatra lord stands in one of the destined bhavas (4th to 9th from the ALP lagna: mother, children and kula devata, disease and inherited debt, spouse, longevity, father): the book holds that what this stretch brings cannot be changed by remedy; only involvement in spiritual activity and the native's own temple visits give respite.",
+    weight: 1,
+    source: BOOK2("p. 57: 4, 5, 6, 7, 8, 9 are the six bhavas we have no control over; remedies will not be effective for experiences related to these six bhavas based on the ALP lagna and ALP lagna point"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c5-nak-lord-free-will",
+    chapter: "book2-ch5",
+    when: { role: "nakshatra-lord", roleInHouse: [10, 11, 12, 1, 2, 3] },
+    text: "The ALP nakshatra lord stands in one of the free-will bhavas (10th, 11th, 12th, 1st, 2nd, 3rd from the ALP lagna: profession, gains, expenses and investments, oneself, speech and actions, effort): this is ground the native can work on, and the book allows remedies to strengthen the bhava if it is afflicted.",
+    weight: 1,
+    source: BOOK2("p. 57: 10, 11, 12, 1, 2, 3 are the six bhavas we can exercise our control over; if any gets afflicted, one can do remedies to strengthen these bhavas"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c5-alp-lord-in-1",
+    chapter: "book2-ch5",
+    when: { role: "alp-lord", roleInHouse: [1] },
+    text: "The ALP lagna lord stands in the ALP sign itself: the book infers that the native is in good condition through these ten years.",
+    weight: 3,
+    source: BOOK2("p. 58: if Mars is in Aries during the ten-year period of ALP lagna Aries, the natal will be in good condition"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c5-6th-lord-in-9",
+    chapter: "book2-ch5",
+    when: { lordOf: 6, lordOfInHouse: [9] },
+    text: "The lord of the 6th from the ALP lagna stands in the 9th, its karma bhava: hurdles, disputes and debts of this stretch have a route to conversion into luck, through the father and the ista devata.",
+    weight: 2,
+    source: BOOK2("pp. 55-56: arguments, fights, disputes, illness, debts, enemies can be converted to luck or benefits; to activate the goodness of the 6th house one should get hold of the 9th bhava"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
 ];
 
 /** Book 2, ch. 3-5: every bhava's "past-life karma bhava" is the 4th from it (the 10th counted backwards). */
 export interface KarmaBhavaRow {
   house: number;
   group: "present" | "past" | "future";
+  /** Book 2 p. 57: 10, 11, 12, 1, 2, 3 are free-will bhavas (remedies work); 4 to 9 are destined (no remedy, only respite through spiritual activity). */
+  control: "free will" | "destined";
   karmaHouse: number;
   theme: string;
   karmaNote: string;
@@ -451,19 +492,23 @@ export interface KarmaBhavaRow {
 }
 
 export const KARMA_BHAVAS: KarmaBhavaRow[] = [
-  { house: 1, group: "present", karmaHouse: 4, theme: "the native, the body, how life is handled", karmaNote: "Past karma is experienced through the body the mother gave; medicine from the mother's hand is itself a remedy.", page: "pp. 43-44" },
-  { house: 2, group: "past", karmaHouse: 5, theme: "family income, speech, commitments, education", karmaNote: "Commitments not honoured and money wrongly earned in the past show through the 5th; strengthen the 5th to gain the 2nd.", page: "pp. 51-52" },
-  { house: 3, group: "future", karmaHouse: 6, theme: "success, courage, vigour", karmaNote: "The 6th is the sookshma bhava of the 3rd, the source of all its happenings.", page: "p. 53" },
-  { house: 4, group: "present", karmaHouse: 7, theme: "mother, home, property", karmaNote: "\"Wife is his second mother\": the spouse depends on how the native treats the mother; neglect of her is paid through the 7th.", page: "p. 45" },
-  { house: 5, group: "past", karmaHouse: 8, theme: "children, mind, kula devata, research, grandfather, maternal uncle", karmaNote: "An afflicted 5th brings depression, fear and near-death situations; activate the 8th to gain the 5th.", page: "pp. 50, 52" },
-  { house: 6, group: "future", karmaHouse: 9, theme: "debt, disease, dispute, service", karmaNote: "Pending: the rest of chapter 5 is not yet entered.", page: "ch. 5" },
-  { house: 7, group: "present", karmaHouse: 10, theme: "spouse, friends, the people met (the mirror of the 1st)", karmaNote: "Harm done to spouse or friend is given back through the 10th; two parties are needed for any event.", page: "pp. 46-47" },
-  { house: 8, group: "past", karmaHouse: 11, theme: "long illness, debts, expenses, losses from previous-birth deeds; sudden luck", karmaNote: "8th and 11th work in parallel: growth and downfall both; for health and longevity activate the 11th.", page: "pp. 49, 51" },
-  { house: 9, group: "future", karmaHouse: 12, theme: "father, fortune, belief", karmaNote: "Pending: the rest of chapter 5 is not yet entered.", page: "ch. 5" },
-  { house: 10, group: "present", karmaHouse: 1, theme: "profession, name, position; all deeds, carried to the next birth", karmaNote: "The 10th is also the remedy bhava that washes away sins; what is gained wrongly through it leaves the same way.", page: "pp. 46-47" },
-  { house: 11, group: "past", karmaHouse: 2, theme: "efforts, profits, gains, second marriage, elder siblings", karmaNote: "No gains without a strong 2nd; fake talk and wrong earning in the past leave the 11th barren.", page: "pp. 48, 51" },
-  { house: 12, group: "future", karmaHouse: 3, theme: "expenditure, loss, distant places", karmaNote: "Pending: the rest of chapter 5 is not yet entered.", page: "ch. 5" },
+  { house: 1, control: "free will", group: "present", karmaHouse: 4, theme: "the native, the body, how life is handled", karmaNote: "Past karma is experienced through the body the mother gave; medicine from the mother's hand is itself a remedy.", page: "pp. 43-44" },
+  { house: 2, control: "free will", group: "past", karmaHouse: 5, theme: "family income, speech, commitments, education", karmaNote: "Commitments not honoured and money wrongly earned in the past show through the 5th; strengthen the 5th to gain the 2nd.", page: "pp. 51-52" },
+  { house: 3, control: "free will", group: "future", karmaHouse: 6, theme: "success, courage, fame, vigour, social connection", karmaNote: "The 6th is the sookshma bhava of the 3rd, the source of all its happenings; the 3rd and the 12th are connected, and handled well they give success.", page: "pp. 53, 57" },
+  { house: 4, control: "destined", group: "present", karmaHouse: 7, theme: "mother, home, property", karmaNote: "\"Wife is his second mother\": the spouse depends on how the native treats the mother; neglect of her is paid through the 7th.", page: "p. 45" },
+  { house: 5, control: "destined", group: "past", karmaHouse: 8, theme: "children, mind, kula devata, research, grandfather, maternal uncle", karmaNote: "An afflicted 5th brings depression, fear and near-death situations; activate the 8th to gain the 5th.", page: "pp. 50, 52" },
+  { house: 6, control: "destined", group: "future", karmaHouse: 9, theme: "hurdles to success, enemies, debt of this life, curable disease, the father's profession and income", karmaNote: "The 6th is the central point of the horoscope: disputes, illness and debts convert to luck through the 9th (ista devata, the father kept happy).", page: "pp. 54-56" },
+  { house: 7, control: "destined", group: "present", karmaHouse: 10, theme: "spouse, friends, the people met (the mirror of the 1st)", karmaNote: "Harm done to spouse or friend is given back through the 10th; two parties are needed for any event.", page: "pp. 46-47" },
+  { house: 8, control: "destined", group: "past", karmaHouse: 11, theme: "long illness, debts, expenses, losses from previous-birth deeds; sudden luck", karmaNote: "8th and 11th work in parallel: growth and downfall both; for health and longevity activate the 11th.", page: "pp. 49, 51" },
+  { house: 9, control: "destined", group: "future", karmaHouse: 12, theme: "father, bhagya, longevity, the mind (with the 6th as the body)", karmaNote: "The father's blessing rests on the debt of birth; in a 9th-house dasa or bhukti, donations, pilgrimage on foot and good expenses bring its benefit, which is delivered through the 12th.", page: "pp. 55-56" },
+  { house: 10, control: "free will", group: "present", karmaHouse: 1, theme: "profession, name, position; all deeds, carried to the next birth", karmaNote: "The 10th is also the remedy bhava that washes away sins; what is gained wrongly through it leaves the same way.", page: "pp. 46-47" },
+  { house: 11, control: "free will", group: "past", karmaHouse: 2, theme: "efforts, profits, gains, second marriage, elder siblings", karmaNote: "No gains without a strong 2nd; fake talk and wrong earning in the past leave the 11th barren.", page: "pp. 48, 51" },
+  { house: 12, control: "free will", group: "future", karmaHouse: 3, theme: "moksha, expenses, future planning, sleeplessness", karmaNote: "The 3rd is the subtly activated bhava of the 12th: get hold of the 3rd to win over the 12th.", page: "pp. 56-57" },
 ];
+
+/** Book 2 pp. 59-67: for a question on house N from the ALP lagna, the ALP lord and the lord of N are the two planets to see. */
+export const TWO_PLANET_NOTE =
+  "Book 2 (pp. 59-67) gives, for every ALP sign, the two planets to judge for each bhava: the ALP lord and the lord of that bhava counted from the ALP lagna. Their placements decide the matter asked about (Aries ALP, property: Mars and Moon; Taurus, education: Venus and Mercury; Capricorn, profession: Saturn and Venus).";
 
 /** Book 2 p. 49-50: to activate a bhava, strengthen the lords of that bhava and of its karma bhava (e.g. puja on one lord's weekday in the other lord's hora). */
 export const KARMA_REMEDY_NOTE =

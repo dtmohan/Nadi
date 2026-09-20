@@ -5,7 +5,7 @@ import { NAKSHATRAS, PLANET_ABBR, SIGNS, fmtDegShort, type Planet } from "@share
 
 const NAK_ARC = 360 / 27;
 import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "@shared/alp";
-import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE } from "@shared/rules-alp";
+import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
 import { Term } from "@/components/term";
@@ -179,13 +179,14 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           </Working>
 
           <Working id="alp-houses" label="Show the houses from the ALP lagna" className="mt-4">
-            <Table className="tabular">
+            <Table className="tabular [&_td]:px-2 [&_th]:px-2">
               <TableHeader>
                 <TableRow>
                   <TableHead>House</TableHead>
                   <TableHead>Sign</TableHead>
                   <TableHead>Lord</TableHead>
                   <TableHead>Planets</TableHead>
+                  <TableHead className="hidden whitespace-nowrap sm:table-cell">To see</TableHead>
                   <TableHead className="hidden text-right sm:table-cell">Natal house</TableHead>
                 </TableRow>
               </TableHeader>
@@ -196,25 +197,27 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                     <TableCell className="py-1.5">{h.sign}</TableCell>
                     <TableCell className="py-1.5 text-muted-foreground">{h.lord}</TableCell>
                     <TableCell className="py-1.5">{h.planets.map((p) => PLANET_ABBR[p]).join(" ") || "—"}</TableCell>
+                    <TableCell className="hidden whitespace-nowrap py-1.5 text-muted-foreground sm:table-cell">{a.point.lord === h.lord ? PLANET_ABBR[a.point.lord] : `${PLANET_ABBR[a.point.lord]} + ${PLANET_ABBR[h.lord]}`}</TableCell>
                     <TableCell className="hidden py-1.5 text-right text-muted-foreground sm:table-cell">{h.houseFromJanma}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            <p className="mt-2 text-xs text-muted-foreground">{TWO_PLANET_NOTE}</p>
           </Working>
-
         </div>
       </div>
 
       <Working id="alp-karma-bhavas" label="Show the karma bhavas (Book 2, ch. 3-5)" className="mt-6">
         <p className="mb-2 text-xs text-muted-foreground">
-          Book 2 groups the houses from the ALP lagna as present (1, 4, 7, 10), past (2, 5, 8, 11) and future (3, 6, 9, 12), and gives each one a past-life karma bhava: the 4th from it, the 10th counted backwards. Signs and planets below are from this chart.
+          Book 2 groups the houses from the ALP lagna as present (1, 4, 7, 10), past (2, 5, 8, 11) and future (3, 6, 9, 12), and gives each one a past-life karma bhava: the 4th from it, the 10th counted backwards. Houses 10 to 3 are free-will bhavas where remedies work; 4 to 9 are destined, and the book asks that no remedy be prescribed for them (p. 57). Signs and planets below are from this chart.
         </p>
         <div className="overflow-x-auto"><Table className="tabular">
           <TableHeader>
             <TableRow>
               <TableHead>House</TableHead>
               <TableHead className="hidden sm:table-cell">Group</TableHead>
+              <TableHead className="hidden sm:table-cell">Control</TableHead>
               <TableHead>Karma bhava</TableHead>
               <TableHead>Lords to hold</TableHead>
               <TableHead className="hidden md:table-cell">Note</TableHead>
@@ -231,6 +234,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                     <div className="text-xs text-muted-foreground">{k.theme}</div>
                   </TableCell>
                   <TableCell className="hidden py-1.5 align-top capitalize text-muted-foreground sm:table-cell">{k.group}</TableCell>
+                  <TableCell className="hidden py-1.5 align-top text-muted-foreground sm:table-cell">{k.control}</TableCell>
                   <TableCell className="py-1.5 align-top">
                     <span className="font-medium">{k.karmaHouse}</span> <span className="text-muted-foreground">{kh.sign}</span>
                     <div className="text-xs text-muted-foreground">{kh.planets.length ? kh.planets.map((p) => PLANET_ABBR[p]).join(" ") : "empty"}</div>
@@ -252,7 +256,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
       <section className="mt-10" data-testid="section-alp-findings">
         <h2 className="text-base font-semibold">Reading</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 4 with the first page of chapter 5. The remaining chapters are entered one at a time.
+          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 5 with the opening of chapter 6. The remaining chapters are entered one at a time.
         </p>
         {a.findings.length ? (
           <ul className="mt-3 space-y-3">
