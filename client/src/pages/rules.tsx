@@ -12,6 +12,7 @@ import { useParams } from "wouter";
 import { SourceLink } from "@/components/source-link";
 import { SutraLibrary } from "@/components/sutra-library";
 import { ALP_CHAPTERS, ALP_RULES, ALP_ROLE_LABEL, type AlpRuleWhen } from "@shared/rules-alp";
+import { ALP_PLANET_KARAKATWAS, ALP_WEEKDAYS, ALP_HORA_NOTE, ALP_TITHI_NOTE, ALP_YOGAS, ALP_ELEMENT_HOURS, ALP_PANCHANGA_ELEMENTS, CLASS_NOTES_SOURCE } from "@shared/alp-karakatwas";
 
 function describeAlpCondition(w: AlpRuleWhen) {
   const ord = (h: number) => `${h}${h === 1 ? "st" : h === 2 ? "nd" : h === 3 ? "rd" : "th"}`;
@@ -93,6 +94,60 @@ function AlpRules() {
           );
         })}
       </div>
+
+      <section className="mt-10" data-testid="alp-reference-planets">
+        <h2 className="text-sm font-semibold">Reference · Planet karakatwas <span className="font-normal text-muted-foreground">({CLASS_NOTES_SOURCE})</span></h2>
+        <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+          The significations the readings use for each planet. Book 1's chapter on planetary characteristics is not in hand; these are the class notes, which follow the common karakatwas. The first line of each entry is what the chart page quotes.
+        </p>
+        <ul className="mt-3 divide-y">
+          {ALP_PLANET_KARAKATWAS.map((k) => (
+            <li key={k.planet} className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]" data-testid={`alp-karakatwa-${k.planet}`}>
+              <div className="text-sm font-medium">{k.planet}<div className="mt-1 text-xs font-normal text-muted-foreground">{k.deity} · {k.gemstone}</div></div>
+              <div className="space-y-1 text-xs">
+                <p className="text-sm">{k.summary}.</p>
+                <p><span className="text-muted-foreground">People and qualities: </span>{k.people.join("; ")}.</p>
+                <p><span className="text-muted-foreground">Places and things: </span>{k.things.join("; ")}.</p>
+                <p><span className="text-muted-foreground">Body: </span>{k.body.join(", ")}. <span className="text-muted-foreground">Disease: </span>{k.disease}.</p>
+                <p><span className="text-muted-foreground">Metal </span>{k.metal}; <span className="text-muted-foreground">cereal </span>{k.cereal}; <span className="text-muted-foreground">flower </span>{k.flower}{k.taste ? <>; <span className="text-muted-foreground">taste </span>{k.taste}</> : null}{k.colour ? <>; <span className="text-muted-foreground">colour </span>{k.colour}</> : null}.</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mt-10" data-testid="alp-reference-panchanga">
+        <h2 className="text-sm font-semibold">Reference · Panchanga notes <span className="font-normal text-muted-foreground">({CLASS_NOTES_SOURCE})</span></h2>
+        <p className="mt-1 max-w-2xl text-xs text-muted-foreground">Weekdays, tithi, the nitya yogas, the elements through the day, and fasting. Kept as a reference; no chart rule draws on them yet.</p>
+        <h3 className="mt-4 text-xs font-medium">Weekdays</h3>
+        <ul className="mt-1 divide-y text-xs">
+          {ALP_WEEKDAYS.map((d) => (
+            <li key={d.day} className="grid gap-x-6 py-2 sm:grid-cols-[11rem_1fr]">
+              <div><span className="font-medium">{d.day}</span><div className="text-muted-foreground">{d.planet}</div></div>
+              <div><span className="text-muted-foreground">{d.deity}. </span>{d.note}</div>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-xs text-muted-foreground">{ALP_HORA_NOTE} {ALP_TITHI_NOTE}</p>
+        <h3 className="mt-4 text-xs font-medium">Nitya yogas (as far as the class went)</h3>
+        <ul className="mt-1 grid gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
+          {ALP_YOGAS.map((y) => (
+            <li key={y.yoga}><span className="font-medium">{y.yoga}</span> <span className="text-muted-foreground">{y.meaning}</span></li>
+          ))}
+        </ul>
+        <h3 className="mt-4 text-xs font-medium">The five elements through the day</h3>
+        <ul className="mt-1 grid gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
+          {ALP_ELEMENT_HOURS.map((e) => (
+            <li key={e.from}><span className="tabular">{e.from} – {e.to}</span> <span className="text-muted-foreground">{e.element}</span></li>
+          ))}
+        </ul>
+        <h3 className="mt-4 text-xs font-medium">The limbs of the panchanga and fasting</h3>
+        <ul className="mt-1 space-y-1 text-xs">
+          {ALP_PANCHANGA_ELEMENTS.map((e) => (
+            <li key={e.limb}><span className="font-medium">{e.limb}</span> <span className="text-muted-foreground">({e.element})</span>: {e.fasting}.</li>
+          ))}
+        </ul>
+      </section>
     </div>
   );
 }

@@ -181,7 +181,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                   { who: "Bhukti lord", planet: arp.bhukti.lord, house: arp.bhuktiLord.houseFromAlp },
                 ].map((g) => (
                   <li key={g.who}>
-                    <span className="font-medium text-foreground">{g.who} {g.planet}</span>, {ordinal(g.house)}: <span className="text-foreground">{ordinal(g.house)} house</span> is {ALP_HOUSE_THEMES[g.house]}; <span className="text-foreground">{g.planet}</span> is {ALP_PLANET_THEMES[g.planet]}.
+                    <span className="font-medium text-foreground">{g.who} {g.planet}</span>, {ordinal(g.house)}: <span className="text-foreground">{ordinal(g.house)} house</span> is {ALP_HOUSE_THEMES[g.house]}; <span className="text-foreground">{g.planet}</span> is {ALP_PLANET_THEMES[g.planet]} (class notes).
                   </li>
                 ))}
               </ul>
