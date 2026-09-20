@@ -1356,3 +1356,21 @@ export function threeWaysText(c: Record<TimeGroup, number>): string | undefined 
 }
 export const THREE_WAYS_NOTE =
   "Book 2 ch. 17 (pp. 137-139): the lagna nakshatra point is the beginning of the previous birth, read by the bhava it holds for the kalapurusha; the bhava of the lagna nakshatra lord from the lagna is where the native's deeds are relevant; the bhava of the lagna lord defines the future path and how the native plans. Houses 1-4-7-10 give the present, 2-5-8-11 the past, 3-6-9-12 the future. The book reads the birth lagna this way (pp. 137-139) and the ALP lagna the same way (example chart 1, pp. 140-141).";
+
+/**
+ * Planet karakatwas used to gloss the "questions to expect" line. Book 1's chapter on planetary
+ * characteristics is not yet in hand; these are the common significations that the ALP texts read
+ * with (Venus as comforts and spouse p. 141, Mars as debts and disputes in the class notes, Saturn
+ * as delay and burden in e-magazine 2, Sun and the father p. 142).
+ */
+export const ALP_PLANET_THEMES: Record<Planet, string> = {
+  Sun: "soul, father, authority, government, vitality, the bones",
+  Moon: "mind, mother, emotions, the public, fluids",
+  Mars: "energy, courage, younger sibling, land, disputes, injury, debts and diseases",
+  Mercury: "intellect, speech, communication, education, trade, the nerves",
+  Jupiter: "wisdom, guru, children, wealth, blessings, expansion",
+  Venus: "spouse, love, comforts, luxuries, arts, vehicles",
+  Saturn: "profession, labour, delay, burden, longevity, servants, discipline",
+  Rahu: "foreign matters, the unconventional, obsession, sudden and confusing turns",
+  Ketu: "detachment, the occult, past-life carry-overs, sudden loss, spirituality",
+};

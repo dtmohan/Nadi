@@ -5,7 +5,7 @@ import { NAKSHATRAS, PLANET_ABBR, SIGNS, fmtDegShort, type Planet } from "@share
 
 const NAK_ARC = 360 / 27;
 import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "@shared/alp";
-import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES, ALP_HOUSE_THEMES, DUSTHANA_NOTE, alpSignReading, threeWaysFor, threeWaysCount, threeWaysText, THREE_WAYS_NOTE } from "@shared/rules-alp";
+import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES, ALP_HOUSE_THEMES, DUSTHANA_NOTE, alpSignReading, threeWaysFor, threeWaysCount, threeWaysText, THREE_WAYS_NOTE, ALP_PLANET_THEMES } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
 import { Term } from "@/components/term";
@@ -174,6 +174,17 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             </li>
             <li data-testid="text-alp-questions">
               Questions to expect: the ALP nakshatra lord <span className="font-medium">{a.point.nakshatraLord}</span> stands in the {ordinal(nakLordHouse)} from the ALP lagna, so that house's matters are asked about first; the dasa lord {arp.dasa.lord} is in the {ordinal(arp.dasaLord.houseFromAlp)} and the bhukti lord {arp.bhukti.lord} in the {ordinal(arp.bhuktiLord.houseFromAlp)} from the ALP lagna, the {ordinal(arp.dasaLord.houseFromArp)} and {ordinal(arp.bhuktiLord.houseFromArp)} from the Akshaya rasi (Book 2 pp. 95-96).
+              <ul className="mt-1.5 space-y-1 text-xs text-muted-foreground" data-testid="list-alp-questions-gloss">
+                {[
+                  { who: "ALP nakshatra lord", planet: a.point.nakshatraLord, house: nakLordHouse },
+                  { who: "Dasa lord", planet: arp.dasa.lord, house: arp.dasaLord.houseFromAlp },
+                  { who: "Bhukti lord", planet: arp.bhukti.lord, house: arp.bhuktiLord.houseFromAlp },
+                ].map((g) => (
+                  <li key={g.who}>
+                    <span className="font-medium text-foreground">{g.who} {g.planet}</span>, {ordinal(g.house)}: <span className="text-foreground">{ordinal(g.house)} house</span> is {ALP_HOUSE_THEMES[g.house]}; <span className="text-foreground">{g.planet}</span> is {ALP_PLANET_THEMES[g.planet]}.
+                  </li>
+                ))}
+              </ul>
             </li>
           </ul>
 
