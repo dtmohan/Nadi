@@ -7,7 +7,7 @@
 // print in the rule book as written.
 
 import type { Planet, PlanetPosition } from "./astro";
-import type { AlpHouse, AlpPlacement, AlpPoint } from "./alp";
+import type { AlpHouse, AlpPlacement, AlpPoint, ArpResult } from "./alp";
 
 export interface AlpChapter {
   id: string;
@@ -35,8 +35,11 @@ export const ALP_CHAPTERS: AlpChapter[] = [
   { id: "book2-ch3", book: "Book 2, ch. 3", title: "Bhavas signifying the present: 1, 4, 7, 10 and their karma bhavas (pp. 43-47)", note: "Entered from the printed volume; the karma-bhava table is shown on the chart page." },
   { id: "book2-ch4", book: "Book 2, ch. 4", title: "Bhavas signifying the past: 2, 5, 8, 11 (pp. 48-52)", note: "Entered from the printed volume." },
   { id: "book2-ch5", book: "Book 2, ch. 5", title: "Bhavas signifying the future: 3, 6, 9, 12; free-will and destined bhavas; birth lagna and ALP lagna (pp. 53-67)", note: "Entered from the printed volume; the two-planet tables (pp. 59-67) are shown as a column in the houses working." },
-  { id: "book2-ch6", book: "Book 2, ch. 6", title: "AR - Akshaya Rasi (p. 68 onward)", note: "Introduction entered (the Akshaya rasi tracks the mind as the Akshaya lagna tracks the body); how it is computed is on the pages not yet photographed." },
-  { id: "book2-rest", book: "Book 2, later chapters", title: "Purpose of this birth; karma and time", note: "Pending." },
+  { id: "book2-ch6", book: "Book 2, ch. 6-7", title: "AR - Akshaya Rasi: the mind, and the technique of finding it (pp. 68-71)", note: "Entered from the printed volume: the Akshaya rasi tracks the mind as the Akshaya lagna tracks the body; it indicates a bhava and a planet." },
+  { id: "book2-ch8", book: "Book 2, ch. 8", title: "Akshaya rasi calculating method: the Vimshottari shift of the Moon; body and mind in alignment; free-will and destined bhavas restated (pp. 72-77)", note: "Entered from the printed volume; the computation is shown in the Akshaya rasi working." },
+  { id: "book2-ch10", book: "Book 2, ch. 9-10", title: "The purpose of life; Akshaya rasi and nakshatra: dasa lord with bhukti lord, ALP with ARP, gochar through the 8th (pp. 78-82)", note: "Entered from the printed volume; the gochar (transit) rules wait for Book 3 and live planet positions." },
+  { id: "book2-ch11", book: "Book 2, ch. 11", title: "The nature of Akshaya rasi (p. 83 onward)", note: "First page entered." },
+  { id: "book2-rest", book: "Book 2, later chapters", title: "Characteristics of the nakshatras; prasna", note: "Pending." },
   { id: "book3", book: "Book 3", title: "Introduction to gochar; the nakshatras of Leo; Aries-lagna ALP; the planets through the 12 bhavas by gochar", note: "Pending. Nakshatra-by-nakshatra readings begin here (Magha, Purva Phalguni, Uttara Phalguni)." },
   { id: "book4", book: "Book 4", title: "The nakshatras of Sagittarius; marriage matching; horoscope analysis", note: "Pending. Continues the nakshatra readings (Mula, Purva Ashadha, Uttara Ashadha)." },
 ];
@@ -76,6 +79,16 @@ export interface AlpRuleWhen {
   nakshatraStraddlesAhead?: boolean;
   /** The lords of these two houses from the ALP lagna share a sign (nodes excluded). */
   lordsTogether?: [number, number];
+  /** The Akshaya rasi (ARP) sign is one of these houses counted from the ALP lagna. */
+  arpHouseFromAlp?: number[];
+  /** The Akshaya rasi lord's sign is one of these houses counted from the ALP lagna lord's sign. */
+  arpLordFromAlpLord?: number[];
+  /** The ARP nakshatra lord (the running dasa lord) stands in one of these houses from the ALP nakshatra lord. */
+  arpNakLordFromAlpNakLord?: number[];
+  /** The running bhukti lord stands in one of these houses from the running dasa lord. */
+  bhuktiFromDasa?: number[];
+  /** The ALP lagna sign is one of these houses counted from a named planet. */
+  alpHouseFromPlanet?: { planet: Planet; houses: number[] };
 }
 
 export interface AlpRule {
@@ -477,7 +490,104 @@ export const ALP_RULES: AlpRule[] = [
     source: BOOK2("pp. 55-56: arguments, fights, disputes, illness, debts, enemies can be converted to luck or benefits; to activate the goodness of the 6th house one should get hold of the 9th bhava"),
     sourceUrl: ALP_SOURCE_BOOKS,
   },
+  // Book 2 ch. 6-8: the Akshaya rasi (the mind) against the Akshaya lagna (the body).
+  {
+    id: "b2c6-alp-arp-1-7",
+    chapter: "book2-ch6",
+    when: { arpHouseFromAlp: [1, 7] },
+    text: "The Akshaya rasi stands in the ALP lagna or its 7th: body and mind are connected through the 1st and 7th, the native meets people unexpectedly during this stretch and a vipareeta raja yoga can be set in motion.",
+    weight: 2,
+    source: BOOK2("p. 71 (Mrigashirsha Akshaya rasi against a Scorpio ALP)"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c8-lords-1-7",
+    chapter: "book2-ch8",
+    when: { arpLordFromAlpLord: [1, 7] },
+    text: "The ALP lagna lord and the Akshaya rasi lord stand together or opposite each other: body and mind are in alignment, and the book calls this a good yoga period in which the native's success comes more easily.",
+    weight: 3,
+    source: BOOK2("pp. 74, 81"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c8-nak-lords-1-7",
+    chapter: "book2-ch8",
+    when: { arpNakLordFromAlpNakLord: [1, 7] },
+    text: "The lord of the ALP nakshatra and the lord of the Akshaya rasi nakshatra (the running dasa lord) stand together or opposite each other: the finer alignment of body and mind, again read as a good yoga period.",
+    weight: 2,
+    source: BOOK2("p. 74"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c8-nak-lord-destined-arp",
+    chapter: "book2-ch8",
+    when: { role: "nakshatra-lord", roleInHouse: [4, 5, 6, 7, 8, 9] },
+    text: "Book 2 restates it beside the Akshaya rasi: when the ALP nakshatra point activates a destined bhava (4 to 9), the remedy is the native's own to perform; an astrologer who takes part in it shares the karma. From the bhava the Akshaya rasi occupies, the transiting planets have the greater impact.",
+    weight: 1,
+    source: BOOK2("p. 76"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  // Book 2 ch. 10: dasa lord with bhukti lord, ALP with ARP.
+  {
+    id: "b2c10-alp-arp-6-8",
+    chapter: "book2-ch10",
+    when: { arpHouseFromAlp: [6, 8] },
+    text: "The Akshaya rasi stands 6/8 (shashtashtaka) from the ALP lagna: no synchronisation between body and mind for the stretch; the book asks that the two nakshatra lords be judged before calling it good or bad.",
+    weight: 2,
+    source: BOOK2("p. 81 (Gemini ALP against a Capricorn Akshaya rasi)"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c10-lords-6-8",
+    chapter: "book2-ch10",
+    when: { arpLordFromAlpLord: [6, 8] },
+    text: "The ALP lagna lord and the Akshaya rasi lord stand 6/8 from each other: even an exalted planet among them will not deliver, since body and mind pull apart (the rule of \"vimati\").",
+    weight: 2,
+    source: BOOK2("p. 81 (Mars in Capricorn with the Sun in Gemini)"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c10-arp-in-3",
+    chapter: "book2-ch10",
+    when: { arpHouseFromAlp: [3] },
+    text: "The Akshaya rasi is the 3rd from the ALP lagna: the questions of the time turn on the 3rd house karakatwas, success, general efforts and efforts for marriage; a marriage in this stretch comes as a sudden event, and the same period suits registering it.",
+    weight: 1,
+    source: BOOK2("p. 80 (Aries ALP with a Gemini Akshaya rasi)"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c10-dasa-bhukti-trine",
+    chapter: "book2-ch10",
+    when: { bhuktiFromDasa: [1, 5, 9] },
+    text: "The bhukti lord stands in a trine (1st, 5th or 9th) from the dasa lord: the book's yoga for the Akshaya rasi, read from the two lords' placement towards each other (its example is a bhukti lord in the 9th from the dasa lord).",
+    weight: 1,
+    source: BOOK2("p. 79"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c10-dasa-bhukti-6-8",
+    chapter: "book2-ch10",
+    when: { bhuktiFromDasa: [6, 8] },
+    text: "The bhukti lord stands 6/8 from the dasa lord: the two lords whose mutual placement the book reads for the Akshaya rasi are out of step, so the stretch runs less smoothly (the shashtashtaka measure the same pages apply to ALP and ARP).",
+    weight: 1,
+    source: BOOK2("pp. 79, 81"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  // Book 2 ch. 11: the nature of the Akshaya rasi.
+  {
+    id: "b2c11-alp-from-rahu",
+    chapter: "book2-ch11",
+    when: { alpHouseFromPlanet: { planet: "Rahu", houses: [2, 5, 8, 11] } },
+    text: "The ALP lagna stands in the 2nd, 5th, 8th or 11th from Rahu: the native has to experience the fruits of past deeds in this stretch.",
+    weight: 2,
+    source: BOOK2("p. 83"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
 ];
+
+/** Book 2 pp. 70-77: what the Akshaya rasi is and how it is found. */
+export const ARP_NOTE =
+  "Book 2 (pp. 70-73): the Moon's birth nakshatra is the birth rasi. With each Vimshottari dasa the Moon shifts to the next nakshatra, one pada for each quarter of the dasa (Mars dasa in Mrigashirsha: 21 months a pada, the first two in Taurus, the last two in Gemini). The sign the current pada falls in is the Akshaya rasi, the mind; the dasa lord and the house it occupies show the condition of the mind, and the pada's navamsa sign is its subtle point.";
 
 /** Book 2, ch. 3-5: every bhava's "past-life karma bhava" is the 4th from it (the 10th counted backwards). */
 export interface KarmaBhavaRow {
@@ -523,6 +633,7 @@ export interface AlpContext {
   houses: AlpHouse[];
   placements: AlpPlacement[];
   nakStraddlesAhead: boolean;
+  arp: ArpResult;
 }
 
 export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
@@ -552,6 +663,25 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
       if (nl) planets.push(nl.planet);
     }
     if (w.nakshatraStraddlesAhead !== undefined && ctx.nakStraddlesAhead !== w.nakshatraStraddlesAhead) continue;
+    if (w.arpHouseFromAlp && !w.arpHouseFromAlp.includes(ctx.arp.houseFromAlp)) continue;
+    if (w.arpLordFromAlpLord) {
+      if (!w.arpLordFromAlpLord.includes(ctx.arp.arpLord.houseFromAlpLord)) continue;
+      planets.push(ctx.point.lord, ctx.arp.point.lord);
+    }
+    if (w.arpNakLordFromAlpNakLord) {
+      if (!w.arpNakLordFromAlpNakLord.includes(ctx.arp.nakLordsMutual)) continue;
+      planets.push(ctx.point.nakshatraLord, ctx.arp.dasaLord.planet);
+    }
+    if (w.bhuktiFromDasa) {
+      if (!w.bhuktiFromDasa.includes(ctx.arp.bhuktiLord.houseFromDasaLord)) continue;
+      planets.push(ctx.arp.dasaLord.planet, ctx.arp.bhuktiLord.planet);
+    }
+    if (w.alpHouseFromPlanet) {
+      const p = ctx.positions.find((x) => x.planet === w.alpHouseFromPlanet!.planet);
+      if (!p) continue;
+      if (!w.alpHouseFromPlanet.houses.includes(((ctx.alp - p.signIndex + 12) % 12) + 1)) continue;
+      planets.push(p.planet);
+    }
     if (w.lordsTogether) {
       const [h1, h2] = w.lordsTogether;
       const l1 = ctx.houses[h1 - 1].lord;

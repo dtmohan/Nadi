@@ -5,7 +5,7 @@ import { NAKSHATRAS, PLANET_ABBR, SIGNS, fmtDegShort, type Planet } from "@share
 
 const NAK_ARC = 360 / 27;
 import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "@shared/alp";
-import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE } from "@shared/rules-alp";
+import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
 import { Term } from "@/components/term";
@@ -63,6 +63,9 @@ export function AlpPanel({ result }: { result: ChartResult }) {
   badges[a.point.signIndex] = ["ALP"];
   badges[a.natalLagna.signIndex] = [...(badges[a.natalLagna.signIndex] ?? []), "Janma"];
   badges[a.point.navamsaSign] = [...(badges[a.point.navamsaSign] ?? []), "Activated"];
+  badges[a.arp.point.signIndex] = [...(badges[a.arp.point.signIndex] ?? []), "AR"];
+  const arp = a.arp;
+  const arpLordSame = arp.point.lord === a.point.lord;
   const planetsIn = (sign: number) => positions.filter((p) => p.signIndex === sign).map((p) => PLANET_ABBR[p.planet]).join(" ");
   const pendingChapters = ALP_CHAPTERS.filter((c) => !ALP_RULES.some((r) => r.chapter === c.id));
   const roleLine = (role: string) => a.placements.find((p) => p.role === role)!;
@@ -104,6 +107,12 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         <Badge variant="outline" className="no-default-hover-elevate tabular">
           Age {a.ageYears.toFixed(1)}
         </Badge>
+        <Badge variant="secondary" className="no-default-hover-elevate" data-testid="text-alp-arp">
+          <Term k="akshaya-rasi">Akshaya rasi</Term>&nbsp;{arp.point.sign}&nbsp;·&nbsp;{arp.point.nakshatra}&nbsp;{arp.point.pada}
+        </Badge>
+        <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-alp-dasa">
+          Dasa&nbsp;{arp.dasa.lord}&nbsp;·&nbsp;bhukti&nbsp;{arp.bhukti.lord}
+        </Badge>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
@@ -116,6 +125,9 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         </label>
         <span>
           Next pada {a.nextPadaChange ? fmt(a.nextPadaChange) : "—"} · next nakshatra {a.nextNakshatraChange ? fmt(a.nextNakshatraChange) : "—"} · next sign {a.nextSignChange ? fmt(a.nextSignChange) : "—"}
+        </span>
+        <span data-testid="text-alp-arp-next">
+          Akshaya rasi: next pada {arp.nextPadaChange ? fmt(arp.nextPadaChange) : "—"} · bhukti ends {fmt(arp.bhukti.end)} · dasa ends {fmt(arp.dasa.end)}
         </span>
       </div>
 
@@ -133,8 +145,98 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             secondarySigns={[a.point.navamsaSign]}
           />
           <p className="mt-2 text-xs text-muted-foreground">
-            Numbers are houses from the ALP lagna; the janma lagna is marked for reference. The ALP lagna lord ({PLANET_ABBR[alpLord]}) is drawn in the accent; the tinted sign is the one the current pada activates.
+            Numbers are houses from the ALP lagna; the janma lagna is marked for reference. The ALP lagna lord ({PLANET_ABBR[alpLord]}) is drawn in the accent; the tinted sign is the one the current pada activates; AR marks the Akshaya rasi.
           </p>
+
+          <h2 className="mt-6 text-base font-semibold">Where the mind stands</h2>
+          <ul className="mt-3 space-y-2 text-sm" data-testid="list-alp-arp">
+            <li>
+              The Moon was born in <span className="font-medium">{arp.natalMoon.nakshatra}</span> ({arp.natalMoon.sign}). Shifting one nakshatra with each Vimshottari dasa it has reached <span className="font-medium">{arp.point.nakshatra}</span> pada {arp.point.pada}, so the Akshaya rasi is <span className="font-medium">{arp.point.sign}</span>: the {ordinal(arp.houseFromAlp)} from the ALP lagna, the {ordinal(arp.houseFromJanma)} natally.
+            </li>
+            <li>
+              The running dasa is <span className="font-medium">{arp.dasa.lord}</span> (ages {arp.dasa.ageStart.toFixed(1)}–{arp.dasa.ageEnd.toFixed(1)}), bhukti <span className="font-medium">{arp.bhukti.lord}</span> until {fmt(arp.bhukti.end)}. The dasa lord sits in {SIGNS[arp.dasaLord.signIndex]}, the {ordinal(arp.dasaLord.houseFromArp)} from the Akshaya rasi: the condition of the mind is read from there. The bhukti lord is the {ordinal(arp.bhuktiLord.houseFromDasaLord)} from the dasa lord.
+            </li>
+            <li>
+              {arpLordSame ? (
+                <>
+                  <span className="font-medium">{a.point.lord}</span> rules both the ALP lagna and the Akshaya rasi: body and mind answer to one planet, placed in the {ordinal(arp.arpLord.houseFromAlp)} from the ALP lagna.
+                </>
+              ) : (
+                <>
+                  The Akshaya rasi lord <span className="font-medium">{arp.point.lord}</span> is in {SIGNS[arp.arpLord.signIndex]}, the {ordinal(arp.arpLord.houseFromAlpLord)} from the ALP lagna lord {a.point.lord}; the dasa lord is the {ordinal(arp.nakLordsMutual)} from the ALP nakshatra lord {a.point.nakshatraLord}.
+                </>
+              )}{" "}
+              The pada's navamsa is {SIGNS[arp.point.navamsaSign ?? 0]}, the subtle point of the mind.
+            </li>
+          </ul>
+
+          <Working id="alp-arp-dasas" label="Show the Akshaya rasi working" className="mt-4">
+            <p className="text-xs text-muted-foreground">{ARP_NOTE}</p>
+            <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Dasa</TableHead>
+                  <TableHead>Nakshatra</TableHead>
+                  <TableHead className="hidden sm:table-cell">Sign</TableHead>
+                  <TableHead className="text-right">Age</TableHead>
+                  <TableHead>From</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {arp.dasaTimeline.map((d, i) => (
+                  <TableRow key={i} className={cn(d.current && "bg-primary/5")} data-testid={`row-alp-dasa-${i}`}>
+                    <TableCell className="py-1.5 font-medium">
+                      {d.lord}
+                      {d.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                    </TableCell>
+                    <TableCell className="py-1.5">{d.nakshatra}</TableCell>
+                    <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{d.signs.map((x) => SIGNS[x]).join(" / ")}</TableCell>
+                    <TableCell className="whitespace-nowrap py-1.5 text-right">
+                      {d.ageStart.toFixed(1)}–{d.ageEnd.toFixed(1)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap py-1.5 text-muted-foreground">
+                      {fmtMonth(d.start)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <p className="mt-3 text-xs font-medium">The four padas of the {arp.dasa.lord} dasa ({arp.dasa.nakshatra})</p>
+            <Table className="tabular mt-1 [&_td]:px-2 [&_th]:px-2">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Pada</TableHead>
+                  <TableHead>Akshaya rasi</TableHead>
+                  <TableHead className="hidden sm:table-cell">Navamsa</TableHead>
+                  <TableHead className="text-right">Age</TableHead>
+                  <TableHead>From</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {arp.padaPeriods.map((p) => (
+                  <TableRow key={p.pada} className={cn(p.current && "bg-primary/5")} data-testid={`row-alp-arp-pada-${p.pada}`}>
+                    <TableCell className="py-1.5 font-medium">
+                      {p.pada}
+                      {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                    </TableCell>
+                    <TableCell className="py-1.5">{SIGNS[p.signs[0]]}</TableCell>
+                    <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{p.navamsaSign !== undefined ? SIGNS[p.navamsaSign] : ""}</TableCell>
+                    <TableCell className="whitespace-nowrap py-1.5 text-right">
+                      {p.ageStart.toFixed(1)}–{p.ageEnd.toFixed(1)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap py-1.5 text-muted-foreground">
+                      {fmt(p.start)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <p className="mt-1 text-xs text-muted-foreground">The {arp.dasa.lord} dasa ends {fmt(arp.dasa.end)}; each row runs to the start of the next.</p>
+            <p className="mt-3 text-xs font-medium">Bhuktis of the {arp.dasa.lord} dasa</p>
+            <p className="mt-1 text-xs text-muted-foreground" data-testid="text-alp-bhuktis">
+              {arp.bhuktis.map((b) => `${b.lord} ${fmtMonth(b.start)}${b.current ? " (now)" : ""}`).join(" · ")}
+            </p>
+          </Working>
         </div>
 
         <div>
@@ -256,7 +358,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
       <section className="mt-10" data-testid="section-alp-findings">
         <h2 className="text-base font-semibold">Reading</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 5 with the opening of chapter 6. The remaining chapters are entered one at a time.
+          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 11 (pp. 32-83). The remaining chapters are entered one at a time.
         </p>
         {a.findings.length ? (
           <ul className="mt-3 space-y-3">
@@ -418,7 +520,8 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             </a>
           </li>
           <li>Book 2 (pp. 32-41) settles the start: travelled degrees are added to the birth lagna degree, with 3° for each completed year and 1° for every four months of the remainder. The continuous point used here moves smoothly between those whole-degree steps; the arithmetic is shown in the working above.</li>
-          <li>Still open: whether the year is solar (365.25 days, used here) or savana (360 days); how the Akshaya rasi (ARP) is derived (Book 2, later chapters); the nakshatra-by-nakshatra readings (Books 3 and 4).</li>
+          <li>Book 2 (pp. 72-73) derives the Akshaya rasi from the Vimshottari dasa: the Moon moves from its birth nakshatra to the next with each dasa, a pada for each quarter of it, and the sign the current pada falls in is the Akshaya rasi (the mind), judged with the dasa lord and against the ALP lagna (the body). The first dasa is prorated from the Moon's degree, as in Vimshottari.</li>
+          <li>Still open: whether the year is solar (365.25 days, used here) or savana (360 days); the gochar rules (transiting Mars through the 8th from the ALP lagna, the Moon through the 8th from the Akshaya rasi, pp. 81-82) which need live planet positions and Book 3; the nakshatra-by-nakshatra readings (Books 3 and 4).</li>
           <li>Kept separate from the Nadi and Jaimini readings; nothing here feeds them.</li>
         </ul>
       </section>

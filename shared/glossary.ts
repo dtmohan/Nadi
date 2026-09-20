@@ -49,6 +49,7 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
   nakshatra: { term: "Nakshatra", short: "One of the 27 lunar mansions of 13° 20'. A planet takes the flavour of its nakshatra's lord.", system: "both" },
   ayanamsa: { term: "Ayanamsa", short: "The offset between the tropical and sidereal zodiacs. Lahiri is the Indian standard.", system: "both" },
   "alp-lagna": { term: "ALP lagna", short: "The ascendant moved forward with age: ten years to a sign, one pada in about 1 year 1 month 10 days (Akshaya Lagna Paddhati). Natal planets are read as houses from it.", system: "alp" },
+  "akshaya-rasi": { term: "Akshaya rasi", short: "The mind's counterpart to the ALP lagna (Book 2). The Moon moves from its birth nakshatra to the next with each Vimshottari dasa, a pada per quarter-dasa; the sign the current pada falls in is the Akshaya rasi, read with the dasa lord.", system: "alp" },
   "alp-pada": { term: "ALP pada", short: "The quarter of a nakshatra the ALP lagna currently occupies; nine padas make a sign. Its navamsa sign is said to be activated for the period.", system: "alp" },
   lagna: { term: "Lagna", short: "The ascendant: the sign rising in the east at birth. Nadi does not use it; Jaimini counts from it.", system: "both" },
 };

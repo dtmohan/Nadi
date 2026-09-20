@@ -29,6 +29,11 @@ function describeAlpCondition(w: AlpRuleWhen) {
   if (w.lordsTogether) parts.push(`lords of the ${ord(w.lordsTogether[0])} and ${ord(w.lordsTogether[1])} from the ALP lagna in one sign`);
   if (w.nakshatraStraddlesAhead !== undefined) parts.push(w.nakshatraStraddlesAhead ? "current nakshatra runs into the next sign" : "current nakshatra ends within the sign");
   if (w.alpHouseFromJanma) parts.push(`ALP lagna in the ${w.alpHouseFromJanma.map(ord).join("/")} from the janma lagna`);
+  if (w.arpHouseFromAlp) parts.push(`Akshaya rasi in the ${w.arpHouseFromAlp.map(ord).join("/")} from the ALP lagna`);
+  if (w.arpLordFromAlpLord) parts.push(`Akshaya rasi lord in the ${w.arpLordFromAlpLord.map(ord).join("/")} from the ALP lagna lord`);
+  if (w.arpNakLordFromAlpNakLord) parts.push(`dasa lord in the ${w.arpNakLordFromAlpNakLord.map(ord).join("/")} from the ALP nakshatra lord`);
+  if (w.bhuktiFromDasa) parts.push(`bhukti lord in the ${w.bhuktiFromDasa.map(ord).join("/")} from the dasa lord`);
+  if (w.alpHouseFromPlanet) parts.push(`ALP lagna in the ${w.alpHouseFromPlanet.houses.map(ord).join("/")} from ${w.alpHouseFromPlanet.planet}`);
   return parts.join(" · ");
 }
 

@@ -14,6 +14,13 @@ import { NAKSHATRAS, NAKSHATRA_LORD, SIGNS, SIGN_LORD, houseFrom, norm360, type 
 import { navamsaOf } from "./jaimini";
 import { evaluateAlp, type AlpFinding } from "./rules-alp";
 
+// Akshaya Rasi (AR / ARP), Book 2 ch. 6-8 (pp. 68-77): the Moon's birth nakshatra is the birth rasi;
+// with each Vimshottari dasa the Moon "shifts" to the next nakshatra, one pada for each quarter of the
+// dasa, and the sign the current pada falls in is the Akshaya rasi, read for the mind as the Akshaya
+// lagna is read for the body.
+export const VIMSHOTTARI_ORDER: Planet[] = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"];
+export const VIMSHOTTARI_YEARS: Record<string, number> = { Ketu: 7, Venus: 20, Sun: 6, Moon: 10, Mars: 7, Rahu: 18, Jupiter: 16, Saturn: 19, Mercury: 17 };
+
 export interface AlpConfig {
   /** Years the ALP lagna spends in one sign. The published figure is 10. */
   yearsPerSign: number;
@@ -85,8 +92,48 @@ export interface AlpPlacement {
   houseFromJanma: number;
 }
 
+export interface ArpPeriod {
+  lord: Planet;
+  nakshatraIndex: number;
+  nakshatra: string;
+  /** Sign(s) the stretch falls in: one for a pada, one or two for a whole nakshatra. */
+  signs: number[];
+  pada?: number;
+  navamsaSign?: number;
+  start: string;
+  end: string;
+  ageStart: number;
+  ageEnd: number;
+  current: boolean;
+}
+
+export interface ArpResult {
+  natalMoon: AlpPoint;
+  /** The progressed Moon: the current nakshatra pada of the Akshaya rasi. */
+  point: AlpPoint;
+  houseFromAlp: number;
+  houseFromJanma: number;
+  /** The running dasa: its lord is the lord of the ARP nakshatra. */
+  dasa: ArpPeriod;
+  bhukti: { lord: Planet; start: string; end: string; ageStart: number; ageEnd: number };
+  bhuktis: { lord: Planet; start: string; end: string; ageStart: number; ageEnd: number; current: boolean }[];
+  /** The four padas of the running dasa, each a quarter of it. */
+  padaPeriods: ArpPeriod[];
+  /** The nine dasas from birth (the first prorated from the Moon's degree). */
+  dasaTimeline: ArpPeriod[];
+  nextPadaChange: string | null;
+  /** Dasa lord (ARP nakshatra lord) as placed in the natal chart. */
+  dasaLord: { planet: Planet; signIndex: number; houseFromArp: number; houseFromAlp: number };
+  bhuktiLord: { planet: Planet; signIndex: number; houseFromArp: number; houseFromDasaLord: number };
+  arpLord: { planet: Planet; signIndex: number; houseFromArp: number; houseFromAlp: number; houseFromAlpLord: number };
+  /** House of the ARP nakshatra lord's sign counted from the ALP nakshatra lord's sign. */
+  nakLordsMutual: number;
+}
+
 export interface AlpResult {
   config: AlpConfig;
+  /** The Akshaya rasi (the mind), Book 2 ch. 6-8. */
+  arp: ArpResult;
   asOf: string;
   ageYears: number;
   natalLagna: AlpPoint;
@@ -213,6 +260,101 @@ function periodsBetween(natalLon: number, birth: DateTime, asOf: DateTime, confi
   return out;
 }
 
+/** Progressed Moon longitude after `days` from birth: each nakshatra takes its Vimshottari lord's years (Book 2 pp. 72-73). */
+export function arpLonAt(moonLon: number, days: number): number {
+  let lon = norm360(moonLon);
+  let rem = Math.max(0, days);
+  for (let guard = 0; guard < 60; guard++) {
+    const k = Math.floor(lon / NAK_ARC);
+    const yrs = VIMSHOTTARI_YEARS[NAKSHATRA_LORD[k % 27]];
+    const nakEnd = (k + 1) * NAK_ARC;
+    const daysToEnd = ((nakEnd - lon) / NAK_ARC) * yrs * YEAR_DAYS;
+    if (rem < daysToEnd) return norm360(lon + (rem / (yrs * YEAR_DAYS)) * NAK_ARC);
+    rem -= daysToEnd;
+    lon = nakEnd;
+  }
+  return norm360(lon);
+}
+
+function computeArp(positions: PlanetPosition[], birth: DateTime, asOf: DateTime, janma: number, alp: number, alpPoint: AlpPoint): ArpResult {
+  const moon = positions.find((p) => p.planet === "Moon")!;
+  const natalMoon = alpPointAt(moon.lon);
+  const days = Math.max(0, asOf.diff(birth, "days").days);
+  const point = alpPointAt(arpLonAt(moon.lon, days));
+  const signsOf = (lo: number, hi: number) => {
+    const a = Math.floor(lo / 30) % 12;
+    const b = Math.floor((hi - 1e-6) / 30) % 12;
+    return a === b ? [a] : [a, b];
+  };
+  const at = (d: number) => birth.plus({ days: d });
+  const iso = (d: number) => at(d).toISO()!;
+  const between = (d0: number, d1: number) => asOf >= at(d0) && asOf < at(d1);
+
+  // Dasa timeline: from the Moon's degree, nakshatra by nakshatra, through the 120-year cycle.
+  const dasaTimeline: ArpPeriod[] = [];
+  let lon = norm360(moon.lon);
+  let d = 0;
+  for (let i = 0; i < 27 && d < 120 * YEAR_DAYS - 1; i++) {
+    const k = Math.floor(lon / NAK_ARC);
+    const lord = NAKSHATRA_LORD[k % 27];
+    const yrs = VIMSHOTTARI_YEARS[lord];
+    const nakEnd = (k + 1) * NAK_ARC;
+    const span = ((nakEnd - lon) / NAK_ARC) * yrs * YEAR_DAYS;
+    dasaTimeline.push({ lord, nakshatraIndex: k % 27, nakshatra: NAKSHATRAS[k % 27], signs: signsOf(lon, nakEnd), start: iso(d), end: iso(d + span), ageStart: d / YEAR_DAYS, ageEnd: (d + span) / YEAR_DAYS, current: between(d, d + span) });
+    d += span;
+    lon = nakEnd;
+  }
+  const dasa = dasaTimeline.find((x) => x.current) ?? dasaTimeline[dasaTimeline.length - 1];
+  const dasaYears = VIMSHOTTARI_YEARS[dasa.lord];
+  // The first dasa began before birth: its full span is the lord's years ending at dasa.end.
+  const dasaStartDays = DateTime.fromISO(dasa.end).diff(birth, "days").days - dasaYears * YEAR_DAYS;
+
+  const padaPeriods: ArpPeriod[] = Array.from({ length: 4 }, (_, i) => {
+    const q = dasaYears * YEAR_DAYS / 4;
+    const d0 = dasaStartDays + i * q;
+    const d1 = d0 + q;
+    const lo = dasa.nakshatraIndex * NAK_ARC + i * PADA_ARC;
+    const pt = alpPointAt(lo + PADA_ARC / 2);
+    return { lord: dasa.lord, nakshatraIndex: dasa.nakshatraIndex, nakshatra: dasa.nakshatra, signs: [pt.signIndex], pada: i + 1, navamsaSign: pt.navamsaSign, start: iso(d0), end: iso(d1), ageStart: d0 / YEAR_DAYS, ageEnd: d1 / YEAR_DAYS, current: between(d0, d1) };
+  });
+  const curPada = padaPeriods.find((p) => p.current);
+
+  const startIdx = VIMSHOTTARI_ORDER.indexOf(dasa.lord);
+  let bd = dasaStartDays;
+  const bhuktis = VIMSHOTTARI_ORDER.map((_, i) => {
+    const lord = VIMSHOTTARI_ORDER[(startIdx + i) % 9];
+    const span = (dasaYears * VIMSHOTTARI_YEARS[lord] / 120) * YEAR_DAYS;
+    const row = { lord, start: iso(bd), end: iso(bd + span), ageStart: bd / YEAR_DAYS, ageEnd: (bd + span) / YEAR_DAYS, current: between(bd, bd + span) };
+    bd += span;
+    return row;
+  });
+  const bhukti = bhuktis.find((b) => b.current) ?? bhuktis[bhuktis.length - 1];
+
+  const arpSign = point.signIndex;
+  const pos = (planet: Planet) => positions.find((p) => p.planet === planet)!;
+  const dl = pos(dasa.lord);
+  const bl = pos(bhukti.lord);
+  const al = pos(point.lord);
+  const alpLordPos = pos(alpPoint.lord);
+  const alpNakLordPos = pos(alpPoint.nakshatraLord);
+  return {
+    natalMoon,
+    point,
+    houseFromAlp: houseFrom(alp, arpSign),
+    houseFromJanma: houseFrom(janma, arpSign),
+    dasa,
+    bhukti: { lord: bhukti.lord, start: bhukti.start, end: bhukti.end, ageStart: bhukti.ageStart, ageEnd: bhukti.ageEnd },
+    bhuktis,
+    padaPeriods,
+    dasaTimeline,
+    nextPadaChange: curPada ? curPada.end : null,
+    dasaLord: { planet: dasa.lord, signIndex: dl.signIndex, houseFromArp: houseFrom(arpSign, dl.signIndex), houseFromAlp: houseFrom(alp, dl.signIndex) },
+    bhuktiLord: { planet: bhukti.lord, signIndex: bl.signIndex, houseFromArp: houseFrom(arpSign, bl.signIndex), houseFromDasaLord: houseFrom(dl.signIndex, bl.signIndex) },
+    arpLord: { planet: point.lord, signIndex: al.signIndex, houseFromArp: houseFrom(arpSign, al.signIndex), houseFromAlp: houseFrom(alp, al.signIndex), houseFromAlpLord: houseFrom(alpLordPos.signIndex, al.signIndex) },
+    nakLordsMutual: houseFrom(alpNakLordPos.signIndex, dl.signIndex),
+  };
+}
+
 export function computeAlp(positions: PlanetPosition[], natalLagnaLon: number, birthIso: string, asOfIso: string, config: AlpConfig = DEFAULT_ALP_CONFIG): AlpResult {
   const birth = DateTime.fromISO(birthIso, { setZone: true });
   const asOf = DateTime.fromISO(asOfIso, { setZone: true });
@@ -294,10 +436,12 @@ export function computeAlp(positions: PlanetPosition[], natalLagnaLon: number, b
     const signEnd = (point.signIndex + 1) * 30;
     return nakEnd > signEnd + 1e-9;
   })();
-  const findings = evaluateAlp({ positions, janma, alp, point, natalLagna, houses, placements, nakStraddlesAhead });
+  const arp = computeArp(positions, birth, asOf, janma, alp, point);
+  const findings = evaluateAlp({ positions, janma, alp, point, natalLagna, houses, placements, nakStraddlesAhead, arp });
 
   return {
     config,
+    arp,
     asOf: asOf.toISO()!,
     ageYears,
     natalLagna,
