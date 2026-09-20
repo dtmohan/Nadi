@@ -2,7 +2,7 @@ import type { Express } from "express";
 import type { Server } from "node:http";
 import { insertChartSchema, type Chart, type ChartResult, type GeoHit } from "@shared/schema";
 import { RULES, evaluate } from "@shared/rules";
-import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, ascendantAt, specialLagnas, type EphemerisOptions } from "./ephemeris";
+import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, ascendantAt, specialLagnas, kpBase, type EphemerisOptions } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
 import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
 import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
@@ -11,10 +11,12 @@ import { buildChartPdf } from "./pdf";
 
 const resultCache = new Map<string, ChartResult>();
 
+const opts0 = (chart: Chart): EphemerisOptions => ({ ayanamsa: chart.ayanamsa, nodeType: chart.nodeType === "true" ? "true" : "mean" });
+
 export function computeChart(chart: Chart): ChartResult {
   const key = JSON.stringify({ ...chart, id: undefined, name: undefined, notes: undefined, day: DateTime.utc().toISODate() });
   const cached = resultCache.get(key);
-  if (cached) return { ...cached, chart };
+  if (cached) return { ...cached, chart, kp: { ...cached.kp, now: kpBase(cached.jd, chart.latitude, chart.longitude, chart.timezone, opts0(chart).nodeType).now } };
 
   const opts: EphemerisOptions = { ayanamsa: chart.ayanamsa, nodeType: chart.nodeType === "true" ? "true" : "mean" };
   const utc = localToUtc(chart.birthDate, chart.birthTime, chart.timezone);
@@ -41,6 +43,7 @@ export function computeChart(chart: Chart): ChartResult {
     transits,
     now: { positions: positionsAt(nj, opts), asOf: DateTime.utc().toISO()! },
     jaimini,
+    kp: kpBase(jd, chart.latitude, chart.longitude, chart.timezone, opts.nodeType),
   };
   resultCache.set(key, result);
   if (resultCache.size > 200) resultCache.delete(resultCache.keys().next().value!);

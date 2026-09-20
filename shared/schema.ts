@@ -4,6 +4,7 @@ import type * as z from "zod/mini";
 import type { PlanetPosition, TransitPeriod } from "./astro";
 import type { Reading } from "./rules";
 import type { JaiminiResult } from "./jaimini";
+import type { KpBase } from "./kp";
 
 export const charts = sqliteTable("charts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -43,6 +44,8 @@ export interface ChartResult {
   now: { positions: PlanetPosition[]; asOf: string };
   /** Jaimini module: ascendant-based, kept separate from the BNN reading. */
   jaimini: JaiminiResult;
+  /** Krishnamurti Paddhati base data (KP ayanamsa, Placidus cusps); the reading is derived in the client. */
+  kp: KpBase;
 }
 
 export interface GeoHit {

@@ -4,10 +4,14 @@
 export interface GlossaryEntry {
   term: string;
   short: string;
-  system: "bnn" | "jaimini" | "alp" | "both";
+  system: "bnn" | "jaimini" | "alp" | "kp" | "both";
 }
 
 export const GLOSSARY: Record<string, GlossaryEntry> = {
+  "kp-sub-lord": { term: "Sub lord", short: "Each nakshatra is split into nine unequal subs in Vimshottari proportion, starting with its own lord. The lord of the sub a cusp falls in decides whether that house delivers.", system: "kp" },
+  "kp-significator": { term: "Significator", short: "A planet signifies the houses its star lord occupies and owns, then the houses it occupies and owns itself. Events come in the joint periods of the significators of the houses concerned.", system: "kp" },
+  "kp-badhaka": { term: "Badhaka", short: "The obstructing house: the 11th for a movable lagna, the 9th for a fixed lagna, the 7th for a dual lagna. Worse than a maraka (2nd, 7th) for health and longevity.", system: "kp" },
+  "kp-ruling-planets": { term: "Ruling planets", short: "The lords of the rising sign and star, of the Moon's sign and star, and of the weekday at the moment of judgement. Used to rectify birth time and to choose between competing significators.", system: "kp" },
   karaka: { term: "Karaka", short: "The planet that stands for a matter. In Nadi, Jupiter is the native, Saturn the work, Venus the wife or the woman herself, Mars the husband.", system: "both" },
   jeeva: { term: "Jeeva karaka", short: "Jupiter as the life force, the native at the subtle level. The whole Nadi reading is counted from it.", system: "bnn" },
   deha: { term: "Deha karaka", short: "The native as a person: Jupiter in a male chart, Venus in a female chart (Naik). Marriage and comforts are counted from it.", system: "bnn" },

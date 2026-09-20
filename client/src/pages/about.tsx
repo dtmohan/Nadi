@@ -16,9 +16,15 @@ export default function AboutPage() {
           <TabsTrigger value="jaimini" data-testid="tab-about-jaimini">
             Jaimini
           </TabsTrigger>
+          <TabsTrigger value="kp" data-testid="tab-about-kp">
+            KP
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="jaimini">
           <JaiminiMethod />
+        </TabsContent>
+        <TabsContent value="kp">
+          <KpMethod />
         </TabsContent>
         <TabsContent value="bnn">
       <div className="prose prose-sm mt-4 max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-base">
@@ -459,6 +465,56 @@ function JaiminiMethod() {
       <p>
         The ascendant is the sidereal rising degree computed by the Swiss Ephemeris for the birth time and place. Birth time precision matters far more here than in the Nadi reading: a few minutes can
         change the lagna sign and, with it, every pada and the whole Chara dasha sequence.
+      </p>
+    </div>
+  );
+}
+
+function KpMethod() {
+  return (
+    <div className="prose prose-sm mt-4 max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-base" data-testid="about-kp">
+      <p>
+        Krishnamurti Paddhati (KP) is Prof. K.S. Krishnamurti's stellar method. It is a separate mode on the chart page and shares nothing with the Nadi, Jaimini or ALP readings except the birth data.
+        Everything in it is recomputed with the Krishnamurti ayanamsa, whatever ayanamsa the chart was saved with, because the sub boundaries are narrow enough for the difference to matter.
+      </p>
+      <h2>Cusps, stars and subs</h2>
+      <p>
+        House cusps are Placidus, and a bhava runs from one cusp to the next, so a planet a few degrees before a cusp already belongs to the next house. Each nakshatra of 13°20' is divided into nine
+        unequal subs in the Vimshottari proportion (7, 20, 6, 10, 7, 18, 16, 19, 17 out of 120), starting with the star's own lord, giving 249 subs across the zodiac; each sub is divided the same way
+        again for the sub-sub. Every cusp and planet is therefore labelled by its sign lord, star lord, sub lord and sub-sub lord.
+      </p>
+      <h2>Significators</h2>
+      <p>
+        Krishnamurti's four steps rank a planet's signification: the house occupied by its star lord, the house it occupies itself, the houses owned by its star lord, and the houses it owns. The class
+        notes add two further steps, the sub lord's occupancy and ownership, offered here as a 6-step toggle. Rahu and Ketu own no sign; they act for the lord of the sign they are in and for any planet
+        sharing that sign or aspecting them. The house-wise table lists the same links from the house's side: planets in the star of the occupants, the occupants, planets in the star of the owner, the
+        owner.
+      </p>
+      <h2>The cuspal sub lord decides</h2>
+      <p>
+        The rule that gives KP its shape: a house delivers its matters only if the sub lord of its cusp is a significator of houses favourable to them, and denies them if it signifies the houses that
+        negate them. For the 7th cusp, marriage is promised when the sub lord signifies 2, 7 or 11 and denied when it signifies 1, 6 or 10 without them. The reading section applies this cusp by cusp.
+        The 1st and 2nd cusp rules are from the Kalpurush Astrology class notes; the consolidated rules for all twelve cusps are paraphrased from chapter 6 of Astro Secrets & KP Part 3, cited by page.
+        The badhaka house (11th for a movable lagna, 9th for fixed, 7th for dual) and the marakas (2nd and 7th) are marked wherever they appear.
+      </p>
+      <h2>Timing</h2>
+      <p>
+        Vimshottari dasa from the Moon's star, with the balance at birth taken from the Moon's progress through it. An event promised by the cusp fructifies when the dasa, bhukti and antara lords are
+        all significators of the houses concerned; the joint period finder lists every such window in the next thirty years for a chosen matter. Transits are not yet applied.
+      </p>
+      <h2>Ruling planets</h2>
+      <p>
+        At the moment of judgement the lords of the rising sign and star, the Moon's sign and star, and the weekday (counted from the last sunrise at the birth place) are the ruling planets. KP uses
+        them to rectify birth time, to answer horary questions and to choose between competing significators. The chart page computes them for the moment the chart is opened, at the birth place.
+      </p>
+      <h2>Sources</h2>
+      <p>
+        Astro Secrets & KP Parts 1 to 3 and the Kalpurush Astrology class notes (KP classes 3.1, 3.2 and 4.1), from the user's own copies; the rules are paraphrased, never reproduced, and each is
+        cited by volume and page. General method also follows K.S. Krishnamurti's KP Readers as summarised at{" "}
+        <a href="https://kpastrology.astrosage.com/kp-learning-home/resources" target="_blank" rel="noreferrer">
+          kpastrology.astrosage.com
+        </a>
+        .
       </p>
     </div>
   );

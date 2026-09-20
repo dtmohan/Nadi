@@ -3,6 +3,7 @@ import sweph from "sweph";
 import path from "node:path";
 import fs from "node:fs";
 import { DateTime } from "luxon";
+import type { KpBase } from "@shared/kp";
 import {
   PLANETS,
   type Planet,
@@ -182,4 +183,36 @@ export function specialLagnas(jd: number, latitude: number, longitude: number, o
   const sunLon = norm360(sun.data[0]);
   const hours = (jd - sunriseJd) * 24;
   return { horaLagna: norm360(sunLon + hours * 30), ghatikaLagna: norm360(sunLon + hours * 75), sunriseJd };
+}
+
+/**
+ * Krishnamurti Paddhati base data: the nine planets and the twelve Placidus cusps with the
+ * Krishnamurti ayanamsa, plus the snapshot used for the ruling planets at the moment of judgement
+ * (ascendant computed for the birth place; the weekday is that of the last sunrise there).
+ */
+export function kpBase(jd: number, latitude: number, longitude: number, zone: string, nodeType: EphemerisOptions["nodeType"]): KpBase {
+  const opts: EphemerisOptions = { ayanamsa: "kp", nodeType };
+  const positions = positionsAt(jd, opts);
+  setMode(opts);
+  const r = sweph.houses_ex(jd, C.SEFLG_SIDEREAL, latitude, longitude, "P") as unknown as { flag: number; data: { houses: number[]; points: number[] } };
+  if (r.flag < 0) throw new Error("Could not compute the Placidus cusps");
+  const cusps = r.data.houses.slice(0, 12).map(norm360);
+  const nj = nowJd();
+  let weekday: number;
+  try {
+    weekday = weekdayOf(sunriseBefore(nj, latitude, longitude), zone);
+  } catch {
+    weekday = weekdayOf(nj, zone);
+  }
+  return {
+    ayanamsaValue: ayanamsaAt(jd, opts),
+    positions,
+    cusps,
+    now: { asOf: DateTime.utc().toISO()!, positions: positionsAt(nj, opts), ascendant: ascendantAt(nj, latitude, longitude, opts), weekday },
+  };
+}
+
+/** Weekday (0 = Sunday) of a Julian day, read on the civil calendar of the given zone. */
+function weekdayOf(jd: number, zone: string): number {
+  return DateTime.fromMillis((jd - 2440587.5) * 86400000, { zone }).weekday % 7;
 }

@@ -1,0 +1,436 @@
+// Krishnamurti Paddhati reading rules: what the sub lord of each cusp promises.
+//
+// Every rule is a paraphrase entered from the practitioner's own copies (Astro Secrets & Krishnamurti
+// Padhdhati Part 3, ch. 6 "Principle of Sublords and Relevant Houses", ed. K. Subramaniam, and the
+// Kalpurush Astrology KP class notes by Sagar Neogi). The books are cited by volume and page; no
+// passage is reproduced. Rules are evaluated on the houses the cuspal sub lord signifies
+// (Krishnamurti's four steps, optionally the six-step table taught in the class).
+
+import type { Planet } from "./astro";
+import type { KpResult, SignificatorLevel } from "./kp";
+
+export type KpPolarity = "good" | "bad" | "neutral";
+
+export interface KpRuleWhen {
+  /** The cusp whose sub lord is judged. */
+  cusp: number;
+  /** The sub lord must signify every one of these houses. */
+  all?: number[];
+  /** ... at least one of these. */
+  any?: number[];
+  /** ... none of these. */
+  none?: number[];
+  /** ... at least `count` of these houses. */
+  minOf?: { houses: number[]; count: number };
+  /** ... fewer than `count` of these houses. */
+  fewerThan?: { houses: number[]; count: number };
+  /** The sub lord is a strong significator (star-lord occupancy or own occupancy) of one of these. */
+  strong?: number[];
+  subLordIs?: Planet[];
+  subLordNot?: Planet[];
+  /** The sub lord is posited in one of these bhavas. */
+  subLordInHouse?: number[];
+  subLordRetro?: boolean;
+  subLordInDualSign?: boolean;
+  /** The sub lord's own star lord occupies one of these houses ("in the constellation of a planet deposited in..."). */
+  starLordOccupies?: number[];
+  /** The sub lord's star lord signifies every one of these ("in the constellation of a planet signifying..."). */
+  starLordSignifies?: number[];
+  /** ... at least one of these. */
+  starLordSignifiesAny?: number[];
+  starLordIs?: Planet[];
+  /** The sub lord's star lord signifies the badhaka or a maraka house. */
+  starLordBadhakaMaraka?: boolean;
+  /** The sub lord is connected to one of these planets: it is that planet, sits with it, is in its star or sub, or has it in its own star. */
+  connectedTo?: Planet[];
+  /** ... to every one of these. */
+  connectedToAll?: Planet[];
+  /** The sub lord signifies the badhaka house (11 movable / 9 fixed / 7 dual lagna). */
+  badhaka?: boolean;
+  /** The sub lord signifies a maraka house (2 or 7). */
+  maraka?: boolean;
+  lagnaQuality?: Array<"Movable" | "Fixed" | "Dual">;
+  /** A second cusp whose sub lord must also meet a condition. */
+  otherCusp?: { cusp: number; all?: number[]; any?: number[]; minOf?: { houses: number[]; count: number } };
+}
+
+export interface KpRule {
+  id: string;
+  cusp: number;
+  topic: string;
+  when: KpRuleWhen;
+  text: string;
+  polarity: KpPolarity;
+  /** Houses whose significators' conjoined dasa-bhukti-antara time the event. */
+  timing?: number[];
+  source: string;
+}
+
+export interface KpFinding {
+  ruleId: string;
+  cusp: number;
+  topic: string;
+  text: string;
+  polarity: KpPolarity;
+  timing?: number[];
+  source: string;
+  /** What was seen: the sub lord and the houses that satisfied the rule. */
+  evidence: string;
+  subLord: Planet;
+}
+
+const C32 = "Kalpurush Astrology, KP class 3.2 (the 1st cusp), S. Neogi";
+const C41 = "Kalpurush Astrology, KP class 4.1 (the 2nd cusp), S. Neogi";
+const P3 = (p: string) => `Astro Secrets & KP Part 3, ch. 6, p. ${p}`;
+
+const IMPROVING = [1, 2, 3, 6, 10, 11];
+
+export const KP_CUSP_THEMES: Record<number, string> = {
+  1: "Self, health, longevity, temperament",
+  2: "Finance, family, speech, right eye, marriage (maraka)",
+  3: "Courage, siblings, short journeys, writing, communications",
+  4: "Education, home, property, vehicles, mother",
+  5: "Children, speculation, love, arts, mantra",
+  6: "Illness, loans, service, litigation, competitors",
+  7: "Marriage, partners, the other party",
+  8: "Longevity, accidents, surgery, legacy, debts",
+  9: "Father, higher learning, long journeys, faith",
+  10: "Profession, status, government",
+  11: "Fulfilment of desires, gains, friends, recovery",
+  12: "Loss, foreign lands, hospital, confinement, the left eye",
+};
+
+export const KP_RULES: KpRule[] = [
+  // ---------------- Cusp I ----------------
+  { id: "kp1-life-long", cusp: 1, topic: "Longevity", when: { cusp: 1, minOf: { houses: [1, 5, 9, 11], count: 2 }, fewerThan: { houses: [6, 8, 12], count: 2 } }, text: "The lagna sub lord leans on the life-supporting houses 1, 5, 9 and 11 and stays clear of 6, 8, 12: a long span is promised.", polarity: "good", source: C32 },
+  { id: "kp1-life-short", cusp: 1, topic: "Longevity", when: { cusp: 1, minOf: { houses: [6, 8, 12], count: 2 }, fewerThan: { houses: [1, 5, 9, 11], count: 2 } }, text: "The lagna sub lord leans on 6, 8 and 12 without the support of 1, 5, 9, 11: the body is under strain and longevity needs care, the more so if the badhaka or a maraka house joins in.", polarity: "bad", source: C32 },
+  { id: "kp1-life-medium", cusp: 1, topic: "Longevity", when: { cusp: 1, minOf: { houses: [6, 8, 12], count: 2 }, otherCusp: { cusp: 1, minOf: { houses: [1, 5, 9, 11], count: 2 } } }, text: "The lagna sub lord signifies both the supporting houses (1, 5, 9, 11) and the draining ones (6, 8, 12): a middling span, with health needing care in the periods of the 6-8-12 significators.", polarity: "neutral", source: C32 },
+  { id: "kp1-badhaka", cusp: 1, topic: "Longevity", when: { cusp: 1, badhaka: true }, text: "The lagna sub lord signifies the badhaka house (the 11th for a movable lagna, the 9th for fixed, the 7th for dual). The class notes and the book both rank this above a maraka link as an obstruction to health and life.", polarity: "bad", source: `${C32}; ${P3("38")}` },
+  { id: "kp1-maraka", cusp: 1, topic: "Longevity", when: { cusp: 1, maraka: true, badhaka: false }, text: "The lagna sub lord signifies a maraka house (2 or 7): the periods of the 2nd and 7th significators call for care with health.", polarity: "bad", source: `${C32}; ${P3("38")}` },
+  { id: "kp1-sickly", cusp: 1, topic: "Health", when: { cusp: 1, starLordOccupies: [6] }, text: "The lagna sub lord sits in the star of a planet in the 6th: a constitution prone to illness.", polarity: "bad", source: P3("39") },
+  { id: "kp1-healthy", cusp: 1, topic: "Health", when: { cusp: 1, starLordOccupies: [1, 11] }, text: "The lagna sub lord sits in the star of a planet in the 1st or 11th: good health and recovery when ill.", polarity: "good", source: P3("39") },
+  { id: "kp1-recovery", cusp: 1, topic: "Health", when: { cusp: 1, minOf: { houses: [1, 3, 5], count: 2 } }, text: "The lagna sub lord signifies 1, 3 and 5: illness is recovered from, in the conjoined period of the 1-5-9-11 significators (for a movable lagna take the 9th rather than the 11th).", polarity: "good", timing: [1, 5, 9, 11], source: C32 },
+  { id: "kp1-anxiety", cusp: 1, topic: "Mind", when: { cusp: 1, any: [6] }, text: "The lagna sub lord signifies the 6th, the house of anxiety: worry and low confidence surface in the periods of 3 and 6, and lift in the periods of 1, 5, 9 and 11.", polarity: "bad", timing: [1, 5, 9, 11], source: C32 },
+  { id: "kp1-nervous", cusp: 1, topic: "Mind", when: { cusp: 1, any: [3], none: [6] }, text: "The lagna sub lord signifies the 3rd: nervous energy and restlessness rather than settled confidence.", polarity: "neutral", source: C32 },
+  { id: "kp1-popular", cusp: 1, topic: "Standing", when: { cusp: 1, minOf: { houses: [1, 3, 10, 11], count: 3 } }, text: "The lagna sub lord signifies 1, 3, 10 and 11: a popular, well-regarded person.", polarity: "good", source: C32 },
+  { id: "kp1-decisive", cusp: 1, topic: "Temperament", when: { cusp: 1, minOf: { houses: [1, 6, 10, 11], count: 3 } }, text: "The lagna sub lord signifies 1, 6, 10 and 11: decisive, able to take a stand and carry it through.", polarity: "good", source: C32 },
+  { id: "kp1-fame", cusp: 1, topic: "Standing", when: { cusp: 1, any: [10] }, text: "The lagna sub lord is connected to the 10th: name and reputation come through work.", polarity: "good", source: P3("39") },
+  { id: "kp1-suicidal", cusp: 1, topic: "Temperament", when: { cusp: 1, all: [2, 7, 8], badhaka: true }, text: "The lagna sub lord signifies 2, 7 and 8 together with the badhaka house: the class notes flag a self-destructive streak under pressure. Read with care and with the 8th cusp.", polarity: "bad", source: C32 },
+  { id: "kp1-accident", cusp: 1, topic: "Health", when: { cusp: 1, minOf: { houses: [1, 6, 7, 8, 12], count: 3 }, badhaka: true }, text: "The lagna sub lord signifies several of 1, 6, 7, 8, 12 and the badhaka house: accident-prone; the 8th cusp sub lord shows how serious.", polarity: "bad", source: C32 },
+  { id: "kp1-spiritual", cusp: 1, topic: "Temperament", when: { cusp: 1, subLordIs: ["Ketu"], starLordOccupies: [9, 12], connectedTo: ["Saturn"] }, text: "Ketu as lagna sub lord, in the star of a planet in the 9th or 12th and connected to Saturn: a spiritual, withdrawing bent.", polarity: "neutral", source: P3("39") },
+
+  // ---------------- Cusp II ----------------
+  { id: "kp2-wealth-high", cusp: 2, topic: "Finance", when: { cusp: 2, minOf: { houses: [6, 10, 11], count: 2 }, none: [5, 8, 12] }, text: "The 2nd sub lord signifies 6, 10 and 11 and none of 5, 8, 12: substantial wealth, gathered in the conjoined periods of the 2-6-10-11 significators.", polarity: "good", timing: [2, 6, 10, 11], source: C41 },
+  { id: "kp2-wealth-low", cusp: 2, topic: "Finance", when: { cusp: 2, minOf: { houses: [5, 8, 12], count: 2 }, none: [6, 10, 11] }, text: "The 2nd sub lord signifies 5, 8 and 12 and none of 6, 10, 11: money stays modest and leaks through the houses of loss.", polarity: "bad", source: C41 },
+  { id: "kp2-wealth-mixed", cusp: 2, topic: "Finance", when: { cusp: 2, any: [6, 10, 11], minOf: { houses: [5, 8, 12], count: 1 } }, text: "The 2nd sub lord signifies both the gaining houses (6, 10, 11) and the losing ones (5, 8, 12): a middling, up-and-down financial life.", polarity: "neutral", source: C41 },
+  { id: "kp2-fin-verygood", cusp: 2, topic: "Finance", when: { cusp: 2, starLordSignifies: [6, 11] }, text: "The 2nd sub lord is in the star of a planet signifying 6 and 11: very good finances.", polarity: "good", source: P3("41") },
+  { id: "kp2-fin-moderate", cusp: 2, topic: "Finance", when: { cusp: 2, starLordSignifies: [2, 10] }, text: "The 2nd sub lord is in the star of a planet signifying 2 and 10: moderate but steady finances.", polarity: "neutral", source: P3("41") },
+  { id: "kp2-improving", cusp: 2, topic: "Finance", when: { cusp: 2, minOf: { houses: IMPROVING, count: 3 } }, text: "The 2nd sub lord is tied to the improving houses (1, 2, 3, 6, 10, 11): the financial position keeps improving.", polarity: "good", source: P3("42") },
+  { id: "kp2-gain", cusp: 2, topic: "Finance", when: { cusp: 2, all: [2], any: [6, 11] }, text: "The 2nd sub lord signifies 2 with 6 or 11: money comes in.", polarity: "good", timing: [2, 6, 11], source: C41 },
+  { id: "kp2-loss", cusp: 2, topic: "Finance", when: { cusp: 2, all: [2], any: [8, 12] }, text: "The 2nd sub lord signifies 2 with 8 or 12: losses and money going out.", polarity: "bad", source: C41 },
+  { id: "kp2-entangled", cusp: 2, topic: "Finance", when: { cusp: 2, all: [2, 5, 8] }, text: "The 2nd sub lord signifies 2, 5 and 8: money lent gets entangled and is slow to return.", polarity: "bad", source: C41 },
+  { id: "kp2-speculation", cusp: 2, topic: "Finance", when: { cusp: 2, all: [5, 11] }, text: "The 2nd sub lord signifies 5 and 11: gains through speculation.", polarity: "good", source: C41 },
+  { id: "kp2-lottery", cusp: 2, topic: "Finance", when: { cusp: 2, all: [3, 11] }, text: "The 2nd sub lord signifies 3 and 11: luck in lotteries and draws.", polarity: "good", source: C41 },
+  { id: "kp2-insurance", cusp: 2, topic: "Finance", when: { cusp: 2, all: [8, 11] }, text: "The 2nd sub lord signifies 8 and 11: insurance claims, legacies and dues are realised.", polarity: "good", source: C41 },
+  { id: "kp2-service", cusp: 2, topic: "Livelihood", when: { cusp: 2, minOf: { houses: [2, 6, 10, 11], count: 3 } }, text: "The 2nd sub lord signifies 2, 6, 10 and 11: income through service.", polarity: "neutral", source: C41 },
+  { id: "kp2-business", cusp: 2, topic: "Livelihood", when: { cusp: 2, minOf: { houses: [2, 7, 10, 11], count: 3 }, all: [7] }, text: "The 2nd sub lord signifies 2, 7, 10 and 11: income through business and public dealings.", polarity: "neutral", source: `${C41}; ${P3("40")}` },
+  { id: "kp2-src-1", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [1] }, text: "Through the 1st: earnings by personal effort and one's own name.", polarity: "neutral", source: C41 },
+  { id: "kp2-src-2", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [2] }, text: "Through the 2nd: family business, speech and oratory, food, hotels.", polarity: "neutral", source: C41 },
+  { id: "kp2-src-3", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [3] }, text: "Through the 3rd: marketing, writing, agencies, communications, short travel.", polarity: "neutral", source: C41 },
+  { id: "kp2-src-4", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [4] }, text: "Through the 4th: land, property, inheritance, vehicles, the home town.", polarity: "neutral", source: C41 },
+  { id: "kp2-src-5", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [5] }, text: "Through the 5th: entertainment, cinema, sports, speculation, children.", polarity: "neutral", source: C41 },
+  { id: "kp2-src-6", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [6] }, text: "Through the 6th: service, loans and lending, medicine, hospitality, HR, pets and poultry.", polarity: "neutral", source: C41 },
+  { id: "kp2-src-7", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [7] }, text: "Through the 7th: partnerships, marriage, legal and public dealings.", polarity: "neutral", source: C41 },
+  { id: "kp2-src-8", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [8] }, text: "Through the 8th: legacies, insurance, gratuity, provident fund, ancestral money.", polarity: "neutral", source: C41 },
+  { id: "kp2-src-9", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [9] }, text: "Through the 9th: foreign connections, import-export, religious and charitable bodies.", polarity: "neutral", source: C41 },
+  { id: "kp2-src-10", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [10] }, text: "Through the 10th: status, government, politics, the profession itself.", polarity: "neutral", source: C41 },
+  { id: "kp2-src-11", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [11] }, text: "Through the 11th: gains with little effort, sudden and easy money.", polarity: "neutral", source: C41 },
+  { id: "kp2-src-12", cusp: 2, topic: "Sources of income", when: { cusp: 2, any: [12] }, text: "Through the 12th: hospitals, hostels, prisons, research, complex or hidden subjects.", polarity: "neutral", source: C41 },
+  { id: "kp2-property", cusp: 2, topic: "Finance", when: { cusp: 2, any: [4, 8, 9], minOf: { houses: [6, 7, 11], count: 1 }, all: [2] }, text: "The 2nd sub lord ties 4, 8 or 9 with 2 and 6-7-11: income from property.", polarity: "good", timing: [2, 6, 10, 11], source: C41 },
+  { id: "kp2-abroad", cusp: 2, topic: "Livelihood", when: { cusp: 2, all: [9, 12], minOf: { houses: [2, 6, 10], count: 1 } }, text: "The 2nd sub lord signifies 9 and 12 with 2, 6 or 10: earning abroad, in the conjoined period of 3, 9 and 12.", polarity: "good", timing: [3, 9, 12], source: C41 },
+  { id: "kp2-speech-mars", cusp: 2, topic: "Speech", when: { cusp: 2, subLordIs: ["Mars"] }, text: "Mars as 2nd sub lord: blunt, hasty speech that can stretch the truth; an argumentative streak.", polarity: "neutral", source: P3("40") },
+  { id: "kp2-speech-saturn", cusp: 2, topic: "Speech", when: { cusp: 2, subLordIs: ["Saturn"] }, text: "Saturn as 2nd sub lord: slow, guarded speech that keeps things back.", polarity: "neutral", source: P3("40") },
+  { id: "kp2-speech-mercury", cusp: 2, topic: "Speech", when: { cusp: 2, subLordIs: ["Mercury"] }, text: "Mercury as 2nd sub lord: detailed, quick and versatile speech.", polarity: "neutral", source: P3("40") },
+  { id: "kp2-speech-venus", cusp: 2, topic: "Speech", when: { cusp: 2, subLordIs: ["Venus"] }, text: "Venus as 2nd sub lord: pleasant, peace-making speech.", polarity: "neutral", source: P3("40") },
+  { id: "kp2-speech-sun", cusp: 2, topic: "Speech", when: { cusp: 2, subLordIs: ["Sun"] }, text: "Sun as 2nd sub lord: dignified, noble speech.", polarity: "neutral", source: P3("40") },
+  { id: "kp2-speech-jupiter", cusp: 2, topic: "Speech", when: { cusp: 2, subLordIs: ["Jupiter"] }, text: "Jupiter as 2nd sub lord: truthful, expansive speech.", polarity: "neutral", source: P3("40") },
+  { id: "kp2-orator", cusp: 2, topic: "Speech", when: { cusp: 2, subLordIs: ["Jupiter", "Mercury"], minOf: { houses: [1, 6, 10, 11], count: 2 } }, text: "Jupiter or Mercury as 2nd sub lord signifying 1, 6, 10 and 11: a good orator.", polarity: "good", source: C41 },
+  { id: "kp2-speech-defect", cusp: 2, topic: "Speech", when: { cusp: 2, all: [8, 12] }, text: "The 2nd sub lord signifies 8 and 12: a defect of speech or of the right eye is possible.", polarity: "bad", source: `${C41}; ${P3("41")}` },
+  { id: "kp2-eye", cusp: 2, topic: "Health", when: { cusp: 2, any: [12], none: [8] }, text: "The 2nd sub lord is connected to the 12th: trouble with eyesight; the 8th would point to the right eye.", polarity: "bad", source: P3("41") },
+  { id: "kp2-children", cusp: 2, topic: "Family", when: { cusp: 2, all: [5, 11] }, text: "The 2nd sub lord signifies 5 and 11: children are indicated (the 2nd being the 11th to the 4th, the house of the family).", polarity: "good", timing: [2, 5, 11], source: P3("40") },
+  { id: "kp2-marriage", cusp: 2, topic: "Family", when: { cusp: 2, all: [7, 11] }, text: "The 2nd sub lord signifies 7 and 11: marriage and addition to the family.", polarity: "good", timing: [2, 7, 11], source: P3("40") },
+  { id: "kp2-borrow", cusp: 2, topic: "Finance", when: { cusp: 2, any: [6], none: [10, 11] }, text: "The 2nd sub lord signifies the 6th without 10 or 11: money by borrowing, debts accumulate.", polarity: "bad", source: P3("40") },
+  { id: "kp2-second-marriage", cusp: 2, topic: "Family", when: { cusp: 2, subLordIs: ["Mercury"], all: [7] }, text: "Mercury (a dual planet) as 2nd sub lord signifying the 7th: more than one marriage or a second union is possible.", polarity: "neutral", source: C41 },
+  { id: "kp2-maraka", cusp: 2, topic: "Longevity", when: { cusp: 2, all: [7], badhaka: true }, text: "The 2nd sub lord signifies the 7th and the badhaka house: both marakas and the badhaka meet; the conjoined periods need care with health.", polarity: "bad", source: P3("40") },
+
+  // ---------------- Cusp III ----------------
+  { id: "kp3-success", cusp: 3, topic: "Communications", when: { cusp: 3, all: [3, 11] }, text: "The 3rd sub lord signifies 3 and 11: success in negotiations, correspondence, agreements and short journeys.", polarity: "good", timing: [3, 11], source: P3("42") },
+  { id: "kp3-loss", cusp: 3, topic: "Communications", when: { cusp: 3, all: [3, 12] }, text: "The 3rd sub lord signifies 3 and 12: letters, messages and short trips bring loss or go astray.", polarity: "bad", source: P3("42") },
+  { id: "kp3-bold", cusp: 3, topic: "Temperament", when: { cusp: 3, minOf: { houses: [2, 10, 11], count: 2 } }, text: "The 3rd sub lord signifies 2, 10 and 11: boldness that pays.", polarity: "good", source: P3("43") },
+  { id: "kp3-courage", cusp: 3, topic: "Temperament", when: { cusp: 3, subLordIs: ["Jupiter", "Sun", "Mars", "Venus"] }, text: "Jupiter, Sun, Mars or Venus as 3rd sub lord: courage to face competition.", polarity: "good", source: P3("43") },
+  { id: "kp3-exams", cusp: 3, topic: "Competition", when: { cusp: 3, minOf: { houses: [4, 9, 11], count: 2 } }, text: "The 3rd sub lord signifies 4, 9 and 11: success in competitive examinations (6 and 10 add success in interviews).", polarity: "good", timing: [4, 9, 11], source: P3("43") },
+  { id: "kp3-journalism", cusp: 3, topic: "Communications", when: { cusp: 3, all: [3, 11], connectedTo: ["Mercury", "Jupiter"] }, text: "The 3rd sub lord signifies 3 and 11 and is connected to Mercury or Jupiter: writing, journalism, publishing.", polarity: "good", source: P3("43") },
+  { id: "kp3-appeal", cusp: 3, topic: "Litigation", when: { cusp: 3, all: [6, 11] }, text: "The 3rd sub lord signifies 6 and 11: appeals and petitions succeed.", polarity: "good", source: P3("44") },
+  { id: "kp3-hearing", cusp: 3, topic: "Health", when: { cusp: 3, any: [12], connectedTo: ["Mars"] }, text: "The 3rd sub lord signifies the 12th and is connected to Mars: a weakness of hearing.", polarity: "bad", source: P3("44") },
+
+  // ---------------- Cusp IV ----------------
+  { id: "kp4-education", cusp: 4, topic: "Education", when: { cusp: 4, starLordIs: ["Mercury", "Jupiter"] }, text: "The 4th sub lord is in the star of Mercury or Jupiter: a studious mind and sound education.", polarity: "good", source: P3("44") },
+  { id: "kp4-higher", cusp: 4, topic: "Education", when: { cusp: 4, minOf: { houses: [4, 9, 11], count: 2 } }, text: "The 4th sub lord signifies 4, 9 and 11: education is completed and higher studies come through.", polarity: "good", timing: [4, 9, 11], source: P3("45") },
+  { id: "kp4-breaks", cusp: 4, topic: "Education", when: { cusp: 4, all: [8, 12] }, text: "The 4th sub lord signifies 8 and 12: interruptions and breaks in education.", polarity: "bad", source: P3("45") },
+  { id: "kp4-exam-11", cusp: 4, topic: "Education", when: { cusp: 4, all: [11], none: [3] }, text: "The 4th sub lord signifies the 11th without the 3rd: examinations are passed.", polarity: "good", source: P3("45") },
+  { id: "kp4-house", cusp: 4, topic: "Property", when: { cusp: 4, all: [4], any: [11, 12], connectedTo: ["Mars", "Saturn"] }, text: "The 4th sub lord signifies 4 with 11 or 12 and is connected to Mars or Saturn: building or acquiring a house, in the conjoined period of 4, 11 and 12.", polarity: "good", timing: [4, 11, 12], source: P3("44") },
+  { id: "kp4-property", cusp: 4, topic: "Property", when: { cusp: 4, all: [4, 11] }, text: "The 4th sub lord signifies 4 and 11: landed property and a home of one's own.", polarity: "good", timing: [4, 11, 12], source: P3("44") },
+  { id: "kp4-transfer", cusp: 4, topic: "Residence", when: { cusp: 4, minOf: { houses: [3, 10, 12], count: 2 } }, text: "The 4th sub lord signifies 3, 10 and 12: transfers in service and moves away from home.", polarity: "neutral", timing: [3, 10, 12], source: P3("45") },
+  { id: "kp4-move", cusp: 4, topic: "Residence", when: { cusp: 4, all: [3, 12] }, text: "The 4th sub lord signifies 3 and 12: changes of residence.", polarity: "neutral", timing: [3, 12], source: P3("45") },
+  { id: "kp4-vehicles", cusp: 4, topic: "Comforts", when: { cusp: 4, subLordIs: ["Venus"], any: IMPROVING }, text: "Venus as 4th sub lord tied to the improving houses: vehicles and domestic comforts.", polarity: "good", source: P3("46") },
+  { id: "kp4-discharge", cusp: 4, topic: "Health", when: { cusp: 4, minOf: { houses: [2, 4, 11], count: 2 } }, text: "The 4th sub lord signifies 2, 4 and 11: after any hospital stay, discharge and return home come in their conjoined period.", polarity: "good", timing: [2, 4, 11], source: P3("44") },
+
+  // ---------------- Cusp V ----------------
+  { id: "kp5-children", cusp: 5, topic: "Children", when: { cusp: 5, minOf: { houses: [2, 5, 11], count: 2 } }, text: "The 5th sub lord signifies 2, 5 and 11: children are promised, in the conjoined period of their significators.", polarity: "good", timing: [2, 5, 11], source: P3("46") },
+  { id: "kp5-children-denied", cusp: 5, topic: "Children", when: { cusp: 5, minOf: { houses: [1, 4, 10], count: 2 }, none: [2, 5, 11] }, text: "The 5th sub lord signifies 1, 4 and 10 (the houses opposite to 7, 10 and 4, i.e. the negations of 5, 2 and 11) and none of 2, 5, 11: children are denied or much delayed.", polarity: "bad", source: P3("46") },
+  { id: "kp5-spec-win", cusp: 5, topic: "Speculation", when: { cusp: 5, all: [6, 11] }, text: "The 5th sub lord signifies 6 and 11: gains in speculation.", polarity: "good", source: P3("47") },
+  { id: "kp5-spec-moderate", cusp: 5, topic: "Speculation", when: { cusp: 5, all: [2, 10], none: [6, 11] }, text: "The 5th sub lord signifies 2 and 10: moderate gains in speculation.", polarity: "neutral", source: P3("47") },
+  { id: "kp5-spec-loss", cusp: 5, topic: "Speculation", when: { cusp: 5, all: [5, 12] }, text: "The 5th sub lord signifies 5 and 12: losses in speculation; keep away from it.", polarity: "bad", source: P3("47") },
+  { id: "kp5-love-marriage", cusp: 5, topic: "Love", when: { cusp: 5, all: [7, 11] }, text: "The 5th sub lord signifies 7 and 11: a love affair leads to marriage.", polarity: "good", timing: [2, 7, 11], source: P3("47") },
+  { id: "kp5-love-fails", cusp: 5, topic: "Love", when: { cusp: 5, all: [6, 12] }, text: "The 5th sub lord signifies 6 and 12: love affairs do not end in marriage.", polarity: "bad", source: P3("47") },
+  { id: "kp5-music", cusp: 5, topic: "Arts", when: { cusp: 5, any: [5, 7], connectedTo: ["Venus"] }, text: "The 5th sub lord signifies 5 or 7 and is connected to Venus: proficiency in music and the fine arts.", polarity: "good", source: P3("48") },
+  { id: "kp5-statesman", cusp: 5, topic: "Public life", when: { cusp: 5, starLordOccupies: [11], any: [10] }, text: "The 5th sub lord is in the star of a planet in the 11th and signifies the 10th: statesmanship, a public role.", polarity: "good", source: P3("49") },
+  { id: "kp5-mantra", cusp: 5, topic: "Practice", when: { cusp: 5, all: [11], connectedTo: ["Saturn"] }, text: "The 5th sub lord signifies the 11th and is connected to Saturn: siddhi through mantra and steady practice.", polarity: "good", source: P3("48") },
+
+  // ---------------- Cusp VI ----------------
+  { id: "kp6-illness", cusp: 6, topic: "Health", when: { cusp: 6, minOf: { houses: [6, 8, 12], count: 2 } }, text: "The 6th sub lord signifies 6, 8 and 12: sickness in the conjoined period of the 1st and 6th significators; the 12th adds hospitalisation and the 8th seriousness.", polarity: "bad", timing: [1, 6], source: P3("49") },
+  { id: "kp6-incurable", cusp: 6, topic: "Health", when: { cusp: 6, subLordInHouse: [12], strong: [6] }, text: "The 6th sub lord sits in the 12th and is a strong significator of the 6th: a long-standing, hard-to-cure complaint.", polarity: "bad", source: P3("50") },
+  { id: "kp6-litigation", cusp: 6, topic: "Litigation", when: { cusp: 6, minOf: { houses: [1, 6, 11], count: 2 }, all: [6] }, text: "The 6th sub lord signifies 1, 6 and 11: success in litigation and over competitors.", polarity: "good", timing: [1, 6, 11], source: P3("50") },
+  { id: "kp6-money", cusp: 6, topic: "Finance", when: { cusp: 6, all: [2, 6, 11] }, text: "The 6th sub lord signifies 2, 6 and 11: money comes in as wished; loans and overdrafts are sanctioned.", polarity: "good", timing: [2, 6, 11], source: P3("49") },
+  { id: "kp6-loan", cusp: 6, topic: "Finance", when: { cusp: 6, any: [2, 6, 11], subLordRetro: false }, text: "The 6th sub lord is direct and connected to 2, 6 or 11: loans are available when needed.", polarity: "good", source: P3("50") },
+  { id: "kp6-promotion", cusp: 6, topic: "Career", when: { cusp: 6, minOf: { houses: [2, 6, 11], count: 2 }, otherCusp: { cusp: 10, any: [2, 6, 11] } }, text: "The sub lords of the 6th and 10th both signify 2, 6 and 11: promotions in service, in their conjoined period.", polarity: "good", timing: [2, 6, 10, 11], source: `${P3("49")}; ${P3("55")}` },
+  { id: "kp6-success", cusp: 6, topic: "Dealings", when: { cusp: 6, minOf: { houses: IMPROVING, count: 3 } }, text: "The 6th sub lord is tied to the improving houses: success in dealings with others in every field.", polarity: "good", source: P3("50") },
+  { id: "kp6-trouble", cusp: 6, topic: "Dealings", when: { cusp: 6, minOf: { houses: [5, 8, 12], count: 2 } }, text: "The 6th sub lord signifies 5, 8 and 12: loss and trouble through servants, pets, debtors and the maternal side.", polarity: "bad", source: P3("50") },
+
+  // ---------------- Cusp VII ----------------
+  { id: "kp7-marriage", cusp: 7, topic: "Marriage", when: { cusp: 7, minOf: { houses: [2, 7, 11], count: 2 } }, text: "The 7th sub lord signifies 2, 7 and 11: marriage is promised, fructifying in the conjoined period of the 2-7-11 significators (Venus should be free of affliction).", polarity: "good", timing: [2, 7, 11], source: P3("51") },
+  { id: "kp7-marriage-denied", cusp: 7, topic: "Marriage", when: { cusp: 7, minOf: { houses: [1, 6, 10, 12], count: 2 }, none: [2, 7, 11] }, text: "The 7th sub lord signifies 1, 6, 10 or 12 and none of 2, 7, 11: marriage is denied or much delayed.", polarity: "bad", source: P3("51") },
+  { id: "kp7-happy", cusp: 7, topic: "Marriage", when: { cusp: 7, subLordIs: ["Venus", "Jupiter"], all: [2, 11] }, text: "Venus or Jupiter as 7th sub lord signifying 2 and 11: a very happy married life.", polarity: "good", source: P3("52") },
+  { id: "kp7-harmony", cusp: 7, topic: "Marriage", when: { cusp: 7, minOf: { houses: [2, 5, 7, 11], count: 3 } }, text: "The 7th sub lord signifies 2, 5, 7 and 11: harmony and comfort in the union.", polarity: "good", source: P3("51") },
+  { id: "kp7-partner-6-11", cusp: 7, topic: "Partnership", when: { cusp: 7, starLordSignifies: [6, 11] }, text: "The 7th sub lord is in the star of a planet signifying 6 and 11: a business partner is gained.", polarity: "good", source: P3("51") },
+  { id: "kp7-partner-break", cusp: 7, topic: "Partnership", when: { cusp: 7, starLordSignifies: [6, 12] }, text: "The 7th sub lord is in the star of a planet signifying 6 and 12: partnerships break.", polarity: "bad", source: P3("51") },
+  { id: "kp7-partner-permanent", cusp: 7, topic: "Partnership", when: { cusp: 7, starLordSignifies: [5, 11] }, text: "The 7th sub lord is in the star of a planet signifying 5 and 11: a lasting tie with the partner.", polarity: "good", source: P3("51") },
+  { id: "kp7-partner-loss", cusp: 7, topic: "Partnership", when: { cusp: 7, starLordSignifies: [5, 8, 12] }, text: "The 7th sub lord is in the star of a planet signifying 5, 8 and 12: the partner gains and you lose.", polarity: "bad", source: P3("51") },
+  { id: "kp7-opponent", cusp: 7, topic: "Opponents", when: { cusp: 7, minOf: { houses: [5, 7, 8, 12], count: 3 } }, text: "The 7th sub lord signifies 7, 8, 12 and 5: opponents are strong in every walk of life.", polarity: "bad", source: P3("51") },
+  { id: "kp7-age-saturn", cusp: 7, topic: "Partner", when: { cusp: 7, subLordIs: ["Saturn"] }, text: "Saturn as 7th sub lord: a marked age difference with the partner; a slower, more dutiful union.", polarity: "neutral", source: P3("52") },
+  { id: "kp7-age-proper", cusp: 7, topic: "Partner", when: { cusp: 7, subLordIs: ["Jupiter", "Venus", "Sun"] }, text: "Jupiter, Venus or Sun as 7th sub lord: a conventional age difference and a pleasant union.", polarity: "good", source: P3("52") },
+  { id: "kp7-age-small", cusp: 7, topic: "Partner", when: { cusp: 7, subLordIs: ["Moon", "Mars", "Mercury"] }, text: "Moon, Mars or Mercury as 7th sub lord: little age difference; the partner may be younger (Mars adds quarrels over trifles, Moon a pleasant temper).", polarity: "neutral", source: P3("52") },
+  { id: "kp7-origin-local", cusp: 7, topic: "Partner", when: { cusp: 7, starLordSignifies: [4, 10] }, text: "The 7th sub lord is in the star of a planet signifying 4 and 10: the partner comes from the same locality.", polarity: "neutral", source: P3("52") },
+  { id: "kp7-origin-kin", cusp: 7, topic: "Partner", when: { cusp: 7, starLordSignifies: [3] }, text: "The 7th sub lord is in the star of a planet signifying the 3rd: the partner may be a cousin or a neighbour.", polarity: "neutral", source: P3("52") },
+  { id: "kp7-origin-friends", cusp: 7, topic: "Partner", when: { cusp: 7, starLordSignifies: [11] }, text: "The 7th sub lord is in the star of a planet signifying the 11th: the partner comes through friends.", polarity: "neutral", source: P3("52") },
+  { id: "kp7-origin-love", cusp: 7, topic: "Partner", when: { cusp: 7, starLordSignifies: [5, 9] }, text: "The 7th sub lord is in the star of a planet signifying 5 and 9: a love marriage or a partner from far away.", polarity: "neutral", source: P3("52") },
+  { id: "kp7-multiple", cusp: 7, topic: "Marriage", when: { cusp: 7, subLordIs: ["Mercury"], all: [2, 11] }, text: "Mercury (or a planet in a dual sign) as 7th sub lord signifying 2 and 11: more than one union is possible.", polarity: "neutral", source: P3("52") },
+  { id: "kp7-multiple-dual", cusp: 7, topic: "Marriage", when: { cusp: 7, subLordInDualSign: true, subLordNot: ["Mercury"], all: [2, 11] }, text: "The 7th sub lord in a dual sign signifying 2 and 11: more than one union is possible.", polarity: "neutral", source: P3("52") },
+  { id: "kp7-multi-partners", cusp: 7, topic: "Partnership", when: { cusp: 7, subLordIs: ["Mercury"], any: [11] }, text: "Mercury as 7th sub lord signifying the 11th: more than one business partner and strong ties of partnership.", polarity: "good", source: P3("53") },
+
+  // ---------------- Cusp VIII ----------------
+  { id: "kp8-borrowing", cusp: 8, topic: "Debts", when: { cusp: 8, minOf: { houses: [5, 6, 8, 12], count: 3 } }, text: "The 8th sub lord signifies 5, 6, 8 and 12: borrowing from every quarter.", polarity: "bad", source: P3("53") },
+  { id: "kp8-repays", cusp: 8, topic: "Debts", when: { cusp: 8, minOf: { houses: [2, 10, 11], count: 2 } }, text: "The 8th sub lord signifies 2, 10 and 11: borrowed money is repaid.", polarity: "good", source: P3("53") },
+  { id: "kp8-accident", cusp: 8, topic: "Accidents", when: { cusp: 8, starLordSignifies: [8], starLordBadhakaMaraka: false }, text: "The 8th sub lord is in the star of a planet signifying the 8th: accidents possible in the conjoined period of the 1st and 8th significators, not fatal since the star lord avoids the badhaka and maraka houses.", polarity: "bad", timing: [1, 8], source: P3("54") },
+  { id: "kp8-accident-grave", cusp: 8, topic: "Accidents", when: { cusp: 8, starLordSignifies: [8], starLordBadhakaMaraka: true }, text: "The 8th sub lord is in the star of a planet signifying the 8th and the badhaka or a maraka house: accidents in the conjoined period of 1 and 8 can be grave. Mars connected adds violence.", polarity: "bad", timing: [1, 8], source: P3("54") },
+  { id: "kp8-surgery", cusp: 8, topic: "Surgery", when: { cusp: 8, minOf: { houses: [6, 8, 12], count: 2 }, connectedTo: ["Mars"] }, text: "The 8th sub lord signifies 6, 8 and 12 and is connected to Mars (knives): surgery, in the conjoined period of 6, 8 and 12.", polarity: "bad", timing: [6, 8, 12], source: P3("54") },
+  { id: "kp8-self-harm", cusp: 8, topic: "Accidents", when: { cusp: 8, starLordSignifies: [8], starLordBadhakaMaraka: true, connectedTo: ["Mars"] }, text: "The 8th sub lord's star lord signifies the 8th and the badhaka or maraka houses, and Mars is connected: the book reads a risk of self-inflicted harm. Read with the lagna and with compassion.", polarity: "bad", source: P3("53-54") },
+
+  // ---------------- Cusp IX ----------------
+  { id: "kp9-father", cusp: 9, topic: "Father", when: { cusp: 9, minOf: { houses: [3, 10], count: 2 } }, text: "The 9th sub lord signifies 3 and 10 (the 7th and 2nd from the 9th, marakas for the father): the father's health needs watching in their periods.", polarity: "bad", source: P3("54") },
+  { id: "kp9-father-long", cusp: 9, topic: "Father", when: { cusp: 9, minOf: { houses: [1, 6, 9, 11], count: 2 }, none: [3, 10] }, text: "The 9th sub lord avoids 3 and 10 and leans on 9, 1, 6 or 11: a long life for the father.", polarity: "good", source: P3("54") },
+  { id: "kp9-paternal-property", cusp: 9, topic: "Property", when: { cusp: 9, all: [1, 11] }, text: "The 9th sub lord signifies 1 and 11: paternal property comes to the native.", polarity: "good", source: P3("54") },
+  { id: "kp9-pilgrimage", cusp: 9, topic: "Journeys", when: { cusp: 9, minOf: { houses: [3, 9, 10], count: 2 } }, text: "The 9th sub lord signifies 3, 9 and 10: pilgrimage and long journeys.", polarity: "good", timing: [3, 9, 10], source: P3("54") },
+  { id: "kp9-astrologer", cusp: 9, topic: "Learning", when: { cusp: 9, starLordSignifies: [2, 9, 11], connectedTo: ["Jupiter", "Moon"] }, text: "The 9th sub lord is in the star of a planet signifying 2, 9 and 11, with Jupiter or Moon connected: success as an astrologer.", polarity: "good", source: P3("54") },
+
+  // ---------------- Cusp X ----------------
+  { id: "kp10-employment", cusp: 10, topic: "Career", when: { cusp: 10, minOf: { houses: [2, 6, 10, 11], count: 3 } }, text: "The 10th sub lord signifies 2, 6, 10 and 11: employment and steady earnings, promotions in the conjoined periods.", polarity: "good", timing: [2, 6, 10, 11], source: P3("55") },
+  { id: "kp10-business", cusp: 10, topic: "Career", when: { cusp: 10, all: [7], none: [6] }, text: "The 10th sub lord signifies the 7th and not the 6th: the main livelihood is business.", polarity: "neutral", source: P3("55") },
+  { id: "kp10-service", cusp: 10, topic: "Career", when: { cusp: 10, all: [6], none: [7] }, text: "The 10th sub lord signifies the 6th and not the 7th: the main livelihood is service.", polarity: "neutral", source: P3("55") },
+  { id: "kp10-both", cusp: 10, topic: "Career", when: { cusp: 10, all: [6, 7] }, text: "The 10th sub lord signifies both 6 and 7: earnings by service as well as business (a dual sign makes the mix explicit).", polarity: "neutral", source: P3("55") },
+  { id: "kp10-self", cusp: 10, topic: "Career", when: { cusp: 10, any: [2, 10], none: [6, 7] }, text: "The 10th sub lord signifies 2 or 10 without 6 or 7: earnings by self-exertion and independent work.", polarity: "neutral", source: P3("55") },
+  { id: "kp10-politics", cusp: 10, topic: "Public life", when: { cusp: 10, minOf: { houses: [1, 6, 9, 10, 11], count: 4 }, connectedTo: ["Jupiter", "Mercury", "Mars", "Saturn"] }, text: "The 10th sub lord signifies 1, 6, 9, 10 and 11 with Jupiter, Mercury, Mars or Saturn connected: success in politics and public office (1 success, 6 defeat of opponents, 9 fortune, 10 honour, 11 ambition).", polarity: "good", source: P3("55") },
+  { id: "kp10-illegal", cusp: 10, topic: "Career", when: { cusp: 10, subLordIs: ["Saturn"], all: [11] }, text: "Saturn as 10th sub lord signifying the 11th: the book warns of earnings by irregular means.", polarity: "bad", source: P3("56") },
+  { id: "kp10-tax", cusp: 10, topic: "Career", when: { cusp: 10, minOf: { houses: [7, 8, 12], count: 2 } }, text: "The 10th sub lord signifies 7, 8 and 12: trouble with tax and official scrutiny.", polarity: "bad", source: P3("55") },
+  { id: "kp10-sell-property", cusp: 10, topic: "Property", when: { cusp: 10, minOf: { houses: [3, 5, 10], count: 2 }, all: [3] }, text: "The 10th sub lord signifies 3, 5 and 10: disposal or sale of immovable property.", polarity: "neutral", timing: [3, 5, 10], source: `${P3("55")}; ${P3("46")}` },
+  { id: "kp10-pilgrimage", cusp: 10, topic: "Journeys", when: { cusp: 10, all: [3, 9] }, text: "The 10th sub lord signifies 3, 9 and 10: pilgrimage.", polarity: "good", source: P3("55") },
+
+  // ---------------- Cusp XI ----------------
+  { id: "kp11-success", cusp: 11, topic: "Fulfilment", when: { cusp: 11, all: [1, 2, 11] }, text: "The 11th sub lord signifies 1, 2 and 11: success in whatever is undertaken and fulfilment of desires.", polarity: "good", source: P3("56") },
+  { id: "kp11-research", cusp: 11, topic: "Learning", when: { cusp: 11, any: [12], all: [9, 11] }, text: "The 11th sub lord is connected to the 12th and signifies 9 and 11: success in research; placement in the 12th points to research abroad.", polarity: "good", source: P3("56") },
+  { id: "kp11-phd", cusp: 11, topic: "Learning", when: { cusp: 11, starLordSignifies: [4, 9], connectedTo: ["Jupiter"] }, text: "The 11th sub lord is in the star of a planet signifying 4 and 9 and is connected to Jupiter: a doctorate (early if the sub lord is in a movable sign).", polarity: "good", source: P3("57") },
+  { id: "kp11-election-win", cusp: 11, topic: "Public life", when: { cusp: 11, minOf: { houses: [1, 6, 10, 11], count: 3 } }, text: "The 11th sub lord signifies 1, 6, 10 and 11: elections and contests are won.", polarity: "good", source: P3("57") },
+  { id: "kp11-election-lose", cusp: 11, topic: "Public life", when: { cusp: 11, minOf: { houses: [5, 8, 12], count: 2 } }, text: "The 11th sub lord signifies 5, 8 and 12: elections and contests are lost.", polarity: "bad", source: P3("57") },
+  { id: "kp11-friends", cusp: 11, topic: "Friends", when: { cusp: 11, minOf: { houses: IMPROVING, count: 2 } }, text: "The 11th sub lord signifies the improving houses (1, 2, 3, 6, 10, 11): helpful, beneficial friends.", polarity: "good", source: P3("57") },
+  { id: "kp11-interview", cusp: 11, topic: "Competition", when: { cusp: 11, all: [3, 9], subLordRetro: false }, text: "The 11th sub lord is direct and signifies 3 and 9: interviews succeed in the conjoined period of 3 and 9.", polarity: "good", timing: [3, 9], source: P3("57") },
+  { id: "kp11-marital", cusp: 11, topic: "Marriage", when: { cusp: 11, minOf: { houses: [2, 5, 7, 11], count: 3 } }, text: "The 11th sub lord signifies 2, 5, 7 and 11: the quality of married life (read from the 11th, while the 7th promises the marriage) is harmonious and happy.", polarity: "good", source: P3("57-58") },
+  { id: "kp11-no-cure", cusp: 11, topic: "Health", when: { cusp: 11, all: [6, 12] }, text: "The 11th sub lord signifies 6 and 12: illnesses linger without full recovery.", polarity: "bad", source: P3("58") },
+  { id: "kp11-recovery", cusp: 11, topic: "Health", when: { cusp: 11, all: [5, 11] }, text: "The 11th sub lord signifies 5 and 11: recovery from illness is promised.", polarity: "good", source: P3("58") },
+  { id: "kp11-siddhi", cusp: 11, topic: "Practice", when: { cusp: 11, all: [5, 10, 11] }, text: "The 11th sub lord signifies 5, 10 and 11: attainment following initiation (5 the mantra, 10 the practice, 11 the achievement).", polarity: "good", source: P3("58") },
+
+  // ---------------- Cusp XII ----------------
+  { id: "kp12-foreign", cusp: 12, topic: "Foreign lands", when: { cusp: 12, minOf: { houses: [3, 9, 12], count: 2 } }, text: "The 12th sub lord signifies 3, 9 and 12 (3 leaving home, 9 the long journey, 12 the new surroundings): foreign travel and residence, in their conjoined period.", polarity: "neutral", timing: [3, 9, 12], source: P3("58") },
+  { id: "kp12-foreign-work", cusp: 12, topic: "Foreign lands", when: { cusp: 12, minOf: { houses: [3, 9, 12], count: 2 }, strong: [6] }, text: "The 12th sub lord signifies 3, 9 or 12 and is a strong significator of the 6th: travel abroad on work assignments.", polarity: "good", timing: [3, 9, 12], source: P3("58") },
+  { id: "kp12-reputation", cusp: 12, topic: "Standing", when: { cusp: 12, all: [8, 12] }, text: "The 12th sub lord signifies 8 and 12: loss of reputation in the conjoined period of 8 and 12.", polarity: "bad", timing: [8, 12], source: P3("58") },
+  { id: "kp12-confinement", cusp: 12, topic: "Confinement", when: { cusp: 12, minOf: { houses: [2, 3, 8, 12], count: 3 }, connectedTo: ["Rahu"] }, text: "The 12th sub lord signifies 2, 3, 8 and 12 with Rahu connected: confinement and restriction of movement (2 separation from family, 3 leaving home, 8 restriction, 12 confinement).", polarity: "bad", source: P3("58-59") },
+  { id: "kp12-lucky", cusp: 12, topic: "Finance", when: { cusp: 12, subLordIs: ["Jupiter", "Venus", "Mercury"], minOf: { houses: [2, 6, 11], count: 2 } }, text: "A natural benefic as 12th sub lord signifying 2, 6 and 11: lucky in outlay; more returns than expenses.", polarity: "good", source: P3("59") },
+  { id: "kp12-left-eye", cusp: 12, topic: "Health", when: { cusp: 12, all: [2, 6, 8, 12] }, text: "The 12th sub lord signifies 6, 8 and 12 and is connected to the 2nd: a defect of the left eye.", polarity: "bad", source: P3("59") },
+  { id: "kp12-defect", cusp: 12, topic: "Health", when: { cusp: 12, minOf: { houses: [6, 8, 12], count: 2 }, none: [2] }, text: "The 12th sub lord signifies two of 6, 8 and 12: a bodily defect or weakness; the sub lord's nature and its bhavas show the part affected.", polarity: "bad", source: P3("59") },
+  { id: "kp12-cheated", cusp: 12, topic: "Dealings", when: { cusp: 12, starLordSignifies: [5, 8], connectedTo: ["Saturn", "Mercury"] }, text: "The 12th sub lord is in the star of a planet signifying 5 and 8 with Saturn or Mercury connected: liable to be cheated.", polarity: "bad", source: P3("59") },
+];
+
+// ---------- evaluation ----------
+
+type Partial = Omit<KpResult, "findings">;
+
+function houses(r: Partial, planet: Planet, six: boolean): number[] {
+  const s = r.significators.find((x) => x.planet === planet);
+  return s ? (six ? s.housesSix : s.houses) : [];
+}
+
+function strongHouses(r: Partial, planet: Planet): number[] {
+  const s = r.significators.find((x) => x.planet === planet);
+  if (!s) return [];
+  return Array.from(new Set([...s.levels.A, ...s.levels.B]));
+}
+
+/** Connection between two planets in the KP sense used by the rules. */
+export function connected(r: Partial, a: Planet, b: Planet): boolean {
+  if (a === b) return true;
+  const pa = r.planets.find((p) => p.planet === a)!;
+  const pb = r.planets.find((p) => p.planet === b)!;
+  return pa.house === pb.house || pa.starLord === b || pa.subLord === b || pb.starLord === a;
+}
+
+function meets(r: Partial, w: KpRuleWhen, six: boolean): { ok: boolean; used: number[] } {
+  const cusp = r.cusps[w.cusp - 1];
+  const sl = cusp.subLord;
+  const slPlanet = r.planets.find((p) => p.planet === sl)!;
+  const H = houses(r, sl, six);
+  const used = new Set<number>();
+  const has = (h: number) => H.includes(h);
+
+  if (w.all && !w.all.every(has)) return { ok: false, used: [] };
+  w.all?.forEach((h) => used.add(h));
+  if (w.any) {
+    const hit = w.any.filter(has);
+    if (!hit.length) return { ok: false, used: [] };
+    hit.forEach((h) => used.add(h));
+  }
+  if (w.none && w.none.some(has)) return { ok: false, used: [] };
+  if (w.minOf) {
+    const hit = w.minOf.houses.filter(has);
+    if (hit.length < w.minOf.count) return { ok: false, used: [] };
+    hit.forEach((h) => used.add(h));
+  }
+  if (w.fewerThan && w.fewerThan.houses.filter(has).length >= w.fewerThan.count) return { ok: false, used: [] };
+  if (w.strong) {
+    const st = strongHouses(r, sl);
+    const hit = w.strong.filter((h) => st.includes(h));
+    if (!hit.length) return { ok: false, used: [] };
+    hit.forEach((h) => used.add(h));
+  }
+  if (w.subLordIs && !w.subLordIs.includes(sl)) return { ok: false, used: [] };
+  if (w.subLordNot && w.subLordNot.includes(sl)) return { ok: false, used: [] };
+  if (w.subLordInHouse && !w.subLordInHouse.includes(slPlanet.house)) return { ok: false, used: [] };
+  if (w.subLordRetro !== undefined && slPlanet.retrograde !== w.subLordRetro) return { ok: false, used: [] };
+  if (w.subLordInDualSign !== undefined && (slPlanet.signIndex % 3 === 2) !== w.subLordInDualSign) return { ok: false, used: [] };
+
+  const starLord = slPlanet.starLord;
+  const starPlanet = r.planets.find((p) => p.planet === starLord)!;
+  if (w.starLordIs && !w.starLordIs.includes(starLord)) return { ok: false, used: [] };
+  if (w.starLordOccupies && !w.starLordOccupies.includes(starPlanet.house)) return { ok: false, used: [] };
+  if (w.starLordSignifies) {
+    const SH = houses(r, starLord, six);
+    if (!w.starLordSignifies.every((h) => SH.includes(h))) return { ok: false, used: [] };
+  }
+  if (w.starLordSignifiesAny) {
+    const SH = houses(r, starLord, six);
+    if (!w.starLordSignifiesAny.some((h) => SH.includes(h))) return { ok: false, used: [] };
+  }
+  if (w.starLordBadhakaMaraka !== undefined) {
+    const SH = houses(r, starLord, six);
+    const bm = SH.includes(r.badhaka) || r.marakas.some((m) => SH.includes(m));
+    if (bm !== w.starLordBadhakaMaraka) return { ok: false, used: [] };
+  }
+  if (w.connectedTo && !w.connectedTo.some((p) => connected(r, sl, p))) return { ok: false, used: [] };
+  if (w.connectedToAll && !w.connectedToAll.every((p) => connected(r, sl, p))) return { ok: false, used: [] };
+  if (w.badhaka !== undefined) {
+    if (has(r.badhaka) !== w.badhaka) return { ok: false, used: [] };
+    if (w.badhaka) used.add(r.badhaka);
+  }
+  if (w.maraka !== undefined) {
+    const hit = r.marakas.filter(has);
+    if ((hit.length > 0) !== w.maraka) return { ok: false, used: [] };
+    hit.forEach((h) => used.add(h));
+  }
+  if (w.lagnaQuality && !w.lagnaQuality.includes(r.lagnaQuality)) return { ok: false, used: [] };
+  if (w.otherCusp) {
+    const o = w.otherCusp;
+    const OH = houses(r, r.cusps[o.cusp - 1].subLord, six);
+    if (o.all && !o.all.every((h) => OH.includes(h))) return { ok: false, used: [] };
+    if (o.any && !o.any.some((h) => OH.includes(h))) return { ok: false, used: [] };
+    if (o.minOf && o.minOf.houses.filter((h) => OH.includes(h)).length < o.minOf.count) return { ok: false, used: [] };
+  }
+  return { ok: true, used: Array.from(used).sort((a, b) => a - b) };
+}
+
+export function evaluateKp(r: Partial, six = false): KpFinding[] {
+  const out: KpFinding[] = [];
+  for (const rule of KP_RULES) {
+    const m = meets(r, rule.when, six);
+    if (!m.ok) continue;
+    const sl = r.cusps[rule.cusp - 1].subLord;
+    const slPlanet = r.planets.find((p) => p.planet === sl)!;
+    const parts: string[] = [`${sl} is the sub lord of cusp ${rule.cusp}`];
+    if (m.used.length) parts.push(`signifies ${m.used.join(", ")}`);
+    if (rule.when.starLordOccupies || rule.when.starLordSignifies || rule.when.starLordIs || rule.when.starLordBadhakaMaraka !== undefined) parts.push(`in the star of ${slPlanet.starLord}`);
+    if (rule.when.subLordInHouse) parts.push(`posited in the ${slPlanet.house}th`);
+    out.push({ ruleId: rule.id, cusp: rule.cusp, topic: rule.topic, text: rule.text, polarity: rule.polarity, timing: rule.timing, source: rule.source, evidence: parts.join("; "), subLord: sl });
+  }
+  return out;
+}
+
+/** Human-readable statement of a rule's conditions, for the rule book. */
+export function describeKpCondition(w: KpRuleWhen): string {
+  const parts: string[] = [];
+  const list = (xs: number[]) => xs.join(", ");
+  if (w.subLordIs) parts.push(`sub lord is ${w.subLordIs.join(" or ")}`);
+  if (w.subLordNot) parts.push(`sub lord is not ${w.subLordNot.join(" or ")}`);
+  if (w.all) parts.push(`signifies ${list(w.all)}`);
+  if (w.any) parts.push(`signifies ${w.any.length > 1 ? "one of " : ""}${list(w.any)}`);
+  if (w.minOf) parts.push(`signifies at least ${w.minOf.count} of ${list(w.minOf.houses)}`);
+  if (w.fewerThan) parts.push(`fewer than ${w.fewerThan.count} of ${list(w.fewerThan.houses)}`);
+  if (w.none) parts.push(`none of ${list(w.none)}`);
+  if (w.strong) parts.push(`strong significator of ${list(w.strong)}`);
+  if (w.badhaka !== undefined) parts.push(w.badhaka ? "signifies the badhaka house" : "not the badhaka house");
+  if (w.maraka !== undefined) parts.push(w.maraka ? "signifies a maraka house (2 or 7)" : "no maraka house");
+  if (w.subLordInHouse) parts.push(`sub lord posited in the ${list(w.subLordInHouse)}`);
+  if (w.subLordRetro !== undefined) parts.push(w.subLordRetro ? "sub lord retrograde" : "sub lord direct");
+  if (w.subLordInDualSign !== undefined) parts.push(w.subLordInDualSign ? "sub lord in a dual sign" : "sub lord not in a dual sign");
+  if (w.starLordIs) parts.push(`in the star of ${w.starLordIs.join(" or ")}`);
+  if (w.starLordOccupies) parts.push(`in the star of a planet in the ${list(w.starLordOccupies)}`);
+  if (w.starLordSignifies) parts.push(`in the star of a planet signifying ${list(w.starLordSignifies)}`);
+  if (w.starLordSignifiesAny) parts.push(`in the star of a planet signifying one of ${list(w.starLordSignifiesAny)}`);
+  if (w.starLordBadhakaMaraka !== undefined) parts.push(w.starLordBadhakaMaraka ? "star lord signifies the badhaka or a maraka house" : "star lord clear of badhaka and maraka houses");
+  if (w.connectedTo) parts.push(`connected to ${w.connectedTo.length > 3 ? "another planet" : w.connectedTo.join(" or ")}`);
+  if (w.connectedToAll) parts.push(`connected to ${w.connectedToAll.join(" and ")}`);
+  if (w.lagnaQuality) parts.push(`${w.lagnaQuality.join("/")} lagna`);
+  if (w.otherCusp) parts.push(w.otherCusp.cusp === w.cusp ? `also signifies at least ${w.otherCusp.minOf?.count} of ${list(w.otherCusp.minOf?.houses ?? [])}` : `the ${w.otherCusp.cusp}th cusp sub lord signifies ${w.otherCusp.all ? list(w.otherCusp.all) : w.otherCusp.any ? `one of ${list(w.otherCusp.any)}` : `at least ${w.otherCusp.minOf?.count} of ${list(w.otherCusp.minOf?.houses ?? [])}`}`);
+  return parts.join(" · ");
+}
+
+export const KP_SOURCES = [
+  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 3 (ed. K. Subramaniam), ch. 6", note: "Consolidated cuspal sub-lord rules, pp. 35-59. Practitioner's own copy." },
+  { label: "Kalpurush Astrology, KP classes 3.1, 3.2 and 4.1 (Sagar Neogi)", note: "Significator tables; the 1st and 2nd cusp readings. Practitioner's own class notes." },
+  { label: "Astro Secrets & KP Parts 1 and 2 (M.P. Shanmugam; K. Subramaniam)", note: "Background on planets, houses, ruling planets and timing; to be entered chapter by chapter." },
+];
+
+export const KP_TYPE_LEVEL_LABEL: Record<SignificatorLevel, string> = {
+  A: "Star lord occupies",
+  B: "Planet occupies",
+  C: "Star lord owns",
+  D: "Planet owns",
+  E: "Sub lord occupies",
+  F: "Sub lord owns",
+};

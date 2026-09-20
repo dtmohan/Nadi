@@ -12,6 +12,7 @@ import { useParams } from "wouter";
 import { SourceLink } from "@/components/source-link";
 import { SutraLibrary } from "@/components/sutra-library";
 import { ALP_CHAPTERS, ALP_RULES, ALP_ROLE_LABEL, type AlpRuleWhen } from "@shared/rules-alp";
+import { KP_RULES, KP_CUSP_THEMES, KP_SOURCES, describeKpCondition } from "@shared/rules-kp";
 import { ALP_PLANET_KARAKATWAS, ALP_WEEKDAYS, ALP_HORA_NOTE, ALP_TITHI_NOTE, ALP_YOGAS, ALP_ELEMENT_HOURS, ALP_PANCHANGA_ELEMENTS, CLASS_NOTES_SOURCE } from "@shared/alp-karakatwas";
 
 function describeAlpCondition(w: AlpRuleWhen) {
@@ -44,6 +45,63 @@ function describeAlpCondition(w: AlpRuleWhen) {
   if (w.nakLordFromAlpLord) parts.push(`ALP nakshatra lord in the ${w.nakLordFromAlpLord.map(ord).join("/")} from the ALP lagna lord`);
   if (w.alpArpLordsTogetherFromJanma) parts.push(`ALP lagna lord and Akshaya rasi lord in one sign, the ${w.alpArpLordsTogetherFromJanma.map(ord).join("/")} from the janma lagna`);
   return parts.join(" · ");
+}
+
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+const KP_POLARITY_CLASS = { good: "bg-emerald-500", bad: "bg-rose-500", neutral: "bg-muted-foreground/50" } as const;
+
+function KpRules() {
+  return (
+    <div>
+      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+        Krishnamurti Paddhati rules, grouped by cusp. Each is written against the sub lord of that cusp: the houses it signifies (four-step or six-step), where it sits, whose star it is in, and whether
+        it touches the badhaka or maraka houses. Paraphrased from the user's own copies and cited by volume and page; add rules in{" "}
+        <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules-kp.ts</code>.
+      </p>
+      <div className="mt-6 space-y-8">
+        {Array.from({ length: 12 }, (_, i) => i + 1).map((cusp) => {
+          const rules = KP_RULES.filter((r) => r.cusp === cusp);
+          return (
+            <section key={cusp} data-testid={`kp-cusp-rules-${cusp}`}>
+              <h2 className="text-sm font-semibold">
+                Cusp {ROMAN[cusp - 1]} · {KP_CUSP_THEMES[cusp]} <span className="font-normal text-muted-foreground">({rules.length})</span>
+              </h2>
+              <ul className="mt-2 divide-y">
+                {rules.map((r) => (
+                  <li key={r.id} className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]" data-testid={`kp-rule-${r.id}`}>
+                    <div className="text-xs text-muted-foreground">
+                      <div className="font-mono">{r.id}</div>
+                      <div className="mt-1 inline-flex items-center gap-1.5">
+                        <span className={cn("h-2 w-2 rounded-full", KP_POLARITY_CLASS[r.polarity])} /> {r.topic}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-medium text-primary">{describeKpCondition(r.when)}</div>
+                      <p className="mt-1 text-sm">{r.text}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {r.source}
+                        {r.timing && ` · timing: ${r.timing.join("-")} significators`}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })}
+      </div>
+      <section className="mt-10 text-xs text-muted-foreground" data-testid="kp-rules-sources">
+        <h2 className="text-sm font-semibold text-foreground">Sources</h2>
+        <ul className="mt-2 space-y-1">
+          {KP_SOURCES.map((s) => (
+            <li key={s.label}>
+              <span className="text-foreground">{s.label}</span> — {s.note}
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  );
 }
 
 function AlpRules() {
@@ -262,9 +320,15 @@ export default function RulesPage() {
           <TabsTrigger value="alp" data-testid="tab-rules-alp">
             ALP
           </TabsTrigger>
+          <TabsTrigger value="kp" data-testid="tab-rules-kp">
+            KP
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="alp">
           <AlpRules />
+        </TabsContent>
+        <TabsContent value="kp">
+          <KpRules />
         </TabsContent>
         <TabsContent value="jaimini">
           <JaiminiRules />

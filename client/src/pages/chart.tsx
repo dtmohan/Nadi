@@ -18,6 +18,7 @@ import { housesFrom, retroNotes, HOUSE_CLASS_LABEL, type HouseClass } from "@sha
 import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
 import { JaiminiPanel } from "@/components/jaimini-panel";
 import { AlpPanel } from "@/components/alp-panel";
+import { KpPanel } from "@/components/kp-panel";
 import { Timeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -645,7 +646,7 @@ export default function ChartPage() {
   const [selected, setSelected] = useState<Planet | null>(null);
   const [showTransit, setShowTransit] = useState(true);
   const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
-  const [mode, setMode] = useState<"bnn" | "jaimini" | "alp">("bnn");
+  const [mode, setMode] = useState<"bnn" | "jaimini" | "alp" | "kp">("bnn");
 
   if (isLoading) {
     return (
@@ -743,9 +744,20 @@ export default function ChartPage() {
           >
             ALP
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "kp"}
+            onClick={() => setMode("kp")}
+            className={cn("rounded px-3 py-1", mode === "kp" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            data-testid="mode-kp"
+            title="Krishnamurti Paddhati"
+          >
+            KP
+          </button>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading." : "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage."}</p>
+          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading." : mode === "alp" ? "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}</p>
           <ReadingModeToggle />
         </div>
       </div>
@@ -759,6 +771,12 @@ export default function ChartPage() {
       {mode === "alp" && (
         <div className="mt-8">
           <AlpPanel result={data} />
+        </div>
+      )}
+
+      {mode === "kp" && (
+        <div className="mt-8">
+          <KpPanel result={data} />
         </div>
       )}
 
@@ -836,6 +854,8 @@ export default function ChartPage() {
           ? "Interpretive text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik. It is a starting set of rules meant to be extended, not a verdict."
           : mode === "alp"
           ? "Akshaya Lagna Paddhati is Dr. S. Pothuvudaimoorthy's method. The progression arithmetic follows the published rate; the interpretive rules are being entered from the printed volumes chapter by chapter and are a framework, not a verdict."
+          : mode === "kp"
+          ? "Krishnamurti Paddhati is Prof. K.S. Krishnamurti's stellar method. The arithmetic (KP ayanamsa, Placidus cusps, subs, significators, Vimshottari) is complete; the cuspal readings are paraphrased from Astro Secrets & KP Part 3 and the Kalpurush class notes and are a first pass, not a verdict."
           : "Jaimini text follows the Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; Chara dasha follows K.N. Rao's method. It is a starting set of rules meant to be extended, not a verdict."}
       </footer>
     </div>
