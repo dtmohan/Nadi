@@ -34,6 +34,12 @@ function describeAlpCondition(w: AlpRuleWhen) {
   if (w.arpNakLordFromAlpNakLord) parts.push(`dasa lord in the ${w.arpNakLordFromAlpNakLord.map(ord).join("/")} from the ALP nakshatra lord`);
   if (w.bhuktiFromDasa) parts.push(`bhukti lord in the ${w.bhuktiFromDasa.map(ord).join("/")} from the dasa lord`);
   if (w.alpHouseFromPlanet) parts.push(`ALP lagna in the ${w.alpHouseFromPlanet.houses.map(ord).join("/")} from ${w.alpHouseFromPlanet.planet}`);
+  if (w.arpNakshatra) parts.push(`Akshaya rasi in ${w.arpNakshatra}${w.arpPada ? ` pada ${w.arpPada.join("/")}` : ""}`);
+  if (w.arpLordFromArp) parts.push(`Akshaya rasi lord in the ${w.arpLordFromArp.map(ord).join("/")} from the Akshaya rasi`);
+  if (w.dasaLordFromArp) parts.push(`dasa lord in the ${w.dasaLordFromArp.map(ord).join("/")} from the Akshaya rasi`);
+  if (w.dasaLordFromAlp) parts.push(`dasa lord in the ${w.dasaLordFromAlp.map(ord).join("/")} from the ALP lagna`);
+  if (w.bhuktiLordFromAlp) parts.push(`bhukti lord in the ${w.bhuktiLordFromAlp.map(ord).join("/")} from the ALP lagna`);
+  if (w.alpArpLordsTogetherFromJanma) parts.push(`ALP lagna lord and Akshaya rasi lord in one sign, the ${w.alpArpLordsTogetherFromJanma.map(ord).join("/")} from the janma lagna`);
   return parts.join(" · ");
 }
 

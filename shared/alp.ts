@@ -124,7 +124,7 @@ export interface ArpResult {
   nextPadaChange: string | null;
   /** Dasa lord (ARP nakshatra lord) as placed in the natal chart. */
   dasaLord: { planet: Planet; signIndex: number; houseFromArp: number; houseFromAlp: number };
-  bhuktiLord: { planet: Planet; signIndex: number; houseFromArp: number; houseFromDasaLord: number };
+  bhuktiLord: { planet: Planet; signIndex: number; houseFromArp: number; houseFromDasaLord: number; houseFromAlp: number };
   arpLord: { planet: Planet; signIndex: number; houseFromArp: number; houseFromAlp: number; houseFromAlpLord: number };
   /** House of the ARP nakshatra lord's sign counted from the ALP nakshatra lord's sign. */
   nakLordsMutual: number;
@@ -349,7 +349,7 @@ function computeArp(positions: PlanetPosition[], birth: DateTime, asOf: DateTime
     dasaTimeline,
     nextPadaChange: curPada ? curPada.end : null,
     dasaLord: { planet: dasa.lord, signIndex: dl.signIndex, houseFromArp: houseFrom(arpSign, dl.signIndex), houseFromAlp: houseFrom(alp, dl.signIndex) },
-    bhuktiLord: { planet: bhukti.lord, signIndex: bl.signIndex, houseFromArp: houseFrom(arpSign, bl.signIndex), houseFromDasaLord: houseFrom(dl.signIndex, bl.signIndex) },
+    bhuktiLord: { planet: bhukti.lord, signIndex: bl.signIndex, houseFromArp: houseFrom(arpSign, bl.signIndex), houseFromDasaLord: houseFrom(dl.signIndex, bl.signIndex), houseFromAlp: houseFrom(alp, bl.signIndex) },
     arpLord: { planet: point.lord, signIndex: al.signIndex, houseFromArp: houseFrom(arpSign, al.signIndex), houseFromAlp: houseFrom(alp, al.signIndex), houseFromAlpLord: houseFrom(alpLordPos.signIndex, al.signIndex) },
     nakLordsMutual: houseFrom(alpNakLordPos.signIndex, dl.signIndex),
   };

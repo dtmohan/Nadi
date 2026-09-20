@@ -5,7 +5,7 @@ import { NAKSHATRAS, PLANET_ABBR, SIGNS, fmtDegShort, type Planet } from "@share
 
 const NAK_ARC = 360 / 27;
 import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "@shared/alp";
-import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE } from "@shared/rules-alp";
+import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
 import { Term } from "@/components/term";
@@ -66,6 +66,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
   badges[a.arp.point.signIndex] = [...(badges[a.arp.point.signIndex] ?? []), "AR"];
   const arp = a.arp;
   const arpLordSame = arp.point.lord === a.point.lord;
+  const nakLordHouse = a.placements.find((p) => p.planet === a.point.nakshatraLord)?.houseFromAlp ?? 0;
   const planetsIn = (sign: number) => positions.filter((p) => p.signIndex === sign).map((p) => PLANET_ABBR[p.planet]).join(" ");
   const pendingChapters = ALP_CHAPTERS.filter((c) => !ALP_RULES.some((r) => r.chapter === c.id));
   const roleLine = (role: string) => a.placements.find((p) => p.role === role)!;
@@ -167,6 +168,9 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                 </>
               )}{" "}
               The pada's navamsa is {SIGNS[arp.point.navamsaSign ?? 0]}, the subtle point of the mind.
+            </li>
+            <li data-testid="text-alp-questions">
+              Questions to expect: the ALP nakshatra lord <span className="font-medium">{a.point.nakshatraLord}</span> stands in the {ordinal(nakLordHouse)} from the ALP lagna, so that house's matters are asked about first; the dasa lord {arp.dasa.lord} is in the {ordinal(arp.dasaLord.houseFromAlp)} and the bhukti lord {arp.bhukti.lord} in the {ordinal(arp.bhuktiLord.houseFromAlp)} from the ALP lagna, the {ordinal(arp.dasaLord.houseFromArp)} and {ordinal(arp.bhuktiLord.houseFromArp)} from the Akshaya rasi (Book 2 pp. 95-96).
             </li>
           </ul>
 
@@ -358,7 +362,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
       <section className="mt-10" data-testid="section-alp-findings">
         <h2 className="text-base font-semibold">Reading</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 11 (pp. 32-83). The remaining chapters are entered one at a time.
+          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 16 (pp. 32-99). The remaining chapters are entered one at a time.
         </p>
         {a.findings.length ? (
           <ul className="mt-3 space-y-3">
@@ -521,6 +525,9 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           </li>
           <li>Book 2 (pp. 32-41) settles the start: travelled degrees are added to the birth lagna degree, with 3° for each completed year and 1° for every four months of the remainder. The continuous point used here moves smoothly between those whole-degree steps; the arithmetic is shown in the working above.</li>
           <li>Book 2 (pp. 72-73) derives the Akshaya rasi from the Vimshottari dasa: the Moon moves from its birth nakshatra to the next with each dasa, a pada for each quarter of it, and the sign the current pada falls in is the Akshaya rasi (the mind), judged with the dasa lord and against the ALP lagna (the body). The first dasa is prorated from the Moon's degree, as in Vimshottari.</li>
+          <li>{ARP_QUESTIONS_NOTE}</li>
+          <li>Book 2 ch. 15 (p. 91) lists ten features to observe before predicting: {ALP_TEN_FEATURES.map((f) => f.toLowerCase()).join("; ")}. The gochar items wait for live planet positions.</li>
+          <li>Book 2 ch. 12 (pp. 86-87) frames the reading: a planet gives its effect from the bhava it occupies, "from wherever it is taken, it is returned to the same place", and the scenes change when the time changes.</li>
           <li>Still open: whether the year is solar (365.25 days, used here) or savana (360 days); the gochar rules (transiting Mars through the 8th from the ALP lagna, the Moon through the 8th from the Akshaya rasi, pp. 81-82) which need live planet positions and Book 3; the nakshatra-by-nakshatra readings (Books 3 and 4).</li>
           <li>Kept separate from the Nadi and Jaimini readings; nothing here feeds them.</li>
         </ul>

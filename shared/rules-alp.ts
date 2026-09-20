@@ -38,7 +38,10 @@ export const ALP_CHAPTERS: AlpChapter[] = [
   { id: "book2-ch6", book: "Book 2, ch. 6-7", title: "AR - Akshaya Rasi: the mind, and the technique of finding it (pp. 68-71)", note: "Entered from the printed volume: the Akshaya rasi tracks the mind as the Akshaya lagna tracks the body; it indicates a bhava and a planet." },
   { id: "book2-ch8", book: "Book 2, ch. 8", title: "Akshaya rasi calculating method: the Vimshottari shift of the Moon; body and mind in alignment; free-will and destined bhavas restated (pp. 72-77)", note: "Entered from the printed volume; the computation is shown in the Akshaya rasi working." },
   { id: "book2-ch10", book: "Book 2, ch. 9-10", title: "The purpose of life; Akshaya rasi and nakshatra: dasa lord with bhukti lord, ALP with ARP, gochar through the 8th (pp. 78-82)", note: "Entered from the printed volume; the gochar (transit) rules wait for Book 3 and live planet positions." },
-  { id: "book2-ch11", book: "Book 2, ch. 11", title: "The nature of Akshaya rasi (p. 83 onward)", note: "First page entered." },
+  { id: "book2-ch11", book: "Book 2, ch. 11", title: "The nature of Akshaya rasi; predictions through its four padas; the dasa lord from the Akshaya rasi (pp. 83-85)", note: "Entered from the printed volume." },
+  { id: "book2-ch12", book: "Book 2, ch. 12-13", title: "Karma and time: what is taken is returned; Akshaya lagna with Akshaya rasi, their lords together from the birth lagna (pp. 86-89)", note: "Entered from the printed volume." },
+  { id: "book2-ch14", book: "Book 2, ch. 14-15", title: "ALP point with dasa-bhukti; the ten features to be noted (pp. 90-91)", note: "Entered from the printed volume; the ten-point checklist is in the method notes." },
+  { id: "book2-ch16", book: "Book 2, ch. 16", title: "Example horoscopes 1-5: reading the questions from the ALP nakshatra lord, the dasa and bhukti lords, and the Akshaya rasi (pp. 92-99 so far)", note: "Examples 1-4 entered; example 5 continues on the next pages." },
   { id: "book2-rest", book: "Book 2, later chapters", title: "Characteristics of the nakshatras; prasna", note: "Pending." },
   { id: "book3", book: "Book 3", title: "Introduction to gochar; the nakshatras of Leo; Aries-lagna ALP; the planets through the 12 bhavas by gochar", note: "Pending. Nakshatra-by-nakshatra readings begin here (Magha, Purva Phalguni, Uttara Phalguni)." },
   { id: "book4", book: "Book 4", title: "The nakshatras of Sagittarius; marriage matching; horoscope analysis", note: "Pending. Continues the nakshatra readings (Mula, Purva Ashadha, Uttara Ashadha)." },
@@ -89,6 +92,19 @@ export interface AlpRuleWhen {
   bhuktiFromDasa?: number[];
   /** The ALP lagna sign is one of these houses counted from a named planet. */
   alpHouseFromPlanet?: { planet: Planet; houses: number[] };
+  /** The Akshaya rasi point stands in this nakshatra (and, if given, one of these padas). */
+  arpNakshatra?: string;
+  arpPada?: number[];
+  /** The Akshaya rasi lord stands in one of these houses counted from the Akshaya rasi. */
+  arpLordFromArp?: number[];
+  /** The running dasa lord (the ARP nakshatra lord) stands in one of these houses from the Akshaya rasi. */
+  dasaLordFromArp?: number[];
+  /** The running dasa lord stands in one of these houses from the ALP lagna. */
+  dasaLordFromAlp?: number[];
+  /** The running bhukti lord stands in one of these houses from the ALP lagna. */
+  bhuktiLordFromAlp?: number[];
+  /** The ALP lagna lord and the Akshaya rasi lord share a sign (two different planets), and that sign is one of these houses from the janma lagna. */
+  alpArpLordsTogetherFromJanma?: number[];
 }
 
 export interface AlpRule {
@@ -583,7 +599,236 @@ export const ALP_RULES: AlpRule[] = [
     source: BOOK2("p. 83"),
     sourceUrl: ALP_SOURCE_BOOKS,
   },
+  // Book 2 ch. 11 (pp. 84-85): predictions through the four padas of the Akshaya rasi; the dasa lord from the ARP.
+  {
+    id: "b2c11-ashlesha-1",
+    chapter: "book2-ch11",
+    when: { arpNakshatra: "Ashlesha", arpPada: [1] },
+    text: "The Akshaya rasi is in Cancer at Ashlesha pada 1: even with the dasa and bhukti lords well placed, the native has trouble fulfilling desires through this pada (51 months of the Mercury dasa); the planets will be oriented that way too.",
+    weight: 1,
+    source: BOOK2("p. 84"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c11-ashlesha-2",
+    chapter: "book2-ch11",
+    when: { arpNakshatra: "Ashlesha", arpPada: [2] },
+    text: "The Akshaya rasi is at Ashlesha pada 2: these 51 months give good benefits.",
+    weight: 1,
+    source: BOOK2("p. 84"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c11-ashlesha-3",
+    chapter: "book2-ch11",
+    when: { arpNakshatra: "Ashlesha", arpPada: [3] },
+    text: "The Akshaya rasi is at Ashlesha pada 3: a phase of troubles for these 51 months.",
+    weight: 1,
+    source: BOOK2("p. 84"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c11-ashlesha-4",
+    chapter: "book2-ch11",
+    when: { arpNakshatra: "Ashlesha", arpPada: [4] },
+    text: "The Akshaya rasi is at Ashlesha pada 4: average benefits, with some good, for these 51 months.",
+    weight: 1,
+    source: BOOK2("p. 84"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c11-arp-lord-7-from-arp",
+    chapter: "book2-ch11",
+    when: { arpLordFromArp: [7] },
+    text: "The Akshaya rasi lord stands in the 7th from the Akshaya rasi: the native is guided, or driven, by the spouse or friends (the book's Sagittarius example with Jupiter in the 7th).",
+    weight: 1,
+    source: BOOK2("p. 85"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c11-dasa-lord-10-from-arp",
+    chapter: "book2-ch11",
+    when: { dasaLordFromArp: [10] },
+    text: "The running dasa lord stands in the 10th from the Akshaya rasi: the question on the mind is joint-venture work or business.",
+    weight: 1,
+    source: BOOK2("p. 85"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c11-dasa-lord-8-from-arp",
+    chapter: "book2-ch11",
+    when: { dasaLordFromArp: [8] },
+    text: "The running dasa lord is the 8th from the Akshaya rasi (an ashtamadhipathi dasa): the period favours the opponent and troubles the native; extreme thoughts, too much wandering and travel. Count the dasa lord from the Akshaya rasi, not from the birth rasi. Be cautious in this stretch.",
+    weight: 2,
+    source: BOOK2("pp. 85, 87-88"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c11-dasa-lord-6-from-arp",
+    chapter: "book2-ch11",
+    when: { dasaLordFromArp: [6] },
+    text: "The running dasa lord is the 6th from the Akshaya rasi: a beneficial period for the native and a problematic one for the native's opponents.",
+    weight: 1,
+    source: BOOK2("p. 85"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  // Book 2 ch. 12-13 (pp. 86-89): karma and time; ALP with ARP.
+  {
+    id: "b2c12-10th-lord-in-5",
+    chapter: "book2-ch12",
+    when: { lordOf: 10, lordOfInHouse: [5] },
+    text: "The 10th lord from the ALP lagna stands in the 5th, the 8th from the 10th: growth in work and money is stuck or stagnant, and the book's example has the profession blocked for the ten years of this sign. What was taken is returned to the same place.",
+    weight: 2,
+    source: BOOK2("pp. 86-87"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c12-10th-lord-in-2",
+    chapter: "book2-ch12",
+    when: { lordOf: 10, lordOfInHouse: [2] },
+    text: "The 10th lord from the ALP lagna stands in the 2nd: a beneficial period for work and income (the book's Sagittarius-ALP example at ages 61-70).",
+    weight: 1,
+    source: BOOK2("p. 87"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c12-4th-lord-in-11",
+    chapter: "book2-ch12",
+    when: { lordOf: 4, lordOfInHouse: [11] },
+    text: "The 4th lord from the ALP lagna stands in the 11th, the 8th from the 4th: care is needed over the 4th's matters (mother, home, property) in this stretch.",
+    weight: 1,
+    source: BOOK2("p. 86"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c12-7th-lord-in-11",
+    chapter: "book2-ch12",
+    when: { lordOf: 7, lordOfInHouse: [11] },
+    text: "The 7th lord from the ALP lagna stands in the 11th: happiness comes to the native through the partner or the people met, though the book notes it can be an indirect, temporary pleasure that distracts from work.",
+    weight: 1,
+    source: BOOK2("p. 86"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c13-lords-together-present",
+    chapter: "book2-ch12",
+    when: { alpArpLordsTogetherFromJanma: [1, 4, 7, 10] },
+    text: "The ALP lagna lord and the Akshaya rasi lord are together in the 1st, 4th, 7th or 10th from the birth lagna: the ten-year period of this ALP sign is beneficial (Book 2's Taurus-ALP, Leo-ARP example with Sun and Venus together). Their dignity, exalted, own or friendly sign, changes the flavour.",
+    weight: 2,
+    source: BOOK2("p. 89"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c13-lords-together-past",
+    chapter: "book2-ch12",
+    when: { alpArpLordsTogetherFromJanma: [2, 5, 8, 11] },
+    text: "The ALP lagna lord and the Akshaya rasi lord are together in the 2nd, 5th, 8th or 11th from the birth lagna: the pair gives a struggling life in this stretch.",
+    weight: 2,
+    source: BOOK2("p. 89"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c13-lords-together-future",
+    chapter: "book2-ch12",
+    when: { alpArpLordsTogetherFromJanma: [3, 6, 9, 12] },
+    text: "The ALP lagna lord and the Akshaya rasi lord are together in the 3rd, 6th, 9th or 12th from the birth lagna: the native only plans for the future and experiences nothing much at present.",
+    weight: 2,
+    source: BOOK2("p. 89"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  // Book 2 ch. 14 (p. 90): the ALP point with the dasa-bhukti.
+  {
+    id: "b2c14-dasa-lord-on-alp",
+    chapter: "book2-ch14",
+    when: { dasaLordFromAlp: [1] },
+    text: "The running dasa lord stands in the ALP lagna sign itself: the dasa lord, the ALP point and the Moon are connected, and during this nakshatra's stretch (1 year 1 month 10 days) the native achieves and fulfils wishes and reaches a good position in some manner.",
+    weight: 2,
+    source: BOOK2("p. 90"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c14-bhukti-lord-on-alp",
+    chapter: "book2-ch14",
+    when: { bhuktiLordFromAlp: [1] },
+    text: "The running bhukti lord stands in the ALP lagna sign: the bhukti joins the ALP point, which the book reads as the period's lords backing the body's present position.",
+    weight: 1,
+    source: BOOK2("p. 90"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  // Book 2 ch. 16 (pp. 92-99): example horoscopes 1-4.
+  {
+    id: "b2c16-nak-lord-12",
+    chapter: "book2-ch16",
+    when: { role: "nakshatra-lord", roleInHouse: [12] },
+    text: "The lord of the ALP nakshatra stands in the 12th from the ALP lagna: expenses and struggle through this nakshatra's 1 year 1 month 10 days, after which the native bounces back (examples on pp. 88 and 93).",
+    weight: 2,
+    source: BOOK2("pp. 88, 93"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c16-nak-lord-8",
+    chapter: "book2-ch16",
+    when: { role: "nakshatra-lord", roleInHouse: [8] },
+    text: "The lord of the ALP nakshatra stands in the 8th from the ALP lagna: unresolved troubles are what bring the native; the mind cannot take decisions, there is regret over lost things and a low mood, and the body shows allergies (examples 2 and 4).",
+    weight: 2,
+    source: BOOK2("pp. 94, 98"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c16-nak-lord-6",
+    chapter: "book2-ch16",
+    when: { role: "nakshatra-lord", roleInHouse: [6] },
+    text: "The lord of the ALP nakshatra stands in the 6th from the ALP lagna: the main questions asked are 6th-house ones, debts, disease and court cases; the answer lies in the future bhavas (3, 6, 9, 12).",
+    weight: 1,
+    source: BOOK2("pp. 96-97"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c16-nak-lord-12-dasa-lord-4",
+    chapter: "book2-ch16",
+    when: { role: "nakshatra-lord", roleInHouse: [12], dasaLordFromAlp: [4] },
+    text: "The ALP nakshatra lord is in the 12th and the ARP nakshatra lord (the dasa lord) in the 4th from the ALP lagna: health issues related to the mother (example 1).",
+    weight: 1,
+    source: BOOK2("p. 93"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c16-arp-in-10",
+    chapter: "book2-ch16",
+    when: { arpHouseFromAlp: [10] },
+    text: "The Akshaya rasi is the 10th from the ALP lagna: profession-related questions are possible (example 2).",
+    weight: 1,
+    source: BOOK2("p. 95"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "b2c16-9th-lord-in-6",
+    chapter: "book2-ch16",
+    when: { lordOf: 9, lordOfInHouse: [6] },
+    text: "The 9th lord from the ALP lagna stands in the 6th: debts come through the father and his health is affected; care is needed by both (example 4).",
+    weight: 1,
+    source: BOOK2("p. 99"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
 ];
+
+/** Book 2 ch. 15 (p. 91): the ten features to observe before predicting. */
+export const ALP_TEN_FEATURES = [
+  "Lagna",
+  "Rasi",
+  "Akshaya rasi",
+  "Akshaya rasi through the dasa-bhukti",
+  "The planets in dasa, bhukti and antara",
+  "The connection with gochar planets",
+  "The connection between ALP and ARP",
+  "The connection between the ALP nakshatra point and the ARP nakshatra point",
+  "Akshaya lagna",
+  "The gochar in connection with the Akshaya rasi",
+];
+
+/** Book 2 pp. 95-96: where the questions come from. */
+export const ARP_QUESTIONS_NOTE =
+  "Book 2 (pp. 95-96): the house the ALP nakshatra lord occupies from the ALP lagna gives the most important questions the native asks; the houses the running dasa and bhukti lords occupy from the ALP lagna, and from the Akshaya rasi, add theirs. Check first that the question asked matches the horoscope (p. 99).";
 
 /** Book 2 pp. 70-77: what the Akshaya rasi is and how it is found. */
 export const ARP_NOTE =
@@ -675,6 +920,34 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
     if (w.bhuktiFromDasa) {
       if (!w.bhuktiFromDasa.includes(ctx.arp.bhuktiLord.houseFromDasaLord)) continue;
       planets.push(ctx.arp.dasaLord.planet, ctx.arp.bhuktiLord.planet);
+    }
+    if (w.arpNakshatra && ctx.arp.point.nakshatra !== w.arpNakshatra) continue;
+    if (w.arpPada && !w.arpPada.includes(ctx.arp.point.pada ?? 0)) continue;
+    if (w.arpLordFromArp) {
+      if (!w.arpLordFromArp.includes(ctx.arp.arpLord.houseFromArp)) continue;
+      planets.push(ctx.arp.arpLord.planet);
+    }
+    if (w.dasaLordFromArp) {
+      if (!w.dasaLordFromArp.includes(ctx.arp.dasaLord.houseFromArp)) continue;
+      planets.push(ctx.arp.dasaLord.planet);
+    }
+    if (w.dasaLordFromAlp) {
+      if (!w.dasaLordFromAlp.includes(ctx.arp.dasaLord.houseFromAlp)) continue;
+      planets.push(ctx.arp.dasaLord.planet);
+    }
+    if (w.bhuktiLordFromAlp) {
+      if (!w.bhuktiLordFromAlp.includes(ctx.arp.bhuktiLord.houseFromAlp)) continue;
+      planets.push(ctx.arp.bhuktiLord.planet);
+    }
+    if (w.alpArpLordsTogetherFromJanma) {
+      const l1 = ctx.point.lord;
+      const l2 = ctx.arp.point.lord;
+      if (l1 === l2) continue;
+      const p1 = ctx.positions.find((x) => x.planet === l1);
+      const p2 = ctx.positions.find((x) => x.planet === l2);
+      if (!p1 || !p2 || p1.signIndex !== p2.signIndex) continue;
+      if (!w.alpArpLordsTogetherFromJanma.includes(((p1.signIndex - ctx.janma + 12) % 12) + 1)) continue;
+      planets.push(l1, l2);
     }
     if (w.alpHouseFromPlanet) {
       const p = ctx.positions.find((x) => x.planet === w.alpHouseFromPlanet!.planet);
