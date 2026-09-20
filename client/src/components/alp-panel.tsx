@@ -5,7 +5,7 @@ import { NAKSHATRAS, PLANET_ABBR, SIGNS, fmtDegShort, type Planet } from "@share
 
 const NAK_ARC = 360 / 27;
 import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "@shared/alp";
-import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_SITE } from "@shared/rules-alp";
+import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
 import { Term } from "@/components/term";
@@ -356,7 +356,13 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           </a>
         </p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
-          <li>Open points to settle from the books: whether the count starts from the lagna degree or the sign start; whether the year is solar (365.25 days, used here) or savana (360 days); how the nine padas of a sign are assigned to planets; how the moving rasi (ARP) is derived.</li>
+          <li>
+            The rate is confirmed by the author's second e-magazine: 360° over 120 years, 3° a year, so 1° is four months.{" "}
+            <a href={ALP_SOURCE_MAGAZINE_2} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
+              ALP e-magazine 2
+            </a>
+          </li>
+          <li>Open points to settle from the books: whether the count starts from the lagna degree or the sign start; whether the year is solar (365.25 days, used here) or savana (360 days); how the moving rasi (ARP, Book 2) is derived; the nakshatra-by-nakshatra readings (Books 3 and 4).</li>
           <li>Kept separate from the Nadi and Jaimini readings; nothing here feeds them.</li>
         </ul>
       </section>
