@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 
 function planetTone(p: Planet) {
-  return cn("font-semibold", p === "Jupiter" && "text-primary", p === "Saturn" && "text-[hsl(var(--chart-2))]");
+  return cn("font-semibold", p === "Jupiter" && "text-[hsl(var(--planet-jupiter))]", p === "Saturn" && "text-[hsl(var(--planet-saturn))]");
 }
 
 function Activated({ items, compact }: { items: Finding[]; compact?: boolean }) {

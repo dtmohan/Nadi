@@ -43,6 +43,25 @@
   --chart-3: 38 70% 42%;
   --chart-4: 150 25% 35%;
   --chart-5: 28 12% 40%;
+  /* Planet hues: the traditional colours, muted to sit on the paper. Identity, not role. */
+  --planet-sun: 28 85% 42%;
+  --planet-moon: 205 22% 46%;
+  --planet-mars: 355 62% 42%;
+  --planet-mercury: 145 42% 32%;
+  --planet-jupiter: 44 78% 34%;
+  --planet-venus: 330 42% 46%;
+  --planet-saturn: 232 22% 40%;
+  --planet-rahu: 272 30% 42%;
+  --planet-ketu: 18 30% 40%;
+  /* Sign elements, for sign sequences (chara dasa, ALP signs). */
+  --elem-fire: 14 68% 44%;
+  --elem-earth: 44 50% 36%;
+  --elem-air: 200 30% 48%;
+  --elem-water: 232 28% 46%;
+  /* The three ways of time. */
+  --time-present: 145 42% 32%;
+  --time-past: 232 22% 44%;
+  --time-future: 28 85% 42%;
   --font-sans: 'General Sans', 'Inter', system-ui, sans-serif;
   --font-serif: 'Zodiak', 'Source Serif 4', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -141,6 +160,22 @@
   --chart-3: 42 70% 60%;
   --chart-4: 150 30% 55%;
   --chart-5: 38 14% 66%;
+  --planet-sun: 30 90% 64%;
+  --planet-moon: 205 30% 74%;
+  --planet-mars: 355 70% 66%;
+  --planet-mercury: 145 40% 58%;
+  --planet-jupiter: 44 80% 60%;
+  --planet-venus: 330 55% 72%;
+  --planet-saturn: 232 30% 72%;
+  --planet-rahu: 272 35% 72%;
+  --planet-ketu: 20 35% 66%;
+  --elem-fire: 16 75% 64%;
+  --elem-earth: 44 55% 60%;
+  --elem-air: 200 35% 68%;
+  --elem-water: 232 35% 70%;
+  --time-present: 145 40% 58%;
+  --time-past: 232 30% 72%;
+  --time-future: 30 90% 64%;
   --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0);
   --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0);
   --shadow-sm: 0px 2px 0px 0px hsl(0 0% 0% / 0), 0px 1px 2px -1px hsl(0 0% 0% / 0);

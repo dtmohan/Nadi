@@ -1,13 +1,15 @@
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
-import { NAKSHATRAS, PLANET_ABBR, SIGNS, fmtDegShort, type Planet } from "@shared/astro";
+import { NAKSHATRAS, PLANET_ABBR, SIGNS, SIGN_ABBR, fmtDegShort, type Planet } from "@shared/astro";
 
 const NAK_ARC = 360 / 27;
 import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "@shared/alp";
 import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES, ALP_HOUSE_THEMES, DUSTHANA_NOTE, alpSignReading, threeWaysFor, threeWaysCount, threeWaysText, THREE_WAYS_NOTE, ALP_PLANET_THEMES } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
+import { PlanetName, SignName, TimePill, PlanetLegend, ElementLegend, planetColor, elementColor } from "@/components/planet-name";
+import { DasaBar } from "@/components/dasa-bar";
 import { Term } from "@/components/term";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,10 +27,10 @@ function PeriodRow({ p, planets, cols }: { p: AlpPeriod; planets: string; cols: 
   return (
     <TableRow className={cn(p.current && "bg-primary/5")} data-testid={cols === "sign" ? `row-alp-sign-${p.signIndex}` : `row-alp-pada-${p.padaInSign}`}>
       <TableCell className="py-2 font-medium">
-        {cols === "sign" ? p.sign : `${p.padaInSign} · ${p.nakshatraIndex !== undefined ? NAKSHATRAS[p.nakshatraIndex] : ""} ${p.pada ?? ""}`}
+        {cols === "sign" ? <SignName signIndex={p.signIndex} /> : `${p.padaInSign} · ${p.nakshatraIndex !== undefined ? NAKSHATRAS[p.nakshatraIndex] : ""} ${p.pada ?? ""}`}
         {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
       </TableCell>
-      {cols === "pada" && <TableCell className="py-2">{p.nakshatraLord}</TableCell>}
+      {cols === "pada" && <TableCell className="py-2">{p.nakshatraLord ? <PlanetName planet={p.nakshatraLord} /> : ""}</TableCell>}
       {cols === "pada" && <TableCell className="hidden py-2 sm:table-cell">{p.navamsaSign !== undefined ? SIGNS[p.navamsaSign] : ""}</TableCell>}
       <TableCell className="py-2 text-right">
         {p.ageStart.toFixed(1)}–{p.ageEnd.toFixed(1)}
@@ -36,7 +38,7 @@ function PeriodRow({ p, planets, cols }: { p: AlpPeriod; planets: string; cols: 
       <TableCell className="py-2 text-muted-foreground">
         {cols === "sign" ? `${fmtMonth(p.start)} – ${fmtMonth(p.end)}` : `${fmt(p.start)} – ${fmt(p.end)}`}
       </TableCell>
-      {cols === "sign" && <TableCell className="hidden py-2 sm:table-cell">{p.lord}</TableCell>}
+      {cols === "sign" && <TableCell className="hidden py-2 sm:table-cell">{p.lord ? <PlanetName planet={p.lord} /> : ""}</TableCell>}
       {cols === "sign" && <TableCell className="hidden py-2 text-muted-foreground md:table-cell">{planets || "—"}</TableCell>}
     </TableRow>
   );
@@ -103,7 +105,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           {a.point.nakshatra}&nbsp;<Term k="alp-pada">pada</Term>&nbsp;{a.point.pada}&nbsp;·&nbsp;{a.point.padaInSign}/9&nbsp;in&nbsp;sign
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-alp-nak-lord">
-          Nakshatra&nbsp;lord&nbsp;{a.point.nakshatraLord}&nbsp;·&nbsp;{ordinal(nakP.houseFromAlp)}
+          Nakshatra&nbsp;lord&nbsp;<PlanetName planet={a.point.nakshatraLord} />&nbsp;·&nbsp;{ordinal(nakP.houseFromAlp)}
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate">
           Activates {SIGNS[a.point.navamsaSign]} ({ordinal(activatedHouse)})
@@ -115,7 +117,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           <Term k="akshaya-rasi">Akshaya rasi</Term>&nbsp;{arp.point.sign}&nbsp;·&nbsp;{arp.point.nakshatra}&nbsp;{arp.point.pada}
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-alp-dasa">
-          Dasa&nbsp;{arp.dasa.lord}&nbsp;·&nbsp;bhukti&nbsp;{arp.bhukti.lord}
+          Dasa&nbsp;<PlanetName planet={arp.dasa.lord} />&nbsp;·&nbsp;bhukti&nbsp;<PlanetName planet={arp.bhukti.lord} />
         </Badge>
       </div>
 
@@ -181,7 +183,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                   { who: "Bhukti lord", planet: arp.bhukti.lord, house: arp.bhuktiLord.houseFromAlp },
                 ].map((g) => (
                   <li key={g.who}>
-                    <span className="font-medium text-foreground">{g.who} {g.planet}</span>, {ordinal(g.house)}: <span className="text-foreground">{ordinal(g.house)} house</span> is {ALP_HOUSE_THEMES[g.house]}; <span className="text-foreground">{g.planet}</span> is {ALP_PLANET_THEMES[g.planet]} (class notes).
+                    <span className="font-medium text-foreground">{g.who} <PlanetName planet={g.planet} tone /></span>, {ordinal(g.house)}: <span className="text-foreground">{ordinal(g.house)} house</span> is {ALP_HOUSE_THEMES[g.house]}; <span className="text-foreground">{g.planet}</span> is {ALP_PLANET_THEMES[g.planet]} (class notes).
                   </li>
                 ))}
               </ul>
@@ -190,6 +192,14 @@ export function AlpPanel({ result }: { result: ChartResult }) {
 
           <Working id="alp-arp-dasas" label="Show the Akshaya rasi working" className="mt-4">
             <p className="text-xs text-muted-foreground">{ARP_NOTE}</p>
+            <DasaBar
+              className="mt-3"
+              testId="bar-alp-dasas"
+              nowAt={a.ageYears}
+              ticks={[0, 20, 40, 60, 80, 100, 120]}
+              segments={arp.dasaTimeline.map((d) => ({ start: d.ageStart, end: d.ageEnd, color: planetColor(d.lord), label: PLANET_ABBR[d.lord], current: d.current, title: `${d.lord} dasa · ${d.nakshatra} · ages ${d.ageStart.toFixed(1)}–${d.ageEnd.toFixed(1)}` }))}
+            />
+            <PlanetLegend className="mt-3" />
             <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2">
               <TableHeader>
                 <TableRow>
@@ -204,7 +214,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                 {arp.dasaTimeline.map((d, i) => (
                   <TableRow key={i} className={cn(d.current && "bg-primary/5")} data-testid={`row-alp-dasa-${i}`}>
                     <TableCell className="py-1.5 font-medium">
-                      {d.lord}
+                      <PlanetName planet={d.lord} />
                       {d.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
                     </TableCell>
                     <TableCell className="py-1.5">{d.nakshatra}</TableCell>
@@ -220,7 +230,13 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               </TableBody>
             </Table>
             <p className="mt-3 text-xs font-medium">The four padas of the {arp.dasa.lord} dasa ({arp.dasa.nakshatra})</p>
-            <Table className="tabular mt-1 [&_td]:px-2 [&_th]:px-2">
+            <DasaBar
+              className="mt-2"
+              testId="bar-alp-arp-padas"
+              nowAt={a.ageYears}
+              segments={arp.padaPeriods.map((p) => ({ start: p.ageStart, end: p.ageEnd, color: elementColor(p.signs[0]), label: `${p.pada} · ${SIGNS[p.signs[0]]}`, short: `${p.pada} · ${SIGN_ABBR[p.signs[0]]}`, current: p.current, title: `Pada ${p.pada} · Akshaya rasi ${SIGNS[p.signs[0]]} · ages ${p.ageStart.toFixed(1)}–${p.ageEnd.toFixed(1)}` }))}
+            />
+            <Table className="tabular mt-2 [&_td]:px-2 [&_th]:px-2">
               <TableHeader>
                 <TableRow>
                   <TableHead>Pada</TableHead>
@@ -237,8 +253,8 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                       {p.pada}
                       {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
                     </TableCell>
-                    <TableCell className="py-1.5">{SIGNS[p.signs[0]]}</TableCell>
-                    <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{p.navamsaSign !== undefined ? SIGNS[p.navamsaSign] : ""}</TableCell>
+                    <TableCell className="py-1.5"><SignName signIndex={p.signs[0]} /></TableCell>
+                    <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{p.navamsaSign !== undefined ? <SignName signIndex={p.navamsaSign} /> : ""}</TableCell>
                     <TableCell className="whitespace-nowrap py-1.5 text-right">
                       {p.ageStart.toFixed(1)}–{p.ageEnd.toFixed(1)}
                     </TableCell>
@@ -251,9 +267,19 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             </Table>
             <p className="mt-1 text-xs text-muted-foreground">The {arp.dasa.lord} dasa ends {fmt(arp.dasa.end)}; each row runs to the start of the next.</p>
             <p className="mt-3 text-xs font-medium">Bhuktis of the {arp.dasa.lord} dasa</p>
-            <p className="mt-1 text-xs text-muted-foreground" data-testid="text-alp-bhuktis">
-              {arp.bhuktis.map((b) => `${b.lord} ${fmtMonth(b.start)}${b.current ? " (now)" : ""}`).join(" · ")}
-            </p>
+            <DasaBar
+              className="mt-2"
+              testId="bar-alp-bhuktis"
+              nowAt={a.ageYears}
+              segments={arp.bhuktis.map((b) => ({ start: b.ageStart, end: b.ageEnd, color: planetColor(b.lord), label: PLANET_ABBR[b.lord], current: b.current, title: `${b.lord} bhukti · ${fmt(b.start)} – ${fmt(b.end)}` }))}
+            />
+            <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground" data-testid="text-alp-bhuktis">
+              {arp.bhuktis.map((b) => (
+                <li key={b.lord} className={cn(b.current && "font-medium text-foreground")}>
+                  <PlanetName planet={b.lord} /> {fmtMonth(b.start)}{b.current ? " (now)" : ""}
+                </li>
+              ))}
+            </ul>
           </Working>
         </div>
 
@@ -477,6 +503,14 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         <p className="mt-1 text-sm text-muted-foreground">
           {config.yearsPerSign} years per sign, counted from the natal lagna degree (Book 2 adds the travelled degrees to the birth lagna point), so the birth sign gets only its remaining arc.
         </p>
+        <DasaBar
+          className="mt-3"
+          testId="bar-alp-signs"
+          nowAt={a.ageYears}
+          ticks={[0, 20, 40, 60, 80, 100, 120]}
+          segments={a.signPeriods.map((p) => ({ start: p.ageStart, end: p.ageEnd, color: elementColor(p.signIndex), label: SIGN_ABBR[p.signIndex], current: p.current, title: `${p.sign} · ages ${p.ageStart.toFixed(1)}–${p.ageEnd.toFixed(1)}` }))}
+        />
+        <ElementLegend className="mt-3" />
         <Table className="tabular mt-3">
           <TableHeader>
             <TableRow>
@@ -498,6 +532,12 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         <p className="mt-1 text-xs text-muted-foreground">
           The sign is crossed in three stretches of nakshatra; each brings a second lord into play. The lord's house is counted from the ALP lagna.
         </p>
+        <DasaBar
+          className="mt-2"
+          testId="bar-alp-nakshatras"
+          nowAt={a.ageYears}
+          segments={a.nakshatraPeriods.map((n) => ({ start: n.ageStart, end: n.ageEnd, color: n.nakshatraLord ? planetColor(n.nakshatraLord) : "hsl(var(--muted))", label: `${n.nakshatraLord ? PLANET_ABBR[n.nakshatraLord] : ""} · ${n.nakshatra ?? ""}`, short: n.nakshatraLord ? PLANET_ABBR[n.nakshatraLord] : "", current: n.current, title: `${n.nakshatra} · ${n.nakshatraLord} · ${fmt(n.start)} – ${fmt(n.end)}` }))}
+        />
         <Table className="tabular mt-2" data-testid="table-alp-nakshatras">
           <TableHeader>
             <TableRow>
@@ -515,7 +555,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                   {n.nakshatra}
                   {n.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
                 </TableCell>
-                <TableCell className="py-2">{n.nakshatraLord}</TableCell>
+                <TableCell className="py-2">{n.nakshatraLord ? <PlanetName planet={n.nakshatraLord} /> : ""}</TableCell>
                 <TableCell className="hidden py-2 text-muted-foreground sm:table-cell">{n.nakshatraLord ? ordinal(houseOf(n.nakshatraLord)!) : ""}</TableCell>
                 <TableCell className="py-2 text-right">
                   {n.ageStart.toFixed(1)}–{n.ageEnd.toFixed(1)}
@@ -554,7 +594,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                           <div className="text-muted-foreground">{w.detail}</div>
                         </TableCell>
                         <TableCell className="py-1.5 align-top">{ordinal(w.house)}</TableCell>
-                        <TableCell className="py-1.5 align-top capitalize">{w.group}</TableCell>
+                        <TableCell className="py-1.5 align-top"><TimePill group={w.group} /></TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -568,6 +608,13 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         </Working>
 
         <Working id="alp-nak-timeline" label="Show every nakshatra over the 120 years" count={a.nakshatraTimeline.length} className="mt-4">
+          <DasaBar
+            className="mb-3"
+            testId="bar-alp-nak-timeline"
+            nowAt={a.ageYears}
+            ticks={[0, 20, 40, 60, 80, 100, 120]}
+            segments={a.nakshatraTimeline.map((n) => ({ start: n.ageStart, end: n.ageEnd, color: n.nakshatraLord ? planetColor(n.nakshatraLord) : "hsl(var(--muted))", label: n.nakshatraLord ? PLANET_ABBR[n.nakshatraLord] : "", current: n.current, title: `${n.nakshatra} · ${n.nakshatraLord} · ages ${n.ageStart.toFixed(1)}–${n.ageEnd.toFixed(1)}` }))}
+          />
           <Table className="tabular">
             <TableHeader>
               <TableRow>
@@ -585,7 +632,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                     {n.nakshatra}
                     {n.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
                   </TableCell>
-                  <TableCell className="py-1.5">{n.nakshatraLord}</TableCell>
+                  <TableCell className="py-1.5">{n.nakshatraLord ? <PlanetName planet={n.nakshatraLord} /> : ""}</TableCell>
                   <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{nakSigns(n.nakshatraIndex!)}</TableCell>
                   <TableCell className="py-1.5 text-right">
                     {n.ageStart.toFixed(1)}–{n.ageEnd.toFixed(1)}

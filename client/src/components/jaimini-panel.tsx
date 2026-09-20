@@ -26,6 +26,8 @@ import {
 } from "@shared/rules-jaimini";
 import { AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
 import { Working } from "@/components/working";
+import { SignName, ElementLegend, elementColor } from "@/components/planet-name";
+import { DasaBar } from "@/components/dasa-bar";
 import { Term } from "@/components/term";
 import { SourceLink } from "@/components/source-link";
 import { SouthIndianChart } from "@/components/south-indian-chart";
@@ -90,11 +92,11 @@ function DashaRow({
         )}
         <span
           className={cn(
-            "w-24 font-medium",
+            "w-28 font-medium",
             past && !current && "text-muted-foreground",
           )}
         >
-          {p.signName}
+          <SignName signIndex={p.sign} />
         </span>
         <span className="tabular w-16 text-sm text-muted-foreground">
           {p.years} {p.years === 1 ? "year" : "years"}
@@ -741,6 +743,14 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             </CardContent>
           </Card>
         )}
+        <DasaBar
+          className="mt-4"
+          testId="bar-chara-dasha"
+          nowAt={now.diff(birth, "years").years}
+          ticks={showAll ? [0, 24, 48, 72, 96, 120] : [0, 12, 24, 36, 48, 60]}
+          segments={visiblePeriods.map((p) => ({ start: p.ageStart, end: p.ageStart + p.years, color: elementColor(p.sign), label: SIGN_ABBR[p.sign], current: now >= DateTime.fromISO(p.start) && now < DateTime.fromISO(p.end), title: `${p.signName} · ${p.years} years · age ${p.ageStart}–${p.ageStart + p.years}` }))}
+        />
+        <ElementLegend className="mt-3" />
         <ul className="mt-3 space-y-1.5">
           {visiblePeriods.map((p) => {
             const key = `${p.cycle}-${p.sign}`;

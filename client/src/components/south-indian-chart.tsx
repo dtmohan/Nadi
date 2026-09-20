@@ -111,11 +111,13 @@ export function SouthIndianChart({
               const perRow = 2;
               const r = Math.floor(i / perRow);
               const c = i % perRow;
-              const px = x + 8 + c * 46;
+              const px = x + 6 + c * 47;
               const py = y + (lagnaSign === signIndex ? 40 : 34) + r * 20;
               const tag = tags?.[p.planet];
               return (
-                <text key={p.planet} x={px} y={py} fontSize={14} className={colorOf(p.planet)}>
+                <g key={p.planet}>
+                <circle cx={px + 2.5} cy={py - 4.5} r={2.5} style={{ fill: `hsl(var(--planet-${p.planet.toLowerCase()}))` }} />
+                <text x={px + 8} y={py} fontSize={14} className={colorOf(p.planet)}>
                   {PLANET_ABBR[p.planet]}
                   {p.retrograde && p.planet !== "Rahu" && p.planet !== "Ketu" ? "\u211e" : ""}
                   {tag ? (
@@ -128,6 +130,7 @@ export function SouthIndianChart({
                     </tspan>
                   )}
                 </text>
+                </g>
               );
             })}
             {badges?.[signIndex]?.length ? (
