@@ -44,7 +44,7 @@ export const ALP_CHAPTERS: AlpChapter[] = [
   { id: "book2-ch12", book: "Book 2, ch. 12-13", title: "Karma and time: what is taken is returned; Akshaya lagna with Akshaya rasi, their lords together from the birth lagna (pp. 86-89)", note: "Entered from the printed volume." },
   { id: "book2-ch14", book: "Book 2, ch. 14-15", title: "ALP point with dasa-bhukti; the ten features to be noted (pp. 90-91)", note: "Entered from the printed volume; the ten-point checklist is in the method notes." },
   { id: "book2-ch16", book: "Book 2, ch. 16", title: "Example horoscopes 1-5: reading the questions from the ALP nakshatra lord, the dasa and bhukti lords, and the Akshaya rasi (pp. 92-99 so far)", note: "Examples 1-4 entered; example 5 continues on the next pages." },
-  { id: "book2-ch17", book: "Book 2, ch. 17", title: "Understanding the nakshatra and its sookshma: the three ways (lagna nakshatra point, its lord, the lagna lord) and the present/past/future mix; the activated nakshatra lord's lordship and placement (pp. 137-143)", note: "pp. 140-141 (the sookshma working and example horoscope 1) are not yet photographed." },
+  { id: "book2-ch17", book: "Book 2, ch. 17", title: "Understanding the nakshatra and its sookshma: the three ways (lagna nakshatra point, its lord, the lagna lord) and the present/past/future mix; the activated nakshatra lord's lordship and placement (pp. 137-143)", note: "Entered in full; the three ways are read from the birth lagna and, as on p. 140, from the ALP lagna too." },
   { id: "book2-rest", book: "Book 2, later chapters", title: "Characteristics of the nakshatras; prasna", note: "Pending." },
   { id: "book3", book: "Book 3", title: "Introduction to gochar; the nakshatras of Leo; Aries-lagna ALP; the planets through the 12 bhavas by gochar", note: "Pending. Nakshatra-by-nakshatra readings begin here (Magha, Purva Phalguni, Uttara Phalguni)." },
   { id: "book4", book: "Book 4", title: "The nakshatras of Sagittarius; marriage matching; horoscope analysis", note: "Pending. Continues the nakshatra readings (Mula, Purva Ashadha, Uttara Ashadha)." },
@@ -895,9 +895,9 @@ export const ALP_RULES: AlpRule[] = [
     id: "ch17-3w-present-3",
     chapter: "book2-ch17",
     when: { threeWays: { present: 3, past: 0, future: 0 } },
-    text: "The three ways all fall in present houses (1-4-7-10): the results come in the present.",
+    text: "The three ways all fall in present houses (1-4-7-10): the native enjoys life in the present, with its pleasures and comforts, yoga, position, fame, status and honour, and lives prosperously.",
     weight: 2,
-    source: BOOK2("p. 139"),
+    source: BOOK2("pp. 139-140"),
     sourceUrl: ALP_SOURCE_BOOKS,
   },
   {
@@ -913,9 +913,9 @@ export const ALP_RULES: AlpRule[] = [
     id: "ch17-3w-future-3",
     chapter: "book2-ch17",
     when: { threeWays: { present: 0, past: 0, future: 3 } },
-    text: "The three ways all fall in future houses (3-6-9-12): the results come in the future.",
+    text: "The three ways all fall in future houses (3-6-9-12): the native never lives in the present, always saving and planning for the future without knowing for whom the wealth is being accumulated.",
     weight: 2,
-    source: BOOK2("p. 139"),
+    source: BOOK2("pp. 139-140"),
     sourceUrl: ALP_SOURCE_BOOKS,
   },
   {
@@ -1016,6 +1016,34 @@ export const ALP_RULES: AlpRule[] = [
     text: "The dasa lord on the ALP lagna, the bhukti lord in the 9th and the activated nakshatra lord in the 8th: the 1st is joined to both the 9th and the 8th, and the book reads a dreadful experience, equivalent to death, for the native and the father.",
     weight: 3,
     source: BOOK2("p. 142"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  // Book 2 ch. 17, example chart 1 (pp. 140-141): the ALP nakshatra lord and ALP lord by time group.
+  {
+    id: "ch17-nak-lord-present",
+    chapter: "book2-ch17",
+    when: { role: "nakshatra-lord", roleInHouse: [4, 7, 10] },
+    text: "The ALP nakshatra lord stands in a present house (4, 7 or 10): the native is born to experience this nakshatra's matters in the present, through the house it occupies.",
+    weight: 1,
+    source: BOOK2("p. 140"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-alp-lord-past",
+    chapter: "book2-ch17",
+    when: { role: "alp-lord", roleInHouse: [2, 5, 8, 11] },
+    text: "The ALP lagna lord stands in a past house (2, 5, 8 or 11): the native struggles to experience the events of the present life because of past deeds; the house names where the duty was left undone.",
+    weight: 1,
+    source: BOOK2("p. 140"),
+    sourceUrl: ALP_SOURCE_BOOKS,
+  },
+  {
+    id: "ch17-alp-lord-8-from-nak-lord",
+    chapter: "book2-ch17",
+    when: { nakLordFromAlpLord: [6] },
+    text: "The ALP lagna lord stands 8th from the ALP nakshatra lord: the native has everything the nakshatra lord's house promises but cannot enjoy it; the body was neglected in the past, so health limits the present (the book's diabetic who cannot eat the sweets).",
+    weight: 2,
+    source: BOOK2("p. 141"),
     sourceUrl: ALP_SOURCE_BOOKS,
   },
 ];
@@ -1322,5 +1350,9 @@ export function threeWaysCount(ways: ThreeWay[]): Record<TimeGroup, number> {
   for (const w of ways) c[w.group]++;
   return c;
 }
+/** The p. 139-140 line for a present/past/future count, looked up from the rules. */
+export function threeWaysText(c: Record<TimeGroup, number>): string | undefined {
+  return ALP_RULES.find((r) => r.when.threeWays && r.when.threeWays.present === c.present && r.when.threeWays.past === c.past && r.when.threeWays.future === c.future)?.text;
+}
 export const THREE_WAYS_NOTE =
-  "Book 2 ch. 17 (pp. 137-139): the lagna nakshatra point is the beginning of the previous birth, read by the bhava it holds for the kalapurusha; the bhava of the lagna nakshatra lord from the lagna is where the native's deeds are relevant; the bhava of the lagna lord defines the future path and how the native plans. Houses 1-4-7-10 give the present, 2-5-8-11 the past, 3-6-9-12 the future.";
+  "Book 2 ch. 17 (pp. 137-139): the lagna nakshatra point is the beginning of the previous birth, read by the bhava it holds for the kalapurusha; the bhava of the lagna nakshatra lord from the lagna is where the native's deeds are relevant; the bhava of the lagna lord defines the future path and how the native plans. Houses 1-4-7-10 give the present, 2-5-8-11 the past, 3-6-9-12 the future. The book reads the birth lagna this way (pp. 137-139) and the ALP lagna the same way (example chart 1, pp. 140-141).";

@@ -5,7 +5,7 @@ import { NAKSHATRAS, PLANET_ABBR, SIGNS, fmtDegShort, type Planet } from "@share
 
 const NAK_ARC = 360 / 27;
 import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "@shared/alp";
-import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES, ALP_HOUSE_THEMES, DUSTHANA_NOTE, alpSignReading, threeWaysFor, threeWaysCount, THREE_WAYS_NOTE } from "@shared/rules-alp";
+import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES, ALP_HOUSE_THEMES, DUSTHANA_NOTE, alpSignReading, threeWaysFor, threeWaysCount, threeWaysText, THREE_WAYS_NOTE } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
 import { Term } from "@/components/term";
@@ -521,7 +521,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           <p className="mb-2 text-xs text-muted-foreground">{THREE_WAYS_NOTE}</p>
           {[
             { key: "janma", title: `Birth lagna (the book's reading)`, ways: threeWaysJanma },
-            { key: "alp", title: `The same three ways from the ALP lagna (not in the text; shown for comparison)`, ways: threeWaysAlp },
+            { key: "alp", title: `ALP lagna (example chart 1, pp. 140-141)`, ways: threeWaysAlp },
           ].map(({ key, title, ways }) => {
             const c = threeWaysCount(ways);
             return (
@@ -549,7 +549,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                   </TableBody>
                 </Table></div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {c.present} present, {c.past} past, {c.future} future.{key === "janma" ? " The matching line from p. 139 appears in the reading below." : ""}
+                  {c.present} present, {c.past} past, {c.future} future. {threeWaysText(c)}{key === "janma" ? " (This line also appears in the reading below.)" : ""}
                 </p>
               </div>
             );
