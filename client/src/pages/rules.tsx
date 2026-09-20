@@ -19,6 +19,7 @@ function describeAlpCondition(w: AlpRuleWhen) {
   if (w.role) parts.push(`${ALP_ROLE_LABEL[w.role]}${w.roleInHouse ? ` in the ${w.roleInHouse.map(ord).join("/")} from the ALP lagna` : ""}${w.roleWith ? ` with ${w.roleWith.join(" or ")}` : ""}`);
   if (w.planet) parts.push(`${w.planet}${w.planetInHouse ? ` in the ${w.planetInHouse.map(ord).join("/")} from the ALP lagna` : ""}`);
   if (w.activatedHouse) parts.push(`current pada activates the ${w.activatedHouse.map(ord).join("/")}`);
+  if (w.nakshatraLord) parts.push(`ALP lagna in a nakshatra of ${w.nakshatraLord.join("/")}`);
   if (w.alpHouseFromJanma) parts.push(`ALP lagna in the ${w.alpHouseFromJanma.map(ord).join("/")} from the janma lagna`);
   return parts.join(" · ");
 }

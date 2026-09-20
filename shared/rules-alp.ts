@@ -46,6 +46,8 @@ export interface AlpRuleWhen {
   activatedHouse?: number[];
   /** The role planet shares a sign with any of these planets. */
   roleWith?: Planet[];
+  /** The lord of the nakshatra the ALP lagna currently occupies is one of these planets. */
+  nakshatraLord?: Planet[];
 }
 
 export interface AlpRule {
@@ -158,6 +160,7 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
     const planets: Planet[] = [];
     if (w.alpHouseFromJanma && !w.alpHouseFromJanma.includes(alpHouseFromJanma)) continue;
     if (w.activatedHouse && !w.activatedHouse.includes(activated)) continue;
+    if (w.nakshatraLord && !w.nakshatraLord.includes(ctx.point.nakshatraLord)) continue;
     if (w.role) {
       const pl = byRole(w.role);
       if (!pl) continue;

@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
-import { NAKSHATRAS, PLANET_ABBR, SIGNS, fmtDegShort } from "@shared/astro";
+import { NAKSHATRAS, PLANET_ABBR, SIGNS, fmtDegShort, type Planet } from "@shared/astro";
+
+const NAK_ARC = 360 / 27;
 import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "@shared/alp";
 import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_SITE } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
@@ -26,6 +28,7 @@ function PeriodRow({ p, planets, cols }: { p: AlpPeriod; planets: string; cols: 
         {cols === "sign" ? p.sign : `${p.padaInSign} · ${p.nakshatraIndex !== undefined ? NAKSHATRAS[p.nakshatraIndex] : ""} ${p.pada ?? ""}`}
         {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
       </TableCell>
+      {cols === "pada" && <TableCell className="py-2">{p.nakshatraLord}</TableCell>}
       {cols === "pada" && <TableCell className="hidden py-2 sm:table-cell">{p.navamsaSign !== undefined ? SIGNS[p.navamsaSign] : ""}</TableCell>}
       <TableCell className="py-2 text-right">
         {p.ageStart.toFixed(1)}–{p.ageEnd.toFixed(1)}
@@ -61,6 +64,17 @@ export function AlpPanel({ result }: { result: ChartResult }) {
   const nakP = roleLine("Lord of the ALP nakshatra");
   const navP = roleLine("Lord of the activated navamsa sign");
   const activatedHouse = ((a.point.navamsaSign - a.point.signIndex + 12) % 12) + 1;
+  const curNak = a.nakshatraPeriods.find((n) => n.current);
+  const nextNak = curNak ? a.nakshatraPeriods[a.nakshatraPeriods.indexOf(curNak) + 1] : undefined;
+  const houseOf = (planet: Planet) => {
+    const p = positions.find((x) => x.planet === planet);
+    return p ? ((p.signIndex - a.point.signIndex + 12) % 12) + 1 : undefined;
+  };
+  const nakSigns = (k: number) => {
+    const lo = Math.floor((k * NAK_ARC) / 30) % 12;
+    const hi = Math.floor(((k + 1) * NAK_ARC - 1e-6) / 30) % 12;
+    return lo === hi ? SIGNS[lo] : `${SIGNS[lo]} / ${SIGNS[hi]}`;
+  };
 
   return (
     <div data-testid="alp-panel">
@@ -73,6 +87,9 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-alp-pada">
           {a.point.nakshatra}&nbsp;<Term k="alp-pada">pada</Term>&nbsp;{a.point.pada}&nbsp;·&nbsp;{a.point.padaInSign}/9&nbsp;in&nbsp;sign
+        </Badge>
+        <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-alp-nak-lord">
+          Nakshatra&nbsp;lord&nbsp;{a.point.nakshatraLord}&nbsp;·&nbsp;{ordinal(nakP.houseFromAlp)}
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate">
           Activates {SIGNS[a.point.navamsaSign]} ({ordinal(activatedHouse)})
@@ -107,7 +124,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           ))}
         </div>
         <span>
-          Next pada {a.nextPadaChange ? fmt(a.nextPadaChange) : "—"} · next sign {a.nextSignChange ? fmt(a.nextSignChange) : "—"}
+          Next pada {a.nextPadaChange ? fmt(a.nextPadaChange) : "—"} · next nakshatra {a.nextNakshatraChange ? fmt(a.nextNakshatraChange) : "—"} · next sign {a.nextSignChange ? fmt(a.nextSignChange) : "—"}
         </span>
       </div>
 
@@ -142,7 +159,12 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               The janma lagna lord <span className="font-medium">{janmaP.planet}</span> falls in the {ordinal(janmaP.houseFromAlp)} from the ALP lagna.
             </li>
             <li>
-              The lagna is in {a.point.nakshatra}, pada {a.point.pada}; its lord <span className="font-medium">{nakP.planet}</span> is in the {ordinal(nakP.houseFromAlp)} from the ALP lagna.
+              Within {a.point.sign} the lagna is in <span className="font-medium">{a.point.nakshatra}</span> (pada {a.point.pada}), ages {curNak?.ageStart.toFixed(1)}–{curNak?.ageEnd.toFixed(1)}; the nakshatra lord <span className="font-medium">{nakP.planet}</span> is in the {ordinal(nakP.houseFromAlp)} from the ALP lagna, the {ordinal(nakP.houseFromJanma)} natally.
+              {nextNak && (
+                <>
+                  {" "}Next comes {nextNak.nakshatra} ({nextNak.nakshatraLord}) from {fmt(nextNak.start)}.
+                </>
+              )}
             </li>
             <li>
               The pada's navamsa sign is {SIGNS[a.point.navamsaSign]}, the {ordinal(activatedHouse)} from the ALP lagna; its lord <span className="font-medium">{navP.planet}</span> is in the {ordinal(navP.houseFromAlp)}.
@@ -237,11 +259,79 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           </TableBody>
         </Table>
 
+        <h3 className="mt-8 text-sm font-semibold" id="alp-nakshatras">Nakshatras within {a.point.sign}</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          The sign is crossed in three stretches of nakshatra; each brings a second lord into play. The lord's house is counted from the ALP lagna.
+        </p>
+        <Table className="tabular mt-2" data-testid="table-alp-nakshatras">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Nakshatra</TableHead>
+              <TableHead>Lord</TableHead>
+              <TableHead className="hidden sm:table-cell">Lord's house</TableHead>
+              <TableHead className="text-right">Age</TableHead>
+              <TableHead>Dates</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {a.nakshatraPeriods.map((n) => (
+              <TableRow key={n.nakshatraIndex} className={cn(n.current && "bg-primary/5")} data-testid={`row-alp-nak-${n.nakshatraIndex}`}>
+                <TableCell className="py-2 font-medium">
+                  {n.nakshatra}
+                  {n.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                </TableCell>
+                <TableCell className="py-2">{n.nakshatraLord}</TableCell>
+                <TableCell className="hidden py-2 text-muted-foreground sm:table-cell">{n.nakshatraLord ? ordinal(houseOf(n.nakshatraLord)!) : ""}</TableCell>
+                <TableCell className="py-2 text-right">
+                  {n.ageStart.toFixed(1)}–{n.ageEnd.toFixed(1)}
+                </TableCell>
+                <TableCell className="py-2 text-muted-foreground">
+                  {fmt(n.start)} – {fmt(n.end)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        <Working id="alp-nak-timeline" label="Show every nakshatra over the 120 years" count={a.nakshatraTimeline.length} className="mt-4">
+          <Table className="tabular">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nakshatra</TableHead>
+                <TableHead>Lord</TableHead>
+                <TableHead className="hidden sm:table-cell">Sign</TableHead>
+                <TableHead className="text-right">Age</TableHead>
+                <TableHead>Dates</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {a.nakshatraTimeline.map((n, i) => (
+                <TableRow key={`${n.nakshatraIndex}-${i}`} className={cn(n.current && "bg-primary/5")}>
+                  <TableCell className="py-1.5 font-medium">
+                    {n.nakshatra}
+                    {n.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                  </TableCell>
+                  <TableCell className="py-1.5">{n.nakshatraLord}</TableCell>
+                  <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{nakSigns(n.nakshatraIndex!)}</TableCell>
+                  <TableCell className="py-1.5 text-right">
+                    {n.ageStart.toFixed(1)}–{n.ageEnd.toFixed(1)}
+                  </TableCell>
+                  <TableCell className="py-1.5 text-muted-foreground">
+                    {fmtMonth(n.start)} – {fmtMonth(n.end)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <p className="mt-2 text-xs text-muted-foreground">One nakshatra takes 4 years 5 months and a few days; a sign holds two and a quarter of them, so a nakshatra can straddle two signs.</p>
+        </Working>
+
         <Working id="alp-padas" label={`Show the nine padas of ${a.point.sign}`} count={a.padaPeriods.length} className="mt-4">
           <Table className="tabular">
             <TableHeader>
               <TableRow>
                 <TableHead>Pada in sign</TableHead>
+                <TableHead>Lord</TableHead>
                 <TableHead className="hidden sm:table-cell">Activates</TableHead>
                 <TableHead className="text-right">Age</TableHead>
                 <TableHead>Dates</TableHead>
@@ -260,7 +350,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
       <section className="mt-10" data-testid="section-alp-method">
         <h2 className="text-base font-semibold">Method</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Akshaya Lagna Paddhati moves the ascendant forward with age, ten years to a sign and one nakshatra pada in 1 year 1 month 10 days, so that the whole zodiac is covered in 120 years, and reads the natal planets from the moved lagna. The natal chart, the Vimshottari dasha and transits stay as they are; only the reference point moves.{" "}
+          Akshaya Lagna Paddhati moves the ascendant forward with age, ten years to a sign and one nakshatra pada in 1 year 1 month 10 days, so that the whole zodiac is covered in 120 years, and reads the natal planets from the moved lagna. Three layers are tracked: the sign (and its lord), the nakshatra within the sign (and its lord), and the pada (and the navamsa sign it activates). The natal chart, the Vimshottari dasha and transits stay as they are; only the reference point moves.{" "}
           <a href={ALP_SOURCE_SITE} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
             alpastrology.org
           </a>

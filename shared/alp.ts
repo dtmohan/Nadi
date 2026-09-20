@@ -29,6 +29,7 @@ export const DEFAULT_ALP_CONFIG: AlpConfig = { yearsPerSign: 10, start: "degree"
 
 const YEAR_DAYS = 365.25;
 const PADA_ARC = 360 / 108; // 3°20'
+const NAK_ARC = 360 / 27; // 13°20'
 
 export interface AlpPoint {
   lon: number;
@@ -51,8 +52,11 @@ export interface AlpPeriod {
   signIndex: number;
   sign: Sign;
   lord: Planet;
-  /** For pada periods: nakshatra pada in this sign. */
+  /** For nakshatra and pada periods. */
   nakshatraIndex?: number;
+  nakshatra?: string;
+  nakshatraLord?: Planet;
+  /** For pada periods: nakshatra pada in this sign. */
   pada?: number;
   padaInSign?: number;
   navamsaSign?: number;
@@ -92,8 +96,13 @@ export interface AlpResult {
   houses: AlpHouse[];
   placements: AlpPlacement[];
   signPeriods: AlpPeriod[];
+  /** The nakshatra stretches inside the current sign, clipped to the sign's boundaries. */
+  nakshatraPeriods: AlpPeriod[];
+  /** Every nakshatra the lagna passes through over the 120-year cycle (about 4.4 years each). */
+  nakshatraTimeline: AlpPeriod[];
   padaPeriods: AlpPeriod[];
   nextSignChange: string | null;
+  nextNakshatraChange: string | null;
   nextPadaChange: string | null;
   findings: AlpFinding[];
 }
@@ -157,7 +166,8 @@ function periodsBetween(natalLon: number, birth: DateTime, asOf: DateTime, confi
         signIndex: pt.signIndex,
         sign: pt.sign,
         lord: pt.lord,
-        ...(arc < 30 ? { nakshatraIndex: pt.nakshatraIndex, pada: pt.pada, padaInSign: pt.padaInSign, navamsaSign: pt.navamsaSign } : {}),
+        ...(arc < 30 ? { nakshatraIndex: pt.nakshatraIndex, nakshatra: pt.nakshatra, nakshatraLord: pt.nakshatraLord } : {}),
+        ...(arc <= PADA_ARC ? { pada: pt.pada, padaInSign: pt.padaInSign, navamsaSign: pt.navamsaSign } : {}),
         start: start.toISO()!,
         end: end.toISO()!,
         ageStart: startDays / YEAR_DAYS,
@@ -210,6 +220,40 @@ export function computeAlp(positions: PlanetPosition[], natalLagnaLon: number, b
     : [];
   const curPada = padaPeriods.find((s) => s.current);
 
+  // Nakshatra stretches within the current sign: nakshatra boundaries clipped to the sign, in unwrapped longitude.
+  const nakshatraPeriods: AlpPeriod[] = [];
+  if (curSign) {
+    const rate = alpRate(config);
+    const s0 = startLon(natalLagnaLon, config);
+    const signLo = Math.floor((s0 + ageYears * YEAR_DAYS * rate) / 30) * 30;
+    const signHi = signLo + 30;
+    for (let k = Math.floor(signLo / NAK_ARC); k * NAK_ARC < signHi - 1e-9; k++) {
+      const lo = Math.max(k * NAK_ARC, signLo);
+      const hi = Math.min((k + 1) * NAK_ARC, signHi);
+      const endDays = (hi - s0) / rate;
+      if (endDays <= 0) continue;
+      const startDays = Math.max(0, (lo - s0) / rate);
+      const pt = alpPointAt(norm360((lo + hi) / 2));
+      const start = birth.plus({ days: startDays });
+      const end = birth.plus({ days: endDays });
+      nakshatraPeriods.push({
+        signIndex: pt.signIndex,
+        sign: pt.sign,
+        lord: pt.lord,
+        nakshatraIndex: pt.nakshatraIndex,
+        nakshatra: pt.nakshatra,
+        nakshatraLord: pt.nakshatraLord,
+        start: start.toISO()!,
+        end: end.toISO()!,
+        ageStart: startDays / YEAR_DAYS,
+        ageEnd: endDays / YEAR_DAYS,
+        current: asOf >= start && asOf < end,
+      });
+    }
+  }
+  const curNak = nakshatraPeriods.find((s) => s.current);
+  const nakshatraTimeline = periodsBetween(natalLagnaLon, birth, asOf, config, NAK_ARC, 120);
+
   const findings = evaluateAlp({ positions, janma, alp, point, natalLagna, houses, placements });
 
   return {
@@ -222,8 +266,11 @@ export function computeAlp(positions: PlanetPosition[], natalLagnaLon: number, b
     houses,
     placements,
     signPeriods,
+    nakshatraPeriods,
+    nakshatraTimeline,
     padaPeriods,
     nextSignChange: curSign ? curSign.end : null,
+    nextNakshatraChange: curNak ? curNak.end : null,
     nextPadaChange: curPada ? curPada.end : null,
     findings,
   };
