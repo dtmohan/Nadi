@@ -64,6 +64,7 @@ export interface KpRule {
   /** Houses whose significators' conjoined dasa-bhukti-antara time the event. */
   timing?: number[];
   source: string;
+  sourceUrl?: string;
 }
 
 export interface KpFinding {
@@ -76,12 +77,16 @@ export interface KpFinding {
   source: string;
   /** What was seen: the sub lord and the houses that satisfied the rule. */
   evidence: string;
+  sourceUrl?: string;
   subLord: Planet;
 }
 
 const C32 = "Kalpurush Astrology, KP class 3.2 (the 1st cusp), S. Neogi";
 const C41 = "Kalpurush Astrology, KP class 4.1 (the 2nd cusp), S. Neogi";
 const P3 = (p: string) => `Astro Secrets & KP Part 3, ch. 6, p. ${p}`;
+const P1 = (p: string) => `Astro Secrets & KP Part 1, ch. 16, p. ${p}`;
+const DUTTA_URL = "https://kpastrologylearning.com/free-kp-astrology-rules/";
+const DUTTA = (house: string, slug: string) => ({ source: `Dr. Andrew Dutta (Sri Indrajit), free KP bhava rules, ${house} house`, sourceUrl: `https://kpastrologylearning.com/kp-jyotish-astrology-${slug}-house-bhava-rules/` });
 
 const IMPROVING = [1, 2, 3, 6, 10, 11];
 
@@ -172,6 +177,35 @@ export const KP_RULES: KpRule[] = [
   { id: "kp3-journalism", cusp: 3, topic: "Communications", when: { cusp: 3, all: [3, 11], connectedTo: ["Mercury", "Jupiter"] }, text: "The 3rd sub lord signifies 3 and 11 and is connected to Mercury or Jupiter: writing, journalism, publishing.", polarity: "good", source: P3("43") },
   { id: "kp3-appeal", cusp: 3, topic: "Litigation", when: { cusp: 3, all: [6, 11] }, text: "The 3rd sub lord signifies 6 and 11: appeals and petitions succeed.", polarity: "good", source: P3("44") },
   { id: "kp3-hearing", cusp: 3, topic: "Health", when: { cusp: 3, any: [12], connectedTo: ["Mars"] }, text: "The 3rd sub lord signifies the 12th and is connected to Mars: a weakness of hearing.", polarity: "bad", source: P3("44") },
+  // ── Cusp III from Astro Secrets Part 1, ch. 16 (pp. 131-135) and Dutta's free bhava rules ──
+  { id: "kp3-trade-dignified", cusp: 3, topic: "Trade", when: { cusp: 3, all: [3], minOf: { houses: [2, 6, 10, 11], count: 2 } }, text: "The 3rd sub lord ties the 3rd to the improving houses 2, 6, 10 and 11: whatever the 10th sub lord has fixed as the profession is carried on at a dignified scale, as wholesale, distribution or export, and with profit, in the periods of the 3rd lord.", polarity: "good", timing: [2, 3, 10, 11], source: P1("132-134") },
+  { id: "kp3-trade-hawking", cusp: 3, topic: "Trade", when: { cusp: 3, all: [3], minOf: { houses: [5, 8], count: 1 }, fewerThan: { houses: [2, 6, 10, 11], count: 2 } }, text: "The 3rd sub lord ties the 3rd to 5 and 8 without the support of 2, 6, 10 and 11: the same line of work is done the hard way, hawking, small retail, moving about with little profit.", polarity: "bad", source: P1("132-134") },
+  { id: "kp3-goods-sun", cusp: 3, topic: "Trade", when: { cusp: 3, subLordIs: ["Sun"], any: [3] }, text: "Sun as 3rd sub lord signifying the 3rd: the goods traded or carried are metal vessels and utensils.", polarity: "neutral", source: P1("132") },
+  { id: "kp3-goods-moon", cusp: 3, topic: "Trade", when: { cusp: 3, subLordIs: ["Moon"], any: [3] }, text: "Moon as 3rd sub lord signifying the 3rd: drinks, fruit, flowers, fresh produce.", polarity: "neutral", source: P1("132") },
+  { id: "kp3-goods-mars", cusp: 3, topic: "Trade", when: { cusp: 3, subLordIs: ["Mars"], any: [3] }, text: "Mars as 3rd sub lord signifying the 3rd: hot food and drink, vegetables.", polarity: "neutral", source: P1("132") },
+  { id: "kp3-goods-mercury", cusp: 3, topic: "Trade", when: { cusp: 3, subLordIs: ["Mercury"], any: [3] }, text: "Mercury as 3rd sub lord signifying the 3rd: books, paper, sports goods; with 3 and 11 a name in the share market, with 3, 6 and 11 a broker, with 3, 7 and 11 a newspaper.", polarity: "neutral", source: P1("131-132") },
+  { id: "kp3-goods-jupiter", cusp: 3, topic: "Trade", when: { cusp: 3, subLordIs: ["Jupiter"], any: [3] }, text: "Jupiter as 3rd sub lord signifying the 3rd: sweets, coconuts, fruit, provisions.", polarity: "neutral", source: P1("132") },
+  { id: "kp3-goods-venus", cusp: 3, topic: "Trade", when: { cusp: 3, subLordIs: ["Venus"], any: [3] }, text: "Venus as 3rd sub lord signifying the 3rd: cloth, garments, plastics, finery.", polarity: "neutral", source: P1("132") },
+  { id: "kp3-goods-saturn", cusp: 3, topic: "Trade", when: { cusp: 3, subLordIs: ["Saturn"], any: [3] }, text: "Saturn as 3rd sub lord signifying the 3rd: oil, iron and steel, scrap and salvage.", polarity: "neutral", source: P1("131-132") },
+  { id: "kp3-broker", cusp: 3, topic: "Trade", when: { cusp: 3, all: [3, 6], minOf: { houses: [10, 11], count: 1 } }, text: "The 3rd sub lord signifies 3, 6 and 10 or 11: work as a broker, agent or middleman.", polarity: "good", timing: [3, 6, 11], source: P1("135") },
+  { id: "kp3-newspaper", cusp: 3, topic: "Communications", when: { cusp: 3, all: [3, 10, 11] }, text: "The 3rd sub lord signifies 3, 10 and 11: running a newspaper, a press or a publishing concern.", polarity: "good", source: P1("135") },
+  { id: "kp3-journey", cusp: 3, topic: "Travel", when: { cusp: 3, all: [3, 12], minOf: { houses: [1, 11], count: 1 } }, text: "The 3rd sub lord signifies 3 and 12 with 1 or 11: journeys and movement are a settled part of life; with 11 they progress from light to heavy vehicles.", polarity: "neutral", timing: [3, 12], source: P1("135") },
+  { id: "kp3-contracts", cusp: 3, topic: "Communications", when: { cusp: 3, all: [3, 11], minOf: { houses: [1, 7], count: 1 } }, text: "The 3rd sub lord signifies 3, 11 and 1 or 7: contracts and agreements are signed and hold.", polarity: "good", timing: [3, 7, 11], source: P1("135") },
+  { id: "kp3-negotiation-planet", cusp: 3, topic: "Communications", when: { cusp: 3, all: [3, 11], subLordIs: ["Mercury", "Jupiter"] }, text: "Mercury or Jupiter as 3rd sub lord signifying 3 and 11: negotiations succeed, and the word given is kept.", polarity: "good", timing: [3, 11], source: P1("135") },
+  { id: "kp3-meetings", cusp: 3, topic: "Communications", when: { cusp: 3, all: [3], minOf: { houses: [1, 7, 9, 11], count: 2 } }, text: "The 3rd sub lord signifies the 3rd with two of 1, 7, 9 and 11: appointments are kept and the people sought are met.", polarity: "good", source: P1("135") },
+  { id: "kp3-electricals", cusp: 3, topic: "Possessions", when: { cusp: 3, all: [3, 12], minOf: { houses: [1, 5], count: 1 } }, text: "The 3rd sub lord signifies 3 and 12 with 1 or 5: purchase of radios, televisions and electrical goods.", polarity: "neutral", source: P1("135") },
+  { id: "kp3-vehicle-grand", cusp: 3, topic: "Possessions", when: { cusp: 3, none: [4, 8], minOf: { houses: [1, 3, 5, 10, 11, 12], count: 4 } }, text: "The 3rd sub lord is clear of 4 and 8 and well connected to 3, 11, 12, 5, 1 and 10: with a strong lagna lord and a supporting 4th sub lord, vehicles of the highest class, even ship or aircraft travel as a way of life.", polarity: "good", source: P1("137") },
+  { id: "kp3-lottery", cusp: 3, topic: "Gains", when: { cusp: 3, all: [3, 8, 11] }, text: "The 3rd sub lord signifies 3, 8 and 11: gains by lottery, windfall or speculation; timed by the 2, 6 and 11 significators linked to the 3rd.", polarity: "good", timing: [2, 6, 11], ...DUTTA("third", "third") },
+  { id: "kp3-rumour-saturn", cusp: 3, topic: "Communications", when: { cusp: 3, starLordIs: ["Saturn"] }, text: "The 3rd sub lord is in the star of Saturn: rumours and news that reach the native are false or delayed.", polarity: "neutral", ...DUTTA("third", "third") },
+  { id: "kp3-rumour-mars", cusp: 3, topic: "Communications", when: { cusp: 3, starLordIs: ["Mars"] }, text: "The 3rd sub lord is in the star of Mars: news reaches the native twisted or mischievous.", polarity: "neutral", ...DUTTA("third", "third") },
+  { id: "kp3-rumour-jupiter", cusp: 3, topic: "Communications", when: { cusp: 3, starLordIs: ["Jupiter"] }, text: "The 3rd sub lord is in the star of Jupiter: the news and reports that reach the native are true.", polarity: "neutral", ...DUTTA("third", "third") },
+  { id: "kp3-content-mars", cusp: 3, topic: "Temperament", when: { cusp: 3, subLordIs: ["Mars"] }, text: "Mars as 3rd sub lord: never quite contented, always reaching for the next thing.", polarity: "neutral", ...DUTTA("third", "third") },
+  { id: "kp3-content-jupiter", cusp: 3, topic: "Temperament", when: { cusp: 3, subLordIs: ["Jupiter"] }, text: "Jupiter as 3rd sub lord: legitimate, reasonable ambition.", polarity: "neutral", ...DUTTA("third", "third") },
+  { id: "kp3-content-saturn", cusp: 3, topic: "Temperament", when: { cusp: 3, subLordIs: ["Saturn"] }, text: "Saturn as 3rd sub lord: little contentment, a mind that dwells on what is lacking.", polarity: "neutral", ...DUTTA("third", "third") },
+  { id: "kp3-daring", cusp: 3, topic: "Temperament", when: { cusp: 3, strong: [1] }, text: "The 3rd sub lord is a full significator of the 1st: a daring person.", polarity: "neutral", ...DUTTA("third", "third") },
+  { id: "kp3-warrior", cusp: 3, topic: "Temperament", when: { cusp: 3, all: [10] }, text: "The 3rd sub lord signifies the 10th: a fighter's nature that carries into the career.", polarity: "neutral", ...DUTTA("third", "third") },
+  { id: "kp3-negotiation-star", cusp: 3, topic: "Communications", when: { cusp: 3, starLordOccupies: [3, 9], all: [11] }, text: "The 3rd sub lord is in the star of a planet in the 3rd or 9th and signifies the 11th: negotiations succeed (judge the 7th too for marriage, 6 and 10 for business, the 4th for a house); the 3, 9 and 11 significators time it.", polarity: "good", timing: [3, 9, 11], ...DUTTA("third", "third") },
+  { id: "kp3-negotiation-fail", cusp: 3, topic: "Communications", when: { cusp: 3, starLordOccupies: [3, 9], all: [12], none: [11] }, text: "The 3rd sub lord is in the star of a planet in the 3rd or 9th and signifies the 12th without the 11th: negotiations fall through.", polarity: "bad", ...DUTTA("third", "third") },
 
   // ---------------- Cusp IV ----------------
   { id: "kp4-education", cusp: 4, topic: "Education", when: { cusp: 4, starLordIs: ["Mercury", "Jupiter"] }, text: "The 4th sub lord is in the star of Mercury or Jupiter: a studious mind and sound education.", polarity: "good", source: P3("44") },
@@ -386,7 +420,7 @@ export function evaluateKp(r: Partial, six = false): KpFinding[] {
     if (m.used.length) parts.push(`signifies ${m.used.join(", ")}`);
     if (rule.when.starLordOccupies || rule.when.starLordSignifies || rule.when.starLordIs || rule.when.starLordBadhakaMaraka !== undefined) parts.push(`in the star of ${slPlanet.starLord}`);
     if (rule.when.subLordInHouse) parts.push(`posited in the ${slPlanet.house}th`);
-    out.push({ ruleId: rule.id, cusp: rule.cusp, topic: rule.topic, text: rule.text, polarity: rule.polarity, timing: rule.timing, source: rule.source, evidence: parts.join("; "), subLord: sl });
+    out.push({ ruleId: rule.id, cusp: rule.cusp, topic: rule.topic, text: rule.text, polarity: rule.polarity, timing: rule.timing, source: rule.source, sourceUrl: rule.sourceUrl, evidence: parts.join("; "), subLord: sl });
   }
   return out;
 }
@@ -420,10 +454,12 @@ export function describeKpCondition(w: KpRuleWhen): string {
   return parts.join(" · ");
 }
 
-export const KP_SOURCES = [
+export const KP_SOURCES: Array<{ label: string; note: string; url?: string }> = [
+  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd house (pp. 131-135) entered so far. Practitioner's own copy." },
+  { label: "Dr. Andrew Dutta (Sri Indrajit), free KP bhava rules", note: "Event rules for the twelve houses, published freely by the author for sharing with acknowledgement; used to cross-check each cusp.", url: DUTTA_URL },
   { label: "Astro Secrets & Krishnamurti Padhdhati, Part 3 (ed. K. Subramaniam), ch. 6", note: "Consolidated cuspal sub-lord rules, pp. 35-59. Practitioner's own copy." },
   { label: "Kalpurush Astrology, KP classes 3.1, 3.2 and 4.1 (Sagar Neogi)", note: "Significator tables; the 1st and 2nd cusp readings. Practitioner's own class notes." },
-  { label: "Astro Secrets & KP Parts 1 and 2 (M.P. Shanmugam; K. Subramaniam)", note: "Background on planets, houses, ruling planets and timing; to be entered chapter by chapter." },
+  { label: "Astro Secrets & KP Part 1 (other chapters) and Part 2", note: "Planets, the twelve lagnas, profession, ruling planets and timing; to be entered chapter by chapter." },
 ];
 
 export const KP_TYPE_LEVEL_LABEL: Record<SignificatorLevel, string> = {

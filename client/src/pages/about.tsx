@@ -494,7 +494,7 @@ function KpMethod() {
       <p>
         The rule that gives KP its shape: a house delivers its matters only if the sub lord of its cusp is a significator of houses favourable to them, and denies them if it signifies the houses that
         negate them. For the 7th cusp, marriage is promised when the sub lord signifies 2, 7 or 11 and denied when it signifies 1, 6 or 10 without them. The reading section applies this cusp by cusp.
-        The 1st and 2nd cusp rules are from the Kalpurush Astrology class notes; the consolidated rules for all twelve cusps are paraphrased from chapter 6 of Astro Secrets & KP Part 3, cited by page.
+        The 1st and 2nd cusp rules are from the Kalpurush Astrology class notes; the consolidated rules for all twelve cusps are paraphrased from chapter 6 of Astro Secrets & KP Part 3, cited by page; the house-by-house chapter of Part 1 (ch. 16) is being entered one house at a time and cross-checked against the bhava rules Dr. Andrew Dutta publishes freely.
         The badhaka house (11th for a movable lagna, 9th for fixed, 7th for dual) and the marakas (2nd and 7th) are marked wherever they appear.
       </p>
       <h2>Timing</h2>
@@ -510,7 +510,11 @@ function KpMethod() {
       <h2>Sources</h2>
       <p>
         Astro Secrets & KP Parts 1 to 3 and the Kalpurush Astrology class notes (KP classes 3.1, 3.2 and 4.1), from the user's own copies; the rules are paraphrased, never reproduced, and each is
-        cited by volume and page. General method also follows K.S. Krishnamurti's KP Readers as summarised at{" "}
+        cited by volume and page. Event rules per house are cross-checked against{" "}
+        <a href="https://kpastrologylearning.com/free-kp-astrology-rules/" target="_blank" rel="noreferrer">
+          Dr. Andrew Dutta's free KP bhava rules
+        </a>
+        , which the author asks to be shared with acknowledgement. General method also follows K.S. Krishnamurti's KP Readers as summarised at{" "}
         <a href="https://kpastrology.astrosage.com/kp-learning-home/resources" target="_blank" rel="noreferrer">
           kpastrology.astrosage.com
         </a>

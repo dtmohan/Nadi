@@ -79,7 +79,13 @@ function KpRules() {
                       <div className="text-xs font-medium text-primary">{describeKpCondition(r.when)}</div>
                       <p className="mt-1 text-sm">{r.text}</p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {r.source}
+                        {r.sourceUrl ? (
+                          <a href={r.sourceUrl} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
+                            {r.source}
+                          </a>
+                        ) : (
+                          r.source
+                        )}
                         {r.timing && ` · timing: ${r.timing.join("-")} significators`}
                       </p>
                     </div>
@@ -95,7 +101,14 @@ function KpRules() {
         <ul className="mt-2 space-y-1">
           {KP_SOURCES.map((s) => (
             <li key={s.label}>
-              <span className="text-foreground">{s.label}</span> — {s.note}
+              {s.url ? (
+                <a href={s.url} target="_blank" rel="noreferrer" className="text-foreground underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
+                  {s.label}
+                </a>
+              ) : (
+                <span className="text-foreground">{s.label}</span>
+              )}{" "}
+              — {s.note}
             </li>
           ))}
         </ul>

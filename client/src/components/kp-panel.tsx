@@ -351,7 +351,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
       <section className="mt-10" data-testid="section-kp-reading">
         <h2 className="text-base font-semibold">What the cuspal sub lords say</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {KP_RULES.length} rules so far: the 1st and 2nd cusps from the class notes, and the consolidated cusp-by-cusp rules of Astro Secrets Part 3, chapter 6. Each verdict names the sub lord and the houses it signifies. Green: promised. Red: denied or a caution. Grey: descriptive.
+          {KP_RULES.length} rules so far: the 1st and 2nd cusps from the class notes, the consolidated cusp-by-cusp rules of Astro Secrets Part 3 chapter 6, and the house-by-house chapter of Part 1 (the 3rd house entered so far) cross-checked against Dr. Andrew Dutta's free bhava rules. Each verdict names the sub lord and the houses it signifies. Green: promised. Red: denied or a caution. Grey: descriptive.
         </p>
         {mode === "plain" && (
           <button type="button" className="mt-2 text-xs font-medium text-muted-foreground hover:text-foreground" onClick={() => setShowAllCusps((v) => !v)} data-testid="toggle-kp-all-cusps">
@@ -391,7 +391,14 @@ export function KpPanel({ result }: { result: ChartResult }) {
                           )}
                           {mode === "practitioner" && (
                             <span className="ml-1.5 text-xs text-muted-foreground">
-                              {f.evidence}. {f.source}
+                              {f.evidence}.{" "}
+                              {f.sourceUrl ? (
+                                <a href={f.sourceUrl} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
+                                  {f.source}
+                                </a>
+                              ) : (
+                                f.source
+                              )}
                             </span>
                           )}
                         </span>
@@ -557,11 +564,18 @@ export function KpPanel({ result }: { result: ChartResult }) {
         <ul className="mt-2 space-y-1">
           {KP_SOURCES.map((s) => (
             <li key={s.label}>
-              <span className="text-foreground">{s.label}</span> — {s.note}
+              {s.url ? (
+                <a href={s.url} target="_blank" rel="noreferrer" className="text-foreground underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
+                  {s.label}
+                </a>
+              ) : (
+                <span className="text-foreground">{s.label}</span>
+              )}{" "}
+              — {s.note}
             </li>
           ))}
         </ul>
-        <p className="mt-2">Pending: the twelve houses (Part 1 ch. 16), the twelve lagnas (ch. 17), profession (chs. 34-35), ruling planets in depth (Part 2), transits, horary.</p>
+        <p className="mt-2">Pending: Part 1 ch. 16 houses 4 to 12 (the 3rd is in), the twelve lagnas (ch. 17), profession (chs. 34-35), ruling planets in depth (Part 2), transits, horary.</p>
       </section>
     </div>
   );
