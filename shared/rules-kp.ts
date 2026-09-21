@@ -39,6 +39,10 @@ export interface KpRuleWhen {
   /** ... at least one of these. */
   starLordSignifiesAny?: number[];
   starLordIs?: Planet[];
+  /** The sub lord is itself deposited in the sub of one of these planets. */
+  subLordSubIs?: Planet[];
+  /** The sign the sub lord occupies is movable, fixed or dual. */
+  subLordSignQuality?: Array<"Movable" | "Fixed" | "Dual">;
   /** The sub lord's star lord signifies the badhaka or a maraka house. */
   starLordBadhakaMaraka?: boolean;
   /** The sub lord is connected to one of these planets: it is that planet, sits with it, is in its star or sub, or has it in its own star. */
@@ -218,6 +222,44 @@ export const KP_RULES: KpRule[] = [
   { id: "kp4-move", cusp: 4, topic: "Residence", when: { cusp: 4, all: [3, 12] }, text: "The 4th sub lord signifies 3 and 12: changes of residence.", polarity: "neutral", timing: [3, 12], source: P3("45") },
   { id: "kp4-vehicles", cusp: 4, topic: "Comforts", when: { cusp: 4, subLordIs: ["Venus"], any: IMPROVING }, text: "Venus as 4th sub lord tied to the improving houses: vehicles and domestic comforts.", polarity: "good", source: P3("46") },
   { id: "kp4-discharge", cusp: 4, topic: "Health", when: { cusp: 4, minOf: { houses: [2, 4, 11], count: 2 } }, text: "The 4th sub lord signifies 2, 4 and 11: after any hospital stay, discharge and return home come in their conjoined period.", polarity: "good", timing: [2, 4, 11], source: P3("44") },
+  // ── Cusp IV from Astro Secrets Part 1, ch. 16 (pp. 136-143) and Dutta's free bhava rules ──
+  { id: "kp4-fortunate", cusp: 4, topic: "Comforts", when: { cusp: 4, all: [4], minOf: { houses: [2, 5, 9, 10, 11], count: 3 } }, text: "The 4th sub lord ties the 4th to most of 2, 5, 9, 10 and 11: higher education, land and ancestral property, vehicles and an affectionate, helpful mother; possessions to be proud of.", polarity: "good", source: P1("136") },
+  { id: "kp4-static", cusp: 4, topic: "Comforts", when: { cusp: 4, all: [4], none: [3, 11, 12] }, text: "The 4th sub lord signifies the 4th with none of 3, 11 and 12: education, land and an ancestral home are promised, but the 4th is a static house; vehicles it gives are old and forever under repair. Roadworthy vehicles need 3, 11 and 12.", polarity: "neutral", source: P1("137") },
+  { id: "kp4-vehicle-saturn", cusp: 4, topic: "Vehicles", when: { cusp: 4, subLordIs: ["Saturn"], minOf: { houses: [3, 11, 12], count: 2 } }, text: "Saturn as 4th sub lord tied to 3, 11 and 12: a bicycle or similar vehicle worked by one's own effort.", polarity: "neutral", source: P1("136") },
+  { id: "kp4-vehicle-mars", cusp: 4, topic: "Vehicles", when: { cusp: 4, subLordIs: ["Mars"], minOf: { houses: [3, 11, 12], count: 2 } }, text: "Mars as 4th sub lord tied to 3, 11 and 12: a motorised two-wheeler.", polarity: "neutral", source: P1("136") },
+  { id: "kp4-vehicle-four", cusp: 4, topic: "Vehicles", when: { cusp: 4, subLordIs: ["Venus", "Jupiter"], minOf: { houses: [3, 11, 12], count: 2 } }, text: "Venus or Jupiter as 4th sub lord tied to 3, 11 and 12: a four-wheeler, provided the lagna lord is strong and Saturn or Mars do not afflict the sub lord.", polarity: "good", timing: [3, 11, 12], source: P1("136-137") },
+  { id: "kp4-vehicle-air", cusp: 4, topic: "Vehicles", when: { cusp: 4, subLordIs: ["Mercury", "Venus"], subLordSubIs: ["Venus", "Mercury"], minOf: { houses: [3, 11, 12], count: 2 }, none: [4] }, text: "Mercury in the sub of Venus, or Venus in the sub of Mercury, as 4th sub lord tied to 3, 11 and 12 and clear of the 4th: air travel as a way of life, even one's own aircraft, when the lagna lord and the 2nd, 10th and 11th are all strong.", polarity: "good", source: P1("136-137") },
+  { id: "kp4-vehicle-ship", cusp: 4, topic: "Vehicles", when: { cusp: 4, subLordIs: ["Moon"], subLordSubIs: ["Venus"], minOf: { houses: [3, 11, 12], count: 2 } }, text: "Moon in the sub of Venus as 4th sub lord tied to 3, 11 and 12: travel or command of ships; with a strong lagna lord, a vessel of one's own.", polarity: "good", source: P1("136-137") },
+  { id: "kp4-edu-intermediate", cusp: 4, topic: "Education", when: { cusp: 4, all: [4], none: [9, 11] }, text: "The 4th sub lord signifies the 4th without 9 or 11: by the sub lord's own significations, schooling to the intermediate level; higher education needs the 9th and its completion the 11th (check the six-step table and the 9th sub lord before concluding).", polarity: "neutral", source: P1("138") },
+  { id: "kp4-edu-highest", cusp: 4, topic: "Education", when: { cusp: 4, all: [4, 9, 11], none: [8, 12], otherCusp: { cusp: 9, minOf: { houses: [4, 9, 11], count: 2 } } }, text: "The 4th sub lord signifies 4, 9 and 11 without 8 or 12, and the 9th sub lord joins the same houses: higher education of the highest order, the native becoming an authority in the subject; the grade reached follows the nature of the planet, in its dasa or bhukti.", polarity: "good", timing: [4, 9, 11], source: P1("137-139") },
+  { id: "kp4-edu-no-11", cusp: 4, topic: "Education", when: { cusp: 4, all: [4, 9], none: [11] }, text: "The 4th sub lord signifies 4 and 9 but not the 11th: higher studies are begun and not brought to the goal; with a fixed lagna the book has it stopping early.", polarity: "bad", source: P1("138, 142") },
+  { id: "kp4-edu-no-9", cusp: 4, topic: "Education", when: { cusp: 4, all: [4, 11], none: [9] }, text: "The 4th sub lord signifies 4 and 11 but not the 9th: education to a lower level is completed, but the higher degree does not come.", polarity: "neutral", source: P1("138, 142") },
+  { id: "kp4-edu-none", cusp: 4, topic: "Education", when: { cusp: 4, subLordIs: ["Mars", "Saturn"], all: [8, 12] }, text: "Mars or Saturn as 4th sub lord signifying 8 and 12: little or no schooling.", polarity: "bad", source: P1("142") },
+  { id: "kp4-line-doctor", cusp: 4, topic: "Education", when: { cusp: 4, subLordIs: ["Sun", "Mars"], minOf: { houses: [4, 9, 11], count: 2 } }, text: "Sun or Mars as 4th sub lord with higher education promised: medicine and surgery.", polarity: "neutral", source: P1("141") },
+  { id: "kp4-line-venus", cusp: 4, topic: "Education", when: { cusp: 4, subLordIs: ["Venus"], minOf: { houses: [4, 9, 11], count: 2 } }, text: "Venus as 4th sub lord with higher education promised: industry, textiles, design.", polarity: "neutral", source: P1("141") },
+  { id: "kp4-line-mercury", cusp: 4, topic: "Education", when: { cusp: 4, subLordIs: ["Mercury"], minOf: { houses: [4, 9, 11], count: 2 } }, text: "Mercury as 4th sub lord with higher education promised: law, accountancy and audit, computing and engineering.", polarity: "neutral", source: P1("141") },
+  { id: "kp4-line-jupiter", cusp: 4, topic: "Education", when: { cusp: 4, subLordIs: ["Jupiter"], minOf: { houses: [4, 9, 11], count: 2 } }, text: "Jupiter as 4th sub lord with higher education promised: teaching, law, the administrative services.", polarity: "neutral", source: P1("141") },
+  { id: "kp4-line-moon", cusp: 4, topic: "Education", when: { cusp: 4, subLordIs: ["Moon"], minOf: { houses: [4, 9, 11], count: 2 } }, text: "Moon as 4th sub lord with higher education promised: chemistry and the chemical line.", polarity: "neutral", source: P1("141") },
+  { id: "kp4-line-saturn", cusp: 4, topic: "Education", when: { cusp: 4, subLordIs: ["Saturn"], minOf: { houses: [4, 9, 11], count: 2 } }, text: "Saturn as 4th sub lord with higher education promised: research.", polarity: "neutral", source: P1("141") },
+  { id: "kp4-line-node", cusp: 4, topic: "Education", when: { cusp: 4, subLordIs: ["Rahu", "Ketu"], minOf: { houses: [4, 9, 11], count: 2 } }, text: "Rahu or Ketu as 4th sub lord with higher education promised: the line of study follows the lord of the house the node occupies, for whom it acts as agent.", polarity: "neutral", source: P1("141") },
+  { id: "kp4-vedas", cusp: 4, topic: "Education", when: { cusp: 4, subLordIs: ["Saturn"], minOf: { houses: [3, 5, 8, 12], count: 2 } }, text: "Saturn as 4th sub lord tied to 3, 5, 8 and 12: study of the Vedas and mantras.", polarity: "neutral", source: P1("141") },
+  { id: "kp4-vocational", cusp: 4, topic: "Education", when: { cusp: 4, all: [4], minOf: { houses: [3, 5, 8, 12], count: 3 }, none: [9, 11] }, text: "The 4th sub lord ties the 4th to 3, 5, 8 and 12 without 9 or 11: formal schooling ends at the school-leaving stage and a craft is learnt instead. Venus acting and the screen, Mars music, Mercury Puranic and scriptural study, Moon stringed instruments, Sun the repair of machines.", polarity: "neutral", source: P1("141") },
+  { id: "kp4-arts-school", cusp: 4, topic: "Education", when: { cusp: 4, all: [4, 5, 11], none: [9] }, text: "The 4th sub lord signifies 4, 5 and 11: training in a Veda school or a performing-arts institute; Mercury gives wind instruments, Mars the martial arts, Venus tailoring and vocational crafts.", polarity: "neutral", source: P1("142") },
+  { id: "kp4-buy-house", cusp: 4, topic: "Property", when: { cusp: 4, all: [4], minOf: { houses: [1, 6, 9, 12], count: 3 } }, text: "The 4th sub lord signifies 4 with 6, 9, 1 and 12: purchase of a house already built (6 the loan, 12 the outlay).", polarity: "good", timing: [4, 11, 12], source: P1("142") },
+  { id: "kp4-buy-land", cusp: 4, topic: "Property", when: { cusp: 4, subLordIs: ["Mars"], all: [4], any: [11, 12] }, text: "Mars as 4th sub lord signifying 4 with 11 or 12: purchase of land; with the 11th and 12th together, a house is built on it.", polarity: "good", timing: [4, 11, 12], source: P1("142") },
+  { id: "kp4-ancestral", cusp: 4, topic: "Property", when: { cusp: 4, all: [4, 9], minOf: { houses: [1, 6, 11], count: 2 } }, text: "The 4th sub lord signifies 4 and 9 with 1, 6 and 11: ancestral property comes to the native.", polarity: "good", timing: [4, 9, 11], source: P1("142") },
+  { id: "kp4-rental", cusp: 4, topic: "Property", when: { cusp: 4, all: [4, 6], minOf: { houses: [10, 11, 12], count: 2 } }, text: "The 4th sub lord signifies 4 and 6 with 10, 11 and 12: buildings put up or held to let out on rent.", polarity: "good", source: P1("142") },
+  { id: "kp4-deposits", cusp: 4, topic: "Finance", when: { cusp: 4, all: [4, 2], minOf: { houses: [10, 11], count: 1 } }, text: "The 4th sub lord signifies 4 and 2 with 10 or 11: money is kept in bank deposits and savings.", polarity: "good", source: P1("142") },
+  { id: "kp4-permanent-post", cusp: 4, topic: "Residence", when: { cusp: 4, all: [4, 10], none: [3, 12] }, text: "The 4th sub lord signifies 4 and 10 without 3 or 12: work in one permanent place, without transfers.", polarity: "good", source: P1("142") },
+  { id: "kp4-always-sick", cusp: 4, topic: "Health", when: { cusp: 4, all: [1, 4, 6], otherCusp: { cusp: 1, all: [1, 6] } }, text: "The 4th sub lord signifies 1, 4 and 6 and the lagna sub lord also signifies 1 and 6: a constitution that is always ailing.", polarity: "bad", source: P1("142") },
+  { id: "kp4-lower-edu", cusp: 4, topic: "Education", when: { cusp: 4, all: [4, 11], none: [8, 12] }, text: "The 4th sub lord signifies 4 and 11 clear of 8 and 12: schooling is completed and admission to college is certain.", polarity: "good", timing: [4, 11], source: `${P1("142")}; Dutta, fourth house` },
+  { id: "kp4-adoption", cusp: 4, topic: "Family", when: { cusp: 4, subLordIs: ["Mercury"], any: [8] }, text: "Read in a child's chart. Mercury as 4th sub lord connected to the 8th: the child is brought up by others than the birth parents; the 4th and 8th time it.", polarity: "neutral", timing: [4, 8], ...DUTTA("fourth", "fourth") },
+  { id: "kp4-adoption-dual", cusp: 4, topic: "Family", when: { cusp: 4, subLordNot: ["Mercury"], subLordInDualSign: true, any: [8] }, text: "Read in a child's chart. The 4th sub lord in a dual sign connected to the 8th: the child may be raised by others than the birth parents, adopted or fostered.", polarity: "neutral", timing: [4, 8], ...DUTTA("fourth", "fourth") },
+  { id: "kp4-treasure", cusp: 4, topic: "Property", when: { cusp: 4, all: [4], minOf: { houses: [2, 6, 11], count: 2 }, connectedTo: ["Saturn"] }, text: "The 4th sub lord signifies 4 with 2, 6 and 11 and is connected to Saturn: hidden wealth in the land or house, buried or found.", polarity: "good", ...DUTTA("fourth", "fourth") },
+  { id: "kp4-medical-fit", cusp: 4, topic: "Health", when: { cusp: 4, all: [10, 11] }, text: "The 4th sub lord signifies 10 and 11: the medical fitness examination for a post is passed.", polarity: "good", ...DUTTA("fourth", "fourth") },
+  { id: "kp4-venus-movable", cusp: 4, topic: "Comforts", when: { cusp: 4, subLordIs: ["Venus"], subLordSignQuality: ["Movable"], any: IMPROVING }, text: "Venus as 4th sub lord in a movable sign tied to the improving houses: the comforts come as vehicles.", polarity: "good", ...DUTTA("fourth", "fourth") },
+  { id: "kp4-venus-fixed", cusp: 4, topic: "Comforts", when: { cusp: 4, subLordIs: ["Venus"], subLordSignQuality: ["Fixed"], any: IMPROVING }, text: "Venus as 4th sub lord in a fixed sign tied to the improving houses: the comforts come as furniture and a well-appointed home.", polarity: "good", ...DUTTA("fourth", "fourth") },
+  { id: "kp4-venus-dual", cusp: 4, topic: "Comforts", when: { cusp: 4, subLordIs: ["Venus"], subLordSignQuality: ["Dual"], any: IMPROVING }, text: "Venus as 4th sub lord in a dual sign tied to the improving houses: the comforts come as small luxuries about the house.", polarity: "good", ...DUTTA("fourth", "fourth") },
 
   // ---------------- Cusp V ----------------
   { id: "kp5-children", cusp: 5, topic: "Children", when: { cusp: 5, minOf: { houses: [2, 5, 11], count: 2 } }, text: "The 5th sub lord signifies 2, 5 and 11: children are promised, in the conjoined period of their significators.", polarity: "good", timing: [2, 5, 11], source: P3("46") },
@@ -369,6 +411,11 @@ function meets(r: Partial, w: KpRuleWhen, six: boolean): { ok: boolean; used: nu
   if (w.subLordInHouse && !w.subLordInHouse.includes(slPlanet.house)) return { ok: false, used: [] };
   if (w.subLordRetro !== undefined && slPlanet.retrograde !== w.subLordRetro) return { ok: false, used: [] };
   if (w.subLordInDualSign !== undefined && (slPlanet.signIndex % 3 === 2) !== w.subLordInDualSign) return { ok: false, used: [] };
+  if (w.subLordSubIs && !w.subLordSubIs.includes(slPlanet.subLord)) return { ok: false, used: [] };
+  if (w.subLordSignQuality) {
+    const q = (["Movable", "Fixed", "Dual"] as const)[slPlanet.signIndex % 3];
+    if (!w.subLordSignQuality.includes(q)) return { ok: false, used: [] };
+  }
 
   const starLord = slPlanet.starLord;
   const starPlanet = r.planets.find((p) => p.planet === starLord)!;
@@ -419,6 +466,8 @@ export function evaluateKp(r: Partial, six = false): KpFinding[] {
     const parts: string[] = [`${sl} is the sub lord of cusp ${rule.cusp}`];
     if (m.used.length) parts.push(`signifies ${m.used.join(", ")}`);
     if (rule.when.starLordOccupies || rule.when.starLordSignifies || rule.when.starLordIs || rule.when.starLordBadhakaMaraka !== undefined) parts.push(`in the star of ${slPlanet.starLord}`);
+    if (rule.when.subLordSubIs) parts.push(`in the sub of ${slPlanet.subLord}`);
+    if (rule.when.subLordSignQuality) parts.push(`in a ${(["movable", "fixed", "dual"] as const)[slPlanet.signIndex % 3]} sign`);
     if (rule.when.subLordInHouse) parts.push(`posited in the ${slPlanet.house}th`);
     out.push({ ruleId: rule.id, cusp: rule.cusp, topic: rule.topic, text: rule.text, polarity: rule.polarity, timing: rule.timing, source: rule.source, sourceUrl: rule.sourceUrl, evidence: parts.join("; "), subLord: sl });
   }
@@ -443,6 +492,8 @@ export function describeKpCondition(w: KpRuleWhen): string {
   if (w.subLordRetro !== undefined) parts.push(w.subLordRetro ? "sub lord retrograde" : "sub lord direct");
   if (w.subLordInDualSign !== undefined) parts.push(w.subLordInDualSign ? "sub lord in a dual sign" : "sub lord not in a dual sign");
   if (w.starLordIs) parts.push(`in the star of ${w.starLordIs.join(" or ")}`);
+  if (w.subLordSubIs) parts.push(`in the sub of ${w.subLordSubIs.join(" or ")}`);
+  if (w.subLordSignQuality) parts.push(`in a ${w.subLordSignQuality.map((q) => q.toLowerCase()).join(" or ")} sign`);
   if (w.starLordOccupies) parts.push(`in the star of a planet in the ${list(w.starLordOccupies)}`);
   if (w.starLordSignifies) parts.push(`in the star of a planet signifying ${list(w.starLordSignifies)}`);
   if (w.starLordSignifiesAny) parts.push(`in the star of a planet signifying one of ${list(w.starLordSignifiesAny)}`);
@@ -455,7 +506,7 @@ export function describeKpCondition(w: KpRuleWhen): string {
 }
 
 export const KP_SOURCES: Array<{ label: string; note: string; url?: string }> = [
-  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd house (pp. 131-135) entered so far. Practitioner's own copy." },
+  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd and 4th houses (pp. 131-143) entered so far. Practitioner's own copy." },
   { label: "Dr. Andrew Dutta (Sri Indrajit), free KP bhava rules", note: "Event rules for the twelve houses, published freely by the author for sharing with acknowledgement; used to cross-check each cusp.", url: DUTTA_URL },
   { label: "Astro Secrets & Krishnamurti Padhdhati, Part 3 (ed. K. Subramaniam), ch. 6", note: "Consolidated cuspal sub-lord rules, pp. 35-59. Practitioner's own copy." },
   { label: "Kalpurush Astrology, KP classes 3.1, 3.2 and 4.1 (Sagar Neogi)", note: "Significator tables; the 1st and 2nd cusp readings. Practitioner's own class notes." },
