@@ -257,6 +257,12 @@ export default function AboutPage() {
           keeps nothing. Other visitors to the site never see your charts. Because the list belongs to the browser, it does not follow you to another
           device or survive clearing site data: use Export on the home page to download a backup file, and Import to restore or move it.
         </p>
+        <p>
+          Life events (a marriage, a child, a job, an illness, each with its date and, if you wish, how it turned out) are saved with the chart and
+          travel in the same backup file. Enter them once, under the chart's name or in the Rectify tab; every rectification method reads the same
+          list, and a rectified copy inherits it. The same list is meant to serve later checks of predictions against what actually happened, and a
+          tally of how each planet's periods turned out.
+        </p>
         <h2>Sources</h2>
         <ul>
           <li>R.G. Rao, Bhrigu Nandi Nadi (Sagar Publications).</li>

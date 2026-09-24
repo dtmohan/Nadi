@@ -5,6 +5,7 @@ import type { PlanetPosition, TransitPeriod } from "./astro";
 import type { Reading } from "./rules";
 import type { JaiminiResult } from "./jaimini";
 import type { KpBase } from "./kp";
+import { chartEventsSchema, type ChartEvent } from "./events";
 
 export const charts = sqliteTable("charts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -19,9 +20,11 @@ export const charts = sqliteTable("charts", {
   ayanamsa: text("ayanamsa").notNull().default("lahiri"),
   nodeType: text("node_type").notNull().default("mean"),
   notes: text("notes").notNull().default(""),
+  /** Remembered life events (matter, date, outcome, note), kept beside the birth data. */
+  events: text("events", { mode: "json" }).$type<ChartEvent[]>().notNull().default([]),
 });
 
-export const insertChartSchema = createInsertSchema(charts).omit({ id: true });
+export const insertChartSchema = createInsertSchema(charts, { events: chartEventsSchema.optional() }).omit({ id: true });
 
 export type InsertChart = z.infer<typeof insertChartSchema>;
 export type Chart = typeof charts.$inferSelect;

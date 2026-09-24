@@ -1,3 +1,4 @@
+import { sanitiseEvents } from "@shared/events";
 import { useQuery } from "@tanstack/react-query";
 import { insertChartSchema, type Chart, type InsertChart } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
@@ -75,7 +76,8 @@ export function onStorageKind(listener: () => void) {
 
 async function read(): Promise<Chart[]> {
   if (cached) return cached;
-  cached = await (await backend()).load();
+  // Charts saved before events existed get an empty list.
+  cached = (await (await backend()).load()).map((c) => ({ ...c, events: sanitiseEvents((c as Partial<Chart>).events) }));
   return cached;
 }
 
@@ -154,6 +156,7 @@ function normalise(data: InsertChart): Omit<Chart, "id"> {
     ayanamsa: data.ayanamsa ?? "lahiri",
     nodeType: data.nodeType ?? "mean",
     notes: data.notes ?? "",
+    events: sanitiseEvents(data.events),
   };
 }
 

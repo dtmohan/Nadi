@@ -5,7 +5,8 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, fmtDegShort, type Planet } from "@shared/astro";
 import type { RectifyResult, RectifySegment, RectifyEvent } from "@shared/rectify-types";
-import type { JaiminiArea } from "@shared/jaimini-areas";
+import { matterOf } from "@shared/events";
+import { LifeEventsEditor } from "@/components/life-events";
 import { PlanetName } from "@/components/planet-name";
 import { Term } from "@/components/term";
 import { Badge } from "@/components/ui/badge";
@@ -84,34 +85,6 @@ function methodScore(s: RectifySegment, m: RectifyMethod): { score: number; max:
   return s.events.reduce((acc, e) => ({ score: acc.score + e.transit.score, max: acc.max + e.transit.max }), { score: s.sunHint.score, max: s.sunHint.max });
 }
 
-/** Matters a dated event can be checked against: the houses KP times them by and the cusp that must promise them. */
-/** The Jaimini area column is the life area of the Jaimini tab whose dasha triggers the chara dasha method reuses. */
-const MATTERS: Array<{ id: string; label: string; houses: number[]; cusp: number; area?: JaiminiArea }> = [
-  { id: "marriage", label: "Marriage", houses: [2, 7, 11], cusp: 7, area: "marriage" },
-  { id: "child", label: "Birth of a child", houses: [2, 5, 11], cusp: 5, area: "children" },
-  { id: "job", label: "New job, promotion", houses: [2, 6, 10, 11], cusp: 10, area: "career" },
-  { id: "job-loss", label: "Loss of job", houses: [5, 8, 12], cusp: 10, area: "career" },
-  { id: "business", label: "Started a business", houses: [2, 7, 10, 11], cusp: 10, area: "career" },
-  { id: "property", label: "Bought a house or land", houses: [4, 11, 12], cusp: 4, area: "family" },
-  { id: "vehicle", label: "Bought a vehicle", houses: [4, 11], cusp: 4, area: "wealth" },
-  { id: "education", label: "Admission to higher study", houses: [4, 9, 11], cusp: 4, area: "children" },
-  { id: "abroad", label: "Went abroad", houses: [3, 9, 12], cusp: 12, area: "family" },
-  { id: "return", label: "Returned from abroad", houses: [2, 4, 11], cusp: 4, area: "family" },
-  { id: "illness", label: "Illness, operation, hospital", houses: [6, 8, 12], cusp: 6, area: "health" },
-  { id: "accident", label: "Accident", houses: [6, 8, 12], cusp: 8, area: "health" },
-  { id: "father", label: "Death of father", houses: [3, 4, 8], cusp: 9, area: "family" },
-  { id: "mother", label: "Death of mother", houses: [3, 8, 11], cusp: 4, area: "family" },
-  { id: "spouse", label: "Death of spouse", houses: [1, 2, 6, 10], cusp: 7, area: "marriage" },
-  { id: "move", label: "Change of residence", houses: [3, 12], cusp: 4, area: "family" },
-  { id: "litigation", label: "Won a case", houses: [1, 6, 11], cusp: 6, area: "health" },
-  { id: "loan", label: "Loan or large receipt", houses: [2, 6, 11], cusp: 6, area: "wealth" },
-];
-
-interface EventRow {
-  key: number;
-  matter: string;
-  date: string;
-}
 
 const WINDOWS = [10, 15, 30, 60, 120, 180];
 
@@ -157,19 +130,18 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
   const [method, setMethod] = useState<RectifyMethod>("kp-rp");
   const m = METHODS.find((x) => x.id === method)!;
   const [windowMinutes, setWindowMinutes] = useState(30);
-  const [events, setEvents] = useState<EventRow[]>([]);
   const [sortByScore, setSortByScore] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
   const judge = useJudgePlace();
 
+  // The chart's saved life events are the dated events every method reads.
+  const events = chart.events ?? [];
   const eventPayload = useMemo<RectifyEvent[]>(
     () =>
-      events
-        .filter((e) => /^\d{4}-\d{2}-\d{2}$/.test(e.date))
-        .map((e) => {
-          const m = MATTERS.find((x) => x.id === e.matter) ?? MATTERS[0];
-          return { label: m.label, date: e.date, houses: m.houses, cusp: m.cusp, area: m.area };
-        }),
+      events.map((e) => {
+        const m = matterOf(e.matter);
+        return { label: m.label, date: e.date, houses: m.houses, cusp: m.cusp, area: m.area };
+      }),
     [events],
   );
 
@@ -235,10 +207,6 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
   const givenIndex = data?.segments.findIndex((s) => s.given) ?? -1;
   const givenCusps = givenIndex >= 0 ? data!.segments[givenIndex].cuspSubLords : null;
 
-  const addEvent = () => setEvents((ev) => [...ev, { key: Date.now(), matter: "marriage", date: "" }]);
-  const setEvent = (key: number, patch: Partial<EventRow>) => setEvents((ev) => ev.map((e) => (e.key === key ? { ...e, ...patch } : e)));
-  const removeEvent = (key: number) => setEvents((ev) => ev.filter((e) => e.key !== key));
-
   return (
     <section data-testid="section-rectify">
       <h2 className="text-base font-semibold">
@@ -284,39 +252,18 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
             </SelectContent>
           </Select>
         </label>
-        <Button size="sm" variant="outline" className="h-8" onClick={addEvent} data-testid="button-rectify-add-event">
-          Add a dated event
-        </Button>
-        {missingEvents && <span className="text-muted-foreground">This method needs at least one dated event.</span>}
+        {missingEvents && <span className="text-muted-foreground">This method needs at least one dated event; add one below.</span>}
         <Button size="sm" className="h-8" onClick={() => scan.mutate()} disabled={scan.isPending} data-testid="button-rectify-scan">
           {scan.isPending ? "Scanning…" : data ? "Scan again" : "Scan the window"}
         </Button>
       </div>
 
-      {events.length > 0 && (
-        <div className="mt-3 space-y-2" data-testid="rectify-events">
-          {events.map((e) => (
-            <div key={e.key} className="flex flex-wrap items-center gap-2 text-xs">
-              <Select value={e.matter} onValueChange={(v) => setEvent(e.key, { matter: v })}>
-                <SelectTrigger className="h-8 w-56 text-xs" data-testid={`select-rectify-matter-${e.key}`}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {MATTERS.map((m) => (
-                    <SelectItem key={m.id} value={m.id} className="text-xs">
-                      {m.label} <span className="text-muted-foreground">({m.houses.join(", ")})</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input type="date" value={e.date} onChange={(ev) => setEvent(e.key, { date: ev.target.value })} className="h-8 w-40 text-xs tabular" data-testid={`input-rectify-date-${e.key}`} />
-              <Button size="sm" variant="ghost" className="h-8 px-2 text-muted-foreground" onClick={() => removeEvent(e.key)} data-testid={`button-rectify-remove-${e.key}`}>
-                Remove
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="mt-3" data-testid="rectify-events">
+        <p className="mb-1.5 text-xs font-medium">
+          Life events <span className="text-muted-foreground">saved with the chart{data && eventPayload.length ? "; scan again after changing them" : ""}</span>
+        </p>
+        <LifeEventsEditor chart={chart} />
+      </div>
 
       {data && (
         <div className="mt-5" data-testid="rectify-results">

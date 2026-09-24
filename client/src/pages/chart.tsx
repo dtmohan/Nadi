@@ -20,6 +20,7 @@ import { JaiminiPanel } from "@/components/jaimini-panel";
 import { AlpPanel } from "@/components/alp-panel";
 import { KpPanel } from "@/components/kp-panel";
 import { RectifyPanel } from "@/components/rectify-panel";
+import { LifeEventsSection } from "@/components/life-events";
 import { Timeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -711,6 +712,8 @@ export default function ChartPage() {
           </Button>
         </div>
       </header>
+
+      <LifeEventsSection chart={chart} />
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-b pb-3">
         <div role="tablist" aria-label="Reading system" className="inline-flex rounded-md border p-0.5 text-sm">

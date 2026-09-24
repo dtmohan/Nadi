@@ -25,6 +25,7 @@ const EMPTY: InsertChart = {
   ayanamsa: "lahiri",
   nodeType: "mean",
   notes: "",
+  events: [],
 };
 
 export default function Home() {
