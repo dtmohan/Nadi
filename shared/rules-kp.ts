@@ -51,6 +51,8 @@ export interface KpRuleWhen {
   connectedToAll?: Planet[];
   /** The sub lord is connected to none of these planets. */
   connectedToNone?: Planet[];
+  /** Tight tie to every listed planet: the sub lord is that planet, is in its star or sub, or is within 3 degrees of it (Part 1 p. 194's sense for profession). */
+  tiedToAll?: Planet[];
   /** The sub lord signifies the badhaka house (11 movable / 9 fixed / 7 dual lagna). */
   badhaka?: boolean;
   /** The sub lord signifies a maraka house (2 or 7). */
@@ -63,7 +65,7 @@ export interface KpRuleWhen {
   /** The sub lord stands in one of these signs (0 = Aries). */
   subLordSignIn?: number[];
   /** A second cusp whose sub lord must also meet a condition. */
-  otherCusp?: { cusp: number; all?: number[]; any?: number[]; minOf?: { houses: number[]; count: number } };
+  otherCusp?: { cusp: number; all?: number[]; any?: number[]; none?: number[]; minOf?: { houses: number[]; count: number } };
 }
 
 export interface KpRule {
@@ -476,6 +478,54 @@ export const KP_RULES: KpRule[] = [
   { id: "kp10-tax", cusp: 10, topic: "Career", when: { cusp: 10, minOf: { houses: [7, 8, 12], count: 2 } }, text: "The 10th sub lord signifies 7, 8 and 12: trouble with tax and official scrutiny.", polarity: "bad", source: P3("55") },
   { id: "kp10-sell-property", cusp: 10, topic: "Property", when: { cusp: 10, minOf: { houses: [3, 5, 10], count: 2 }, all: [3] }, text: "The 10th sub lord signifies 3, 5 and 10: disposal or sale of immovable property.", polarity: "neutral", timing: [3, 5, 10], source: `${P3("55")}; ${P3("46")}` },
   { id: "kp10-pilgrimage", cusp: 10, topic: "Journeys", when: { cusp: 10, all: [3, 9] }, text: "The 10th sub lord signifies 3, 9 and 10: pilgrimage.", polarity: "good", source: P3("55") },
+  // ── Cusp X from Astro Secrets Part 1, ch. 16 (pp. 188-198), with two more of Dutta's tenth-house rules ──
+  { id: "kp10-reinstatement", cusp: 10, topic: "Career", when: { cusp: 10, all: [2, 6, 10] }, text: "The 10th sub lord signifies 2, 6 and 10: reinstatement in service after a break.", polarity: "good", timing: [2, 6, 10], ...DUTTA("tenth", "tenth") },
+  { id: "kp10-reinstatement-denied", cusp: 10, topic: "Career", when: { cusp: 10, minOf: { houses: [1, 5, 9, 12], count: 3 }, none: [2, 6, 10] }, text: "The 10th sub lord leans on 1, 5, 9 and 12 without 2, 6 or 10: no reinstatement once service is lost.", polarity: "bad", ...DUTTA("tenth", "tenth") },
+  { id: "kp10-public-no-return", cusp: 10, topic: "Career", when: { cusp: 10, all: [7], fewerThan: { houses: [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12], count: 1 } }, text: "The 10th sub lord signifies the 7th and nothing else: a life of public activity without material return.", polarity: "neutral", ...DUTTA("tenth", "tenth") },
+  { id: "kp10-honest-steady", cusp: 10, topic: "Standing", when: { cusp: 10, all: [10], none: [2, 7], badhaka: false }, text: "The 10th sub lord signifies the 10th clear of the marakas and the badhaka house: a long life, higher status and straight conduct; the gains may be middling but they are steady and honestly earned.", polarity: "good", source: P1("189-190") },
+  { id: "kp10-disgrace", cusp: 10, topic: "Standing", when: { cusp: 10, minOf: { houses: [5, 8, 12], count: 2 }, any: [6] }, text: "The 10th sub lord ties the 10th to 5, 8, 12 and 6: the house loses its true nature and offers disgrace, ill repute or scandal.", polarity: "bad", source: P1("190") },
+  { id: "kp10-loss", cusp: 10, topic: "Career", when: { cusp: 10, all: [5, 8, 12] }, text: "The 10th sub lord signifies 5, 8 and 12: the profession runs at a loss.", polarity: "bad", timing: [5, 8, 12], source: P1("192") },
+  { id: "kp10-prime-minister", cusp: 10, topic: "Public life", when: { cusp: 10, all: [10], any: [9, 11], badhaka: false, otherCusp: { cusp: 1, minOf: { houses: [2, 6, 10, 11], count: 3 } } }, text: "The 10th sub lord connects 10 with 9 or 11, neither acting as badhaka, and the lagna also carries 2-10-11-6: destined for the office of Minister or Prime Minister.", polarity: "good", timing: [9, 10, 11], source: P1("190") },
+  { id: "kp10-industrialist", cusp: 10, topic: "Wealth", when: { cusp: 10, all: [2, 6, 10, 11] }, text: "The 10th sub lord signifies the full 2-6-10-11: great wealth through industry, provided its own sub lord repeats the same houses.", polarity: "good", timing: [2, 6, 10, 11], source: P1("190") },
+  { id: "kp10-respect-only", cusp: 10, topic: "Career", when: { cusp: 10, all: [1, 10], fewerThan: { houses: [2, 3, 4, 5, 6, 7, 8, 9, 11, 12], count: 1 } }, text: "The 10th sub lord signifies only 1 and 10: respect and appreciation but no material rise; the first post is held unchanged to the end, and the native never stoops to corruption or short cuts.", polarity: "neutral", source: P1("190-191") },
+  { id: "kp10-parents-early", cusp: 10, topic: "Family", when: { cusp: 10, all: [7, 8, 10, 11] }, text: "The 10th sub lord signifies 10, 11, 8 and 7: the book links this, read with the sign quality, to the early loss of the parents.", polarity: "bad", source: P1("191") },
+  { id: "kp10-buy-house", cusp: 10, topic: "Property", when: { cusp: 10, all: [4, 6, 9, 12], none: [11] }, text: "The 10th sub lord signifies 9, 6, 4 and 12: purchase of a house already built.", polarity: "good", timing: [4, 6, 9, 12], source: P1("191") },
+  { id: "kp10-buy-house-profit", cusp: 10, topic: "Property", when: { cusp: 10, all: [4, 6, 9, 11, 12] }, text: "The 10th sub lord signifies 9, 6, 4, 11 and 12: a profitable house purchase and a happy life in it.", polarity: "good", timing: [4, 6, 9, 11, 12], source: P1("191") },
+  { id: "kp10-no-house", cusp: 10, topic: "Property", when: { cusp: 10, all: [3, 10], none: [4, 11] }, text: "The 10th sub lord signifies 3 and 10 without 4 or 11: not destined to buy a house.", polarity: "bad", source: P1("191") },
+  { id: "kp10-transfer", cusp: 10, topic: "Career", when: { cusp: 10, all: [3, 10, 12], none: [9] }, text: "The 10th sub lord signifies 3, 10 and 12: a change of place in the same job.", polarity: "neutral", timing: [3, 10, 12], source: P1("192") },
+  { id: "kp10-transfer-new-job", cusp: 10, topic: "Career", when: { cusp: 10, all: [3, 9, 10, 12] }, text: "The 10th sub lord signifies 3, 9, 10 and 12: a change of job and of place together.", polarity: "neutral", timing: [3, 9, 10, 12], source: P1("192") },
+  { id: "kp10-promotion-transfer", cusp: 10, topic: "Career", when: { cusp: 10, all: [2, 3, 6, 10, 11], none: [12] }, text: "The 10th sub lord signifies 2, 3, 6, 10 and 11: a transfer on promotion, to a nearby place.", polarity: "good", timing: [2, 6, 10, 11], source: P1("192") },
+  { id: "kp10-promotion-transfer-far", cusp: 10, topic: "Career", when: { cusp: 10, all: [2, 3, 6, 10, 11, 12] }, text: "The 10th sub lord signifies 2, 3, 6, 10, 11 and 12: a transfer on promotion to a distant place.", polarity: "good", timing: [2, 6, 10, 11], source: P1("192") },
+  { id: "kp10-brother-accident", cusp: 10, topic: "Family", when: { cusp: 10, all: [2, 10], connectedTo: ["Mars"], none: [3, 11] }, text: "The 10th sub lord signifies 2 and 10 (the marakas of the 3rd) with Mars having a say, and no support from 3 or 11: the book reads danger to a younger brother through accident.", polarity: "bad", source: P1("192") },
+  { id: "kp10-wife-property-job-loss", cusp: 10, topic: "Career", when: { cusp: 10, all: [5, 8, 10] }, text: "The 10th sub lord signifies 10, 8 and 5: the wife comes into property while the native loses his profession, in the related dasa and bhukti.", polarity: "neutral", timing: [5, 8, 10], source: P1("192") },
+  { id: "kp10-start-profession", cusp: 10, topic: "Career", when: { cusp: 10, all: [2, 10, 11], none: [6] }, text: "The 10th sub lord signifies 2, 10 and 11: a profession of one's own is started in their conjoined period.", polarity: "good", timing: [2, 10, 11], source: P1("192") },
+  { id: "kp10-change-occupation", cusp: 10, topic: "Career", when: { cusp: 10, all: [2, 9, 10, 11] }, text: "The 10th sub lord signifies 2, 9, 10 and 11: a change of occupation, the present one left for a new line.", polarity: "neutral", timing: [2, 9, 10, 11], source: P1("192") },
+  { id: "kp10-politics-rise", cusp: 10, topic: "Public life", when: { cusp: 10, subLordIs: ["Mercury", "Jupiter"], all: [9, 10, 11] }, text: "Mercury or Jupiter as 10th sub lord signifying 9, 10 and 11: rise in the political field, given a strong lagna lord.", polarity: "good", timing: [9, 10, 11], source: P1("193") },
+  { id: "kp10-minister", cusp: 10, topic: "Public life", when: { cusp: 10, subLordIs: ["Mars", "Sun"], all: [9, 10, 11], minOf: { houses: [2, 6], count: 1 }, otherCusp: { cusp: 1, none: [5, 8, 12] } }, text: "Mars or the Sun as 10th sub lord signifying 2-9-10-11-6, with the lagna clear of 5, 8 and 12: a Minister's post.", polarity: "good", timing: [9, 10, 11], source: P1("193") },
+  { id: "kp10-minister-jupiter", cusp: 10, topic: "Public life", when: { cusp: 10, subLordIs: ["Jupiter"], connectedTo: ["Sun", "Mars"], all: [9, 10, 11], minOf: { houses: [2, 6], count: 1 }, otherCusp: { cusp: 1, none: [5, 8, 12] } }, text: "Jupiter as 10th sub lord connected to the Sun or Mars, signifying 2-9-10-11-6, with the lagna clear of 5, 8 and 12: a Minister's post.", polarity: "good", timing: [9, 10, 11], source: P1("193") },
+  { id: "kp10-mla-only", cusp: 10, topic: "Public life", when: { cusp: 10, all: [9, 10, 11], otherCusp: { cusp: 1, all: [8], none: [5, 12] } }, text: "The 10th sub lord signifies 9, 10 and 11 but the lagna is tied to the 8th: political rise stops at the legislator's level.", polarity: "neutral", timing: [9, 10, 11], source: P1("193") },
+  { id: "kp10-local-leader", cusp: 10, topic: "Public life", when: { cusp: 10, all: [9, 10, 11], otherCusp: { cusp: 1, all: [5, 8], none: [12] } }, text: "The 10th sub lord signifies 9, 10 and 11 but the lagna is tied to 5 and 8: a local leader at the district level only.", polarity: "neutral", timing: [9, 10, 11], source: P1("193") },
+  { id: "kp10-politics-subservient", cusp: 10, topic: "Public life", when: { cusp: 10, all: [9, 10, 11], otherCusp: { cusp: 1, all: [5, 8, 12] } }, text: "The 10th sub lord signifies 9, 10 and 11 but the lagna is tied to 5, 8 and 12: in politics, but in the service of more influential leaders.", polarity: "neutral", source: P1("193") },
+  { id: "kp10-respected-poor", cusp: 10, topic: "Standing", when: { cusp: 10, all: [1, 3, 9, 10], none: [2, 6, 11], otherCusp: { cusp: 1, none: [5, 8, 12] } }, text: "The 10th sub lord signifies 1, 3, 9 and 10 and the lagna is clear of 5, 8 and 12: a respected life honoured by all, but materially poor.", polarity: "neutral", source: P1("193") },
+  { id: "kp10-astrologer-expert", cusp: 10, topic: "Learning", when: { cusp: 10, all: [2, 9, 11], none: [10], otherCusp: { cusp: 1, all: [8] } }, text: "The 10th sub lord signifies 2, 9 and 11 while the lagna is tied to the 8th: an expert in astrology who stays unknown to the public.", polarity: "neutral", source: P1("193") },
+  { id: "kp10-astrologer-popular", cusp: 10, topic: "Learning", when: { cusp: 10, all: [1, 9, 11], otherCusp: { cusp: 1, minOf: { houses: [3, 10, 11], count: 2 } } }, text: "The 10th sub lord signifies 1, 9 and 11 and the lagna carries 3, 10 and 11: an average astrologer, but popular with the public.", polarity: "neutral", source: P1("193") },
+  { id: "kp10-instant-prediction", cusp: 10, topic: "Learning", when: { cusp: 10, all: [1, 9, 10], otherCusp: { cusp: 1, any: [5, 10] } }, text: "The 10th sub lord signifies 1, 9 and 10 and the lagna is connected to the 10th (or the 5th): a hand for horary and instant prediction.", polarity: "neutral", source: P1("193") },
+  // Profession by the planets connected to the 10th sub lord (pp. 193-198). "Connected" here follows p. 194: the sub lord is the planet itself, sits in its star (or sub), or is within 3 degrees of it.
+  { id: "kp10-trade-jupiter-mercury", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Jupiter", "Mercury"] }, text: "Jupiter and Mercury connected to the 10th: an independent line in finance, speculation, shares or commission, or publishing, the press and astrology; if the 6th is signified, employment as a cashier, in a bank, in money handling, in teaching, or in a textile mill.", polarity: "neutral", source: P1("194, 197") },
+  { id: "kp10-trade-jupiter-venus", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Jupiter", "Venus"] }, text: "Jupiter and Venus connected to the 10th: textiles, yarn and power looms.", polarity: "neutral", source: P1("194") },
+  { id: "kp10-trade-jupiter-saturn", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Jupiter", "Saturn"] }, text: "Jupiter and Saturn connected to the 10th: metals, mines, iron and steel and things made of iron; with the 6th, employment in such an organisation.", polarity: "neutral", source: P1("195") },
+  { id: "kp10-trade-jupiter-moon", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Jupiter", "Moon"] }, text: "Jupiter and the Moon connected to the 10th: blood banks, syrups and cool drinks, cut-piece clothing; with the 6th, employment in such an organisation.", polarity: "neutral", source: P1("195") },
+  { id: "kp10-trade-jupiter-sun", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Jupiter", "Sun"] }, text: "Jupiter and the Sun connected to the 10th: making and selling utensils of copper, brass, lead, zinc and stainless steel; with the 6th, employment in such an organisation.", polarity: "neutral", source: P1("195") },
+  { id: "kp10-trade-jupiter-mars", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Jupiter", "Mars"] }, text: "Jupiter and Mars connected to the 10th: building construction and contracting; with the 6th, employment there or in watch-and-ward and security work.", polarity: "neutral", source: P1("195") },
+  { id: "kp10-trade-saturn-venus", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Saturn", "Venus"] }, text: "Saturn and Venus connected to the 10th: cement, mosaic tiles and granite; with the 6th, employment in factories, mills or transport, and government service if the Sun joins.", polarity: "neutral", source: P1("196") },
+  { id: "kp10-trade-saturn-sun", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Saturn", "Sun"] }, text: "Saturn and the Sun connected to the 10th: tools, steel wire, bolts and nuts; with the 6th, employment in such works or in a municipality.", polarity: "neutral", source: P1("196") },
+  { id: "kp10-trade-saturn-moon", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Saturn", "Moon"] }, text: "Saturn and the Moon connected to the 10th: oil and oil-based goods; with the 6th, employment in that line.", polarity: "neutral", source: P1("196") },
+  { id: "kp10-trade-saturn-mars", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Saturn", "Mars"] }, text: "Saturn and Mars connected to the 10th: renovating old buildings, stone slabs and mechanised stone crushing; with the 6th, manual stone work and service in foul, polluted surroundings.", polarity: "neutral", source: P1("196-197") },
+  { id: "kp10-trade-mercury-saturn", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Mercury", "Saturn"] }, text: "Mercury and Saturn connected to the 10th: making wind and string instruments, and a musician or scholar if Mars joins; with the 6th, paid work in beedi or tobacco.", polarity: "neutral", source: P1("197") },
+  { id: "kp10-trade-mercury-venus", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Mercury", "Venus"] }, text: "Mercury and Venus connected to the 10th: the cinema field, with an ability to play instruments if Mars and Saturn join; with the 6th, hotel work from server to manager as the lagna lord allows.", polarity: "neutral", source: P1("197") },
+  { id: "kp10-trade-mercury-moon", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Mercury", "Moon"] }, text: "Mercury and the Moon connected to the 10th: sweets, milk and milk products, jewellery and clothing.", polarity: "neutral", source: P1("198") },
+  { id: "kp10-trade-mercury-mars", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Mercury", "Mars"] }, text: "Mercury and Mars connected to the 10th: polishing and plating, gold-covered ornaments, flowers and fruit; with the 6th, a blacksmith, workshop hand or press compositor.", polarity: "neutral", source: P1("198") },
+  { id: "kp10-trade-mercury-rahu", cusp: 10, topic: "Trade", when: { cusp: 10, tiedToAll: ["Mercury", "Rahu"] }, text: "Mercury and Rahu connected to the 10th: watch repair, mirrors and the like.", polarity: "neutral", source: P1("198") },
 
   // ---------------- Cusp XI ----------------
   { id: "kp11-success", cusp: 11, topic: "Fulfilment", when: { cusp: 11, all: [1, 2, 11] }, text: "The 11th sub lord signifies 1, 2 and 11: success in whatever is undertaken and fulfilment of desires.", polarity: "good", source: P3("56") },
@@ -522,6 +572,15 @@ export function connected(r: Partial, a: Planet, b: Planet): boolean {
   const pa = r.planets.find((p) => p.planet === a)!;
   const pb = r.planets.find((p) => p.planet === b)!;
   return pa.house === pb.house || pa.starLord === b || pa.subLord === b || pb.starLord === a;
+}
+
+/** Tight tie used for the profession pairs: identity, star lord, sub lord, or a conjunction within 3 degrees. */
+export function tied(r: Partial, a: Planet, b: Planet): boolean {
+  if (a === b) return true;
+  const pa = r.planets.find((p) => p.planet === a)!;
+  const pb = r.planets.find((p) => p.planet === b)!;
+  const d = Math.abs(((pa.lon - pb.lon) % 360 + 540) % 360 - 180);
+  return pa.starLord === b || pa.subLord === b || d <= 3;
 }
 
 function meets(r: Partial, w: KpRuleWhen, six: boolean): { ok: boolean; used: number[] } {
@@ -583,6 +642,7 @@ function meets(r: Partial, w: KpRuleWhen, six: boolean): { ok: boolean; used: nu
   if (w.connectedTo && !w.connectedTo.some((p) => connected(r, sl, p))) return { ok: false, used: [] };
   if (w.connectedToAll && !w.connectedToAll.every((p) => connected(r, sl, p))) return { ok: false, used: [] };
   if (w.connectedToNone && w.connectedToNone.some((p) => connected(r, sl, p))) return { ok: false, used: [] };
+  if (w.tiedToAll && !w.tiedToAll.every((p) => tied(r, sl, p))) return { ok: false, used: [] };
   if (w.badhaka !== undefined) {
     if (has(r.badhaka) !== w.badhaka) return { ok: false, used: [] };
     if (w.badhaka) used.add(r.badhaka);
@@ -604,6 +664,7 @@ function meets(r: Partial, w: KpRuleWhen, six: boolean): { ok: boolean; used: nu
     const OH = houses(r, r.cusps[o.cusp - 1].subLord, six);
     if (o.all && !o.all.every((h) => OH.includes(h))) return { ok: false, used: [] };
     if (o.any && !o.any.some((h) => OH.includes(h))) return { ok: false, used: [] };
+    if (o.none && o.none.some((h) => OH.includes(h))) return { ok: false, used: [] };
     if (o.minOf && o.minOf.houses.filter((h) => OH.includes(h)).length < o.minOf.count) return { ok: false, used: [] };
   }
   return { ok: true, used: Array.from(used).sort((a, b) => a - b) };
@@ -654,16 +715,17 @@ export function describeKpCondition(w: KpRuleWhen): string {
   if (w.connectedTo) parts.push(`connected to ${w.connectedTo.length > 3 ? "another planet" : w.connectedTo.join(" or ")}`);
   if (w.connectedToAll) parts.push(`connected to ${w.connectedToAll.join(" and ")}`);
   if (w.connectedToNone) parts.push(`not connected to ${w.connectedToNone.join(", ")}`);
+  if (w.tiedToAll) parts.push(`tied to ${w.tiedToAll.join(" and ")} (itself, its star or sub lord, or within 3 degrees)`);
   if (w.lagnaQuality) parts.push(`${w.lagnaQuality.join("/")} lagna`);
   if (w.lagnaSignIn) parts.push(`lagna in ${w.lagnaSignIn.map((i) => SIGNS[i]).join(" or ")}`);
   if (w.subLordSignIn) parts.push(`sub lord in ${w.subLordSignIn.map((i) => SIGNS[i]).join(" or ")}`);
   if (w.notStrong) parts.push(`not a strong significator of ${w.notStrong.join(", ")}`);
-  if (w.otherCusp) parts.push(w.otherCusp.cusp === w.cusp ? `also signifies at least ${w.otherCusp.minOf?.count} of ${list(w.otherCusp.minOf?.houses ?? [])}` : `the ${w.otherCusp.cusp}th cusp sub lord signifies ${w.otherCusp.all ? list(w.otherCusp.all) : w.otherCusp.any ? `one of ${list(w.otherCusp.any)}` : `at least ${w.otherCusp.minOf?.count} of ${list(w.otherCusp.minOf?.houses ?? [])}`}`);
+  if (w.otherCusp) parts.push(w.otherCusp.cusp === w.cusp ? `also signifies at least ${w.otherCusp.minOf?.count} of ${list(w.otherCusp.minOf?.houses ?? [])}` : `the ${w.otherCusp.cusp}th cusp sub lord signifies ${w.otherCusp.all ? list(w.otherCusp.all) : w.otherCusp.any ? `one of ${list(w.otherCusp.any)}` : w.otherCusp.minOf ? `at least ${w.otherCusp.minOf.count} of ${list(w.otherCusp.minOf.houses)}` : `none of ${list(w.otherCusp.none ?? [])}`}`);
   return parts.join(" · ");
 }
 
 export const KP_SOURCES: Array<{ label: string; note: string; url?: string }> = [
-  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd to 9th houses (pp. 131-188) entered so far. Practitioner's own copy." },
+  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd to 10th houses (pp. 131-198) entered so far. Practitioner's own copy." },
   { label: "Dr. Andrew Dutta (Sri Indrajit), free KP bhava rules", note: "Event rules for the twelve houses, published freely by the author for sharing with acknowledgement; used to cross-check each cusp.", url: DUTTA_URL },
   { label: "Astro Secrets & Krishnamurti Padhdhati, Part 3 (ed. K. Subramaniam), ch. 6", note: "Consolidated cuspal sub-lord rules, pp. 35-59. Practitioner's own copy." },
   { label: "Kalpurush Astrology, KP classes 3.1, 3.2 and 4.1 (Sagar Neogi)", note: "Significator tables; the 1st and 2nd cusp readings. Practitioner's own class notes." },
