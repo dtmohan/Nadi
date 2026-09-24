@@ -351,7 +351,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
       <section className="mt-10" data-testid="section-kp-reading">
         <h2 className="text-base font-semibold">What the cuspal sub lords say</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {KP_RULES.length} rules so far: the 1st and 2nd cusps from the class notes, the consolidated cusp-by-cusp rules of Astro Secrets Part 3 chapter 6, and the house-by-house chapter of Part 1 (the 3rd to 6th houses entered so far) cross-checked against Dr. Andrew Dutta's free bhava rules. Each verdict names the sub lord and the houses it signifies. Green: promised. Red: denied or a caution. Grey: descriptive.
+          {KP_RULES.length} rules so far: the 1st and 2nd cusps from the class notes, the consolidated cusp-by-cusp rules of Astro Secrets Part 3 chapter 6, and the house-by-house chapter of Part 1 (the 3rd to 7th houses entered so far) cross-checked against Dr. Andrew Dutta's free bhava rules. Each verdict names the sub lord and the houses it signifies. Green: promised. Red: denied or a caution. Grey: descriptive.
         </p>
         {mode === "plain" && (
           <button type="button" className="mt-2 text-xs font-medium text-muted-foreground hover:text-foreground" onClick={() => setShowAllCusps((v) => !v)} data-testid="toggle-kp-all-cusps">
@@ -575,7 +575,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
             </li>
           ))}
         </ul>
-        <p className="mt-2">Pending: Part 1 ch. 16 houses 7 to 12 (the 3rd to 6th are in), the twelve lagnas (ch. 17), profession (chs. 34-35), ruling planets in depth (Part 2), transits, horary.</p>
+        <p className="mt-2">Pending: Part 1 ch. 16 houses 8 to 12 (the 3rd to 7th are in), the twelve lagnas (ch. 17), profession (chs. 34-35), ruling planets in depth (Part 2), transits, horary.</p>
       </section>
     </div>
   );

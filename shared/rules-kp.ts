@@ -58,6 +58,8 @@ export interface KpRuleWhen {
   lagnaSignIn?: number[];
   /** The sub lord is not a strong significator of any of these. */
   notStrong?: number[];
+  /** The sub lord stands in one of these signs (0 = Aries). */
+  subLordSignIn?: number[];
   /** A second cusp whose sub lord must also meet a condition. */
   otherCusp?: { cusp: number; all?: number[]; any?: number[]; minOf?: { houses: number[]; count: number } };
 }
@@ -375,6 +377,29 @@ export const KP_RULES: KpRule[] = [
   { id: "kp7-multiple", cusp: 7, topic: "Marriage", when: { cusp: 7, subLordIs: ["Mercury"], all: [2, 11] }, text: "Mercury (or a planet in a dual sign) as 7th sub lord signifying 2 and 11: more than one union is possible.", polarity: "neutral", source: P3("52") },
   { id: "kp7-multiple-dual", cusp: 7, topic: "Marriage", when: { cusp: 7, subLordInDualSign: true, subLordNot: ["Mercury"], all: [2, 11] }, text: "The 7th sub lord in a dual sign signifying 2 and 11: more than one union is possible.", polarity: "neutral", source: P3("52") },
   { id: "kp7-multi-partners", cusp: 7, topic: "Partnership", when: { cusp: 7, subLordIs: ["Mercury"], any: [11] }, text: "Mercury as 7th sub lord signifying the 11th: more than one business partner and strong ties of partnership.", polarity: "good", source: P3("53") },
+  // ── Cusp VII from Astro Secrets Part 1, ch. 16 (pp. 158-179) and Dutta's free bhava rules ──
+  { id: "kp7-early", cusp: 7, topic: "Marriage", when: { cusp: 7, all: [2, 3, 7] }, text: "The 7th sub lord signifies 2, 3 and 7: an early marriage; with the 11th as well it stays happy for life, with 6 or 12 the happiness is not lifelong.", polarity: "good", timing: [2, 3, 7, 11], source: P1("158") },
+  { id: "kp7-no-marriage", cusp: 7, topic: "Marriage", when: { cusp: 7, subLordIs: ["Saturn", "Mars", "Sun"], starLordSignifies: [6, 12], none: [2, 7, 11], otherCusp: { cusp: 2, all: [6, 12] } }, text: "Saturn, Mars or the Sun as 7th sub lord, tied through its star lord to 6 and 12 with no link to 2, 7 or 11, and the 2nd sub lord also on 6 and 12: no marriage in this life.", polarity: "bad", source: P1("158") },
+  { id: "kp7-love-marriage", cusp: 7, topic: "Marriage", when: { cusp: 7, all: [5, 7], minOf: { houses: [2, 11], count: 1 }, none: [6, 12] }, text: "The 7th sub lord signifies 2, 5, 7 and 11: a love marriage, and a happy one.", polarity: "good", timing: [2, 5, 7, 11], source: P1("158, 179") },
+  { id: "kp7-love-separation", cusp: 7, topic: "Marriage", when: { cusp: 7, all: [5, 6, 7, 12] }, text: "The 7th sub lord signifies 5, 6, 7 and 12: a love marriage, followed by separation of husband and wife.", polarity: "bad", source: P1("159") },
+  { id: "kp7-love-no-marriage", cusp: 7, topic: "Love", when: { cusp: 7, all: [5], minOf: { houses: [1, 6, 12], count: 2 }, none: [7] }, text: "The 7th sub lord signifies 5 with 1, 6 and 12 but not the 7th: love affairs that do not end in marriage.", polarity: "bad", source: P1("159") },
+  { id: "kp7-elopement", cusp: 7, topic: "Love", when: { cusp: 7, all: [3, 5, 9, 12] }, text: "The 7th sub lord signifies 5, 9, 12 and 3: a love affair in which the couple leave their homes together.", polarity: "neutral", source: P1("159") },
+  { id: "kp7-two-marriages-sign", cusp: 7, topic: "Marriage", when: { cusp: 7, subLordIs: ["Mercury", "Jupiter"], subLordInDualSign: true, all: [2, 7] }, text: "Mercury or Jupiter as 7th sub lord in a dual sign, predominantly signifying 2 and 7: two marriages.", polarity: "neutral", source: P1("159, 179") },
+  { id: "kp7-two-marriages-star", cusp: 7, topic: "Marriage", when: { cusp: 7, subLordIs: ["Mercury", "Jupiter"], subLordInDualSign: false, starLordIs: ["Mercury", "Jupiter"], all: [2, 7] }, text: "Mercury or Jupiter as 7th sub lord in the star of a dual-sign lord, predominantly signifying 2 and 7: two marriages.", polarity: "neutral", source: P1("159, 179") },
+  { id: "kp7-many-marriages", cusp: 7, topic: "Marriage", when: { cusp: 7, subLordIs: ["Mercury"], subLordSignIn: [3, 7], all: [2, 3, 7] }, text: "Mercury as 7th sub lord in Kataka or Vrischika (or in Aslesha or Jyeshta) signifying 2, 3 and 7: several marriages.", polarity: "neutral", source: P1("159") },
+  { id: "kp7-widow", cusp: 7, topic: "Marriage", when: { cusp: 7, subLordIs: ["Rahu", "Saturn"], all: [2, 7, 8], any: [11] }, text: "Rahu or Saturn as 7th sub lord signifying 2, 7, 8 and 11: marriage to a widow or widower (the book's fuller form has Rahu in Meena or Mithuna under Saturn's aspect).", polarity: "neutral", source: P1("159, 179") },
+  { id: "kp7-delayed", cusp: 7, topic: "Marriage", when: { cusp: 7, any: [2, 7], minOf: { houses: [4, 6, 10, 12], count: 2 } }, text: "The 7th sub lord keeps a link to 2 or 7 but also carries 6, 12, 10 or 4: obstacles and delay in marriage, not denial; denial needs no link to 2 and 7 at all.", polarity: "neutral", timing: [2, 3, 7, 11], source: P1("163") },
+  { id: "kp7-star-in-12", cusp: 7, topic: "Marriage", when: { cusp: 7, starLordOccupies: [12], none: [2, 7, 11] }, text: "The 7th sub lord is in the star of a planet occupying the 12th and has no link of its own to 2, 7 or 11: it signifies 12, 1 and 6 predominantly, and whatever it owns elsewhere is of no use for marriage.", polarity: "bad", source: P1("163-164") },
+  { id: "kp7-mixed-lordship", cusp: 7, topic: "Marriage", when: { cusp: 7, all: [7], any: [6, 12], minOf: { houses: [2, 11], count: 1 } }, text: "The 7th sub lord signifies the 7th along with 6 or 12 by ownership: the mixed lordship colours married life for good and bad but does not prevent the marriage itself.", polarity: "neutral", source: P1("164") },
+  { id: "kp7-partnership", cusp: 7, topic: "Partnership", when: { cusp: 7, all: [7, 11] }, text: "The 7th sub lord signifies 7 and 11: partnership in business.", polarity: "good", timing: [7, 11], source: P1("179") },
+  { id: "kp7-separation", cusp: 7, topic: "Marriage", when: { cusp: 7, all: [7, 6, 12], any: [2] }, text: "The 7th sub lord signifies 2, 7, 6 and 12: marriage takes place, and separation follows.", polarity: "bad", source: P1("179") },
+  { id: "kp7-life-sun", cusp: 7, topic: "Married life", when: { cusp: 7, subLordIs: ["Sun"] }, text: "The Sun as 7th sub lord: little joy in married life.", polarity: "neutral", ...DUTTA("seventh", "seventh") },
+  { id: "kp7-life-moon", cusp: 7, topic: "Married life", when: { cusp: 7, subLordIs: ["Moon"] }, text: "The Moon as 7th sub lord: a happy married life.", polarity: "good", ...DUTTA("seventh", "seventh") },
+  { id: "kp7-life-mars", cusp: 7, topic: "Married life", when: { cusp: 7, subLordIs: ["Mars"] }, text: "Mars as 7th sub lord: quarrels in married life.", polarity: "bad", ...DUTTA("seventh", "seventh") },
+  { id: "kp7-life-mercury", cusp: 7, topic: "Married life", when: { cusp: 7, subLordIs: ["Mercury"] }, text: "Mercury as 7th sub lord: varied pleasures in married life.", polarity: "neutral", ...DUTTA("seventh", "seventh") },
+  { id: "kp7-life-jupiter", cusp: 7, topic: "Married life", when: { cusp: 7, subLordIs: ["Jupiter"] }, text: "Jupiter as 7th sub lord: contentment in married life.", polarity: "good", ...DUTTA("seventh", "seventh") },
+  { id: "kp7-life-venus", cusp: 7, topic: "Married life", when: { cusp: 7, subLordIs: ["Venus"] }, text: "Venus as 7th sub lord: intense enjoyment of married life.", polarity: "good", ...DUTTA("seventh", "seventh") },
+  { id: "kp7-life-saturn", cusp: 7, topic: "Married life", when: { cusp: 7, subLordIs: ["Saturn"] }, text: "Saturn as 7th sub lord: dissatisfaction in married life.", polarity: "bad", ...DUTTA("seventh", "seventh") },
 
   // ---------------- Cusp VIII ----------------
   { id: "kp8-borrowing", cusp: 8, topic: "Debts", when: { cusp: 8, minOf: { houses: [5, 6, 8, 12], count: 3 } }, text: "The 8th sub lord signifies 5, 6, 8 and 12: borrowing from every quarter.", polarity: "bad", source: P3("53") },
@@ -519,6 +544,7 @@ function meets(r: Partial, w: KpRuleWhen, six: boolean): { ok: boolean; used: nu
   }
   if (w.lagnaQuality && !w.lagnaQuality.includes(r.lagnaQuality)) return { ok: false, used: [] };
   if (w.lagnaSignIn && !w.lagnaSignIn.includes(r.cusps[0].signIndex)) return { ok: false, used: [] };
+  if (w.subLordSignIn && !w.subLordSignIn.includes(slPlanet.signIndex)) return { ok: false, used: [] };
   if (w.notStrong) {
     const st = strongHouses(r, sl);
     if (w.notStrong.some((h) => st.includes(h))) return { ok: false, used: [] };
@@ -579,13 +605,14 @@ export function describeKpCondition(w: KpRuleWhen): string {
   if (w.connectedToAll) parts.push(`connected to ${w.connectedToAll.join(" and ")}`);
   if (w.lagnaQuality) parts.push(`${w.lagnaQuality.join("/")} lagna`);
   if (w.lagnaSignIn) parts.push(`lagna in ${w.lagnaSignIn.map((i) => SIGNS[i]).join(" or ")}`);
+  if (w.subLordSignIn) parts.push(`sub lord in ${w.subLordSignIn.map((i) => SIGNS[i]).join(" or ")}`);
   if (w.notStrong) parts.push(`not a strong significator of ${w.notStrong.join(", ")}`);
   if (w.otherCusp) parts.push(w.otherCusp.cusp === w.cusp ? `also signifies at least ${w.otherCusp.minOf?.count} of ${list(w.otherCusp.minOf?.houses ?? [])}` : `the ${w.otherCusp.cusp}th cusp sub lord signifies ${w.otherCusp.all ? list(w.otherCusp.all) : w.otherCusp.any ? `one of ${list(w.otherCusp.any)}` : `at least ${w.otherCusp.minOf?.count} of ${list(w.otherCusp.minOf?.houses ?? [])}`}`);
   return parts.join(" · ");
 }
 
 export const KP_SOURCES: Array<{ label: string; note: string; url?: string }> = [
-  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd to 6th houses (pp. 131-158) entered so far. Practitioner's own copy." },
+  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd to 7th houses (pp. 131-179) entered so far. Practitioner's own copy." },
   { label: "Dr. Andrew Dutta (Sri Indrajit), free KP bhava rules", note: "Event rules for the twelve houses, published freely by the author for sharing with acknowledgement; used to cross-check each cusp.", url: DUTTA_URL },
   { label: "Astro Secrets & Krishnamurti Padhdhati, Part 3 (ed. K. Subramaniam), ch. 6", note: "Consolidated cuspal sub-lord rules, pp. 35-59. Practitioner's own copy." },
   { label: "Kalpurush Astrology, KP classes 3.1, 3.2 and 4.1 (Sagar Neogi)", note: "Significator tables; the 1st and 2nd cusp readings. Practitioner's own class notes." },
