@@ -44,6 +44,21 @@ export interface RectifyEventCheck {
   promised?: boolean;
   score: number;
   max: number;
+  /**
+   * Transit check (Part 2 p. 203): where the dasa and bhukti lords were transiting on the day of
+   * the event, and whether the lords of that sign, star and sub signify the matter in this candidate.
+   */
+  transit: { dasa: TransitCheck; bhukti: TransitCheck; score: number; max: number };
+}
+
+export interface TransitCheck {
+  planet: Planet;
+  lon: number;
+  signLord: Planet;
+  starLord: Planet;
+  subLord: Planet;
+  /** sign lord, star lord, sub lord each signify one of the matter's houses. */
+  hits: [boolean, boolean, boolean];
 }
 
 export interface RectifySegment {
@@ -66,6 +81,8 @@ export interface RectifySegment {
   cuspSubLords: Planet[];
   /** Moon's star and sub lord at the middle of the interval. */
   moon: { starLord: Planet; subLord: Planet };
+  /** Sun-transit hint (Part 2 p. 192): the lagna's sub (or star) lord is the sub lord the Sun transits on the day of judgement. */
+  sunHint: { star: boolean; sub: boolean; score: number; max: number };
   events: RectifyEventCheck[];
   score: number;
   max: number;
@@ -77,6 +94,8 @@ export interface RectifyResult {
   ruling: RulingPlanets;
   /** The place the ruling planets were taken for. */
   judgedAt: { label: string; timezone: string };
+  /** The Sun's transit at the moment of judgement. */
+  sunNow: { lon: number; signLord: Planet; starLord: Planet; subLord: Planet };
   /** Every planet accepted as a ruling planet or an agent of one, with the reason. */
   accepted: Array<{ planet: Planet; reason: string; weight: number }>;
   windowMinutes: number;

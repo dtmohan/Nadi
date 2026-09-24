@@ -12,13 +12,18 @@
  * 2. Dated events (Part 1 pp. 167-172; Part 2 p. 203): at each event the dasa, bhukti and antara
  *    lords must be significators of the houses of that matter, and the cusp of the matter must
  *    promise it through its sub lord.
+ * 3. Transits (Part 2 p. 192, N. Nataraj; Part 2 p. 203): the sub the Sun transits on the day one
+ *    works points to the lagna sub; and on the day of an event the dasa and bhukti lords transit
+ *    the sign, star and sub of significators of the matter.
+ *
+ * Every check is computed for every interval; the client chooses which method to score by.
  *
  * Nothing here is stored; the caller sends the chart and the events with each request.
  */
 import { DateTime } from "luxon";
 import { norm360, type Planet } from "@shared/astro";
 import { kpPoint, houseOf, computeSignificators, vimshottari, rulingPlanets, NODES_KP, type KpCusp, type KpPlanet, type RulingPlanets } from "@shared/kp";
-import type { RectifyRequest, RectifyEventCheck, RectifySegment, RectifyResult } from "@shared/rectify-types";
+import type { RectifyRequest, RectifyEventCheck, RectifySegment, RectifyResult, TransitCheck } from "@shared/rectify-types";
 export type { RectifyRequest, RectifyEvent, RectifyEventCheck, RectifySegment, RectifyResult, JudgePlaceInput } from "@shared/rectify-types";
 import { localToUtc, julianDay, positionsAt, ascendantAt, cuspsAt, judgementNow, type EphemerisOptions } from "./ephemeris";
 
@@ -75,6 +80,16 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const ruling = rulingPlanets(now);
   const accepted = acceptedRuling(ruling, now);
   const acceptedSet = new Map(accepted.map((a) => [a.planet, a]));
+  const sunNowPos = now.positions.find((p) => p.planet === "Sun")!;
+  const sunNowPt = kpPoint(sunNowPos.lon);
+  const sunNow = { lon: sunNowPos.lon, signLord: sunNowPt.signLord, starLord: sunNowPt.starLord, subLord: sunNowPt.subLord };
+
+  // Planetary positions at noon (birth zone) of each event day, for the transit check.
+  const eventPositions = req.events.map((e) => {
+    const d = DateTime.fromISO(e.date, { zone });
+    if (!d.isValid) return null;
+    return positionsAt(julianDay(d.set({ hour: 12, minute: 0, second: 0, millisecond: 0 }).toUTC()), opts);
+  });
 
   // Scan the window and locate every change of the lagna's sign, star or sub lord to the second.
   const step = 10 / 86400;
@@ -135,7 +150,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const wSub = weightOf(lagna.subLord, "sub");
     const rpScore = wSign + wStar + 2 * wSub;
 
-    const events: RectifyEventCheck[] = req.events.map((e) => {
+    const events: RectifyEventCheck[] = req.events.map((e, ei) => {
       const evDt = DateTime.fromISO(e.date, { zone });
       const houses = e.houses.filter((h) => h >= 1 && h <= 12);
       const v = vimshottari(moon.lon, birthIso, evDt.isValid ? evDt.toUTC().toISO()! : birthIso);
@@ -150,7 +165,17 @@ export function rectify(req: RectifyRequest): RectifyResult {
       }
       const score = hits.filter(Boolean).length + (promised ? 1 : 0);
       const max = 3 + (e.cusp ? 1 : 0);
-      return { label: e.label, date: e.date, houses, dasa: lords[0], bhukti: lords[1], antara: lords[2], hits, signified, cuspSubLord, promised, score, max };
+      const transitOf = (planet: Planet): TransitCheck => {
+        const pos = eventPositions[ei]?.find((p) => p.planet === planet);
+        const lon = pos?.lon ?? 0;
+        const pt = kpPoint(lon);
+        const signifies = (p: Planet) => (sig.get(p) ?? []).some((h) => houses.includes(h));
+        return { planet, lon, signLord: pt.signLord, starLord: pt.starLord, subLord: pt.subLord, hits: [signifies(pt.signLord), signifies(pt.starLord), signifies(pt.subLord)] };
+      };
+      const tDasa = transitOf(lords[0]);
+      const tBhukti = transitOf(lords[1]);
+      const tScore = [...tDasa.hits, ...tBhukti.hits].filter(Boolean).length;
+      return { label: e.label, date: e.date, houses, dasa: lords[0], bhukti: lords[1], antara: lords[2], hits, signified, cuspSubLord, promised, score, max, transit: { dasa: tDasa, bhukti: tBhukti, score: tScore, max: 6 } };
     });
 
     const evScore = events.reduce((s, e) => s + e.score, 0);
@@ -170,6 +195,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       rp: { sign: wSign > 0, star: wStar > 0, sub: wSub > 0, score: rpScore, max: 4, via: rpVia },
       cuspSubLords: cusps.map((c) => c.subLord),
       moon: { starLord: moon.starLord, subLord: moon.subLord },
+      sunHint: { star: lagna.starLord === sunNow.subLord, sub: lagna.subLord === sunNow.subLord, score: (lagna.starLord === sunNow.subLord ? 1 : 0) + (lagna.subLord === sunNow.subLord ? 2 : 0), max: 3 },
       events,
       score: rpScore + evScore,
       max: 4 + evMax,
@@ -182,6 +208,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
   return {
     ruling,
     judgedAt: { label: judge.label ?? `${judge.latitude.toFixed(2)}°, ${judge.longitude.toFixed(2)}°`, timezone: judge.timezone },
+    sunNow,
     accepted,
     windowMinutes,
     given: { time: local(jd0).toFormat("HH:mm:ss"), lagna: norm360(asc(jd0)) },

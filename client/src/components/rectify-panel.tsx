@@ -16,7 +16,47 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { chartsStore, CHARTS_QUERY_KEY } from "@/lib/charts-store";
 import { useToast } from "@/hooks/use-toast";
 import { useJudgePlace } from "@/lib/judge-place";
+import { JudgePlaceControl } from "@/components/judge-place";
 import { cn } from "@/lib/utils";
+
+/** Rectification methods. One at a time, never blended; each cites its own source. */
+export type RectifyMethod = "kp-rp" | "kp-events" | "kp-transit";
+const METHODS: Array<{ id: RectifyMethod; system: string; label: string; short: string; source: string; needsJudge: boolean; needsEvents: boolean }> = [
+  {
+    id: "kp-rp",
+    system: "KP",
+    label: "Ruling planets",
+    short: "At the true birth time the lagna's sign lord, star lord and sub lord agree with the ruling planets of the moment you sit down to judge; the sub lord is the decisive agreement. A node in a ruling planet's sign or star acts for it; a retrograde ruling planet is doubtful and its star lord is admitted in its place.",
+    source: "Astro Secrets & KP Part 3, ch. 30, pp. 160-163; Part 1, pp. 173-178",
+    needsJudge: true,
+    needsEvents: false,
+  },
+  {
+    id: "kp-events",
+    system: "KP",
+    label: "Dated events",
+    short: "At each remembered event the dasa, bhukti and antara lords running that day must be significators of the houses of that matter, and the cusp of the matter must promise it through its sub lord. Intervals where the period lords fail an event are rejected.",
+    source: "Astro Secrets & KP Part 1, pp. 167-172; Part 2, p. 203",
+    needsJudge: false,
+    needsEvents: true,
+  },
+  {
+    id: "kp-transit",
+    system: "KP",
+    label: "Transits",
+    short: "Two hints. The sub the Sun transits on the day you work points to the lagna sub (N. Nataraj). On the day of an event the dasa and bhukti lords transit the sign, star and sub of significators of the matter, so a candidate whose significators they fail is doubtful.",
+    source: "Astro Secrets & KP Part 2, p. 192 and p. 203",
+    needsJudge: false,
+    needsEvents: true,
+  },
+];
+
+/** Score of one interval under one method. */
+function methodScore(s: RectifySegment, m: RectifyMethod): { score: number; max: number } {
+  if (m === "kp-rp") return { score: s.rp.score, max: s.rp.max };
+  if (m === "kp-events") return s.events.reduce((acc, e) => ({ score: acc.score + e.score, max: acc.max + e.max }), { score: 0, max: 0 });
+  return s.events.reduce((acc, e) => ({ score: acc.score + e.transit.score, max: acc.max + e.transit.max }), { score: s.sunHint.score, max: s.sunHint.max });
+}
 
 /** Matters a dated event can be checked against: the houses KP times them by and the cusp that must promise them. */
 const MATTERS: Array<{ id: string; label: string; houses: number[]; cusp: number }> = [
@@ -81,10 +121,12 @@ function ScoreBar({ score, max }: { score: number; max: number }) {
   );
 }
 
-export function KpRectify({ result }: { result: ChartResult }) {
+export function RectifyPanel({ result }: { result: ChartResult }) {
   const { chart } = result;
   const { toast } = useToast();
   const [, navigate] = useLocation();
+  const [method, setMethod] = useState<RectifyMethod>("kp-rp");
+  const m = METHODS.find((x) => x.id === method)!;
   const [windowMinutes, setWindowMinutes] = useState(30);
   const [events, setEvents] = useState<EventRow[]>([]);
   const [sortByScore, setSortByScore] = useState(false);
@@ -116,7 +158,12 @@ export function KpRectify({ result }: { result: ChartResult }) {
       const { id: _id, ...insert } = chart;
       const time = seg.mid;
       const base = chart.name.replace(/\s*\(rectified[^)]*\)\s*$/i, "");
-      return chartsStore.create({ ...insert, name: `${base} (rectified ${time.slice(0, 5)})`, birthTime: time, notes: `${insert.notes ? insert.notes + "\n" : ""}Birth time rectified by KP from ${chart.birthTime}: lagna sub lord ${seg.subLord}, interval ${seg.start} to ${seg.end}.` });
+      const sc = methodScore(seg, method);
+      const inputs = [
+        m.needsJudge && data ? `judged ${DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from ${data.judgedAt.label}` : "",
+        m.needsEvents && eventPayload.length ? `events ${eventPayload.map((e) => `${e.label} ${e.date}`).join("; ")}` : "",
+      ].filter(Boolean).join("; ");
+      return chartsStore.create({ ...insert, name: `${base} (rectified ${time.slice(0, 5)})`, birthTime: time, notes: `${insert.notes ? insert.notes + "\n" : ""}Birth time rectified from ${chart.birthTime} by ${m.system} ${m.label.toLowerCase()} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}.` });
     },
     onSuccess: (c) => {
       queryClient.invalidateQueries({ queryKey: CHARTS_QUERY_KEY });
@@ -127,11 +174,12 @@ export function KpRectify({ result }: { result: ChartResult }) {
   });
 
   const data = scan.data;
-  const segments = useMemo(() => {
-    if (!data) return [];
-    const rows = data.segments.map((s, i) => ({ s, i }));
-    return sortByScore ? [...rows].sort((a, b) => b.s.score - a.s.score || a.i - b.i) : rows;
-  }, [data, sortByScore]);
+  const scored = useMemo(() => (data ? data.segments.map((s, i) => ({ s, i, ...methodScore(s, method) })) : []), [data, method]);
+  const top = scored.reduce((t, r) => Math.max(t, r.score), 0);
+  const bestSet = useMemo(() => new Set(scored.filter((r) => r.score === top && top > 0).map((r) => r.i)), [scored, top]);
+  const segments = useMemo(() => (sortByScore ? [...scored].sort((a, b) => b.score - a.score || a.i - b.i) : scored), [scored, sortByScore]);
+  const maxOf = scored[0]?.max ?? 0;
+  const missingEvents = m.needsEvents && eventPayload.length === 0;
   const givenIndex = data?.segments.findIndex((s) => s.given) ?? -1;
   const givenCusps = givenIndex >= 0 ? data!.segments[givenIndex].cuspSubLords : null;
 
@@ -140,13 +188,36 @@ export function KpRectify({ result }: { result: ChartResult }) {
   const removeEvent = (key: number) => setEvents((ev) => ev.filter((e) => e.key !== key));
 
   return (
-    <section className="mt-10" data-testid="section-kp-rectify">
+    <section data-testid="section-rectify">
       <h2 className="text-base font-semibold">
         <Term k="kp-rectification">Birth time rectification</Term>
       </h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Krishnamurti's test: at the true birth time the lagna's sign lord, star lord and sub lord agree with the <Term k="kp-ruling-planets">ruling planets</Term> of the moment you sit down to judge, and the sub lord is the decisive agreement (Astro Secrets &amp; KP Part 3, ch. 30, pp. 160-163; Part 1, pp. 173-178). Dated events sharpen it: at each event the dasa, bhukti and antara lords must signify the houses of that matter and the cusp concerned must promise it (Part 1, pp. 167-172; Part 2, p. 203). The window around the recorded time {chart.birthTime} is cut at every change of the lagna's lords and each interval is scored.
+        The window around the recorded time {chart.birthTime} is cut at every change of the lagna's sign, star and sub lord, and each interval is scored by the method you choose. One scan serves every method; switch between them without scanning again. Saving an interval makes a copy of the chart at that time and leaves this one untouched.
       </p>
+
+      <div role="tablist" aria-label="Rectification method" className="mt-3 inline-flex flex-wrap rounded-md border p-0.5 text-xs">
+        {METHODS.map((x) => (
+          <button
+            key={x.id}
+            type="button"
+            role="tab"
+            aria-selected={method === x.id}
+            onClick={() => setMethod(x.id)}
+            className={cn("rounded px-2.5 py-1", method === x.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            data-testid={`rectify-method-${x.id}`}
+          >
+            <span className="opacity-70">{x.system} ·</span> {x.label}
+          </button>
+        ))}
+        <span className="cursor-not-allowed rounded px-2.5 py-1 text-muted-foreground/60" title="Chara dasha event fit (K.N. Rao) is the next method to be added" data-testid="rectify-method-jaimini">
+          <span className="opacity-70">Jaimini ·</span> Chara dasha, next
+        </span>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground" data-testid="rectify-method-text">
+        {m.short} <span className="text-xs">({m.source}.)</span>
+      </p>
+      {m.needsJudge && <JudgePlaceControl birthPlace={chart.place} birthTimezone={chart.timezone} />}
 
       <div className="mt-3 flex flex-wrap items-end gap-x-4 gap-y-2 text-xs">
         <label className="inline-flex items-center gap-2 text-muted-foreground">
@@ -167,9 +238,7 @@ export function KpRectify({ result }: { result: ChartResult }) {
         <Button size="sm" variant="outline" className="h-8" onClick={addEvent} data-testid="button-rectify-add-event">
           Add a dated event
         </Button>
-        <span className="text-muted-foreground">
-          Judging from {judge ? judge.label : `${chart.place} (the birth place; set your own above)`}
-        </span>
+        {missingEvents && <span className="text-muted-foreground">This method needs at least one dated event.</span>}
         <Button size="sm" className="h-8" onClick={() => scan.mutate()} disabled={scan.isPending} data-testid="button-rectify-scan">
           {scan.isPending ? "Scanning…" : data ? "Scan again" : "Scan the window"}
         </Button>
@@ -202,26 +271,36 @@ export function KpRectify({ result }: { result: ChartResult }) {
 
       {data && (
         <div className="mt-5" data-testid="rectify-results">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            <span>
-              Judged at {DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from {data.judgedAt.label} ({data.judgedAt.timezone}). Accepted as ruling:
-            </span>
-            {data.accepted.map((a) => (
-              <Badge key={a.planet} variant={a.weight < 1 ? "outline" : "secondary"} className="no-default-hover-elevate whitespace-normal text-left" title={a.reason} data-testid={`rectify-accepted-${a.planet}`}>
-                <span className="inline-flex flex-wrap items-center gap-1.5">
-                  <PlanetName planet={a.planet} abbr />
-                  <span className="text-muted-foreground">{a.reason}</span>
-                </span>
-              </Badge>
-            ))}
-          </div>
+          {method === "kp-rp" && (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+              <span>
+                Judged at {DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from {data.judgedAt.label} ({data.judgedAt.timezone}). Accepted as ruling:
+              </span>
+              {data.accepted.map((a) => (
+                <Badge key={a.planet} variant={a.weight < 1 ? "outline" : "secondary"} className="no-default-hover-elevate whitespace-normal text-left" title={a.reason} data-testid={`rectify-accepted-${a.planet}`}>
+                  <span className="inline-flex flex-wrap items-center gap-1.5">
+                    <PlanetName planet={a.planet} abbr />
+                    <span className="text-muted-foreground">{a.reason}</span>
+                  </span>
+                </Badge>
+              ))}
+            </div>
+          )}
+          {method === "kp-transit" && (
+            <p className="text-xs text-muted-foreground" data-testid="rectify-sun-now">
+              On {DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy")} the Sun transits {fmtDegShort(data.sunNow.lon % 30)} in the star of <PlanetName planet={data.sunNow.starLord} abbr /> and the sub of <PlanetName planet={data.sunNow.subLord} abbr />. Intervals whose lagna sub lord is <PlanetName planet={data.sunNow.subLord} abbr /> take the hint (2), a lagna star lord of <PlanetName planet={data.sunNow.subLord} abbr /> half of it (1). Event columns mark whether the sign, star and sub lords of the dasa and bhukti lords' transit on the event day signify the matter.
+            </p>
+          )}
           <p className="mt-1 text-xs text-muted-foreground">
-            Recorded time {data.given.time} rises {fmtDegShort(data.given.lagna % 30)} of {data.segments.find((s) => s.given)?.sign ?? "the lagna sign"}. Half-weight badges are doubtful ruling planets (retrograde now) or their stand-ins. Rerun on another day and the ruling planets change; the intervals that agree every time are the ones to trust.
+            Recorded time {data.given.time} rises {fmtDegShort(data.given.lagna % 30)} of {data.segments.find((s) => s.given)?.sign ?? "the lagna sign"}.
+            {method === "kp-rp" && " Half-weight badges are doubtful ruling planets (retrograde now) or their stand-ins. Rerun on another day and the ruling planets change; the intervals that agree every time are the ones to trust."}
+            {method === "kp-events" && (eventPayload.length ? " Green marks are period lords that signify the matter's houses (four-step significators) and cusp sub lords that promise it." : " Add dated events and scan again to score by this method.")}
+            {method === "kp-transit" && " The Sun hint changes daily; the event transits do not, so they are the steadier of the two."}
           </p>
 
           <div className="mt-3 flex items-center justify-between text-xs">
             <span className="text-muted-foreground">
-              {data.segments.length} intervals in ± {data.windowMinutes} min · best score {Math.max(...data.segments.map((s) => s.score))} of {data.segments[0]?.max ?? 0}
+              {data.segments.length} intervals in ± {data.windowMinutes} min · {m.system} {m.label.toLowerCase()} · best score {Number.isInteger(top) ? top : top.toFixed(1)} of {maxOf}
             </span>
             <button type="button" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground" onClick={() => setSortByScore((v) => !v)} data-testid="button-rectify-sort">
               {sortByScore ? "Sort by time" : "Sort by score"}
@@ -235,19 +314,21 @@ export function KpRectify({ result }: { result: ChartResult }) {
                   <TableHead className="whitespace-nowrap">Interval</TableHead>
                   <TableHead className="whitespace-nowrap">Lagna</TableHead>
                   <TableHead className="whitespace-nowrap">Sign · star · sub</TableHead>
-                  <TableHead className="whitespace-nowrap">Ruling</TableHead>
-                  {eventPayload.map((e) => (
-                    <TableHead key={e.label + e.date} className="whitespace-nowrap">
-                      {e.label} <span className="text-muted-foreground tabular">{e.date}</span>
-                    </TableHead>
-                  ))}
+                  {method === "kp-transit" && <TableHead className="whitespace-nowrap">Sun sub</TableHead>}
+                  {method !== "kp-rp" &&
+                    eventPayload.map((e) => (
+                      <TableHead key={e.label + e.date} className="whitespace-nowrap">
+                        {e.label} <span className="text-muted-foreground tabular">{e.date}</span>
+                        {method === "kp-transit" && <span className="ml-1 text-muted-foreground">transit sign · star · sub</span>}
+                      </TableHead>
+                    ))}
                   <TableHead className="whitespace-nowrap">Score</TableHead>
                   <TableHead />
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {segments.map(({ s, i }) => {
-                  const best = data.best.includes(i);
+                {segments.map(({ s, i, score, max }) => {
+                  const best = bestSet.has(i);
                   return (
                     <TableRow key={s.startIso} className={cn(best && "bg-emerald-500/10", s.given && "outline outline-1 -outline-offset-1 outline-foreground/40")} data-testid={`rectify-segment-${i}`}>
                       <TableCell className="whitespace-nowrap tabular">
@@ -258,18 +339,46 @@ export function KpRectify({ result }: { result: ChartResult }) {
                         {s.sign.slice(0, 3)} {degRange(s.lagnaFrom, s.lagnaTo)}
                       </TableCell>
                       <TableCell className="whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Mark on={s.rp.sign} title={s.rp.via.sign} /> <PlanetName planet={s.signLord} abbr />
-                          <span className="text-muted-foreground">·</span>
-                          <Mark on={s.rp.star} title={s.rp.via.star} /> <PlanetName planet={s.starLord} abbr />
-                          <span className="text-muted-foreground">·</span>
-                          <Mark on={s.rp.sub} title={s.rp.via.sub} /> <PlanetName planet={s.subLord} abbr />
-                        </span>
+                        {method === "kp-rp" ? (
+                          <span className="inline-flex items-center gap-1.5">
+                            <Mark on={s.rp.sign} title={s.rp.via.sign} /> <PlanetName planet={s.signLord} abbr />
+                            <span className="text-muted-foreground">·</span>
+                            <Mark on={s.rp.star} title={s.rp.via.star} /> <PlanetName planet={s.starLord} abbr />
+                            <span className="text-muted-foreground">·</span>
+                            <Mark on={s.rp.sub} title={s.rp.via.sub} /> <PlanetName planet={s.subLord} abbr />
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5">
+                            <PlanetName planet={s.signLord} abbr />
+                            <span className="text-muted-foreground">·</span>
+                            {method === "kp-transit" && <Mark on={s.sunHint.star} title={s.sunHint.star ? "lagna star lord is the Sun's transit sub lord" : undefined} />} <PlanetName planet={s.starLord} abbr />
+                            <span className="text-muted-foreground">·</span>
+                            {method === "kp-transit" && <Mark on={s.sunHint.sub} title={s.sunHint.sub ? "lagna sub lord is the Sun's transit sub lord" : undefined} />} <PlanetName planet={s.subLord} abbr />
+                          </span>
+                        )}
                       </TableCell>
-                      <TableCell className="whitespace-nowrap">
-                        <ScoreBar score={s.rp.score} max={s.rp.max} />
-                      </TableCell>
-                      {s.events.map((e) => (
+                      {method === "kp-transit" && (
+                        <TableCell className="whitespace-nowrap">
+                          <ScoreBar score={s.sunHint.score} max={s.sunHint.max} />
+                        </TableCell>
+                      )}
+                      {method === "kp-transit" &&
+                        s.events.map((e) => (
+                          <TableCell key={e.label + e.date} className="whitespace-nowrap">
+                            {[e.transit.dasa, e.transit.bhukti].map((t, k) => (
+                              <span key={k} className="flex items-center gap-1.5">
+                                <span className="w-9 shrink-0 text-muted-foreground">{k === 0 ? "dasa" : "bhukti"}</span>
+                                <PlanetName planet={t.planet} abbr />
+                                <span className="text-muted-foreground">in</span>
+                                <Mark on={t.hits[0]} title={`sign lord ${t.signLord}`} /> <PlanetName planet={t.signLord} abbr />
+                                <Mark on={t.hits[1]} title={`star lord ${t.starLord}`} /> <PlanetName planet={t.starLord} abbr />
+                                <Mark on={t.hits[2]} title={`sub lord ${t.subLord}`} /> <PlanetName planet={t.subLord} abbr />
+                              </span>
+                            ))}
+                          </TableCell>
+                        ))}
+                      {method === "kp-events" &&
+                        s.events.map((e) => (
                         <TableCell key={e.label + e.date} className="whitespace-nowrap">
                           <span className="inline-flex items-center gap-1.5">
                             <Mark on={e.hits[0]} title={`dasa ${e.dasa} signifies ${e.signified[0].join(", ") || "none"}`} /> <PlanetName planet={e.dasa} abbr />
@@ -285,7 +394,7 @@ export function KpRectify({ result }: { result: ChartResult }) {
                         </TableCell>
                       ))}
                       <TableCell className="whitespace-nowrap">
-                        <ScoreBar score={s.score} max={s.max} />
+                        <ScoreBar score={score} max={max} />
                       </TableCell>
                       <TableCell className="whitespace-nowrap text-right">
                         <button type="button" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground" onClick={() => setOpen(open === i ? null : i)} data-testid={`button-rectify-cusps-${i}`}>

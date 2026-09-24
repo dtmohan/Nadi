@@ -512,13 +512,26 @@ function KpMethod() {
       </p>
       <h2>Birth time rectification</h2>
       <p>
-        The KP tab scans a window around the recorded time, cuts it at every change of the lagna's sign, star or sub lord, and scores each interval two ways. First, by Krishnamurti's ruling-planet test:
-        the lagna's three lords at the true time agree with the ruling planets of the moment of judgement, the sub lord being decisive (Astro Secrets & KP Part 3 ch. 30, pp. 160-163; Part 1 pp. 173-178). A node in a
-        ruling planet's sign or star acts for it; a retrograde ruling planet is doubtful and its star lord is admitted in its place at half weight (Part 1 p. 174). Second, by dated events the native
-        remembers: at each one the dasa, bhukti and antara lords must be significators of the houses of that matter and the cusp concerned must promise it through its sub lord (Part 1 pp. 167-172; Part 2 p. 203).
-        The ruling planets change with the hour, so the books advise repeating the test on another occasion and trusting the interval that agrees every time. A chosen interval can be saved as a copy of the chart;
-        the original is never altered.
+        Rectification has its own tab on the chart page, because it changes the birth time that every reading depends on and is not itself a reading. The tab scans a window around the recorded time,
+        cuts it at every change of the lagna's sign, star or sub lord, and scores each interval by one method at a time, never blended, in the same way the reading systems are kept apart. One scan
+        serves all methods. A chosen interval can be saved as a copy of the chart, with a note recording the method, its source and the inputs; the original is never altered.
       </p>
+      <ul>
+        <li>
+          KP, ruling planets: the lagna's three lords at the true time agree with the ruling planets of the moment of judgement, the sub lord being decisive (Astro Secrets & KP Part 3 ch. 30, pp. 160-163; Part
+          1 pp. 173-178). A node in a ruling planet's sign or star acts for it; a retrograde ruling planet is doubtful and its star lord is admitted in its place at half weight (Part 1 p. 174). The ruling
+          planets belong to the astrologer's place and change with the hour, so repeat on another occasion and trust the interval that agrees every time.
+        </li>
+        <li>
+          KP, dated events: at each event the native remembers, the dasa, bhukti and antara lords must be significators of the houses of that matter and the cusp concerned must promise it through its sub
+          lord (Part 1 pp. 167-172; Part 2 p. 203). The events are chosen from a list of matters with their KP houses.
+        </li>
+        <li>
+          KP, transits: the sub the Sun transits on the day one works points to the lagna sub (N. Nataraj, Part 2 p. 192), scored as a hint; and on the day of an event the dasa and bhukti lords transit the
+          sign, star and sub of significators of the matter (Part 2 p. 203), checked for each candidate against its own significators.
+        </li>
+        <li>Jaimini, chara dasha event fit (K.N. Rao's method): planned as the next method. Bhrigu Nandi Nadi reads without a lagna and offers no rectification method.</li>
+      </ul>
       <h2>Sources</h2>
       <p>
         Astro Secrets & KP Parts 1 to 3 and the Kalpurush Astrology class notes (KP classes 3.1, 3.2 and 4.1), from the user's own copies; the rules are paraphrased, never reproduced, and each is

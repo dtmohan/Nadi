@@ -19,6 +19,7 @@ import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
 import { JaiminiPanel } from "@/components/jaimini-panel";
 import { AlpPanel } from "@/components/alp-panel";
 import { KpPanel } from "@/components/kp-panel";
+import { RectifyPanel } from "@/components/rectify-panel";
 import { Timeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -646,7 +647,7 @@ export default function ChartPage() {
   const [selected, setSelected] = useState<Planet | null>(null);
   const [showTransit, setShowTransit] = useState(true);
   const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
-  const [mode, setMode] = useState<"bnn" | "jaimini" | "alp" | "kp">("bnn");
+  const [mode, setMode] = useState<"bnn" | "jaimini" | "alp" | "kp" | "rectify">("bnn");
 
   if (isLoading) {
     return (
@@ -755,9 +756,20 @@ export default function ChartPage() {
           >
             KP
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "rectify"}
+            onClick={() => setMode("rectify")}
+            className={cn("ml-1 rounded border-l px-3 py-1", mode === "rectify" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            data-testid="mode-rectify"
+            title="Birth time rectification"
+          >
+            Rectify
+          </button>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading." : mode === "alp" ? "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}</p>
+          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading." : mode === "alp" ? "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage." : mode === "rectify" ? "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}</p>
           <ReadingModeToggle />
         </div>
       </div>
@@ -777,6 +789,12 @@ export default function ChartPage() {
       {mode === "kp" && (
         <div className="mt-8">
           <KpPanel result={data} />
+        </div>
+      )}
+
+      {mode === "rectify" && (
+        <div className="mt-8">
+          <RectifyPanel result={data} />
         </div>
       )}
 

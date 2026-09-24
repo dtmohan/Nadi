@@ -13,7 +13,6 @@ import { Working } from "@/components/working";
 import { useReadingMode } from "@/lib/reading-mode";
 import { PlanetName, SignName, PlanetLegend, planetColor } from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
-import { KpRectify } from "@/components/kp-rectify";
 import { Term } from "@/components/term";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -576,7 +575,6 @@ export function KpPanel({ result }: { result: ChartResult }) {
         </p>
       </section>
 
-      <KpRectify result={result} />
 
       <section className="mt-10 border-t pt-6 text-xs text-muted-foreground" data-testid="section-kp-sources">
         <p className="font-medium text-foreground">Method and sources</p>
