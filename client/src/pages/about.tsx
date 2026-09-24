@@ -49,14 +49,10 @@ export default function AboutPage() {
           <li>7th: opposition, a face-to-face influence at about half strength.</li>
           <li>
             Retrograde: a retrograde classical planet "will aspect the rear sign by 1/2 strength" (
-            <a href="https://astrofoxx.wordpress.com/wp-content/uploads/2018/11/jyotish_fundamentals-of-raos-system-of-nadi-1.pdf" target="_blank" rel="noreferrer">
-              Rao, Fundamentals
+            <a href="https://saptarishisshop.com/product/fundamentals-of-raos-system-of-nadi-astrology/" target="_blank" rel="noreferrer">
+              Rao, Fundamentals of Rao's System of Nadi Astrology
             </a>
-            ), so it is evaluated from both signs, the previous one at half weight, and appears in both directional chains. Two caveats from the{" "}
-            <a href="https://www.scribd.com/document/961070390/Brighu-Nandi-Naadi" target="_blank" rel="noreferrer">
-              Bhrigu Naadi rules
-            </a>
-            : a planet that has already backed into its sign from the sign ahead is not read from the sign before that (rule 11), and a retro planet under Rahu or Ketu, taken here as a
+            ), so it is evaluated from both signs, the previous one at half weight, and appears in both directional chains. Two caveats from the numbered progression rules taught in BNN classes: a planet that has already backed into its sign from the sign ahead is not read from the sign before that (rule 11), and a retro planet under Rahu or Ketu, taken here as a
             node in the same sign or trine, "will not have effect on previous sign" (rule 12). Rao is explicit that the principle "does not apply to Dragon Head and Dragon Tail, which
             always move in anti-clockwise direction": the nodes' perpetual retrogression is part of their nature, not a retrograde state, so it only fixes their direction of motion in the
             degree chains. Retrogression does not alter the degree order itself; "we count the degrees" (
@@ -73,7 +69,7 @@ export default function AboutPage() {
             Astroindus
           </a>
           ). Naik keeps two levels: "in male and in female charts Jupiter represents Jeevakaraka, and Venus also becomes Jeevakaraka in female charts" (
-          <a href="https://ia601601.us.archive.org/2/items/RevelationFromNaadiJyotisha/Revelation%20from%20naadi%20jyotisha.pdf" target="_blank" rel="noreferrer">
+          <a href="https://www.exoticindiaart.com/book/details/revelation-from-naadi-jyotisha-based-on-brighu-nandi-nadi-system-naj696/" target="_blank" rel="noreferrer">
             Revelation from Naadi Jyotisha
           </a>
           ); Guru is the native at the subtle level as Jeeva, and the body, the Deha, is Mars for a man and Venus for a woman (
@@ -86,7 +82,7 @@ export default function AboutPage() {
           Venus. Only the male-framed Venus-as-wife rules are set aside, replaced by Rao's female rules, for example Mars with the Sun for a proud, short-tempered husband from a well-to-do
           family, Mars with Saturn for a marriage in Saturn's second round, or Mars, Saturn and Venus for a husband in banking or a luxury trade. Jupiter remains the universal timer: his
           passages over Venus or Mars, or their trines, bring the marriage. The Rule book lets you filter rules by frame. Further sources:{" "}
-          <a href="https://astrofoxx.wordpress.com/wp-content/uploads/2018/11/jyotish_fundamentals-of-raos-system-of-nadi-1.pdf" target="_blank" rel="noreferrer">
+          <a href="https://saptarishisshop.com/product/fundamentals-of-raos-system-of-nadi-astrology/" target="_blank" rel="noreferrer">
             Fundamentals of Rao's System of Nadi Astrology
           </a>
           ,{" "}
@@ -111,19 +107,19 @@ export default function AboutPage() {
             Children and progeny in BNN (Astroindus)
           </a>
           ,{" "}
-          <a href="https://www.scribd.com/document/976539938/Bhrigu-Nandi-Nadi" target="_blank" rel="noreferrer">
-            Bhrigu Naadi principles (5th from Jupiter)
+          <a href="https://www.exoticindiaart.com/book/details/bhrigu-nandi-nadi-uac236/" target="_blank" rel="noreferrer">
+            Rao, Bhrigu Nandi Nadi (5th from Jupiter)
           </a>
           ,{" "}
           <a href="https://saptarishisshop.com/community/bhrigu-nandi-nadi/progeny-part-1-bhrigu-nandi-nadi/" target="_blank" rel="noreferrer">
             Sakurkar, Progeny in BNN
           </a>
           ,{" "}
-          <a href="https://www.scribd.com/doc/208041853/Nadi-Astrology-R-G-Rao" target="_blank" rel="noreferrer">
+          <a href="https://www.amazon.com/Naadi-Astrology-Raos-System-Calculation/dp/8170822815" target="_blank" rel="noreferrer">
             Rao, Nadi Astrology
           </a>{" "}
           and{" "}
-          <a href="https://pdfcoffee.com/jyotish-satyanarayana-naik-prediction-secrets-naadi-astrology-pdf-free.html" target="_blank" rel="noreferrer">
+          <a href="https://play.google.com/store/books/details/Satyanarayana_Naik_Prediction_Secrets_Naadi_Astrol?id=GUyFEAAAQBAJ" target="_blank" rel="noreferrer">
             Naik, Prediction Secrets
           </a>
           .
@@ -155,8 +151,8 @@ export default function AboutPage() {
           BNN does use houses, but they are whole signs counted from a karaka, not from the rising degree. "Sage Brighu has not concentrated on Ascendent (Lagna); on the other hand, he
           concentrates on Jupiter, calling it the life force ... the author treats Jupiter as the ascendent and the 12 houses therefrom", and from that reference "trine 1, 5, 9 are best,
           quadrants 1, 4, 7, 10 good, 6, 8, 12 bad, and 2, 3, 11 not so good" (
-          <a href="https://www.scribd.com/document/976539938/Bhrigu-Nandi-Nadi" target="_blank" rel="noreferrer">
-            Bhrigu Naadi principles
+          <a href="https://www.exoticindiaart.com/book/details/bhrigu-nandi-nadi-uac236/" target="_blank" rel="noreferrer">
+            Rao, Bhrigu Nandi Nadi
           </a>
           ). Jupiter's whole rashi is the 1st house whatever its degree; there is no bhava madhya and no chalit. The reference planet shifts with the topic: Rao counts from Saturn for
           profession and from Venus for the spouse and comforts, and in a female chart Venus takes the 1st house (
@@ -172,8 +168,8 @@ export default function AboutPage() {
             the 12 houses counted from Jupiter
           </a>{" "}
           and, for Saturn, from the{" "}
-          <a href="https://www.scribd.com/document/746652825/BNN-Bootcamp-10-Profession" target="_blank" rel="noreferrer">
-            BNN profession bootcamp
+          <a href="https://astro-bnn.blogspot.com/2026/02/career-prediction-by-bhrigu-nandi-nadi.html" target="_blank" rel="noreferrer">
+            career reading from Saturn (Astro BNN)
           </a>{" "}
           (the 12th from Saturn is the work environment; Saturn's 3rd, 7th and 10th mark the start, middle and end of the career). The 1st, 2nd, 12th, 5th, 9th and 7th are read by the
           combination rules; the rule book's h-* rules read planets in the 3rd, 4th, 6th, 8th, 10th and 11th from Jupiter and the 3rd, 7th, 10th and 12th from Saturn, at a lower weight
@@ -192,8 +188,8 @@ export default function AboutPage() {
             Anandamoyee, BNN principles
           </a>
           ;{" "}
-          <a href="https://www.scribd.com/document/915304966/Bhrigu-Nandi-Nadi-Diploma-Class-3-Astro-Vaibhav-Gupta" target="_blank" rel="noreferrer">
-            Vaibhav Gupta, class 3
+          <a href="https://thefuture.university/bootcamp/bhrigu-nandi-nadi-diploma" target="_blank" rel="noreferrer">
+            Vaibhav Gupta's BNN diploma course
           </a>
           ). Planets within a degree of each other across signs stand "at the same degree", a tighter bond than a bare trine. Retrogression shows the direction of approach: a direct
           planet moves to higher degrees, a retrograde one and the nodes to lower, so two planets closing on each other bind more strongly than two separating. The reading shows this
