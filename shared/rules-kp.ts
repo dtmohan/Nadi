@@ -6,7 +6,7 @@
 // passage is reproduced. Rules are evaluated on the houses the cuspal sub lord signifies
 // (Krishnamurti's four steps, optionally the six-step table taught in the class).
 
-import type { Planet } from "./astro";
+import { SIGNS, type Planet } from "./astro";
 import type { KpResult, SignificatorLevel } from "./kp";
 
 export type KpPolarity = "good" | "bad" | "neutral";
@@ -54,6 +54,10 @@ export interface KpRuleWhen {
   /** The sub lord signifies a maraka house (2 or 7). */
   maraka?: boolean;
   lagnaQuality?: Array<"Movable" | "Fixed" | "Dual">;
+  /** The lagna falls in one of these signs (0 = Aries). */
+  lagnaSignIn?: number[];
+  /** The sub lord is not a strong significator of any of these. */
+  notStrong?: number[];
   /** A second cusp whose sub lord must also meet a condition. */
   otherCusp?: { cusp: number; all?: number[]; any?: number[]; minOf?: { houses: number[]; count: number } };
 }
@@ -272,6 +276,43 @@ export const KP_RULES: KpRule[] = [
   { id: "kp5-music", cusp: 5, topic: "Arts", when: { cusp: 5, any: [5, 7], connectedTo: ["Venus"] }, text: "The 5th sub lord signifies 5 or 7 and is connected to Venus: proficiency in music and the fine arts.", polarity: "good", source: P3("48") },
   { id: "kp5-statesman", cusp: 5, topic: "Public life", when: { cusp: 5, starLordOccupies: [11], any: [10] }, text: "The 5th sub lord is in the star of a planet in the 11th and signifies the 10th: statesmanship, a public role.", polarity: "good", source: P3("49") },
   { id: "kp5-mantra", cusp: 5, topic: "Practice", when: { cusp: 5, all: [11], connectedTo: ["Saturn"] }, text: "The 5th sub lord signifies the 11th and is connected to Saturn: siddhi through mantra and steady practice.", polarity: "good", source: P3("48") },
+  // ── Cusp V from Astro Secrets Part 1, ch. 16 (pp. 143-152) and Dutta's free bhava rules ──
+  { id: "kp5-love-6-strong", cusp: 5, topic: "Love", when: { cusp: 5, all: [7, 11], strong: [6] }, text: "The 5th sub lord signifies 7 and 11 but is a strong significator of the 6th as well: the love affair happens, yet the 6th, being 12th to the 7th, keeps it from ending in marriage.", polarity: "bad", source: P1("144-147") },
+  { id: "kp5-love-6-weak", cusp: 5, topic: "Love", when: { cusp: 5, all: [7, 11], any: [6], notStrong: [6] }, text: "The 5th sub lord signifies 7 and 11 with the 6th only by occupation or ownership: the love affair meets obstacles and disturbances, and ends in marriage all the same.", polarity: "good", timing: [5, 7, 11], source: P1("146-147") },
+  { id: "kp5-children-certain", cusp: 5, topic: "Children", when: { cusp: 5, minOf: { houses: [2, 5, 11], count: 2 }, none: [4, 10] }, text: "The 5th sub lord signifies 2, 5 and 11 and is clear of 4 and 10: children are certain, whatever a node in the 5th or a sarpa dosha may seem to say.", polarity: "good", timing: [2, 5, 11], source: P1("147-150") },
+  { id: "kp5-children-limited", cusp: 5, topic: "Children", when: { cusp: 5, all: [2, 5], any: [4], notStrong: [4] }, text: "The 5th sub lord signifies 2 and 5 but also touches the 4th by occupation or ownership: the 4th restricts the number of children without denying them.", polarity: "neutral", source: P1("149-150") },
+  { id: "kp5-children-none-4", cusp: 5, topic: "Children", when: { cusp: 5, strong: [4], none: [2, 11] }, text: "The 5th sub lord is a strong significator of the 4th (by its star lord) and has neither 2 nor 11: the book denies progeny outright.", polarity: "bad", source: P1("150") },
+  { id: "kp5-children-destined", cusp: 5, topic: "Children", when: { cusp: 5, none: [4, 6, 12], any: [1, 2, 3, 5, 7, 8, 9, 10, 11] }, text: "The 5th sub lord has no connection to 4, 6 or 12: progeny is destined, early or late according to the nature of the planet.", polarity: "good", source: P1("151") },
+  { id: "kp5-child-male", cusp: 5, topic: "Children", when: { cusp: 5, starLordIs: ["Sun", "Mars", "Jupiter"] }, text: "The 5th sub lord is in the star of a male planet: the first child is likely a boy (the star lord should also be in a male sign).", polarity: "neutral", source: P1("150") },
+  { id: "kp5-child-female", cusp: 5, topic: "Children", when: { cusp: 5, starLordIs: ["Moon", "Venus", "Rahu"] }, text: "The 5th sub lord is in the star of a female planet: the first child is likely a girl (the star lord should also be in a female sign).", polarity: "neutral", source: P1("150") },
+  { id: "kp5-twins", cusp: 5, topic: "Children", when: { cusp: 5, subLordIs: ["Mercury", "Jupiter"], subLordInDualSign: true, starLordIs: ["Moon", "Venus", "Rahu"] }, text: "Mercury or Jupiter as 5th sub lord in a dual sign and in the star of a female planet: a twin birth, girls, if the star lord also stands in a female sign.", polarity: "neutral", source: P1("150") },
+  { id: "kp5-many-children", cusp: 5, topic: "Children", when: { cusp: 5, subLordIs: ["Mercury"], subLordInDualSign: true, starLordIs: ["Jupiter", "Mercury"], subLordSubIs: ["Jupiter"] }, text: "Mercury as 5th sub lord in a dual sign, in the star of Jupiter or Mercury and in Jupiter's sub: more than two children.", polarity: "neutral", source: P1("150") },
+  { id: "kp5-abortion", cusp: 5, topic: "Children", when: { cusp: 5, subLordIs: ["Mars"], all: [4, 12] }, text: "Mars as 5th sub lord signifying 4 and 12: miscarriages.", polarity: "bad", source: P1("151") },
+  { id: "kp5-child-lost", cusp: 5, topic: "Children", when: { cusp: 5, strong: [6], badhaka: true }, text: "The 5th sub lord is a strong significator of the 6th and signifies the badhaka house: the book warns of a child lost at or soon after birth in the dasa of one of these lords (it reckons the badhaka from the 5th cusp; the lagna's is used here).", polarity: "bad", source: P1("151") },
+  { id: "kp5-child-hands", cusp: 5, topic: "Children", when: { cusp: 5, subLordIs: ["Mercury"], all: [5, 11, 12] }, text: "Mercury as 5th sub lord signifying 5, 11 and 12: a child is born, with a weakness of the hands or arms.", polarity: "bad", source: P1("151") },
+  { id: "kp5-child-eyes", cusp: 5, topic: "Children", when: { cusp: 5, subLordIs: ["Venus"], all: [5, 11, 12] }, text: "Venus as 5th sub lord signifying 5, 11 and 12: a child is born, with weak or affected eyesight.", polarity: "bad", source: P1("151") },
+  { id: "kp5-child-leg", cusp: 5, topic: "Children", when: { cusp: 5, all: [5, 11, 12], connectedTo: ["Mars"], lagnaSignIn: [9] }, text: "The 5th sub lord signifies 5, 11 and 12 with Mars connected, in a Makara lagna: a child with a defect of the leg.", polarity: "bad", source: P1("151") },
+  { id: "kp5-child-speech", cusp: 5, topic: "Children", when: { cusp: 5, subLordIs: ["Mercury"], all: [5, 11], connectedTo: ["Saturn", "Mars"], lagnaSignIn: [8, 11] }, text: "Mercury as 5th sub lord signifying 5 and 11 with Saturn or Mars connected, in a Dhanus or Meena lagna: a child with a speech defect.", polarity: "bad", source: P1("151") },
+  { id: "kp5-child-speech-ju", cusp: 5, topic: "Children", when: { cusp: 5, subLordIs: ["Jupiter"], all: [5, 11], lagnaSignIn: [2, 5, 4] }, text: "Jupiter as 5th sub lord signifying 5 and 11 in a Mithuna or Kanya lagna: a child with a speech defect; in Simha, a slow intellect.", polarity: "bad", source: P1("151") },
+  { id: "kp5-child-defect", cusp: 5, topic: "Children", when: { cusp: 5, all: [5, 11], badhaka: true, connectedTo: ["Saturn", "Mars"], subLordInHouse: [10, 12, 4] }, text: "The 5th sub lord signifies 5 and 11 with the badhaka, joined to Saturn or Mars and posited in the 6th, 8th or 12th from the 5th: the child born carries one defect or another, of the kind the planet rules.", polarity: "bad", source: P1("152") },
+  { id: "kp5-love-affair", cusp: 5, topic: "Love", when: { cusp: 5, all: [5, 7], minOf: { houses: [1, 11], count: 1 } }, text: "The 5th sub lord signifies 5 and 7 with 1 or 11: love affairs, courtship.", polarity: "neutral", timing: [5, 7, 11], source: P1("152") },
+  { id: "kp5-love-failure", cusp: 5, topic: "Love", when: { cusp: 5, all: [5], minOf: { houses: [6, 10, 12], count: 2 } }, text: "The 5th sub lord ties the 5th to 6, 10 and 12: love affairs fail.", polarity: "bad", source: P1("152") },
+  { id: "kp5-gambling", cusp: 5, topic: "Speculation", when: { cusp: 5, all: [5, 11], minOf: { houses: [2, 6, 8, 10], count: 2 } }, text: "The 5th sub lord signifies 5 and 11 with 2, 6, 8 and 10: gains from betting, cards and the races.", polarity: "good", timing: [5, 6, 11], source: P1("152") },
+  { id: "kp5-mantra-learn", cusp: 5, topic: "Practice", when: { cusp: 5, all: [5], minOf: { houses: [3, 4, 11], count: 2 } }, text: "The 5th sub lord ties the 5th to 3, 4 and 11: mantras are learnt and their practice bears fruit.", polarity: "good", source: P1("152") },
+  { id: "kp5-actor", cusp: 5, topic: "Arts", when: { cusp: 5, all: [5, 10], minOf: { houses: [7, 11], count: 1 } }, text: "The 5th sub lord signifies 5 and 10 with 7 or 11: acting in cinema or on the stage as a career.", polarity: "good", source: P1("152") },
+  { id: "kp5-wealth-jupiter", cusp: 5, topic: "Finance", when: { cusp: 5, subLordIs: ["Jupiter"], all: [5, 11], minOf: { houses: [2, 3, 6], count: 2 }, none: [8, 12] }, text: "Jupiter as 5th sub lord signifying 5 and 11 with 2, 6 and 3, clear of 8 and 12: enormous wealth.", polarity: "good", timing: [2, 5, 11], source: P1("152") },
+  { id: "kp5-astrologer", cusp: 5, topic: "Public life", when: { cusp: 5, subLordIs: ["Saturn", "Mercury", "Jupiter"], all: [5], minOf: { houses: [2, 7, 9, 10, 11], count: 3 } }, text: "Saturn, Mercury or Jupiter as 5th sub lord tying the 5th to 9, 10, 11, 2 and 7: a popular astrologer.", polarity: "good", source: P1("152") },
+  { id: "kp5-children-denied-full", cusp: 5, topic: "Children", when: { cusp: 5, minOf: { houses: [4, 6, 10, 12], count: 3 }, none: [2, 5, 11] }, text: "The 5th sub lord signifies 4, 12, 10 and 6 with none of 2, 5 and 11: children are denied.", polarity: "bad", source: P1("152") },
+  { id: "kp5-intellect", cusp: 5, topic: "Mind", when: { cusp: 5, all: [5, 11], minOf: { houses: [1, 3, 9, 10], count: 2 } }, text: "The 5th sub lord signifies 5 and 11 with 3, 9, 10 and 1: strong intelligence and clear thinking.", polarity: "good", source: P1("152") },
+  { id: "kp5-eccentric", cusp: 5, topic: "Mind", when: { cusp: 5, minOf: { houses: [1, 4, 6, 8, 12], count: 3 }, none: [5, 11], connectedTo: ["Rahu", "Ketu"] }, text: "The 5th sub lord ties 4, 8, 6, 1 and 12 together with a node connected and without 5 or 11: loose, eccentric thinking; the book goes as far as near-insanity.", polarity: "bad", source: P1("152") },
+  { id: "kp5-alcohol", cusp: 5, topic: "Mind", when: { cusp: 5, subLordIs: ["Saturn", "Mars"], minOf: { houses: [1, 2, 3, 4, 6], count: 3 } }, text: "Saturn or Mars as 5th sub lord tying 3, 6, 2, 1 and 4: a leaning to drink.", polarity: "bad", source: P1("152") },
+  { id: "kp5-love-star", cusp: 5, topic: "Love", when: { cusp: 5, starLordSignifies: [7, 11], none: [6, 12] }, text: "The 5th sub lord is in the star of a planet signifying 7 and 11: a love affair materialises into marriage.", polarity: "good", timing: [2, 7, 11], ...DUTTA("fifth", "fifth") },
+  { id: "kp5-love-star-fails", cusp: 5, topic: "Love", when: { cusp: 5, starLordSignifies: [6, 12], none: [7, 11] }, text: "The 5th sub lord is in the star of a planet signifying 6 and 12: the love affair does not materialise.", polarity: "bad", ...DUTTA("fifth", "fifth") },
+  { id: "kp5-actor-star", cusp: 5, topic: "Arts", when: { cusp: 5, starLordOccupies: [5, 6, 10], connectedTo: ["Venus"] }, text: "The 5th sub lord is in the star of a planet in 5, 6 or 10 and is connected to Venus: a popular performer.", polarity: "good", ...DUTTA("fifth", "fifth") },
+  { id: "kp5-debauch-prestige", cusp: 5, topic: "Standing", when: { cusp: 5, all: [10, 12] }, text: "The 5th sub lord signifies 10 and 12: prestige is lost through pleasure-seeking.", polarity: "bad", ...DUTTA("fifth", "fifth") },
+  { id: "kp5-debauch-property", cusp: 5, topic: "Standing", when: { cusp: 5, all: [4, 12] }, text: "The 5th sub lord signifies 4 and 12: property is lost through pleasure-seeking.", polarity: "bad", ...DUTTA("fifth", "fifth") },
+  { id: "kp5-debauch-cash", cusp: 5, topic: "Standing", when: { cusp: 5, all: [2, 12] }, text: "The 5th sub lord signifies 2 and 12: cash is lost through pleasure-seeking.", polarity: "bad", ...DUTTA("fifth", "fifth") },
+  { id: "kp5-spec-small", cusp: 5, topic: "Speculation", when: { cusp: 5, all: [1, 3], none: [6, 11, 2, 10, 12] }, text: "The 5th sub lord signifies 1 and 3 only: speculation brings insignificant gains.", polarity: "neutral", ...DUTTA("fifth", "fifth") },
 
   // ---------------- Cusp VI ----------------
   { id: "kp6-illness", cusp: 6, topic: "Health", when: { cusp: 6, minOf: { houses: [6, 8, 12], count: 2 } }, text: "The 6th sub lord signifies 6, 8 and 12: sickness in the conjoined period of the 1st and 6th significators; the 12th adds hospitalisation and the 8th seriousness.", polarity: "bad", timing: [1, 6], source: P3("49") },
@@ -446,6 +487,11 @@ function meets(r: Partial, w: KpRuleWhen, six: boolean): { ok: boolean; used: nu
     hit.forEach((h) => used.add(h));
   }
   if (w.lagnaQuality && !w.lagnaQuality.includes(r.lagnaQuality)) return { ok: false, used: [] };
+  if (w.lagnaSignIn && !w.lagnaSignIn.includes(r.cusps[0].signIndex)) return { ok: false, used: [] };
+  if (w.notStrong) {
+    const st = strongHouses(r, sl);
+    if (w.notStrong.some((h) => st.includes(h))) return { ok: false, used: [] };
+  }
   if (w.otherCusp) {
     const o = w.otherCusp;
     const OH = houses(r, r.cusps[o.cusp - 1].subLord, six);
@@ -501,12 +547,14 @@ export function describeKpCondition(w: KpRuleWhen): string {
   if (w.connectedTo) parts.push(`connected to ${w.connectedTo.length > 3 ? "another planet" : w.connectedTo.join(" or ")}`);
   if (w.connectedToAll) parts.push(`connected to ${w.connectedToAll.join(" and ")}`);
   if (w.lagnaQuality) parts.push(`${w.lagnaQuality.join("/")} lagna`);
+  if (w.lagnaSignIn) parts.push(`lagna in ${w.lagnaSignIn.map((i) => SIGNS[i]).join(" or ")}`);
+  if (w.notStrong) parts.push(`not a strong significator of ${w.notStrong.join(", ")}`);
   if (w.otherCusp) parts.push(w.otherCusp.cusp === w.cusp ? `also signifies at least ${w.otherCusp.minOf?.count} of ${list(w.otherCusp.minOf?.houses ?? [])}` : `the ${w.otherCusp.cusp}th cusp sub lord signifies ${w.otherCusp.all ? list(w.otherCusp.all) : w.otherCusp.any ? `one of ${list(w.otherCusp.any)}` : `at least ${w.otherCusp.minOf?.count} of ${list(w.otherCusp.minOf?.houses ?? [])}`}`);
   return parts.join(" · ");
 }
 
 export const KP_SOURCES: Array<{ label: string; note: string; url?: string }> = [
-  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd and 4th houses (pp. 131-143) entered so far. Practitioner's own copy." },
+  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd to 5th houses (pp. 131-152) entered so far. Practitioner's own copy." },
   { label: "Dr. Andrew Dutta (Sri Indrajit), free KP bhava rules", note: "Event rules for the twelve houses, published freely by the author for sharing with acknowledgement; used to cross-check each cusp.", url: DUTTA_URL },
   { label: "Astro Secrets & Krishnamurti Padhdhati, Part 3 (ed. K. Subramaniam), ch. 6", note: "Consolidated cuspal sub-lord rules, pp. 35-59. Practitioner's own copy." },
   { label: "Kalpurush Astrology, KP classes 3.1, 3.2 and 4.1 (Sagar Neogi)", note: "Significator tables; the 1st and 2nd cusp readings. Practitioner's own class notes." },
