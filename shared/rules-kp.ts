@@ -49,6 +49,8 @@ export interface KpRuleWhen {
   connectedTo?: Planet[];
   /** ... to every one of these. */
   connectedToAll?: Planet[];
+  /** The sub lord is connected to none of these planets. */
+  connectedToNone?: Planet[];
   /** The sub lord signifies the badhaka house (11 movable / 9 fixed / 7 dual lagna). */
   badhaka?: boolean;
   /** The sub lord signifies a maraka house (2 or 7). */
@@ -446,6 +448,22 @@ export const KP_RULES: KpRule[] = [
   { id: "kp9-paternal-property", cusp: 9, topic: "Property", when: { cusp: 9, all: [1, 11] }, text: "The 9th sub lord signifies 1 and 11: paternal property comes to the native.", polarity: "good", source: P3("54") },
   { id: "kp9-pilgrimage", cusp: 9, topic: "Journeys", when: { cusp: 9, minOf: { houses: [3, 9, 10], count: 2 } }, text: "The 9th sub lord signifies 3, 9 and 10: pilgrimage and long journeys.", polarity: "good", timing: [3, 9, 10], source: P3("54") },
   { id: "kp9-astrologer", cusp: 9, topic: "Learning", when: { cusp: 9, starLordSignifies: [2, 9, 11], connectedTo: ["Jupiter", "Moon"] }, text: "The 9th sub lord is in the star of a planet signifying 2, 9 and 11, with Jupiter or Moon connected: success as an astrologer.", polarity: "good", source: P3("54") },
+  // ── Cusp IX from Astro Secrets Part 1, ch. 16 (pp. 183-188); Dutta's ninth-house rules were already in from Part 3 ──
+  { id: "kp9-astrology-genius", cusp: 9, topic: "Learning", when: { cusp: 9, subLordIs: ["Mercury", "Jupiter"], all: [9], minOf: { houses: [2, 5, 10, 11], count: 3 } }, text: "Mercury or Jupiter as 9th sub lord, connected to the 9th and signifying 2, 9, 10, 11 and 5: a genius in astrology, and known for it.", polarity: "good", source: P1("183, 187-188") },
+  { id: "kp9-astrology-new", cusp: 9, topic: "Learning", when: { cusp: 9, subLordIs: ["Mercury", "Jupiter"], all: [9, 12], minOf: { houses: [2, 5, 10, 11], count: 3 } }, text: "Mercury or Jupiter as 9th sub lord on 2-9-10-11-5 with the 12th as well: research that brings out new findings in astrology.", polarity: "good", source: P1("187") },
+  { id: "kp9-astrology-insight", cusp: 9, topic: "Learning", when: { cusp: 9, subLordIs: ["Mercury", "Jupiter"], all: [9], none: [10, 11] }, text: "Mercury or Jupiter as 9th sub lord connected to the 9th but not to 10 or 11: a deep insight into astrology that stays private, without the popularity 10 and 11 would give.", polarity: "neutral", source: P1("186-187") },
+  { id: "kp9-astrology-false", cusp: 9, topic: "Learning", when: { cusp: 9, subLordIs: ["Mercury"], all: [5, 8, 9] }, text: "Mercury as 9th sub lord signifying 9, 5 and 8: pretends to a knowledge of astrology without study; the predictions do not hold.", polarity: "bad", source: P1("183") },
+  { id: "kp9-astrology-unconnected", cusp: 9, topic: "Learning", when: { cusp: 9, subLordIs: ["Mercury", "Jupiter"], none: [9] }, text: "Mercury or Jupiter as 9th sub lord with no connection to the 9th: should the native take up astrology, the readings go astray.", polarity: "neutral", source: P1("187") },
+  { id: "kp9-scientist", cusp: 9, topic: "Learning", when: { cusp: 9, subLordIs: ["Saturn"], connectedTo: ["Jupiter", "Mercury"], all: [9], minOf: { houses: [2, 3, 5, 6, 10, 11], count: 3 } }, text: "Saturn as 9th sub lord connected to Jupiter or Mercury and signifying 9 with 2, 3, 5, 6, 10 and 11: a leading scientist whose findings travel far.", polarity: "good", source: P1("183, 188") },
+  { id: "kp9-research", cusp: 9, topic: "Learning", when: { cusp: 9, subLordIs: ["Saturn"], all: [9], minOf: { houses: [6, 11, 12], count: 2 } }, text: "Saturn as 9th sub lord signifying 9, 12, 6 and 11: research and new findings.", polarity: "good", source: P1("188") },
+  { id: "kp9-renunciation", cusp: 9, topic: "Faith", when: { cusp: 9, subLordIs: ["Saturn"], all: [1, 9, 12] }, text: "Saturn as 9th sub lord signifying 1, 9 and 12: renunciation, taken up in Saturn's dasa or that of the 12th lord.", polarity: "neutral", timing: [9, 12], source: P1("184") },
+  { id: "kp9-spiritual", cusp: 9, topic: "Faith", when: { cusp: 9, subLordIs: ["Saturn"], connectedTo: ["Jupiter"], all: [9], minOf: { houses: [1, 5, 11, 12], count: 3 } }, text: "Saturn as 9th sub lord connected to Jupiter and signifying 1, 9, 5, 11 and 12: a spiritual life given to worship.", polarity: "good", source: P1("188") },
+  { id: "kp9-minister", cusp: 9, topic: "Standing", when: { cusp: 9, subLordIs: ["Mars", "Sun"], all: [9, 10, 11], minOf: { houses: [2, 6], count: 1 }, none: [5, 8], otherCusp: { cusp: 1, minOf: { houses: [2, 6, 9, 10, 11], count: 3 } } }, text: "Mars or the Sun as 9th sub lord signifying 9, 10, 11 with 2 or 6, clear of 5 and 8, and the lagna sub lord also on 2-9-10-11-6: the highest public office, in the periods of the 10 and 11 significators. The book's form has Mars connected to Jupiter, in the 10th or in the star of the 10th lord.", polarity: "good", timing: [10, 11], source: P1("184-186, 188") },
+  { id: "kp9-minister-lost", cusp: 9, topic: "Standing", when: { cusp: 9, subLordIs: ["Mars", "Sun"], all: [9, 10, 11], any: [5, 8], otherCusp: { cusp: 1, minOf: { houses: [2, 6, 9, 10, 11], count: 3 } } }, text: "The 9th sub lord carries 9-10-11 but 5 or 8 is mixed in: high office is reached and then lost, more than once.", polarity: "neutral", timing: [10, 11], source: P1("184-186") },
+  { id: "kp9-high-post", cusp: 9, topic: "Standing", when: { cusp: 9, all: [9, 10, 11] }, text: "The 9th sub lord signifies 9, 10 and 11: high posts come; whether they last depends on the lagna lord and lagna sub lord also carrying 2-9-10-11, else they are held briefly and at a lower level.", polarity: "good", timing: [9, 10, 11], source: P1("186") },
+  { id: "kp9-abroad", cusp: 9, topic: "Travel", when: { cusp: 9, subLordNot: ["Rahu", "Ketu"], all: [9, 12], any: [3] }, text: "The 9th sub lord signifies 9, 3 and 12: going abroad.", polarity: "good", timing: [3, 9, 12], source: P1("188") },
+  { id: "kp9-abroad-node", cusp: 9, topic: "Travel", when: { cusp: 9, subLordIs: ["Rahu", "Ketu"], all: [9, 12], any: [3], connectedTo: ["Jupiter", "Mercury", "Saturn", "Moon"] }, text: "A node as 9th sub lord signifying 9, 3 and 12 and connected to Jupiter, Mercury, Saturn or the Moon: going abroad.", polarity: "good", timing: [3, 9, 12], source: P1("188") },
+  { id: "kp9-abroad-node-weak", cusp: 9, topic: "Travel", when: { cusp: 9, subLordIs: ["Rahu", "Ketu"], all: [9, 12], any: [3], connectedToNone: ["Jupiter", "Mercury", "Saturn", "Moon"] }, text: "A node as 9th sub lord signifying 9, 3 and 12 without a link to Jupiter, Mercury, Saturn or the Moon: the book doubts the journey abroad.", polarity: "neutral", source: P1("188") },
 
   // ---------------- Cusp X ----------------
   { id: "kp10-employment", cusp: 10, topic: "Career", when: { cusp: 10, minOf: { houses: [2, 6, 10, 11], count: 3 } }, text: "The 10th sub lord signifies 2, 6, 10 and 11: employment and steady earnings, promotions in the conjoined periods.", polarity: "good", timing: [2, 6, 10, 11], source: P3("55") },
@@ -564,6 +582,7 @@ function meets(r: Partial, w: KpRuleWhen, six: boolean): { ok: boolean; used: nu
   }
   if (w.connectedTo && !w.connectedTo.some((p) => connected(r, sl, p))) return { ok: false, used: [] };
   if (w.connectedToAll && !w.connectedToAll.every((p) => connected(r, sl, p))) return { ok: false, used: [] };
+  if (w.connectedToNone && w.connectedToNone.some((p) => connected(r, sl, p))) return { ok: false, used: [] };
   if (w.badhaka !== undefined) {
     if (has(r.badhaka) !== w.badhaka) return { ok: false, used: [] };
     if (w.badhaka) used.add(r.badhaka);
@@ -634,6 +653,7 @@ export function describeKpCondition(w: KpRuleWhen): string {
   if (w.starLordBadhakaMaraka !== undefined) parts.push(w.starLordBadhakaMaraka ? "star lord signifies the badhaka or a maraka house" : "star lord clear of badhaka and maraka houses");
   if (w.connectedTo) parts.push(`connected to ${w.connectedTo.length > 3 ? "another planet" : w.connectedTo.join(" or ")}`);
   if (w.connectedToAll) parts.push(`connected to ${w.connectedToAll.join(" and ")}`);
+  if (w.connectedToNone) parts.push(`not connected to ${w.connectedToNone.join(", ")}`);
   if (w.lagnaQuality) parts.push(`${w.lagnaQuality.join("/")} lagna`);
   if (w.lagnaSignIn) parts.push(`lagna in ${w.lagnaSignIn.map((i) => SIGNS[i]).join(" or ")}`);
   if (w.subLordSignIn) parts.push(`sub lord in ${w.subLordSignIn.map((i) => SIGNS[i]).join(" or ")}`);
@@ -643,7 +663,7 @@ export function describeKpCondition(w: KpRuleWhen): string {
 }
 
 export const KP_SOURCES: Array<{ label: string; note: string; url?: string }> = [
-  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd to 8th houses (pp. 131-183) entered so far. Practitioner's own copy." },
+  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd to 9th houses (pp. 131-188) entered so far. Practitioner's own copy." },
   { label: "Dr. Andrew Dutta (Sri Indrajit), free KP bhava rules", note: "Event rules for the twelve houses, published freely by the author for sharing with acknowledgement; used to cross-check each cusp.", url: DUTTA_URL },
   { label: "Astro Secrets & Krishnamurti Padhdhati, Part 3 (ed. K. Subramaniam), ch. 6", note: "Consolidated cuspal sub-lord rules, pp. 35-59. Practitioner's own copy." },
   { label: "Kalpurush Astrology, KP classes 3.1, 3.2 and 4.1 (Sagar Neogi)", note: "Significator tables; the 1st and 2nd cusp readings. Practitioner's own class notes." },
