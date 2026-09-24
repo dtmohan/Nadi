@@ -8,6 +8,8 @@ import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
 import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
 import { DateTime } from "luxon";
 import { buildChartPdf } from "./pdf";
+import { rectify } from "./rectify";
+import { z } from "zod";
 
 const resultCache = new Map<string, ChartResult>();
 
@@ -73,6 +75,25 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     if (!parsed.success) return res.status(400).json({ message: "Invalid chart", issues: parsed.error.issues });
     try {
       res.json(computeChart({ id: 0, ...parsed.data } as Chart));
+    } catch (e: any) {
+      res.status(400).json({ message: e.message });
+    }
+  });
+
+  // Birth time rectification: scan a window around the recorded time (nothing is stored)
+  const rectifySchema = z.object({
+    chart: insertChartSchema,
+    windowMinutes: z.number().min(1).max(180).default(30),
+    events: z
+      .array(z.object({ label: z.string().max(80), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), houses: z.array(z.number().int().min(1).max(12)).min(1).max(12), cusp: z.number().int().min(1).max(12).optional() }))
+      .max(12)
+      .default([]),
+  });
+  app.post("/api/kp/rectify", (req, res) => {
+    const parsed = rectifySchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid request", issues: parsed.error.issues });
+    try {
+      res.json(rectify(parsed.data));
     } catch (e: any) {
       res.status(400).json({ message: e.message });
     }

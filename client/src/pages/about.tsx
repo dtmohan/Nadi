@@ -507,6 +507,15 @@ function KpMethod() {
         At the moment of judgement the lords of the rising sign and star, the Moon's sign and star, and the weekday (counted from the last sunrise at the birth place) are the ruling planets. KP uses
         them to rectify birth time, to answer horary questions and to choose between competing significators. The chart page computes them for the moment the chart is opened, at the birth place.
       </p>
+      <h2>Birth time rectification</h2>
+      <p>
+        The KP tab scans a window around the recorded time, cuts it at every change of the lagna's sign, star or sub lord, and scores each interval two ways. First, by Krishnamurti's ruling-planet test:
+        the lagna's three lords at the true time agree with the ruling planets of the moment of judgement, the sub lord being decisive (Astro Secrets & KP Part 3 ch. 30, pp. 160-163; Part 1 pp. 173-178). A node in a
+        ruling planet's sign or star acts for it; a retrograde ruling planet is doubtful and its star lord is admitted in its place at half weight (Part 1 p. 174). Second, by dated events the native
+        remembers: at each one the dasa, bhukti and antara lords must be significators of the houses of that matter and the cusp concerned must promise it through its sub lord (Part 1 pp. 167-172; Part 2 p. 203).
+        The ruling planets change with the hour, so the books advise repeating the test on another occasion and trusting the interval that agrees every time. A chosen interval can be saved as a copy of the chart;
+        the original is never altered.
+      </p>
       <h2>Sources</h2>
       <p>
         Astro Secrets & KP Parts 1 to 3 and the Kalpurush Astrology class notes (KP classes 3.1, 3.2 and 4.1), from the user's own copies; the rules are paraphrased, never reproduced, and each is

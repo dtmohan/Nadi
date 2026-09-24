@@ -154,6 +154,14 @@ export function ascendantAt(jd: number, latitude: number, longitude: number, opt
   return norm360(r.data.points[0]);
 }
 
+/** The twelve Placidus cusps (sidereal) for a moment and place. */
+export function cuspsAt(jd: number, latitude: number, longitude: number, opts: EphemerisOptions): number[] {
+  setMode(opts);
+  const r = sweph.houses_ex(jd, C.SEFLG_SIDEREAL, latitude, longitude, "P") as unknown as { flag: number; data: { houses: number[]; points: number[] } };
+  if (r.flag < 0) throw new Error("Could not compute the Placidus cusps");
+  return r.data.houses.slice(0, 12).map(norm360);
+}
+
 export function nowJd(): number {
   return julianDay(DateTime.utc());
 }

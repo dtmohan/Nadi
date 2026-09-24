@@ -8,6 +8,7 @@ import { Working } from "@/components/working";
 import { useReadingMode } from "@/lib/reading-mode";
 import { PlanetName, SignName, PlanetLegend, planetColor } from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
+import { KpRectify } from "@/components/kp-rectify";
 import { Term } from "@/components/term";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -556,6 +557,8 @@ export function KpPanel({ result }: { result: ChartResult }) {
         </p>
       </section>
 
+      <KpRectify result={result} />
+
       <section className="mt-10 border-t pt-6 text-xs text-muted-foreground" data-testid="section-kp-sources">
         <p className="font-medium text-foreground">Method and sources</p>
         <p className="mt-1">
@@ -575,7 +578,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
             </li>
           ))}
         </ul>
-        <p className="mt-2">Pending: Part 1 ch. 17, the twelve lagnas (ch. 17), profession (chs. 34-35), ruling planets in depth (Part 2), transits, horary.</p>
+        <p className="mt-2">Pending: Part 1 ch. 17, the twelve lagnas; profession (chs. 34-35); ruling planets in depth (Part 2); transits; horary.</p>
       </section>
     </div>
   );

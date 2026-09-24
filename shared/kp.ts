@@ -177,6 +177,7 @@ export interface KpSignificators {
 }
 
 const NODES: Planet[] = ["Rahu", "Ketu"];
+export const NODES_KP = NODES;
 
 function uniqSorted(xs: number[]): number[] {
   return Array.from(new Set(xs)).sort((a, b) => a - b);
