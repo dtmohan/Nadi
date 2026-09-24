@@ -19,6 +19,10 @@
  * 4. Jaimini chara dasha (K.N. Rao, Predicting through Jaimini's Chara Dasa): the chara dasha and
  *    antardasha running at each event, for the lagna sign of the interval, must carry the matter's
  *    life area. This is sign-level: every interval in one rising sign scores alike.
+ * 5. Moon lords (M.P. Shanmugham, Part 2 pp. 80-82, "Birth time verification"): the lagna cusp sub
+ *    lord at the true time tells the birth star, either being its lord, or through its own star lord,
+ *    its sub, sub-sub or sookshma lord, or the chain of the planet it is in the sub of; failing the
+ *    star it should at least tell the Moon sign. The very birth star is the stronger confirmation.
  *
  * Every check is computed for every interval; the client chooses which method to score by.
  *
@@ -27,7 +31,7 @@
 import { DateTime } from "luxon";
 import { norm360, type Planet } from "@shared/astro";
 import { kpPoint, houseOf, computeSignificators, vimshottari, rulingPlanets, NODES_KP, type KpCusp, type KpPlanet, type RulingPlanets } from "@shared/kp";
-import type { RectifyRequest, RectifyEventCheck, RectifySegment, RectifyResult, TransitCheck } from "@shared/rectify-types";
+import type { RectifyRequest, RectifyEventCheck, RectifySegment, RectifyResult, TransitCheck, MoonLordsCheck } from "@shared/rectify-types";
 export type { RectifyRequest, RectifyEvent, RectifyEventCheck, RectifySegment, RectifyResult, JudgePlaceInput } from "@shared/rectify-types";
 import { localToUtc, julianDay, positionsAt, ascendantAt, cuspsAt, judgementNow, type EphemerisOptions } from "./ephemeris";
 import { SIGNS } from "@shared/astro";
@@ -72,6 +76,44 @@ function acceptedRuling(ruling: RulingPlanets, now: { positions: ReturnType<type
     }
   }
   return Array.from(out.values());
+}
+
+/**
+ * Part 2 pp. 80-82: does the lagna sub lord tell the birth star (levels a-d of the book) or the Moon sign?
+ * Level 4: the sub lord is the birth star lord. 3: the sub lord's own star lord is. 2: its sub, sub-sub or
+ * sookshma lord is. 1: the planet whose sub the sub lord sits in carries it in its own star-to-sookshma chain.
+ * The Moon sign counts one more when the sub lord owns it or stands in it. The score doubles the star level
+ * before adding the sign, so the very birth star always outranks a Moon-sign link (the book's preference).
+ */
+function moonLordsCheck(lagna: KpCusp, moon: KpPlanet, planets: KpPlanet[]): MoonLordsCheck {
+  const P = lagna.subLord;
+  const S = moon.starLord;
+  const p = planets.find((x) => x.planet === P)!;
+  const chain = { starLord: p.starLord, subLord: p.subLord, subSubLord: p.subSubLord, sookshmaLord: p.sookshmaLord };
+  let star: MoonLordsCheck["star"] = { level: 0, via: `${P} does not reach ${S}, the birth star lord` };
+  if (P === S) star = { level: 4, via: `${P} is itself the lord of the birth star ${moon.nakshatra}` };
+  else if (chain.starLord === S) star = { level: 3, via: `${P} is in the star of ${S}, the birth star lord` };
+  else if (chain.subLord === S) star = { level: 2, via: `${P} is in the sub of ${S}, the birth star lord` };
+  else if (chain.subSubLord === S) star = { level: 2, via: `${P} is in the sub-sub of ${S}, the birth star lord` };
+  else if (chain.sookshmaLord === S) star = { level: 2, via: `${P} is in the sookshma of ${S}, the birth star lord` };
+  else {
+    const q = planets.find((x) => x.planet === chain.subLord)!;
+    const step = q.starLord === S ? "star" : q.subLord === S ? "sub" : q.subSubLord === S ? "sub-sub" : q.sookshmaLord === S ? "sookshma" : null;
+    if (step) star = { level: 1, via: `${P} is in the sub of ${q.planet}, and ${q.planet} is in the ${step} of ${S}, the birth star lord` };
+  }
+  const sign = { owns: P === moon.signLord, occupies: p.signIndex === moon.signIndex };
+  return {
+    birthStar: moon.nakshatra,
+    birthStarLord: S,
+    moonSign: moon.sign,
+    moonSignLord: moon.signLord,
+    subLord: P,
+    chain,
+    star,
+    sign,
+    score: 2 * star.level + (sign.owns || sign.occupies ? 1 : 0),
+    max: 9,
+  };
 }
 
 export function rectify(req: RectifyRequest): RectifyResult {
@@ -214,6 +256,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       rp: { sign: wSign > 0, star: wStar > 0, sub: wSub > 0, score: rpScore, max: 4, via: rpVia },
       cuspSubLords: cusps.map((c) => c.subLord),
       moon: { starLord: moon.starLord, subLord: moon.subLord },
+      moonLords: moonLordsCheck(lagna, moon, planets),
       jaiminiSign: { index: jSign, name: SIGNS[jSign], direction: jai.j.charaDasha.direction },
       sunHint: { star: lagna.starLord === sunNow.subLord, sub: lagna.subLord === sunNow.subLord, score: (lagna.starLord === sunNow.subLord ? 1 : 0) + (lagna.subLord === sunNow.subLord ? 2 : 0), max: 3 },
       events,

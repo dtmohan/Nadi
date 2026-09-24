@@ -76,27 +76,30 @@ export const SUB_TABLE: SubDivision[] = (() => {
   return all.map((s, i) => ({ ...s, index: i }));
 })();
 
-/** Sub lord and sub-sub lord of a sidereal longitude. */
-export function lordsAt(lon: number): { starLord: Planet; subLord: Planet; subSubLord: Planet; nakshatraIndex: number; subStart: number; subEnd: number } {
+/** Divide the arc [start, end) in Vimshottari proportion starting from `lord`, and return the division holding `l`. */
+function divisionAt(l: number, start: number, end: number, lord: Planet): { lord: Planet; start: number; end: number } {
+  const startOrder = VIMSHOTTARI_ORDER.indexOf(lord);
+  const span = end - start;
+  let acc = start;
+  for (let k = 0; k < 9; k++) {
+    const p = VIMSHOTTARI_ORDER[(startOrder + k) % 9];
+    const arc = (span * VIMSHOTTARI_YEARS[p]) / 120;
+    if (l < acc + arc || k === 8) return { lord: p, start: acc, end: acc + arc };
+    acc += arc;
+  }
+  return { lord, start, end };
+}
+
+/** Sub lord, sub-sub lord and sookshma (fourth level) lord of a sidereal longitude. */
+export function lordsAt(lon: number): { starLord: Planet; subLord: Planet; subSubLord: Planet; sookshmaLord: Planet; nakshatraIndex: number; subStart: number; subEnd: number } {
   const l = norm360(lon);
   const nak = Math.floor(l / NAK_ARC) % 27;
   const subs = subsOf(nak);
   const sub = subs.find((s) => l >= s.start && l < s.end) ?? subs[subs.length - 1];
-  // Sub-sub: the sub divided again in Vimshottari proportion, starting from the sub lord.
-  const startOrder = VIMSHOTTARI_ORDER.indexOf(sub.subLord);
-  const subArc = sub.end - sub.start;
-  let acc = sub.start;
-  let subSub: Planet = sub.subLord;
-  for (let k = 0; k < 9; k++) {
-    const lord = VIMSHOTTARI_ORDER[(startOrder + k) % 9];
-    const arc = (subArc * VIMSHOTTARI_YEARS[lord]) / 120;
-    if (l < acc + arc || k === 8) {
-      subSub = lord;
-      break;
-    }
-    acc += arc;
-  }
-  return { starLord: NAKSHATRA_LORD[nak], subLord: sub.subLord, subSubLord: subSub, nakshatraIndex: nak, subStart: sub.start, subEnd: sub.end };
+  // Sub-sub: the sub divided again in Vimshottari proportion, starting from the sub lord; sookshma: the sub-sub divided once more.
+  const subSub = divisionAt(l, sub.start, sub.end, sub.subLord);
+  const sookshma = divisionAt(l, subSub.start, subSub.end, subSub.lord);
+  return { starLord: NAKSHATRA_LORD[nak], subLord: sub.subLord, subSubLord: subSub.lord, sookshmaLord: sookshma.lord, nakshatraIndex: nak, subStart: sub.start, subEnd: sub.end };
 }
 
 // ---------- points ----------
@@ -112,13 +115,14 @@ export interface KpPoint {
   starLord: Planet;
   subLord: Planet;
   subSubLord: Planet;
+  sookshmaLord: Planet;
 }
 
 export function kpPoint(lon: number): KpPoint {
   const l = norm360(lon);
   const signIndex = Math.floor(l / 30) % 12;
-  const { starLord, subLord, subSubLord, nakshatraIndex } = lordsAt(l);
-  return { lon: l, signIndex, sign: SIGNS[signIndex], degInSign: l - signIndex * 30, signLord: SIGN_LORD[signIndex], nakshatraIndex, nakshatra: NAKSHATRAS[nakshatraIndex], starLord, subLord, subSubLord };
+  const { starLord, subLord, subSubLord, sookshmaLord, nakshatraIndex } = lordsAt(l);
+  return { lon: l, signIndex, sign: SIGNS[signIndex], degInSign: l - signIndex * 30, signLord: SIGN_LORD[signIndex], nakshatraIndex, nakshatra: NAKSHATRAS[nakshatraIndex], starLord, subLord, subSubLord, sookshmaLord };
 }
 
 export interface KpCusp extends KpPoint {

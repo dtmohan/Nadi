@@ -69,6 +69,26 @@ export interface TransitCheck {
   hits: [boolean, boolean, boolean];
 }
 
+export interface MoonLordsCheck {
+  /** Birth star and Moon sign in this interval. */
+  birthStar: string;
+  birthStarLord: Planet;
+  moonSign: string;
+  moonSignLord: Planet;
+  /** The lagna sub lord and its own chain of lords at the birth time. */
+  subLord: Planet;
+  chain: { starLord: Planet; subLord: Planet; subSubLord: Planet; sookshmaLord: Planet };
+  /**
+   * How the lagna sub lord reaches the birth star lord: 4 = it is the birth star lord; 3 = its star lord is;
+   * 2 = its sub, sub-sub or sookshma lord is; 1 = the chain of its own sub lord reaches it (second step); 0 = no link.
+   */
+  star: { level: 0 | 1 | 2 | 3 | 4; via: string };
+  /** Moon sign link: the sub lord owns the Moon sign, or stands in it. */
+  sign: { owns: boolean; occupies: boolean };
+  score: number;
+  max: number;
+}
+
 export interface RectifySegment {
   /** Local civil times in the birth zone, HH:mm:ss. */
   start: string;
@@ -89,6 +109,12 @@ export interface RectifySegment {
   cuspSubLords: Planet[];
   /** Moon's star and sub lord at the middle of the interval. */
   moon: { starLord: Planet; subLord: Planet };
+  /**
+   * Moon lords check (M.P. Shanmugham, Astro Secrets & KP Part 2 pp. 80-82): the lagna sub lord must tell the
+   * birth star, directly or through the chain of its own star, sub, sub-sub and sookshma lords, or failing that
+   * the Moon sign. Telling the very birth star is the stronger confirmation.
+   */
+  moonLords: MoonLordsCheck;
   /** Sun-transit hint (Part 2 p. 192): the lagna's sub (or star) lord is the sub lord the Sun transits on the day of judgement. */
   sunHint: { star: boolean; sub: boolean; score: number; max: number };
   /** Lagna sign in the chart's own ayanamsa, which the Jaimini check is read from (sign-level only). */

@@ -519,6 +519,9 @@ function KpMethod() {
           planets belong to the astrologer's place and change with the hour, so repeat on another occasion and trust the interval that agrees every time.
         </li>
         <li>
+          KP, Moon lords: the lagna cusp sub lord at the true time tells the birth star, being its lord or standing in that lord's star, sub, sub-sub or sookshma, or reaching it through the planet whose sub it occupies; failing the star it should at least own or stand in the Moon sign, the very birth star being the stronger confirmation (M.P. Shanmugham, "Birth time verification", Part 2 pp. 80-82). It needs no events and no ruling planets, so it serves as a first sieve; Shanmugham adds that the corrected time must stay within the time the family gave.
+        </li>
+        <li>
           KP, dated events: at each event the native remembers, the dasa, bhukti and antara lords must be significators of the houses of that matter and the cusp concerned must promise it through its sub
           lord (Part 1 pp. 167-172; Part 2 p. 203). The events are chosen from a list of matters with their KP houses.
         </li>

@@ -21,7 +21,7 @@ import { JudgePlaceControl } from "@/components/judge-place";
 import { cn } from "@/lib/utils";
 
 /** Rectification methods. One at a time, never blended; each cites its own source. */
-export type RectifyMethod = "kp-rp" | "kp-events" | "kp-transit" | "jaimini-dasha";
+export type RectifyMethod = "kp-rp" | "kp-moon" | "kp-events" | "kp-transit" | "jaimini-dasha";
 const METHODS: Array<{ id: RectifyMethod; system: string; label: string; short: string; source: string; needsJudge: boolean; needsEvents: boolean }> = [
   {
     id: "kp-rp",
@@ -30,6 +30,15 @@ const METHODS: Array<{ id: RectifyMethod; system: string; label: string; short: 
     short: "At the true birth time the lagna's sign lord, star lord and sub lord agree with the ruling planets of the moment you sit down to judge; the sub lord is the decisive agreement. A node in a ruling planet's sign or star acts for it; a retrograde ruling planet is doubtful and its star lord is admitted in its place.",
     source: "Astro Secrets & KP Part 3, ch. 30, pp. 160-163; Part 1, pp. 173-178",
     needsJudge: true,
+    needsEvents: false,
+  },
+  {
+    id: "kp-moon",
+    system: "KP",
+    label: "Moon lords",
+    short: "At the true birth time the lagna cusp sub lord tells the birth star: it is the star's lord, or it stands in that lord's star, sub, sub-sub or sookshma, or the planet whose sub it occupies does; failing the star it should at least own or stand in the Moon sign. Telling the very birth star is the stronger confirmation, and the corrected time must stay inside the time the family gave. Needs nothing but the chart, so it is a first sieve before the other methods.",
+    source: "M.P. Shanmugham, Astro Secrets & KP Part 2, pp. 80-82",
+    needsJudge: false,
     needsEvents: false,
   },
   {
@@ -61,9 +70,15 @@ const METHODS: Array<{ id: RectifyMethod; system: string; label: string; short: 
   },
 ];
 
+/** Method label for running text; only "Moon" keeps its capital. */
+function methodLabel(m: { label: string }): string {
+  return m.label.startsWith("Moon") ? m.label : m.label.toLowerCase();
+}
+
 /** Score of one interval under one method. */
 function methodScore(s: RectifySegment, m: RectifyMethod): { score: number; max: number } {
   if (m === "kp-rp") return { score: s.rp.score, max: s.rp.max };
+  if (m === "kp-moon") return { score: s.moonLords.score, max: s.moonLords.max };
   if (m === "kp-events") return s.events.reduce((acc, e) => ({ score: acc.score + e.score, max: acc.max + e.max }), { score: 0, max: 0 });
   if (m === "jaimini-dasha") return s.events.reduce((acc, e) => ({ score: acc.score + (e.jaimini?.score ?? 0), max: acc.max + (e.jaimini?.max ?? 0) }), { score: 0, max: 0 });
   return s.events.reduce((acc, e) => ({ score: acc.score + e.transit.score, max: acc.max + e.transit.max }), { score: s.sunHint.score, max: s.sunHint.max });
@@ -177,7 +192,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
         m.needsJudge && data ? `judged ${DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from ${data.judgedAt.label}` : "",
         m.needsEvents && eventPayload.length ? `events ${eventPayload.map((e) => `${e.label} ${e.date}`).join("; ")}` : "",
       ].filter(Boolean).join("; ");
-      return chartsStore.create({ ...insert, name: `${base} (rectified ${time.slice(0, 5)})`, birthTime: time, notes: `${insert.notes ? insert.notes + "\n" : ""}Birth time rectified from ${chart.birthTime} by ${m.system} ${m.label.toLowerCase()} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}.` });
+      return chartsStore.create({ ...insert, name: `${base} (rectified ${time.slice(0, 5)})`, birthTime: time, notes: `${insert.notes ? insert.notes + "\n" : ""}Birth time rectified from ${chart.birthTime} by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}.` });
     },
     onSuccess: (c) => {
       queryClient.invalidateQueries({ queryKey: CHARTS_QUERY_KEY });
@@ -320,6 +335,14 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
               ))}
             </div>
           )}
+          {method === "kp-moon" && (() => {
+            const g = data.segments.find((s) => s.given) ?? data.segments[0];
+            return (
+              <p className="text-xs text-muted-foreground" data-testid="rectify-moon-lords">
+                Birth star {g.moonLords.birthStar}, lord <PlanetName planet={g.moonLords.birthStarLord} abbr />; Moon in {g.moonLords.moonSign}, lord <PlanetName planet={g.moonLords.moonSignLord} abbr />. The Moon's lords do not change across the window; only the lagna sub lord does. Levels: the sub lord is the birth star lord (4), stands in its star (3), in its sub, sub-sub or sookshma (2), or reaches it through the planet whose sub it occupies (1). The score is twice the level, plus one when the sub lord owns or stands in the Moon sign, so the very birth star always outranks a Moon-sign link.
+              </p>
+            );
+          })()}
           {method === "kp-transit" && (
             <p className="text-xs text-muted-foreground" data-testid="rectify-sun-now">
               On {DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy")} the Sun transits {fmtDegShort(data.sunNow.lon % 30)} in the star of <PlanetName planet={data.sunNow.starLord} abbr /> and the sub of <PlanetName planet={data.sunNow.subLord} abbr />. Intervals whose lagna sub lord is <PlanetName planet={data.sunNow.subLord} abbr /> take the hint (2), a lagna star lord of <PlanetName planet={data.sunNow.subLord} abbr /> half of it (1). Event columns mark whether the sign, star and sub lords of the dasa and bhukti lords' transit on the event day signify the matter.
@@ -327,6 +350,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
           )}
           <p className="mt-1 text-xs text-muted-foreground">
             Recorded time {data.given.time} rises {fmtDegShort(data.given.lagna % 30)} of {data.segments.find((s) => s.given)?.sign ?? "the lagna sign"}.
+            {method === "kp-moon" && " Several intervals usually pass at some level; keep those at the top level, then settle between them with the ruling planets or dated events. Shanmugham allows the chain to run to the sookshma because births are timed at different moments (first cry, laid down, head appearing)."}
             {method === "kp-rp" && " Half-weight badges are doubtful ruling planets (retrograde now) or their stand-ins. Rerun on another day and the ruling planets change; the intervals that agree every time are the ones to trust."}
             {method === "kp-events" && (eventPayload.length ? " Green marks are period lords that signify the matter's houses (four-step significators) and cusp sub lords that promise it." : " Add dated events and scan again to score by this method.")}
             {method === "kp-transit" && " The Sun hint changes daily; the event transits do not, so they are the steadier of the two."}
@@ -337,7 +361,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
             <span className="text-muted-foreground">
               {method === "jaimini-dasha"
                 ? `${signGroups.length} rising ${signGroups.length === 1 ? "sign" : "signs"} in ± ${data.windowMinutes} min · Jaimini chara dasha · best score ${groupTop} of ${signGroups[0]?.max ?? 0}`
-                : `${data.segments.length} intervals in ± ${data.windowMinutes} min · ${m.system} ${m.label.toLowerCase()} · best score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}`}
+                : `${data.segments.length} intervals in ± ${data.windowMinutes} min · ${m.system} ${methodLabel(m)} · best score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}`}
             </span>
             <button type="button" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground" onClick={() => setSortByScore((v) => !v)} data-testid="button-rectify-sort">
               {sortByScore ? "Sort by time" : "Sort by score"}
@@ -421,9 +445,11 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                 <TableRow>
                   <TableHead className="whitespace-nowrap">Interval</TableHead>
                   <TableHead className="whitespace-nowrap">Lagna</TableHead>
-                  <TableHead className="whitespace-nowrap">Sign · star · sub</TableHead>
+                  <TableHead className="whitespace-nowrap">{method === "kp-moon" ? "Sign · star" : "Sign · star · sub"}</TableHead>
                   {method === "kp-transit" && <TableHead className="whitespace-nowrap">Sun sub</TableHead>}
-                  {method !== "kp-rp" &&
+                  {method === "kp-moon" && <TableHead className="whitespace-nowrap">Sub lord and birth star</TableHead>}
+                  {method === "kp-moon" && <TableHead className="whitespace-nowrap">Moon sign</TableHead>}
+                  {method !== "kp-rp" && method !== "kp-moon" &&
                     eventPayload.map((e) => (
                       <TableHead key={e.label + e.date} className="whitespace-nowrap">
                         {e.label} <span className="text-muted-foreground tabular">{e.date}</span>
@@ -460,14 +486,40 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                             <PlanetName planet={s.signLord} abbr />
                             <span className="text-muted-foreground">·</span>
                             {method === "kp-transit" && <Mark on={s.sunHint.star} title={s.sunHint.star ? "lagna star lord is the Sun's transit sub lord" : undefined} />} <PlanetName planet={s.starLord} abbr />
-                            <span className="text-muted-foreground">·</span>
-                            {method === "kp-transit" && <Mark on={s.sunHint.sub} title={s.sunHint.sub ? "lagna sub lord is the Sun's transit sub lord" : undefined} />} <PlanetName planet={s.subLord} abbr />
+                            {method !== "kp-moon" && (
+                              <>
+                                <span className="text-muted-foreground">·</span>
+                                {method === "kp-transit" && <Mark on={s.sunHint.sub} title={s.sunHint.sub ? "lagna sub lord is the Sun's transit sub lord" : undefined} />} <PlanetName planet={s.subLord} abbr />
+                              </>
+                            )}
                           </span>
                         )}
                       </TableCell>
                       {method === "kp-transit" && (
                         <TableCell className="whitespace-nowrap">
                           <ScoreBar score={s.sunHint.score} max={s.sunHint.max} />
+                        </TableCell>
+                      )}
+                      {method === "kp-moon" && (
+                        <TableCell className="whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1.5" title={s.moonLords.star.via}>
+                            <span className={cn("rounded border px-1 text-[10px] tabular", s.moonLords.star.level === 4 ? "border-emerald-500 text-emerald-700 dark:text-emerald-400" : s.moonLords.star.level > 0 ? "text-foreground" : "text-muted-foreground")}>{s.moonLords.star.level}</span>
+                            <Mark on={s.moonLords.star.level > 0} title={s.moonLords.star.via} /> <PlanetName planet={s.moonLords.subLord} abbr />
+                            <span className="text-muted-foreground">in</span>
+                            <Mark on={s.moonLords.chain.starLord === s.moonLords.birthStarLord} title={`star of ${s.moonLords.chain.starLord}`} /> <PlanetName planet={s.moonLords.chain.starLord} abbr />
+                            <Mark on={s.moonLords.chain.subLord === s.moonLords.birthStarLord} title={`sub of ${s.moonLords.chain.subLord}`} /> <PlanetName planet={s.moonLords.chain.subLord} abbr />
+                            <Mark on={s.moonLords.chain.subSubLord === s.moonLords.birthStarLord} title={`sub-sub of ${s.moonLords.chain.subSubLord}`} /> <PlanetName planet={s.moonLords.chain.subSubLord} abbr />
+                            <Mark on={s.moonLords.chain.sookshmaLord === s.moonLords.birthStarLord} title={`sookshma of ${s.moonLords.chain.sookshmaLord}`} /> <PlanetName planet={s.moonLords.chain.sookshmaLord} abbr />
+                            {s.moonLords.star.level === 1 && <span className="text-muted-foreground">via {PLANET_ABBR[s.moonLords.chain.subLord]}</span>}
+                          </span>
+                        </TableCell>
+                      )}
+                      {method === "kp-moon" && (
+                        <TableCell className="whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Mark on={s.moonLords.sign.owns} title={s.moonLords.sign.owns ? `${s.moonLords.subLord} owns ${s.moonLords.moonSign}` : `${s.moonLords.subLord} does not own ${s.moonLords.moonSign}`} /> owns
+                            <Mark on={s.moonLords.sign.occupies} title={s.moonLords.sign.occupies ? `${s.moonLords.subLord} stands in ${s.moonLords.moonSign}` : `${s.moonLords.subLord} is not in ${s.moonLords.moonSign}`} /> in it
+                          </span>
                         </TableCell>
                       )}
                       {method === "kp-transit" &&
