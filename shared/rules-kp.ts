@@ -51,6 +51,8 @@ export interface KpRuleWhen {
   connectedToAll?: Planet[];
   /** The sub lord is connected to none of these planets. */
   connectedToNone?: Planet[];
+  /** The sub lord owns a maraka house (2 or 7) or the badhaka house. */
+  ownsBadhakaMaraka?: boolean;
   /** Tight tie to every listed planet: the sub lord is that planet, is in its star or sub, or is within 3 degrees of it (Part 1 p. 194's sense for profession). */
   tiedToAll?: Planet[];
   /** The sub lord signifies the badhaka house (11 movable / 9 fixed / 7 dual lagna). */
@@ -577,6 +579,26 @@ export const KP_RULES: KpRule[] = [
   { id: "kp12-left-eye", cusp: 12, topic: "Health", when: { cusp: 12, all: [2, 6, 8, 12] }, text: "The 12th sub lord signifies 6, 8 and 12 and is connected to the 2nd: a defect of the left eye.", polarity: "bad", source: P3("59") },
   { id: "kp12-defect", cusp: 12, topic: "Health", when: { cusp: 12, minOf: { houses: [6, 8, 12], count: 2 }, none: [2] }, text: "The 12th sub lord signifies two of 6, 8 and 12: a bodily defect or weakness; the sub lord's nature and its bhavas show the part affected.", polarity: "bad", source: P3("59") },
   { id: "kp12-cheated", cusp: 12, topic: "Dealings", when: { cusp: 12, starLordSignifies: [5, 8], connectedTo: ["Saturn", "Mercury"] }, text: "The 12th sub lord is in the star of a planet signifying 5 and 8 with Saturn or Mercury connected: liable to be cheated.", polarity: "bad", source: P3("59") },
+  // ── Cusp XII from Astro Secrets Part 1, ch. 16 (pp. 205-209), with one more of Dutta's twelfth-house rules ──
+  { id: "kp12-covets", cusp: 12, topic: "Dealings", when: { cusp: 12, subLordIs: ["Mars"], all: [6] }, text: "Mars as 12th sub lord signifying the 6th: an eye on other people's wealth.", polarity: "bad", ...DUTTA("twelfth", "twelfth") },
+  { id: "kp12-evil", cusp: 12, topic: "Loss", when: { cusp: 12, subLordIs: ["Mars", "Saturn", "Sun", "Rahu"], all: [6, 8, 12] }, text: "Mars, Saturn, the Sun or Rahu as 12th sub lord tying the 12th to 6 and 8: the house shows its evil side, material loss, accidents, restriction, foul play, unforeseen difficulty and unwanted expense in their periods.", polarity: "bad", timing: [6, 8, 12], source: P1("205") },
+  { id: "kp12-good", cusp: 12, topic: "Fulfilment", when: { cusp: 12, all: [12], minOf: { houses: [3, 4, 5, 9, 10, 11], count: 3 }, none: [6, 8] }, text: "The 12th sub lord ties the 12th to 10, 3, 5, 9, 11 and 4 without 6 or 8: the house shows its good side, outlay that turns into profit, land that appreciates, a factory built, research and generosity.", polarity: "good", timing: [12], source: P1("206") },
+  { id: "kp12-charity", cusp: 12, topic: "Faith", when: { cusp: 12, all: [12], minOf: { houses: [1, 5, 10], count: 2 }, none: [6, 8] }, text: "The 12th sub lord ties the 12th to 5, 10 and 1: money spent to help the poor in those dasas and bhuktis.", polarity: "good", timing: [1, 5, 10, 12], source: P1("207") },
+  { id: "kp12-cunning", cusp: 12, topic: "Dealings", when: { cusp: 12, all: [6, 8, 12], subLordNot: ["Mars", "Saturn", "Sun", "Rahu"] }, text: "The 12th sub lord ties the 12th to 6 and 8: in the 12th lord's dasa the bent is to extract money by cunning.", polarity: "bad", timing: [6, 8, 12], source: P1("207") },
+  { id: "kp12-build-house", cusp: 12, topic: "Property", when: { cusp: 12, all: [4, 11, 12] }, text: "The 12th sub lord signifies 4, 11 and 12: a house is built (the 4th sub lord on the same houses reads the same).", polarity: "good", timing: [4, 11, 12], source: P1("208-209") },
+  { id: "kp12-buy-house", cusp: 12, topic: "Property", when: { cusp: 12, all: [4, 6, 9, 12] }, text: "The 12th sub lord signifies 4, 6, 12 and 9: purchase of a house.", polarity: "good", timing: [4, 6, 9, 12], source: P1("208") },
+  { id: "kp12-spiritual", cusp: 12, topic: "Faith", when: { cusp: 12, subLordIs: ["Saturn"], all: [1, 10, 12] }, text: "Saturn as 12th sub lord signifying 12, 1 and 10: spiritual development.", polarity: "good", source: P1("208") },
+  { id: "kp12-accident", cusp: 12, topic: "Accidents", when: { cusp: 12, all: [6, 8, 12], ownsBadhakaMaraka: true }, text: "The 12th sub lord signifies 6, 8 and 12 and owns a maraka or the badhaka house: accidents in their conjoined period.", polarity: "bad", timing: [6, 8, 12], source: P1("208") },
+  { id: "kp12-self-harm", cusp: 12, topic: "Health", when: { cusp: 12, subLordIs: ["Saturn", "Mars", "Sun", "Rahu"], all: [1, 6, 8, 12], ownsBadhakaMaraka: true }, text: "Saturn, Mars, the Sun or Rahu as 12th sub lord signifying 1, 6, 8 and 12 while owning a maraka or the badhaka house: the book's combination for a self-destructive turn of mind, to be read with the lagna and the 8th and never alone.", polarity: "bad", source: P1("208") },
+  { id: "kp12-settle-abroad", cusp: 12, topic: "Foreign lands", when: { cusp: 12, all: [3, 9, 12], minOf: { houses: [1, 10], count: 1 } }, text: "The 12th sub lord signifies 3, 9 and 12 with 1 and 10: settling in the foreign country itself.", polarity: "neutral", timing: [3, 9, 12], source: P1("208") },
+  { id: "kp12-inventions", cusp: 12, topic: "Learning", when: { cusp: 12, subLordIs: ["Saturn", "Jupiter"], all: [9, 12], minOf: { houses: [1, 5], count: 1 } }, text: "Saturn or Jupiter as 12th sub lord signifying 1, 5, 9 and 12: new inventions and research findings.", polarity: "good", timing: [5, 9, 12], source: P1("205, 208") },
+  { id: "kp12-wandering", cusp: 12, topic: "Foreign lands", when: { cusp: 12, all: [3, 12], none: [4, 9] }, text: "The 12th sub lord signifies 3 and 12 without 4 or 9: moving from place to place, never settling back home.", polarity: "neutral", timing: [3, 12], source: P1("208") },
+  { id: "kp12-bed-comfort", cusp: 12, topic: "Marriage", when: { cusp: 12, all: [7, 12], minOf: { houses: [1, 5], count: 1 }, subLordNot: ["Venus"] }, text: "The 12th sub lord signifies 1, 5, 7 and 12: bed comforts with the spouse alone.", polarity: "good", source: P1("208") },
+  { id: "kp12-bed-comfort-venus", cusp: 12, topic: "Marriage", when: { cusp: 12, subLordIs: ["Venus"], all: [7, 12], minOf: { houses: [1, 5], count: 1 } }, text: "Venus as 12th sub lord signifying 1, 5, 7 and 12: bed comforts with the spouse alone, and a lifelong happiness in it.", polarity: "good", source: P1("208") },
+  { id: "kp12-dacoity", cusp: 12, topic: "Dealings", when: { cusp: 12, subLordIs: ["Saturn"], all: [6, 8, 12], any: [10] }, text: "Saturn as 12th sub lord signifying 10, 6, 8 and 12: the book's combination for a mind turned to robbery.", polarity: "bad", source: P1("208") },
+  { id: "kp12-violence", cusp: 12, topic: "Dealings", when: { cusp: 12, subLordIs: ["Mars"], all: [5, 6, 8, 12] }, text: "Mars as 12th sub lord signifying 5, 6, 8 and 12: the book's combination for sensual violence, entered as its attribution and to be read with the lagna.", polarity: "bad", source: P1("208") },
+  { id: "kp12-renunciation", cusp: 12, topic: "Faith", when: { cusp: 12, subLordIs: ["Saturn", "Ketu"], all: [1, 4, 12] }, text: "Saturn or Ketu as 12th sub lord signifying 4, 1 and 12: renunciation (sanyasa).", polarity: "neutral", source: P1("208-209") },
+  { id: "kp12-loss-profession", cusp: 12, topic: "Career", when: { cusp: 12, all: [5, 8, 12] }, text: "The 12th sub lord signifies 5, 8 and 12: loss in the profession.", polarity: "bad", timing: [5, 8, 12], source: P1("209") },
 ];
 
 // ---------- evaluation ----------
@@ -671,6 +693,10 @@ function meets(r: Partial, w: KpRuleWhen, six: boolean): { ok: boolean; used: nu
   if (w.connectedToAll && !w.connectedToAll.every((p) => connected(r, sl, p))) return { ok: false, used: [] };
   if (w.connectedToNone && w.connectedToNone.some((p) => connected(r, sl, p))) return { ok: false, used: [] };
   if (w.tiedToAll && !w.tiedToAll.every((p) => tied(r, sl, p))) return { ok: false, used: [] };
+  if (w.ownsBadhakaMaraka !== undefined) {
+    const owns = slPlanet.owns.includes(r.badhaka) || r.marakas.some((m) => slPlanet.owns.includes(m));
+    if (owns !== w.ownsBadhakaMaraka) return { ok: false, used: [] };
+  }
   if (w.badhaka !== undefined) {
     if (has(r.badhaka) !== w.badhaka) return { ok: false, used: [] };
     if (w.badhaka) used.add(r.badhaka);
@@ -743,6 +769,7 @@ export function describeKpCondition(w: KpRuleWhen): string {
   if (w.connectedTo) parts.push(`connected to ${w.connectedTo.length > 3 ? "another planet" : w.connectedTo.join(" or ")}`);
   if (w.connectedToAll) parts.push(`connected to ${w.connectedToAll.join(" and ")}`);
   if (w.connectedToNone) parts.push(`not connected to ${w.connectedToNone.join(", ")}`);
+  if (w.ownsBadhakaMaraka !== undefined) parts.push(w.ownsBadhakaMaraka ? "sub lord owns a maraka or the badhaka house" : "sub lord owns neither a maraka nor the badhaka house");
   if (w.tiedToAll) parts.push(`tied to ${w.tiedToAll.join(" and ")} (itself, its star or sub lord, or within 3 degrees)`);
   if (w.lagnaQuality) parts.push(`${w.lagnaQuality.join("/")} lagna`);
   if (w.lagnaSignIn) parts.push(`lagna in ${w.lagnaSignIn.map((i) => SIGNS[i]).join(" or ")}`);
@@ -753,7 +780,7 @@ export function describeKpCondition(w: KpRuleWhen): string {
 }
 
 export const KP_SOURCES: Array<{ label: string; note: string; url?: string }> = [
-  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd to 11th houses (pp. 131-205) entered so far. Practitioner's own copy." },
+  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1 (M.P. Shanmugam), ch. 16 The 12 Houses", note: "House-by-house cuspal sub-lord readings, pp. 101-209; the 3rd to 12th houses (pp. 131-209) entered. Practitioner's own copy." },
   { label: "Dr. Andrew Dutta (Sri Indrajit), free KP bhava rules", note: "Event rules for the twelve houses, published freely by the author for sharing with acknowledgement; used to cross-check each cusp.", url: DUTTA_URL },
   { label: "Astro Secrets & Krishnamurti Padhdhati, Part 3 (ed. K. Subramaniam), ch. 6", note: "Consolidated cuspal sub-lord rules, pp. 35-59. Practitioner's own copy." },
   { label: "Kalpurush Astrology, KP classes 3.1, 3.2 and 4.1 (Sagar Neogi)", note: "Significator tables; the 1st and 2nd cusp readings. Practitioner's own class notes." },
