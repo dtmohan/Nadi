@@ -504,6 +504,42 @@ function timingFor(ctx: Ctx, area: JaiminiArea, maxAge = 100): AreaTiming {
   return { periods };
 }
 
+/** How one running chara dasha and antardasha fit an area at a given moment: used by birth time rectification. */
+export interface DashaFit {
+  area: JaiminiArea;
+  cycle: 1 | 2;
+  mdSign: number;
+  adSign: number;
+  md: { score: number; hot: boolean; triggers: string[] };
+  ad: { score: number; hot: boolean; triggers: string[] };
+  /** 2 for a level that carries the area (Rao's threshold), 1 for a faint touch, 0 for nothing; mahadasha plus antardasha. */
+  score: number;
+  max: number;
+}
+
+/**
+ * Rao's rule of thumb for a doubtful horoscope: run the chara dasha and see whether the periods running at
+ * indisputable events (marriage, children, career) carry those matters; a lagna whose dashas miss the events is
+ * wrong. The mahadasha sign and the antardasha sign are each scored with the same triggers the Jaimini timing uses.
+ */
+export function dashaFitAt(j: JaiminiResult, positions: PlanetPosition[], area: JaiminiArea, asOfIso: string): DashaFit | null {
+  const ctx = makeCtx(j, positions);
+  const now = DateTime.fromISO(asOfIso);
+  const p = j.charaDasha.periods.find((x) => now >= DateTime.fromISO(x.start) && now < DateTime.fromISO(x.end));
+  if (!p) return null;
+  const a = p.antardashas.find((x) => now >= DateTime.fromISO(x.start) && now < DateTime.fromISO(x.end)) ?? p.antardashas[p.antardashas.length - 1];
+  const mdT = signTriggers(ctx, area, p.sign, "mahadasha");
+  const own = signTriggers(ctx, area, a.sign, "antardasha");
+  const adT: Trigger[] =
+    a.sign === p.sign
+      ? [{ text: `${SIGNS[a.sign]} is the dasha sign itself: the mahadasha themes come forward on their own.`, tone: "neutral", weight: (score(own) >= 2 ? 2 : 1) as 1 | 2 }, ...adRelationTriggers(ctx, area, p.sign, a.sign)]
+      : [...own, ...adRelationTriggers(ctx, area, p.sign, a.sign)];
+  const level = (ts: Trigger[]) => (isHot(ts) ? 2 : score(ts) > 0 ? 1 : 0);
+  const md = { score: score(mdT), hot: isHot(mdT), triggers: mdT.map((t) => t.text) };
+  const ad = { score: score(adT), hot: isHot(adT), triggers: adT.map((t) => t.text) };
+  return { area, cycle: p.cycle, mdSign: p.sign, adSign: a.sign, md, ad, score: level(mdT) + level(adT), max: 4 };
+}
+
 // ── Assembly ──────────────────────────────────────────────────────────────────
 
 export function readAreas(j: JaiminiResult, positions: PlanetPosition[]): AreaReading[] {

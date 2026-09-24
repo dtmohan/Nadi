@@ -99,7 +99,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     judge: judgeSchema.optional(),
     windowMinutes: z.number().min(1).max(180).default(30),
     events: z
-      .array(z.object({ label: z.string().max(80), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), houses: z.array(z.number().int().min(1).max(12)).min(1).max(12), cusp: z.number().int().min(1).max(12).optional() }))
+      .array(z.object({ label: z.string().max(80), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), houses: z.array(z.number().int().min(1).max(12)).min(1).max(12), cusp: z.number().int().min(1).max(12).optional(), area: z.enum(["self", "career", "wealth", "marriage", "children", "family", "health"]).optional() }))
       .max(12)
       .default([]),
   });

@@ -16,6 +16,10 @@
  *    works points to the lagna sub; and on the day of an event the dasa and bhukti lords transit
  *    the sign, star and sub of significators of the matter.
  *
+ * 4. Jaimini chara dasha (K.N. Rao, Predicting through Jaimini's Chara Dasa): the chara dasha and
+ *    antardasha running at each event, for the lagna sign of the interval, must carry the matter's
+ *    life area. This is sign-level: every interval in one rising sign scores alike.
+ *
  * Every check is computed for every interval; the client chooses which method to score by.
  *
  * Nothing here is stored; the caller sends the chart and the events with each request.
@@ -26,6 +30,9 @@ import { kpPoint, houseOf, computeSignificators, vimshottari, rulingPlanets, NOD
 import type { RectifyRequest, RectifyEventCheck, RectifySegment, RectifyResult, TransitCheck } from "@shared/rectify-types";
 export type { RectifyRequest, RectifyEvent, RectifyEventCheck, RectifySegment, RectifyResult, JudgePlaceInput } from "@shared/rectify-types";
 import { localToUtc, julianDay, positionsAt, ascendantAt, cuspsAt, judgementNow, type EphemerisOptions } from "./ephemeris";
+import { SIGNS } from "@shared/astro";
+import { computeJaimini, type JaiminiResult } from "@shared/jaimini";
+import { dashaFitAt } from "@shared/jaimini-areas";
 
 const MAX_WINDOW = 180;
 
@@ -71,7 +78,10 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const { chart } = req;
   const windowMinutes = Math.min(MAX_WINDOW, Math.max(1, Math.round(req.windowMinutes || 30)));
   const opts: EphemerisOptions = { ayanamsa: "kp", nodeType: chart.nodeType === "true" ? "true" : "mean" };
+  const optsJ: EphemerisOptions = { ayanamsa: chart.ayanamsa || "lahiri", nodeType: opts.nodeType };
   const zone = chart.timezone;
+  // Jaimini is whole-sign: one computation per rising sign serves every interval in it.
+  const jaiminiBySign = new Map<number, { j: JaiminiResult; positions: ReturnType<typeof positionsAt> }>();
   const utc0 = localToUtc(chart.birthDate, chart.birthTime, zone);
   const jd0 = julianDay(utc0);
   const w = windowMinutes / 1440;
@@ -139,6 +149,14 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const moon = planets.find((p) => p.planet === "Moon")!;
     const birthIso = local(mid).toUTC().toISO()!;
 
+    const lagnaJ = norm360(ascendantAt(mid, chart.latitude, chart.longitude, optsJ));
+    const jSign = Math.floor(lagnaJ / 30);
+    if (!jaiminiBySign.has(jSign)) {
+      const posJ = positionsAt(mid, optsJ);
+      jaiminiBySign.set(jSign, { j: computeJaimini(posJ, lagnaJ, birthIso), positions: posJ });
+    }
+    const jai = jaiminiBySign.get(jSign)!;
+
     const rpVia: RectifySegment["rp"]["via"] = {};
     const weightOf = (p: Planet, k: "sign" | "star" | "sub") => {
       const r = acceptedSet.get(p);
@@ -175,7 +193,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
       const tDasa = transitOf(lords[0]);
       const tBhukti = transitOf(lords[1]);
       const tScore = [...tDasa.hits, ...tBhukti.hits].filter(Boolean).length;
-      return { label: e.label, date: e.date, houses, dasa: lords[0], bhukti: lords[1], antara: lords[2], hits, signified, cuspSubLord, promised, score, max, transit: { dasa: tDasa, bhukti: tBhukti, score: tScore, max: 6 } };
+      const jaimini = e.area && evDt.isValid ? dashaFitAt(jai.j, jai.positions, e.area, evDt.set({ hour: 12 }).toUTC().toISO()!) : null;
+      return { label: e.label, date: e.date, houses, dasa: lords[0], bhukti: lords[1], antara: lords[2], hits, signified, cuspSubLord, promised, score, max, transit: { dasa: tDasa, bhukti: tBhukti, score: tScore, max: 6 }, jaimini };
     });
 
     const evScore = events.reduce((s, e) => s + e.score, 0);
@@ -195,6 +214,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       rp: { sign: wSign > 0, star: wStar > 0, sub: wSub > 0, score: rpScore, max: 4, via: rpVia },
       cuspSubLords: cusps.map((c) => c.subLord),
       moon: { starLord: moon.starLord, subLord: moon.subLord },
+      jaiminiSign: { index: jSign, name: SIGNS[jSign], direction: jai.j.charaDasha.direction },
       sunHint: { star: lagna.starLord === sunNow.subLord, sub: lagna.subLord === sunNow.subLord, score: (lagna.starLord === sunNow.subLord ? 1 : 0) + (lagna.subLord === sunNow.subLord ? 2 : 0), max: 3 },
       events,
       score: rpScore + evScore,

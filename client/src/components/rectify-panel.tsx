@@ -5,6 +5,7 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, fmtDegShort, type Planet } from "@shared/astro";
 import type { RectifyResult, RectifySegment, RectifyEvent } from "@shared/rectify-types";
+import type { JaiminiArea } from "@shared/jaimini-areas";
 import { PlanetName } from "@/components/planet-name";
 import { Term } from "@/components/term";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,7 @@ import { JudgePlaceControl } from "@/components/judge-place";
 import { cn } from "@/lib/utils";
 
 /** Rectification methods. One at a time, never blended; each cites its own source. */
-export type RectifyMethod = "kp-rp" | "kp-events" | "kp-transit";
+export type RectifyMethod = "kp-rp" | "kp-events" | "kp-transit" | "jaimini-dasha";
 const METHODS: Array<{ id: RectifyMethod; system: string; label: string; short: string; source: string; needsJudge: boolean; needsEvents: boolean }> = [
   {
     id: "kp-rp",
@@ -49,35 +50,46 @@ const METHODS: Array<{ id: RectifyMethod; system: string; label: string; short: 
     needsJudge: false,
     needsEvents: true,
   },
+  {
+    id: "jaimini-dasha",
+    system: "Jaimini",
+    label: "Chara dasha",
+    short: "For a doubtful horoscope K.N. Rao runs the chara dasha and asks whether the mahadasha and antardasha signs running at indisputable events carry those matters: the area's karaka, pada or house counted from the dasha sign. The check is by rising sign, so every interval in one sign scores alike; widen the window to test the neighbouring signs.",
+    source: "K.N. Rao, Predicting through Jaimini's Chara Dasa, Vani Publications; the triggers are those of the Jaimini tab's timing",
+    needsJudge: false,
+    needsEvents: true,
+  },
 ];
 
 /** Score of one interval under one method. */
 function methodScore(s: RectifySegment, m: RectifyMethod): { score: number; max: number } {
   if (m === "kp-rp") return { score: s.rp.score, max: s.rp.max };
   if (m === "kp-events") return s.events.reduce((acc, e) => ({ score: acc.score + e.score, max: acc.max + e.max }), { score: 0, max: 0 });
+  if (m === "jaimini-dasha") return s.events.reduce((acc, e) => ({ score: acc.score + (e.jaimini?.score ?? 0), max: acc.max + (e.jaimini?.max ?? 0) }), { score: 0, max: 0 });
   return s.events.reduce((acc, e) => ({ score: acc.score + e.transit.score, max: acc.max + e.transit.max }), { score: s.sunHint.score, max: s.sunHint.max });
 }
 
 /** Matters a dated event can be checked against: the houses KP times them by and the cusp that must promise them. */
-const MATTERS: Array<{ id: string; label: string; houses: number[]; cusp: number }> = [
-  { id: "marriage", label: "Marriage", houses: [2, 7, 11], cusp: 7 },
-  { id: "child", label: "Birth of a child", houses: [2, 5, 11], cusp: 5 },
-  { id: "job", label: "New job, promotion", houses: [2, 6, 10, 11], cusp: 10 },
-  { id: "job-loss", label: "Loss of job", houses: [5, 8, 12], cusp: 10 },
-  { id: "business", label: "Started a business", houses: [2, 7, 10, 11], cusp: 10 },
-  { id: "property", label: "Bought a house or land", houses: [4, 11, 12], cusp: 4 },
-  { id: "vehicle", label: "Bought a vehicle", houses: [4, 11], cusp: 4 },
-  { id: "education", label: "Admission to higher study", houses: [4, 9, 11], cusp: 4 },
-  { id: "abroad", label: "Went abroad", houses: [3, 9, 12], cusp: 12 },
-  { id: "return", label: "Returned from abroad", houses: [2, 4, 11], cusp: 4 },
-  { id: "illness", label: "Illness, operation, hospital", houses: [6, 8, 12], cusp: 6 },
-  { id: "accident", label: "Accident", houses: [6, 8, 12], cusp: 8 },
-  { id: "father", label: "Death of father", houses: [3, 4, 8], cusp: 9 },
-  { id: "mother", label: "Death of mother", houses: [3, 8, 11], cusp: 4 },
-  { id: "spouse", label: "Death of spouse", houses: [1, 2, 6, 10], cusp: 7 },
-  { id: "move", label: "Change of residence", houses: [3, 12], cusp: 4 },
-  { id: "litigation", label: "Won a case", houses: [1, 6, 11], cusp: 6 },
-  { id: "loan", label: "Loan or large receipt", houses: [2, 6, 11], cusp: 6 },
+/** The Jaimini area column is the life area of the Jaimini tab whose dasha triggers the chara dasha method reuses. */
+const MATTERS: Array<{ id: string; label: string; houses: number[]; cusp: number; area?: JaiminiArea }> = [
+  { id: "marriage", label: "Marriage", houses: [2, 7, 11], cusp: 7, area: "marriage" },
+  { id: "child", label: "Birth of a child", houses: [2, 5, 11], cusp: 5, area: "children" },
+  { id: "job", label: "New job, promotion", houses: [2, 6, 10, 11], cusp: 10, area: "career" },
+  { id: "job-loss", label: "Loss of job", houses: [5, 8, 12], cusp: 10, area: "career" },
+  { id: "business", label: "Started a business", houses: [2, 7, 10, 11], cusp: 10, area: "career" },
+  { id: "property", label: "Bought a house or land", houses: [4, 11, 12], cusp: 4, area: "family" },
+  { id: "vehicle", label: "Bought a vehicle", houses: [4, 11], cusp: 4, area: "wealth" },
+  { id: "education", label: "Admission to higher study", houses: [4, 9, 11], cusp: 4, area: "children" },
+  { id: "abroad", label: "Went abroad", houses: [3, 9, 12], cusp: 12, area: "family" },
+  { id: "return", label: "Returned from abroad", houses: [2, 4, 11], cusp: 4, area: "family" },
+  { id: "illness", label: "Illness, operation, hospital", houses: [6, 8, 12], cusp: 6, area: "health" },
+  { id: "accident", label: "Accident", houses: [6, 8, 12], cusp: 8, area: "health" },
+  { id: "father", label: "Death of father", houses: [3, 4, 8], cusp: 9, area: "family" },
+  { id: "mother", label: "Death of mother", houses: [3, 8, 11], cusp: 4, area: "family" },
+  { id: "spouse", label: "Death of spouse", houses: [1, 2, 6, 10], cusp: 7, area: "marriage" },
+  { id: "move", label: "Change of residence", houses: [3, 12], cusp: 4, area: "family" },
+  { id: "litigation", label: "Won a case", houses: [1, 6, 11], cusp: 6, area: "health" },
+  { id: "loan", label: "Loan or large receipt", houses: [2, 6, 11], cusp: 6, area: "wealth" },
 ];
 
 interface EventRow {
@@ -100,6 +112,8 @@ function degRange(from: number, to: number): string {
   };
   return `${f(a)}–${f(Math.min(b, 30))}`;
 }
+
+const SIGNS3 = ["Ari", "Tau", "Gem", "Can", "Leo", "Vir", "Lib", "Sco", "Sag", "Cap", "Aqu", "Pis"];
 
 function Mark({ on, title }: { on: boolean; title?: string }) {
   return (
@@ -139,7 +153,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
         .filter((e) => /^\d{4}-\d{2}-\d{2}$/.test(e.date))
         .map((e) => {
           const m = MATTERS.find((x) => x.id === e.matter) ?? MATTERS[0];
-          return { label: m.label, date: e.date, houses: m.houses, cusp: m.cusp };
+          return { label: m.label, date: e.date, houses: m.houses, cusp: m.cusp, area: m.area };
         }),
     [events],
   );
@@ -163,7 +177,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
         m.needsJudge && data ? `judged ${DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from ${data.judgedAt.label}` : "",
         m.needsEvents && eventPayload.length ? `events ${eventPayload.map((e) => `${e.label} ${e.date}`).join("; ")}` : "",
       ].filter(Boolean).join("; ");
-      return chartsStore.create({ ...insert, name: `${base} (rectified ${time.slice(0, 5)})`, birthTime: time, notes: `${insert.notes ? insert.notes + "\n" : ""}Birth time rectified from ${chart.birthTime} by ${m.system} ${m.label.toLowerCase()} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}.` });
+      return chartsStore.create({ ...insert, name: `${base} (rectified ${time.slice(0, 5)})`, birthTime: time, notes: `${insert.notes ? insert.notes + "\n" : ""}Birth time rectified from ${chart.birthTime} by ${m.system} ${m.label.toLowerCase()} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}.` });
     },
     onSuccess: (c) => {
       queryClient.invalidateQueries({ queryKey: CHARTS_QUERY_KEY });
@@ -179,6 +193,29 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
   const bestSet = useMemo(() => new Set(scored.filter((r) => r.score === top && top > 0).map((r) => r.i)), [scored, top]);
   const segments = useMemo(() => (sortByScore ? [...scored].sort((a, b) => b.score - a.score || a.i - b.i) : scored), [scored, sortByScore]);
   const maxOf = scored[0]?.max ?? 0;
+  /** Jaimini is whole-sign: contiguous intervals in one rising sign form one row. */
+  const signGroups = useMemo(() => {
+    if (!data) return [];
+    const groups: Array<{ first: number; last: number; sign: RectifySegment["jaiminiSign"]; score: number; max: number; given: boolean; nearest: number | null }> = [];
+    data.segments.forEach((s, i) => {
+      const g = groups[groups.length - 1];
+      if (g && g.sign.index === s.jaiminiSign.index) {
+        g.last = i;
+        g.given = g.given || s.given;
+      } else {
+        const sc = methodScore(s, "jaimini-dasha");
+        groups.push({ first: i, last: i, sign: s.jaiminiSign, score: sc.score, max: sc.max, given: s.given, nearest: null });
+      }
+    });
+    const givenIdx = data.segments.findIndex((s) => s.given);
+    for (const g of groups) {
+      if (g.given) continue;
+      g.nearest = givenIdx < g.first ? g.first : g.last;
+    }
+    return groups;
+  }, [data]);
+  const groupTop = signGroups.reduce((t, g) => Math.max(t, g.score), 0);
+  const sortedGroups = useMemo(() => (sortByScore ? [...signGroups].sort((a, b) => b.score - a.score || a.first - b.first) : signGroups), [signGroups, sortByScore]);
   const missingEvents = m.needsEvents && eventPayload.length === 0;
   const givenIndex = data?.segments.findIndex((s) => s.given) ?? -1;
   const givenCusps = givenIndex >= 0 ? data!.segments[givenIndex].cuspSubLords : null;
@@ -210,9 +247,6 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
             <span className="opacity-70">{x.system} ·</span> {x.label}
           </button>
         ))}
-        <span className="cursor-not-allowed rounded px-2.5 py-1 text-muted-foreground/60" title="Chara dasha event fit (K.N. Rao) is the next method to be added" data-testid="rectify-method-jaimini">
-          <span className="opacity-70">Jaimini ·</span> Chara dasha, next
-        </span>
       </div>
       <p className="mt-2 text-sm text-muted-foreground" data-testid="rectify-method-text">
         {m.short} <span className="text-xs">({m.source}.)</span>
@@ -296,17 +330,91 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
             {method === "kp-rp" && " Half-weight badges are doubtful ruling planets (retrograde now) or their stand-ins. Rerun on another day and the ruling planets change; the intervals that agree every time are the ones to trust."}
             {method === "kp-events" && (eventPayload.length ? " Green marks are period lords that signify the matter's houses (four-step significators) and cusp sub lords that promise it." : " Add dated events and scan again to score by this method.")}
             {method === "kp-transit" && " The Sun hint changes daily; the event transits do not, so they are the steadier of the two."}
+            {method === "jaimini-dasha" && (eventPayload.length ? ` Rows are rising signs, not sub-lord intervals. Each event shows the mahadasha and antardasha signs running that day (fwd, bwd: the direction the dasha runs from that lagna); a full mark means the sign carries the matter by Rao's threshold (the area's karaka in its house, its pada, or the karaka's own sign), a faint one a lighter touch. ${signGroups.length < 2 ? "Only one sign rises in this window; widen it to ± 120 or 180 min to test the neighbouring signs." : ""}` : " Add dated events and scan again to score by this method.")}
           </p>
 
           <div className="mt-3 flex items-center justify-between text-xs">
             <span className="text-muted-foreground">
-              {data.segments.length} intervals in ± {data.windowMinutes} min · {m.system} {m.label.toLowerCase()} · best score {Number.isInteger(top) ? top : top.toFixed(1)} of {maxOf}
+              {method === "jaimini-dasha"
+                ? `${signGroups.length} rising ${signGroups.length === 1 ? "sign" : "signs"} in ± ${data.windowMinutes} min · Jaimini chara dasha · best score ${groupTop} of ${signGroups[0]?.max ?? 0}`
+                : `${data.segments.length} intervals in ± ${data.windowMinutes} min · ${m.system} ${m.label.toLowerCase()} · best score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}`}
             </span>
             <button type="button" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground" onClick={() => setSortByScore((v) => !v)} data-testid="button-rectify-sort">
               {sortByScore ? "Sort by time" : "Sort by score"}
             </button>
           </div>
 
+          {method === "jaimini-dasha" && (
+            <div className="mt-2 overflow-x-auto">
+              <Table className="text-[11px] leading-5 [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">Rising</TableHead>
+                    <TableHead className="whitespace-nowrap">Lagna sign</TableHead>
+                    {eventPayload.map((e) => (
+                      <TableHead key={e.label + e.date} className="whitespace-nowrap">
+                        {e.label} <span className="text-muted-foreground tabular">{e.date}</span>
+                      </TableHead>
+                    ))}
+                    <TableHead className="whitespace-nowrap">Score</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedGroups.map((g) => {
+                    const first = data.segments[g.first];
+                    const last = data.segments[g.last];
+                    const best = g.score === groupTop && groupTop > 0;
+                    return (
+                      <TableRow key={g.first} className={cn(best && "bg-emerald-500/10", g.given && "outline outline-1 -outline-offset-1 outline-foreground/40")} data-testid={`rectify-sign-${g.first}`}>
+                        <TableCell className="whitespace-nowrap tabular">
+                          {first.start.slice(0, 5)}<span className="text-muted-foreground">:{first.start.slice(6)}</span>–{last.end.slice(0, 5)}<span className="text-muted-foreground">:{last.end.slice(6)}</span>
+                          {g.given && <span className="ml-1.5 rounded border px-1 text-[10px] uppercase tracking-wide text-muted-foreground">given</span>}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {g.sign.name} <span className="text-muted-foreground" title={`chara dasha runs ${g.sign.direction} from this sign`}>{g.sign.direction === "forward" ? "fwd" : "bwd"}</span>
+                        </TableCell>
+                        {first.events.map((e) => {
+                          const f = e.jaimini;
+                          if (!f) return <TableCell key={e.label + e.date} className="whitespace-nowrap text-muted-foreground">no Jaimini area for this matter</TableCell>;
+                          const dot = (lvl: { hot: boolean; score: number; triggers: string[] }, what: string) => (
+                            <span title={lvl.triggers.length ? lvl.triggers.join("\n") : `nothing in the ${what} sign speaks to this matter`} className={cn("inline-block h-2.5 w-2.5 rounded-full align-middle", lvl.hot ? "bg-emerald-500" : lvl.score > 0 ? "bg-emerald-500/40" : "bg-muted-foreground/25")} aria-label={lvl.hot ? "carries the matter" : lvl.score > 0 ? "light touch" : "no touch"} />
+                          );
+                          return (
+                            <TableCell key={e.label + e.date} className="whitespace-nowrap">
+                              <span className="inline-flex items-center gap-1.5">
+                                {dot(f.md, "dasha")} {SIGNS3[f.mdSign]}
+                                <span className="text-muted-foreground">·</span>
+                                {dot(f.ad, "antardasha")} {SIGNS3[f.adSign]}
+                                {f.cycle === 2 && <span className="text-muted-foreground">2nd cycle</span>}
+                              </span>
+                            </TableCell>
+                          );
+                        })}
+                        <TableCell className="whitespace-nowrap">
+                          <ScoreBar score={g.score} max={g.max} />
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-right">
+                          {g.given ? (
+                            <span className="text-muted-foreground">recorded sign</span>
+                          ) : g.nearest !== null ? (
+                            <button type="button" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50" title={`Saves the interval of this sign nearest the recorded time, ${data.segments[g.nearest].start} to ${data.segments[g.nearest].end}`} onClick={() => saveCopy.mutate(data.segments[g.nearest!])} disabled={saveCopy.isPending} data-testid={`button-rectify-save-sign-${g.first}`}>
+                              Save nearest
+                            </button>
+                          ) : null}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+              <p className="mt-2 text-xs text-muted-foreground">
+                Jaimini settles the sign; pick the minute inside it with a KP method. Save nearest copies the chart at the interval of that sign closest to the recorded time.
+              </p>
+            </div>
+          )}
+
+          {method !== "jaimini-dasha" && (
           <div className="mt-2 overflow-x-auto">
             <Table className="text-[11px] leading-5 [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
               <TableHeader>
@@ -412,8 +520,9 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
               </TableBody>
             </Table>
           </div>
+          )}
 
-          {open !== null && data.segments[open] && (
+          {open !== null && method !== "jaimini-dasha" && data.segments[open] && (
             <div className="mt-3 rounded-md border p-3 text-xs" data-testid="rectify-cusps-detail">
               <p className="font-medium">
                 Cusp sub lords at {data.segments[open].mid} <span className="text-muted-foreground">(changes from the recorded time are marked)</span>

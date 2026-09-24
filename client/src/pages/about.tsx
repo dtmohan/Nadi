@@ -530,7 +530,9 @@ function KpMethod() {
           KP, transits: the sub the Sun transits on the day one works points to the lagna sub (N. Nataraj, Part 2 p. 192), scored as a hint; and on the day of an event the dasa and bhukti lords transit the
           sign, star and sub of significators of the matter (Part 2 p. 203), checked for each candidate against its own significators.
         </li>
-        <li>Jaimini, chara dasha event fit (K.N. Rao's method): planned as the next method. Bhrigu Nandi Nadi reads without a lagna and offers no rectification method.</li>
+        <li>
+          Jaimini, chara dasha (K.N. Rao's method): when a horoscope is in doubt, run the chara dasha and see whether the mahadasha and antardasha signs running at indisputable events carry those matters, using the same triggers as the Jaimini tab's timing: the area's karaka in its house counted from the dasha sign, the dasha sign being the area's pada or the karaka's own sign, or facing them across the 1–7 axis (K.N. Rao, Predicting through Jaimini's Chara Dasa, Vani Publications). The check is whole-sign, so the table shows one row per rising sign; it settles the sign and leaves the minute to a KP method. Bhrigu Nandi Nadi reads without a lagna and offers no rectification method.
+        </li>
       </ul>
       <h2>Sources</h2>
       <p>

@@ -1,6 +1,7 @@
 /** Types shared by the KP birth time rectification route and its panel. */
 import type { Planet } from "./astro";
 import type { RulingPlanets } from "./kp";
+import type { DashaFit, JaiminiArea } from "./jaimini-areas";
 
 export interface RectifyEvent {
   label: string;
@@ -9,6 +10,8 @@ export interface RectifyEvent {
   houses: number[];
   /** Cusp whose sub lord must promise the matter (optional). */
   cusp?: number;
+  /** Life area the matter belongs to in the Jaimini reading (optional; matters without one are skipped by the chara dasha method). */
+  area?: JaiminiArea;
 }
 
 import type { InsertChart } from "./schema";
@@ -49,6 +52,11 @@ export interface RectifyEventCheck {
    * the event, and whether the lords of that sign, star and sub signify the matter in this candidate.
    */
   transit: { dasa: TransitCheck; bhukti: TransitCheck; score: number; max: number };
+  /**
+   * Jaimini check (K.N. Rao): the chara dasha and antardasha running at the event, for the lagna sign of this
+   * interval, carry the matter's area. Null when the matter has no Jaimini area or the event precedes the birth.
+   */
+  jaimini: DashaFit | null;
 }
 
 export interface TransitCheck {
@@ -83,6 +91,8 @@ export interface RectifySegment {
   moon: { starLord: Planet; subLord: Planet };
   /** Sun-transit hint (Part 2 p. 192): the lagna's sub (or star) lord is the sub lord the Sun transits on the day of judgement. */
   sunHint: { star: boolean; sub: boolean; score: number; max: number };
+  /** Lagna sign in the chart's own ayanamsa, which the Jaimini check is read from (sign-level only). */
+  jaiminiSign: { index: number; name: string; direction: "forward" | "backward" };
   events: RectifyEventCheck[];
   score: number;
   max: number;
