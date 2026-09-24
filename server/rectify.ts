@@ -19,8 +19,8 @@ import { DateTime } from "luxon";
 import { norm360, type Planet } from "@shared/astro";
 import { kpPoint, houseOf, computeSignificators, vimshottari, rulingPlanets, NODES_KP, type KpCusp, type KpPlanet, type RulingPlanets } from "@shared/kp";
 import type { RectifyRequest, RectifyEventCheck, RectifySegment, RectifyResult } from "@shared/rectify-types";
-export type { RectifyRequest, RectifyEvent, RectifyEventCheck, RectifySegment, RectifyResult } from "@shared/rectify-types";
-import { localToUtc, julianDay, positionsAt, ascendantAt, cuspsAt, kpBase, type EphemerisOptions } from "./ephemeris";
+export type { RectifyRequest, RectifyEvent, RectifyEventCheck, RectifySegment, RectifyResult, JudgePlaceInput } from "@shared/rectify-types";
+import { localToUtc, julianDay, positionsAt, ascendantAt, cuspsAt, judgementNow, type EphemerisOptions } from "./ephemeris";
 
 const MAX_WINDOW = 180;
 
@@ -70,9 +70,10 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const utc0 = localToUtc(chart.birthDate, chart.birthTime, zone);
   const jd0 = julianDay(utc0);
   const w = windowMinutes / 1440;
-  const base0 = kpBase(jd0, chart.latitude, chart.longitude, zone, opts.nodeType);
-  const ruling = rulingPlanets(base0.now);
-  const accepted = acceptedRuling(ruling, base0.now);
+  const judge = req.judge ?? { latitude: chart.latitude, longitude: chart.longitude, timezone: zone, label: chart.place };
+  const now = judgementNow(judge.latitude, judge.longitude, judge.timezone, opts.nodeType);
+  const ruling = rulingPlanets(now);
+  const accepted = acceptedRuling(ruling, now);
   const acceptedSet = new Map(accepted.map((a) => [a.planet, a]));
 
   // Scan the window and locate every change of the lagna's sign, star or sub lord to the second.
@@ -180,6 +181,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const best = segments.map((s, i) => (s.score === top && top > 0 ? i : -1)).filter((i) => i >= 0);
   return {
     ruling,
+    judgedAt: { label: judge.label ?? `${judge.latitude.toFixed(2)}°, ${judge.longitude.toFixed(2)}°`, timezone: judge.timezone },
     accepted,
     windowMinutes,
     given: { time: local(jd0).toFormat("HH:mm:ss"), lagna: norm360(asc(jd0)) },

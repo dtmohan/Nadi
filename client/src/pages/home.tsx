@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useLocation, Link } from "wouter";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { MapPin, Trash2, ArrowRight, Loader2, Download, Upload } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { Trash2, ArrowRight, Loader2, Download, Upload } from "lucide-react";
+import { PlaceSearch } from "@/components/place-search";
 import { apiRequest } from "@/lib/queryClient";
 import { chartsStore, useSavedCharts, useStorageKind } from "@/lib/charts-store";
 import { Button } from "@/components/ui/button";
@@ -25,74 +26,6 @@ const EMPTY: InsertChart = {
   nodeType: "mean",
   notes: "",
 };
-
-function useDebounced<T>(value: T, ms: number): T {
-  const [v, setV] = useState(value);
-  useEffect(() => {
-    const t = setTimeout(() => setV(value), ms);
-    return () => clearTimeout(t);
-  }, [value, ms]);
-  return v;
-}
-
-function PlaceSearch({ value, onPick }: { value: string; onPick: (hit: GeoHit) => void }) {
-  const [q, setQ] = useState(value);
-  const [open, setOpen] = useState(false);
-  const dq = useDebounced(q, 300);
-  const { data: hits, isFetching } = useQuery<GeoHit[]>({
-    queryKey: ["/api/geocode?q=" + encodeURIComponent(dq)],
-    enabled: dq.trim().length >= 2 && open,
-  });
-  useEffect(() => setQ(value), [value]);
-
-  return (
-    <div className="relative">
-      <div className="relative">
-        <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          id="place"
-          value={q}
-          onChange={(e) => {
-            setQ(e.target.value);
-            setOpen(true);
-          }}
-          onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 150)}
-          placeholder="City of birth"
-          className="pl-9"
-          autoComplete="off"
-          data-testid="input-place"
-        />
-        {isFetching && <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />}
-      </div>
-      {open && hits && hits.length > 0 && (
-        <ul className="absolute z-20 mt-1 w-full overflow-hidden rounded-md border border-popover-border bg-popover shadow-md" role="listbox">
-          {hits.map((h, i) => (
-            <li key={i}>
-              <button
-                type="button"
-                className="flex w-full items-baseline justify-between gap-3 px-3 py-2 text-left text-sm hover-elevate"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => {
-                  onPick(h);
-                  setQ([h.name, h.admin1, h.country].filter(Boolean).join(", "));
-                  setOpen(false);
-                }}
-                data-testid={`option-place-${i}`}
-              >
-                <span className="truncate">
-                  {h.name}
-                  {h.admin1 ? `, ${h.admin1}` : ""}
-                </span>
-                <span className="shrink-0 text-xs text-muted-foreground">{h.country}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
 
 export default function Home() {
   const [, navigate] = useLocation();

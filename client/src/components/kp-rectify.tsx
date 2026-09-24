@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { chartsStore, CHARTS_QUERY_KEY } from "@/lib/charts-store";
 import { useToast } from "@/hooks/use-toast";
+import { useJudgePlace } from "@/lib/judge-place";
 import { cn } from "@/lib/utils";
 
 /** Matters a dated event can be checked against: the houses KP times them by and the cusp that must promise them. */
@@ -88,6 +89,7 @@ export function KpRectify({ result }: { result: ChartResult }) {
   const [events, setEvents] = useState<EventRow[]>([]);
   const [sortByScore, setSortByScore] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
+  const judge = useJudgePlace();
 
   const eventPayload = useMemo<RectifyEvent[]>(
     () =>
@@ -103,7 +105,7 @@ export function KpRectify({ result }: { result: ChartResult }) {
   const scan = useMutation({
     mutationFn: async () => {
       const { id: _id, ...insert } = chart;
-      const res = await apiRequest("POST", "/api/kp/rectify", { chart: insert, windowMinutes, events: eventPayload });
+      const res = await apiRequest("POST", "/api/kp/rectify", { chart: insert, windowMinutes, events: eventPayload, judge: judge ? { latitude: judge.latitude, longitude: judge.longitude, timezone: judge.timezone, label: judge.label } : undefined });
       return (await res.json()) as RectifyResult;
     },
     onError: (e: any) => toast({ title: "Could not scan the window", description: e.message, variant: "destructive" }),
@@ -165,6 +167,9 @@ export function KpRectify({ result }: { result: ChartResult }) {
         <Button size="sm" variant="outline" className="h-8" onClick={addEvent} data-testid="button-rectify-add-event">
           Add a dated event
         </Button>
+        <span className="text-muted-foreground">
+          Judging from {judge ? judge.label : `${chart.place} (the birth place; set your own above)`}
+        </span>
         <Button size="sm" className="h-8" onClick={() => scan.mutate()} disabled={scan.isPending} data-testid="button-rectify-scan">
           {scan.isPending ? "Scanning…" : data ? "Scan again" : "Scan the window"}
         </Button>
@@ -199,7 +204,7 @@ export function KpRectify({ result }: { result: ChartResult }) {
         <div className="mt-5" data-testid="rectify-results">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
             <span>
-              Judged at {DateTime.fromISO(data.ruling.asOf).setZone(chart.timezone).toFormat("d LLL yyyy HH:mm")} ({chart.timezone}). Accepted as ruling:
+              Judged at {DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from {data.judgedAt.label} ({data.judgedAt.timezone}). Accepted as ruling:
             </span>
             {data.accepted.map((a) => (
               <Badge key={a.planet} variant={a.weight < 1 ? "outline" : "secondary"} className="no-default-hover-elevate whitespace-normal text-left" title={a.reason} data-testid={`rectify-accepted-${a.planet}`}>

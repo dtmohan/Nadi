@@ -504,8 +504,11 @@ function KpMethod() {
       </p>
       <h2>Ruling planets</h2>
       <p>
-        At the moment of judgement the lords of the rising sign and star, the Moon's sign and star, and the weekday (counted from the last sunrise at the birth place) are the ruling planets. KP uses
-        them to rectify birth time, to answer horary questions and to choose between competing significators. The chart page computes them for the moment the chart is opened, at the birth place.
+        At the moment of judgement the lords of the rising sign and star, the Moon's sign and star, and the weekday (counted from the last sunrise) are the ruling planets. KP uses them to rectify
+        birth time, to answer horary questions and to choose between competing significators. They belong to the place where the astrologer is judging, not the birth place: in the Part 3 case the
+        native was born in Karur but the ruling planets were taken for Trivandrum, where the author sat with the chart (Part 3, pp. 161-162). The rising sign and the day lord change with
+        longitude; only the Moon's lords are the same everywhere. The chart page therefore asks where you are judging from, either the device's location (if you allow it) or a place you type, and
+        falls back to the birth place until you set one. The choice stays on this device.
       </p>
       <h2>Birth time rectification</h2>
       <p>

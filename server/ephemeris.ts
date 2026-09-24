@@ -205,6 +205,21 @@ export function kpBase(jd: number, latitude: number, longitude: number, zone: st
   const r = sweph.houses_ex(jd, C.SEFLG_SIDEREAL, latitude, longitude, "P") as unknown as { flag: number; data: { houses: number[]; points: number[] } };
   if (r.flag < 0) throw new Error("Could not compute the Placidus cusps");
   const cusps = r.data.houses.slice(0, 12).map(norm360);
+  return {
+    ayanamsaValue: ayanamsaAt(jd, opts),
+    positions,
+    cusps,
+    now: judgementNow(latitude, longitude, zone, nodeType),
+  };
+}
+
+/**
+ * Snapshot for the ruling planets: the planets, the rising degree and the Hindu weekday (from the
+ * last sunrise) at this moment for the place where the astrologer is judging. KP takes the ruling
+ * planets for the judge's place, not the birth place.
+ */
+export function judgementNow(latitude: number, longitude: number, zone: string, nodeType: EphemerisOptions["nodeType"]): KpBase["now"] {
+  const opts: EphemerisOptions = { ayanamsa: "kp", nodeType };
   const nj = nowJd();
   let weekday: number;
   try {
@@ -212,12 +227,7 @@ export function kpBase(jd: number, latitude: number, longitude: number, zone: st
   } catch {
     weekday = weekdayOf(nj, zone);
   }
-  return {
-    ayanamsaValue: ayanamsaAt(jd, opts),
-    positions,
-    cusps,
-    now: { asOf: DateTime.utc().toISO()!, positions: positionsAt(nj, opts), ascendant: ascendantAt(nj, latitude, longitude, opts), weekday },
-  };
+  return { asOf: DateTime.utc().toISO()!, positions: positionsAt(nj, opts), ascendant: ascendantAt(nj, latitude, longitude, opts), weekday };
 }
 
 /** Weekday (0 = Sunday) of a Julian day, read on the civil calendar of the given zone. */

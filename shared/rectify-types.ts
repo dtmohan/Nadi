@@ -13,10 +13,19 @@ export interface RectifyEvent {
 
 import type { InsertChart } from "./schema";
 
+/** Where the astrologer is judging from; the birth place when absent. */
+export interface JudgePlaceInput {
+  latitude: number;
+  longitude: number;
+  timezone: string;
+  label?: string;
+}
+
 export interface RectifyRequest {
   chart: InsertChart;
   windowMinutes: number;
   events: RectifyEvent[];
+  judge?: JudgePlaceInput;
 }
 
 export interface RectifyEventCheck {
@@ -66,6 +75,8 @@ export interface RectifySegment {
 
 export interface RectifyResult {
   ruling: RulingPlanets;
+  /** The place the ruling planets were taken for. */
+  judgedAt: { label: string; timezone: string };
   /** Every planet accepted as a ruling planet or an agent of one, with the reason. */
   accepted: Array<{ planet: Planet; reason: string; weight: number }>;
   windowMinutes: number;

@@ -2,7 +2,7 @@ import type { Express } from "express";
 import type { Server } from "node:http";
 import { insertChartSchema, type Chart, type ChartResult, type GeoHit } from "@shared/schema";
 import { RULES, evaluate } from "@shared/rules";
-import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, ascendantAt, specialLagnas, kpBase, type EphemerisOptions } from "./ephemeris";
+import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, type EphemerisOptions } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
 import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
 import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
@@ -80,9 +80,23 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     }
   });
 
+  // Ruling planets for the astrologer's own place at this moment (nothing is stored)
+  const judgeSchema = z.object({ latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180), timezone: z.string().min(1).max(64), label: z.string().max(120).optional() });
+  app.post("/api/kp/ruling", (req, res) => {
+    const parsed = judgeSchema.extend({ nodeType: z.enum(["mean", "true"]).default("mean") }).safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid request", issues: parsed.error.issues });
+    try {
+      const { latitude, longitude, timezone, nodeType } = parsed.data;
+      res.json(judgementNow(latitude, longitude, timezone, nodeType));
+    } catch (e: any) {
+      res.status(400).json({ message: e.message });
+    }
+  });
+
   // Birth time rectification: scan a window around the recorded time (nothing is stored)
   const rectifySchema = z.object({
     chart: insertChartSchema,
+    judge: judgeSchema.optional(),
     windowMinutes: z.number().min(1).max(180).default(30),
     events: z
       .array(z.object({ label: z.string().max(80), date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), houses: z.array(z.number().int().min(1).max(12)).min(1).max(12), cusp: z.number().int().min(1).max(12).optional() }))

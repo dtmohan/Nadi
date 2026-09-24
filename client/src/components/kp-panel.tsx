@@ -1,6 +1,11 @@
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
+import type { KpBase } from "@shared/kp";
+import { apiRequest } from "@/lib/queryClient";
+import { useJudgePlace } from "@/lib/judge-place";
+import { JudgePlaceControl } from "@/components/judge-place";
 import { PLANET_ABBR, SIGN_ABBR, fmtDegShort, type Planet } from "@shared/astro";
 import { computeKp, significatorMap, jointPeriods, type KpPeriod, type SignificatorLevel } from "@shared/kp";
 import { KP_RULES, KP_CUSP_THEMES, KP_SOURCES, KP_TYPE_LEVEL_LABEL, type KpFinding } from "@shared/rules-kp";
@@ -97,7 +102,18 @@ export function KpPanel({ result }: { result: ChartResult }) {
     return d.isValid ? d.toISO()! : DateTime.local().toISO()!;
   }, [asOf, chart.timezone]);
 
-  const kp = useMemo(() => computeKp(result.kp, result.utc, asOfIso, sixStep), [result.kp, result.utc, asOfIso, sixStep]);
+  // Ruling planets are taken for the astrologer's place when one is set; the server's snapshot is for the birth place.
+  const judge = useJudgePlace();
+  const judgeNow = useQuery<KpBase["now"]>({
+    queryKey: ["kp-ruling", judge?.latitude, judge?.longitude, judge?.timezone, chart.nodeType, result.utc],
+    enabled: Boolean(judge),
+    queryFn: async () => (await (await apiRequest("POST", "/api/kp/ruling", { latitude: judge!.latitude, longitude: judge!.longitude, timezone: judge!.timezone, label: judge!.label, nodeType: chart.nodeType === "true" ? "true" : "mean" })).json()) as KpBase["now"],
+    staleTime: 60_000,
+  });
+  const kpBase = useMemo<KpBase>(() => (judge && judgeNow.data ? { ...result.kp, now: judgeNow.data } : result.kp), [result.kp, judge, judgeNow.data]);
+  const judgeZone = judge?.timezone ?? chart.timezone;
+  const judgeLabel = judge?.label ?? chart.place;
+  const kp = useMemo(() => computeKp(kpBase, result.utc, asOfIso, sixStep), [kpBase, result.utc, asOfIso, sixStep]);
   const sig = useMemo(() => significatorMap(kp, sixStep), [kp, sixStep]);
   const ev = EVENTS.find((e) => e.id === event) ?? EVENTS[0];
   const allWindows = useMemo(() => jointPeriods(kp.vimshottari, sig, ev.houses, result.utc, asOfIso, 30), [kp.vimshottari, sig, ev, result.utc, asOfIso]);
@@ -541,8 +557,11 @@ export function KpPanel({ result }: { result: ChartResult }) {
           <Term k="kp-ruling-planets">Ruling planets</Term> at this moment
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Taken for the moment of judgement, which is when this chart was opened ({DateTime.fromISO(kp.ruling.asOf).setZone(chart.timezone).toFormat("d LLL yyyy HH:mm")} at the birth place, {chart.timezone}; reload the chart to refresh): the lords of the rising sign and star, of the Moon's sign and star, and of the weekday counted from sunrise. Krishnamurti uses them to verify birth time and to pick between competing significators; a node in a ruling planet's sign joins them. The as-of date above moves only the dasa.
+          Taken for the moment of judgement, which is when this chart was opened ({DateTime.fromISO(kp.ruling.asOf).setZone(judgeZone).toFormat("d LLL yyyy HH:mm")} at {judgeLabel}, {judgeZone}; reload the chart to refresh): the lords of the rising sign and star, of the Moon's sign and star, and of the weekday counted from sunrise. Krishnamurti uses them to verify birth time and to pick between competing significators; a node in a ruling planet's sign joins them. The as-of date above moves only the dasa.
         </p>
+        <JudgePlaceControl birthPlace={chart.place} birthTimezone={chart.timezone} />
+        {judge && judgeNow.isFetching && <p className="mt-2 text-xs text-muted-foreground">Recomputing the rising sign for {judge.label}…</p>}
+        {judge && judgeNow.isError && <p className="mt-2 text-xs text-destructive">Could not compute the ruling planets for {judge.label}; showing the birth place instead.</p>}
         <div className="mt-3 flex flex-wrap gap-1.5">
           {kp.ruling.list.map((l) => (
             <Badge key={l.role} variant={l.role.includes("sub") ? "outline" : "secondary"} className="no-default-hover-elevate" data-testid={`kp-rp-${l.role.toLowerCase().replace(/\s+/g, "-")}`}>
