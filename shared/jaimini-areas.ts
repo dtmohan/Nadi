@@ -162,8 +162,8 @@ export const AREA_OF_RULE: Record<string, JaiminiArea> = {
   "ju-own-lord": "marriage",
 };
 
-export const RAO_SOURCE = { label: "K.N. Rao, Predicting through Jaimini's Chara Dasa", url: "https://pdfcoffee.com/jyotish-predicting-through-jaiminix27s-chara-dasa-kn-rao-pdf-free.html" };
-export const RAO_NOTES_SOURCE = { label: "K.N. Rao, Jaimini notes on karakas and marriage timing", url: "https://www.scribd.com/document/397026238/K-N-RAO-JAIMINI" };
+export const RAO_SOURCE = { label: "K.N. Rao, Predicting through Jaimini's Chara Dasha (Vani Publications; listing at Journal of Astrology)", url: "https://www.journalofastrology.com/product_details.php?item_id=131" };
+export const RAO_NOTES_SOURCE = { label: "K.N. Rao, \"Jaimini Chara Dasha, my approach\", parts 2 and 3 (Journal of Astrology)", url: "https://www.journalofastrology.com/article.php?article_id=321" };
 
 // ── Static reading ────────────────────────────────────────────────────────────
 

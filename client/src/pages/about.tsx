@@ -372,8 +372,8 @@ function JaiminiMethod() {
           K.N. Rao, "Jaimini's Chara Dasha, my approach" (Saptarishis Astrology)
         </a>
         ,{" "}
-        <a href="https://fr.scribd.com/doc/250665140/Method-of-Calculation-of-Jaimini-Chara-Dasha" {...ext}>
-          Method of calculation of Jaimini Chara Dasha (Rao's rules, Scribd)
+        <a href="https://www.journalofastrology.com/article.php?article_id=317" {...ext}>
+          K.N. Rao, "Jaimini Chara Dasha, my approach", part 2 (Journal of Astrology)
         </a>
         ,{" "}
         <a href="https://moonketu.com/learn/jaimini/jaimini-chara-dasha" {...ext}>
@@ -420,12 +420,12 @@ function JaiminiMethod() {
       </ul>
       <p>
         Sources:{" "}
-        <a href="https://pdfcoffee.com/jyotish-predicting-through-jaiminix27s-chara-dasa-kn-rao-pdf-free.html" {...ext}>
-          K.N. Rao, Predicting through Jaimini's Chara Dasa
+        <a href="https://www.journalofastrology.com/product_details.php?item_id=131" {...ext}>
+          K.N. Rao, Predicting through Jaimini's Chara Dasha (Vani Publications; listing at Journal of Astrology)
         </a>
         ,{" "}
-        <a href="https://www.scribd.com/document/397026238/K-N-RAO-JAIMINI" {...ext}>
-          K.N. Rao, Jaimini notes on karakas and marriage timing
+        <a href="https://www.journalofastrology.com/article.php?article_id=321" {...ext}>
+          K.N. Rao, "Jaimini Chara Dasha, my approach", part 3 (Journal of Astrology)
         </a>
         .
       </p>
@@ -531,7 +531,11 @@ function KpMethod() {
           sign, star and sub of significators of the matter (Part 2 p. 203), checked for each candidate against its own significators.
         </li>
         <li>
-          Jaimini, chara dasha (K.N. Rao's method): when a horoscope is in doubt, run the chara dasha and see whether the mahadasha and antardasha signs running at indisputable events carry those matters, using the same triggers as the Jaimini tab's timing: the area's karaka in its house counted from the dasha sign, the dasha sign being the area's pada or the karaka's own sign, or facing them across the 1–7 axis (K.N. Rao, Predicting through Jaimini's Chara Dasa, Vani Publications). The check is whole-sign, so the table shows one row per rising sign; it settles the sign and leaves the minute to a KP method. Bhrigu Nandi Nadi reads without a lagna and offers no rectification method.
+          Jaimini, chara dasha (K.N. Rao's method): when a horoscope is in doubt, run the chara dasha and see whether the mahadasha and antardasha signs running at indisputable events carry those matters, using the same triggers as the Jaimini tab's timing: the area's karaka in its house counted from the dasha sign, the dasha sign being the area's pada or the karaka's own sign, or facing them across the 1–7 axis. Rao's own statement of the step, verify indisputable events such as education, marriage, children and career with chara dasha before accepting a horoscope, is in{" "}
+          <a href="https://www.journalofastrology.com/article.php?article_id=321" {...ext}>
+            "Jaimini Chara Dasha, my approach", part 3 (Journal of Astrology)
+          </a>
+          , and the method itself in Predicting through Jaimini's Chara Dasha (Vani Publications). The check is whole-sign, so the table shows one row per rising sign; it settles the sign and leaves the minute to a KP method. Bhrigu Nandi Nadi reads without a lagna and offers no rectification method.
         </li>
       </ul>
       <h2>Sources</h2>

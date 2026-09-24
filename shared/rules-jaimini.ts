@@ -38,7 +38,7 @@ export type JaiminiSource = { label: string; url: string; sutra?: string };
 export const JAIMINI_TEXT_SOURCE = { label: "Jaimini Sutras, tr. B. Suryanarain Rao", url: "https://archive.org/details/in.ernet.dli.2015.134405" };
 const JS = (n: string): JaiminiSource => ({ label: `Jaimini Sutras ${n}`, url: "https://vedichora.org/classical/jaimini-sutras", sutra: n });
 const BPHS30 = (n: string) => ({ label: `Parashara, Upapada chapter ${n}`, url: "http://jyotishvidya.com/ch30.htm" });
-const BPHS29 = (n: string) => ({ label: `Parashara, Arudha chapter ${n}`, url: "https://www.scribd.com/doc/263063282/Arudha-Lagna-and-Finances-Vedangajyotish" });
+const BPHS29 = (n: string) => ({ label: `Parashara, Arudha chapter ${n}`, url: "http://jyotishvidya.com/ch29.htm" });
 
 const MALEFIC = new Set<Planet>(["Saturn", "Mars", "Rahu", "Ketu"]);
 
