@@ -9,6 +9,7 @@ import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
 import { DateTime } from "luxon";
 import { buildChartPdf } from "./pdf";
 import { rectify } from "./rectify";
+import { validateEvents } from "./validate";
 import { z } from "zod";
 
 const resultCache = new Map<string, ChartResult>();
@@ -103,6 +104,17 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       .max(100)
       .default([]),
   });
+  // Check the saved life events against the chart as it stands (nothing is stored)
+  app.post("/api/validate", (req, res) => {
+    const parsed = insertChartSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid chart", issues: parsed.error.issues });
+    try {
+      res.json(validateEvents(parsed.data));
+    } catch (e: any) {
+      res.status(400).json({ message: e.message });
+    }
+  });
+
   app.post("/api/kp/rectify", (req, res) => {
     const parsed = rectifySchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: "Invalid request", issues: parsed.error.issues });

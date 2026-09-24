@@ -260,8 +260,19 @@ export default function AboutPage() {
         <p>
           Life events (a marriage, a child, a job, an illness, each with its date and, if you wish, how it turned out) are saved with the chart and
           travel in the same backup file. Enter them once, under the chart's name or in the Rectify tab; every rectification method reads the same
-          list, and a rectified copy inherits it. The same list is meant to serve later checks of predictions against what actually happened, and a
-          tally of how each planet's periods turned out.
+          list, and a rectified copy inherits it.
+        </p>
+        <h2>Validate: the chart against what happened</h2>
+        <p>
+          The Validate tab reads each saved event back at its date with the birth time as recorded. For KP it asks whether the dasa, bhukti and
+          antara lords running that day were significators of the matter's houses, whether the sub lord of the matter's cusp promised it, and
+          whether the dasa and bhukti lords transited a significator's sign, star or sub that day (Astro Secrets &amp; KP Part 1, pp. 167-172; Part
+          2, p. 203). For Jaimini it asks whether the chara dasha and antardasha carried the matter's life area (K.N. Rao). Jupiter's transit sign,
+          the natal planets in it and its count from the natal Jeeva are shown as the Nadi context, unscored. A second table turns the events round:
+          for each planet, the houses it signifies give what KP expects of it in its periods (a planet tied to 6, 8, 12 turns harmful, one tied to
+          2, 3, 10, 11 turns favourable, whatever its natural character; Part 1, pp. 17-19), and the outcomes of the events that fell in its dasa,
+          bhukti or antara show how it behaved. Poor agreement across several events is a hint about the birth time, and the Rectify tab is the
+          next step.
         </p>
         <h2>Sources</h2>
         <ul>

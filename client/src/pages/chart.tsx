@@ -21,6 +21,7 @@ import { AlpPanel } from "@/components/alp-panel";
 import { KpPanel } from "@/components/kp-panel";
 import { RectifyPanel } from "@/components/rectify-panel";
 import { LifeEventsSection } from "@/components/life-events";
+import { ValidatePanel } from "@/components/validate-panel";
 import { Timeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -648,7 +649,7 @@ export default function ChartPage() {
   const [selected, setSelected] = useState<Planet | null>(null);
   const [showTransit, setShowTransit] = useState(true);
   const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
-  const [mode, setMode] = useState<"bnn" | "jaimini" | "alp" | "kp" | "rectify">("bnn");
+  const [mode, setMode] = useState<"bnn" | "jaimini" | "alp" | "kp" | "rectify" | "validate">("bnn");
 
   if (isLoading) {
     return (
@@ -770,9 +771,20 @@ export default function ChartPage() {
           >
             Rectify
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mode === "validate"}
+            onClick={() => setMode("validate")}
+            className={cn("rounded px-3 py-1", mode === "validate" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            data-testid="mode-validate"
+            title="Check the chart against saved life events"
+          >
+            Validate
+          </button>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading." : mode === "alp" ? "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage." : mode === "rectify" ? "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}</p>
+          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading." : mode === "alp" ? "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage." : mode === "rectify" ? "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading." : mode === "validate" ? "Saved life events read back at their dates: KP period lords and cusp promise, Jaimini chara dasha, Jupiter's transit, and how each planet's periods turned out. Not a reading." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}</p>
           <ReadingModeToggle />
         </div>
       </div>
@@ -798,6 +810,12 @@ export default function ChartPage() {
       {mode === "rectify" && (
         <div className="mt-8">
           <RectifyPanel result={data} />
+        </div>
+      )}
+
+      {mode === "validate" && (
+        <div className="mt-8">
+          <ValidatePanel result={data} />
         </div>
       )}
 
