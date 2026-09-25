@@ -6,6 +6,9 @@ import { computeParashari, ord, listH, roleLabel, LORDSHIP_LABEL, KENDRA, type P
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, type DasaReading, type AntarReading, type DasaNote } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
+import type { AshtakavargaResult, Bhinnashtaka } from "@shared/ashtakavarga";
+import { BHAVA_PHALA_CAVEATS, type BhavaPhala, type VargaPhala } from "@shared/bhava-phala";
+import { NAKSHATRAS } from "@shared/astro";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
@@ -52,7 +55,7 @@ function Finding({ f }: { f: ParashariFinding }) {
       </div>
       <p className="mt-1 text-sm text-muted-foreground">{f.text}</p>
       <p className="mt-1 text-[11px] text-muted-foreground">
-        <SourceLink source={f.source} />
+        <SourceLink source={f.source} mark={false} />
       </p>
     </div>
   );
@@ -217,7 +220,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         )}
       </div>
 
-      {r.shadbala && <ShadbalaSection sb={r.shadbala} open={balaOpen} setOpen={setBalaOpen} />}
+      {r.shadbala && <ShadbalaSection sb={r.shadbala} open={balaOpen} setOpen={setBalaOpen} phala={r.bhavaPhala} varga={r.vargaPhala} />}
+      <AshtakavargaSection av={r.ashtakavarga} lagnaIdx={r.lagna.signIndex} />
 
       <div className="mt-8">
         <h3 className="text-sm font-semibold">Vimshottari dasa, read by lordship</h3>
@@ -270,8 +274,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
 
 const fmtV = (v: number) => (Math.abs(v) < 0.05 ? "0" : v.toFixed(1).replace(/\.0$/, ""));
 
-function ShadbalaSection({ sb, open, setOpen }: { sb: ShadbalaResult; open: string | null; setOpen: (k: string | null) => void }) {
+function ShadbalaSection({ sb, open, setOpen, phala, varga }: { sb: ShadbalaResult; open: string | null; setOpen: (k: string | null) => void; phala?: BhavaPhala[]; varga?: VargaPhala[] }) {
   const [caveats, setCaveats] = useState(false);
+  const [phalaOpen, setPhalaOpen] = useState<number | null>(null);
+  const allCaveats = phala ? [...sb.caveats, ...BHAVA_PHALA_CAVEATS] : sb.caveats;
   return (
     <div className="mt-8" data-testid="parashari-shadbala">
       <h3 className="text-sm font-semibold">Strength of the planets (Shadbala)</h3>
@@ -297,7 +303,7 @@ function ShadbalaSection({ sb, open, setOpen }: { sb: ShadbalaResult; open: stri
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sb.planets.map((r) => <BalaRows key={r.planet} r={r} sb={sb} open={open === r.planet} toggle={() => setOpen(open === r.planet ? null : r.planet)} />)}
+          {sb.planets.map((r) => <BalaRows key={r.planet} r={r} sb={sb} varga={varga?.find((v) => v.planet === r.planet)} open={open === r.planet} toggle={() => setOpen(open === r.planet ? null : r.planet)} />)}
         </TableBody>
       </Table>
       <h4 className="mt-6 text-sm font-semibold">Strength of the houses (Bhava bala)</h4>
@@ -335,19 +341,71 @@ function ShadbalaSection({ sb, open, setOpen }: { sb: ShadbalaResult; open: stri
       <p className="mt-1 text-[11px] text-muted-foreground">
         <SourceLink source={sb.sources.bhavaDig} /> · <SourceLink source={sb.sources.bhavaDrishti} /> · <SourceLink source={sb.sources.bhavaOccupant} /> · <SourceLink source={sb.sources.bhavaUdaya} /> · rising of the signs <SourceLink source={sb.sources.udayaSigns} />
       </p>
+      {phala && (
+        <>
+          <h4 className="mt-6 text-sm font-semibold">Effects of the houses (28.15-20)</h4>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Parashara combines each house's strength with its lord's, then adds to the good and takes from the ill for a benefic in the house, its aspects, the lord's dignity and the Ashtakavarga rekhas of the sign, reversing each for malefics, <SourceLink source={{ label: "Parashara 28.15-20", url: BPHS_URL(28), provisional: true }} />. The verses give the direction of each step, not its scale; the amounts here are a stated reading (see the notes). Open a row for the parts.
+          </p>
+          <Table className="mt-2" data-testid="parashari-bhava-phala">
+            <TableHeader>
+              <TableRow>
+                <TableHead>House</TableHead>
+                <TableHead>Sign</TableHead>
+                <TableHead className="hidden text-right sm:table-cell">Good</TableHead>
+                <TableHead className="hidden text-right sm:table-cell">Ill</TableHead>
+                <TableHead className="text-right">Net</TableHead>
+                <TableHead>Reading</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {phala.map((b) => (
+                <PhalaRows key={b.house} b={b} open={phalaOpen === b.house} toggle={() => setPhalaOpen(phalaOpen === b.house ? null : b.house)} />
+              ))}
+            </TableBody>
+          </Table>
+        </>
+      )}
       <button className="mt-2 text-xs text-muted-foreground underline underline-offset-2" onClick={() => setCaveats((v) => !v)} data-testid="parashari-shadbala-caveats">
-        {caveats ? "Hide" : "Show"} how the chapter was applied ({sb.caveats.length} notes)
+        {caveats ? "Hide" : "Show"} how the chapters were applied ({allCaveats.length} notes)
       </button>
       {caveats && (
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground" data-testid="parashari-shadbala-caveat-list">
-          {sb.caveats.map((c, i) => <li key={i}>{c}</li>)}
+          {allCaveats.map((c, i) => <li key={i}>{c}</li>)}
         </ul>
       )}
     </div>
   );
 }
 
-function BalaRows({ r, sb, open, toggle }: { r: PlanetShadbala; sb: ShadbalaResult; open: boolean; toggle: () => void }) {
+function PhalaRows({ b, open, toggle }: { b: BhavaPhala; open: boolean; toggle: () => void }) {
+  const cls = b.verdict === "auspicious" ? VERDICT_CLASS.support : b.verdict === "inauspicious" ? VERDICT_CLASS.strain : VERDICT_CLASS.mixed;
+  return (
+    <>
+      <TableRow className={cn("cursor-pointer", open && "bg-muted/40")} onClick={toggle} data-testid={`parashari-bhava-phala-${b.house}`}>
+        <TableCell className="py-1.5">{b.house}</TableCell>
+        <TableCell className="py-1.5"><SignName signIndex={b.signIndex} /></TableCell>
+        <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{b.subha.toFixed(0)}</TableCell>
+        <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{b.asubha.toFixed(0)}</TableCell>
+        <TableCell className="py-1.5 text-right font-medium tabular-nums">{b.net > 0 ? "+" : ""}{b.net.toFixed(0)}</TableCell>
+        <TableCell className="py-1.5"><span className={cn("whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] font-medium", cls)}>{b.verdict} · {Math.round(b.share * 100)}% good</span></TableCell>
+      </TableRow>
+      {open && (
+        <TableRow className="bg-muted/30 hover:bg-muted/30">
+          <TableCell colSpan={6} className="px-3 py-2" data-testid={`parashari-bhava-phala-detail-${b.house}`}>
+            <ul className="space-y-0.5 text-xs text-muted-foreground">
+              {b.parts.map((p, i) => (
+                <li key={i}>{p.label}: good {p.subha > 0 ? "+" : ""}{p.subha.toFixed(0)}, ill {p.asubha > 0 ? "+" : ""}{p.asubha.toFixed(0)} <SourceLink source={p.source} /></li>
+              ))}
+            </ul>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
+  );
+}
+
+function BalaRows({ r, sb, varga, open, toggle }: { r: PlanetShadbala; sb: ShadbalaResult; varga?: VargaPhala; open: boolean; toggle: () => void }) {
   const src = sb.sources;
   const ik = sb.ishta.find((x) => x.planet === r.planet);
   const num = (v: number) => <TableCell className="hidden py-1.5 text-right tabular-nums md:table-cell">{fmtV(v)}</TableCell>;
@@ -402,6 +460,7 @@ function BalaRows({ r, sb, open, toggle }: { r: PlanetShadbala; sb: ShadbalaResu
                     <p>Uchcha rasmi {ik.uchchaRasmi.toFixed(2)}, Chesta rasmi {ik.chestaRasmi.toFixed(2)} <SourceLink source={src.rasmi} /> · Subha {ik.subhaRasmi.toFixed(2)}, Asubha {ik.asubhaRasmi.toFixed(2)} <SourceLink source={src.subhaRasmi} /></p>
                     <p>Ishta phala {ik.ishta.toFixed(1)}, Kashta phala {ik.kashta.toFixed(1)}: {ik.tendency} tendency <SourceLink source={src.ishta} /></p>
                     <p>Saptavarga subhanka {ik.saptavargaSubha.toFixed(1)} / asubhanka {ik.saptavargaAsubha.toFixed(1)} <SourceLink source={src.subhanka} /> · Dig as effect {fmtV(ik.digSubha)} good, {fmtV(ik.digAsubha)} ill <SourceLink source={src.digSubha} /></p>
+                    {varga && <p>Varga effect scaled by the Shadbala total: good {varga.subha.toFixed(1)}, ill {varga.asubha.toFixed(1)} <SourceLink source={{ label: "Parashara 28.13-14", url: BPHS_URL(28), provisional: true }} /></p>}
                   </>
                 )}
                 {r.notes.map((n, i) => <p key={i} className="mt-1">{n}</p>)}
@@ -426,7 +485,7 @@ function Note({ n }: { n: DasaNote }) {
 }
 
 function DasaEffects({ d, open, setOpen }: { d: DasaReading; open: string | null; setOpen: (k: string | null) => void }) {
-  const layers: DasaNote["layer"][] = ["general", "strength", "planet", "lordship", "relation"];
+  const layers: DasaNote["layer"][] = ["general", "strength", "ashtakavarga", "planet", "lordship", "relation"];
   const running = d.antars.find((a) => a.current);
   return (
     <div className="mt-8" data-testid="parashari-dasa-effects">
@@ -567,3 +626,148 @@ function AntarRows({ a, isOpen, toggle, dasaLord }: { a: AntarReading; isOpen: b
   );
 }
 
+
+const BAND_CLASS: Record<AshtakavargaResult["band"][number], string> = { favourable: VERDICT_CLASS.support, medium: VERDICT_CLASS.mixed, adverse: VERDICT_CLASS.strain };
+const OWNER_ABBR = (o: Bhinnashtaka["owner"]) => (o === "Lagna" ? "La" : PLANET_ABBR[o]);
+
+function AshtakavargaSection({ av, lagnaIdx }: { av: AshtakavargaResult; lagnaIdx: number }) {
+  const [pick, setPick] = useState<Bhinnashtaka["owner"] | null>(null);
+  const [caveats, setCaveats] = useState(false);
+  const chart = pick ? av.charts.find((c) => c.owner === pick) : undefined;
+  const src = av.sources;
+  return (
+    <div className="mt-8" data-testid="parashari-ashtakavarga">
+      <h3 className="text-sm font-semibold">Ashtakavarga</h3>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Benefic marks (rekhas) that each of the seven planets and the lagna give to every sign in the chart of each planet, <SourceLink source={src.rekhas} />, summed into the Sarvashtakavarga of <SourceLink source={src.sarva} />: above 30 favourable, 25 to 30 medium, below 25 adverse <SourceLink source={src.bands} />. Rows are the houses from the lagna; pick a planet's column for its reductions and pindas (ch. 67-69).
+      </p>
+      <Table className="mt-2" data-testid="parashari-sarva">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="px-2 sm:px-4">House</TableHead>
+            <TableHead className="px-2 sm:px-4">Sign</TableHead>
+            {av.charts.map((c) => (
+              <TableHead key={c.owner} className={cn("hidden text-right md:table-cell", c.owner === "Lagna" && "text-muted-foreground")}>
+                <button className={cn("underline-offset-2 hover:underline", pick === c.owner && "text-primary underline")} onClick={() => setPick(pick === c.owner ? null : c.owner)} data-testid={`parashari-av-pick-${c.owner}`}>{OWNER_ABBR(c.owner)}</button>
+              </TableHead>
+            ))}
+            <TableHead className="px-2 text-right sm:px-4">Total</TableHead>
+            <TableHead className="px-2 sm:px-4">Band</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {av.houses.map((h) => (
+            <TableRow key={h.house} data-testid={`parashari-sarva-${h.house}`}>
+              <TableCell className="px-2 py-1.5 sm:px-4">{h.house}</TableCell>
+              <TableCell className="px-2 py-1.5 sm:px-4"><SignName signIndex={h.signIndex} /></TableCell>
+              {av.charts.map((c) => (
+                <TableCell key={c.owner} className={cn("hidden py-1.5 text-right tabular-nums md:table-cell", c.owner === "Lagna" && "text-muted-foreground", pick === c.owner && "bg-primary/5 font-medium")}>{c.rekhas[h.signIndex]}</TableCell>
+              ))}
+              <TableCell className="px-2 py-1.5 sm:px-4 text-right font-medium tabular-nums">{h.rekhas}</TableCell>
+              <TableCell className="px-2 py-1.5 sm:px-4"><span className={cn("whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] font-medium", BAND_CLASS[h.band])}>{h.band}</span></TableCell>
+            </TableRow>
+          ))}
+          <TableRow className="hover:bg-transparent">
+            <TableCell className="px-2 py-1.5 sm:px-4 text-xs text-muted-foreground" colSpan={2}>Rekhas in each chart</TableCell>
+            {av.charts.map((c) => <TableCell key={c.owner} className="hidden px-2 py-1.5 sm:px-4 text-right text-xs tabular-nums text-muted-foreground md:table-cell">{c.total}</TableCell>)}
+            <TableCell className="px-2 py-1.5 sm:px-4 text-right text-xs tabular-nums text-muted-foreground">{av.sarva.reduce((a, b) => a + b, 0)}</TableCell>
+            <TableCell />
+          </TableRow>
+        </TableBody>
+      </Table>
+      <p className="mt-1 text-[11px] text-muted-foreground">The total leaves out the lagna's chart, which the text keeps apart; the seven planets give 337 rekhas in all.</p>
+
+      <div className="mt-3 flex flex-wrap gap-1 md:hidden">
+        {av.charts.map((c) => (
+          <button key={c.owner} className={cn("rounded border px-2 py-0.5 text-xs", pick === c.owner ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground")} onClick={() => setPick(pick === c.owner ? null : c.owner)} data-testid={`parashari-av-pick-sm-${c.owner}`}>{c.owner}</button>
+        ))}
+      </div>
+      {chart && (
+        <div className="mt-3 rounded-md border bg-muted/30 p-3 text-xs" data-testid={`parashari-av-detail-${chart.owner}`}>
+          <p className="font-medium">{chart.owner}'s Ashtakavarga: {chart.total} rekhas</p>
+          <Table className="mt-2">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="px-2 text-xs sm:px-4">Sign</TableHead>
+                <TableHead className="px-2 text-right text-xs sm:px-4">Rekhas</TableHead>
+                <TableHead className="hidden text-xs sm:table-cell">Given by</TableHead>
+                <TableHead className="px-2 text-right text-xs sm:px-4"><span className="sm:hidden">Trik.</span><span className="hidden sm:inline">Trikona</span></TableHead>
+                <TableHead className="px-2 text-right text-xs sm:px-4"><span className="sm:hidden">Ekad.</span><span className="hidden sm:inline">Ekadhipatya</span></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 12 }, (_, i) => (lagnaIdx + i) % 12).map((s) => (
+                <TableRow key={s}>
+                  <TableCell className="py-1"><SignName signIndex={s} /></TableCell>
+                  <TableCell className="px-2 py-1 sm:px-4 text-right tabular-nums">{chart.rekhas[s]}</TableCell>
+                  <TableCell className="hidden px-2 py-1 sm:px-4 text-muted-foreground sm:table-cell">{chart.givers[s].map(OWNER_ABBR).join(" ") || "—"}</TableCell>
+                  <TableCell className="px-2 py-1 sm:px-4 text-right tabular-nums">{chart.trikona[s]}</TableCell>
+                  <TableCell className="px-2 py-1 sm:px-4 text-right tabular-nums font-medium">{chart.reduced[s]}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <p className="mt-2 text-muted-foreground">
+            Trikona shodhana <SourceLink source={src.trikona} /> · Ekadhipatya shodhana <SourceLink source={src.ekadhipatya} /> · Rasi pinda {chart.rashiPinda}, Graha pinda {chart.grahaPinda}, Yoga pinda {chart.yogaPinda} <SourceLink source={src.pinda} />{chart.owner !== "Lagna" && <> · Signifies {SIGNIFICATION_TEXT[chart.owner]} <SourceLink source={src.significations} /></>}
+          </p>
+        </div>
+      )}
+
+      <h4 className="mt-6 text-sm font-semibold">Saturn's transit points (ch. 70)</h4>
+      <p className="mt-1 text-xs text-muted-foreground">
+        For each matter Parashara multiplies the rekhas of the house named by the owner's Yoga pinda; the remainder by 27 marks the nakshatra and by 12 the sign whose transit by Saturn, or by its trines, brings distress in that matter, <SourceLink source={{ label: "Parashara 70.7-44", url: BPHS_URL(70) }} />.
+      </p>
+      <Table className="mt-2" data-testid="parashari-av-saturn">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="px-2 sm:px-4">Matter</TableHead>
+            <TableHead className="hidden sm:table-cell">House read</TableHead>
+            <TableHead className="px-2 sm:px-4">Nakshatra</TableHead>
+            <TableHead className="px-2 sm:px-4">Sign</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {av.saturnPoints.map((s) => (
+            <TableRow key={s.matter} data-testid={`parashari-av-saturn-${s.owner}`}>
+              <TableCell className="px-2 py-1.5 sm:px-4 text-xs">{s.matter} <SourceLink source={s.source} /></TableCell>
+              <TableCell className="hidden px-2 py-1.5 sm:px-4 text-xs text-muted-foreground sm:table-cell">{ord(s.houseFrom)} from {s.owner}: {SIGNS[s.signIndex]}, {s.rekhas} rekhas × pinda {s.rekhas ? s.product / s.rekhas : "—"}</TableCell>
+              <TableCell className="px-2 py-1.5 sm:px-4 text-xs">{NAKSHATRAS[s.nakshatraIndex]}<span className="block text-[10px] text-muted-foreground">trines {s.trineNakshatras.slice(1).map((n) => NAKSHATRAS[n]).join(", ")}</span></TableCell>
+              <TableCell className="px-2 py-1.5 sm:px-4 text-xs">{SIGNS[s.transitSignIndex]}<span className="block text-[10px] text-muted-foreground">trines {s.trineSigns.slice(1).map((n) => SIGNS[n]).join(", ")}</span></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <h4 className="mt-6 text-sm font-semibold">Readings from the aggregate (ch. 70-72)</h4>
+      <ul className="mt-1 space-y-1 text-xs text-muted-foreground" data-testid="parashari-av-readings">
+        <li>{av.wealthYoga.text} <SourceLink source={src.wealth} /></li>
+        <li>
+          Life in thirds: {av.lifeThirds.map((t) => `${t.span} (${t.houses}) ${t.verdict}${t.benefics.length || t.malefics.length ? ` with ${[...t.benefics, ...t.malefics].map((p) => PLANET_ABBR[p]).join(", ")}` : ", no planets"}`).join("; ")}. <SourceLink source={src.thirds} />
+        </li>
+        <li>
+          Years of distress by Saturn's rekhas: {av.distressYears.lagnaToSaturn} (lagna to Saturn) and {av.distressYears.saturnToLagna} (Saturn to lagna); their sum {av.distressYears.lagnaToSaturn + av.distressYears.saturnToLagna} is the year to watch if an arishta dasa also runs. <SourceLink source={src.longevityYears} />
+        </li>
+        <li>Longevity by the rekha table, half the eight charts' spans: {av.ayurdaya.toFixed(1)} years. <SourceLink source={src.ayus} /></li>
+        <li>Saturn's transit through signs with more rekhas in its own chart is favourable, through signs with more dots only evil ({av.charts.find((c) => c.owner === "Saturn")!.rekhas.map((r, i) => (r >= 5 ? SIGNS[i] : null)).filter(Boolean).join(", ") || "no sign reaches five rekhas"} carry five or more). <SourceLink source={{ label: "Parashara 70.43-44", url: BPHS_URL(70) }} /></li>
+      </ul>
+      <button className="mt-2 text-xs text-muted-foreground underline underline-offset-2" onClick={() => setCaveats((v) => !v)} data-testid="parashari-av-caveats">
+        {caveats ? "Hide" : "Show"} how the chapters were applied ({av.caveats.length} notes)
+      </button>
+      {caveats && (
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground" data-testid="parashari-av-caveat-list">
+          {av.caveats.map((c, i) => <li key={i}>{c}</li>)}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+const SIGNIFICATION_TEXT: Record<string, string> = {
+  Sun: "soul, nature, physical strength, joys and sorrows, father",
+  Moon: "mind, wisdom, joy, mother",
+  Mars: "co-borns, strength, qualities, land",
+  Mercury: "business dealings, livelihood, friends",
+  Jupiter: "nourishment of the body, learning, children, wealth and property",
+  Venus: "marriage, enjoyments, conveyance, relations with women",
+  Saturn: "longevity, source of maintenance, grief, danger, losses, death",
+};

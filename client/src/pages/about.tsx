@@ -658,11 +658,22 @@ function ParashariMethod() {
         <li>
           Chapter 28, Ishta and Kashta phala: the Uchcha and Chesta rasmis (28.2-4, the Sun's Chesta kendra being the tropical Sun plus three signs and the Moon's its distance from the Sun), Subha and Asubha
           rasmis (28.5), Ishta and Kashta out of 60 (28.6, read so that the rasmis run one to seven and the Ishta phala is the mean of the two arcs in virupas), the Saptavarga subhankas and asubhankas (28.7-10)
-          and the Dig bala as its own good and ill measure (28.11-12). Each dasa reading states the lord's tendency, as 28.1 directs. The Ashtakavarga steps of 28.13-20 are not applied.
+          and the Dig bala as its own good and ill measure (28.11-12). Each dasa reading states the lord's tendency, as 28.1 directs. 28.13-14 (varga figures scaled by the Shadbala total) and 28.15-20 (net
+          effects of the houses: bhava bala with the lord's Shadbala, split by the lord's Ishta and Kashta, then adjusted for planets in and aspecting the house, the lord's dignity and the Sarvashtakavarga
+          rekhas of the sign) are applied as an "Effects of the houses" table. The verses give the direction of each step but no scale, so every amount there is marked provisional.
         </li>
         <li>
           Transit at the start of a dasa, 48.8: the dasa lord's sidereal position when the maha dasa begins is placed in a whole-sign house from the natal lagna; an angle or trine reads favourable and the
-          6th, 8th or 12th adverse, as the verse says. Other houses are shown as neutral and marked provisional, since the verse names only those two groups.
+          6th, 8th or 12th adverse, as the verse says. Other houses are shown as neutral and marked provisional, since the verse names only those two groups. The same transit sign is then read by the dasa
+          lord's own Ashtakavarga and by the aggregate (66.70-72, 72.3-5), and the lord's natal sign by the aggregate (72.5-6).
+        </li>
+        <li>
+          Ashtakavarga, chapters 66-72: the rekha tables of 66.43-68 for the seven planets and the lagna, checked against the dot lists of 66.16-42 (the dot lists win where the two disagree, giving the
+          usual totals 48, 49, 39, 54, 56, 52, 39 and 49); Trikona shodhana (67) and Ekadhipatya shodhana (68); the Rasi, Graha and Yoga pindas (69, with the multipliers of the printed chakras, the verse
+          variants being noted); the significations and Saturn transit points of chapter 70 (the 9th from the Sun for father, the 4th from the Moon for mother, the 4th from Mercury, the 5th from Jupiter,
+          the 7th from Venus, the 8th from Saturn, and the 3rd from Mars for co-borns as a provisional reading of 70.24-27), the years of distress of 70.37-40, the rekha longevity of 71.1-4, and the
+          Sarvashtakavarga of chapter 72 with its bands (72.3-6), the wealth combination of 72.7-8 and the life-thirds of 72.9-10. The monthly dangers of 72.11-28 are not listed. Chapter 66 calls the
+          benefic mark a rekha and the malefic a bindu; 28.15-20 says bindu for the benefic mark; the app counts benefic marks and calls them rekhas.
         </li>
         <li>
           Chapter 48, dasas of house lords: the theme of each lordship (48.2-8) and the relationship rules of 48.9-20 (company or aspect of the 5th and 9th lords, angle lord in a trine or trine lord in an
@@ -681,7 +692,7 @@ function ParashariMethod() {
       </ul>
       <h2>Not yet here</h2>
       <p>
-        Bhava chalit (unequal houses), Ashtakavarga (and with it the Ishta-Kashta steps of 28.13-20), the divisional charts beyond the navamsa and dasamsa already used elsewhere, Neecha Bhanga and Viparita raja yoga (which are not stated in
+        Bhava chalit (unequal houses), the divisional charts beyond the navamsa and dasamsa already used elsewhere, Neecha Bhanga and Viparita raja yoga (which are not stated in
         these BPHS chapters and would be entered as provisional from Phaladeepika or a similar source), and the sookshma and prana levels. Any rule added from a non-classical source will carry a provisional mark.
       </p>
     </div>

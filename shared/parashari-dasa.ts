@@ -10,6 +10,7 @@ import { antarasOf } from "./kp";
 import { DateTime } from "luxon";
 import { ANTAR_DASA, PRATYANTAR, type AntarEntry } from "./parashari-dasa-data";
 import type { ShadbalaResult, PlanetShadbala, IshtaKashta, DasaStartTransit } from "./shadbala";
+import type { AshtakavargaResult } from "./ashtakavarga";
 
 export type Tone = "support" | "strain" | "mixed";
 
@@ -22,7 +23,7 @@ export interface DasaSource {
 export interface DasaNote {
   id: string;
   /** Which chapter layer the note comes from. */
-  layer: "general" | "strength" | "planet" | "lordship" | "relation";
+  layer: "general" | "strength" | "ashtakavarga" | "planet" | "lordship" | "relation";
   text: string;
   tone: Tone;
   source: DasaSource;
@@ -104,6 +105,8 @@ interface Ctx {
   ishta: (p: Planet) => IshtaKashta | undefined;
   /** Where the dasa lord stands when its dasa begins (48.8), when the server supplied it. */
   transitAtStart: (p: Planet) => DasaStartTransit | undefined;
+  /** Ashtakavarga of ch. 66-72, always available (needs only signs). */
+  av: AshtakavargaResult | undefined;
 }
 
 function drishti(planet: Planet, fromSign: number, toSign: number): number {
@@ -116,7 +119,7 @@ function drishti(planet: Planet, fromSign: number, toSign: number): number {
   return 0;
 }
 
-function makeCtx(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], sb?: ShadbalaResult, starts?: DasaStartTransit[]): Ctx {
+function makeCtx(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], sb?: ShadbalaResult, starts?: DasaStartTransit[], av?: AshtakavargaResult): Ctx {
   const pos = (pl: Planet) => positions.find((p) => p.planet === pl)!;
   const sun = pos("Sun"), moon = pos("Moon");
   const elong = (((moon.lon - sun.lon) % 360) + 360) % 360;
@@ -156,6 +159,7 @@ function makeCtx(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Plan
     bala: (pl) => sb?.planets.find((x) => x.planet === pl),
     ishta: (pl) => sb?.ishta.find((x) => x.planet === pl),
     transitAtStart: (pl) => starts?.find((x) => x.lord === pl),
+    av,
   };
 }
 
@@ -340,8 +344,8 @@ function antarVerdict(f: AntarReading["facts"]): Tone {
 }
 
 /** All dasa readings for the Vimshottari sequence. */
-export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], vim: Vimshottari, birthIso: string, asOfIso: string, shadbala?: ShadbalaResult, dasaStarts?: DasaStartTransit[]): DasaReading[] {
-  const c = makeCtx(positions, lagnaIdx, yogakaraka, shadbala, dasaStarts);
+export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], vim: Vimshottari, birthIso: string, asOfIso: string, shadbala?: ShadbalaResult, dasaStarts?: DasaStartTransit[], av?: AshtakavargaResult): DasaReading[] {
+  const c = makeCtx(positions, lagnaIdx, yogakaraka, shadbala, dasaStarts, av);
   const birth = DateTime.fromISO(birthIso), asOf = DateTime.fromISO(asOfIso);
   return vim.dasas.map((d) => {
     const p = d.lord;
@@ -386,6 +390,30 @@ export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: numbe
         tone: good ? "support" : bad ? "strain" : "mixed",
         text: `When this dasa begins ${p} transits ${SIGNS[tr.signIndex]}, the ${ord(th)} house from the natal lagna: ${good ? "an auspicious house (angle or trine), so Parashara expects favourable results from the period" : bad ? "the 6th, 8th or 12th, which he says yields only adverse results in the dasa" : "neither an angle or trine nor the 6th, 8th or 12th; the verse names only those, so the transit is read as neutral"}. He asks that birth placement and this transit both be weighed.`,
         source: S(48, "8", !good && !bad),
+      });
+      // 66.70-72 and 72.5: the same transit sign read by the lord's own Ashtakavarga and by the aggregate.
+      const own = c.av?.charts.find((x) => x.owner === p);
+      if (own && c.av) {
+        const rk = own.rekhas[tr.signIndex], sv = c.av.sarva[tr.signIndex], band = c.av.band[tr.signIndex];
+        notes.push({
+          id: `${p}-66-transit`,
+          layer: "ashtakavarga",
+          tone: rk >= 4 && band !== "adverse" ? "support" : rk <= 2 || band === "adverse" ? "strain" : "mixed",
+          text: `${SIGNS[tr.signIndex]} carries ${rk} of 8 rekhas in ${p}'s own Ashtakavarga (${rk >= 4 ? "a favourable transit sign" : rk <= 2 ? "a sign where its transit yields unfavourable results" : "a middling sign"}, 66.70-72) and ${sv} in the aggregate, ${band === "favourable" ? "above 30 and favourable" : band === "medium" ? "between 25 and 30, medium" : "below 25 and adverse"} (72.3-5).`,
+          source: S(66, "70-72", true),
+        });
+      }
+    }
+    // 72.5-6: the natal sign of the dasa lord by the aggregate.
+    if (c.av && p !== "Rahu" && p !== "Ketu") {
+      const sv = c.av.sarva[pp.signIndex], band = c.av.band[pp.signIndex];
+      const own = c.av.charts.find((x) => x.owner === p)!;
+      notes.push({
+        id: `${p}-72-natal`,
+        layer: "ashtakavarga",
+        tone: band === "favourable" ? "support" : band === "adverse" ? "strain" : "mixed",
+        text: `At birth ${p} stands in ${SIGNS[pp.signIndex]} with ${sv} rekhas in the Sarvashtakavarga (${band}) and ${own.rekhas[pp.signIndex]} in its own chart: Parashara says a planet in a sign with a favourable count gives auspicious effects and in an unfavourable one evil results.`,
+        source: S(72, "3-6"),
       });
     }
     // 47 planet-specific.
@@ -439,6 +467,7 @@ export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: numbe
 export const LAYER_LABEL: Record<DasaNote["layer"], string> = {
   general: "General rule (47.5-6)",
   strength: "Shadbala (ch. 27)",
+  ashtakavarga: "Ashtakavarga (ch. 66-72)",
   planet: "Placement (ch. 47)",
   lordship: "House lordship (48.2-8)",
   relation: "Relationships (48.9-20)",

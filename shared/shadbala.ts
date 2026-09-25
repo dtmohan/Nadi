@@ -583,7 +583,7 @@ export function computeShadbala(positions: PlanetPosition[], lagnaIdx: number, b
     "Bhava bala measures the cusp of each house, taken as the lagna degree plus multiples of 30 so that it stays inside the whole-sign house; the chapter does not fix the house system. The Sagittarius and Capricorn halves follow 27.26-28.",
     "Bhava drishti (27.29) adds a quarter of each benefic's aspect on the cusp, takes a quarter of each malefic's, and adds the whole aspect of Jupiter and Mercury as the verse says. The bhava lord's full Shadbala is then added.",
     "The rising of the signs for 27.31 follows chapter 4 (Sagittarius head-rising per 4.17; Scorpio is not stated there and is taken as head-rising). Twilight is read as one ghati either side of sunrise or sunset, and the twilight case uses the dual signs as the translation renders it; both points are provisional.",
-    "Ishta and Kashta follow 28.2-6 with the rasmis read as one to seven, which makes the Ishta phala the mean of the Uchcha and Chesta arcs in virupas and keeps it within 60. The Sun's Chesta kendra is the tropical Sun plus three signs and the Moon's is its distance from the Sun (28.3-4). The Ashtakavarga steps of 28.13-20 are not applied.",
+    "Ishta and Kashta follow 28.2-6 with the rasmis read as one to seven, which makes the Ishta phala the mean of the Uchcha and Chesta arcs in virupas and keeps it within 60. The Sun's Chesta kendra is the tropical Sun plus three signs and the Moon's is its distance from the Sun (28.3-4). The steps of 28.13-20 are applied in the house effects table, with their own notes.",
   ];
 
   return { planets: rows, lords: { varsha, masa, dina, hora }, daytime, wars, twilight, bhavas, ishta, sources: SHADBALA_SOURCES, caveats };
