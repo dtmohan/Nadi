@@ -8,6 +8,7 @@ import type { MotherPointReading, MotherPointRow, MotherSeverity } from "@shared
 import { SignName, PlanetName, planetColor } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { cn } from "@/lib/utils";
+import { ModeText, SectionTitle } from "@/components/mode-text";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
@@ -71,12 +72,15 @@ function MotherSection({ m, inRange }: { m: MotherPointReading; inRange: (s: str
   const CAL_PILL: Record<"avoid" | "fit" | "even", string> = { avoid: TONE_PILL.strain, fit: TONE_PILL.support, even: TONE_PILL.mixed };
   return (
     <div data-testid="av-timeline-mother">
-      <h4 className="mt-6 text-sm font-semibold">Mother's point under Saturn</h4>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <SectionTitle as="h4" className="mt-6" plain="Mother, under Saturn's passage" technical="Mother's point under Saturn" />
+      <ModeText
+        plain={<>The text derives one lunar mansion ({NAKSHATRAS[m.pointNakshatra]}) and one sign (<SignName signIndex={m.pointSign} />) for the mother from the Moon's points. Saturn passing through them is a time of concern for her health, and through the signs in trine to them a time of lesser strain. No further condition is given for the mother, so none is tested.</>}
+        practitioner={<>
         Mother, house and village are read from the 4th from the Moon: its {m.rekhas} rekhas in the Moon's chart times the Moon's yoga pinda give {m.product}, whose remainders by 27 and 12 name{" "}
         {NAKSHATRAS[m.pointNakshatra]} and <SignName signIndex={m.pointSign} />. Saturn in that nakshatra brings death of, or distress to, the mother; in that sign her death may occur; in their trines,
         distress. <SourceLink source={m.sources.point} /> The verses give no planetary condition like 70.12 for the mother, so none is tested.
-      </p>
+        </>}
+      />
       <ul className="mt-2 space-y-1.5" data-testid="av-timeline-mother-rows">
         {rows.map((r) => {
           const k = r.kind + r.start;
@@ -86,10 +90,13 @@ function MotherSection({ m, inRange }: { m: MotherPointReading; inRange: (s: str
       </ul>
       {!m.hasNakshatras && <p className="mt-2 text-xs text-muted-foreground">Nakshatra passages appear once this chart is reopened.</p>}
 
-      <h4 className="mt-5 text-sm font-semibold">Moon's month for auspicious functions</h4>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <SectionTitle as="h4" className="mt-5" plain="Good and poor days this month for ceremonies" technical="Moon's month for auspicious functions" />
+      <ModeText
+        plain={<>Parashara advises against starting an auspicious function while the Moon passes through a sign where its own points table is weak. The next thirty days from when the chart was opened are marked, in this device's time zone.</>}
+        practitioner={<>
         No auspicious function while the Moon transits a sign holding more dots than rekhas in the Moon's own chart. <SourceLink source={m.sources.calendar} /> Thirty days from the day the chart was opened, times in this device's zone.
-      </p>
+        </>}
+      />
       {m.calendar ? (
         <ul className="mt-2 grid gap-1 sm:grid-cols-2" data-testid="av-timeline-moon-month">
           {m.calendar.map((c) => (
@@ -261,12 +268,15 @@ export function AvTimelineSection({ tl, asOfIso, arishta, mother }: { tl: AvTime
 
   return (
     <div className="mt-8" data-testid="parashari-av-timeline">
-      <h3 className="text-sm font-semibold">Ashtakavarga transits</h3>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <SectionTitle plain="Saturn and Jupiter's passages, year by year" technical="Ashtakavarga transits" term="ashtakavarga" />
+      <ModeText
+        plain={<>Saturn spends about two and a half years in a sign and Jupiter about one. Each passage is read by the points the sign holds: a well-marked sign is easy ground, a poorly marked one hard. Saturn's passages are also checked against the sensitive points the text derives for father, mother and other matters; filled red tags mark an exact point, outlined ones a sign in trine to it.</>}
+        practitioner={<>
         Each sign Saturn or Jupiter passes is read by the planet's own chart, a passage through rekha-marked places being favourable and through dot-marked places not <SourceLink source={src.own} />, <SourceLink source={src.saturnOwn} />; by the
         aggregate band of the sign <SourceLink source={src.sarva} />, with Jupiter's year of a sign above 30 rekhas read by <SourceLink source={src.samvatsara} /> and by the Sun's chart <SourceLink source={src.sunYear} />; and, for Saturn, against
         the nakshatra and sign points of <SourceLink source={src.points} /> with their trines. The eight boxes show which of the Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn and the lagna gave a rekha to the sign. Filled red tags mark the exact point of chapter 70, outlined ones a trine of it.
-      </p>
+        </>}
+      />
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <div className="inline-flex rounded-md border p-0.5" role="tablist">
           {(["Saturn", "Jupiter"] as const).map((p) => (
@@ -309,10 +319,13 @@ export function AvTimelineSection({ tl, asOfIso, arishta, mother }: { tl: AvTime
 
       {planet === "Saturn" && (
         <>
-          <h4 className="mt-6 text-sm font-semibold">Nakshatra points struck by Saturn</h4>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <SectionTitle as="h4" className="mt-6" plain="Lunar mansions Saturn touches" technical="Nakshatra points struck by Saturn" />
+          <ModeText
+            plain={<>The sky is also divided into 27 lunar mansions. The text names one for each matter; Saturn passing through it, or through the two mansions in trine to it, is listed here. Only passages that touch a named point appear.</>}
+            practitioner={<>
             Saturn's passages through the nakshatras named by the products of chapter 70, or their trines (the 10th and 19th from each). Only passages that touch a point are listed.
-          </p>
+            </>}
+          />
           {tl.hasNakshatras ? (
             <ul className="mt-2 space-y-1.5" data-testid="av-timeline-naks">
               {naks.map((r) => (
@@ -324,11 +337,14 @@ export function AvTimelineSection({ tl, asOfIso, arishta, mother }: { tl: AvTime
             <p className="mt-2 rounded-md border border-dashed px-3 py-3 text-xs text-muted-foreground">Saturn's nakshatra ingresses are computed when a chart is cast; reopen this chart to see them.</p>
           )}
 
-          <h4 className="mt-6 text-sm font-semibold">Father's point under Saturn</h4>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <SectionTitle as="h4" className="mt-6" plain="Father, under Saturn's passage" technical="Father's point under Saturn" />
+          <ModeText
+            plain={<>Windows when Saturn crosses the father's sign point, or a sign in trine to it, while a testing planet also stands in a sensitive place from the Sun. The text says the threat is real only if Saturn is badly placed or the ruler of the 4th house is running its period, and that a favourable period averts it.</>}
+            practitioner={<>
             Windows when Saturn crosses the father's sign point or a trine of it while Rahu, Saturn or Mars stand in the 4th from the natal Sun (70.12). The threat matures if Saturn, joined or aspected by a
             malefic, is in the 9th from the lagna or the Moon, or the dasa of the 4th lord runs (70.13); a favourable dasa averts it (70.14).
-          </p>
+            </>}
+          />
           {arishta ? (
             <ul className="mt-2 space-y-1.5" data-testid="av-timeline-arishta">
               {arishtaRows.map((r) => (
@@ -352,7 +368,7 @@ export function AvTimelineSection({ tl, asOfIso, arishta, mother }: { tl: AvTime
 
           {mother && <MotherSection m={mother} inRange={inRange} />}
 
-          <h4 className="mt-6 text-sm font-semibold">Years to watch</h4>
+          <SectionTitle as="h4" className="mt-6" plain="Years to watch" technical="Distress years (ch. 70)" />
           <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground" data-testid="av-timeline-years">
             {tl.distressYears.map((y) => (
               <li key={y.label}>

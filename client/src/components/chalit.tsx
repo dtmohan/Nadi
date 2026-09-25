@@ -4,6 +4,7 @@ import { PlanetName, SignName } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { ModeText, SectionTitle } from "@/components/mode-text";
 
 const ord = (n: number) => `${n}${["th", "st", "nd", "rd"][n % 10 > 3 || Math.floor(n / 10) === 1 ? 0 : n % 10]}`;
 
@@ -13,13 +14,15 @@ export function ChalitSection({ c }: { c: ChalitResult }) {
   const nearSandhi = c.planets.filter((p) => p.sandhiGap < c.sandhiOrb);
   return (
     <div className="mt-8" data-testid="parashari-chalit">
-      <h3 className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-        Bhava chalit cross-check
+      <SectionTitle plain="House-boundary cross-check" technical="Bhava chalit cross-check" term="chalit">
         <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-300">Sripati, provisional</span>
-      </h3>
-      <p className="mt-1 text-xs text-muted-foreground">
+      </SectionTitle>
+      <ModeText
+        plain={<>The readings on this page treat each whole sign as one house. Another way draws house boundaries from the exact rising degree ({signDeg(c.asc)}), so a house can straddle two signs. This table shows what changes under that method: planets highlighted would fall in a different house, and planets within a degree of a boundary belong clearly to neither. Parashara's text does not give this construction, so it is a cross-check only.</>}
+        practitioner={<>
         Parashara measures bhava bala on cusps (<SourceLink source={c.sources.cusps} />) and has bhava charts prepared from the special lagnas (<SourceLink source={c.sources.special} />), but the translation gives no verse for computing the twelve madhyas, so this table uses <SourceLink source={c.sources.method} />: lagna {signDeg(c.asc)} as the 1st madhya, the meridian {signDeg(c.mc)} as the 10th, and the arcs between trisected. Each bhava runs from the midpoint with one neighbour to the midpoint with the other. Every Parashari reading on this page stays on the whole-sign chart; this shows only where a cusp-based reading would differ.
-      </p>
+        </>}
+      />
       <p className="mt-2 text-xs" data-testid="chalit-summary">
         {shifted.length > 0 ? (
           <>

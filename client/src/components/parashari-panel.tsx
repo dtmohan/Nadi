@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, SIGNS, type Planet } from "@shared/astro";
-import { computeParashari, ord, listH, roleLabel, LORDSHIP_LABEL, KENDRA, type ParashariFinding } from "@shared/parashari";
+import { computeParashari, ord, listH, roleLabel, LORDSHIP_LABEL, KENDRA, type ParashariFinding, type DashaGloss } from "@shared/parashari";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
@@ -15,7 +15,7 @@ import { readFatherArishta } from "@shared/father-arishta";
 import { readMotherPoint } from "@shared/mother-point";
 import { readKinTransits } from "@shared/kin-transits";
 import { KinTransitsSection } from "@/components/kin-transits";
-import { computeVargas } from "@shared/vargas";
+import { computeVargas, type SpouseReading } from "@shared/vargas";
 import { VargasSection } from "@/components/vargas";
 import { computeChalit } from "@shared/chalit";
 import { ChalitSection } from "@/components/chalit";
@@ -28,6 +28,9 @@ import { SourceLink } from "@/components/source-link";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
+import { Working } from "@/components/working";
+import { Term } from "@/components/term";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
@@ -87,6 +90,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const vargas = useMemo(() => computeVargas(positions, result.jaimini.lagna.lon), [positions, result.jaimini.lagna.lon]);
   const chalit = useMemo(() => (result.shadbala ? computeChalit(positions, result.shadbala.asc, result.shadbala.mc) : undefined), [positions, result.shadbala]);
   const portions = useMemo(() => computePortions(positions), [positions]);
+  const plain = usePlain();
   const [balaOpen, setBalaOpen] = useState<string | null>(null);
   const [focusHouse, setFocusHouse] = useState<number | null>(null);
   const [section, setSection] = useState<"lords" | "yogas">("yogas");
@@ -112,12 +116,24 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <h2 className="text-xl font-semibold">Parashari</h2>
-          <p className="text-sm text-muted-foreground">
-            {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, yogas from chapters 34, 36, 41, 42 and 75 of{" "}
-            <a href={BPHS_URL(24)} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Brihat Parashara Hora Sastra</a> (Santhanam translation). Nodes have no aspect in chapter 26 and own no house; they are read through their sign lord. First pass.
-          </p>
+          <ModeText
+            className="mt-0 text-sm"
+            plain={
+              <>
+                This chart's rising sign is {SIGNS[r.lagna.signIndex]}. This reading follows the classical text of Parashara: which planets help or hinder a person born with {SIGNS[r.lagna.signIndex]} rising, how strong each planet is, what the notable combinations promise, and what the life period running now says. Hover a dotted term for its meaning; switch to Practitioner for every rule and verse.
+              </>
+            }
+            practitioner={
+              <>
+                {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, yogas from chapters 34, 36, 41, 42 and 75 of{" "}
+                <a href={BPHS_URL(24)} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Brihat Parashara Hora Sastra</a> (Santhanam translation). Nodes have no aspect in chapter 26 and own no house; they are read through their sign lord. First pass.
+              </>
+            }
+          />
         </div>
       </div>
+
+      {plain && <InBrief r={r} cur={cur} yogas={yogas} spouse={vargas.spouse} />}
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
         <div>
@@ -135,12 +151,12 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               setFocusHouse((cur) => (cur === h ? null : h));
             }}
           />
-          <p className="mt-2 text-xs text-muted-foreground">Lagna lord {r.bhavas[0].lord} in the primary colour. Angles and trines are labelled; the 3rd, 6th, 8th, 11th and 12th are the houses Parashara treats with caution (34.4-6).</p>
+          <ModeText className="mt-2" plain={<>The birth chart. {r.bhavas[0].lord}, ruler of the rising sign, is in the primary colour. Angles and trines are the strong and fortunate houses; the 3rd, 6th, 8th, 11th and 12th are the ones Parashara treats with caution. Click a sign to read its house.</>} practitioner={<>Lagna lord {r.bhavas[0].lord} in the primary colour. Angles and trines are labelled; the 3rd, 6th, 8th, 11th and 12th are the houses Parashara treats with caution (34.4-6).</>} />
 
         </div>
 
         <div>
-          <h3 className="text-sm font-semibold">Bhavas</h3>
+          <SectionTitle plain="The twelve houses" technical="Bhavas" term="bhava" />
           <Table className="mt-2" data-testid="parashari-bhavas">
             <TableHeader>
               <TableRow>
@@ -179,10 +195,11 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       </div>
 
       <div className="mt-8">
-          <h3 className="text-sm font-semibold">Planets for {SIGNS[r.lagna.signIndex]} rising</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Functional roles as Parashara states them for this rising sign, <SourceLink source={{ label: `Parashara ${nature.verses}`, url: BPHS_URL(34) }} />. {nature.note}{nature.byRule?.length ? <> A planet owning a kendra and a trikona together is a yogakaraka in the special sense, and a malefic kendra lord turns auspicious only by that double lordship, <SourceLink source={{ label: "Parashara 34.13-14", url: BPHS_URL(34) }} />.</> : null}
-        </p>
+          <SectionTitle plain={`Helpers and hinderers for ${SIGNS[r.lagna.signIndex]} rising`} technical={`Planets for ${SIGNS[r.lagna.signIndex]} rising`} term="yogakaraka" />
+        <ModeText
+          plain={<>The same planet helps one rising sign and troubles another, depending on which houses it rules. Parashara lists the roles for each rising sign; these are his for {SIGNS[r.lagna.signIndex]}. A <Term k="yogakaraka">yogakaraka</Term> is the chief helper, a <Term k="maraka">maraka</Term> a planet whose periods can bring illness or loss.</>}
+          practitioner={<>Functional roles as Parashara states them for this rising sign, <SourceLink source={{ label: `Parashara ${nature.verses}`, url: BPHS_URL(34) }} />. {nature.note}{nature.byRule?.length ? <> A planet owning a kendra and a trikona together is a yogakaraka in the special sense, and a malefic kendra lord turns auspicious only by that double lordship, <SourceLink source={{ label: "Parashara 34.13-14", url: BPHS_URL(34) }} />.</> : null}</>}
+        />
         <Table className="mt-2" data-testid="parashari-natures">
           <TableHeader>
             <TableRow>
@@ -214,10 +231,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div role="tablist" aria-label="Parashari section" className="inline-flex rounded-md border p-0.5 text-sm">
             <button role="tab" aria-selected={section === "yogas"} onClick={() => setSection("yogas")} className={cn("rounded px-3 py-1", section === "yogas" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")} data-testid="parashari-section-yogas">
-              Yogas and combinations ({yogas.length})
+              {plain ? "Notable combinations" : "Yogas and combinations"} ({yogas.length})
             </button>
             <button role="tab" aria-selected={section === "lords"} onClick={() => setSection("lords")} className={cn("rounded px-3 py-1", section === "lords" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")} data-testid="parashari-section-lords">
-              Lords in houses ({shownLords.length}{focusHouse ? ` of 12` : ""})
+              {plain ? "Where each house's ruler sits" : "Lords in houses"} ({shownLords.length}{focusHouse ? ` of 12` : ""})
             </button>
           </div>
           {focusHouse && (
@@ -242,19 +259,34 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         )}
       </div>
 
-      {r.shadbala && <ShadbalaSection sb={r.shadbala} open={balaOpen} setOpen={setBalaOpen} phala={r.bhavaPhala} varga={r.vargaPhala} />}
+      {r.shadbala && (
+        <Working id="parashari-shadbala" label="Show how strong each planet is (Shadbala)" className="mt-8">
+          <ShadbalaSection sb={r.shadbala} open={balaOpen} setOpen={setBalaOpen} phala={r.bhavaPhala} varga={r.vargaPhala} />
+        </Working>
+      )}
       <VargasSection v={vargas} name={chart.name} />
-      <PortionsSection r={portions} />
-      {chalit && <ChalitSection c={chalit} />}
-      <AshtakavargaSection av={r.ashtakavarga} lagnaIdx={r.lagna.signIndex} />
+      <Working id="parashari-portions" label="Show where each planet stands within its sign (hora, decanate, trimsamsa)" className="mt-8">
+        <PortionsSection r={portions} />
+      </Working>
+      {chalit && (
+        <Working id="parashari-chalit" label="Show the house-boundary cross-check (bhava chalit)" className="mt-8">
+          <ChalitSection c={chalit} />
+        </Working>
+      )}
+      <Working id="parashari-ashtakavarga" label="Show the sign-by-sign points table (Ashtakavarga)" className="mt-8">
+        <AshtakavargaSection av={r.ashtakavarga} lagnaIdx={r.lagna.signIndex} />
+      </Working>
       <AvTimelineSection tl={avTimeline} asOfIso={asOfIso} arishta={fatherArishta} mother={motherPoint} />
-      <KinTransitsSection k={kinTransits} />
+      <Working id="parashari-kin" label="Show Mars, Mercury and Venus through their own point tables" className="mt-8">
+        <KinTransitsSection k={kinTransits} />
+      </Working>
 
       <div className="mt-8">
-        <h3 className="text-sm font-semibold">Vimshottari dasa, read by lordship</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Same Vimshottari sequence as the KP panel but from the Lahiri Moon ({positions.find((p) => p.planet === "Moon")?.nakshatra}), balance {r.vimshottari.balanceYears.toFixed(2)} years of {r.vimshottari.dasas[0].lord}. Each lord is glossed by the houses it owns and occupies and by its role for this rising sign. Pick a dasa row to read its effects from ch. 47-48 and its antar dasas from ch. 52-60.
-        </p>
+        <SectionTitle plain="Life periods" technical="Vimshottari dasa, read by lordship" term="vimshottari" />
+        <ModeText
+          plain={<>Life is divided into planetary periods of fixed length, 120 years in all, starting from the Moon's position at birth. The period running now colours the present years; each is judged by the houses its planet rules and by its role for {SIGNS[r.lagna.signIndex]} rising. Pick a period to read what the text says about it and to see its sub-periods.</>}
+          practitioner={<>Same Vimshottari sequence as the KP panel but from the Lahiri Moon ({positions.find((p) => p.planet === "Moon")?.nakshatra}), balance {r.vimshottari.balanceYears.toFixed(2)} years of {r.vimshottari.dasas[0].lord}. Each lord is glossed by the houses it owns and occupies and by its role for this rising sign. Pick a dasa row to read its effects from ch. 47-48 and its antar dasas from ch. 52-60.</>}
+        />
         <DasaBar
           className="mt-2"
           nowAt={ageNow}
@@ -264,7 +296,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         <Table className="mt-3" data-testid="parashari-dashas">
           <TableHeader>
             <TableRow>
-              <TableHead>Dasa</TableHead>
+              <TableHead>{plain ? "Period" : "Dasa"}</TableHead>
               <TableHead className="text-right">Age</TableHead>
               <TableHead className="hidden sm:table-cell">Dates</TableHead>
               <TableHead>Reading</TableHead>
@@ -299,6 +331,65 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   );
 }
 
+const PLAIN_ROLE: Record<string, string> = {
+  yogakaraka: "the chief helper",
+  auspicious: "a helper",
+  malefic: "a hinderer",
+  maraka: "a planet whose periods can bring illness or loss",
+  neutral: "neutral",
+};
+
+/** Plain-reading summary: five short statements a reader can take away before any table. */
+function InBrief({ r, cur, yogas, spouse }: { r: ReturnType<typeof computeParashari>; cur: DashaGloss | undefined; yogas: ParashariFinding[]; spouse: SpouseReading }) {
+  const helpers = r.natures.filter((n) => n.functional === "yogakaraka" || n.functional === "auspicious").map((n) => n.planet);
+  const hinderers = r.natures.filter((n) => n.functional === "malefic" || n.functional === "maraka").map((n) => n.planet);
+  const sb = r.shadbala?.planets.slice().sort((a, b) => b.ratio - a.ratio);
+  const strong = sb?.filter((p) => p.strong).map((p) => p.planet) ?? [];
+  const weak = sb?.filter((p) => !p.strong).map((p) => p.planet) ?? [];
+  const curReading = r.dasaReadings.find((d) => d.current);
+  const good = yogas.filter((f) => f.tone === "support").length;
+  const bad = yogas.filter((f) => f.tone === "strain").length;
+  const mixed = yogas.filter((f) => f.tone === "mixed").length;
+  const list = (xs: Planet[]) => (xs.length === 0 ? "none" : xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+  return (
+    <div className="mt-6 rounded-md border bg-card p-4" data-testid="parashari-in-brief">
+      <h3 className="text-sm font-semibold">In brief</h3>
+      <ul className="mt-2 space-y-1.5 text-sm">
+        <li>
+          <span className="text-muted-foreground">Rising sign: </span>
+          {SIGNS[r.lagna.signIndex]}, ruled by {r.bhavas[0].lord}, which sits in the {ord(r.natures.find((n) => n.planet === r.bhavas[0].lord)?.house ?? 1)} house.
+        </li>
+        <li>
+          <span className="text-muted-foreground">Helpers and hinderers: </span>
+          for {SIGNS[r.lagna.signIndex]} rising Parashara counts {list(helpers)} as {helpers.length === 1 ? "a helper" : "helpers"} and {list(hinderers)} as {hinderers.length === 1 ? "a hinderer" : "hinderers"}; the rest are neutral.
+        </li>
+        {sb && (
+          <li>
+            <span className="text-muted-foreground">Strength: </span>
+            {strong.length === 0 ? "no planet reaches the minimum strength Parashara asks for" : `${list(strong)} ${strong.length === 1 ? "reaches" : "reach"} the minimum strength Parashara asks for`}
+            {weak.length > 0 ? `; ${list(weak)} ${weak.length === 1 ? "falls" : "fall"} short, so ${weak.length === 1 ? "its" : "their"} promises come in part` : ""}. {sb[0].planet} is the strongest planet in this chart.
+          </li>
+        )}
+        <li>
+          <span className="text-muted-foreground">Combinations: </span>
+          {yogas.length} notable {yogas.length === 1 ? "combination" : "combinations"} found, {good} favourable, {mixed} mixed and {bad} testing. Each is written out below with the reason.
+        </li>
+        {cur && (
+          <li>
+            <span className="text-muted-foreground">Now: </span>
+            the chart is in a {cur.lord} period ({fmt(cur.start)} to {fmt(cur.end)}). For this rising sign {cur.lord} is {PLAIN_ROLE[cur.functional] ?? cur.functional}
+            {curReading ? `, and the text's lines for this period come out ${VERDICT_LABEL[curReading.verdict]} on balance` : ""}. The period's sub-periods are listed at the end of the page.
+          </li>
+        )}
+        <li>
+          <span className="text-muted-foreground">Marriage, from the ninth-cut chart: </span>
+          the partner's house there is {SIGNS[spouse.seventhSign]}{spouse.occupants.length ? `, holding ${list(spouse.occupants)}` : ", empty"}; its ruler {spouse.seventhLord} stands in {SIGNS[spouse.lordSign]}. Parashara gives no verdict on this placement, so it is reported, not judged.
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 const fmtV = (v: number) => (Math.abs(v) < 0.05 ? "0" : v.toFixed(1).replace(/\.0$/, ""));
 
 function ShadbalaSection({ sb, open, setOpen, phala, varga }: { sb: ShadbalaResult; open: string | null; setOpen: (k: string | null) => void; phala?: BhavaPhala[]; varga?: VargaPhala[] }) {
@@ -307,12 +398,15 @@ function ShadbalaSection({ sb, open, setOpen, phala, varga }: { sb: ShadbalaResu
   const allCaveats = phala ? [...sb.caveats, ...BHAVA_PHALA_CAVEATS] : sb.caveats;
   return (
     <div className="mt-8" data-testid="parashari-shadbala">
-      <h3 className="text-sm font-semibold">Strength of the planets (Shadbala)</h3>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <SectionTitle plain="How strong each planet is" technical="Strength of the planets (Shadbala)" term="shadbala" />
+      <ModeText
+        plain={<>Six kinds of strength (position, direction, time of birth, motion, nature and aspects) are added into one score and set against the minimum Parashara asks of each planet. A planet at or above its minimum keeps its promises fully; one below keeps them only in part. The last column is the planet's leaning towards good or ill. Open a row for the parts.</>}
+        practitioner={<>
         The six strengths of <SourceLink source={{ label: "Parashara ch. 27", url: BPHS_URL(27) }} /> in virupas (60 to a rupa): positional (Sthana), directional (Dig), temporal (Kala), motional (Chesta), natural (Naisargika) and aspectual (Drik), with aspect values from 26.6-12 and planetary relationships from 3.55-58. The total is set against the requirement of 27.32-33; nodes have none. The last column gives the Ishta and Kashta phala of <SourceLink source={{ label: "ch. 28", url: BPHS_URL(28) }} />, the benefic and malefic tendency out of 60. Open a row for the working.
         {" "}Lords of the {sb.daytime ? "day" : "night"} birth: year {sb.lords.varsha}, month {sb.lords.masa}, weekday {sb.lords.dina}, hora {sb.lords.hora} (27.13).
         {sb.wars.length > 0 && <> Planetary war (27.20): {sb.wars.map((w) => `${w.victor} over ${w.loser}, ${w.separation.toFixed(2)} deg apart`).join("; ")}; the difference of their totals moves to the victor.</>}
-      </p>
+        </>}
+      />
       <Table className="mt-2" data-testid="parashari-shadbala-table">
         <TableHeader>
           <TableRow>
@@ -333,10 +427,13 @@ function ShadbalaSection({ sb, open, setOpen, phala, varga }: { sb: ShadbalaResu
           {sb.planets.map((r) => <BalaRows key={r.planet} r={r} sb={sb} varga={varga?.find((v) => v.planet === r.planet)} open={open === r.planet} toggle={() => setOpen(open === r.planet ? null : r.planet)} />)}
         </TableBody>
       </Table>
-      <h4 className="mt-6 text-sm font-semibold">Strength of the houses (Bhava bala)</h4>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <SectionTitle as="h4" className="mt-6" plain="How strong each house is" technical="Strength of the houses (Bhava bala)" term="bhava-bala" />
+      <ModeText
+        plain={<>Each house is scored from the planets looking at it, its ruler's strength, the planets standing in it and the time of birth. No minimum is set; higher is stronger.</>}
+        practitioner={<>
         Each cusp (lagna degree plus multiples of 30) measured from the point 27.26-28 name for its sign, a quarter of each aspect on it added or taken, the whole aspect of Jupiter and Mercury, the lord's Shadbala (27.29), a rupa for Jupiter or Mercury in the house and one less for the Sun, Mars or Saturn (27.30), and 15 virupas by the rising of the sign for a {sb.twilight ? "twilight" : sb.daytime ? "day" : "night"} birth (27.31). No requirement is stated; higher is stronger.
-      </p>
+        </>}
+      />
       <Table className="mt-2" data-testid="parashari-bhava-bala">
         <TableHeader>
           <TableRow>
@@ -370,10 +467,13 @@ function ShadbalaSection({ sb, open, setOpen, phala, varga }: { sb: ShadbalaResu
       </p>
       {phala && (
         <>
-          <h4 className="mt-6 text-sm font-semibold">Effects of the houses (28.15-20)</h4>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <SectionTitle as="h4" className="mt-6" plain="What each house is likely to deliver" technical="Effects of the houses (28.15-20)" />
+          <ModeText
+            plain={<>Each house's score is combined with its ruler's, then nudged up for helpful planets in or looking at it and down for testing ones. Parashara gives the direction of each nudge, not its size, so the amounts are this app's reading and are marked provisional.</>}
+            practitioner={<>
             Parashara combines each house's strength with its lord's, then adds to the good and takes from the ill for a benefic in the house, its aspects, the lord's dignity and the Ashtakavarga rekhas of the sign, reversing each for malefics, <SourceLink source={{ label: "Parashara 28.15-20", url: BPHS_URL(28), provisional: true }} />. The verses give the direction of each step, not its scale; the amounts here are a stated reading (see the notes). Open a row for the parts.
-          </p>
+            </>}
+          />
           <Table className="mt-2" data-testid="parashari-bhava-phala">
             <TableHeader>
               <TableRow>
@@ -512,20 +612,24 @@ function Note({ n }: { n: DasaNote }) {
 }
 
 function DasaEffects({ d, open, setOpen, birthIso, asOfIso }: { d: DasaReading; open: string | null; setOpen: (k: string | null) => void; birthIso: string; asOfIso: string }) {
+  const plainDE = usePlain();
   const layers: DasaNote["layer"][] = ["general", "strength", "ashtakavarga", "planet", "lordship", "relation"];
   const running = d.antars.find((a) => a.current);
   return (
     <div className="mt-8" data-testid="parashari-dasa-effects">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-sm font-semibold">
-          <PlanetName planet={d.lord} /> dasa, {fmt(d.start)} to {fmt(d.end)}
+          <PlanetName planet={d.lord} /> {plainDE ? "period" : "dasa"}, {fmt(d.start)} to {fmt(d.end)}
         </h3>
         <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium", VERDICT_CLASS[d.verdict])} data-testid="parashari-dasa-verdict">{VERDICT_LABEL[d.verdict]} on balance</span>
         {d.current && <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
       </div>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <ModeText
+        plain={<>What Parashara says a {d.lord} period brings for someone with {d.lord} placed as it is here, judged by the house it stands in, its strength, its leaning towards good or ill, and where it was moving when the period began. Every matching line is listed, favourable and unfavourable alike, so you can see where they pull against each other.</>}
+        practitioner={<>
         Effects of the period from Brihat Parashara Hora Sastra ch. 47 (placement of the lord) and ch. 48 (house lordship and relationships), matched mechanically on whole-sign houses and dignity, with the lord's Shadbala (ch. 27) set against the requirement of 27.32-33, its Ishta and Kashta phala (ch. 28), and its transit house when the dasa begins (48.8). Every matched verse is listed, favourable and unfavourable alike, so contradictions stay visible.
-      </p>
+        </>}
+      />
       <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground" data-testid="parashari-dasa-timing">
         {d.timing.text} <SourceLink source={d.timing.source} />
       </p>
@@ -535,10 +639,13 @@ function DasaEffects({ d, open, setOpen, birthIso, asOfIso }: { d: DasaReading; 
         ))}
       </ul>
 
-      <h4 className="mt-6 text-sm font-semibold">Antar dasas in the {d.lord} dasa</h4>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <SectionTitle as="h4" className="mt-6" plain={`Sub-periods within the ${d.lord} period`} technical={`Antar dasas in the ${d.lord} dasa`} term="antardasha" />
+      <ModeText
+        plain={<>Each period is divided among the nine planets in turn. Each sub-period is judged by where its planet stands relative to the rising sign and to {d.lord}, by its dignity and company. Open a row for the text's own wording.</>}
+        practitioner={<>
         Each sub-lord is checked against the placements Parashara names for it in the {d.lord} dasa chapter: angles and trines from the lagna, dignity, the house it holds from the dasa lord, company, and 2nd/7th lordship (maraka). Open a row for the chapter's own wording.
-      </p>
+        </>}
+      />
       <Table className="mt-2" data-testid="parashari-antars">
         <TableHeader>
           <TableRow>
@@ -561,12 +668,13 @@ function DasaEffects({ d, open, setOpen, birthIso, asOfIso }: { d: DasaReading; 
 
       {running?.pratyantars && (
         <div className="mt-6" data-testid="parashari-pratyantars">
-          <h4 className="text-sm font-semibold">
-            Pratyantar dasas in the running {d.lord}–{running.lord} antar
-          </h4>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <SectionTitle as="h4" plain={`Third-level periods within the running ${d.lord}–${running.lord} sub-period`} technical={`Pratyantar dasas in the running ${d.lord}–${running.lord} antar`} term="pratyantar" />
+          <ModeText
+            plain={<>Each sub-period divides again into nine shorter spells, weeks to months long. The text gives only general effects for these, and adds that the ill ones do not follow when the spell's planet is well placed. Select one to divide it further.</>}
+            practitioner={<>
             General effects only, from <SourceLink source={{ label: "Parashara 61.2-82", url: BPHS_URL(61) }} />. Verse 61.2 adds that the ill effects do not follow when the pratyantar lord is in a trine, owns or occupies an auspicious house, or is in a benefic varga; apply the same test to each line. Select a pratyantar to divide it further.
-          </p>
+            </>}
+          />
           <FineLevels dasaLord={d.lord} antarLord={running.lord} pratyantars={running.pratyantars} birthIso={birthIso} asOfIso={asOfIso} />
         </div>
       )}
@@ -621,12 +729,15 @@ function FineLevels({ dasaLord, antarLord, pratyantars, birthIso, asOfIso }: { d
         ))}
       </ul>
 
-      <h4 className="mt-6 text-sm font-semibold" data-testid="parashari-sookshmas-heading">
-        Sookshma dasas in the {dasaLord}–{antarLord}–{pratyantar.lord} pratyantar
-      </h4>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <div data-testid="parashari-sookshmas-heading">
+        <SectionTitle as="h4" className="mt-6" plain={`Fourth-level spells within ${dasaLord}–${antarLord}–${pratyantar.lord}`} technical={`Sookshma dasas in the ${dasaLord}–${antarLord}–${pratyantar.lord} pratyantar`} />
+      </div>
+      <ModeText
+        plain={<>Days-long spells, each planet's share in proportion to its period length. General effects only. Select one to divide it into hours.</>}
+        practitioner={<>
         Each sookshma is the pratyantar multiplied by its lord's dasa years over 120 <SourceLink source={{ label: "Parashara 62.1", url: BPHS_URL(62) }} />; the effects are the general ones of <SourceLink source={{ label: "Parashara 62.2-82", url: BPHS_URL(62) }} />, keyed by the pratyantar lord. Select a sookshma to divide it into pranas.
-      </p>
+        </>}
+      />
       <ul className="mt-2 divide-y rounded-md border text-sm" data-testid="parashari-sookshmas">
         {sookshmas.map((s) => (
           <FineRow key={s.lord + s.start} p={s} testid={`parashari-sookshma-${s.lord}`} selected={sookshma && s.start === sookshma.start} onSelect={() => setSSel(s.start)} withTime={false} />
@@ -635,12 +746,15 @@ function FineLevels({ dasaLord, antarLord, pratyantars, birthIso, asOfIso }: { d
 
       {sookshma && (
         <>
-          <h4 className="mt-6 text-sm font-semibold" data-testid="parashari-pranas-heading">
-            Prana dasas in the {sookshma.lord} sookshma, {fmtD(sookshma.start)} to {fmtD(sookshma.end)}
-          </h4>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <div data-testid="parashari-pranas-heading">
+            <SectionTitle as="h4" className="mt-6" plain={`Hours-long spells within the ${sookshma.lord} spell, ${fmtD(sookshma.start)} to ${fmtD(sookshma.end)}`} technical={`Prana dasas in the ${sookshma.lord} sookshma, ${fmtD(sookshma.start)} to ${fmtD(sookshma.end)}`} />
+          </div>
+          <ModeText
+            plain={<>The finest level, hours long, shown in your device's time zone. Parashara asks that all five levels be weighed together before anything is predicted, so treat these as colour, not verdicts.</>}
+            practitioner={<>
             Each prana is the sookshma multiplied by its lord's dasa years over 120 <SourceLink source={{ label: "Parashara 63.1", url: BPHS_URL(63) }} />, effects from <SourceLink source={{ label: "Parashara 63.2-82", url: BPHS_URL(63) }} /> keyed by the sookshma lord. Times are shown in your device's time zone; Parashara closes by asking that dasa, antar, pratyantar, sookshma and prana all be weighed together before predicting <SourceLink source={{ label: "Parashara 63.83", url: BPHS_URL(63) }} />.
-          </p>
+            </>}
+          />
           <ul className="mt-2 divide-y rounded-md border text-sm" data-testid="parashari-pranas">
             {pranas.map((p) => (
               <FineRow key={p.lord + p.start} p={p} testid={`parashari-prana-${p.lord}`} withTime />
@@ -729,10 +843,13 @@ function AshtakavargaSection({ av, lagnaIdx }: { av: AshtakavargaResult; lagnaId
   const src = av.sources;
   return (
     <div className="mt-8" data-testid="parashari-ashtakavarga">
-      <h3 className="text-sm font-semibold">Ashtakavarga</h3>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <SectionTitle plain="Points by sign" technical="Ashtakavarga" term="ashtakavarga" />
+      <ModeText
+        plain={<>A points system. The seven planets and the rising sign each award marks to signs; a sign can hold up to 56. Above 30 is favourable ground, 25 to 30 middling, below 25 hard going for planets passing through. Rows are the houses from the rising sign; pick a planet's column for its own table.</>}
+        practitioner={<>
         Benefic marks (rekhas) that each of the seven planets and the lagna give to every sign in the chart of each planet, <SourceLink source={src.rekhas} />, summed into the Sarvashtakavarga of <SourceLink source={src.sarva} />: above 30 favourable, 25 to 30 medium, below 25 adverse <SourceLink source={src.bands} />. Rows are the houses from the lagna; pick a planet's column for its reductions and pindas (ch. 67-69).
-      </p>
+        </>}
+      />
       <Table className="mt-2" data-testid="parashari-sarva">
         <TableHeader>
           <TableRow>
@@ -805,10 +922,13 @@ function AshtakavargaSection({ av, lagnaIdx }: { av: AshtakavargaResult; lagnaId
         </div>
       )}
 
-      <h4 className="mt-6 text-sm font-semibold">Saturn's transit points (ch. 70)</h4>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <SectionTitle as="h4" className="mt-6" plain="Where Saturn's passage tests each matter" technical="Saturn's transit points (ch. 70)" />
+      <ModeText
+        plain={<>For each matter (father, mother, brothers and so on) the text derives one lunar mansion and one sign from the points; Saturn passing through them, or through the signs in trine to them, is the time that matter is tested.</>}
+        practitioner={<>
         For each matter Parashara multiplies the rekhas of the house named by the owner's Yoga pinda; the remainder by 27 marks the nakshatra and by 12 the sign whose transit by Saturn, or by its trines, brings distress in that matter, <SourceLink source={{ label: "Parashara 70.7-44", url: BPHS_URL(70) }} />.
-      </p>
+        </>}
+      />
       <Table className="mt-2" data-testid="parashari-av-saturn">
         <TableHeader>
           <TableRow>
@@ -830,7 +950,7 @@ function AshtakavargaSection({ av, lagnaIdx }: { av: AshtakavargaResult; lagnaId
         </TableBody>
       </Table>
 
-      <h4 className="mt-6 text-sm font-semibold">Readings from the aggregate (ch. 70-72)</h4>
+      <SectionTitle as="h4" className="mt-6" plain="What the totals say" technical="Readings from the aggregate (ch. 70-72)" />
       <ul className="mt-1 space-y-1 text-xs text-muted-foreground" data-testid="parashari-av-readings">
         <li>{av.wealthYoga.text} <SourceLink source={src.wealth} /></li>
         <li>

@@ -6,6 +6,7 @@ import { SignName, PlanetName } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { RekhaMarks } from "@/components/av-timeline";
 import { cn } from "@/lib/utils";
+import { ModeText, SectionTitle } from "@/components/mode-text";
 
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 
@@ -54,12 +55,15 @@ export function KinTransitsSection({ k }: { k: KinTransitsReading }) {
   const source = planet === "Mars" ? k.sources.brothers : planet === "Mercury" ? k.sources.family : k.sources.marriage;
   return (
     <div className="mt-8" data-testid="parashari-kin-transits">
-      <h3 className="text-base font-semibold">Mars, Mercury and Venus through their own charts</h3>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <SectionTitle plain="Brothers, family and marriage as Mars, Mercury and Venus move" technical="Mars, Mercury and Venus through their own charts" />
+      <ModeText
+        plain={<>Each planet has its own points table. When Mars passes through signs where it holds many points, brothers, courage and property prosper, and where it holds none they suffer; Mercury's passages through its high-point signs favour family, mother's relatives and friends; Venus's passages through its high-point signs favour money, land, happiness and marriage. Saturn's testing passages are in the timeline above.</>}
+        practitioner={<>
         Chapter 70 reads brothers, valour and land from Mars' passage through signs rich in rekhas in Mars' own chart, with distress to brothers where it has none <SourceLink source={k.sources.brothers} />; happiness
         to family, maternal uncle and friends from Mercury's passage through its rekha-rich signs <SourceLink source={k.sources.family} />; and gain of wealth, land, happiness and marriage from Venus' passage through
         its rekha-rich signs <SourceLink source={k.sources.marriage} />. Saturn's strikes on these matters are in the timeline above.
-      </p>
+        </>}
+      />
 
       <ul className="mt-3 space-y-1 text-xs" data-testid="kin-natal">
         {k.natal.map((n, i) => (

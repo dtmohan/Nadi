@@ -6,6 +6,7 @@ import { PlanetName, SignName } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 
 const BAND_PILL: Record<SchemeScore["band"], string> = {
   "wholly favourable": "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
@@ -93,12 +94,16 @@ export function VargasSection({ v, name }: { v: VargasResult; name: string }) {
   const chart = v.charts[varga];
   const sch = SCHEMES.find((s) => s.key === scheme)!;
   const sp = v.spouse;
+  const plain = usePlain();
   return (
     <div className="mt-8" data-testid="parashari-vargas">
-      <h3 className="text-sm font-semibold">Divisional charts and Vimsopaka strength</h3>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <SectionTitle plain="Finer charts and how comfortably each planet sits" technical="Divisional charts and Vimsopaka strength" term="varga" />
+      <ModeText
+        plain={<>Each sign can be cut into finer pieces, and each cut gives a new chart that speaks to one area of life: the ninth-cut (navamsa, shown first) to marriage, the seventh to children, the tenth to career, the twelfth to parents. Pick a cut to see its chart. The score out of 20 says how comfortably a planet sits across all the cuts: above 15 wholly favourable, 10 to 15 middling, 5 to 10 some good, below 5 nothing. Open a row for the working.</>}
+        practitioner={<>
         The sixteen divisions of a sign from <SourceLink source={v.sources.divisions} />, each read for the matter <SourceLink source={v.sources.uses} /> assigns it: the navamsa for the spouse, saptamsa for children, dasamsa for position, dvadasamsa for parents. The strength column is the twenty-point Vimsopaka of <SourceLink source={v.sources.vimsopaka} />: each division's weight in the chosen scheme, kept whole in the planet's own sign and reduced with the planet's compound relationship to the division's lord. Below five gives nothing auspicious, five to ten some good, up to fifteen middling, above fifteen wholly favourable (7.26-27). Open a row for the working.
-      </p>
+        </>}
+      />
       <div className="mt-3 flex flex-wrap gap-1" data-testid="varga-picker">
         {VARGAS.map((d) => (
           <Pill key={d.key} active={varga === d.key} onClick={() => setVarga(d.key)} testid={`varga-pick-${d.key}`}>
@@ -137,13 +142,13 @@ export function VargasSection({ v, name }: { v: VargasResult; name: string }) {
             <TableHeader>
               <TableRow>
                 <TableHead className="px-2 sm:px-4">Planet</TableHead>
-                <TableHead className="hidden sm:table-cell">Rasi</TableHead>
+                <TableHead className="hidden sm:table-cell">{plain ? "Birth chart" : "Rasi"}</TableHead>
                 <TableHead className="px-2 sm:px-4">{def.name}</TableHead>
                 <TableHead className="px-2 text-right sm:px-4">
                   <span className="sm:hidden">Points</span>
-                  <span className="hidden sm:inline">Vimsopaka</span>
+                  <span className="hidden sm:inline">{plain ? "Score / 20" : "Vimsopaka"}</span>
                 </TableHead>
-                <TableHead className="px-2 sm:px-4">Verdict (7.26-27)</TableHead>
+                <TableHead className="px-2 sm:px-4">{plain ? "Reading" : "Verdict (7.26-27)"}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -156,7 +161,7 @@ export function VargasSection({ v, name }: { v: VargasResult; name: string }) {
         </div>
       </div>
       <div className="mt-4 rounded-md border bg-card p-3 text-xs" data-testid="varga-spouse">
-        <h4 className="text-sm font-semibold">Spouse from the navamsa</h4>
+        <SectionTitle as="h4" plain="Marriage, from the ninth-cut chart" technical="Spouse from the navamsa" term="navamsa" />
         <p className="mt-1">
           <SourceLink source={v.sources.uses} /> reads the spouse from the navamsa. The navamsa lagna is <SignName signIndex={v.lagna.D9} />, so the 7th falls in <SignName signIndex={sp.seventhSign} />
           {sp.occupants.length > 0 ? (

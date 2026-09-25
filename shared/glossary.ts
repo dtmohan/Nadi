@@ -4,7 +4,7 @@
 export interface GlossaryEntry {
   term: string;
   short: string;
-  system: "bnn" | "jaimini" | "alp" | "kp" | "both";
+  system: "bnn" | "jaimini" | "alp" | "kp" | "parashari" | "both";
 }
 
 export const GLOSSARY: Record<string, GlossaryEntry> = {
@@ -57,6 +57,29 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
   "akshaya-rasi": { term: "Akshaya rasi", short: "The mind's counterpart to the ALP lagna (Book 2). The Moon moves from its birth nakshatra to the next with each Vimshottari dasa, a pada per quarter-dasa; the sign the current pada falls in is the Akshaya rasi, read with the dasa lord.", system: "alp" },
   "alp-pada": { term: "ALP pada", short: "The quarter of a nakshatra the ALP lagna currently occupies; nine padas make a sign. Its navamsa sign is said to be activated for the period.", system: "alp" },
   lagna: { term: "Lagna", short: "The ascendant: the sign rising in the east at birth. Nadi does not use it; Jaimini counts from it.", system: "both" },
+  // Parashari
+  bhava: { term: "Bhava (house)", short: "One of twelve life areas. Here each house is a whole sign counted from the rising sign: the rising sign is the 1st, the next sign the 2nd, and so on.", system: "parashari" },
+  kendra: { term: "Kendra (angle)", short: "The 1st, 4th, 7th and 10th houses, the strongest positions. A planet here acts openly and early.", system: "parashari" },
+  trikona: { term: "Trikona (trine)", short: "The 1st, 5th and 9th houses, the fortunate positions. Their lords are counted as helpers whatever their nature.", system: "parashari" },
+  yogakaraka: { term: "Yogakaraka", short: "The planet that does most good for a given rising sign, usually because it rules both an angle and a trine. Parashara names one for most rising signs.", system: "parashari" },
+  maraka: { term: "Maraka", short: "A planet whose periods can bring illness or loss: the lords of the 2nd and 7th houses, and planets joined with them.", system: "parashari" },
+  benefic: { term: "Benefic", short: "A planet that tends to help: Jupiter, Venus, a bright Moon and Mercury in good company. The opposite is a malefic.", system: "parashari" },
+  malefic: { term: "Malefic", short: "A planet that tends to test or take away: Saturn, Mars, the Sun, a dark Moon, Mercury in bad company, Rahu and Ketu.", system: "parashari" },
+  shadbala: { term: "Shadbala", short: "Six measures of a planet's strength added into one score and compared with the minimum Parashara asks of it. A strong planet keeps its promises fully; a weak one only in part.", system: "parashari" },
+  "bhava-bala": { term: "Bhava bala", short: "The strength of a house, built from the aspects on it, its lord's strength and the planets in it.", system: "parashari" },
+  varga: { term: "Varga (divisional chart)", short: "A chart made by cutting each sign into equal pieces and mapping each piece to a sign. Each cut speaks to one area of life: the ninth-cut (navamsa) to marriage, the seventh to children, the tenth to career.", system: "parashari" },
+  navamsa: { term: "Navamsa", short: "The ninth-cut chart, each sign split into nine pieces of 3°20'. Parashara reads the spouse from it, and a planet in the same sign here and in the birth chart is held to be steadier.", system: "parashari" },
+  vargottama: { term: "Vargottama", short: "A planet in the same sign in the birth chart and the navamsa. Held to act more like a planet in its own sign.", system: "parashari" },
+  vimsopaka: { term: "Vimsopaka", short: "A score out of 20 for how comfortably a planet sits across the divisional charts: full marks in its own sign, fewer in a friend's, fewest in an enemy's. Above 15 is wholly favourable, below 5 gives nothing.", system: "parashari" },
+  hora: { term: "Hora", short: "Half a sign, 15 degrees. Each half belongs to the Sun or the Moon; some planets act more strongly in the Sun's half, others in the Moon's.", system: "parashari" },
+  drekkana: { term: "Drekkana (decanate)", short: "A third of a sign, 10 degrees. Parashara reads brothers and sisters from it.", system: "parashari" },
+  trimsamsa: { term: "Trimsamsa", short: "An unequal split of each sign into five parts ruled by Mars, Saturn, Jupiter, Mercury and Venus. Parashara reads troubles and character from it.", system: "parashari" },
+  chalit: { term: "Bhava chalit", short: "Houses drawn from the exact rising degree rather than by whole signs, so a house can straddle two signs. Used here only to flag planets near a boundary.", system: "parashari" },
+  sandhi: { term: "Sandhi", short: "The boundary between two houses in the chalit. A planet right on one belongs clearly to neither.", system: "parashari" },
+  ashtakavarga: { term: "Ashtakavarga", short: "A points system in which the seven planets and the rising sign each award marks to signs. Signs with more marks are easier ground for planets passing through; fewer marks, harder.", system: "parashari" },
+  rekha: { term: "Rekha (benefic mark)", short: "One point in the Ashtakavarga. A sign can hold at most 8 from one planet's chart and 56 in total.", system: "parashari" },
+  vimshottari: { term: "Vimshottari dasa", short: "The 120-year cycle of planetary periods that gives each planet its turn to deliver what the birth chart promises. The period running now colours the present years.", system: "parashari" },
+  pratyantar: { term: "Pratyantar", short: "The third level of the period system: a sub-period of a sub-period, usually weeks to months long.", system: "parashari" },
 };
 
 export const glossaryFor = (system: "bnn" | "jaimini" | "alp") => Object.values(GLOSSARY).filter((g) => g.system === system || g.system === "both");

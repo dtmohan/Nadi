@@ -41,7 +41,7 @@ export function ReadingModeToggle() {
     </button>
   );
   return (
-    <div role="radiogroup" aria-label="Reading depth" className="inline-flex rounded-md border p-0.5 text-xs" title="Plain: one verdict per area with the working folded away. Practitioner: every rule, weight, degree order and source.">
+    <div role="radiogroup" aria-label="Reading depth" className="inline-flex rounded-md border p-0.5 text-xs" title="Plain reading: everyday words, a summary first, and the detailed tables folded away. Practitioner: the technical names, every rule, weight, degree and verse reference.">
       {opt("plain", "Plain reading")}
       {opt("practitioner", "Practitioner")}
     </div>

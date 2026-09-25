@@ -4,6 +4,7 @@ import { PlanetName, SignName } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { ModeText, SectionTitle } from "@/components/mode-text";
 
 const ord = (n: number) => `${n}${["th", "st", "nd", "rd"][n % 10 > 3 || Math.floor(n / 10) === 1 ? 0 : n % 10]}`;
 
@@ -53,13 +54,15 @@ export function PortionsSection({ r }: { r: PortionsResult }) {
   const [open, setOpen] = useState<string | null>(null);
   return (
     <div className="mt-8" data-testid="parashari-portions">
-      <h3 className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-        Hora, decanate and trimsamsa effects
+      <SectionTitle plain="Where each planet stands within its sign" technical="Hora, decanate and trimsamsa effects" term="hora">
         <SourceLink source={r.sources.horaFit} /> <SourceLink source={r.sources.stagesWidth} />
-      </h3>
-      <p className="mt-1 text-xs text-muted-foreground">
+      </SectionTitle>
+      <ModeText
+        plain={<>A sign is 30 degrees wide, and where a planet stands inside it matters. Each half of a sign belongs to the Sun or the Moon, and some planets act more strongly in one half than the other. Within any segment (a half, a third, a quarter, a ninth) a planet early in the segment gives its full effect, in the middle a medium one, and near the end little. The last column judges each planet by the ruler of its trimsamsa, an unequal five-way split. The equal-thirds split is this app's reading of the verse, not stated in it.</>}
+        practitioner={<>
         Jupiter, the Sun and Mars give pronounced effects in the Sun's hora, the Moon, Venus and Saturn in the Moon's, Mercury in either (7.13); the Moon's hora is the powerful one in an even sign and the Sun's in an odd sign (7.14). A planet's effect is full, medium or nil in the beginning, middle or end of its hora, and likewise of its decanate, chaturthamsa and navamsa (7.15). In the trimsamsa the Sun is judged as Mars and the Moon as Venus, with rasi effects applying (7.16). The split of each portion into equal thirds is a reading of 7.15, not stated in it, and is provisional.
-      </p>
+        </>}
+      />
       <div className="min-w-0 overflow-x-auto">
         <Table className="mt-2" data-testid="portions-table">
           <TableHeader>

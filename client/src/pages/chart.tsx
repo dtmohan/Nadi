@@ -651,6 +651,7 @@ export default function ChartPage() {
   const [showTransit, setShowTransit] = useState(true);
   const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
   const [mode, setMode] = useState<"bnn" | "jaimini" | "alp" | "kp" | "parashari" | "rectify" | "validate">("bnn");
+  const { mode: readingMode } = useReadingMode();
 
   if (isLoading) {
     return (
@@ -796,7 +797,7 @@ export default function ChartPage() {
           </button>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading." : mode === "alp" ? "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage." : mode === "parashari" ? "Parashara's system: whole-sign bhavas from the lagna, house lords, sign aspects, functional nature by rising sign, yogas and Vimshottari. Kept separate from the other readings. First pass." : mode === "rectify" ? "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading." : mode === "validate" ? "Saved life events read back at their dates: KP period lords and cusp promise, Jaimini chara dasha, Jupiter's transit, and how each planet's periods turned out. Not a reading." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}</p>
+          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading." : mode === "alp" ? "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage." : mode === "parashari" ? (readingMode === "plain" ? "The classical system: which planets help or hinder this rising sign, how strong they are, the notable combinations, and the life period running now. Kept separate from the other readings." : "Parashara's system: whole-sign bhavas from the lagna, house lords, sign aspects, functional nature by rising sign, Shadbala, vargas, Ashtakavarga, yogas and Vimshottari with dasa effects. Kept separate from the other readings. First pass.") : mode === "rectify" ? "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading." : mode === "validate" ? "Saved life events read back at their dates: KP period lords and cusp promise, Jaimini chara dasha, Jupiter's transit, and how each planet's periods turned out. Not a reading." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}</p>
           <ReadingModeToggle />
         </div>
       </div>
@@ -912,7 +913,7 @@ export default function ChartPage() {
           : mode === "alp"
           ? "Akshaya Lagna Paddhati is Dr. S. Pothuvudaimoorthy's method. The progression arithmetic follows the published rate; the interpretive rules are being entered from the printed volumes chapter by chapter and are a framework, not a verdict."
           : mode === "parashari"
-          ? "Parashari text is paraphrased from Brihat Parashara Hora Sastra in R. Santhanam's translation (chapters 24, 26, 34, 36, 41, 42, 75), softened and with verse numbers kept for checking. Planetary strength, divisional charts and the dasa-effect chapters are not yet applied, so it is a first pass, not a verdict."
+          ? "Parashari text is paraphrased from Brihat Parashara Hora Sastra in R. Santhanam's translation (chapters 24, 26, 34, 36, 41, 42, 75), softened and with verse numbers kept for checking. Planetary strength (ch. 27-28), divisional charts (ch. 6-7), Ashtakavarga (ch. 66-72) and the dasa-effect chapters (47-48, 52-61) are applied mechanically; the Sripati chalit, portion stages and the effect amounts of 28.15-20 are provisional readings. A first pass, not a verdict."
           : mode === "kp"
           ? "Krishnamurti Paddhati is Prof. K.S. Krishnamurti's stellar method. The arithmetic (KP ayanamsa, Placidus cusps, subs, significators, Vimshottari) is complete; the cuspal readings are paraphrased from Astro Secrets & KP Part 3 and the Kalpurush class notes and are a first pass, not a verdict."
           : "Jaimini text follows the Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; Chara dasha follows K.N. Rao's method. It is a starting set of rules meant to be extended, not a verdict."}
