@@ -61,7 +61,7 @@ function Finding({ f }: { f: ParashariFinding }) {
 export function ParashariPanel({ result }: { result: ChartResult }) {
   const { positions, chart } = result;
   const asOfIso = result.now.asOf;
-  const r = useMemo(() => computeParashari(positions, result.jaimini.lagna.lon, result.utc, asOfIso, result.shadbala), [positions, result.jaimini.lagna.lon, result.utc, asOfIso, result.shadbala]);
+  const r = useMemo(() => computeParashari(positions, result.jaimini.lagna.lon, result.utc, asOfIso, result.shadbala, result.dasaStarts), [positions, result.jaimini.lagna.lon, result.utc, asOfIso, result.shadbala, result.dasaStarts]);
   const [balaOpen, setBalaOpen] = useState<string | null>(null);
   const [focusHouse, setFocusHouse] = useState<number | null>(null);
   const [section, setSection] = useState<"lords" | "yogas">("yogas");
@@ -276,7 +276,7 @@ function ShadbalaSection({ sb, open, setOpen }: { sb: ShadbalaResult; open: stri
     <div className="mt-8" data-testid="parashari-shadbala">
       <h3 className="text-sm font-semibold">Strength of the planets (Shadbala)</h3>
       <p className="mt-1 text-xs text-muted-foreground">
-        The six strengths of <SourceLink source={{ label: "Parashara ch. 27", url: BPHS_URL(27) }} /> in virupas (60 to a rupa): positional (Sthana), directional (Dig), temporal (Kala), motional (Chesta), natural (Naisargika) and aspectual (Drik), with aspect values from 26.6-12 and planetary relationships from 3.55-58. The total is set against the requirement of 27.32-33; nodes have none. Open a row for the working.
+        The six strengths of <SourceLink source={{ label: "Parashara ch. 27", url: BPHS_URL(27) }} /> in virupas (60 to a rupa): positional (Sthana), directional (Dig), temporal (Kala), motional (Chesta), natural (Naisargika) and aspectual (Drik), with aspect values from 26.6-12 and planetary relationships from 3.55-58. The total is set against the requirement of 27.32-33; nodes have none. The last column gives the Ishta and Kashta phala of <SourceLink source={{ label: "ch. 28", url: BPHS_URL(28) }} />, the benefic and malefic tendency out of 60. Open a row for the working.
         {" "}Lords of the {sb.daytime ? "day" : "night"} birth: year {sb.lords.varsha}, month {sb.lords.masa}, weekday {sb.lords.dina}, hora {sb.lords.hora} (27.13).
         {sb.wars.length > 0 && <> Planetary war (27.20): {sb.wars.map((w) => `${w.victor} over ${w.loser}, ${w.separation.toFixed(2)} deg apart`).join("; ")}; the difference of their totals moves to the victor.</>}
       </p>
@@ -293,12 +293,48 @@ function ShadbalaSection({ sb, open, setOpen }: { sb: ShadbalaResult; open: stri
             <TableHead className="text-right">Total</TableHead>
             <TableHead className="text-right">Needed</TableHead>
             <TableHead>Verdict</TableHead>
+            <TableHead className="hidden whitespace-nowrap text-right sm:table-cell">Ishta / Kashta</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sb.planets.map((r) => <BalaRows key={r.planet} r={r} sb={sb} open={open === r.planet} toggle={() => setOpen(open === r.planet ? null : r.planet)} />)}
         </TableBody>
       </Table>
+      <h4 className="mt-6 text-sm font-semibold">Strength of the houses (Bhava bala)</h4>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Each cusp (lagna degree plus multiples of 30) measured from the point 27.26-28 name for its sign, a quarter of each aspect on it added or taken, the whole aspect of Jupiter and Mercury, the lord's Shadbala (27.29), a rupa for Jupiter or Mercury in the house and one less for the Sun, Mars or Saturn (27.30), and 15 virupas by the rising of the sign for a {sb.twilight ? "twilight" : sb.daytime ? "day" : "night"} birth (27.31). No requirement is stated; higher is stronger.
+      </p>
+      <Table className="mt-2" data-testid="parashari-bhava-bala">
+        <TableHeader>
+          <TableRow>
+            <TableHead>House</TableHead>
+            <TableHead>Sign</TableHead>
+            <TableHead className="hidden text-right sm:table-cell">Dig</TableHead>
+            <TableHead className="hidden text-right sm:table-cell">Drishti</TableHead>
+            <TableHead className="hidden text-right sm:table-cell">Lord</TableHead>
+            <TableHead className="hidden text-right md:table-cell">Occupants</TableHead>
+            <TableHead className="hidden text-right md:table-cell">Rising</TableHead>
+            <TableHead className="text-right">Total</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sb.bhavas.map((b) => (
+            <TableRow key={b.house} data-testid={`parashari-bhava-bala-${b.house}`}>
+              <TableCell className="py-1.5">{b.house}</TableCell>
+              <TableCell className="py-1.5"><SignName signIndex={b.signIndex} /></TableCell>
+              <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{fmtV(b.dig)}<span className="ml-1 text-[10px] text-muted-foreground">from {b.reference}</span></TableCell>
+              <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{fmtV(b.drishti)}</TableCell>
+              <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{fmtV(b.lordBala)}<span className="ml-1 text-[10px] text-muted-foreground">{PLANET_ABBR[b.lord]}</span></TableCell>
+              <TableCell className="hidden py-1.5 text-right tabular-nums md:table-cell">{b.occupants.length ? b.occupants.map((o) => `${PLANET_ABBR[o.planet]} ${o.value > 0 ? "+" : ""}${o.value}`).join(", ") : "—"}</TableCell>
+              <TableCell className="hidden py-1.5 text-right tabular-nums md:table-cell">{b.udaya || "—"}</TableCell>
+              <TableCell className="py-1.5 text-right font-medium tabular-nums">{b.total.toFixed(0)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        <SourceLink source={sb.sources.bhavaDig} /> · <SourceLink source={sb.sources.bhavaDrishti} /> · <SourceLink source={sb.sources.bhavaOccupant} /> · <SourceLink source={sb.sources.bhavaUdaya} /> · rising of the signs <SourceLink source={sb.sources.udayaSigns} />
+      </p>
       <button className="mt-2 text-xs text-muted-foreground underline underline-offset-2" onClick={() => setCaveats((v) => !v)} data-testid="parashari-shadbala-caveats">
         {caveats ? "Hide" : "Show"} how the chapter was applied ({sb.caveats.length} notes)
       </button>
@@ -313,6 +349,7 @@ function ShadbalaSection({ sb, open, setOpen }: { sb: ShadbalaResult; open: stri
 
 function BalaRows({ r, sb, open, toggle }: { r: PlanetShadbala; sb: ShadbalaResult; open: boolean; toggle: () => void }) {
   const src = sb.sources;
+  const ik = sb.ishta.find((x) => x.planet === r.planet);
   const num = (v: number) => <TableCell className="hidden py-1.5 text-right tabular-nums md:table-cell">{fmtV(v)}</TableCell>;
   return (
     <>
@@ -334,10 +371,13 @@ function BalaRows({ r, sb, open, toggle }: { r: PlanetShadbala; sb: ShadbalaResu
             {r.strong ? "strong" : "weak"} · {(r.ratio * 100).toFixed(0)}%
           </span>
         </TableCell>
+        <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell" data-testid={`parashari-ishta-${r.planet}`}>
+          {ik ? <><span className={ik.tendency === "benefic" ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}>{ik.ishta.toFixed(0)}</span> / {ik.kashta.toFixed(0)}</> : "—"}
+        </TableCell>
       </TableRow>
       {open && (
         <TableRow className="bg-muted/20 hover:bg-muted/20">
-          <TableCell colSpan={10} className="px-3 py-3" data-testid={`parashari-shadbala-detail-${r.planet}`}>
+          <TableCell colSpan={11} className="px-3 py-3" data-testid={`parashari-shadbala-detail-${r.planet}`}>
             <div className="grid gap-3 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
               <div>
                 <p className="font-medium text-foreground">Sthana bala {fmtV(r.sthana.total)}</p>
@@ -356,6 +396,14 @@ function BalaRows({ r, sb, open, toggle }: { r: PlanetShadbala; sb: ShadbalaResu
                 <p>Total {r.total.toFixed(0)} of {r.required} <SourceLink source={src.required} /></p>
                 <p>{r.components.map((c) => `${c.name} ${c.value.toFixed(0)}/${c.required}${c.ok ? "" : " short"}`).join(" · ")} <SourceLink source={src.componentsRequired} /></p>
                 <p>Effect for lord-in-house readings: {r.effect} <SourceLink source={src.effect} /></p>
+                {ik && (
+                  <>
+                    <p className="mt-2 font-medium text-foreground">Ishta and Kashta (ch. 28)</p>
+                    <p>Uchcha rasmi {ik.uchchaRasmi.toFixed(2)}, Chesta rasmi {ik.chestaRasmi.toFixed(2)} <SourceLink source={src.rasmi} /> · Subha {ik.subhaRasmi.toFixed(2)}, Asubha {ik.asubhaRasmi.toFixed(2)} <SourceLink source={src.subhaRasmi} /></p>
+                    <p>Ishta phala {ik.ishta.toFixed(1)}, Kashta phala {ik.kashta.toFixed(1)}: {ik.tendency} tendency <SourceLink source={src.ishta} /></p>
+                    <p>Saptavarga subhanka {ik.saptavargaSubha.toFixed(1)} / asubhanka {ik.saptavargaAsubha.toFixed(1)} <SourceLink source={src.subhanka} /> · Dig as effect {fmtV(ik.digSubha)} good, {fmtV(ik.digAsubha)} ill <SourceLink source={src.digSubha} /></p>
+                  </>
+                )}
                 {r.notes.map((n, i) => <p key={i} className="mt-1">{n}</p>)}
               </div>
             </div>
@@ -390,7 +438,7 @@ function DasaEffects({ d, open, setOpen }: { d: DasaReading; open: string | null
         {d.current && <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        Effects of the period from Brihat Parashara Hora Sastra ch. 47 (placement of the lord) and ch. 48 (house lordship and relationships), matched mechanically on whole-sign houses and dignity, with the lord's Shadbala (ch. 27) set against the requirement of 27.32-33. Parashara also weighs the lord's transit position when the dasa begins (48.8), which is not computed here. Every matched verse is listed, favourable and unfavourable alike, so contradictions stay visible.
+        Effects of the period from Brihat Parashara Hora Sastra ch. 47 (placement of the lord) and ch. 48 (house lordship and relationships), matched mechanically on whole-sign houses and dignity, with the lord's Shadbala (ch. 27) set against the requirement of 27.32-33, its Ishta and Kashta phala (ch. 28), and its transit house when the dasa begins (48.8). Every matched verse is listed, favourable and unfavourable alike, so contradictions stay visible.
       </p>
       <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground" data-testid="parashari-dasa-timing">
         {d.timing.text} <SourceLink source={d.timing.source} />

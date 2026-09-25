@@ -5,7 +5,7 @@ import type { PlanetPosition, TransitPeriod } from "./astro";
 import type { Reading } from "./rules";
 import type { JaiminiResult } from "./jaimini";
 import type { KpBase } from "./kp";
-import type { ShadbalaBase } from "./shadbala";
+import type { ShadbalaBase, DasaStartTransit } from "./shadbala";
 import { chartEventsSchema, type ChartEvent } from "./events";
 
 export const charts = sqliteTable("charts", {
@@ -52,6 +52,8 @@ export interface ChartResult {
   kp: KpBase;
   /** Ephemeris facts for Shadbala (BPHS ch. 27); the strengths are derived in the client. */
   shadbala?: ShadbalaBase;
+  /** Where each Vimshottari dasa lord stands when its dasa begins, for BPHS 48.8. */
+  dasaStarts?: DasaStartTransit[];
 }
 
 export interface GeoHit {

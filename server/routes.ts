@@ -4,6 +4,8 @@ import { insertChartSchema, type Chart, type ChartResult, type GeoHit } from "@s
 import { RULES, evaluate } from "@shared/rules";
 import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, shadbalaBase, type EphemerisOptions } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
+import { vimshottari } from "@shared/kp";
+import type { DasaStartTransit } from "@shared/shadbala";
 import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
 import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
 import { DateTime } from "luxon";
@@ -15,6 +17,15 @@ import { z } from "zod";
 const resultCache = new Map<string, ChartResult>();
 
 const opts0 = (chart: Chart): EphemerisOptions => ({ ayanamsa: chart.ayanamsa, nodeType: chart.nodeType === "true" ? "true" : "mean" });
+
+/** Sidereal position of each dasa lord at the start of its maha dasa (48.8). */
+function dasaStartTransits(moonLon: number, birthIso: string, opts: EphemerisOptions): DasaStartTransit[] {
+  const vim = vimshottari(moonLon, birthIso, birthIso);
+  return vim.dasas.map((d) => {
+    const p = positionsAt(julianDay(DateTime.fromISO(d.start).toUTC()), opts).find((x) => x.planet === d.lord)!;
+    return { lord: d.lord, start: d.start, lon: p.lon, signIndex: p.signIndex };
+  });
+}
 
 export function computeChart(chart: Chart): ChartResult {
   const key = JSON.stringify({ ...chart, id: undefined, name: undefined, notes: undefined, day: DateTime.utc().toISODate() });
@@ -48,6 +59,7 @@ export function computeChart(chart: Chart): ChartResult {
     jaimini,
     kp: kpBase(jd, chart.latitude, chart.longitude, chart.timezone, opts.nodeType),
     shadbala: shadbalaBase(jd, chart.latitude, chart.longitude, opts),
+    dasaStarts: dasaStartTransits(positions.find((p) => p.planet === "Moon")!.lon, utc.toISO()!, opts),
   };
   resultCache.set(key, result);
   if (resultCache.size > 200) resultCache.delete(resultCache.keys().next().value!);

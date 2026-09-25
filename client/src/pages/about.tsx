@@ -647,12 +647,27 @@ function ParashariMethod() {
           lords of the year, month, day and hora 27.13, Ayana 27.15-17), Chesta (27.18 for the luminaries, 27.24-25 for the others, using mean longitudes), Naisargika (27.14) and Drik (27.19, with the aspect
           values of 26.6-12 and Jupiter and Mercury counted as benefics). Planetary war follows 27.20. Totals are set against 27.32-33 and the component requirements of 27.34-36, and the strength qualifier of
           24.145-148 is attached to each lord-in-house reading. Provisional points: the hora sequence, the drik sign convention, the war rule and the half and quarter thresholds are not spelt out in the text.
-          Not applied: the motion table of 27.21-23 (the mean-motion arc is used instead), bhava bala (27.26-31) and the Ishta and Kashta phalas of chapter 28. The Sun's Ayana bala is not doubled.
+          Not applied: the motion table of 27.21-23 (the mean-motion arc is used instead). The Sun's Ayana bala is not doubled.
+        </li>
+        <li>
+          Bhava bala, 27.26-31: each cusp (the lagna degree plus multiples of 30, so it stays inside the whole-sign house) is measured from the descendant, nadir, lagna or meridian according to the class of its
+          sign (27.26-28), a quarter of each benefic aspect on it is added and of each malefic aspect taken away, the whole aspect of Jupiter and Mercury and the lord's Shadbala are added (27.29), Jupiter or
+          Mercury in the house add a rupa and the Sun, Mars or Saturn take one (27.30), and 15 virupas go to head-rising signs for a day birth, back-rising for a night birth and dual signs at twilight (27.31,
+          with the rising of the signs from chapter 4). Twilight as one ghati either side of sunrise or sunset, and Scorpio as head-rising, are provisional.
+        </li>
+        <li>
+          Chapter 28, Ishta and Kashta phala: the Uchcha and Chesta rasmis (28.2-4, the Sun's Chesta kendra being the tropical Sun plus three signs and the Moon's its distance from the Sun), Subha and Asubha
+          rasmis (28.5), Ishta and Kashta out of 60 (28.6, read so that the rasmis run one to seven and the Ishta phala is the mean of the two arcs in virupas), the Saptavarga subhankas and asubhankas (28.7-10)
+          and the Dig bala as its own good and ill measure (28.11-12). Each dasa reading states the lord's tendency, as 28.1 directs. The Ashtakavarga steps of 28.13-20 are not applied.
+        </li>
+        <li>
+          Transit at the start of a dasa, 48.8: the dasa lord's sidereal position when the maha dasa begins is placed in a whole-sign house from the natal lagna; an angle or trine reads favourable and the
+          6th, 8th or 12th adverse, as the verse says. Other houses are shown as neutral and marked provisional, since the verse names only those two groups.
         </li>
         <li>
           Chapter 48, dasas of house lords: the theme of each lordship (48.2-8) and the relationship rules of 48.9-20 (company or aspect of the 5th and 9th lords, angle lord in a trine or trine lord in an
-          angle, exchanges of the 1st with the 9th or 10th, the 3rd, 6th and 11th lords and their company, maraka lords in the 2nd or 7th, occupation of the 8th). Parashara also asks for the lord's transit
-          position when the dasa begins (48.8); this is not evaluated yet.
+          angle, exchanges of the 1st with the 9th or 10th, the 3rd, 6th and 11th lords and their company, maraka lords in the 2nd or 7th, occupation of the 8th). The lord's transit position when the dasa
+          begins (48.8) is evaluated from the ephemeris, see below.
         </li>
         <li>
           Chapters 52 to 60, antar dasas: one chapter per dasa lord, nine sub-periods each, 81 entries in all. For every antar the app lists the placements Parashara names (angle or trine from the lagna,
@@ -666,8 +681,8 @@ function ParashariMethod() {
       </ul>
       <h2>Not yet here</h2>
       <p>
-        Bhava chalit (unequal houses), bhava bala (27.26-31), Ishta and Kashta phala (ch. 28), Ashtakavarga, the divisional charts beyond the navamsa and dasamsa already used elsewhere, Neecha Bhanga and Viparita raja yoga (which are not stated in
-        these BPHS chapters and would be entered as provisional from Phaladeepika or a similar source), the transit position of a dasa lord at its commencement (48.8), and the sookshma and prana levels. Any rule added from a non-classical source will carry a provisional mark.
+        Bhava chalit (unequal houses), Ashtakavarga (and with it the Ishta-Kashta steps of 28.13-20), the divisional charts beyond the navamsa and dasamsa already used elsewhere, Neecha Bhanga and Viparita raja yoga (which are not stated in
+        these BPHS chapters and would be entered as provisional from Phaladeepika or a similar source), and the sookshma and prana levels. Any rule added from a non-classical source will carry a provisional mark.
       </p>
     </div>
   );

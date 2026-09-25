@@ -9,7 +9,7 @@ import type { Vimshottari } from "./kp";
 import { antarasOf } from "./kp";
 import { DateTime } from "luxon";
 import { ANTAR_DASA, PRATYANTAR, type AntarEntry } from "./parashari-dasa-data";
-import type { ShadbalaResult, PlanetShadbala } from "./shadbala";
+import type { ShadbalaResult, PlanetShadbala, IshtaKashta, DasaStartTransit } from "./shadbala";
 
 export type Tone = "support" | "strain" | "mixed";
 
@@ -101,6 +101,9 @@ interface Ctx {
   yogakaraka: Planet[];
   /** Shadbala row for a planet when ch. 27 has been computed; nodes and missing data give undefined. */
   bala: (p: Planet) => PlanetShadbala | undefined;
+  ishta: (p: Planet) => IshtaKashta | undefined;
+  /** Where the dasa lord stands when its dasa begins (48.8), when the server supplied it. */
+  transitAtStart: (p: Planet) => DasaStartTransit | undefined;
 }
 
 function drishti(planet: Planet, fromSign: number, toSign: number): number {
@@ -113,7 +116,7 @@ function drishti(planet: Planet, fromSign: number, toSign: number): number {
   return 0;
 }
 
-function makeCtx(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], sb?: ShadbalaResult): Ctx {
+function makeCtx(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], sb?: ShadbalaResult, starts?: DasaStartTransit[]): Ctx {
   const pos = (pl: Planet) => positions.find((p) => p.planet === pl)!;
   const sun = pos("Sun"), moon = pos("Moon");
   const elong = (((moon.lon - sun.lon) % 360) + 360) % 360;
@@ -151,6 +154,8 @@ function makeCtx(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Plan
     navamsaSign: (pl) => (pos(pl).signIndex * 9 + Math.floor(pos(pl).degInSign / (10 / 3))) % 12,
     yogakaraka,
     bala: (pl) => sb?.planets.find((x) => x.planet === pl),
+    ishta: (pl) => sb?.ishta.find((x) => x.planet === pl),
+    transitAtStart: (pl) => starts?.find((x) => x.lord === pl),
   };
 }
 
@@ -335,8 +340,8 @@ function antarVerdict(f: AntarReading["facts"]): Tone {
 }
 
 /** All dasa readings for the Vimshottari sequence. */
-export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], vim: Vimshottari, birthIso: string, asOfIso: string, shadbala?: ShadbalaResult): DasaReading[] {
-  const c = makeCtx(positions, lagnaIdx, yogakaraka, shadbala);
+export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], vim: Vimshottari, birthIso: string, asOfIso: string, shadbala?: ShadbalaResult, dasaStarts?: DasaStartTransit[]): DasaReading[] {
+  const c = makeCtx(positions, lagnaIdx, yogakaraka, shadbala, dasaStarts);
   const birth = DateTime.fromISO(birthIso), asOf = DateTime.fromISO(asOfIso);
   return vim.dasas.map((d) => {
     const p = d.lord;
@@ -357,8 +362,31 @@ export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: numbe
         text: `Shadbala ${sb.total.toFixed(0)} virupas against the ${sb.required} required for ${p} (${(sb.ratio * 100).toFixed(0)}%): ${sb.strong ? "strong, so the dasa lord can deliver what the verses promise" : "below the mark, so the verses' results arrive in reduced measure"}.${short.length ? ` Components short of 27.34-36: ${short.join(", ")}.` : " Every named component meets its own requirement (27.34-36)."}`,
         source: S(27, "32-36"),
       });
+      const ik = c.ishta(p);
+      if (ik) {
+        notes.push({
+          id: `${p}-28-ishta`,
+          layer: "strength",
+          tone: ik.tendency === "benefic" ? "support" : "strain",
+          text: `Ishta phala ${ik.ishta.toFixed(0)}, Kashta phala ${ik.kashta.toFixed(0)} (Uchcha rasmi ${ik.uchchaRasmi.toFixed(1)}, Chesta rasmi ${ik.chestaRasmi.toFixed(1)}): the ${ik.tendency} tendency prevails, which Parashara names as the ground for judging a dasa good or bad (28.1). Saptavarga subhanka ${ik.saptavargaSubha.toFixed(0)} against asubhanka ${ik.saptavargaAsubha.toFixed(0)} (28.7-10).`,
+          source: S(28, "1-6"),
+        });
+      }
     } else if (p === "Rahu" || p === "Ketu") {
       notes.push({ id: `${p}-27-bala`, layer: "strength", tone: "mixed", text: `${p} has no Shadbala: chapter 27 gives strengths for the seven planets only. Read its strength through its sign lord ${SIGN_LORD[pp.signIndex]}${c.bala(SIGN_LORD[pp.signIndex]) ? ` (${c.bala(SIGN_LORD[pp.signIndex])!.total.toFixed(0)} of ${c.bala(SIGN_LORD[pp.signIndex])!.required} virupas)` : ""}.`, source: S(27, "32-33", true) });
+    }
+    // 48.8: the lord's transit house when the dasa begins.
+    const tr = c.transitAtStart(p);
+    if (tr) {
+      const th = ((tr.signIndex - lagnaIdx + 12) % 12) + 1;
+      const good = [1, 4, 5, 7, 9, 10].includes(th), bad = [6, 8, 12].includes(th);
+      notes.push({
+        id: `${p}-48-transit`,
+        layer: "general",
+        tone: good ? "support" : bad ? "strain" : "mixed",
+        text: `When this dasa begins ${p} transits ${SIGNS[tr.signIndex]}, the ${ord(th)} house from the natal lagna: ${good ? "an auspicious house (angle or trine), so Parashara expects favourable results from the period" : bad ? "the 6th, 8th or 12th, which he says yields only adverse results in the dasa" : "neither an angle or trine nor the 6th, 8th or 12th; the verse names only those, so the transit is read as neutral"}. He asks that birth placement and this transit both be weighed.`,
+        source: S(48, "8", !good && !bad),
+      });
     }
     // 47 planet-specific.
     for (const r of PLANET_RULES[p] ?? []) if (r.when(c, p)) notes.push({ id: `${p}-47-${r.verse}`, layer: "planet", tone: r.tone, text: r.text(c, p), source: S(47, r.verse) });

@@ -5,7 +5,7 @@
 
 import { SIGNS, SIGN_LORD, houseFrom, type Planet, type PlanetPosition, type Sign } from "./astro";
 import { vimshottari, type Vimshottari } from "./kp";
-import { computeShadbala, type ShadbalaBase, type ShadbalaResult } from "./shadbala";
+import { computeShadbala, type ShadbalaBase, type ShadbalaResult, type DasaStartTransit } from "./shadbala";
 import { computeDasaReadings, type DasaReading } from "./parashari-dasa";
 import { LORD_IN_HOUSE, LAGNA_NATURE, BPHS_URL, type FunctionalRole } from "./parashari-data";
 
@@ -138,7 +138,7 @@ function functionalRole(planet: Planet, lagnaIdx: number): FunctionalRole {
 
 const strongDignity = (p: PlanetPosition) => p.dignity === "Exalted" || p.dignity === "Own sign" || p.dignity === "Moolatrikona";
 
-export function computeParashari(positions: PlanetPosition[], lagnaLon: number, birthIso: string, asOfIso: string, shadbalaBase?: ShadbalaBase): ParashariResult {
+export function computeParashari(positions: PlanetPosition[], lagnaLon: number, birthIso: string, asOfIso: string, shadbalaBase?: ShadbalaBase, dasaStarts?: DasaStartTransit[]): ParashariResult {
   const lagnaIdx = Math.floor((((lagnaLon % 360) + 360) % 360) / 30);
   const shadbala = shadbalaBase ? computeShadbala(positions, lagnaIdx, shadbalaBase) : undefined;
   const pos = (pl: Planet) => positions.find((p) => p.planet === pl)!;
@@ -432,7 +432,7 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
     return { lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: d.current, owns: n.owns, house: n.house, functional: n.functional, summary: roleText + "." + eff };
   });
 
-  const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala);
+  const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts);
   return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, vimshottari: vim, dashas, dasaReadings, shadbala };
 }
 

@@ -41,8 +41,54 @@ export interface VargaDignity {
   varga: string;
   /** Sign or lord that the planet falls under in this division. */
   lord: Planet;
+  /** Sign of the division when it has one (not for hora and trimsamsa, which are given by lord). */
+  sign?: number;
   relation: string;
   virupas: number;
+  /** Ishta-Kashta Subhanka of this placement, 28.7-9: full for the rasi, halved for the other six. */
+  subhanka: number;
+}
+
+/** Bhava bala, BPHS 27.26-31, on equal cusps from the lagna degree. */
+export interface BhavaBala {
+  house: number;
+  signIndex: number;
+  cusp: number;
+  /** Which point the cusp was measured from (27.26-28). */
+  reference: "lagna" | "descendant" | "meridian" | "nadir";
+  dig: number;
+  drishti: number;
+  lord: Seven;
+  lordBala: number;
+  occupants: { planet: Seven; value: number }[];
+  udaya: number;
+  total: number;
+}
+
+/** Ishta and Kashta phala, BPHS ch. 28. */
+export interface IshtaKashta {
+  planet: Seven;
+  uchchaRasmi: number;
+  chestaRasmi: number;
+  subhaRasmi: number;
+  asubhaRasmi: number;
+  ishta: number;
+  kashta: number;
+  /** 28.7-9 across the seven vargas, rasi in full and the rest halved. */
+  saptavargaSubha: number;
+  saptavargaAsubha: number;
+  /** 28.11-12: dig bala as auspicious effect, its complement to 60 as inauspicious. */
+  digSubha: number;
+  digAsubha: number;
+  tendency: "benefic" | "malefic";
+}
+
+/** Position of a dasa lord when its maha dasa begins, for 48.8; computed on the server. */
+export interface DasaStartTransit {
+  lord: Planet;
+  start: string;
+  lon: number;
+  signIndex: number;
 }
 
 export interface PlanetShadbala {
@@ -92,6 +138,10 @@ export interface ShadbalaResult {
   /** Birth in daytime (sunrise to sunset). */
   daytime: boolean;
   wars: { victor: Seven; loser: Seven; separation: number }[];
+  /** Birth within a ghati of sunrise or sunset (27.31 twilight rule). */
+  twilight: boolean;
+  bhavas: BhavaBala[];
+  ishta: IshtaKashta[];
   sources: Record<string, BalaSource>;
   caveats: string[];
 }
@@ -118,6 +168,18 @@ export const SHADBALA_SOURCES: Record<string, BalaSource> = {
   required: S(27, "32-33"),
   componentsRequired: S(27, "34-36"),
   relations: S(3, "55-58"),
+  bhavaDig: S(27, "26-29"),
+  bhavaDrishti: S(27, "29"),
+  bhavaLord: S(27, "29"),
+  bhavaOccupant: S(27, "30"),
+  bhavaUdaya: S(27, "31", true),
+  udayaSigns: S(4, "6-24"),
+  rasmi: S(28, "2-4"),
+  subhaRasmi: S(28, "5"),
+  ishta: S(28, "6"),
+  subhanka: S(28, "7-10"),
+  digSubha: S(28, "11-12"),
+  dasaTransit: S(48, "8", true),
   moolatrikona: S(3, "51-54"),
   aspects: S(26, "6-12"),
   effect: S(24, "145-148", true),
@@ -305,22 +367,31 @@ export function computeShadbala(positions: PlanetPosition[], lagnaIdx: number, b
     const uchcha = arc(pp.lon, debilitation) / 3;
 
     // Saptavargaja, 27.2-4.
-    const vargaValue = (varga: string, lord: Seven, rasi: boolean): VargaDignity => {
+    // Subhanka of 28.7-9: exaltation 60, moolatrikona 45, own 30, great friend 22, friend 15, neutral 8, enemy 4,
+    // great enemy 2, debilitation 0; halved outside the rasi.
+    const SUBHANKA: Record<string, number> = { exaltation: 60, moolatrikona: 45, own: 30, "great friend": 22, friend: 15, neutral: 8, enemy: 4, "great enemy": 2, debilitation: 0 };
+    const vargaValue = (varga: string, lord: Seven, rasi: boolean, sign?: number): VargaDignity => {
+      const half = rasi ? 1 : 0.5;
+      const exSign = EXALTATION[p]!.sign;
+      const exalted = sign !== undefined && sign === exSign;
+      const fallen = sign !== undefined && sign === (exSign + 6) % 12;
       if (lord === p) {
         const mt = rasi && inMoolatrikona(p, pp.signIndex, pp.degInSign);
-        return { varga, lord, relation: mt ? "moolatrikona" : "own", virupas: mt ? 45 : 30 };
+        return { varga, lord, sign, relation: mt ? "moolatrikona" : "own", virupas: mt ? 45 : 30, subhanka: SUBHANKA[mt ? "moolatrikona" : "own"] * half };
       }
       const rel = compoundRelation(p, lord, pp.signIndex, pos(lord).signIndex);
-      return { varga, lord, relation: rel, virupas: RELATION_VIRUPAS[rel] };
+      const key = exalted ? "exaltation" : fallen ? "debilitation" : rel;
+      return { varga, lord, sign, relation: rel, virupas: RELATION_VIRUPAS[rel], subhanka: SUBHANKA[key] * half };
     };
     const lordOf = (sign: number) => SIGN_LORD[sign] as Seven;
+    const withSign = (varga: string, sign: number) => vargaValue(varga, lordOf(sign), false, sign);
     const saptavarga: VargaDignity[] = [
-      vargaValue("Rasi", lordOf(pp.signIndex), true),
+      vargaValue("Rasi", lordOf(pp.signIndex), true, pp.signIndex),
       vargaValue("Hora", horaLord(pp.signIndex, pp.degInSign), false),
-      vargaValue("Drekkana", lordOf(drekkanaSign(pp.signIndex, pp.degInSign)), false),
-      vargaValue("Saptamsa", lordOf(saptamsaSign(pp.signIndex, pp.degInSign)), false),
-      vargaValue("Navamsa", lordOf(navamsaSign(pp.signIndex, pp.degInSign)), false),
-      vargaValue("Dwadasamsa", lordOf(dwadasamsaSign(pp.signIndex, pp.degInSign)), false),
+      withSign("Drekkana", drekkanaSign(pp.signIndex, pp.degInSign)),
+      withSign("Saptamsa", saptamsaSign(pp.signIndex, pp.degInSign)),
+      withSign("Navamsa", navamsaSign(pp.signIndex, pp.degInSign)),
+      withSign("Dwadasamsa", dwadasamsaSign(pp.signIndex, pp.degInSign)),
       vargaValue("Trimsamsa", trimsamsaLord(pp.signIndex, pp.degInSign), false),
     ];
     const saptavargaTotal = saptavarga.reduce((s, v) => s + v.virupas, 0);
@@ -441,6 +512,67 @@ export function computeShadbala(positions: PlanetPosition[], lagnaIdx: number, b
     r.effect = r.ratio >= 1 ? "full" : r.ratio >= 0.75 ? "half" : "quarter";
   }
 
+  // ---------- Ishta and Kashta, ch. 28 ----------
+  // Rasmis of 28.2-4: the arc from deep debilitation (or the chesta kendra) reduced to a half circle, plus one rasi,
+  // so 1 to 7; with the "reduce 1" of 28.6 this makes Ishta = (uchcha arc + chesta arc) / 6, at most 60.
+  const ishta: IshtaKashta[] = rows.map((r) => {
+    const uArc = r.sthana.uchcha * 3;
+    let cArc: number;
+    if (r.planet === "Sun") cArc = arc(base.bodies.Sun.tropLon + 90, 0);
+    else if (r.planet === "Moon") cArc = arc(moon.lon, sun.lon);
+    else cArc = r.chesta * 3;
+    const uchchaRasmi = 1 + uArc / 30, chestaRasmi = 1 + cArc / 30;
+    const subhaRasmi = (uchchaRasmi + chestaRasmi) / 2;
+    const ish = ((uchchaRasmi - 1) * 10 + (chestaRasmi - 1) * 10) / 2;
+    const svS = r.sthana.saptavarga.reduce((a, v) => a + v.subhanka, 0);
+    const svMax = 60 + 6 * 30;
+    return {
+      planet: r.planet,
+      uchchaRasmi,
+      chestaRasmi,
+      subhaRasmi,
+      asubhaRasmi: 8 - subhaRasmi,
+      ishta: ish,
+      kashta: 60 - ish,
+      saptavargaSubha: svS,
+      saptavargaAsubha: svMax - svS,
+      digSubha: r.dig,
+      digAsubha: 60 - r.dig,
+      tendency: ish >= 30 ? "benefic" : "malefic",
+    };
+  });
+
+  // ---------- Bhava bala, 27.26-31 ----------
+  const ghati = 1 / 60;
+  const twilight = Math.abs(base.jd - base.sunriseJd) <= ghati || Math.abs(base.jd - base.sunsetJd) <= ghati;
+  // Rising of the signs, ch. 4: head-rising Gemini, Leo, Virgo, Libra, Scorpio, Sagittarius (4.17), Aquarius; back-rising
+  // Aries, Taurus, Cancer, Capricorn; Pisces both. Dual signs for the twilight case as the translation renders 27.31.
+  const SEERSHODAYA = [2, 4, 5, 6, 7, 8, 10], PRISHTODAYA = [0, 1, 3, 9], DUAL = [2, 5, 8, 11];
+  const bhavas: BhavaBala[] = Array.from({ length: 12 }, (_, i) => {
+    const cusp = norm360(base.asc + 30 * i);
+    const signIndex = Math.floor(cusp / 30), deg = cusp % 30;
+    let reference: BhavaBala["reference"], ref: number;
+    if ([2, 5, 6, 10].includes(signIndex) || (signIndex === 8 && deg < 15)) { reference = "descendant"; ref = desc; }
+    else if ([0, 1, 4].includes(signIndex) || (signIndex === 9 && deg < 15) || (signIndex === 8 && deg >= 15)) { reference = "nadir"; ref = ic; }
+    else if (signIndex === 3 || signIndex === 7) { reference = "lagna"; ref = base.asc; }
+    else { reference = "meridian"; ref = base.mc; }
+    const dig = arc(cusp, ref) / 3;
+    let drishti = 0;
+    for (const q of SEVEN) {
+      const v = sphutaDrishti(q, cusp - pos(q).lon);
+      if (v <= 0) continue;
+      const good = q === "Jupiter" || q === "Mercury" ? true : isBenefic(q);
+      drishti += good ? v / 4 : -v / 4;
+      if (q === "Jupiter" || q === "Mercury") drishti += v;
+    }
+    const lord = SIGN_LORD[signIndex] as Seven;
+    const lordBala = rows.find((r) => r.planet === lord)!.total;
+    const occupants = SEVEN.filter((q) => pos(q).signIndex === signIndex && q !== "Moon" && q !== "Venus").map((q) => ({ planet: q, value: q === "Jupiter" || q === "Mercury" ? 60 : -60 }));
+    const udaya = (twilight ? DUAL : daytime ? SEERSHODAYA : PRISHTODAYA).includes(signIndex) ? 15 : 0;
+    const total = dig + drishti + lordBala + occupants.reduce((a, o) => a + o.value, 0) + udaya;
+    return { house: i + 1, signIndex, cusp, reference, dig, drishti, lord, lordBala, occupants, udaya, total };
+  });
+
   const caveats = [
     "Kendradi bala uses whole-sign houses from the lagna; the chapter speaks of angles, succedent and cadent houses without fixing the house system.",
     "Nathonnatha bala is taken from local mean time (birth longitude), not the apparent time the verse names; the difference is the equation of time, a few minutes at most.",
@@ -448,10 +580,13 @@ export function computeShadbala(positions: PlanetPosition[], lagnaIdx: number, b
     "Year and month lords follow the 360-day and 30-day counts from the Kali epoch that later manuals use; 27.13 names the lords but not how to find them. The hora is an equal hour from sunrise.",
     "Drik bala reads 'superadd the entire aspect of Mercury and Jupiter' (27.19) as those two always counting on the benefic side; their aspects are not added a second time.",
     "Rasi dignity in Saptavargaja bala follows the text: moolatrikona 45, own sign 30, otherwise the compound relationship with the sign lord, so an exaltation sign counts as its lord's sign (3.55-58). Moolatrikona follows the degree ranges of 3.51-54.",
-    "Bhava bala (27.26-31) and Ishta-Kashta phala (ch. 28) are not computed.",
+    "Bhava bala measures the cusp of each house, taken as the lagna degree plus multiples of 30 so that it stays inside the whole-sign house; the chapter does not fix the house system. The Sagittarius and Capricorn halves follow 27.26-28.",
+    "Bhava drishti (27.29) adds a quarter of each benefic's aspect on the cusp, takes a quarter of each malefic's, and adds the whole aspect of Jupiter and Mercury as the verse says. The bhava lord's full Shadbala is then added.",
+    "The rising of the signs for 27.31 follows chapter 4 (Sagittarius head-rising per 4.17; Scorpio is not stated there and is taken as head-rising). Twilight is read as one ghati either side of sunrise or sunset, and the twilight case uses the dual signs as the translation renders it; both points are provisional.",
+    "Ishta and Kashta follow 28.2-6 with the rasmis read as one to seven, which makes the Ishta phala the mean of the Uchcha and Chesta arcs in virupas and keeps it within 60. The Sun's Chesta kendra is the tropical Sun plus three signs and the Moon's is its distance from the Sun (28.3-4). The Ashtakavarga steps of 28.13-20 are not applied.",
   ];
 
-  return { planets: rows, lords: { varsha, masa, dina, hora }, daytime, wars, sources: SHADBALA_SOURCES, caveats };
+  return { planets: rows, lords: { varsha, masa, dina, hora }, daytime, wars, twilight, bhavas, ishta, sources: SHADBALA_SOURCES, caveats };
 }
 
 export function shadbalaOf(sb: ShadbalaResult | undefined, p: Planet): PlanetShadbala | undefined {
