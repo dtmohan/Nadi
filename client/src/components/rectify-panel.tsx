@@ -116,7 +116,7 @@ const SIGNS3 = ["Ari", "Tau", "Gem", "Can", "Leo", "Vir", "Lib", "Sco", "Sag", "
 
 function Mark({ on, title }: { on: boolean; title?: string }) {
   return (
-    <span title={title} className={cn("inline-block h-2.5 w-2.5 rounded-full align-middle", on ? "bg-emerald-500" : "bg-muted-foreground/25")} aria-label={on ? "agrees" : "does not agree"} />
+    <span title={title} className={cn("inline-block h-2.5 w-2.5 rounded-full align-middle", on ? "bg-verdict-good" : "bg-muted-foreground/25")} aria-label={on ? "agrees" : "does not agree"} />
   );
 }
 
@@ -350,7 +350,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
 
           {method === "jaimini-dasha" && (
             <div className="mt-2 overflow-x-auto">
-              <Table className="text-[11px] leading-5 [&_button]:[word-spacing:0.2em] [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
+              <Table className="text-xs leading-5 [&_button]:[word-spacing:0.2em] [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="whitespace-nowrap">Rising</TableHead>
@@ -370,10 +370,10 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                     const last = data.segments[g.last];
                     const best = g.score === groupTop && groupTop > 0;
                     return (
-                      <TableRow key={g.first} className={cn(best && "bg-emerald-500/10", g.given && "outline outline-1 -outline-offset-1 outline-foreground/40")} data-testid={`rectify-sign-${g.first}`}>
+                      <TableRow key={g.first} className={cn(best && "bg-verdict-good/10", g.given && "outline outline-1 -outline-offset-1 outline-foreground/40")} data-testid={`rectify-sign-${g.first}`}>
                         <TableCell className="whitespace-nowrap tabular">
                           {first.start.slice(0, 5)}<span className="text-muted-foreground">:{first.start.slice(6)}</span>–{last.end.slice(0, 5)}<span className="text-muted-foreground">:{last.end.slice(6)}</span>
-                          {g.given && <span className="ml-1.5 rounded border px-1 text-[10px] uppercase tracking-wide text-muted-foreground">given</span>}
+                          {g.given && <span className="ml-1.5 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground">given</span>}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
                           {g.sign.name} <span className="text-muted-foreground" title={`chara dasha runs ${g.sign.direction} from this sign`}>{g.sign.direction === "forward" ? "fwd" : "bwd"}</span>
@@ -382,7 +382,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                           const f = e.jaimini;
                           if (!f) return <TableCell key={e.label + e.date} className="whitespace-nowrap text-muted-foreground">no Jaimini area for this matter</TableCell>;
                           const dot = (lvl: { hot: boolean; score: number; triggers: string[] }, what: string) => (
-                            <span title={lvl.triggers.length ? lvl.triggers.join("\n") : `nothing in the ${what} sign speaks to this matter`} className={cn("inline-block h-2.5 w-2.5 rounded-full align-middle", lvl.hot ? "bg-emerald-500" : lvl.score > 0 ? "bg-emerald-500/40" : "bg-muted-foreground/25")} aria-label={lvl.hot ? "carries the matter" : lvl.score > 0 ? "light touch" : "no touch"} />
+                            <span title={lvl.triggers.length ? lvl.triggers.join("\n") : `nothing in the ${what} sign speaks to this matter`} className={cn("inline-block h-2.5 w-2.5 rounded-full align-middle", lvl.hot ? "bg-verdict-good" : lvl.score > 0 ? "bg-verdict-good/40" : "bg-muted-foreground/25")} aria-label={lvl.hot ? "carries the matter" : lvl.score > 0 ? "light touch" : "no touch"} />
                           );
                           return (
                             <TableCell key={e.label + e.date} className="whitespace-nowrap">
@@ -425,7 +425,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
 
           {method !== "jaimini-dasha" && (
           <div className="mt-2 overflow-x-auto">
-            <Table className="text-[11px] leading-5 [&_button]:[word-spacing:0.2em] [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
+            <Table className="text-xs leading-5 [&_button]:[word-spacing:0.2em] [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
               <TableHeader>
                 <TableRow>
                   <TableHead className="whitespace-nowrap">{plain ? "Slice" : "Interval"}</TableHead>
@@ -449,10 +449,10 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                 {segments.map(({ s, i, score, max }) => {
                   const best = bestSet.has(i);
                   return (
-                    <TableRow key={s.startIso} className={cn(best && "bg-emerald-500/10", s.given && "outline outline-1 -outline-offset-1 outline-foreground/40")} data-testid={`rectify-segment-${i}`}>
+                    <TableRow key={s.startIso} className={cn(best && "bg-verdict-good/10", s.given && "outline outline-1 -outline-offset-1 outline-foreground/40")} data-testid={`rectify-segment-${i}`}>
                       <TableCell className="whitespace-nowrap tabular">
                         {s.start.slice(0, 5)}<span className="text-muted-foreground">:{s.start.slice(6)}</span>–{s.end.slice(0, 5)}<span className="text-muted-foreground">:{s.end.slice(6)}</span>
-                        {s.given && <span className="ml-1.5 rounded border px-1 text-[10px] uppercase tracking-wide text-muted-foreground">given</span>}
+                        {s.given && <span className="ml-1.5 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground">given</span>}
                       </TableCell>
                       <TableCell className="whitespace-nowrap tabular">
                         {s.sign.slice(0, 3)} {degRange(s.lagnaFrom, s.lagnaTo)}
@@ -488,7 +488,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                       {method === "kp-moon" && (
                         <TableCell className="whitespace-nowrap">
                           <span className="inline-flex items-center gap-1.5" title={s.moonLords.star.via}>
-                            <span className={cn("rounded border px-1 text-[10px] tabular", s.moonLords.star.level === 4 ? "border-emerald-500 text-emerald-700 dark:text-emerald-400" : s.moonLords.star.level > 0 ? "text-foreground" : "text-muted-foreground")}>{s.moonLords.star.level}</span>
+                            <span className={cn("rounded border px-1 text-2xs tabular", s.moonLords.star.level === 4 ? "border-verdict-good text-verdict-good" : s.moonLords.star.level > 0 ? "text-foreground" : "text-muted-foreground")}>{s.moonLords.star.level}</span>
                             <Mark on={s.moonLords.star.level > 0} title={s.moonLords.star.via} /> <PlanetName planet={s.moonLords.subLord} abbr />
                             <span className="text-muted-foreground">in</span>
                             <Mark on={s.moonLords.chain.starLord === s.moonLords.birthStarLord} title={`star of ${s.moonLords.chain.starLord}`} /> <PlanetName planet={s.moonLords.chain.starLord} abbr />

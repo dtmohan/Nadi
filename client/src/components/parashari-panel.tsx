@@ -36,23 +36,23 @@ const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 
 const VERDICT_CLASS: Record<ParashariFinding["tone"], string> = {
-  support: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-  strain: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
-  mixed: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+  support: "bg-verdict-good/15 text-verdict-good",
+  strain: "bg-verdict-bad/10 text-verdict-bad",
+  mixed: "bg-verdict-mixed/15 text-verdict-mixed",
 };
 const VERDICT_LABEL: Record<ParashariFinding["tone"], string> = { support: "favourable", strain: "unfavourable", mixed: "mixed" };
 
 const TONE_CLASS: Record<ParashariFinding["tone"], string> = {
-  support: "border-l-emerald-500/70",
-  strain: "border-l-rose-500/70",
-  mixed: "border-l-amber-500/70",
+  support: "border-l-verdict-good/70",
+  strain: "border-l-verdict-bad/70",
+  mixed: "border-l-verdict-mixed/70",
 };
 
 const ROLE_CLASS: Record<string, string> = {
-  yogakaraka: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-  auspicious: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
-  malefic: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
-  maraka: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+  yogakaraka: "bg-verdict-good/15 text-verdict-good",
+  auspicious: "bg-verdict-good/10 text-verdict-good",
+  malefic: "bg-verdict-bad/10 text-verdict-bad",
+  maraka: "bg-verdict-bad/15 text-verdict-bad",
   neutral: "bg-muted text-muted-foreground",
 };
 
@@ -63,13 +63,13 @@ function Finding({ f }: { f: ParashariFinding }) {
         <span className="text-sm font-medium">{f.title}</span>
         <span className="flex gap-1">
           {f.planets.map((p) => (
-            <PlanetName key={p} planet={p} abbr tone className="text-[11px]" />
+            <PlanetName key={p} planet={p} abbr tone className="text-xs" />
           ))}
         </span>
-        {f.source.provisional && <Badge variant="outline" className="text-[10px]">provisional</Badge>}
+        {f.source.provisional && <Badge variant="outline" className="text-2xs">provisional</Badge>}
       </div>
       <p className="mt-1 text-sm text-muted-foreground">{f.text}</p>
-      <p className="mt-1 text-[11px] text-muted-foreground">
+      <p className="mt-1 text-xs text-muted-foreground">
         <SourceLink source={f.source} mark={false} />
       </p>
     </div>
@@ -139,8 +139,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         <div>
           <SouthIndianChart
             positions={positions}
-            title={chart.name}
-            subtitle="Rasi · whole-sign bhavas"
+            title="Rasi"
+            subtitle="Whole-sign bhavas from the lagna"
             lagnaSign={r.lagna.signIndex}
             badges={badges}
             accent={[r.bhavas[0].lord]}
@@ -188,7 +188,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               ))}
             </TableBody>
           </Table>
-          <p className="mt-1 text-[11px] text-muted-foreground">
+          <p className="mt-1 text-xs text-muted-foreground">
             Aspects are sign-based: every planet sees the 7th fully; Saturn the 3rd and 10th, Jupiter the 5th and 9th, Mars the 4th and 8th fully; otherwise 3/10 a quarter, 5/9 a half, 4/8 three quarters, <SourceLink source={{ label: "Parashara 26.2-5", url: BPHS_URL(26) }} />.
           </p>
         </div>
@@ -217,8 +217,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 <TableCell className="py-1.5">{n.owns.length ? n.owns.join(", ") : "—"}</TableCell>
                 <TableCell className="py-1.5">{n.house}</TableCell>
                 <TableCell className="py-1.5">
-                  <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium", ROLE_CLASS[n.functional])}>{n.functional}</span>
-                  {n.naturalBenefic && <span className="ml-1 text-[11px] text-muted-foreground">natural benefic</span>}
+                  <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium", ROLE_CLASS[n.functional])}>{n.functional}</span>
+                  {n.naturalBenefic && <span className="ml-1 text-xs text-muted-foreground">natural benefic</span>}
                 </TableCell>
                 <TableCell className="hidden py-1.5 text-xs text-muted-foreground sm:table-cell">{LORDSHIP_LABEL[n.lordship]}</TableCell>
               </TableRow>
@@ -252,7 +252,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         {section === "lords" && (
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {shownLords.map((f) => <Finding key={f.id} f={f} />)}
-            <p className="text-[11px] text-muted-foreground md:col-span-2">
+            <p className="text-xs text-muted-foreground md:col-span-2">
               Parashara qualifies all of these by the lord's strength: full effect when strong, half when middling, a quarter when weak; where a planet owns two houses and the results contradict, they cancel, <SourceLink source={{ label: "Parashara 24.145-148", url: BPHS_URL(24) }} />. {r.shadbala ? "The qualifier in each card uses the Shadbala below: full at or above the requirement of 27.32-33, half from three quarters of it, a quarter below that; the thresholds for half and quarter are not stated in the text." : "Strength (Shadbala) needs a recomputed chart; open the chart again to fetch it."}
             </p>
           </div>
@@ -307,12 +307,12 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               <TableRow key={d.lord + d.start} className={cn("cursor-pointer", d.current && "bg-primary/5", selDasa?.lord === d.lord && "ring-1 ring-inset ring-primary/40")} onClick={() => { setDasaPick(d.lord); setAntarOpen(null); }} data-testid={`parashari-dasa-${d.lord}`}>
                 <TableCell className="py-1.5 whitespace-nowrap">
                   <PlanetName planet={d.lord} />
-                  {d.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                  {d.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
                 </TableCell>
                 <TableCell className="py-1.5 text-right whitespace-nowrap">{d.ageStart.toFixed(1)}–{d.ageEnd.toFixed(1)}</TableCell>
                 <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell whitespace-nowrap">{fmt(d.start)} – {fmt(d.end)}</TableCell>
                 <TableCell className="py-1.5 text-xs text-muted-foreground">
-                  <span className={cn("mr-1 rounded px-1.5 py-0.5 text-[11px] font-medium", ROLE_CLASS[d.functional])}>{roleLabel(d.functional)}</span>
+                  <span className={cn("mr-1 rounded px-1.5 py-0.5 text-xs font-medium", ROLE_CLASS[d.functional])}>{roleLabel(d.functional)}</span>
                   {d.summary}
                 </TableCell>
               </TableRow>
@@ -452,9 +452,9 @@ function ShadbalaSection({ sb, open, setOpen, phala, varga }: { sb: ShadbalaResu
             <TableRow key={b.house} data-testid={`parashari-bhava-bala-${b.house}`}>
               <TableCell className="py-1.5">{b.house}</TableCell>
               <TableCell className="py-1.5"><SignName signIndex={b.signIndex} /></TableCell>
-              <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{fmtV(b.dig)}<span className="ml-1 text-[10px] text-muted-foreground">from {b.reference}</span></TableCell>
+              <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{fmtV(b.dig)}<span className="ml-1 text-2xs text-muted-foreground">from {b.reference}</span></TableCell>
               <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{fmtV(b.drishti)}</TableCell>
-              <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{fmtV(b.lordBala)}<span className="ml-1 text-[10px] text-muted-foreground">{PLANET_ABBR[b.lord]}</span></TableCell>
+              <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{fmtV(b.lordBala)}<span className="ml-1 text-2xs text-muted-foreground">{PLANET_ABBR[b.lord]}</span></TableCell>
               <TableCell className="hidden py-1.5 text-right tabular-nums md:table-cell">{b.occupants.length ? b.occupants.map((o) => `${PLANET_ABBR[o.planet]} ${o.value > 0 ? "+" : ""}${o.value}`).join(", ") : "—"}</TableCell>
               <TableCell className="hidden py-1.5 text-right tabular-nums md:table-cell">{b.udaya || "—"}</TableCell>
               <TableCell className="py-1.5 text-right font-medium tabular-nums">{b.total.toFixed(0)}</TableCell>
@@ -462,7 +462,7 @@ function ShadbalaSection({ sb, open, setOpen, phala, varga }: { sb: ShadbalaResu
           ))}
         </TableBody>
       </Table>
-      <p className="mt-1 text-[11px] text-muted-foreground">
+      <p className="mt-1 text-xs text-muted-foreground">
         <SourceLink source={sb.sources.bhavaDig} /> · <SourceLink source={sb.sources.bhavaDrishti} /> · <SourceLink source={sb.sources.bhavaOccupant} /> · <SourceLink source={sb.sources.bhavaUdaya} /> · rising of the signs <SourceLink source={sb.sources.udayaSigns} />
       </p>
       {phala && (
@@ -515,7 +515,7 @@ function PhalaRows({ b, open, toggle }: { b: BhavaPhala; open: boolean; toggle: 
         <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{b.subha.toFixed(0)}</TableCell>
         <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell">{b.asubha.toFixed(0)}</TableCell>
         <TableCell className="py-1.5 text-right font-medium tabular-nums">{b.net > 0 ? "+" : ""}{b.net.toFixed(0)}</TableCell>
-        <TableCell className="py-1.5"><span className={cn("whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] font-medium", cls)}>{b.verdict} · {Math.round(b.share * 100)}% good</span></TableCell>
+        <TableCell className="py-1.5"><span className={cn("whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium", cls)}>{b.verdict} · {Math.round(b.share * 100)}% good</span></TableCell>
       </TableRow>
       {open && (
         <TableRow className="bg-muted/30 hover:bg-muted/30">
@@ -548,16 +548,16 @@ function BalaRows({ r, sb, varga, open, toggle }: { r: PlanetShadbala; sb: Shadb
         {num(r.drik)}
         <TableCell className="py-1.5 text-right font-medium tabular-nums">
           {r.total.toFixed(0)}
-          {r.yuddha !== 0 && <span className="block whitespace-nowrap text-[10px] font-normal text-muted-foreground">war {r.yuddha > 0 ? "+" : ""}{r.yuddha.toFixed(0)}</span>}
+          {r.yuddha !== 0 && <span className="block whitespace-nowrap text-2xs font-normal text-muted-foreground">war {r.yuddha > 0 ? "+" : ""}{r.yuddha.toFixed(0)}</span>}
         </TableCell>
         <TableCell className="py-1.5 text-right tabular-nums text-muted-foreground">{r.required}</TableCell>
         <TableCell className="py-1.5">
-          <span className={cn("whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] font-medium", r.strong ? VERDICT_CLASS.support : VERDICT_CLASS.strain)} data-testid={`parashari-shadbala-verdict-${r.planet}`}>
+          <span className={cn("whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium", r.strong ? VERDICT_CLASS.support : VERDICT_CLASS.strain)} data-testid={`parashari-shadbala-verdict-${r.planet}`}>
             {r.strong ? "strong" : "weak"} · {(r.ratio * 100).toFixed(0)}%
           </span>
         </TableCell>
         <TableCell className="hidden py-1.5 text-right tabular-nums sm:table-cell" data-testid={`parashari-ishta-${r.planet}`}>
-          {ik ? <><span className={ik.tendency === "benefic" ? "text-emerald-700 dark:text-emerald-300" : "text-rose-700 dark:text-rose-300"}>{ik.ishta.toFixed(0)}</span> / {ik.kashta.toFixed(0)}</> : "—"}
+          {ik ? <><span className={ik.tendency === "benefic" ? "text-verdict-good" : "text-verdict-bad"}>{ik.ishta.toFixed(0)}</span> / {ik.kashta.toFixed(0)}</> : "—"}
         </TableCell>
       </TableRow>
       {open && (
@@ -604,7 +604,7 @@ function Note({ n }: { n: DasaNote }) {
   return (
     <li className={cn("rounded-md border border-l-4 bg-card px-3 py-2", TONE_CLASS[n.tone])} data-testid={`parashari-dasa-note-${n.id}`}>
       <p className="text-sm text-muted-foreground">{n.text}</p>
-      <p className="mt-0.5 text-[11px] text-muted-foreground">
+      <p className="mt-0.5 text-xs text-muted-foreground">
         {LAYER_LABEL[n.layer]} · <SourceLink source={n.source} />
       </p>
     </li>
@@ -621,8 +621,8 @@ function DasaEffects({ d, open, setOpen, birthIso, asOfIso }: { d: DasaReading; 
         <h3 className="text-sm font-semibold">
           <PlanetName planet={d.lord} /> {plainDE ? "period" : "dasa"}, {fmt(d.start)} to {fmt(d.end)}
         </h3>
-        <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium", VERDICT_CLASS[d.verdict])} data-testid="parashari-dasa-verdict">{VERDICT_LABEL[d.verdict]} on balance</span>
-        {d.current && <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+        <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium", VERDICT_CLASS[d.verdict])} data-testid="parashari-dasa-verdict">{VERDICT_LABEL[d.verdict]} on balance</span>
+        {d.current && <span className="rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
       </div>
       <ModeText
         plain={<>What Parashara says a {d.lord} period brings for someone with {d.lord} placed as it is here, judged by the house it stands in, its strength, its leaning towards good or ill, and where it was moving when the period began. Every matching line is listed, favourable and unfavourable alike, so you can see where they pull against each other.</>}
@@ -693,7 +693,7 @@ function FineRow({ p, testid, selected, onSelect, withTime }: { p: FinePeriod; t
       <span className={cn("shrink-0 text-xs text-muted-foreground whitespace-nowrap tabular-nums", withTime ? "sm:w-64" : "sm:w-44")}>
         {withTime ? `${fmtDT(p.start)} – ${fmtDT(p.end)}` : `${fmtD(p.start)} – ${fmtD(p.end)}`}
       </span>
-      {p.current && <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+      {p.current && <span className="rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
       <span className="min-w-0 basis-full text-xs text-muted-foreground sm:basis-0 sm:flex-1">
         {p.text} <SourceLink source={p.source} />
       </span>
@@ -769,11 +769,11 @@ function FineLevels({ dasaLord, antarLord, pratyantars, birthIso, asOfIso }: { d
 function Facts({ a }: { a: AntarReading }) {
   return (
     <>
-      {a.facts.favourable.length > 0 && <span className="text-emerald-700 dark:text-emerald-300">{a.facts.favourable.join("; ")}</span>}
+      {a.facts.favourable.length > 0 && <span className="text-verdict-good">{a.facts.favourable.join("; ")}</span>}
       {a.facts.favourable.length > 0 && (a.facts.adverse.length > 0 || a.facts.maraka) && <span> · </span>}
-      {a.facts.adverse.length > 0 && <span className="text-rose-700 dark:text-rose-300">{a.facts.adverse.join("; ")}</span>}
+      {a.facts.adverse.length > 0 && <span className="text-verdict-bad">{a.facts.adverse.join("; ")}</span>}
       {a.facts.adverse.length > 0 && a.facts.maraka && <span> · </span>}
-      {a.facts.maraka && <span className="text-rose-700 dark:text-rose-300">{a.facts.maraka}</span>}
+      {a.facts.maraka && <span className="text-verdict-bad">{a.facts.maraka}</span>}
       {!a.facts.favourable.length && !a.facts.adverse.length && !a.facts.maraka && <span>none of the named placements</span>}
     </>
   );
@@ -786,11 +786,11 @@ function AntarRows({ a, isOpen, toggle, dasaLord }: { a: AntarReading; isOpen: b
       <TableRow className={cn("cursor-pointer", a.current && "bg-primary/5", a.past && !a.current && "text-muted-foreground/80")} onClick={toggle} data-testid={`parashari-antar-${dasaLord}-${a.lord}`} aria-expanded={isOpen}>
         <TableCell className="py-1.5 whitespace-nowrap">
           <PlanetName planet={a.lord} />
-          {a.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+          {a.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
         </TableCell>
         <TableCell className="hidden py-1.5 text-xs text-muted-foreground sm:table-cell whitespace-nowrap">{fmt(a.start)} – {fmt(a.end)}</TableCell>
         <TableCell className="py-1.5">
-          <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium whitespace-nowrap", VERDICT_CLASS[a.verdict])}>{VERDICT_LABEL[a.verdict]}</span>
+          <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium whitespace-nowrap", VERDICT_CLASS[a.verdict])}>{VERDICT_LABEL[a.verdict]}</span>
         </TableCell>
         <TableCell className="hidden py-1.5 text-xs text-muted-foreground sm:table-cell">
           <Facts a={a} />
@@ -822,7 +822,7 @@ function AntarRows({ a, isOpen, toggle, dasaLord }: { a: AntarReading; isOpen: b
               {e.phases && (<><dt className="font-medium">Course</dt><dd className="text-muted-foreground">{e.phases}</dd></>)}
               {e.remedy && (<><dt className="font-medium">Remedy named</dt><dd className="text-muted-foreground">{e.remedy}</dd></>)}
             </dl>
-            <p className="mt-2 text-[11px] text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               <SourceLink source={a.source} /> · paraphrased from the Santhanam translation
             </p>
           </TableCell>
@@ -873,7 +873,7 @@ function AshtakavargaSection({ av, lagnaIdx }: { av: AshtakavargaResult; lagnaId
                 <TableCell key={c.owner} className={cn("hidden py-1.5 text-right tabular-nums md:table-cell", c.owner === "Lagna" && "text-muted-foreground", pick === c.owner && "bg-primary/5 font-medium")}>{c.rekhas[h.signIndex]}</TableCell>
               ))}
               <TableCell className="px-2 py-1.5 sm:px-4 text-right font-medium tabular-nums">{h.rekhas}</TableCell>
-              <TableCell className="px-2 py-1.5 sm:px-4"><span className={cn("whitespace-nowrap rounded px-1.5 py-0.5 text-[11px] font-medium", BAND_CLASS[h.band])}>{h.band}</span></TableCell>
+              <TableCell className="px-2 py-1.5 sm:px-4"><span className={cn("whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium", BAND_CLASS[h.band])}>{h.band}</span></TableCell>
             </TableRow>
           ))}
           <TableRow className="hover:bg-transparent">
@@ -884,7 +884,7 @@ function AshtakavargaSection({ av, lagnaIdx }: { av: AshtakavargaResult; lagnaId
           </TableRow>
         </TableBody>
       </Table>
-      <p className="mt-1 text-[11px] text-muted-foreground">The total leaves out the lagna's chart, which the text keeps apart; the seven planets give 337 rekhas in all.</p>
+      <p className="mt-1 text-xs text-muted-foreground">The total leaves out the lagna's chart, which the text keeps apart; the seven planets give 337 rekhas in all.</p>
 
       <div className="mt-3 flex flex-wrap gap-1 md:hidden">
         {av.charts.map((c) => (
@@ -943,8 +943,8 @@ function AshtakavargaSection({ av, lagnaIdx }: { av: AshtakavargaResult; lagnaId
             <TableRow key={s.matter} data-testid={`parashari-av-saturn-${s.owner}`}>
               <TableCell className="px-2 py-1.5 sm:px-4 text-xs">{s.matter} <SourceLink source={s.source} /></TableCell>
               <TableCell className="hidden px-2 py-1.5 sm:px-4 text-xs text-muted-foreground sm:table-cell">{ord(s.houseFrom)} from {s.owner}: {SIGNS[s.signIndex]}, {s.rekhas} rekhas × pinda {s.rekhas ? s.product / s.rekhas : "—"}</TableCell>
-              <TableCell className="px-2 py-1.5 sm:px-4 text-xs">{NAKSHATRAS[s.nakshatraIndex]}<span className="block text-[10px] text-muted-foreground">trines {s.trineNakshatras.slice(1).map((n) => NAKSHATRAS[n]).join(", ")}</span></TableCell>
-              <TableCell className="px-2 py-1.5 sm:px-4 text-xs">{SIGNS[s.transitSignIndex]}<span className="block text-[10px] text-muted-foreground">trines {s.trineSigns.slice(1).map((n) => SIGNS[n]).join(", ")}</span></TableCell>
+              <TableCell className="px-2 py-1.5 sm:px-4 text-xs">{NAKSHATRAS[s.nakshatraIndex]}<span className="block text-2xs text-muted-foreground">trines {s.trineNakshatras.slice(1).map((n) => NAKSHATRAS[n]).join(", ")}</span></TableCell>
+              <TableCell className="px-2 py-1.5 sm:px-4 text-xs">{SIGNS[s.transitSignIndex]}<span className="block text-2xs text-muted-foreground">trines {s.trineSigns.slice(1).map((n) => SIGNS[n]).join(", ")}</span></TableCell>
             </TableRow>
           ))}
         </TableBody>

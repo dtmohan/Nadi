@@ -174,7 +174,7 @@ function DashaRow({
         {current && (
           <Badge
             variant="secondary"
-            className="no-default-hover-elevate ml-auto text-[10px]"
+            className="no-default-hover-elevate ml-auto text-2xs"
           >
             now
           </Badge>
@@ -358,11 +358,11 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
 
       {plain && <JaiminiInBrief result={result} />}
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
+      <div className="mt-6 grid gap-8 lg:grid-cols-[5fr_4fr] lg:items-start">
         <div>
           <SouthIndianChart
             positions={positions}
-            title={chart.name}
+            title="Rasi"
             subtitle="Rasi with lagna and padas"
             lagnaSign={j.lagna.signIndex}
             badges={rasiBadges}
@@ -375,9 +375,9 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           <p className="mt-2 text-xs text-muted-foreground">
             <span className="font-semibold text-primary">As</span> ascendant ·
             numbers are houses from the lagna ·{" "}
-            <span className="font-semibold text-[hsl(var(--chart-3))]">AL</span>{" "}
+            <span className="font-semibold text-primary">AL</span>{" "}
             <Term k="al">Arudha lagna</Term> ·{" "}
-            <span className="font-semibold text-[hsl(var(--chart-3))]">UL</span>{" "}
+            <span className="font-semibold text-primary">UL</span>{" "}
             <Term k="ul">Upapada</Term> ·{" "}
             <span className="font-semibold text-primary">
               {PLANET_ABBR[ak]}

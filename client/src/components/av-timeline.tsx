@@ -14,14 +14,14 @@ const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 
 const TONE_BORDER: Record<AvTone, string> = {
-  support: "border-l-emerald-500/70",
-  strain: "border-l-rose-500/70",
-  mixed: "border-l-amber-500/70",
+  support: "border-l-verdict-good/70",
+  strain: "border-l-verdict-bad/70",
+  mixed: "border-l-verdict-mixed/70",
 };
 const TONE_PILL: Record<AvTone, string> = {
-  support: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-  strain: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
-  mixed: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+  support: "bg-verdict-good/15 text-verdict-good",
+  strain: "bg-verdict-bad/10 text-verdict-bad",
+  mixed: "bg-verdict-mixed/15 text-verdict-mixed",
 };
 const TONE_LABEL: Record<AvTone, string> = { support: "favourable", strain: "unfavourable", mixed: "mixed" };
 const BAND_PILL: Record<AvTransitRow["band"], string> = { favourable: TONE_PILL.support, medium: TONE_PILL.mixed, adverse: TONE_PILL.strain };
@@ -45,10 +45,10 @@ function MotherRow({ r, open, toggle, sources }: { r: MotherPointRow; open: bool
           {fmt(r.start)} – {fmt(r.end)}
         </span>
         <span className="text-sm">{r.label}</span>
-        <span className="text-[10px] text-muted-foreground">{r.kind === "sign" || r.kind === "nakshatra" ? `${r.kind} point` : r.kind}</span>
-        {r.retrogradeEntry && <span className="rounded border px-1 text-[10px] text-muted-foreground">retrograde re-entry</span>}
-        {r.current && <span className="rounded bg-primary/10 px-1 text-[10px] font-medium text-primary">now</span>}
-        <span className={cn("ml-auto rounded px-1.5 py-0.5 text-[11px] font-medium", SEVERITY_PILL[r.severity])}>{r.severity}</span>
+        <span className="text-2xs text-muted-foreground">{r.kind === "sign" || r.kind === "nakshatra" ? `${r.kind} point` : r.kind}</span>
+        {r.retrogradeEntry && <span className="rounded border px-1 text-2xs text-muted-foreground">retrograde re-entry</span>}
+        {r.current && <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">now</span>}
+        <span className={cn("ml-auto rounded px-1.5 py-0.5 text-xs font-medium", SEVERITY_PILL[r.severity])}>{r.severity}</span>
       </button>
       {open && (
         <div className="border-t px-3 py-2 text-xs" data-testid={`av-mother-notes-${key}`}>
@@ -105,9 +105,9 @@ function MotherSection({ m, inRange }: { m: MotherPointReading; inRange: (s: str
                 {fmtDT(c.start)} – {fmtDT(c.end)}
               </span>
               <SignName signIndex={c.signIndex} />
-              <span className="text-[10px] text-muted-foreground">{c.rekhas} rekhas</span>
-              {c.current && <span className="rounded bg-primary/10 px-1 text-[10px] font-medium text-primary">now</span>}
-              <span className={cn("ml-auto rounded px-1.5 py-0.5 text-[11px] font-medium", CAL_PILL[c.verdict])}>{c.verdict}</span>
+              <span className="text-2xs text-muted-foreground">{c.rekhas} rekhas</span>
+              {c.current && <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">now</span>}
+              <span className={cn("ml-auto rounded px-1.5 py-0.5 text-xs font-medium", CAL_PILL[c.verdict])}>{c.verdict}</span>
             </li>
           ))}
         </ul>
@@ -137,16 +137,16 @@ function ArishtaRow({ r, open, toggle }: { r: FatherArishtaReading; open: boolea
         </span>
         <span className="flex items-center gap-1 text-sm">
           Saturn in <SignName signIndex={r.saturnSignIndex} />
-          <span className="text-[10px] text-muted-foreground">({r.pointKind === "sign" ? "father's point" : "trine"})</span>
+          <span className="text-2xs text-muted-foreground">({r.pointKind === "sign" ? "father's point" : "trine"})</span>
         </span>
         <span className="flex flex-wrap items-center gap-1">
           {r.fourthFromSun.map((p) => (
             <PlanetName key={p} planet={p} abbr />
           ))}
-          <span className="text-[10px] text-muted-foreground">in 4th from Sun</span>
+          <span className="text-2xs text-muted-foreground">in 4th from Sun</span>
         </span>
-        {r.current && <span className="rounded bg-primary/10 px-1 text-[10px] font-medium text-primary">now</span>}
-        <span className={cn("ml-auto rounded px-1.5 py-0.5 text-[11px] font-medium", LEVEL_PILL[r.level])}>{LEVEL_LABEL[r.level]}</span>
+        {r.current && <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">now</span>}
+        <span className={cn("ml-auto rounded px-1.5 py-0.5 text-xs font-medium", LEVEL_PILL[r.level])}>{LEVEL_LABEL[r.level]}</span>
       </button>
       {open && (
         <div className="border-t px-3 py-2 text-xs" data-testid={`av-arishta-notes-${r.start.slice(0, 10)}`}>
@@ -193,21 +193,21 @@ function Row({ r, open, toggle }: { r: AvTransitRow; open: boolean; toggle: () =
         <span className="flex items-center gap-2 text-sm">
           <SignName signIndex={r.signIndex} />
           <span className="text-xs text-muted-foreground">{r.house}H</span>
-          {r.retrogradeEntry && <span className="rounded border px-1 text-[10px] text-muted-foreground">retrograde re-entry</span>}
-          {r.current && <span className="rounded bg-primary/10 px-1 text-[10px] font-medium text-primary">now</span>}
+          {r.retrogradeEntry && <span className="rounded border px-1 text-2xs text-muted-foreground">retrograde re-entry</span>}
+          {r.current && <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">now</span>}
         </span>
         <span className="ml-auto flex flex-wrap items-center gap-2">
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <RekhaMarks givers={r.givers} owner={r.planet} />
             {r.ownRekhas}
           </span>
-          <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium", BAND_PILL[r.band])}>{r.sarva} · {r.band}</span>
+          <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium", BAND_PILL[r.band])}>{r.sarva} · {r.band}</span>
           {r.hits.map((h) => (
-            <span key={h.matter + h.kind} className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium", h.kind === "sign" ? "bg-rose-500/10 text-rose-700 dark:text-rose-300" : "border border-rose-500/40 text-rose-700/80 dark:text-rose-300/80")}>
+            <span key={h.matter + h.kind} className={cn("rounded px-1.5 py-0.5 text-xs font-medium", h.kind === "sign" ? "bg-verdict-bad/10 text-verdict-bad" : "border border-verdict-bad/40 text-verdict-bad/80")}>
               {h.matter.split(",")[0]}{h.kind === "trine" ? " (trine)" : ""}
             </span>
           ))}
-          <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium", TONE_PILL[r.tone])}>{TONE_LABEL[r.tone]}</span>
+          <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium", TONE_PILL[r.tone])}>{TONE_LABEL[r.tone]}</span>
         </span>
       </button>
       {open && (
@@ -228,16 +228,16 @@ function Row({ r, open, toggle }: { r: AvTransitRow; open: boolean; toggle: () =
 
 function NakRow({ r }: { r: AvNakshatraRow }) {
   return (
-    <li className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-l-4 border-l-rose-500/70 bg-card px-3 py-1.5 text-xs", r.current && "ring-1 ring-primary/40")} data-testid={`av-nak-${r.start.slice(0, 10)}`}>
+    <li className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 rounded-md border border-l-4 border-l-verdict-bad/70 bg-card px-3 py-1.5 text-xs", r.current && "ring-1 ring-primary/40")} data-testid={`av-nak-${r.start.slice(0, 10)}`}>
       <span className="w-[8.5rem] shrink-0 tabular-nums text-muted-foreground">
         {fmt(r.start)} – {fmt(r.end)}
       </span>
       <span className="text-sm">{NAKSHATRAS[r.nakshatraIndex]}</span>
-      {r.retrogradeEntry && <span className="rounded border px-1 text-[10px] text-muted-foreground">retrograde re-entry</span>}
-      {r.current && <span className="rounded bg-primary/10 px-1 text-[10px] font-medium text-primary">now</span>}
+      {r.retrogradeEntry && <span className="rounded border px-1 text-2xs text-muted-foreground">retrograde re-entry</span>}
+      {r.current && <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">now</span>}
       <span className="ml-auto flex flex-wrap gap-1">
         {r.hits.map((h) => (
-          <span key={h.matter + h.kind} className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium", h.kind === "nakshatra" ? "bg-rose-500/10 text-rose-700 dark:text-rose-300" : "border border-rose-500/40 text-rose-700/80 dark:text-rose-300/80")}>
+          <span key={h.matter + h.kind} className={cn("rounded px-1.5 py-0.5 text-xs font-medium", h.kind === "nakshatra" ? "bg-verdict-bad/10 text-verdict-bad" : "border border-verdict-bad/40 text-verdict-bad/80")}>
             {h.matter.split(",")[0]}{h.kind === "trine nakshatra" ? " (trine)" : ""} <SourceLink source={h.source} className="font-normal text-muted-foreground" />
           </span>
         ))}

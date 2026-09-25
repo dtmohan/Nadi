@@ -36,7 +36,7 @@ function BalanceBadge({ balance }: { balance: number }) {
     <Badge
       variant="outline"
       className={cn(
-        "no-default-hover-elevate text-[10px]",
+        "no-default-hover-elevate text-2xs",
         label === "supported" && "border-[hsl(var(--chart-4))]/60 text-[hsl(var(--chart-4))]",
         label === "strained" && "border-destructive/60 text-destructive",
       )}
@@ -72,7 +72,7 @@ function HeatStrip({ periods, selected, onSelect, now }: { periods: AreaPeriod[]
             onClick={() => onSelect(key)}
             style={{ width: `${(p.years / total) * 100}%` }}
             className={cn(
-              "relative flex items-center justify-center border-r text-[10px] font-medium leading-none last:border-r-0",
+              "relative flex items-center justify-center border-r text-2xs font-medium leading-none last:border-r-0",
               heatClass(p.score, hot),
               hot && p.score >= 4 ? "text-primary-foreground" : "text-foreground/80",
               selected === key && "ring-2 ring-inset ring-foreground/70",
@@ -99,7 +99,7 @@ function TransitCheck({ c, compact, testId }: { c: TransitConfirmation; compact?
   const sa = summarizeTouches(c.touches, "Saturn");
   const shownDouble = open || !compact ? c.double : c.double.slice(0, 3);
   return (
-    <div className={cn("mt-2 rounded border border-dashed px-2 py-1.5", compact ? "text-[11px]" : "text-xs")} data-testid={testId}>
+    <div className={cn("mt-2 rounded border border-dashed px-2 py-1.5", compact ? "text-xs" : "text-xs")} data-testid={testId}>
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="font-semibold text-muted-foreground">Transit check</span>
         <Badge variant="outline" className={cn("no-default-hover-elevate text-[9px]", gradeClass(c.grade))}>
@@ -124,7 +124,7 @@ function TransitCheck({ c, compact, testId }: { c: TransitConfirmation; compact?
             </ul>
           )}
           {compact && c.double.length > 3 && (
-            <Button variant="ghost" size="sm" className="mt-0.5 h-6 px-1.5 text-[11px]" onClick={() => setOpen((v) => !v)}>
+            <Button variant="ghost" size="sm" className="mt-0.5 h-6 px-1.5 text-xs" onClick={() => setOpen((v) => !v)}>
               {open ? "Fewer" : `${c.double.length - 3} more double transits`}
             </Button>
           )}

@@ -15,7 +15,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 
 function Mark({ on, title }: { on: boolean; title?: string }) {
-  return <span title={title} className={cn("inline-block h-2.5 w-2.5 rounded-full align-middle", on ? "bg-emerald-500" : "bg-muted-foreground/25")} aria-label={on ? "agrees" : "does not agree"} />;
+  return <span title={title} className={cn("inline-block h-2.5 w-2.5 rounded-full align-middle", on ? "bg-verdict-good" : "bg-muted-foreground/25")} aria-label={on ? "agrees" : "does not agree"} />;
 }
 
 function ScoreBar({ score, max }: { score: number; max: number }) {
@@ -37,7 +37,7 @@ const NATURE_LABEL: Record<Nature, string> = { benefic: "benefic", malefic: "mal
 
 function OutcomeBadge({ outcome }: { outcome: EventOutcome }) {
   return (
-    <Badge variant="outline" className={cn("no-default-hover-elevate font-normal", outcome === "favourable" ? "border-emerald-500/60 text-emerald-700 dark:text-emerald-400" : outcome === "unfavourable" ? "border-primary/60 text-primary" : "")}>
+    <Badge variant="outline" className={cn("no-default-hover-elevate font-normal", outcome === "favourable" ? "border-verdict-good/60 text-verdict-good" : outcome === "unfavourable" ? "border-primary/60 text-primary" : "")}>
       {OUTCOME_LABEL[outcome]}
     </Badge>
   );
@@ -47,7 +47,7 @@ function VerdictBadge({ verdict }: { verdict: EventValidation["kp"]["verdict"] }
   return (
     <Badge
       variant={verdict === "confirmed" ? "default" : "outline"}
-      className={cn("no-default-hover-elevate font-normal", verdict === "confirmed" ? "bg-emerald-600 text-white hover:bg-emerald-600" : verdict === "missed" ? "border-primary/60 text-primary" : "")}
+      className={cn("no-default-hover-elevate font-normal", verdict === "confirmed" ? "bg-verdict-good text-white hover:bg-verdict-good" : verdict === "missed" ? "border-primary/60 text-primary" : "")}
       data-testid={`validate-verdict-${verdict}`}
     >
       {verdict}
@@ -57,7 +57,7 @@ function VerdictBadge({ verdict }: { verdict: EventValidation["kp"]["verdict"] }
 
 function NatureBadge({ nature }: { nature: Nature }) {
   return (
-    <Badge variant="outline" className={cn("no-default-hover-elevate font-normal", nature === "benefic" ? "border-emerald-500/60 text-emerald-700 dark:text-emerald-400" : nature === "malefic" ? "border-primary/60 text-primary" : "text-muted-foreground")}>
+    <Badge variant="outline" className={cn("no-default-hover-elevate font-normal", nature === "benefic" ? "border-verdict-good/60 text-verdict-good" : nature === "malefic" ? "border-primary/60 text-primary" : "text-muted-foreground")}>
       {NATURE_LABEL[nature]}
     </Badge>
   );
@@ -111,7 +111,7 @@ function NadiCell({ fit }: { fit: BnnFit }) {
     fit.progression ? "Count from the Jeeva fits the matter: 1." : "Count from the Jeeva does not fit: 0.",
     fit.combination ? `Combination ripened: ${fit.combination} 1.` : "No combination of this area under Jupiter: 0.",
   ];
-  const tone = fit.verdict === "strong" ? "text-emerald-700 dark:text-emerald-400" : fit.verdict === "some" ? "" : "text-muted-foreground";
+  const tone = fit.verdict === "strong" ? "text-verdict-good" : fit.verdict === "some" ? "" : "text-muted-foreground";
   return (
     <div className="leading-5" title={[jLine, sLine, ...parts].join("\n")} data-testid={`validate-nadi-${fit.verdict}`}>
       <div className="flex items-center gap-1.5">
@@ -367,7 +367,7 @@ function PlanetRow({ t, fmtDate }: { t: PlanetTally; fmtDate: (d: string) => str
       <TableCell className="whitespace-nowrap tabular">
         {t.signifies.length === 0 && <span className="text-muted-foreground">none</span>}
         {t.signifies.map((h, i) => (
-          <span key={h} className={cn(t.good.includes(h) && "text-emerald-700 dark:text-emerald-400", t.evil.includes(h) && "text-primary", !t.good.includes(h) && !t.evil.includes(h) && "text-muted-foreground")}>
+          <span key={h} className={cn(t.good.includes(h) && "text-verdict-good", t.evil.includes(h) && "text-primary", !t.good.includes(h) && !t.evil.includes(h) && "text-muted-foreground")}>
             {i > 0 ? ", " : ""}
             {h}
           </span>
@@ -380,7 +380,7 @@ function PlanetRow({ t, fmtDate }: { t: PlanetTally; fmtDate: (d: string) => str
         <span className="inline-flex items-center gap-1.5">
           <NatureBadge nature={t.expectedByCusp} />
           <span className="tabular text-muted-foreground">
-            {t.goodKept.length > 0 && <span className="text-emerald-700 dark:text-emerald-400">{t.goodKept.join(",")}</span>}
+            {t.goodKept.length > 0 && <span className="text-verdict-good">{t.goodKept.join(",")}</span>}
             {t.goodKept.length > 0 && t.evilKept.length > 0 && " "}
             {t.evilKept.length > 0 && <span className="text-primary">{t.evilKept.join(",")}</span>}
           </span>
@@ -396,7 +396,7 @@ function PlanetRow({ t, fmtDate }: { t: PlanetTally; fmtDate: (d: string) => str
         ))}
       </TableCell>
       <TableCell className="whitespace-nowrap tabular" title="favourable / unfavourable / mixed, weighted">
-        <span className="text-emerald-700 dark:text-emerald-400">{t.favourable}</span> / <span className="text-primary">{t.unfavourable}</span> / <span className="text-muted-foreground">{t.mixed}</span>
+        <span className="text-verdict-good">{t.favourable}</span> / <span className="text-primary">{t.unfavourable}</span> / <span className="text-muted-foreground">{t.mixed}</span>
       </TableCell>
       <TableCell>
         <NatureBadge nature={t.observed} />

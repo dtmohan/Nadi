@@ -45,7 +45,7 @@ export function DasaBar({ segments, nowAt, ticks, className, testId }: { segment
           return (
             <div
               key={i}
-              className={cn("relative flex items-center justify-center overflow-hidden text-[10px] font-semibold leading-none text-white/95 dark:text-black/80", i > 0 && "border-l border-background/70")}
+              className={cn("relative flex items-center justify-center overflow-hidden text-2xs font-semibold leading-none text-white/95 dark:text-black/80", i > 0 && "border-l border-background/70")}
               style={{ width: `${w}%`, backgroundColor: s.color, opacity: s.current || nowAt === undefined ? 1 : s.end <= nowAt ? 0.55 : 0.85 }}
               title={s.title ?? s.label}
               data-testid={s.testId}
@@ -62,7 +62,7 @@ export function DasaBar({ segments, nowAt, ticks, className, testId }: { segment
         </div>
       )}
       {ticks && ticks.length > 0 && (
-        <div className="relative mt-0.5 h-4 text-[10px] tabular text-muted-foreground">
+        <div className="relative mt-0.5 h-4 text-2xs tabular text-muted-foreground">
           {ticks.map((t) => (
             <span key={t} className="absolute -translate-x-1/2" style={{ left: `${pct(t)}%` }}>
               {t}

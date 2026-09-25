@@ -15,7 +15,7 @@ export function ChalitSection({ c }: { c: ChalitResult }) {
   return (
     <div className="mt-8" data-testid="parashari-chalit">
       <SectionTitle plain="House-boundary cross-check" technical="Bhava chalit cross-check" term="chalit">
-        <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-300">Sripati, provisional</span>
+        <span className="rounded bg-verdict-mixed/15 px-1.5 py-0.5 text-xs font-medium text-verdict-mixed">Sripati, provisional</span>
       </SectionTitle>
       <ModeText
         plain={<>The readings on this page treat each whole sign as one house. Another way draws house boundaries from the exact rising degree ({signDeg(c.asc)}), so a house can straddle two signs. This table shows what changes under that method: planets highlighted would fall in a different house, and planets within a degree of a boundary belong clearly to neither. Parashara's text does not give this construction, so it is a cross-check only.</>}
@@ -92,9 +92,9 @@ export function ChalitSection({ c }: { c: ChalitResult }) {
                     b.planets.map((p) => {
                       const cp = c.planets.find((x) => x.planet === p)!;
                       return (
-                        <span key={p} className={cn("inline-block whitespace-nowrap", cp.shifted && "rounded bg-amber-500/15 px-1")}>
+                        <span key={p} className={cn("inline-block whitespace-nowrap", cp.shifted && "rounded bg-verdict-mixed/15 px-1")}>
                           <PlanetName planet={p} />
-                          {cp.shifted && <span className="text-[10px] text-muted-foreground"> from {ord(cp.rasiHouse)}</span>}
+                          {cp.shifted && <span className="text-2xs text-muted-foreground"> from {ord(cp.rasiHouse)}</span>}
                         </span>
                       );
                     })

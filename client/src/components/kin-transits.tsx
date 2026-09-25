@@ -11,12 +11,12 @@ import { ModeText, SectionTitle } from "@/components/mode-text";
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 
 const PILL: Record<KinVerdict, string> = {
-  favourable: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-  distress: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
+  favourable: "bg-verdict-good/15 text-verdict-good",
+  distress: "bg-verdict-bad/10 text-verdict-bad",
   lean: "bg-muted text-muted-foreground",
-  even: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+  even: "bg-verdict-mixed/15 text-verdict-mixed",
 };
-const BORDER: Record<KinVerdict, string> = { favourable: "border-l-emerald-500/70", distress: "border-l-rose-500/70", lean: "border-l-border", even: "border-l-amber-500/70" };
+const BORDER: Record<KinVerdict, string> = { favourable: "border-l-verdict-good/70", distress: "border-l-verdict-bad/70", lean: "border-l-border", even: "border-l-verdict-mixed/70" };
 const TONE_PILL = { support: PILL.favourable, strain: PILL.distress, mixed: PILL.even };
 const PLANETS: KinPlanet[] = ["Mars", "Mercury", "Venus"];
 
@@ -30,12 +30,12 @@ function Row({ r, open, toggle, source }: { r: KinTransitRow; open: boolean; tog
         <span className="text-sm">
           <SignName signIndex={r.signIndex} />
         </span>
-        {r.current && <span className="rounded bg-primary/10 px-1 text-[10px] font-medium text-primary">now</span>}
+        {r.current && <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">now</span>}
         <span className="ml-auto flex flex-wrap items-center gap-2">
           <RekhaMarks givers={r.givers} owner={r.planet} />
           <span className="tabular-nums">{r.rekhas}</span>
-          {r.trikona !== undefined && <span className="text-[10px] text-muted-foreground">Trik. {r.trikona}</span>}
-          <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium", PILL[r.verdict])}>{r.verdict}</span>
+          {r.trikona !== undefined && <span className="text-2xs text-muted-foreground">Trik. {r.trikona}</span>}
+          <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium", PILL[r.verdict])}>{r.verdict}</span>
         </span>
       </button>
       {open && (
@@ -68,7 +68,7 @@ export function KinTransitsSection({ k }: { k: KinTransitsReading }) {
       <ul className="mt-3 space-y-1 text-xs" data-testid="kin-natal">
         {k.natal.map((n, i) => (
           <li key={i} className="flex flex-wrap items-start gap-x-2">
-            <span className={cn("mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium", TONE_PILL[n.tone])}>{n.tone === "support" ? "favourable" : n.tone === "strain" ? "adverse" : "note"}</span>
+            <span className={cn("mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-2xs font-medium", TONE_PILL[n.tone])}>{n.tone === "support" ? "favourable" : n.tone === "strain" ? "adverse" : "note"}</span>
             <span className="min-w-0 flex-1">
               {n.text} <SourceLink source={n.source} className="text-muted-foreground" />
             </span>

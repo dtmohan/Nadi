@@ -9,16 +9,16 @@ import { ModeText, SectionTitle } from "@/components/mode-text";
 const ord = (n: number) => `${n}${["th", "st", "nd", "rd"][n % 10 > 3 || Math.floor(n / 10) === 1 ? 0 : n % 10]}`;
 
 const STAGE_CLASS = {
-  beginning: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-  middle: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+  beginning: "bg-verdict-good/15 text-verdict-good",
+  middle: "bg-verdict-mixed/15 text-verdict-mixed",
   end: "bg-muted text-muted-foreground",
 };
 
 function Stage({ p, n }: { p: PortionPlace; n: number }) {
   return (
     <span className="whitespace-nowrap">
-      <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium", STAGE_CLASS[p.stage])}>{STAGE_EFFECT[p.stage]}</span>
-      <span className="ml-1 text-[11px] text-muted-foreground">
+      <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium", STAGE_CLASS[p.stage])}>{STAGE_EFFECT[p.stage]}</span>
+      <span className="ml-1 text-xs text-muted-foreground">
         {ord(p.index)} of {n}, {Math.round(p.fraction * 100)}%
       </span>
     </span>
@@ -31,16 +31,16 @@ function HoraCell({ h, planet }: { h: PlanetPortions["hora"]; planet: string }) 
       <div>
         <span className="text-xs">{h.horaOf}'s</span> <Stage p={h.place} n={2} />
       </div>
-      <div className="flex flex-wrap gap-1 text-[11px]">
+      <div className="flex flex-wrap gap-1 text-xs">
         {h.fits === "both" ? (
-          <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 font-medium text-emerald-700 dark:text-emerald-300">either hora</span>
+          <span className="rounded bg-verdict-good/15 px-1.5 py-0.5 font-medium text-verdict-good">either hora</span>
         ) : h.fits ? (
-          <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 font-medium text-emerald-700 dark:text-emerald-300">pronounced</span>
+          <span className="rounded bg-verdict-good/15 px-1.5 py-0.5 font-medium text-verdict-good">pronounced</span>
         ) : planet === "Rahu" || planet === "Ketu" ? null : (
           <span className="rounded bg-muted px-1.5 py-0.5 font-medium text-muted-foreground">not its hora</span>
         )}
         {h.powerful ? (
-          <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 font-medium text-emerald-700 dark:text-emerald-300">powerful hora</span>
+          <span className="rounded bg-verdict-good/15 px-1.5 py-0.5 font-medium text-verdict-good">powerful hora</span>
         ) : (
           <span className="rounded bg-muted px-1.5 py-0.5 font-medium text-muted-foreground">weaker hora here</span>
         )}
@@ -88,7 +88,7 @@ export function PortionsSection({ r }: { r: PortionsResult }) {
                     <div className="whitespace-nowrap">
                       <PlanetName planet={p.planet} />
                     </div>
-                    <div className="whitespace-nowrap text-[11px] text-muted-foreground">
+                    <div className="whitespace-nowrap text-xs text-muted-foreground">
                       <SignName signIndex={p.signIndex} abbr /> {p.deg.toFixed(2)}°
                     </div>
                   </TableCell>
@@ -110,7 +110,7 @@ export function PortionsSection({ r }: { r: PortionsResult }) {
                         <div className="whitespace-nowrap">
                           <PlanetName planet={p.trimsamsa.lord} />
                         </div>
-                        <div className="text-[11px] text-muted-foreground">
+                        <div className="text-xs text-muted-foreground">
                           {p.trimsamsa.relation}
                           {p.trimsamsa.judgedAs !== p.planet && <> as {p.trimsamsa.judgedAs}</>}
                         </div>

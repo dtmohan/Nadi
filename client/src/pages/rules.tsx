@@ -48,7 +48,7 @@ function describeAlpCondition(w: AlpRuleWhen) {
 }
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-const KP_POLARITY_CLASS = { good: "bg-emerald-500", bad: "bg-rose-500", neutral: "bg-muted-foreground/50" } as const;
+const KP_POLARITY_CLASS = { good: "bg-verdict-good", bad: "bg-verdict-bad", neutral: "bg-muted-foreground/50" } as const;
 
 function KpRules() {
   return (

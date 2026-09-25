@@ -43,7 +43,7 @@ const EVENTS: Array<{ id: string; label: string; houses: number[]; cusp: number 
   { id: "move", label: "Change of residence", houses: [3, 12], cusp: 4 },
 ];
 
-const POLARITY_CLASS = { good: "bg-emerald-500", bad: "bg-rose-500", neutral: "bg-muted-foreground/50" } as const;
+const POLARITY_CLASS = { good: "bg-verdict-good", bad: "bg-verdict-bad", neutral: "bg-muted-foreground/50" } as const;
 
 function Houses({ houses, hilite = [] }: { houses: number[]; hilite?: number[] }) {
   if (!houses.length) return <span className="text-muted-foreground">—</span>;
@@ -75,7 +75,7 @@ function PeriodRow({ p, testId, sig }: { p: KpPeriod; testId: string; sig: Map<P
     <TableRow className={cn(p.current && "bg-primary/5")} data-testid={testId}>
       <TableCell className="py-1.5 font-medium">
         <PlanetName planet={p.lord} />
-        {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+        {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
       </TableCell>
       <TableCell className="py-1.5 text-right tabular">
         {p.ageStart.toFixed(1)}–{p.ageEnd.toFixed(1)}
@@ -255,7 +255,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
             </TableHeader>
             <TableBody>
               {kp.cusps.map((c) => (
-                <TableRow key={c.house} data-testid={`row-kp-cusp-${c.house}`} className={cn(c.house === kp.badhaka && "bg-rose-500/5")}>
+                <TableRow key={c.house} data-testid={`row-kp-cusp-${c.house}`} className={cn(c.house === kp.badhaka && "bg-verdict-bad/5")}>
                   <TableCell className="py-1.5 font-medium">{ROMAN[c.house - 1]}</TableCell>
                   <TableCell className="py-1.5">
                     <span className="inline-flex items-center gap-1.5">
@@ -305,7 +305,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                 <TableRow key={p.planet} data-testid={`row-kp-planet-${p.planet}`}>
                   <TableCell className="py-1.5 font-medium">
                     <PlanetName planet={p.planet} />
-                    {p.retrograde && p.planet !== "Rahu" && p.planet !== "Ketu" && <span className="ml-1 text-[10px] text-muted-foreground">R</span>}
+                    {p.retrograde && p.planet !== "Rahu" && p.planet !== "Ketu" && <span className="ml-1 text-2xs text-muted-foreground">R</span>}
                   </TableCell>
                   <TableCell className="py-1.5">
                     <span className="inline-flex items-center gap-1.5">
@@ -362,7 +362,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                   <TableRow key={s.planet} data-testid={`row-kp-sig-${s.planet}`}>
                     <TableCell className="py-1.5 font-medium">
                       <PlanetName planet={s.planet} abbr />
-                      {s.agentFor && <span className="ml-1 text-[10px] text-muted-foreground" title={`Acts for ${s.agentFor.join(", ")}`}>({s.agentFor.map((a) => PLANET_ABBR[a]).join(" ")})</span>}
+                      {s.agentFor && <span className="ml-1 text-2xs text-muted-foreground" title={`Acts for ${s.agentFor.join(", ")}`}>({s.agentFor.map((a) => PLANET_ABBR[a]).join(" ")})</span>}
                     </TableCell>
                     {levels.map((lv) => (
                       <TableCell key={lv} className="py-1.5 text-center text-xs">
@@ -376,7 +376,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                 ))}
               </TableBody>
             </Table>
-            <p className="mt-2 text-[11px] text-muted-foreground">
+            <p className="mt-2 text-xs text-muted-foreground">
               {levels.map((lv) => `${lv} ${KP_TYPE_LEVEL_LABEL[lv].toLowerCase()}`).join(" · ")}. Bold in the last column: the badhaka ({kp.badhaka}) and maraka (2, 7) houses.
             </p>
           </div>
@@ -519,7 +519,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
           ticks={[0, 20, 40, 60, 80, 100, 120]}
           segments={kp.vimshottari.dasas.map((d) => ({ start: d.ageStart, end: d.ageEnd, color: planetColor(d.lord), label: PLANET_ABBR[d.lord], current: d.current, title: `${d.lord} dasa · ${fmt(d.start)} to ${fmt(d.end)}` }))}
         />
-        <p className="mt-1 text-[11px] text-muted-foreground">{plain ? `${kp.vimshottari.balanceYears.toFixed(2)} years of ${kp.vimshottari.dasas[0].lord}'s period were left at birth. Moon at ${moon.sign} ${fmtDegShort(moon.degInSign)}, ${moon.nakshatra}.` : `Balance at birth: ${kp.vimshottari.balanceYears.toFixed(2)} years of ${kp.vimshottari.dasas[0].lord}. Moon at ${moon.sign} ${fmtDegShort(moon.degInSign)}, ${moon.nakshatra}.`}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{plain ? `${kp.vimshottari.balanceYears.toFixed(2)} years of ${kp.vimshottari.dasas[0].lord}'s period were left at birth. Moon at ${moon.sign} ${fmtDegShort(moon.degInSign)}, ${moon.nakshatra}.` : `Balance at birth: ${kp.vimshottari.balanceYears.toFixed(2)} years of ${kp.vimshottari.dasas[0].lord}. Moon at ${moon.sign} ${fmtDegShort(moon.degInSign)}, ${moon.nakshatra}.`}</p>
         <p className="mt-3 text-xs font-medium">{plain ? `Sub-periods of ${cur.dasa.lord}'s period` : `Bhuktis of the ${cur.dasa.lord} dasa`} ({fmt(cur.dasa.start)} to {fmt(cur.dasa.end)})</p>
         <DasaBar
           className="mt-2"
@@ -573,7 +573,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                   </TableCell>
                   <TableCell className="py-1.5">
                     <PlanetName planet={w.antaraLord} abbr />
-                    {w.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                    {w.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
                   </TableCell>
                   <TableCell className="py-1.5 whitespace-nowrap">{fmt(w.start)}</TableCell>
                   <TableCell className="hidden py-1.5 whitespace-nowrap sm:table-cell">{fmt(w.end)}</TableCell>

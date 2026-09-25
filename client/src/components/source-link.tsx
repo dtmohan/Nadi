@@ -9,7 +9,7 @@ export function SourceLink({ source, className = "", mark = true }: { source: { 
       <a href={source.url} target="_blank" rel="noreferrer" className={cls}>
         {source.label}
       </a>
-      {mark && source.provisional && <span className="ml-1 rounded border px-1 text-[10px] uppercase tracking-wide text-muted-foreground" data-testid="provisional-mark">provisional</span>}
+      {mark && source.provisional && <span className="ml-1 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground" data-testid="provisional-mark">provisional</span>}
       {source.sutra && (
         <>
           {" · "}

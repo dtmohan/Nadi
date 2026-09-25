@@ -5,6 +5,15 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
+      /* Four working sizes: xs for captions and dense tables, sm for body, base for lead copy, xl for titles. */
+      fontSize: {
+        "2xs": ["0.6875rem", { lineHeight: "1rem" }],
+        xs: ["0.8125rem", { lineHeight: "1.2rem" }],
+        sm: ["0.875rem", { lineHeight: "1.35rem" }],
+        base: ["1rem", { lineHeight: "1.55rem" }],
+        lg: ["1.125rem", { lineHeight: "1.6rem" }],
+        xl: ["1.3125rem", { lineHeight: "1.7rem" }],
+      },
       borderRadius: {
         lg: ".5625rem", /* 9px */
         md: ".375rem", /* 6px */
@@ -69,6 +78,11 @@ export default {
           border: "var(--destructive-border)",
         },
         ring: "hsl(var(--ring) / <alpha-value>)",
+        verdict: {
+          good: "hsl(var(--verdict-good) / <alpha-value>)",
+          mixed: "hsl(var(--verdict-mixed) / <alpha-value>)",
+          bad: "hsl(var(--verdict-bad) / <alpha-value>)",
+        },
         chart: {
           "1": "hsl(var(--chart-1) / <alpha-value>)",
           "2": "hsl(var(--chart-2) / <alpha-value>)",

@@ -29,7 +29,7 @@ function PeriodRow({ p, planets, cols }: { p: AlpPeriod; planets: string; cols: 
     <TableRow className={cn(p.current && "bg-primary/5")} data-testid={cols === "sign" ? `row-alp-sign-${p.signIndex}` : `row-alp-pada-${p.padaInSign}`}>
       <TableCell className="py-2 font-medium">
         {cols === "sign" ? <SignName signIndex={p.signIndex} /> : `${p.padaInSign} · ${p.nakshatraIndex !== undefined ? NAKSHATRAS[p.nakshatraIndex] : ""} ${p.pada ?? ""}`}
-        {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+        {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
       </TableCell>
       {cols === "pada" && <TableCell className="py-2">{p.nakshatraLord ? <PlanetName planet={p.nakshatraLord} /> : ""}</TableCell>}
       {cols === "pada" && <TableCell className="hidden py-2 sm:table-cell">{p.navamsaSign !== undefined ? SIGNS[p.navamsaSign] : ""}</TableCell>}
@@ -174,8 +174,8 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         <div>
           <SouthIndianChart
             positions={positions}
-            title={chart.name}
-            subtitle={`Natal planets from the ALP lagna · ${a.point.sign}`}
+            title="Rasi"
+            subtitle={`ALP lagna · ${a.point.sign}`}
             lagnaSign={a.point.signIndex}
             badges={badges}
             accent={[alpLord]}
@@ -288,7 +288,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                   <TableRow key={i} className={cn(d.current && "bg-primary/5")} data-testid={`row-alp-dasa-${i}`}>
                     <TableCell className="py-1.5 font-medium">
                       <PlanetName planet={d.lord} />
-                      {d.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                      {d.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
                     </TableCell>
                     <TableCell className="py-1.5">{d.nakshatra}</TableCell>
                     <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{d.signs.map((x) => SIGNS[x]).join(" / ")}</TableCell>
@@ -324,7 +324,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                   <TableRow key={p.pada} className={cn(p.current && "bg-primary/5")} data-testid={`row-alp-arp-pada-${p.pada}`}>
                     <TableCell className="py-1.5 font-medium">
                       {p.pada}
-                      {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                      {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
                     </TableCell>
                     <TableCell className="py-1.5"><SignName signIndex={p.signs[0]} /></TableCell>
                     <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{p.navamsaSign !== undefined ? <SignName signIndex={p.navamsaSign} /> : ""}</TableCell>
@@ -663,7 +663,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               <TableRow key={n.nakshatraIndex} className={cn(n.current && "bg-primary/5")} data-testid={`row-alp-nak-${n.nakshatraIndex}`}>
                 <TableCell className="py-2 font-medium">
                   {n.nakshatra}
-                  {n.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                  {n.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
                 </TableCell>
                 <TableCell className="py-2">{n.nakshatraLord ? <PlanetName planet={n.nakshatraLord} /> : ""}</TableCell>
                 <TableCell className="hidden py-2 text-muted-foreground sm:table-cell">{n.nakshatraLord ? ordinal(houseOf(n.nakshatraLord)!) : ""}</TableCell>
@@ -740,7 +740,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                 <TableRow key={`${n.nakshatraIndex}-${i}`} className={cn(n.current && "bg-primary/5")}>
                   <TableCell className="py-1.5 font-medium">
                     {n.nakshatra}
-                    {n.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                    {n.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
                   </TableCell>
                   <TableCell className="py-1.5">{n.nakshatraLord ? <PlanetName planet={n.nakshatraLord} /> : ""}</TableCell>
                   <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{nakSigns(n.nakshatraIndex!)}</TableCell>

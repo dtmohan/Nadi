@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils";
 import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 
 const BAND_PILL: Record<SchemeScore["band"], string> = {
-  "wholly favourable": "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-  middling: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+  "wholly favourable": "bg-verdict-good/15 text-verdict-good",
+  middling: "bg-verdict-mixed/15 text-verdict-mixed",
   "some good": "bg-muted text-muted-foreground",
-  "below five": "bg-rose-500/10 text-rose-700 dark:text-rose-300",
+  "below five": "bg-verdict-bad/10 text-verdict-bad",
 };
 
 const ord = (n: number) => `${n}${["th", "st", "nd", "rd"][n % 10 > 3 || Math.floor(n / 10) === 1 ? 0 : n % 10]}`;
@@ -25,7 +25,7 @@ function Pill({ active, onClick, children, testid }: { active: boolean; onClick:
       data-testid={testid}
       aria-pressed={active}
       className={cn(
-        "rounded px-1.5 py-0.5 text-[11px] font-medium tabular-nums transition-colors",
+        "rounded px-1.5 py-0.5 text-xs font-medium tabular-nums transition-colors",
         active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70",
       )}
     >
@@ -49,11 +49,11 @@ function VargaRow({ p, varga, scheme, open, toggle }: { p: PlanetVargas; varga: 
         </TableCell>
         <TableCell className="px-2 py-1.5 sm:px-4">
           <SignName signIndex={p.signs[varga]} />
-          {varga === "D9" && p.vargottama && <span className="ml-1.5 whitespace-nowrap rounded bg-primary/10 px-1 py-0.5 text-[10px] font-medium text-primary">vargottama</span>}
+          {varga === "D9" && p.vargottama && <span className="ml-1.5 whitespace-nowrap rounded bg-primary/10 px-1 py-0.5 text-2xs font-medium text-primary">vargottama</span>}
         </TableCell>
         <TableCell className="px-2 py-1.5 text-right tabular-nums sm:px-4">{sc ? sc.total.toFixed(1) : "—"}</TableCell>
         <TableCell className="px-2 py-1.5 sm:px-4">
-          {sc && <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium sm:whitespace-nowrap", BAND_PILL[sc.band])}>{sc.band}</span>}
+          {sc && <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium sm:whitespace-nowrap", BAND_PILL[sc.band])}>{sc.band}</span>}
         </TableCell>
       </TableRow>
       {open && sc && (

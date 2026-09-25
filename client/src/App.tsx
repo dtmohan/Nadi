@@ -8,6 +8,7 @@ import { ReadingModeProvider } from "@/lib/reading-mode";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme";
+import { ChartFocusProvider } from "@/components/chart-focus";
 import Home from "@/pages/home";
 import ChartPage from "@/pages/chart";
 import RulesPage from "@/pages/rules";
@@ -34,6 +35,7 @@ function App() {
       <ThemeProvider>
         <TooltipProvider>
         <ReadingModeProvider>
+        <ChartFocusProvider>
           <Router hook={useHashLocation}>
             <SidebarProvider style={style as React.CSSProperties} className="h-svh max-h-svh overflow-hidden">
               <div className="flex h-full min-h-0 w-full">
@@ -51,6 +53,7 @@ function App() {
             </SidebarProvider>
           </Router>
           <Toaster />
+        </ChartFocusProvider>
         </ReadingModeProvider>
         </TooltipProvider>
       </ThemeProvider>

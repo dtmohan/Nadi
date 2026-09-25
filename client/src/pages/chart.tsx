@@ -15,7 +15,9 @@ import { Working, ReadingModeToggle } from "@/components/working";
 import { useReadingMode } from "@/lib/reading-mode";
 import type { PlanetStrength } from "@shared/strength";
 import { housesFrom, retroNotes, HOUSE_CLASS_LABEL, type HouseClass } from "@shared/houses";
-import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
+import { SouthIndianChart } from "@/components/south-indian-chart";
+import { PlanetName, planetColor } from "@/components/planet-name";
+import { ChartSettings } from "@/components/chart-settings";
 import { JaiminiPanel } from "@/components/jaimini-panel";
 import { AlpPanel } from "@/components/alp-panel";
 import { KpPanel } from "@/components/kp-panel";
@@ -58,8 +60,8 @@ function PlanetTable({ positions, strength, selected, onSelect }: { positions: P
             className={cn("cursor-pointer", selected === p.planet && "bg-primary/10")}
             data-testid={`row-planet-${p.planet}`}
           >
-            <TableCell className="py-2">
-              <span className={cn("font-medium", p.planet === "Jupiter" && "text-primary", p.planet === "Saturn" && "text-[hsl(var(--chart-2))]")}>{p.planet}</span>
+            <TableCell className="whitespace-nowrap py-2">
+              <PlanetName planet={p.planet} tone className="font-medium" />
               {p.retrograde && CLASSICAL.has(p.planet) && (
                 <span className="ml-1.5 text-xs text-muted-foreground" title="Retrograde">
                   ℞
@@ -76,9 +78,9 @@ function PlanetTable({ positions, strength, selected, onSelect }: { positions: P
                 </span>
               )}
             </TableCell>
-            <TableCell className="py-2">{p.sign}</TableCell>
+            <TableCell className="whitespace-nowrap py-2">{p.sign}</TableCell>
             <TableCell className="py-2 text-right text-muted-foreground">{fmtDeg(p.lon)}</TableCell>
-            <TableCell className="hidden py-2 sm:table-cell">
+            <TableCell className="hidden whitespace-nowrap py-2 sm:table-cell">
               {p.nakshatra} <span className="text-muted-foreground">{p.pada}</span>
             </TableCell>
             <TableCell className="hidden py-2 text-muted-foreground md:table-cell" title={stOf(p.planet)?.dignityNote ?? undefined}>
@@ -105,7 +107,7 @@ function KarakaCard({ title, planet, data, positions, tone }: { title: string; p
       <CardContent className="p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3">
           <h3 className="text-base font-semibold">
-            <span className={tone === "jeeva" ? "text-primary" : tone === "deha" ? "text-[hsl(var(--chart-3))]" : "text-[hsl(var(--chart-2))]"}>{planet}</span> · {title}
+            <span style={{ color: planetColor(planet) }}>{planet}</span> · {title}
           </h3>
           <span className="tabular text-xs text-muted-foreground">
             {p.sign} {fmtDeg(p.lon)}
@@ -142,7 +144,7 @@ function MarriageCard({ m, positions, transits, asOf }: { m: MarriageReading; po
       <CardContent className="p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3">
           <h3 className="text-base font-semibold">
-            <span className="text-[hsl(var(--chart-3))]">{m.spouse}</span> · Kalatra karaka · marriage
+            <span style={{ color: planetColor(m.spouse) }}>{m.spouse}</span> · Kalatra karaka · marriage
           </h3>
           <span className="tabular text-xs text-muted-foreground">
             {sp.sign} {fmtDeg(sp.lon)}
@@ -192,7 +194,7 @@ function ChildrenCard({ c, positions, transits, asOf, birthIso }: { c: ChildrenR
       <CardContent className="p-5">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3">
           <h3 className="text-base font-semibold">
-            <span className="text-primary">Jupiter</span> · Putra karaka · children
+            <span style={{ color: planetColor("Jupiter") }}>Jupiter</span> · Putra karaka · children
           </h3>
           <span className="tabular text-xs text-muted-foreground">
             5th from Jupiter: {c.fifthSign}
@@ -244,9 +246,9 @@ function ScoreDots({ score }: { score: number }) {
 }
 
 const TONE_CLASS: Record<AreaTone, string> = {
-  supportive: "border-emerald-600/40 text-emerald-700 dark:text-emerald-400",
-  mixed: "border-amber-600/40 text-amber-700 dark:text-amber-400",
-  care: "border-rose-600/40 text-rose-700 dark:text-rose-400",
+  supportive: "border-verdict-good/40 text-verdict-good",
+  mixed: "border-verdict-mixed/40 text-verdict-mixed",
+  care: "border-verdict-bad/40 text-verdict-bad",
   quiet: "border-border text-muted-foreground",
 };
 
@@ -414,7 +416,7 @@ function StrengthNotes({ strength, chains, selected }: { strength: PlanetStrengt
       <ul className="mt-3 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
         {rows.map((s) => (
           <li key={s.planet} className="grid grid-cols-[4.5rem_1fr] gap-x-2" data-testid={`strength-${s.planet}`}>
-            <span className={cn("font-medium", s.planet === "Jupiter" && "text-primary", s.planet === "Saturn" && "text-[hsl(var(--chart-2))]")}>{s.planet}</span>
+            <PlanetName planet={s.planet} tone className="font-medium" />
             <span className="text-muted-foreground">
               {s.notes.map((n, i) => (
                 <span key={i} className="block leading-relaxed">
@@ -446,7 +448,7 @@ function StrengthNotes({ strength, chains, selected }: { strength: PlanetStrengt
                     {c.order.map((p, i) => (
                       <span key={p.planet}>
                         {i > 0 && <span className="text-muted-foreground"> › </span>}
-                        <span className={cn("font-medium", p.viaRetro && "opacity-70", p.planet === "Jupiter" && "text-primary", p.planet === "Saturn" && "text-[hsl(var(--chart-2))]")}>
+                        <span className={cn("font-medium", p.viaRetro && "opacity-70")} style={{ color: planetColor(p.planet) }}>
                           {p.planet}
                           {p.retrograde && p.planet !== "Rahu" && p.planet !== "Ketu" ? <sup className="ml-0.5 text-[0.65em]">R</sup> : null}
                         </span>
@@ -593,7 +595,7 @@ function Relations({ relations, positions }: { relations: PairRelation[]; positi
             <Card key={p.planet}>
               <CardContent className="p-4">
                 <div className="flex items-baseline justify-between">
-                  <span className={cn("font-semibold", p.planet === "Jupiter" && "text-primary", p.planet === "Saturn" && "text-[hsl(var(--chart-2))]")}>{p.planet}</span>
+                  <PlanetName planet={p.planet} tone className="font-semibold" />
                   <span className="text-xs text-muted-foreground">{p.sign}</span>
                 </div>
                 <ul className="mt-2 space-y-1 text-sm">
@@ -699,16 +701,8 @@ export default function ChartPage() {
           <BirthTimeEditor chart={chart} birthLocal={birthLocal} />
         </div>
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <Badge variant="outline" className="no-default-hover-elevate tabular">
-            Ayanamsa {chart.ayanamsa} {data.ayanamsaValue.toFixed(3)}°
-          </Badge>
-          <Badge variant="outline" className="no-default-hover-elevate">
-            {chart.nodeType} node
-          </Badge>
-          <Badge variant="outline" className="no-default-hover-elevate">
-            {chart.timezone}
-          </Badge>
-          <Button size="sm" variant="outline" className="ml-1" onClick={exportPdf} disabled={exporting} data-testid="button-export-pdf">
+          <ChartSettings chart={chart} ayanamsaValue={data.ayanamsaValue} />
+          <Button size="sm" variant="outline" onClick={exportPdf} disabled={exporting} data-testid="button-export-pdf">
             <FileDown className="h-4 w-4" />
             {exporting ? "Preparing PDF" : "Export PDF"}
           </Button>
@@ -839,14 +833,15 @@ export default function ChartPage() {
 
       {mode === "bnn" && (
       <>
-      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,26rem)_1fr] lg:items-start">
+      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,28rem)_1fr] lg:items-start">
         <div>
           <SouthIndianChart
             positions={positions}
             transit={showTransit ? transitNow : []}
-            title={chart.name}
-            subtitle={birthLocal.toFormat("d LLL yyyy · HH:mm")}
+            title="Rasi"
+            subtitle={`${PLANET_ABBR[data.reading.roles.native]} Jeeva · Sa Karma${data.reading.roles.deha !== data.reading.roles.native ? ` · ${PLANET_ABBR[data.reading.roles.deha]} Deha` : ""}`}
             highlightSign={selectedSign}
+            secondarySigns={selectedSign === null ? undefined : [(selectedSign + 4) % 12, (selectedSign + 8) % 12, (selectedSign + 6) % 12]}
             jeeva={data.reading.roles.native}
             deha={data.reading.roles.deha !== data.reading.roles.native ? data.reading.roles.deha : undefined}
             houseKaraka={houseKaraka ?? data.reading.roles.native}
@@ -857,14 +852,14 @@ export default function ChartPage() {
           />
           <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
             <span>
-              <span className="font-semibold text-primary">{PLANET_ABBR[data.reading.roles.native]}</span> Jeeva · <span className="font-semibold text-[hsl(var(--chart-2))]">Sa</span> Karma
+              <span className="font-semibold" style={{ color: planetColor(data.reading.roles.native) }}>{PLANET_ABBR[data.reading.roles.native]}</span> Jeeva · <span className="font-semibold" style={{ color: planetColor("Saturn") }}>Sa</span> Karma
               {data.reading.roles.deha !== data.reading.roles.native && (
                 <>
                   {" · "}
-                  <span className="font-semibold text-[hsl(var(--chart-3))]">{PLANET_ABBR[data.reading.roles.deha]}</span> Deha (female chart)
+                  <span className="font-semibold" style={{ color: planetColor(data.reading.roles.deha) }}>{PLANET_ABBR[data.reading.roles.deha]}</span> Deha (female chart)
                 </>
               )}{" "}
-              · ℞ retrograde · <span className="italic">tJu tSa</span> transits today
+              · R retrograde · <span className="italic">tJu tSa</span> transits today · click a sign for its trines and 7th
             </span>
             <Button variant="ghost" size="sm" onClick={() => setShowTransit((v) => !v)} data-testid="button-toggle-transit">
               {showTransit ? <EyeOff /> : <Eye />}
