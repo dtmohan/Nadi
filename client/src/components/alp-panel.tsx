@@ -99,28 +99,28 @@ export function AlpPanel({ result }: { result: ChartResult }) {
     <div data-testid="alp-panel">
       <div className="flex flex-wrap items-center gap-1.5 text-xs">
         <Badge variant="outline" className="no-default-hover-elevate tabular">
-          <Term k="lagna">Janma lagna</Term>&nbsp;{a.natalLagna.sign} {fmtDegShort(a.natalLagna.lon)}
+          <Term k="lagna">{plain ? "Birth rising sign" : "Janma lagna"}</Term>&nbsp;{a.natalLagna.sign} {fmtDegShort(a.natalLagna.lon)}
         </Badge>
         <Badge variant="secondary" className="no-default-hover-elevate tabular" data-testid="text-alp-lagna">
-          <Term k="alp-lagna">ALP lagna</Term>&nbsp;{a.point.sign} {fmtDegShort(a.point.lon)}
+          <Term k="alp-lagna">{plain ? "Moving point" : "ALP lagna"}</Term>&nbsp;{a.point.sign} {fmtDegShort(a.point.lon)}
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-alp-pada">
-          {a.point.nakshatra}&nbsp;<Term k="alp-pada">pada</Term>&nbsp;{a.point.pada}&nbsp;·&nbsp;{a.point.padaInSign}/9&nbsp;in&nbsp;sign
+          {plain ? <>Star-stretch&nbsp;{a.point.nakshatra}&nbsp;·&nbsp;<Term k="alp-pada">quarter</Term>&nbsp;{a.point.pada}&nbsp;·&nbsp;{a.point.padaInSign}&nbsp;of&nbsp;9&nbsp;in&nbsp;sign</> : <>{a.point.nakshatra}&nbsp;<Term k="alp-pada">pada</Term>&nbsp;{a.point.pada}&nbsp;·&nbsp;{a.point.padaInSign}/9&nbsp;in&nbsp;sign</>}
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-alp-nak-lord">
-          Nakshatra&nbsp;lord&nbsp;<PlanetName planet={a.point.nakshatraLord} />&nbsp;·&nbsp;{ordinal(nakP.houseFromAlp)}
+          {plain ? "Star ruler" : "Nakshatra lord"}&nbsp;<PlanetName planet={a.point.nakshatraLord} />&nbsp;·&nbsp;{ordinal(nakP.houseFromAlp)}{plain ? " house" : ""}
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate">
-          Activates {SIGNS[a.point.navamsaSign]} ({ordinal(activatedHouse)})
+          {plain ? "Switches on" : "Activates"} {SIGNS[a.point.navamsaSign]} ({ordinal(activatedHouse)}{plain ? " house" : ""})
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate tabular">
           Age {a.ageYears.toFixed(1)}
         </Badge>
         <Badge variant="secondary" className="no-default-hover-elevate" data-testid="text-alp-arp">
-          <Term k="akshaya-rasi">Akshaya rasi</Term>&nbsp;{arp.point.sign}&nbsp;·&nbsp;{arp.point.nakshatra}&nbsp;{arp.point.pada}
+          <Term k="akshaya-rasi">{plain ? "Mind's point" : "Akshaya rasi"}</Term>&nbsp;{arp.point.sign}&nbsp;·&nbsp;{arp.point.nakshatra}&nbsp;{arp.point.pada}
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-alp-dasa">
-          Dasa&nbsp;<PlanetName planet={arp.dasa.lord} />&nbsp;·&nbsp;bhukti&nbsp;<PlanetName planet={arp.bhukti.lord} />
+          {plain ? "Period" : "Dasa"}&nbsp;<PlanetName planet={arp.dasa.lord} />&nbsp;·&nbsp;{plain ? "sub-period" : "bhukti"}&nbsp;<PlanetName planet={arp.bhukti.lord} />
         </Badge>
       </div>
 
@@ -133,10 +133,10 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           </Button>
         </label>
         <span>
-          Next pada {a.nextPadaChange ? fmt(a.nextPadaChange) : "—"} · next nakshatra {a.nextNakshatraChange ? fmt(a.nextNakshatraChange) : "—"} · next sign {a.nextSignChange ? fmt(a.nextSignChange) : "—"}
+          {plain ? "Moving point: next quarter" : "Next pada"} {a.nextPadaChange ? fmt(a.nextPadaChange) : "—"} · next {plain ? "star-stretch" : "nakshatra"} {a.nextNakshatraChange ? fmt(a.nextNakshatraChange) : "—"} · next sign {a.nextSignChange ? fmt(a.nextSignChange) : "—"}
         </span>
         <span data-testid="text-alp-arp-next">
-          Akshaya rasi: next pada {arp.nextPadaChange ? fmt(arp.nextPadaChange) : "—"} · bhukti ends {fmt(arp.bhukti.end)} · dasa ends {fmt(arp.dasa.end)}
+          {plain ? "Mind's point: next quarter" : "Akshaya rasi: next pada"} {arp.nextPadaChange ? fmt(arp.nextPadaChange) : "—"} · {plain ? "sub-period" : "bhukti"} ends {fmt(arp.bhukti.end)} · {plain ? "period" : "dasa"} ends {fmt(arp.dasa.end)}
         </span>
       </div>
 
