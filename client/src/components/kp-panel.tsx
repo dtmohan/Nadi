@@ -32,7 +32,7 @@ const EVENTS: Array<{ id: string; label: string; houses: number[]; cusp: number 
   { id: "job", label: "Employment, promotion", houses: [2, 6, 10, 11], cusp: 10 },
   { id: "business", label: "Business gains", houses: [2, 7, 10, 11], cusp: 10 },
   { id: "property", label: "House, property", houses: [4, 11, 12], cusp: 4 },
-  { id: "vehicle", label: "Vehicle", houses: [4, 11], cusp: 4 },
+  { id: "vehicle", label: "Vehicle", houses: [3, 11, 12], cusp: 4 }, // Part 1 pp. 135-137: roadworthy vehicles need 3, 11, 12; the 4th alone is static
   { id: "education", label: "Higher education", houses: [4, 9, 11], cusp: 4 },
   { id: "foreign", label: "Foreign travel", houses: [3, 9, 12], cusp: 12 },
   { id: "loan", label: "Loans, money received", houses: [2, 6, 11], cusp: 6 },

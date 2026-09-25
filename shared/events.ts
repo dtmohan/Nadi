@@ -82,7 +82,10 @@ export const EVENT_MATTERS: EventMatter[] = [
   { id: "job-loss", label: "Loss of job", houses: [5, 8, 12], cusp: 10, area: "career", nature: "bad", bnn: B(["Saturn"], [8, 12, 6], "career") },
   { id: "business", label: "Started a business", houses: [2, 7, 10, 11], cusp: 10, area: "career", nature: "good", bnn: B(["Saturn", "Mercury"], [10, 11, 7], "career") },
   { id: "property", label: "Bought a house or land", houses: [4, 11, 12], cusp: 4, area: "family", nature: "good", bnn: B(["Mars", "Moon"], [4, 11], "wealth") },
-  { id: "vehicle", label: "Bought a vehicle", houses: [4, 11], cusp: 4, area: "wealth", nature: "good", bnn: B(["Venus"], [4, 11], "wealth") },
+  // Vehicles are a movement matter in KP: the 4th is the static house whose vehicles "though repaired cannot be put
+  // on the road"; roadworthy ones come when the 4th (and 3rd) sub lords tie to 3, 11 and 12, and "from light to heavy
+  // vehicles 3-12-11-1" (Astro Secrets & KP Part 1 pp. 135-137). Promise is still read at the 4th cusp.
+  { id: "vehicle", label: "Bought a vehicle", houses: [3, 11, 12], cusp: 4, area: "wealth", nature: "good", bnn: B(["Venus"], [4, 11], "wealth") },
   { id: "education", label: "Admission to higher study", houses: [4, 9, 11], cusp: 4, area: "children", nature: "good", bnn: B(["Mercury", "native"], [5, 9, 4], "education") },
   { id: "abroad", label: "Went abroad", houses: [3, 9, 12], cusp: 12, area: "family", nature: "mixed", bnn: B(["Rahu"], [12, 9, 3], "travel") },
   { id: "return", label: "Returned from abroad", houses: [2, 4, 11], cusp: 4, area: "family", nature: "mixed", bnn: B(["Rahu", "Moon"], [4, 2], "travel") },

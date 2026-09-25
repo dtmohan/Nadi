@@ -267,7 +267,9 @@ export default function AboutPage() {
           The Validate tab reads each saved event back at its date with the birth time as recorded. For KP it asks whether the dasa, bhukti and
           antara lords running that day were significators of the matter's houses, whether the sub lord of the matter's cusp promised it, and
           whether the dasa and bhukti lords transited a significator's sign, star or sub that day (Astro Secrets &amp; KP Part 1, pp. 167-172; Part
-          2, p. 203). For Jaimini it asks whether the chara dasha and antardasha carried the matter's life area (K.N. Rao). For Nadi, Jupiter is the timer and
+          2, p. 203). The houses follow the same book: marriage 2, 7, 11; children 2, 5, 11; work 2, 6, 10, 11; and vehicles 3, 11, 12 rather
+          than the 4th, which Part 1 calls a static house whose vehicles "though repaired cannot be put on the road", roadworthy ones coming
+          through 3, 11 and 12 (pp. 135-137); the 4th cusp still carries the promise. For Jaimini it asks whether the chara dasha and antardasha carried the matter's life area (K.N. Rao). For Nadi, Jupiter is the timer and
           Saturn the second hand: six points per event for Jupiter over the matter's karaka (two; in trine or opposite, one), Saturn touching a
           karaka (one), both on the same karaka at once (one), Jupiter's count from the natal Jeeva, or the Deha in a female chart, falling in the
           matter's signs (one), and one of the chart's own combinations in that life area standing under the passage (one). The karakas are the
