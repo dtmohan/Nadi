@@ -8,7 +8,7 @@ import type { RectifyResult, RectifySegment, RectifyEvent } from "@shared/rectif
 import { matterOf } from "@shared/events";
 import { LifeEventsEditor } from "@/components/life-events";
 import { PlanetName } from "@/components/planet-name";
-import { Term } from "@/components/term";
+import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,11 +23,13 @@ import { cn } from "@/lib/utils";
 
 /** Rectification methods. One at a time, never blended; each cites its own source. */
 export type RectifyMethod = "kp-rp" | "kp-moon" | "kp-events" | "kp-transit" | "jaimini-dasha";
-const METHODS: Array<{ id: RectifyMethod; system: string; label: string; short: string; source: string; needsJudge: boolean; needsEvents: boolean }> = [
+const METHODS: Array<{ id: RectifyMethod; system: string; label: string; plainLabel: string; short: string; plainShort: string; source: string; needsJudge: boolean; needsEvents: boolean }> = [
   {
     id: "kp-rp",
     system: "KP",
     label: "Ruling planets",
+    plainLabel: "Planets ruling now",
+    plainShort: "Krishnamurti holds that the planets ruling the sky at the moment you sit down to judge also rule the true rising degree: its sign ruler, star ruler and, most of all, its deciding planet should be among them. Rahu or Ketu can stand in for a planet whose sign or star they occupy; a planet moving backwards today is doubtful and its star ruler is admitted instead. Rerun on another day and trust the minutes that agree every time.",
     short: "At the true birth time the lagna's sign lord, star lord and sub lord agree with the ruling planets of the moment you sit down to judge; the sub lord is the decisive agreement. A node in a ruling planet's sign or star acts for it; a retrograde ruling planet is doubtful and its star lord is admitted in its place.",
     source: "Astro Secrets & KP Part 3, ch. 30, pp. 160-163; Part 1, pp. 173-178",
     needsJudge: true,
@@ -37,6 +39,8 @@ const METHODS: Array<{ id: RectifyMethod; system: string; label: string; short: 
     id: "kp-moon",
     system: "KP",
     label: "Moon lords",
+    plainLabel: "Moon's star",
+    plainShort: "At the true birth time the deciding planet of the rising degree should point to the star the Moon was in at birth: it is that star's ruler, or stands in that ruler's star or in one of its finer divisions; failing that it should at least own or stand in the Moon's sign. It needs nothing but the chart, so it is the first sieve before the other methods, and the corrected time must stay inside what the family remembers.",
     short: "At the true birth time the lagna cusp sub lord tells the birth star: it is the star's lord, or it stands in that lord's star, sub, sub-sub or sookshma, or the planet whose sub it occupies does; failing the star it should at least own or stand in the Moon sign. Telling the very birth star is the stronger confirmation, and the corrected time must stay inside the time the family gave. Needs nothing but the chart, so it is a first sieve before the other methods.",
     source: "M.P. Shanmugham, Astro Secrets & KP Part 2, pp. 80-82",
     needsJudge: false,
@@ -46,6 +50,8 @@ const METHODS: Array<{ id: RectifyMethod; system: string; label: string; short: 
     id: "kp-events",
     system: "KP",
     label: "Dated events",
+    plainLabel: "Dated events",
+    plainShort: "For every event you remember with a date, the three planets whose periods were running that day should speak for the houses of that matter, and the house itself should be promised by its deciding planet. Minutes where the period planets fail an event are set aside.",
     short: "At each remembered event the dasa, bhukti and antara lords running that day must be significators of the houses of that matter, and the cusp of the matter must promise it through its sub lord. Intervals where the period lords fail an event are rejected.",
     source: "Astro Secrets & KP Part 1, pp. 167-172; Part 2, p. 203",
     needsJudge: false,
@@ -55,6 +61,8 @@ const METHODS: Array<{ id: RectifyMethod; system: string; label: string; short: 
     id: "kp-transit",
     system: "KP",
     label: "Transits",
+    plainLabel: "Sky on the day",
+    plainShort: "Two hints. The sub the Sun is passing through today points to the sub of the true rising degree (N. Nataraj). On the day of an event, the planets whose period and sub-period were running should be passing through the sign, star and sub of planets that speak for that matter; a candidate time whose planets fail this is doubtful.",
     short: "Two hints. The sub the Sun transits on the day you work points to the lagna sub (N. Nataraj). On the day of an event the dasa and bhukti lords transit the sign, star and sub of significators of the matter, so a candidate whose significators they fail is doubtful.",
     source: "Astro Secrets & KP Part 2, p. 192 and p. 203",
     needsJudge: false,
@@ -64,6 +72,8 @@ const METHODS: Array<{ id: RectifyMethod; system: string; label: string; short: 
     id: "jaimini-dasha",
     system: "Jaimini",
     label: "Chara dasha",
+    plainLabel: "Sign periods",
+    plainShort: "K.N. Rao's check for a doubtful chart: run Jaimini's sign-based periods and ask whether the period and sub-period signs running on the day of an undisputed event carry that matter. The check is by rising sign, so every minute in one sign scores alike; widen the window to test the neighbouring signs.",
     short: "For a doubtful horoscope K.N. Rao runs the chara dasha and asks whether the mahadasha and antardasha signs running at indisputable events carry those matters: the area's karaka, pada or house counted from the dasha sign. The check is by rising sign, so every interval in one sign scores alike; widen the window to test the neighbouring signs.",
     source: "K.N. Rao, Predicting through Jaimini's Chara Dasa, Vani Publications; the triggers are those of the Jaimini tab's timing",
     needsJudge: false,
@@ -133,6 +143,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
   const [sortByScore, setSortByScore] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
   const judge = useJudgePlace();
+  const plain = usePlain();
 
   // The chart's saved life events are the dated events every method reads.
   const events = chart.events ?? [];
@@ -209,12 +220,12 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
 
   return (
     <section data-testid="section-rectify">
-      <h2 className="text-base font-semibold">
-        <Term k="kp-rectification">Birth time rectification</Term>
-      </h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        The window around the recorded time {chart.birthTime} is cut at every change of the lagna's sign, star and sub lord, and each interval is scored by the method you choose. One scan serves every method; switch between them without scanning again. Saving an interval makes a copy of the chart at that time and leaves this one untouched.
-      </p>
+      <SectionTitle as="h2" plain="Checking the birth time" technical="Birth time rectification" term="kp-rectification" className="text-base" />
+      <ModeText
+        className="text-sm"
+        plain={<>Recorded birth times are often a few minutes off, and a few minutes can change the planet that decides the rising degree. The minutes around the recorded time {chart.birthTime} are cut into slices wherever that deciding planet, its star ruler or the rising sign changes, and each slice is scored by one method at a time; the methods are never blended. One scan serves every method. Saving a slice makes a copy of the chart at that time and leaves this one untouched.</>}
+        practitioner={<>The window around the recorded time {chart.birthTime} is cut at every change of the lagna's sign, star and sub lord, and each interval is scored by the method you choose. One scan serves every method; switch between them without scanning again. Saving an interval makes a copy of the chart at that time and leaves this one untouched.</>}
+      />
 
       <div role="tablist" aria-label="Rectification method" className="mt-3 inline-flex flex-wrap rounded-md border p-0.5 text-xs">
         {METHODS.map((x) => (
@@ -227,12 +238,12 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
             className={cn("rounded px-2.5 py-1", method === x.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
             data-testid={`rectify-method-${x.id}`}
           >
-            <span className="opacity-70">{x.system} ·</span> {x.label}
+            <span className="opacity-70">{x.system} ·</span> {plain ? x.plainLabel : x.label}
           </button>
         ))}
       </div>
       <p className="mt-2 text-sm text-muted-foreground" data-testid="rectify-method-text">
-        {m.short} <span className="text-xs">({m.source}.)</span>
+        {plain ? m.plainShort : m.short} <span className="text-xs">({m.source}.)</span>
       </p>
       {m.needsJudge && <JudgePlaceControl birthPlace={chart.place} birthTimezone={chart.timezone} />}
 
@@ -260,7 +271,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
 
       <div className="mt-3" data-testid="rectify-events">
         <p className="mb-1.5 text-xs font-medium">
-          Life events <span className="text-muted-foreground">saved with the chart{data && eventPayload.length ? "; scan again after changing them" : ""}</span>
+          {plain ? "Dated life events" : "Life events"} <span className="text-muted-foreground">saved with the chart{data && eventPayload.length ? "; scan again after changing them" : ""}</span>
         </p>
         <LifeEventsEditor chart={chart} />
       </div>
@@ -270,7 +281,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
           {method === "kp-rp" && (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
               <span>
-                Judged at {DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from {data.judgedAt.label} ({data.judgedAt.timezone}). Accepted as ruling:
+                Judged at {DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from {data.judgedAt.label} ({data.judgedAt.timezone}). {plain ? "Planets ruling that moment:" : "Accepted as ruling:"}
               </span>
               {data.accepted.map((a) => (
                 <Badge key={a.planet} variant={a.weight < 1 ? "outline" : "secondary"} className="no-default-hover-elevate whitespace-normal text-left" title={a.reason} data-testid={`rectify-accepted-${a.planet}`}>
@@ -286,29 +297,33 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
             const g = data.segments.find((s) => s.given) ?? data.segments[0];
             return (
               <p className="text-xs text-muted-foreground" data-testid="rectify-moon-lords">
-                Birth star {g.moonLords.birthStar}, lord <PlanetName planet={g.moonLords.birthStarLord} abbr />; Moon in {g.moonLords.moonSign}, lord <PlanetName planet={g.moonLords.moonSignLord} abbr />. The Moon's lords do not change across the window; only the lagna sub lord does. Levels: the sub lord is the birth star lord (4), stands in its star (3), in its sub, sub-sub or sookshma (2), or reaches it through the planet whose sub it occupies (1). The score is twice the level, plus one when the sub lord owns or stands in the Moon sign, so the very birth star always outranks a Moon-sign link.
+                {plain ? <>
+                  The Moon was in the star {g.moonLords.birthStar}, ruled by <PlanetName planet={g.moonLords.birthStarLord} abbr />, and in the sign {g.moonLords.moonSign}, ruled by <PlanetName planet={g.moonLords.moonSignLord} abbr />; these do not change across the window, only the rising degree's deciding planet does. Levels: the deciding planet is the star's ruler (4), stands in that ruler's star (3), in one of its finer divisions (2), or reaches it through the planet whose sub it stands in (1). The score is twice the level, plus one when it owns or stands in the Moon's sign, so hitting the very star always outranks a sign link.
+                </> : <>
+                  Birth star {g.moonLords.birthStar}, lord <PlanetName planet={g.moonLords.birthStarLord} abbr />; Moon in {g.moonLords.moonSign}, lord <PlanetName planet={g.moonLords.moonSignLord} abbr />. The Moon's lords do not change across the window; only the lagna sub lord does. Levels: the sub lord is the birth star lord (4), stands in its star (3), in its sub, sub-sub or sookshma (2), or reaches it through the planet whose sub it occupies (1). The score is twice the level, plus one when the sub lord owns or stands in the Moon sign, so the very birth star always outranks a Moon-sign link.
+                </>}
               </p>
             );
           })()}
           {method === "kp-transit" && (
             <p className="text-xs text-muted-foreground" data-testid="rectify-sun-now">
-              On {DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy")} the Sun transits {fmtDegShort(data.sunNow.lon % 30)} in the star of <PlanetName planet={data.sunNow.starLord} abbr /> and the sub of <PlanetName planet={data.sunNow.subLord} abbr />. Intervals whose lagna sub lord is <PlanetName planet={data.sunNow.subLord} abbr /> take the hint (2), a lagna star lord of <PlanetName planet={data.sunNow.subLord} abbr /> half of it (1). Event columns mark whether the sign, star and sub lords of the dasa and bhukti lords' transit on the event day signify the matter.
+              On {DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy")} the Sun {plain ? "stands at" : "transits"} {fmtDegShort(data.sunNow.lon % 30)} in the star of <PlanetName planet={data.sunNow.starLord} abbr /> and the sub of <PlanetName planet={data.sunNow.subLord} abbr />. {plain ? <>Slices whose rising degree is decided by <PlanetName planet={data.sunNow.subLord} abbr /> take the hint (2), those whose star ruler is <PlanetName planet={data.sunNow.subLord} abbr /> half of it (1). Event columns mark whether the sign, star and sub the period planets were passing through on the event day belong to planets that speak for the matter.</> : <>Intervals whose lagna sub lord is <PlanetName planet={data.sunNow.subLord} abbr /> take the hint (2), a lagna star lord of <PlanetName planet={data.sunNow.subLord} abbr /> half of it (1). Event columns mark whether the sign, star and sub lords of the dasa and bhukti lords' transit on the event day signify the matter.</>}
             </p>
           )}
           <p className="mt-1 text-xs text-muted-foreground">
-            Recorded time {data.given.time} rises {fmtDegShort(data.given.lagna % 30)} of {data.segments.find((s) => s.given)?.sign ?? "the lagna sign"}.
-            {method === "kp-moon" && " Several intervals usually pass at some level; keep those at the top level, then settle between them with the ruling planets or dated events. Shanmugham allows the chain to run to the sookshma because births are timed at different moments (first cry, laid down, head appearing)."}
-            {method === "kp-rp" && " Half-weight badges are doubtful ruling planets (retrograde now) or their stand-ins. Rerun on another day and the ruling planets change; the intervals that agree every time are the ones to trust."}
-            {method === "kp-events" && (eventPayload.length ? " Green marks are period lords that signify the matter's houses (four-step significators) and cusp sub lords that promise it." : " Add dated events and scan again to score by this method.")}
-            {method === "kp-transit" && " The Sun hint changes daily; the event transits do not, so they are the steadier of the two."}
-            {method === "jaimini-dasha" && (eventPayload.length ? ` Rows are rising signs, not sub-lord intervals. Each event shows the mahadasha and antardasha signs running that day (fwd, bwd: the direction the dasha runs from that lagna); a full mark means the sign carries the matter by Rao's threshold (the area's karaka in its house, its pada, or the karaka's own sign), a faint one a lighter touch. ${signGroups.length < 2 ? "Only one sign rises in this window; widen it to ± 120 or 180 min to test the neighbouring signs." : ""}` : " Add dated events and scan again to score by this method.")}
+            {plain ? `At the recorded time ${data.given.time} the rising degree is ${fmtDegShort(data.given.lagna % 30)} of ${data.segments.find((s) => s.given)?.sign ?? "the rising sign"}.` : `Recorded time ${data.given.time} rises ${fmtDegShort(data.given.lagna % 30)} of ${data.segments.find((s) => s.given)?.sign ?? "the lagna sign"}.`}
+            {method === "kp-moon" && (plain ? " Several slices usually pass at some level; keep those at the top level, then settle between them with the planets ruling now or with dated events. Shanmugham lets the chain run to the finest division because births are timed at different moments (first cry, laid down, head appearing)." : " Several intervals usually pass at some level; keep those at the top level, then settle between them with the ruling planets or dated events. Shanmugham allows the chain to run to the sookshma because births are timed at different moments (first cry, laid down, head appearing).")}
+            {method === "kp-rp" && (plain ? " Outlined badges are doubtful rulers (moving backwards today) or their stand-ins and count half. Rerun on another day and the ruling planets change; the slices that agree every time are the ones to trust." : " Half-weight badges are doubtful ruling planets (retrograde now) or their stand-ins. Rerun on another day and the ruling planets change; the intervals that agree every time are the ones to trust.")}
+            {method === "kp-events" && (eventPayload.length ? (plain ? " Green dots are period planets that speak for the matter's houses and deciding planets that promise it; grey dots fail." : " Green marks are period lords that signify the matter's houses (four-step significators) and cusp sub lords that promise it.") : " Add dated events and scan again to score by this method.")}
+            {method === "kp-transit" && (plain ? " The Sun hint changes daily; the event-day positions do not, so they are the steadier of the two." : " The Sun hint changes daily; the event transits do not, so they are the steadier of the two.")}
+            {method === "jaimini-dasha" && (eventPayload.length ? (plain ? ` Rows are rising signs, not minute slices. Each event shows the period and sub-period signs running that day (fwd, bwd: the direction the periods run from that rising sign); a full dot means the sign carries the matter by Rao's threshold, a faint one a lighter touch. ${signGroups.length < 2 ? "Only one sign rises in this window; widen it to ± 120 or 180 min to test the neighbouring signs." : ""}` : ` Rows are rising signs, not sub-lord intervals. Each event shows the mahadasha and antardasha signs running that day (fwd, bwd: the direction the dasha runs from that lagna); a full mark means the sign carries the matter by Rao's threshold (the area's karaka in its house, its pada, or the karaka's own sign), a faint one a lighter touch. ${signGroups.length < 2 ? "Only one sign rises in this window; widen it to ± 120 or 180 min to test the neighbouring signs." : ""}`) : " Add dated events and scan again to score by this method.")}
           </p>
 
           <div className="mt-3 flex items-center justify-between text-xs">
             <span className="text-muted-foreground">
               {method === "jaimini-dasha"
-                ? `${signGroups.length} rising ${signGroups.length === 1 ? "sign" : "signs"} in ± ${data.windowMinutes} min · Jaimini chara dasha · best score ${groupTop} of ${signGroups[0]?.max ?? 0}`
-                : `${data.segments.length} intervals in ± ${data.windowMinutes} min · ${m.system} ${methodLabel(m)} · best score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}`}
+                ? `${signGroups.length} rising ${signGroups.length === 1 ? "sign" : "signs"} in ± ${data.windowMinutes} min · ${plain ? "Jaimini sign periods" : "Jaimini chara dasha"} · best score ${groupTop} of ${signGroups[0]?.max ?? 0}`
+                : `${data.segments.length} ${plain ? "slices" : "intervals"} in ± ${data.windowMinutes} min · ${m.system} ${plain ? m.plainLabel.toLowerCase() : methodLabel(m)} · best score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}`}
             </span>
             <button type="button" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground" onClick={() => setSortByScore((v) => !v)} data-testid="button-rectify-sort">
               {sortByScore ? "Sort by time" : "Sort by score"}
@@ -321,7 +336,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="whitespace-nowrap">Rising</TableHead>
-                    <TableHead className="whitespace-nowrap">Lagna sign</TableHead>
+                    <TableHead className="whitespace-nowrap">{plain ? "Rising sign" : "Lagna sign"}</TableHead>
                     {eventPayload.map((e) => (
                       <TableHead key={e.label + e.date} className="whitespace-nowrap">
                         {e.label} <span className="text-muted-foreground tabular">{e.date}</span>
@@ -380,7 +395,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                 </TableBody>
               </Table>
               <p className="mt-2 text-xs text-muted-foreground">
-                Jaimini settles the sign; pick the minute inside it with a KP method. Save nearest copies the chart at the interval of that sign closest to the recorded time.
+                Jaimini settles the sign; pick the minute inside it with a KP method. Save nearest copies the chart at the {plain ? "slice" : "interval"} of that sign closest to the recorded time.
               </p>
             </div>
           )}
@@ -390,17 +405,17 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
             <Table className="text-[11px] leading-5 [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="whitespace-nowrap">Interval</TableHead>
-                  <TableHead className="whitespace-nowrap">Lagna</TableHead>
-                  <TableHead className="whitespace-nowrap">{method === "kp-moon" ? "Sign · star" : "Sign · star · sub"}</TableHead>
-                  {method === "kp-transit" && <TableHead className="whitespace-nowrap">Sun sub</TableHead>}
-                  {method === "kp-moon" && <TableHead className="whitespace-nowrap">Sub lord and birth star</TableHead>}
+                  <TableHead className="whitespace-nowrap">{plain ? "Slice" : "Interval"}</TableHead>
+                  <TableHead className="whitespace-nowrap">{plain ? "Rising degree" : "Lagna"}</TableHead>
+                  <TableHead className="whitespace-nowrap">{method === "kp-moon" ? (plain ? "Sign · star rulers" : "Sign · star") : plain ? "Sign · star · deciding" : "Sign · star · sub"}</TableHead>
+                  {method === "kp-transit" && <TableHead className="whitespace-nowrap">{plain ? "Sun's hint" : "Sun sub"}</TableHead>}
+                  {method === "kp-moon" && <TableHead className="whitespace-nowrap">{plain ? "Deciding planet and the Moon's star" : "Sub lord and birth star"}</TableHead>}
                   {method === "kp-moon" && <TableHead className="whitespace-nowrap">Moon sign</TableHead>}
                   {method !== "kp-rp" && method !== "kp-moon" &&
                     eventPayload.map((e) => (
                       <TableHead key={e.label + e.date} className="whitespace-nowrap">
                         {e.label} <span className="text-muted-foreground tabular">{e.date}</span>
-                        {method === "kp-transit" && <span className="ml-1 text-muted-foreground">transit sign · star · sub</span>}
+                        {method === "kp-transit" && <span className="ml-1 text-muted-foreground">{plain ? "passing through sign · star · sub" : "transit sign · star · sub"}</span>}
                       </TableHead>
                     ))}
                   <TableHead className="whitespace-nowrap">Score</TableHead>
@@ -474,7 +489,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                           <TableCell key={e.label + e.date} className="whitespace-nowrap">
                             {[e.transit.dasa, e.transit.bhukti].map((t, k) => (
                               <span key={k} className="flex items-center gap-1.5">
-                                <span className="w-9 shrink-0 text-muted-foreground">{k === 0 ? "dasa" : "bhukti"}</span>
+                                <span className="w-9 shrink-0 text-muted-foreground">{k === 0 ? (plain ? "period" : "dasa") : plain ? "sub" : "bhukti"}</span>
                                 <PlanetName planet={t.planet} abbr />
                                 <span className="text-muted-foreground">in</span>
                                 <Mark on={t.hits[0]} title={`sign lord ${t.signLord}`} /> <PlanetName planet={t.signLord} abbr />
@@ -505,7 +520,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                       </TableCell>
                       <TableCell className="whitespace-nowrap text-right">
                         <button type="button" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground" onClick={() => setOpen(open === i ? null : i)} data-testid={`button-rectify-cusps-${i}`}>
-                          {open === i ? "Hide" : "Cusps"}
+                          {open === i ? "Hide" : plain ? "Houses" : "Cusps"}
                         </button>
                         {!s.given && (
                           <button type="button" className="ml-2 underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50" onClick={() => saveCopy.mutate(s)} disabled={saveCopy.isPending} data-testid={`button-rectify-save-${i}`}>
@@ -524,7 +539,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
           {open !== null && method !== "jaimini-dasha" && data.segments[open] && (
             <div className="mt-3 rounded-md border p-3 text-xs" data-testid="rectify-cusps-detail">
               <p className="font-medium">
-                Cusp sub lords at {data.segments[open].mid} <span className="text-muted-foreground">(changes from the recorded time are marked)</span>
+                {plain ? "Deciding planet of each house at" : "Cusp sub lords at"} {data.segments[open].mid} <span className="text-muted-foreground">(changes from the recorded time are marked)</span>
               </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {data.segments[open].cuspSubLords.map((p, k) => {
@@ -540,7 +555,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                 })}
               </div>
               <p className="mt-2 text-muted-foreground">
-                Moon in this interval: star <PlanetName planet={data.segments[open].moon.starLord} abbr /> · sub <PlanetName planet={data.segments[open].moon.subLord} abbr />. Only the lagna is cut at every change; a cusp may change its sub lord inside an interval, so read the cusps at the exact time you settle on.
+                Moon in this {plain ? "slice" : "interval"}: star <PlanetName planet={data.segments[open].moon.starLord} abbr /> · sub <PlanetName planet={data.segments[open].moon.subLord} abbr />. {plain ? "Only the rising degree is cut at every change; another house may change its deciding planet inside a slice, so read the houses at the exact time you settle on." : "Only the lagna is cut at every change; a cusp may change its sub lord inside an interval, so read the cusps at the exact time you settle on."}
               </p>
             </div>
           )}

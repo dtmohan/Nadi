@@ -10,6 +10,7 @@ import { PLANET_ABBR, SIGN_ABBR, fmtDegShort, type Planet } from "@shared/astro"
 import { computeKp, significatorMap, jointPeriods, type KpPeriod, type SignificatorLevel } from "@shared/kp";
 import { KP_RULES, KP_CUSP_THEMES, KP_SOURCES, KP_TYPE_LEVEL_LABEL, type KpFinding } from "@shared/rules-kp";
 import { Working } from "@/components/working";
+import { ModeText, SectionTitle } from "@/components/mode-text";
 import { useReadingMode } from "@/lib/reading-mode";
 import { PlanetName, SignName, PlanetLegend, planetColor } from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
@@ -91,6 +92,7 @@ function PeriodRow({ p, testId, sig }: { p: KpPeriod; testId: string; sig: Map<P
 export function KpPanel({ result }: { result: ChartResult }) {
   const { chart } = result;
   const { mode } = useReadingMode();
+  const plain = mode === "plain";
   const [asOf, setAsOf] = useState(() => DateTime.local().toISODate()!);
   const [sixStep, setSixStep] = useState(false);
   const [event, setEvent] = useState<string>("marriage");
@@ -132,6 +134,15 @@ export function KpPanel({ result }: { result: ChartResult }) {
   const cuspsToShow = mode === "practitioner" || showAllCusps ? kp.cusps : kp.cusps.filter((c) => (findingsByCusp.get(c.house) ?? []).some((f) => f.polarity !== "neutral" || f.topic !== "Sources of income"));
   const planetsFor = (houses: number[]) => kp.planets.filter((p) => (sig.get(p.planet) ?? []).some((h) => houses.includes(h))).map((p) => p.planet);
   const houseLabel = (h: number) => (h === kp.badhaka ? `${h} (badhaka)` : kp.marakas.includes(h) ? `${h} (maraka)` : `${h}`);
+  const briefFindings = kp.findings.filter((f) => f.topic !== "Sources of income");
+  const goodSet = new Set(briefFindings.filter((f) => f.polarity === "good").map((f) => f.cusp));
+  const badSet = new Set(briefFindings.filter((f) => f.polarity === "bad").map((f) => f.cusp));
+  const byHouse = (a: Set<number>, b: Set<number>, both: boolean) => Array.from(a).filter((h) => b.has(h) === both).sort((x, y) => x - y);
+  const promisedCusps = byHouse(goodSet, badSet, false);
+  const deniedCusps = byHouse(badSet, goodSet, false);
+  const mixedCusps = byHouse(goodSet, badSet, true);
+  const nextWindow = allWindows.find((w) => !w.past);
+  const listHouses = (hs: number[]) => hs.map((h) => `${ordinal(h)} (${KP_CUSP_THEMES[h].split(",")[0].toLowerCase()})`).join(", ");
 
   return (
     <div data-testid="kp-panel">
@@ -140,24 +151,24 @@ export function KpPanel({ result }: { result: ChartResult }) {
           KP ayanamsa {kp.ayanamsaValue.toFixed(3)}°
         </Badge>
         <Badge variant="secondary" className="no-default-hover-elevate tabular" data-testid="text-kp-lagna">
-          Lagna {lagna.sign} {fmtDegShort(lagna.degInSign)}
+          {plain ? "Rising sign" : "Lagna"} {lagna.sign} {fmtDegShort(lagna.degInSign)}
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-kp-lagna-lords">
           <span className="inline-flex items-center gap-1.5">
-            <Term k="kp-sub-lord">sub lord</Term> <PlanetName planet={lagna.subLord} abbr /> · star <PlanetName planet={lagna.starLord} abbr />
+            <Term k="kp-sub-lord">{plain ? "decided by" : "sub lord"}</Term> <PlanetName planet={lagna.subLord} abbr /> · {plain ? "in the star of" : "star"} <PlanetName planet={lagna.starLord} abbr />
           </span>
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-kp-moon">
           <span className="inline-flex items-center gap-1.5">
-            Moon {moon.nakshatra} · <PlanetName planet={moon.starLord} abbr /> star
+            Moon {plain ? "in " : ""}{moon.nakshatra} · {plain ? "star of " : ""}<PlanetName planet={moon.starLord} abbr />{plain ? "" : " star"}
           </span>
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-kp-badhaka">
-          <Term k="kp-badhaka">Badhaka</Term>&nbsp;{kp.badhaka}th ({kp.lagnaQuality.toLowerCase()} lagna) · marakas 2, 7
+          <Term k="kp-badhaka">{plain ? "Obstructing house" : "Badhaka"}</Term>&nbsp;{kp.badhaka}th{plain ? "" : ` (${kp.lagnaQuality.toLowerCase()} lagna)`} · {plain ? "harming houses" : "marakas"} 2, 7
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-kp-dasa">
           <span className="inline-flex items-center gap-1.5">
-            <PlanetName planet={cur.dasa.lord} abbr /> dasa · <PlanetName planet={cur.bhukti.lord} abbr /> bhukti · <PlanetName planet={cur.antara.lord} abbr /> antara
+            {plain ? "Period " : ""}<PlanetName planet={cur.dasa.lord} abbr /> {plain ? "· sub " : "dasa · "}<PlanetName planet={cur.bhukti.lord} abbr /> {plain ? "· sub-sub " : "bhukti · "}<PlanetName planet={cur.antara.lord} abbr />{plain ? "" : " antara"}
           </span>
         </Badge>
       </div>
@@ -183,15 +194,54 @@ export function KpPanel({ result }: { result: ChartResult }) {
           ))}
         </div>
         <span>
-          {sixStep ? "Six steps: the class-note table adds the sub lord's occupancy and ownership." : "Krishnamurti's four steps: star lord's house, own house, star lord's ownership, own ownership."} Placidus cusps; the KP ayanamsa is used here whatever the chart's setting.
+          {plain
+            ? (sixStep ? "Six steps: each planet also speaks for the houses of the planet whose sub it stands in (class notes)." : "Four steps: each planet speaks for the houses its star's ruler stands in and owns, then for its own.")
+            : `${sixStep ? "Six steps: the class-note table adds the sub lord's occupancy and ownership." : "Krishnamurti's four steps: star lord's house, own house, star lord's ownership, own ownership."} Placidus cusps; the KP ayanamsa is used here whatever the chart's setting.`}
         </span>
       </div>
+
+      <ModeText
+        className="mt-3 text-sm"
+        plain={<>Krishnamurti's method divides each of the 27 lunar mansions into nine unequal parts. The planet ruling the part in which a house begins decides whether that house delivers what it promises, and it speaks for the houses it is tied to through its star. A matter happens when the planets ruling the running period, sub-period and sub-sub-period all speak for the houses of that matter. The books call the deciding planet the sub lord and say it signifies the houses it speaks for; the verdicts below keep that wording. Hover a dotted term for its meaning; switch to Practitioner for the cusp, planet and significator tables and the page references.</>}
+        practitioner={<>Krishnamurti Paddhati: Placidus cusps, 249 subs, four-step (or six-step) significators, cuspal sub lord verdicts cross-checked against Dutta, Vimshottari timing by conjoined periods, ruling planets for the moment of judgement.</>}
+      />
+
+      {plain && (
+        <div className="mt-4 rounded-md border bg-card p-4" data-testid="kp-in-brief">
+          <h3 className="text-sm font-semibold">In brief</h3>
+          <ul className="mt-2 space-y-1.5 text-sm">
+            <li>
+              <span className="text-muted-foreground">The rising point: </span>
+              {lagna.sign} {fmtDegShort(lagna.degInSign)}, decided by {lagna.subLord}, which speaks for houses {(sig.get(lagna.subLord) ?? []).join(", ") || "none"}. The {ordinal(kp.badhaka)} house obstructs for this rising sign; the 2nd and 7th can harm health.
+            </li>
+            <li>
+              <span className="text-muted-foreground">Now: </span>
+              {cur.dasa.lord}'s period ({fmt(cur.dasa.start)} to {fmt(cur.dasa.end)}), within it {cur.bhukti.lord}'s sub-period until {fmt(cur.bhukti.end)} and {cur.antara.lord}'s sub-sub-period until {fmt(cur.antara.end)}.
+            </li>
+            <li>
+              <span className="text-muted-foreground">Promised and denied: </span>
+              {promisedCusps.length ? <>the rules entered so far promise the {listHouses(promisedCusps)}</> : <>no house is promised outright by the rules entered so far</>}
+              {deniedCusps.length ? <>; they deny or caution the {listHouses(deniedCusps)}</> : null}
+              {mixedCusps.length ? <>; the {listHouses(mixedCusps)} get both a promise and a caution</> : null}. The verdicts are written out below, house by house.
+            </li>
+            <li>
+              <span className="text-muted-foreground">Timing for {ev.label.toLowerCase()}: </span>
+              {nextWindow ? <>the next window is {fmt(nextWindow.start)} to {fmt(nextWindow.end)} ({nextWindow.dasaLord}-{nextWindow.bhuktiLord}-{nextWindow.antaraLord}){nextWindow.current ? ", which is running now" : ""}.</> : <>no running or coming period in the next thirty years has all three period planets speaking for houses {ev.houses.join(", ")}.</>}{" "}
+              Pick another matter under When things happen.
+            </li>
+          </ul>
+        </div>
+      )}
 
       {/* Cusps and planets */}
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
         <section data-testid="section-kp-cusps">
-          <h2 className="text-base font-semibold">Cusps</h2>
-          <p className="mt-1 text-xs text-muted-foreground">Each cusp's sign lord, star lord, sub lord and sub-sub lord. The sub lord is the one that decides.</p>
+          <SectionTitle as="h2" plain="Where each house begins" technical="Cusps" className="text-base" />
+          <ModeText
+            plain={<>Each house begins at a degree; the planet ruling the sub at that degree is the one that decides the house.</>}
+            practitioner={<>Each cusp's sign lord, star lord, sub lord and sub-sub lord. The sub lord is the one that decides.</>}
+          />
+          <Working id="kp-cusps" label="Show the cusp table" className="mt-3">
           <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2">
             <TableHeader>
               <TableRow>
@@ -228,11 +278,16 @@ export function KpPanel({ result }: { result: ChartResult }) {
               ))}
             </TableBody>
           </Table>
+          </Working>
         </section>
 
         <section data-testid="section-kp-planets">
-          <h2 className="text-base font-semibold">Planets</h2>
-          <p className="mt-1 text-xs text-muted-foreground">Bhava occupied runs from one cusp to the next (Placidus). Ownership is the lordship of the sign on the cusp; Rahu and Ketu own nothing and act for their sign lord and companions.</p>
+          <SectionTitle as="h2" plain="Where the planets stand" technical="Planets" className="text-base" />
+          <ModeText
+            plain={<>Each planet's degree, the star and sub it falls in, the house it stands in and the houses it owns. Rahu and Ketu own nothing and act for the planets they stand with.</>}
+            practitioner={<>Bhava occupied runs from one cusp to the next (Placidus). Ownership is the lordship of the sign on the cusp; Rahu and Ketu own nothing and act for their sign lord and companions.</>}
+          />
+          <Working id="kp-planets" label="Show the planet table" className="mt-3">
           <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2">
             <TableHeader>
               <TableRow>
@@ -274,18 +329,20 @@ export function KpPanel({ result }: { result: ChartResult }) {
               ))}
             </TableBody>
           </Table>
+          </Working>
         </section>
       </div>
 
       {/* Significators */}
       <section className="mt-10" data-testid="section-kp-significators">
-        <h2 className="text-base font-semibold">
-          <Term k="kp-significator">Significators</Term>
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          A planet signifies the houses its star lord occupies and owns, and the houses it occupies and owns itself, in that order of strength. The house-wise table reads the same links from the other side.
-        </p>
-        <div className="mt-4 grid gap-8 lg:grid-cols-2 lg:items-start">
+        <SectionTitle as="h2" plain="Which planets speak for which houses" technical="Significators" term="kp-significator" className="text-base" />
+        <ModeText
+          className="text-sm"
+          plain={<>A planet speaks for the houses that the ruler of its star stands in and owns, and then for the houses it stands in and owns itself, in that order of strength. Verdicts and timing both rest on these links.</>}
+          practitioner={<>A planet signifies the houses its star lord occupies and owns, and the houses it occupies and owns itself, in that order of strength. The house-wise table reads the same links from the other side.</>}
+        />
+        <Working id="kp-significators" label="Show the planet-wise and house-wise tables" className="mt-4">
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
           <div>
             <p className="text-xs font-medium">Planet-wise</p>
             <Table className="tabular mt-2 [&_td]:px-2 [&_th]:px-2">
@@ -361,17 +418,22 @@ export function KpPanel({ result }: { result: ChartResult }) {
             </Table>
           </div>
         </div>
+        </Working>
       </section>
 
       {/* Cuspal sub lord reading */}
       <section className="mt-10" data-testid="section-kp-reading">
-        <h2 className="text-base font-semibold">What the cuspal sub lords say</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <SectionTitle as="h2" plain="What each house promises" technical="What the cuspal sub lords say" className="text-base" />
+        <ModeText
+          className="text-sm"
+          plain={<>For each house, its deciding planet is matched against the {KP_RULES.length} rules entered from the KP books. Green: promised. Red: denied or a caution. Grey: descriptive. Only houses with a verdict are shown unless you ask for every one.</>}
+          practitioner={<>
           {KP_RULES.length} rules so far: the 1st and 2nd cusps from the class notes, the consolidated cusp-by-cusp rules of Astro Secrets Part 3 chapter 6, and the house-by-house chapter of Part 1 (the 3rd to 12th houses entered) cross-checked against Dr. Andrew Dutta's free bhava rules. Each verdict names the sub lord and the houses it signifies. Green: promised. Red: denied or a caution. Grey: descriptive.
-        </p>
+          </>}
+        />
         {mode === "plain" && (
           <button type="button" className="mt-2 text-xs font-medium text-muted-foreground hover:text-foreground" onClick={() => setShowAllCusps((v) => !v)} data-testid="toggle-kp-all-cusps">
-            {showAllCusps ? "Show only the cusps with a verdict" : "Show every cusp"}
+            {showAllCusps ? "Show only the houses with a verdict" : "Show every house"}
           </button>
         )}
         <div className="mt-4 space-y-6">
@@ -385,10 +447,10 @@ export function KpPanel({ result }: { result: ChartResult }) {
               <article key={c.house} className="rounded-lg border p-4" data-testid={`kp-cusp-reading-${c.house}`}>
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h3 className="text-sm font-semibold">
-                    Cusp {ROMAN[c.house - 1]} <span className="font-normal text-muted-foreground">· {KP_CUSP_THEMES[c.house]}</span>
+                    {plain ? `${ordinal(c.house)} house` : `Cusp ${ROMAN[c.house - 1]}`} <span className="font-normal text-muted-foreground">· {KP_CUSP_THEMES[c.house]}</span>
                   </h3>
                   <span className="inline-flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">
-                    <SignName signIndex={c.signIndex} abbr /> {fmtDegShort(c.degInSign)} · sub lord <PlanetName planet={c.subLord} abbr tone /> in the {ordinal(sl.house)}, star of <PlanetName planet={sl.starLord} abbr /> · signifies{" "}
+                    <SignName signIndex={c.signIndex} abbr /> {fmtDegShort(c.degInSign)} · {plain ? "decided by" : "sub lord"} <PlanetName planet={c.subLord} abbr tone /> in the {ordinal(sl.house)}, {plain ? "in the star of" : "star of"} <PlanetName planet={sl.starLord} abbr /> · {plain ? "speaks for" : "signifies"}{" "}
                     <Houses houses={houses} hilite={[kp.badhaka, ...kp.marakas]} />
                   </span>
                 </div>
@@ -402,7 +464,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                           {f.text}
                           {f.timing && (
                             <span className="ml-1.5 text-xs text-muted-foreground" data-testid={`kp-finding-timing-${f.ruleId}`}>
-                              Timing: joint periods of {f.timing.join("-")} significators ({planetsFor(f.timing).map((p) => PLANET_ABBR[p]).join(" ")}).
+                              {plain ? <>Timing: when the running periods belong to planets speaking for houses {f.timing.join(", ")} ({planetsFor(f.timing).map((p) => PLANET_ABBR[p]).join(" ")}).</> : <>Timing: joint periods of {f.timing.join("-")} significators ({planetsFor(f.timing).map((p) => PLANET_ABBR[p]).join(" ")}).</>}
                             </span>
                           )}
                           {mode === "practitioner" && (
@@ -422,7 +484,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-3 text-sm text-muted-foreground">No rule entered yet fires for this sub lord; the houses it signifies are what the books would be read against.</p>
+                  <p className="mt-3 text-sm text-muted-foreground">{plain ? "No rule entered yet applies to this deciding planet; the houses it speaks for are what the books would be read against." : "No rule entered yet fires for this sub lord; the houses it signifies are what the books would be read against."}</p>
                 )}
                 {income.length > 0 && (
                   <Working id={`kp-income-${c.house}`} label="Show the sources of income" count={income.length} className="mt-3">
@@ -444,10 +506,12 @@ export function KpPanel({ result }: { result: ChartResult }) {
 
       {/* Timing */}
       <section className="mt-10" data-testid="section-kp-timing">
-        <h2 className="text-base font-semibold">Timing: Vimshottari from the Moon</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          A promised matter fructifies when the dasa, bhukti and antara lords are all significators of its houses. Pick a matter and the windows in the next thirty years are listed; the sub lord of the cusp above must promise it first.
-        </p>
+        <SectionTitle as="h2" plain="When things happen" technical="Timing: Vimshottari from the Moon" className="text-base" />
+        <ModeText
+          className="text-sm"
+          plain={<>Life runs in planetary periods counted from the Moon's star at birth, each split into sub-periods and sub-sub-periods. A promised matter comes about when all three running planets speak for its houses. Pick a matter and the windows in the next thirty years are listed; the house must be promised above first.</>}
+          practitioner={<>A promised matter fructifies when the dasa, bhukti and antara lords are all significators of its houses. Pick a matter and the windows in the next thirty years are listed; the sub lord of the cusp above must promise it first.</>}
+        />
         <DasaBar
           className="mt-3"
           testId="bar-kp-dasas"
@@ -455,8 +519,8 @@ export function KpPanel({ result }: { result: ChartResult }) {
           ticks={[0, 20, 40, 60, 80, 100, 120]}
           segments={kp.vimshottari.dasas.map((d) => ({ start: d.ageStart, end: d.ageEnd, color: planetColor(d.lord), label: PLANET_ABBR[d.lord], current: d.current, title: `${d.lord} dasa · ${fmt(d.start)} to ${fmt(d.end)}` }))}
         />
-        <p className="mt-1 text-[11px] text-muted-foreground">Balance at birth: {kp.vimshottari.balanceYears.toFixed(2)} years of {kp.vimshottari.dasas[0].lord}. Moon at {moon.sign} {fmtDegShort(moon.degInSign)}, {moon.nakshatra}.</p>
-        <p className="mt-3 text-xs font-medium">Bhuktis of the {cur.dasa.lord} dasa ({fmt(cur.dasa.start)} to {fmt(cur.dasa.end)})</p>
+        <p className="mt-1 text-[11px] text-muted-foreground">{plain ? `${kp.vimshottari.balanceYears.toFixed(2)} years of ${kp.vimshottari.dasas[0].lord}'s period were left at birth. Moon at ${moon.sign} ${fmtDegShort(moon.degInSign)}, ${moon.nakshatra}.` : `Balance at birth: ${kp.vimshottari.balanceYears.toFixed(2)} years of ${kp.vimshottari.dasas[0].lord}. Moon at ${moon.sign} ${fmtDegShort(moon.degInSign)}, ${moon.nakshatra}.`}</p>
+        <p className="mt-3 text-xs font-medium">{plain ? `Sub-periods of ${cur.dasa.lord}'s period` : `Bhuktis of the ${cur.dasa.lord} dasa`} ({fmt(cur.dasa.start)} to {fmt(cur.dasa.end)})</p>
         <DasaBar
           className="mt-2"
           testId="bar-kp-bhuktis"
@@ -474,8 +538,8 @@ export function KpPanel({ result }: { result: ChartResult }) {
           ))}
         </div>
         <p className="mt-2 text-xs text-muted-foreground" data-testid="text-kp-event-sig">
-          Houses {ev.houses.join(", ")} · significators: {planetsFor(ev.houses).length ? planetsFor(ev.houses).map((p) => PLANET_ABBR[p]).join(" ") : "none"} · the {ordinal(ev.cusp)} cusp sub lord{" "}
-          <PlanetName planet={kp.cusps[ev.cusp - 1].subLord} abbr /> signifies <Houses houses={sig.get(kp.cusps[ev.cusp - 1].subLord) ?? []} hilite={ev.houses} />
+          Houses {ev.houses.join(", ")} · {plain ? "planets speaking for them" : "significators"}: {planetsFor(ev.houses).length ? planetsFor(ev.houses).map((p) => PLANET_ABBR[p]).join(" ") : "none"} · the {ordinal(ev.cusp)} {plain ? "house is decided by" : "cusp sub lord"}{" "}
+          <PlanetName planet={kp.cusps[ev.cusp - 1].subLord} abbr />{plain ? ", which speaks for" : " signifies"} <Houses houses={sig.get(kp.cusps[ev.cusp - 1].subLord) ?? []} hilite={ev.houses} />
           {pastCount > 0 && (
             <>
               {" · "}
@@ -489,9 +553,9 @@ export function KpPanel({ result }: { result: ChartResult }) {
           <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2">
             <TableHeader>
               <TableRow>
-                <TableHead>Dasa</TableHead>
-                <TableHead>Bhukti</TableHead>
-                <TableHead>Antara</TableHead>
+                <TableHead>{plain ? "Period" : "Dasa"}</TableHead>
+                <TableHead>{plain ? "Sub" : "Bhukti"}</TableHead>
+                <TableHead>{plain ? "Sub-sub" : "Antara"}</TableHead>
                 <TableHead>From</TableHead>
                 <TableHead className="hidden sm:table-cell">To</TableHead>
                 <TableHead className="text-right">Age</TableHead>
@@ -523,22 +587,22 @@ export function KpPanel({ result }: { result: ChartResult }) {
           </Table>
         ) : (
           <p className="mt-3 rounded-md border border-dashed p-4 text-sm text-muted-foreground" data-testid="text-kp-windows-empty">
-            No running or coming dasa-bhukti-antara in the next thirty years has all three lords among the {ev.houses.join("-")} significators.
+            {plain ? `No running or coming period in the next thirty years has all three period planets speaking for houses ${ev.houses.join(", ")}.` : `No running or coming dasa-bhukti-antara in the next thirty years has all three lords among the ${ev.houses.join("-")} significators.`}
           </p>
         )}
 
-        <Working id="kp-antaras" label="Show the antaras of the running bhukti" className="mt-4">
+        <Working id="kp-antaras" label={plain ? "Show the sub-sub-periods of the running sub-period" : "Show the antaras of the running bhukti"} className="mt-4">
           <p className="text-xs font-medium">
-            {cur.dasa.lord} dasa · {cur.bhukti.lord} bhukti ({fmt(cur.bhukti.start)} to {fmt(cur.bhukti.end)})
+            {plain ? `${cur.dasa.lord}'s period · ${cur.bhukti.lord}'s sub-period` : `${cur.dasa.lord} dasa · ${cur.bhukti.lord} bhukti`} ({fmt(cur.bhukti.start)} to {fmt(cur.bhukti.end)})
           </p>
           <Table className="tabular mt-2 [&_td]:px-2 [&_th]:px-2">
             <TableHeader>
               <TableRow>
-                <TableHead>Antara</TableHead>
+                <TableHead>{plain ? "Sub-sub" : "Antara"}</TableHead>
                 <TableHead className="text-right">Age</TableHead>
                 <TableHead>From</TableHead>
                 <TableHead className="hidden sm:table-cell">To</TableHead>
-                <TableHead className="hidden md:table-cell">Signifies</TableHead>
+                <TableHead className="hidden md:table-cell">{plain ? "Speaks for" : "Signifies"}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -552,12 +616,14 @@ export function KpPanel({ result }: { result: ChartResult }) {
 
       {/* Ruling planets */}
       <section className="mt-10" data-testid="section-kp-ruling">
-        <h2 className="text-base font-semibold">
-          <Term k="kp-ruling-planets">Ruling planets</Term> at this moment
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <SectionTitle as="h2" plain="Planets ruling this moment" technical="Ruling planets at this moment" term="kp-ruling-planets" className="text-base" />
+        <ModeText
+          className="text-sm"
+          plain={<>Krishnamurti also reads the sky at the moment the chart is judged ({DateTime.fromISO(kp.ruling.asOf).setZone(judgeZone).toFormat("d LLL yyyy HH:mm")} at {judgeLabel}; reload the chart to refresh): the rulers of the sign and star rising now, of the Moon's sign and star now, and of the weekday. They help confirm a birth time and settle between planets that both speak for a matter. The as-of date above moves only the periods.</>}
+          practitioner={<>
           Taken for the moment of judgement, which is when this chart was opened ({DateTime.fromISO(kp.ruling.asOf).setZone(judgeZone).toFormat("d LLL yyyy HH:mm")} at {judgeLabel}, {judgeZone}; reload the chart to refresh): the lords of the rising sign and star, of the Moon's sign and star, and of the weekday counted from sunrise. Krishnamurti uses them to verify birth time and to pick between competing significators; a node in a ruling planet's sign joins them. The as-of date above moves only the dasa.
-        </p>
+          </>}
+        />
         <JudgePlaceControl birthPlace={chart.place} birthTimezone={chart.timezone} />
         {judge && judgeNow.isFetching && <p className="mt-2 text-xs text-muted-foreground">Recomputing the rising sign for {judge.label}…</p>}
         {judge && judgeNow.isError && <p className="mt-2 text-xs text-destructive">Could not compute the ruling planets for {judge.label}; showing the birth place instead.</p>}
