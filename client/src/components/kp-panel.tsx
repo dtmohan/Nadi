@@ -10,6 +10,8 @@ import { PLANET_ABBR, SIGN_ABBR, fmtDegShort, type Planet } from "@shared/astro"
 import { computeKp, significatorMap, jointPeriods, type KpPeriod, type SignificatorLevel } from "@shared/kp";
 import { KP_RULES, KP_CUSP_THEMES, KP_SOURCES, KP_TYPE_LEVEL_LABEL, type KpFinding } from "@shared/rules-kp";
 import { Working } from "@/components/working";
+import { VerdictCard, type VerdictSignature } from "@/components/verdict-card";
+import { gist, firstClause } from "@shared/synthesis";
 import { ModeText, SectionTitle } from "@/components/mode-text";
 import { useReadingMode } from "@/lib/reading-mode";
 import { PlanetName, SignName, PlanetLegend, planetColor } from "@/components/planet-name";
@@ -142,6 +144,24 @@ export function KpPanel({ result }: { result: ChartResult }) {
   const deniedCusps = byHouse(badSet, goodSet, false);
   const mixedCusps = byHouse(goodSet, badSet, true);
   const nextWindow = allWindows.find((w) => !w.past);
+  const kpSignatures: VerdictSignature[] = useMemo(() => {
+    const order = [1, 7, 10, 2, 5, 4, 11, 6, 8, 12, 3, 9];
+    const out: VerdictSignature[] = [];
+    for (const h of order) {
+      const f = briefFindings.find((x) => x.cusp === h && x.polarity !== "neutral");
+      if (!f) continue;
+      out.push({ planets: [f.subLord], label: `${ordinal(h)} house · ${KP_CUSP_THEMES[h].split(",")[0]}`, text: firstClause(gist(f.text)), tone: f.polarity === "good" ? "good" : "bad" });
+      if (out.length >= 3) break;
+    }
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kp.findings]);
+  const themeList = (hs: number[]) => {
+    const names = hs.slice(0, 3).map((h) => KP_CUSP_THEMES[h].split(",")[0].toLowerCase());
+    const more = hs.length - names.length;
+    const base = names.length <= 1 ? names.join("") : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+    return more > 0 ? `${base} (${more} more)` : base;
+  };
   const listHouses = (hs: number[]) => hs.map((h) => `${ordinal(h)} (${KP_CUSP_THEMES[h].split(",")[0].toLowerCase()})`).join(", ");
 
   return (
@@ -200,38 +220,34 @@ export function KpPanel({ result }: { result: ChartResult }) {
         </span>
       </div>
 
+      <VerdictCard
+        system="Krishnamurti Paddhati"
+        headline={<>{promisedCusps.length ? <>The sub lords promise {themeList(promisedCusps)}</> : <>No house is promised outright by the rules entered so far</>}{deniedCusps.length ? <>{promisedCusps.length ? " and" : "; the sub lords"} caution {themeList(deniedCusps)}</> : null}{mixedCusps.length ? <>; {mixedCusps.length === 1 ? "one house carries" : `${mixedCusps.length} houses carry`} both a promise and a caution</> : null}.</>}
+        lead={<>The rising point is {lagna.sign} {fmtDegShort(lagna.degInSign)}, decided by {lagna.subLord}, which speaks for houses {(sig.get(lagna.subLord) ?? []).join(", ") || "none"}. The {ordinal(kp.badhaka)} house obstructs for this rising sign; the 2nd and 7th can harm health.</>}
+        signatures={kpSignatures}
+        timing={[
+          { label: "Now", when: "present", text: <>{cur.dasa.lord}'s period to {fmt(cur.dasa.end)}; {cur.bhukti.lord}'s sub-period until {fmt(cur.bhukti.end)}, {cur.antara.lord}'s sub-sub-period until {fmt(cur.antara.end)}</> },
+          nextWindow
+            ? { label: ev.label, when: nextWindow.current ? "present" : "future", text: <>{fmt(nextWindow.start)} to {fmt(nextWindow.end)} ({nextWindow.dasaLord}-{nextWindow.bhuktiLord}-{nextWindow.antaraLord}){nextWindow.current ? ", running now" : ""}</> }
+            : { label: ev.label, when: "future", text: <>no period in the next thirty years has all three period planets speaking for houses {ev.houses.join(", ")}</> },
+        ]}
+        lines={[
+          ...(promisedCusps.length ? [{ label: "Promised", text: `The ${listHouses(promisedCusps)}.` }] : []),
+          ...(deniedCusps.length ? [{ label: "Cautioned", text: `The ${listHouses(deniedCusps)}.` }] : []),
+          ...(mixedCusps.length ? [{ label: "Both", text: `The ${listHouses(mixedCusps)}.` }] : []),
+          { label: "Method", text: "The planet ruling the sub at which a house begins decides whether the house delivers; a matter happens when the period, sub-period and sub-sub-period planets all speak for its houses." },
+          { label: "Verdicts", text: `${briefFindings.length} cuspal ${briefFindings.length === 1 ? "verdict" : "verdicts"} written out below, house by house; pick another matter under When things happen.` },
+        ]}
+        caveat="Arithmetic complete (KP ayanamsa, Placidus cusps, subs, significators, Vimshottari); the cuspal readings paraphrase Astro Secrets & KP Part 3 and the Kalpurush class notes and are a first pass, not a verdict."
+        testid="kp-verdict"
+        className="mt-4"
+      />
+
       <ModeText
-        className="mt-3 text-sm"
+        className="mt-4 max-w-[76ch] text-sm"
         plain={<>Krishnamurti's method divides each of the 27 lunar mansions into nine unequal parts. The planet ruling the part in which a house begins decides whether that house delivers what it promises, and it speaks for the houses it is tied to through its star. A matter happens when the planets ruling the running period, sub-period and sub-sub-period all speak for the houses of that matter. The books call the deciding planet the sub lord and say it signifies the houses it speaks for; the verdicts below keep that wording. Hover a dotted term for its meaning; switch to Practitioner for the cusp, planet and significator tables and the page references.</>}
         practitioner={<>Krishnamurti Paddhati: Placidus cusps, 249 subs, four-step (or six-step) significators, cuspal sub lord verdicts cross-checked against Dutta, Vimshottari timing by conjoined periods, ruling planets for the moment of judgement.</>}
       />
-
-      {plain && (
-        <div className="mt-4 rounded-md border bg-card p-4" data-testid="kp-in-brief">
-          <h3 className="text-sm font-semibold">In brief</h3>
-          <ul className="mt-2 space-y-1.5 text-sm">
-            <li>
-              <span className="text-muted-foreground">The rising point: </span>
-              {lagna.sign} {fmtDegShort(lagna.degInSign)}, decided by {lagna.subLord}, which speaks for houses {(sig.get(lagna.subLord) ?? []).join(", ") || "none"}. The {ordinal(kp.badhaka)} house obstructs for this rising sign; the 2nd and 7th can harm health.
-            </li>
-            <li>
-              <span className="text-muted-foreground">Now: </span>
-              {cur.dasa.lord}'s period ({fmt(cur.dasa.start)} to {fmt(cur.dasa.end)}), within it {cur.bhukti.lord}'s sub-period until {fmt(cur.bhukti.end)} and {cur.antara.lord}'s sub-sub-period until {fmt(cur.antara.end)}.
-            </li>
-            <li>
-              <span className="text-muted-foreground">Promised and denied: </span>
-              {promisedCusps.length ? <>the rules entered so far promise the {listHouses(promisedCusps)}</> : <>no house is promised outright by the rules entered so far</>}
-              {deniedCusps.length ? <>; they deny or caution the {listHouses(deniedCusps)}</> : null}
-              {mixedCusps.length ? <>; the {listHouses(mixedCusps)} get both a promise and a caution</> : null}. The verdicts are written out below, house by house.
-            </li>
-            <li>
-              <span className="text-muted-foreground">Timing for {ev.label.toLowerCase()}: </span>
-              {nextWindow ? <>the next window is {fmt(nextWindow.start)} to {fmt(nextWindow.end)} ({nextWindow.dasaLord}-{nextWindow.bhuktiLord}-{nextWindow.antaraLord}){nextWindow.current ? ", which is running now" : ""}.</> : <>no running or coming period in the next thirty years has all three period planets speaking for houses {ev.houses.join(", ")}.</>}{" "}
-              Pick another matter under When things happen.
-            </li>
-          </ul>
-        </div>
-      )}
 
       {/* Cusps and planets */}
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
@@ -640,7 +656,6 @@ export function KpPanel({ result }: { result: ChartResult }) {
           Rising now: {kp.ruling.lagna.sign} {fmtDegShort(kp.ruling.lagna.degInSign)} ({kp.ruling.lagna.nakshatra}) · Moon now: {kp.ruling.moon.sign} {fmtDegShort(kp.ruling.moon.degInSign)} ({kp.ruling.moon.nakshatra}) · distinct: {kp.ruling.planets.map((p) => `${PLANET_ABBR[p.planet]}${p.count > 1 ? `×${p.count}` : ""}`).join(" ")}
         </p>
       </section>
-
 
       <section className="mt-10 border-t pt-6 text-xs text-muted-foreground" data-testid="section-kp-sources">
         <p className="font-medium text-foreground">Method and sources</p>

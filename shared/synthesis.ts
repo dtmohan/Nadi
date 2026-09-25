@@ -50,18 +50,20 @@ const TONE_OVERRIDE: Record<string, Tone> = {
 export function toneOf(f: Finding): Tone {
   const o = TONE_OVERRIDE[f.ruleId];
   if (o) return o;
-  const t = f.text.replace(/^[^:]*:\s*/, ""); // judge the gist, not the label
+  return toneOfText(f.text);
+}
+
+/** Keyword balance of a rule sentence, for texts that carry no explicit tone (ALP, KP cusp readings). */
+export function toneOfText(text: string): Tone {
+  const t = text.replace(/^[^:]*:\s*/, ""); // judge the gist, not the label
   const hard = (t.match(new RegExp(HARD.source, "gi")) ?? []).length;
   const good = (t.match(new RegExp(GOOD.source, "gi")) ?? []).length;
-  // "needs care", "under care" etc. are cautions, not comforts
-  
   if (hard === 0 && good === 0) return "neutral";
   if (hard > good) return "hard";
   if (good > hard) return "good";
   return "neutral";
 }
 
-/** The part of a rule text after its "Planet with Planet:" label, ready to be joined into prose. */
 export function gist(text: string): string {
   const i = text.indexOf(": ");
   const g = i >= 0 && i < 80 ? text.slice(i + 2) : text;

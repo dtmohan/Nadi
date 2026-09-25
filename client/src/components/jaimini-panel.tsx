@@ -1,3 +1,4 @@
+import { VerdictCard, type VerdictSignature, type VerdictTiming } from "@/components/verdict-card";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -58,54 +59,69 @@ const PLAIN_KARAKA: Record<string, string> = {
   DK: "spouse",
 };
 
-/** Plain-reading summary for the Jaimini panel. */
-function JaiminiInBrief({ result }: { result: ChartResult }) {
+/** The Jaimini answer, first: the balance of the life areas, the three strongest karaka or pada signatures, and the running Chara period. */
+function JaiminiVerdict({ result }: { result: ChartResult }) {
   const { jaimini: j, positions } = result;
+  const asOf = result.now.asOf;
   const areas = useMemo(() => readAreas(j, positions), [j, positions]);
   const ak = j.karakas[0];
   const dk = j.karakas.find((k) => k.karaka === "DK");
   const amk = j.karakas.find((k) => k.karaka === "AmK");
   const al = j.arudhas[0];
   const ul = j.arudhas[11];
-  const md = j.charaDasha.periods.find((p) => p.start <= result.now.asOf && result.now.asOf < p.end);
-  const ad = md?.antardashas.find((a) => a.start <= result.now.asOf && result.now.asOf < a.end);
-  const supported = areas.filter((a) => a.balance >= 2).map((a) => a.label);
-  const strained = areas.filter((a) => a.balance <= -2).map((a) => a.label);
-  const active = areas.filter((a) => { const c = currentFor(a.timing, result.now.asOf); return c.period && (isHot(c.period.triggers) || c.window); }).map((a) => a.label);
+  const md = j.charaDasha.periods.find((p) => p.start <= asOf && asOf < p.end);
+  const ad = md?.antardashas.find((a) => a.start <= asOf && asOf < a.end);
+  const supported = areas.filter((a) => a.balance >= 2).map((a) => a.label.toLowerCase());
+  const strained = areas.filter((a) => a.balance <= -2).map((a) => a.label.toLowerCase());
+  const active = areas.filter((a) => { const c = currentFor(a.timing, asOf); return c.period && (isHot(c.period.triggers) || c.window); });
   const list = (xs: string[]) => (xs.length === 0 ? "none" : xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
   const fmtY = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
+
+  const parts: string[] = [];
+  if (supported.length) parts.push(`${list(supported)} ${supported.length === 1 ? "rests" : "rest"} on firm ground`);
+  if (strained.length) parts.push(`${list(strained)} ${strained.length === 1 ? "is" : "are"} under strain`);
+  const headline = parts.length ? `${parts.join("; ")}; the rest ${supported.length + strained.length === areas.length - 1 ? "is" : "are"} mixed.`.replace(/^./, (c) => c.toUpperCase()) : "No life area rests wholly on firm ground or wholly under strain; the karakas and padas pull both ways.";
+
+  const signatures: VerdictSignature[] = useMemo(() => {
+    const out: VerdictSignature[] = [];
+    const ranked = [...areas].sort((x, y) => Math.abs(y.balance) - Math.abs(x.balance));
+    for (const a of ranked) {
+      if (out.length >= 3 || a.balance === 0) break;
+      const want = a.balance > 0 ? "support" : "strain";
+      const k = a.karakas.find((k) => k.notes.some((n) => n.tone === want));
+      const pd = a.padas.find((p) => p.notes.some((n) => n.tone === want));
+      const note = k?.notes.find((n) => n.tone === want) ?? pd?.notes.find((n) => n.tone === want);
+      if (!note) continue;
+      out.push({ planets: k ? [k.planet] : pd?.occupants.slice(0, 2), label: a.label, text: note.text.replace(/\.$/, ""), tone: a.balance > 0 ? "good" : "bad" });
+    }
+    return out;
+  }, [areas]);
+
+  const timing: VerdictTiming[] = [];
+  if (md) timing.push({ label: "Now", when: "present", text: <>{md.signName} period, {fmtY(md.start)} to {fmtY(md.end)}{ad ? <>; {ad.signName} sub-period until {fmtY(ad.end)}</> : null}</> });
+  if (active.length === areas.length) timing.push({ label: "Active", when: "present", text: <>the running period touches every life area</> });
+  else if (active.length > areas.length / 2) timing.push({ label: "Active", when: "present", text: <>the running period touches most areas, {list(active.slice(0, 2).map((a) => a.label.toLowerCase()))} among them</> });
+  else if (active.length) timing.push({ label: "Active", when: "present", text: <>the running period brings {list(active.map((a) => a.label.toLowerCase()))} to the fore</> });
+
+  const lines = [
+    { label: "Self", text: <>{ak.planet}, the furthest along in its sign ({fmtDegShort(ak.rankDegree)}), is the planet of the self; in the ninth-cut chart it falls in {j.karakamsa.sign}.{amk ? <> {amk.planet} is the planet of career{dk ? ` and ${dk.planet} the planet of the spouse` : ""}.</> : null}</> },
+    { label: "Appearance", text: <>The world sees this person through {al.sign}; marriage and the spouse are read from {ul.sign}.</> },
+    ...(md ? [{ label: "Period", text: <>The {md.signName} period runs {md.years} {md.years === 1 ? "year" : "years"}; during it {md.signName} acts as the rising sign.</> }] : []),
+    { label: "From the text", text: <>{j.findings.length} {j.findings.length === 1 ? "line" : "lines"} of Jaimini's sutras {j.findings.length === 1 ? "matches" : "match"} this chart, written out below.</> },
+  ];
+
   return (
-    <div className="mt-4 rounded-md border bg-card p-4" data-testid="jaimini-in-brief">
-      <h3 className="text-sm font-semibold">In brief</h3>
-      <ul className="mt-2 space-y-1.5 text-sm">
-        <li>
-          <span className="text-muted-foreground">Planet of the self: </span>
-          {ak.planet}, the furthest along in its sign ({fmtDegShort(ak.rankDegree)}). In the ninth-cut chart it falls in {j.karakamsa.sign}, the seat from which work, temperament and devotion are read.
-          {amk ? <> {amk.planet} is the planet of career{dk ? ` and ${dk.planet} the planet of the spouse` : ""}.</> : null}
-        </li>
-        <li>
-          <span className="text-muted-foreground">Appearance and marriage: </span>
-          the world sees this person through {al.sign}; marriage and the spouse are read from {ul.sign}.
-        </li>
-        {md && (
-          <li>
-            <span className="text-muted-foreground">Now: </span>
-            the {md.signName} period runs from {fmtY(md.start)} to {fmtY(md.end)} ({md.years} {md.years === 1 ? "year" : "years"})
-            {ad ? <>, within it the {ad.signName} sub-period until {fmtY(ad.end)}</> : null}. During this time {md.signName} acts as the rising sign.
-          </li>
-        )}
-        <li>
-          <span className="text-muted-foreground">Life areas: </span>
-          {supported.length ? <>{list(supported)} {supported.length === 1 ? "rests" : "rest"} on firm ground</> : "no area rests wholly on firm ground"}
-          {strained.length ? <>; {list(strained)} {strained.length === 1 ? "is" : "are"} under strain</> : null}; the rest are mixed.
-          {active.length === areas.length ? <> The running period touches every area.</> : active.length ? <> The running period brings {list(active)} to the fore.</> : <> No area is specially active in the running period.</>}
-        </li>
-        <li>
-          <span className="text-muted-foreground">From the text: </span>
-          {j.findings.length} {j.findings.length === 1 ? "line" : "lines"} of Jaimini's sutras {j.findings.length === 1 ? "matches" : "match"} this chart, written out below.
-        </li>
-      </ul>
-    </div>
+    <VerdictCard
+      system="Jaimini"
+      headline={headline}
+      lead={<>Read from the eight chara karakas, the arudha padas and the Chara dasha by K.N. Rao's method. Nothing here feeds the Nadi reading.</>}
+      signatures={signatures}
+      timing={timing}
+      lines={lines}
+      caveat="Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; a starting set of rules, not a verdict."
+      testid="jaimini-verdict"
+      className="mt-4"
+    />
   );
 }
 
@@ -350,13 +366,13 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
         )}
       </div>
 
+      <JaiminiVerdict result={result} />
+
       <ModeText
-        className="mt-3 text-sm"
+        className="mt-4 max-w-[76ch] text-sm"
         plain={<>Jaimini's method ranks the planets by how far each has travelled in its sign and gives each a role: the highest becomes the planet of the self, the next the planet of career, and so on down to the planet of the spouse. It reads the world's view of each house from a mirrored point, lets signs rather than planets cast aspects, and times life by signs, each ruling for a fixed number of years. Hover a dotted term for its meaning; switch to Practitioner for the tables and sutra references.</>}
         practitioner={<>Chara karakas by degree, arudha padas, rasi drishti and argala, Chara dasha by K.N. Rao's method, and the Karakamsa, Arudha and Upapada sutras. Nothing here feeds the Nadi reading.</>}
       />
-
-      {plain && <JaiminiInBrief result={result} />}
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[5fr_4fr] lg:items-start">
         <div>

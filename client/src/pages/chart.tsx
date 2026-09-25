@@ -9,7 +9,8 @@ import { GIVES, RECEIVES, flowGloss, tierLabel, approachLabel, type DegreeChain 
 import { nextMarriageWindow, type Gender, type MarriageReading } from "@shared/marriage";
 import { nextChildWindow, type ChildrenReading } from "@shared/children";
 import { LIFE_AREAS, RELATION_LABEL, areaKarakaLabel, type Finding, type LifeArea, type PairRelation, type Reading as BnnReading } from "@shared/rules";
-import { synthesize, toneOf, AREA_TONE_LABEL, type AreaSynthesis, type AreaTone } from "@shared/synthesis";
+import { synthesize, toneOf, gist, firstClause, AREA_TONE_LABEL, type AreaSynthesis, type AreaTone } from "@shared/synthesis";
+import { VerdictCard, type VerdictSignature, type VerdictTiming } from "@/components/verdict-card";
 import { Term } from "@/components/term";
 import { Working, ReadingModeToggle } from "@/components/working";
 import { useReadingMode } from "@/lib/reading-mode";
@@ -352,6 +353,100 @@ function AreaSection({ s, reading, gender }: { s: AreaSynthesis; reading: BnnRea
   );
 }
 
+const AREA_SHORT: Record<LifeArea, string> = {
+  self: "temperament",
+  career: "career",
+  marriage: "marriage",
+  children: "children",
+  wealth: "wealth",
+  education: "learning",
+  family: "family",
+  health: "health",
+  spirituality: "the inner life",
+  travel: "travel",
+};
+
+const joinList = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+const fmtMY = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
+
+/** The BNN answer, first: what the Nadi rules conclude across the life areas, the three strongest signatures and the timing that matters next. */
+function BnnVerdict({ result }: { result: ChartResult }) {
+  const { reading, chart, transits, now } = result;
+  const gender = chart.gender as Gender;
+  const areas = useMemo(() => synthesize(reading, gender), [reading, gender]);
+  const asOf = now.asOf.slice(0, 10);
+
+  // Lead with the three firmest areas and every area that needs care; the rest is "mixed" in one word.
+  const firmAll = areas.filter((a) => a.tone === "supportive").sort((x, y) => y.balance - x.balance);
+  const firm = firmAll.slice(0, 3).map((a) => AREA_SHORT[a.area]);
+  const careAll = areas.filter((a) => a.tone === "care").sort((x, y) => x.balance - y.balance).map((a) => AREA_SHORT[a.area]);
+  const care = careAll.slice(0, 3);
+  const careMore = careAll.length - care.length;
+  const mixedN = areas.filter((a) => a.tone === "mixed").length + Math.max(0, firmAll.length - 3);
+  const parts: string[] = [];
+  if (firm.length) parts.push(`${joinList(firm)} ${firm.length === 1 ? "rests" : "rest"} on firm ground`);
+  if (care.length) parts.push(`${joinList(careMore > 0 ? [...care, `${careMore} more`] : care)} ${care.length === 1 ? "needs" : "need"} care`);
+  if (mixedN) parts.push(parts.length ? "the rest is mixed" : "every area is mixed");
+  const headline = parts.length ? parts.join("; ").replace(/^./, (c) => c.toUpperCase()) + "." : "The Nadi rules mark no area strongly in this chart.";
+  const jeevaP = result.positions.find((p) => p.planet === reading.roles.native);
+  const lead = `${reading.roles.native}, the life force, stands in ${reading.jeeva.sign}${reading.jeeva.companions.length ? ` with ${joinList(reading.jeeva.companions)}` : " alone"}${reading.jeeva.retro ? ", retrograde" : ""}${jeevaP ? ` at ${fmtDeg(jeevaP.lon)}` : ""}.${reading.deha ? ` ${reading.roles.deha}, her own person, stands in ${reading.deha.sign}${reading.deha.companions.length ? ` with ${joinList(reading.deha.companions)}` : ""}.` : ""} Saturn, the work, is in ${reading.karma.sign}.`;
+
+  const signatures: VerdictSignature[] = useMemo(() => {
+    // One signature per life area, the areas that are marked most strongly first, and no rule twice.
+    const seen = new Set<string>();
+    const usedArea = new Set<LifeArea>();
+    // A supportive area is carried by a supportive finding, an area needing care by a hard one; mixed areas take their strongest.
+    const fits = (a: AreaSynthesis, f: Finding) => (a.tone === "supportive" ? toneOf(f) !== "hard" : a.tone === "care" ? toneOf(f) !== "good" : true);
+    const all = areas.flatMap((a) => a.key.filter((f) => fits(a, f)).map((f) => ({ f, area: a.area, ab: Math.abs(a.balance) })));
+    const spoken = (f: Finding) => (toneOf(f) === "neutral" ? 0 : 1);
+    all.sort((x, y) => y.ab - x.ab || spoken(y.f) - spoken(x.f) || Math.abs(y.f.score) - Math.abs(x.f.score));
+    const out: VerdictSignature[] = [];
+    for (const { f, area } of all) {
+      if (seen.has(f.ruleId) || usedArea.has(area) || out.length >= 3) continue;
+      seen.add(f.ruleId);
+      usedArea.add(area);
+      const t = toneOf(f);
+      out.push({ planets: f.planets, label: LIFE_AREAS[area].label.split(" & ")[0], text: firstClause(gist(f.text)), tone: t === "good" ? "good" : t === "hard" ? "bad" : "neutral" });
+    }
+    return out;
+  }, [areas]);
+
+  const timing: VerdictTiming[] = [];
+  const ju = transits.find((t) => t.planet === "Jupiter" && t.start <= asOf && asOf < t.end);
+  if (ju) timing.push({ label: "Now", when: "present", text: <>Jupiter moves through {ju.sign} until {fmtMY(ju.end)}</> });
+  if (reading.marriage.promised !== "absent") {
+    const w = nextMarriageWindow(reading.marriage, transits, asOf);
+    if (w) timing.push({ label: "Marriage", when: w.period.start <= asOf ? "present" : "future", text: <>Jupiter {w.kind === "over" ? "over" : "in trine from"} {w.period.sign}, {fmtMY(w.period.start)} to {fmtMY(w.period.end)}</> });
+  }
+  if (reading.children.promised !== "unsigned") {
+    const w = nextChildWindow(reading.children, transits, asOf, result.utc);
+    if (w) timing.push({ label: "Children", when: w.period.start <= asOf ? "present" : "future", text: <>Jupiter {w.kind === "return" ? "returns to" : w.kind === "fifth" ? "reaches the 5th from" : "trines"} {w.period.sign}, {fmtMY(w.period.start)} to {fmtMY(w.period.end)}</> });
+  }
+
+  const lines = [
+    { label: `${reading.roles.native} · Jeeva`, text: reading.jeeva.summary },
+    ...(reading.deha ? [{ label: `${reading.roles.deha} · Deha`, text: reading.deha.summary }] : []),
+    { label: "Saturn · Karma", text: reading.karma.summary },
+    { label: "Marriage", text: `${PROMISE_LABEL[reading.marriage.promised]}, read between ${reading.roles.deha} and ${reading.roles.spouse}.` },
+    { label: "Children", text: `${CHILD_PROMISE_LABEL[reading.children.promised]}.` },
+    { label: "Rules", text: `${reading.findings.length} Nadi rules fire on this chart across ${areas.filter((a) => a.total > 0).length} life areas; each area below opens with its balance, then the signatures that carry it.` },
+  ];
+
+  return (
+    <VerdictCard
+      system="Bhrigu Nandi Nadi"
+      headline={headline}
+      lead={lead}
+      signatures={signatures}
+      timing={timing}
+      lines={lines}
+      caveat="A starting set of Nadi rules after R.G. Rao and Satyanarayana Naik, weighed by sign relation and degree order. A reading, not a verdict."
+      testid="bnn-verdict"
+      className="mt-8"
+    />
+  );
+}
+
 function Reading({ result, selected }: { result: ChartResult; selected: Planet | null }) {
   const { reading, positions, chart } = result;
   const { mode } = useReadingMode();
@@ -362,7 +457,7 @@ function Reading({ result, selected }: { result: ChartResult; selected: Planet |
 
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4">
         <KarakaCard title={reading.roles.gender === "female" ? "Jeeva karaka · the life force (both charts)" : "Jeeva karaka · the native"} planet={reading.roles.native} data={reading.jeeva} positions={positions} tone="jeeva" />
         <KarakaCard title="Karma karaka · the profession" planet="Saturn" data={reading.karma} positions={positions} tone="karma" />
         {reading.deha && (
@@ -833,8 +928,9 @@ export default function ChartPage() {
 
       {mode === "bnn" && (
       <>
-      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,28rem)_1fr] lg:items-start">
-        <div>
+      <BnnVerdict result={data} />
+      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,27rem)_1fr] lg:items-start">
+        <div className="lg:sticky lg:top-4 lg:max-h-[calc(100svh-2rem)] lg:overflow-y-auto lg:pr-1" data-testid="bnn-chart-column">
           <SouthIndianChart
             positions={positions}
             transit={showTransit ? transitNow : []}
@@ -866,17 +962,19 @@ export default function ChartPage() {
               Transits
             </Button>
           </div>
-          <HousesPanel positions={positions} karaka={houseKaraka ?? data.reading.roles.native} native={data.reading.roles.native} deha={data.reading.roles.deha} onChange={setHouseKaraka} selected={selected} />
+          <Working id="houses" label="Show the twelve houses from the karaka" className="mt-4">
+            <HousesPanel positions={positions} karaka={houseKaraka ?? data.reading.roles.native} native={data.reading.roles.native} deha={data.reading.roles.deha} onChange={setHouseKaraka} selected={selected} />
+          </Working>
         </div>
-        <div className="min-w-0">
-          <PlanetTable positions={positions} strength={data.reading.strength} selected={selected} onSelect={setSelected} />
-          <p className="mt-2 text-xs text-muted-foreground">
-            Click a planet to focus the reading on it. Longitudes are sidereal. c <Term k="combust">combust</Term> · w leads an enemy by <Term k="degree-order">degree</Term> · struck dignity is <Term k="set-aside">set aside</Term> by a Nadi rule.
-          </p>
-        </div>
-      </div>
+        <div className="min-w-0 max-w-[76ch]">
+          <Working id="planet-table" label="Show the planet table" count={positions.length}>
+            <PlanetTable positions={positions} strength={data.reading.strength} selected={selected} onSelect={setSelected} />
+            <p className="mt-2 text-xs text-muted-foreground">
+              Click a planet to focus the reading on it. Longitudes are sidereal. c <Term k="combust">combust</Term> · w leads an enemy by <Term k="degree-order">degree</Term> · struck dignity is <Term k="set-aside">set aside</Term> by a Nadi rule.
+            </p>
+          </Working>
 
-      <Tabs defaultValue="reading" className="mt-10">
+      <Tabs defaultValue="reading" className="mt-8">
         <TabsList>
           <TabsTrigger value="reading" data-testid="tab-reading">
             Reading
@@ -898,6 +996,8 @@ export default function ChartPage() {
           <Relations relations={data.reading.relations} positions={positions} />
         </TabsContent>
       </Tabs>
+        </div>
+      </div>
       </>
       )}
 

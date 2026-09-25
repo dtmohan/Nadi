@@ -10,6 +10,8 @@ import type { AshtakavargaResult, Bhinnashtaka } from "@shared/ashtakavarga";
 import { BHAVA_PHALA_CAVEATS, type BhavaPhala, type VargaPhala } from "@shared/bhava-phala";
 import { NAKSHATRAS } from "@shared/astro";
 import { computeAvTimeline } from "@shared/av-transit";
+import { VerdictCard, type VerdictSignature } from "@/components/verdict-card";
+import { gist, firstClause } from "@shared/synthesis";
 import { AvTimelineSection } from "@/components/av-timeline";
 import { readFatherArishta } from "@shared/father-arishta";
 import { readMotherPoint } from "@shared/mother-point";
@@ -133,10 +135,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         </div>
       </div>
 
-      {plain && <InBrief r={r} cur={cur} yogas={yogas} spouse={vargas.spouse} />}
+      <ParashariVerdict r={r} cur={cur} yogas={yogas} spouse={vargas.spouse} />
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
-        <div>
+        <div className="lg:sticky lg:top-4 lg:max-h-[calc(100svh-2rem)] lg:overflow-y-auto lg:pr-1">
           <SouthIndianChart
             positions={positions}
             title="Rasi"
@@ -340,7 +342,7 @@ const PLAIN_ROLE: Record<string, string> = {
 };
 
 /** Plain-reading summary: five short statements a reader can take away before any table. */
-function InBrief({ r, cur, yogas, spouse }: { r: ReturnType<typeof computeParashari>; cur: DashaGloss | undefined; yogas: ParashariFinding[]; spouse: SpouseReading }) {
+function ParashariVerdict({ r, cur, yogas, spouse }: { r: ReturnType<typeof computeParashari>; cur: DashaGloss | undefined; yogas: ParashariFinding[]; spouse: SpouseReading }) {
   const helpers = r.natures.filter((n) => n.functional === "yogakaraka" || n.functional === "auspicious").map((n) => n.planet);
   const hinderers = r.natures.filter((n) => n.functional === "malefic" || n.functional === "maraka").map((n) => n.planet);
   const sb = r.shadbala?.planets.slice().sort((a, b) => b.ratio - a.ratio);
@@ -351,42 +353,42 @@ function InBrief({ r, cur, yogas, spouse }: { r: ReturnType<typeof computeParash
   const bad = yogas.filter((f) => f.tone === "strain").length;
   const mixed = yogas.filter((f) => f.tone === "mixed").length;
   const list = (xs: Planet[]) => (xs.length === 0 ? "none" : xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+  const lagnaLordHouse = ord(r.natures.find((n) => n.planet === r.bhavas[0].lord)?.house ?? 1);
+
+  // The three strongest combinations: yogas first (they name whole life themes), supportive and testing before mixed, and prefer those carried by a strong planet.
+  const signatures: VerdictSignature[] = [...yogas]
+    .map((f) => ({ f, w: (f.kind === "yoga" ? 3 : f.kind === "strain" ? 2 : 1) + (f.tone !== "mixed" ? 1 : 0) + (f.planets.some((p) => (strong as Planet[]).includes(p)) ? 1 : 0) }))
+    .sort((a, b) => b.w - a.w)
+    .slice(0, 3)
+    .map(({ f }) => ({ planets: f.planets.slice(0, 2), label: f.title, text: firstClause(gist(f.text)), tone: f.tone === "support" ? "good" : f.tone === "strain" ? "bad" : "mixed" }));
+
+  const headline = (
+    <>
+      {SIGNS[r.lagna.signIndex]} rising, with its lord {r.bhavas[0].lord} in the {lagnaLordHouse} house
+      {sb && sb.length ? <>; {sb[0].planet} is the strongest planet</> : null}
+      {yogas.length ? <>, and the text finds {[good ? `${good} favourable` : "", mixed ? `${mixed} mixed` : "", bad ? `${bad} testing` : ""].filter(Boolean).join(", ").replace(/, ([^,]*)$/, " and $1")} {yogas.length === 1 ? "combination" : "combinations"}</> : null}.
+    </>
+  );
+
   return (
-    <div className="mt-6 rounded-md border bg-card p-4" data-testid="parashari-in-brief">
-      <h3 className="text-sm font-semibold">In brief</h3>
-      <ul className="mt-2 space-y-1.5 text-sm">
-        <li>
-          <span className="text-muted-foreground">Rising sign: </span>
-          {SIGNS[r.lagna.signIndex]}, ruled by {r.bhavas[0].lord}, which sits in the {ord(r.natures.find((n) => n.planet === r.bhavas[0].lord)?.house ?? 1)} house.
-        </li>
-        <li>
-          <span className="text-muted-foreground">Helpers and hinderers: </span>
-          for {SIGNS[r.lagna.signIndex]} rising Parashara counts {list(helpers)} as {helpers.length === 1 ? "a helper" : "helpers"} and {list(hinderers)} as {hinderers.length === 1 ? "a hinderer" : "hinderers"}; the rest are neutral.
-        </li>
-        {sb && (
-          <li>
-            <span className="text-muted-foreground">Strength: </span>
-            {strong.length === 0 ? "no planet reaches the minimum strength Parashara asks for" : `${list(strong)} ${strong.length === 1 ? "reaches" : "reach"} the minimum strength Parashara asks for`}
-            {weak.length > 0 ? `; ${list(weak)} ${weak.length === 1 ? "falls" : "fall"} short, so ${weak.length === 1 ? "its" : "their"} promises come in part` : ""}. {sb[0].planet} is the strongest planet in this chart.
-          </li>
-        )}
-        <li>
-          <span className="text-muted-foreground">Combinations: </span>
-          {yogas.length} notable {yogas.length === 1 ? "combination" : "combinations"} found, {good} favourable, {mixed} mixed and {bad} testing. Each is written out below with the reason.
-        </li>
-        {cur && (
-          <li>
-            <span className="text-muted-foreground">Now: </span>
-            the chart is in a {cur.lord} period ({fmt(cur.start)} to {fmt(cur.end)}). For this rising sign {cur.lord} is {PLAIN_ROLE[cur.functional] ?? cur.functional}
-            {curReading ? `, and the text's lines for this period come out ${VERDICT_LABEL[curReading.verdict]} on balance` : ""}. The period's sub-periods are listed at the end of the page.
-          </li>
-        )}
-        <li>
-          <span className="text-muted-foreground">Marriage, from the ninth-cut chart: </span>
-          the partner's house there is {SIGNS[spouse.seventhSign]}{spouse.occupants.length ? `, holding ${list(spouse.occupants)}` : ", empty"}; its ruler {spouse.seventhLord} stands in {SIGNS[spouse.lordSign]}. Parashara gives no verdict on this placement, so it is reported, not judged.
-        </li>
-      </ul>
-    </div>
+    <VerdictCard
+      system="Parashari"
+      headline={headline}
+      lead={<>For {SIGNS[r.lagna.signIndex]} rising Parashara counts {list(helpers)} as {helpers.length === 1 ? "a helper" : "helpers"} and {list(hinderers)} as {hinderers.length === 1 ? "a hinderer" : "hinderers"}; the rest are neutral.</>}
+      signatures={signatures}
+      timing={cur ? [{ label: "Now", when: "present", text: <>{cur.lord} period, {fmt(cur.start)} to {fmt(cur.end)}; for this rising sign {cur.lord} is {PLAIN_ROLE[cur.functional] ?? cur.functional}{curReading ? <>, and the text's lines for the period come out {VERDICT_LABEL[curReading.verdict]} on balance</> : null}</> }] : []}
+      lines={[
+        ...(sb
+          ? [{ label: "Strength", text: <>{strong.length === 0 ? "No planet reaches the minimum strength Parashara asks for" : `${list(strong)} ${strong.length === 1 ? "reaches" : "reach"} the minimum strength Parashara asks for`}{weak.length > 0 ? `; ${list(weak)} ${weak.length === 1 ? "falls" : "fall"} short, so ${weak.length === 1 ? "its" : "their"} promises come in part` : ""}.</> }]
+          : []),
+        { label: "Combinations", text: <>{yogas.length} notable {yogas.length === 1 ? "combination" : "combinations"} found; each is written out below with the reason and verse.</> },
+        { label: "Marriage (D9)", text: <>The partner's house in the ninth-cut chart is {SIGNS[spouse.seventhSign]}{spouse.occupants.length ? `, holding ${list(spouse.occupants)}` : ", empty"}; its ruler {spouse.seventhLord} stands in {SIGNS[spouse.lordSign]}. Parashara gives no verdict on this placement, so it is reported, not judged.</> },
+        ...(cur ? [{ label: "Periods", text: "The running period's sub-periods are listed at the end of the page." }] : []),
+      ]}
+      caveat="Paraphrased from Brihat Parashara Hora Sastra (Santhanam translation), softened and with verse numbers kept for checking; strength, divisional and Ashtakavarga layers are applied mechanically. A first pass, not a verdict."
+      testid="parashari-verdict"
+      className="mt-6"
+    />
   );
 }
 

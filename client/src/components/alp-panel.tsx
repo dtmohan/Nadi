@@ -8,6 +8,8 @@ import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "
 import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES, ALP_HOUSE_THEMES, DUSTHANA_NOTE, alpSignReading, threeWaysFor, threeWaysCount, threeWaysText, THREE_WAYS_NOTE, ALP_PLANET_THEMES } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
+import { VerdictCard, type VerdictSignature, type VerdictTiming } from "@/components/verdict-card";
+import { toneOfText, gist, firstClause } from "@shared/synthesis";
 import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 import { PlanetName, SignName, TimePill, PlanetLegend, ElementLegend, planetColor, elementColor } from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
@@ -140,38 +142,33 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         </span>
       </div>
 
+      <VerdictCard
+        system="Akshaya Lagna Paddhati"
+        headline={<>At age {a.ageYears.toFixed(1)} the moving point stands in {a.point.sign}, the {ordinal(a.houseFromJanma)} sign from the birth rising sign, and the decade is read from there; the questions of the {ordinal(nakP.houseFromAlp)} house ({ALP_HOUSE_THEMES[nakP.houseFromAlp].split(", ").slice(0, 3).join(", ")}) come to the front.</>}
+        lead={a.findings.length === 0 ? "None of the rules entered so far fires for this placement; the method is still being entered chapter by chapter." : `${a.findings.length} of the rules entered so far ${a.findings.length === 1 ? "fires" : "fire"} for this placement; the strongest are shown here and all are written out under Reading.`}
+        signatures={[...a.findings].sort((x, y) => y.weight - x.weight).slice(0, 3).map((f) => { const t = toneOfText(f.text); return { planets: f.planets.slice(0, 2), label: ALP_CHAPTERS.find((c) => c.id === f.chapter)?.book ?? f.chapter, text: firstClause(gist(f.text)), tone: t === "good" ? "good" : t === "hard" ? "bad" : "neutral" } as VerdictSignature; })}
+        timing={[
+          ...(curSign ? [{ label: "Now", when: "present", text: <>{a.point.sign} decade, ages {curSign.ageStart.toFixed(1)} to {curSign.ageEnd.toFixed(1)}; {arp.dasa.lord}'s period with {arp.bhukti.lord}'s sub-period until {fmt(arp.bhukti.end)}</> } as VerdictTiming] : []),
+          ...(a.nextSignChange ? [{ label: "Next", when: "future", text: <>the point moves into the next sign on {fmt(a.nextSignChange)}</> } as VerdictTiming] : []),
+        ]}
+        lines={[
+          { label: "The moving point", text: <>In {a.point.sign}; its ruler {lordP.planet} sits in the {ordinal(lordP.houseFromAlp)} house from it.</> },
+          { label: "Within the sign", text: <>The point is crossing the star-stretch of {a.point.nakshatra}, ruled by {nakP.planet}, which stands in the {ordinal(nakP.houseFromAlp)} house from the point.</> },
+          { label: "The mind's point", text: <>{arp.point.sign}, the {ordinal(arp.houseFromAlp)} house from the body's point; {arp.dasa.lord} stands in the {ordinal(arp.dasaLord.houseFromArp)} house from it.</> },
+        ]}
+        caveat="Dr. S. Pothuvudaimoorthy's method; the progression arithmetic follows the published rate and the rules are a framework, not a verdict."
+        testid="alp-verdict"
+        className="mt-4"
+      />
+
       <ModeText
-        className="mt-3 text-sm"
+        className="mt-4 max-w-[76ch] text-sm"
         plain={<>In this method the rising point does not stay where it was at birth: it moves forward one sign every ten years, so that by the age of 120 it has gone round the whole zodiac. The birth planets stay put and are read afresh from wherever the point stands now, so the same chart tells a different story each decade. A second moving point, derived from the Moon, stands for the mind. Hover a dotted term for its meaning; switch to Practitioner for the arithmetic and page references.</>}
         practitioner={<>Akshaya Lagna Paddhati: the lagna advanced 3° a year from the birth degree (Book 2 pp. 32-41), read by sign, nakshatra and pada; the Akshaya rasi from the Vimshottari-shifted Moon (Book 2 pp. 72-73). Framework stage.</>}
       />
 
-      {plain && (
-        <div className="mt-4 rounded-md border bg-card p-4" data-testid="alp-in-brief">
-          <h3 className="text-sm font-semibold">In brief</h3>
-          <ul className="mt-2 space-y-1.5 text-sm">
-            <li>
-              <span className="text-muted-foreground">The moving point: </span>
-              at age {a.ageYears.toFixed(1)} it stands in {a.point.sign}, the {ordinal(a.houseFromJanma)} sign from the birth rising sign{curSign ? `, for ages ${curSign.ageStart.toFixed(1)} to ${curSign.ageEnd.toFixed(1)}` : ""}. Its ruler {lordP.planet} sits in the {ordinal(lordP.houseFromAlp)} house from it{a.nextSignChange ? `; the point moves into the next sign on ${fmt(a.nextSignChange)}` : ""}.
-            </li>
-            <li>
-              <span className="text-muted-foreground">Within the sign: </span>
-              the point is crossing the star-stretch of {a.point.nakshatra}, ruled by {nakP.planet}, which stands in the {ordinal(nakP.houseFromAlp)} house from the point, so the questions of that house ({ALP_HOUSE_THEMES[nakP.houseFromAlp]}) come to the front of the decade.
-            </li>
-            <li>
-              <span className="text-muted-foreground">The mind's point: </span>
-              {arp.point.sign}, the {ordinal(arp.houseFromAlp)} house from the body's point. The running planetary period is {arp.dasa.lord}'s (ages {arp.dasa.ageStart.toFixed(1)} to {arp.dasa.ageEnd.toFixed(1)}), sub-period {arp.bhukti.lord}'s until {fmt(arp.bhukti.end)}; {arp.dasa.lord} stands in the {ordinal(arp.dasaLord.houseFromArp)} house from the mind's point.
-            </li>
-            <li>
-              <span className="text-muted-foreground">From the books: </span>
-              {a.findings.length === 0 ? "none of the rules entered so far fires for this placement" : `${a.findings.length} ${a.findings.length === 1 ? "rule fires" : "rules fire"} for this placement, written out under Reading`}. The method is still being entered chapter by chapter, so this is a framework, not a verdict.
-            </li>
-          </ul>
-        </div>
-      )}
-
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
-        <div>
+        <div className="lg:sticky lg:top-4 lg:max-h-[calc(100svh-2rem)] lg:overflow-y-auto lg:pr-1">
           <SouthIndianChart
             positions={positions}
             title="Rasi"

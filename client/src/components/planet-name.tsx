@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { PLANET_ABBR, SIGNS, SIGN_ABBR, type Planet } from "@shared/astro";
 import { cn } from "@/lib/utils";
 import { useChartFocus } from "@/components/chart-focus";
@@ -62,11 +63,11 @@ export function SignName({ signIndex, abbr, className }: { signIndex: number; ab
   );
 }
 
-export function TimePill({ group, className }: { group: TimeGroupKey; className?: string }) {
+export function TimePill({ group, className, children }: { group: TimeGroupKey; className?: string; children?: ReactNode }) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium capitalize", className)} style={{ color: timeColor(group), borderColor: `color-mix(in srgb, ${timeColor(group)} 45%, transparent)` }}>
+    <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium", !children && "capitalize", className)} style={{ color: timeColor(group), borderColor: `color-mix(in srgb, ${timeColor(group)} 45%, transparent)` }}>
       <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: timeColor(group) }} />
-      {group}
+      {children ?? group}
     </span>
   );
 }
