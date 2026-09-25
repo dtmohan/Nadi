@@ -2,7 +2,7 @@ import type { Express } from "express";
 import type { Server } from "node:http";
 import { insertChartSchema, type Chart, type ChartResult, type GeoHit } from "@shared/schema";
 import { RULES, evaluate } from "@shared/rules";
-import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nakshatraPeriods, signPeriodsOf, jdToIso, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, shadbalaBase, type EphemerisOptions } from "./ephemeris";
+import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nakshatraPeriods, signPeriodsOf, jdToIso, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, shadbalaBase, sunPath, type EphemerisOptions } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
 import { vimshottari } from "@shared/kp";
 import type { DasaStartTransit } from "@shared/shadbala";
@@ -137,6 +137,23 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     try {
       const { latitude, longitude, timezone, nodeType } = parsed.data;
       res.json(judgementNow(latitude, longitude, timezone, nodeType));
+    } catch (e: any) {
+      res.status(400).json({ message: e.message });
+    }
+  });
+
+  // The Sun's daily sidereal longitude (KP ayanamsa) over a span, for the transit check on event windows
+  const sunPathSchema = z.object({ start: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), end: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) });
+  app.post("/api/kp/sun-path", (req, res) => {
+    const parsed = sunPathSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid request", issues: parsed.error.issues });
+    try {
+      const a = DateTime.fromISO(parsed.data.start, { zone: "utc" }).set({ hour: 12 });
+      const b = DateTime.fromISO(parsed.data.end, { zone: "utc" }).set({ hour: 12 });
+      if (!a.isValid || !b.isValid || b < a) return res.status(400).json({ message: "Bad span" });
+      if (b.diff(a, "years").years > 130) return res.status(400).json({ message: "Span too long" });
+      const path = sunPath(julianDay(a), julianDay(b), { ayanamsa: "kp", nodeType: "mean" });
+      res.json({ start: a.toISODate(), lons: path.map((p) => Math.round(p.lon * 100) / 100) });
     } catch (e: any) {
       res.status(400).json({ message: e.message });
     }

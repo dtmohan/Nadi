@@ -423,6 +423,16 @@
     display: block;
     text-align: left;
   }
+  .table-cards > tbody > tr[data-detail] {
+    margin-top: -0.5rem;
+    border-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  .table-cards > tbody > tr[data-detail] > td {
+    background: transparent;
+    padding: 0.25rem 0 !important;
+  }
   .table-cards > tbody > tr > td:first-child[data-label] {
     font-weight: 500;
     border-bottom: 1px solid hsl(var(--border));

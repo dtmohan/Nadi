@@ -807,7 +807,9 @@ export const KP_SOURCES: Array<{ label: string; note: string; url?: string }> = 
   { label: "Dr. Andrew Dutta (Sri Indrajit), free KP bhava rules", note: "Event rules for the twelve houses, published freely by the author for sharing with acknowledgement; used to cross-check each cusp.", url: DUTTA_URL },
   { label: "Astro Secrets & Krishnamurti Padhdhati, Part 3 (ed. K. Subramaniam), ch. 6", note: "Consolidated cuspal sub-lord rules, pp. 35-59. Practitioner's own copy." },
   { label: "Kalpurush Astrology, KP classes 3.1, 3.2 and 4.1 (Sagar Neogi)", note: "Significator tables; the 1st and 2nd cusp readings. Practitioner's own class notes." },
-  { label: "Astro Secrets & KP Part 1 (other chapters) and Part 2", note: "Planets, the twelve lagnas, profession, ruling planets and timing; to be entered chapter by chapter." },
+  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 2 (K. Subramaniam), timing chapters", note: "Fruitful significators, Method I, and negating houses (pp. 24-25, from KP & Astrology July 1990; p. 148); the sub as the strength of a planet (p. 13); sensitive points and the exciting Sun and Moon (pp. 141-146, 154); timing items 28-32 (pp. 219-220); retrograde delay for ruling planets (p. 128). Drive the event-window drill-down. Practitioner's own copy." },
+  { label: "Astro Secrets & Krishnamurti Padhdhati, Part 1, horary marriage worked example", note: "Eliminating significators in the sub of lords connected only to negating houses, and keeping those that mix needed and negating houses (pp. 263-264, 274)." },
+  { label: "Astro Secrets & KP Part 1 (other chapters) and Part 2", note: "Planets, the twelve lagnas, profession and ruling planets in depth; to be entered chapter by chapter." },
 ];
 
 export const KP_TYPE_LEVEL_LABEL: Record<SignificatorLevel, string> = {

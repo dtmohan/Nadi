@@ -83,6 +83,13 @@ function siderealLon(jd: number, body: number, opts: EphemerisOptions): { lon: n
   return { lon: norm360(r.data[0]), speed: r.data[3] };
 }
 
+/** Sidereal Sun at each day (12:00 UT) from jdStart to jdEnd inclusive. */
+export function sunPath(jdStart: number, jdEnd: number, opts: EphemerisOptions): Array<{ jd: number; lon: number }> {
+  const out: Array<{ jd: number; lon: number }> = [];
+  for (let jd = jdStart; jd <= jdEnd + 1e-6; jd += 1) out.push({ jd, lon: siderealLon(jd, C.SE_SUN, opts).lon });
+  return out;
+}
+
 export function ayanamsaAt(jd: number, opts: EphemerisOptions): number {
   setMode(opts);
   return sweph.get_ayanamsa_ut(jd);

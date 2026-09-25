@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
@@ -8,6 +8,8 @@ import { useJudgePlace } from "@/lib/judge-place";
 import { JudgePlaceControl } from "@/components/judge-place";
 import { PLANET_ABBR, SIGN_ABBR, fmtDegShort, type Planet } from "@shared/astro";
 import { computeKp, significatorMap, jointPeriods, type KpPeriod, type SignificatorLevel } from "@shared/kp";
+import { scoreWindows, sunPeaks, negatingHouses, FRUIT_LABEL, LEVEL_LABEL, type ScoredWindow, type SunSample, type LordCheck, type WindowVerdict } from "@shared/kp-windows";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { KP_RULES, KP_CUSP_THEMES, KP_SOURCES, KP_TYPE_LEVEL_LABEL, type KpFinding } from "@shared/rules-kp";
 import { Working } from "@/components/working";
 import { VerdictCard, type VerdictSignature } from "@/components/verdict-card";
@@ -92,6 +94,106 @@ function PeriodRow({ p, testId, sig }: { p: KpPeriod; testId: string; sig: Map<P
   );
 }
 
+const sunPeakLabel = (a: string, b: string) => {
+  const s = DateTime.fromISO(a);
+  const e = DateTime.fromISO(b);
+  if (s.hasSame(e, "day")) return s.toFormat("d LLL yyyy");
+  if (s.hasSame(e, "month")) return `${s.toFormat("d")}–${e.toFormat("d LLL yyyy")}`;
+  if (s.hasSame(e, "year")) return `${s.toFormat("d LLL")}–${e.toFormat("d LLL yyyy")}`;
+  return `${s.toFormat("d LLL yyyy")}–${e.toFormat("d LLL yyyy")}`;
+};
+
+const VERDICT_STYLE: Record<WindowVerdict, string> = {
+  strong: "border-emerald-700/30 bg-emerald-600/10 text-emerald-800 dark:text-emerald-300",
+  fair: "border-amber-700/30 bg-amber-500/10 text-amber-800 dark:text-amber-300",
+  weak: "border-border bg-muted text-muted-foreground",
+};
+
+function VerdictChip({ verdict, score, max }: { verdict: WindowVerdict; score: number; max: number }) {
+  return (
+    <span className={cn("inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide", VERDICT_STYLE[verdict])} data-testid="kp-window-verdict">
+      {verdict}
+      <span className="font-normal normal-case tabular opacity-80">
+        {score}/{max}
+      </span>
+    </span>
+  );
+}
+
+const ROLE_LABEL: Record<LordCheck["role"], { plain: string; practitioner: string }> = {
+  dasa: { plain: "period", practitioner: "dasa" },
+  bhukti: { plain: "sub-period", practitioner: "bhukti" },
+  antara: { plain: "sub-sub-period", practitioner: "antara" },
+};
+
+/** The drill-down for one window: each lord's grade, its sub lord's verdict, the cuspal promise and the Sun's runs. */
+function WindowDrill({ w, houses, plain, sunState }: { w: ScoredWindow; houses: number[]; plain: boolean; sunState: "loading" | "error" | "ready" }) {
+  const key = plain ? "plain" : "practitioner";
+  return (
+    <div className="space-y-3">
+      <ul className="space-y-2">
+        {w.lords.map((l) => (
+          <li key={l.role} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5" data-testid={`kp-drill-${l.role}`}>
+            <span className="w-24 shrink-0 text-2xs uppercase tracking-wide text-muted-foreground">{ROLE_LABEL[l.role][key]}</span>
+            <PlanetName planet={l.planet} />
+            <span>
+              {plain ? "speaks for" : "signifies"} <Houses houses={l.hits} hilite={houses} /> ({LEVEL_LABEL[l.bestLevel]})
+              {l.negHits.length ? <span className="text-muted-foreground">, {plain ? "also against" : "also negating"} {l.negHits.join(", ")}</span> : null}
+              {l.retrograde ? <span className="text-muted-foreground"> · retrograde (delay, provisional)</span> : null}
+            </span>
+            <span className="hidden text-muted-foreground sm:inline">·</span>
+            <span>
+              {plain ? "stands in the sub of" : "in the sub of"} <PlanetName planet={l.subLord} abbr />{" "}
+              <span className={cn(l.fruit === "fruitful" && "text-emerald-700 dark:text-emerald-300", l.fruit === "denied" && "text-destructive", l.fruit === "mixed" && "text-amber-700 dark:text-amber-300")}>{FRUIT_LABEL[l.fruit][key]}</span>
+              {l.subHits.length || l.subNeg.length ? <span className="text-muted-foreground"> ({[...l.subHits, ...l.subNeg].sort((a, b) => a - b).join(", ")})</span> : null}
+            </span>
+            {l.tenants.length ? <span className="text-muted-foreground">· {plain ? "its stars hold" : "stars tenanted by"} {l.tenants.map((t) => PLANET_ABBR[t]).join(" ")}</span> : null}
+            <span className="ml-auto tabular text-muted-foreground">{l.points}/{l.max}</span>
+          </li>
+        ))}
+        <li className="flex flex-wrap items-baseline gap-x-2" data-testid="kp-drill-cusp">
+          <span className="w-24 shrink-0 text-2xs uppercase tracking-wide text-muted-foreground">{plain ? `${ordinal(w.cusp)} house` : `${ordinal(w.cusp)} cusp`}</span>
+          <span>
+            {plain ? "decided by" : "sub lord"} <PlanetName planet={w.cuspSubLord} abbr />, {w.promised ? (plain ? "which promises the matter" : "signifying the matter: promised") : plain ? "which does not promise the matter" : "not signifying the matter: not promised"}
+          </span>
+          <span className="ml-auto tabular text-muted-foreground">{w.promised ? 2 : 0}/2</span>
+        </li>
+        <li className="flex flex-wrap items-baseline gap-x-2" data-testid="kp-drill-sun">
+          <span className="w-24 shrink-0 text-2xs uppercase tracking-wide text-muted-foreground">Sun</span>
+          <span>
+            {sunState === "loading" ? (
+              <span className="text-muted-foreground">working out the Sun's path…</span>
+            ) : sunState === "error" || !w.sun ? (
+              <span className="text-muted-foreground">Sun transit unavailable</span>
+            ) : w.sun.length ? (
+              <>
+                {plain ? "crosses a zone ruled by these planets on " : "transits the sensitive zone "}
+                {w.sun.map((p, i) => (
+                  <span key={p.start}>
+                    {i > 0 && "; "}
+                    <span className="font-medium text-foreground">{sunPeakLabel(p.start, p.end)}</span>
+                    <span className="text-muted-foreground">
+                      {" "}({[p.via.sign && `${PLANET_ABBR[p.via.sign]} sign`, p.via.star && `${PLANET_ABBR[p.via.star]} star`, p.via.sub && `${PLANET_ABBR[p.via.sub]} sub`].filter(Boolean).join(", ")})
+                    </span>
+                  </span>
+                ))}
+                {plain ? ". The Moon then picks the day." : ". Moon's transit picks the day (Part 2 p. 145)."}
+              </>
+            ) : (
+              <span className="text-muted-foreground">{plain ? "never crosses a zone ruled by two of these planets inside this window" : "no day in the window has the Sun's star and another of its lords among the three"}</span>
+            )}
+          </span>
+        </li>
+      </ul>
+      <p className="text-2xs text-muted-foreground">
+        {plain
+          ? "Grade 1-4 for how the planet speaks, plus 2 to minus 2 for the planet whose sub it stands in, minus 1 when it also speaks against the matter; the house promise adds 2. Strong needs the promise, at least two of the three sub lords speaking for the matter alone, and 13 or more of 20. A sub lord that is silent or speaks only against the matter makes the window weak."
+          : "Points: grade 1-4 by step (A-D), fruit +2 fruitful / +1 mixed / 0 barren / -2 denied, -1 when the lord itself signifies a negating house (provisional); cuspal promise +2. Strong: promised, at least two lords fruitful, 13 or more of 20 (threshold provisional). Weak: any lord barren or denied by its sub lord (Method I, Part 2 p. 24)."}
+      </p>
+    </div>
+  );
+}
+
 export function KpPanel({ result }: { result: ChartResult }) {
   const { chart } = result;
   const { mode } = useReadingMode();
@@ -120,23 +222,54 @@ export function KpPanel({ result }: { result: ChartResult }) {
   const kp = useMemo(() => computeKp(kpBase, result.utc, asOfIso, sixStep), [kpBase, result.utc, asOfIso, sixStep]);
   const sig = useMemo(() => significatorMap(kp, sixStep), [kp, sixStep]);
   const ev = EVENTS.find((e) => e.id === event) ?? EVENTS[0];
-  const allWindows = useMemo(() => jointPeriods(kp.vimshottari, sig, ev.houses, result.utc, asOfIso, 30), [kp.vimshottari, sig, ev, result.utc, asOfIso]);
+  const rawWindows = useMemo(() => jointPeriods(kp.vimshottari, sig, ev.houses, result.utc, asOfIso, 30), [kp.vimshottari, sig, ev, result.utc, asOfIso]);
   const [showPast, setShowPast] = useState(false);
-  const windows = useMemo(() => (showPast ? allWindows : allWindows.filter((w) => !w.past)), [allWindows, showPast]);
-  const pastCount = allWindows.length - allWindows.filter((w) => !w.past).length;
+  // The Sun's daily path over the span the windows cover, for the transit check (Part 2 pp. 143-145, 219-220).
+  const sunSpan = useMemo(() => {
+    if (!rawWindows.length) return null;
+    const earliest = rawWindows.reduce((m, w) => (w.start < m ? w.start : m), rawWindows[0].start).slice(0, 10);
+    const yearAgo = DateTime.fromISO(asOfIso).minus({ years: 1 }).toISODate()!;
+    const a = showPast ? earliest : earliest > yearAgo ? earliest : yearAgo;
+    const b = rawWindows.reduce((m, w) => (w.end > m ? w.end : m), rawWindows[0].end).slice(0, 10);
+    return { start: a, end: b };
+  }, [rawWindows, showPast, asOfIso]);
+  const sunPath = useQuery<SunSample[]>({
+    queryKey: ["kp-sun-path", sunSpan?.start, sunSpan?.end],
+    enabled: Boolean(sunSpan),
+    queryFn: async () => {
+      const r = (await (await apiRequest("POST", "/api/kp/sun-path", sunSpan)).json()) as { start: string; lons: number[] };
+      const d0 = DateTime.fromISO(r.start, { zone: "utc" });
+      return r.lons.map((lon, i) => ({ date: d0.plus({ days: i }).toISODate()!, lon }));
+    },
+    staleTime: 6 * 60 * 60 * 1000,
+  });
+  const allWindows = useMemo<ScoredWindow[]>(() => {
+    const scored = scoreWindows(rawWindows, ev.houses, ev.cusp, kp.planets, kp.cusps, kp.significators, sig);
+    if (!sunPath.data) return scored;
+    return scored.map((w) => ({ ...w, sun: sunPeaks(w, sunPath.data!) }));
+  }, [rawWindows, ev, kp.planets, kp.cusps, kp.significators, sig, sunPath.data]);
+  const [showWeak, setShowWeak] = useState(false);
+  const [openWindow, setOpenWindow] = useState<string | null>(null);
+  const windows = useMemo(() => allWindows.filter((w) => (showPast || !w.past) && (showWeak || w.verdict !== "weak")), [allWindows, showPast, showWeak]);
+  const pastCount = allWindows.filter((w) => w.past && (showWeak || w.verdict !== "weak")).length;
+  const weakCount = allWindows.filter((w) => w.verdict === "weak" && (showPast || !w.past)).length;
+  const strongCount = allWindows.filter((w) => w.verdict === "strong" && !w.past).length;
+  const negating = useMemo(() => negatingHouses(ev.houses), [ev]);
 
   // Shared timeline: the dasas and bhuktis, the joint periods that carry the chosen matter, and the recorded events.
   const tlBands = useMemo(() => vimshottariBands(kp.vimshottari), [kp.vimshottari]);
   const tlWindows = useMemo<TlWindow[]>(
     () =>
-      allWindows.map((w) => ({
-        start: w.start,
-        end: w.end,
-        label: `${ev.label}: ${PLANET_ABBR[w.dasaLord]}–${PLANET_ABBR[w.bhuktiLord]}–${PLANET_ABBR[w.antaraLord]}`,
-        tone: "good" as const,
-        strength: Math.min(1, (w.hits.dasa.length + w.hits.bhukti.length + w.hits.antara.length) / 6),
-      })),
-    [allWindows, ev.label],
+      allWindows
+        .filter((w) => showWeak || w.verdict !== "weak")
+        .map((w) => ({
+          start: w.start,
+          end: w.end,
+          label: `${ev.label}: ${PLANET_ABBR[w.dasaLord]}–${PLANET_ABBR[w.bhuktiLord]}–${PLANET_ABBR[w.antaraLord]} (${w.verdict}, ${w.score}/${w.max})`,
+          tone: w.verdict === "weak" ? ("mixed" as const) : ("good" as const),
+          strength: w.verdict === "strong" ? 1 : w.verdict === "fair" ? 0.55 : 0.3,
+        })),
+    [allWindows, ev.label, showWeak],
   );
   const tlMarks = useMemo(() => eventMarks(chart.events, chart.timezone), [chart.events, chart.timezone]);
 
@@ -546,7 +679,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
         />
         <LifeTimeline className="mt-3" testid="kp-timeline" birthIso={result.utc} asOfIso={asOfIso} bands={tlBands} windows={tlWindows} windowsLabel={ev.label.length > 9 ? "Matter" : ev.label} marks={tlMarks} defaultRange="decade" />
         <p className="mt-1 text-xs text-muted-foreground">{plain ? `${kp.vimshottari.balanceYears.toFixed(2)} years of ${kp.vimshottari.dasas[0].lord}'s period were left at birth. Moon at ${moon.sign} ${fmtDegShort(moon.degInSign)}, ${moon.nakshatra}.` : `Balance at birth: ${kp.vimshottari.balanceYears.toFixed(2)} years of ${kp.vimshottari.dasas[0].lord}. Moon at ${moon.sign} ${fmtDegShort(moon.degInSign)}, ${moon.nakshatra}.`}</p>
-        <p className="mt-1 text-xs text-muted-foreground">{plain ? `The ${ev.label.toLowerCase()} row marks the stretches in the next thirty years when all three running planets speak for the matter's houses; darker where they speak for more of them. Running now: ${cur.dasa.lord}'s period, ${cur.bhukti.lord}'s sub-period (${fmt(cur.dasa.start)} to ${fmt(cur.dasa.end)}).` : `The ${ev.label.toLowerCase()} row marks the joint dasa–bhukti–antara periods of the next thirty years whose lords all signify the matter's houses; darker where more houses are signified. Running: ${cur.dasa.lord} dasa, ${cur.bhukti.lord} bhukti (${fmt(cur.dasa.start)} to ${fmt(cur.dasa.end)}).`}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{plain ? `The ${ev.label.toLowerCase()} row marks the stretches in the next thirty years when all three running planets speak for the matter's houses and pass the checks below; darkest where the window is strong. Running now: ${cur.dasa.lord}'s period, ${cur.bhukti.lord}'s sub-period (${fmt(cur.dasa.start)} to ${fmt(cur.dasa.end)}).` : `The ${ev.label.toLowerCase()} row marks the joint dasa–bhukti–antara periods of the next thirty years whose lords all signify the matter's houses, graded by the checks below; darkest where strong. Running: ${cur.dasa.lord} dasa, ${cur.bhukti.lord} bhukti (${fmt(cur.dasa.start)} to ${fmt(cur.dasa.end)}).`}</p>
         <PlanetLegend className="mt-3" />
 
         <div className="mt-5 flex flex-wrap items-center gap-2 text-xs">
@@ -560,11 +693,30 @@ export function KpPanel({ result }: { result: ChartResult }) {
         <p className="mt-2 text-xs text-muted-foreground" data-testid="text-kp-event-sig">
           Houses {ev.houses.join(", ")} · {plain ? "planets speaking for them" : "significators"}: {planetsFor(ev.houses).length ? planetsFor(ev.houses).map((p) => PLANET_ABBR[p]).join(" ") : "none"} · the {ordinal(ev.cusp)} {plain ? "house is decided by" : "cusp sub lord"}{" "}
           <PlanetName planet={kp.cusps[ev.cusp - 1].subLord} abbr />{plain ? ", which speaks for" : " signifies"} <Houses houses={sig.get(kp.cusps[ev.cusp - 1].subLord) ?? []} hilite={ev.houses} />
+          {" · "}
+          {plain ? "houses that work against it" : "negating houses"} {negating.join(", ")}
+        </p>
+        <ModeText
+          className="mt-2 text-xs text-muted-foreground"
+          plain={<>Each window is then drilled the way a birth time is checked: how strongly each of the three running planets speaks for the matter, whether the planet whose sub it stands in also speaks for it or against it, whether the house itself is promised, and on which days the Sun crosses a zone ruled by those planets. Windows where a running planet stands in the sub of a planet that is silent on the matter, or speaks only against it, are set aside as weak. (Astro Secrets &amp; KP Part 2 pp. 24-25, 143-148, 219-220; Part 1 pp. 263-264.)</>}
+          practitioner={<>Each joint period is drilled as in rectification: the grade of each lord's signification (star of occupant, occupant, star of owner, owner; Part 2 p. 148), whether the lord is a fruitful significator by standing in the sub of a significator of the matter (Method I, Part 2 p. 24; p. 148), whether its sub lord touches the negating houses, the 12th from each house of the matter (Part 2 pp. 24-25; Part 1 pp. 263-264), the cuspal promise, and the Sun's transit through a sensitive zone whose sign, star and sub lords are the window's own lords (Part 2 pp. 143-145, 154, 219-220). A lord whose sub lord is not connected with the matter, or connected only to its negating houses, marks the window weak (Part 2 p. 24). A lord that itself signifies both the matter and a negating house loses a point: Part 2 p. 25 rejects it outright, the Part 1 worked example keeps it (pp. 264, 274), so the weighting is provisional. A retrograde lord is flagged, not scored: the delay rule is stated for horary ruling planets (Part 2 p. 128, p. 220) and is provisional here.</>}
+        />
+        <p className="mt-2 text-xs text-muted-foreground" data-testid="text-kp-window-counts">
+          {strongCount} strong window{strongCount === 1 ? "" : "s"} ahead{windows.length > 100 ? ` · first 100 of ${windows.length} listed` : ""}
+          {sunPath.isPending && sunSpan ? " · Sun transit loading" : sunPath.isError ? " · Sun transit unavailable" : ""}
           {pastCount > 0 && (
             <>
               {" · "}
               <button type="button" className="font-medium underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground" onClick={() => setShowPast((v) => !v)} data-testid="toggle-kp-past-windows">
                 {showPast ? "hide the past windows" : `show ${pastCount} past window${pastCount === 1 ? "" : "s"}`}
+              </button>
+            </>
+          )}
+          {weakCount > 0 && (
+            <>
+              {" · "}
+              <button type="button" className="font-medium underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground" onClick={() => setShowWeak((v) => !v)} data-testid="toggle-kp-weak-windows">
+                {showWeak ? "hide the weak windows" : `show ${weakCount} weak window${weakCount === 1 ? "" : "s"}`}
               </button>
             </>
           )}
@@ -579,14 +731,34 @@ export function KpPanel({ result }: { result: ChartResult }) {
                 <TableHead>From</TableHead>
                 <TableHead className="hidden sm:table-cell">To</TableHead>
                 <TableHead className="text-right">Age</TableHead>
-                <TableHead className="hidden md:table-cell">Houses hit</TableHead>
+                <TableHead>Strength</TableHead>
+                <TableHead className="hidden md:table-cell">Sun agrees</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {windows.slice(0, 60).map((w, i) => (
-                <TableRow key={i} className={cn(w.current && "bg-primary/5", w.past && "text-muted-foreground")} data-testid={`row-kp-window-${i}`}>
+              {windows.slice(0, 100).map((w, i) => {
+                const key = `${w.dasaLord}-${w.bhuktiLord}-${w.antaraLord}-${w.start}`;
+                const open = openWindow === key;
+                return (
+                <Fragment key={key}>
+                <TableRow
+                  className={cn("cursor-pointer", w.current && "bg-primary/5", w.past && "text-muted-foreground", open && "bg-muted/40")}
+                  onClick={() => setOpenWindow(open ? null : key)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setOpenWindow(open ? null : key);
+                    }
+                  }}
+                  tabIndex={0}
+                  aria-expanded={open}
+                  data-testid={`row-kp-window-${i}`}
+                >
                   <TableCell className="py-1.5">
-                    <PlanetName planet={w.dasaLord} abbr />
+                    <span className="inline-flex items-center gap-1">
+                      {open ? <ChevronDown className="h-3 w-3 text-muted-foreground" /> : <ChevronRight className="h-3 w-3 text-muted-foreground" />}
+                      <PlanetName planet={w.dasaLord} abbr />
+                    </span>
                   </TableCell>
                   <TableCell className="py-1.5">
                     <PlanetName planet={w.bhuktiLord} abbr />
@@ -598,16 +770,34 @@ export function KpPanel({ result }: { result: ChartResult }) {
                   <TableCell className="py-1.5 whitespace-nowrap">{fmt(w.start)}</TableCell>
                   <TableCell className="hidden py-1.5 whitespace-nowrap sm:table-cell">{fmt(w.end)}</TableCell>
                   <TableCell className="py-1.5 text-right">{w.ageStart.toFixed(1)}</TableCell>
+                  <TableCell className="py-1.5">
+                    <VerdictChip verdict={w.verdict} score={w.score} max={w.max} />
+                  </TableCell>
                   <TableCell className="hidden py-1.5 text-xs md:table-cell">
-                    {w.hits.dasa.join(",")} · {w.hits.bhukti.join(",")} · {w.hits.antara.join(",")}
+                    {w.sun === undefined ? <span className="text-muted-foreground">…</span> : w.sun.length ? w.sun.slice(0, 3).map((p) => sunPeakLabel(p.start, p.end)).join(" · ") + (w.sun.length > 3 ? ` +${w.sun.length - 3}` : "") : <span className="text-muted-foreground">no run</span>}
                   </TableCell>
                 </TableRow>
-              ))}
+                {open && (
+                  <TableRow className="hover:bg-transparent" data-detail="" data-testid={`row-kp-window-${i}-detail`}>
+                    <TableCell colSpan={8} className="bg-muted/30 px-3 py-3 text-xs">
+                      <WindowDrill w={w} houses={ev.houses} plain={plain} sunState={sunPath.isPending ? "loading" : sunPath.isError ? "error" : "ready"} />
+                    </TableCell>
+                  </TableRow>
+                )}
+                </Fragment>
+                );
+              })}
             </TableBody>
           </Table>
         ) : (
           <p className="mt-3 rounded-md border border-dashed p-4 text-sm text-muted-foreground" data-testid="text-kp-windows-empty">
-            {plain ? `No running or coming period in the next thirty years has all three period planets speaking for houses ${ev.houses.join(", ")}.` : `No running or coming dasa-bhukti-antara in the next thirty years has all three lords among the ${ev.houses.join("-")} significators.`}
+            {allWindows.length
+              ? plain
+                ? `Every window in the next thirty years for houses ${ev.houses.join(", ")} is weak or already past; use the links above to show them.`
+                : `Every joint period in the next thirty years for houses ${ev.houses.join("-")} is weak or past; show them with the links above.`
+              : plain
+                ? `No running or coming period in the next thirty years has all three period planets speaking for houses ${ev.houses.join(", ")}.`
+                : `No running or coming dasa-bhukti-antara in the next thirty years has all three lords among the ${ev.houses.join("-")} significators.`}
           </p>
         )}
 
@@ -680,7 +870,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
             </li>
           ))}
         </ul>
-        <p className="mt-2">Pending: Part 1 ch. 17, the twelve lagnas; profession (chs. 34-35); ruling planets in depth (Part 2); transits; horary.</p>
+        <p className="mt-2">Pending: Part 1 ch. 17, the twelve lagnas; profession (chs. 34-35); ruling planets in depth (Part 2); Jupiter's transit over the sensitive zone (the year) and the Moon's (the day); horary.</p>
       </section>
     </div>
   );
