@@ -22,6 +22,7 @@ import { KpPanel } from "@/components/kp-panel";
 import { ParashariPanel } from "@/components/parashari-panel";
 import { RectifyPanel } from "@/components/rectify-panel";
 import { LifeEventsSection } from "@/components/life-events";
+import { BirthTimeEditor } from "@/components/birth-time-editor";
 import { ValidatePanel } from "@/components/validate-panel";
 import { Timeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -695,9 +696,7 @@ export default function ChartPage() {
           <h1 className="font-display text-xl font-bold tracking-tight" data-testid="text-chart-name">
             {chart.name}
           </h1>
-          <p className="tabular mt-1 text-sm text-muted-foreground" data-testid="text-birth-details">
-            {birthLocal.toFormat("d LLLL yyyy, HH:mm")} · {chart.place}
-          </p>
+          <BirthTimeEditor chart={chart} birthLocal={birthLocal} />
         </div>
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <Badge variant="outline" className="no-default-hover-elevate tabular">

@@ -19,6 +19,7 @@ import { chartsStore, CHARTS_QUERY_KEY } from "@/lib/charts-store";
 import { useToast } from "@/hooks/use-toast";
 import { useJudgePlace } from "@/lib/judge-place";
 import { JudgePlaceControl } from "@/components/judge-place";
+import { setBirthTime } from "@/components/birth-time-editor";
 import { cn } from "@/lib/utils";
 
 /** Rectification methods. One at a time, never blended; each cites its own source. */
@@ -165,17 +166,22 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
     onError: (e: any) => toast({ title: "Could not scan the window", description: e.message, variant: "destructive" }),
   });
 
+  /** Why this interval was chosen, for the notes of the copy or of this chart. */
+  const provenance = (seg: RectifySegment) => {
+    const sc = methodScore(seg, method);
+    const inputs = [
+      m.needsJudge && data ? `judged ${DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from ${data.judgedAt.label}` : "",
+      m.needsEvents && eventPayload.length ? `events ${eventPayload.map((e) => `${e.label} ${e.date}`).join("; ")}` : "",
+    ].filter(Boolean).join("; ");
+    return `by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}`;
+  };
+
   const saveCopy = useMutation({
     mutationFn: async (seg: RectifySegment) => {
       const { id: _id, ...insert } = chart;
       const time = seg.mid;
       const base = chart.name.replace(/\s*\(rectified[^)]*\)\s*$/i, "");
-      const sc = methodScore(seg, method);
-      const inputs = [
-        m.needsJudge && data ? `judged ${DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from ${data.judgedAt.label}` : "",
-        m.needsEvents && eventPayload.length ? `events ${eventPayload.map((e) => `${e.label} ${e.date}`).join("; ")}` : "",
-      ].filter(Boolean).join("; ");
-      return chartsStore.create({ ...insert, name: `${base} (rectified ${time.slice(0, 5)})`, birthTime: time, notes: `${insert.notes ? insert.notes + "\n" : ""}Birth time rectified from ${chart.birthTime} by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}.` });
+      return chartsStore.create({ ...insert, name: `${base} (rectified ${time.slice(0, 5)})`, birthTime: time, notes: `${insert.notes ? insert.notes + "\n" : ""}Birth time rectified from ${chart.birthTime} ${provenance(seg)}.` });
     },
     onSuccess: (c) => {
       queryClient.invalidateQueries({ queryKey: CHARTS_QUERY_KEY });
@@ -184,6 +190,18 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
     },
     onError: (e: any) => toast({ title: "Could not save the copy", description: e.message, variant: "destructive" }),
   });
+
+  /** Change this chart's birth time in place; the id, name and events stay, every tab recomputes. */
+  const useHere = useMutation({
+    mutationFn: async (seg: RectifySegment) => {
+      const c = await setBirthTime(chart, seg.mid, `rectified ${provenance(seg)}`);
+      if (!c) throw new Error("Chart not found in this browser");
+      return c;
+    },
+    onSuccess: (c) => toast({ title: "Birth time updated", description: `${c.name} now reads from ${c.birthTime}; every tab has been recomputed. Scan again to re-mark the given interval.` }),
+    onError: (e: any) => toast({ title: "Could not change the birth time", description: e.message, variant: "destructive" }),
+  });
+  const busy = saveCopy.isPending || useHere.isPending;
 
   const data = scan.data;
   const scored = useMemo(() => (data ? data.segments.map((s, i) => ({ s, i, ...methodScore(s, method) })) : []), [data, method]);
@@ -223,8 +241,8 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
       <SectionTitle as="h2" plain="Checking the birth time" technical="Birth time rectification" term="kp-rectification" className="text-base" />
       <ModeText
         className="text-sm"
-        plain={<>Recorded birth times are often a few minutes off, and a few minutes can change the planet that decides the rising degree. The minutes around the recorded time {chart.birthTime} are cut into slices wherever that deciding planet, its star ruler or the rising sign changes, and each slice is scored by one method at a time; the methods are never blended. One scan serves every method. Saving a slice makes a copy of the chart at that time and leaves this one untouched.</>}
-        practitioner={<>The window around the recorded time {chart.birthTime} is cut at every change of the lagna's sign, star and sub lord, and each interval is scored by the method you choose. One scan serves every method; switch between them without scanning again. Saving an interval makes a copy of the chart at that time and leaves this one untouched.</>}
+        plain={<>Recorded birth times are often a few minutes off, and a few minutes can change the planet that decides the rising degree. The minutes around the recorded time {chart.birthTime} are cut into slices wherever that deciding planet, its star ruler or the rising sign changes, and each slice is scored by one method at a time; the methods are never blended. One scan serves every method. Use here moves this chart to that time, keeping its name and life events; Save makes a copy at that time and leaves this one untouched.</>}
+        practitioner={<>The window around the recorded time {chart.birthTime} is cut at every change of the lagna's sign, star and sub lord, and each interval is scored by the method you choose. One scan serves every method; switch between them without scanning again. Use here moves this chart to that interval's midpoint, keeping its name and events; Save makes a copy at that time and leaves this one untouched.</>}
       />
 
       <div role="tablist" aria-label="Rectification method" className="mt-3 inline-flex flex-wrap rounded-md border p-0.5 text-xs">
@@ -332,7 +350,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
 
           {method === "jaimini-dasha" && (
             <div className="mt-2 overflow-x-auto">
-              <Table className="text-[11px] leading-5 [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
+              <Table className="text-[11px] leading-5 [&_button]:[word-spacing:0.2em] [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="whitespace-nowrap">Rising</TableHead>
@@ -384,9 +402,14 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                           {g.given ? (
                             <span className="text-muted-foreground">recorded sign</span>
                           ) : g.nearest !== null ? (
-                            <button type="button" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50" title={`Saves the interval of this sign nearest the recorded time, ${data.segments[g.nearest].start} to ${data.segments[g.nearest].end}`} onClick={() => saveCopy.mutate(data.segments[g.nearest!])} disabled={saveCopy.isPending} data-testid={`button-rectify-save-sign-${g.first}`}>
-                              Save nearest
-                            </button>
+                            <>
+                              <button type="button" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50" title={`Moves this chart to the interval of this sign nearest the recorded time, ${data.segments[g.nearest].start} to ${data.segments[g.nearest].end}`} onClick={() => useHere.mutate(data.segments[g.nearest!])} disabled={busy} data-testid={`button-rectify-use-sign-${g.first}`}>
+                                Use nearest here
+                              </button>
+                              <button type="button" className="ml-2 underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50" title={`Saves a copy at the interval of this sign nearest the recorded time, ${data.segments[g.nearest].start} to ${data.segments[g.nearest].end}`} onClick={() => saveCopy.mutate(data.segments[g.nearest!])} disabled={busy} data-testid={`button-rectify-save-sign-${g.first}`}>
+                                Save nearest
+                              </button>
+                            </>
                           ) : null}
                         </TableCell>
                       </TableRow>
@@ -395,14 +418,14 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                 </TableBody>
               </Table>
               <p className="mt-2 text-xs text-muted-foreground">
-                Jaimini settles the sign; pick the minute inside it with a KP method. Save nearest copies the chart at the {plain ? "slice" : "interval"} of that sign closest to the recorded time.
+                Jaimini settles the sign; pick the minute inside it with a KP method. Use nearest here moves this chart to the {plain ? "slice" : "interval"} of that sign closest to the recorded time; Save nearest makes a copy there.
               </p>
             </div>
           )}
 
           {method !== "jaimini-dasha" && (
           <div className="mt-2 overflow-x-auto">
-            <Table className="text-[11px] leading-5 [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
+            <Table className="text-[11px] leading-5 [&_button]:[word-spacing:0.2em] [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
               <TableHeader>
                 <TableRow>
                   <TableHead className="whitespace-nowrap">{plain ? "Slice" : "Interval"}</TableHead>
@@ -523,9 +546,14 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                           {open === i ? "Hide" : plain ? "Houses" : "Cusps"}
                         </button>
                         {!s.given && (
-                          <button type="button" className="ml-2 underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50" onClick={() => saveCopy.mutate(s)} disabled={saveCopy.isPending} data-testid={`button-rectify-save-${i}`}>
-                            Save
-                          </button>
+                          <>
+                            <button type="button" className="ml-2 underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50" title={`Moves this chart to ${s.mid}`} onClick={() => useHere.mutate(s)} disabled={busy} data-testid={`button-rectify-use-${i}`}>
+                              Use here
+                            </button>
+                            <button type="button" className="ml-2 underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50" title={`Saves a copy of the chart at ${s.mid}`} onClick={() => saveCopy.mutate(s)} disabled={busy} data-testid={`button-rectify-save-${i}`}>
+                              Save copy
+                            </button>
+                          </>
                         )}
                       </TableCell>
                     </TableRow>
