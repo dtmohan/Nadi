@@ -10,6 +10,7 @@ import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
 import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
 import { DateTime } from "luxon";
 import { buildChartPdf } from "./pdf";
+import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
 import { validateEvents } from "./validate";
 import { z } from "zod";
@@ -46,7 +47,8 @@ export function computeChart(chart: Chart): ChartResult {
   } catch {
     special = undefined;
   }
-  const jaimini = computeJaimini(positions, ascendantAt(jd, chart.latitude, chart.longitude, opts), utc.toISO()!, special);
+  const asc = ascendantAt(jd, chart.latitude, chart.longitude, opts);
+  const jaimini = computeJaimini(positions, asc, utc.toISO()!, special);
   const result: ChartResult = {
     chart,
     utc: utc.toISO()!,
@@ -61,6 +63,7 @@ export function computeChart(chart: Chart): ChartResult {
     shadbala: shadbalaBase(jd, chart.latitude, chart.longitude, opts),
     dasaStarts: dasaStartTransits(positions.find((p) => p.planet === "Moon")!.lon, utc.toISO()!, opts),
     saturnNakshatras: nakshatraPeriods("Saturn", jd, endJd, opts),
+    fatherArishta: fatherArishtaWindows(positions, Math.floor((asc % 360) / 30), transits, opts),
   };
   resultCache.set(key, result);
   if (resultCache.size > 200) resultCache.delete(resultCache.keys().next().value!);

@@ -2,6 +2,7 @@ import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import type * as z from "zod/mini";
 import type { PlanetPosition, TransitPeriod, NakshatraPeriod } from "./astro";
+import type { FatherArishtaWindow } from "./father-arishta";
 import type { Reading } from "./rules";
 import type { JaiminiResult } from "./jaimini";
 import type { KpBase } from "./kp";
@@ -56,6 +57,8 @@ export interface ChartResult {
   dasaStarts?: DasaStartTransit[];
   /** Saturn's nakshatra ingresses from birth to 100 years, for the Ashtakavarga transit points of BPHS ch. 70. */
   saturnNakshatras?: NakshatraPeriod[];
+  /** Saturn passages over the father's Ashtakavarga point with Rahu, Saturn or Mars in the 4th from the Sun, BPHS 70.12-14. */
+  fatherArishta?: FatherArishtaWindow[];
 }
 
 export interface GeoHit {

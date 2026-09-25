@@ -3,6 +3,7 @@ import { DateTime } from "luxon";
 import { NAKSHATRAS, type Planet } from "@shared/astro";
 import { CONTRIBUTORS } from "@shared/ashtakavarga";
 import type { AvTimeline, AvTransitRow, AvNakshatraRow, AvTone } from "@shared/av-transit";
+import { FATHER_ARISHTA_CAVEATS, type FatherArishtaReading, type ArishtaLevel } from "@shared/father-arishta";
 import { SignName, PlanetName, planetColor } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,46 @@ const TONE_LABEL: Record<AvTone, string> = { support: "favourable", strain: "unf
 const BAND_PILL: Record<AvTransitRow["band"], string> = { favourable: TONE_PILL.support, medium: TONE_PILL.mixed, adverse: TONE_PILL.strain };
 
 type Range = "around" | "life";
+
+const LEVEL_PILL: Record<ArishtaLevel, string> = { watch: TONE_PILL.mixed, grave: TONE_PILL.strain, averted: TONE_PILL.support };
+const LEVEL_LABEL: Record<ArishtaLevel, string> = { watch: "to watch", grave: "grave", averted: "averted by dasa" };
+const LEVEL_BORDER: Record<ArishtaLevel, string> = { watch: TONE_BORDER.mixed, grave: TONE_BORDER.strain, averted: TONE_BORDER.support };
+
+function ArishtaRow({ r, open, toggle }: { r: FatherArishtaReading; open: boolean; toggle: () => void }) {
+  return (
+    <li className={cn("rounded-md border border-l-4 bg-card text-xs", LEVEL_BORDER[r.level], r.current && "ring-1 ring-primary/40")} data-testid={`av-arishta-${r.start.slice(0, 10)}`}>
+      <button type="button" className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-3 py-1.5 text-left" onClick={toggle} aria-expanded={open}>
+        <span className="min-w-[11.5rem] shrink-0 whitespace-nowrap tabular-nums text-muted-foreground">
+          {fmtD(r.start)} – {fmtD(r.end)}
+        </span>
+        <span className="flex items-center gap-1 text-sm">
+          Saturn in <SignName signIndex={r.saturnSignIndex} />
+          <span className="text-[10px] text-muted-foreground">({r.pointKind === "sign" ? "father's point" : "trine"})</span>
+        </span>
+        <span className="flex flex-wrap items-center gap-1">
+          {r.fourthFromSun.map((p) => (
+            <PlanetName key={p} planet={p} abbr />
+          ))}
+          <span className="text-[10px] text-muted-foreground">in 4th from Sun</span>
+        </span>
+        {r.current && <span className="rounded bg-primary/10 px-1 text-[10px] font-medium text-primary">now</span>}
+        <span className={cn("ml-auto rounded px-1.5 py-0.5 text-[11px] font-medium", LEVEL_PILL[r.level])}>{LEVEL_LABEL[r.level]}</span>
+      </button>
+      {open && (
+        <div className="border-t px-3 py-2 text-xs" data-testid={`av-arishta-notes-${r.start.slice(0, 10)}`}>
+          <p>
+            Age {r.age}. {r.text}
+          </p>
+          <p className="mt-1 flex flex-wrap gap-x-2 text-muted-foreground">
+            {r.sources.map((s) => (
+              <SourceLink key={s.label} source={s} />
+            ))}
+          </p>
+        </div>
+      )}
+    </li>
+  );
+}
 
 /** Eight boxes, one per contributor in the fixed order Sun to Saturn then lagna; filled where that contributor gave a rekha. */
 function RekhaMarks({ givers, owner }: { givers: string[]; owner: Planet }) {
@@ -107,7 +148,7 @@ function NakRow({ r }: { r: AvNakshatraRow }) {
   );
 }
 
-export function AvTimelineSection({ tl, asOfIso }: { tl: AvTimeline; asOfIso: string }) {
+export function AvTimelineSection({ tl, asOfIso, arishta }: { tl: AvTimeline; asOfIso: string; arishta?: FatherArishtaReading[] }) {
   const [planet, setPlanet] = useState<"Saturn" | "Jupiter">("Saturn");
   const [range, setRange] = useState<Range>("around");
   const [open, setOpen] = useState<string | null>(null);
@@ -122,6 +163,9 @@ export function AvTimelineSection({ tl, asOfIso }: { tl: AvTimeline; asOfIso: st
   };
   const rows = useMemo(() => (planet === "Saturn" ? tl.saturn : tl.jupiter).filter((r) => inRange(r.start, r.end)), [planet, range, tl, asOfIso]);
   const naks = useMemo(() => tl.saturnNakshatras.filter((r) => inRange(r.start, r.end)), [range, tl, asOfIso, planet]);
+  const arishtaRows = useMemo(() => (arishta ?? []).filter((r) => inRange(r.start, r.end)), [range, arishta, asOfIso, planet]);
+  const [openArishta, setOpenArishta] = useState<string | null>(null);
+  const [arishtaCaveats, setArishtaCaveats] = useState(false);
   const src = tl.sources;
 
   return (
@@ -187,6 +231,32 @@ export function AvTimelineSection({ tl, asOfIso }: { tl: AvTimeline; asOfIso: st
             </ul>
           ) : (
             <p className="mt-2 rounded-md border border-dashed px-3 py-3 text-xs text-muted-foreground">Saturn's nakshatra ingresses are computed when a chart is cast; reopen this chart to see them.</p>
+          )}
+
+          <h4 className="mt-6 text-sm font-semibold">Father's point under Saturn</h4>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Windows when Saturn crosses the father's sign point or a trine of it while Rahu, Saturn or Mars stand in the 4th from the natal Sun (70.12). The threat matures if Saturn, joined or aspected by a
+            malefic, is in the 9th from the lagna or the Moon, or the dasa of the 4th lord runs (70.13); a favourable dasa averts it (70.14).
+          </p>
+          {arishta ? (
+            <ul className="mt-2 space-y-1.5" data-testid="av-timeline-arishta">
+              {arishtaRows.map((r) => (
+                <ArishtaRow key={r.start} r={r} open={openArishta === r.start} toggle={() => setOpenArishta((v) => (v === r.start ? null : r.start))} />
+              ))}
+              {arishtaRows.length === 0 && <li className="rounded-md border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">No 70.12 window in this range.</li>}
+            </ul>
+          ) : (
+            <p className="mt-2 rounded-md border border-dashed px-3 py-3 text-xs text-muted-foreground">These windows are computed when a chart is cast; reopen this chart to see them.</p>
+          )}
+          <button className="mt-2 text-xs text-muted-foreground underline underline-offset-2" onClick={() => setArishtaCaveats((v) => !v)} data-testid="av-timeline-arishta-caveats">
+            {arishtaCaveats ? "Hide" : "Show"} how 70.12-14 was applied ({FATHER_ARISHTA_CAVEATS.length} notes)
+          </button>
+          {arishtaCaveats && (
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+              {FATHER_ARISHTA_CAVEATS.map((c, i) => (
+                <li key={i}>{c}</li>
+              ))}
+            </ul>
           )}
 
           <h4 className="mt-6 text-sm font-semibold">Years to watch</h4>

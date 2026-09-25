@@ -148,6 +148,42 @@ export function transitPeriods(planet: "Jupiter" | "Saturn", jdStart: number, jd
   return periods;
 }
 
+/** Sign-ingress periods for any planet between two Julian days (step chosen by speed; Ketu is Rahu plus six signs). */
+export function signPeriodsOf(planet: Planet, jdStart: number, jdEnd: number, opts: EphemerisOptions): { signIndex: number; start: number; end: number }[] {
+  const body = BODY[planet];
+  const step = planet === "Moon" ? 0.25 : planet === "Sun" || planet === "Mercury" || planet === "Venus" ? 1 : planet === "Mars" ? 2 : 5;
+  const signAt = (jd: number) => {
+    let lon = siderealLon(jd, body, opts).lon;
+    if (planet === "Ketu") lon = norm360(lon + 180);
+    return signOf(lon);
+  };
+  const out: { signIndex: number; start: number; end: number }[] = [];
+  let t0 = jdStart;
+  let s0 = signAt(t0);
+  let periodStart = jdStart;
+  while (t0 < jdEnd) {
+    const t1 = Math.min(t0 + step, jdEnd);
+    const s1 = signAt(t1);
+    if (s1 !== s0) {
+      let lo = t0;
+      let hi = t1;
+      while (hi - lo > 1e-4) {
+        const mid = (lo + hi) / 2;
+        if (signAt(mid) === s0) lo = mid;
+        else hi = mid;
+      }
+      out.push({ signIndex: s0, start: periodStart, end: hi });
+      periodStart = hi;
+      s0 = s1;
+    }
+    t0 = t1;
+  }
+  out.push({ signIndex: s0, start: periodStart, end: jdEnd });
+  return out;
+}
+
+export const isoToJd = (iso: string) => julianDay(DateTime.fromISO(iso, { zone: "utc" }));
+
 /** Nakshatra-ingress periods for a slow planet between two Julian days (27 equal divisions of 13°20'). */
 export function nakshatraPeriods(planet: "Jupiter" | "Saturn", jdStart: number, jdEnd: number, opts: EphemerisOptions): NakshatraPeriod[] {
   const body = BODY[planet];
