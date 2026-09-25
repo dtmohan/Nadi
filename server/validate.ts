@@ -28,7 +28,7 @@ import { norm360, PLANETS, SIGNS, type Planet, type PlanetPosition } from "@shar
 import { kpPoint, houseOf, computeSignificators, vimshottari, NODES_KP, type KpCusp, type KpPlanet } from "@shared/kp";
 import type { InsertChart } from "@shared/schema";
 import { bnnKarakasFor, effectiveOutcome, matterOf, sanitiseEvents } from "@shared/events";
-import type { BnnContact, BnnFit, EventValidation, Nature, PlanetTally, ValidationResult } from "@shared/validate-types";
+import type { BnnContact, BnnFit, CuspFilter, EventValidation, Nature, PlanetTally, ValidationResult } from "@shared/validate-types";
 import { evaluate, rolesFor } from "@shared/rules";
 import type { Gender } from "@shared/marriage";
 import type { TransitCheck } from "@shared/rectify-types";
@@ -104,6 +104,23 @@ export function validateEvents(chart: InsertChart): ValidationResult {
     const cuspSubLord = cusps[m.cusp - 1].subLord;
     const cuspSignified = (sig.get(cuspSubLord) ?? []).filter((h) => houses.includes(h));
     const promised = cuspSignified.length > 0;
+    // Cusp filter (Part 3 ch. 5 pp. 27-34; Part 2 ch. 7 pp. 52-54): a period lord moves, for each house it
+    // signifies, only what the sub lord of that house's cusp signifies. A hit house whose cusp sub lord
+    // signifies none of the matter's houses is diverted elsewhere; one whose cusp sub lord signifies the
+    // 12th from that house (and not the house) is denied. A lord counts as effective when at least one of
+    // its hit houses survives the filter.
+    const filterHouses = (hs: number[]) =>
+      hs.map((h) => {
+        const sl = cusps[h - 1].subLord;
+        const delivers = sig.get(sl) ?? [];
+        const twelfth = ((h + 10) % 12) + 1;
+        const kept = delivers.some((d) => houses.includes(d));
+        const denied = !kept && delivers.includes(twelfth) && !delivers.includes(h);
+        return { house: h, cuspSubLord: sl, delivers, kept, denied };
+      });
+    const filtered = signified.map(filterHouses) as [CuspFilter[], CuspFilter[], CuspFilter[]];
+    const effective = filtered.map((f) => f.some((x) => x.kept)) as [boolean, boolean, boolean];
+    const deniedAtCusp = !promised && (sig.get(cuspSubLord) ?? []).includes(((m.cusp + 10) % 12) + 1);
     const dayPositions = positionsAt(julianDay(evDt.toUTC()), opts);
     const transitOf = (planet: Planet): TransitCheck => {
       const lon = dayPositions.find((p) => p.planet === planet)?.lon ?? 0;
@@ -168,7 +185,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       outcome: effectiveOutcome(e),
       houses,
       cusp: m.cusp,
-      kp: { dasa: lords[0], bhukti: lords[1], antara: lords[2], hits, signified, cuspSubLord, promised, cuspSignified, transit: { dasa: tDasa, bhukti: tBhukti, score: tScore, max: 6 }, score, max: 4, verdict },
+      kp: { dasa: lords[0], bhukti: lords[1], antara: lords[2], hits, signified, cuspSubLord, promised, cuspSignified, filtered, effective, deniedAtCusp, transit: { dasa: tDasa, bhukti: tBhukti, score: tScore, max: 6 }, score, max: 4, verdict },
       jaimini: fit ? { ...fit, mdSignName: SIGNS[fit.mdSign], adSignName: SIGNS[fit.adSign] } : null,
       bnn,
     };
@@ -195,10 +212,20 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       }
     }
     const expected = natureOf(good.length, evil.length);
+    // Through the cusps (Part 3 ch. 5 pp. 27-34; Part 2 ch. 7 pp. 53-54): the sub lord of a cusp is the
+    // barometer of that house, and a period lord can give of a house only what that sub lord signifies.
+    const deliversFor = (h: number) => sig.get(cusps[h - 1].subLord) ?? [];
+    // Read literally (Part 3 ch. 5 p. 34): the planet delivers, for each house it signifies, the houses the
+    // sub lord of that cusp signifies; its effective portfolio is the union of those deliveries.
+    const delivered = Array.from(new Set(signifies.flatMap(deliversFor))).sort((x, y) => x - y);
+    const goodKept = delivered.filter((h) => GOOD_HOUSES.includes(h));
+    const evilKept = delivered.filter((h) => EVIL_HOUSES.includes(h));
+    const expectedByCusp = natureOf(goodKept.length, evilKept.length);
     const observed: Nature = ran.length === 0 ? "unknown" : natureOf(fav, unf);
     const decided = (n: Nature) => n === "benefic" || n === "malefic";
     const agrees = decided(expected) && decided(observed) ? expected === observed : null;
-    return { planet, signifies, good, evil, expected, ran, favourable: fav, unfavourable: unf, mixed: mix, observed, agrees };
+    const agreesByCusp = decided(expectedByCusp) && decided(observed) ? expectedByCusp === observed : null;
+    return { planet, signifies, good, evil, expected, goodKept, evilKept, expectedByCusp, ran, favourable: fav, unfavourable: unf, mixed: mix, observed, agrees, agreesByCusp };
   });
 
   const lagnaLon = cuspLons[0];
@@ -225,6 +252,9 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       bnnStrong: out.filter((e) => e.bnn.verdict === "strong").length,
       agree: tallies.filter((t) => t.agrees === true).length,
       conflict: tallies.filter((t) => t.agrees === false).length,
+      agreeByCusp: tallies.filter((t) => t.agreesByCusp === true).length,
+      conflictByCusp: tallies.filter((t) => t.agreesByCusp === false).length,
+      diverted: out.reduce((n, e) => n + e.kp.hits.filter((h, i) => h && !e.kp.effective[i]).length, 0),
     },
   };
 }

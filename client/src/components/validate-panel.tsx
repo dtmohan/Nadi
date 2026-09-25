@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, type Planet } from "@shared/astro";
-import type { BnnContact, BnnFit, EventValidation, Nature, PlanetTally, ValidationResult } from "@shared/validate-types";
+import type { BnnContact, BnnFit, EventValidation, Nature, PlanetTally, ValidationResult, CuspFilter } from "@shared/validate-types";
 import type { TransitCheck } from "@shared/rectify-types";
 import type { EventOutcome } from "@shared/events";
 import { RAO_SOURCE } from "@shared/jaimini-areas";
@@ -63,9 +63,12 @@ function NatureBadge({ nature }: { nature: Nature }) {
   );
 }
 
-function Lord({ planet, on, houses, role }: { planet: Planet; on: boolean; houses: number[]; role: string }) {
+function Lord({ planet, on, houses, role, filtered, effective }: { planet: Planet; on: boolean; houses: number[]; role: string; filtered: CuspFilter[]; effective: boolean }) {
+  const diverted = on && !effective;
+  const cuspNote = filtered.map((f) => `${f.house}: cusp sub lord ${f.cuspSubLord} signifies ${f.delivers.join(", ") || "nothing"}${f.kept ? "" : f.denied ? " (denied: the 12th from it)" : " (diverted)"}`).join("; ");
+  const title = `${role} ${planet}: ${on ? `signifies ${houses.join(", ")}` : "signifies none of the matter's houses"}${on ? `. Through the cusps, ${cuspNote}` : ""}${diverted ? ". Every hit is diverted by its cusp sub lord (Part 3 ch. 5; Part 2 ch. 7)" : ""}`;
   return (
-    <span className="inline-flex items-center gap-1" title={`${role} ${planet}: ${on ? `signifies ${houses.join(", ")}` : "signifies none of the matter's houses"}`}>
+    <span className={cn("inline-flex items-center gap-1", diverted && "line-through decoration-primary/60")} title={title} data-diverted={diverted || undefined}>
       <Mark on={on} />
       <PlanetName planet={planet} abbr tone />
     </span>
@@ -213,8 +216,9 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                 {v.summary.bnnStrong} strong
               </span>
             </span>
-            <span className="text-muted-foreground">
-              Planets: {v.summary.agree} as expected, {v.summary.conflict} against expectation
+            <span className="text-muted-foreground" title="By the houses each planet signifies, then by what the sub lords of those cusps let it deliver.">
+              Planets: {v.summary.agree} as expected, {v.summary.conflict} against, by houses; {v.summary.agreeByCusp} and {v.summary.conflictByCusp} through the cusps
+              {v.summary.diverted > 0 ? `; ${v.summary.diverted} period-lord ${v.summary.diverted === 1 ? "hit" : "hits"} diverted` : ""}
             </span>
           </div>
 
@@ -223,7 +227,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
               <TableHeader>
                 <TableRow>
                   <TableHead className="whitespace-nowrap">Event</TableHead>
-                  <TableHead className="whitespace-nowrap" title="Dasa, bhukti and antara lords running that day; a green mark means the lord signifies one of the matter's houses (four-step).">
+                  <TableHead className="whitespace-nowrap" title="Dasa, bhukti and antara lords running that day; a green mark means the lord signifies one of the matter's houses (four-step). A struck-through lord signifies the matter but the sub lords of those cusps carry it elsewhere (Part 3 ch. 5; Part 2 ch. 7).">
                     KP period lords
                   </TableHead>
                   <TableHead className="whitespace-nowrap" title="Sub lord of the matter's cusp; green when it signifies one of the matter's houses, so the matter is promised.">
@@ -255,13 +259,13 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <Lord planet={e.kp.dasa} on={e.kp.hits[0]} houses={e.kp.signified[0]} role="Dasa" />
-                        <Lord planet={e.kp.bhukti} on={e.kp.hits[1]} houses={e.kp.signified[1]} role="Bhukti" />
-                        <Lord planet={e.kp.antara} on={e.kp.hits[2]} houses={e.kp.signified[2]} role="Antara" />
+                        <Lord planet={e.kp.dasa} on={e.kp.hits[0]} houses={e.kp.signified[0]} role="Dasa" filtered={e.kp.filtered[0]} effective={e.kp.effective[0]} />
+                        <Lord planet={e.kp.bhukti} on={e.kp.hits[1]} houses={e.kp.signified[1]} role="Bhukti" filtered={e.kp.filtered[1]} effective={e.kp.effective[1]} />
+                        <Lord planet={e.kp.antara} on={e.kp.hits[2]} houses={e.kp.signified[2]} role="Antara" filtered={e.kp.filtered[2]} effective={e.kp.effective[2]} />
                       </div>
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
-                      <span className="inline-flex items-center gap-1" title={`Cusp ${e.cusp} sub lord ${e.kp.cuspSubLord}: ${e.kp.promised ? `signifies ${e.kp.cuspSignified.join(", ")}` : "signifies none of the matter's houses"}`}>
+                      <span className="inline-flex items-center gap-1" title={`Cusp ${e.cusp} sub lord ${e.kp.cuspSubLord}: ${e.kp.promised ? `signifies ${e.kp.cuspSignified.join(", ")}` : e.kp.deniedAtCusp ? `signifies none of the matter's houses and does signify the 12th from the cusp: the matter is denied even in a fitting period (Part 3 ch. 5 p. 28)` : "signifies none of the matter's houses"}`} data-denied={e.kp.deniedAtCusp || undefined}>
                         <Mark on={e.kp.promised} />
                         <span className="text-muted-foreground">{e.cusp}</span>
                         <PlanetName planet={e.kp.cuspSubLord} abbr tone />
@@ -306,7 +310,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
           </h3>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
             KP does not call a planet benefic or malefic by name: a planet tied to houses 6, 8 or 12 gives harm in its periods and one tied to 2, 3, 10 or 11 gives gain, whatever its natural character. The expectation below is read from the houses each
-            planet signifies; the observation is the outcome of the events that fell in its dasa or bhukti (weight 2) or antara (weight 1).
+            planet signifies; the observation is the outcome of the events that fell in its dasa or bhukti (weight 2) or antara (weight 1). The second expectation reads the same houses through their cusps: a planet moves, for each house it signifies, only what the sub lord of that
+            house's cusp signifies, so its effective portfolio is the union of those deliveries (Part 3 ch. 5 pp. 27-34; Part 2 ch. 7 pp. 52-54). Where the two expectations differ, the events say which the chart follows.
           </p>
           <div className="mt-3 overflow-x-auto rounded-md border">
             <Table className="text-xs" data-testid="validate-planets">
@@ -316,13 +321,16 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                   <TableHead className="whitespace-nowrap" title="Houses the planet signifies (four-step); 2, 3, 10, 11 favourable and 6, 8, 12 harmful are marked.">
                     Signifies
                   </TableHead>
-                  <TableHead className="whitespace-nowrap">KP expects</TableHead>
+                  <TableHead className="whitespace-nowrap" title="From the houses the planet signifies.">By houses</TableHead>
+                  <TableHead className="whitespace-nowrap" title="From what the sub lords of those cusps let the planet deliver (Part 3 ch. 5; Part 2 ch. 7).">
+                    Through cusps
+                  </TableHead>
                   <TableHead className="whitespace-nowrap">Ran at</TableHead>
                   <TableHead className="whitespace-nowrap" title="Weighted outcomes: favourable / unfavourable / mixed.">
                     Tally
                   </TableHead>
                   <TableHead className="whitespace-nowrap">Observed</TableHead>
-                  <TableHead className="whitespace-nowrap">Agree</TableHead>
+                  <TableHead className="whitespace-nowrap" title="Left mark: by houses. Right mark: through the cusps.">Agree</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -335,7 +343,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
 
           <p className="mt-4 max-w-3xl text-xs text-muted-foreground" data-testid="validate-sources">
             KP period lords and cusp promise: Astro Secrets & KP Part 1, pp. 167-172; transit of the period lords on the day: Part 2, p. 203; planets turned benefic or malefic by their houses: Part 1, pp. 17-19 (the four-step significators stand in for
-            "lord of, or in the star of the lord of" in the text). Jaimini: <SourceLink source={RAO_SOURCE} />. Nadi transit: Jupiter is the timer and Saturn the second hand (R.G. Rao, Bhrigu Nandi Nadi; Naik on the female Deha); the karakas are the matter's own (Venus or Mars for the spouse, Saturn for work, Sun for the father, Rahu for foreign places), contact is by sign, trine or the 7th, and the count from the natal Jeeva follows the BNN tab. Strong needs 4 of 6. A confirmed verdict needs the cusp promise and
+            "lord of, or in the star of the lord of" in the text); the cusp sub lord as the limit of what a period lord can give, and its denial when it signifies the 12th from the cusp: Part 3, ch. 5, pp. 27-34, and Part 2, ch. 7, pp. 52-54. Jaimini: <SourceLink source={RAO_SOURCE} />. Nadi transit: Jupiter is the timer and Saturn the second hand (R.G. Rao, Bhrigu Nandi Nadi; Naik on the female Deha); the karakas are the matter's own (Venus or Mars for the spouse, Saturn for work, Sun for the father, Rahu for foreign places), contact is by sign, trine or the 7th, and the count from the natal Jeeva follows the BNN tab. Strong needs 4 of 6. A confirmed verdict needs the cusp promise and
             both dasa and bhukti lords signifying; partial means something links; missed means nothing does. A poor score across several events points to the birth time rather than to the events: take it to the Rectify tab.
           </p>
         </div>
@@ -368,10 +376,20 @@ function PlanetRow({ t, fmtDate }: { t: PlanetTally; fmtDate: (d: string) => str
       <TableCell>
         <NatureBadge nature={t.expected} />
       </TableCell>
-      <TableCell className="max-w-[18rem]">
+      <TableCell className="whitespace-nowrap" title={`Delivers ${[...t.goodKept, ...t.evilKept].sort((a, b) => a - b).join(", ") || "none of the marked houses"} through the sub lords of its cusps`}>
+        <span className="inline-flex items-center gap-1.5">
+          <NatureBadge nature={t.expectedByCusp} />
+          <span className="tabular text-muted-foreground">
+            {t.goodKept.length > 0 && <span className="text-emerald-700 dark:text-emerald-400">{t.goodKept.join(",")}</span>}
+            {t.goodKept.length > 0 && t.evilKept.length > 0 && " "}
+            {t.evilKept.length > 0 && <span className="text-primary">{t.evilKept.join(",")}</span>}
+          </span>
+        </span>
+      </TableCell>
+      <TableCell className="min-w-[13rem] max-w-[19rem] whitespace-normal leading-5">
         {t.ran.length === 0 && <span className="text-muted-foreground">no saved event in its periods</span>}
         {t.ran.map((r, i) => (
-          <span key={`${r.eventId}-${r.level}`} title={`${r.level} lord at ${r.label}, ${fmtDate(r.date)} (${OUTCOME_LABEL[r.outcome]})`} className="whitespace-nowrap">
+          <span key={`${r.eventId}-${r.level}`} title={`${r.level} lord at ${r.label}, ${fmtDate(r.date)} (${OUTCOME_LABEL[r.outcome]})`}>
             {i > 0 ? " · " : ""}
             <span className="text-muted-foreground">{lvl[r.level]}</span> {r.label}
           </span>
@@ -383,8 +401,11 @@ function PlanetRow({ t, fmtDate }: { t: PlanetTally; fmtDate: (d: string) => str
       <TableCell>
         <NatureBadge nature={t.observed} />
       </TableCell>
-      <TableCell>
-        {t.agrees === null ? <span className="text-muted-foreground">—</span> : <Mark on={t.agrees} title={t.agrees ? "Behaved as its houses lead KP to expect" : "Behaved against expectation: a hint that the birth time, or the outcome recorded, wants another look"} />}
+      <TableCell className="whitespace-nowrap">
+        <span className="inline-flex items-center gap-2">
+          {t.agrees === null ? <span className="text-muted-foreground">—</span> : <Mark on={t.agrees} title={t.agrees ? "Behaved as its houses lead KP to expect" : "Behaved against the house expectation"} />}
+          {t.agreesByCusp === null ? <span className="text-muted-foreground">—</span> : <Mark on={t.agreesByCusp} title={t.agreesByCusp ? "Behaved as the cusp sub lords lead KP to expect" : "Behaved against the cusp expectation: a hint that the birth time, or the outcome recorded, wants another look"} />}
+        </span>
       </TableCell>
     </TableRow>
   );

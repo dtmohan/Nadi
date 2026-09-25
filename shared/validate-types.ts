@@ -30,6 +30,12 @@ export interface EventValidation {
     promised: boolean;
     /** Houses the cusp sub lord signifies, for the tooltip. */
     cuspSignified: number[];
+    /** For each lord, its hit houses passed through the cusp filter (Part 3 ch. 5; Part 2 ch. 7). */
+    filtered: [CuspFilter[], CuspFilter[], CuspFilter[]];
+    /** Whether each lord keeps at least one hit house after the filter. */
+    effective: [boolean, boolean, boolean];
+    /** Not promised, and the matter's cusp sub lord signifies the 12th from that cusp: the book's denial. */
+    deniedAtCusp: boolean;
     transit: { dasa: TransitCheck; bhukti: TransitCheck; score: number; max: number };
     /** Period-lord hits plus the promise: 0..4. */
     score: number;
@@ -41,6 +47,18 @@ export interface EventValidation {
   jaimini: (DashaFit & { mdSignName: Sign; adSignName: Sign }) | null;
   /** Jupiter's and Saturn's transits that day against the natal chart, the Nadi timers, scored for the matter. */
   bnn: BnnFit;
+}
+
+/** One hit house of a period lord, seen through the sub lord of that house's cusp. */
+export interface CuspFilter {
+  house: number;
+  cuspSubLord: Planet;
+  /** Houses the cusp sub lord signifies: all the period lord can deliver for this house. */
+  delivers: number[];
+  /** The cusp sub lord signifies one of the matter's houses, so the hit stands. */
+  kept: boolean;
+  /** The cusp sub lord signifies the 12th from this house and not the house itself. */
+  denied: boolean;
 }
 
 export type BnnContact = "over" | "trine" | "opposite";
@@ -87,6 +105,10 @@ export interface PlanetTally {
   good: number[];
   evil: number[];
   expected: Nature;
+  /** What the planet can deliver through the sub lords of the cusps it signifies (Part 3 ch. 5 p. 34; Part 2 ch. 7 p. 54): the favourable and harmful houses among them. */
+  goodKept: number[];
+  evilKept: number[];
+  expectedByCusp: Nature;
   /** Events in whose periods this planet ran, by level. */
   ran: Array<{ eventId: string; label: string; date: string; level: "dasa" | "bhukti" | "antara"; outcome: EventOutcome }>;
   /** Weighted tally of outcomes: dasa and bhukti count 2, antara 1. */
@@ -96,6 +118,8 @@ export interface PlanetTally {
   observed: Nature;
   /** true when expected and observed agree, false when they conflict, null when either is unknown or mixed. */
   agrees: boolean | null;
+  /** The same comparison with the expectation read through the cusps. */
+  agreesByCusp: boolean | null;
 }
 
 export interface ValidationResult {
@@ -122,5 +146,10 @@ export interface ValidationResult {
     /** Planets whose expected and observed nature agree, and those that conflict. */
     agree: number;
     conflict: number;
+    /** The same counts with expectations read through the cusp sub lords. */
+    agreeByCusp: number;
+    conflictByCusp: number;
+    /** Period-lord hits that the cusp filter diverts: the lord signifies the matter but the cusp sub lord takes it elsewhere. */
+    diverted: number;
   };
 }

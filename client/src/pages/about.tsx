@@ -277,7 +277,13 @@ export default function AboutPage() {
           for foreign places. Four of six is strong. A second table turns the events round:
           for each planet, the houses it signifies give what KP expects of it in its periods (a planet tied to 6, 8, 12 turns harmful, one tied to
           2, 3, 10, 11 turns favourable, whatever its natural character; Part 1, pp. 17-19), and the outcomes of the events that fell in its dasa,
-          bhukti or antara show how it behaved. Poor agreement across several events is a hint about the birth time, and the Rectify tab is the
+          bhukti or antara show how it behaved. A second expectation reads the same houses through their cusps: two articles in the same
+          series hold that the sub lord of a cusp is the barometer of its house, so a period lord can give of a house only what the sub lord of
+          that cusp signifies, and a cusp sub lord signifying the 12th from its cusp denies the matter even while a fitting period runs (Part 3,
+          ch. 5, pp. 27-34; Part 2, ch. 7, pp. 52-54). The Validate tab therefore strikes through a period lord whose every hit is carried
+          elsewhere by those cusp sub lords, marks a denied cusp, and shows both expectations side by side so the events can say which the chart
+          follows. The same two articles supply nineteen cusp rules to the KP tab (the 12th sub lord on the improving houses blunting the 12th,
+          the 8th sub lord on 1, 3, 10, 11 disarming the 8th, the 7th sub lord on the 6th denying marriage, and their kin). Poor agreement across several events is a hint about the birth time, and the Rectify tab is the
           next step.
         </p>
         <h2>Sources</h2>
