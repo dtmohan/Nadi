@@ -412,7 +412,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           plain={<>Jaimini ranks the eight planets by how far each has travelled in its sign. The furthest along is the planet of the self, then career, siblings, mother, father, children, relatives and spouse. The roles change from chart to chart, which is why they are called movable.</>}
           practitioner={<>Eight movable significators ranked by degree within sign; Rahu is ranked by thirty minus its degree because it moves backward.</>}
         />
-        <Working id="karakas" label="Show the karaka table" className="mt-3">
+        <Working id="karakas" label="Show the ranking table" className="mt-3">
         <Table className="tabular mt-3">
           <TableHeader>
             <TableRow>
@@ -466,7 +466,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           plain={<>Each house has a mirror image: count from the house to its ruler, then the same distance again. The image of the 1st house is how others see the person; the image of the 12th is read for the spouse and marriage. A starred pada was moved by Jaimini's exception rule.</>}
           practitioner={<>Count from a house to its lord, then as far again. When the reflection lands in the house or its 7th it is moved to the 10th from there (marked with an asterisk). Traditional lords are used for Scorpio and Aquarius.</>}
         />
-        <Working id="arudhas" label="Show the arudha padas" className="mt-3">
+        <Working id="arudhas" label="Show the mirror points for all twelve houses" className="mt-3">
         <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {j.arudhas.map((a) => (
             <Card
@@ -505,7 +505,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           plain={<>In Jaimini's system signs, not planets, look at one another, so every planet in a sign shares that sign's view. Planets in certain neighbouring signs also step into a house's affairs, for good or ill, and planets opposite them can block that step. Click a sign on the chart above to see whom it looks at.</>}
           practitioner={<>Signs aspect signs: movable signs see the fixed signs except the next one, fixed signs see the movable signs except the previous one, dual signs see each other. Planets in the 2nd, 4th and 11th from a sign intervene in its affairs (argala); the 12th, 10th and 3rd obstruct them.</>}
         />
-        <Working id="drishti" label="Show the aspect and argala tables" className="mt-3">
+        <Working id="drishti" label="Show the sign-aspect and intervention tables" className="mt-3">
         <Button
           variant="ghost"
           size="sm"
