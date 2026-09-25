@@ -464,7 +464,13 @@ function JaiminiMethod() {
         rules was written from that text: from 1.2, Ketu in the Karakamsa under different aspects, the 10th from the Karakamsa for steadiness and standing at work, the 4th and 5th for health and for
         skills, Venus or Mercury aspecting the Karakamsa and the Moon for vocation, Saturn and Venus in a malefic sign, and Rahu in the 5th or 9th; from 1.3, the planets in the 11th and 12th from
         the Arudha lagna as the sources of gain and expense, the nodes on the 7th, the Arudha lagna's house from the lagna, padas in the 6th, 8th and 12th, argala on the Arudha lagna, a planet aspecting
-        the lagna, Hora lagna and Ghatika lagna together, and the lords' aspects of 1.3.38-41; from 1.4, the Atmakaraka on the 2nd of the Upapada, the 2nd for the spouse's health, the 7th and its
+        the lagna, Hora lagna and Ghatika lagna together, and the lords' aspects of 1.3.38-41; for wealth, the Dhana pada (A2) and Labha pada (A11) counted from the Arudha lagna, argala on the 11th
+        from the Arudha lagna with its 12th free of malefics, Jupiter, Venus, the Moon or an exalted planet in the 7th from it, and Mercury, Jupiter or Venus exalted in its 2nd, all from Parashara's
+        Arudha chapter (
+        <a href="http://jyotishvidya.com/ch29.htm" {...ext}>
+          BPHS chapter 29
+        </a>
+        , verses 13-15, 25-37); the mutual placement of A2 and A11 is marked provisional because Parashara compares each pada with the Arudha lagna, not two padas with each other; from 1.4, the Atmakaraka on the 2nd of the Upapada, the 2nd for the spouse's health, the 7th and its
         5th for children, the 3rd and 11th for siblings, and the nodes on the 8th. The sutras that name a spouse's death or a marriage's end are phrased as strain or separation risk; the raw text stays
         in the library. Sutras 1.4.44-49 are not applied.
       </p>

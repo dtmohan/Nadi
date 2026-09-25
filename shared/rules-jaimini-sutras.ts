@@ -2,12 +2,14 @@
 // Karakamsa rules are read in the navamsa with rasi drishti; Arudha lagna and Upapada rules in the rasi chart.
 // Wording is deliberately softened where the sutra is blunt; the sutra text itself is in the sutra library.
 
-import { SIGN_LORD, dignityOf, houseFrom, type Planet, type PlanetPosition } from "./astro";
+import { SIGNS, SIGN_LORD, dignityOf, houseFrom, type Planet, type PlanetPosition } from "./astro";
 import { isBenefic, rasiAspects } from "./jaimini";
 import type { JaiminiArea } from "./jaimini-areas";
 import type { JaiminiContext, JaiminiRule, JaiminiSource } from "./rules-jaimini";
 
 const JS = (n: string): JaiminiSource => ({ label: `Jaimini Sutras ${n}`, url: "https://vedichora.org/classical/jaimini-sutras", sutra: n });
+/** Parashara's Arudha chapter (Padadhyaya), the classical commentary on Jaimini 1.3; `note` marks an extension of a verse rather than its letter. */
+const BP29 = (n: string, note?: string): JaiminiSource => ({ label: `Parashara, Arudha chapter ${n}${note ? ` (${note})` : ""}`, url: "http://jyotishvidya.com/ch29.htm" });
 const MALEFIC = new Set<Planet>(["Saturn", "Mars", "Rahu", "Ketu", "Sun"]);
 const ODD = (sign: number) => sign % 2 === 0; // Aries = 0 is odd
 
@@ -609,6 +611,112 @@ export const SUTRA_RULES_ARUDHA: JaiminiRule[] = [
     },
     "wealth",
   ),
+
+  // ── Dhana pada (A2) and Labha pada (A11) ───────────────────────────────────
+  // Jaimini 1.3.2-5 and 1.3.16 read wealth from the 11th and 2nd of the Arudha lagna; Parashara's Arudha chapter
+  // adds the padas of the 2nd and the 11th and their distance from the Arudha lagna (29.30-37).
+  area(
+    {
+      id: "ja-a2-from-al",
+      group: "arudha",
+      chart: "rasi",
+      when: "the Dhana pada (A2) in a kendra, trikona, 3rd or 11th from the Arudha lagna, or in its 6th, 8th or 12th",
+      text: "Dhana pada well placed from the Arudha lagna: savings and family wealth stand behind the public image; in the 6th, 8th or 12th from it, what is accumulated does not show, or drains away.",
+      weight: 2,
+      source: BP29("29.31, 29.36-37"),
+      test: (ctx) => {
+        const h = houseFrom(AL(ctx), ctx.arudhas[1].signIndex);
+        return [1, 4, 7, 10, 5, 9, 3, 11, 6, 8, 12].includes(h) ? [SIGN_LORD[ctx.arudhas[1].signIndex]] : null;
+      },
+    },
+    "wealth",
+  ),
+  area(
+    {
+      id: "ja-a11-from-al",
+      group: "arudha",
+      chart: "rasi",
+      when: "the Labha pada (A11) in a kendra, trikona, 3rd or 11th from the Arudha lagna, or in its 6th, 8th or 12th",
+      text: "Labha pada well placed from the Arudha lagna: income and allies support the standing; in the 6th, 8th or 12th from it, gains come irregularly or at a cost to reputation.",
+      weight: 2,
+      source: BP29("29.34-37", "extended to A11 as the verse allows"),
+      test: (ctx) => {
+        const h = houseFrom(AL(ctx), ctx.arudhas[10].signIndex);
+        return [1, 4, 7, 10, 5, 9, 3, 11, 6, 8, 12].includes(h) ? [SIGN_LORD[ctx.arudhas[10].signIndex]] : null;
+      },
+    },
+    "wealth",
+  ),
+  area(
+    {
+      id: "ja-a2-a11-mutual",
+      group: "arudha",
+      chart: "rasi",
+      when: "the Dhana pada and the Labha pada mutually in a kendra, trikona or the 3rd and 11th, or mutually in the 6th and 8th",
+      text: "Dhana pada and Labha pada in harmony: income turns into savings; in mutual 6th and 8th, what is earned does not accumulate.",
+      weight: 1,
+      source: BP29("29.34", "provisional extension"),
+      test: (ctx) => {
+        const h = houseFrom(ctx.arudhas[1].signIndex, ctx.arudhas[10].signIndex);
+        return [1, 4, 7, 10, 5, 9, 3, 11, 6, 8].includes(h) ? uniq([SIGN_LORD[ctx.arudhas[1].signIndex], SIGN_LORD[ctx.arudhas[10].signIndex]]) : null;
+      },
+    },
+    "wealth",
+  ),
+  area(
+    {
+      id: "ja-al-11th-argala",
+      group: "arudha",
+      chart: "rasi",
+      when: "unobstructed argala on the 11th from the Arudha lagna, with the 12th from the Arudha lagna free of malefics",
+      text: "Argala on the 11th from the Arudha lagna multiplies the gains; benefic argala more so, an exalted benefic most. The 12th from the Arudha lagna must stay free of malefics for the gains to hold.",
+      weight: 2,
+      source: BP29("29.13-15"),
+      test: (ctx) => {
+        const eleventh = (AL(ctx) + 10) % 12;
+        const m = malefics(ctx);
+        if (rasi(ctx, AL(ctx), 12).some((p) => m.has(p))) return null;
+        const hits: Planet[] = [];
+        for (const h of [2, 4, 11]) {
+          const planets = rasi(ctx, eleventh, h);
+          const obstruct = rasi(ctx, eleventh, h === 2 ? 12 : h === 4 ? 10 : 3);
+          if (planets.length && obstruct.length < planets.length) hits.push(...planets);
+        }
+        return nonEmpty(uniq(hits));
+      },
+    },
+    "wealth",
+  ),
+  area(
+    {
+      id: "ja-al-7th-wealth",
+      group: "arudha",
+      chart: "rasi",
+      when: "Jupiter, Venus or the Moon in the 7th from the Arudha lagna, or any planet exalted there",
+      text: "Jupiter, Venus or the Moon in the 7th from the Arudha lagna, or an exalted planet there: wealth, and a name that carries.",
+      weight: 2,
+      source: BP29("29.25-26"),
+      test: (ctx) =>
+        nonEmpty(
+          rasi(ctx, AL(ctx), 7).filter((p) => ["Jupiter", "Venus", "Moon"].includes(p) || dignityOf(p, pos(ctx, p).signIndex, pos(ctx, p).degInSign) === "Exalted"),
+        ),
+    },
+    "wealth",
+  ),
+  area(
+    {
+      id: "ja-al-2nd-exalted-benefic",
+      group: "arudha",
+      chart: "rasi",
+      when: "Mercury, Jupiter or Venus exalted in the 2nd from the Arudha lagna",
+      text: "Mercury, Jupiter or Venus exalted in the 2nd from the Arudha lagna: riches; Mercury there gives command over people, Venus eloquence.",
+      weight: 2,
+      source: BP29("29.28, 29.30"),
+      test: (ctx) =>
+        nonEmpty(rasi(ctx, AL(ctx), 2).filter((p) => ["Mercury", "Jupiter", "Venus"].includes(p) && dignityOf(p, pos(ctx, p).signIndex, pos(ctx, p).degInSign) === "Exalted")),
+    },
+    "wealth",
+  ),
 ];
 
 // ── 1.4: Upapada (rasi chart) ────────────────────────────────────────────────
@@ -761,6 +869,37 @@ export function sutraRuleText(id: string, planets: Planet[], ctx: JaiminiContext
       const h = houseFrom(ctx.lagnaSign, AL(ctx));
       if ([6, 8, 12].includes(h)) return `Arudha lagna in the ${h}th from the lagna: the public image runs at odds with the self; standing is won against resistance (1.3.19).`;
       return `Arudha lagna in the ${h}${h === 1 ? "st" : "th"} from the lagna, a ${[1, 4, 7, 10].includes(h) ? "kendra" : "trikona"}: standing and prosperity come readily (1.3.18).`;
+    }
+    case "ja-a2-from-al":
+    case "ja-a11-from-al": {
+      const i = id === "ja-a2-from-al" ? 1 : 10;
+      const a = ctx.arudhas[i];
+      const h = houseFrom(AL(ctx), a.signIndex);
+      const ord = h === 1 ? "1st" : h === 3 ? "3rd" : `${h}th`;
+      const what = i === 1 ? "savings and family wealth" : "income and allies";
+      if ([6, 8, 12].includes(h)) return `${a.label} in ${SIGNS[a.signIndex]}, the ${ord} from the Arudha lagna: ${what} do not show behind the public image, or drain away (Parashara 29.31, 29.36).`;
+      if (h === 1) return `${a.label} shares ${SIGNS[a.signIndex]} with the Arudha lagna: ${what} are part of the public image itself (Parashara 29.31, 29.37).`;
+      const kind = [4, 7, 10].includes(h) ? "a kendra" : [5, 9].includes(h) ? "a trikona" : "the 3rd-11th axis";
+      return `${a.label} in ${SIGNS[a.signIndex]}, the ${ord} from the Arudha lagna, ${kind}: ${what} stand behind the public image (Parashara 29.31, 29.37).`;
+    }
+    case "ja-al-11th-argala": {
+      const b = benefics(ctx);
+      const good = planets.filter((p) => b.has(p));
+      const exalted = good.filter((p) => dignityOf(p, pos(ctx, p).signIndex, pos(ctx, p).degInSign) === "Exalted");
+      const grade = exalted.length ? `${exalted.join(", ")} exalted: the gains are at their highest` : good.length ? `benefic argala from ${good.join(", ")}: the gains multiply` : "malefic argala: gains, but pressed for";
+      return `Unobstructed argala on the 11th from the Arudha lagna (${SIGNS[(AL(ctx) + 10) % 12]}) from ${planets.join(", ")}, with its 12th free of malefics; ${grade} (Parashara 29.13-15).`;
+    }
+    case "ja-al-7th-wealth": {
+      const exalted = planets.filter((p) => dignityOf(p, pos(ctx, p).signIndex, pos(ctx, p).degInSign) === "Exalted");
+      const soft = planets.filter((p) => ["Jupiter", "Venus", "Moon"].includes(p));
+      const parts = [soft.length ? `${soft.join(", ")} in the 7th from the Arudha lagna: wealth (29.25)` : "", exalted.length ? `${exalted.join(", ")} exalted there: affluence and a name that carries (29.26)` : ""].filter(Boolean);
+      return `${parts.join("; ")}.`;
+    }
+    case "ja-a2-a11-mutual": {
+      const h = houseFrom(ctx.arudhas[1].signIndex, ctx.arudhas[10].signIndex);
+      if ([6, 8].includes(h)) return `Dhana pada (${SIGNS[ctx.arudhas[1].signIndex]}) and Labha pada (${SIGNS[ctx.arudhas[10].signIndex]}) in mutual 6th and 8th: what is earned does not accumulate (provisional, extended from Parashara 29.34).`;
+      if (h === 1) return `Dhana pada and Labha pada share ${SIGNS[ctx.arudhas[1].signIndex]}: income and savings are one stream (provisional, extended from Parashara 29.34).`;
+      return `Dhana pada (${SIGNS[ctx.arudhas[1].signIndex]}) and Labha pada (${SIGNS[ctx.arudhas[10].signIndex]}) in mutual ${[4, 7, 10].includes(h) ? "kendra" : [5, 9].includes(h) ? "trikona" : "3rd and 11th"}: income turns into savings (provisional, extended from Parashara 29.34).`;
     }
     case "ja-padas-dusthana": {
       const bad = ctx.arudhas.filter((a, i) => i > 0 && i < 11 && [6, 8, 12].includes(houseFrom(ctx.lagnaSign, a.signIndex))).map((a) => `${PADA_SHORT[ctx.arudhas.indexOf(a)]} in the ${houseFrom(ctx.lagnaSign, a.signIndex)}th`);
