@@ -199,10 +199,19 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
       )}
 
       {events.length > 0 && q.isLoading && (
-        <div className="mt-6 space-y-2" aria-busy="true">
-          {events.map((e) => (
-            <div key={e.id} className="h-9 animate-pulse rounded bg-muted" />
-          ))}
+        <div className="mt-6 space-y-3" aria-busy="true" data-testid="validate-skeleton">
+          <p className="text-xs text-muted-foreground">Reading each event back at its date: KP period lords, Chara dasha and Jupiter's transit.</p>
+          <div className="h-32 animate-pulse rounded-md bg-muted" />
+          <div className="space-y-1.5">
+            {events.map((e) => (
+              <div key={e.id} className="grid grid-cols-[6rem_1fr_4rem_4rem] gap-3">
+                <div className="h-8 animate-pulse rounded bg-muted" />
+                <div className="h-8 animate-pulse rounded bg-muted" style={{ opacity: 0.7 }} />
+                <div className="h-8 animate-pulse rounded bg-muted" />
+                <div className="h-8 animate-pulse rounded bg-muted" style={{ opacity: 0.7 }} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -247,7 +256,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
           </div>
 
           <div className="mt-3 overflow-x-auto rounded-md border">
-            <Table className="text-xs [&_td]:px-3 [&_th]:px-3" data-testid="validate-table">
+            <Table className="text-xs [&_td]:px-3 [&_th]:px-3" data-testid="validate-table" cards>
               <TableHeader>
                 <TableRow>
                   <TableHead className="whitespace-nowrap">Event</TableHead>
@@ -338,7 +347,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             house's cusp signifies, so its effective portfolio is the union of those deliveries (Part 3 ch. 5 pp. 27-34; Part 2 ch. 7 pp. 52-54). Where the two expectations differ, the events say which the chart follows.
           </p>
           <div className="mt-3 overflow-x-auto rounded-md border">
-            <Table className="text-xs" data-testid="validate-planets">
+            <Table className="text-xs" data-testid="validate-planets" cards>
               <TableHeader>
                 <TableRow>
                   <TableHead className="whitespace-nowrap">Planet</TableHead>

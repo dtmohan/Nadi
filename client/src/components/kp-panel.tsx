@@ -274,7 +274,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
             practitioner={<>Each cusp's sign lord, star lord, sub lord and sub-sub lord. The sub lord is the one that decides.</>}
           />
           <Working id="kp-cusps" label="Show the cusp table" className="mt-3">
-          <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2">
+          <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2" cards>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10">Cusp</TableHead>
@@ -320,7 +320,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
             practitioner={<>Bhava occupied runs from one cusp to the next (Placidus). Ownership is the lordship of the sign on the cusp; Rahu and Ketu own nothing and act for their sign lord and companions.</>}
           />
           <Working id="kp-planets" label="Show the planet table" className="mt-3">
-          <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2">
+          <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2" cards>
             <TableHeader>
               <TableRow>
                 <TableHead>Planet</TableHead>
@@ -377,7 +377,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
         <div className="grid gap-8 lg:grid-cols-2 lg:items-start">
           <div>
             <p className="text-xs font-medium">Planet-wise</p>
-            <Table className="tabular mt-2 [&_td]:px-2 [&_th]:px-2">
+            <Table className="tabular mt-2 [&_td]:px-2 [&_th]:px-2" cards>
               <TableHeader>
                 <TableRow>
                   <TableHead>Planet</TableHead>
@@ -414,7 +414,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
           </div>
           <div>
             <p className="text-xs font-medium">House-wise</p>
-            <Table className="tabular mt-2 [&_td]:px-2 [&_th]:px-2">
+            <Table className="tabular mt-2 [&_td]:px-2 [&_th]:px-2" cards>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10">House</TableHead>
@@ -570,7 +570,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
           )}
         </p>
         {windows.length ? (
-          <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2">
+          <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2" cards>
             <TableHeader>
               <TableRow>
                 <TableHead>{plain ? "Period" : "Dasa"}</TableHead>
@@ -615,7 +615,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
           <p className="text-xs font-medium">
             {plain ? `${cur.dasa.lord}'s period · ${cur.bhukti.lord}'s sub-period` : `${cur.dasa.lord} dasa · ${cur.bhukti.lord} bhukti`} ({fmt(cur.bhukti.start)} to {fmt(cur.bhukti.end)})
           </p>
-          <Table className="tabular mt-2 [&_td]:px-2 [&_th]:px-2">
+          <Table className="tabular mt-2 [&_td]:px-2 [&_th]:px-2" cards>
             <TableHeader>
               <TableRow>
                 <TableHead>{plain ? "Sub-sub" : "Antara"}</TableHead>

@@ -168,7 +168,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
 
         <div>
           <SectionTitle plain="The twelve houses" technical="Bhavas" term="bhava" />
-          <Table className="mt-2" data-testid="parashari-bhavas">
+          <Table className="mt-2" data-testid="parashari-bhavas" cards>
             <TableHeader>
               <TableRow>
                 <TableHead>House</TableHead>
@@ -211,7 +211,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           plain={<>The same planet helps one rising sign and troubles another, depending on which houses it rules. Parashara lists the roles for each rising sign; these are his for {SIGNS[r.lagna.signIndex]}. A <Term k="yogakaraka">yogakaraka</Term> is the chief helper, a <Term k="maraka">maraka</Term> a planet whose periods can bring illness or loss.</>}
           practitioner={<>Functional roles as Parashara states them for this rising sign, <SourceLink source={{ label: `Parashara ${nature.verses}`, url: BPHS_URL(34) }} />. {nature.note}{nature.byRule?.length ? <> A planet owning a kendra and a trikona together is a yogakaraka in the special sense, and a malefic kendra lord turns auspicious only by that double lordship, <SourceLink source={{ label: "Parashara 34.13-14", url: BPHS_URL(34) }} />.</> : null}</>}
         />
-        <Table className="mt-2" data-testid="parashari-natures">
+        <Table className="mt-2" data-testid="parashari-natures" cards>
           <TableHeader>
             <TableRow>
               <TableHead>Planet</TableHead>
@@ -300,7 +300,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         />
         <LifeTimeline className="mt-3" testid="parashari-timeline" birthIso={result.utc} asOfIso={asOfIso} bands={tlBands} windows={tlWindows} windowsLabel="Verdict" marks={tlMarks} />
         <p className="mt-1 text-xs text-muted-foreground">{plain ? "The Verdict row tints each period by what the text says of its planet for this chart: green favourable, amber mixed, red trying. Saturn's passages are drawn for comparison only." : "The Verdict row carries each dasa's balance of support and strain from BPHS ch. 47-48; Saturn's sign passages are shown for reference and are not part of the dasa judgement."}</p>
-        <Table className="mt-3" data-testid="parashari-dashas">
+        <Table className="mt-3" data-testid="parashari-dashas" cards>
           <TableHeader>
             <TableRow>
               <TableHead>{plain ? "Period" : "Dasa"}</TableHead>
@@ -441,7 +441,7 @@ function ShadbalaSection({ sb, open, setOpen, phala, varga }: { sb: ShadbalaResu
         Each cusp (lagna degree plus multiples of 30) measured from the point 27.26-28 name for its sign, a quarter of each aspect on it added or taken, the whole aspect of Jupiter and Mercury, the lord's Shadbala (27.29), a rupa for Jupiter or Mercury in the house and one less for the Sun, Mars or Saturn (27.30), and 15 virupas by the rising of the sign for a {sb.twilight ? "twilight" : sb.daytime ? "day" : "night"} birth (27.31). No requirement is stated; higher is stronger.
         </>}
       />
-      <Table className="mt-2" data-testid="parashari-bhava-bala">
+      <Table className="mt-2" data-testid="parashari-bhava-bala" cards>
         <TableHeader>
           <TableRow>
             <TableHead>House</TableHead>

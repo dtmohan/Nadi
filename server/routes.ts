@@ -100,6 +100,35 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     }
   });
 
+  // Card summary for the home page: natal signs, lagna, the running dasa and today's slow transits (nothing is stored)
+  app.post("/api/summary", (req, res) => {
+    const parsed = insertChartSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid chart", issues: parsed.error.issues });
+    try {
+      const chart = { id: 0, ...parsed.data } as Chart;
+      const opts = opts0(chart);
+      const utc = localToUtc(chart.birthDate, chart.birthTime, chart.timezone);
+      const jd = julianDay(utc);
+      const positions = positionsAt(jd, opts);
+      const asc = ascendantAt(jd, chart.latitude, chart.longitude, opts);
+      const moon = positions.find((p) => p.planet === "Moon")!;
+      const asOf = DateTime.utc().toISO()!;
+      const vim = vimshottari(moon.lon, utc.toISO()!, asOf);
+      const now = positionsAt(nowJd(), opts);
+      const sign = (planet: string) => now.find((p) => p.planet === planet)!.signIndex;
+      res.json({
+        positions: positions.map((p) => ({ planet: p.planet, signIndex: p.signIndex, degInSign: p.degInSign, retrograde: p.retrograde })),
+        lagnaIdx: Math.floor(((asc % 360) + 360) % 360 / 30),
+        dasa: { lord: vim.current.dasa.lord, end: vim.current.dasa.end },
+        bhukti: { lord: vim.current.bhukti.lord, end: vim.current.bhukti.end },
+        transit: { jupiter: sign("Jupiter"), saturn: sign("Saturn"), moon: sign("Moon") },
+        asOf,
+      });
+    } catch (e: any) {
+      res.status(400).json({ message: e.message });
+    }
+  });
+
   // Ruling planets for the astrologer's own place at this moment (nothing is stored)
   const judgeSchema = z.object({ latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180), timezone: z.string().min(1).max(64), label: z.string().max(120).optional() });
   app.post("/api/kp/ruling", (req, res) => {

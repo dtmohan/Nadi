@@ -2,18 +2,55 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/** Copies each header's text onto the body cells (data-label) so the phone stylesheet can lay rows out as labelled cards. */
+function labelCells(table: HTMLTableElement) {
+  const heads = Array.from(table.querySelectorAll<HTMLTableCellElement>(":scope > thead > tr:last-child > th"))
+  if (!heads.length) return
+  const labels = heads.map((h) => (h.getAttribute("aria-label") ?? h.textContent ?? "").replace(/\s+/g, " ").trim())
+  for (const row of Array.from(table.querySelectorAll<HTMLTableRowElement>(":scope > tbody > tr"))) {
+    let col = 0
+    for (const cell of Array.from(row.children) as HTMLTableCellElement[]) {
+      if (cell.colSpan > 1) {
+        cell.removeAttribute("data-label")
+      } else if (labels[col] !== undefined && cell.getAttribute("data-label") !== labels[col]) {
+        cell.setAttribute("data-label", labels[col])
+      }
+      col += cell.colSpan || 1
+    }
+  }
+}
+
 const Table = React.forwardRef<
   HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-  <div className="relative w-full overflow-auto">
-    <table
-      ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
-      {...props}
-    />
-  </div>
-))
+  React.HTMLAttributes<HTMLTableElement> & { cards?: boolean }
+>(({ className, cards, ...props }, ref) => {
+  const inner = React.useRef<HTMLTableElement | null>(null)
+  const setRef = React.useCallback(
+    (el: HTMLTableElement | null) => {
+      inner.current = el
+      if (typeof ref === "function") ref(el)
+      else if (ref) (ref as React.MutableRefObject<HTMLTableElement | null>).current = el
+    },
+    [ref],
+  )
+  React.useEffect(() => {
+    const el = inner.current
+    if (!cards || !el) return
+    labelCells(el)
+    const mo = new MutationObserver(() => labelCells(el))
+    mo.observe(el, { childList: true, subtree: true, characterData: true })
+    return () => mo.disconnect()
+  }, [cards])
+  return (
+    <div className="relative w-full overflow-auto">
+      <table
+        ref={setRef}
+        className={cn("w-full caption-bottom text-sm", cards && "table-cards", className)}
+        {...props}
+      />
+    </div>
+  )
+})
 Table.displayName = "Table"
 
 const TableHeader = React.forwardRef<
@@ -58,7 +95,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
+      "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted focus-visible:outline-none focus-visible:bg-muted/60 focus-visible:shadow-[inset_2px_0_0_hsl(var(--primary))]",
       className
     )}
     {...props}

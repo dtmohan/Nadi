@@ -1,6 +1,10 @@
 import { useMemo, useRef, useState } from "react";
 import { useLocation, Link } from "wouter";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { DateTime } from "luxon";
+import { MiniChart, type MiniPlanet } from "@/components/mini-chart";
+import { PlanetName } from "@/components/planet-name";
+import { SIGNS, type Planet } from "@shared/astro";
 import { Trash2, ArrowRight, Loader2, Download, Upload } from "lucide-react";
 import { PlaceSearch } from "@/components/place-search";
 import { apiRequest } from "@/lib/queryClient";
@@ -27,6 +31,88 @@ const EMPTY: InsertChart = {
   notes: "",
   events: [],
 };
+
+interface ChartSummary {
+  positions: MiniPlanet[];
+  lagnaIdx: number;
+  dasa: { lord: Planet; end: string };
+  bhukti: { lord: Planet; end: string };
+  transit: { jupiter: number; saturn: number; moon: number };
+  asOf: string;
+}
+
+function ageOf(c: Chart) {
+  const b = DateTime.fromISO(`${c.birthDate}T${c.birthTime}`, { zone: c.timezone });
+  return b.isValid ? Math.floor(DateTime.now().diff(b, "years").years) : null;
+}
+
+/** A saved chart as a card: thumbnail, birth data, the period running now and today's slow transits. */
+function ChartCard({ chart, onDelete }: { chart: Chart; onDelete: () => void }) {
+  const { id, ...body } = chart;
+  const summary = useQuery<ChartSummary>({
+    queryKey: ["summary", body.birthDate, body.birthTime, body.timezone, body.latitude, body.longitude, body.ayanamsa, body.nodeType],
+    queryFn: async () => (await apiRequest("POST", "/api/summary", body)).json(),
+    staleTime: 6 * 60 * 60 * 1000,
+  });
+  const s = summary.data;
+  const age = ageOf(chart);
+  const born = DateTime.fromISO(chart.birthDate);
+  return (
+    <Card className="hover-elevate">
+      <CardContent className="grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-4 gap-y-3 p-4">
+        <Link href={`/chart/${id}`} className="shrink-0 sm:row-span-2" aria-hidden tabIndex={-1}>
+          {s ? <MiniChart positions={s.positions} lagnaIdx={s.lagnaIdx} className="h-[72px] w-[72px] sm:h-[104px] sm:w-[104px]" /> : <div className="h-[72px] w-[72px] animate-pulse rounded-sm bg-muted sm:h-[104px] sm:w-[104px]" />}
+        </Link>
+        <Link href={`/chart/${id}`} className="min-w-0 self-center" data-testid={`card-chart-${id}`}>
+          <div className="flex items-baseline gap-2">
+            <span className="truncate font-display text-base font-semibold">{chart.name}</span>
+            {age !== null && <span className="shrink-0 text-xs text-muted-foreground tabular">age {age}</span>}
+          </div>
+          <div className="mt-0.5 truncate text-xs text-muted-foreground tabular">
+            {born.isValid ? born.toFormat("d LLL yyyy") : chart.birthDate} · {chart.birthTime} · {chart.place}
+          </div>
+        </Link>
+        <Button variant="ghost" size="icon" className="self-start" aria-label={`Delete ${chart.name}`} onClick={onDelete} data-testid={`button-delete-${id}`}>
+          <Trash2 />
+        </Button>
+        <Link href={`/chart/${id}`} className="col-span-3 min-w-0 sm:col-span-2 sm:col-start-2" tabIndex={-1}>
+          {s ? (
+            <dl className="grid gap-y-1 text-xs" data-testid={`card-summary-${id}`}>
+              <div className="flex items-baseline gap-2">
+                <dt className="w-14 shrink-0 text-2xs uppercase tracking-wide text-muted-foreground">Rising</dt>
+                <dd>{SIGNS[s.lagnaIdx]}</dd>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <dt className="w-14 shrink-0 text-2xs uppercase tracking-wide text-muted-foreground">Period</dt>
+                <dd className="flex flex-wrap items-baseline gap-x-1.5">
+                  <PlanetName planet={s.dasa.lord} />
+                  <span className="text-muted-foreground">dasa,</span>
+                  <PlanetName planet={s.bhukti.lord} />
+                  <span className="whitespace-nowrap text-muted-foreground tabular">bhukti to {DateTime.fromISO(s.bhukti.end).toFormat("LLL yyyy")}</span>
+                </dd>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <dt className="w-14 shrink-0 text-2xs uppercase tracking-wide text-muted-foreground">Today</dt>
+                <dd className="text-muted-foreground">
+                  Jupiter in {SIGNS[s.transit.jupiter]}
+                  {s.positions.some((p) => p.planet === "Jupiter" && p.signIndex === s.transit.jupiter) ? " (its natal sign)" : ""}, Saturn in {SIGNS[s.transit.saturn]}
+                  {s.positions.some((p) => p.planet === "Saturn" && p.signIndex === s.transit.saturn) ? " (its natal sign)" : ""}
+                </dd>
+              </div>
+            </dl>
+          ) : summary.isError ? (
+            <p className="text-xs text-muted-foreground">Summary unavailable; open the chart to read it.</p>
+          ) : (
+            <div className="space-y-1.5">
+              <div className="h-3 w-40 animate-pulse rounded bg-muted" />
+              <div className="h-3 w-56 animate-pulse rounded bg-muted" />
+            </div>
+          )}
+        </Link>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function Home() {
   const [, navigate] = useLocation();
@@ -245,28 +331,10 @@ export default function Home() {
             </div>
           )}
 
-          <ul className="mt-4 space-y-2">
+          <ul className="mt-4 space-y-3">
             {charts?.map((c) => (
               <li key={c.id}>
-                <Card className="hover-elevate">
-                  <CardContent className="flex items-center gap-4 p-4">
-                    <Link href={`/chart/${c.id}`} className="min-w-0 flex-1" data-testid={`card-chart-${c.id}`}>
-                      <div className="truncate font-medium">{c.name}</div>
-                      <div className="mt-0.5 truncate text-xs text-muted-foreground tabular">
-                        {c.birthDate} · {c.birthTime} · {c.place}
-                      </div>
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={`Delete ${c.name}`}
-                      onClick={() => remove.mutate(c.id)}
-                      data-testid={`button-delete-${c.id}`}
-                    >
-                      <Trash2 />
-                    </Button>
-                  </CardContent>
-                </Card>
+                <ChartCard chart={c} onDelete={() => remove.mutate(c.id)} />
               </li>
             ))}
           </ul>

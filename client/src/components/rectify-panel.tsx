@@ -323,8 +323,26 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
         <LifeEventsEditor chart={chart} />
       </div>
 
+      {scan.isPending && !data && (
+        <div className="mt-5 space-y-3" aria-busy="true" data-testid="rectify-skeleton">
+          <p className="text-xs text-muted-foreground">Scanning the window: casting each candidate time and scoring it{method === "kp-events" || method === "jaimini-dasha" ? " against every dated event" : ""}. Usually a few seconds.</p>
+          <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
+          <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
+          {(method === "kp-events" || method === "jaimini-dasha") && eventPayload.length > 0 && <div className="h-28 animate-pulse rounded-md bg-muted" />}
+          <div className="space-y-1.5 pt-1">
+            {Array.from({ length: 7 }, (_, i) => (
+              <div key={i} className="grid grid-cols-[5rem_1fr_3rem] gap-3">
+                <div className="h-7 animate-pulse rounded bg-muted" />
+                <div className="h-7 animate-pulse rounded bg-muted" style={{ opacity: 0.7 }} />
+                <div className="h-7 animate-pulse rounded bg-muted" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {data && (
-        <div className="mt-5" data-testid="rectify-results">
+        <div className={cn("mt-5 transition-opacity", scan.isPending && "opacity-60")} aria-busy={scan.isPending || undefined} data-testid="rectify-results">
           {method === "kp-rp" && (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
               <span>

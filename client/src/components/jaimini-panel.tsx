@@ -448,7 +448,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           practitioner={<>Eight movable significators ranked by degree within sign; Rahu is ranked by thirty minus its degree because it moves backward.</>}
         />
         <Working id="karakas" label="Show the ranking table" className="mt-3">
-        <Table className="tabular mt-3">
+        <Table className="tabular mt-3" cards>
           <TableHeader>
             <TableRow>
               <TableHead>Karaka</TableHead>
