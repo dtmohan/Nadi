@@ -5,6 +5,7 @@
 
 import { SIGNS, SIGN_LORD, houseFrom, type Planet, type PlanetPosition, type Sign } from "./astro";
 import { vimshottari, type Vimshottari } from "./kp";
+import { computeDasaReadings, type DasaReading } from "./parashari-dasa";
 import { LORD_IN_HOUSE, LAGNA_NATURE, BPHS_URL, type FunctionalRole } from "./parashari-data";
 
 export const SEVEN: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
@@ -72,6 +73,8 @@ export interface ParashariResult {
   findings: ParashariFinding[];
   vimshottari: Vimshottari;
   dashas: DashaGloss[];
+  /** Period effects from BPHS ch. 47-48 and 52-61. */
+  dasaReadings: DasaReading[];
 }
 
 const S = (ch: number, verse: string, label?: string, provisional?: boolean): ParashariSource => ({
@@ -423,7 +426,8 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
     return { lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: d.current, owns: n.owns, house: n.house, functional: n.functional, summary: roleText + "." + eff };
   });
 
-  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, vimshottari: vim, dashas };
+  const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso);
+  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, vimshottari: vim, dashas, dasaReadings };
 }
 
 export function ord(n: number): string {

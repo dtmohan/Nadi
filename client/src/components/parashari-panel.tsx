@@ -4,6 +4,7 @@ import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, SIGNS } from "@shared/astro";
 import { computeParashari, ord, listH, roleLabel, LORDSHIP_LABEL, KENDRA, type ParashariFinding } from "@shared/parashari";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
+import { LAYER_LABEL, type DasaReading, type AntarReading, type DasaNote } from "@shared/parashari-dasa";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
@@ -13,6 +14,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/utils";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
+const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
+
+const VERDICT_CLASS: Record<ParashariFinding["tone"], string> = {
+  support: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  strain: "bg-rose-500/10 text-rose-700 dark:text-rose-300",
+  mixed: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
+};
+const VERDICT_LABEL: Record<ParashariFinding["tone"], string> = { support: "favourable", strain: "unfavourable", mixed: "mixed" };
 
 const TONE_CLASS: Record<ParashariFinding["tone"], string> = {
   support: "border-l-emerald-500/70",
@@ -54,6 +63,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const r = useMemo(() => computeParashari(positions, result.jaimini.lagna.lon, result.utc, asOfIso), [positions, result.jaimini.lagna.lon, result.utc, asOfIso]);
   const [focusHouse, setFocusHouse] = useState<number | null>(null);
   const [section, setSection] = useState<"lords" | "yogas">("yogas");
+  const [dasaPick, setDasaPick] = useState<string | null>(null);
+  const [antarOpen, setAntarOpen] = useState<string | null>(null);
 
   const nature = LAGNA_NATURE[r.lagna.signIndex];
   const lords = r.findings.filter((f) => f.kind === "lord");
@@ -61,6 +72,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const shownLords = focusHouse ? lords.filter((f) => f.id === `pa-lord-${focusHouse}-${r.bhavas[focusHouse - 1].lordIn}` || f.id.endsWith(`-${focusHouse}`)) : lords;
   const focusBhava = focusHouse ? r.bhavas[focusHouse - 1] : null;
   const cur = r.dashas.find((d) => d.current);
+  const selDasa: DasaReading | undefined = r.dasaReadings.find((d) => d.lord === dasaPick) ?? r.dasaReadings.find((d) => d.current) ?? r.dasaReadings[0];
   const ageNow = DateTime.fromISO(asOfIso).diff(DateTime.fromISO(result.utc), "days").days / 365.25;
 
   const badges: Record<number, string[]> = {};
@@ -206,7 +218,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       <div className="mt-8">
         <h3 className="text-sm font-semibold">Vimshottari dasa, read by lordship</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Same Vimshottari sequence as the KP panel but from the Lahiri Moon ({positions.find((p) => p.planet === "Moon")?.nakshatra}), balance {r.vimshottari.balanceYears.toFixed(2)} years of {r.vimshottari.dasas[0].lord}. Each lord is glossed by the houses it owns and occupies and by its role for this rising sign; the period effects proper (BPHS ch. 46-64) are the next harvest.
+          Same Vimshottari sequence as the KP panel but from the Lahiri Moon ({positions.find((p) => p.planet === "Moon")?.nakshatra}), balance {r.vimshottari.balanceYears.toFixed(2)} years of {r.vimshottari.dasas[0].lord}. Each lord is glossed by the houses it owns and occupies and by its role for this rising sign. Pick a dasa row to read its effects from ch. 47-48 and its antar dasas from ch. 52-60.
         </p>
         <DasaBar
           className="mt-2"
@@ -225,7 +237,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           </TableHeader>
           <TableBody>
             {r.dashas.map((d) => (
-              <TableRow key={d.lord + d.start} className={cn(d.current && "bg-primary/5")} data-testid={`parashari-dasa-${d.lord}`}>
+              <TableRow key={d.lord + d.start} className={cn("cursor-pointer", d.current && "bg-primary/5", selDasa?.lord === d.lord && "ring-1 ring-inset ring-primary/40")} onClick={() => { setDasaPick(d.lord); setAntarOpen(null); }} data-testid={`parashari-dasa-${d.lord}`}>
                 <TableCell className="py-1.5 whitespace-nowrap">
                   <PlanetName planet={d.lord} />
                   {d.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
@@ -246,7 +258,162 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           </p>
         )}
       </div>
+
+      {selDasa && <DasaEffects d={selDasa} open={antarOpen} setOpen={setAntarOpen} />}
     </div>
+  );
+}
+
+function Note({ n }: { n: DasaNote }) {
+  return (
+    <li className={cn("rounded-md border border-l-4 bg-card px-3 py-2", TONE_CLASS[n.tone])} data-testid={`parashari-dasa-note-${n.id}`}>
+      <p className="text-sm text-muted-foreground">{n.text}</p>
+      <p className="mt-0.5 text-[11px] text-muted-foreground">
+        {LAYER_LABEL[n.layer]} · <SourceLink source={n.source} />
+      </p>
+    </li>
+  );
+}
+
+function DasaEffects({ d, open, setOpen }: { d: DasaReading; open: string | null; setOpen: (k: string | null) => void }) {
+  const layers: DasaNote["layer"][] = ["general", "planet", "lordship", "relation"];
+  const running = d.antars.find((a) => a.current);
+  return (
+    <div className="mt-8" data-testid="parashari-dasa-effects">
+      <div className="flex flex-wrap items-center gap-2">
+        <h3 className="text-sm font-semibold">
+          <PlanetName planet={d.lord} /> dasa, {fmt(d.start)} to {fmt(d.end)}
+        </h3>
+        <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium", VERDICT_CLASS[d.verdict])} data-testid="parashari-dasa-verdict">{VERDICT_LABEL[d.verdict]} on balance</span>
+        {d.current && <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Effects of the period from Brihat Parashara Hora Sastra ch. 47 (placement of the lord) and ch. 48 (house lordship and relationships), matched mechanically on whole-sign houses and dignity. Parashara also weighs the lord's strength and its transit position when the dasa begins (48.8); neither is computed here yet. Every matched verse is listed, favourable and unfavourable alike, so contradictions stay visible.
+      </p>
+      <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground" data-testid="parashari-dasa-timing">
+        {d.timing.text} <SourceLink source={d.timing.source} />
+      </p>
+      <ul className="mt-3 space-y-2">
+        {layers.flatMap((l) => d.notes.filter((n) => n.layer === l)).map((n) => (
+          <Note key={n.id} n={n} />
+        ))}
+      </ul>
+
+      <h4 className="mt-6 text-sm font-semibold">Antar dasas in the {d.lord} dasa</h4>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Each sub-lord is checked against the placements Parashara names for it in the {d.lord} dasa chapter: angles and trines from the lagna, dignity, the house it holds from the dasa lord, company, and 2nd/7th lordship (maraka). Open a row for the chapter's own wording.
+      </p>
+      <Table className="mt-2" data-testid="parashari-antars">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Antar</TableHead>
+            <TableHead className="hidden sm:table-cell">Dates</TableHead>
+            <TableHead>Verdict</TableHead>
+            <TableHead className="hidden sm:table-cell">Placements matched</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {d.antars.map((a) => {
+            const key = `${d.lord}-${a.lord}`;
+            const isOpen = open === key;
+            return (
+              <AntarRows key={key} a={a} isOpen={isOpen} toggle={() => setOpen(isOpen ? null : key)} dasaLord={d.lord} />
+            );
+          })}
+        </TableBody>
+      </Table>
+
+      {running?.pratyantars && (
+        <div className="mt-6" data-testid="parashari-pratyantars">
+          <h4 className="text-sm font-semibold">
+            Pratyantar dasas in the running {d.lord}–{running.lord} antar
+          </h4>
+          <p className="mt-1 text-xs text-muted-foreground">
+            General effects only, from <SourceLink source={{ label: "Parashara 61.2-82", url: BPHS_URL(61) }} />. Verse 61.2 adds that the ill effects do not follow when the pratyantar lord is in a trine, owns or occupies an auspicious house, or is in a benefic varga; apply the same test to each line.
+          </p>
+          <ul className="mt-2 divide-y rounded-md border text-sm">
+            {running.pratyantars.map((p) => (
+              <li key={p.lord + p.start} className={cn("flex flex-wrap items-baseline gap-x-3 gap-y-1 px-3 py-1.5", p.current && "bg-primary/5")} data-testid={`parashari-pratyantar-${p.lord}`}>
+                <span className="w-16 shrink-0">
+                  <PlanetName planet={p.lord} abbr tone />
+                </span>
+                <span className="shrink-0 text-xs text-muted-foreground whitespace-nowrap sm:w-44">{fmtD(p.start)} – {fmtD(p.end)}</span>
+                {p.current && <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                <span className="min-w-0 basis-full text-xs text-muted-foreground sm:basis-0 sm:flex-1">
+                  {p.text} <SourceLink source={p.source} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Facts({ a }: { a: AntarReading }) {
+  return (
+    <>
+      {a.facts.favourable.length > 0 && <span className="text-emerald-700 dark:text-emerald-300">{a.facts.favourable.join("; ")}</span>}
+      {a.facts.favourable.length > 0 && (a.facts.adverse.length > 0 || a.facts.maraka) && <span> · </span>}
+      {a.facts.adverse.length > 0 && <span className="text-rose-700 dark:text-rose-300">{a.facts.adverse.join("; ")}</span>}
+      {a.facts.adverse.length > 0 && a.facts.maraka && <span> · </span>}
+      {a.facts.maraka && <span className="text-rose-700 dark:text-rose-300">{a.facts.maraka}</span>}
+      {!a.facts.favourable.length && !a.facts.adverse.length && !a.facts.maraka && <span>none of the named placements</span>}
+    </>
+  );
+}
+
+function AntarRows({ a, isOpen, toggle, dasaLord }: { a: AntarReading; isOpen: boolean; toggle: () => void; dasaLord: string }) {
+  const e = a.entry;
+  return (
+    <>
+      <TableRow className={cn("cursor-pointer", a.current && "bg-primary/5", a.past && !a.current && "text-muted-foreground/80")} onClick={toggle} data-testid={`parashari-antar-${dasaLord}-${a.lord}`} aria-expanded={isOpen}>
+        <TableCell className="py-1.5 whitespace-nowrap">
+          <PlanetName planet={a.lord} />
+          {a.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+        </TableCell>
+        <TableCell className="hidden py-1.5 text-xs text-muted-foreground sm:table-cell whitespace-nowrap">{fmt(a.start)} – {fmt(a.end)}</TableCell>
+        <TableCell className="py-1.5">
+          <span className={cn("rounded px-1.5 py-0.5 text-[11px] font-medium whitespace-nowrap", VERDICT_CLASS[a.verdict])}>{VERDICT_LABEL[a.verdict]}</span>
+        </TableCell>
+        <TableCell className="hidden py-1.5 text-xs text-muted-foreground sm:table-cell">
+          <Facts a={a} />
+        </TableCell>
+      </TableRow>
+      <TableRow className="sm:hidden" onClick={toggle}>
+        <TableCell colSpan={4} className="px-3 pb-2 pt-0 text-xs text-muted-foreground">
+          <span className="mr-2">{fmt(a.start)} – {fmt(a.end)}.</span>
+          <Facts a={a} />
+        </TableCell>
+      </TableRow>
+      {isOpen && e && (
+        <TableRow className="bg-muted/30 hover:bg-muted/30" data-testid={`parashari-antar-text-${dasaLord}-${a.lord}`}>
+          <TableCell colSpan={4} className="px-3 py-3">
+            <div className="grid gap-3 text-xs sm:grid-cols-2">
+              <div className={cn("rounded-md border border-l-4 bg-card p-3", TONE_CLASS.support)}>
+                <p className="font-medium">When favourable</p>
+                <p className="mt-1 text-muted-foreground">Conditions: {e.favourable.conditions}</p>
+                <p className="mt-1 text-muted-foreground">{e.favourable.effects}</p>
+              </div>
+              <div className={cn("rounded-md border border-l-4 bg-card p-3", TONE_CLASS.strain)}>
+                <p className="font-medium">When adverse</p>
+                <p className="mt-1 text-muted-foreground">Conditions: {e.adverse.conditions}</p>
+                <p className="mt-1 text-muted-foreground">{e.adverse.effects}</p>
+              </div>
+            </div>
+            <dl className="mt-3 grid gap-x-4 gap-y-1 text-xs sm:grid-cols-[auto_1fr]">
+              {e.maraka && (<><dt className="font-medium">Maraka</dt><dd className="text-muted-foreground">{e.maraka}</dd></>)}
+              {e.phases && (<><dt className="font-medium">Course</dt><dd className="text-muted-foreground">{e.phases}</dd></>)}
+              {e.remedy && (<><dt className="font-medium">Remedy named</dt><dd className="text-muted-foreground">{e.remedy}</dd></>)}
+            </dl>
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              <SourceLink source={a.source} /> · paraphrased from the Santhanam translation
+            </p>
+          </TableCell>
+        </TableRow>
+      )}
+    </>
   );
 }
 

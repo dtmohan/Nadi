@@ -632,13 +632,34 @@ function ParashariMethod() {
       </ul>
       <h2>Timing</h2>
       <p>
-        Vimshottari dasa is computed from the Lahiri Moon with the same arithmetic as the KP mode. In this pass each dasa lord is glossed by the houses it owns and occupies and by its functional role for the
-        rising sign; the dasa and antardasa effects of BPHS chapters 46 to 64 are the next material to harvest.
+        Vimshottari dasa is computed from the Lahiri Moon with the same arithmetic as the KP mode. Each dasa lord is glossed by the houses it owns and occupies and by its functional role for the
+        rising sign, and its period is then read from Parashara's own dasa chapters (Santhanam translation):
       </p>
+      <ul>
+        <li>
+          Chapter 47, effects of dasas: the general rule (47.5-6: favourable when the lord is in the lagna, exalted, own or friendly sign; unfavourable in the 6th, 8th or 12th, debilitated or inimical) and the
+          planet-by-planet conditions for each of the nine lords (47.7-89). The drekkana rule of 47.3-4 places the lord's results at the start, middle or end of the dasa, reversed when it is retrograde. Verses
+          that turn on strength or on the navamsa are matched on dignity and the navamsa sign alone and say so; Shadbala is still to come.
+        </li>
+        <li>
+          Chapter 48, dasas of house lords: the theme of each lordship (48.2-8) and the relationship rules of 48.9-20 (company or aspect of the 5th and 9th lords, angle lord in a trine or trine lord in an
+          angle, exchanges of the 1st with the 9th or 10th, the 3rd, 6th and 11th lords and their company, maraka lords in the 2nd or 7th, occupation of the 8th). Parashara also asks for the lord's transit
+          position when the dasa begins (48.8); this is not evaluated yet.
+        </li>
+        <li>
+          Chapters 52 to 60, antar dasas: one chapter per dasa lord, nine sub-periods each, 81 entries in all. For every antar the app lists the placements Parashara names (angle or trine from the lagna,
+          dignity, house from the dasa lord, company of the lagna lord or of malefics, 2nd/7th lordship) and shows the chapter's own favourable and adverse conditions, the stated course of the sub-period,
+          its maraka note and the remedy named, paraphrased and cited to the verse range. The verdict column is a mechanical tally of matched conditions, not a reading.
+        </li>
+        <li>
+          Chapter 61, pratyantar dasas: the general one-line effects of 61.2-82 are shown for the running antar only, with the caveat of 61.2 that they lapse when the lord is in a trine or an auspicious house.
+          Chapters 62 and 63 (sookshma and prana levels) and chapter 64 (Kalachakra antars) are not applied; chapter 50 (Chara dasa effects) belongs with the Jaimini mode and is noted there for later.
+        </li>
+      </ul>
       <h2>Not yet here</h2>
       <p>
         Bhava chalit (unequal houses), Shadbala, Ashtakavarga, the divisional charts beyond the navamsa and dasamsa already used elsewhere, Neecha Bhanga and Viparita raja yoga (which are not stated in
-        these BPHS chapters and would be entered as provisional from Phaladeepika or a similar source), and the dasa-effect chapters. Any rule added from a non-classical source will carry a provisional mark.
+        these BPHS chapters and would be entered as provisional from Phaladeepika or a similar source), the transit position of a dasa lord at its commencement (48.8), and the sookshma and prana levels. Any rule added from a non-classical source will carry a provisional mark.
       </p>
     </div>
   );
