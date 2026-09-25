@@ -1,7 +1,7 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import type * as z from "zod/mini";
-import type { PlanetPosition, TransitPeriod, NakshatraPeriod } from "./astro";
+import type { PlanetPosition, TransitPeriod, NakshatraPeriod, SignPeriod } from "./astro";
 import type { FatherArishtaWindow } from "./father-arishta";
 import type { Reading } from "./rules";
 import type { JaiminiResult } from "./jaimini";
@@ -59,6 +59,8 @@ export interface ChartResult {
   saturnNakshatras?: NakshatraPeriod[];
   /** Saturn passages over the father's Ashtakavarga point with Rahu, Saturn or Mars in the 4th from the Sun, BPHS 70.12-14. */
   fatherArishta?: FatherArishtaWindow[];
+  /** The Moon's sign passages for thirty days from the day the chart was computed, for BPHS 70.21. */
+  moonMonth?: SignPeriod[];
 }
 
 export interface GeoHit {

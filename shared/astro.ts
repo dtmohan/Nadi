@@ -260,6 +260,12 @@ export interface TransitPeriod {
   retrogradeEntry: boolean; // entered by retrograde motion
 }
 
+export interface SignPeriod {
+  signIndex: number;
+  start: string;
+  end: string;
+}
+
 export interface NakshatraPeriod {
   planet: "Jupiter" | "Saturn";
   nakshatraIndex: number; // 0 = Ashwini

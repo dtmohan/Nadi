@@ -4,6 +4,7 @@ import { NAKSHATRAS, type Planet } from "@shared/astro";
 import { CONTRIBUTORS } from "@shared/ashtakavarga";
 import type { AvTimeline, AvTransitRow, AvNakshatraRow, AvTone } from "@shared/av-transit";
 import { FATHER_ARISHTA_CAVEATS, type FatherArishtaReading, type ArishtaLevel } from "@shared/father-arishta";
+import type { MotherPointReading, MotherPointRow, MotherSeverity } from "@shared/mother-point";
 import { SignName, PlanetName, planetColor } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,96 @@ type Range = "around" | "life";
 const LEVEL_PILL: Record<ArishtaLevel, string> = { watch: TONE_PILL.mixed, grave: TONE_PILL.strain, averted: TONE_PILL.support };
 const LEVEL_LABEL: Record<ArishtaLevel, string> = { watch: "to watch", grave: "grave", averted: "averted by dasa" };
 const LEVEL_BORDER: Record<ArishtaLevel, string> = { watch: TONE_BORDER.mixed, grave: TONE_BORDER.strain, averted: TONE_BORDER.support };
+
+const SEVERITY_PILL: Record<MotherSeverity, string> = { "death or distress": TONE_PILL.strain, "death may occur": TONE_PILL.strain, distress: TONE_PILL.mixed };
+const SEVERITY_BORDER: Record<MotherSeverity, string> = { "death or distress": TONE_BORDER.strain, "death may occur": TONE_BORDER.strain, distress: TONE_BORDER.mixed };
+const fmtDT = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL HH:mm");
+
+function MotherRow({ r, open, toggle, sources }: { r: MotherPointRow; open: boolean; toggle: () => void; sources: MotherPointReading["sources"] }) {
+  const key = `${r.kind.replace(" ", "-")}-${r.start.slice(0, 10)}`;
+  return (
+    <li className={cn("rounded-md border border-l-4 bg-card text-xs", SEVERITY_BORDER[r.severity], r.current && "ring-1 ring-primary/40")} data-testid={`av-mother-${key}`}>
+      <button type="button" className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-3 py-1.5 text-left" onClick={toggle} aria-expanded={open}>
+        <span className="w-[8.5rem] shrink-0 tabular-nums text-muted-foreground">
+          {fmt(r.start)} – {fmt(r.end)}
+        </span>
+        <span className="text-sm">{r.label}</span>
+        <span className="text-[10px] text-muted-foreground">{r.kind === "sign" || r.kind === "nakshatra" ? `${r.kind} point` : r.kind}</span>
+        {r.retrogradeEntry && <span className="rounded border px-1 text-[10px] text-muted-foreground">retrograde re-entry</span>}
+        {r.current && <span className="rounded bg-primary/10 px-1 text-[10px] font-medium text-primary">now</span>}
+        <span className={cn("ml-auto rounded px-1.5 py-0.5 text-[11px] font-medium", SEVERITY_PILL[r.severity])}>{r.severity}</span>
+      </button>
+      {open && (
+        <div className="border-t px-3 py-2 text-xs" data-testid={`av-mother-notes-${key}`}>
+          <p>
+            Age {r.age}. {r.text}
+          </p>
+          <p className="mt-1 flex flex-wrap gap-x-2 text-muted-foreground">
+            <SourceLink source={sources.point} />
+            {r.runningDasa && <SourceLink source={sources.dasa} />}
+          </p>
+        </div>
+      )}
+    </li>
+  );
+}
+
+function MotherSection({ m, inRange }: { m: MotherPointReading; inRange: (s: string, e: string) => boolean }) {
+  const [open, setOpen] = useState<string | null>(null);
+  const [caveats, setCaveats] = useState(false);
+  const rows = m.rows.filter((r) => inRange(r.start, r.end));
+  const CAL_PILL: Record<"avoid" | "fit" | "even", string> = { avoid: TONE_PILL.strain, fit: TONE_PILL.support, even: TONE_PILL.mixed };
+  return (
+    <div data-testid="av-timeline-mother">
+      <h4 className="mt-6 text-sm font-semibold">Mother's point under Saturn</h4>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Mother, house and village are read from the 4th from the Moon: its {m.rekhas} rekhas in the Moon's chart times the Moon's yoga pinda give {m.product}, whose remainders by 27 and 12 name{" "}
+        {NAKSHATRAS[m.pointNakshatra]} and <SignName signIndex={m.pointSign} />. Saturn in that nakshatra brings death of, or distress to, the mother; in that sign her death may occur; in their trines,
+        distress. <SourceLink source={m.sources.point} /> The verses give no planetary condition like 70.12 for the mother, so none is tested.
+      </p>
+      <ul className="mt-2 space-y-1.5" data-testid="av-timeline-mother-rows">
+        {rows.map((r) => {
+          const k = r.kind + r.start;
+          return <MotherRow key={k} r={r} open={open === k} toggle={() => setOpen((v) => (v === k ? null : k))} sources={m.sources} />;
+        })}
+        {rows.length === 0 && <li className="rounded-md border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">No passage over the mother's point in this range.</li>}
+      </ul>
+      {!m.hasNakshatras && <p className="mt-2 text-xs text-muted-foreground">Nakshatra passages appear once this chart is reopened.</p>}
+
+      <h4 className="mt-5 text-sm font-semibold">Moon's month for auspicious functions</h4>
+      <p className="mt-1 text-xs text-muted-foreground">
+        No auspicious function while the Moon transits a sign holding more dots than rekhas in the Moon's own chart. <SourceLink source={m.sources.calendar} /> Thirty days from the day the chart was opened, times in this device's zone.
+      </p>
+      {m.calendar ? (
+        <ul className="mt-2 grid gap-1 sm:grid-cols-2" data-testid="av-timeline-moon-month">
+          {m.calendar.map((c) => (
+            <li key={c.start} className={cn("flex flex-wrap items-center gap-x-2 gap-y-0.5 rounded-md border bg-card px-2.5 py-1 text-xs", c.current && "ring-1 ring-primary/40")} data-testid={`av-moon-${c.start.slice(0, 10)}`}>
+              <span className="min-w-[11rem] shrink-0 whitespace-nowrap tabular-nums text-muted-foreground">
+                {fmtDT(c.start)} – {fmtDT(c.end)}
+              </span>
+              <SignName signIndex={c.signIndex} />
+              <span className="text-[10px] text-muted-foreground">{c.rekhas} rekhas</span>
+              {c.current && <span className="rounded bg-primary/10 px-1 text-[10px] font-medium text-primary">now</span>}
+              <span className={cn("ml-auto rounded px-1.5 py-0.5 text-[11px] font-medium", CAL_PILL[c.verdict])}>{c.verdict}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 rounded-md border border-dashed px-3 py-3 text-xs text-muted-foreground">The Moon's month is computed when a chart is opened; reopen this chart to see it.</p>
+      )}
+      <button className="mt-2 text-xs text-muted-foreground underline underline-offset-2" onClick={() => setCaveats((v) => !v)} data-testid="av-timeline-mother-caveats">
+        {caveats ? "Hide" : "Show"} how 70.21-23 was applied ({m.caveats.length} notes)
+      </button>
+      {caveats && (
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+          {m.caveats.map((c, i) => (
+            <li key={i}>{c}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function ArishtaRow({ r, open, toggle }: { r: FatherArishtaReading; open: boolean; toggle: () => void }) {
   return (
@@ -148,7 +239,7 @@ function NakRow({ r }: { r: AvNakshatraRow }) {
   );
 }
 
-export function AvTimelineSection({ tl, asOfIso, arishta }: { tl: AvTimeline; asOfIso: string; arishta?: FatherArishtaReading[] }) {
+export function AvTimelineSection({ tl, asOfIso, arishta, mother }: { tl: AvTimeline; asOfIso: string; arishta?: FatherArishtaReading[]; mother?: MotherPointReading | null }) {
   const [planet, setPlanet] = useState<"Saturn" | "Jupiter">("Saturn");
   const [range, setRange] = useState<Range>("around");
   const [open, setOpen] = useState<string | null>(null);
@@ -258,6 +349,8 @@ export function AvTimelineSection({ tl, asOfIso, arishta }: { tl: AvTimeline; as
               ))}
             </ul>
           )}
+
+          {mother && <MotherSection m={mother} inRange={inRange} />}
 
           <h4 className="mt-6 text-sm font-semibold">Years to watch</h4>
           <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground" data-testid="av-timeline-years">

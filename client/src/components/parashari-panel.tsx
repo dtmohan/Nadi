@@ -12,6 +12,7 @@ import { NAKSHATRAS } from "@shared/astro";
 import { computeAvTimeline } from "@shared/av-transit";
 import { AvTimelineSection } from "@/components/av-timeline";
 import { readFatherArishta } from "@shared/father-arishta";
+import { readMotherPoint } from "@shared/mother-point";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
@@ -72,6 +73,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
     () => (result.fatherArishta ? readFatherArishta(result.fatherArishta, r.bhavas[3].lord, r.dashas, r.dasaReadings, result.utc, asOfIso) : undefined),
     [result.fatherArishta, r, result.utc, asOfIso],
   );
+  const motherPoint = useMemo(() => readMotherPoint(r.ashtakavarga, result.transits, result.saturnNakshatras, result.moonMonth, r.dasaReadings, result.utc, asOfIso), [r, result.transits, result.saturnNakshatras, result.moonMonth, result.utc, asOfIso]);
   const avTimeline = useMemo(() => computeAvTimeline(r.ashtakavarga, r.lagna.signIndex, result.transits, result.saturnNakshatras, result.utc, asOfIso), [r, result.transits, result.saturnNakshatras, result.utc, asOfIso]);
   const [balaOpen, setBalaOpen] = useState<string | null>(null);
   const [focusHouse, setFocusHouse] = useState<number | null>(null);
@@ -230,7 +232,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
 
       {r.shadbala && <ShadbalaSection sb={r.shadbala} open={balaOpen} setOpen={setBalaOpen} phala={r.bhavaPhala} varga={r.vargaPhala} />}
       <AshtakavargaSection av={r.ashtakavarga} lagnaIdx={r.lagna.signIndex} />
-      <AvTimelineSection tl={avTimeline} asOfIso={asOfIso} arishta={fatherArishta} />
+      <AvTimelineSection tl={avTimeline} asOfIso={asOfIso} arishta={fatherArishta} mother={motherPoint} />
 
       <div className="mt-8">
         <h3 className="text-sm font-semibold">Vimshottari dasa, read by lordship</h3>
