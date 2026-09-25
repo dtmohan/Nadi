@@ -639,7 +639,15 @@ function ParashariMethod() {
         <li>
           Chapter 47, effects of dasas: the general rule (47.5-6: favourable when the lord is in the lagna, exalted, own or friendly sign; unfavourable in the 6th, 8th or 12th, debilitated or inimical) and the
           planet-by-planet conditions for each of the nine lords (47.7-89). The drekkana rule of 47.3-4 places the lord's results at the start, middle or end of the dasa, reversed when it is retrograde. Verses
-          that turn on strength or on the navamsa are matched on dignity and the navamsa sign alone and say so; Shadbala is still to come.
+          that turn on strength or on the navamsa are matched on dignity and the navamsa sign; each dasa reading also carries a Shadbala note from chapter 27 against the requirement of 27.32-33.
+        </li>
+        <li>
+          Chapter 27, Shadbala: the six strengths in virupas for the seven planets. Sthana (Uchcha 27.1-2; Saptavargaja 27.2-4 over rasi, hora, drekkana, saptamsa, navamsa, dwadasamsa and trimsamsa, valued by the
+          compound friendship of 3.55-58 with moolatrikona by the degree ranges of 3.51-54; Ojhayugma 27.4; Kendradi 27.5; Drekkana 27.6), Dig (27.7), Kala (Nathonnatha 27.8-9, Paksha 27.10-11, Tribhaga 27.12,
+          lords of the year, month, day and hora 27.13, Ayana 27.15-17), Chesta (27.18 for the luminaries, 27.24-25 for the others, using mean longitudes), Naisargika (27.14) and Drik (27.19, with the aspect
+          values of 26.6-12 and Jupiter and Mercury counted as benefics). Planetary war follows 27.20. Totals are set against 27.32-33 and the component requirements of 27.34-36, and the strength qualifier of
+          24.145-148 is attached to each lord-in-house reading. Provisional points: the hora sequence, the drik sign convention, the war rule and the half and quarter thresholds are not spelt out in the text.
+          Not applied: the motion table of 27.21-23 (the mean-motion arc is used instead), bhava bala (27.26-31) and the Ishta and Kashta phalas of chapter 28. The Sun's Ayana bala is not doubled.
         </li>
         <li>
           Chapter 48, dasas of house lords: the theme of each lordship (48.2-8) and the relationship rules of 48.9-20 (company or aspect of the 5th and 9th lords, angle lord in a trine or trine lord in an
@@ -658,7 +666,7 @@ function ParashariMethod() {
       </ul>
       <h2>Not yet here</h2>
       <p>
-        Bhava chalit (unequal houses), Shadbala, Ashtakavarga, the divisional charts beyond the navamsa and dasamsa already used elsewhere, Neecha Bhanga and Viparita raja yoga (which are not stated in
+        Bhava chalit (unequal houses), bhava bala (27.26-31), Ishta and Kashta phala (ch. 28), Ashtakavarga, the divisional charts beyond the navamsa and dasamsa already used elsewhere, Neecha Bhanga and Viparita raja yoga (which are not stated in
         these BPHS chapters and would be entered as provisional from Phaladeepika or a similar source), the transit position of a dasa lord at its commencement (48.8), and the sookshma and prana levels. Any rule added from a non-classical source will carry a provisional mark.
       </p>
     </div>

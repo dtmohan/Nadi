@@ -4,6 +4,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { DateTime } from "luxon";
 import type { KpBase } from "@shared/kp";
+import type { ShadbalaBase, Seven } from "@shared/shadbala";
 import {
   PLANETS,
   type Planet,
@@ -181,6 +182,41 @@ export function sunriseBefore(jd: number, latitude: number, longitude: number): 
     t = next;
   }
   return t;
+}
+
+function riseOrSetAfter(start: number, latitude: number, longitude: number, kind: number): number {
+  const r = sweph.rise_trans(start, C.SE_SUN, "", C.SEFLG_SWIEPH, kind, [longitude, latitude, 0], 1013.25, 15) as unknown as { flag: number; data: number[] | number };
+  if (r.flag < 0) throw new Error("Could not compute sunrise or sunset");
+  return Array.isArray(r.data) ? r.data[0] : r.data;
+}
+
+/**
+ * Ephemeris facts for Shadbala (BPHS ch. 27): sidereal ascendant and meridian, the day's sunrise and sunset,
+ * local mean time, the Hindu weekday, the Kali-epoch day count, and each planet's declination, latitude
+ * and tropical longitude. The arithmetic of the six strengths lives in shared/shadbala.ts.
+ */
+export function shadbalaBase(jd: number, latitude: number, longitude: number, opts: EphemerisOptions): ShadbalaBase {
+  setMode(opts);
+  const h = sweph.houses_ex(jd, C.SEFLG_SIDEREAL, latitude, longitude, "P") as unknown as { flag: number; data: { houses: number[]; points: number[] } };
+  if (h.flag < 0) throw new Error("Could not compute the meridian");
+  const asc = norm360(h.data.points[0]);
+  const mc = norm360(h.data.points[1]);
+  const ayanamsa = sweph.get_ayanamsa_ut(jd);
+  const sunriseJd = sunriseBefore(jd, latitude, longitude);
+  const sunsetJd = riseOrSetAfter(sunriseJd + 0.01, latitude, longitude, C.SE_CALC_SET);
+  const nextSunriseJd = riseOrSetAfter(sunsetJd + 0.01, latitude, longitude, C.SE_CALC_RISE);
+  const lmtHours = ((((jd + 0.5 + longitude / 360) % 1) + 1) % 1) * 24;
+  const dayNumber = Math.floor(sunriseJd + longitude / 360 + 0.5);
+  const weekday = (dayNumber + 1) % 7;
+  const ahargana = dayNumber - 588466; // day 0 = 18 Feb 3102 BCE, a Friday
+  const bodies = {} as ShadbalaBase["bodies"];
+  for (const p of ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"] as Seven[]) {
+    const ecl = sweph.calc_ut(jd, BODY[p], C.SEFLG_SWIEPH | C.SEFLG_SPEED);
+    const equ = sweph.calc_ut(jd, BODY[p], C.SEFLG_SWIEPH | C.SEFLG_EQUATORIAL);
+    if (ecl.flag < 0 || equ.flag < 0) throw new Error(ecl.error || equ.error);
+    bodies[p] = { tropLon: norm360(ecl.data[0]), lat: ecl.data[1], decl: equ.data[1] };
+  }
+  return { jd, ayanamsa, asc, mc, sunriseJd, sunsetJd, nextSunriseJd, lmtHours, weekday, ahargana, bodies };
 }
 
 /** Jaimini special lagnas: Hora lagna advances one sign per hour and Ghatika lagna one sign per ghati (24 min) from the Sun's sidereal longitude at sunrise. */

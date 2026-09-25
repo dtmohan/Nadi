@@ -5,6 +5,7 @@
 
 import { SIGNS, SIGN_LORD, houseFrom, type Planet, type PlanetPosition, type Sign } from "./astro";
 import { vimshottari, type Vimshottari } from "./kp";
+import { computeShadbala, type ShadbalaBase, type ShadbalaResult } from "./shadbala";
 import { computeDasaReadings, type DasaReading } from "./parashari-dasa";
 import { LORD_IN_HOUSE, LAGNA_NATURE, BPHS_URL, type FunctionalRole } from "./parashari-data";
 
@@ -75,6 +76,8 @@ export interface ParashariResult {
   dashas: DashaGloss[];
   /** Period effects from BPHS ch. 47-48 and 52-61. */
   dasaReadings: DasaReading[];
+  /** Six-fold strength of the seven planets, BPHS ch. 27; absent when the server sent no ephemeris facts. */
+  shadbala?: ShadbalaResult;
 }
 
 const S = (ch: number, verse: string, label?: string, provisional?: boolean): ParashariSource => ({
@@ -135,8 +138,9 @@ function functionalRole(planet: Planet, lagnaIdx: number): FunctionalRole {
 
 const strongDignity = (p: PlanetPosition) => p.dignity === "Exalted" || p.dignity === "Own sign" || p.dignity === "Moolatrikona";
 
-export function computeParashari(positions: PlanetPosition[], lagnaLon: number, birthIso: string, asOfIso: string): ParashariResult {
+export function computeParashari(positions: PlanetPosition[], lagnaLon: number, birthIso: string, asOfIso: string, shadbalaBase?: ShadbalaBase): ParashariResult {
   const lagnaIdx = Math.floor((((lagnaLon % 360) + 360) % 360) / 30);
+  const shadbala = shadbalaBase ? computeShadbala(positions, lagnaIdx, shadbalaBase) : undefined;
   const pos = (pl: Planet) => positions.find((p) => p.planet === pl)!;
   const houseOf = (pl: Planet) => houseFrom(lagnaIdx, pos(pl).signIndex);
   const signOfHouse = (h: number) => (lagnaIdx + h - 1) % 12;
@@ -175,11 +179,13 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   // Lords in houses, ch. 24.
   for (const b of bhavas) {
     const e = LORD_IN_HOUSE[b.house - 1][b.lordIn - 1];
+    const sb = shadbala?.planets.find((x) => x.planet === b.lord);
+    const qualifier = sb ? ` Strength qualifier (24.145): ${b.lord} has ${sb.total.toFixed(0)} of the ${sb.required} virupas Parashara asks for (27.32-33), so expect ${sb.effect === "full" ? "the full" : sb.effect === "half" ? "about half the" : "about a quarter of the"} effect.` : "";
     findings.push({
       id: `pa-lord-${b.house}-${b.lordIn}`,
       kind: "lord",
       title: `Lord of the ${ord(b.house)} in the ${ord(b.lordIn)}`,
-      text: `${b.lord}, lord of the ${ord(b.house)} (${b.sign}), stands in the ${ord(b.lordIn)} (${SIGNS[signOfHouse(b.lordIn)]}). ${e.text}`,
+      text: `${b.lord}, lord of the ${ord(b.house)} (${b.sign}), stands in the ${ord(b.lordIn)} (${SIGNS[signOfHouse(b.lordIn)]}). ${e.text}${qualifier}`,
       tone: e.tone,
       planets: [b.lord],
       source: S(24, String(e.verse)),
@@ -426,8 +432,8 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
     return { lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: d.current, owns: n.owns, house: n.house, functional: n.functional, summary: roleText + "." + eff };
   });
 
-  const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso);
-  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, vimshottari: vim, dashas, dasaReadings };
+  const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala);
+  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, vimshottari: vim, dashas, dasaReadings, shadbala };
 }
 
 export function ord(n: number): string {

@@ -1,13 +1,15 @@
 // Parashari dasa effects: BPHS ch. 47 (dasa effects by placement), ch. 48 (dasas of house lords and their
 // relationships), ch. 52-60 (antar dasas) and ch. 61 (pratyantar general effects). Santhanam translation,
-// jyotishvidya.com. Rules are evaluated on whole-sign houses from the Lahiri lagna; strength (Shadbala) is not
-// yet computed, so verses that hinge on "strong" or "weak" are matched on dignity alone and say so.
+// jyotishvidya.com. Rules are evaluated on whole-sign houses from the Lahiri lagna. Verses that hinge on "strong"
+// or "weak" are matched on dignity; the Shadbala of ch. 27, when supplied, is added as its own note against the
+// requirement of 27.32-33 so the two measures stay visible side by side.
 import { houseFrom, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
 import type { Vimshottari } from "./kp";
 import { antarasOf } from "./kp";
 import { DateTime } from "luxon";
 import { ANTAR_DASA, PRATYANTAR, type AntarEntry } from "./parashari-dasa-data";
+import type { ShadbalaResult, PlanetShadbala } from "./shadbala";
 
 export type Tone = "support" | "strain" | "mixed";
 
@@ -20,7 +22,7 @@ export interface DasaSource {
 export interface DasaNote {
   id: string;
   /** Which chapter layer the note comes from. */
-  layer: "general" | "planet" | "lordship" | "relation";
+  layer: "general" | "strength" | "planet" | "lordship" | "relation";
   text: string;
   tone: Tone;
   source: DasaSource;
@@ -97,6 +99,8 @@ interface Ctx {
   waning: boolean;
   navamsaSign: (p: Planet) => number;
   yogakaraka: Planet[];
+  /** Shadbala row for a planet when ch. 27 has been computed; nodes and missing data give undefined. */
+  bala: (p: Planet) => PlanetShadbala | undefined;
 }
 
 function drishti(planet: Planet, fromSign: number, toSign: number): number {
@@ -109,7 +113,7 @@ function drishti(planet: Planet, fromSign: number, toSign: number): number {
   return 0;
 }
 
-function makeCtx(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[]): Ctx {
+function makeCtx(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], sb?: ShadbalaResult): Ctx {
   const pos = (pl: Planet) => positions.find((p) => p.planet === pl)!;
   const sun = pos("Sun"), moon = pos("Moon");
   const elong = (((moon.lon - sun.lon) % 360) + 360) % 360;
@@ -146,6 +150,7 @@ function makeCtx(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Plan
     waning,
     navamsaSign: (pl) => (pos(pl).signIndex * 9 + Math.floor(pos(pl).degInSign / (10 / 3))) % 12,
     yogakaraka,
+    bala: (pl) => sb?.planets.find((x) => x.planet === pl),
   };
 }
 
@@ -173,7 +178,7 @@ const PLANET_RULES: Record<Planet, Rule[]> = {
     { verse: "26", tone: "mixed", when: (c, p) => DUSTHANA.includes(c.houseOf(p)) && !c.waning, text: (c, p) => `A bright Moon in the ${ord(c.houseOf(p))}: troubles and good times alternate.` },
   ],
   Mars: [
-    { verse: "27-31", tone: "support", when: (c, p) => c.strong(p) || KENDRA.includes(c.houseOf(p)) || [2, 11].includes(c.houseOf(p)) || c.withBenefic(p).length > 0, text: (c, p) => `Mars ${c.strong(p) ? "in dignity" : KENDRA.includes(c.houseOf(p)) ? "in an angle" : [2, 11].includes(c.houseOf(p)) ? `in the ${ord(c.houseOf(p))}` : `with ${c.withBenefic(p).join(", ")}`}: position, land and wealth, recognition, gains from abroad, good relations with siblings. The verse also asks for a benefic navamsa and strength, which are not yet checked.` },
+    { verse: "27-31", tone: "support", when: (c, p) => c.strong(p) || KENDRA.includes(c.houseOf(p)) || [2, 11].includes(c.houseOf(p)) || c.withBenefic(p).length > 0, text: (c, p) => `Mars ${c.strong(p) ? "in dignity" : KENDRA.includes(c.houseOf(p)) ? "in an angle" : [2, 11].includes(c.houseOf(p)) ? `in the ${ord(c.houseOf(p))}` : `with ${c.withBenefic(p).join(", ")}`}: position, land and wealth, recognition, gains from abroad, good relations with siblings.${c.bala(p) ? ` The verse also asks for strength: Mars has ${c.bala(p)!.total.toFixed(0)} of ${c.bala(p)!.required} virupas${c.bala(p)!.strong ? ", so this condition holds" : ", short of the mark"}.` : " The verse also asks for a benefic navamsa and strength, which are not checked here."}` },
     { verse: "32", tone: "mixed", when: (c, p) => KENDRA.includes(c.houseOf(p)) || c.houseOf(p) === 3, text: (c, p) => `Mars in ${KENDRA.includes(c.houseOf(p)) ? "an angle" : "the 3rd"}: gains through courage, victory over rivals, happiness from spouse and children, with some unfavourable turn possible at the end of the dasa.` },
     { verse: "33", tone: "strain", when: (c, p) => c.dignity(p) === "Debilitated" || c.weak(p) || DUSTHANA.includes(c.houseOf(p)) || c.withMalefic(p).length > 0 || c.aspectedByMalefic(p).length > 0, text: (c, p) => `Mars ${c.dignity(p) === "Debilitated" ? "debilitated" : c.weak(p) ? c.dignity(p).toLowerCase() : DUSTHANA.includes(c.houseOf(p)) ? `in the ${ord(c.houseOf(p))}` : c.withMalefic(p).length ? `with ${c.withMalefic(p).join(", ")}` : `aspected by ${c.aspectedByMalefic(p).join(", ")}`}: loss of wealth and distress are indicated.` },
   ],
@@ -330,8 +335,8 @@ function antarVerdict(f: AntarReading["facts"]): Tone {
 }
 
 /** All dasa readings for the Vimshottari sequence. */
-export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], vim: Vimshottari, birthIso: string, asOfIso: string): DasaReading[] {
-  const c = makeCtx(positions, lagnaIdx, yogakaraka);
+export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], vim: Vimshottari, birthIso: string, asOfIso: string, shadbala?: ShadbalaResult): DasaReading[] {
+  const c = makeCtx(positions, lagnaIdx, yogakaraka, shadbala);
   const birth = DateTime.fromISO(birthIso), asOf = DateTime.fromISO(asOfIso);
   return vim.dasas.map((d) => {
     const p = d.lord;
@@ -341,6 +346,20 @@ export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: numbe
     // 47.5-6 general.
     if (h === 1 || c.strong(p) || c.dignity(p) === "Friendly") notes.push({ id: `${p}-47-5`, layer: "general", tone: "support", text: `${p} is ${h === 1 ? "in the lagna" : c.strong(p) ? c.dignity(p).toLowerCase() : "in a friendly sign"} (${SIGNS[pp.signIndex]}): the general rule reads the dasa as favourable.`, source: S(47, "5-6") });
     if (DUSTHANA.includes(h) || c.dignity(p) === "Debilitated" || c.dignity(p) === "Inimical") notes.push({ id: `${p}-47-6`, layer: "general", tone: "strain", text: `${p} is ${DUSTHANA.includes(h) ? `in the ${ord(h)}` : c.dignity(p).toLowerCase()}${DUSTHANA.includes(h) && ["Debilitated", "Inimical"].includes(c.dignity(p)) ? ` and ${c.dignity(p).toLowerCase()}` : ""}: the general rule reads the dasa as unfavourable.`, source: S(47, "5-6") });
+    // ch. 27 strength against the requirement of 27.32-33.
+    const sb = c.bala(p);
+    if (sb) {
+      const short = sb.components.filter((x) => !x.ok).map((x) => `${x.name} ${x.value.toFixed(0)}/${x.required}`);
+      notes.push({
+        id: `${p}-27-bala`,
+        layer: "strength",
+        tone: sb.strong ? "support" : "strain",
+        text: `Shadbala ${sb.total.toFixed(0)} virupas against the ${sb.required} required for ${p} (${(sb.ratio * 100).toFixed(0)}%): ${sb.strong ? "strong, so the dasa lord can deliver what the verses promise" : "below the mark, so the verses' results arrive in reduced measure"}.${short.length ? ` Components short of 27.34-36: ${short.join(", ")}.` : " Every named component meets its own requirement (27.34-36)."}`,
+        source: S(27, "32-36"),
+      });
+    } else if (p === "Rahu" || p === "Ketu") {
+      notes.push({ id: `${p}-27-bala`, layer: "strength", tone: "mixed", text: `${p} has no Shadbala: chapter 27 gives strengths for the seven planets only. Read its strength through its sign lord ${SIGN_LORD[pp.signIndex]}${c.bala(SIGN_LORD[pp.signIndex]) ? ` (${c.bala(SIGN_LORD[pp.signIndex])!.total.toFixed(0)} of ${c.bala(SIGN_LORD[pp.signIndex])!.required} virupas)` : ""}.`, source: S(27, "32-33", true) });
+    }
     // 47 planet-specific.
     for (const r of PLANET_RULES[p] ?? []) if (r.when(c, p)) notes.push({ id: `${p}-47-${r.verse}`, layer: "planet", tone: r.tone, text: r.text(c, p), source: S(47, r.verse) });
     // 48.2-8 lordship.
@@ -391,6 +410,7 @@ export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: numbe
 
 export const LAYER_LABEL: Record<DasaNote["layer"], string> = {
   general: "General rule (47.5-6)",
+  strength: "Shadbala (ch. 27)",
   planet: "Placement (ch. 47)",
   lordship: "House lordship (48.2-8)",
   relation: "Relationships (48.9-20)",

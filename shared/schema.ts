@@ -5,6 +5,7 @@ import type { PlanetPosition, TransitPeriod } from "./astro";
 import type { Reading } from "./rules";
 import type { JaiminiResult } from "./jaimini";
 import type { KpBase } from "./kp";
+import type { ShadbalaBase } from "./shadbala";
 import { chartEventsSchema, type ChartEvent } from "./events";
 
 export const charts = sqliteTable("charts", {
@@ -49,6 +50,8 @@ export interface ChartResult {
   jaimini: JaiminiResult;
   /** Krishnamurti Paddhati base data (KP ayanamsa, Placidus cusps); the reading is derived in the client. */
   kp: KpBase;
+  /** Ephemeris facts for Shadbala (BPHS ch. 27); the strengths are derived in the client. */
+  shadbala?: ShadbalaBase;
 }
 
 export interface GeoHit {

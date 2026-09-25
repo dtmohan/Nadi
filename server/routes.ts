@@ -2,7 +2,7 @@ import type { Express } from "express";
 import type { Server } from "node:http";
 import { insertChartSchema, type Chart, type ChartResult, type GeoHit } from "@shared/schema";
 import { RULES, evaluate } from "@shared/rules";
-import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, type EphemerisOptions } from "./ephemeris";
+import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, shadbalaBase, type EphemerisOptions } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
 import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
 import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
@@ -47,6 +47,7 @@ export function computeChart(chart: Chart): ChartResult {
     now: { positions: positionsAt(nj, opts), asOf: DateTime.utc().toISO()! },
     jaimini,
     kp: kpBase(jd, chart.latitude, chart.longitude, chart.timezone, opts.nodeType),
+    shadbala: shadbalaBase(jd, chart.latitude, chart.longitude, opts),
   };
   resultCache.set(key, result);
   if (resultCache.size > 200) resultCache.delete(resultCache.keys().next().value!);
