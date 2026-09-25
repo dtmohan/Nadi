@@ -19,6 +19,8 @@ import { computeVargas } from "@shared/vargas";
 import { VargasSection } from "@/components/vargas";
 import { computeChalit } from "@shared/chalit";
 import { ChalitSection } from "@/components/chalit";
+import { computePortions } from "@shared/portions";
+import { PortionsSection } from "@/components/portions";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
@@ -84,6 +86,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const avTimeline = useMemo(() => computeAvTimeline(r.ashtakavarga, r.lagna.signIndex, result.transits, result.saturnNakshatras, result.utc, asOfIso), [r, result.transits, result.saturnNakshatras, result.utc, asOfIso]);
   const vargas = useMemo(() => computeVargas(positions, result.jaimini.lagna.lon), [positions, result.jaimini.lagna.lon]);
   const chalit = useMemo(() => (result.shadbala ? computeChalit(positions, result.shadbala.asc, result.shadbala.mc) : undefined), [positions, result.shadbala]);
+  const portions = useMemo(() => computePortions(positions), [positions]);
   const [balaOpen, setBalaOpen] = useState<string | null>(null);
   const [focusHouse, setFocusHouse] = useState<number | null>(null);
   const [section, setSection] = useState<"lords" | "yogas">("yogas");
@@ -241,6 +244,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
 
       {r.shadbala && <ShadbalaSection sb={r.shadbala} open={balaOpen} setOpen={setBalaOpen} phala={r.bhavaPhala} varga={r.vargaPhala} />}
       <VargasSection v={vargas} name={chart.name} />
+      <PortionsSection r={portions} />
       {chalit && <ChalitSection c={chalit} />}
       <AshtakavargaSection av={r.ashtakavarga} lagnaIdx={r.lagna.signIndex} />
       <AvTimelineSection tl={avTimeline} asOfIso={asOfIso} arishta={fatherArishta} mother={motherPoint} />
