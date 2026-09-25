@@ -8,6 +8,7 @@ import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "
 import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES, ALP_HOUSE_THEMES, DUSTHANA_NOTE, alpSignReading, threeWaysFor, threeWaysCount, threeWaysText, THREE_WAYS_NOTE, ALP_PLANET_THEMES } from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
+import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 import { PlanetName, SignName, TimePill, PlanetLegend, ElementLegend, planetColor, elementColor } from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
 import { Term } from "@/components/term";
@@ -61,6 +62,8 @@ export function AlpPanel({ result }: { result: ChartResult }) {
   }, [asOf, positions, result.jaimini.lagna.lon, result.utc, chart.timezone]);
 
   const alpLord = a.point.lord;
+  const plain = usePlain();
+  const curSign = a.signPeriods.find((p) => p.current);
   const badges: Record<number, string[]> = {};
   badges[a.point.signIndex] = ["ALP"];
   badges[a.natalLagna.signIndex] = [...(badges[a.natalLagna.signIndex] ?? []), "Janma"];
@@ -137,6 +140,36 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         </span>
       </div>
 
+      <ModeText
+        className="mt-3 text-sm"
+        plain={<>In this method the rising point does not stay where it was at birth: it moves forward one sign every ten years, so that by the age of 120 it has gone round the whole zodiac. The birth planets stay put and are read afresh from wherever the point stands now, so the same chart tells a different story each decade. A second moving point, derived from the Moon, stands for the mind. Hover a dotted term for its meaning; switch to Practitioner for the arithmetic and page references.</>}
+        practitioner={<>Akshaya Lagna Paddhati: the lagna advanced 3° a year from the birth degree (Book 2 pp. 32-41), read by sign, nakshatra and pada; the Akshaya rasi from the Vimshottari-shifted Moon (Book 2 pp. 72-73). Framework stage.</>}
+      />
+
+      {plain && (
+        <div className="mt-4 rounded-md border bg-card p-4" data-testid="alp-in-brief">
+          <h3 className="text-sm font-semibold">In brief</h3>
+          <ul className="mt-2 space-y-1.5 text-sm">
+            <li>
+              <span className="text-muted-foreground">The moving point: </span>
+              at age {a.ageYears.toFixed(1)} it stands in {a.point.sign}, the {ordinal(a.houseFromJanma)} sign from the birth rising sign{curSign ? `, for ages ${curSign.ageStart.toFixed(1)} to ${curSign.ageEnd.toFixed(1)}` : ""}. Its ruler {lordP.planet} sits in the {ordinal(lordP.houseFromAlp)} house from it{a.nextSignChange ? `; the point moves into the next sign on ${fmt(a.nextSignChange)}` : ""}.
+            </li>
+            <li>
+              <span className="text-muted-foreground">Within the sign: </span>
+              the point is crossing the star-stretch of {a.point.nakshatra}, ruled by {nakP.planet}, which stands in the {ordinal(nakP.houseFromAlp)} house from the point, so the questions of that house ({ALP_HOUSE_THEMES[nakP.houseFromAlp]}) come to the front of the decade.
+            </li>
+            <li>
+              <span className="text-muted-foreground">The mind's point: </span>
+              {arp.point.sign}, the {ordinal(arp.houseFromAlp)} house from the body's point. The running planetary period is {arp.dasa.lord}'s (ages {arp.dasa.ageStart.toFixed(1)} to {arp.dasa.ageEnd.toFixed(1)}), sub-period {arp.bhukti.lord}'s until {fmt(arp.bhukti.end)}; {arp.dasa.lord} stands in the {ordinal(arp.dasaLord.houseFromArp)} house from the mind's point.
+            </li>
+            <li>
+              <span className="text-muted-foreground">From the books: </span>
+              {a.findings.length === 0 ? "none of the rules entered so far fires for this placement" : `${a.findings.length} ${a.findings.length === 1 ? "rule fires" : "rules fire"} for this placement, written out under Reading`}. The method is still being entered chapter by chapter, so this is a framework, not a verdict.
+            </li>
+          </ul>
+        </div>
+      )}
+
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
         <div>
           <SouthIndianChart
@@ -150,11 +183,14 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             highlightSign={a.point.signIndex}
             secondarySigns={[a.point.navamsaSign]}
           />
-          <p className="mt-2 text-xs text-muted-foreground">
-            Numbers are houses from the ALP lagna; the janma lagna is marked for reference. The ALP lagna lord ({PLANET_ABBR[alpLord]}) is drawn in the accent; the tinted sign is the one the current pada activates; AR marks the Akshaya rasi.
-          </p>
+          <ModeText
+            className="mt-2"
+            plain={<>The birth chart with the houses counted from the moving point (ALP) rather than the birth rising sign (Janma). The point's ruler ({PLANET_ABBR[alpLord]}) is in the accent colour; the tinted sign is the one the current quarter-star switches on; AR marks the mind's point.</>}
+            practitioner={<>Numbers are houses from the ALP lagna; the janma lagna is marked for reference. The ALP lagna lord ({PLANET_ABBR[alpLord]}) is drawn in the accent; the tinted sign is the one the current pada activates; AR marks the Akshaya rasi.</>}
+          />
 
-          <h2 className="mt-6 text-base font-semibold">Where the mind stands</h2>
+          <SectionTitle as="h2" plain="Where the mind stands" technical="Akshaya rasi (Book 2 ch. 9)" term="akshaya-rasi" className="mt-6 text-base" />
+          {plain && <p className="mt-1 text-xs text-muted-foreground">The Moon moves one lunar mansion with each planetary period; the sign it has reached is the mind's point, judged with the period's planet and against the body's point.</p>}
           <ul className="mt-3 space-y-2 text-sm" data-testid="list-alp-arp">
             <li>
               The Moon was born in <span className="font-medium">{arp.natalMoon.nakshatra}</span> ({arp.natalMoon.sign}). Shifting one nakshatra with each Vimshottari dasa it has reached <span className="font-medium">{arp.point.nakshatra}</span> pada {arp.point.pada}, so the Akshaya rasi is <span className="font-medium">{arp.point.sign}</span>: the {ordinal(arp.houseFromAlp)} from the ALP lagna, the {ordinal(arp.houseFromJanma)} natally.
@@ -284,7 +320,8 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         </div>
 
         <div>
-          <h2 className="text-base font-semibold">Where the decade stands</h2>
+          <SectionTitle as="h2" plain="Where the decade stands" technical="ALP lagna placements (Book 2 ch. 2-5)" term="alp-lagna" className="text-base" />
+          {plain && <p className="mt-1 text-xs text-muted-foreground">The body's point, its ruler, the ruler of the birth rising sign, the star-stretch it is crossing and the sign that stretch switches on, all read as houses from the point.</p>}
           <ul className="mt-3 space-y-2 text-sm" data-testid="list-alp-placements">
             <li>
               The ALP lagna has reached <span className="font-medium">{a.point.sign}</span>, the {ordinal(a.houseFromJanma)} from the janma lagna, for ages {a.signPeriods.find((p) => p.current)?.ageStart.toFixed(1)}–{a.signPeriods.find((p) => p.current)?.ageEnd.toFixed(1)}.
@@ -460,10 +497,14 @@ export function AlpPanel({ result }: { result: ChartResult }) {
       </Working>
 
       <section className="mt-10" data-testid="section-alp-findings">
-        <h2 className="text-base font-semibold">Reading</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <SectionTitle as="h2" plain="What the rules say" technical="Reading" className="text-base" />
+        <ModeText
+          className="text-sm"
+          plain={<>Rules from the published books and class notes, matched against the placements above. Dots show how much weight each carries. Only some chapters are entered so far.</>}
+          practitioner={<>
           {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 17 (pp. 32-99, 137-143), and the Book 1 class notes (rules 1-5). The remaining chapters are entered one at a time.
-        </p>
+          </>}
+        />
         {a.findings.length ? (
           <ul className="mt-3 space-y-3">
             {a.findings.map((f) => (
@@ -499,10 +540,14 @@ export function AlpPanel({ result }: { result: ChartResult }) {
       </section>
 
       <section className="mt-10" data-testid="section-alp-timeline">
-        <h2 className="text-base font-semibold">The lagna through the signs</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <SectionTitle as="h2" plain="The moving point, decade by decade" technical="The lagna through the signs" className="text-base" />
+        <ModeText
+          className="text-sm"
+          plain={<>Ten years to a sign, counted from the exact birth degree, so the birth sign gets only the part of its arc that was left. The bar shows the whole 120 years; the table gives the dates and the birth planets waiting in each sign.</>}
+          practitioner={<>
           {config.yearsPerSign} years per sign, counted from the natal lagna degree (Book 2 adds the travelled degrees to the birth lagna point), so the birth sign gets only its remaining arc.
-        </p>
+          </>}
+        />
         <DasaBar
           className="mt-3"
           testId="bar-alp-signs"
@@ -528,10 +573,13 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           </TableBody>
         </Table>
 
-        <h3 className="mt-8 text-sm font-semibold" id="alp-nakshatras">Nakshatras within {a.point.sign}</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          The sign is crossed in three stretches of nakshatra; each brings a second lord into play. The lord's house is counted from the ALP lagna.
-        </p>
+        <div id="alp-nakshatras">
+          <SectionTitle plain={`Three star-stretches within ${a.point.sign}`} technical={`Nakshatras within ${a.point.sign}`} term="nakshatra" className="mt-8" />
+        </div>
+        <ModeText
+          plain={<>Each sign is crossed in three stretches of a lunar mansion, roughly three and a third years each. Each stretch brings a second planet, the mansion's ruler, into the reading; its house is counted from the moving point.</>}
+          practitioner={<>The sign is crossed in three stretches of nakshatra; each brings a second lord into play. The lord's house is counted from the ALP lagna.</>}
+        />
         <DasaBar
           className="mt-2"
           testId="bar-alp-nakshatras"

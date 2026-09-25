@@ -28,7 +28,7 @@ export function SectionTitle({
   plain: string;
   technical: string;
   term?: string;
-  as?: "h3" | "h4";
+  as?: "h2" | "h3" | "h4";
   className?: string;
   children?: ReactNode;
 }) {

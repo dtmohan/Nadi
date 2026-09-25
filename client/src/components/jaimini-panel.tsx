@@ -26,6 +26,8 @@ import {
 } from "@shared/rules-jaimini";
 import { AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
 import { Working } from "@/components/working";
+import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
+import { readAreas, currentFor, isHot } from "@shared/jaimini-areas";
 import { SignName, ElementLegend, elementColor } from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
 import { Term } from "@/components/term";
@@ -44,6 +46,68 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+
+const PLAIN_KARAKA: Record<string, string> = {
+  AK: "self",
+  AmK: "career",
+  BK: "siblings",
+  MK: "mother",
+  PiK: "father",
+  PK: "children",
+  GK: "relatives",
+  DK: "spouse",
+};
+
+/** Plain-reading summary for the Jaimini panel. */
+function JaiminiInBrief({ result }: { result: ChartResult }) {
+  const { jaimini: j, positions } = result;
+  const areas = useMemo(() => readAreas(j, positions), [j, positions]);
+  const ak = j.karakas[0];
+  const dk = j.karakas.find((k) => k.karaka === "DK");
+  const amk = j.karakas.find((k) => k.karaka === "AmK");
+  const al = j.arudhas[0];
+  const ul = j.arudhas[11];
+  const md = j.charaDasha.periods.find((p) => p.start <= result.now.asOf && result.now.asOf < p.end);
+  const ad = md?.antardashas.find((a) => a.start <= result.now.asOf && result.now.asOf < a.end);
+  const supported = areas.filter((a) => a.balance >= 2).map((a) => a.label);
+  const strained = areas.filter((a) => a.balance <= -2).map((a) => a.label);
+  const active = areas.filter((a) => { const c = currentFor(a.timing, result.now.asOf); return c.period && (isHot(c.period.triggers) || c.window); }).map((a) => a.label);
+  const list = (xs: string[]) => (xs.length === 0 ? "none" : xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+  const fmtY = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
+  return (
+    <div className="mt-4 rounded-md border bg-card p-4" data-testid="jaimini-in-brief">
+      <h3 className="text-sm font-semibold">In brief</h3>
+      <ul className="mt-2 space-y-1.5 text-sm">
+        <li>
+          <span className="text-muted-foreground">Planet of the self: </span>
+          {ak.planet}, the furthest along in its sign ({fmtDegShort(ak.rankDegree)}). In the ninth-cut chart it falls in {j.karakamsa.sign}, the seat from which work, temperament and devotion are read.
+          {amk ? <> {amk.planet} is the planet of career{dk ? ` and ${dk.planet} the planet of the spouse` : ""}.</> : null}
+        </li>
+        <li>
+          <span className="text-muted-foreground">Appearance and marriage: </span>
+          the world sees this person through {al.sign}; marriage and the spouse are read from {ul.sign}.
+        </li>
+        {md && (
+          <li>
+            <span className="text-muted-foreground">Now: </span>
+            the {md.signName} period runs from {fmtY(md.start)} to {fmtY(md.end)} ({md.years} {md.years === 1 ? "year" : "years"})
+            {ad ? <>, within it the {ad.signName} sub-period until {fmtY(ad.end)}</> : null}. During this time {md.signName} acts as the rising sign.
+          </li>
+        )}
+        <li>
+          <span className="text-muted-foreground">Life areas: </span>
+          {supported.length ? <>{list(supported)} {supported.length === 1 ? "rests" : "rest"} on firm ground</> : "no area rests wholly on firm ground"}
+          {strained.length ? <>; {list(strained)} {strained.length === 1 ? "is" : "are"} under strain</> : null}; the rest are mixed.
+          {active.length === areas.length ? <> The running period touches every area.</> : active.length ? <> The running period brings {list(active)} to the fore.</> : <> No area is specially active in the running period.</>}
+        </li>
+        <li>
+          <span className="text-muted-foreground">From the text: </span>
+          {j.findings.length} {j.findings.length === 1 ? "line" : "lines"} of Jaimini's sutras {j.findings.length === 1 ? "matches" : "match"} this chart, written out below.
+        </li>
+      </ul>
+    </div>
+  );
+}
 
 function ordinal(n: number) {
   return `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
@@ -168,6 +232,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
   const [showAll, setShowAll] = useState(false);
   const [focusSign, setFocusSign] = useState<number>(j.lagna.signIndex);
   const [showPrimer, setShowPrimer] = useState(false);
+  const plain = usePlain();
 
   const tags = useMemo(
     () =>
@@ -285,6 +350,14 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
         )}
       </div>
 
+      <ModeText
+        className="mt-3 text-sm"
+        plain={<>Jaimini's method ranks the planets by how far each has travelled in its sign and gives each a role: the highest becomes the planet of the self, the next the planet of career, and so on down to the planet of the spouse. It reads the world's view of each house from a mirrored point, lets signs rather than planets cast aspects, and times life by signs, each ruling for a fixed number of years. Hover a dotted term for its meaning; switch to Practitioner for the tables and sutra references.</>}
+        practitioner={<>Chara karakas by degree, arudha padas, rasi drishti and argala, Chara dasha by K.N. Rao's method, and the Karakamsa, Arudha and Upapada sutras. Nothing here feeds the Nadi reading.</>}
+      />
+
+      {plain && <JaiminiInBrief result={result} />}
+
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
         <div>
           <SouthIndianChart
@@ -324,20 +397,21 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             accent={[ak]}
             footer="Navamsa · houses from the D9 lagna"
           />
-          <p className="mt-2 text-xs text-muted-foreground">
-            Planets carry their chara karaka. The Atmakaraka's D9 sign is the
-            Karakamsa; Jaimini reads career, temperament and devotion from the
-            houses counted from it.
-          </p>
+          <ModeText
+            className="mt-2"
+            plain={<>The ninth-cut chart, with each planet's role written beside it. The sign where the planet of the self falls here is the chart's inner seat; Jaimini reads work, temperament and devotion from the houses counted from it.</>}
+            practitioner={<>Planets carry their chara karaka. The Atmakaraka's D9 sign is the Karakamsa; Jaimini reads career, temperament and devotion from the houses counted from it.</>}
+          />
         </div>
       </div>
 
       <section className="mt-10" data-testid="section-karakas">
-        <h2 className="text-base font-semibold">Chara karakas</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Eight movable significators ranked by degree within sign; Rahu is
-          ranked by thirty minus its degree because it moves backward.
-        </p>
+        <SectionTitle as="h2" plain="The eight planets and their roles" technical="Chara karakas" term="karaka" className="text-base" />
+        <ModeText
+          className="text-sm"
+          plain={<>Jaimini ranks the eight planets by how far each has travelled in its sign. The furthest along is the planet of the self, then career, siblings, mother, father, children, relatives and spouse. The roles change from chart to chart, which is why they are called movable.</>}
+          practitioner={<>Eight movable significators ranked by degree within sign; Rahu is ranked by thirty minus its degree because it moves backward.</>}
+        />
         <Working id="karakas" label="Show the karaka table" className="mt-3">
         <Table className="tabular mt-3">
           <TableHeader>
@@ -386,13 +460,12 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
       </section>
 
       <section className="mt-10" data-testid="section-arudhas">
-        <h2 className="text-base font-semibold">Arudha padas</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Count from a house to its lord, then as far again. When the reflection
-          lands in the house or its 7th it is moved to the 10th from there
-          (marked with an asterisk). Traditional lords are used for Scorpio and
-          Aquarius.
-        </p>
+        <SectionTitle as="h2" plain="How each house appears to the world" technical="Arudha padas" term="pada" className="text-base" />
+        <ModeText
+          className="text-sm"
+          plain={<>Each house has a mirror image: count from the house to its ruler, then the same distance again. The image of the 1st house is how others see the person; the image of the 12th is read for the spouse and marriage. A starred pada was moved by Jaimini's exception rule.</>}
+          practitioner={<>Count from a house to its lord, then as far again. When the reflection lands in the house or its 7th it is moved to the 10th from there (marked with an asterisk). Traditional lords are used for Scorpio and Aquarius.</>}
+        />
         <Working id="arudhas" label="Show the arudha padas" className="mt-3">
         <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {j.arudhas.map((a) => (
@@ -426,14 +499,12 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
       </section>
 
       <section className="mt-10" data-testid="section-drishti">
-        <h2 className="text-base font-semibold">Rasi drishti and argala</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Signs aspect signs: movable signs see the fixed signs except the next
-          one, fixed signs see the movable signs except the previous one, dual
-          signs see each other. Planets in the 2nd, 4th and 11th from a sign
-          intervene in its affairs (argala); the 12th, 10th and 3rd obstruct
-          them.
-        </p>
+        <SectionTitle as="h2" plain="How signs see each other" technical="Rasi drishti and argala" term="rasi-drishti" className="text-base" />
+        <ModeText
+          className="text-sm"
+          plain={<>In Jaimini's system signs, not planets, look at one another, so every planet in a sign shares that sign's view. Planets in certain neighbouring signs also step into a house's affairs, for good or ill, and planets opposite them can block that step. Click a sign on the chart above to see whom it looks at.</>}
+          practitioner={<>Signs aspect signs: movable signs see the fixed signs except the next one, fixed signs see the movable signs except the previous one, dual signs see each other. Planets in the 2nd, 4th and 11th from a sign intervene in its affairs (argala); the 12th, 10th and 3rd obstruct them.</>}
+        />
         <Working id="drishti" label="Show the aspect and argala tables" className="mt-3">
         <Button
           variant="ghost"
@@ -700,8 +771,11 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
       <section className="mt-10" data-testid="section-chara-dasha">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
-            <h2 className="text-base font-semibold">Chara dasha (K.N. Rao)</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <SectionTitle as="h2" plain="Life periods by sign" technical="Chara dasha (K.N. Rao)" term="chara-dasha" className="text-base" />
+            <ModeText
+              className="text-sm"
+              plain={<>Each sign takes a turn ruling the life, from one to twelve years, starting with the rising sign and running {j.charaDasha.direction} around the zodiac. During a sign's period that sign acts as the rising sign and the planets are read from it. Select a period to see what it brings and its sub-periods.</>}
+              practitioner={<>
               Sequence from the lagna, {j.charaDasha.direction} because the 9th
               house ({SIGNS[j.charaDasha.ninthSign]}) is{" "}
               {SAVYA.has(j.charaDasha.ninthSign)
@@ -709,7 +783,8 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
                 : "an apasavya sign"}
               . Years: count from the sign to its lord, less one; a lord in its
               own sign gives twelve. No exaltation or debilitation adjustment.
-            </p>
+              </>}
+            />
           </div>
           <Button
             variant="ghost"
@@ -771,11 +846,12 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
       <JaiminiAreas result={result} />
 
       <section className="mt-10" data-testid="section-jaimini-findings">
-        <h2 className="text-base font-semibold">What the sutras say</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Karakamsa rules are read in the navamsa; Arudha and Upapada rules in
-          the rasi chart with rasi drishti. Each finding names its sutra.
-        </p>
+        <SectionTitle as="h2" plain="What Jaimini's text says of this chart" technical="What the sutras say" className="text-base" />
+        <ModeText
+          className="text-sm"
+          plain={<>Every line of Jaimini's text that matches this chart, grouped by subject. Lines about the self and work come from the ninth-cut chart; lines about reputation and marriage from the mirror points in the birth chart. Each is written out in softened wording with its reference.</>}
+          practitioner={<>Karakamsa rules are read in the navamsa; Arudha and Upapada rules in the rasi chart with rasi drishti. Each finding names its sutra.</>}
+        />
         <Working id="sutra-findings" label="Show every finding with its sutra" className="mt-3">
         {j.findings.length === 0 && (
           <p className="mt-3 text-sm text-muted-foreground">
@@ -809,9 +885,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
       </section>
 
       <section className="mt-10" data-testid="section-ayur">
-        <h2 className="font-display text-lg font-semibold">
-          Span of life (Ayurdaya), a classical classification
-        </h2>
+        <SectionTitle as="h2" plain="Span of life, as the text classifies it" technical="Span of life (Ayurdaya), a classical classification" term="ayurdaya" className="font-display text-lg" />
         <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
           Jaimini 2.1 sorts every chart into one of three broad brackets by
           pairing signs and reading their nature (movable, fixed, dual).

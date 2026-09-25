@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { SourceLink } from "@/components/source-link";
+import { ModeText } from "@/components/mode-text";
 
 function ordinal(n: number) {
   return `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
@@ -325,7 +326,10 @@ export function JaiminiAreas({ result }: { result: ChartResult }) {
   return (
     <section className="mt-10" data-testid="section-jaimini-areas">
       <h2 className="text-base font-semibold">Life areas</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
+      <ModeText
+        className="text-sm"
+        plain={<>Seven areas of life, each judged from the planet that carries its role, the mirror point that shows it to the world, and its house from the chart's inner seat. Each card gives a balance (supported, mixed or strained), the foundations behind it, and a timeline of which sign-periods bring the area to the fore, following K.N. Rao's way of reading the sign-periods. Rao asks that these be confirmed against the planetary periods and against Jupiter and Saturn's passages; the passage check sits under each period.</>}
+        practitioner={<>
         Each area rests on a chara karaka, its arudha pada and a house from the Karakamsa. Timing follows K.N. Rao: the running Chara dasha sign is treated as the lagna and the houses from it are read for the area, then each antardasha
         the same way. A period is marked when the area's karaka or pada is involved, or several weaker links add up. Rao asks that Chara dasha results be confirmed against Vimshottari and the navamsa; the dasha reading here is Jaimini alone, and the transit check under each period follows Rao's confirming step: Jupiter and Saturn on or aspecting the area's anchors, ideally both at once (double transit).{" "}
         <a href={RAO_SOURCE.url} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
@@ -335,7 +339,8 @@ export function JaiminiAreas({ result }: { result: ChartResult }) {
         <a href={RAO_NOTES_SOURCE.url} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
           {RAO_NOTES_SOURCE.label}
         </a>
-      </p>
+        </>}
+      />
       <div className="mt-3 flex flex-wrap gap-1.5">
         <Button size="sm" variant={filter === "all" ? "default" : "outline"} className="h-7 px-2.5 text-xs" onClick={() => setFilter("all")} data-testid="filter-jarea-all">
           All areas
