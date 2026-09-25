@@ -19,6 +19,7 @@ import { SouthIndianChart, planetClass } from "@/components/south-indian-chart";
 import { JaiminiPanel } from "@/components/jaimini-panel";
 import { AlpPanel } from "@/components/alp-panel";
 import { KpPanel } from "@/components/kp-panel";
+import { ParashariPanel } from "@/components/parashari-panel";
 import { RectifyPanel } from "@/components/rectify-panel";
 import { LifeEventsSection } from "@/components/life-events";
 import { ValidatePanel } from "@/components/validate-panel";
@@ -649,7 +650,7 @@ export default function ChartPage() {
   const [selected, setSelected] = useState<Planet | null>(null);
   const [showTransit, setShowTransit] = useState(true);
   const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
-  const [mode, setMode] = useState<"bnn" | "jaimini" | "alp" | "kp" | "rectify" | "validate">("bnn");
+  const [mode, setMode] = useState<"bnn" | "jaimini" | "alp" | "kp" | "parashari" | "rectify" | "validate">("bnn");
 
   if (isLoading) {
     return (
@@ -717,7 +718,7 @@ export default function ChartPage() {
       <LifeEventsSection chart={chart} />
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-b pb-3">
-        <div role="tablist" aria-label="Reading system" className="inline-flex rounded-md border p-0.5 text-sm">
+        <div role="tablist" aria-label="Reading system" className="inline-flex max-w-full overflow-x-auto whitespace-nowrap rounded-md border p-0.5 text-sm">
           <button
             type="button"
             role="tab"
@@ -763,6 +764,17 @@ export default function ChartPage() {
           <button
             type="button"
             role="tab"
+            aria-selected={mode === "parashari"}
+            onClick={() => setMode("parashari")}
+            className={cn("rounded px-3 py-1", mode === "parashari" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            data-testid="mode-parashari"
+            title="Brihat Parashara Hora Sastra"
+          >
+            Parashari
+          </button>
+          <button
+            type="button"
+            role="tab"
             aria-selected={mode === "rectify"}
             onClick={() => setMode("rectify")}
             className={cn("ml-1 rounded border-l px-3 py-1", mode === "rectify" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
@@ -784,7 +796,7 @@ export default function ChartPage() {
           </button>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading." : mode === "alp" ? "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage." : mode === "rectify" ? "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading." : mode === "validate" ? "Saved life events read back at their dates: KP period lords and cusp promise, Jaimini chara dasha, Jupiter's transit, and how each planet's periods turned out. Not a reading." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}</p>
+          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading." : mode === "alp" ? "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage." : mode === "parashari" ? "Parashara's system: whole-sign bhavas from the lagna, house lords, sign aspects, functional nature by rising sign, yogas and Vimshottari. Kept separate from the other readings. First pass." : mode === "rectify" ? "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading." : mode === "validate" ? "Saved life events read back at their dates: KP period lords and cusp promise, Jaimini chara dasha, Jupiter's transit, and how each planet's periods turned out. Not a reading." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}</p>
           <ReadingModeToggle />
         </div>
       </div>
@@ -804,6 +816,12 @@ export default function ChartPage() {
       {mode === "kp" && (
         <div className="mt-8">
           <KpPanel result={data} />
+        </div>
+      )}
+
+      {mode === "parashari" && (
+        <div className="mt-8">
+          <ParashariPanel result={data} />
         </div>
       )}
 
@@ -893,6 +911,8 @@ export default function ChartPage() {
           ? "Interpretive text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik. It is a starting set of rules meant to be extended, not a verdict."
           : mode === "alp"
           ? "Akshaya Lagna Paddhati is Dr. S. Pothuvudaimoorthy's method. The progression arithmetic follows the published rate; the interpretive rules are being entered from the printed volumes chapter by chapter and are a framework, not a verdict."
+          : mode === "parashari"
+          ? "Parashari text is paraphrased from Brihat Parashara Hora Sastra in R. Santhanam's translation (chapters 24, 26, 34, 36, 41, 42, 75), softened and with verse numbers kept for checking. Planetary strength, divisional charts and the dasa-effect chapters are not yet applied, so it is a first pass, not a verdict."
           : mode === "kp"
           ? "Krishnamurti Paddhati is Prof. K.S. Krishnamurti's stellar method. The arithmetic (KP ayanamsa, Placidus cusps, subs, significators, Vimshottari) is complete; the cuspal readings are paraphrased from Astro Secrets & KP Part 3 and the Kalpurush class notes and are a first pass, not a verdict."
           : "Jaimini text follows the Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; Chara dasha follows K.N. Rao's method. It is a starting set of rules meant to be extended, not a verdict."}

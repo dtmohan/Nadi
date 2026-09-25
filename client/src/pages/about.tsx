@@ -19,12 +19,18 @@ export default function AboutPage() {
           <TabsTrigger value="kp" data-testid="tab-about-kp">
             KP
           </TabsTrigger>
+          <TabsTrigger value="parashari" data-testid="tab-about-parashari">
+            Parashari
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="jaimini">
           <JaiminiMethod />
         </TabsContent>
         <TabsContent value="kp">
           <KpMethod />
+        </TabsContent>
+        <TabsContent value="parashari">
+          <ParashariMethod />
         </TabsContent>
         <TabsContent value="bnn">
       <div className="prose prose-sm mt-4 max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-base">
@@ -584,6 +590,55 @@ function KpMethod() {
           kpastrology.astrosage.com
         </a>
         .
+      </p>
+    </div>
+  );
+}
+
+function ParashariMethod() {
+  const B = (ch: number) => `http://jyotishvidya.com/ch${ch}.htm`;
+  return (
+    <div className="prose prose-sm mt-4 max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:text-base" data-testid="about-parashari">
+      <p>
+        The Parashari mode follows Brihat Parashara Hora Sastra (BPHS) in R. Santhanam's English translation, as published chapter by chapter at{" "}
+        <a href={B(24)} target="_blank" rel="noreferrer">jyotishvidya.com</a>. It is a separate mode and shares nothing with the Nadi, Jaimini, ALP or KP readings except the birth data. It uses the chart's saved
+        ayanamsa (Lahiri by default) and whole-sign bhavas counted from the rising sign; the seven planets own their traditional signs and the nodes own none.
+      </p>
+      <h2>Lords in houses</h2>
+      <p>
+        Chapter 24 gives one verse for each of the 144 placements of a house lord in a house. Each is paraphrased in softened, modern wording with the verse number kept, so a reading can be checked
+        against the text (<a href={B(24)} target="_blank" rel="noreferrer">BPHS 24.1-144</a>). Parashara ends the chapter by scaling every result to the lord's strength, full, half or a quarter, and
+        cancelling contradictory results where a planet owns two houses (24.145-148). Shadbala is not yet computed, so the scaling is left to the reader.
+      </p>
+      <h2>Aspects</h2>
+      <p>
+        Graha drishti is taken sign to sign from chapter 26: every planet aspects the 7th fully; Saturn also the 3rd and 10th, Jupiter the 5th and 9th, Mars the 4th and 8th; otherwise 3rd and 10th a
+        quarter, 5th and 9th a half, 4th and 8th three quarters (<a href={B(26)} target="_blank" rel="noreferrer">BPHS 26.2-5</a>). The degree-based Sphuta drishti of the same chapter is not applied. The nodes receive no aspecting
+        power in the chapter and are given none.
+      </p>
+      <h2>Nature of the planets</h2>
+      <p>
+        Chapter 34 sets the general rule, angle lords neutralised, trine lords auspicious, lords of the 3rd, 6th and 11th inauspicious, the 8th lord unhelpful unless it also owns the lagna (34.2-7), the
+        natural benefics and malefics (34.8-10), and then states for each rising sign which planets are auspicious, malefic, yoga-giving and killing (<a href={B(34)} target="_blank" rel="noreferrer">BPHS 34.19-44</a>).
+        The panel shows Parashara's own lists for the chart's lagna, together with the generic class by lordship.
+      </p>
+      <h2>Yogas evaluated in this pass</h2>
+      <ul>
+        <li>Kendra-trikona relationship by conjunction, mutual aspect or exchange, with the dilution Parashara notes when the planet also owns a 3rd, 6th, 8th, 11th or 12th (34.11-15; also 41.28); a node in an angle with a trine lord or in a trine with an angle lord (34.16-17).</li>
+        <li>Subha and Asubha, Gajakesari, Amala, Parvata, Chamara, Sankha, Khadga, Lakshmi and Kalanidhi from chapter 36 (<a href={B(36)} target="_blank" rel="noreferrer">BPHS 36.1-32</a>). Kahala, Bheri, Mridanga, Srinatha, Sarada, Matsya, Koorma, Kusuma, Kalpadruma and the Trimurti yogas need planetary strength or the navamsa and are not yet evaluated.</li>
+        <li>The five Mahapurusha yogas, a planet in its own or exaltation sign in an angle from the lagna (<a href={B(75)} target="_blank" rel="noreferrer">BPHS 75.1-2</a>).</li>
+        <li>Wealth through the 5th and 9th lords and planets joined to them, to be read in their periods (<a href={B(41)} target="_blank" rel="noreferrer">BPHS 41.16-17</a>). The specific 5th-11th combinations of 41.2-15 are not yet entered.</li>
+        <li>Penury combinations involving the lagna lord, the 6th, 8th and 12th lords and the killer planets (<a href={B(42)} target="_blank" rel="noreferrer">BPHS 42.2-6</a>); Mars with Saturn in the 2nd is shown as provisional because its cancellations (42.16-18) are not yet evaluated.</li>
+      </ul>
+      <h2>Timing</h2>
+      <p>
+        Vimshottari dasa is computed from the Lahiri Moon with the same arithmetic as the KP mode. In this pass each dasa lord is glossed by the houses it owns and occupies and by its functional role for the
+        rising sign; the dasa and antardasa effects of BPHS chapters 46 to 64 are the next material to harvest.
+      </p>
+      <h2>Not yet here</h2>
+      <p>
+        Bhava chalit (unequal houses), Shadbala, Ashtakavarga, the divisional charts beyond the navamsa and dasamsa already used elsewhere, Neecha Bhanga and Viparita raja yoga (which are not stated in
+        these BPHS chapters and would be entered as provisional from Phaladeepika or a similar source), and the dasa-effect chapters. Any rule added from a non-classical source will carry a provisional mark.
       </p>
     </div>
   );
