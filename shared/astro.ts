@@ -266,6 +266,10 @@ export interface SignPeriod {
   end: string;
 }
 
+export interface PlanetSignPeriod extends SignPeriod {
+  planet: Planet;
+}
+
 export interface NakshatraPeriod {
   planet: "Jupiter" | "Saturn";
   nakshatraIndex: number; // 0 = Ashwini

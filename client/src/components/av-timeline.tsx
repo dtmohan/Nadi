@@ -158,7 +158,7 @@ function ArishtaRow({ r, open, toggle }: { r: FatherArishtaReading; open: boolea
 }
 
 /** Eight boxes, one per contributor in the fixed order Sun to Saturn then lagna; filled where that contributor gave a rekha. */
-function RekhaMarks({ givers, owner }: { givers: string[]; owner: Planet }) {
+export function RekhaMarks({ givers, owner }: { givers: string[]; owner: Planet }) {
   return (
     <span className="inline-flex items-center gap-0.5 align-middle" aria-label={`${givers.length} rekhas from ${givers.join(", ") || "none"}`}>
       {CONTRIBUTORS.map((c) => {

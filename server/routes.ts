@@ -65,6 +65,7 @@ export function computeChart(chart: Chart): ChartResult {
     saturnNakshatras: nakshatraPeriods("Saturn", jd, endJd, opts),
     fatherArishta: fatherArishtaWindows(positions, Math.floor((asc % 360) / 30), transits, opts),
     moonMonth: signPeriodsOf("Moon", nj, nj + 30, opts).map((m) => ({ signIndex: m.signIndex, start: jdToIso(m.start), end: jdToIso(m.end) })),
+    fastTransits: (["Mars", "Mercury", "Venus"] as const).flatMap((p) => signPeriodsOf(p, nj - 183, nj + 731, opts).map((m) => ({ planet: p, signIndex: m.signIndex, start: jdToIso(m.start), end: jdToIso(m.end) }))),
   };
   resultCache.set(key, result);
   if (resultCache.size > 200) resultCache.delete(resultCache.keys().next().value!);

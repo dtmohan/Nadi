@@ -1,7 +1,7 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import type * as z from "zod/mini";
-import type { PlanetPosition, TransitPeriod, NakshatraPeriod, SignPeriod } from "./astro";
+import type { PlanetPosition, TransitPeriod, NakshatraPeriod, SignPeriod, PlanetSignPeriod } from "./astro";
 import type { FatherArishtaWindow } from "./father-arishta";
 import type { Reading } from "./rules";
 import type { JaiminiResult } from "./jaimini";
@@ -61,6 +61,8 @@ export interface ChartResult {
   fatherArishta?: FatherArishtaWindow[];
   /** The Moon's sign passages for thirty days from the day the chart was computed, for BPHS 70.21. */
   moonMonth?: SignPeriod[];
+  /** Mars, Mercury and Venus sign passages from six months before to two years after the day the chart was computed, for BPHS 70.24-36. */
+  fastTransits?: PlanetSignPeriod[];
 }
 
 export interface GeoHit {
