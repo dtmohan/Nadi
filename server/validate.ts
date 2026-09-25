@@ -9,8 +9,12 @@
  *    the day the dasa and bhukti lords should transit the sign, star or sub of a significator.
  * 2. Jaimini (K.N. Rao): the chara dasha and antardasha running at the event should carry the matter's
  *    life area. Same test as the chara dasha rectification method, at the recorded time only.
- * 3. Nadi: Jupiter's transit sign that day, the natal planets it stands with, trines and opposes, and its
- *    count from the natal Jeeva. Reported as context rather than scored, since BNN times by combinations.
+ * 3. Nadi (R.G. Rao; Naik): Jupiter is the timer, Saturn the second hand. Six points per event: Jupiter over
+ *    the matter's karaka (2; in trine or opposite, 1), Saturn touching a karaka (1), both touching the same
+ *    karaka at once, the double transit (1), Jupiter's count from the natal Jeeva (or the Deha in a female
+ *    chart) falling in the matter's signs (1), and Jupiter's passage bringing one of the chart's own
+ *    combinations in that life area to life (1). Karakas resolve by gender: the spouse is Venus or Mars,
+ *    the Deha is Jupiter or Venus.
  *
  * The planet tally then turns the events round: for each planet, the houses it signifies decide what KP
  * expects of it (Part 1 pp. 17-19: a planet tied to 6, 8, 12 turns harmful in its periods, one tied to
@@ -23,8 +27,10 @@ import { DateTime } from "luxon";
 import { norm360, PLANETS, SIGNS, type Planet, type PlanetPosition } from "@shared/astro";
 import { kpPoint, houseOf, computeSignificators, vimshottari, NODES_KP, type KpCusp, type KpPlanet } from "@shared/kp";
 import type { InsertChart } from "@shared/schema";
-import { effectiveOutcome, matterOf, sanitiseEvents } from "@shared/events";
-import type { EventValidation, Nature, PlanetTally, ValidationResult } from "@shared/validate-types";
+import { bnnKarakasFor, effectiveOutcome, matterOf, sanitiseEvents } from "@shared/events";
+import type { BnnContact, BnnFit, EventValidation, Nature, PlanetTally, ValidationResult } from "@shared/validate-types";
+import { evaluate, rolesFor } from "@shared/rules";
+import type { Gender } from "@shared/marriage";
 import type { TransitCheck } from "@shared/rectify-types";
 import { computeJaimini } from "@shared/jaimini";
 import { dashaFitAt } from "@shared/jaimini-areas";
@@ -69,6 +75,22 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   const lagnaJ = norm360(ascendantAt(jd0, chart.latitude, chart.longitude, optsJ));
   const jaimini = computeJaimini(positionsJ, lagnaJ, birthIso);
   const natalJupiter = positionsJ.find((p) => p.planet === "Jupiter")!;
+  const gender = (chart.gender as Gender) ?? "unspecified";
+  const roles = rolesFor(gender);
+  const natalDeha = positionsJ.find((p) => p.planet === roles.deha)!;
+  const reading = evaluate(positionsJ, undefined, gender);
+  const natalSign = new Map(positionsJ.map((p) => [p.planet, p.signIndex]));
+  const CONTACT_POINTS: Record<BnnContact, number> = { over: 2, trine: 1, opposite: 1 };
+  /** Best contact a transiting sign makes with any of the karakas: over beats trine beats opposite. */
+  const contactOf = (signIndex: number, karakas: Planet[]): { contact: BnnContact; planet: Planet } | null => {
+    let best: { contact: BnnContact; planet: Planet } | null = null;
+    for (const k of karakas) {
+      const rel = ((natalSign.get(k)! - signIndex + 12) % 12) + 1;
+      const c: BnnContact | null = rel === 1 ? "over" : rel === 5 || rel === 9 ? "trine" : rel === 7 ? "opposite" : null;
+      if (c && (!best || CONTACT_POINTS[c] > CONTACT_POINTS[best.contact])) best = { contact: c, planet: k };
+    }
+    return best;
+  };
 
   const out: EventValidation[] = events.map((e) => {
     const m = matterOf(e.matter);
@@ -101,14 +123,40 @@ export function validateEvents(chart: InsertChart): ValidationResult {
     const jup = dayJ.find((p) => p.planet === "Jupiter")!;
     const sat = dayJ.find((p) => p.planet === "Saturn")!;
     const inSign = (s: number) => positionsJ.filter((p) => p.signIndex === s).map((p) => p.planet);
-    const bnn = {
+    const karakas = bnnKarakasFor(m.bnn, roles);
+    const jContact = contactOf(jup.signIndex, karakas);
+    const sContact = contactOf(sat.signIndex, karakas);
+    // Double transit: both timers touch the same karaka (over, trine or opposite) on the day.
+    const touches = (signIndex: number, k: Planet) => [1, 5, 7, 9].includes(((natalSign.get(k)! - signIndex + 12) % 12) + 1);
+    const double = karakas.some((k) => touches(jup.signIndex, k) && touches(sat.signIndex, k));
+    const fromJeeva = ((jup.signIndex - natalJupiter.signIndex + 12) % 12) + 1;
+    const fromDeha = roles.deha !== roles.native ? ((jup.signIndex - natalDeha.signIndex + 12) % 12) + 1 : null;
+    const progression = m.bnn.fromJeeva.includes(fromJeeva) || (fromDeha !== null && m.bnn.fromJeeva.includes(fromDeha));
+    // The chart's own combinations in the matter's area that this passage of Jupiter ripens: a finding whose
+    // planets Jupiter stands with, trines or faces (the same 1-5-9-7 test the BNN transit reading uses).
+    const combo =
+      reading.findings
+        .filter((f) => f.area === m.bnn.area && f.planets.some((p) => touches(jup.signIndex, p)))
+        .sort((a, b) => b.score - a.score)[0] ?? null;
+    const bnnScore = (jContact ? CONTACT_POINTS[jContact.contact] : 0) + (sContact ? 1 : 0) + (double ? 1 : 0) + (progression ? 1 : 0) + (combo ? 1 : 0);
+    const bnn: BnnFit = {
       jupiterSign: SIGNS[jup.signIndex],
       saturnSign: SIGNS[sat.signIndex],
       conjunct: inSign(jup.signIndex),
       trine: [...inSign((jup.signIndex + 4) % 12), ...inSign((jup.signIndex + 8) % 12)],
       opposite: inSign((jup.signIndex + 6) % 12),
-      fromJeeva: ((jup.signIndex - natalJupiter.signIndex + 12) % 12) + 1,
+      fromJeeva,
+      fromDeha,
       saturnOver: inSign(sat.signIndex),
+      karakas,
+      jupiter: jContact,
+      saturn: sContact,
+      double,
+      progression,
+      combination: combo ? combo.text : null,
+      score: bnnScore,
+      max: 6,
+      verdict: bnnScore >= 4 ? "strong" : bnnScore >= 2 ? "some" : "quiet",
     };
 
     return {
@@ -172,6 +220,9 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       jaiminiScore: withArea.reduce((s, e) => s + (e.jaimini?.score ?? 0), 0),
       jaiminiMax: withArea.reduce((s, e) => s + (e.jaimini?.max ?? 0), 0),
       jaiminiEvents: withArea.length,
+      bnnScore: out.reduce((s, e) => s + e.bnn.score, 0),
+      bnnMax: out.reduce((s, e) => s + e.bnn.max, 0),
+      bnnStrong: out.filter((e) => e.bnn.verdict === "strong").length,
       agree: tallies.filter((t) => t.agrees === true).length,
       conflict: tallies.filter((t) => t.agrees === false).length,
     },

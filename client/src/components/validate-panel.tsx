@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, type Planet } from "@shared/astro";
-import type { EventValidation, Nature, PlanetTally, ValidationResult } from "@shared/validate-types";
+import type { BnnContact, BnnFit, EventValidation, Nature, PlanetTally, ValidationResult } from "@shared/validate-types";
 import type { TransitCheck } from "@shared/rectify-types";
 import type { EventOutcome } from "@shared/events";
 import { RAO_SOURCE } from "@shared/jaimini-areas";
@@ -95,12 +95,47 @@ function planetList(ps: Planet[]) {
   return ps.length ? ps.map((p) => PLANET_ABBR[p]).join(" ") : "none";
 }
 
+const CONTACT_WORD: Record<BnnContact, string> = { over: "over", trine: "trine", opposite: "opp." };
+
+function NadiCell({ fit }: { fit: BnnFit }) {
+  const jLine = `Jupiter in ${fit.jupiterSign}, the ${fit.fromJeeva}${ordinal(fit.fromJeeva)} from natal Jupiter${fit.fromDeha ? ` and the ${fit.fromDeha}${ordinal(fit.fromDeha)} from the Deha` : ""}. With ${planetList(fit.conjunct)}; trine ${planetList(fit.trine)}; opposite ${planetList(fit.opposite)}.`;
+  const sLine = `Saturn in ${fit.saturnSign} over ${planetList(fit.saturnOver)}.`;
+  const parts = [
+    `Karakas: ${planetList(fit.karakas)}.`,
+    fit.jupiter ? `Jupiter ${CONTACT_WORD[fit.jupiter.contact]} ${fit.jupiter.planet}: ${fit.jupiter.contact === "over" ? 2 : 1}.` : "Jupiter touches no karaka: 0.",
+    fit.saturn ? `Saturn ${CONTACT_WORD[fit.saturn.contact]} ${fit.saturn.planet}: 1.` : "Saturn touches no karaka: 0.",
+    fit.double ? "Double transit on a karaka: 1." : "No double transit: 0.",
+    fit.progression ? "Count from the Jeeva fits the matter: 1." : "Count from the Jeeva does not fit: 0.",
+    fit.combination ? `Combination ripened: ${fit.combination} 1.` : "No combination of this area under Jupiter: 0.",
+  ];
+  const tone = fit.verdict === "strong" ? "text-emerald-700 dark:text-emerald-400" : fit.verdict === "some" ? "" : "text-muted-foreground";
+  return (
+    <div className="leading-5" title={[jLine, sLine, ...parts].join("\n")} data-testid={`validate-nadi-${fit.verdict}`}>
+      <div className="flex items-center gap-1.5">
+        <span className="text-muted-foreground">Ju</span>
+        <span>{fit.jupiterSign.slice(0, 3)}</span>
+        <Mark on={fit.jupiter !== null} />
+        <span className={cn(!fit.jupiter && "text-muted-foreground")}>{fit.jupiter ? `${CONTACT_WORD[fit.jupiter.contact]} ${PLANET_ABBR[fit.jupiter.planet]}` : `${fit.fromJeeva}${ordinal(fit.fromJeeva)}`}</span>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className="text-muted-foreground">Sa</span>
+        <span>{fit.saturnSign.slice(0, 3)}</span>
+        <Mark on={fit.saturn !== null} />
+        <span className={cn(!fit.saturn && "text-muted-foreground")}>{fit.saturn ? `${CONTACT_WORD[fit.saturn.contact]} ${PLANET_ABBR[fit.saturn.planet]}` : "—"}</span>
+        <span className={cn("tabular ml-1", tone)}>
+          {fit.score}/{fit.max}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function ValidatePanel({ result }: { result: ChartResult }) {
   const { chart } = result;
   const events = chart.events ?? [];
   const eventsKey = JSON.stringify(events);
   const q = useQuery<ValidationResult>({
-    queryKey: ["validate", chart.id, chart.birthDate, chart.birthTime, chart.latitude, chart.longitude, chart.ayanamsa, chart.nodeType, eventsKey],
+    queryKey: ["validate", chart.id, chart.birthDate, chart.birthTime, chart.latitude, chart.longitude, chart.ayanamsa, chart.nodeType, chart.gender, eventsKey],
     queryFn: async () => {
       const { id: _id, ...insert } = chart;
       return (await (await apiRequest("POST", "/api/validate", insert)).json()) as ValidationResult;
@@ -119,7 +154,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             Check the chart against what happened
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Each saved life event is read back at its date with the birth time as recorded: were the KP period lords significators of the matter and did its cusp promise it, did the Jaimini chara dasha carry the area, and where was Jupiter. The
+            Each saved life event is read back at its date with the birth time as recorded: were the KP period lords significators of the matter and did its cusp promise it, did the Jaimini chara dasha carry the area, and did Jupiter and Saturn touch the matter's Nadi karakas. The
             second table turns the same events round to show how each planet's periods actually went, against what its houses lead KP to expect.
           </p>
         </div>
@@ -172,6 +207,12 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                 Jaimini <ScoreBar score={v.summary.jaiminiScore} max={v.summary.jaiminiMax} />
               </span>
             )}
+            <span className="inline-flex items-center gap-1.5" data-testid="validate-summary-nadi">
+              Nadi <ScoreBar score={v.summary.bnnScore} max={v.summary.bnnMax} />
+              <span className="text-muted-foreground">
+                {v.summary.bnnStrong} strong
+              </span>
+            </span>
             <span className="text-muted-foreground">
               Planets: {v.summary.agree} as expected, {v.summary.conflict} against expectation
             </span>
@@ -194,8 +235,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                   <TableHead className="whitespace-nowrap" title="Chara dasha and antardasha signs running that day and whether each carries the matter's life area (K.N. Rao).">
                     Jaimini
                   </TableHead>
-                  <TableHead className="whitespace-nowrap" title="Jupiter's transit sign that day, which sign it is counted from natal Jupiter (the Jeeva), and the natal planets in it.">
-                    Jupiter · from Jeeva
+                  <TableHead className="whitespace-nowrap" title="Nadi timing, six points: Jupiter over the matter's karaka (2; trine or opposite 1), Saturn touching a karaka (1), both on the same karaka (1), Jupiter's count from the Jeeva in the matter's signs (1), a natal combination of the area under the passage (1).">
+                    Nadi transit
                   </TableHead>
                   <TableHead className="whitespace-nowrap">Verdict</TableHead>
                 </TableRow>
@@ -249,14 +290,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                       )}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
-                      <span title={`Jupiter in ${e.bnn.jupiterSign}, the ${e.bnn.fromJeeva}${ordinal(e.bnn.fromJeeva)} sign from natal Jupiter. With ${planetList(e.bnn.conjunct)}; trine ${planetList(e.bnn.trine)}; opposite ${planetList(e.bnn.opposite)}. Saturn in ${e.bnn.saturnSign} over ${planetList(e.bnn.saturnOver)}.`}>
-                        {e.bnn.jupiterSign.slice(0, 3)}{" "}
-                        <span className="text-muted-foreground">
-                          {e.bnn.fromJeeva}
-                          {ordinal(e.bnn.fromJeeva)}
-                        </span>
-                        {e.bnn.conjunct.length > 0 && <span className="ml-1">· {planetList(e.bnn.conjunct)}</span>}
-                      </span>
+                      <NadiCell fit={e.bnn} />
                     </TableCell>
                     <TableCell>
                       <VerdictBadge verdict={e.kp.verdict} />
@@ -301,7 +335,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
 
           <p className="mt-4 max-w-3xl text-xs text-muted-foreground" data-testid="validate-sources">
             KP period lords and cusp promise: Astro Secrets & KP Part 1, pp. 167-172; transit of the period lords on the day: Part 2, p. 203; planets turned benefic or malefic by their houses: Part 1, pp. 17-19 (the four-step significators stand in for
-            "lord of, or in the star of the lord of" in the text). Jaimini: <SourceLink source={RAO_SOURCE} />. Jupiter's transit is the Nadi timer; it is shown for the reader to weigh and is not scored. A confirmed verdict needs the cusp promise and
+            "lord of, or in the star of the lord of" in the text). Jaimini: <SourceLink source={RAO_SOURCE} />. Nadi transit: Jupiter is the timer and Saturn the second hand (R.G. Rao, Bhrigu Nandi Nadi; Naik on the female Deha); the karakas are the matter's own (Venus or Mars for the spouse, Saturn for work, Sun for the father, Rahu for foreign places), contact is by sign, trine or the 7th, and the count from the natal Jeeva follows the BNN tab. Strong needs 4 of 6. A confirmed verdict needs the cusp promise and
             both dasa and bhukti lords signifying; partial means something links; missed means nothing does. A poor score across several events points to the birth time rather than to the events: take it to the Rectify tab.
           </p>
         </div>

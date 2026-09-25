@@ -267,8 +267,12 @@ export default function AboutPage() {
           The Validate tab reads each saved event back at its date with the birth time as recorded. For KP it asks whether the dasa, bhukti and
           antara lords running that day were significators of the matter's houses, whether the sub lord of the matter's cusp promised it, and
           whether the dasa and bhukti lords transited a significator's sign, star or sub that day (Astro Secrets &amp; KP Part 1, pp. 167-172; Part
-          2, p. 203). For Jaimini it asks whether the chara dasha and antardasha carried the matter's life area (K.N. Rao). Jupiter's transit sign,
-          the natal planets in it and its count from the natal Jeeva are shown as the Nadi context, unscored. A second table turns the events round:
+          2, p. 203). For Jaimini it asks whether the chara dasha and antardasha carried the matter's life area (K.N. Rao). For Nadi, Jupiter is the timer and
+          Saturn the second hand: six points per event for Jupiter over the matter's karaka (two; in trine or opposite, one), Saturn touching a
+          karaka (one), both on the same karaka at once (one), Jupiter's count from the natal Jeeva, or the Deha in a female chart, falling in the
+          matter's signs (one), and one of the chart's own combinations in that life area standing under the passage (one). The karakas are the
+          matter's own: Venus or Mars for the spouse, Jupiter for children, Saturn for work, Sun and Moon for the parents, Mars for land, Rahu
+          for foreign places. Four of six is strong. A second table turns the events round:
           for each planet, the houses it signifies give what KP expects of it in its periods (a planet tied to 6, 8, 12 turns harmful, one tied to
           2, 3, 10, 11 turns favourable, whatever its natural character; Part 1, pp. 17-19), and the outcomes of the events that fell in its dasa,
           bhukti or antara show how it behaved. Poor agreement across several events is a hint about the birth time, and the Rectify tab is the
