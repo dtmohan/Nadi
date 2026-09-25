@@ -172,7 +172,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       <div className="mt-8">
           <h3 className="text-sm font-semibold">Planets for {SIGNS[r.lagna.signIndex]} rising</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Functional roles as Parashara states them for this rising sign, <SourceLink source={{ label: `Parashara ${nature.verses}`, url: BPHS_URL(34) }} />. {nature.note}
+          Functional roles as Parashara states them for this rising sign, <SourceLink source={{ label: `Parashara ${nature.verses}`, url: BPHS_URL(34) }} />. {nature.note}{nature.byRule?.length ? <> A planet owning a kendra and a trikona together is a yogakaraka in the special sense, and a malefic kendra lord turns auspicious only by that double lordship, <SourceLink source={{ label: "Parashara 34.13-14", url: BPHS_URL(34) }} />.</> : null}
         </p>
         <Table className="mt-2" data-testid="parashari-natures">
           <TableHeader>

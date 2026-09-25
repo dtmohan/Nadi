@@ -41,7 +41,7 @@ export interface PlanetNature {
   owns: number[];
   house: number;
   /** Generic nature from lordship, BPHS 34.2-7. */
-  lordship: "kendra" | "trikona" | "trishadaya" | "eighth" | "mixed" | "node";
+  lordship: "kendra" | "trikona" | "kendraTrikona" | "trishadaya" | "eighth" | "mixed" | "node";
   functional: FunctionalRole;
   naturalBenefic: boolean;
 }
@@ -125,6 +125,7 @@ function lordshipClass(owns: number[]): PlanetNature["lordship"] {
   const tri = owns.filter((h) => [3, 6, 11].includes(h)).length;
   const e = owns.includes(8);
   const kinds = [k > 0, t > 0, tri > 0, e].filter(Boolean).length;
+  if (k && t && kinds === 2 && !owns.includes(1)) return "kendraTrikona";
   if (kinds > 1) return "mixed";
   if (k) return "kendra";
   if (t) return "trikona";
@@ -470,6 +471,7 @@ export const LORDSHIP_LABEL: Record<PlanetNature["lordship"], string> = {
   trikona: "Trine lord, auspicious (34.3)",
   trishadaya: "3rd/6th/11th lord, inauspicious (34.4)",
   eighth: "8th lord (34.5-6)",
+  kendraTrikona: "Angle and trine lord, yogakaraka (34.13-14)",
   mixed: "Mixed lordship (34.2-7)",
   node: "Node, through its sign lord (34.16-17)",
 };

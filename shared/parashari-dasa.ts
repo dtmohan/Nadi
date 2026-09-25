@@ -4,7 +4,7 @@
 // or "weak" are matched on dignity; the Shadbala of ch. 27, when supplied, is added as its own note against the
 // requirement of 27.32-33 so the two measures stay visible side by side.
 import { houseFrom, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
-import { BPHS_URL } from "./parashari-data";
+import { BPHS_URL, LAGNA_NATURE } from "./parashari-data";
 import type { Vimshottari } from "./kp";
 import { antarasOf, VIMSHOTTARI_ORDER, VIMSHOTTARI_YEARS } from "./kp";
 import { DateTime } from "luxon";
@@ -316,7 +316,7 @@ function antarFacts(c: Ctx, dasaLord: Planet, b: Planet): AntarReading["facts"] 
     else if (fromD === 5 || fromD === 11 || fromD === 3) fav.push(`${ord(fromD)} from the dasa lord ${dasaLord}`);
   }
   if (b !== c.lordOf(1) && c.withPlanet(b, c.lordOf(1))) fav.push(`joined with the lagna lord ${c.lordOf(1)}`);
-  if (c.yogakaraka.includes(b)) fav.push("a yogakaraka for this lagna (34.19-44)");
+  if (c.yogakaraka.includes(b)) fav.push(LAGNA_NATURE[c.lagnaIdx]?.byRule?.includes(b) ? "a yogakaraka for this lagna, owning a kendra and a trikona (34.13-14)" : "a yogakaraka for this lagna (34.19-44)");
   if (c.withBenefic(b).length) fav.push(`with ${c.withBenefic(b).join(", ")}`);
   if (c.aspectedByBenefic(b).length) fav.push(`aspected by ${c.aspectedByBenefic(b).join(", ")}`);
   if ((b === "Rahu" || b === "Ketu") && UPACHAYA.includes(h) && !fav.some((f) => f.startsWith("in the 11th") || f.startsWith("in an angle"))) fav.push(`in an upachaya (${ord(h)}), which the chapters allow the nodes`);
