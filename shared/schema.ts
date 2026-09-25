@@ -1,7 +1,7 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import type * as z from "zod/mini";
-import type { PlanetPosition, TransitPeriod } from "./astro";
+import type { PlanetPosition, TransitPeriod, NakshatraPeriod } from "./astro";
 import type { Reading } from "./rules";
 import type { JaiminiResult } from "./jaimini";
 import type { KpBase } from "./kp";
@@ -54,6 +54,8 @@ export interface ChartResult {
   shadbala?: ShadbalaBase;
   /** Where each Vimshottari dasa lord stands when its dasa begins, for BPHS 48.8. */
   dasaStarts?: DasaStartTransit[];
+  /** Saturn's nakshatra ingresses from birth to 100 years, for the Ashtakavarga transit points of BPHS ch. 70. */
+  saturnNakshatras?: NakshatraPeriod[];
 }
 
 export interface GeoHit {

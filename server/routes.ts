@@ -2,7 +2,7 @@ import type { Express } from "express";
 import type { Server } from "node:http";
 import { insertChartSchema, type Chart, type ChartResult, type GeoHit } from "@shared/schema";
 import { RULES, evaluate } from "@shared/rules";
-import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, shadbalaBase, type EphemerisOptions } from "./ephemeris";
+import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nakshatraPeriods, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, shadbalaBase, type EphemerisOptions } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
 import { vimshottari } from "@shared/kp";
 import type { DasaStartTransit } from "@shared/shadbala";
@@ -60,6 +60,7 @@ export function computeChart(chart: Chart): ChartResult {
     kp: kpBase(jd, chart.latitude, chart.longitude, chart.timezone, opts.nodeType),
     shadbala: shadbalaBase(jd, chart.latitude, chart.longitude, opts),
     dasaStarts: dasaStartTransits(positions.find((p) => p.planet === "Moon")!.lon, utc.toISO()!, opts),
+    saturnNakshatras: nakshatraPeriods("Saturn", jd, endJd, opts),
   };
   resultCache.set(key, result);
   if (resultCache.size > 200) resultCache.delete(resultCache.keys().next().value!);

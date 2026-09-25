@@ -9,6 +9,8 @@ import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@sha
 import type { AshtakavargaResult, Bhinnashtaka } from "@shared/ashtakavarga";
 import { BHAVA_PHALA_CAVEATS, type BhavaPhala, type VargaPhala } from "@shared/bhava-phala";
 import { NAKSHATRAS } from "@shared/astro";
+import { computeAvTimeline } from "@shared/av-transit";
+import { AvTimelineSection } from "@/components/av-timeline";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
@@ -65,6 +67,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const { positions, chart } = result;
   const asOfIso = result.now.asOf;
   const r = useMemo(() => computeParashari(positions, result.jaimini.lagna.lon, result.utc, asOfIso, result.shadbala, result.dasaStarts), [positions, result.jaimini.lagna.lon, result.utc, asOfIso, result.shadbala, result.dasaStarts]);
+  const avTimeline = useMemo(() => computeAvTimeline(r.ashtakavarga, r.lagna.signIndex, result.transits, result.saturnNakshatras, result.utc, asOfIso), [r, result.transits, result.saturnNakshatras, result.utc, asOfIso]);
   const [balaOpen, setBalaOpen] = useState<string | null>(null);
   const [focusHouse, setFocusHouse] = useState<number | null>(null);
   const [section, setSection] = useState<"lords" | "yogas">("yogas");
@@ -222,6 +225,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
 
       {r.shadbala && <ShadbalaSection sb={r.shadbala} open={balaOpen} setOpen={setBalaOpen} phala={r.bhavaPhala} varga={r.vargaPhala} />}
       <AshtakavargaSection av={r.ashtakavarga} lagnaIdx={r.lagna.signIndex} />
+      <AvTimelineSection tl={avTimeline} asOfIso={asOfIso} />
 
       <div className="mt-8">
         <h3 className="text-sm font-semibold">Vimshottari dasa, read by lordship</h3>

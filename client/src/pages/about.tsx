@@ -676,6 +676,12 @@ function ParashariMethod() {
           benefic mark a rekha and the malefic a bindu; 28.15-20 says bindu for the benefic mark; the app counts benefic marks and calls them rekhas.
         </li>
         <li>
+          Ashtakavarga transits: every sign Saturn and Jupiter pass from birth to a hundred years (retrograde re-entries listed separately) is read by the planet's own chart (66.70-72; 70.43-44 for
+          Saturn, five or more rekhas of eight being taken as "more rekhas"), by the aggregate band of the sign (72.3-5) and, for Jupiter's year, by 72.29 and by the Sun's chart (70.19-20, provisional
+          because the verse names the mean Jupiter). Saturn's passages are also matched against the nakshatra and sign points of chapter 70 and their trines, using Saturn's nakshatra ingresses from the
+          ephemeris, and the ages of 70.37-40 are dated from birth.
+        </li>
+        <li>
           Chapter 48, dasas of house lords: the theme of each lordship (48.2-8) and the relationship rules of 48.9-20 (company or aspect of the 5th and 9th lords, angle lord in a trine or trine lord in an
           angle, exchanges of the 1st with the 9th or 10th, the 3rd, 6th and 11th lords and their company, maraka lords in the 2nd or 7th, occupation of the 8th). The lord's transit position when the dasa
           begins (48.8) is evaluated from the ephemeris, see below.

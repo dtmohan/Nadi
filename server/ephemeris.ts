@@ -10,6 +10,7 @@ import {
   type Planet,
   type PlanetPosition,
   type TransitPeriod,
+  type NakshatraPeriod,
   describePosition,
   norm360,
   signOf,
@@ -143,6 +144,39 @@ export function transitPeriods(planet: "Jupiter" | "Saturn", jdStart: number, jd
   // A period is entered by retrograde motion when its sign is the one before the previous period's sign.
   for (let i = 1; i < periods.length; i++) {
     periods[i].retrogradeEntry = (periods[i - 1].signIndex - periods[i].signIndex + 12) % 12 === 1;
+  }
+  return periods;
+}
+
+/** Nakshatra-ingress periods for a slow planet between two Julian days (27 equal divisions of 13°20'). */
+export function nakshatraPeriods(planet: "Jupiter" | "Saturn", jdStart: number, jdEnd: number, opts: EphemerisOptions): NakshatraPeriod[] {
+  const body = BODY[planet];
+  const step = planet === "Jupiter" ? 1 : 3;
+  const nakAt = (jd: number) => Math.floor(norm360(siderealLon(jd, body, opts).lon) / (360 / 27)) % 27;
+  const periods: NakshatraPeriod[] = [];
+  let t0 = jdStart;
+  let n0 = nakAt(t0);
+  let periodStart = jdStart;
+  while (t0 < jdEnd) {
+    const t1 = Math.min(t0 + step, jdEnd);
+    const n1 = nakAt(t1);
+    if (n1 !== n0) {
+      let lo = t0;
+      let hi = t1;
+      while (hi - lo > 1e-4) {
+        const mid = (lo + hi) / 2;
+        if (nakAt(mid) === n0) lo = mid;
+        else hi = mid;
+      }
+      periods.push({ planet, nakshatraIndex: n0, start: jdToIso(periodStart), end: jdToIso(hi), retrogradeEntry: false });
+      periodStart = hi;
+      n0 = n1;
+    }
+    t0 = t1;
+  }
+  periods.push({ planet, nakshatraIndex: n0, start: jdToIso(periodStart), end: jdToIso(jdEnd), retrogradeEntry: false });
+  for (let i = 1; i < periods.length; i++) {
+    periods[i].retrogradeEntry = (periods[i - 1].nakshatraIndex - periods[i].nakshatraIndex + 27) % 27 === 1;
   }
   return periods;
 }

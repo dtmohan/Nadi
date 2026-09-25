@@ -260,6 +260,14 @@ export interface TransitPeriod {
   retrogradeEntry: boolean; // entered by retrograde motion
 }
 
+export interface NakshatraPeriod {
+  planet: "Jupiter" | "Saturn";
+  nakshatraIndex: number; // 0 = Ashwini
+  start: string; // ISO instant
+  end: string; // ISO instant
+  retrogradeEntry: boolean;
+}
+
 export function norm360(x: number): number {
   return ((x % 360) + 360) % 360;
 }
