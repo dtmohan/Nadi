@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
@@ -7,6 +8,9 @@ import type { TransitCheck } from "@shared/rectify-types";
 import type { EventOutcome } from "@shared/events";
 import { RAO_SOURCE } from "@shared/jaimini-areas";
 import { LifeEventsEditor } from "@/components/life-events";
+import { LifeTimeline, type TlMark } from "@/components/life-timeline";
+import { charaBands, transitBand, vimshottariBands } from "@/lib/timeline-data";
+import { vimshottari } from "@shared/kp";
 import { PlanetName } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { Badge } from "@/components/ui/badge";
@@ -149,6 +153,24 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
   const zone = chart.timezone;
   const fmtDate = (d: string) => DateTime.fromISO(d, { zone }).toFormat("d LLL yyyy");
 
+  // Shared timeline: the three clocks the events are checked against, with each event tinted by how KP read it.
+  const tlBands = useMemo(() => {
+    const moon = result.kp.positions.find((p) => p.planet === "Moon");
+    const vim = moon ? vimshottariBands(vimshottari(moon.lon, result.utc, result.now.asOf), { label: "KP dasa" }) : [];
+    return [...vim, ...charaBands(result.jaimini.charaDasha, result.now.asOf).slice(0, 1), transitBand(result.transits, "Jupiter", result.now.asOf)];
+  }, [result.kp.positions, result.utc, result.now.asOf, result.jaimini.charaDasha, result.transits]);
+  const tlMarks = useMemo<TlMark[]>(
+    () =>
+      (v?.events ?? []).map((e) => ({
+        id: e.id,
+        date: DateTime.fromISO(e.date, { zone }).toISO()!,
+        label: `${e.label} · KP ${e.kp.verdict}`,
+        tone: e.kp.verdict === "confirmed" ? "good" : e.kp.verdict === "partial" ? "mixed" : "bad",
+        title: `${e.label} · ${fmtDate(e.date)} · KP ${e.kp.verdict} (${e.kp.score}/${e.kp.max}); Nadi ${e.bnn.score}/${e.bnn.max}${e.jaimini ? `; Chara ${e.jaimini.mdSignName}–${e.jaimini.adSignName}` : ""}`,
+      })),
+    [v, zone],
+  );
+
   return (
     <section data-testid="validate-panel">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -192,6 +214,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
 
       {v && v.events.length > 0 && (
         <div className="mt-6" data-testid="validate-results">
+          <LifeTimeline className="mb-5" testid="validate-timeline" birthIso={result.utc} asOfIso={result.now.asOf} bands={tlBands} marks={tlMarks} marksLabel="Checked" />
+          <p className="mb-4 text-xs text-muted-foreground">Each event is tinted by the KP verdict at its date: green confirmed, amber partial, red missed. The bands beneath are the clocks it was read against; hover an event to see the Nadi and Chara scores as well.</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs" data-testid="validate-summary">
             <span>
               <span className="font-medium">{v.summary.events}</span> event{v.summary.events === 1 ? "" : "s"} · lagna {v.lagna.sign} at {chart.birthTime}

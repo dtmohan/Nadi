@@ -27,7 +27,7 @@ import { RectifyPanel } from "@/components/rectify-panel";
 import { LifeEventsSection } from "@/components/life-events";
 import { BirthTimeEditor } from "@/components/birth-time-editor";
 import { ValidatePanel } from "@/components/validate-panel";
-import { Timeline } from "@/components/timeline";
+import { Timeline, BnnLifeTimeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -929,6 +929,7 @@ export default function ChartPage() {
       {mode === "bnn" && (
       <>
       <BnnVerdict result={data} />
+      <BnnLifeTimeline className="mt-6" transits={data.transits} positions={positions} findings={data.reading.findings} birthIso={data.utc} roles={data.reading.roles} asOfIso={data.now.asOf} events={data.chart.events} zone={data.chart.timezone} />
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,27rem)_1fr] lg:items-start">
         <div className="lg:sticky lg:top-4 lg:max-h-[calc(100svh-2rem)] lg:overflow-y-auto lg:pr-1" data-testid="bnn-chart-column">
           <SouthIndianChart

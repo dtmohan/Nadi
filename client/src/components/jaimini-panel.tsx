@@ -30,7 +30,8 @@ import { Working } from "@/components/working";
 import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 import { readAreas, currentFor, isHot } from "@shared/jaimini-areas";
 import { SignName, ElementLegend, elementColor } from "@/components/planet-name";
-import { DasaBar } from "@/components/dasa-bar";
+import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
+import { charaBands, eventMarks, transitBand } from "@/lib/timeline-data";
 import { Term } from "@/components/term";
 import { SourceLink } from "@/components/source-link";
 import { SouthIndianChart } from "@/components/south-indian-chart";
@@ -249,6 +250,24 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
   const [focusSign, setFocusSign] = useState<number>(j.lagna.signIndex);
   const [showPrimer, setShowPrimer] = useState(false);
   const plain = usePlain();
+
+  // Shared timeline: Chara periods with Jupiter's passages, the antardashas each area runs hot in, and the recorded events.
+  const tlBands = useMemo(() => [...charaBands(j.charaDasha, result.now.asOf), transitBand(result.transits, "Jupiter", result.now.asOf)], [j.charaDasha, result.transits, result.now.asOf]);
+  const tlWindows = useMemo<TlWindow[]>(() => {
+    // One thin lane per life area; a mahadasha is drawn when it carries the area at Rao's threshold, darker the more triggers it has.
+    const out: TlWindow[] = [];
+    readAreas(j, positions).forEach((a, lane) => {
+      const max = Math.max(1, ...a.timing.periods.map((p) => p.score));
+      for (const p of a.timing.periods) {
+        if (!isHot(p.triggers)) continue;
+        const support = p.triggers.filter((t) => t.tone === "support").reduce((n, t) => n + t.weight, 0);
+        const strain = p.triggers.filter((t) => t.tone === "strain").reduce((n, t) => n + t.weight, 0);
+        out.push({ start: p.start, end: p.end, label: `${a.label} in the ${SIGNS[p.sign]} period`, tone: strain > support ? "bad" : support > strain ? "good" : "mixed", strength: p.score / max, lane });
+      }
+    });
+    return out;
+  }, [j, positions]);
+  const tlMarks = useMemo(() => eventMarks(chart.events, chart.timezone), [chart.events, chart.timezone]);
 
   const tags = useMemo(
     () =>
@@ -834,14 +853,19 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             </CardContent>
           </Card>
         )}
-        <DasaBar
+        <LifeTimeline
           className="mt-4"
-          testId="bar-chara-dasha"
-          nowAt={now.diff(birth, "years").years}
-          ticks={showAll ? [0, 24, 48, 72, 96, 120] : [0, 12, 24, 36, 48, 60]}
-          segments={visiblePeriods.map((p) => ({ start: p.ageStart, end: p.ageStart + p.years, color: elementColor(p.sign), label: SIGN_ABBR[p.sign], current: now >= DateTime.fromISO(p.start) && now < DateTime.fromISO(p.end), title: `${p.signName} · ${p.years} years · age ${p.ageStart}–${p.ageStart + p.years}` }))}
+          testid="jaimini-timeline"
+          birthIso={result.utc}
+          asOfIso={result.now.asOf}
+          bands={tlBands}
+          windows={tlWindows}
+          windowsLabel="Hot"
+          marks={tlMarks}
+          horizonYears={showAll ? 120 : 60}
         />
         <ElementLegend className="mt-3" />
+        <p className="mt-1 text-2xs text-muted-foreground">{plain ? "The Hot stripes are the seven life areas in the order of the cards above (self, career, wealth, marriage, children, family, health): a stripe is drawn where a sign period carries that area strongly by Rao's rules, green where it supports it, red where it strains it, darker the stronger. Jupiter's passages are shown for comparison with the Nadi timing; they are not part of the Chara reading." : "The Hot stripes are the seven areas in card order (self, career, wealth, marriage, children, family, health); a mahadasha is drawn where it carries the area at Rao's threshold (a weight-2 trigger or score ≥ 3), tinted by the balance of support and strain and shaded by score. Jupiter's sign passages are drawn for comparison with the Nadi timing only."}</p>
         <ul className="mt-3 space-y-1.5">
           {visiblePeriods.map((p) => {
             const key = `${p.cycle}-${p.sign}`;

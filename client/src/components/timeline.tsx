@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
+import { eventMarks, transitBand } from "@/lib/timeline-data";
+import type { ChartEvent } from "@shared/events";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 
@@ -100,6 +103,7 @@ export function Timeline({
   const next = useMemo(() => {
     return readings.find((r) => r.period.planet === track && (r.conjunct.length > 0 || r.trine.length > 0) && DateTime.fromISO(r.period.start) > now);
   }, [readings, track, now]);
+
 
   return (
     <div>
@@ -210,5 +214,39 @@ export function Timeline({
       {rows.length === 0 && <p className="mt-3 text-sm text-muted-foreground">No passages match the current filter.</p>}
       {!current[track] && rows.length > 0 && <p className="mt-3 text-xs text-muted-foreground">The current date falls outside the listed passages.</p>}
     </div>
+  );
+}
+
+/**
+ * The BNN life on one line: Jupiter's and Saturn's passages as bands, Jupiter's returns over (and trines to)
+ * the Jeeva and the Deha as the Nadi clock, and the recorded events above. Rendered full width under the verdict.
+ */
+export function BnnLifeTimeline({ transits, positions, findings, birthIso, roles, asOfIso, events, zone, className }: { transits: TransitPeriod[]; positions: PlanetPosition[]; findings: Finding[]; birthIso: string; roles?: Roles; asOfIso: string; events?: ChartEvent[]; zone: string; className?: string }) {
+  const readings = useMemo(() => readTransits(transits, positions, findings, birthIso, roles), [transits, positions, findings, birthIso, roles]);
+  // Shared timeline: both karakas' passages, with Jupiter's passages over or in trine to the Jeeva (and the Deha in a female chart) as the Nadi clock.
+  const tlBands = useMemo(() => [transitBand(transits, "Jupiter", asOfIso), transitBand(transits, "Saturn", asOfIso)], [transits, asOfIso]);
+  const tlWindows = useMemo<TlWindow[]>(() => {
+    const out: TlWindow[] = [];
+    const anchors: Array<{ planet: Planet; name: string }> = [{ planet: roles?.native ?? "Jupiter", name: "Jeeva" }];
+    if (roles && roles.deha !== roles.native) anchors.push({ planet: roles.deha, name: "Deha" });
+    for (const r of readings) {
+      if (r.period.planet !== "Jupiter") continue;
+      for (const a of anchors) {
+        if (r.conjunct.includes(a.planet)) out.push({ start: r.period.start, end: r.period.end, label: `Jupiter over the ${a.name} (${r.period.sign})`, tone: "good", strength: 1 });
+        else if (r.trine.includes(a.planet)) out.push({ start: r.period.start, end: r.period.end, label: `Jupiter in trine to the ${a.name} (${r.period.sign})`, tone: "good", strength: 0.45 });
+      }
+    }
+    return out;
+  }, [readings, roles]);
+  const tlMarks = useMemo(() => eventMarks(events, zone), [events, zone]);
+  const female = Boolean(roles && roles.deha !== roles.native);
+  return (
+    <section className={className} data-testid="section-bnn-timeline">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h3 className="font-display text-base font-semibold">The life on one line</h3>
+        <p className="text-xs text-muted-foreground">Jupiter's yearly and Saturn's 2½-year passages by sign; the Jeeva row is Jupiter over {female ? "the Jeeva or the Deha" : "the natal Jeeva"} (full) or in trine to it (faint); events above.</p>
+      </div>
+      <LifeTimeline className="mt-3" testid="bnn-timeline" birthIso={birthIso} asOfIso={asOfIso} bands={tlBands} windows={tlWindows} windowsLabel="Jeeva" marks={tlMarks} />
+    </section>
   );
 }

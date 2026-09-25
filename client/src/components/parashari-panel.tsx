@@ -25,7 +25,8 @@ import { computePortions } from "@shared/portions";
 import { PortionsSection } from "@/components/portions";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
-import { DasaBar } from "@/components/dasa-bar";
+import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
+import { eventMarks, transitBand, vimshottariBands } from "@/lib/timeline-data";
 import { SourceLink } from "@/components/source-link";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -106,6 +107,14 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const focusBhava = focusHouse ? r.bhavas[focusHouse - 1] : null;
   const cur = r.dashas.find((d) => d.current);
   const selDasa: DasaReading | undefined = r.dasaReadings.find((d) => d.lord === dasaPick) ?? r.dasaReadings.find((d) => d.current) ?? r.dasaReadings[0];
+
+  // Shared timeline: the dasas and bhuktis with Saturn's passages, each dasa's verdict from ch. 47-48 as a tinted row, and the recorded events.
+  const tlBands = useMemo(() => [...vimshottariBands(r.vimshottari), transitBand(result.transits, "Saturn", asOfIso)], [r.vimshottari, result.transits, asOfIso]);
+  const tlWindows = useMemo<TlWindow[]>(
+    () => r.dasaReadings.map((d) => ({ start: d.start, end: d.end, label: `${d.lord} dasa: ${d.verdict === "support" ? "favourable" : d.verdict === "strain" ? "trying" : "mixed"} (BPHS ch. 47-48)`, tone: d.verdict === "support" ? "good" : d.verdict === "strain" ? "bad" : "mixed", strength: 0.8 })),
+    [r.dasaReadings],
+  );
+  const tlMarks = useMemo(() => eventMarks(chart.events, chart.timezone), [chart.events, chart.timezone]);
   const ageNow = DateTime.fromISO(asOfIso).diff(DateTime.fromISO(result.utc), "days").days / 365.25;
 
   const badges: Record<number, string[]> = {};
@@ -289,12 +298,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           plain={<>Life is divided into planetary periods of fixed length, 120 years in all, starting from the Moon's position at birth. The period running now colours the present years; each is judged by the houses its planet rules and by its role for {SIGNS[r.lagna.signIndex]} rising. Pick a period to read what the text says about it and to see its sub-periods.</>}
           practitioner={<>Same Vimshottari sequence as the KP panel but from the Lahiri Moon ({positions.find((p) => p.planet === "Moon")?.nakshatra}), balance {r.vimshottari.balanceYears.toFixed(2)} years of {r.vimshottari.dasas[0].lord}. Each lord is glossed by the houses it owns and occupies and by its role for this rising sign. Pick a dasa row to read its effects from ch. 47-48 and its antar dasas from ch. 52-60.</>}
         />
-        <DasaBar
-          className="mt-2"
-          nowAt={ageNow}
-          segments={r.dashas.map((d) => ({ start: d.ageStart, end: d.ageEnd, color: planetColor(d.lord), label: PLANET_ABBR[d.lord], current: d.current, title: `${d.lord} dasa · ${fmt(d.start)} to ${fmt(d.end)}` }))}
-          testId="parashari-dasa-bar"
-        />
+        <LifeTimeline className="mt-3" testid="parashari-timeline" birthIso={result.utc} asOfIso={asOfIso} bands={tlBands} windows={tlWindows} windowsLabel="Verdict" marks={tlMarks} />
+        <p className="mt-1 text-xs text-muted-foreground">{plain ? "The Verdict row tints each period by what the text says of its planet for this chart: green favourable, amber mixed, red trying. Saturn's passages are drawn for comparison only." : "The Verdict row carries each dasa's balance of support and strain from BPHS ch. 47-48; Saturn's sign passages are shown for reference and are not part of the dasa judgement."}</p>
         <Table className="mt-3" data-testid="parashari-dashas">
           <TableHeader>
             <TableRow>

@@ -15,7 +15,8 @@ import { gist, firstClause } from "@shared/synthesis";
 import { ModeText, SectionTitle } from "@/components/mode-text";
 import { useReadingMode } from "@/lib/reading-mode";
 import { PlanetName, SignName, PlanetLegend, planetColor } from "@/components/planet-name";
-import { DasaBar } from "@/components/dasa-bar";
+import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
+import { eventMarks, vimshottariBands } from "@/lib/timeline-data";
 import { Term } from "@/components/term";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -123,6 +124,21 @@ export function KpPanel({ result }: { result: ChartResult }) {
   const [showPast, setShowPast] = useState(false);
   const windows = useMemo(() => (showPast ? allWindows : allWindows.filter((w) => !w.past)), [allWindows, showPast]);
   const pastCount = allWindows.length - allWindows.filter((w) => !w.past).length;
+
+  // Shared timeline: the dasas and bhuktis, the joint periods that carry the chosen matter, and the recorded events.
+  const tlBands = useMemo(() => vimshottariBands(kp.vimshottari), [kp.vimshottari]);
+  const tlWindows = useMemo<TlWindow[]>(
+    () =>
+      allWindows.map((w) => ({
+        start: w.start,
+        end: w.end,
+        label: `${ev.label}: ${PLANET_ABBR[w.dasaLord]}–${PLANET_ABBR[w.bhuktiLord]}–${PLANET_ABBR[w.antaraLord]}`,
+        tone: "good" as const,
+        strength: Math.min(1, (w.hits.dasa.length + w.hits.bhukti.length + w.hits.antara.length) / 6),
+      })),
+    [allWindows, ev.label],
+  );
+  const tlMarks = useMemo(() => eventMarks(chart.events, chart.timezone), [chart.events, chart.timezone]);
 
   const lagna = kp.cusps[0];
   const moon = kp.planets.find((p) => p.planet === "Moon")!;
@@ -528,21 +544,9 @@ export function KpPanel({ result }: { result: ChartResult }) {
           plain={<>Life runs in planetary periods counted from the Moon's star at birth, each split into sub-periods and sub-sub-periods. A promised matter comes about when all three running planets speak for its houses. Pick a matter and the windows in the next thirty years are listed; the house must be promised above first.</>}
           practitioner={<>A promised matter fructifies when the dasa, bhukti and antara lords are all significators of its houses. Pick a matter and the windows in the next thirty years are listed; the sub lord of the cusp above must promise it first.</>}
         />
-        <DasaBar
-          className="mt-3"
-          testId="bar-kp-dasas"
-          nowAt={kp.ageYears}
-          ticks={[0, 20, 40, 60, 80, 100, 120]}
-          segments={kp.vimshottari.dasas.map((d) => ({ start: d.ageStart, end: d.ageEnd, color: planetColor(d.lord), label: PLANET_ABBR[d.lord], current: d.current, title: `${d.lord} dasa · ${fmt(d.start)} to ${fmt(d.end)}` }))}
-        />
+        <LifeTimeline className="mt-3" testid="kp-timeline" birthIso={result.utc} asOfIso={asOfIso} bands={tlBands} windows={tlWindows} windowsLabel={ev.label.length > 9 ? "Matter" : ev.label} marks={tlMarks} defaultRange="decade" />
         <p className="mt-1 text-xs text-muted-foreground">{plain ? `${kp.vimshottari.balanceYears.toFixed(2)} years of ${kp.vimshottari.dasas[0].lord}'s period were left at birth. Moon at ${moon.sign} ${fmtDegShort(moon.degInSign)}, ${moon.nakshatra}.` : `Balance at birth: ${kp.vimshottari.balanceYears.toFixed(2)} years of ${kp.vimshottari.dasas[0].lord}. Moon at ${moon.sign} ${fmtDegShort(moon.degInSign)}, ${moon.nakshatra}.`}</p>
-        <p className="mt-3 text-xs font-medium">{plain ? `Sub-periods of ${cur.dasa.lord}'s period` : `Bhuktis of the ${cur.dasa.lord} dasa`} ({fmt(cur.dasa.start)} to {fmt(cur.dasa.end)})</p>
-        <DasaBar
-          className="mt-2"
-          testId="bar-kp-bhuktis"
-          nowAt={kp.ageYears}
-          segments={kp.vimshottari.bhuktis.filter((b) => b.dasaLord === cur.dasa.lord).map((b) => ({ start: b.ageStart, end: b.ageEnd, color: planetColor(b.lord), label: PLANET_ABBR[b.lord], current: b.current, title: `${b.dasaLord}–${b.lord} · ${fmt(b.start)} to ${fmt(b.end)}` }))}
-        />
+        <p className="mt-1 text-xs text-muted-foreground">{plain ? `The ${ev.label.toLowerCase()} row marks the stretches in the next thirty years when all three running planets speak for the matter's houses; darker where they speak for more of them. Running now: ${cur.dasa.lord}'s period, ${cur.bhukti.lord}'s sub-period (${fmt(cur.dasa.start)} to ${fmt(cur.dasa.end)}).` : `The ${ev.label.toLowerCase()} row marks the joint dasa–bhukti–antara periods of the next thirty years whose lords all signify the matter's houses; darker where more houses are signified. Running: ${cur.dasa.lord} dasa, ${cur.bhukti.lord} bhukti (${fmt(cur.dasa.start)} to ${fmt(cur.dasa.end)}).`}</p>
         <PlanetLegend className="mt-3" />
 
         <div className="mt-5 flex flex-wrap items-center gap-2 text-xs">

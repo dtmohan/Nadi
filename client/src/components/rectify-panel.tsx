@@ -7,6 +7,10 @@ import { PLANET_ABBR, fmtDegShort, type Planet } from "@shared/astro";
 import type { RectifyResult, RectifySegment, RectifyEvent } from "@shared/rectify-types";
 import { matterOf } from "@shared/events";
 import { LifeEventsEditor } from "@/components/life-events";
+import { LifeTimeline, type TlBand, type TlMark } from "@/components/life-timeline";
+import { charaBands, vimshottariBands } from "@/lib/timeline-data";
+import { vimshottari } from "@shared/kp";
+import { charaDasha } from "@shared/jaimini";
 import { PlanetName } from "@/components/planet-name";
 import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 import { Badge } from "@/components/ui/badge";
@@ -209,6 +213,31 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
   const bestSet = useMemo(() => new Set(scored.filter((r) => r.score === top && top > 0).map((r) => r.i)), [scored, top]);
   const segments = useMemo(() => (sortByScore ? [...scored].sort((a, b) => b.score - a.score || a.i - b.i) : scored), [scored, sortByScore]);
   const maxOf = scored[0]?.max ?? 0;
+
+  // Shared timeline for the event methods: the candidate under review (the opened interval, else the best), its clock, and each event tinted by how well that candidate fits it.
+  const focusIdx = open !== null && data && data.segments[open] ? open : (bestSet.size ? Math.min(...Array.from(bestSet)) : null);
+  const focus = focusIdx !== null && data ? data.segments[focusIdx] : null;
+  const tlBands = useMemo<TlBand[]>(() => {
+    if (!focus) return [];
+    if (method === "jaimini-dasha") return charaBands(charaDasha(focus.jaiminiSign.index, result.positions, result.utc), result.now.asOf);
+    const moon = result.kp.positions.find((p) => p.planet === "Moon");
+    return moon ? vimshottariBands(vimshottari(moon.lon, result.utc, result.now.asOf), { label: "KP dasa" }) : [];
+  }, [focus, method, result.positions, result.utc, result.now.asOf, result.kp.positions]);
+  const tlMarks = useMemo<TlMark[]>(() => {
+    if (!focus) return [];
+    return focus.events.map((e, i) => {
+      const sc = method === "jaimini-dasha" ? e.jaimini?.score ?? 0 : e.score;
+      const mx = method === "jaimini-dasha" ? e.jaimini?.max ?? 0 : e.max;
+      const ratio = mx > 0 ? sc / mx : 0;
+      return {
+        id: `${e.label}-${e.date}-${i}`,
+        date: DateTime.fromISO(e.date, { zone: chart.timezone }).toISO()!,
+        label: `${e.label} ${sc}/${mx}`,
+        tone: mx === 0 ? "neutral" : ratio >= 0.75 ? "good" : ratio >= 0.4 ? "mixed" : "bad",
+        title: method === "jaimini-dasha" ? `${e.label} · ${e.date} · Chara ${e.jaimini ? `${sc}/${mx}` : "no area"}` : `${e.label} · ${e.date} · ${e.dasa}–${e.bhukti}–${e.antara} · ${sc}/${mx}${e.promised === undefined ? "" : e.promised ? " · promised" : " · not promised at the cusp"}`,
+      };
+    });
+  }, [focus, method, chart.timezone]);
   /** Jaimini is whole-sign: contiguous intervals in one rising sign form one row. */
   const signGroups = useMemo(() => {
     if (!data) return [];
@@ -347,6 +376,19 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
               {sortByScore ? "Sort by time" : "Sort by score"}
             </button>
           </div>
+
+          {(method === "kp-events" || method === "jaimini-dasha") && focus && tlBands.length > 0 && eventPayload.length > 0 && (
+            <div className="mt-3 rounded-md border bg-card p-3" data-testid="rectify-timeline-card">
+              <p className="text-xs">
+                <span className="font-medium">{plain ? "How the candidate fits the events" : "Event fit of the candidate interval"}</span>{" "}
+                <span className="text-muted-foreground">
+                  {focus.start.slice(0, 5)}–{focus.end.slice(0, 5)}{method === "jaimini-dasha" ? `, ${focus.jaiminiSign.name} rising` : `, lagna sub lord ${focus.subLord}`}
+                  {focus.given ? " (the given time)" : ""}; {open === null ? "the best-scoring interval; open another row to compare" : "the opened row"}. Green events fit fully, amber in part, red not at all.
+                </span>
+              </p>
+              <LifeTimeline className="mt-2" testid="rectify-timeline" birthIso={result.utc} asOfIso={result.now.asOf} bands={tlBands} marks={tlMarks} marksLabel="Fit" />
+            </div>
+          )}
 
           {method === "jaimini-dasha" && (
             <div className="mt-2 overflow-x-auto">
