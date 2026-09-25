@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
-import { PLANET_ABBR, SIGNS } from "@shared/astro";
+import { PLANET_ABBR, SIGNS, type Planet } from "@shared/astro";
 import { computeParashari, ord, listH, roleLabel, LORDSHIP_LABEL, KENDRA, type ParashariFinding } from "@shared/parashari";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
-import { LAYER_LABEL, type DasaReading, type AntarReading, type DasaNote } from "@shared/parashari-dasa";
+import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
 import type { AshtakavargaResult, Bhinnashtaka } from "@shared/ashtakavarga";
 import { BHAVA_PHALA_CAVEATS, type BhavaPhala, type VargaPhala } from "@shared/bhava-phala";
@@ -282,7 +282,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         )}
       </div>
 
-      {selDasa && <DasaEffects d={selDasa} open={antarOpen} setOpen={setAntarOpen} />}
+      {selDasa && <DasaEffects d={selDasa} open={antarOpen} setOpen={setAntarOpen} birthIso={result.utc} asOfIso={asOfIso} />}
     </div>
   );
 }
@@ -499,7 +499,7 @@ function Note({ n }: { n: DasaNote }) {
   );
 }
 
-function DasaEffects({ d, open, setOpen }: { d: DasaReading; open: string | null; setOpen: (k: string | null) => void }) {
+function DasaEffects({ d, open, setOpen, birthIso, asOfIso }: { d: DasaReading; open: string | null; setOpen: (k: string | null) => void; birthIso: string; asOfIso: string }) {
   const layers: DasaNote["layer"][] = ["general", "strength", "ashtakavarga", "planet", "lordship", "relation"];
   const running = d.antars.find((a) => a.current);
   return (
@@ -553,25 +553,90 @@ function DasaEffects({ d, open, setOpen }: { d: DasaReading; open: string | null
             Pratyantar dasas in the running {d.lord}–{running.lord} antar
           </h4>
           <p className="mt-1 text-xs text-muted-foreground">
-            General effects only, from <SourceLink source={{ label: "Parashara 61.2-82", url: BPHS_URL(61) }} />. Verse 61.2 adds that the ill effects do not follow when the pratyantar lord is in a trine, owns or occupies an auspicious house, or is in a benefic varga; apply the same test to each line.
+            General effects only, from <SourceLink source={{ label: "Parashara 61.2-82", url: BPHS_URL(61) }} />. Verse 61.2 adds that the ill effects do not follow when the pratyantar lord is in a trine, owns or occupies an auspicious house, or is in a benefic varga; apply the same test to each line. Select a pratyantar to divide it further.
           </p>
-          <ul className="mt-2 divide-y rounded-md border text-sm">
-            {running.pratyantars.map((p) => (
-              <li key={p.lord + p.start} className={cn("flex flex-wrap items-baseline gap-x-3 gap-y-1 px-3 py-1.5", p.current && "bg-primary/5")} data-testid={`parashari-pratyantar-${p.lord}`}>
-                <span className="w-16 shrink-0">
-                  <PlanetName planet={p.lord} abbr tone />
-                </span>
-                <span className="shrink-0 text-xs text-muted-foreground whitespace-nowrap sm:w-44">{fmtD(p.start)} – {fmtD(p.end)}</span>
-                {p.current && <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
-                <span className="min-w-0 basis-full text-xs text-muted-foreground sm:basis-0 sm:flex-1">
-                  {p.text} <SourceLink source={p.source} />
-                </span>
-              </li>
-            ))}
-          </ul>
+          <FineLevels dasaLord={d.lord} antarLord={running.lord} pratyantars={running.pratyantars} birthIso={birthIso} asOfIso={asOfIso} />
         </div>
       )}
     </div>
+  );
+}
+
+const fmtDT = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy HH:mm");
+
+function FineRow({ p, testid, selected, onSelect, withTime }: { p: FinePeriod; testid: string; selected?: boolean; onSelect?: () => void; withTime: boolean }) {
+  const inner = (
+    <>
+      <span className="w-16 shrink-0">
+        <PlanetName planet={p.lord} abbr tone />
+      </span>
+      <span className={cn("shrink-0 text-xs text-muted-foreground whitespace-nowrap tabular-nums", withTime ? "sm:w-64" : "sm:w-44")}>
+        {withTime ? `${fmtDT(p.start)} – ${fmtDT(p.end)}` : `${fmtD(p.start)} – ${fmtD(p.end)}`}
+      </span>
+      {p.current && <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+      <span className="min-w-0 basis-full text-xs text-muted-foreground sm:basis-0 sm:flex-1">
+        {p.text} <SourceLink source={p.source} />
+      </span>
+    </>
+  );
+  const cls = cn("flex flex-wrap items-baseline gap-x-3 gap-y-1 px-3 py-1.5", p.current && "bg-primary/5", selected && "ring-1 ring-inset ring-primary/40");
+  return (
+    <li data-testid={testid} className={onSelect ? undefined : cls}>
+      {onSelect ? (
+        <button type="button" className={cn(cls, "w-full text-left")} onClick={onSelect} aria-pressed={selected}>
+          {inner}
+        </button>
+      ) : (
+        inner
+      )}
+    </li>
+  );
+}
+
+function FineLevels({ dasaLord, antarLord, pratyantars, birthIso, asOfIso }: { dasaLord: Planet; antarLord: Planet; pratyantars: NonNullable<AntarReading["pratyantars"]>; birthIso: string; asOfIso: string }) {
+  const currentP = pratyantars.find((p) => p.current) ?? pratyantars[0];
+  const [pSel, setPSel] = useState<string>(currentP.start);
+  const pratyantar = pratyantars.find((p) => p.start === pSel) ?? currentP;
+  const sookshmas = useMemo(() => finePeriodsOf([dasaLord, antarLord, pratyantar.lord], pratyantar.end, "sookshma", birthIso, asOfIso), [dasaLord, antarLord, pratyantar, birthIso, asOfIso]);
+  const [sSel, setSSel] = useState<string | null>(null);
+  const sookshma = sookshmas.find((s) => s.start === sSel) ?? sookshmas.find((s) => s.current) ?? sookshmas[0];
+  const pranas = useMemo(() => (sookshma ? finePeriodsOf([dasaLord, antarLord, pratyantar.lord, sookshma.lord], sookshma.end, "prana", birthIso, asOfIso) : []), [dasaLord, antarLord, pratyantar, sookshma, birthIso, asOfIso]);
+  return (
+    <>
+      <ul className="mt-2 divide-y rounded-md border text-sm">
+        {pratyantars.map((p) => (
+          <FineRow key={p.lord + p.start} p={p} testid={`parashari-pratyantar-${p.lord}`} selected={p.start === pratyantar.start} onSelect={() => { setPSel(p.start); setSSel(null); }} withTime={false} />
+        ))}
+      </ul>
+
+      <h4 className="mt-6 text-sm font-semibold" data-testid="parashari-sookshmas-heading">
+        Sookshma dasas in the {dasaLord}–{antarLord}–{pratyantar.lord} pratyantar
+      </h4>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Each sookshma is the pratyantar multiplied by its lord's dasa years over 120 <SourceLink source={{ label: "Parashara 62.1", url: BPHS_URL(62) }} />; the effects are the general ones of <SourceLink source={{ label: "Parashara 62.2-82", url: BPHS_URL(62) }} />, keyed by the pratyantar lord. Select a sookshma to divide it into pranas.
+      </p>
+      <ul className="mt-2 divide-y rounded-md border text-sm" data-testid="parashari-sookshmas">
+        {sookshmas.map((s) => (
+          <FineRow key={s.lord + s.start} p={s} testid={`parashari-sookshma-${s.lord}`} selected={sookshma && s.start === sookshma.start} onSelect={() => setSSel(s.start)} withTime={false} />
+        ))}
+      </ul>
+
+      {sookshma && (
+        <>
+          <h4 className="mt-6 text-sm font-semibold" data-testid="parashari-pranas-heading">
+            Prana dasas in the {sookshma.lord} sookshma, {fmtD(sookshma.start)} to {fmtD(sookshma.end)}
+          </h4>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Each prana is the sookshma multiplied by its lord's dasa years over 120 <SourceLink source={{ label: "Parashara 63.1", url: BPHS_URL(63) }} />, effects from <SourceLink source={{ label: "Parashara 63.2-82", url: BPHS_URL(63) }} /> keyed by the sookshma lord. Times are shown in your device's time zone; Parashara closes by asking that dasa, antar, pratyantar, sookshma and prana all be weighed together before predicting <SourceLink source={{ label: "Parashara 63.83", url: BPHS_URL(63) }} />.
+          </p>
+          <ul className="mt-2 divide-y rounded-md border text-sm" data-testid="parashari-pranas">
+            {pranas.map((p) => (
+              <FineRow key={p.lord + p.start} p={p} testid={`parashari-prana-${p.lord}`} withTime />
+            ))}
+          </ul>
+        </>
+      )}
+    </>
   );
 }
 

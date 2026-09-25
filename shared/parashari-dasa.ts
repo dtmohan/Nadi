@@ -6,9 +6,9 @@
 import { houseFrom, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
 import type { Vimshottari } from "./kp";
-import { antarasOf } from "./kp";
+import { antarasOf, VIMSHOTTARI_ORDER, VIMSHOTTARI_YEARS } from "./kp";
 import { DateTime } from "luxon";
-import { ANTAR_DASA, PRATYANTAR, type AntarEntry } from "./parashari-dasa-data";
+import { ANTAR_DASA, PRATYANTAR, SOOKSHMA, PRANA, type AntarEntry } from "./parashari-dasa-data";
 import type { ShadbalaResult, PlanetShadbala, IshtaKashta, DasaStartTransit } from "./shadbala";
 import type { AshtakavargaResult } from "./ashtakavarga";
 
@@ -462,6 +462,45 @@ export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: numbe
 
     return { lord: p, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: d.current, verdict: tally(notes.map((n) => n.tone)), timing, notes, antars };
   });
+}
+
+export interface FinePeriod {
+  lord: Planet;
+  start: string;
+  end: string;
+  current: boolean;
+  text: string;
+  source: DasaSource;
+}
+
+/**
+ * Sub-periods of a Vimshottari period by the proportional rule of 62.1 and 63.1: each sub-period is the parent span
+ * multiplied by the sub-lord's dasa years over 120, starting from the parent lord and following the dasa order.
+ * `chain` is the list of lords from the maha dasa down to the parent (e.g. [dasa, antar, pratyantar] for sookshmas);
+ * the parent's full span is rebuilt from its end so that a span clipped at birth still divides correctly.
+ */
+export function finePeriodsOf(chain: Planet[], parentEndIso: string, level: "sookshma" | "prana", birthIso: string, asOfIso: string): FinePeriod[] {
+  const parent = chain[chain.length - 1];
+  const fullDays = chain.reduce((d, p) => (d * VIMSHOTTARI_YEARS[p]) / 120, 120 * 365.25);
+  const end = DateTime.fromISO(parentEndIso);
+  const birth = DateTime.fromISO(birthIso);
+  const asOf = DateTime.fromISO(asOfIso);
+  let t = end.minus({ days: fullDays });
+  const idx = VIMSHOTTARI_ORDER.indexOf(parent);
+  const table = level === "sookshma" ? SOOKSHMA : PRANA;
+  const ch = level === "sookshma" ? 62 : 63;
+  const out: FinePeriod[] = [];
+  for (let k = 0; k < 9; k++) {
+    const lord = VIMSHOTTARI_ORDER[(idx + k) % 9];
+    const e = t.plus({ days: (fullDays * VIMSHOTTARI_YEARS[lord]) / 120 });
+    if (e > birth) {
+      const s = t < birth ? birth : t;
+      const entry = table[parent]?.[lord];
+      out.push({ lord, start: s.toISO()!, end: e.toISO()!, current: asOf >= s && asOf < e, text: entry?.text ?? "", source: S(ch, entry?.verse ?? "1") });
+    }
+    t = e;
+  }
+  return out;
 }
 
 export const LAYER_LABEL: Record<DasaNote["layer"], string> = {
