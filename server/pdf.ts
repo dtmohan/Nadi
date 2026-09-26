@@ -20,6 +20,8 @@ import { JAIMINI_GROUP_LABEL } from "@shared/rules-jaimini";
 import { AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
 import { JAIMINI_AREAS, RAO_SOURCE, currentFor, isHot, readAreas, type TransitTarget } from "@shared/jaimini-areas";
 import { TRANSIT_GRADE_LABEL, confirmTransits, summarizeTouches } from "@shared/jaimini-transit";
+import { PANCHANGA_CAVEATS, PANCHANGA_SOURCES, SURYA_SIDDHANTA_URL, type LimbSegment } from "@shared/panchanga";
+import { computeGochara, GOCHARA_CAVEATS, BS_URL, PD_URL } from "@shared/gochara";
 
 const INK = "#2b241e";
 const MUTED = "#7a6f66";
@@ -429,6 +431,110 @@ function jaiminiAreasSection(doc: Doc, result: ChartResult) {
   }
 }
 
+/** The five limbs of the birth day with their changes, then the transits from the natal Moon, each line cited to its verse. */
+function panchangaSection(doc: Doc, result: ChartResult) {
+  const day = result.panchanga;
+  if (!day) return;
+  const zone = result.chart.timezone;
+  const t = (iso: string) => DateTime.fromISO(iso).setZone(zone).toFormat("HH:mm");
+  const pct = (x: number) => `${Math.round(x * 100)}%`;
+  const runText = (run: LimbSegment[]) => run.map((s) => `${s.name}${s.detail ? ` (${s.detail})` : ""}${s.end ? ` ends ${t(s.end)}` : " past next sunrise"}`).join(" · ");
+
+  doc.addPage();
+  sectionTitle(doc, "Panchanga", `the five limbs of the birth day · Surya Siddhanta 1.36, 2.64-69 (tr. Burgess)`);
+  doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(
+    `${DateTime.fromISO(day.at).setZone(zone).toFormat("d LLLL yyyy HH:mm")} at ${result.chart.place}. Sunrise ${t(day.sunrise)}, sunset ${t(day.sunset)}, next sunrise ${t(day.nextSunrise)}. Moon ${day.phase.waxing ? "waxing" : "waning"}, ${pct(day.phase.illumination)} lit. Ayanamsa ${day.ayanamsa.key} ${day.ayanamsa.value.toFixed(3)}°.`,
+    PAGE.m,
+    doc.y,
+    { width: CONTENT_W },
+  );
+  doc.y += 6;
+
+  const limbs: Array<{ limb: string; value: string; detail: string; run: LimbSegment[]; source: { label: string; url: string; provisional?: boolean } }> = [
+    { limb: "Vara", value: day.vara.name, detail: `lord ${day.vara.lord}; from sunrise ${t(day.sunrise)} to ${t(day.nextSunrise)}`, run: [], source: PANCHANGA_SOURCES.day },
+    { limb: "Tithi", value: `${day.tithi.paksha} ${day.tithi.name}`, detail: `${day.tithi.index} of 30, ${pct(day.tithi.elapsed)} elapsed`, run: day.runs.tithi, source: PANCHANGA_SOURCES.tithi },
+    { limb: "Nakshatra", value: `${day.nakshatra.name} ${day.nakshatra.pada}`, detail: `lord ${day.nakshatra.lord}, ${pct(day.nakshatra.elapsed)} elapsed`, run: day.runs.nakshatra, source: PANCHANGA_SOURCES.nakshatra },
+    { limb: "Yoga", value: day.yoga.name, detail: `${day.yoga.index + 1} of 27, ${pct(day.yoga.elapsed)} elapsed`, run: day.runs.yoga, source: PANCHANGA_SOURCES.yoga },
+    { limb: "Karana", value: day.karana.name, detail: `${day.karana.fixed ? "fixed" : "movable"}, ${pct(day.karana.elapsed)} elapsed`, run: day.runs.karana, source: PANCHANGA_SOURCES.karana },
+  ];
+  const cols = [0, 0.14, 0.4].map((f) => PAGE.m + f * CONTENT_W);
+  doc.font("Helvetica").fontSize(7.5).fillColor(MUTED);
+  ["Limb", "At birth", "Through the day (sunrise to sunrise)"].forEach((h, i) => doc.text(h, cols[i], doc.y, { lineBreak: false }));
+  doc.y += 12;
+  doc.moveTo(PAGE.m, doc.y - 2).lineTo(PAGE.w - PAGE.m, doc.y - 2).lineWidth(0.5).strokeColor(RULE).stroke();
+  for (const l of limbs) {
+    const runW = CONTENT_W - (cols[2] - PAGE.m);
+    const run = l.run.length ? runText(l.run) : l.detail;
+    doc.font("Helvetica").fontSize(8);
+    const h = Math.max(24, doc.heightOfString(run, { width: runW }) + 12);
+    ensureSpace(doc, h + 4);
+    const y = doc.y;
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text(l.limb, cols[0], y, { lineBreak: false });
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text(l.value, cols[1], y, { width: cols[2] - cols[1] - 6 });
+    doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(l.run.length ? l.detail : "", cols[1], doc.y, { width: cols[2] - cols[1] - 6 });
+    const leftEnd = doc.y;
+    doc.font("Helvetica").fontSize(8).fillColor(INK).text(run, cols[2], y, { width: runW });
+    doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(`${l.source.label}${l.source.provisional ? " · provisional" : ""}${l.limb === "Vara" ? ` · lord: ${PANCHANGA_SOURCES.varaLords.label}, provisional` : ""}`, cols[2], doc.y + 1, { width: runW, link: l.source.url });
+    doc.y = Math.max(doc.y, leftEnd) + 5;
+    doc.moveTo(PAGE.m, doc.y - 3).lineTo(PAGE.w - PAGE.m, doc.y - 3).lineWidth(0.3).strokeColor(RULE).stroke();
+  }
+  doc.y += 2;
+  doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(`Surya Siddhanta: ${SURYA_SIDDHANTA_URL}`, PAGE.m, doc.y, { width: CONTENT_W, link: SURYA_SIDDHANTA_URL });
+  for (const c of PANCHANGA_CAVEATS) {
+    ensureSpace(doc, 20);
+    doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(`• ${c}`, PAGE.m, doc.y + 1, { width: CONTENT_W });
+  }
+
+  // gochara
+  const moon = result.positions.find((p) => p.planet === "Moon")!;
+  const g = computeGochara(moon.signIndex, result.now.positions, result.now.asOf);
+  ensureSpace(doc, 120);
+  sectionTitle(doc, "Gochara from the natal Moon", `Brihat Samhita 104 · Phaladeepika 26 · planets as of ${DateTime.fromISO(result.now.asOf).setZone(zone).toFormat("d LLL yyyy HH:mm")}`);
+  doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(
+    `Natal Moon in ${SIGNS[moon.signIndex]}. Each planet's sign is counted as a house from it (Phaladeepika 26.1). Favourable houses per Brihat Samhita 104.4 and Phaladeepika 26.2; vedha per 26.3-8; dignity per 26.31-32 and Brihat Samhita 104.53, 55; danger houses per 26.33-34. Verdicts: favourable, obstructed (favourable house under vedha), unfavourable, neutral (dignity cancels the house). Not Parashari.`,
+    PAGE.m,
+    doc.y,
+    { width: CONTENT_W },
+  );
+  doc.y += 6;
+  for (const r of g.rows) {
+    const lines: Array<{ text: string; muted?: boolean; url?: string }> = [];
+    if (r.effect.bs) lines.push({ text: `${r.effect.bs.source.label}: ${r.effect.bs.text}` });
+    if (r.effect.pd) lines.push({ text: `${r.effect.pd.source.label}${r.effect.pd.source.provisional ? " (provisional)" : ""}: ${r.effect.pd.text}` });
+    const meta = [
+      `${r.favourable ? "favourable" : "not favourable"} house (${r.favourableSources.map((s) => s.label + (s.provisional ? ", provisional" : "")).join("; ")})`,
+      r.favourable ? `vedha point ${ORD(r.vedhaPoint!)}${r.vedhaBy.length ? `, occupied by ${r.vedhaBy.join(", ")}` : ", clear"} (${r.vedhaSource.label}${r.vedhaSource.provisional ? ", provisional" : ""})` : "",
+      `felt in: ${r.portion.bs ? `BS ${r.portion.bs}; ` : ""}PD ${r.portion.pd}`,
+    ].filter(Boolean).join(" · ");
+    lines.push({ text: meta, muted: true });
+    if (r.dignityNote) lines.push({ text: `${r.dignityNote.text} (${r.dignityNote.sources.map((s) => s.label).join(", ")})` });
+    if (r.danger) lines.push({ text: `${r.danger.text} (${r.danger.source.label})` });
+    doc.font("Helvetica").fontSize(8);
+    const h = 14 + lines.reduce((a, l) => a + doc.heightOfString(l.text, { width: CONTENT_W - 12 }) + 2, 0) + 6;
+    ensureSpace(doc, h);
+    const y = doc.y;
+    const head = `${r.planet}${r.retrograde && CLASSICAL.has(r.planet) ? " R" : ""}`;
+    doc.font("Helvetica-Bold").fontSize(9).fillColor(planetColor(r.planet)).text(head, PAGE.m, y, { lineBreak: false });
+    doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(`${SIGNS[r.signIndex]} ${r.degInSign.toFixed(1)}° · ${ORD(r.house)} from the Moon`, PAGE.m + 70, y, { lineBreak: false });
+    const verdictColor = r.verdict === "favourable" ? INDIGO : r.verdict === "unfavourable" ? VERMILION : MUTED;
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(verdictColor).text(r.verdict, PAGE.m, y, { width: CONTENT_W, align: "right", lineBreak: false });
+    doc.y = y + 13;
+    for (const l of lines) {
+      doc.font("Helvetica").fontSize(l.muted ? 6.5 : 8).fillColor(l.muted ? MUTED : INK).text(l.text, PAGE.m + 12, doc.y, { width: CONTENT_W - 12 });
+      doc.y += 2;
+    }
+    doc.y += 4;
+    doc.moveTo(PAGE.m, doc.y - 2).lineTo(PAGE.w - PAGE.m, doc.y - 2).lineWidth(0.3).strokeColor(RULE).stroke();
+  }
+  doc.y += 2;
+  doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(`Brihat Samhita ch. 104 (tr. Iyer, 1884): ${BS_URL}`, PAGE.m, doc.y, { width: CONTENT_W, link: BS_URL });
+  doc.text(`Phaladeepika ch. 26 (tr. Sastri, 1937): ${PD_URL}`, PAGE.m, doc.y + 1, { width: CONTENT_W, link: PD_URL });
+  for (const c of GOCHARA_CAVEATS) {
+    ensureSpace(doc, 20);
+    doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(`• ${c}`, PAGE.m, doc.y + 1, { width: CONTENT_W });
+  }
+}
+
 function planetTable(doc: Doc, x: number, y: number, w: number, positions: PlanetPosition[], strength: PlanetStrength[]) {
   const stOf = (p: Planet) => strength.find((q) => q.planet === p);
   const cols = [0, 0.18, 0.36, 0.55, 0.82].map((f) => x + f * w);
@@ -734,6 +840,9 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   // ── Jaimini (separate system) ──
   jaiminiSection(doc, result);
 
+  // ── Panchanga and gochara (Surya Siddhanta; Brihat Samhita 104, Phaladeepika 26) ──
+  panchangaSection(doc, result);
+
   // ── Glossary ──
   doc.addPage();
   sectionTitle(doc, "Glossary", "the terms this reading leans on, in plain language");
@@ -758,7 +867,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   doc.switchToPage(range.start + range.count - 1);
   doc.font("Helvetica").fontSize(7).fillColor(MUTED);
   doc.text(
-    "Positions from the Swiss Ephemeris (Astrodienst). Nadi text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik; Jaimini text follows the Jaimini Sutras and BPHS chapter 30, with Chara dasha by K.N. Rao's method. Both are starting sets of rules meant to be extended, not a verdict.",
+    "Positions from the Swiss Ephemeris (Astrodienst). Nadi text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik; Jaimini text follows the Jaimini Sutras and BPHS chapter 30, with Chara dasha by K.N. Rao's method. Panchanga follows the Surya Siddhanta (tr. Burgess); gochara follows Brihat Samhita ch. 104 (tr. Iyer) and Phaladeepika ch. 26 (tr. Sastri). All are starting sets of rules meant to be extended, not a verdict.",
     PAGE.m,
     PAGE.h - PAGE.m - 14,
     { width: CONTENT_W },
