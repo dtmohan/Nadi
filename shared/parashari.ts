@@ -11,6 +11,7 @@ import { computeBhavaPhala, computeVargaPhala, type BhavaPhala, type VargaPhala 
 import { computeDasaReadings, type DasaReading } from "./parashari-dasa";
 import { LORD_IN_HOUSE, LAGNA_NATURE, BPHS_URL, type FunctionalRole } from "./parashari-data";
 import { neechaBhanga, PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechabhanga";
+import { houseFindings, judgeBhavas, type BhavaJudgement } from "./parashari-houses";
 
 export const SEVEN: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 export const KENDRA = [1, 4, 7, 10];
@@ -49,7 +50,9 @@ export interface PlanetNature {
 
 export interface ParashariFinding {
   id: string;
-  kind: "lord" | "yoga" | "strain";
+  kind: "lord" | "yoga" | "strain" | "house";
+  /** For kind "house": the bhava the chapter concerns (ch. 12 = 1, ch. 13 = 2). */
+  house?: number;
   title: string;
   text: string;
   tone: "support" | "strain" | "mixed";
@@ -81,6 +84,8 @@ export interface ParashariResult {
   dasaReadings: DasaReading[];
   /** Debilitated planets and whether Phaladeepika 7.26-28 cancels the debility. */
   neechaBhanga: NeechaBhanga[];
+  /** 11.14-16 prosperity and failure signs for each house. */
+  bhavaJudgement: BhavaJudgement[];
   /** Six-fold strength of the seven planets, BPHS ch. 27; absent when the server sent no ephemeris facts. */
   shadbala?: ShadbalaResult;
   ashtakavarga: AshtakavargaResult;
@@ -503,8 +508,13 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
     return { lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: d.current, owns: n.owns, house: n.house, functional: n.functional, summary: roleText + "." + eff };
   });
 
+  // Chapters 11-13: house judgement and the stated effects of the 1st and 2nd houses.
+  const houseDeps = { aspect: drishtiQuarters, benefic: naturalBenefic };
+  findings.push(...houseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
+  const bhavaJudgement = judgeBhavas(positions, lagnaIdx, houseDeps, shadbala);
+
   const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts, ashtakavarga, neecha);
-  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, vimshottari: vim, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
+  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, bhavaJudgement, vimshottari: vim, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
 }
 
 export function ord(n: number): string {

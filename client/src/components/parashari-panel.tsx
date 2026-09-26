@@ -4,6 +4,7 @@ import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, SIGNS, type Planet } from "@shared/astro";
 import { computeParashari, ord, listH, roleLabel, LORDSHIP_LABEL, KENDRA, type ParashariFinding, type DashaGloss } from "@shared/parashari";
 import { PHALADEEPIKA_CH7_URL } from "@shared/neechabhanga";
+import { HOUSE_MATTERS, HOUSE_MATTERS_SOURCE, BHAVA_JUDGEMENT_SOURCE, BHAVA_JUDGEMENT_CAVEATS, HOUSE_CAVEATS } from "@shared/parashari-houses";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
@@ -97,13 +98,15 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const plain = usePlain();
   const [balaOpen, setBalaOpen] = useState<string | null>(null);
   const [focusHouse, setFocusHouse] = useState<number | null>(null);
-  const [section, setSection] = useState<"lords" | "yogas">("yogas");
+  const [section, setSection] = useState<"lords" | "yogas" | "houses">("yogas");
   const [dasaPick, setDasaPick] = useState<string | null>(null);
   const [antarOpen, setAntarOpen] = useState<string | null>(null);
 
   const nature = LAGNA_NATURE[r.lagna.signIndex];
   const lords = r.findings.filter((f) => f.kind === "lord");
-  const yogas = r.findings.filter((f) => f.kind !== "lord");
+  const yogas = r.findings.filter((f) => f.kind !== "lord" && f.kind !== "house");
+  const houseFinds = r.findings.filter((f) => f.kind === "house");
+  const shownHouses = focusHouse ? houseFinds.filter((f) => f.house === focusHouse) : houseFinds;
   const shownLords = focusHouse ? lords.filter((f) => f.id === `pa-lord-${focusHouse}-${r.bhavas[focusHouse - 1].lordIn}` || f.id.endsWith(`-${focusHouse}`)) : lords;
   const focusBhava = focusHouse ? r.bhavas[focusHouse - 1] : null;
   const cur = r.dashas.find((d) => d.current);
@@ -137,7 +140,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             }
             practitioner={
               <>
-                {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, yogas from chapters 34, 36, 39, 41, 42 and 75 of{" "}
+                {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, house significations and their prosperity or failure from chapter 11, effects of the 1st and 2nd houses from chapters 12 and 13, yogas from chapters 34, 36, 39, 41, 42 and 75 of{" "}
                 <a href={BPHS_URL(24)} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Brihat Parashara Hora Sastra</a> (Santhanam translation). Nodes have no aspect in chapter 26 and own no house; they are read through their sign lord. Cancellation of debilitation follows{" "}
                 <a href={PHALADEEPIKA_CH7_URL} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Phaladeepika 7.26-30</a> (Subrahmanya Sastri translation), since Parashara's verses do not state it; later-practice conditions are shown provisional and not applied. First pass.
               </>
@@ -249,6 +252,9 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             <button role="tab" aria-selected={section === "lords"} onClick={() => setSection("lords")} className={cn("rounded px-3 py-1", section === "lords" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")} data-testid="parashari-section-lords">
               {plain ? "Where each house's ruler sits" : "Lords in houses"} ({shownLords.length}{focusHouse ? ` of 12` : ""})
             </button>
+            <button role="tab" aria-selected={section === "houses"} onClick={() => setSection("houses")} className={cn("rounded px-3 py-1", section === "houses" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")} data-testid="parashari-section-houses">
+              {plain ? "What each house says" : "Houses (ch. 11-13)"} ({shownHouses.length}{focusHouse ? ` of ${houseFinds.length}` : ""})
+            </button>
           </div>
           {focusHouse && (
             <button className="text-xs text-muted-foreground underline underline-offset-2" onClick={() => setFocusHouse(null)} data-testid="parashari-clear-focus">
@@ -260,6 +266,51 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         {section === "yogas" && (
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {yogas.map((f) => <Finding key={f.id} f={f} />)}
+          </div>
+        )}
+        {section === "houses" && (
+          <div className="mt-3">
+            <Table data-testid="parashari-house-judgement" cards>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>House</TableHead>
+                  <TableHead>Signifies (11.2-13)</TableHead>
+                  <TableHead>Prospers by (11.14-15)</TableHead>
+                  <TableHead>Suffers by (11.16)</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {r.bhavaJudgement.map((j) => (
+                  <TableRow
+                    key={j.house}
+                    className={cn("cursor-pointer", focusHouse === j.house && "bg-primary/5")}
+                    onClick={() => setFocusHouse((cur) => (cur === j.house ? null : j.house))}
+                    data-testid={`parashari-house-judgement-${j.house}`}
+                  >
+                    <TableCell className="whitespace-nowrap py-1.5 align-top">
+                      <span className="font-medium">{j.house}</span> <SignName signIndex={j.signIndex} abbr />
+                      <span className={cn("ml-1 inline-block h-2 w-2 rounded-full align-middle", j.tone === "support" ? "bg-emerald-500" : j.tone === "strain" ? "bg-rose-500" : j.tone === "mixed" ? "bg-amber-500" : "bg-muted-foreground/30")} aria-label={j.tone} />
+                    </TableCell>
+                    <TableCell className="py-1.5 align-top text-xs text-muted-foreground">{HOUSE_MATTERS[j.house - 1].matters}</TableCell>
+                    <TableCell className="py-1.5 align-top text-xs">{j.support.length ? j.support.join("; ") : <span className="text-muted-foreground">—</span>}</TableCell>
+                    <TableCell className="py-1.5 align-top text-xs">{j.strain.length ? j.strain.join("; ") : <span className="text-muted-foreground">—</span>}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Significations <SourceLink source={HOUSE_MATTERS_SOURCE} mark={false} />; prosperity and failure <SourceLink source={BHAVA_JUDGEMENT_SOURCE} mark={false} />. {BHAVA_JUDGEMENT_CAVEATS.join(" ")}
+            </p>
+            <SectionTitle as="h4" className="mt-5" plain={focusHouse ? `What the text says about the ${ord(focusHouse)} house` : "What the text says about the 1st and 2nd houses"} technical={focusHouse ? `Effects of the ${ord(focusHouse)} house` : "Effects of the 1st and 2nd houses (ch. 12-13)"} />
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              {shownHouses.map((f) => <Finding key={f.id} f={f} />)}
+              {shownHouses.length === 0 && (
+                <p className="text-sm text-muted-foreground md:col-span-2">
+                  {focusHouse && focusHouse > 2 ? `Chapters ${13 + focusHouse - 2} onward cover the ${ord(focusHouse)} house and are not yet applied; the judgement row above is from chapter 11.` : "None of the stated combinations of chapters 12-13 hold in this chart."}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground md:col-span-2">{HOUSE_CAVEATS.join(" ")} Effects of the 3rd to 12th houses (chapters 14-23) follow in later passes.</p>
+            </div>
           </div>
         )}
         {section === "lords" && (
