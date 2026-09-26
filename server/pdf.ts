@@ -20,6 +20,8 @@ import { JAIMINI_GROUP_LABEL } from "@shared/rules-jaimini";
 import { AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
 import { JAIMINI_AREAS, RAO_SOURCE, currentFor, isHot, readAreas, type TransitTarget } from "@shared/jaimini-areas";
 import { TRANSIT_GRADE_LABEL, confirmTransits, summarizeTouches } from "@shared/jaimini-transit";
+import { computeAshtakavarga } from "@shared/ashtakavarga";
+import { GOCHARA_AV_NOTES, avMarkText, gocharaAvMark } from "@shared/gochara-av";
 import { PANCHANGA_CAVEATS, PANCHANGA_SOURCES, SURYA_SIDDHANTA_URL, type LimbSegment } from "@shared/panchanga";
 import { computeGochara, GOCHARA_CAVEATS, BS_URL, PD_URL } from "@shared/gochara";
 import { gocharaCalendar } from "./gochara-calendar";
@@ -540,21 +542,25 @@ function panchangaSection(doc: Doc, result: ChartResult) {
   const jd0 = Math.floor(nowJd() - 0.5) + 0.5;
   const cal = gocharaCalendar(moon.signIndex, jd0, jd0 + 5 * 365.25, { ayanamsa: result.chart.ayanamsa, nodeType: result.chart.nodeType === "true" ? "true" : "mean" });
   const d = (iso: string) => DateTime.fromISO(iso).setZone(zone).toFormat("d LLL yyyy");
+  const av = computeAshtakavarga(result.positions, Math.floor((((result.jaimini.lagna.lon % 360) + 360) % 360) / 30));
+  const avText = (planet: Planet, signIndex: number) => avMarkText(gocharaAvMark(av, planet, signIndex));
   ensureSpace(doc, 120);
-  sectionTitle(doc, "Gochara calendar", `Jupiter, Saturn, Rahu and Ketu from the Moon · ${d(cal.from)} to ${d(cal.to)}`);
+  sectionTitle(doc, "Gochara calendar", `Jupiter, Saturn, Rahu and Ketu from the Moon · ${d(cal.from)} to ${d(cal.to)} · Ashtakavarga marks per sign (BPHS 66.70-72, 72.3-5)`);
   if (cal.saturnPassages.length) {
     doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INDIGO).text("Saturn over the 12th, 1st and 2nd from the Moon (BS 104.44-45; PD 26.23; the name sade sati is not in either text)", PAGE.m, doc.y, { width: CONTENT_W });
     doc.y += 2;
     for (const p of cal.saturnPassages) {
       ensureSpace(doc, 14);
       const y = doc.y;
-      doc.font("Helvetica").fontSize(8).fillColor(INK).text(`${ORD(p.house)} from the Moon · ${SIGNS[(cal.moonSignIndex + p.house - 1) % 12]}`, PAGE.m, y, { lineBreak: false });
+      const psign = (cal.moonSignIndex + p.house - 1) % 12;
+      doc.font("Helvetica").fontSize(8).fillColor(INK).text(`${ORD(p.house)} from the Moon · ${SIGNS[psign]}`, PAGE.m, y, { lineBreak: false });
+      doc.fillColor(MUTED).text(`Ashtakavarga ${avText("Saturn", psign)}`, PAGE.m + 0.42 * CONTENT_W, y, { lineBreak: false });
       doc.fillColor(MUTED).text(`${d(p.start)} – ${d(p.end)}`, PAGE.m, y, { width: CONTENT_W, align: "right", lineBreak: false });
       doc.y = y + 12;
     }
     doc.y += 4;
   }
-  const ccols = [0, 0.19, 0.38, 0.55, 0.66].map((f) => PAGE.m + f * CONTENT_W);
+  const ccols = [0, 0.14, 0.28, 0.41, 0.49, 0.66].map((f) => PAGE.m + f * CONTENT_W);
   for (const planet of ["Jupiter", "Saturn", "Rahu", "Ketu"] as const) {
     const pc = cal.planets.find((q) => q.planet === planet);
     if (!pc) continue;
@@ -562,27 +568,28 @@ function panchangaSection(doc: Doc, result: ChartResult) {
     doc.font("Helvetica-Bold").fontSize(8.5).fillColor(planetColor(planet)).text(planet, PAGE.m, doc.y + 2);
     doc.font("Helvetica").fontSize(6.5).fillColor(MUTED);
     const hy = doc.y + 1;
-    ["From", "To", "Sign", "House", "Verdict · why"].forEach((h, i) => doc.text(h, ccols[i], hy, { lineBreak: false }));
+    ["From", "To", "Sign", "House", "Ashtakavarga", "Verdict · why"].forEach((h, i) => doc.text(h, ccols[i], hy, { lineBreak: false }));
     doc.y = hy + 10;
     doc.moveTo(PAGE.m, doc.y - 2).lineTo(PAGE.w - PAGE.m, doc.y - 2).lineWidth(0.4).strokeColor(RULE).stroke();
     for (const s of pc.segments) {
       const why = [s.vedhaBy.length ? `vedha by ${s.vedhaBy.join(", ")}` : "", s.note ? s.note.replace(/ \((26\.3[12]|26\.32; BS 104\.53)\)\.?/g, "").replace(/\.\s*$/, "") : s.combust ? "combust for part of the stretch" : "", s.danger ? (s.danger === "33" ? "danger house, 26.33" : "worst house, 26.34") : ""].filter(Boolean).join(" · ");
       doc.font("Helvetica").fontSize(7.5);
       const text = `${s.verdict}${why ? ` · ${why}` : ""}`;
-      const h = Math.max(11, doc.heightOfString(text, { width: CONTENT_W - (ccols[4] - PAGE.m) }) + 3);
+      const h = Math.max(11, doc.heightOfString(text, { width: CONTENT_W - (ccols[5] - PAGE.m) }) + 3);
       ensureSpace(doc, h);
       const y = doc.y;
       doc.fillColor(INK).text(d(s.start), ccols[0], y, { lineBreak: false });
       doc.text(d(s.end), ccols[1], y, { lineBreak: false });
       doc.text(SIGNS[s.signIndex], ccols[2], y, { lineBreak: false });
       doc.text(ORD(s.house), ccols[3], y, { lineBreak: false });
+      doc.fillColor(MUTED).text(avText(planet, s.signIndex), ccols[4], y, { lineBreak: false });
       const vc = s.verdict === "favourable" ? INDIGO : s.verdict === "unfavourable" ? VERMILION : MUTED;
-      doc.fillColor(vc).text(text, ccols[4], y, { width: CONTENT_W - (ccols[4] - PAGE.m) });
+      doc.fillColor(vc).text(text, ccols[5], y, { width: CONTENT_W - (ccols[5] - PAGE.m) });
       doc.y = y + h;
     }
     doc.y += 4;
   }
-  for (const c of cal.notes) {
+  for (const c of [...cal.notes, ...GOCHARA_AV_NOTES]) {
     ensureSpace(doc, 20);
     doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(`• ${c}`, PAGE.m, doc.y + 1, { width: CONTENT_W });
   }

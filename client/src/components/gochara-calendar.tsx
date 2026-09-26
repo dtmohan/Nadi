@@ -10,6 +10,18 @@ import {
   type GocharaCalendar as Calendar,
   type GocharaSegment,
 } from "@shared/gochara-calendar";
+import {
+  computeAshtakavarga,
+  type AshtakavargaResult,
+} from "@shared/ashtakavarga";
+import {
+  GOCHARA_AV_NOTES,
+  GOCHARA_AV_SOURCES,
+  gocharaAvMark,
+  type AvBand,
+  type AvOwnVerdict,
+  type GocharaAvMark,
+} from "@shared/gochara-av";
 import { apiRequest } from "@/lib/queryClient";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { ModeText, SectionTitle } from "@/components/mode-text";
@@ -35,11 +47,67 @@ const PILL: Record<GocharaVerdict, string> = {
   unfavourable: "bg-verdict-bad/10 text-verdict-bad",
 };
 
+const OWN_PILL: Record<AvOwnVerdict, string> = {
+  favourable: "bg-verdict-good/15 text-verdict-good",
+  even: "bg-muted text-muted-foreground",
+  adverse: "bg-verdict-bad/10 text-verdict-bad",
+};
+const BAND_PILL: Record<AvBand, string> = {
+  favourable: "bg-verdict-good/15 text-verdict-good",
+  medium: "bg-muted text-muted-foreground",
+  adverse: "bg-verdict-bad/10 text-verdict-bad",
+};
+const STRIP_OWN: Record<AvOwnVerdict, string> = {
+  favourable: "bg-verdict-good",
+  even: "bg-muted-foreground/40",
+  adverse: "bg-verdict-bad",
+};
+const STRIP_BAND: Record<AvBand, string> = {
+  favourable: "bg-verdict-good",
+  medium: "bg-muted-foreground/40",
+  adverse: "bg-verdict-bad",
+};
+const stripClass = (m: GocharaAvMark) =>
+  m.own ? STRIP_OWN[m.own.verdict] : STRIP_BAND[m.band];
+
+/** Own-chart rekhas and aggregate count as two small pills. */
+function AvMarkPills({ m, planet }: { m: GocharaAvMark; planet: Planet }) {
+  return (
+    <span className="inline-flex flex-wrap items-center gap-1 whitespace-nowrap">
+      {m.own ? (
+        <span
+          className={cn("rounded px-1.5 py-0.5", OWN_PILL[m.own.verdict])}
+          title={`${m.own.rekhas} rekhas of 8 in ${planet}'s own Ashtakavarga: ${m.own.verdict} (${planet === "Saturn" ? GOCHARA_AV_SOURCES.saturnOwn.label : GOCHARA_AV_SOURCES.own.label})`}
+        >
+          {m.own.rekhas}/8
+        </span>
+      ) : (
+        <span
+          className="rounded bg-muted px-1.5 py-0.5 text-muted-foreground"
+          title={`${planet} has no Ashtakavarga of its own`}
+        >
+          —
+        </span>
+      )}
+      <span
+        className={cn("rounded px-1.5 py-0.5", BAND_PILL[m.band])}
+        title={`${m.sarva} rekhas in the Sarvashtakavarga: ${m.band} (${GOCHARA_AV_SOURCES.sarva.label})`}
+      >
+        {m.sarva}
+      </span>
+    </span>
+  );
+}
+
 /** Slow movers open by default; the fast ones would swamp the list. */
 const OPEN_BY_DEFAULT = new Set<Planet>(["Jupiter", "Saturn", "Rahu", "Ketu"]);
 const HORIZONS = [1, 2, 5, 10];
 
-function segmentTitle(s: GocharaSegment, zone: string): string {
+function segmentTitle(
+  s: GocharaSegment,
+  zone: string,
+  m?: GocharaAvMark,
+): string {
   const parts = [
     `${fmtD(s.start, zone)} – ${fmtD(s.end, zone)}`,
     `${SIGNS[s.signIndex]}, ${ORD(s.house)} from the Moon`,
@@ -52,10 +120,24 @@ function segmentTitle(s: GocharaSegment, zone: string): string {
     parts.push(
       s.danger === "33" ? "danger house (26.33)" : "worst house (26.34)",
     );
+  if (m)
+    parts.push(
+      m.own
+        ? `Ashtakavarga ${m.own.rekhas} of 8 in the own chart (${m.own.verdict}), ${m.sarva} in the aggregate (${m.band})`
+        : `Ashtakavarga ${m.sarva} in the aggregate (${m.band})`,
+    );
   return parts.join(" · ");
 }
 
-function Timeline({ cal, zone }: { cal: Calendar; zone: string }) {
+function Timeline({
+  cal,
+  zone,
+  av,
+}: {
+  cal: Calendar;
+  zone: string;
+  av: AshtakavargaResult;
+}) {
   const t0 = DateTime.fromISO(cal.from).toMillis();
   const t1 = DateTime.fromISO(cal.to).toMillis();
   const span = t1 - t0;
@@ -116,17 +198,29 @@ function Timeline({ cal, zone }: { cal: Calendar; zone: string }) {
               {p.segments.map((s, i) => {
                 const left = x(s.start);
                 const width = Math.max(0.15, x(s.end) - left);
+                const m = gocharaAvMark(av, p.planet, s.signIndex);
+                const title = segmentTitle(s, zone, m);
                 return (
-                  <span
-                    key={i}
-                    className={cn(
-                      "absolute inset-y-1 rounded-[1px]",
-                      BAR[s.verdict],
-                      s.danger && "ring-1 ring-inset ring-verdict-bad/60",
-                    )}
-                    style={{ left: `${left}%`, width: `${width}%` }}
-                    title={segmentTitle(s, zone)}
-                  />
+                  <Fragment key={i}>
+                    <span
+                      className={cn(
+                        "absolute top-1 bottom-[5px] rounded-[1px]",
+                        BAR[s.verdict],
+                        s.danger && "ring-1 ring-inset ring-verdict-bad/60",
+                      )}
+                      style={{ left: `${left}%`, width: `${width}%` }}
+                      title={title}
+                    />
+                    <span
+                      className={cn(
+                        "absolute bottom-[2px] h-[2px]",
+                        stripClass(m),
+                      )}
+                      style={{ left: `${left}%`, width: `${width}%` }}
+                      title={title}
+                      data-testid={`gochara-calendar-av-strip-${p.planet}-${i}`}
+                    />
+                  </Fragment>
                 );
               })}
               {nowX !== null && (
@@ -152,6 +246,12 @@ function Timeline({ cal, zone }: { cal: Calendar; zone: string }) {
           <span className="inline-block h-2.5 w-4 rounded-[1px] ring-1 ring-inset ring-verdict-bad/60" />{" "}
           danger house (26.33-34)
         </span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block h-[2px] w-4 bg-verdict-good" />
+          <span className="inline-block h-[2px] w-4 bg-muted-foreground/40" />
+          <span className="inline-block h-[2px] w-4 bg-verdict-bad" /> lower
+          strip: own Ashtakavarga (Rahu and Ketu: aggregate)
+        </span>
         {nowX !== null && (
           <span className="flex items-center gap-1">
             <span className="inline-block h-2.5 w-px bg-foreground/70" /> today
@@ -166,10 +266,12 @@ function SegmentList({
   planet,
   segments,
   zone,
+  av,
 }: {
   planet: Planet;
   segments: GocharaSegment[];
   zone: string;
+  av: AshtakavargaResult;
 }) {
   const [open, setOpen] = useState(OPEN_BY_DEFAULT.has(planet));
   return (
@@ -202,6 +304,12 @@ function SegmentList({
                 <th className="px-3 py-1.5 text-left font-normal">Verdict</th>
                 <th className="px-3 py-1.5 text-left font-normal">Sign</th>
                 <th className="px-3 py-1.5 text-left font-normal">House</th>
+                <th
+                  className="px-3 py-1.5 text-left font-normal"
+                  title="Own-chart rekhas of 8 · Sarvashtakavarga count"
+                >
+                  Ashtakavarga
+                </th>
                 <th className="hidden px-3 py-1.5 text-left font-normal sm:table-cell">
                   Why
                 </th>
@@ -250,6 +358,15 @@ function SegmentList({
                       <SignName signIndex={s.signIndex} />
                     </td>
                     <td className="px-3 py-1.5">{ORD(s.house)}</td>
+                    <td
+                      className="px-3 py-1.5"
+                      data-testid={`gochara-calendar-av-${planet}-${i}`}
+                    >
+                      <AvMarkPills
+                        m={gocharaAvMark(av, planet, s.signIndex)}
+                        planet={planet}
+                      />
+                    </td>
                     <td className="hidden px-3 py-1.5 text-muted-foreground sm:table-cell">
                       {why.join(" · ")}
                     </td>
@@ -273,6 +390,14 @@ export function GocharaCalendarSection({
 }) {
   const chart = result.chart;
   const natalMoon = result.positions.find((p) => p.planet === "Moon")!;
+  const av = useMemo(
+    () =>
+      computeAshtakavarga(
+        result.positions,
+        Math.floor((((result.jaimini.lagna.lon % 360) + 360) % 360) / 30),
+      ),
+    [result.positions, result.jaimini.lagna.lon],
+  );
   const [from, setFrom] = useState(() =>
     DateTime.now().setZone(zone).toISODate()!,
   );
@@ -328,7 +453,9 @@ export function GocharaCalendarSection({
             The same transit verdicts laid out over the coming years: when each
             planet enters a good or bad house from the birth Moon, when another
             planet spoils a good stretch, and when Saturn crosses the sign
-            before, of and after the Moon.
+            before, of and after the Moon. The two small numbers beside each
+            stretch are Parashara's test of the same sign: how many of eight
+            marks the planet's own chart gives it, and the sign's total.
           </>
         }
         practitioner={
@@ -337,7 +464,9 @@ export function GocharaCalendarSection({
             daily and narrowed to the hour. The Moon is omitted as row and as
             obstructor; its vedha is a matter of days and is shown on the day
             view. Saturn's 12th-1st-2nd passage is listed from BS 104.44-45 and
-            PD 26.23.
+            PD 26.23. Each stretch also carries the sign's Ashtakavarga marks
+            (BPHS 66.70-72, 70.43-44, 72.3-5), Parashara's own test of a
+            transit.
           </>
         }
       />
@@ -393,7 +522,7 @@ export function GocharaCalendarSection({
         )}
         {cal && (
           <>
-            <Timeline cal={cal} zone={zone} />
+            <Timeline cal={cal} zone={zone} av={av} />
 
             {cal.saturnPassages.length > 0 && (
               <div
@@ -414,10 +543,20 @@ export function GocharaCalendarSection({
                       key={i}
                       className="flex flex-wrap justify-between gap-2"
                     >
-                      <span>
-                        {ORD(p.house)} from the Moon ·{" "}
-                        <SignName
-                          signIndex={(cal.moonSignIndex + p.house - 1) % 12}
+                      <span className="flex flex-wrap items-center gap-2">
+                        <span>
+                          {ORD(p.house)} from the Moon ·{" "}
+                          <SignName
+                            signIndex={(cal.moonSignIndex + p.house - 1) % 12}
+                          />
+                        </span>
+                        <AvMarkPills
+                          m={gocharaAvMark(
+                            av,
+                            "Saturn",
+                            (cal.moonSignIndex + p.house - 1) % 12,
+                          )}
+                          planet="Saturn"
                         />
                       </span>
                       <span className="tabular">
@@ -431,7 +570,9 @@ export function GocharaCalendarSection({
                   (12th: much grief; 1st: danger to life, position and wealth
                   per 26.33-34; 2nd: loss of wealth and comfort). Both texts
                   scale this by the running dasa (BS 104.46) and by dignity (PD
-                  26.31-32).
+                  26.31-32). Parashara reads the same passage by the sign's
+                  marks in Saturn's own Ashtakavarga (70.43-44) and the
+                  aggregate (72.3-5), shown as the two pills.
                 </p>
               </div>
             )}
@@ -465,6 +606,10 @@ export function GocharaCalendarSection({
                           vedha by {u.s.vedhaBy.join(", ")}
                         </span>
                       )}
+                      <AvMarkPills
+                        m={gocharaAvMark(av, u.planet, u.s.signIndex)}
+                        planet={u.planet}
+                      />
                     </li>
                   ))}
                 </ul>
@@ -480,6 +625,7 @@ export function GocharaCalendarSection({
                     planet={planet}
                     segments={p.segments}
                     zone={zone}
+                    av={av}
                   />
                 ) : null;
               })}
@@ -490,6 +636,9 @@ export function GocharaCalendarSection({
               data-testid="gochara-calendar-notes"
             >
               {cal.notes.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+              {GOCHARA_AV_NOTES.map((n) => (
                 <li key={n}>{n}</li>
               ))}
             </ul>
