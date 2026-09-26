@@ -18,6 +18,7 @@ import { yogaFindings } from "./parashari-yogas";
 import { royalFindings } from "./parashari-royal";
 import { evilFindings } from "./parashari-evils";
 import { curseFindings } from "./parashari-curses";
+import { computePadas, type PadaResult } from "./parashari-padas";
 
 export const SEVEN: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 export const KENDRA = [1, 4, 7, 10];
@@ -89,6 +90,8 @@ export interface ParashariResult {
   conditionalDasas: ConditionalDasasResult;
   /** Kalachakra dasa, BPHS 46.52-154 and ch. 49. */
   kalachakra: KalachakraResult;
+  /** Padas, Upapada, argala, karakas and Karakamsa, BPHS ch. 29-33. */
+  padas: PadaResult;
   dashas: DashaGloss[];
   /** Period effects from BPHS ch. 47-48 and 52-61. */
   dasaReadings: DasaReading[];
@@ -532,9 +535,10 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   findings.push(...evilFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   findings.push(...curseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   const bhavaJudgement = judgeBhavas(positions, lagnaIdx, houseDeps, shadbala);
+  const padas = computePadas(positions, lagnaIdx, lagnaLon, houseDeps, shadbala);
 
   const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts, ashtakavarga, neecha);
-  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, bhavaJudgement, vimshottari: vim, conditionalDasas: condDasas, kalachakra, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
+  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, bhavaJudgement, vimshottari: vim, conditionalDasas: condDasas, kalachakra, padas, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
 }
 
 export function ord(n: number): string {

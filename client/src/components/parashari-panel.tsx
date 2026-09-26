@@ -12,6 +12,7 @@ import { CURSE_CAVEATS } from "@shared/parashari-curses";
 import type { ConditionalDasasResult, ConditionalDasa } from "@shared/conditional-dasas";
 import { KC_SUB_VERSES, KC_CH49, type KalachakraResult, type KcPeriod } from "@shared/kalachakra";
 import { KC_CH64, KC_CH65, VERSES_65 } from "@shared/kalachakra-effects";
+import { PADA_CH, type PadaResult } from "@shared/parashari-padas";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
@@ -409,6 +410,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       <ConditionalDasasSection cd={r.conditionalDasas} />
 
       <KalachakraSection k={r.kalachakra} />
+      <PadasSection p={r.padas} />
     </div>
   );
 }
@@ -515,6 +517,164 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
         {caveats ? "Hide" : "Show"} how this is computed
       </button>
       {caveats && <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">{k.caveats.join(" ")}</p>}
+    </div>
+  );
+}
+
+function PadasSection({ p }: { p: PadaResult }) {
+  const plain = usePlain();
+  const [caveats, setCaveats] = useState(false);
+  const chapters: { ch: 29 | 30 | 31 | 32 | 33; title: string; plainTitle: string }[] = [
+    { ch: 32, title: "Karakas and yogakarakas (ch. 32)", plainTitle: "The chart's significators" },
+    { ch: 29, title: "Bhava padas (ch. 29)", plainTitle: "The padas: what the world sees" },
+    { ch: 30, title: "Upapada (ch. 30)", plainTitle: "The Upapada: spouse and kin" },
+    { ch: 31, title: "Argala (ch. 31)", plainTitle: "Argala: planets that intervene" },
+    { ch: 33, title: "Karakamsa (ch. 33)", plainTitle: "The Karakamsa: the soul's sign" },
+  ];
+  const byCh = (ch: number) => p.findings.filter((f) => f.id.startsWith(`pd-${ch}-`));
+  const houseArgalas = p.houseArgalas.filter((h) => h.net.length);
+  return (
+    <div className="mt-8" data-testid="parashari-padas">
+      <SectionTitle plain="Padas, significators and the Karakamsa" technical="Bhava padas, Upapada, Argala, karakas and Karakamsa (ch. 29-33)" />
+      <ModeText
+        plain={<>Five short chapters where Parashara borrows the Jaimini toolkit. A pada is a sign found by counting from a house to its lord and as far again: it shows how that house appears to the world. The Upapada does this for the 12th and is read for the spouse. Argala is a planet standing in the 2nd, 4th, 11th or 5th from a point, helping or hindering it unless a planet opposite it intervenes. The karakas are the planets ranked by degree, and the Karakamsa is the ninth-division sign of the highest, read for character, learning and livelihood.</>}
+        practitioner={<>Padas per 29.1-5 with the 7th exception; graha padas 29.6-7; Upapada as pada of the 12th (30.1); argala from the 2nd, 4th, 11th and 5th with obstruction from the 12th, 10th, 3rd and 9th, nodes reversed (31.1-6); seven karakas 32.1-17 with the Matri and Putra karakas merged (32.16); the Karakamsa as the Atmakaraka's navamsa sign (33.1), with planets counted from it in the navamsa. All aspects here are rasi drishti. Findings are kept out of the synthesis above.</>}
+      />
+      <SectionTitle as="h4" className="mt-4" plain={chapters[0].plainTitle} technical={chapters[0].title} />
+      <Table className="mt-2" data-testid="padas-karakas" cards>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Karaka</TableHead>
+            <TableHead>Planet</TableHead>
+            <TableHead className="text-right">Degree</TableHead>
+            <TableHead className="hidden sm:table-cell">Signifies</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {p.karakas.map((k) => (
+            <TableRow key={k.id} data-testid={`padas-karaka-${k.id}`}>
+              <TableCell><span>{k.id} <span className="text-muted-foreground">{k.name}</span></span></TableCell>
+              <TableCell><PlanetName planet={k.planet} /></TableCell>
+              <TableCell className="text-right tabular-nums">{k.degInSign.toFixed(2)}</TableCell>
+              <TableCell className="hidden sm:table-cell text-muted-foreground">{k.matters}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Seven karakas by degree, Rahu left out and the mother's and children's karakas merged (32.1-17); the Jaimini tab uses eight and may name a different Atmakaraka. <SourceLink source={{ label: "Parashara 32.1-17", url: PADA_CH[32] }} />
+      </p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-md border bg-card p-3" data-testid="padas-constants">
+          <div className="text-sm font-medium">{plain ? "Fixed significators" : "Constant karakas (32.18-24)"}</div>
+          <ul className="mt-1 space-y-1 text-sm">
+            {p.constants.map((c) => (
+              <li key={c.matter}><span>{c.matter}: <PlanetName planet={c.planet} />{c.house ? <span className="text-muted-foreground">, read from its {ord(c.house)}</span> : null}{c.note ? <span className="text-muted-foreground"> ({c.note})</span> : null}</span></li>
+            ))}
+          </ul>
+        </div>
+        <div className="rounded-md border bg-card p-3" data-testid="padas-yogakarakas">
+          <div className="text-sm font-medium">{plain ? "Planets that work together" : "Yogakarakas (32.25-30)"} <Badge variant="outline" className="ml-1 text-2xs">provisional</Badge></div>
+          {p.yogaKarakas.length ? (
+            <ul className="mt-1 space-y-1 text-sm">
+              {p.yogaKarakas.map((y) => (
+                <li key={y.planet}><span><PlanetName planet={y.planet} /> <span className="text-muted-foreground">({y.dignity.toLowerCase()}, {ord(y.house)})</span> with {y.partners.map((q, i) => <span key={q}>{i ? ", " : ""}<PlanetName planet={q} abbr /></span>)}</span></li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-1 text-sm text-muted-foreground">No two dignified planets stand in mutual angles.</p>
+          )}
+        </div>
+      </div>
+      <SectionTitle as="h4" className="mt-5" plain={chapters[1].plainTitle} technical={chapters[1].title} />
+      <Table className="mt-2" data-testid="padas-table" cards>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Pada</TableHead>
+            <TableHead>House</TableHead>
+            <TableHead>Lord</TableHead>
+            <TableHead>Falls in</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {p.padas.map((a) => (
+            <TableRow key={a.label} data-testid={`padas-row-${a.label}`}>
+              <TableCell><span className="font-medium">{a.label}</span></TableCell>
+              <TableCell><span>{ord(a.house)}, <SignName signIndex={a.houseSign} abbr /></span></TableCell>
+              <TableCell><span><PlanetName planet={a.lord} abbr /> in <SignName signIndex={a.lordSign} abbr /></span></TableCell>
+              <TableCell><span><SignName signIndex={a.signIndex} />{a.exception ? <span className="ml-1.5 text-2xs uppercase tracking-wide text-muted-foreground" title="Fell in the house or its 7th; moved by 29.4-5">moved</span> : null}</span></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Graha padas (29.6-7): {p.grahaPadas.map((g, i) => <span key={i}>{i ? "; " : ""}{PLANET_ABBR[g.planet]} from {SIGNS[g.ownSign].slice(0, 3)} to {SIGNS[g.signIndex]}</span>)}. Where a planet owns two signs both are listed; 29.7 asks for the stronger. <SourceLink source={{ label: "Parashara 29.1-7", url: PADA_CH[29] }} />
+      </p>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {byCh(29).map((f) => <Finding key={f.id} f={f} />)}
+      </div>
+      <SectionTitle as="h4" className="mt-5" plain={chapters[2].plainTitle} technical={chapters[2].title} />
+      <p className="mt-2 text-sm">
+        The Upapada is <SignName signIndex={p.padas[11].signIndex} />, the pada of the 12th; its 2nd is <SignName signIndex={(p.padas[11].signIndex + 1) % 12} />. <SourceLink source={{ label: "Parashara 30.1", url: PADA_CH[30], provisional: true }} />
+      </p>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {byCh(30).map((f) => <Finding key={f.id} f={f} />)}
+      </div>
+      <SectionTitle as="h4" className="mt-5" plain={chapters[3].plainTitle} technical={chapters[3].title} />
+      <Table className="mt-2" data-testid="padas-argala" cards>
+        <TableHeader>
+          <TableRow>
+            <TableHead>On</TableHead>
+            <TableHead>Sign</TableHead>
+            <TableHead>{plain ? "Interventions" : "Argala (obstruction)"}</TableHead>
+            <TableHead>{plain ? "Prevailing" : "Net argala"}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {p.argalas.map((a) => (
+            <TableRow key={a.target} data-testid={`padas-argala-${a.target.replace(/\W+/g, "-").toLowerCase()}`}>
+              <TableCell><span className="font-medium">{a.target}</span></TableCell>
+              <TableCell><SignName signIndex={a.signIndex} /></TableCell>
+              <TableCell className="text-sm">
+                <span>
+                  {a.entries.length ? a.entries.map((e, i) => (
+                    <span key={i} className={cn("mr-2 whitespace-nowrap", !e.prevails && "text-muted-foreground line-through")} title={e.obstructedBy.length ? `Obstructed from the ${ord(e.obstructingHouse)} by ${e.obstructedBy.join(", ")}` : "Unobstructed"}>
+                      {ord(e.house)}: {e.planets.map((q) => PLANET_ABBR[q]).join(" ")}{e.vipareeta ? " (vipareeta)" : ""}
+                    </span>
+                  )) : <span className="text-muted-foreground">none</span>}
+                </span>
+              </TableCell>
+              <TableCell><span className="flex flex-wrap gap-1">{a.net.length ? a.net.map((q) => <PlanetName key={q} planet={q} abbr tone />) : <span className="text-muted-foreground">none</span>}</span></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {houseArgalas.length ? (
+        <p className="mt-2 text-sm text-muted-foreground" data-testid="padas-house-argala">
+          {plain ? "By house: " : "Argala on each house (31.12-17): "}
+          {houseArgalas.map((h, i) => (
+            <span key={h.house}>{i ? "; " : ""}<span className={cn(h.tone === "support" ? "text-verdict-good" : h.tone === "strain" ? "text-verdict-bad" : "text-verdict-mixed")}>{ord(h.house)}</span> {h.net.map((q) => PLANET_ABBR[q]).join(" ")} ({h.matter})</span>
+          ))}. <SourceLink source={{ label: "Parashara 31.1-17", url: PADA_CH[31] }} />
+        </p>
+      ) : null}
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {byCh(31).map((f) => <Finding key={f.id} f={f} />)}
+      </div>
+      <SectionTitle as="h4" className="mt-5" plain={chapters[4].plainTitle} technical={chapters[4].title} />
+      <p className="mt-2 text-sm" data-testid="padas-karakamsa">
+        <PlanetName planet={p.karakamsa.ak} />, the Atmakaraka, falls in the <SignName signIndex={p.karakamsa.signIndex} /> navamsa at {p.karakamsa.akDegNavamsa.toFixed(1)} degrees of it; the lagna's navamsa is <SignName signIndex={p.karakamsa.lagnaNavamsa} />. Navamsa signs: {p.navamsa.map((n, i) => <span key={n.planet}>{i ? ", " : ""}{PLANET_ABBR[n.planet]} {SIGNS[n.signIndex].slice(0, 3)}</span>)}. <SourceLink source={{ label: "Parashara 33.1", url: PADA_CH[33], provisional: true }} />
+      </p>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        {byCh(33).map((f) => <Finding key={f.id} f={f} />)}
+      </div>
+      <button type="button" onClick={() => setCaveats((v) => !v)} className="mt-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2" data-testid="padas-caveats-toggle">
+        {caveats ? "Hide" : "Show"} how this is computed
+      </button>
+      {caveats && (
+        <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          {p.caveats.map((c, i) => <p key={i}>{c}</p>)}
+        </div>
+      )}
     </div>
   );
 }
