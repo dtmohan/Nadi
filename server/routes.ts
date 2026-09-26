@@ -2,7 +2,7 @@ import type { Express } from "express";
 import type { Server } from "node:http";
 import { insertChartSchema, type Chart, type ChartResult, type GeoHit } from "@shared/schema";
 import { RULES, evaluate } from "@shared/rules";
-import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nakshatraPeriods, signPeriodsOf, jdToIso, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, shadbalaBase, sunPath, panchangaAt, panchangaForDate, type EphemerisOptions } from "./ephemeris";
+import { birthInstant, julianDay, positionsAt, ayanamsaAt, transitPeriods, nakshatraPeriods, signPeriodsOf, jdToIso, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, shadbalaBase, sunPath, panchangaAt, panchangaForDate, type EphemerisOptions } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
 import { vimshottari } from "@shared/kp";
 import type { DasaStartTransit } from "@shared/shadbala";
@@ -32,10 +32,11 @@ function dasaStartTransits(moonLon: number, birthIso: string, opts: EphemerisOpt
 export function computeChart(chart: Chart): ChartResult {
   const key = JSON.stringify({ ...chart, id: undefined, name: undefined, notes: undefined, day: DateTime.utc().toISODate() });
   const cached = resultCache.get(key);
-  if (cached) return { ...cached, chart, kp: { ...cached.kp, now: kpBase(cached.jd, chart.latitude, chart.longitude, chart.timezone, opts0(chart).nodeType).now } };
+  if (cached) return { ...cached, chart, kp: { ...cached.kp, now: kpBase(cached.jd, chart.latitude, chart.longitude, cached.timeBasis.displayZone, opts0(chart).nodeType).now } };
 
   const opts: EphemerisOptions = { ayanamsa: chart.ayanamsa, nodeType: chart.nodeType === "true" ? "true" : "mean" };
-  const utc = localToUtc(chart.birthDate, chart.birthTime, chart.timezone);
+  const { utc, basis } = birthInstant(chart);
+  const zone = basis.displayZone;
   const jd = julianDay(utc);
   const positions = positionsAt(jd, opts);
   const reading = evaluate(positions, undefined, (chart.gender as "male" | "female" | "unspecified") ?? "unspecified");
@@ -53,6 +54,7 @@ export function computeChart(chart: Chart): ChartResult {
   const result: ChartResult = {
     chart,
     utc: utc.toISO()!,
+    timeBasis: basis,
     jd,
     ayanamsaValue: ayanamsaAt(jd, opts),
     positions,
@@ -60,9 +62,9 @@ export function computeChart(chart: Chart): ChartResult {
     transits,
     now: { positions: positionsAt(nj, opts), asOf: DateTime.utc().toISO()! },
     jaimini,
-    kp: kpBase(jd, chart.latitude, chart.longitude, chart.timezone, opts.nodeType),
+    kp: kpBase(jd, chart.latitude, chart.longitude, zone, opts.nodeType),
     shadbala: shadbalaBase(jd, chart.latitude, chart.longitude, opts),
-    panchanga: panchangaAt(jd, chart.latitude, chart.longitude, chart.timezone, opts),
+    panchanga: panchangaAt(jd, chart.latitude, chart.longitude, zone, opts),
     dasaStarts: dasaStartTransits(positions.find((p) => p.planet === "Moon")!.lon, utc.toISO()!, opts),
     saturnNakshatras: nakshatraPeriods("Saturn", jd, endJd, opts),
     fatherArishta: fatherArishtaWindows(positions, Math.floor((asc % 360) / 30), transits, opts),
@@ -109,7 +111,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     try {
       const chart = { id: 0, ...parsed.data } as Chart;
       const opts = opts0(chart);
-      const utc = localToUtc(chart.birthDate, chart.birthTime, chart.timezone);
+      const { utc } = birthInstant(chart);
       const jd = julianDay(utc);
       const positions = positionsAt(jd, opts);
       const asc = ascendantAt(jd, chart.latitude, chart.longitude, opts);

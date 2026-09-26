@@ -679,13 +679,13 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   const doc = new PDFDocument({ size: "A4", margins: { top: PAGE.m, bottom: 20, left: PAGE.m, right: PAGE.m }, bufferPages: true, info: { Title: `${result.chart.name} — Nadi reading`, Author: "Nadi" } });
   const { chart, positions, reading, transits, now } = result;
   JEEVA = reading.roles.native;
-  const birthLocal = DateTime.fromISO(result.utc).setZone(chart.timezone);
+  const birthLocal = DateTime.fromISO(result.utc).setZone(result.timeBasis?.displayZone ?? chart.timezone);
   const birthStr = birthLocal.toFormat("d LLLL yyyy, HH:mm");
 
   // ── Header ──
   doc.font("Times-Bold").fontSize(22).fillColor(INK).text(chart.name, PAGE.m, PAGE.m);
   doc.font("Helvetica").fontSize(9.5).fillColor(MUTED).text(`${birthStr} · ${chart.place}`);
-  doc.fontSize(8).text(`Ayanamsa ${chart.ayanamsa} ${result.ayanamsaValue.toFixed(3)}°  ·  ${chart.nodeType} node  ·  ${chart.timezone}  ·  ${chart.latitude.toFixed(3)}°, ${chart.longitude.toFixed(3)}°`);
+  doc.fontSize(8).text(`Ayanamsa ${chart.ayanamsa} ${result.ayanamsaValue.toFixed(3)}°  ·  ${chart.nodeType} node  ·  ${chart.timezone}${result.timeBasis ? ` (${result.timeBasis.label})` : ""}  ·  ${chart.latitude.toFixed(3)}°, ${chart.longitude.toFixed(3)}°`);
   doc.moveDown(0.6);
   doc.moveTo(PAGE.m, doc.y).lineTo(PAGE.w - PAGE.m, doc.y).lineWidth(0.8).strokeColor(INK).stroke();
   doc.y += 14;

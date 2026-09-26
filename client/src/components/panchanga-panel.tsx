@@ -241,11 +241,11 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         <section>
           <SectionTitle plain="Birth day" technical="Janma panchanga">
             <span className="text-xs font-normal text-muted-foreground">
-              {fmtDT(birth.at, chart.timezone)} at {chart.place}
+              {fmtDT(birth.at, result.timeBasis?.displayZone ?? chart.timezone)} at {chart.place}
             </span>
           </SectionTitle>
           <div className="mt-3">
-            <DayGrid day={birth} zone={chart.timezone} idPrefix="panchanga-birth" />
+            <DayGrid day={birth} zone={result.timeBasis?.displayZone ?? chart.timezone} idPrefix="panchanga-birth" />
           </div>
         </section>
       )}

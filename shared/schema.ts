@@ -9,6 +9,7 @@ import type { JaiminiResult } from "./jaimini";
 import type { KpBase } from "./kp";
 import type { ShadbalaBase, DasaStartTransit } from "./shadbala";
 import { chartEventsSchema, type ChartEvent } from "./events";
+import type { TimeBasis } from "./time-basis";
 
 export const charts = sqliteTable("charts", {
   id: integer("id").primaryKey({ autoIncrement: true }),
@@ -17,6 +18,8 @@ export const charts = sqliteTable("charts", {
   birthDate: text("birth_date").notNull(), // YYYY-MM-DD (local civil date)
   birthTime: text("birth_time").notNull(), // HH:MM (local civil time, 24h)
   timezone: text("timezone").notNull(), // IANA tz id
+  /** How the civil time is turned into an instant: "auto" | "zone" | "lmt" | a fixed offset such as "+05:30". */
+  timeStandard: text("time_standard").notNull().default("auto"),
   place: text("place").notNull(),
   latitude: real("latitude").notNull(),
   longitude: real("longitude").notNull(),
@@ -42,6 +45,8 @@ export const AYANAMSAS = [
 export interface ChartResult {
   chart: Chart;
   utc: string; // ISO instant of birth
+  /** The offset actually applied to the civil birth time, and why. */
+  timeBasis: TimeBasis;
   jd: number;
   ayanamsaValue: number;
   positions: PlanetPosition[];

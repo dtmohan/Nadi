@@ -34,7 +34,7 @@ import type { Gender } from "@shared/marriage";
 import type { TransitCheck } from "@shared/rectify-types";
 import { computeJaimini } from "@shared/jaimini";
 import { dashaFitAt } from "@shared/jaimini-areas";
-import { localToUtc, julianDay, positionsAt, ascendantAt, cuspsAt, type EphemerisOptions } from "./ephemeris";
+import { birthInstant, julianDay, positionsAt, ascendantAt, cuspsAt, type EphemerisOptions } from "./ephemeris";
 
 const GOOD_HOUSES = [2, 3, 10, 11];
 const EVIL_HOUSES = [6, 8, 12];
@@ -51,7 +51,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   const opts: EphemerisOptions = { ayanamsa: "kp", nodeType: chart.nodeType === "true" ? "true" : "mean" };
   const optsJ: EphemerisOptions = { ayanamsa: chart.ayanamsa || "lahiri", nodeType: opts.nodeType };
   const zone = chart.timezone;
-  const utc0 = localToUtc(chart.birthDate, chart.birthTime, zone);
+  const { utc: utc0 } = birthInstant(chart);
   const jd0 = julianDay(utc0);
   const birthIso = utc0.toISO()!;
 

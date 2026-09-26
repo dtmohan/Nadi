@@ -33,7 +33,7 @@ import { norm360, type Planet } from "@shared/astro";
 import { kpPoint, houseOf, computeSignificators, vimshottari, rulingPlanets, NODES_KP, type KpCusp, type KpPlanet, type RulingPlanets } from "@shared/kp";
 import type { RectifyRequest, RectifyEventCheck, RectifySegment, RectifyResult, TransitCheck, MoonLordsCheck } from "@shared/rectify-types";
 export type { RectifyRequest, RectifyEvent, RectifyEventCheck, RectifySegment, RectifyResult, JudgePlaceInput } from "@shared/rectify-types";
-import { localToUtc, julianDay, positionsAt, ascendantAt, cuspsAt, judgementNow, type EphemerisOptions } from "./ephemeris";
+import { birthInstant, julianDay, positionsAt, ascendantAt, cuspsAt, judgementNow, type EphemerisOptions } from "./ephemeris";
 import { SIGNS } from "@shared/astro";
 import { computeJaimini, type JaiminiResult } from "@shared/jaimini";
 import { dashaFitAt } from "@shared/jaimini-areas";
@@ -122,9 +122,10 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const opts: EphemerisOptions = { ayanamsa: "kp", nodeType: chart.nodeType === "true" ? "true" : "mean" };
   const optsJ: EphemerisOptions = { ayanamsa: chart.ayanamsa || "lahiri", nodeType: opts.nodeType };
   const zone = chart.timezone;
+  const birth = birthInstant(chart);
   // Jaimini is whole-sign: one computation per rising sign serves every interval in it.
   const jaiminiBySign = new Map<number, { j: JaiminiResult; positions: ReturnType<typeof positionsAt> }>();
-  const utc0 = localToUtc(chart.birthDate, chart.birthTime, zone);
+  const utc0 = birth.utc;
   const jd0 = julianDay(utc0);
   const w = windowMinutes / 1440;
   const judge = req.judge ?? { latitude: chart.latitude, longitude: chart.longitude, timezone: zone, label: chart.place };
@@ -166,7 +167,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
   }
   const edges = [jd0 - w, ...boundaries, jd0 + w];
 
-  const local = (jd: number) => DateTime.fromMillis(Math.round(((jd - 2440587.5) * 86400000) / 1000) * 1000, { zone });
+  const local = (jd: number) => DateTime.fromMillis(Math.round(((jd - 2440587.5) * 86400000) / 1000) * 1000, { zone: birth.basis.displayZone });
   const fmtT = (jd: number) => local(jd).toFormat("HH:mm:ss");
 
   const segments: RectifySegment[] = [];

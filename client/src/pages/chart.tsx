@@ -814,7 +814,7 @@ export default function ChartPage() {
   }
 
   const { chart, positions, now } = data;
-  const birthLocal = DateTime.fromISO(data.utc).setZone(chart.timezone);
+  const birthLocal = DateTime.fromISO(data.utc).setZone(data.timeBasis?.displayZone ?? chart.timezone);
   const selectedSign = selected ? positions.find((p) => p.planet === selected)?.signIndex ?? null : null;
   const transitNow = now.positions.filter((p) => p.planet === "Jupiter" || p.planet === "Saturn");
 
@@ -828,7 +828,7 @@ export default function ChartPage() {
           <BirthTimeEditor chart={chart} birthLocal={birthLocal} />
         </div>
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <ChartSettings chart={chart} ayanamsaValue={data.ayanamsaValue} />
+          <ChartSettings chart={chart} ayanamsaValue={data.ayanamsaValue} timeBasis={data.timeBasis} />
           <Button size="sm" variant="outline" onClick={exportPdf} disabled={exporting} data-testid="button-export-pdf">
             <FileDown className="h-4 w-4" />
             {exporting ? "Preparing PDF" : "Export PDF"}

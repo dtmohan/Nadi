@@ -1,5 +1,6 @@
 // Swiss Ephemeris wrapper. Everything sidereal; ayanamsa selectable.
 import sweph from "sweph";
+import { resolveTimeBasis, birthUtc, type TimeBasis } from "@shared/time-basis";
 import path from "node:path";
 import fs from "node:fs";
 import { DateTime } from "luxon";
@@ -62,6 +63,16 @@ export function localToUtc(date: string, time: string, zone: string): DateTime {
   const dt = DateTime.fromISO(`${date}T${time}`, { zone });
   if (!dt.isValid) throw new Error(`Invalid birth datetime: ${dt.invalidExplanation}`);
   return dt.toUTC();
+}
+
+/**
+ * Birth instant under the chart's time standard. Before standard time the zone database returns the mean time of
+ * the zone's reference city; the automatic standard substitutes the birthplace's own mean time (see shared/time-basis).
+ */
+export function birthInstant(chart: { birthDate: string; birthTime: string; timezone: string; longitude: number; timeStandard?: string }): { utc: DateTime; basis: TimeBasis } {
+  const basis = resolveTimeBasis(chart.birthDate, chart.birthTime, chart.timezone, chart.longitude, chart.timeStandard ?? "auto");
+  if (basis.error) throw new Error(basis.error);
+  return { utc: birthUtc(chart.birthDate, chart.birthTime, basis), basis };
 }
 
 export function julianDay(utc: DateTime): number {

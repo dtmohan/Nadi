@@ -77,7 +77,7 @@ export function onStorageKind(listener: () => void) {
 async function read(): Promise<Chart[]> {
   if (cached) return cached;
   // Charts saved before events existed get an empty list.
-  cached = (await (await backend()).load()).map((c) => ({ ...c, events: sanitiseEvents((c as Partial<Chart>).events) }));
+  cached = (await (await backend()).load()).map((c) => ({ ...c, timeStandard: (c as Partial<Chart>).timeStandard || "auto", events: sanitiseEvents((c as Partial<Chart>).events) }));
   return cached;
 }
 
@@ -150,6 +150,7 @@ function normalise(data: InsertChart): Omit<Chart, "id"> {
     birthDate: data.birthDate,
     birthTime: data.birthTime,
     timezone: data.timezone,
+    timeStandard: data.timeStandard || "auto",
     place: data.place,
     latitude: data.latitude,
     longitude: data.longitude,
