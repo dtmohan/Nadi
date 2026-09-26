@@ -140,7 +140,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             }
             practitioner={
               <>
-                {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, house significations and their prosperity or failure from chapter 11, effects of the 1st and 2nd houses from chapters 12 and 13, yogas from chapters 34, 36, 39, 41, 42 and 75 of{" "}
+                {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, house significations and their prosperity or failure from chapter 11, effects of the 1st to 5th houses from chapters 12-16, yogas from chapters 34, 36, 39, 41, 42 and 75 of{" "}
                 <a href={BPHS_URL(24)} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Brihat Parashara Hora Sastra</a> (Santhanam translation). Nodes have no aspect in chapter 26 and own no house; they are read through their sign lord. Cancellation of debilitation follows{" "}
                 <a href={PHALADEEPIKA_CH7_URL} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Phaladeepika 7.26-30</a> (Subrahmanya Sastri translation), since Parashara's verses do not state it; later-practice conditions are shown provisional and not applied. First pass.
               </>
@@ -253,7 +253,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               {plain ? "Where each house's ruler sits" : "Lords in houses"} ({shownLords.length}{focusHouse ? ` of 12` : ""})
             </button>
             <button role="tab" aria-selected={section === "houses"} onClick={() => setSection("houses")} className={cn("rounded px-3 py-1", section === "houses" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")} data-testid="parashari-section-houses">
-              {plain ? "What each house says" : "Houses (ch. 11-13)"} ({shownHouses.length}{focusHouse ? ` of ${houseFinds.length}` : ""})
+              {plain ? "What each house says" : "Houses (ch. 11-16)"} ({shownHouses.length}{focusHouse ? ` of ${houseFinds.length}` : ""})
             </button>
           </div>
           {focusHouse && (
@@ -301,15 +301,15 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             <p className="mt-1 text-xs text-muted-foreground">
               Significations <SourceLink source={HOUSE_MATTERS_SOURCE} mark={false} />; prosperity and failure <SourceLink source={BHAVA_JUDGEMENT_SOURCE} mark={false} />. {BHAVA_JUDGEMENT_CAVEATS.join(" ")}
             </p>
-            <SectionTitle as="h4" className="mt-5" plain={focusHouse ? `What the text says about the ${ord(focusHouse)} house` : "What the text says about the 1st and 2nd houses"} technical={focusHouse ? `Effects of the ${ord(focusHouse)} house` : "Effects of the 1st and 2nd houses (ch. 12-13)"} />
+            <SectionTitle as="h4" className="mt-5" plain={focusHouse ? `What the text says about the ${ord(focusHouse)} house` : "What the text says about the 1st to 5th houses"} technical={focusHouse ? `Effects of the ${ord(focusHouse)} house (ch. ${11 + focusHouse})` : "Effects of the 1st to 5th houses (ch. 12-16)"} />
             <div className="mt-3 grid gap-3 md:grid-cols-2">
               {shownHouses.map((f) => <Finding key={f.id} f={f} />)}
               {shownHouses.length === 0 && (
                 <p className="text-sm text-muted-foreground md:col-span-2">
-                  {focusHouse && focusHouse > 2 ? `Chapters ${13 + focusHouse - 2} onward cover the ${ord(focusHouse)} house and are not yet applied; the judgement row above is from chapter 11.` : "None of the stated combinations of chapters 12-13 hold in this chart."}
+                  {focusHouse && focusHouse > 5 ? `Chapter ${11 + focusHouse} covers the ${ord(focusHouse)} house and is not yet applied; the judgement row above is from chapter 11.` : focusHouse ? `None of the stated combinations of chapter ${11 + focusHouse} hold in this chart.` : "None of the stated combinations of chapters 12-16 hold in this chart."}
                 </p>
               )}
-              <p className="text-xs text-muted-foreground md:col-span-2">{HOUSE_CAVEATS.join(" ")} Effects of the 3rd to 12th houses (chapters 14-23) follow in later passes.</p>
+              <p className="text-xs text-muted-foreground md:col-span-2">{HOUSE_CAVEATS.join(" ")} Effects of the 6th to 12th houses (chapters 17-23) follow in later passes. Verses on the loss of children or co-born are shown in Parashara's sense but worded plainly; weigh them against the supporting verses and the strength pass before reading them as outcomes.</p>
             </div>
           </div>
         )}

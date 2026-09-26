@@ -171,7 +171,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   }
   // 12.10: Sun and Moon in one house and one navamsa.
   if (pos("Sun").signIndex === pos("Moon").signIndex && navamsaSign(pos("Sun")) === navamsaSign(pos("Moon"))) {
-    push("pa-h1-12-10", 1, "Sun and Moon in one house and navamsa", `The Sun and Moon share ${SIGNS[pos("Sun").signIndex]} and the same navamsa. Parashara says the child is nurtured by three mothers in its first three months and then raised by father and brother.`, "mixed", ["Sun", "Moon"], S(12, "10"));
+    push("pa-h1-12-10", 1, "Sun and Moon in one house and navamsa", `The Sun and Moon share ${SIGNS[pos("Sun").signIndex]} and the same navamsa. Parashara says the child is nurtured by three mothers in its first three months and then raised by father and brother; 16.10 repeats it as three mothers or two fathers.`, "mixed", ["Sun", "Moon"], S(12, "10"));
   }
 
   // ---- Chapter 13: the 2nd house ----
@@ -248,10 +248,182 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   } else if (mal2.length && maleficsWith(l2).length && h2 === 2) {
     push("pa-h2-13-13", 2, "Speech under malefics", `${l2}, lord of the 2nd, sits in the 2nd with ${list(mal2)}. Parashara says the native carries tales, speaks untruth and suffers windy complaints.`, "strain", [l2, ...mal2], S(13, "13"));
   }
+  // ---- Chapter 14: the 3rd house ----
+  const l3 = lordOf(3);
+  const s3 = signOfHouse(3);
+  const in3 = inSign(s3);
+  const ben3 = in3.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
+  const benAsp3 = aspectingSign(s3, "benefic");
+  if (ben3.length || benAsp3.length) {
+    push("pa-h3-14-1", 3, "Co-born and courage", `The 3rd is ${ben3.length ? `occupied by ${list(ben3)}` : ""}${ben3.length && benAsp3.length ? " and " : ""}${benAsp3.length ? `aspected by ${list(benAsp3)}` : ""}. Parashara says the native has co-born and is courageous.`, "support", [...ben3, ...benAsp3], S(14, "1"));
+  }
+  const marsWithL3 = l3 === "Mars" || pos("Mars").signIndex === pos(l3).signIndex;
+  const l3Asp3 = pos(l3).signIndex !== s3 && deps.aspect(l3, pos(l3).signIndex, s3) > 0;
+  const marsAsp3 = pos("Mars").signIndex !== s3 && deps.aspect("Mars", pos("Mars").signIndex, s3) > 0;
+  if (l3 !== "Mars" && ((l3Asp3 && marsAsp3 && marsWithL3) || (houseOf(l3) === 3 && houseOf("Mars") === 3))) {
+    push("pa-h3-14-2", 3, "3rd lord and Mars favour the 3rd", `${l3}, lord of the 3rd, and Mars ${houseOf(l3) === 3 ? "stand together in the 3rd" : "aspect the 3rd together"}. Parashara promises the good results of the 3rd house.`, "support", [l3, "Mars"], S(14, "2"));
+  }
+  if (marsWithL3 && l3 !== "Mars") {
+    const pair: Planet[] = [l3, "Mars"];
+    const malWith = inSign(pos("Mars").signIndex).filter((p) => !pair.includes(p.planet) && !deps.benefic(p, positions)).map((p) => p.planet);
+    const malSign = !["Jupiter", "Venus", "Moon", "Mercury"].includes(SIGN_LORD[pos("Mars").signIndex]);
+    if (houseOf("Mars") === 8) {
+      push("pa-h3-14-5", 3, "3rd lord and Mars in the 8th", `${list(pair)}, lord of the 3rd and Mars, stand in the 8th. Parashara reads harm to co-born here.`, "strain", pair, S(14, "5"));
+    } else if (malWith.length || malSign) {
+      push("pa-h3-14-3", 3, "3rd lord and Mars afflicted", `${list(pair)}, lord of the 3rd and Mars, ${malWith.length ? `are joined by ${list(malWith)}` : `stand in ${SIGNS[pos("Mars").signIndex]}, a sign owned by a malefic`}. Parashara reads the loss of co-born. Sign ownership uses the natural malefics Sun, Mars and Saturn.`, "strain", [...pair, ...malWith], S(14, "3", malSign && !malWith.length));
+    }
+  }
+  // 14.4: sex of co-born from the 3rd lord, planets in the 3rd and the sign.
+  {
+    const MALE_PL: Planet[] = ["Sun", "Mars", "Jupiter"];
+    const FEMALE_PL: Planet[] = ["Moon", "Venus"];
+    const fem: string[] = [];
+    const mal: string[] = [];
+    if (FEMALE_PL.includes(l3)) fem.push(`${l3}, the 3rd lord, is a female planet`);
+    if (MALE_PL.includes(l3)) mal.push(`${l3}, the 3rd lord, is a male planet`);
+    const femIn = in3.filter((p) => FEMALE_PL.includes(p.planet)).map((p) => p.planet);
+    const malIn = in3.filter((p) => MALE_PL.includes(p.planet)).map((p) => p.planet);
+    if (femIn.length) fem.push(`${list(femIn)} in the 3rd`);
+    if (malIn.length) mal.push(`${list(malIn)} in the 3rd`);
+    if (s3 % 2 === 0) mal.push(`${SIGNS[s3]} is a male sign`); else fem.push(`${SIGNS[s3]} is a female sign`);
+    if (fem.length || mal.length) {
+      push("pa-h3-14-4", 3, "Sisters or brothers", `${fem.length ? `Towards younger sisters: ${fem.join("; ")}.` : ""}${fem.length && mal.length ? " " : ""}${mal.length ? `Towards younger brothers: ${mal.join("; ")}.` : ""}${fem.length && mal.length ? " Parashara says a mixed picture gives co-born of both sexes, to be settled by strength." : ""} Planet sex from 3.19, sign sex from 4.5.`, "mixed", [l3, ...femIn, ...malIn], S(14, "4"));
+    }
+  }
+  // 14.6: Mars or the 3rd lord in an angle or trine, or exalted or in a friendly sign.
+  {
+    const good = Array.from(new Set<Planet>(["Mars", l3])).filter((p) => inKT(houseOf(p)) || ["Exalted", "Friendly"].includes(pos(p).dignity));
+    const why6 = (p: Planet) => `${p}${p === l3 ? " (3rd lord)" : ""} ${inKT(houseOf(p)) ? `in the ${ord(houseOf(p))}` : pos(p).dignity === "Exalted" ? "exalted" : "in a friendly sign"}`;
+    if (good.length) push("pa-h3-14-6", 3, "Happiness through co-born", `${list(good.map(why6))}. Parashara names Mars or the 3rd lord in an angle or trine, or exalted or in friendly divisions, and promises happiness through brothers and sisters. "Friendly divisions" is read as the rasi dignity only.`, "support", good, S(14, "6", true));
+  }
+  // 14.14: Sun, Saturn or Mars in the 3rd.
+  {
+    const adverse = (["Sun", "Saturn", "Mars"] as Planet[]).filter((p) => houseOf(p) === 3);
+    if (adverse.length) push("pa-h3-14-14", 3, "Malefics in the 3rd", `${list(adverse)} in the 3rd. Parashara reads harm to ${adverse.map((p) => (p === "Sun" ? "elder co-born (Sun)" : p === "Saturn" ? "younger co-born (Saturn)" : "both elder and younger co-born (Mars)")).join(", ")}; 14.15 asks that the strength of such yogas be weighed first.`, "strain", adverse, S(14, "14"));
+  }
+
+  // ---- Chapter 15: the 4th house ----
+  const l4 = lordOf(4);
+  const l10 = lordOf(10);
+  const l11b = lordOf(11);
+  const s4 = signOfHouse(4);
+  const in4 = inSign(s4);
+  const benAsp4 = aspectingSign(s4, "benefic");
+  if ((houseOf(l4) === 4 || houseOf(l1) === 4) && benAsp4.length) {
+    push("pa-h4-15-2", 4, "Residential comforts", `${houseOf(l4) === 4 ? `${l4}, lord of the 4th,` : `${l1}, lord of the lagna,`} occupies the 4th and ${list(benAsp4)} ${v(benAsp4, "aspects", "aspect")} it. Parashara promises housing comforts in full.`, "support", [houseOf(l4) === 4 ? l4 : l1, ...benAsp4], S(15, "2"));
+  }
+  if (["Own sign", "Moolatrikona", "Exalted"].includes(pos(l4).dignity) || SIGN_LORD[navamsaSign(pos(l4))] === l4) {
+    push("pa-h4-15-3", 4, "Lands, houses and conveyances", `${l4}, lord of the 4th, is ${pos(l4).dignity === "Exalted" ? "exalted" : ["Own sign", "Moolatrikona"].includes(pos(l4).dignity) ? "in its own sign" : "in its own navamsa"}. Parashara promises comforts of lands, conveyances, houses and musical instruments. Santhanam's text names the 5th lord here; the 4th lord is used because the chapter concerns the 4th house, so this is provisional.`, "support", [l4], S(15, "3", true));
+  }
+  if (l4 !== l10 && pos(l4).signIndex === pos(l10).signIndex && inKT(houseOf(l4))) {
+    push("pa-h4-15-4", 4, "Beautiful mansions", `${l10}, lord of the 10th, joins ${l4}, lord of the 4th, in the ${ord(houseOf(l4))}, an angle or trine. Parashara says the native acquires beautiful mansions.`, "support", [l4, l10], S(15, "4"));
+  }
+  if (houseOf("Mercury") === 1 && ben(l4)) {
+    const other = aspectingPlanet(l4, "benefic");
+    if (other.length) push("pa-h4-15-5", 4, "Honoured by relatives", `Mercury is in the lagna and ${l4}, lord of the 4th and a benefic, is aspected by ${list(other)}. Parashara says the native is honoured by his relatives.`, "support", ["Mercury", l4, ...other], S(15, "5"));
+  }
+  {
+    const ben4 = in4.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
+    if (ben4.length && pos(l4).dignity === "Exalted" && strong("Moon") !== false) {
+      push("pa-h4-15-6", 4, "Long-living mother", `${list(ben4)} ${v(ben4, "occupies", "occupy")} the 4th, ${l4}, its lord, is exalted, and the Moon, indicator of the mother, ${strong("Moon") === true ? "has strength above its requirement" : "is not shown weak (no Shadbala available)"}. Parashara promises a long-living mother.`, "support", [...ben4, l4, "Moon"], S(15, "6", strong("Moon") === undefined));
+    }
+  }
+  if (KENDRA.includes(houseOf(l4)) && KENDRA.includes(houseOf("Venus")) && pos("Mercury").dignity === "Exalted") {
+    push("pa-h4-15-7", 4, "Happiness to the mother", `${l4}, lord of the 4th, and Venus are both in angles while Mercury is exalted. Parashara says the mother is happy.`, "support", [l4, "Venus", "Mercury"], S(15, "7"));
+  }
+  if (houseOf("Sun") === 4 && houseOf("Moon") === 9 && houseOf("Saturn") === 9 && houseOf("Mars") === 11) {
+    push("pa-h4-15-8", 4, "Cattle", `Sun in the 4th, Moon and Saturn in the 9th and Mars in the 11th. Parashara says this yoga confers cows and buffaloes.`, "support", ["Sun", "Moon", "Saturn", "Mars"], S(15, "8"));
+  }
+  if (s4 % 3 === 0 && l4 !== "Mars" && pos(l4).signIndex === pos("Mars").signIndex && [6, 8].includes(houseOf(l4))) {
+    push("pa-h4-15-9", 4, "Speech impaired", `The 4th falls in ${SIGNS[s4]}, a movable sign, and ${l4}, its lord, is with Mars in the ${ord(houseOf(l4))}. Parashara reads an impediment of speech.`, "strain", [l4, "Mars"], S(15, "9"));
+  }
+  // 15.10-14: conveyances and their timing.
+  {
+    const hits: { text: string; year: number; planets: Planet[]; verse: string }[] = [];
+    if (ben(l1) && (pos(l4).dignity === "Debilitated" || houseOf(l4) === 11) && houseOf("Venus") === 12) hits.push({ text: `${l1}, lord of the lagna, is a benefic, ${l4}, lord of the 4th, is ${pos(l4).dignity === "Debilitated" ? "debilitated" : "in the 11th"} and Venus is in the 12th`, year: 12, planets: [l1, l4, "Venus"], verse: "10" });
+    if (houseOf("Sun") === 4 && pos(l4).dignity === "Exalted" && l4 !== "Venus" && pos(l4).signIndex === pos("Venus").signIndex) hits.push({ text: `the Sun is in the 4th and ${l4}, lord of the 4th, is exalted with Venus`, year: 32, planets: ["Sun", l4, "Venus"], verse: "11" });
+    if (l4 !== l10 && pos(l4).signIndex === pos(l10).signIndex && EXALT_SIGN[l4] === navamsaSign(pos(l4))) hits.push({ text: `${l4}, lord of the 4th, joins ${l10}, lord of the 10th, in its exaltation navamsa`, year: 42, planets: [l4, l10], verse: "12" });
+    if (l4 !== l11b && houseOf(l4) === 11 && houseOf(l11b) === 4) hits.push({ text: `${l4} and ${l11b}, lords of the 4th and 11th, exchange houses`, year: 12, planets: [l4, l11b], verse: "13" });
+    for (const h of hits) push(`pa-h4-15-${h.verse}`, 4, `Conveyances in the ${ord(h.year)} year`, `${h.text[0].toUpperCase()}${h.text.slice(1)}. Parashara times the acquisition of conveyances to the ${ord(h.year)} year.`, "support", h.planets, S(15, h.verse));
+  }
+
+  // ---- Chapter 16: the 5th house ----
+  const l5 = lordOf(5);
+  const l9 = lordOf(9);
+  const h5 = houseOf(l5);
+  const s5 = signOfHouse(5);
+  const in5 = inSign(s5);
+  const own = (pl: Planet) => ["Own sign", "Moolatrikona"].includes(pos(pl).dignity);
+  const l5Deb = pos(l5).dignity === "Debilitated";
+  const mal5 = in5.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
+  if ((own(l1) || inKT(houseOf(l1))) && (own(l5) || inKT(h5))) {
+    push("pa-h5-16-1", 5, "Happiness through children", `${l1}, lord of the lagna, is ${own(l1) ? "in its own sign" : `in the ${ord(houseOf(l1))}, an angle or trine`}, and ${l5}, lord of the 5th, is ${own(l5) ? "in its own sign" : `in the ${ord(h5)}, an angle or trine`}. Parashara promises thorough happiness through children.`, "support", [l1, l5], S(16, "1-3"));
+  }
+  if (DUSTHANA.includes(h5)) {
+    push("pa-h5-16-2", 5, "5th lord in a dusthana", `${l5}, lord of the 5th, is in the ${ord(h5)}. Parashara reads a denial of offspring here, and 16.8 counts the same placement among the yogas for children with difficulty; the promise of 16.16 below, where present, is the counterweight.`, "strain", [l5], S(16, "2"));
+  }
+  {
+    const malWith5 = maleficsWith(l5);
+    const weak = strong(l5) === false;
+    if ((combust(l5) || malWith5.length) && weak) {
+      push("pa-h5-16-3", 5, "5th lord weak and afflicted", `${l5}, lord of the 5th, is ${combust(l5) ? "combust" : `joined by ${list(malWith5)}`} and falls short of its Shadbala requirement. Parashara reads children denied or short-lived; the wording is his.`, "strain", [l5, ...malWith5], S(16, "3"));
+    }
+  }
+  if (h5 === 6 && l1 !== "Mars" && pos(l1).signIndex === pos("Mars").signIndex) {
+    push("pa-h5-16-4", 5, "First child and the 6th", `${l5}, lord of the 5th, is in the 6th while ${l1}, lord of the lagna, is with Mars. Parashara reads the loss of the first child and no further issue; a hard verse, to be weighed against 16.16 and the strength of Jupiter.`, "strain", [l5, l1, "Mars"], S(16, "4"));
+  }
+  if (l5Deb && DUSTHANA.includes(h5) && houseOf("Mercury") === 5 && houseOf("Ketu") === 5) {
+    push("pa-h5-16-5", 5, "One child only", `${l5}, lord of the 5th, is debilitated in the ${ord(h5)} while Mercury and Ketu occupy the 5th. Parashara says one child only.`, "strain", [l5, "Mercury", "Ketu"], S(16, "5"));
+  }
+  if (l5Deb && pos(l5).signIndex !== s5 && deps.aspect(l5, pos(l5).signIndex, s5) === 0 && houseOf("Saturn") === 5 && houseOf("Mercury") === 5) {
+    push("pa-h5-16-6", 5, "One child only", `${l5}, lord of the 5th, is debilitated and does not aspect the 5th, where Saturn and Mercury stand. Parashara says one child only.`, "strain", [l5, "Saturn", "Mercury"], S(16, "6"));
+  }
+  if (houseOf(l9) === 1 && l5Deb && houseOf("Ketu") === 5 && houseOf("Mercury") === 5) {
+    push("pa-h5-16-7", 5, "Children after an ordeal", `${l9}, lord of the 9th, is in the lagna, ${l5}, lord of the 5th, is debilitated, and Ketu is with Mercury in the 5th. Parashara says progeny comes after a great deal of trial.`, "strain", [l9, l5, "Ketu", "Mercury"], S(16, "7"));
+  }
+  if (!DUSTHANA.includes(h5) && (pos(l5).dignity === "Inimical" || l5Deb || h5 === 5)) {
+    push("pa-h5-16-8", 5, "Children with difficulty", `${l5}, lord of the 5th, is ${h5 === 5 ? "in the 5th itself" : l5Deb ? "debilitated" : "in an inimical sign"}. Parashara counts this among the placements that give children with difficulty. The clause "or in the 5th itself" is his and sits oddly with 16.1; shown as written.`, h5 === 5 && !l5Deb && pos(l5).dignity !== "Inimical" ? "mixed" : "strain", [l5], S(16, "8"));
+  }
+  {
+    const aspBy5 = (["Mercury", "Jupiter", "Venus"] as Planet[]).filter((p) => pos(p).signIndex !== s5 && deps.aspect(p, pos(p).signIndex, s5) > 0 && strong(p) === true);
+    if (strong(l5) === true && aspBy5.length === 3) push("pa-h5-16-12", 5, "Many children", `${l5}, lord of the 5th, is strong and the 5th is aspected by Mercury, Jupiter and Venus, all above their Shadbala requirement. Parashara says there will be many children.`, "support", [l5, ...aspBy5], S(16, "12"));
+  }
+  if (l5 !== "Moon" && pos(l5).signIndex === pos("Moon").signIndex) {
+    push("pa-h5-16-13", 5, "Daughters", `${l5}, lord of the 5th, is with the Moon. Parashara reports that astrologers read daughters here. The alternative clause, the 5th lord in the Moon's decanate, is not evaluated.`, "mixed", [l5, "Moon"], S(16, "13", true));
+  }
+  {
+    const juAsp = pos("Jupiter").signIndex === pos(l5).signIndex || deps.aspect("Jupiter", pos("Jupiter").signIndex, pos(l5).signIndex) > 0;
+    const why = pos(l5).dignity === "Exalted" ? "exalted" : [2, 5, 9].includes(h5) ? `in the ${ord(h5)}` : juAsp && l5 !== "Jupiter" ? (pos("Jupiter").signIndex === pos(l5).signIndex ? "joined by Jupiter" : "aspected by Jupiter") : null;
+    if (why) push("pa-h5-16-16", 5, "Children promised", `${l5}, lord of the 5th, is ${why}. Parashara says children are obtained.`, "support", why.includes("Jupiter") ? [l5, "Jupiter"] : [l5], S(16, "16"));
+  }
+  if (mal5.length >= 3 && l5Deb) {
+    push("pa-h5-16-17", 5, "Children who stray", `${list(mal5)} occupy the 5th and ${l5}, its lord, is debilitated. Parashara reads children given to mean deeds; 16.17 excludes a benefic in the 5th from the count, and none is counted.`, "strain", [...mal5, l5], S(16, "17"));
+  }
+  if (houseOf("Jupiter") === 5 && l5 !== "Venus" && pos(l5).signIndex === pos("Venus").signIndex) {
+    push("pa-h5-16-18", 5, "A child in the 32nd or 33rd year", `Jupiter is in the 5th and ${l5}, its lord, is with Venus. Parashara times a child to the 32nd or 33rd year.`, "support", ["Jupiter", l5, "Venus"], S(16, "18"));
+  }
+  if (KENDRA.includes(h5) && l5 !== "Jupiter" && pos(l5).signIndex === pos("Jupiter").signIndex) {
+    push("pa-h5-16-19", 5, "A child at 30 or 36", `${l5}, lord of the 5th, is in the ${ord(h5)}, an angle, with Jupiter, the karaka. Parashara times a child to the age of 30 or 36.`, "support", [l5, "Jupiter"], S(16, "19"));
+  }
+  if (houseOf("Jupiter") === 9 && houseFrom(pos("Jupiter").signIndex, pos("Venus").signIndex) === 9 && l1 !== "Venus" && pos(l1).signIndex === pos("Venus").signIndex) {
+    push("pa-h5-16-20", 5, "A child at 40", `Jupiter is in the 9th and Venus is in the 9th from Jupiter together with ${l1}, lord of the lagna. Parashara times a child to the age of 40.`, "support", ["Jupiter", "Venus", l1], S(16, "20"));
+  }
+  if (houseOf("Rahu") === 5 && maleficsWith(l5).length && pos("Jupiter").dignity === "Debilitated") {
+    push("pa-h5-16-21", 5, "Grief through a child near 32", `Rahu is in the 5th, ${l5}, lord of the 5th, is joined by ${list(maleficsWith(l5))}, and Jupiter is debilitated. Parashara reads the loss of a child at 32; a hard verse, shown as written.`, "strain", ["Rahu", l5, "Jupiter"], S(16, "21"));
+  }
+  {
+    const fifthFromJu = positions.filter((p) => !deps.benefic(p, positions) && houseFrom(pos("Jupiter").signIndex, p.signIndex) === 5).map((p) => p.planet);
+    const others = mal5.filter((p) => !fifthFromJu.includes(p));
+    if (fifthFromJu.length && others.length) push("pa-h5-16-22", 5, "Grief through children at 33 and 36", `${list(fifthFromJu)} ${v(fifthFromJu, "is", "are")} in the 5th from Jupiter and ${list(others)} in the 5th from the lagna. Parashara reads loss of children at 33 and 36; a hard verse, shown as written.`, "strain", [...fifthFromJu, ...others], S(16, "22"));
+  }
   return F;
 }
 
+/** Exaltation signs, for the navamsa test of 15.12. */
+const EXALT_SIGN: Partial<Record<Planet, number>> = { Sun: 0, Moon: 1, Mars: 9, Mercury: 5, Jupiter: 3, Venus: 11, Saturn: 6 };
+
 export const HOUSE_CAVEATS = [
+  "Not applied from chapter 14: the counting verses 14.7-13 (numbers of brothers and sisters), and 14.2-3 and 14.5 when Mars is itself the 3rd lord, since those verses pair the lord with Mars. From chapter 15: the closing rule of 15.14 (a benefic or malefic related to the 4th colours conveyances), already covered by the chapter 11 judgement. From chapter 16: 16.9 and 16.23 (Mandi is not computed), 16.11 (six planets in the 5th), 16.14-15 (parentage), and the counting verses 16.24-32.",
   "12.9 (twins), 12.11 (repeat the reading from the Moon) and 12.12-15 (decanates and limbs) are not applied; 12.11 is noted for the reader rather than duplicated.",
   "Malefic and benefic follow the natural classification used across this pass: the Moon benefic when waxing, Mercury when free of malefic company, nodes malefic.",
 ];
