@@ -13,6 +13,8 @@ import type { ConditionalDasasResult, ConditionalDasa } from "@shared/conditiona
 import { KC_SUB_VERSES, KC_CH49, type KalachakraResult, type KcPeriod } from "@shared/kalachakra";
 import { KC_CH64, KC_CH65, VERSES_65 } from "@shared/kalachakra-effects";
 import { PADA_CH, type PadaResult } from "@shared/parashari-padas";
+import { MARAKA_CH, type MarakaResult } from "@shared/parashari-marakas";
+import { AVASTHA_CH, type AvasthaResult } from "@shared/parashari-avasthas";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
@@ -411,6 +413,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
 
       <KalachakraSection k={r.kalachakra} />
       <PadasSection p={r.padas} />
+      <MarakasSection m={r.marakas} />
+      <AvasthasSection a={r.avasthas} />
     </div>
   );
 }
@@ -673,6 +677,189 @@ function PadasSection({ p }: { p: PadaResult }) {
       {caveats && (
         <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           {p.caveats.map((c, i) => <p key={i}>{c}</p>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const TIER_LABEL: Record<1 | 2 | 3, string> = { 1: "first rank", 2: "second rank", 3: "named for periods" };
+
+function MarakasSection({ m }: { m: MarakaResult }) {
+  const plain = usePlain();
+  const [caveats, setCaveats] = useState(false);
+  const [written, setWritten] = useState(false);
+  return (
+    <div className="mt-8" data-testid="parashari-marakas">
+      <SectionTitle plain="Periods that strain health and vitality" technical="Maraka planets and periods (ch. 44)" />
+      <ModeText
+        plain={<>Parashara ranks the planets whose periods can bring the end of life. He ties every one of them to the life span settled in chapter 43, which this app does not judge, and adds that many strong marakas give illness and misery in their periods rather than death. The list below is therefore read as periods calling for care of health, never as a term of life.</>}
+        practitioner={<>Maraka houses are the 2nd and 7th, the 12th from the two houses of longevity, the 2nd stronger (44.2). First rank: lords of the 2nd and 7th, malefics there or with their lords (44.3-5). Then the 8th lord, a benefic tied to the 12th lord and a first-rate malefic (44.6-7), the 6th lord with the sub-periods of the 6th, 8th and 12th lords and the Moon's 2nd and 12th lords (44.17-19), the star and drekkana lords of 44.15-17 and the nodes of 44.20-22. Sub-period rule 44.8. Life span from ch. 43 is not computed, so 44.19 governs the reading.</>}
+      />
+      <div className={cn("mt-3 rounded-md border border-l-4 bg-card p-3", TONE_CLASS[m.current.tone])} data-testid="marakas-current">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm font-medium">{plain ? "The period now running" : "Current dasa and bhukti"}</span>
+          <PlanetName planet={m.current.dasa} abbr tone className="text-xs" />
+          <PlanetName planet={m.current.bhukti} abbr tone className="text-xs" />
+          <Badge variant="outline" className={cn("text-2xs", VERDICT_CLASS[m.current.tone])}>{VERDICT_LABEL[m.current.tone]}</Badge>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">{m.current.text}</p>
+        <p className="mt-1 text-xs text-muted-foreground"><SourceLink source={{ label: `Parashara 44.${m.current.verse}`, url: MARAKA_CH }} mark={false} /></p>
+      </div>
+      {m.saturnFirst && <p className="mt-2 text-sm text-muted-foreground" data-testid="marakas-saturn">{m.saturnFirst}</p>}
+      <Table className="mt-3" data-testid="marakas-table" cards>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Planet</TableHead>
+            <TableHead>Rank</TableHead>
+            <TableHead>Why Parashara names it</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {m.entries.map((e) => (
+            <TableRow key={e.planet} data-testid={`marakas-row-${e.planet}`}>
+              <TableCell><PlanetName planet={e.planet} /></TableCell>
+              <TableCell><Badge variant="outline" className={cn("text-2xs", e.tier === 1 ? ROLE_CLASS.maraka : e.tier === 2 ? ROLE_CLASS.malefic : ROLE_CLASS.neutral)}>{TIER_LABEL[e.tier]}</Badge></TableCell>
+              <TableCell className="text-muted-foreground">
+                <span>
+                  {e.reasons.map((r, i) => (
+                    <span key={i}>{i ? "; " : ""}{r.text} <span className="text-xs">(44.{r.verse}{r.provisional ? ", provisional" : ""})</span></span>
+                  ))}
+                </span>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-md border bg-card p-3" data-testid="marakas-stars">
+          <div className="text-sm font-medium">{plain ? "Stars counted from the birth star" : "Vipat, Pratyak and Vadha stars (44.15-17)"}</div>
+          <ul className="mt-1 space-y-1 text-sm">
+            {m.starDasas.map((s) => (
+              <li key={s.name}><span>{s.name}: {s.star}, lord <PlanetName planet={s.lord} abbr /> <span className="text-muted-foreground">(paired with a {s.span} life)</span></span></li>
+            ))}
+            <li><span>23rd star: {m.star23.star}, lord <PlanetName planet={m.star23.lord} abbr /></span></li>
+            <li><span>22nd drekkana: <SignName signIndex={m.drekkana22.signIndex} abbr /> {ord(m.drekkana22.index + 1)}, lord <PlanetName planet={m.drekkana22.lord} abbr /> <Badge variant="outline" className="text-2xs">provisional</Badge></span></li>
+          </ul>
+          <p className="mt-1 text-xs text-muted-foreground">The three life spans of 44.10-14 (up to 32, 64 and 100 years) decide which star applies; none is chosen here.</p>
+        </div>
+        <div className="rounded-md border bg-card p-3" data-testid="marakas-moon">
+          <div className="text-sm font-medium">{plain ? "Counted from the Moon, and the nodes" : "Lords of the 2nd and 12th from the Moon (44.17-18); nodes (44.20-22)"}</div>
+          <ul className="mt-1 space-y-1 text-sm">
+            {m.moonLords.map((x) => (
+              <li key={x.house}><span>{ord(x.house)} from the Moon: <PlanetName planet={x.lord} abbr /> <span className="text-muted-foreground">{x.malefic ? "(malefic: a maraka)" : "(benefic: illness only, not a maraka)"}</span></span></li>
+            ))}
+            {m.nodes.length ? m.nodes.map((n) => (
+              <li key={n.planet}><span><PlanetName planet={n.planet} abbr /> {n.reason}: takes maraka power</span></li>
+            )) : <li className="text-muted-foreground">Neither node stands where 44.20-22 gives it maraka power.</li>}
+          </ul>
+        </div>
+      </div>
+      {m.asWritten.length ? (
+        <>
+          <button type="button" onClick={() => setWritten((v) => !v)} className="mt-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2" data-testid="marakas-written-toggle">
+            {written ? "Hide" : "Show"} the 3rd and 8th house verses on the manner of the end (44.25-37), shown as written
+          </button>
+          {written && (
+            <div className="mt-2 grid gap-2 sm:grid-cols-2" data-testid="marakas-written">
+              {m.asWritten.map((f) => <Finding key={f.id} f={f} />)}
+            </div>
+          )}
+        </>
+      ) : null}
+      <button type="button" onClick={() => setCaveats((v) => !v)} className="mt-3 block text-xs text-muted-foreground underline decoration-dotted underline-offset-2" data-testid="marakas-caveats-toggle">
+        {caveats ? "Hide" : "Show"} how this is computed
+      </button>
+      {caveats && (
+        <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          {m.caveats.map((c, i) => <p key={i}>{c}</p>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const LAJ_CLASS: Record<string, string> = {
+  Garvita: "bg-verdict-good/15 text-verdict-good",
+  Mudita: "bg-verdict-good/10 text-verdict-good",
+  Lajjita: "bg-verdict-bad/10 text-verdict-bad",
+  Kshudhita: "bg-verdict-bad/10 text-verdict-bad",
+  Trushita: "bg-verdict-mixed/15 text-verdict-mixed",
+  Kshobhita: "bg-verdict-bad/15 text-verdict-bad",
+};
+const DEEPTA_PLAIN: Record<string, string> = { Deepta: "bright", Swastha: "at ease", Pramudita: "glad", Santa: "calm", Deena: "poor", Vikala: "impaired", Khala: "ill-placed", Kopa: "angry" };
+const LAJ_PLAIN: Record<string, string> = { Garvita: "proud", Mudita: "delighted", Lajjita: "ashamed", Kshudhita: "hungry", Trushita: "thirsty", Kshobhita: "agitated" };
+
+function AvasthasSection({ a }: { a: AvasthaResult }) {
+  const plain = usePlain();
+  const [caveats, setCaveats] = useState(false);
+  const [openLaj, setOpenLaj] = useState<Planet | null>(null);
+  return (
+    <div className="mt-8" data-testid="parashari-avasthas">
+      <SectionTitle plain="The state each planet is in" technical="Avasthas of the planets (ch. 45)" />
+      <ModeText
+        plain={<>Parashara reads each planet's condition five ways: its age within the sign, whether it is awake, dreaming or asleep by the sign it holds, how content it is by dignity and company, six moods from house, company and aspect, and a twelve-fold state found by a small arithmetic on its star, its navamsa and the moment of birth. The moods and the twelve-fold state carry the chapter's stated effects.</>}
+        practitioner={<>Baladi 45.3-4, Jagradadi 45.5-6, Deeptadi 45.7-10, Lajjitadi 45.11-29 and Sayanadi 45.30-155. Relations by 3.55-58; aspect is graha drishti; ghatis from the computed sunrise. The Sayanadi sub-states of 45.36-39 need the numeral of the name's first syllable and are left aside.</>}
+      />
+      <Table className="mt-3" data-testid="avasthas-table" cards>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Planet</TableHead>
+            <TableHead>{plain ? "Age in sign" : "Baladi"}</TableHead>
+            <TableHead>{plain ? "Awake or asleep" : "Jagradadi"}</TableHead>
+            <TableHead>{plain ? "Condition" : "Deeptadi"}</TableHead>
+            <TableHead>{plain ? "Moods" : "Lajjitadi"}</TableHead>
+            <TableHead>{plain ? "Twelve-fold state" : "Sayanadi"}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {a.planets.map((x) => (
+            <TableRow key={x.planet} data-testid={`avasthas-row-${x.planet}`}>
+              <TableCell><PlanetName planet={x.planet} /></TableCell>
+              <TableCell><span>{plain ? x.baladi.plain : x.baladi.name} <span className="text-xs text-muted-foreground">({x.baladi.result})</span></span></TableCell>
+              <TableCell><span>{plain ? x.jagradadi.plain : x.jagradadi.name} <span className="text-xs text-muted-foreground">({x.jagradadi.basis}, {x.jagradadi.result})</span></span></TableCell>
+              <TableCell><span>{x.deeptadi.names.map((n) => (plain ? DEEPTA_PLAIN[n] ?? n : n)).join(", ")} <span className="text-xs text-muted-foreground">({x.deeptadi.basis})</span></span></TableCell>
+              <TableCell>
+                <span className="block">
+                {x.lajjitadi.length ? (
+                  <button type="button" onClick={() => setOpenLaj(openLaj === x.planet ? null : x.planet)} className="flex flex-wrap gap-1 text-left" data-testid={`avasthas-laj-${x.planet}`}>
+                    {x.lajjitadi.map((l) => <Badge key={l.name} variant="outline" className={cn("text-2xs", LAJ_CLASS[l.name])}>{plain ? LAJ_PLAIN[l.name] : l.name}</Badge>)}
+                  </button>
+                ) : <span className="text-xs text-muted-foreground">none</span>}
+                {openLaj === x.planet && (
+                  <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                    {x.lajjitadi.map((l) => <li key={l.name}>{l.name}: {l.why}</li>)}
+                  </ul>
+                )}
+                </span>
+              </TableCell>
+              <TableCell>
+                {x.sayanadi ? (
+                  <span>
+                    <span className={cn("rounded px-1", VERDICT_CLASS[x.sayanadi.tone])}>{plain ? x.sayanadi.plain : x.sayanadi.name}</span>
+                    <span className="mt-0.5 block text-xs text-muted-foreground">{x.sayanadi.effect} <SourceLink source={{ label: `45.${x.sayanadi.verse}`, url: AVASTHA_CH, provisional: true }} mark={false} /></span>
+                    {!plain && <span className="block text-2xs text-muted-foreground tabular-nums">{x.sayanadi.working}</span>}
+                  </span>
+                ) : <span className="text-xs text-muted-foreground">needs sunrise</span>}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {a.ghatis !== undefined ? `Birth ${a.ghatis} whole ghatis after sunrise. ` : ""}The Sayanadi arithmetic is star × planet number × navamsa + birth star + ghatis + lagna count, remainder by twelve (45.30-35), provisional in its details. <SourceLink source={{ label: "Parashara 45.3-39", url: AVASTHA_CH }} />
+      </p>
+      {a.findings.length ? (
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {a.findings.map((f) => <Finding key={f.id} f={f} />)}
+        </div>
+      ) : null}
+      <button type="button" onClick={() => setCaveats((v) => !v)} className="mt-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2" data-testid="avasthas-caveats-toggle">
+        {caveats ? "Hide" : "Show"} how this is computed
+      </button>
+      {caveats && (
+        <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          {a.caveats.map((c, i) => <p key={i}>{c}</p>)}
         </div>
       )}
     </div>

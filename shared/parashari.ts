@@ -19,6 +19,8 @@ import { royalFindings } from "./parashari-royal";
 import { evilFindings } from "./parashari-evils";
 import { curseFindings } from "./parashari-curses";
 import { computePadas, type PadaResult } from "./parashari-padas";
+import { computeMarakas, type MarakaResult } from "./parashari-marakas";
+import { computeAvasthas, type AvasthaResult } from "./parashari-avasthas";
 
 export const SEVEN: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 export const KENDRA = [1, 4, 7, 10];
@@ -92,6 +94,10 @@ export interface ParashariResult {
   kalachakra: KalachakraResult;
   /** Padas, Upapada, argala, karakas and Karakamsa, BPHS ch. 29-33. */
   padas: PadaResult;
+  /** Maraka planets and the current period, BPHS ch. 44. */
+  marakas: MarakaResult;
+  /** Avasthas of the planets, BPHS ch. 45. */
+  avasthas: AvasthaResult;
   dashas: DashaGloss[];
   /** Period effects from BPHS ch. 47-48 and 52-61. */
   dasaReadings: DasaReading[];
@@ -536,9 +542,11 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   findings.push(...curseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   const bhavaJudgement = judgeBhavas(positions, lagnaIdx, houseDeps, shadbala);
   const padas = computePadas(positions, lagnaIdx, lagnaLon, houseDeps, shadbala);
+  const marakas = computeMarakas(positions, lagnaIdx, lagnaLon, houseDeps, vim, shadbala);
+  const avasthas = computeAvasthas(positions, lagnaIdx, houseDeps, shadbala, shadbalaBase);
 
   const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts, ashtakavarga, neecha);
-  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, bhavaJudgement, vimshottari: vim, conditionalDasas: condDasas, kalachakra, padas, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
+  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, bhavaJudgement, vimshottari: vim, conditionalDasas: condDasas, kalachakra, padas, marakas, avasthas, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
 }
 
 export function ord(n: number): string {
