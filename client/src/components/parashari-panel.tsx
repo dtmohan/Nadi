@@ -314,7 +314,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                       <span className="font-medium">{j.house}</span> <SignName signIndex={j.signIndex} abbr />
                       <span className={cn("ml-1 inline-block h-2 w-2 rounded-full align-middle", j.tone === "support" ? "bg-emerald-500" : j.tone === "strain" ? "bg-rose-500" : j.tone === "mixed" ? "bg-amber-500" : "bg-muted-foreground/30")} aria-label={j.tone} />
                     </TableCell>
-                    <TableCell className="py-1.5 align-top text-xs text-muted-foreground">{HOUSE_MATTERS[j.house - 1].matters}</TableCell>
+                    <TableCell className="py-1.5 align-top text-xs text-muted-foreground">
+                      {HOUSE_MATTERS[j.house - 1].matters}
+                      {j.chalitNote && <div className="mt-1 text-2xs text-verdict-mixed" data-testid={`parashari-house-chalit-${j.house}`}>{j.chalitNote}</div>}
+                    </TableCell>
                     <TableCell className="py-1.5 align-top text-xs">{j.support.length ? j.support.join("; ") : <span className="text-muted-foreground">—</span>}</TableCell>
                     <TableCell className="py-1.5 align-top text-xs">{j.strain.length ? j.strain.join("; ") : <span className="text-muted-foreground">—</span>}</TableCell>
                   </TableRow>

@@ -11,6 +11,7 @@ import { DateTime } from "luxon";
 import { ANTAR_DASA, PRATYANTAR, SOOKSHMA, PRANA, type AntarEntry } from "./parashari-dasa-data";
 import { compoundRelation, type Seven, type ShadbalaResult, type PlanetShadbala, type IshtaKashta, type DasaStartTransit } from "./shadbala";
 import { PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechabhanga";
+import { bhavaAnnotation, CHALIT_SOURCES, type ChalitResult } from "./chalit";
 import type { AshtakavargaResult } from "./ashtakavarga";
 
 export type Tone = "support" | "strain" | "mixed";
@@ -413,7 +414,7 @@ function conditionNotes(c: Ctx, p: Planet): DasaNote[] {
 }
 
 /** All dasa readings for the Vimshottari sequence. */
-export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], vim: Vimshottari, birthIso: string, asOfIso: string, shadbala?: ShadbalaResult, dasaStarts?: DasaStartTransit[], av?: AshtakavargaResult, neecha: NeechaBhanga[] = []): DasaReading[] {
+export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], vim: Vimshottari, birthIso: string, asOfIso: string, shadbala?: ShadbalaResult, dasaStarts?: DasaStartTransit[], av?: AshtakavargaResult, neecha: NeechaBhanga[] = [], chalit?: ChalitResult): DasaReading[] {
   const c = makeCtx(positions, lagnaIdx, yogakaraka, shadbala, dasaStarts, av);
   const birth = DateTime.fromISO(birthIso), asOf = DateTime.fromISO(asOfIso);
   return vim.dasas.map((d) => {
@@ -438,6 +439,9 @@ export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: numbe
         source: { label: nb.cancelled ? `Phaladeepika 7.${Array.from(new Set(met.filter((x) => !x.provisional).flatMap((x) => Array.from(x.source.matchAll(/7\.(\d+)/g)).map((m) => Number(m[1]))))).sort((a, b) => a - b).join(", 7.")}` : "Later practice", url: PHALADEEPIKA_CH7_URL, provisional: !nb.cancelled },
       });
     }
+    // Bhava chalit colour on the lord's placement: annotation only, the 47.5-6 reading above stays whole-sign.
+    const bhava = chalit ? bhavaAnnotation(chalit, p) : undefined;
+    if (bhava) notes.push({ id: `${p}-bhava`, layer: "general", tone: "mixed", text: bhava, source: { ...CHALIT_SOURCES.effect, provisional: true } });
     // ch. 27 strength against the requirement of 27.32-33.
     const sb = c.bala(p);
     if (sb) {

@@ -18,7 +18,7 @@ import { houseFindings, judgeBhavas, type BhavaJudgement } from "./parashari-hou
 import { yogaFindings } from "./parashari-yogas";
 import { royalFindings } from "./parashari-royal";
 import { fatherFindings, fatherDasaLord } from "./parashari-father";
-import { computeChalit, sandhiDasaNote } from "./chalit";
+import { computeChalit, bhavaAnnotation, bhavaHouseAnnotation } from "./chalit";
 import { evilFindings } from "./parashari-evils";
 import { curseFindings } from "./parashari-curses";
 import { computePadas, type PadaResult } from "./parashari-padas";
@@ -187,6 +187,9 @@ const strongDignity = (p: PlanetPosition) => p.dignity === "Exalted" || p.dignit
 export function computeParashari(positions: PlanetPosition[], lagnaLon: number, birthIso: string, asOfIso: string, shadbalaBase?: ShadbalaBase, dasaStarts?: DasaStartTransit[]): ParashariResult {
   const lagnaIdx = Math.floor((((lagnaLon % 360) + 360) % 360) / 30);
   const shadbala = shadbalaBase ? computeShadbala(positions, lagnaIdx, shadbalaBase) : undefined;
+  // Bhava chalit colour: annotations only; no rule is evaluated on chalit houses.
+  const chalit = shadbalaBase ? computeChalit(positions, shadbalaBase.asc, shadbalaBase.mc) : undefined;
+  const bhavaNote = (p: Planet) => (chalit ? bhavaAnnotation(chalit, p) : undefined);
   const ashtakavarga = computeAshtakavarga(positions, lagnaIdx);
   const bhavaPhala = shadbala ? computeBhavaPhala(positions, shadbala, ashtakavarga) : undefined;
   const vargaPhala = shadbala ? computeVargaPhala(shadbala) : undefined;
@@ -234,7 +237,7 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
       id: `pa-lord-${b.house}-${b.lordIn}`,
       kind: "lord",
       title: `Lord of the ${ord(b.house)} in the ${ord(b.lordIn)}`,
-      text: `${b.lord}, lord of the ${ord(b.house)} (${b.sign}), stands in the ${ord(b.lordIn)} (${SIGNS[signOfHouse(b.lordIn)]}). ${e.text}${qualifier}`,
+      text: `${b.lord}, lord of the ${ord(b.house)} (${b.sign}), stands in the ${ord(b.lordIn)} (${SIGNS[signOfHouse(b.lordIn)]}). ${e.text}${qualifier}${bhavaNote(b.lord) ? ` ${bhavaNote(b.lord)}` : ""}`,
       tone: e.tone,
       planets: [b.lord],
       source: S(24, String(e.verse)),
@@ -539,14 +542,13 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   };
   const kalachakra = computeKalachakra(positions, lagnaLon, birthIso, asOfIso, (p) => naturalBenefic(p, positions), rasiOpts);
   const rasiDasas = computeRasiDasas(positions, lagnaLon, birthIso, asOfIso, { positions, lagnaIdx, benefic: (p) => naturalBenefic(p, positions), ...rasiOpts }, shadbala);
-  const chalit = shadbalaBase ? computeChalit(positions, shadbalaBase.asc, shadbalaBase.mc) : undefined;
   const dashas: DashaGloss[] = vim.dasas.map((d) => {
     const n = natures.find((x) => x.planet === d.lord)!;
     const lordEff = n.owns.map((h) => LORD_IN_HOUSE[h - 1][n.house - 1]);
     const roleText = n.lordship === "node" ? `${d.lord} in the ${ord(n.house)}; it gives the results of its sign lord ${SIGN_LORD[pos(d.lord).signIndex]} and of planets in its company` : `${d.lord} owns the ${listH(n.owns)} and stands in the ${ord(n.house)}`;
     const eff = lordEff.length ? ` Lord-in-house verses: ${lordEff.map((e) => `24.${e.verse}`).join(", ")}.` : "";
     const father = d.lord === fatherDasaLord(lagnaIdx).lord ? " The father enjoys happiness in this dasa (70.16)." : "";
-    const sandhi = chalit ? sandhiDasaNote(chalit, d.lord) : undefined;
+    const sandhi = bhavaNote(d.lord);
     return { lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: d.current, owns: n.owns, house: n.house, functional: n.functional, summary: roleText + "." + eff + father + (sandhi ? ` ${sandhi}` : "") };
   });
 
@@ -560,11 +562,12 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   findings.push(...evilFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   findings.push(...curseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   const bhavaJudgement = judgeBhavas(positions, lagnaIdx, houseDeps, shadbala);
+  if (chalit) for (const j of bhavaJudgement) j.chalitNote = bhavaHouseAnnotation(chalit, j.house);
   const padas = computePadas(positions, lagnaIdx, lagnaLon, houseDeps, shadbala);
   const marakas = computeMarakas(positions, lagnaIdx, lagnaLon, houseDeps, vim, shadbala);
   const avasthas = computeAvasthas(positions, lagnaIdx, houseDeps, shadbala, shadbalaBase);
 
-  const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts, ashtakavarga, neecha);
+  const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts, ashtakavarga, neecha, chalit);
   return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, bhavaJudgement, vimshottari: vim, conditionalDasas: condDasas, rasiDasas, kalachakra, padas, marakas, avasthas, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
 }
 

@@ -47,6 +47,8 @@ export interface BhavaJudgement {
   strain: string[];
   tone: "support" | "strain" | "mixed" | "none";
   source: ParashariSource;
+  /** Bhava chalit colour: planets that leave or enter this house under either construction. Annotation only. */
+  chalitNote?: string;
 }
 export const BHAVA_JUDGEMENT_SOURCE = S(11, "14-16", true);
 export const BHAVA_JUDGEMENT_CAVEATS = [

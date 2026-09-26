@@ -260,20 +260,82 @@ export function computeChalit(
   };
 }
 
-/** Phaladeepika 15.13 note for a dasa lord that stands in a sandhi in either construction, or undefined. */
-export function sandhiDasaNote(
-  c: ChalitResult,
-  lord: Planet,
-): string | undefined {
-  const cmp = c.comparison.find((x) => x.planet === lord);
-  if (!cmp) return undefined;
+const ordinal = (n: number) =>
+  `${n}${["th", "st", "nd", "rd"][n % 10 > 3 || Math.floor(n / 10) === 1 ? 0 : n % 10]}`;
+const pct = (x: number) => `${Math.round(x * 100)}%`;
+
+/** The 15.13 clause, or an empty string. */
+const sandhiClause = (cmp: ChalitComparison): string => {
   const hits = CHALIT_METHODS.filter((mth) => cmp[mth].atSandhi);
-  if (!hits.length) return undefined;
+  if (!hits.length) return "";
   const which =
     hits.length === 2
-      ? "both bhava constructions"
-      : `the ${CHALIT_METHOD_LABEL[hits[0]].toLowerCase()} bhava construction`;
-  return `${lord} stands in a bhava sandhi in ${which}; Phaladeepika 15.13 reads such a planet as ineffective in its dasa and bhukti however strong it is (provisional: the text gives no orb).`;
+      ? "both constructions"
+      : `the ${hits[0] === "sripati" ? "Sripati" : "equal"} construction`;
+  return ` It stands in a bhava sandhi in ${which}; Phaladeepika 15.13 reads such a planet as ineffective in its dasa and bhukti however strong it is.`;
+};
+
+/**
+ * Colour from the bhava chalit for one planet, or undefined when both constructions keep it in its whole-sign
+ * house with a clear share of the effect. The sentence is appended to occupancy readings; it never relocates the
+ * planet for any rule. Provisional: the constructions and the sandhi threshold are not Parashara's.
+ */
+export function bhavaAnnotation(
+  c: ChalitResult,
+  planet: Planet,
+): string | undefined {
+  const cmp = c.comparison.find((x) => x.planet === planet);
+  if (!cmp) return undefined;
+  const s = cmp.sripati,
+    e = cmp.equal;
+  const anySandhi = s.atSandhi || e.atSandhi;
+  if (cmp.unchanged && !anySandhi) return undefined;
+  const sign = SIGNS[Math.floor(cmp.lon / 30)];
+  let body: string;
+  if (cmp.unchanged) {
+    body = `${planet} keeps the ${ordinal(cmp.rasiHouse)} in both constructions (Sripati ${pct(s.effect)}, equal ${pct(e.effect)} of the bhava effect).`;
+  } else if (cmp.agree) {
+    body = `${planet} stays in ${sign} but both constructions read it in the ${ordinal(s.chalitHouse)} rather than the ${ordinal(cmp.rasiHouse)} (Sripati ${pct(s.effect)}, equal ${pct(e.effect)} of the bhava effect), so weigh the ${ordinal(s.chalitHouse)}-house results alongside this reading.`;
+  } else {
+    body = `${planet} stays in ${sign}; Sripati reads it in the ${ordinal(s.chalitHouse)} (${pct(s.effect)}) and the equal construction in the ${ordinal(e.chalitHouse)} (${pct(e.effect)}), against the ${ordinal(cmp.rasiHouse)} by whole sign, so the constructions disagree and the choice is yours.`;
+  }
+  return `By bhava (provisional): ${body}${sandhiClause(cmp)}`;
+}
+
+/** Bhava colour for a whole-sign house: planets that leave it or enter it under either construction. */
+export function bhavaHouseAnnotation(
+  c: ChalitResult,
+  house: number,
+): string | undefined {
+  const parts: string[] = [];
+  for (const cmp of c.comparison) {
+    const s = cmp.sripati,
+      e = cmp.equal;
+    const inRasi = cmp.rasiHouse === house;
+    const inS = s.chalitHouse === house,
+      inE = e.chalitHouse === house;
+    if (inRasi && !inS && !inE)
+      parts.push(
+        `${cmp.planet} leaves for the ${cmp.agree ? ordinal(s.chalitHouse) : `${ordinal(s.chalitHouse)} (Sripati) or ${ordinal(e.chalitHouse)} (equal)`}`,
+      );
+    else if (inRasi && (!inS || !inE))
+      parts.push(
+        `${cmp.planet} leaves for the ${ordinal(inS ? e.chalitHouse : s.chalitHouse)} under the ${inS ? "equal" : "Sripati"} construction only`,
+      );
+    else if (!inRasi && inS && inE)
+      parts.push(
+        `${cmp.planet} enters from the ${ordinal(cmp.rasiHouse)} (Sripati ${pct(s.effect)}, equal ${pct(e.effect)})`,
+      );
+    else if (!inRasi && (inS || inE))
+      parts.push(
+        `${cmp.planet} enters from the ${ordinal(cmp.rasiHouse)} under the ${inS ? "Sripati" : "equal"} construction only`,
+      );
+    else if (inRasi && (s.atSandhi || e.atSandhi))
+      parts.push(`${cmp.planet} stays but at a sandhi (15.13)`);
+  }
+  return parts.length
+    ? `By bhava (provisional): ${parts.join("; ")}.`
+    : undefined;
 }
 
 export const CHALIT_CAVEATS = [
