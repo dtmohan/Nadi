@@ -6,6 +6,7 @@
 import { SIGNS, SIGN_LORD, houseFrom, type Planet, type PlanetPosition, type Sign } from "./astro";
 import { vimshottari, type Vimshottari } from "./kp";
 import { conditionalDasas, type ConditionalDasasResult } from "./conditional-dasas";
+import { computeRasiDasas, type RasiDasasResult } from "./parashari-rasi-dasas";
 import { computeKalachakra, type KalachakraResult } from "./kalachakra";
 import { computeShadbala, type ShadbalaBase, type ShadbalaResult, type DasaStartTransit } from "./shadbala";
 import { computeAshtakavarga, type AshtakavargaResult } from "./ashtakavarga";
@@ -90,6 +91,7 @@ export interface ParashariResult {
   vimshottari: Vimshottari;
   /** Other nakshatra dasas of BPHS ch. 46 with their conditions. */
   conditionalDasas: ConditionalDasasResult;
+  rasiDasas: RasiDasasResult;
   /** Kalachakra dasa, BPHS 46.52-154 and ch. 49. */
   kalachakra: KalachakraResult;
   /** Padas, Upapada, argala, karakas and Karakamsa, BPHS ch. 29-33. */
@@ -520,10 +522,12 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   // Vimshottari, glossed by lordship (Lahiri Moon).
   const vim = vimshottari(pos("Moon").lon, birthIso, asOfIso);
   const condDasas = conditionalDasas(positions, lagnaLon, birthIso, asOfIso, shadbala?.daytime);
-  const kalachakra = computeKalachakra(positions, lagnaLon, birthIso, asOfIso, (p) => naturalBenefic(p, positions), {
-    strength: shadbala ? (pl) => shadbala.planets.find((x) => x.planet === pl)?.effect : undefined,
+  const rasiOpts = {
+    strength: shadbala ? (pl: Planet) => shadbala.planets.find((x) => x.planet === pl)?.effect : undefined,
     brightMoon: (() => { const su = positions.find((p) => p.planet === "Sun")!, mo = positions.find((p) => p.planet === "Moon")!; return ((mo.lon - su.lon + 360) % 360) < 180; })(),
-  });
+  };
+  const kalachakra = computeKalachakra(positions, lagnaLon, birthIso, asOfIso, (p) => naturalBenefic(p, positions), rasiOpts);
+  const rasiDasas = computeRasiDasas(positions, lagnaLon, birthIso, asOfIso, { positions, lagnaIdx, benefic: (p) => naturalBenefic(p, positions), ...rasiOpts }, shadbala);
   const dashas: DashaGloss[] = vim.dasas.map((d) => {
     const n = natures.find((x) => x.planet === d.lord)!;
     const lordEff = n.owns.map((h) => LORD_IN_HOUSE[h - 1][n.house - 1]);
@@ -546,7 +550,7 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   const avasthas = computeAvasthas(positions, lagnaIdx, houseDeps, shadbala, shadbalaBase);
 
   const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts, ashtakavarga, neecha);
-  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, bhavaJudgement, vimshottari: vim, conditionalDasas: condDasas, kalachakra, padas, marakas, avasthas, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
+  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, bhavaJudgement, vimshottari: vim, conditionalDasas: condDasas, rasiDasas, kalachakra, padas, marakas, avasthas, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
 }
 
 export function ord(n: number): string {

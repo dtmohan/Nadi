@@ -15,6 +15,7 @@ import { KC_CH64, KC_CH65, VERSES_65 } from "@shared/kalachakra-effects";
 import { PADA_CH, type PadaResult } from "@shared/parashari-padas";
 import { MARAKA_CH, type MarakaResult } from "@shared/parashari-marakas";
 import { AVASTHA_CH, type AvasthaResult } from "@shared/parashari-avasthas";
+import { RASI_DASA_CH, KARAKA_NAME, type RasiDasasResult, type RasiDasa, type RasiPeriod } from "@shared/parashari-rasi-dasas";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
@@ -410,6 +411,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       {selDasa && <DasaEffects d={selDasa} open={antarOpen} setOpen={setAntarOpen} birthIso={result.utc} asOfIso={asOfIso} />}
 
       <ConditionalDasasSection cd={r.conditionalDasas} />
+      <RasiDasasSection d={r.rasiDasas} />
 
       <KalachakraSection k={r.kalachakra} />
       <PadasSection p={r.padas} />
@@ -861,6 +863,153 @@ function AvasthasSection({ a }: { a: AvasthaResult }) {
         <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           {a.caveats.map((c, i) => <p key={i}>{c}</p>)}
         </div>
+      )}
+    </div>
+  );
+}
+
+function RasiDasasSection({ d }: { d: RasiDasasResult }) {
+  const plain = usePlain();
+  const [pick, setPick] = useState<string>("chara");
+  const [openPeriod, setOpenPeriod] = useState<number | null>(null);
+  const [showYears, setShowYears] = useState(false);
+  const [caveats, setCaveats] = useState(false);
+  const sel: RasiDasa = d.systems.find((s) => s.id === pick) ?? d.systems[0];
+  const curIdx = sel.periods.findIndex((p) => p.current);
+  const open = openPeriod ?? (curIdx >= 0 ? curIdx : null);
+  const shown = sel.periods;
+  const yrs = (y: number) => (Number.isInteger(y) ? String(y) : y.toFixed(y * 2 === Math.round(y * 2) ? 1 : 2));
+  const pickSystem = (id: string) => { setPick(id); setOpenPeriod(null); };
+  return (
+    <div className="mt-8" data-testid="parashari-rasi-dasas">
+      <SectionTitle plain="Periods measured by signs" technical="Dasas of signs (ch. 46.155-190)" />
+      <ModeText
+        plain={<>Besides the planet periods above, Parashara gives ten ways of letting the signs take turns as periods, each with its own starting sign, order and lengths. The running sign in each is read with the text's rules for sign periods. These are shown for study and cross-checking against the planet periods, not as a second verdict.</>}
+        practitioner={<>Chara (46.155-167), Sthira (168-173), Yogardha (174), Kendradi from the lagna and from the Atmakaraka (175-176), Karaka (178), Manduka (179-180), Shula (181-182), Trikona (183-184), Drig (185-187) and the nakshatra-based rasi dasa (188-190), with the sub-periods of 51.5-12 and the effects of ch. 50 on the running sign. The Jaimini tab keeps K.N. Rao's Chara dasa; this section follows Parashara's text alone.</>}
+      />
+      <div role="tablist" aria-label="Rasi dasa" className="mt-3 inline-flex flex-wrap rounded-md border p-0.5 text-sm">
+        {d.systems.map((s) => (
+          <button key={s.id} role="tab" aria-selected={sel.id === s.id} onClick={() => pickSystem(s.id)} className={cn("rounded px-3 py-1", sel.id === s.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")} data-testid={`rasi-dasa-tab-${s.id}`}>
+            {s.name}
+          </button>
+        ))}
+      </div>
+      <div className="mt-3" data-testid={`rasi-dasa-detail-${sel.id}`}>
+        <p className="text-sm">
+          {sel.summary} <SourceLink source={{ label: `Parashara 46.${sel.verses}`, url: sel.url, provisional: sel.provisional }} />
+        </p>
+        <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+          <li>Starts from <SignName signIndex={sel.start.sign} abbr />: {sel.start.why}{sel.start.provisional ? <Badge variant="outline" className="ml-1 text-2xs">provisional</Badge> : null}</li>
+          <li>Order: {sel.directionWhy}.</li>
+          <li>Years: {sel.yearsRule}.{sel.balanceNote ? ` Balance at birth: ${sel.balanceNote}.` : ""}</li>
+          {sel.asWritten ? <li>Shown as written: {sel.asWritten}</li> : null}
+        </ul>
+        <Table className="mt-3" cards data-testid="rasi-dasa-table">
+          <TableHeader>
+            <TableRow>
+              <TableHead>{plain ? "Period" : "Dasa"}</TableHead>
+              <TableHead className="text-right">Years</TableHead>
+              <TableHead className="text-right">Age</TableHead>
+              <TableHead className="hidden sm:table-cell">Dates</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {shown.map((p, i) => (
+              <TableRow key={i} className={cn(p.current && "bg-primary/10", p.repeated && "text-muted-foreground", "cursor-pointer")} onClick={() => setOpenPeriod(open === i ? -1 : i)} data-testid={`rasi-dasa-period-${sel.id}-${i}`}>
+                <TableCell>
+                  <span>
+                    <SignName signIndex={p.sign} />
+                    {p.karaka ? <span className="ml-1.5 text-xs text-muted-foreground">{p.planet} as {plain ? KARAKA_NAME(p.karaka) : p.karaka}</span> : null}
+                    {p.current ? <Badge variant="secondary" className="ml-2">now</Badge> : null}
+                    {p.repeated ? <span className="ml-1.5 text-2xs uppercase tracking-wide text-muted-foreground">repeated</span> : null}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right tabular-nums">{yrs(p.years)}</TableCell>
+                <TableCell className="text-right tabular-nums">{Math.max(0, p.ageStart).toFixed(1)} to {p.ageEnd.toFixed(1)}</TableCell>
+                <TableCell className="hidden sm:table-cell tabular-nums">{fmt(p.start)} to {fmt(p.end)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {open !== null && open >= 0 && shown[open] ? <RasiPeriodDetail p={shown[open]} sel={sel} /> : null}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-x-4 text-xs text-muted-foreground">
+        <button type="button" onClick={() => setShowYears((v) => !v)} className="underline decoration-dotted underline-offset-2" data-testid="rasi-dasa-years-toggle">
+          {showYears ? "Hide" : "Show"} the Chara years of each sign and the Brahma planet
+        </button>
+        <button type="button" onClick={() => setCaveats((v) => !v)} className="underline decoration-dotted underline-offset-2" data-testid="rasi-dasa-caveats-toggle">
+          {caveats ? "Hide" : "Show"} how these are computed
+        </button>
+      </div>
+      {showYears && (
+        <div className="mt-2" data-testid="rasi-dasa-years">
+          <p className="text-xs text-muted-foreground">
+            Brahma planet: {d.brahma.planet ? <PlanetName planet={d.brahma.planet} abbr /> : "none"}. {d.brahma.reason} <SourceLink source={{ label: "Parashara 46.170-173", url: RASI_DASA_CH.ch46, provisional: d.brahma.provisional }} />
+          </p>
+          <Table className="mt-2" cards>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Sign</TableHead>
+                <TableHead>Lord</TableHead>
+                <TableHead className="text-right">Years</TableHead>
+                <TableHead>Working</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {d.charaYears.map((y) => (
+                <TableRow key={y.sign} data-testid={`rasi-dasa-years-${SIGNS[y.sign]}`}>
+                  <TableCell><SignName signIndex={y.sign} /></TableCell>
+                  <TableCell className="whitespace-nowrap"><span><PlanetName planet={y.lord} abbr /> in <SignName signIndex={y.lordSign} abbr /></span></TableCell>
+                  <TableCell className="text-right tabular-nums">{y.years}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground"><span>{y.note}{y.provisional ? <Badge variant="outline" className="ml-1 text-2xs">provisional</Badge> : null}</span></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+      {caveats && (
+        <div className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          <p>{d.caveats.join(" ")}</p>
+          <p className="mt-1">{d.notComputed.join(" ")}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RasiPeriodDetail({ p, sel }: { p: RasiPeriod; sel: RasiDasa }) {
+  const plain = usePlain();
+  const readings = p.current ? sel.readings : [];
+  return (
+    <div className="mt-3 rounded-md border px-3 py-2" data-testid="rasi-dasa-period-detail">
+      <h4 className="text-sm font-semibold">{SIGNS[p.sign]} {plain ? "period" : "dasa"}, {fmt(p.start)} to {fmt(p.end)}</h4>
+      {readings.length > 0 && (
+        <ul className="mt-2 space-y-2">
+          {readings.map((rd, i) => (
+            <li key={i} className="text-sm" data-testid={`rasi-dasa-reading-${i}`}>
+              <span className={cn("mr-1.5 inline-block h-2 w-2 rounded-full align-middle", rd.tone === "support" ? "bg-emerald-500" : rd.tone === "strain" ? "bg-rose-500" : "bg-amber-500")} aria-label={rd.tone} />
+              <span className="font-medium">{rd.label}.</span> {rd.text} <SourceLink source={rd.source} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {!p.current && <p className="mt-1 text-xs text-muted-foreground">Chapter 50 readings are shown for the running period only.</p>}
+      {p.antardasas ? (
+        <>
+          <p className="mt-3 text-xs text-muted-foreground">
+            {plain ? "Smaller divisions" : "Sub-periods"}: {p.antarRule}; the first is <SignName signIndex={p.antarStart!.sign} abbr />, {p.antarStart!.sign === p.sign ? "the dasa sign itself" : "the 7th from the dasa sign"} ({p.antarStart!.why}) (51.6). <SourceLink source={{ label: "Parashara 51.5-12", url: RASI_DASA_CH.ch51, provisional: true }} />
+          </p>
+          <div className="mt-1 flex flex-wrap gap-1" data-testid="rasi-dasa-antars">
+            {p.antardasas.map((a, i) => (
+              <span key={i} className={cn("rounded border px-1.5 py-0.5 text-xs tabular-nums", a.current && "border-primary bg-primary/10")} title={`${fmtD(a.start)} to ${fmtD(a.end)}`}>
+                <SignName signIndex={a.sign} abbr /> <span className="text-muted-foreground">{fmt(a.start)}</span>
+              </span>
+            ))}
+          </div>
+        </>
+      ) : (
+        <p className="mt-2 text-xs text-muted-foreground">The text gives no sub-periods for the Karaka dasa in these verses.</p>
       )}
     </div>
   );
