@@ -6,7 +6,13 @@
 // the engine produced stays available as "the working".
 
 import type { Planet } from "./astro";
-import { LIFE_AREAS, areaKaraka, type Finding, type LifeArea, type Reading } from "./rules";
+import {
+  LIFE_AREAS,
+  areaKaraka,
+  type Finding,
+  type LifeArea,
+  type Reading,
+} from "./rules";
 import type { Gender } from "./marriage";
 
 export type Tone = "good" | "hard" | "neutral";
@@ -38,8 +44,10 @@ export interface AreaSynthesis {
 }
 
 // Stems, anchored on the left only, so "delays", "disputes" and "tempered" all count.
-const HARD = /\b(delay|late\b|later\b|slow|strain|loss|losses|lose|difficult|deni|care\b|cares\b|careful|accident|surg|injur|separat|estrang|obstacl|obstruct|disput|quarrel|worr|anxi|hardship|drain|reduc|interrupt|haste|hasty|guard|watch|friction|rift|rival|debt|illness|ailment|chronic|toxic|allerg|phobia|numb|disturb|burden|struggl|scatter|unstable|instab|break|broken|cold\b|harsh|secretive|deceit|fraud|litigat|dishonour|fall\b|frustrat|restless|erratic|tension|conflict|weak|lesser|absen|childless|ration|resist|blocked|stiff|complaint|pressure|low mood|temper|impulsiv|excess|over-?confiden|overwork|expens|spend|lost\b|humbl|servitude|austere|isolat|lonel|adverse|shadow|irregular|egoist|doubtful|caution|doubt|delicate|fewer|denial|trouble|hard-?to-?diagnose|withdraw|reversal|hazard|dangerous|short-tempered|tales|defers)/i;
-const GOOD = /\b(prosper|strong|wealth|gain|support|respect|growth|harmon|success|authority|promis|fortun|good\b|blessed|learned|articulate|dignit|honour|comfort|refined|steady|holds?\b|secure|stable|stabilit|assured|rise|rises|recognition|leadership|generous|devoted|happy|happiness|fulfil|abundan|property|vehicles|inheritance|status|fame|eloquen|wisdom|wise|talent|skill|aptitude|expert|scholar|teacher|advis|early\b|readily|ease\b|smooth|helpful|kind\b|caring|loyal|faithful|long life|longevity|vigour|recover|protect|shelter|favour|benefit|lucky|luck\b|nurturing|calm|graceful|popular|courage|excellent|central|bond\b)/i;
+const HARD =
+  /\b(delay|late\b|later\b|slow|strain|loss|losses|lose|difficult|deni|care\b|cares\b|careful|accident|surg|injur|separat|estrang|obstacl|obstruct|disput|quarrel|worr|anxi|hardship|drain|reduc|interrupt|haste|hasty|guard|watch|friction|rift|rival|debt|illness|ailment|chronic|toxic|allerg|phobia|numb|disturb|burden|struggl|scatter|unstable|instab|break|broken|cold\b|harsh|secretive|deceit|fraud|litigat|dishonour|fall\b|frustrat|restless|erratic|tension|conflict|weak|lesser|absen|childless|ration|resist|blocked|stiff|complaint|pressure|low mood|temper|impulsiv|excess|over-?confiden|overwork|expens|spend|lost\b|humbl|servitude|austere|isolat|lonel|adverse|shadow|irregular|egoist|doubtful|caution|doubt|delicate|fewer|denial|trouble|hard-?to-?diagnose|withdraw|reversal|hazard|dangerous|short-tempered|tales|defers)/i;
+const GOOD =
+  /\b(prosper|strong|wealth|gain|support|respect|growth|harmon|success|authority|promis|fortun|good\b|blessed|learned|articulate|dignit|honour|comfort|refined|steady|holds?\b|secure|stable|stabilit|assured|rise|rises|recognition|leadership|generous|devoted|happy|happiness|fulfil|abundan|property|vehicles|inheritance|status|fame|eloquen|wisdom|wise|talent|skill|aptitude|expert|scholar|teacher|advis|early\b|readily|ease\b|smooth|helpful|kind\b|caring|loyal|faithful|long life|longevity|vigour|recover|protect|shelter|favour|benefit|lucky|luck\b|nurturing|calm|graceful|popular|courage|excellent|central|bond\b)/i;
 
 /** Rule ids whose reading tone the keyword scan gets wrong. */
 const TONE_OVERRIDE: Record<string, Tone> = {
@@ -79,14 +87,20 @@ export function firstClause(g: string): string {
 const lc = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 const uc = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-const sameSet = (a: Planet[], b: Planet[]) => a.length === b.length && a.every((p) => b.includes(p));
-const subset = (a: Planet[], b: Planet[]) => a.length < b.length && a.every((p) => b.includes(p));
+const sameSet = (a: Planet[], b: Planet[]) =>
+  a.length === b.length && a.every((p) => b.includes(p));
+const subset = (a: Planet[], b: Planet[]) =>
+  a.length < b.length && a.every((p) => b.includes(p));
 
 /**
  * Deduplicate an area's findings: a three- or four-planet combination covers the pairs inside it,
  * and when two rules fire on the same planets the stronger one speaks for both.
  */
-export function dedupe(items: Finding[]): { keep: Finding[]; demoted: Finding[]; coveredBy: Record<string, string> } {
+export function dedupe(items: Finding[]): {
+  keep: Finding[];
+  demoted: Finding[];
+  coveredBy: Record<string, string>;
+} {
   const sorted = [...items].sort((a, b) => b.score - a.score);
   const coveredBy: Record<string, string> = {};
   for (const f of sorted) {
@@ -94,18 +108,35 @@ export function dedupe(items: Finding[]): { keep: Finding[]; demoted: Finding[];
     for (const g of sorted) {
       if (g === f || coveredBy[g.ruleId]) continue;
       if (g.planets.length < 2) continue; // sign, element and nakshatra rules are separate facts
-      if (subset(g.planets, f.planets) && f.planets.length >= 3) coveredBy[g.ruleId] = f.ruleId;
-      else if (sameSet(g.planets, f.planets) && g.score <= f.score && g.house === f.house) coveredBy[g.ruleId] = f.ruleId;
+      if (subset(g.planets, f.planets) && f.planets.length >= 3)
+        coveredBy[g.ruleId] = f.ruleId;
+      else if (
+        sameSet(g.planets, f.planets) &&
+        g.score <= f.score &&
+        g.house === f.house
+      )
+        coveredBy[g.ruleId] = f.ruleId;
     }
   }
-  return { keep: sorted.filter((f) => !coveredBy[f.ruleId]), demoted: sorted.filter((f) => coveredBy[f.ruleId]), coveredBy };
+  return {
+    keep: sorted.filter((f) => !coveredBy[f.ruleId]),
+    demoted: sorted.filter((f) => coveredBy[f.ruleId]),
+    coveredBy,
+  };
 }
 
-const PROMISE = /\b(promis|strong|prosper|assured|steady|supportive|blessed|fortun|raises the native)/i;
-const DELAY = /\b(delay|late marriage|later\b|late\b|long wait|slow(ly)? to|patien|second round)/i;
+const PROMISE =
+  /\b(promis|strong|prosper|assured|steady|supportive|blessed|fortun|raises the native)/i;
+const DELAY =
+  /\b(delay|late marriage|later\b|late\b|long wait|slow(ly)? to|patien|second round)/i;
 const DENIAL = /\b(deni|loss|separat|estrang|childless|absence|absent|break)/i;
 /** Areas where promise against delay is the question a reader actually asks. */
-const RECONCILE_AREAS = new Set<LifeArea>(["marriage", "children", "wealth", "career"]);
+const RECONCILE_AREAS = new Set<LifeArea>([
+  "marriage",
+  "children",
+  "wealth",
+  "career",
+]);
 const DELAYERS = new Set<Planet>(["Saturn", "Rahu", "Ketu", "Mars", "Sun"]);
 
 function planetsList(ps: Planet[]): string {
@@ -113,25 +144,45 @@ function planetsList(ps: Planet[]): string {
   return `${ps.slice(0, -1).join(", ")} and ${ps[ps.length - 1]}`;
 }
 
-function reconcile(area: LifeArea, all: Finding[], karaka: Planet): string | undefined {
+function reconcile(
+  area: LifeArea,
+  all: Finding[],
+  karaka: Planet,
+): string | undefined {
   if (!RECONCILE_AREAS.has(area)) return undefined;
-  const promise = all.filter((f) => PROMISE.test(f.text) && toneOf(f) !== "hard");
+  const promise = all.filter(
+    (f) => PROMISE.test(f.text) && toneOf(f) !== "hard",
+  );
   const delay = all.filter((f) => DELAY.test(f.text));
   const denial = all.filter((f) => DENIAL.test(f.text));
-  const agents = (fs: Finding[]) => Array.from(new Set(fs.flatMap((f) => f.planets).filter((p) => p !== karaka && DELAYERS.has(p))));
+  const agents = (fs: Finding[]) =>
+    Array.from(
+      new Set(
+        fs
+          .flatMap((f) => f.planets)
+          .filter((p) => p !== karaka && DELAYERS.has(p)),
+      ),
+    );
   const noun = LIFE_AREAS[area].label.split(" &")[0].toLowerCase();
   if (promise.length && (delay.length || denial.length)) {
     const slow = agents([...delay, ...denial]);
-    const who = slow.length ? planetsList(slow.slice(0, 3)) : "the slower planets";
+    const who = slow.length
+      ? planetsList(slow.slice(0, 3))
+      : "the slower planets";
     return `The promise is there; ${who} ${slow.length === 1 ? "slows" : "slow"} it: later rather than never. The harder lines describe the road, not the destination.`;
   }
   if (!promise.length && delay.length >= 2) {
-    return `Most of what fires here is about timing rather than outcome: ${noun} comes later than average, not less.`;
+    return `Most of what fires here is about timing rather than outcome: ${noun} ${noun.endsWith("s") || noun === "children" ? "come" : "comes"} later than average, not less.`;
   }
   return undefined;
 }
 
-function areaTone(balance: number, total: number, hardCount: number, goodCount: number): AreaTone {
+function areaTone(
+  balance: number,
+  total: number,
+  hardCount: number,
+  goodCount: number,
+): AreaTone {
   if (total === 0) return "quiet";
   if (goodCount && hardCount && Math.abs(balance) < 1.5) return "mixed";
   if (balance >= 1.5) return "supportive";
@@ -139,14 +190,24 @@ function areaTone(balance: number, total: number, hardCount: number, goodCount: 
   return total >= 2 ? "mixed" : "quiet";
 }
 
-function headlineFor(area: LifeArea, tone: AreaTone, key: Finding[], reading: Reading, reconciled: boolean): string {
-  if (area === "marriage" && reading.marriage.headline) return reading.marriage.headline;
+function headlineFor(
+  area: LifeArea,
+  tone: AreaTone,
+  key: Finding[],
+  reading: Reading,
+  reconciled: boolean,
+): string {
+  if (area === "marriage" && reading.marriage.headline)
+    return reading.marriage.headline;
   if (area === "children" && reading.children.headline) {
     // When Saturn or Rahu delay the promise, let the reconciliation speak about timing.
-    return reconciled ? reading.children.headline.replace(/,? and come without much delay/, "") : reading.children.headline;
+    return reconciled
+      ? reading.children.headline.replace(/,? and come without much delay/, "")
+      : reading.children.headline;
   }
   const gists = key.slice(0, 2).map((f) => lc(firstClause(gist(f.text))));
-  if (!gists.length) return "Few Nadi signatures fall here; the chart says little about this area on its own.";
+  if (!gists.length)
+    return "Few Nadi signatures fall here; the chart says little about this area on its own.";
   const lead: Record<AreaTone, string> = {
     supportive: "Well supported.",
     mixed: "A mixed picture.",
@@ -156,7 +217,12 @@ function headlineFor(area: LifeArea, tone: AreaTone, key: Finding[], reading: Re
   return `${lead[tone]} ${uc(gists[0])}${gists[1] ? `; ${gists[1]}` : ""}.`;
 }
 
-export function synthesizeArea(area: LifeArea, items: Finding[], reading: Reading, gender: Gender): AreaSynthesis {
+export function synthesizeArea(
+  area: LifeArea,
+  items: Finding[],
+  reading: Reading,
+  gender: Gender,
+): AreaSynthesis {
   const { keep, demoted, coveredBy } = dedupe(items);
   let balance = 0;
   let hardCount = 0;
@@ -189,7 +255,11 @@ export function synthesizeArea(area: LifeArea, items: Finding[], reading: Readin
   };
 }
 
-export function synthesize(reading: Reading, gender: Gender, findings: Finding[] = reading.findings): AreaSynthesis[] {
+export function synthesize(
+  reading: Reading,
+  gender: Gender,
+  findings: Finding[] = reading.findings,
+): AreaSynthesis[] {
   const out: AreaSynthesis[] = [];
   for (const area of Object.keys(LIFE_AREAS) as LifeArea[]) {
     const items = findings.filter((f) => f.area === area);

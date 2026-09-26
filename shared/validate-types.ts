@@ -36,7 +36,12 @@ export interface EventValidation {
     effective: [boolean, boolean, boolean];
     /** Not promised, and the matter's cusp sub lord signifies the 12th from that cusp: the book's denial. */
     deniedAtCusp: boolean;
-    transit: { dasa: TransitCheck; bhukti: TransitCheck; score: number; max: number };
+    transit: {
+      dasa: TransitCheck;
+      bhukti: TransitCheck;
+      score: number;
+      max: number;
+    };
     /** Period-lord hits plus the promise: 0..4. */
     score: number;
     max: 4;
@@ -110,7 +115,13 @@ export interface PlanetTally {
   evilKept: number[];
   expectedByCusp: Nature;
   /** Events in whose periods this planet ran, by level. */
-  ran: Array<{ eventId: string; label: string; date: string; level: "dasa" | "bhukti" | "antara"; outcome: EventOutcome }>;
+  ran: Array<{
+    eventId: string;
+    label: string;
+    date: string;
+    level: "dasa" | "bhukti" | "antara";
+    outcome: EventOutcome;
+  }>;
   /** Weighted tally of outcomes: dasa and bhukti count 2, antara 1. */
   favourable: number;
   unfavourable: number;
@@ -122,11 +133,38 @@ export interface PlanetTally {
   agreesByCusp: boolean | null;
 }
 
+export type BaselineMeasure =
+  "confirmed" | "kp" | "transit" | "jaimini" | "bnn";
+
+export interface BaselineStat {
+  actual: number;
+  /** Mean and standard deviation of the same measure over random-date trials. */
+  mean: number;
+  sd: number;
+  /** Share of random trials the real events beat (ties count half), 0-100. */
+  percentile: number;
+  /** above: beats 95% of random trials; below: worse than 95% of them; chance: indistinguishable. */
+  verdict: "above" | "chance" | "below";
+}
+
+/** The same matters scored at random dates inside the span of the real events. */
+export interface ChanceBaseline {
+  trials: number;
+  span: [string, string];
+  confirmed: BaselineStat;
+  kp: BaselineStat;
+  transit: BaselineStat;
+  jaimini: BaselineStat;
+  bnn: BaselineStat;
+}
+
 export interface ValidationResult {
   birthTime: string;
   lagna: { sign: Sign; degree: number };
   events: EventValidation[];
   planets: PlanetTally[];
+  /** Null when fewer than two events or a span under a year. */
+  baseline: ChanceBaseline | null;
   summary: {
     events: number;
     confirmed: number;

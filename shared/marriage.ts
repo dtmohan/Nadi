@@ -1,4 +1,13 @@
-import { SIGNS, houseFrom, relationOf, type Planet, type PlanetPosition, type Relation, type Sign, type TransitPeriod } from "./astro";
+import {
+  SIGNS,
+  houseFrom,
+  relationOf,
+  type Planet,
+  type PlanetPosition,
+  type Relation,
+  type Sign,
+  type TransitPeriod,
+} from "./astro";
 
 /**
  * Marriage, the Nadi way. There are no house lords: marriage is read between karakas.
@@ -22,7 +31,13 @@ export interface MarriageReading {
   house: number;
   /** House of the spouse karaka counted from Saturn. */
   houseFromSaturn: number;
-  promised: "strong" | "moderate" | "weak" | "by-karma" | "through-dispositor" | "absent";
+  promised:
+    | "strong"
+    | "moderate"
+    | "weak"
+    | "by-karma"
+    | "through-dispositor"
+    | "absent";
   headline: string;
   notes: string[];
   /** Natal signs whose Jupiter passages activate marriage: the spouse karaka's sign and its trines. */
@@ -50,11 +65,31 @@ function touches(a: PlanetPosition, b: PlanetPosition): boolean {
 }
 
 function houseWord(h: number): string {
-  return ["", "same sign", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th"][h];
+  return [
+    "",
+    "same sign",
+    "2nd",
+    "3rd",
+    "4th",
+    "5th",
+    "6th",
+    "7th",
+    "8th",
+    "9th",
+    "10th",
+    "11th",
+    "12th",
+  ][h];
 }
 
-export function assessMarriage(positions: PlanetPosition[], gender: Gender): MarriageReading {
-  const by = Object.fromEntries(positions.map((p) => [p.planet, p])) as Record<Planet, PlanetPosition>;
+export function assessMarriage(
+  positions: PlanetPosition[],
+  gender: Gender,
+): MarriageReading {
+  const by = Object.fromEntries(positions.map((p) => [p.planet, p])) as Record<
+    Planet,
+    PlanetPosition
+  >;
   const female = gender === "female";
   const native = female ? by.Venus : by.Jupiter;
   const spouse = female ? by.Mars : by.Venus;
@@ -89,7 +124,10 @@ export function assessMarriage(positions: PlanetPosition[], gender: Gender): Mar
     headline = `${pair}, a position with no marriage signature, but ${spouse.planet} is linked to Saturn (${houseWord(houseFromSaturn)}): marriage comes by karma, later and through duty.`;
   } else {
     const disp = by[spouse.signLord];
-    if (disp.planet !== spouse.planet && (linked(native, disp) || linked(saturn, disp))) {
+    if (
+      disp.planet !== spouse.planet &&
+      (linked(native, disp) || linked(saturn, disp))
+    ) {
       promised = "through-dispositor";
       headline = `${pair}, with no direct link and none through Saturn; the dispositor ${disp.planet} (lord of ${spouse.sign}) does link to ${linked(native, disp) ? native.planet : "Saturn"}, so marriage is read through it, indirectly.`;
     } else {
@@ -100,25 +138,40 @@ export function assessMarriage(positions: PlanetPosition[], gender: Gender): Mar
 
   // Delay and ease.
   if (close(saturn, spouse) && saturn.planet !== spouse.planet) {
-    notes.push(`Saturn ${rel(saturn, spouse) === "conjunct" ? "with" : "in trine to"} ${spouse.planet}: the classic delay; marriage tends to come late, often in Saturn's second round (after 30).`);
+    notes.push(
+      `Saturn ${rel(saturn, spouse) === "conjunct" ? "with" : "in trine to"} ${spouse.planet}: the classic delay; marriage tends to come later than the family norm (the delay is sourced; any specific age is provisional).`,
+    );
   } else if (rel(saturn, spouse) === "opposite") {
-    notes.push(`Saturn opposite ${spouse.planet}: delay, or a partner of very different temperament.`);
+    notes.push(
+      `Saturn opposite ${spouse.planet}: delay, or a partner of very different temperament.`,
+    );
   }
   if (!female && close(jupiter, by.Venus)) {
-    notes.push(`Jupiter ${rel(jupiter, by.Venus) === "conjunct" ? "with" : "in trine to"} Venus: timely or early marriage; Jupiter's passages over Venus's sign or its trines bring it.`);
+    notes.push(
+      `Jupiter ${rel(jupiter, by.Venus) === "conjunct" ? "with" : "in trine to"} Venus: timely or early marriage; Jupiter's passages over Venus's sign or its trines bring it.`,
+    );
   }
   if (female && close(jupiter, spouse)) {
-    notes.push(`Jupiter ${rel(jupiter, spouse) === "conjunct" ? "with" : "in trine to"} Mars: the husband's karaka is blessed; timely marriage, a principled husband.`);
+    notes.push(
+      `Jupiter ${rel(jupiter, spouse) === "conjunct" ? "with" : "in trine to"} Mars: the husband's karaka is blessed; timely marriage, a principled husband.`,
+    );
   }
   if (female && !close(jupiter, spouse) && close(jupiter, native)) {
-    notes.push(`Jupiter with or in trine to Venus: in a female chart many teachers read Jupiter itself for the husband, so this too favours marriage.`);
+    notes.push(
+      `Jupiter with or in trine to Venus: in a female chart many teachers read Jupiter itself for the husband, so this too favours marriage.`,
+    );
   }
 
   // Nodes and denial.
-  const nodesOnSpouse = (["Rahu", "Ketu"] as Planet[]).filter((n) => close(by[n], spouse));
-  const nodesWithSpouse = nodesOnSpouse.filter((n) => rel(by[n], spouse) === "conjunct");
+  const nodesOnSpouse = (["Rahu", "Ketu"] as Planet[]).filter((n) =>
+    close(by[n], spouse),
+  );
+  const nodesWithSpouse = nodesOnSpouse.filter(
+    (n) => rel(by[n], spouse) === "conjunct",
+  );
   const saturnClose = close(saturn, spouse);
-  const jupiterAspects = jupiter.planet !== spouse.planet && touches(jupiter, spouse);
+  const jupiterAspects =
+    jupiter.planet !== spouse.planet && touches(jupiter, spouse);
   if (nodesWithSpouse.length && saturnClose) {
     notes.push(
       `${spouse.planet}, Saturn and ${nodesWithSpouse.join(" and ")} in one sign: Nadi reads this as denial or a very late, unconventional marriage${jupiterAspects ? "; Jupiter's aspect softens it to compromise" : ""}.`,
@@ -130,22 +183,40 @@ export function assessMarriage(positions: PlanetPosition[], gender: Gender): Mar
     );
   }
   if (!female) {
-    if (close(by.Mars, by.Venus) && close(by.Rahu, by.Venus)) notes.push("Mars, Venus and Rahu together: a passionate but unsettled married life.");
+    if (close(by.Mars, by.Venus) && close(by.Rahu, by.Venus))
+      notes.push(
+        "Mars, Venus and Rahu together: a passionate but unsettled married life.",
+      );
     if (close(by.Mars, by.Venus) && close(by.Ketu, by.Venus))
-      notes.push(`Mars, Venus and Ketu together: disputes between the partners, separation possible${jupiterAspects ? "; Jupiter's aspect brings compromise" : ""}.`);
+      notes.push(
+        `Mars, Venus and Ketu together: disputes between the partners, separation possible${jupiterAspects ? "; Jupiter's aspect brings compromise" : ""}.`,
+      );
   }
   // Hemmed between Mars and Mercury (lover and husband).
   const prevSign = (spouse.signIndex + 11) % 12;
   const nextSign = (spouse.signIndex + 1) % 12;
   const flank = new Set([by.Mars.signIndex, by.Mercury.signIndex]);
-  if (flank.has(prevSign) && flank.has(nextSign) && by.Mars.signIndex !== by.Mercury.signIndex && spouse.planet === "Venus") {
-    notes.push("Venus hemmed between Mars and Mercury: the heart is divided between a lover and the spouse.");
+  if (
+    flank.has(prevSign) &&
+    flank.has(nextSign) &&
+    by.Mars.signIndex !== by.Mercury.signIndex &&
+    spouse.planet === "Venus"
+  ) {
+    notes.push(
+      "Venus hemmed between Mars and Mercury: the heart is divided between a lover and the spouse.",
+    );
   }
   if (promised === "absent" || promised === "through-dispositor") {
-    notes.push("With no direct link, Nadi reads the dispositor of the spouse karaka and waits for Jupiter's passage over it.");
+    notes.push(
+      "With no direct link, Nadi reads the dispositor of the spouse karaka and waits for Jupiter's passage over it.",
+    );
   }
 
-  const triggerSigns = [spouse.signIndex, (spouse.signIndex + 4) % 12, (spouse.signIndex + 8) % 12].map((i) => SIGNS[i]);
+  const triggerSigns = [
+    spouse.signIndex,
+    (spouse.signIndex + 4) % 12,
+    (spouse.signIndex + 8) % 12,
+  ].map((i) => SIGNS[i]);
   return {
     gender,
     native: native.planet,
@@ -162,11 +233,23 @@ export function assessMarriage(positions: PlanetPosition[], gender: Gender): Mar
 }
 
 /** Next Jupiter passage over the spouse karaka's sign (full) or its trines (three-quarter). */
-export function nextMarriageWindow(m: MarriageReading, transits: TransitPeriod[], fromIso: string): { period: TransitPeriod; kind: "over" | "trine" } | null {
+export function nextMarriageWindow(
+  m: MarriageReading,
+  transits: TransitPeriod[],
+  fromIso: string,
+): { period: TransitPeriod; kind: "over" | "trine" } | null {
   const upcoming = transits
-    .filter((t) => t.planet === "Jupiter" && t.end >= fromIso && m.triggerSigns.includes(t.sign))
+    .filter(
+      (t) =>
+        t.planet === "Jupiter" &&
+        t.end >= fromIso &&
+        m.triggerSigns.includes(t.sign),
+    )
     .sort((a, b) => a.start.localeCompare(b.start));
   const first = upcoming[0];
   if (!first) return null;
-  return { period: first, kind: first.sign === m.spouseSign ? "over" : "trine" };
+  return {
+    period: first,
+    kind: first.sign === m.spouseSign ? "over" : "trine",
+  };
 }

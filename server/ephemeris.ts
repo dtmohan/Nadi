@@ -21,7 +21,11 @@ import {
 const C = sweph.constants;
 
 // Locate ephemeris data files (works from project root in dev and prod).
-for (const candidate of [path.resolve(process.cwd(), "ephe"), path.resolve(process.cwd(), "../ephe"), process.env.EPHE_PATH ?? ""]) {
+for (const candidate of [
+  path.resolve(process.cwd(), "ephe"),
+  path.resolve(process.cwd(), "../ephe"),
+  process.env.EPHE_PATH ?? "",
+]) {
   if (!candidate) continue;
   if (fs.existsSync(path.join(candidate, "sepl_18.se1"))) {
     sweph.set_ephe_path(candidate);
@@ -61,7 +65,8 @@ function setMode(opts: EphemerisOptions) {
 
 export function localToUtc(date: string, time: string, zone: string): DateTime {
   const dt = DateTime.fromISO(`${date}T${time}`, { zone });
-  if (!dt.isValid) throw new Error(`Invalid birth datetime: ${dt.invalidExplanation}`);
+  if (!dt.isValid)
+    throw new Error(`Invalid birth datetime: ${dt.invalidExplanation}`);
   return dt.toUTC();
 }
 
@@ -69,35 +74,79 @@ export function localToUtc(date: string, time: string, zone: string): DateTime {
  * Birth instant under the chart's time standard. Before standard time the zone database returns the mean time of
  * the zone's reference city; the automatic standard substitutes the birthplace's own mean time (see shared/time-basis).
  */
-export function birthInstant(chart: { birthDate: string; birthTime: string; timezone: string; longitude: number; timeStandard?: string }): { utc: DateTime; basis: TimeBasis } {
-  const basis = resolveTimeBasis(chart.birthDate, chart.birthTime, chart.timezone, chart.longitude, chart.timeStandard ?? "auto");
+export function birthInstant(chart: {
+  birthDate: string;
+  birthTime: string;
+  timezone: string;
+  longitude: number;
+  timeStandard?: string;
+}): { utc: DateTime; basis: TimeBasis } {
+  const basis = resolveTimeBasis(
+    chart.birthDate,
+    chart.birthTime,
+    chart.timezone,
+    chart.longitude,
+    chart.timeStandard ?? "auto",
+  );
   if (basis.error) throw new Error(basis.error);
   return { utc: birthUtc(chart.birthDate, chart.birthTime, basis), basis };
 }
 
 export function julianDay(utc: DateTime): number {
-  const r = sweph.utc_to_jd(utc.year, utc.month, utc.day, utc.hour, utc.minute, utc.second + utc.millisecond / 1000, C.SE_GREG_CAL);
+  const r = sweph.utc_to_jd(
+    utc.year,
+    utc.month,
+    utc.day,
+    utc.hour,
+    utc.minute,
+    utc.second + utc.millisecond / 1000,
+    C.SE_GREG_CAL,
+  );
   if (r.flag < 0) throw new Error(r.error);
   return r.data[1]; // UT
 }
 
 export function jdToIso(jd: number): string {
-  const r = sweph.jdut1_to_utc(jd, C.SE_GREG_CAL) as unknown as { year: number; month: number; day: number; hour: number; minute: number; second: number };
-  return DateTime.utc(r.year, r.month, r.day, r.hour, r.minute, Math.floor(r.second)).toISO()!;
+  const r = sweph.jdut1_to_utc(jd, C.SE_GREG_CAL) as unknown as {
+    year: number;
+    month: number;
+    day: number;
+    hour: number;
+    minute: number;
+    second: number;
+  };
+  return DateTime.utc(
+    r.year,
+    r.month,
+    r.day,
+    r.hour,
+    r.minute,
+    Math.floor(r.second),
+  ).toISO()!;
 }
 
-function siderealLon(jd: number, body: number, opts: EphemerisOptions): { lon: number; speed: number } {
+function siderealLon(
+  jd: number,
+  body: number,
+  opts: EphemerisOptions,
+): { lon: number; speed: number } {
   setMode(opts);
-  const b = body === C.SE_MEAN_NODE && opts.nodeType === "true" ? C.SE_TRUE_NODE : body;
+  const b =
+    body === C.SE_MEAN_NODE && opts.nodeType === "true" ? C.SE_TRUE_NODE : body;
   const r = sweph.calc_ut(jd, b, FLAGS);
   if (r.flag < 0) throw new Error(r.error);
   return { lon: norm360(r.data[0]), speed: r.data[3] };
 }
 
 /** Sidereal Sun at each day (12:00 UT) from jdStart to jdEnd inclusive. */
-export function sunPath(jdStart: number, jdEnd: number, opts: EphemerisOptions): Array<{ jd: number; lon: number }> {
+export function sunPath(
+  jdStart: number,
+  jdEnd: number,
+  opts: EphemerisOptions,
+): Array<{ jd: number; lon: number }> {
   const out: Array<{ jd: number; lon: number }> = [];
-  for (let jd = jdStart; jd <= jdEnd + 1e-6; jd += 1) out.push({ jd, lon: siderealLon(jd, C.SE_SUN, opts).lon });
+  for (let jd = jdStart; jd <= jdEnd + 1e-6; jd += 1)
+    out.push({ jd, lon: siderealLon(jd, C.SE_SUN, opts).lon });
   return out;
 }
 
@@ -106,19 +155,38 @@ export function ayanamsaAt(jd: number, opts: EphemerisOptions): number {
   return sweph.get_ayanamsa_ut(jd);
 }
 
-export function positionsAt(jd: number, opts: EphemerisOptions): PlanetPosition[] {
+export function positionsAt(
+  jd: number,
+  opts: EphemerisOptions,
+): PlanetPosition[] {
   const sun = siderealLon(jd, C.SE_SUN, opts);
   return PLANETS.map((planet) => {
     let { lon, speed } = siderealLon(jd, BODY[planet], opts);
     if (planet === "Ketu") lon = norm360(lon + 180);
-    const pos = describePosition(planet, lon, speed, planet === "Sun" ? undefined : sun.lon);
-    if (pos.retrograde && planet !== "Rahu" && planet !== "Ketu") pos.retrogradeEntry = enteredByRetrogression(jd, planet, pos.signIndex, opts);
+    const pos = describePosition(
+      planet,
+      lon,
+      speed,
+      planet === "Sun" ? undefined : sun.lon,
+    );
+    if (pos.retrograde && planet !== "Rahu" && planet !== "Ketu")
+      pos.retrogradeEntry = enteredByRetrogression(
+        jd,
+        planet,
+        pos.signIndex,
+        opts,
+      );
     return pos;
   });
 }
 
 // Did a retrograde planet back into its current sign from the sign ahead? Walk back until the sign changes.
-function enteredByRetrogression(jd: number, planet: Planet, signIndex: number, opts: EphemerisOptions): boolean {
+function enteredByRetrogression(
+  jd: number,
+  planet: Planet,
+  signIndex: number,
+  opts: EphemerisOptions,
+): boolean {
   const step = planet === "Mercury" || planet === "Venus" ? 0.25 : 1;
   for (let t = jd - step; t > jd - 220; t -= step) {
     const { lon } = siderealLon(t, BODY[planet], opts);
@@ -129,7 +197,12 @@ function enteredByRetrogression(jd: number, planet: Planet, signIndex: number, o
 }
 
 // Sign-ingress periods for a slow planet between two Julian days.
-export function transitPeriods(planet: "Jupiter" | "Saturn", jdStart: number, jdEnd: number, opts: EphemerisOptions): TransitPeriod[] {
+export function transitPeriods(
+  planet: "Jupiter" | "Saturn",
+  jdStart: number,
+  jdEnd: number,
+  opts: EphemerisOptions,
+): TransitPeriod[] {
   const body = BODY[planet];
   const step = planet === "Jupiter" ? 2 : 5;
   const signAt = (jd: number) => signOf(siderealLon(jd, body, opts).lon);
@@ -151,25 +224,52 @@ export function transitPeriods(planet: "Jupiter" | "Saturn", jdStart: number, jd
         if (signAt(mid) === s0) lo = mid;
         else hi = mid;
       }
-      periods.push({ planet, signIndex: s0, sign: SIGNS[s0], start: jdToIso(periodStart), end: jdToIso(hi), retrogradeEntry: false });
+      periods.push({
+        planet,
+        signIndex: s0,
+        sign: SIGNS[s0],
+        start: jdToIso(periodStart),
+        end: jdToIso(hi),
+        retrogradeEntry: false,
+      });
       periodStart = hi;
       s0 = s1;
     }
     t0 = t1;
   }
-  periods.push({ planet, signIndex: s0, sign: SIGNS[s0], start: jdToIso(periodStart), end: jdToIso(jdEnd), retrogradeEntry: false });
+  periods.push({
+    planet,
+    signIndex: s0,
+    sign: SIGNS[s0],
+    start: jdToIso(periodStart),
+    end: jdToIso(jdEnd),
+    retrogradeEntry: false,
+  });
 
   // A period is entered by retrograde motion when its sign is the one before the previous period's sign.
   for (let i = 1; i < periods.length; i++) {
-    periods[i].retrogradeEntry = (periods[i - 1].signIndex - periods[i].signIndex + 12) % 12 === 1;
+    periods[i].retrogradeEntry =
+      (periods[i - 1].signIndex - periods[i].signIndex + 12) % 12 === 1;
   }
   return periods;
 }
 
 /** Sign-ingress periods for any planet between two Julian days (step chosen by speed; Ketu is Rahu plus six signs). */
-export function signPeriodsOf(planet: Planet, jdStart: number, jdEnd: number, opts: EphemerisOptions): { signIndex: number; start: number; end: number }[] {
+export function signPeriodsOf(
+  planet: Planet,
+  jdStart: number,
+  jdEnd: number,
+  opts: EphemerisOptions,
+): { signIndex: number; start: number; end: number }[] {
   const body = BODY[planet];
-  const step = planet === "Moon" ? 0.25 : planet === "Sun" || planet === "Mercury" || planet === "Venus" ? 1 : planet === "Mars" ? 2 : 5;
+  const step =
+    planet === "Moon"
+      ? 0.25
+      : planet === "Sun" || planet === "Mercury" || planet === "Venus"
+        ? 1
+        : planet === "Mars"
+          ? 2
+          : 5;
   const signAt = (jd: number) => {
     let lon = siderealLon(jd, body, opts).lon;
     if (planet === "Ketu") lon = norm360(lon + 180);
@@ -200,13 +300,20 @@ export function signPeriodsOf(planet: Planet, jdStart: number, jdEnd: number, op
   return out;
 }
 
-export const isoToJd = (iso: string) => julianDay(DateTime.fromISO(iso, { zone: "utc" }));
+export const isoToJd = (iso: string) =>
+  julianDay(DateTime.fromISO(iso, { zone: "utc" }));
 
 /** Nakshatra-ingress periods for a slow planet between two Julian days (27 equal divisions of 13°20'). */
-export function nakshatraPeriods(planet: "Jupiter" | "Saturn", jdStart: number, jdEnd: number, opts: EphemerisOptions): NakshatraPeriod[] {
+export function nakshatraPeriods(
+  planet: "Jupiter" | "Saturn",
+  jdStart: number,
+  jdEnd: number,
+  opts: EphemerisOptions,
+): NakshatraPeriod[] {
   const body = BODY[planet];
   const step = planet === "Jupiter" ? 1 : 3;
-  const nakAt = (jd: number) => Math.floor(norm360(siderealLon(jd, body, opts).lon) / (360 / 27)) % 27;
+  const nakAt = (jd: number) =>
+    Math.floor(norm360(siderealLon(jd, body, opts).lon) / (360 / 27)) % 27;
   const periods: NakshatraPeriod[] = [];
   let t0 = jdStart;
   let n0 = nakAt(t0);
@@ -222,31 +329,73 @@ export function nakshatraPeriods(planet: "Jupiter" | "Saturn", jdStart: number, 
         if (nakAt(mid) === n0) lo = mid;
         else hi = mid;
       }
-      periods.push({ planet, nakshatraIndex: n0, start: jdToIso(periodStart), end: jdToIso(hi), retrogradeEntry: false });
+      periods.push({
+        planet,
+        nakshatraIndex: n0,
+        start: jdToIso(periodStart),
+        end: jdToIso(hi),
+        retrogradeEntry: false,
+      });
       periodStart = hi;
       n0 = n1;
     }
     t0 = t1;
   }
-  periods.push({ planet, nakshatraIndex: n0, start: jdToIso(periodStart), end: jdToIso(jdEnd), retrogradeEntry: false });
+  periods.push({
+    planet,
+    nakshatraIndex: n0,
+    start: jdToIso(periodStart),
+    end: jdToIso(jdEnd),
+    retrogradeEntry: false,
+  });
   for (let i = 1; i < periods.length; i++) {
-    periods[i].retrogradeEntry = (periods[i - 1].nakshatraIndex - periods[i].nakshatraIndex + 27) % 27 === 1;
+    periods[i].retrogradeEntry =
+      (periods[i - 1].nakshatraIndex - periods[i].nakshatraIndex + 27) % 27 ===
+      1;
   }
   return periods;
 }
 
 /** Sidereal ascendant (Placidus cusps are irrelevant; only the ascendant is used). */
-export function ascendantAt(jd: number, latitude: number, longitude: number, opts: EphemerisOptions): number {
+export function ascendantAt(
+  jd: number,
+  latitude: number,
+  longitude: number,
+  opts: EphemerisOptions,
+): number {
   setMode(opts);
-  const r = sweph.houses_ex(jd, C.SEFLG_SIDEREAL, latitude, longitude, "P") as unknown as { flag: number; data: { houses: number[]; points: number[] } };
+  const r = sweph.houses_ex(
+    jd,
+    C.SEFLG_SIDEREAL,
+    latitude,
+    longitude,
+    "P",
+  ) as unknown as {
+    flag: number;
+    data: { houses: number[]; points: number[] };
+  };
   if (r.flag < 0) throw new Error("Could not compute the ascendant");
   return norm360(r.data.points[0]);
 }
 
 /** The twelve Placidus cusps (sidereal) for a moment and place. */
-export function cuspsAt(jd: number, latitude: number, longitude: number, opts: EphemerisOptions): number[] {
+export function cuspsAt(
+  jd: number,
+  latitude: number,
+  longitude: number,
+  opts: EphemerisOptions,
+): number[] {
   setMode(opts);
-  const r = sweph.houses_ex(jd, C.SEFLG_SIDEREAL, latitude, longitude, "P") as unknown as { flag: number; data: { houses: number[]; points: number[] } };
+  const r = sweph.houses_ex(
+    jd,
+    C.SEFLG_SIDEREAL,
+    latitude,
+    longitude,
+    "P",
+  ) as unknown as {
+    flag: number;
+    data: { houses: number[]; points: number[] };
+  };
   if (r.flag < 0) throw new Error("Could not compute the Placidus cusps");
   return r.data.houses.slice(0, 12).map(norm360);
 }
@@ -256,9 +405,22 @@ export function nowJd(): number {
 }
 
 /** Julian day of the last sunrise (upper limb, standard refraction) at or before `jd` for the given place. */
-export function sunriseBefore(jd: number, latitude: number, longitude: number): number {
+export function sunriseBefore(
+  jd: number,
+  latitude: number,
+  longitude: number,
+): number {
   const rise = (start: number) => {
-    const r = sweph.rise_trans(start, C.SE_SUN, "", C.SEFLG_SWIEPH, C.SE_CALC_RISE, [longitude, latitude, 0], 1013.25, 15) as unknown as { flag: number; data: number[] | number };
+    const r = sweph.rise_trans(
+      start,
+      C.SE_SUN,
+      "",
+      C.SEFLG_SWIEPH,
+      C.SE_CALC_RISE,
+      [longitude, latitude, 0],
+      1013.25,
+      15,
+    ) as unknown as { flag: number; data: number[] | number };
     if (r.flag < 0) throw new Error("Could not compute sunrise");
     return Array.isArray(r.data) ? r.data[0] : r.data;
   };
@@ -272,8 +434,22 @@ export function sunriseBefore(jd: number, latitude: number, longitude: number): 
   return t;
 }
 
-function riseOrSetAfter(start: number, latitude: number, longitude: number, kind: number): number {
-  const r = sweph.rise_trans(start, C.SE_SUN, "", C.SEFLG_SWIEPH, kind, [longitude, latitude, 0], 1013.25, 15) as unknown as { flag: number; data: number[] | number };
+function riseOrSetAfter(
+  start: number,
+  latitude: number,
+  longitude: number,
+  kind: number,
+): number {
+  const r = sweph.rise_trans(
+    start,
+    C.SE_SUN,
+    "",
+    C.SEFLG_SWIEPH,
+    kind,
+    [longitude, latitude, 0],
+    1013.25,
+    15,
+  ) as unknown as { flag: number; data: number[] | number };
   if (r.flag < 0) throw new Error("Could not compute sunrise or sunset");
   return Array.isArray(r.data) ? r.data[0] : r.data;
 }
@@ -283,38 +459,98 @@ function riseOrSetAfter(start: number, latitude: number, longitude: number, kind
  * local mean time, the Hindu weekday, the Kali-epoch day count, and each planet's declination, latitude
  * and tropical longitude. The arithmetic of the six strengths lives in shared/shadbala.ts.
  */
-export function shadbalaBase(jd: number, latitude: number, longitude: number, opts: EphemerisOptions): ShadbalaBase {
+export function shadbalaBase(
+  jd: number,
+  latitude: number,
+  longitude: number,
+  opts: EphemerisOptions,
+): ShadbalaBase {
   setMode(opts);
-  const h = sweph.houses_ex(jd, C.SEFLG_SIDEREAL, latitude, longitude, "P") as unknown as { flag: number; data: { houses: number[]; points: number[] } };
+  const h = sweph.houses_ex(
+    jd,
+    C.SEFLG_SIDEREAL,
+    latitude,
+    longitude,
+    "P",
+  ) as unknown as {
+    flag: number;
+    data: { houses: number[]; points: number[] };
+  };
   if (h.flag < 0) throw new Error("Could not compute the meridian");
   const asc = norm360(h.data.points[0]);
   const mc = norm360(h.data.points[1]);
   const ayanamsa = sweph.get_ayanamsa_ut(jd);
   const sunriseJd = sunriseBefore(jd, latitude, longitude);
-  const sunsetJd = riseOrSetAfter(sunriseJd + 0.01, latitude, longitude, C.SE_CALC_SET);
-  const nextSunriseJd = riseOrSetAfter(sunsetJd + 0.01, latitude, longitude, C.SE_CALC_RISE);
+  const sunsetJd = riseOrSetAfter(
+    sunriseJd + 0.01,
+    latitude,
+    longitude,
+    C.SE_CALC_SET,
+  );
+  const nextSunriseJd = riseOrSetAfter(
+    sunsetJd + 0.01,
+    latitude,
+    longitude,
+    C.SE_CALC_RISE,
+  );
   const lmtHours = ((((jd + 0.5 + longitude / 360) % 1) + 1) % 1) * 24;
   const dayNumber = Math.floor(sunriseJd + longitude / 360 + 0.5);
   const weekday = (dayNumber + 1) % 7;
   const ahargana = dayNumber - 588466; // day 0 = 18 Feb 3102 BCE, a Friday
   const bodies = {} as ShadbalaBase["bodies"];
-  for (const p of ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"] as Seven[]) {
+  for (const p of [
+    "Sun",
+    "Moon",
+    "Mars",
+    "Mercury",
+    "Jupiter",
+    "Venus",
+    "Saturn",
+  ] as Seven[]) {
     const ecl = sweph.calc_ut(jd, BODY[p], C.SEFLG_SWIEPH | C.SEFLG_SPEED);
     const equ = sweph.calc_ut(jd, BODY[p], C.SEFLG_SWIEPH | C.SEFLG_EQUATORIAL);
     if (ecl.flag < 0 || equ.flag < 0) throw new Error(ecl.error || equ.error);
-    bodies[p] = { tropLon: norm360(ecl.data[0]), lat: ecl.data[1], decl: equ.data[1] };
+    bodies[p] = {
+      tropLon: norm360(ecl.data[0]),
+      lat: ecl.data[1],
+      decl: equ.data[1],
+    };
   }
-  return { jd, ayanamsa, asc, mc, sunriseJd, sunsetJd, nextSunriseJd, lmtHours, weekday, ahargana, bodies };
+  return {
+    jd,
+    ayanamsa,
+    asc,
+    mc,
+    sunriseJd,
+    sunsetJd,
+    nextSunriseJd,
+    lmtHours,
+    weekday,
+    ahargana,
+    bodies,
+  };
 }
 
 /** Jaimini special lagnas: Hora lagna advances one sign per hour and Ghatika lagna one sign per ghati (24 min) from the Sun's sidereal longitude at sunrise. */
-export function specialLagnas(jd: number, latitude: number, longitude: number, opts: EphemerisOptions): { horaLagna: number; ghatikaLagna: number; sunriseJd: number } {
+export function specialLagnas(
+  jd: number,
+  latitude: number,
+  longitude: number,
+  opts: EphemerisOptions,
+): { horaLagna: number; ghatikaLagna: number; sunriseJd: number } {
   const sunriseJd = sunriseBefore(jd, latitude, longitude);
   setMode(opts);
-  const sun = sweph.calc_ut(sunriseJd, C.SE_SUN, FLAGS) as unknown as { flag: number; data: number[] };
+  const sun = sweph.calc_ut(sunriseJd, C.SE_SUN, FLAGS) as unknown as {
+    flag: number;
+    data: number[];
+  };
   const sunLon = norm360(sun.data[0]);
   const hours = (jd - sunriseJd) * 24;
-  return { horaLagna: norm360(sunLon + hours * 30), ghatikaLagna: norm360(sunLon + hours * 75), sunriseJd };
+  return {
+    horaLagna: norm360(sunLon + hours * 30),
+    ghatikaLagna: norm360(sunLon + hours * 75),
+    sunriseJd,
+  };
 }
 
 /**
@@ -322,11 +558,26 @@ export function specialLagnas(jd: number, latitude: number, longitude: number, o
  * Krishnamurti ayanamsa, plus the snapshot used for the ruling planets at the moment of judgement
  * (ascendant computed for the birth place; the weekday is that of the last sunrise there).
  */
-export function kpBase(jd: number, latitude: number, longitude: number, zone: string, nodeType: EphemerisOptions["nodeType"]): KpBase {
+export function kpBase(
+  jd: number,
+  latitude: number,
+  longitude: number,
+  zone: string,
+  nodeType: EphemerisOptions["nodeType"],
+): KpBase {
   const opts: EphemerisOptions = { ayanamsa: "kp", nodeType };
   const positions = positionsAt(jd, opts);
   setMode(opts);
-  const r = sweph.houses_ex(jd, C.SEFLG_SIDEREAL, latitude, longitude, "P") as unknown as { flag: number; data: { houses: number[]; points: number[] } };
+  const r = sweph.houses_ex(
+    jd,
+    C.SEFLG_SIDEREAL,
+    latitude,
+    longitude,
+    "P",
+  ) as unknown as {
+    flag: number;
+    data: { houses: number[]; points: number[] };
+  };
   if (r.flag < 0) throw new Error("Could not compute the Placidus cusps");
   const cusps = r.data.houses.slice(0, 12).map(norm360);
   return {
@@ -342,7 +593,12 @@ export function kpBase(jd: number, latitude: number, longitude: number, zone: st
  * last sunrise) at this moment for the place where the astrologer is judging. KP takes the ruling
  * planets for the judge's place, not the birth place.
  */
-export function judgementNow(latitude: number, longitude: number, zone: string, nodeType: EphemerisOptions["nodeType"]): KpBase["now"] {
+export function judgementNow(
+  latitude: number,
+  longitude: number,
+  zone: string,
+  nodeType: EphemerisOptions["nodeType"],
+): KpBase["now"] {
   const opts: EphemerisOptions = { ayanamsa: "kp", nodeType };
   const nj = nowJd();
   let weekday: number;
@@ -351,7 +607,12 @@ export function judgementNow(latitude: number, longitude: number, zone: string, 
   } catch {
     weekday = weekdayOf(nj, zone);
   }
-  return { asOf: DateTime.utc().toISO()!, positions: positionsAt(nj, opts), ascendant: ascendantAt(nj, latitude, longitude, opts), weekday };
+  return {
+    asOf: DateTime.utc().toISO()!,
+    positions: positionsAt(nj, opts),
+    ascendant: ascendantAt(nj, latitude, longitude, opts),
+    weekday,
+  };
 }
 
 /** Weekday (0 = Sunday) of a Julian day, read on the civil calendar of the given zone. */
@@ -362,14 +623,44 @@ function weekdayOf(jd: number, zone: string): number {
 // ---------------------------------------------------------------------------------------------------------------
 // Panchanga (Surya Siddhanta 1.36, 2.64-69; arithmetic in shared/panchanga.ts)
 
-import { tithiOf, nakshatraOf, yogaOf, karanaOf, moonPhase, tithiIndex, nakshatraIndex, yogaIndex, karanaSlot, WEEKDAY_NAMES, WEEKDAY_LORD, type PanchangaDay, type LimbSegment } from "@shared/panchanga";
+import {
+  tithiOf,
+  nakshatraOf,
+  yogaOf,
+  karanaOf,
+  moonPhase,
+  tithiIndex,
+  nakshatraIndex,
+  yogaIndex,
+  karanaSlot,
+  WEEKDAY_NAMES,
+  WEEKDAY_LORD,
+  type PanchangaDay,
+  type LimbSegment,
+} from "@shared/panchanga";
 
-function sunMoon(jd: number, opts: EphemerisOptions): { sun: number; moon: number } {
-  return { sun: siderealLon(jd, C.SE_SUN, opts).lon, moon: siderealLon(jd, C.SE_MOON, opts).lon };
+function sunMoon(
+  jd: number,
+  opts: EphemerisOptions,
+): { sun: number; moon: number } {
+  return {
+    sun: siderealLon(jd, C.SE_SUN, opts).lon,
+    moon: siderealLon(jd, C.SE_MOON, opts).lon,
+  };
 }
 
 /** Segments of one limb from `from` to `to`: the element in force at `from`, then each successor with its exact ending time. */
-function limbRun(from: number, to: number, at: number, opts: EphemerisOptions, index: (sm: { sun: number; moon: number }) => number, describe: (sm: { sun: number; moon: number }) => { name: string; detail?: string }): LimbSegment[] {
+function limbRun(
+  from: number,
+  to: number,
+  at: number,
+  opts: EphemerisOptions,
+  index: (sm: { sun: number; moon: number }) => number,
+  describe: (sm: { sun: number; moon: number }) => {
+    name: string;
+    detail?: string;
+  },
+): LimbSegment[] {
   const out: LimbSegment[] = [];
   let t = from;
   let idx = index(sunMoon(t, opts));
@@ -410,10 +701,23 @@ function limbRun(from: number, to: number, at: number, opts: EphemerisOptions, i
  * The five limbs for the civil day containing `jd` at a place, read at `jd` itself (sunrise for a calendar date, the birth
  * instant for a birth panchanga), with each limb's changes until the next sunrise.
  */
-export function panchangaAt(jd: number, latitude: number, longitude: number, zone: string, opts: EphemerisOptions, date?: string, sunriseJd?: number): PanchangaDay {
+export function panchangaAt(
+  jd: number,
+  latitude: number,
+  longitude: number,
+  zone: string,
+  opts: EphemerisOptions,
+  date?: string,
+  sunriseJd?: number,
+): PanchangaDay {
   const sunrise = sunriseJd ?? sunriseBefore(jd, latitude, longitude);
   const sunset = riseOrSetAfter(sunrise, latitude, longitude, C.SE_CALC_SET);
-  const nextSunrise = riseOrSetAfter(sunrise + 0.01, latitude, longitude, C.SE_CALC_RISE);
+  const nextSunrise = riseOrSetAfter(
+    sunrise + 0.01,
+    latitude,
+    longitude,
+    C.SE_CALC_RISE,
+  );
   const sm = sunMoon(jd, opts);
   const weekday = weekdayOf(sunrise, zone);
   const local = DateTime.fromMillis((sunrise - 2440587.5) * 86400000, { zone });
@@ -436,38 +740,88 @@ export function panchangaAt(jd: number, latitude: number, longitude: number, zon
     sunLon: sm.sun,
     moonLon: sm.moon,
     runs: {
-      tithi: limbRun(sunrise, nextSunrise, jd, opts, (s) => tithiIndex(s.moon, s.sun), (s) => {
-        const t = tithiOf(s.moon, s.sun);
-        return { name: t.name, detail: t.paksha };
-      }),
-      nakshatra: limbRun(sunrise, nextSunrise, jd, opts, (s) => nakshatraIndex(s.moon), (s) => {
-        const n = nakshatraOf(s.moon);
-        return { name: n.name, detail: n.lord };
-      }),
-      yoga: limbRun(sunrise, nextSunrise, jd, opts, (s) => yogaIndex(s.moon, s.sun), (s) => ({ name: yogaOf(s.moon, s.sun).name })),
-      karana: limbRun(sunrise, nextSunrise, jd, opts, (s) => karanaSlot(s.moon, s.sun), (s) => {
-        const k = karanaOf(s.moon, s.sun);
-        return { name: k.name, detail: k.fixed ? "fixed" : undefined };
-      }),
+      tithi: limbRun(
+        sunrise,
+        nextSunrise,
+        jd,
+        opts,
+        (s) => tithiIndex(s.moon, s.sun),
+        (s) => {
+          const t = tithiOf(s.moon, s.sun);
+          return { name: t.name, detail: t.paksha };
+        },
+      ),
+      nakshatra: limbRun(
+        sunrise,
+        nextSunrise,
+        jd,
+        opts,
+        (s) => nakshatraIndex(s.moon),
+        (s) => {
+          const n = nakshatraOf(s.moon);
+          return { name: n.name, detail: n.lord };
+        },
+      ),
+      yoga: limbRun(
+        sunrise,
+        nextSunrise,
+        jd,
+        opts,
+        (s) => yogaIndex(s.moon, s.sun),
+        (s) => ({ name: yogaOf(s.moon, s.sun).name }),
+      ),
+      karana: limbRun(
+        sunrise,
+        nextSunrise,
+        jd,
+        opts,
+        (s) => karanaSlot(s.moon, s.sun),
+        (s) => {
+          const k = karanaOf(s.moon, s.sun);
+          return { name: k.name, detail: k.fixed ? "fixed" : undefined };
+        },
+      ),
     },
     ayanamsa: { key: opts.ayanamsa, value: ayanamsaAt(jd, opts) },
   };
 }
 
 /** Panchanga for a calendar date at a place: read at that day's sunrise. */
-export function panchangaForDate(date: string, latitude: number, longitude: number, zone: string, opts: EphemerisOptions): { day: PanchangaDay; positions: PlanetPosition[] } {
+export function panchangaForDate(
+  date: string,
+  latitude: number,
+  longitude: number,
+  zone: string,
+  opts: EphemerisOptions,
+): { day: PanchangaDay; positions: PlanetPosition[] } {
   const noon = julianDay(DateTime.fromISO(`${date}T12:00`, { zone }).toUTC());
   const sunrise = sunriseBefore(noon, latitude, longitude);
-  const day = panchangaAt(sunrise, latitude, longitude, zone, opts, date, sunrise);
+  const day = panchangaAt(
+    sunrise,
+    latitude,
+    longitude,
+    zone,
+    opts,
+    date,
+    sunrise,
+  );
   return { day, positions: positionsAt(sunrise, opts) };
 }
 
 /** Positions without the retrograde-entry walk; enough for sign, dignity and combustion, and cheap enough to sample daily. */
-export function positionsLite(jd: number, opts: EphemerisOptions): PlanetPosition[] {
+export function positionsLite(
+  jd: number,
+  opts: EphemerisOptions,
+): PlanetPosition[] {
   const sun = siderealLon(jd, C.SE_SUN, opts);
   return PLANETS.map((planet) => {
     let { lon, speed } = siderealLon(jd, BODY[planet], opts);
     if (planet === "Ketu") lon = norm360(lon + 180);
-    return describePosition(planet, lon, speed, planet === "Sun" ? undefined : sun.lon);
+    return describePosition(
+      planet,
+      lon,
+      speed,
+      planet === "Sun" ? undefined : sun.lon,
+    );
   });
 }
