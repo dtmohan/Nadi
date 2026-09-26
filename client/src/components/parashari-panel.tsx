@@ -6,6 +6,7 @@ import { computeParashari, ord, listH, roleLabel, LORDSHIP_LABEL, KENDRA, type P
 import { PHALADEEPIKA_CH7_URL } from "@shared/neechabhanga";
 import { HOUSE_MATTERS, HOUSE_MATTERS_SOURCE, BHAVA_JUDGEMENT_SOURCE, BHAVA_JUDGEMENT_CAVEATS, HOUSE_CAVEATS } from "@shared/parashari-houses";
 import { YOGA_CAVEATS } from "@shared/parashari-yogas";
+import { ROYAL_CAVEATS } from "@shared/parashari-royal";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
@@ -141,7 +142,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             }
             practitioner={
               <>
-                {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, house significations and their prosperity or failure from chapter 11, effects of the twelve houses from chapters 12-23, yogas from chapters 34 to 39, 41, 42 and 75 of{" "}
+                {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, house significations and their prosperity or failure from chapter 11, effects of the twelve houses from chapters 12-23, yogas from chapters 34 to 42, 75 and 79 of{" "}
                 <a href={BPHS_URL(24)} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Brihat Parashara Hora Sastra</a> (Santhanam translation). Nodes have no aspect in chapter 26 and own no house; they are read through their sign lord. Cancellation of debilitation follows{" "}
                 <a href={PHALADEEPIKA_CH7_URL} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Phaladeepika 7.26-30</a> (Subrahmanya Sastri translation), since Parashara's verses do not state it; later-practice conditions are shown provisional and not applied. First pass.
               </>
@@ -267,7 +268,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         {section === "yogas" && (
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {yogas.map((f) => <Finding key={f.id} f={f} />)}
-            <p className="text-xs text-muted-foreground md:col-span-2">{YOGA_CAVEATS.join(" ")} Kendra-trikona and node yogakarakas are from chapter 34, Neechabhanga from Phaladeepika 7, the raja yogas from debility from chapter 39 and the wealth and penury verses from chapters 41-42.</p>
+            <p className="text-xs text-muted-foreground md:col-span-2">{YOGA_CAVEATS.join(" ")} {ROYAL_CAVEATS.join(" ")} Kendra-trikona and node yogakarakas are from chapter 34, Neechabhanga from Phaladeepika 7, the raja yogas from debility from chapter 39 and the wealth and penury verses from chapters 41-42.</p>
           </div>
         )}
         {section === "houses" && (

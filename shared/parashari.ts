@@ -13,6 +13,7 @@ import { LORD_IN_HOUSE, LAGNA_NATURE, BPHS_URL, type FunctionalRole } from "./pa
 import { neechaBhanga, PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechabhanga";
 import { houseFindings, judgeBhavas, type BhavaJudgement } from "./parashari-houses";
 import { yogaFindings } from "./parashari-yogas";
+import { royalFindings } from "./parashari-royal";
 
 export const SEVEN: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 export const KENDRA = [1, 4, 7, 10];
@@ -514,6 +515,7 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   findings.push(...houseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   // Chapters 35-38: Nabhasa, remaining ch. 36, lunar and solar yogas.
   findings.push(...yogaFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
+  findings.push(...royalFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   const bhavaJudgement = judgeBhavas(positions, lagnaIdx, houseDeps, shadbala);
 
   const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts, ashtakavarga, neecha);

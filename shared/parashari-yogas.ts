@@ -266,7 +266,8 @@ export function yogaFindings(positions: PlanetPosition[], lagnaIdx: number, lagn
   // 37.2-4
   {
     // Day birth when the Sun is above the horizon: it has risen (lies behind the ascendant degree) and not yet set.
-    const day = (((lagnaLon - sun.lon) % 360) + 360) % 360 < 180;
+    // Prefer the Shadbala module's sunrise-to-sunset test when available; otherwise the Sun lies behind the ascendant degree.
+    const day = shadbala ? shadbala.daytime : (((lagnaLon - sun.lon) % 360) + 360) % 360 < 180;
     const helper: Planet = day ? "Jupiter" : "Venus";
     const navLord = SIGN_LORD[navamsaSign(moon)];
     const ownOrFriend = navLord === "Moon" || (FRIENDS.Moon ?? []).includes(navLord);
