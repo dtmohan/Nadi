@@ -1650,6 +1650,16 @@ function AshtakavargaSection({ av, lagnaIdx }: { av: AshtakavargaResult; lagnaId
         </TableBody>
       </Table>
       <p className="mt-1 text-xs text-muted-foreground">The total leaves out the lagna's chart, which the text keeps apart; the seven planets give 337 rekhas in all.</p>
+      <p className="mt-1 text-xs text-muted-foreground" data-testid="parashari-av-saravali">
+        {av.saravali.differing.length
+          ? <>Under the {av.saravali.label} (the table Raman and most software use, three cells of the Moon's row differ from Parashara's) these totals would read: {av.saravali.differing.map((d) => `${SIGNS[d.signIndex]} ${d.saravali}${d.bandSaravali !== d.bandParashara ? ` (${d.bandSaravali})` : ""}`).join(", ")}. <Badge variant="outline" className="text-2xs">provisional</Badge></>
+          : <>The {av.saravali.label} gives the same totals for this chart.</>}
+      </p>
+      {av.ekadhipatyaVariant.length > 0 && (
+        <p className="mt-1 text-xs text-muted-foreground" data-testid="parashari-av-ekadhipatya-variant">
+          Ekadhipatya shodhana here brings an empty sign down to the occupied sign's figure (Phaladeepika 24.19); reading 68.3 as a subtraction would give Yoga pinda {av.ekadhipatyaVariant.map((v) => `${v.owner} ${v.yogaPinda}`).join(", ")}. <Badge variant="outline" className="text-2xs">provisional</Badge>
+        </p>
+      )}
 
       <div className="mt-3 flex flex-wrap gap-1 md:hidden">
         {av.charts.map((c) => (
@@ -1701,6 +1711,7 @@ function AshtakavargaSection({ av, lagnaIdx }: { av: AshtakavargaResult; lagnaId
             <TableHead className="hidden sm:table-cell">House read</TableHead>
             <TableHead className="px-2 sm:px-4">Nakshatra</TableHead>
             <TableHead className="px-2 sm:px-4">Sign</TableHead>
+            <TableHead className="hidden px-2 sm:px-4 lg:table-cell">After reductions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -1710,14 +1721,17 @@ function AshtakavargaSection({ av, lagnaIdx }: { av: AshtakavargaResult; lagnaId
               <TableCell className="hidden px-2 py-1.5 sm:px-4 text-xs text-muted-foreground sm:table-cell">{ord(s.houseFrom)} from {s.owner}: {SIGNS[s.signIndex]}, {s.rekhas} rekhas × pinda {s.rekhas ? s.product / s.rekhas : "—"}</TableCell>
               <TableCell className="px-2 py-1.5 sm:px-4 text-xs">{NAKSHATRAS[s.nakshatraIndex]}<span className="block text-2xs text-muted-foreground">trines {s.trineNakshatras.slice(1).map((n) => NAKSHATRAS[n]).join(", ")}</span></TableCell>
               <TableCell className="px-2 py-1.5 sm:px-4 text-xs">{SIGNS[s.transitSignIndex]}<span className="block text-2xs text-muted-foreground">trines {s.trineSigns.slice(1).map((n) => SIGNS[n]).join(", ")}</span></TableCell>
+              <TableCell className="hidden px-2 py-1.5 sm:px-4 text-xs text-muted-foreground lg:table-cell">{s.reduced.rekhas ? <>{NAKSHATRAS[s.reduced.nakshatraIndex]}, {SIGNS[s.reduced.transitSignIndex]}<span className="block text-2xs">{s.reduced.rekhas} rekhas left</span></> : "no rekhas left"}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
 
       <SectionTitle as="h4" className="mt-6" plain="What the totals say" technical="Readings from the aggregate (ch. 70-72)" />
+      <p className="mt-1 text-2xs text-muted-foreground">The last column reads the same point from the figure left after the two reductions, which 70.28-29 names; the tradition uses the unreduced figure, so the column is provisional.</p>
       <ul className="mt-1 space-y-1 text-xs text-muted-foreground" data-testid="parashari-av-readings">
         <li>{av.wealthYoga.text} <SourceLink source={src.wealth} /></li>
+        <li data-testid="parashari-av-progeny">{av.progeny.text} <SourceLink source={src.progeny} /></li>
         <li>
           Life in thirds: {av.lifeThirds.map((t) => `${t.span} (${t.houses}) ${t.verdict}${t.benefics.length || t.malefics.length ? ` with ${[...t.benefics, ...t.malefics].map((p) => PLANET_ABBR[p]).join(", ")}` : ", no planets"}`).join("; ")}. <SourceLink source={src.thirds} />
         </li>

@@ -53,6 +53,24 @@ export const REKHA_TABLE: Record<Contributor, Record<Contributor, number[]>> = {
   },
 };
 
+/**
+ * The Moon's row as Saravali ch. 53 and Brihat Jataka ch. 13 give it, which is the table Raman and most
+ * software carry. It differs from Parashara's Moon row in three cells: from the Moon 1,3,6,7,10,11 (no 9th),
+ * from Mars 2,3,5,6,9,10,11 (with the 9th), from Jupiter 1,4,7,8,10,11,12 (12th for 2nd). Same total of 49.
+ * Every other row of the two texts agrees.
+ */
+export const MOON_ROW_SARAVALI: Record<Contributor, number[]> = {
+  ...REKHA_TABLE.Moon,
+  Moon: [1, 3, 6, 7, 10, 11], Mars: [2, 3, 5, 6, 9, 10, 11], Jupiter: [1, 4, 7, 8, 10, 11, 12],
+};
+
+/**
+ * Ekadhipatya shodhana when one sign is occupied and carries the smaller figure. Parashara 68.3 as
+ * translated says "deduct the smaller number from the bigger"; Phaladeepika 24.19 and later practice
+ * (Raman) make the empty sign equal to the occupied one. The equalising reading is the default.
+ */
+export type EkadhipatyaReading = "equalise" | "subtract";
+
 /** Sign multipliers of 69.1-4 as the translator's Rashimana chakra gives them (Aries first). */
 export const RASHI_MANA = [7, 10, 8, 4, 10, 6, 7, 8, 9, 5, 11, 12];
 /** Planet multipliers of 69.1-4 as the Grahamana chakra gives them. */
@@ -93,7 +111,16 @@ export interface SaturnPoint {
   trineNakshatras: number[];
   transitSignIndex: number;
   trineSigns: number[];
+  /** The same point from the figure left after both reductions (70.28-29 names this for Mercury). */
+  reduced: { rekhas: number; product: number; nakshatraIndex: number; transitSignIndex: number };
   source: BalaSource;
+}
+
+/** How the Sarvashtakavarga would read under the Saravali Moon row, where it differs. */
+export interface SarvaVariant {
+  label: string;
+  sarva: number[];
+  differing: { signIndex: number; parashara: number; saravali: number; bandParashara: string; bandSaravali: string }[];
 }
 
 export interface AshtakavargaResult {
@@ -111,8 +138,16 @@ export interface AshtakavargaResult {
   /** 70.37-40: years counted by Saturn's rekhas from lagna to Saturn and from Saturn to lagna. */
   distressYears: { lagnaToSaturn: number; saturnToLagna: number };
   saturnPoints: SaturnPoint[];
+  /** 70.30-33: children counted by the rekhas in the 5th from Jupiter, unless Jupiter is debilitated or in an enemy's sign. */
+  progeny: { signIndex: number; rekhas: number; jupiterSign: number; qualified: boolean; text: string };
   /** 71.1-4: half the total of the eight charts' spans. */
   ayurdaya: number;
+  /** Sarvashtakavarga under the Saravali Moon row, with the signs whose total or band would change. */
+  saravali: SarvaVariant;
+  /** Which Ekadhipatya reading produced the reduced figures. */
+  ekadhipatya: EkadhipatyaReading;
+  /** Yoga pindas under the other Ekadhipatya reading, by chart owner, where they differ. */
+  ekadhipatyaVariant: { owner: Contributor; yogaPinda: number }[];
   sources: Record<string, BalaSource>;
   caveats: string[];
 }
@@ -164,7 +199,7 @@ function trikonaShodhana(v: number[]): number[] {
   return out;
 }
 
-function ekadhipatyaShodhana(v: number[], occupied: boolean[]): number[] {
+function ekadhipatyaShodhana(v: number[], occupied: boolean[], reading: EkadhipatyaReading = "equalise"): number[] {
   const out = v.slice();
   for (const p of ["Mars", "Mercury", "Jupiter", "Venus", "Saturn"] as Seven[]) {
     const signs = SIGN_LORD.map((l, i) => (l === p ? i : -1)).filter((i) => i >= 0);
@@ -179,43 +214,66 @@ function ekadhipatyaShodhana(v: number[], occupied: boolean[]): number[] {
       continue;
     }
     const occ = oa ? a : b, emp = oa ? b : a;
-    // one occupied: the empty sign loses the occupied sign's figure when larger, else drops to zero;
-    // the occupied sign keeps its figure
-    out[emp] = v[emp] > v[occ] ? v[emp] - v[occ] : 0;
+    // one occupied: when the empty sign's figure is larger it comes down to the occupied sign's figure
+    // (Phaladeepika 24.19; the translation of 68.3 reads "deduct the smaller from the bigger"), when equal
+    // or smaller it drops to zero; the occupied sign keeps its figure
+    out[emp] = v[emp] > v[occ] ? (reading === "subtract" ? v[emp] - v[occ] : v[occ]) : 0;
   }
   return out;
 }
 
-export function computeAshtakavarga(positions: PlanetPosition[], lagnaIdx: number): AshtakavargaResult {
+export function computeAshtakavarga(positions: PlanetPosition[], lagnaIdx: number, ekadhipatya: EkadhipatyaReading = "equalise"): AshtakavargaResult {
   const pos = (p: Planet) => positions.find((x) => x.planet === p)!;
   const signOf = (c: Contributor) => (c === "Lagna" ? lagnaIdx : pos(c).signIndex);
   const occupied = Array.from({ length: 12 }, (_, s) => SEVEN.some((p) => pos(p).signIndex === s));
 
-  const charts: Bhinnashtaka[] = CONTRIBUTORS.map((owner) => {
+  const rekhasFor = (row: Record<Contributor, number[]>) => {
     const rekhas = new Array(12).fill(0) as number[];
     const givers: Contributor[][] = Array.from({ length: 12 }, () => []);
     for (const giver of CONTRIBUTORS) {
       const from = signOf(giver);
-      for (const h of REKHA_TABLE[owner][giver]) {
+      for (const h of row[giver]) {
         const s = (from + h - 1) % 12;
         rekhas[s] += 1;
         givers[s].push(giver);
       }
     }
-    const trikona = trikonaShodhana(rekhas);
-    const reduced = ekadhipatyaShodhana(trikona, occupied);
+    return { rekhas, givers };
+  };
+  const pindasOf = (reduced: number[]) => {
     let rashiPinda = 0, grahaPinda = 0;
     for (let s = 0; s < 12; s++) {
       rashiPinda += reduced[s] * RASHI_MANA[s];
       for (const p of SEVEN) if (pos(p).signIndex === s) grahaPinda += reduced[s] * GRAHA_MANA[p];
     }
+    return { rashiPinda, grahaPinda };
+  };
+
+  const charts: Bhinnashtaka[] = CONTRIBUTORS.map((owner) => {
+    const { rekhas, givers } = rekhasFor(REKHA_TABLE[owner]);
+    const trikona = trikonaShodhana(rekhas);
+    const reduced = ekadhipatyaShodhana(trikona, occupied, ekadhipatya);
+    const { rashiPinda, grahaPinda } = pindasOf(reduced);
     const ayus = rekhas.reduce((a, r) => a + AYUS_BY_REKHA[Math.min(r, 8)], 0);
     return { owner, rekhas, givers, trikona, reduced, rashiPinda, grahaPinda, yogaPinda: rashiPinda + grahaPinda, total: rekhas.reduce((a, b) => a + b, 0), ayus };
+  });
+  const ekadhipatyaVariant = charts.flatMap((c) => {
+    const alt = ekadhipatyaShodhana(c.trikona, occupied, ekadhipatya === "equalise" ? "subtract" : "equalise");
+    const { rashiPinda, grahaPinda } = pindasOf(alt);
+    return rashiPinda + grahaPinda === c.yogaPinda ? [] : [{ owner: c.owner, yogaPinda: rashiPinda + grahaPinda }];
   });
 
   const sarva = Array.from({ length: 12 }, (_, s) => charts.filter((c) => c.owner !== "Lagna").reduce((a, c) => a + c.rekhas[s], 0));
   const bandOf = (n: number) => (n > 30 ? "favourable" : n >= 25 ? "medium" : "adverse") as "favourable" | "medium" | "adverse";
   const band = sarva.map(bandOf);
+  const moonSaravali = rekhasFor(MOON_ROW_SARAVALI).rekhas;
+  const moonParashara = charts.find((c) => c.owner === "Moon")!.rekhas;
+  const saravaliSarva = sarva.map((n, s) => n - moonParashara[s] + moonSaravali[s]);
+  const saravali: SarvaVariant = {
+    label: "Saravali / Brihat Jataka Moon row",
+    sarva: saravaliSarva,
+    differing: saravaliSarva.flatMap((n, s) => (n === sarva[s] ? [] : [{ signIndex: s, parashara: sarva[s], saravali: n, bandParashara: band[s], bandSaravali: bandOf(n) }])),
+  };
   const houses = Array.from({ length: 12 }, (_, i) => {
     const signIndex = (lagnaIdx + i) % 12;
     return { house: i + 1, signIndex, rekhas: sarva[signIndex], band: band[signIndex] };
@@ -254,12 +312,17 @@ export function computeAshtakavarga(positions: PlanetPosition[], lagnaIdx: numbe
     const signIndex = (pos(owner).signIndex + h - 1) % 12;
     const rekhas = chart.rekhas[signIndex];
     const product = rekhas * chart.yogaPinda;
-    const nak = product % 27 === 0 ? 26 : (product % 27) - 1;
-    const sgn = product % 12 === 0 ? 11 : (product % 12) - 1;
+    const nakOf = (n: number) => (n % 27 === 0 ? 26 : (n % 27) - 1);
+    const sgnOf = (n: number) => (n % 12 === 0 ? 11 : (n % 12) - 1);
+    const nak = nakOf(product);
+    const sgn = sgnOf(product);
+    const rr = chart.reduced[signIndex];
+    const rp = rr * chart.yogaPinda;
     return {
       matter, owner, houseFrom: h, signIndex, rekhas, product,
       nakshatraIndex: nak, trineNakshatras: [nak, (nak + 9) % 27, (nak + 18) % 27],
       transitSignIndex: sgn, trineSigns: [sgn, (sgn + 4) % 12, (sgn + 8) % 12],
+      reduced: { rekhas: rr, product: rp, nakshatraIndex: nakOf(rp), transitSignIndex: sgnOf(rp) },
       source,
     };
   };
@@ -275,18 +338,33 @@ export function computeAshtakavarga(positions: PlanetPosition[], lagnaIdx: numbe
 
   const ayurdaya = charts.reduce((a, c) => a + c.ayus, 0) / 2;
 
+  const jup = pos("Jupiter");
+  const jupChart = charts.find((c) => c.owner === "Jupiter")!;
+  const fifthFromJup = (jup.signIndex + 4) % 12;
+  const jupRekhas = jupChart.rekhas[fifthFromJup];
+  const qualified = !(jup.dignity === "Debilitated" || jup.dignity === "Inimical");
+  const progeny = {
+    signIndex: fifthFromJup, rekhas: jupRekhas, jupiterSign: jup.signIndex, qualified,
+    text: qualified
+      ? `Children by 70.30-33: the 5th from Jupiter (${SIGNS[fifthFromJup]}) carries ${jupRekhas} rekhas in Jupiter's chart, the number the verse gives; ${jupRekhas >= 5 ? "a high figure, so happiness through children" : jupRekhas <= 2 ? "a low figure, so little from children" : "a middling figure"}.`
+      : `Children by 70.30-33: Jupiter stands in ${SIGNS[jup.signIndex]}, its ${jup.dignity === "Debilitated" ? "sign of debilitation" : "enemy's sign"}, so the verse limits the count rather than reading the ${jupRekhas} rekhas of the 5th from it (${SIGNS[fifthFromJup]}).`,
+  };
+
   const caveats = [
     "The rekha tables follow 66.43-68 checked against the dot lists of 66.16-42; where the two disagree (Sun and Saturn in the 5th of Mercury's chart, Jupiter in its own 1st and 4th) the dot lists are used, which gives the totals of 48, 49, 39, 54, 56, 52, 39 and 49 that later manuals also carry. Chapter 66 calls the benefic mark a rekha and 28.15-20 a bindu; the tables here count benefic marks.",
     "Trikona shodhana (67.3-5) subtracts the smallest figure of each trine from all three unless one of them is zero; when the three are equal they all become zero. This is how the translation's wording is read.",
     "Ekadhipatya shodhana (68.1-5) treats a sign as occupied when one of the seven planets stands in it; the nodes are not counted. When the occupied sign's figure equals the empty sign's, the empty sign drops to zero, following the last of the rules in 68.3. Both readings are provisional.",
     "Pinda multipliers (69.1-4) use the Rashimana and Grahamana chakras printed with the verses (Aries 7, Taurus 10, Gemini 8, Cancer 4, Leo 10, Virgo 6, Libra 7, Scorpio 8, Sagittarius 9, Capricorn 5, Aquarius 11, Pisces 12; Sun, Moon, Mercury and Saturn 5, Mars 8, Venus 7, Jupiter 10). The verse text itself reads Capricorn 6, Mars 3 and 6 for the Sun, Moon, Mercury and Saturn; the chakra values are the ones the tradition carries, so the verse variants are noted and not applied.",
-    "The Saturn transit points of ch. 70 multiply the unreduced rekhas of the house named (9th from the Sun for father, 4th from the Moon, 4th from Mercury, 5th from Jupiter, 7th from Venus, 8th from Saturn) by the owner's Yoga pinda; a remainder of zero is read as the 27th nakshatra or 12th sign. For co-borns 70.24-27 names Mars's chart but not the house; the 3rd from Mars is used and marked provisional.",
+    "The Saturn transit points of ch. 70 multiply the unreduced rekhas of the house named (9th from the Sun for father, 4th from the Moon, 4th from Mercury, 5th from Jupiter, 7th from Venus, 8th from Saturn) by the owner's Yoga pinda, as Phaladeepika 24.1-3 and later manuals (Patel) do; 70.28-29 names the figure left after both reductions for Mercury, so the point from the reduced figure is shown alongside and the choice is provisional. A remainder of zero is read as the 27th nakshatra or 12th sign. For co-borns 70.24-27 names Mars's chart but not the house; the 3rd from Mars is used (Phaladeepika 24.9 names it) and marked provisional.",
+    "Ekadhipatya shodhana when one sign is occupied and holds the smaller figure: the translation of 68.3 says the smaller number is deducted from the bigger, while Phaladeepika 24.19 and later practice bring the empty sign down to the occupied sign's figure. The equalising reading is used; where the literal subtraction would change a Yoga pinda the alternative is listed. Provisional until the Sanskrit is checked.",
+    "The Moon's rekha row follows the dot lists of 66.16-42 and the rekha lists of 66.43-68, which agree with each other. Saravali ch. 53 and Brihat Jataka ch. 13, the table Raman and most software carry, differ in three cells (from the Moon 1,3,6,7,10,11; from Mars 2,3,5,6,9,10,11; from Jupiter 1,4,7,8,10,11,12), so a sign's total can differ by one; the signs affected in this chart are listed under the table.",
+    "The years of 70.37-40 count Saturn's rekhas from the lagna to Saturn's sign and back, both ends included; the verse does not say whether the ends are included, so this is a reading. The life spans of 71.1-4 treat a day as 1/360 of a year, an assumption for the fractional entries.",
     "The longevity of 71.1-4 sums the spans allotted to every sign of all eight charts and halves the total; it is shown as the chapter states it, without the checks other longevity methods apply.",
     "For 72.9-10 Jupiter, Venus, Mercury and the Moon count as benefics and the rest, nodes included, as malefics; the verse does not say whether the Moon's phase or Mercury's company should be weighed.",
     "The Sarvashtakavarga (72.1-2) sums the seven planets' charts and leaves out the lagna's, which the chapter treats separately; 337 rekhas in all. The bands of 72.3-6 are above 30, 25 to 30 and below 25. The month-by-month dangers of 72.11-28 are not listed.",
   ];
 
-  return { charts, sarva, band, houses, wealthYoga, lifeThirds, distressYears, saturnPoints, ayurdaya, sources: ASHTAKAVARGA_SOURCES, caveats };
+  return { charts, sarva, band, houses, wealthYoga, lifeThirds, distressYears, saturnPoints, progeny, ayurdaya, saravali, ekadhipatya, ekadhipatyaVariant, sources: ASHTAKAVARGA_SOURCES, caveats };
 }
 
 export function bhinnaOf(av: AshtakavargaResult | undefined, owner: Planet): Bhinnashtaka | undefined {

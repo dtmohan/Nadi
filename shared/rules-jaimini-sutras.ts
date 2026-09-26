@@ -3,7 +3,7 @@
 // Wording is deliberately softened where the sutra is blunt; the sutra text itself is in the sutra library.
 
 import { SIGNS, SIGN_LORD, dignityOf, houseFrom, type Planet, type PlanetPosition } from "./astro";
-import { isBenefic, rasiAspects } from "./jaimini";
+import { argalaOn, isBenefic, rasiAspects } from "./jaimini";
 import type { JaiminiArea } from "./jaimini-areas";
 import type { JaiminiContext, JaiminiRule, JaiminiSource } from "./rules-jaimini";
 
@@ -39,6 +39,8 @@ const akSign = (ctx: JaiminiContext) => pos(ctx, ctx.karakas[0].planet).signInde
 const nonEmpty = (l: Planet[]) => (l.length ? l : null);
 const hasAll = (l: Planet[], ...ps: Planet[]) => ps.every((p) => l.includes(p));
 const uniq = (l: Planet[]) => Array.from(new Set(l));
+/** Planets giving unobstructed argala on `sign` (2nd, 4th, 11th primary; 5th secondary), the same reckoning as the Jaimini tab's argala table. */
+const freeArgala = (ctx: JaiminiContext, sign: number): Planet[] => uniq(argalaOn(sign, ctx.positions).filter((a) => !a.obstructed).flatMap((a) => a.planets));
 
 /** Life area for each rule in this file, merged into AREA_OF_RULE. */
 export const SUTRA_RULE_AREA: Record<string, JaiminiArea> = {};
@@ -399,15 +401,9 @@ export const SUTRA_RULES_ARUDHA: JaiminiRule[] = [
       source: JS("1.3.22-23"),
       test: (ctx) => {
         const b = benefics(ctx);
-        const hits: Planet[] = [];
-        for (const sign of [AL(ctx), (AL(ctx) + 6) % 12]) {
-          for (const h of [2, 4, 11]) {
-            const planets = rasi(ctx, sign, h);
-            const obstruct = rasi(ctx, sign, h === 2 ? 12 : h === 4 ? 10 : 3);
-            if (planets.length && obstruct.length < planets.length) hits.push(...planets.filter((p) => b.has(p)));
-          }
-        }
-        return nonEmpty(uniq(hits));
+        const hits = uniq([...freeArgala(ctx, AL(ctx)), ...freeArgala(ctx, (AL(ctx) + 6) % 12)]);
+        // 1.3.22 credits any unobstructed argala; 1.3.23 the benefic ones. Benefics are listed first.
+        return nonEmpty([...hits.filter((p) => b.has(p)), ...hits.filter((p) => !b.has(p))]);
       },
     },
     "wealth",
@@ -623,7 +619,7 @@ export const SUTRA_RULES_ARUDHA: JaiminiRule[] = [
       when: "the Dhana pada (A2) in a kendra, trikona, 3rd or 11th from the Arudha lagna, or in its 6th, 8th or 12th",
       text: "Dhana pada well placed from the Arudha lagna: savings and family wealth stand behind the public image; in the 6th, 8th or 12th from it, what is accumulated does not show, or drains away.",
       weight: 2,
-      source: BP29("29.31, 29.36-37"),
+      source: BP29("29.30-37", "Dhana pada read with the Dara pada, as the passage directs"),
       test: (ctx) => {
         const h = houseFrom(AL(ctx), ctx.arudhas[1].signIndex);
         return [1, 4, 7, 10, 5, 9, 3, 11, 6, 8, 12].includes(h) ? [SIGN_LORD[ctx.arudhas[1].signIndex]] : null;
@@ -671,18 +667,32 @@ export const SUTRA_RULES_ARUDHA: JaiminiRule[] = [
       when: "unobstructed argala on the 11th from the Arudha lagna, with the 12th from the Arudha lagna free of malefics",
       text: "Argala on the 11th from the Arudha lagna multiplies the gains; benefic argala more so, an exalted benefic most. The 12th from the Arudha lagna must stay free of malefics for the gains to hold.",
       weight: 2,
-      source: BP29("29.13-15"),
+      source: BP29("29.13-15", "malefic association of the 12th read as occupancy; aspects are not tested"),
       test: (ctx) => {
         const eleventh = (AL(ctx) + 10) % 12;
         const m = malefics(ctx);
         if (rasi(ctx, AL(ctx), 12).some((p) => m.has(p))) return null;
-        const hits: Planet[] = [];
-        for (const h of [2, 4, 11]) {
-          const planets = rasi(ctx, eleventh, h);
-          const obstruct = rasi(ctx, eleventh, h === 2 ? 12 : h === 4 ? 10 : 3);
-          if (planets.length && obstruct.length < planets.length) hits.push(...planets);
-        }
-        return nonEmpty(uniq(hits));
+        const hits = freeArgala(ctx, eleventh);
+        const b = benefics(ctx);
+        const exalted = (p: Planet) => dignityOf(p, pos(ctx, p).signIndex, pos(ctx, p).degInSign) === "Exalted";
+        // order: exalted benefics, benefics, the rest, so the strongest reading leads the list
+        return nonEmpty([...hits.filter((p) => b.has(p) && exalted(p)), ...hits.filter((p) => b.has(p) && !exalted(p)), ...hits.filter((p) => !b.has(p))]);
+      },
+    },
+    "wealth",
+  ),
+  area(
+    {
+      id: "ja-al-12th-clear",
+      group: "arudha",
+      chart: "rasi",
+      when: "planets in or aspecting the 11th from the Arudha lagna while its 12th is neither occupied nor aspected",
+      text: "The 11th from the Arudha lagna is touched by planets and its 12th by none: the gains are uninterrupted.",
+      weight: 1,
+      source: BP29("29.12"),
+      test: (ctx) => {
+        const gains = rasi(ctx, AL(ctx), 11, true);
+        return gains.length && rasi(ctx, AL(ctx), 12, true).length === 0 ? nonEmpty(uniq(gains)) : null;
       },
     },
     "wealth",
@@ -700,6 +710,19 @@ export const SUTRA_RULES_ARUDHA: JaiminiRule[] = [
         nonEmpty(
           rasi(ctx, AL(ctx), 7).filter((p) => ["Jupiter", "Venus", "Moon"].includes(p) || dignityOf(p, pos(ctx, p).signIndex, pos(ctx, p).degInSign) === "Exalted"),
         ),
+    },
+    "wealth",
+  ),
+  area(
+    {
+      id: "ja-al-2nd-soft",
+      group: "arudha",
+      chart: "rasi",
+      when: "Jupiter, Venus or the Moon in the 2nd from the Arudha lagna",
+      text: "Jupiter, Venus or the Moon in the 2nd from the Arudha lagna: wealth; Parashara extends the 7th-house yogas to the 2nd, and Jaimini names the same three planets there.",
+      weight: 2,
+      source: BP29("29.25-27, Jaimini 1.3.15"),
+      test: (ctx) => nonEmpty(rasi(ctx, AL(ctx), 2).filter((p) => ["Jupiter", "Venus", "Moon"].includes(p))),
     },
     "wealth",
   ),

@@ -58,7 +58,7 @@ export const JAIMINI_AREAS: Record<JaiminiArea, AreaSpec> = {
       { house: 11, tone: "support", gloss: "gains" },
       { house: 12, tone: "strain", gloss: "outflow" },
     ],
-    blurb: "Jaimini reads money from the padas: Dhana pada (A2) for savings and family wealth, Labha pada (A11) for income, and the 2nd, 11th and 12th from the Arudha lagna.",
+    blurb: "Jaimini reads money from the padas: Dhana pada (A2) for savings and family wealth, Labha pada (A11) for income, and the 2nd, 11th and 12th from the Arudha lagna. The same Arudha-lagna yogas are to be read from the Karakamsa as well (Jaimini 1.3.17, Parashara 29.29); that repeat is not computed here.",
   },
   marriage: {
     label: "Marriage & partnership",

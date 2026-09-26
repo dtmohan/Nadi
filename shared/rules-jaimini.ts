@@ -420,7 +420,7 @@ export const JAIMINI_RULES: JaiminiRule[] = [
     when: "planets in or aspecting the 11th from the Arudha lagna",
     text: "Planets influencing the 11th from the Arudha lagna are the sources of income: benefics by fair means, malefics by harder or questionable ones. More planets, more gain.",
     weight: 2,
-    source: BPHS29("29.8-11, Jaimini 1.3.2-5"),
+    source: BPHS29("29.8-11, 29.13, Jaimini 1.3.2-5"),
     test: (ctx) => nonEmpty(rasiHouse(ctx, AL(ctx), 11, true)),
   },
   {
@@ -430,7 +430,7 @@ export const JAIMINI_RULES: JaiminiRule[] = [
     when: "planets in or aspecting the 12th from the Arudha lagna",
     text: "Planets influencing the 12th from the Arudha lagna show where money goes; if more planets touch the 12th than the 11th, spending outruns income.",
     weight: 2,
-    source: BPHS29("29.12, 29.22"),
+    source: BPHS29("29.16-17, 29.22, Jaimini 1.3.6-12"),
     test: (ctx) => nonEmpty(rasiHouse(ctx, AL(ctx), 12, true)),
   },
   {
