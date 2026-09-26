@@ -667,8 +667,238 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
       push("pa-h8-19-15", 8, "Wealth, virtue and long life", `${l1}, lord of the lagna, is ${pos(l1).dignity === "Exalted" ? "exalted" : "in its own sign"} and above its Shadbala requirement, and ${list(benKT)} ${v(benKT, "aspects", "aspect")} it from the ${list(benKT.map((p) => ord(houseOf(p))))}, an angle. Parashara promises wealth, virtue and long life. "Exceedingly strong" is read as dignity plus Shadbala, so this is provisional.`, "support", [l1, ...benKT], S(19, "15", true));
     }
   }
+
+  // ---- Chapter 20: the 9th house ----
+  const h9 = houseOf(l9);
+  const h10 = houseOf(l10);
+  const h12 = houseOf(l12);
+  const juAspOrWith = (pl: Planet) => pl !== "Jupiter" && (withEach(pl, "Jupiter") || deps.aspect("Jupiter", pos("Jupiter").signIndex, pos(pl).signIndex) > 0);
+  const exalted = (pl: Planet) => pos(pl).dignity === "Exalted";
+  const deb = (pl: Planet) => pos(pl).dignity === "Debilitated";
+  const navHouse = (pl: Planet) => houseFrom(navLagna, navamsaSign(pos(pl)));
+  if (h9 === 9 && strong(l9) === true) {
+    push("pa-h9-20-1", 9, "Fortune", `${l9}, lord of the 9th, is in the 9th itself and above its Shadbala requirement. Parashara reads good fortune${exalted("Mercury") ? ", and 20.28 adds abundant fortunes after the 36th year since Mercury is exalted" : ""}.`, "support", exalted("Mercury") ? [l9, "Mercury"] : [l9], S(20, exalted("Mercury") ? "1, 28" : "1"));
+  }
+  if (houseOf("Jupiter") === 9 && KENDRA.includes(h9)) {
+    const l1Strong = strong(l1) === true;
+    push("pa-h9-20-2", 9, l1Strong ? "Great fortune" : "Fortune after 20", `Jupiter is in the 9th and ${l9}, lord of the 9th, is in the ${ord(h9)}, an angle${l1Strong ? `, with ${l1}, lord of the lagna, above its Shadbala requirement. Parashara reads great fortune, and 20.27 times its abundance to after the 20th year` : `. Parashara times abundant fortunes to after the 20th year; 20.2 would add great fortune if the lagna lord ${l1} were strong by Shadbala`}.`, "support", ["Jupiter", l9, l1], S(20, l1Strong ? "2, 27" : "27"));
+  }
+  if (strong(l9) === true && houseOf("Venus") === 9 && KENDRA.includes(houseOf("Jupiter"))) {
+    push("pa-h9-20-3", 9, "Fortunate father", `${l9}, lord of the 9th, is strong, Venus is in the 9th and Jupiter is in the ${ord(houseOf("Jupiter"))}, an angle. Parashara reads a fortunate father.`, "support", [l9, "Venus", "Jupiter"], S(20, "3"));
+  }
+  if (deb(l9) && [10, 12].includes(houseOf("Mars"))) {
+    push("pa-h9-20-4", 9, "Father's means", `${l9}, lord of the 9th, is debilitated${l9 === "Mars" ? "" : " and Mars is"} in the ${ord(houseOf("Mars"))}, the ${houseOf("Mars") === 10 ? "2nd" : "4th"} from the 9th. Parashara reads a father of slender means.`, "strain", [l9, "Mars"], S(20, "4"));
+  }
+  if (exalted(l9) && KENDRA.includes(houseOf("Venus")) && navHouse("Jupiter") === 9) {
+    push("pa-h9-20-5", 9, "Long-lived father", `${l9}, lord of the 9th, is exalted, Venus is in the ${ord(houseOf("Venus"))}, an angle, and Jupiter is in the 9th from the navamsa lagna. Parashara reads a long span of life for the father.`, "support", [l9, "Venus", "Jupiter"], S(20, "5"));
+  }
+  if (KENDRA.includes(h9) && juAspOrWith(l9) && !withEach(l9, "Jupiter")) {
+    push("pa-h9-20-6", 9, "Father of standing", `${l9}, lord of the 9th, is in the ${ord(h9)}, an angle, under Jupiter's aspect. Parashara reads a father of royal standing or its equivalent, with conveyances.`, "support", [l9, "Jupiter"], S(20, "6"));
+  }
+  if (h9 === 10 && (aspectingPlanet(l10, "benefic").filter((p) => p !== l10).length || beneficsWith(l10).length)) {
+    const bs = Array.from(new Set<Planet>([...aspectingPlanet(l10, "benefic").filter((p) => p !== l10), ...beneficsWith(l10)]));
+    push("pa-h9-20-7", 9, "Wealthy and famous father", `${l9}, lord of the 9th, is in the 10th and ${l10}, lord of the 10th, is ${beneficsWith(l10).length ? "joined" : "aspected"} by ${list(bs)}. Parashara reads a very rich and famous father.`, "support", [l9, l10, ...bs], S(20, "7"));
+  }
+  if (exalted("Sun") && h9 === 11) {
+    push("pa-h9-20-8", 9, "Devoted to the father", `The Sun is exalted and ${l9}, lord of the 9th, is in the 11th. Parashara reads a virtuous native, dear to the king and devoted to the father. The text reads "1th"; the 11th is assumed, so this is provisional.`, "support", ["Sun", l9], S(20, "8", true));
+  }
+  if (TRIKONA.includes(houseOf("Sun")) && h9 === 7 && juAspOrWith(l9)) {
+    push("pa-h9-20-9", 9, "Devoted to the father", `The Sun is in the ${ord(houseOf("Sun"))}, a trine, and ${l9}, lord of the 9th, is in the 7th ${withEach(l9, "Jupiter") ? "with" : "aspected by"} Jupiter. Parashara reads devotion to the father.`, "support", ["Sun", l9, "Jupiter"], S(20, "9"));
+  }
+  if (exch(l9, l2, 9, 2)) {
+    push("pa-h9-20-10", 9, "Fortune after 32", `${l9} and ${l2}, lords of the 9th and 2nd, exchange signs. Parashara times fortune, conveyances and fame to after the 32nd year.`, "support", [l9, l2], S(20, "10"));
+  }
+  if (houseOf(l1) === 9 && withEach(l1, l6)) {
+    push("pa-h9-20-11", 9, "Discord with the father", `${l1}, lord of the lagna, is in the 9th with ${l6}, lord of the 6th. Parashara reads mutual enmity between father and native.`, "strain", [l1, l6], S(20, "11"));
+  }
+  if (strong(l10) === false && strong(l3) === false && (deb(l9) || combust(l9))) {
+    push("pa-h9-20-12", 9, "Penury", `${l10} and ${l3}, lords of the 10th and 3rd, are both short of their Shadbala requirement and ${l9}, lord of the 9th, is ${deb(l9) ? "debilitated" : "combust"}. Parashara reads a native who begs for food; read as penury.`, "strain", [l10, l3, l9], S(20, "12"));
+  }
+  // 20.13-25: hard verses on the father's life, shown as written.
+  const father = (id: string, when: string, why: string, pls: Planet[], verse: string, prov?: boolean) => push(`pa-h9-20-${id}`, 9, `Father's life at risk ${when}`, `${why}. Parashara reads the loss of the father ${when}; a hard verse, shown as written and to be weighed against 20.3-7 and the 9th lord's strength.`, "strain", pls, S(20, verse, prov));
+  if (DUSTHANA.includes(houseOf("Sun")) && houseOf(l8) === 9 && h12 === 1 && h6 === 5) father("13", "before the native's birth", `The Sun is in the ${ord(houseOf("Sun"))}, ${l8}, lord of the 8th, is in the 9th, ${l12}, lord of the 12th, is in the lagna and ${l6}, lord of the 6th, is in the 5th`, ["Sun", l8, l12, l6], "13");
+  else if (houseOf("Sun") === 8 && houseOf(l8) === 9) father("14", "within the first year", `The Sun is in the 8th and ${l8}, lord of the 8th, is in the 9th`, ["Sun", l8], "14");
+  if (h12 === 9 && EXALT_SIGN[l9] !== undefined && navamsaSign(pos(l9)) === (EXALT_SIGN[l9]! + 6) % 12) father("15", "in the 3rd or 6th year", `${l12}, lord of the 12th, is in the 9th and ${l9}, lord of the 9th, is in its debilitation navamsa`, [l12, l9], "15");
+  if (houseOf(l1) === 8 && l8 !== "Sun" && withEach(l8, "Sun")) father("16", "in the 2nd or 12th year", `${l1}, lord of the lagna, is in the 8th and ${l8}, lord of the 8th, is with the Sun`, [l1, l8, "Sun"], "16");
+  if (houseOf("Rahu") === 4 && houseOf("Sun") === 5) father("17", "in the 16th or 18th year", `Rahu is in the 4th, the 8th from the 9th, and the Sun is in the 5th, the 9th from the 9th`, ["Rahu", "Sun"], "17");
+  if (houseFrom(pos("Moon").signIndex, pos("Saturn").signIndex) === 9 && withEach("Sun", "Rahu")) father("18", "in the 7th or 19th year", `Saturn is in the 9th from the Moon and the Sun is with Rahu`, ["Saturn", "Moon", "Sun", "Rahu"], "18");
+  if (exch(l9, l12, 9, 12)) father("19", "in the 44th year", `${l9} and ${l12}, lords of the 9th and 12th, exchange signs`, [l9, l12], "19");
+  if (houseOf(l1) === 8 && navamsaSign(pos("Moon")) === 4) father("20", "in the 35th or 41st year", `${l1}, lord of the lagna, is in the 8th and the Moon is in a Leo navamsa, the Sun's`, [l1, "Moon"], "20");
+  if (l9 === "Sun" && withEach("Sun", "Mars") && withEach("Sun", "Saturn")) father("21", "in the 50th year", `The Sun, lord of the 9th, is joined by Mars and Saturn`, ["Sun", "Mars", "Saturn"], "21");
+  if (houseOf("Sun") === 3 && houseOf("Rahu") === 9) father("22", "in the 6th or 25th year", `The Sun is in the 3rd, the 7th from the 9th, and Rahu in the 9th`, ["Sun", "Rahu"], "22");
+  if (houseOf("Saturn") === 2 && houseOf("Sun") === 8) father("23", "in the 21st, 26th or 30th year", `Saturn is in the 2nd and the Sun in the 8th, the 7th from Saturn`, ["Saturn", "Sun"], "23");
+  if (deb(l9) && disp(l9) !== l9 && houseOf(disp(l9)) === 9) father("24", "in the 26th or 30th year", `${l9}, lord of the 9th, is debilitated and its dispositor ${disp(l9)} is in the 9th`, [l9, disp(l9)], "24");
+  if (exalted("Venus") && l9 !== "Venus" && withEach("Venus", l9) && houseOf("Saturn") === 3) {
+    push("pa-h9-20-26", 9, "Abundant fortune", `Venus is exalted with ${l9}, lord of the 9th, and Saturn is in the 3rd. Parashara reads abundant fortunes.`, "support", ["Venus", l9, "Saturn"], S(20, "26"));
+  }
+  if (houseOf(l1) === 9 && h9 === 1 && houseOf("Jupiter") === 7) {
+    push("pa-h9-20-29", 9, "Wealth and conveyances", `${l1}, lord of the lagna, is in the 9th, ${l9}, lord of the 9th, is in the lagna, and Jupiter is in the 7th. Parashara reads gains of wealth and conveyances.`, "support", [l1, l9, "Jupiter"], S(20, "29"));
+  }
+  if (houseOf("Rahu") === 5 && houseOf(disp("Rahu")) === 8 && deb(l9)) {
+    push("pa-h9-20-30", 9, "Fortune withheld", `Rahu is in the 5th, the 9th from the 9th, its dispositor ${disp("Rahu")} is in the 8th, and ${l9}, lord of the 9th, is debilitated. Parashara reads a native devoid of fortune.`, "strain", ["Rahu", disp("Rahu"), l9], S(20, "30"));
+  }
+  if (houseOf("Saturn") === 9 && houseOf("Moon") === 9 && deb(l1)) {
+    push("pa-h9-20-31", 9, "Penury", `Saturn and the Moon are in the 9th and ${l1}, lord of the lagna, is debilitated. Parashara reads a native who begs for food; read as penury.`, "strain", ["Saturn", "Moon", l1], S(20, "31"));
+  }
+
+  // ---- Chapter 21: the 10th house ----
+  const s10 = signOfHouse(10);
+  const in10 = inSign(s10);
+  const mal10 = in10.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
+  const mal11 = inSign(signOfHouse(11)).filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
+  const ownNav = (pl: Planet) => SIGN_LORD[navamsaSign(pos(pl))] === pl;
+  if (strong(l10) === true && (exalted(l10) || own(l10) || ownNav(l10))) {
+    push("pa-h10-21-2", 10, "Fame and good deeds", `${l10}, lord of the 10th, is above its Shadbala requirement and ${exalted(l10) ? "exalted" : own(l10) ? "in its own sign" : "in its own navamsa"}. Parashara reads great happiness from the father, fame and good deeds.`, "support", [l10], S(21, "2"));
+  }
+  if (strong(l10) === false) {
+    push("pa-h10-21-3", 10, "Obstructed work", `${l10}, lord of the 10th, is short of its Shadbala requirement. Parashara reads obstructions in one's work.`, "strain", [l10], S(21, "3"));
+  }
+  {
+    const bw = beneficsWith(l10);
+    const mw = maleficsWith(l10);
+    if (bw.length && !mw.length) push("pa-h10-21-4", 10, "Gains through patronage and business", `${l10}, lord of the 10th, is joined by ${list(bw)}. Parashara reads constant gains through royal patronage and business; his alternative clause, "an auspicious house", is not evaluated.`, "support", [l10, ...bw], S(21, "4"));
+    else if (mw.length && !bw.length) push("pa-h10-21-4", 10, "Patronage and business strained", `${l10}, lord of the 10th, is joined by ${list(mw)}. Parashara says the contrary of 21.4 follows: gains through patronage and business are strained.`, "strain", [l10, ...mw], S(21, "4"));
+  }
+  if (mal10.length && mal11.length) {
+    push("pa-h10-21-5", 10, "Conduct under strain", `${list(mal10)} in the 10th and ${list(mal11)} in the 11th. Parashara reads a bent towards bad deeds that harms one's own people; his words, to be weighed against 21.14-15.`, "strain", [...mal10, ...mal11], S(21, "5"));
+  }
+  if (h10 === 8 && withEach(l10, "Rahu")) {
+    push("pa-h10-21-6", 10, "Judgement clouded", `${l10}, lord of the 10th, is in the 8th with Rahu. Parashara reads ill will, folly and bad deeds; read as clouded judgement.`, "strain", [l10, "Rahu"], S(21, "6"));
+  }
+  if (houseOf("Saturn") === 7 && houseOf("Mars") === 7 && h10 === 7 && maleficsWith(l7).length) {
+    push("pa-h10-21-7", 10, "Given to pleasures", `Saturn, Mars and ${l10}, lord of the 10th, are in the 7th, and ${l7}, lord of the 7th, is with ${list(maleficsWith(l7))}. Parashara reads a native fond of carnal pleasures and the table.`, "strain", ["Saturn", "Mars", l10, l7], S(21, "7"));
+  }
+  if (exalted(l10) && withEach(l10, "Jupiter") && h9 === 10) {
+    push("pa-h10-21-8", 10, "Honour, wealth and valour", `${l10}, lord of the 10th, is exalted with Jupiter and ${l9}, lord of the 9th, is in the 10th. Parashara reads honour, wealth and valour.`, "support", [l10, "Jupiter", l9], S(21, "8"));
+  }
+  if ((h11 === 10 && h10 === 1) || (withEach(l10, l11) && KENDRA.includes(h10))) {
+    push("pa-h10-21-9", 10, "A happy life", `${h11 === 10 && h10 === 1 ? `${l11}, lord of the 11th, is in the 10th and ${l10}, lord of the 10th, is in the lagna` : `${l10} and ${l11}, lords of the 10th and 11th, are together in the ${ord(h10)}, an angle`}. Parashara reads a happy life.`, "support", [l10, l11], S(21, "9"));
+  }
+  if (strong(l10) === true && pos(l10).signIndex === 11 && withEach(l10, "Jupiter")) {
+    push("pa-h10-21-10", 10, "Robes and ornaments", `${l10}, lord of the 10th, is strong in Pisces with Jupiter. Parashara reads robes, ornaments and happiness without doubt.`, "support", [l10, "Jupiter"], S(21, "10"));
+  }
+  if ((["Rahu", "Sun", "Saturn", "Mars"] as Planet[]).every((p) => houseOf(p) === 11)) {
+    push("pa-h10-21-11", 10, "Duties interrupted", `Rahu, the Sun, Saturn and Mars are all in the 11th. Parashara reads a cessation of one's duties.`, "strain", ["Rahu", "Sun", "Saturn", "Mars"], S(21, "11"));
+  }
+  if (pos("Jupiter").signIndex === 11 && withEach("Jupiter", "Venus") && strong(l1) === true && exalted("Moon")) {
+    push("pa-h10-21-12", 10, "Learned and wealthy", `Jupiter is in Pisces with Venus, ${l1}, lord of the lagna, is strong, and the Moon is exalted. Parashara reads a learned and wealthy native.`, "support", ["Jupiter", "Venus", l1, "Moon"], S(21, "12"));
+  }
+  if (h10 === 12 && h11 === 1 && houseOf("Venus") === 10) {
+    push("pa-h10-21-13", 10, "Precious stones", `${l10}, lord of the 10th, is in the 12th, ${l11}, lord of the 11th, is in the lagna, and Venus is in the 10th. Parashara reads a native endowed with precious stones.`, "support", [l10, l11, "Venus"], S(21, "13"));
+  }
+  if (exalted(l10) && inKT(h10) && juAspOrWith(l10)) {
+    push("pa-h10-21-14", 10, "Worthy deeds", `${l10}, lord of the 10th, is exalted in the ${ord(h10)} and ${withEach(l10, "Jupiter") ? "joined" : "aspected"} by Jupiter. Parashara reads a native endowed with worthy deeds.`, "support", [l10, "Jupiter"], S(21, "14"));
+  }
+  if (h10 === 1 && l10 !== l1 && withEach(l10, l1) && inKT(houseOf("Moon"))) {
+    push("pa-h10-21-15", 10, "Inclined to good deeds", `${l10}, lord of the 10th, is in the lagna with ${l1}, its lord, and the Moon is in the ${ord(houseOf("Moon"))}. Parashara reads an interest in good deeds.`, "support", [l10, l1, "Moon"], S(21, "15"));
+  }
+  {
+    const debWithSat = withPl("Saturn").filter((p) => p.dignity === "Debilitated").map((p) => p.planet);
+    const malNav10 = positions.filter((p) => !deps.benefic(p, positions) && navHouse(p.planet) === 10).map((p) => p.planet);
+    if (houseOf("Saturn") === 10 && debWithSat.length && malNav10.length) push("pa-h10-21-16", 10, "Virtue withheld", `Saturn is in the 10th with ${list(debWithSat)}, debilitated, and ${list(malNav10)} ${v(malNav10, "occupies", "occupy")} the 10th from the navamsa lagna. Parashara reads a native bereft of virtuous acts.`, "strain", ["Saturn", ...debWithSat, ...malNav10], S(21, "16"));
+  }
+  if (h10 === 8 && houseOf(l8) === 10 && maleficsWith(l8).length) {
+    push("pa-h10-21-17", 10, "Conduct under strain", `${l10}, lord of the 10th, is in the 8th and ${l8}, lord of the 8th, is in the 10th with ${list(maleficsWith(l8))}. Parashara reads bad acts.`, "strain", [l10, l8, ...maleficsWith(l8)], S(21, "17"));
+  }
+  {
+    const mal7h = in7.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
+    if (deb(l10) && mal10.length && mal7h.length) push("pa-h10-21-18", 10, "Obstructed work", `${l10}, lord of the 10th, is debilitated, with ${list(mal10)} in the 10th and ${list(mal7h)} in the 7th, the 10th from the 10th. Parashara reads obstructions to one's acts.`, "strain", [l10, ...mal10, ...mal7h], S(21, "18"));
+  }
+  if (houseOf("Moon") === 10 && [10, 2, 6].includes(h10) && KENDRA.includes(houseOf(l1))) {
+    push("pa-h10-21-19", 10, "Fame", `The Moon is in the 10th, ${l10}, lord of the 10th, is in the ${ord(h10)}, a trine from the 10th, and ${l1}, lord of the lagna, is in the ${ord(houseOf(l1))}, an angle. Parashara reads fame.`, "support", ["Moon", l10, l1], S(21, "19"));
+  }
+  if (h11 === 10 && strong(l10) === true && juAspOrWith(l10) && !withEach(l10, "Jupiter")) {
+    push("pa-h10-21-20", 10, "Fame", `${l11}, lord of the 11th, is in the 10th and ${l10}, lord of the 10th, is strong under Jupiter's aspect. Parashara reads fame.`, "support", [l11, l10, "Jupiter"], S(21, "20"));
+  }
+  if (h10 === 9 && houseOf(l1) === 10 && houseOf("Moon") === 5) {
+    push("pa-h10-21-21", 10, "Fame", `${l10}, lord of the 10th, is in the 9th, ${l1}, lord of the lagna, is in the 10th, and the Moon is in the 5th. Parashara reads fame.`, "support", [l10, l1, "Moon"], S(21, "21"));
+  }
+
+  // ---- Chapter 22: the 11th house ----
+  const in11 = inSign(signOfHouse(11));
+  const ben11 = in11.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
+  if (h11 === 11 || inKT(h11) || exalted(l11)) {
+    push("pa-h11-22-2", 11, "Many gains", `${l11}, lord of the 11th, is ${h11 === 11 ? "in the 11th itself" : inKT(h11) ? `in the ${ord(h11)}, an angle or trine` : "exalted"}${exalted(l11) && combust(l11) ? ", and though combust its exaltation is enough by 22.2" : ""}. Parashara reads many gains.`, "support", [l11], S(22, "2"));
+  }
+  if (h11 === 2 && KENDRA.includes(h2) && withEach(l2, "Jupiter")) {
+    push("pa-h11-22-3", 11, "Great gains", `${l11}, lord of the 11th, is in the 2nd and ${l2}, lord of the 2nd, is in the ${ord(h2)}, an angle, with Jupiter. Parashara reads great gains.`, "support", [l11, l2, "Jupiter"], S(22, "3"));
+  }
+  if (h11 === 3 && ben11.length) {
+    push("pa-h11-22-4", 11, "A notable gain in the 36th year", `${l11}, lord of the 11th, is in the 3rd and ${list(ben11)} ${v(ben11, "occupies", "occupy")} the 11th. Parashara times a large gain (2000 nishkas of gold) to the 36th year.`, "support", [l11, ...ben11], S(22, "4"));
+  }
+  if (inKT(h11) && beneficsWith(l11).length) {
+    push("pa-h11-22-5", 11, "A gain in the 40th year", `${l11}, lord of the 11th, is in the ${ord(h11)} with ${list(beneficsWith(l11))}. Parashara times a gain (500 nishkas) to the 40th year.`, "support", [l11, ...beneficsWith(l11)], S(22, "5"));
+  }
+  if (houseOf("Jupiter") === 11 && houseOf("Moon") === 2 && houseOf("Venus") === 9) {
+    push("pa-h11-22-6", 11, "Great wealth", `Jupiter is in the 11th, the Moon in the 2nd and Venus in the 9th. Parashara reads great wealth (6000 nishkas).`, "support", ["Jupiter", "Moon", "Venus"], S(22, "6"));
+  }
+  if ((["Jupiter", "Mercury", "Moon"] as Planet[]).every((p) => houseOf(p) === 9)) {
+    push("pa-h11-22-7", 11, "Wealth and ornaments", `Jupiter, Mercury and the Moon are in the 9th, the 11th from the 11th. Parashara reads wealth, grain, fortune, gems and ornaments.`, "support", ["Jupiter", "Mercury", "Moon"], S(22, "7"));
+  }
+  if (exch(l11, l1, 11, 1)) {
+    push("pa-h11-22-8", 11, "A gain in the 33rd year", `${l11} and ${l1}, lords of the 11th and lagna, exchange signs. Parashara times a gain (1000 nishkas) to the 33rd year.`, "support", [l11, l1], S(22, "8"));
+  }
+  if (exch(l11, l2, 11, 2)) {
+    push("pa-h11-22-9", 11, "Fortune after marriage", `${l11} and ${l2}, lords of the 11th and 2nd, exchange signs. Parashara reads abundant fortune after marriage.`, "support", [l11, l2], S(22, "9"));
+  }
+  if (exch(l11, l3, 11, 3)) {
+    push("pa-h11-22-10", 11, "Wealth through co-born", `${l11} and ${l3}, lords of the 11th and 3rd, exchange signs. Parashara reads wealth through co-born and fine ornaments.`, "support", [l11, l3], S(22, "10"));
+  }
+  if (deb(l11) || (combust(l11) && !exalted(l11)) || (DUSTHANA.includes(h11) && maleficsWith(l11).length)) {
+    push("pa-h11-22-11", 11, "Gains withheld", `${l11}, lord of the 11th, is ${deb(l11) ? "debilitated" : combust(l11) && !exalted(l11) ? "combust" : `in the ${ord(h11)} with ${list(maleficsWith(l11))}`}. Parashara reads no gains despite many efforts.`, "strain", [l11, ...(DUSTHANA.includes(h11) ? maleficsWith(l11) : [])], S(22, "11"));
+  }
+
+  // ---- Chapter 23: the 12th house ----
+  const s12 = signOfHouse(12);
+  const in12 = inSign(s12);
+  const ben12h = in12.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
+  const mal12h = in12.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
+  const benW12 = beneficsWith(l12);
+  const benA12 = aspectingPlanet(l12, "benefic").filter((p) => p !== l12);
+  if (benW12.length || own(l12) || exalted(l12) || ben12h.length) {
+    const why: string[] = [];
+    if (own(l12) || exalted(l12)) why.push(`${l12}, lord of the 12th, is ${exalted(l12) ? "exalted" : "in its own sign"}`);
+    if (benW12.length) why.push(`${l12}, lord of the 12th, is with ${list(benW12)}`);
+    if (ben12h.length) why.push(`${list(ben12h)} ${v(ben12h, "occupies", "occupy")} the 12th`);
+    push("pa-h12-23-1", 12, "Expenses on good accounts", `${list(why)}. Parashara reads spending on good accounts.`, "support", [l12, ...benW12, ...ben12h], S(23, "1"));
+  }
+  if (l12 === "Moon" && (exalted("Moon") || own("Moon") || ownNav("Moon") || [11, 9, 5].includes(houseOf("Moon")) || [11, 9, 5].includes(navHouse("Moon")))) {
+    push("pa-h12-23-2", 12, "Comforts and refinement", `The Moon, lord of the 12th, is ${exalted("Moon") ? "exalted" : own("Moon") ? "in its own sign" : ownNav("Moon") ? "in its own navamsa" : [11, 9, 5].includes(houseOf("Moon")) ? `in the ${ord(houseOf("Moon"))}` : `in the ${ord(navHouse("Moon"))} of the navamsa`}. Parashara reads fine houses, beds, scents and pleasures, rich clothes and ornaments, learning and lordliness.`, "support", ["Moon"], S(23, "2-4"));
+  }
+  {
+    const navSi = navamsaSign(pos(l12));
+    const navLord = SIGN_LORD[navSi];
+    const enemyNav = navLord !== l12 && (ENEMIES[l12] ?? []).includes(navLord);
+    const debNav = EXALT_SIGN[l12] !== undefined && navSi === (EXALT_SIGN[l12]! + 6) % 12;
+    const why = [6, 8].includes(h12) ? `in the ${ord(h12)}` : debNav ? "in its debilitation navamsa" : enemyNav ? `in an enemy's navamsa (${SIGNS[navSi]}, owned by ${navLord}; enmity by 3.55)` : navHouse(l12) === 8 ? "in the 8th of the navamsa" : null;
+    if (why) push("pa-h12-23-5", 12, "Expenses that trouble", `${l12}, lord of the 12th, is ${why}. Parashara reads trouble from expenses and a want of happiness, including from the spouse.`, "strain", [l12], S(23, "5"));
+    else if (inKT(h12)) push("pa-h12-23-6", 12, "A spouse promised", `${l12}, lord of the 12th, is in the ${ord(h12)}, an angle or trine. Parashara says the native will have a spouse.`, "support", [l12], S(23, "6"));
+  }
+  {
+    const four = (["Mars", "Saturn", "Sun"] as Planet[]).every((p) => houseOf(p) === 12) && houseOf("Rahu") === 12;
+    const sunL12 = l12 !== "Sun" && withEach(l12, "Sun");
+    if (four || sunL12) push("pa-h12-23-9", 12, "A heavy account", `${four ? "Rahu is in the 12th with Mars, Saturn and the Sun" : `${l12}, lord of the 12th, is with the Sun`}. Parashara's phrase is that the native goes to hell; ${sunL12 && !four ? "the Sun-with-12th-lord clause is a common one and is shown as written" : "shown as written"}, to be weighed against 23.1 and 23.10.`, "strain", four ? ["Rahu", "Mars", "Saturn", "Sun"] : [l12, "Sun"], S(23, "9"));
+  }
+  if (ben12h.length && (exalted(l12) || benW12.length || benA12.length)) {
+    push("pa-h12-23-10", 12, "Final emancipation", `${list(ben12h)} ${v(ben12h, "occupies", "occupy")} the 12th and ${l12}, its lord, is ${exalted(l12) ? "exalted" : benW12.length ? `with ${list(benW12)}` : `aspected by ${list(benA12)}`}. Parashara reads final emancipation.`, "support", [...ben12h, l12, ...benW12, ...benA12], S(23, "10"));
+  }
+  {
+    const malA12 = aspectingSign(s12, "malefic");
+    const malAl = aspectingPlanet(l12, "malefic").filter((p) => p !== l12);
+    const benA12h = aspectingSign(s12, "benefic");
+    if (mal12h.length && maleficsWith(l12).length && malA12.length && malAl.length) push("pa-h12-23-11", 12, "Wandering", `The 12th holds ${list(mal12h)} and is aspected by ${list(malA12)}; ${l12}, its lord, is with ${list(maleficsWith(l12))} and aspected by ${list(malAl)}. Parashara reads wandering from country to country.`, "mixed", [...mal12h, l12], S(23, "11"));
+    if (ben12h.length && benW12.length && benA12h.length && benA12.length) push("pa-h12-23-12", 12, "Settled at home", `The 12th holds ${list(ben12h)} and is aspected by ${list(benA12h)}; ${l12}, its lord, is with ${list(benW12)} and aspected by ${list(benA12)}. Parashara reads a native who moves within his own country.`, "support", [...ben12h, l12], S(23, "12"));
+    const satMars12 = (["Saturn", "Mars"] as Planet[]).filter((p) => houseOf(p) === 12);
+    if (satMars12.length && !benA12h.length && !ben12h.length) push("pa-h12-23-13", 12, "Questionable earnings", `${list(satMars12)} ${v(satMars12, "occupies", "occupy")} the 12th with no benefic aspect on it. Parashara reads earnings through sinful means; his words, shown as written.`, "strain", satMars12, S(23, "13"));
+  }
+  if (houseOf(l1) === 12 && h12 === 1 && withEach(l12, "Venus")) {
+    push("pa-h12-23-14", 12, "Religious expenses", `${l1}, lord of the lagna, is in the 12th and ${l12}, lord of the 12th, is in the lagna with Venus. Parashara reads expenses on religious grounds.`, "support", [l1, l12, "Venus"], S(23, "14"));
+  }
   return F;
 }
+
+/** Natural enemies, BPHS 3.55. */
+const ENEMIES: Partial<Record<Planet, Planet[]>> = { Sun: ["Venus", "Saturn"], Moon: [], Mars: ["Mercury"], Mercury: ["Moon"], Jupiter: ["Mercury", "Venus"], Venus: ["Moon", "Sun"], Saturn: ["Sun", "Moon", "Mars"] };
 
 /** Limbs of the Kalapurusha by sign, BPHS 4.4. */
 const LIMB = ["the head", "the face", "the arms", "the heart", "the stomach", "the hip", "the space below the navel", "the private parts", "the thighs", "the knees", "the ankles", "the feet"];
@@ -677,7 +907,7 @@ const LIMB = ["the head", "the face", "the arms", "the heart", "the stomach", "t
 const EXALT_SIGN: Partial<Record<Planet, number>> = { Sun: 0, Moon: 1, Mars: 9, Mercury: 5, Jupiter: 3, Venus: 11, Saturn: 6 };
 
 export const HOUSE_CAVEATS = [
-  "Not applied from chapter 14: the counting verses 14.7-13 (numbers of brothers and sisters), and 14.2-3 and 14.5 when Mars is itself the 3rd lord, since those verses pair the lord with Mars. From chapter 15: the closing rule of 15.14 (a benefic or malefic related to the 4th colours conveyances), already covered by the chapter 11 judgement. From chapter 16: 16.9 and 16.23 (Mandi is not computed), 16.11 (six planets in the 5th), 16.14-15 (parentage), and the counting verses 16.24-32. From chapter 17: 17.3-5 (ulcers to relatives through their karakas), 17.16 and 17.25 (Mandi and the 8th navamsa are not computed). From chapter 18: the descriptive verses 18.7-9 and 18.11-13 (spouse's character and conduct from the 7th house and Venus, which fire for a third of all charts by ownership alone), 18.22 (the translation wavers between a benefic's house and the 9th, and the ages 5 or 9 are child marriage), 18.31 (the lagna lord's navamsa clause is ambiguous) and 18.37. From chapter 19: 19.3 (the same tests repeated for Saturn and the 10th lord) and 19.10-13, which concern death at or soon after birth and do not apply to a living native.",
+  "Not applied from chapter 14: the counting verses 14.7-13 (numbers of brothers and sisters), and 14.2-3 and 14.5 when Mars is itself the 3rd lord, since those verses pair the lord with Mars. From chapter 15: the closing rule of 15.14 (a benefic or malefic related to the 4th colours conveyances), already covered by the chapter 11 judgement. From chapter 16: 16.9 and 16.23 (Mandi is not computed), 16.11 (six planets in the 5th), 16.14-15 (parentage), and the counting verses 16.24-32. From chapter 17: 17.3-5 (ulcers to relatives through their karakas), 17.16 and 17.25 (Mandi and the 8th navamsa are not computed). From chapter 18: the descriptive verses 18.7-9 and 18.11-13 (spouse's character and conduct from the 7th house and Venus, which fire for a third of all charts by ownership alone), 18.22 (the translation wavers between a benefic's house and the 9th, and the ages 5 or 9 are child marriage), 18.31 (the lagna lord's navamsa clause is ambiguous) and 18.37. From chapter 19: 19.3 (the same tests repeated for Saturn and the 10th lord) and 19.10-13, which concern death at or soon after birth and do not apply to a living native. From chapter 20: 20.25 and 20.32 (closing remarks). From chapter 21: the Rahu clause of 21.3 (Rahu in an angle or trine, which holds for most charts) and the \"auspicious house\" clause of 21.4. From chapter 23: 23.7-8 (general method). Where a verse asks for strength, the Shadbala pass decides and the card is withheld when no Shadbala is present.",
   "12.9 (twins), 12.11 (repeat the reading from the Moon) and 12.12-15 (decanates and limbs) are not applied; 12.11 is noted for the reader rather than duplicated.",
   "Chapter 18 speaks of a wife; the cards say spouse and apply the verses to charts of either sex, which the text does not itself authorise, so that reading is provisional. Ages in the timing verses of chapters 17-18 are given as written; 19.7 and 14.15 ask that planetary strength decide before any of the hard verses are read as outcomes.",
   "Malefic and benefic follow the natural classification used across this pass: the Moon benefic when waxing, Mercury when free of malefic company, nodes malefic.",
