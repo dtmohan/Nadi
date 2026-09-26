@@ -11,6 +11,7 @@ import { useJudgePlace } from "@/lib/judge-place";
 import { SourceLink } from "@/components/source-link";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { ModeText, SectionTitle } from "@/components/mode-text";
+import { GocharaCalendarSection } from "@/components/gochara-calendar";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -303,6 +304,8 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
           ))}
         </ul>
       </section>
+
+      <GocharaCalendarSection result={result} zone={place.timezone} />
     </div>
   );
 }

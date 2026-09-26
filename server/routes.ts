@@ -10,6 +10,7 @@ import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
 import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
 import { DateTime } from "luxon";
 import { buildChartPdf } from "./pdf";
+import { gocharaCalendar } from "./gochara-calendar";
 import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
 import { validateEvents } from "./validate";
@@ -133,6 +134,22 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
   // Ruling planets for the astrologer's own place at this moment (nothing is stored)
   const judgeSchema = z.object({ latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180), timezone: z.string().min(1).max(64), label: z.string().max(120).optional() });
   /** Panchanga for a calendar date at a place (Surya Siddhanta 1.36, 2.64-69), with the planets at that sunrise for gochara. */
+  // Gochara calendar: verdict stretches per planet from the natal Moon over a span of years.
+  app.post("/api/gochara-calendar", (req, res) => {
+    const { moonSignIndex, from, years = 5, ayanamsa = "lahiri", nodeType = "mean" } = req.body ?? {};
+    if (typeof moonSignIndex !== "number" || moonSignIndex < 0 || moonSignIndex > 11) return res.status(400).json({ message: "moonSignIndex must be 0-11" });
+    if (typeof from !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(from)) return res.status(400).json({ message: "from must be YYYY-MM-DD" });
+    const span = Math.min(12, Math.max(1, Number(years) || 5));
+    try {
+      const start = DateTime.fromISO(from, { zone: "utc" });
+      const jdStart = julianDay(start);
+      const jdEnd = julianDay(start.plus({ years: span }));
+      res.json(gocharaCalendar(Math.floor(moonSignIndex), jdStart, jdEnd, { ayanamsa, nodeType }));
+    } catch (e: any) {
+      res.status(400).json({ message: e.message });
+    }
+  });
+
   app.post("/api/panchanga", (req, res) => {
     const schema = judgeSchema.extend({
       date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),

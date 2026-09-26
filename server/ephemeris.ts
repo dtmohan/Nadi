@@ -450,3 +450,13 @@ export function panchangaForDate(date: string, latitude: number, longitude: numb
   const day = panchangaAt(sunrise, latitude, longitude, zone, opts, date, sunrise);
   return { day, positions: positionsAt(sunrise, opts) };
 }
+
+/** Positions without the retrograde-entry walk; enough for sign, dignity and combustion, and cheap enough to sample daily. */
+export function positionsLite(jd: number, opts: EphemerisOptions): PlanetPosition[] {
+  const sun = siderealLon(jd, C.SE_SUN, opts);
+  return PLANETS.map((planet) => {
+    let { lon, speed } = siderealLon(jd, BODY[planet], opts);
+    if (planet === "Ketu") lon = norm360(lon + 180);
+    return describePosition(planet, lon, speed, planet === "Sun" ? undefined : sun.lon);
+  });
+}

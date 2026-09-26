@@ -189,9 +189,9 @@ export const EFFECTIVE_PORTION: Record<Planet, { bs?: string; pd: string }> = {
 };
 
 /** PD 26.33: Saturn, Sun, Mars and Jupiter in the 12th, 8th or 1st from the Moon threaten life, position and wealth. */
-const DANGER_33: Partial<Record<Planet, number[]>> = { Saturn: [12, 8, 1], Sun: [12, 8, 1], Mars: [12, 8, 1], Jupiter: [12, 8, 1] };
+export const DANGER_33: Partial<Record<Planet, number[]>> = { Saturn: [12, 8, 1], Sun: [12, 8, 1], Mars: [12, 8, 1], Jupiter: [12, 8, 1] };
 /** PD 26.34: the single worst house for each planet, "if all the conditions exist". */
-const DANGER_34: Partial<Record<Planet, number>> = { Moon: 8, Mars: 7, Rahu: 9, Venus: 6, Jupiter: 3, Sun: 5, Saturn: 1, Mercury: 4 };
+export const DANGER_34: Partial<Record<Planet, number>> = { Moon: 8, Mars: 7, Rahu: 9, Venus: 6, Jupiter: 3, Sun: 5, Saturn: 1, Mercury: 4 };
 
 export type GocharaVerdict = "favourable" | "obstructed" | "unfavourable" | "neutral";
 
