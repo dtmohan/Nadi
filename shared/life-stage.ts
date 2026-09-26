@@ -9,8 +9,6 @@
 // and is not used here. The onset ages below are practical conventions and are marked
 // provisional in the interface.
 
-import type { LifeArea } from "./rules";
-
 export type LifeStage = "child" | "youth" | "adult" | "elder";
 
 /** Age in years (decimal) at `asOfIso`. */
@@ -40,12 +38,29 @@ export const STAGE_LABEL: Record<LifeStage, string> = {
   elder: "later life",
 };
 
-/** Age from which an area is read as a present matter rather than a promise held for later (provisional conventions). */
-export const AREA_ONSET: Partial<Record<LifeArea, number>> = {
+/** Age from which an area is read as a present matter rather than a promise held for later (provisional conventions). Keys are shared across the BNN, Jaimini and KP readings. */
+export const AREA_ONSET: Record<string, number> = {
   marriage: 18,
   children: 18,
   career: 16,
   wealth: 16,
+};
+
+/** KP timed matters mapped to the area whose onset gates them. */
+export const KP_EVENT_AREA: Record<string, string> = {
+  marriage: "marriage",
+  children: "children",
+  job: "career",
+  business: "career",
+  property: "wealth",
+  loan: "wealth",
+};
+
+/** Bhava (1-12) mapped to the area whose onset gates its verdict in house-based systems. */
+export const HOUSE_AREA: Record<number, string> = {
+  5: "children",
+  7: "marriage",
+  10: "career",
 };
 
 export interface AreaSeason {
@@ -57,7 +72,7 @@ export interface AreaSeason {
 }
 
 export function areaSeason(
-  area: LifeArea,
+  area: string,
   birthIso: string,
   asOfIso: string,
 ): AreaSeason {
@@ -73,7 +88,7 @@ export function areaSeason(
 
 /** Earliest date from which a timed window for the area should be searched: today, or the onset if that is later. */
 export function seasonStart(
-  area: LifeArea,
+  area: string,
   birthIso: string,
   asOfIso: string,
 ): string {
