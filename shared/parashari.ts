@@ -15,6 +15,7 @@ import { houseFindings, judgeBhavas, type BhavaJudgement } from "./parashari-hou
 import { yogaFindings } from "./parashari-yogas";
 import { royalFindings } from "./parashari-royal";
 import { evilFindings } from "./parashari-evils";
+import { curseFindings } from "./parashari-curses";
 
 export const SEVEN: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 export const KENDRA = [1, 4, 7, 10];
@@ -518,6 +519,7 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   findings.push(...yogaFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   findings.push(...royalFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   findings.push(...evilFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
+  findings.push(...curseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   const bhavaJudgement = judgeBhavas(positions, lagnaIdx, houseDeps, shadbala);
 
   const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts, ashtakavarga, neecha);

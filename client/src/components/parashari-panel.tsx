@@ -8,6 +8,7 @@ import { HOUSE_MATTERS, HOUSE_MATTERS_SOURCE, BHAVA_JUDGEMENT_SOURCE, BHAVA_JUDG
 import { YOGA_CAVEATS } from "@shared/parashari-yogas";
 import { ROYAL_CAVEATS } from "@shared/parashari-royal";
 import { EVIL_CAVEATS } from "@shared/parashari-evils";
+import { CURSE_CAVEATS } from "@shared/parashari-curses";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
@@ -144,7 +145,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             }
             practitioner={
               <>
-                {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, house significations and their prosperity or failure from chapter 11, effects of the twelve houses from chapters 12-23, evils at birth and their antidotes from chapters 9-10, yogas from chapters 34 to 42, 75 and 79 of{" "}
+                {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, house significations and their prosperity or failure from chapter 11, effects of the twelve houses from chapters 12-23, evils at birth and their antidotes from chapters 9-10, curses from the previous birth from chapter 83, yogas from chapters 34 to 42, 75 and 79 of{" "}
                 <a href={BPHS_URL(24)} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Brihat Parashara Hora Sastra</a> (Santhanam translation). Nodes have no aspect in chapter 26 and own no house; they are read through their sign lord. Cancellation of debilitation follows{" "}
                 <a href={PHALADEEPIKA_CH7_URL} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Phaladeepika 7.26-30</a> (Subrahmanya Sastri translation), since Parashara's verses do not state it; later-practice conditions are shown provisional and not applied. First pass.
               </>
@@ -260,7 +261,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               {plain ? "What each house says" : "Houses (ch. 11-23)"} ({shownHouses.length}{focusHouse ? ` of ${houseFinds.length}` : ""})
             </button>
             <button role="tab" aria-selected={section === "evils"} onClick={() => setSection("evils")} className={cn("rounded px-3 py-1", section === "evils" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")} data-testid="parashari-section-evils">
-              {plain ? "Early trials and their remedies" : "Evils and antidotes (ch. 9-10)"} ({evils.length})
+              {plain ? "Early trials, remedies and past-life debts" : "Evils, antidotes and curses (ch. 9-10, 83)"} ({evils.length})
             </button>
           </div>
           {focusHouse && (
@@ -279,7 +280,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         {section === "evils" && (
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {evils.length ? evils.map((f) => <Finding key={f.id} f={f} />) : <p className="text-sm text-muted-foreground md:col-span-2">None of the chapter 9 combinations, and none of the chapter 10 antidotes, holds in this chart.</p>}
-            <p className="text-xs text-muted-foreground md:col-span-2">{EVIL_CAVEATS.join(" ")}</p>
+            <p className="text-xs text-muted-foreground md:col-span-2">{[...EVIL_CAVEATS, ...CURSE_CAVEATS].join(" ")}</p>
           </div>
         )}
         {section === "houses" && (
