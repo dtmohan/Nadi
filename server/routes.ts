@@ -2,7 +2,7 @@ import type { Express } from "express";
 import type { Server } from "node:http";
 import { insertChartSchema, type Chart, type ChartResult, type GeoHit } from "@shared/schema";
 import { RULES, evaluate } from "@shared/rules";
-import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nakshatraPeriods, signPeriodsOf, jdToIso, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, shadbalaBase, sunPath, type EphemerisOptions } from "./ephemeris";
+import { localToUtc, julianDay, positionsAt, ayanamsaAt, transitPeriods, nakshatraPeriods, signPeriodsOf, jdToIso, nowJd, ascendantAt, specialLagnas, kpBase, judgementNow, shadbalaBase, sunPath, panchangaAt, panchangaForDate, type EphemerisOptions } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
 import { vimshottari } from "@shared/kp";
 import type { DasaStartTransit } from "@shared/shadbala";
@@ -61,6 +61,7 @@ export function computeChart(chart: Chart): ChartResult {
     jaimini,
     kp: kpBase(jd, chart.latitude, chart.longitude, chart.timezone, opts.nodeType),
     shadbala: shadbalaBase(jd, chart.latitude, chart.longitude, opts),
+    panchanga: panchangaAt(jd, chart.latitude, chart.longitude, chart.timezone, opts),
     dasaStarts: dasaStartTransits(positions.find((p) => p.planet === "Moon")!.lon, utc.toISO()!, opts),
     saturnNakshatras: nakshatraPeriods("Saturn", jd, endJd, opts),
     fatherArishta: fatherArishtaWindows(positions, Math.floor((asc % 360) / 30), transits, opts),
@@ -131,6 +132,24 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
   // Ruling planets for the astrologer's own place at this moment (nothing is stored)
   const judgeSchema = z.object({ latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180), timezone: z.string().min(1).max(64), label: z.string().max(120).optional() });
+  /** Panchanga for a calendar date at a place (Surya Siddhanta 1.36, 2.64-69), with the planets at that sunrise for gochara. */
+  app.post("/api/panchanga", (req, res) => {
+    const schema = judgeSchema.extend({
+      date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      ayanamsa: z.string().max(24).default("lahiri"),
+      nodeType: z.enum(["mean", "true"]).default("mean"),
+    });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid request", issues: parsed.error.issues });
+    try {
+      const { date, latitude, longitude, timezone, ayanamsa, nodeType } = parsed.data;
+      if (!DateTime.fromISO(date, { zone: timezone }).isValid) return res.status(400).json({ message: "Invalid date or time zone" });
+      res.json(panchangaForDate(date, latitude, longitude, timezone, { ayanamsa, nodeType }));
+    } catch (e) {
+      res.status(500).json({ message: (e as Error).message });
+    }
+  });
+
   app.post("/api/kp/ruling", (req, res) => {
     const parsed = judgeSchema.extend({ nodeType: z.enum(["mean", "true"]).default("mean") }).safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: "Invalid request", issues: parsed.error.issues });

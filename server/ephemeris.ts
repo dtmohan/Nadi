@@ -347,3 +347,106 @@ export function judgementNow(latitude: number, longitude: number, zone: string, 
 function weekdayOf(jd: number, zone: string): number {
   return DateTime.fromMillis((jd - 2440587.5) * 86400000, { zone }).weekday % 7;
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Panchanga (Surya Siddhanta 1.36, 2.64-69; arithmetic in shared/panchanga.ts)
+
+import { tithiOf, nakshatraOf, yogaOf, karanaOf, moonPhase, tithiIndex, nakshatraIndex, yogaIndex, karanaSlot, WEEKDAY_NAMES, WEEKDAY_LORD, type PanchangaDay, type LimbSegment } from "@shared/panchanga";
+
+function sunMoon(jd: number, opts: EphemerisOptions): { sun: number; moon: number } {
+  return { sun: siderealLon(jd, C.SE_SUN, opts).lon, moon: siderealLon(jd, C.SE_MOON, opts).lon };
+}
+
+/** Segments of one limb from `from` to `to`: the element in force at `from`, then each successor with its exact ending time. */
+function limbRun(from: number, to: number, at: number, opts: EphemerisOptions, index: (sm: { sun: number; moon: number }) => number, describe: (sm: { sun: number; moon: number }) => { name: string; detail?: string }): LimbSegment[] {
+  const out: LimbSegment[] = [];
+  let t = from;
+  let idx = index(sunMoon(t, opts));
+  let desc = describe(sunMoon(t, opts));
+  const step = 1 / 48; // thirty minutes
+  for (let guard = 0; guard < 12; guard++) {
+    // Walk forward until the index changes or the day ends.
+    let a = t;
+    let b = Math.min(to, t + step);
+    let changed = false;
+    while (b <= to + 1e-9) {
+      if (index(sunMoon(b, opts)) !== idx) {
+        changed = true;
+        break;
+      }
+      if (b >= to) break;
+      a = b;
+      b = Math.min(to, b + step);
+    }
+    if (!changed) {
+      out.push({ ...desc, current: t <= at && at < to + 1e-9 });
+      break;
+    }
+    for (let i = 0; i < 40; i++) {
+      const m = (a + b) / 2;
+      if (index(sunMoon(m, opts)) === idx) a = m;
+      else b = m;
+    }
+    out.push({ ...desc, end: jdToIso(b), current: t <= at && at < b });
+    t = b;
+    idx = index(sunMoon(t + 1e-6, opts));
+    desc = describe(sunMoon(t + 1e-6, opts));
+  }
+  return out;
+}
+
+/**
+ * The five limbs for the civil day containing `jd` at a place, read at `jd` itself (sunrise for a calendar date, the birth
+ * instant for a birth panchanga), with each limb's changes until the next sunrise.
+ */
+export function panchangaAt(jd: number, latitude: number, longitude: number, zone: string, opts: EphemerisOptions, date?: string, sunriseJd?: number): PanchangaDay {
+  const sunrise = sunriseJd ?? sunriseBefore(jd, latitude, longitude);
+  const sunset = riseOrSetAfter(sunrise, latitude, longitude, C.SE_CALC_SET);
+  const nextSunrise = riseOrSetAfter(sunrise + 0.01, latitude, longitude, C.SE_CALC_RISE);
+  const sm = sunMoon(jd, opts);
+  const weekday = weekdayOf(sunrise, zone);
+  const local = DateTime.fromMillis((sunrise - 2440587.5) * 86400000, { zone });
+  return {
+    date: date ?? local.toISODate()!,
+    timezone: zone,
+    latitude,
+    longitude,
+    sunrise: jdToIso(sunrise),
+    sunset: jdToIso(sunset),
+    nextSunrise: jdToIso(nextSunrise),
+    at: jdToIso(jd),
+    weekday,
+    vara: { name: WEEKDAY_NAMES[weekday], lord: WEEKDAY_LORD[weekday] },
+    tithi: tithiOf(sm.moon, sm.sun),
+    nakshatra: nakshatraOf(sm.moon),
+    yoga: yogaOf(sm.moon, sm.sun),
+    karana: karanaOf(sm.moon, sm.sun),
+    phase: moonPhase(sm.moon, sm.sun),
+    sunLon: sm.sun,
+    moonLon: sm.moon,
+    runs: {
+      tithi: limbRun(sunrise, nextSunrise, jd, opts, (s) => tithiIndex(s.moon, s.sun), (s) => {
+        const t = tithiOf(s.moon, s.sun);
+        return { name: t.name, detail: t.paksha };
+      }),
+      nakshatra: limbRun(sunrise, nextSunrise, jd, opts, (s) => nakshatraIndex(s.moon), (s) => {
+        const n = nakshatraOf(s.moon);
+        return { name: n.name, detail: n.lord };
+      }),
+      yoga: limbRun(sunrise, nextSunrise, jd, opts, (s) => yogaIndex(s.moon, s.sun), (s) => ({ name: yogaOf(s.moon, s.sun).name })),
+      karana: limbRun(sunrise, nextSunrise, jd, opts, (s) => karanaSlot(s.moon, s.sun), (s) => {
+        const k = karanaOf(s.moon, s.sun);
+        return { name: k.name, detail: k.fixed ? "fixed" : undefined };
+      }),
+    },
+    ayanamsa: { key: opts.ayanamsa, value: ayanamsaAt(jd, opts) },
+  };
+}
+
+/** Panchanga for a calendar date at a place: read at that day's sunrise. */
+export function panchangaForDate(date: string, latitude: number, longitude: number, zone: string, opts: EphemerisOptions): { day: PanchangaDay; positions: PlanetPosition[] } {
+  const noon = julianDay(DateTime.fromISO(`${date}T12:00`, { zone }).toUTC());
+  const sunrise = sunriseBefore(noon, latitude, longitude);
+  const day = panchangaAt(sunrise, latitude, longitude, zone, opts, date, sunrise);
+  return { day, positions: positionsAt(sunrise, opts) };
+}

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
-import { ArrowLeft, Eye, EyeOff, FileDown, Orbit, Compass, Footprints, Crosshair, BookOpen, Clock, CheckCheck } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff, FileDown, Orbit, Compass, Footprints, Crosshair, BookOpen, Clock, CheckCheck, CalendarDays } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition, KARAKA } from "@shared/astro";
 import { GIVES, RECEIVES, flowGloss, tierLabel, approachLabel, type DegreeChain } from "@shared/flow";
@@ -27,6 +27,7 @@ import { RectifyPanel } from "@/components/rectify-panel";
 import { LifeEventsSection } from "@/components/life-events";
 import { BirthTimeEditor } from "@/components/birth-time-editor";
 import { ValidatePanel } from "@/components/validate-panel";
+import { PanchangaPanel } from "@/components/panchanga-panel";
 import { Timeline, BnnLifeTimeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -722,15 +723,16 @@ function Relations({ relations, positions }: { relations: PairRelation[]; positi
   );
 }
 
-type SystemMode = "bnn" | "jaimini" | "alp" | "kp" | "parashari" | "rectify" | "validate";
+type SystemMode = "bnn" | "jaimini" | "alp" | "kp" | "parashari" | "panchanga" | "rectify" | "validate";
 
-/** The seven tabs, in order; the last two are tools rather than reading systems and are set apart in both bars. */
+/** The eight tabs, in order; the last two are tools rather than reading systems and are set apart in both bars. */
 const MODES: { id: SystemMode; label: string; short: string; title?: string; tool?: boolean; Icon: typeof Orbit }[] = [
   { id: "bnn", label: "Bhrigu Nandi Nadi", short: "Nadi", Icon: Orbit },
   { id: "jaimini", label: "Jaimini", short: "Jaimini", Icon: Compass },
   { id: "alp", label: "ALP", short: "ALP", title: "Akshaya Lagna Paddhati", Icon: Footprints },
   { id: "kp", label: "KP", short: "KP", title: "Krishnamurti Paddhati", Icon: Crosshair },
   { id: "parashari", label: "Parashari", short: "Parashari", title: "Brihat Parashara Hora Sastra", Icon: BookOpen },
+  { id: "panchanga", label: "Panchanga", short: "Panchanga", title: "Panchanga and gochara (Surya Siddhanta, Brihat Samhita, Phaladeepika)", Icon: CalendarDays },
   { id: "rectify", label: "Rectify", short: "Rectify", title: "Birth time rectification", tool: true, Icon: Clock },
   { id: "validate", label: "Validate", short: "Validate", title: "Check the chart against saved life events", tool: true, Icon: CheckCheck },
 ];
@@ -856,7 +858,7 @@ export default function ChartPage() {
         </div>
         <p className="sr-only" aria-live="polite" data-testid="mode-current">{MODES.find((m) => m.id === mode)?.title ?? MODES.find((m) => m.id === mode)?.label}</p>
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? (readingMode === "plain" ? "Jaimini's method: the planets ranked into roles, how each house appears to the world, life periods by sign. Kept separate from the Nadi reading." : "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading.") : mode === "alp" ? (readingMode === "plain" ? "A moving rising point: it advances one sign every ten years and the birth planets are read from where it stands now. Framework stage." : "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage.") : mode === "parashari" ? (readingMode === "plain" ? "The classical system: which planets help or hinder this rising sign, how strong they are, the notable combinations, and the life period running now. Kept separate from the other readings." : "Parashara's system: whole-sign bhavas from the lagna, house lords, sign aspects, functional nature by rising sign, Shadbala, vargas, Ashtakavarga, yogas and Vimshottari with dasa effects. Kept separate from the other readings. First pass.") : mode === "rectify" ? (readingMode === "plain" ? "Checking the birth time: the minutes around the recorded time, scored by one method at a time. Not a reading." : "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading.") : mode === "validate" ? "Saved life events read back at their dates: KP period lords and cusp promise, Jaimini chara dasha, Jupiter's transit, and how each planet's periods turned out. Not a reading." : (readingMode === "plain" ? "Krishnamurti's method: each house has a deciding planet, houses are promised or denied, and timing comes from the planetary periods. Kept separate from the other readings. First pass." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass.")}</p>
+          <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? (readingMode === "plain" ? "Jaimini's method: the planets ranked into roles, how each house appears to the world, life periods by sign. Kept separate from the Nadi reading." : "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading.") : mode === "alp" ? (readingMode === "plain" ? "A moving rising point: it advances one sign every ten years and the birth planets are read from where it stands now. Framework stage." : "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage.") : mode === "parashari" ? (readingMode === "plain" ? "The classical system: which planets help or hinder this rising sign, how strong they are, the notable combinations, and the life period running now. Kept separate from the other readings." : "Parashara's system: whole-sign bhavas from the lagna, house lords, sign aspects, functional nature by rising sign, Shadbala, vargas, Ashtakavarga, yogas and Vimshottari with dasa effects. Kept separate from the other readings. First pass.") : mode === "panchanga" ? (readingMode === "plain" ? "The five limbs of the day for the birth and any date, and the planets' transits from the birth Moon read with Brihat Samhita and Phaladeepika." : "Panchanga per Surya Siddhanta 1.36, 2.64-69; gochara from the natal Moon per Brihat Samhita 104 and Phaladeepika 26, with vedha. Not Parashari.") : mode === "rectify" ? (readingMode === "plain" ? "Checking the birth time: the minutes around the recorded time, scored by one method at a time. Not a reading." : "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading.") : mode === "validate" ? "Saved life events read back at their dates: KP period lords and cusp promise, Jaimini chara dasha, Jupiter's transit, and how each planet's periods turned out. Not a reading." : (readingMode === "plain" ? "Krishnamurti's method: each house has a deciding planet, houses are promised or denied, and timing comes from the planetary periods. Kept separate from the other readings. First pass." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass.")}</p>
           <ReadingModeToggle />
         </div>
       </div>
@@ -882,6 +884,12 @@ export default function ChartPage() {
       {mode === "parashari" && (
         <div className="mt-8 animate-in fade-in-0 duration-300">
           <ParashariPanel result={data} />
+        </div>
+      )}
+
+      {mode === "panchanga" && (
+        <div className="mt-8 animate-in fade-in-0 duration-300">
+          <PanchangaPanel result={data} />
         </div>
       )}
 

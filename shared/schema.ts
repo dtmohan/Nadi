@@ -1,3 +1,4 @@
+import type { PanchangaDay } from "./panchanga";
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 import type * as z from "zod/mini";
@@ -53,6 +54,8 @@ export interface ChartResult {
   kp: KpBase;
   /** Ephemeris facts for Shadbala (BPHS ch. 27); the strengths are derived in the client. */
   shadbala?: ShadbalaBase;
+  /** The five limbs of the birth day (Surya Siddhanta 1.36, 2.64-69), read at the birth instant. */
+  panchanga?: PanchangaDay;
   /** Where each Vimshottari dasa lord stands when its dasa begins, for BPHS 48.8. */
   dasaStarts?: DasaStartTransit[];
   /** Saturn's nakshatra ingresses from birth to 100 years, for the Ashtakavarga transit points of BPHS ch. 70. */
