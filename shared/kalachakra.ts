@@ -11,6 +11,7 @@
 // nine that lands in, and the order then continues and repeats as in the worked example (46.95).
 import { NAKSHATRAS, SIGNS, SIGN_LORD, houseFrom, norm360, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
+import { rasiDasaReadings, lordEffect64, VARIANT_65, RASI_DASA_CAVEATS, type LordEffect } from "./kalachakra-effects";
 import { DateTime } from "luxon";
 
 const NAK_ARC = 360 / 27;
@@ -69,6 +70,10 @@ export interface KcSubPeriod {
   current: boolean;
   /** Effect from ch. 49.6-34 for this navamsa sub-period of the dasa sign. */
   effect?: string;
+  /** Ch. 65 where it departs from ch. 49 in sense. */
+  variant65?: string;
+  /** Ch. 64: by the lord of the sub-period sign. */
+  byLord: LordEffect;
 }
 
 export interface KcReading {
@@ -103,7 +108,7 @@ export interface KalachakraResult {
 export const KALACHAKRA_CAVEATS: string[] = [
   "Construction follows BPHS 46.52-95: the birth nakshatra is placed in the Savya or Apsavya chakra (46.56-58), the pada gives the navamsa sign and its nine-sign order (46.60-81, 46.87-88), the years are those of the sign lords (46.84) and the expired part at birth is the elapsed fraction of the navamsa times the full total (46.93). After the ninth sign the same order is taken up again, as the worked example does (46.95); some later authors run on into the next navamsa's order instead, which is not what the text shows.",
   "The translation has two visible slips that are corrected here from the stated totals: in the first pada of Rohini the ninth sign is read as Cancer, not Libra, so that the nine sum to 86 as 46.89 requires, and in the second pada of Rohini the ninth sign is read as Libra, not a repeated Scorpio, to sum to 83. Both are marked provisional. The fourth pada of Bharani names Aquarius as Jiva while its order ends in Sagittarius; the order is followed.",
-  "Sub-periods take the nine-sign order that ch. 49 itself uses for each sign's navamsa effects (49.6-34), which is the Savya order of that sign's navamsa, in proportion to the sign years; for Apsavya births the same order is reversed, which the text does not state (provisional). Effects by house (46.131-154) and by the sign's lord or occupant (49.1-5) are quoted as written; benefic and malefic signs are taken by the natural nature of the sign lord (provisional). The movements Manduki, Markati and Simhavalokana are read from the named pairs in 46.99-100 only.",
+  "Sub-periods take the nine-sign order that ch. 49 itself uses for each sign's navamsa effects (49.6-34), which is the Savya order of that sign's navamsa, in proportion to the sign years as 51.12 directs; for Apsavya births the same order is reversed, which the text does not state (provisional). Effects by house (46.131-154) and by the sign's lord or occupant (49.1-5) are quoted as written; benefic and malefic signs are taken by the natural nature of the sign lord (provisional). The movements Manduki, Markati and Simhavalokana are read from the named pairs in 46.99-100 only.",
 ];
 
 const HOUSE_EFFECT: Record<number, { text: string; verses: string; tone: "support" | "strain" | "mixed" }> = {
@@ -180,7 +185,16 @@ const GATI_PAIR: Record<string, string> = {
   "Sagittarius-Aries": "loss of uncles and like relations (46.111)",
 };
 
-export function computeKalachakra(positions: PlanetPosition[], lagnaLon: number, birthIso: string, asOfIso: string, benefic: (p: PlanetPosition) => boolean, maxAge = 100): KalachakraResult {
+export interface KalachakraOpts {
+  /** Shadbala effect of a planet, for 50.1-3. */
+  strength?: (p: Planet) => "full" | "half" | "quarter" | undefined;
+  /** Moon in the bright half, for 50.70. */
+  brightMoon?: boolean;
+  maxAge?: number;
+}
+
+export function computeKalachakra(positions: PlanetPosition[], lagnaLon: number, birthIso: string, asOfIso: string, benefic: (p: PlanetPosition) => boolean, opts: KalachakraOpts = {}): KalachakraResult {
+  const maxAge = opts.maxAge ?? 100;
   const birth = DateTime.fromISO(birthIso);
   const asOf = DateTime.fromISO(asOfIso);
   const age = (d: DateTime) => d.diff(birth, "days").days / YEAR_DAYS;
@@ -271,6 +285,8 @@ export function computeKalachakra(positions: PlanetPosition[], lagnaLon: number,
       const pair = GATI_PAIR[`${SIGNS[p.gatiFrom]}-${SIGNS[p.sign]}`];
       out.push({ label: `${p.gati} gati`, text: `The order moves from ${SIGNS[p.gatiFrom]} to ${SIGNS[p.sign]}, a ${p.gati} movement${savya ? "" : " in the Apsavya chakra"}: ${GATI_EFFECT[savya ? "Savya" : "Apsavya"][p.gati]}${pair ? `; for this pair the text adds ${pair}` : ""}.`, source: { label: "Parashara 46.96-111", url: CH46 }, tone: "strain" });
     }
+    // Ch. 50, the rules for the dasas of signs, read on the dasa sign.
+    out.push(...rasiDasaReadings(p.sign, { positions, lagnaIdx, benefic, strength: opts.strength, brightMoon: opts.brightMoon }));
     return out;
   };
 
@@ -292,7 +308,8 @@ export function computeKalachakra(positions: PlanetPosition[], lagnaLon: number,
       const e = tm.plus({ days });
       if (e > ps) {
         const st = tm < ps ? ps : tm;
-        out.push({ sign: si, years: e.diff(st, "days").days / YEAR_DAYS, start: st.toISO()!, end: e.toISO()!, current: asOf >= st && asOf < e, effect: effects?.[savya ? k : 8 - k] });
+        const step = savya ? k : 8 - k;
+        out.push({ sign: si, years: e.diff(st, "days").days / YEAR_DAYS, start: st.toISO()!, end: e.toISO()!, current: asOf >= st && asOf < e, effect: effects?.[step], variant65: VARIANT_65[p.sign]?.[step], byLord: lordEffect64(p.sign, si) });
       }
       tm = e;
     });
@@ -315,7 +332,7 @@ export function computeKalachakra(positions: PlanetPosition[], lagnaLon: number,
     dehaJiva,
     subPeriods,
     readingsFor,
-    caveats: KALACHAKRA_CAVEATS,
+    caveats: [...KALACHAKRA_CAVEATS, ...RASI_DASA_CAVEATS],
   };
 }
 

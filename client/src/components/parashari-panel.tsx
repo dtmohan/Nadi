@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
-import { PLANET_ABBR, SIGNS, type Planet } from "@shared/astro";
+import { PLANET_ABBR, SIGNS, SIGN_LORD, type Planet } from "@shared/astro";
 import { computeParashari, ord, listH, roleLabel, LORDSHIP_LABEL, KENDRA, type ParashariFinding, type DashaGloss } from "@shared/parashari";
 import { PHALADEEPIKA_CH7_URL } from "@shared/neechabhanga";
 import { HOUSE_MATTERS, HOUSE_MATTERS_SOURCE, BHAVA_JUDGEMENT_SOURCE, BHAVA_JUDGEMENT_CAVEATS, HOUSE_CAVEATS } from "@shared/parashari-houses";
@@ -11,6 +11,7 @@ import { EVIL_CAVEATS } from "@shared/parashari-evils";
 import { CURSE_CAVEATS } from "@shared/parashari-curses";
 import type { ConditionalDasasResult, ConditionalDasa } from "@shared/conditional-dasas";
 import { KC_SUB_VERSES, KC_CH49, type KalachakraResult, type KcPeriod } from "@shared/kalachakra";
+import { KC_CH64, KC_CH65, VERSES_65 } from "@shared/kalachakra-effects";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
@@ -480,7 +481,8 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
                 <TableHead>{plain ? "Division" : "Navamsa"}</TableHead>
                 <TableHead className="text-right">Years</TableHead>
                 <TableHead className="hidden sm:table-cell">Dates</TableHead>
-                <TableHead>Reading</TableHead>
+                <TableHead>{plain ? "Reading" : "Reading (49, 65)"}</TableHead>
+                <TableHead>{plain ? "By its planet" : "By lord (64)"}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -489,12 +491,24 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
                   <TableCell><SignName signIndex={sp.sign} />{sp.current ? <Badge variant="secondary" className="ml-2">now</Badge> : null}</TableCell>
                   <TableCell className="text-right tabular-nums">{sp.years.toFixed(2)}</TableCell>
                   <TableCell className="hidden sm:table-cell tabular-nums">{fmt(sp.start)} to {fmt(sp.end)}</TableCell>
-                  <TableCell className="text-sm">{sp.effect ? <>{sp.effect.charAt(0).toUpperCase()}{sp.effect.slice(1)}.</> : <span className="text-muted-foreground">Not given in the text.</span>}</TableCell>
+                  <TableCell className="text-sm">
+                    <span>
+                      {sp.effect ? <>{sp.effect.charAt(0).toUpperCase()}{sp.effect.slice(1)}.</> : <span className="text-muted-foreground">Not given in ch. 49.</span>}
+                      {sp.variant65 ? <span className="text-muted-foreground"> Ch. 65 reads {sp.variant65}.</span> : null}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    <span>
+                      <PlanetName planet={sp.byLord.lord} />
+                      {k.chakra === "Savya" ? (sp.byLord.text ? <>: {sp.byLord.text}.</> : <span className="text-muted-foreground">: not given.</span>) : <span className="text-muted-foreground">: judged by nature and friendship (64.56-58).</span>}
+                      {sp.byLord.relation !== "same" ? <span className="ml-1.5 whitespace-nowrap text-2xs uppercase tracking-wide text-muted-foreground">{sp.byLord.relation} of {SIGN_LORD[sel.sign]}</span> : null}
+                    </span>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <p className="mt-1 text-xs text-muted-foreground">Sub-period readings from <a href={KC_CH49} target="_blank" rel="noreferrer" className="underline decoration-dotted underline-offset-2">Parashara 49.{KC_SUB_VERSES[sel.sign]}</a>; 49.7 adds that the planet occupying the sign must be weighed with them, and 49.35-37 that the raja-yoga dasa effects apply here too.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Sub-period readings from <a href={KC_CH49} target="_blank" rel="noreferrer" className="underline decoration-dotted underline-offset-2">Parashara 49.{KC_SUB_VERSES[sel.sign]}</a>; 49.7 adds that the planet occupying the sign must be weighed with them, and 49.35-37 that the raja-yoga dasa effects apply here too. Where <a href={KC_CH65} target="_blank" rel="noreferrer" className="underline decoration-dotted underline-offset-2">Parashara 65.{VERSES_65[sel.sign]}</a> differs in sense it is shown beside. The lord column follows <a href={KC_CH64} target="_blank" rel="noreferrer" className="underline decoration-dotted underline-offset-2">Parashara 64</a>{k.chakra === "Savya" ? "" : ", whose lists are for the Savya chakra; for Apsavya births 64.56-58 asks that a friend of the dasa lord be read as favourable and a benefic enemy as not"}; spans follow 51.12.</p>
         </div>
       )}
       <button type="button" onClick={() => setCaveats((v) => !v)} className="mt-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2" data-testid="kalachakra-caveats-toggle">

@@ -511,7 +511,10 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   // Vimshottari, glossed by lordship (Lahiri Moon).
   const vim = vimshottari(pos("Moon").lon, birthIso, asOfIso);
   const condDasas = conditionalDasas(positions, lagnaLon, birthIso, asOfIso, shadbala?.daytime);
-  const kalachakra = computeKalachakra(positions, lagnaLon, birthIso, asOfIso, (p) => naturalBenefic(p, positions));
+  const kalachakra = computeKalachakra(positions, lagnaLon, birthIso, asOfIso, (p) => naturalBenefic(p, positions), {
+    strength: shadbala ? (pl) => shadbala.planets.find((x) => x.planet === pl)?.effect : undefined,
+    brightMoon: (() => { const su = positions.find((p) => p.planet === "Sun")!, mo = positions.find((p) => p.planet === "Moon")!; return ((mo.lon - su.lon + 360) % 360) < 180; })(),
+  });
   const dashas: DashaGloss[] = vim.dasas.map((d) => {
     const n = natures.find((x) => x.planet === d.lord)!;
     const lordEff = n.owns.map((h) => LORD_IN_HOUSE[h - 1][n.house - 1]);
