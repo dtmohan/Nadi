@@ -261,6 +261,11 @@ function trimsamsaLord(sign: number, deg: number): Seven {
 // ---------- aspects in degrees, ch. 26.6-12 ----------
 
 /** Sphuta drishti of `aspecting` on a point `d` degrees ahead of it (0-360), in virupas (0-60). */
+/**
+ * Sphuta drishti in virupas, BPHS 26.6-12. `d` is the longitude of the aspected point less that of the aspecting planet
+ * (the aspected point counted forward from the aspector), which is the orientation under which the slabs reproduce the
+ * sign-based quarters of 26.2-5; the translation's wording runs the subtraction the other way and would invert them.
+ */
 export function sphutaDrishti(aspecting: Seven, d: number): number {
   d = norm360(d);
   // Special slabs first.
@@ -278,8 +283,11 @@ export function sphutaDrishti(aspecting: Seven, d: number): number {
     if ((d > 90 && d <= 120) || (d > 210 && d <= 240)) return (d % 30) / 2 + 45;
     if ((d > 120 && d <= 150) || (d > 240 && d <= 270)) return 60 - (d % 30);
   }
-  // General slabs, 26.6-8: beyond 180 the difference is taken from 300.
-  const x = d > 180 ? 300 - d : d;
+  // General slabs, 26.6-8. Beyond six signs the verse says: take the difference from ten signs and halve it,
+  // so the aspect falls straight from 60 at the 7th to 0 at 300 degrees (8th 45, 9th 30, 10th 15 at their cusps).
+  // Cross-checked 2026-09-26; the earlier build re-applied the forward slabs to 300 - d, which zeroed the 9th and 10th.
+  if (d > 180) return d >= 300 ? 0 : (300 - d) / 2;
+  const x = d;
   if (x <= 30) return 0;
   if (x <= 60) return (x - 30) / 2;
   if (x <= 90) return x - 60 + 15;
@@ -333,7 +341,8 @@ export function computeShadbala(positions: PlanetPosition[], lagnaIdx: number, b
   const isBenefic = (p: Seven) => {
     if (p === "Jupiter" || p === "Venus") return true;
     if (p === "Moon") return waxing;
-    if (p === "Mercury") return !positions.some((x) => x.signIndex === pos("Mercury").signIndex && ["Sun", "Mars", "Saturn", "Rahu", "Ketu"].includes(x.planet));
+    // 3.11: Mercury turns malefic in a malefic's company; the decreasing Moon is one of the malefics named there.
+    if (p === "Mercury") return !positions.some((x) => x.signIndex === pos("Mercury").signIndex && (["Sun", "Mars", "Saturn", "Rahu", "Ketu"].includes(x.planet) || (x.planet === "Moon" && !waxing)));
     return false;
   };
 
@@ -583,6 +592,7 @@ export function computeShadbala(positions: PlanetPosition[], lagnaIdx: number, b
     "Ayana bala uses the true declination in place of the three-khanda sine table of 27.15-17, which the table approximates. The Sun's Ayana bala is not doubled, since the chapter does not say so.",
     "Year and month lords follow the 360-day and 30-day counts from the Kali epoch that later manuals use; 27.13 names the lords but not how to find them. The hora is an equal hour from sunrise.",
     "Drik bala reads 'superadd the entire aspect of Mercury and Jupiter' (27.19) as those two always counting on the benefic side; their aspects are not added a second time.",
+    "Sphuta drishti (26.6-12) counts the aspected point forward from the aspecting planet, the orientation under which the slabs reproduce the quarters of 26.2-5; beyond six signs the value is half of the distance short of ten signs, as the verse says. Benefic and malefic follow 3.11: the decreasing Moon is malefic, and Mercury turns malefic in the company of any of the malefics named there, the decreasing Moon included.",
     "Rasi dignity in Saptavargaja bala follows the text: moolatrikona 45, own sign 30, otherwise the compound relationship with the sign lord, so an exaltation sign counts as its lord's sign (3.55-58). Moolatrikona follows the degree ranges of 3.51-54.",
     "Bhava bala measures the cusp of each house, taken as the lagna degree plus multiples of 30 so that it stays inside the whole-sign house; the chapter does not fix the house system. The Sagittarius and Capricorn halves follow 27.26-28.",
     "Bhava drishti (27.29) adds a quarter of each benefic's aspect on the cusp, takes a quarter of each malefic's, and adds the whole aspect of Jupiter and Mercury as the verse says. The bhava lord's full Shadbala is then added.",

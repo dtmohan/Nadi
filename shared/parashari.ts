@@ -132,17 +132,25 @@ export function drishtiQuarters(planet: Planet, fromSign: number, toSign: number
   return 0;
 }
 
-/** Natural benefics per BPHS 34.8-10: Jupiter, Venus, waxing Moon, Mercury not with a malefic. */
+/** The Moon is waxing (bright half) when its elongation from the Sun is under 180 degrees. */
+export function moonWaxing(all: PlanetPosition[]): boolean {
+  const sun = all.find((x) => x.planet === "Sun"), moon = all.find((x) => x.planet === "Moon");
+  if (!sun || !moon) return true;
+  return (((moon.lon - sun.lon) % 360) + 360) % 360 < 180;
+}
+
+/**
+ * Natural benefics per BPHS 3.11 (with 34.8-10): Jupiter and Venus; the Moon while increasing; Mercury unless he joins a
+ * malefic, the malefics being the Sun, Mars, Saturn, Rahu, Ketu and the decreasing Moon. Cross-checked 2026-09-26; the
+ * earlier build had counted the Moon benefic from the 8th tithi of the bright half to the 8th of the dark half, a later
+ * convention that the chapter does not state.
+ */
 export function naturalBenefic(p: PlanetPosition, all: PlanetPosition[]): boolean {
   if (p.planet === "Jupiter" || p.planet === "Venus") return true;
-  if (p.planet === "Moon") {
-    const sun = all.find((x) => x.planet === "Sun");
-    if (!sun) return true;
-    const elong = ((p.lon - sun.lon) % 360 + 360) % 360;
-    return elong >= 90 && elong < 270;
-  }
+  const waxing = moonWaxing(all);
+  if (p.planet === "Moon") return waxing;
   if (p.planet === "Mercury") {
-    const withMalefic = all.some((x) => x.signIndex === p.signIndex && ["Sun", "Mars", "Saturn", "Rahu", "Ketu"].includes(x.planet));
+    const withMalefic = all.some((x) => x.signIndex === p.signIndex && (["Sun", "Mars", "Saturn", "Rahu", "Ketu"].includes(x.planet) || (x.planet === "Moon" && !waxing)));
     return !withMalefic;
   }
   return false;

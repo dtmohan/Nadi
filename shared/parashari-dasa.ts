@@ -128,7 +128,8 @@ function makeCtx(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Plan
   const isBenefic = (p: Planet) => {
     if (p === "Jupiter" || p === "Venus") return true;
     if (p === "Moon") return !waning;
-    if (p === "Mercury") return !positions.some((x) => x.signIndex === pos("Mercury").signIndex && ["Sun", "Mars", "Saturn", "Rahu", "Ketu"].includes(x.planet));
+    // 3.11: Mercury turns malefic in a malefic's company; the decreasing Moon is one of the malefics named there.
+    if (p === "Mercury") return !positions.some((x) => x.signIndex === pos("Mercury").signIndex && (["Sun", "Mars", "Saturn", "Rahu", "Ketu"].includes(x.planet) || (x.planet === "Moon" && waning)));
     return false;
   };
   const houseOf = (pl: Planet) => houseFrom(lagnaIdx, pos(pl).signIndex);
