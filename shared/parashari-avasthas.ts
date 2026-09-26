@@ -52,7 +52,7 @@ export const AVASTHA_CAVEATS: string[] = [
   "Baladi (45.3-4) runs infant, youthful, adolescent, old and dead through the five 6-degree bands of the sign, ascending in odd signs and reversed in even ones, with results a quarter, a half, full, negligible and nil. Jagradadi (45.5-6): awake in own or exaltation sign (full), dreaming in a friend's or neutral sign (medium), asleep in an enemy's or debilitation sign (nil). Deeptadi (45.7-10): Deepta exalted, Swastha own, Pramudita great friend, Santa friend, Deena neutral, Vikala with a malefic, Khala enemy's sign, Kopa combust; the translation counts nine but names eight.",
   "Lajjitadi (45.11-18): Lajjita in the 5th with a node, the Sun, Saturn or Mars; Garvita exalted or in moolatrikona; Kshudhita in an enemy's sign, with or aspected by an enemy, or with Saturn; Trushita in a watery sign aspected by a malefic and no benefic; Mudita in a friend's sign, with or aspected by a benefic, or with Jupiter; Kshobhita with the Sun and with or aspected by a malefic or aspected by an enemy. The house held by a Kshudhita or Kshobhita planet is spoiled (45.18); the effects of 45.19-29 follow.",
   "Sayanadi (45.30-39): the planet's star number times its number (Sun 1 to Ketu 9) times its navamsa number, plus the birth star number, the ghatis elapsed from sunrise and the count of the lagna sign from Aries; the remainder on division by twelve names one of Sayana, Upavesana, Netrapani, Prakasa, Gamana, Agamana, Sabha, Agama, Bhojana, Nrityalipsa, Kautuka and Nidra. Effects from 45.40-146 by planet and 45.147-155 in general.",
-  "Provisional readings: Jagradadi and Deeptadi use the compound relations of 3.55-58 for the seven planets (the natural table for Rahu and Ketu), since Pramudita needs a great friend; Lajjitadi uses the natural relations of 3.55 alone; moolatrikona is counted with own sign for Jagradadi; aspect is graha drishti of any strength; the ghatis of birth are whole ghatis from the computed sunrise and the lagna count takes Aries as 1. The sub-states Drishti, Cheshta and Vicheshta (45.36-39) need the numeral value of the first syllable of the native's name in the Sanskrit scheme and are not computed. Where the translation gives no effect for a planet in a state, the cell says so.",
+  "Provisional readings: Jagradadi names three classes, friend, neutral and enemy, and uses the natural relations of 3.55; Deeptadi names a thick friend as well, so it uses the compound relations of 3.55-58 for the seven planets (the natural table for Rahu and Ketu), and the basis shows how the compound relation arose. The two columns can therefore differ, as when a planet stands in a natural neutral's sign whose lord is a temporal enemy; Lajjitadi uses the natural relations of 3.55 alone; moolatrikona is counted with own sign for Jagradadi; aspect is graha drishti of any strength; the ghatis of birth are whole ghatis from the computed sunrise and the lagna count takes Aries as 1. The sub-states Drishti, Cheshta and Vicheshta (45.36-39) need the numeral value of the first syllable of the native's name in the Sanskrit scheme and are not computed. Where the translation gives no effect for a planet in a state, the cell says so.",
 ];
 
 // 45.40-146: effect per planet per Sayanadi state. `null` where the translation gives none.
@@ -220,6 +220,20 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
     if (ENEMIES[a]?.includes(lord)) return "enemy" as const;
     return "neutral" as const;
   };
+  /** Natural relation of the planet to the lord of its sign (3.55), for the three classes of 45.5. */
+  const natToLord = (a: Planet): "own" | "friend" | "neutral" | "enemy" => {
+    const lord = SIGN_LORD[pos(a).signIndex] as Planet;
+    return lord === a ? "own" : rel(a, lord);
+  };
+  /** How the compound relation to the sign lord arose (3.56-58), for the Deeptadi basis. */
+  const compoundWhy = (a: Planet): string => {
+    const lord = SIGN_LORD[pos(a).signIndex] as Planet;
+    if (!seven(a) || !seven(lord) || lord === a) return "";
+    const nat = rel(a, lord);
+    const h = houseFrom(pos(a).signIndex, pos(lord).signIndex);
+    const temp = [2, 3, 4, 10, 11, 12].includes(h) ? "friend" : "enemy";
+    return `${lord} is ${nat === "neutral" ? "neutral" : nat === "enemy" ? "an enemy" : "a friend"} by nature and a temporal ${temp}, standing in the ${ord(h)} from ${a}`;
+  };
   const enemyOf = (a: Planet, b: Planet) => rel(a, b) === "enemy";
   const natLord = (a: Planet) => rel(a, SIGN_LORD[pos(a).signIndex] as Planet);
   const exalted = (p: PlanetPosition) => EXALTATION[p.planet]?.sign === p.signIndex;
@@ -239,25 +253,30 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
     const band = Math.min(4, Math.floor(p.degInSign / 6));
     const bi = p.signIndex % 2 === 0 ? band : 4 - band;
     const baladi = { name: BALADI[bi], plain: BALADI_PLAIN[bi], result: BALADI_RESULT[bi], band };
-    // Jagradadi 45.5-6
+    // Jagradadi 45.5-6: three classes, friend, neutral and enemy, taken from the natural table of 3.55.
     const r = relToLord(pl);
+    const rn = natToLord(pl);
     let jag: PlanetAvasthas["jagradadi"];
     if (exalted(p) || own(p) || moola(p)) jag = { name: "Jagrat", plain: "awake", result: "full", basis: exalted(p) ? "exalted" : moola(p) ? "moolatrikona" : "own sign" };
-    else if (debilitated(p) || r === "enemy" || r === "great enemy") jag = { name: "Sushupti", plain: "asleep", result: "nil", basis: debilitated(p) ? "debilitated" : `${r}'s sign` };
-    else jag = { name: "Swapna", plain: "dreaming", result: "medium", basis: `${r}'s sign` };
+    else if (debilitated(p) || rn === "enemy") jag = { name: "Sushupti", plain: "asleep", result: "nil", basis: debilitated(p) ? "debilitated" : "enemy's sign by nature" };
+    else jag = { name: "Swapna", plain: "dreaming", result: "medium", basis: `${rn}'s sign by nature` };
     // Deeptadi 45.7-10
     const names: string[] = [];
     const basis: string[] = [];
     if (exalted(p)) { names.push("Deepta"); basis.push("exalted"); }
     else if (own(p) || moola(p)) { names.push("Swastha"); basis.push("own sign"); }
-    else if (r === "great friend") { names.push("Pramudita"); basis.push("great friend's sign"); }
-    else if (r === "friend") { names.push("Santa"); basis.push("friend's sign"); }
-    else if (r === "neutral") { names.push("Deena"); basis.push("neutral sign"); }
-    else { names.push("Khala"); basis.push(`${r}'s sign`); }
+    else {
+      const why = compoundWhy(pl);
+      const tag = why ? ` by compound relation: ${why}` : "";
+      if (r === "great friend") { names.push("Pramudita"); basis.push(`great friend's sign${tag}`); }
+      else if (r === "friend") { names.push("Santa"); basis.push(`friend's sign${tag}`); }
+      else if (r === "neutral") { names.push("Deena"); basis.push(`neutral sign${tag}`); }
+      else { names.push("Khala"); basis.push(`${r}'s sign${tag}`); }
+    }
     const malWith = with_(pl).filter((q) => !isBen(q));
     if (malWith.length) { names.push("Vikala"); basis.push(`with ${list(malWith.map((q) => q.planet))}`); }
     if (p.combust) { names.push("Kopa"); basis.push("combust"); }
-    const deeptadi = { names, basis: basis.join(", ") };
+    const deeptadi = { names, basis: basis.join("; ") };
     // Lajjitadi 45.11-17
     const laj: { name: string; why: string }[] = [];
     const h = houseOf(pl);
