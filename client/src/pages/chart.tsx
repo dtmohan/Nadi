@@ -979,7 +979,7 @@ export default function ChartPage() {
           : mode === "alp"
           ? "Akshaya Lagna Paddhati is Dr. S. Pothuvudaimoorthy's method. The progression arithmetic follows the published rate; the interpretive rules are being entered from the printed volumes chapter by chapter and are a framework, not a verdict."
           : mode === "parashari"
-          ? "Parashari text is paraphrased from Brihat Parashara Hora Sastra in R. Santhanam's translation (chapters 24, 26, 34, 36, 41, 42, 75), softened and with verse numbers kept for checking. Planetary strength (ch. 27-28), divisional charts (ch. 6-7), Ashtakavarga (ch. 66-72) and the dasa-effect chapters (47-48, 52-61) are applied mechanically; the Sripati chalit, portion stages and the effect amounts of 28.15-20 are provisional readings. A first pass, not a verdict."
+          ? "Parashari text is paraphrased from Brihat Parashara Hora Sastra in R. Santhanam's translation (chapters 24, 26, 34, 36, 41, 42, 75), softened and with verse numbers kept for checking. Planetary strength (ch. 27-28), divisional charts (ch. 6-7), Ashtakavarga (ch. 66-72) and the dasa chapters (46 for the conditional systems, 47-48 and 52-61 for effects) are applied mechanically; the Sripati chalit, portion stages and the effect amounts of 28.15-20 are provisional readings. A first pass, not a verdict."
           : mode === "rectify" || mode === "validate"
           ? "Rectification and validation are checks, not readings. Each method scores by one system's rules at a time (KP sub lords and significators, or K.N. Rao's Chara dasha) and the systems are never blended; a high score narrows the birth time or confirms a rule, it does not prove either."
           : mode === "kp"

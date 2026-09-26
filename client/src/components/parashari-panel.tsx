@@ -9,6 +9,7 @@ import { YOGA_CAVEATS } from "@shared/parashari-yogas";
 import { ROYAL_CAVEATS } from "@shared/parashari-royal";
 import { EVIL_CAVEATS } from "@shared/parashari-evils";
 import { CURSE_CAVEATS } from "@shared/parashari-curses";
+import type { ConditionalDasasResult, ConditionalDasa } from "@shared/conditional-dasas";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
@@ -402,6 +403,89 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       </div>
 
       {selDasa && <DasaEffects d={selDasa} open={antarOpen} setOpen={setAntarOpen} birthIso={result.utc} asOfIso={asOfIso} />}
+
+      <ConditionalDasasSection cd={r.conditionalDasas} />
+    </div>
+  );
+}
+
+function ConditionalDasasSection({ cd }: { cd: ConditionalDasasResult }) {
+  const plain = usePlain();
+  const applying = cd.systems.filter((s) => s.applies);
+  const rest = cd.systems.filter((s) => !s.applies);
+  const [pick, setPick] = useState<string>(applying[0]?.id ?? "");
+  const [showRest, setShowRest] = useState(false);
+  const [caveats, setCaveats] = useState(false);
+  const sel: ConditionalDasa | undefined = cd.systems.find((s) => s.id === pick) ?? applying[0];
+  const ageTxt = (p: { ageStart: number; ageEnd: number }) => `${Math.max(0, p.ageStart).toFixed(1)} to ${p.ageEnd.toFixed(1)}`;
+  return (
+    <div className="mt-8" data-testid="parashari-conditional-dasas">
+      <SectionTitle plain="Other period systems the text indicates" technical="Conditional dasas (ch. 46)" />
+      <ModeText
+        plain={<>Parashara keeps the 120-year system above for most charts, and names nine other systems for special cases, each with a rule that says when it applies. The rules that hold for this chart are listed here with their periods, so events can be checked against more than one clock. The text does not rank them.</>}
+        practitioner={<>Vimshottari is for the general populace (46.2-5); the other nakshatra dasas of 46.17-43 are adopted when their condition holds. {applying.length} {applying.length === 1 ? "condition holds" : "conditions hold"} in this chart. Yogini (46.195-199) is given without a condition. Lords, years and starting nakshatras are as stated in the chapter; see the notes for how the balance at birth is taken.</>}
+      />
+      <div role="tablist" aria-label="Conditional dasa" className="mt-3 inline-flex flex-wrap rounded-md border p-0.5 text-sm">
+        {applying.map((s) => (
+          <button key={s.id} role="tab" aria-selected={sel?.id === s.id} onClick={() => setPick(s.id)} className={cn("rounded px-3 py-1", sel?.id === s.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")} data-testid={`conditional-dasa-${s.id}`}>
+            {s.name}
+          </button>
+        ))}
+      </div>
+      {sel && (
+        <div className="mt-3" data-testid={`conditional-dasa-detail-${sel.id}`}>
+          <p className="text-sm">
+            {plain ? "Applies because" : "Condition"}: {sel.condition}. {sel.reason} <SourceLink source={{ label: `Parashara 46.${sel.verses}`, url: sel.url, provisional: sel.provisional }} />
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            First period {sel.firstLord}, balance {sel.balanceYears.toFixed(2)} years of {sel.totalYears} in the cycle. {sel.balanceNote}
+          </p>
+          <Table className="mt-3" cards>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{plain ? "Period" : "Dasa"}</TableHead>
+                <TableHead className="text-right">Years</TableHead>
+                <TableHead className="text-right">Age</TableHead>
+                <TableHead className="hidden sm:table-cell">Dates</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sel.periods.map((p, i) => (
+                <TableRow key={i} className={cn(p.current && "bg-primary/10", p.repeated && "text-muted-foreground")} data-testid={`conditional-period-${sel.id}-${i}`}>
+                  <TableCell>
+                    <PlanetName planet={p.lord} />{p.yogini ? <span className="ml-1.5 text-xs text-muted-foreground">{p.yogini}</span> : null}
+                    {p.current ? <Badge variant="secondary" className="ml-2">now</Badge> : null}
+                    {p.repeated ? <span className="ml-1.5 text-2xs uppercase tracking-wide text-muted-foreground">repeated</span> : null}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">{p.years.toFixed(p.years % 1 ? 2 : 0)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{ageTxt(p)}</TableCell>
+                  <TableCell className="hidden sm:table-cell tabular-nums">{fmt(p.start)} to {fmt(p.end)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+      {rest.length > 0 && (
+        <div className="mt-3 text-xs text-muted-foreground">
+          <button type="button" onClick={() => setShowRest((v) => !v)} className="underline decoration-dotted underline-offset-2" data-testid="conditional-dasa-rest-toggle">
+            {showRest ? "Hide" : "Show"} the {rest.length} systems whose condition does not hold
+          </button>
+          {showRest && (
+            <ul className="mt-2 space-y-1">
+              {rest.map((s) => (
+                <li key={s.id} data-testid={`conditional-dasa-rest-${s.id}`}>
+                  {s.name}: {s.condition} (46.{s.verses}). {s.reason}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+      <button type="button" onClick={() => setCaveats((v) => !v)} className="mt-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2" data-testid="conditional-dasa-caveats-toggle">
+        {caveats ? "Hide" : "Show"} how these are computed
+      </button>
+      {caveats && <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">{cd.caveats.join(" ")}</p>}
     </div>
   );
 }
