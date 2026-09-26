@@ -800,8 +800,8 @@ function AvasthasSection({ a }: { a: AvasthaResult }) {
     <div className="mt-8" data-testid="parashari-avasthas">
       <SectionTitle plain="The state each planet is in" technical="Avasthas of the planets (ch. 45)" />
       <ModeText
-        plain={<>Parashara reads each planet's condition five ways: its age within the sign, whether it is awake, dreaming or asleep by the sign it holds, how content it is by dignity and company, six moods from house, company and aspect, and a twelve-fold state found by a small arithmetic on its star, its navamsa and the moment of birth. The moods and the twelve-fold state carry the chapter's stated effects.</>}
-        practitioner={<>Baladi 45.3-4, Jagradadi 45.5-6, Deeptadi 45.7-10, Lajjitadi 45.11-29 and Sayanadi 45.30-155. Relations by 3.55-58; aspect is graha drishti; ghatis from the computed sunrise. The Sayanadi sub-states of 45.36-39 need the numeral of the name's first syllable and are left aside.</>}
+        plain={<>Parashara reads each planet's condition five ways: its age within the sign, whether it is awake, dreaming or asleep by the sign it holds, how content it is by dignity and company, six moods from house, company and aspect, and a twelve-fold state found by a small arithmetic on its star, its navamsa and the moment of birth. The moods and the twelve-fold state carry the chapter's stated effects. The twelve-fold state is not a verdict drawn from the other columns: it comes from its own arithmetic, and the text says how much of its effect to expect from the planet's age, the sign it holds and its strength, which is shown under each reading.</>}
+        practitioner={<>Baladi 45.3-4, Jagradadi 45.5-6, Deeptadi 45.7-10, Lajjitadi 45.11-29 and Sayanadi 45.30-155. Relations by 3.55-58; aspect is graha drishti; ghatis from the computed sunrise. The Sayanadi state is arithmetic on the star, navamsa and moment, not a summary of the other four columns; 45.38-39 grade its stated effects by the sub-state and by the planet's strength, so each reading carries the measures of 45.4 and 45.6 beside it. The sub-state itself needs the numeral of the name's first syllable and is left aside.</>}
       />
       <Table className="mt-3" data-testid="avasthas-table" cards>
         <TableHeader>
@@ -840,6 +840,7 @@ function AvasthasSection({ a }: { a: AvasthaResult }) {
                   <span>
                     <span className={cn("rounded px-1", VERDICT_CLASS[x.sayanadi.tone])}>{plain ? x.sayanadi.plain : x.sayanadi.name}</span>
                     <span className="mt-0.5 block text-xs text-muted-foreground">{x.sayanadi.effect} <SourceLink source={{ label: `45.${x.sayanadi.verse}`, url: AVASTHA_CH, provisional: true }} mark={false} /></span>
+                    <span className="mt-0.5 block text-2xs text-muted-foreground" data-testid={`avasthas-measure-${x.planet}`}>{x.sayanadi.measure}</span>
                     {!plain && <span className="block text-2xs text-muted-foreground tabular-nums">{x.sayanadi.working}</span>}
                   </span>
                 ) : <span className="text-xs text-muted-foreground">needs sunrise</span>}

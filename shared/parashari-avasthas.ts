@@ -36,6 +36,8 @@ export interface PlanetAvasthas {
     tone: Tone;
     verse: string;
     asWritten?: boolean;
+    /** 45.4, 45.6 and 45.38-39: how much of the stated effect the text expects. */
+    measure: string;
   };
 }
 
@@ -183,8 +185,19 @@ const E: Record<Planet, Eff[]> = {
     ["wealth and grain, virtuous, sportive", "support"],
   ],
 };
-const VERSE_START: Record<Planet, number> = { Sun: 40, Moon: 52, Mars: 64, Mercury: 76, Jupiter: 87, Venus: 99, Saturn: 111, Rahu: 123, Ketu: 135 };
+/** The translation numbers each planet's twelve Sayanadi effects as one block, so the block is cited rather than a verse per state. */
+const VERSE_BLOCK: Record<Planet, string> = { Sun: "40-51", Moon: "52-63", Mars: "64-75", Mercury: "76-86", Jupiter: "87-98", Venus: "99-110", Saturn: "111-122", Rahu: "123-134", Ketu: "135-146" };
 const WATERY = [3, 7, 11];
+
+/**
+ * 45.38-39: the effects stated for a Sayanadi state are given full, medium or negligible by the sub-state, and "the good and bad
+ * effects of planets be deciphered based on the strength and weakness of the planets". The sub-state needs the numeral of the
+ * name's first syllable and is not computed, so the measures the text does give, by age (45.4) and by the sign held (45.6), are
+ * placed beside the reading so that it is not taken as a verdict on its own.
+ */
+function measureNote(age: string, jag: string, basis: string): string {
+  return `Measure: ${age} by age (45.4), ${jag} by the ${basis} (45.6); the sub-state of 45.38 that grades this reading is not computed, and 45.39 asks that its good and bad be weighed by the planet's strength.`;
+}
 
 export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, deps: HouseDeps, shadbala?: ShadbalaResult, base?: ShadbalaBase): AvasthaResult {
   const pos = (pl: Planet) => positions.find((p) => p.planet === pl)!;
@@ -294,10 +307,10 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
       const index = rem === 0 ? 12 : rem;
       const eff = E[pl][index - 1];
       const working = `${star} × ${pn} × ${nav} + ${birthStar} + ${ghatis} + ${lagnaIdx + 1} = ${total}; remainder ${rem}`;
-      const verse = `${VERSE_START[pl] + index - 1}`;
+      const verse = VERSE_BLOCK[pl];
       sayanadi = eff
-        ? { index, name: SAYANADI[index - 1], plain: SAYANADI_PLAIN[index - 1], working, effect: cap(eff[0]), tone: eff[1], verse, asWritten: eff[0].includes("as written") }
-        : { index, name: SAYANADI[index - 1], plain: SAYANADI_PLAIN[index - 1], working, effect: "The translation gives no effect for this planet in this state.", tone: "mixed", verse };
+        ? { index, name: SAYANADI[index - 1], plain: SAYANADI_PLAIN[index - 1], working, effect: cap(eff[0]), tone: eff[1], verse, asWritten: eff[0].includes("as written"), measure: measureNote(baladi.result, jag.result, jag.basis) }
+        : { index, name: SAYANADI[index - 1], plain: SAYANADI_PLAIN[index - 1], working, effect: "The translation gives no effect for this planet in this state.", tone: "mixed", verse, measure: measureNote(baladi.result, jag.result, jag.basis) };
     }
     return { planet: pl, baladi, jagradadi: jag, deeptadi, lajjitadi: laj, sayanadi };
   });
