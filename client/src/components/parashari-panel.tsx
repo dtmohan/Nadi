@@ -10,6 +10,7 @@ import { ROYAL_CAVEATS } from "@shared/parashari-royal";
 import { EVIL_CAVEATS } from "@shared/parashari-evils";
 import { CURSE_CAVEATS } from "@shared/parashari-curses";
 import type { ConditionalDasasResult, ConditionalDasa } from "@shared/conditional-dasas";
+import { KC_SUB_VERSES, KC_CH49, type KalachakraResult, type KcPeriod } from "@shared/kalachakra";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
@@ -405,6 +406,101 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       {selDasa && <DasaEffects d={selDasa} open={antarOpen} setOpen={setAntarOpen} birthIso={result.utc} asOfIso={asOfIso} />}
 
       <ConditionalDasasSection cd={r.conditionalDasas} />
+
+      <KalachakraSection k={r.kalachakra} />
+    </div>
+  );
+}
+
+function KalachakraSection({ k }: { k: KalachakraResult }) {
+  const plain = usePlain();
+  const curIdx = k.periods.findIndex((p) => p.current);
+  const [pick, setPick] = useState<number>(curIdx >= 0 ? curIdx : 0);
+  const [caveats, setCaveats] = useState(false);
+  const sel: KcPeriod | undefined = k.periods[pick];
+  const readings = sel ? k.readingsFor(sel) : [];
+  const subs = sel ? k.subPeriods(sel) : [];
+  const yrs = (y: number) => y.toFixed(Math.abs(y - Math.round(y)) < 0.005 ? 0 : 2);
+  return (
+    <div className="mt-8" data-testid="parashari-kalachakra">
+      <SectionTitle plain="The wheel of time" technical="Kalachakra dasa (46.52-154, ch. 49)" />
+      <ModeText
+        plain={<>A second clock Parashara sets great store by. The Moon's birth star and quarter place the chart on one of two wheels and pick out nine signs in a fixed order; each sign rules a stretch of years given by its planet. Pick a stretch to read what the text says of it and its smaller divisions.</>}
+        practitioner={<>{k.chakra} chakra: Moon in {k.nakshatra} pada {k.pada}, the {SIGNS[k.amsa]} navamsa (46.87-88), whose nine signs are {k.sequence.map((s) => SIGNS[s]).join(", ")} ({k.totalYears} years, 46.89). Deha {SIGNS[k.deha]}, Jiva {SIGNS[k.jiva]} (46.94). Expired at birth {k.expiredYears.toFixed(2)} years by the elapsed part of the navamsa (46.93), so the dasa opens in {SIGNS[k.periods[0].sign]} with {k.balanceYears.toFixed(2)} years to run.</>}
+      />
+      {plain && (
+        <p className="mt-2 text-sm text-muted-foreground" data-testid="kalachakra-summary">
+          Born with the Moon in {k.nakshatra}, quarter {k.pada}: the {k.chakra} wheel, signs {k.sequence.map((s) => SIGNS[s]).join(", ")}, {k.totalYears} years in all; the first stretch, {SIGNS[k.periods[0].sign]}, had {k.balanceYears.toFixed(1)} years left at birth.
+        </p>
+      )}
+      {k.amsaNature && <p className="mt-2 text-sm">Born in the {SIGNS[k.amsa]} navamsa of the wheel, the text calls the native {k.amsaNature}. <SourceLink source={{ label: "Parashara 46.120-122", url: k.dehaJiva[0].source.url }} /></p>}
+      {k.dehaJiva.map((d, i) => (
+        <p key={i} className="mt-2 text-sm" data-testid="kalachakra-deha-jiva">{d.text} <SourceLink source={d.source} /></p>
+      ))}
+      <Table className="mt-3" data-testid="kalachakra-periods" cards>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{plain ? "Stretch" : "Dasa"}</TableHead>
+            <TableHead className="text-right">Years</TableHead>
+            <TableHead className="text-right">Age</TableHead>
+            <TableHead className="hidden sm:table-cell">Dates</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {k.periods.map((p, i) => (
+            <TableRow key={i} className={cn("cursor-pointer", i === pick && "bg-primary/10", p.repeated && "text-muted-foreground")} onClick={() => setPick(i)} data-testid={`kalachakra-period-${i}`} aria-selected={i === pick}>
+              <TableCell>
+                <SignName signIndex={p.sign} />
+                {p.current ? <Badge variant="secondary" className="ml-2">now</Badge> : null}
+                {p.gati ? <span className="ml-1.5 text-2xs uppercase tracking-wide text-muted-foreground" title={`From ${SIGNS[p.gatiFrom!]}`}>{p.gati}</span> : null}
+                {p.repeated ? <span className="ml-1.5 text-2xs uppercase tracking-wide text-muted-foreground">repeated</span> : null}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">{yrs(p.years)}</TableCell>
+              <TableCell className="text-right tabular-nums">{Math.max(0, p.ageStart).toFixed(1)} to {p.ageEnd.toFixed(1)}</TableCell>
+              <TableCell className="hidden sm:table-cell tabular-nums">{fmt(p.start)} to {fmt(p.end)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {sel && (
+        <div className="mt-4" data-testid="kalachakra-detail">
+          <h4 className="text-sm font-semibold">{SIGNS[sel.sign]} {plain ? "stretch" : "dasa"}, {fmt(sel.start)} to {fmt(sel.end)}</h4>
+          <ul className="mt-2 space-y-2">
+            {readings.map((rd, i) => (
+              <li key={i} className="text-sm" data-testid={`kalachakra-reading-${i}`}>
+                <span className={cn("mr-1.5 inline-block h-2 w-2 rounded-full align-middle", rd.tone === "support" ? "bg-emerald-500" : rd.tone === "strain" ? "bg-rose-500" : "bg-amber-500")} aria-label={rd.tone} />
+                <span className="font-medium">{rd.label}.</span> {rd.text} <SourceLink source={rd.source} />
+              </li>
+            ))}
+          </ul>
+          <SectionTitle as="h4" className="mt-4" plain={`Smaller divisions of the ${SIGNS[sel.sign]} stretch`} technical={`Navamsa sub-periods of the ${SIGNS[sel.sign]} dasa (49.${KC_SUB_VERSES[sel.sign]})`} />
+          <Table className="mt-2" data-testid="kalachakra-subs" cards>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{plain ? "Division" : "Navamsa"}</TableHead>
+                <TableHead className="text-right">Years</TableHead>
+                <TableHead className="hidden sm:table-cell">Dates</TableHead>
+                <TableHead>Reading</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {subs.map((sp, i) => (
+                <TableRow key={i} className={cn(sp.current && "bg-primary/10")} data-testid={`kalachakra-sub-${i}`}>
+                  <TableCell><SignName signIndex={sp.sign} />{sp.current ? <Badge variant="secondary" className="ml-2">now</Badge> : null}</TableCell>
+                  <TableCell className="text-right tabular-nums">{sp.years.toFixed(2)}</TableCell>
+                  <TableCell className="hidden sm:table-cell tabular-nums">{fmt(sp.start)} to {fmt(sp.end)}</TableCell>
+                  <TableCell className="text-sm">{sp.effect ? <>{sp.effect.charAt(0).toUpperCase()}{sp.effect.slice(1)}.</> : <span className="text-muted-foreground">Not given in the text.</span>}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <p className="mt-1 text-xs text-muted-foreground">Sub-period readings from <a href={KC_CH49} target="_blank" rel="noreferrer" className="underline decoration-dotted underline-offset-2">Parashara 49.{KC_SUB_VERSES[sel.sign]}</a>; 49.7 adds that the planet occupying the sign must be weighed with them, and 49.35-37 that the raja-yoga dasa effects apply here too.</p>
+        </div>
+      )}
+      <button type="button" onClick={() => setCaveats((v) => !v)} className="mt-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2" data-testid="kalachakra-caveats-toggle">
+        {caveats ? "Hide" : "Show"} how this is computed
+      </button>
+      {caveats && <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">{k.caveats.join(" ")}</p>}
     </div>
   );
 }

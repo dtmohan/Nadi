@@ -6,6 +6,7 @@
 import { SIGNS, SIGN_LORD, houseFrom, type Planet, type PlanetPosition, type Sign } from "./astro";
 import { vimshottari, type Vimshottari } from "./kp";
 import { conditionalDasas, type ConditionalDasasResult } from "./conditional-dasas";
+import { computeKalachakra, type KalachakraResult } from "./kalachakra";
 import { computeShadbala, type ShadbalaBase, type ShadbalaResult, type DasaStartTransit } from "./shadbala";
 import { computeAshtakavarga, type AshtakavargaResult } from "./ashtakavarga";
 import { computeBhavaPhala, computeVargaPhala, type BhavaPhala, type VargaPhala } from "./bhava-phala";
@@ -86,6 +87,8 @@ export interface ParashariResult {
   vimshottari: Vimshottari;
   /** Other nakshatra dasas of BPHS ch. 46 with their conditions. */
   conditionalDasas: ConditionalDasasResult;
+  /** Kalachakra dasa, BPHS 46.52-154 and ch. 49. */
+  kalachakra: KalachakraResult;
   dashas: DashaGloss[];
   /** Period effects from BPHS ch. 47-48 and 52-61. */
   dasaReadings: DasaReading[];
@@ -508,6 +511,7 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   // Vimshottari, glossed by lordship (Lahiri Moon).
   const vim = vimshottari(pos("Moon").lon, birthIso, asOfIso);
   const condDasas = conditionalDasas(positions, lagnaLon, birthIso, asOfIso, shadbala?.daytime);
+  const kalachakra = computeKalachakra(positions, lagnaLon, birthIso, asOfIso, (p) => naturalBenefic(p, positions));
   const dashas: DashaGloss[] = vim.dasas.map((d) => {
     const n = natures.find((x) => x.planet === d.lord)!;
     const lordEff = n.owns.map((h) => LORD_IN_HOUSE[h - 1][n.house - 1]);
@@ -527,7 +531,7 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   const bhavaJudgement = judgeBhavas(positions, lagnaIdx, houseDeps, shadbala);
 
   const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts, ashtakavarga, neecha);
-  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, bhavaJudgement, vimshottari: vim, conditionalDasas: condDasas, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
+  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, bhavaJudgement, vimshottari: vim, conditionalDasas: condDasas, kalachakra, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
 }
 
 export function ord(n: number): string {
