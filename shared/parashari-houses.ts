@@ -416,14 +416,269 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
     const others = mal5.filter((p) => !fifthFromJu.includes(p));
     if (fifthFromJu.length && others.length) push("pa-h5-16-22", 5, "Grief through children at 33 and 36", `${list(fifthFromJu)} ${v(fifthFromJu, "is", "are")} in the 5th from Jupiter and ${list(others)} in the 5th from the lagna. Parashara reads loss of children at 33 and 36; a hard verse, shown as written.`, "strain", [...fifthFromJu, ...others], S(16, "22"));
   }
+
+  // ---- Chapter 17: the 6th house ----
+  const l6 = lordOf(6);
+  const l8 = lordOf(8);
+  const l12 = lordOf(12);
+  const h6 = houseOf(l6);
+  const s6 = signOfHouse(6);
+  const in6 = inSign(s6);
+  const exch = (a: Planet, b: Planet, ha: number, hb: number) => a !== b && houseOf(a) === hb && houseOf(b) === ha;
+  const withEach = (a: Planet, b: Planet) => a !== b && pos(a).signIndex === pos(b).signIndex;
+  const natMal = (pl: Planet) => ["Sun", "Mars", "Saturn"].includes(pl);
+  if ([1, 6, 8].includes(h6)) {
+    push("pa-h6-17-2", 6, "Ulcers or bruises", `${l6}, lord of the 6th, is in the ${ord(h6)}. Parashara reads ulcers or bruises on the body, the limb shown by the sign of the 6th: ${SIGNS[s6]}, ${LIMB[s6]} in the Kalapurusha scheme of 4.4.`, "strain", [l6], S(17, "2"));
+  }
+  if (["Mars", "Mercury"].includes(SIGN_LORD[pos(l1).signIndex]) && l1 !== "Mercury" && (withEach(l1, "Mercury") || deps.aspect("Mercury", pos("Mercury").signIndex, pos(l1).signIndex) > 0)) {
+    push("pa-h6-17-6", 6, "Ailments of the face", `${l1}, lord of the lagna, is in ${SIGNS[pos(l1).signIndex]}, a sign of ${SIGN_LORD[pos(l1).signIndex]}, and Mercury ${withEach(l1, "Mercury") ? "joins" : "aspects"} it. Parashara reads diseases of the face.`, "strain", [l1, "Mercury"], S(17, "6"));
+  }
+  if (["Mars", "Mercury"].includes(l1) && (["Moon", "Rahu", "Saturn"] as Planet[]).every((p) => withEach(l1, p))) {
+    push("pa-h6-17-7", 6, "Skin disease", `${l1}, lord of the lagna, is joined by the Moon, Rahu and Saturn. Parashara reads leprosy; taken today as a serious skin disorder.`, "strain", [l1, "Moon", "Rahu", "Saturn"], S(17, "7"));
+  }
+  if (houseOf("Moon") === 1 && signOfHouse(1) !== 3) {
+    const kinds: string[] = [];
+    if (withEach("Moon", "Rahu")) kinds.push("Rahu (white leprosy in the text)");
+    if (withEach("Moon", "Saturn")) kinds.push("Saturn (black leprosy)");
+    if (withEach("Moon", "Mars")) kinds.push("Mars (blood leprosy)");
+    if (kinds.length) push("pa-h6-17-8", 6, "Skin disease", `The Moon is in the lagna, which is not Cancer, together with ${list(kinds)}. Parashara reads skin disease of the kind named; the labels are his, read today as skin disorders.`, "strain", ["Moon", ...(withEach("Moon", "Rahu") ? ["Rahu" as Planet] : []), ...(withEach("Moon", "Saturn") ? ["Saturn" as Planet] : []), ...(withEach("Moon", "Mars") ? ["Mars" as Planet] : [])], S(17, "8"));
+  }
+  if (houseOf(l6) === 1 && houseOf(l8) === 1) {
+    const DIS: Partial<Record<Planet, string>> = { Sun: "fever and tumours", Mars: "swelling and hardening of blood vessels, wounds and injuries by weapons", Mercury: "bilious complaints", Jupiter: "the destruction of disease", Venus: "disease through women", Saturn: "windy complaints", Rahu: "danger through men of low station", Ketu: "navel complaints", Moon: "danger through water and phlegmatic disorders" };
+    const third = inSign(signOfHouse(1)).map((p) => p.planet).filter((p) => p !== l6 && p !== l8 && DIS[p]);
+    if (third.length) push("pa-h6-17-9", 6, "Disease from the lagna", `${l6} and ${l8}, lords of the 6th and 8th, are in the lagna with ${list(third)}. Parashara reads ${list(third.map((p) => `${DIS[p]} (${p})`))}.`, third.includes("Jupiter") && third.length === 1 ? "support" : "strain", [l6, l8, ...third], S(17, "9-12"));
+  }
+  {
+    const mal6 = in6.filter((p) => !deps.benefic(p, positions) && p.planet !== l6).map((p) => p.planet);
+    const malL6 = maleficsWith(l6);
+    if (withEach("Saturn", "Rahu") && mal6.length && malL6.length) {
+      push("pa-h6-17-13", 6, "Recurring ill health", `Saturn is with Rahu, the 6th holds ${list(mal6)}, and ${l6}, its lord, is joined by ${list(malL6)}. Parashara reads illness through life; read today as a recurring liability to be weighed against the lagna lord's strength.`, "strain", ["Saturn", "Rahu", l6, ...mal6, ...malL6], S(17, "13"));
+    }
+  }
+  if (houseOf("Mars") === 6 && h6 === 8) {
+    push("pa-h6-17-14", 6, "Fever at 6 and 12", `Mars is in the 6th and ${l6}, lord of the 6th, is in the 8th. Parashara times severe fever to the ages of 6 and 12.`, "strain", ["Mars", l6], S(17, "14"));
+  }
+  if ([8, 11].includes(pos("Moon").signIndex) && houseOf("Jupiter") === 6) {
+    push("pa-h6-17-15", 6, "Skin disease at 19 and 22", `The Moon is in ${SIGNS[pos("Moon").signIndex]} and Jupiter is in the 6th. Parashara times leprosy, read today as skin disease, to the ages of 19 and 22.`, "strain", ["Moon", "Jupiter"], S(17, "15"));
+  }
+  if (exch(l6, l12, 6, 12)) {
+    push("pa-h6-17-17", 6, "Spleen at 29 and 30", `${l6} and ${l12}, lords of the 6th and 12th, exchange signs. Parashara times disorders of the spleen to the ages of 29 and 30.`, "strain", [l6, l12], S(17, "17"));
+  }
+  if (houseOf("Saturn") === 6 && houseOf("Moon") === 6) {
+    push("pa-h6-17-18", 6, "Skin disease at 45", `Saturn and the Moon are together in the 6th. Parashara times blood leprosy, read today as a blood or skin disorder, to the age of 45.`, "strain", ["Saturn", "Moon"], S(17, "18"));
+  }
+  {
+    const satEnemy = (["Sun", "Moon", "Mars"] as Planet[]).filter((p) => withEach("Saturn", p));
+    if (satEnemy.length && houseOf(l1) === 1) {
+      push("pa-h6-17-19", 6, "Rheumatic complaints at 59", `Saturn is joined by ${list(satEnemy)}, ${v(satEnemy, "its natural enemy", "its natural enemies")} by 3.55, and ${l1}, lord of the lagna, is in the lagna. Parashara times windy disorders such as rheumatism to the age of 59.`, "strain", ["Saturn", ...satEnemy, l1], S(17, "19"));
+    }
+  }
+  if (withEach("Moon", l6) && houseOf(l8) === 6 && houseOf(l12) === 1) {
+    push("pa-h6-17-20", 6, "Trouble from animals at 8", `The Moon is with ${l6}, lord of the 6th, ${l8}, lord of the 8th, is in the 6th, and ${l12}, lord of the 12th, is in the lagna. Parashara times trouble from animals to the age of 8.`, "strain", ["Moon", l6, l8, l12], S(17, "20"));
+  }
+  if (houseOf("Rahu") === 6 && houseFrom(pos("Rahu").signIndex, pos("Saturn").signIndex) === 8) {
+    push("pa-h6-17-21", 6, "Fire and birds in infancy", `Rahu is in the 6th and Saturn is in the 8th from Rahu. Parashara reads danger through fire in the 1st and 2nd years and trouble from birds in the 3rd.`, "strain", ["Rahu", "Saturn"], S(17, "21-22"));
+  }
+  if ([6, 8].includes(houseOf("Sun")) && houseFrom(pos("Sun").signIndex, pos("Moon").signIndex) === 12) {
+    push("pa-h6-17-23", 6, "Danger through water at 5 and 9", `The Sun is in the ${ord(houseOf("Sun"))} and the Moon is in the 12th from the Sun. Parashara reads danger through water in the 5th and 9th years.`, "strain", ["Sun", "Moon"], S(17, "23"));
+  }
+  if (houseOf("Saturn") === 8 && houseOf("Mars") === 7) {
+    push("pa-h6-17-24", 6, "Eruptive fever at 10 and 30", `Saturn is in the 8th and Mars in the 7th. Parashara times smallpox, read today as eruptive fever or pox, to the 10th and 30th years.`, "strain", ["Saturn", "Mars"], S(17, "24"));
+  }
+  if (exch(l11, l6, 11, 6)) {
+    push("pa-h6-17-26", 6, "Loss through enemies at 31", `${l11} and ${l6}, lords of the 11th and 6th, exchange signs. Parashara times a loss of wealth to the 31st year.`, "strain", [l11, l6], S(17, "26"));
+  }
+  if (h5 === 6 && withEach(l6, "Jupiter") && houseOf(l12) === 1) {
+    push("pa-h6-17-27", 6, "Estrangement from children", `${l5}, lord of the 5th, is in the 6th, ${l6}, lord of the 6th, is with Jupiter, and ${l12}, lord of the 12th, is in the lagna. Parashara reads one's own sons as enemies; read as estrangement.`, "strain", [l5, l6, "Jupiter", l12], S(17, "27"));
+  }
+  if (exch(l1, l6, 1, 6)) {
+    push("pa-h6-17-28", 6, "Fear from dogs at 10 and 19", `${l1} and ${l6}, lords of the lagna and 6th, exchange signs. Parashara times fear from dogs to the 10th and 19th years.`, "strain", [l1, l6], S(17, "28"));
+  }
+
+  // ---- Chapter 18: the 7th house ----
+  const l7 = lordOf(7);
+  const h7 = houseOf(l7);
+  const s7 = signOfHouse(7);
+  const in7 = inSign(s7);
+  const disp = (pl: Planet) => SIGN_LORD[pos(pl).signIndex];
+  const l7Deb = pos(l7).dignity === "Debilitated";
+  const l7Exalt = pos(l7).dignity === "Exalted";
+  const l7Own = own(l7) || l7Exalt;
+  const navLagna = Math.floor(((lagnaLon % 360) + 360) % 360 / (30 / 9)) % 12;
+  const navSeventh = (navLagna + 6 * 9) % 12;
+  if (l7Own) {
+    push("pa-h7-18-1", 7, "Happiness through the spouse", `${l7}, lord of the 7th, is ${l7Exalt ? "exalted" : "in its own sign"}. Parashara promises full happiness through the spouse and marriage.${l7Exalt ? " 18.6 adds that particular exaltation of the 7th lord can also mean more than one marriage." : ""}`, "support", [l7], S(18, "1"));
+  } else if (DUSTHANA.includes(h7)) {
+    push("pa-h7-18-2", 7, "Spouse's health", `${l7}, lord of the 7th, is in the ${ord(h7)}. Parashara reads a sickly spouse; he excludes the lord in own sign or exaltation, which does not hold here.`, "strain", [l7], S(18, "2"));
+  }
+  if (houseOf("Venus") === 7) {
+    push("pa-h7-18-3a", 7, "Venus in the 7th", `Venus occupies the 7th. Parashara reads strong desire.`, "mixed", ["Venus"], S(18, "3"));
+  }
+  {
+    const malVe = maleficsWith("Venus");
+    if (malVe.length) push("pa-h7-18-3b", 7, "Venus with a malefic", `Venus is joined by ${list(malVe)} in the ${ord(houseOf("Venus"))}. Parashara reads harm to the spouse from Venus with a malefic in any house. The combination is common; his stricter tests are 18.16-17 and 18.35-39, and the 7th lord's condition weighs against it.`, "strain", ["Venus", ...malVe], S(18, "3"));
+  }
+  {
+    const benW = beneficsWith(l7);
+    const benA = aspectingPlanet(l7, "benefic").filter((p) => p !== l7);
+    if (strong(l7) === true && (benW.length || benA.length)) {
+      push("pa-h7-18-4", 7, "7th lord strong and befriended", `${l7}, lord of the 7th, is above its Shadbala requirement and ${benW.length ? `joined by ${list(benW)}` : ""}${benW.length && benA.length ? " and " : ""}${benA.length ? `aspected by ${list(benA)}` : ""}. Parashara promises wealth, honour, happiness and good fortune.`, "support", [l7, ...benW, ...benA], S(18, "4"));
+    }
+  }
+  {
+    const why = l7Deb ? "debilitated" : combust(l7) ? "combust" : pos(l7).dignity === "Inimical" ? "in an enemy's sign" : null;
+    if (why) push("pa-h7-18-5", 7, "7th lord weakened", `${l7}, lord of the 7th, is ${why}. Parashara reads a spouse of poor health, or more than one marriage.`, "strain", [l7], S(18, "5"));
+  }
+  {
+    const benA7 = aspectingPlanet(l7, "benefic").filter((p) => p !== l7);
+    if (["Saturn", "Venus"].includes(disp(l7)) && !own(l7) && !l7Exalt && benA7.length) {
+      push("pa-h7-18-6", 7, "More than one marriage", `${l7}, lord of the 7th, is in ${SIGNS[pos(l7).signIndex]}, a sign of ${disp(l7)}, and is aspected by ${list(benA7)}. Parashara reads more than one marriage here.`, "mixed", [l7, ...benA7], S(18, "6"));
+    }
+  }
+  {
+    const mal12 = inSign(signOfHouse(12)).filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
+    const mal7 = in7.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
+    if (mal12.length && mal7.length && houseOf("Moon") === 5 && !ben("Moon")) {
+      push("pa-h7-18-10", 7, "Spouse holds sway", `${list(mal12)} in the 12th, ${list(mal7)} in the 7th, and the waning Moon in the 5th. Parashara reads a native governed by the spouse, who is at odds with the family.`, "strain", [...mal12, ...mal7, "Moon"], S(18, "10"));
+    }
+  }
+  {
+    const ben7 = in7.filter((p) => deps.benefic(p, positions) && p.planet !== l1).map((p) => p.planet);
+    if (l7Exalt && houseOf(l1) === 7 && strong(l1) === true && ben7.length) {
+      push("pa-h7-18-14", 7, "A worthy spouse", `${l7}, lord of the 7th, is exalted, and the 7th holds ${l1}, lord of the lagna, above its Shadbala requirement, with ${list(ben7)}. Parashara promises a spouse of the seven virtues and a line continued through sons and grandsons.`, "support", [l7, l1, ...ben7], S(18, "14-15"));
+    }
+  }
+  {
+    const mal7 = in7.filter((p) => !deps.benefic(p, positions) && p.planet !== l7).map((p) => p.planet);
+    const malL7 = maleficsWith(l7);
+    if (mal7.length || malL7.length) {
+      const weak = strong(l7) === false;
+      push("pa-h7-18-16", 7, "Strain on the spouse", `${mal7.length ? `The 7th holds ${list(mal7)}` : ""}${mal7.length && malL7.length ? " and " : ""}${malL7.length ? `${l7}, lord of the 7th, is joined by ${list(malL7)}` : ""}. Parashara reads difficulties for the spouse, the more so when the 7th or its lord lacks strength${weak ? `, as ${l7} does here by Shadbala` : shadbala ? `; ${l7} meets its Shadbala requirement, which softens it` : ""}.`, "strain", [...mal7, l7, ...malL7], S(18, "16"));
+    }
+  }
+  if ((strong(l7) === false && DUSTHANA.includes(h7)) || l7Deb) {
+    push("pa-h7-18-17", 7, "Spouse's life under threat", `${l7}, lord of the 7th, is ${l7Deb ? "debilitated" : `in the ${ord(h7)} and short of its Shadbala requirement`}. Parashara reads the spouse's life as cut short; a hard verse, shown as written and to be weighed with 18.1-2 and the strength pass.`, "strain", [l7], S(18, "17"));
+  }
+  if (houseOf("Moon") === 7 && h7 === 12 && strong("Venus") === false) {
+    push("pa-h7-18-18", 7, "Marital happiness withheld", `The Moon is in the 7th, ${l7}, lord of the 7th, is in the 12th, and Venus, the karaka, is short of its Shadbala requirement. Parashara denies marital happiness.`, "strain", ["Moon", l7, "Venus"], S(18, "18"));
+  }
+  {
+    const neuter7 = ["Mercury", "Saturn"].includes(l7) || ["Mercury", "Saturn"].includes(SIGN_LORD[navSeventh]);
+    const malSignWithMal = natMal(disp(l7)) && maleficsWith(l7).length > 0;
+    if (neuter7 && (l7Deb || malSignWithMal)) {
+      push("pa-h7-18-19", 7, "Two marriages", `${l7}, lord of the 7th, is ${l7Deb ? "debilitated" : `in a malefic's sign with ${list(maleficsWith(l7))}`}, and the 7th ${["Mercury", "Saturn"].includes(l7) ? "house" : "navamsa"} belongs to ${["Mercury", "Saturn"].includes(l7) ? l7 : SIGN_LORD[navSeventh]}, a neuter planet by 3.19. Parashara reads two marriages.`, "mixed", [l7, ...maleficsWith(l7)], S(18, "19"));
+    }
+  }
+  if ((houseOf("Mars") === 7 && houseOf("Venus") === 7) || (houseOf("Saturn") === 7 && houseOf(l1) === 8)) {
+    push("pa-h7-18-20", 7, "Three marriages", `${houseOf("Mars") === 7 && houseOf("Venus") === 7 ? "Mars and Venus are in the 7th" : `Saturn is in the 7th and ${l1}, lord of the lagna, is in the 8th`}. Parashara reads three marriages; shown as written.`, "mixed", houseOf("Mars") === 7 && houseOf("Venus") === 7 ? ["Mars", "Venus"] : ["Saturn", l1], S(18, "20"));
+  }
+  if (pos("Venus").signIndex % 3 === 2 && pos(disp("Venus")).dignity === "Exalted" && strong(l7) === true) {
+    push("pa-h7-18-21", 7, "Many marriages", `Venus is in ${SIGNS[pos("Venus").signIndex]}, a dual sign, its dispositor ${disp("Venus")} is exalted, and ${l7}, lord of the 7th, is strong. Parashara reads many marriages; shown as written.`, "mixed", ["Venus", disp("Venus"), l7], S(18, "21"));
+  }
+  // 18.22-34: timing of marriage.
+  const marry = (id: string, when: string, why: string, pls: Planet[], verse: string, prov?: boolean) => push(`pa-h7-18-${id}`, 7, `Marriage in the ${when}`, `${why}. Parashara times marriage to the ${when}; the ages are his and reflect the customs of his time.`, "support", pls, S(18, verse, prov));
+  if (houseOf("Sun") === 7 && disp("Sun") !== "Venus" && withEach(disp("Sun"), "Venus")) {
+    marry("23", "7th or 11th year", `The Sun is in the 7th and its dispositor ${disp("Sun")} is with Venus`, ["Sun", disp("Sun"), "Venus"], "23");
+  }
+  if (houseOf("Venus") === 2 && h7 === 11) {
+    marry("24", "10th or 16th year", `Venus is in the 2nd and ${l7}, lord of the 7th, is in the 11th`, ["Venus", l7], "24");
+  }
+  if (KENDRA.includes(houseOf("Venus")) && [9, 10].includes(pos(l1).signIndex)) {
+    marry("25", "11th year", `Venus is in the ${ord(houseOf("Venus"))}, an angle, and ${l1}, lord of the lagna, is in ${SIGNS[pos(l1).signIndex]}`, ["Venus", l1], "25");
+  }
+  if (KENDRA.includes(houseOf("Venus")) && houseFrom(pos("Venus").signIndex, pos("Saturn").signIndex) === 7) {
+    marry("26", "12th or 19th year", `Venus is in the ${ord(houseOf("Venus"))}, an angle, and Saturn is in the 7th from Venus`, ["Venus", "Saturn"], "26");
+  }
+  if (houseFrom(pos("Moon").signIndex, pos("Venus").signIndex) === 7 && houseFrom(pos("Venus").signIndex, pos("Saturn").signIndex) === 7) {
+    marry("27", "18th year", `Venus is in the 7th from the Moon and Saturn in the 7th from Venus`, ["Moon", "Venus", "Saturn"], "27");
+  }
+  if (houseOf(l2) === 11 && houseOf(l1) === 10) {
+    marry("28", "15th year", `${l2}, lord of the 2nd, is in the 11th and ${l1}, lord of the lagna, is in the 10th`, [l2, l1], "28");
+  }
+  if (exch(l2, l11, 2, 11)) {
+    marry("29", "13th year", `${l2} and ${l11}, lords of the 2nd and 11th, exchange signs`, [l2, l11], "29");
+  }
+  if (houseOf("Venus") === 2 && disp("Venus") !== "Mars" && withEach(disp("Venus"), "Mars")) {
+    marry("30", "22nd or 27th year", `Venus is in the 2nd, the 7th from the 8th, and its dispositor ${disp("Venus")} is with Mars`, ["Venus", disp("Venus"), "Mars"], "30");
+  }
+  if (houseOf(l8) === 7 && navamsaSign(pos("Venus")) === navLagna) {
+    marry("32", "25th or 33rd year", `${l8}, lord of the 8th, is in the 7th and Venus occupies the navamsa lagna, ${SIGNS[navLagna]}`, [l8, "Venus"], "32");
+  }
+  if (houseOf("Venus") === 5 && [5, 9].includes(houseOf("Rahu"))) {
+    marry("33", "31st or 33rd year", `Venus is in the 5th, the 9th from the 9th, and Rahu is in the ${ord(houseOf("Rahu"))}`, ["Venus", "Rahu"], "33");
+  }
+  if (houseOf("Venus") === 1 && h7 === 7) {
+    marry("34", "27th or 30th year", `Venus is in the lagna and ${l7}, lord of the 7th, is in the 7th itself`, ["Venus", l7], "34");
+  }
+  // 18.35-39, 18.42: hard verses on the spouse's life, shown as written.
+  const bereave = (id: string, when: string, why: string, pls: Planet[], verse: string) => push(`pa-h7-18-${id}`, 7, `Spouse's life at risk in the ${when}`, `${why}. Parashara reads the loss of the spouse in the ${when}; a hard verse, shown as written and to be weighed against 18.1, 18.4 and the 7th lord's strength.`, "strain", pls, S(18, verse));
+  if (l7Deb && houseOf("Venus") === 8) bereave("35", "18th or 33rd year", `${l7}, lord of the 7th, is debilitated and Venus is in the 8th`, [l7, "Venus"], "35");
+  if (h7 === 8 && houseOf(l12) === 7) bereave("36", "19th year", `${l7}, lord of the 7th, is in the 8th and ${l12}, lord of the 12th, is in the 7th`, [l7, l12], "36");
+  if (houseOf("Venus") === 8 && disp("Venus") !== "Saturn" && SIGN_LORD[pos(disp("Venus")).signIndex] === "Saturn") bereave("38", "12th or 21st year", `Venus is in the 8th and its dispositor ${disp("Venus")} is in ${SIGNS[pos(disp("Venus")).signIndex]}, a sign of Saturn`, ["Venus", disp("Venus")], "38");
+  if (pos(l1).dignity === "Debilitated" && houseOf(l2) === 8) bereave("39", "13th year", `${l1}, lord of the lagna, is debilitated and ${l2}, lord of the 2nd, is in the 8th`, [l1, l2], "39");
+  if (houseFrom(pos("Venus").signIndex, pos("Moon").signIndex) === 7 && houseFrom(pos("Moon").signIndex, pos("Mercury").signIndex) === 7 && houseOf(l8) === 5) {
+    push("pa-h7-18-40", 7, "Three marriages at 10, 22 and 33", `The Moon is in the 7th from Venus, Mercury in the 7th from the Moon, and ${l8}, lord of the 8th, is in the 5th. Parashara times three marriages to the 10th, 22nd and 33rd years; shown as written.`, "mixed", ["Venus", "Moon", "Mercury", l8], S(18, "40-41"));
+  }
+  if (houseOf("Mars") === 6 && houseOf("Rahu") === 7 && houseOf("Saturn") === 8) {
+    push("pa-h7-18-42", 7, "Spouse's life at risk", `Mars, Rahu and Saturn occupy the 6th, 7th and 8th in that order. Parashara reads the spouse's life as short; a hard verse, shown as written.`, "strain", ["Mars", "Rahu", "Saturn"], S(18, "42"));
+  }
+
+  // ---- Chapter 19: the 8th house ----
+  const h8 = houseOf(l8);
+  const s8 = signOfHouse(8);
+  const mal8 = inSign(s8).filter((p) => !deps.benefic(p, positions) && p.planet !== l8).map((p) => p.planet);
+  if (KENDRA.includes(h8)) {
+    push("pa-h8-19-1", 8, "Long life", `${l8}, lord of the 8th, is in the ${ord(h8)}, an angle. Parashara reads long life${strong(l1) === false ? `, though 19.8 sets the lagna lord's weakness against the same placement, and ${l1} is short of its Shadbala requirement here` : ""}.`, strong(l1) === false ? "mixed" : "support", [l8], S(19, "1"));
+  }
+  if (h8 === 8 && (withEach(l8, l1) || maleficsWith(l8).length)) {
+    const co = withEach(l8, l1) ? [l1] : maleficsWith(l8);
+    push("pa-h8-19-2", 8, "Span curtailed", `${l8}, lord of the 8th, is in the 8th itself with ${list(co)}${withEach(l8, l1) ? ", the lagna lord" : ""}. Parashara counts this among the short-life yogas; 19.7 asks that planetary strength decide such matters, so this is a caution rather than a span.`, "strain", [l8, ...co], S(19, "2"));
+  }
+  {
+    const ways: string[] = [];
+    const pls: Planet[] = [];
+    if (h6 === 12) { ways.push(`${l6}, lord of the 6th, is in the 12th`); pls.push(l6); }
+    if (h6 === 6 && houseOf(l12) === 12) { ways.push(`${l6} and ${l12}, lords of the 6th and 12th, stand in their own houses`); pls.push(l6, l12); }
+    if (l6 !== l12 && [1, 8].includes(h6) && [1, 8].includes(houseOf(l12)) && h6 !== houseOf(l12)) { ways.push(`${l6} and ${l12}, lords of the 6th and 12th, occupy the lagna and the 8th`); pls.push(l6, l12); }
+    if (ways.length) push("pa-h8-19-4", 8, "Long life", `${list(ways)}. Parashara reads long life.`, "support", pls, S(19, "4"));
+  }
+  {
+    const trio = Array.from(new Set<Planet>([l5, l8, l1]));
+    const good = (p: Planet) => own(p) || pos(p).dignity === "Friendly" || SIGN_LORD[navamsaSign(pos(p))] === p;
+    if (trio.every(good)) push("pa-h8-19-5", 8, "Long life", `${list(trio.map((p) => `${p} ${own(p) ? "in its own sign" : pos(p).dignity === "Friendly" ? "in a friendly sign" : "in its own navamsa"}`))}: the lords of the 5th, 8th and lagna are each well placed. Parashara reads a long span of life.`, "support", trio, S(19, "5"));
+  }
+  {
+    const four = Array.from(new Set<Planet>([l1, l8, l10, "Saturn"]));
+    const okH = (p: Planet) => inKT(houseOf(p)) || houseOf(p) === 11;
+    if (four.every(okH)) push("pa-h8-19-6", 8, "Long life", `${list(four.map((p) => `${p} in the ${ord(houseOf(p))}`))}: the lords of the lagna, 8th and 10th and Saturn are each in an angle, a trine or the 11th. Parashara reads long life.`, "support", four, S(19, "6"));
+  }
+  if (strong(l1) === false && KENDRA.includes(h8)) {
+    push("pa-h8-19-8", 8, "Span questioned", `${l1}, lord of the lagna, is short of its Shadbala requirement while ${l8}, lord of the 8th, is in the ${ord(h8)}, an angle. Parashara puts the span between 20 and 32 years here; 19.1 reads the same 8th lord as long life, and 19.7 leaves the decision to strength. Where the native is already past that age the verse speaks to health rather than span.`, "strain", [l1, l8], S(19, "8"));
+  }
+  if (pos(l8).dignity === "Debilitated" && mal8.length && strong(l1) === false) {
+    push("pa-h8-19-9", 8, "Span curtailed", `${l8}, lord of the 8th, is debilitated, the 8th holds ${list(mal8)}, and ${l1}, lord of the lagna, is short of its Shadbala requirement. Parashara counts this among the short-life yogas; 19.7 asks that strength decide, so this is a caution rather than a span.`, "strain", [l8, ...mal8, l1], S(19, "9"));
+  }
+  if (pos(l1).dignity === "Exalted" && houseOf("Moon") === 11 && houseOf("Jupiter") === 8) {
+    push("pa-h8-19-14", 8, "Long life", `${l1}, lord of the lagna, is exalted, the Moon is in the 11th and Jupiter in the 8th. Parashara reads long life.`, "support", [l1, "Moon", "Jupiter"], S(19, "14"));
+  }
+  {
+    const benKT = aspectingPlanet(l1, "benefic").filter((p) => p !== l1 && KENDRA.includes(houseOf(p)));
+    if (strong(l1) === true && (pos(l1).dignity === "Exalted" || own(l1)) && benKT.length) {
+      push("pa-h8-19-15", 8, "Wealth, virtue and long life", `${l1}, lord of the lagna, is ${pos(l1).dignity === "Exalted" ? "exalted" : "in its own sign"} and above its Shadbala requirement, and ${list(benKT)} ${v(benKT, "aspects", "aspect")} it from the ${list(benKT.map((p) => ord(houseOf(p))))}, an angle. Parashara promises wealth, virtue and long life. "Exceedingly strong" is read as dignity plus Shadbala, so this is provisional.`, "support", [l1, ...benKT], S(19, "15", true));
+    }
+  }
   return F;
 }
+
+/** Limbs of the Kalapurusha by sign, BPHS 4.4. */
+const LIMB = ["the head", "the face", "the arms", "the heart", "the stomach", "the hip", "the space below the navel", "the private parts", "the thighs", "the knees", "the ankles", "the feet"];
 
 /** Exaltation signs, for the navamsa test of 15.12. */
 const EXALT_SIGN: Partial<Record<Planet, number>> = { Sun: 0, Moon: 1, Mars: 9, Mercury: 5, Jupiter: 3, Venus: 11, Saturn: 6 };
 
 export const HOUSE_CAVEATS = [
-  "Not applied from chapter 14: the counting verses 14.7-13 (numbers of brothers and sisters), and 14.2-3 and 14.5 when Mars is itself the 3rd lord, since those verses pair the lord with Mars. From chapter 15: the closing rule of 15.14 (a benefic or malefic related to the 4th colours conveyances), already covered by the chapter 11 judgement. From chapter 16: 16.9 and 16.23 (Mandi is not computed), 16.11 (six planets in the 5th), 16.14-15 (parentage), and the counting verses 16.24-32.",
+  "Not applied from chapter 14: the counting verses 14.7-13 (numbers of brothers and sisters), and 14.2-3 and 14.5 when Mars is itself the 3rd lord, since those verses pair the lord with Mars. From chapter 15: the closing rule of 15.14 (a benefic or malefic related to the 4th colours conveyances), already covered by the chapter 11 judgement. From chapter 16: 16.9 and 16.23 (Mandi is not computed), 16.11 (six planets in the 5th), 16.14-15 (parentage), and the counting verses 16.24-32. From chapter 17: 17.3-5 (ulcers to relatives through their karakas), 17.16 and 17.25 (Mandi and the 8th navamsa are not computed). From chapter 18: the descriptive verses 18.7-9 and 18.11-13 (spouse's character and conduct from the 7th house and Venus, which fire for a third of all charts by ownership alone), 18.22 (the translation wavers between a benefic's house and the 9th, and the ages 5 or 9 are child marriage), 18.31 (the lagna lord's navamsa clause is ambiguous) and 18.37. From chapter 19: 19.3 (the same tests repeated for Saturn and the 10th lord) and 19.10-13, which concern death at or soon after birth and do not apply to a living native.",
   "12.9 (twins), 12.11 (repeat the reading from the Moon) and 12.12-15 (decanates and limbs) are not applied; 12.11 is noted for the reader rather than duplicated.",
+  "Chapter 18 speaks of a wife; the cards say spouse and apply the verses to charts of either sex, which the text does not itself authorise, so that reading is provisional. Ages in the timing verses of chapters 17-18 are given as written; 19.7 and 14.15 ask that planetary strength decide before any of the hard verses are read as outcomes.",
   "Malefic and benefic follow the natural classification used across this pass: the Moon benefic when waxing, Mercury when free of malefic company, nodes malefic.",
 ];
