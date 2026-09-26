@@ -17,6 +17,7 @@ import { neechaBhanga, PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechab
 import { houseFindings, judgeBhavas, type BhavaJudgement } from "./parashari-houses";
 import { yogaFindings } from "./parashari-yogas";
 import { royalFindings } from "./parashari-royal";
+import { fatherFindings, fatherDasaLord } from "./parashari-father";
 import { evilFindings } from "./parashari-evils";
 import { curseFindings } from "./parashari-curses";
 import { computePadas, type PadaResult } from "./parashari-padas";
@@ -542,7 +543,8 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
     const lordEff = n.owns.map((h) => LORD_IN_HOUSE[h - 1][n.house - 1]);
     const roleText = n.lordship === "node" ? `${d.lord} in the ${ord(n.house)}; it gives the results of its sign lord ${SIGN_LORD[pos(d.lord).signIndex]} and of planets in its company` : `${d.lord} owns the ${listH(n.owns)} and stands in the ${ord(n.house)}`;
     const eff = lordEff.length ? ` Lord-in-house verses: ${lordEff.map((e) => `24.${e.verse}`).join(", ")}.` : "";
-    return { lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: d.current, owns: n.owns, house: n.house, functional: n.functional, summary: roleText + "." + eff };
+    const father = d.lord === fatherDasaLord(lagnaIdx).lord ? " The father enjoys happiness in this dasa (70.16)." : "";
+    return { lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: d.current, owns: n.owns, house: n.house, functional: n.functional, summary: roleText + "." + eff + father };
   });
 
   // Chapters 11-13: house judgement and the stated effects of the 1st and 2nd houses.
@@ -551,6 +553,7 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   // Chapters 35-38: Nabhasa, remaining ch. 36, lunar and solar yogas.
   findings.push(...yogaFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   findings.push(...royalFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
+  findings.push(...fatherFindings(positions, lagnaIdx));
   findings.push(...evilFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   findings.push(...curseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala));
   const bhavaJudgement = judgeBhavas(positions, lagnaIdx, houseDeps, shadbala);

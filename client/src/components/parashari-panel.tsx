@@ -7,6 +7,7 @@ import { PHALADEEPIKA_CH7_URL } from "@shared/neechabhanga";
 import { HOUSE_MATTERS, HOUSE_MATTERS_SOURCE, BHAVA_JUDGEMENT_SOURCE, BHAVA_JUDGEMENT_CAVEATS, HOUSE_CAVEATS } from "@shared/parashari-houses";
 import { YOGA_CAVEATS } from "@shared/parashari-yogas";
 import { ROYAL_CAVEATS } from "@shared/parashari-royal";
+import { FATHER_YOGA_CAVEATS } from "@shared/parashari-father";
 import { EVIL_CAVEATS } from "@shared/parashari-evils";
 import { CURSE_CAVEATS } from "@shared/parashari-curses";
 import type { ConditionalDasasResult, ConditionalDasa } from "@shared/conditional-dasas";
@@ -281,7 +282,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         {section === "yogas" && (
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {yogas.map((f) => <Finding key={f.id} f={f} />)}
-            <p className="text-xs text-muted-foreground md:col-span-2">{YOGA_CAVEATS.join(" ")} {ROYAL_CAVEATS.join(" ")} Kendra-trikona and node yogakarakas are from chapter 34, Neechabhanga from Phaladeepika 7, the raja yogas from debility from chapter 39 and the wealth and penury verses from chapters 41-42.</p>
+            <p className="text-xs text-muted-foreground md:col-span-2">{YOGA_CAVEATS.join(" ")} {ROYAL_CAVEATS.join(" ")} {FATHER_YOGA_CAVEATS.join(" ")} Kendra-trikona and node yogakarakas are from chapter 34, Neechabhanga from Phaladeepika 7, the raja yogas from debility from chapter 39 and the wealth and penury verses from chapters 41-42.</p>
           </div>
         )}
         {section === "evils" && (

@@ -21,7 +21,7 @@ import { AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
 import { JAIMINI_AREAS, RAO_SOURCE, currentFor, isHot, readAreas, type TransitTarget } from "@shared/jaimini-areas";
 import { TRANSIT_GRADE_LABEL, confirmTransits, summarizeTouches } from "@shared/jaimini-transit";
 import { computeAshtakavarga } from "@shared/ashtakavarga";
-import { GOCHARA_AV_NOTES, avMarkText, gocharaAvMark } from "@shared/gochara-av";
+import { GOCHARA_AV_NOTES, SOLAR_MONTH_NOTES, avMarkText, gocharaAvMark, solarMonthReading } from "@shared/gochara-av";
 import { PANCHANGA_CAVEATS, PANCHANGA_SOURCES, SURYA_SIDDHANTA_URL, type LimbSegment } from "@shared/panchanga";
 import { computeGochara, GOCHARA_CAVEATS, BS_URL, PD_URL } from "@shared/gochara";
 import { gocharaCalendar } from "./gochara-calendar";
@@ -58,7 +58,14 @@ function sectionTitle(doc: Doc, title: string, note?: string) {
   doc.moveDown(0.8);
   const y = doc.y;
   doc.font("Times-Bold").fontSize(15).fillColor(INK).text(title, PAGE.m, y, { lineBreak: false });
-  if (note) doc.font("Helvetica").fontSize(8.5).fillColor(MUTED).text(note, PAGE.m, y + 5, { width: CONTENT_W, align: "right", lineBreak: false });
+  if (note) {
+    doc.font("Helvetica").fontSize(8.5).fillColor(MUTED);
+    const tw = doc.font("Times-Bold").fontSize(15).widthOfString(title) + 16;
+    doc.font("Helvetica").fontSize(8.5);
+    let n = note;
+    while (n.length > 20 && doc.widthOfString(n) > CONTENT_W - tw) n = n.replace(/\s*·[^·]*$/, "");
+    doc.text(n, PAGE.m + tw, y + 5, { width: CONTENT_W - tw, align: "right", lineBreak: false });
+  }
   doc.moveTo(PAGE.m, y + 22).lineTo(PAGE.w - PAGE.m, y + 22).lineWidth(0.6).strokeColor(RULE).stroke();
   doc.x = PAGE.m;
   doc.y = y + 30;
@@ -545,7 +552,7 @@ function panchangaSection(doc: Doc, result: ChartResult) {
   const av = computeAshtakavarga(result.positions, Math.floor((((result.jaimini.lagna.lon % 360) + 360) % 360) / 30));
   const avText = (planet: Planet, signIndex: number) => avMarkText(gocharaAvMark(av, planet, signIndex));
   ensureSpace(doc, 120);
-  sectionTitle(doc, "Gochara calendar", `Jupiter, Saturn, Rahu and Ketu from the Moon · ${d(cal.from)} to ${d(cal.to)} · Ashtakavarga marks per sign (BPHS 66.70-72, 72.3-5)`);
+  sectionTitle(doc, "Gochara calendar", `Slow movers from the Moon, solar months · ${d(cal.from)} to ${d(cal.to)} · Ashtakavarga marks (BPHS 66.70-72, 70.19-20, 72.3-29)`);
   if (cal.saturnPassages.length) {
     doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INDIGO).text("Saturn over the 12th, 1st and 2nd from the Moon (BS 104.44-45; PD 26.23; the name sade sati is not in either text)", PAGE.m, doc.y, { width: CONTENT_W });
     doc.y += 2;
@@ -557,6 +564,42 @@ function panchangaSection(doc: Doc, result: ChartResult) {
       doc.fillColor(MUTED).text(`Ashtakavarga ${avText("Saturn", psign)}`, PAGE.m + 0.42 * CONTENT_W, y, { lineBreak: false });
       doc.fillColor(MUTED).text(`${d(p.start)} – ${d(p.end)}`, PAGE.m, y, { width: CONTENT_W, align: "right", lineBreak: false });
       doc.y = y + 12;
+    }
+    doc.y += 4;
+  }
+  // solar months of the first year: 70.19-20 fitness for functions and the 72.11-29 month reading
+  const sunSegs = cal.planets.find((q) => q.planet === "Sun")?.segments ?? [];
+  const months: { start: string; end: string; signIndex: number }[] = [];
+  for (const s of sunSegs) {
+    const last = months[months.length - 1];
+    if (last && last.signIndex === s.signIndex && last.end === s.start) last.end = s.end;
+    else months.push({ start: s.start, end: s.end, signIndex: s.signIndex });
+  }
+  const yearEnd = DateTime.fromISO(cal.from).plus({ years: 1 }).toMillis();
+  const firstYear = months.filter((m) => DateTime.fromISO(m.start).toMillis() < yearEnd);
+  if (firstYear.length) {
+    ensureSpace(doc, 60);
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INDIGO).text("Solar months by Ashtakavarga, first year (BPHS 70.19-20; 72.11-29)", PAGE.m, doc.y + 2, { width: CONTENT_W });
+    const mcols = [0, 0.14, 0.28, 0.41, 0.55].map((f) => PAGE.m + f * CONTENT_W);
+    doc.font("Helvetica").fontSize(6.5).fillColor(MUTED);
+    const mhy = doc.y + 1;
+    ["From", "To", "Sun in", "Functions (Sun's chart)", "Month (aggregate)"].forEach((h, i) => doc.text(h, mcols[i], mhy, { lineBreak: false }));
+    doc.y = mhy + 10;
+    doc.moveTo(PAGE.m, doc.y - 2).lineTo(PAGE.w - PAGE.m, doc.y - 2).lineWidth(0.4).strokeColor(RULE).stroke();
+    for (const m of firstYear) {
+      const r = solarMonthReading(av, m.signIndex);
+      const mtext = `${r.sarva} · ${r.effect}${r.remedy ? ` · remedy: ${r.remedy}` : ""}`;
+      doc.font("Helvetica").fontSize(7.5);
+      const h = Math.max(11, doc.heightOfString(mtext, { width: CONTENT_W - (mcols[4] - PAGE.m) }) + 3);
+      ensureSpace(doc, h);
+      const y = doc.y;
+      doc.fillColor(INK).text(d(m.start), mcols[0], y, { lineBreak: false });
+      doc.text(d(m.end), mcols[1], y, { lineBreak: false });
+      doc.text(SIGNS[m.signIndex], mcols[2], y, { lineBreak: false });
+      const fc = r.functions === "fit" ? INDIGO : r.functions === "unfit" ? VERMILION : MUTED;
+      doc.fillColor(fc).text(`${r.functions} · ${r.sunRekhas} of 8`, mcols[3], y, { lineBreak: false });
+      doc.fillColor(r.sarva > 30 ? INDIGO : r.sarva < 25 ? VERMILION : MUTED).text(mtext, mcols[4], y, { width: CONTENT_W - (mcols[4] - PAGE.m) });
+      doc.y = y + h;
     }
     doc.y += 4;
   }
@@ -589,7 +632,7 @@ function panchangaSection(doc: Doc, result: ChartResult) {
     }
     doc.y += 4;
   }
-  for (const c of [...cal.notes, ...GOCHARA_AV_NOTES]) {
+  for (const c of [...cal.notes, ...GOCHARA_AV_NOTES, ...SOLAR_MONTH_NOTES]) {
     ensureSpace(doc, 20);
     doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(`• ${c}`, PAGE.m, doc.y + 1, { width: CONTENT_W });
   }

@@ -17,6 +17,10 @@ import {
 import {
   GOCHARA_AV_NOTES,
   GOCHARA_AV_SOURCES,
+  SOLAR_MONTH_NOTES,
+  SOLAR_MONTH_SOURCES,
+  solarMonthReading,
+  type FunctionsVerdict,
   gocharaAvMark,
   type AvBand,
   type AvOwnVerdict,
@@ -96,6 +100,134 @@ function AvMarkPills({ m, planet }: { m: GocharaAvMark; planet: Planet }) {
         {m.sarva}
       </span>
     </span>
+  );
+}
+
+const FUNCTIONS_PILL: Record<FunctionsVerdict, string> = {
+  fit: "bg-verdict-good/15 text-verdict-good",
+  even: "bg-muted text-muted-foreground",
+  unfit: "bg-verdict-bad/10 text-verdict-bad",
+};
+
+/** The Sun's sign passages, adjacent same-sign stretches joined, for the first year of the calendar. */
+function solarMonths(
+  cal: Calendar,
+): Array<{ start: string; end: string; signIndex: number }> {
+  const sun = cal.planets.find((p) => p.planet === "Sun");
+  if (!sun) return [];
+  const out: Array<{ start: string; end: string; signIndex: number }> = [];
+  for (const s of sun.segments) {
+    const last = out[out.length - 1];
+    if (last && last.signIndex === s.signIndex && last.end === s.start)
+      last.end = s.end;
+    else out.push({ start: s.start, end: s.end, signIndex: s.signIndex });
+  }
+  const limit = DateTime.fromISO(cal.from).plus({ years: 1 }).toMillis();
+  return out.filter((m) => DateTime.fromISO(m.start).toMillis() < limit);
+}
+
+function SolarMonths({
+  cal,
+  zone,
+  av,
+}: {
+  cal: Calendar;
+  zone: string;
+  av: AshtakavargaResult;
+}) {
+  const months = useMemo(() => solarMonths(cal), [cal]);
+  if (!months.length) return null;
+  return (
+    <div
+      className="rounded-md border bg-card text-xs"
+      data-testid="gochara-calendar-solar-months"
+    >
+      <div className="flex flex-wrap items-center gap-2 p-3">
+        <span className="font-medium">Solar months by Ashtakavarga</span>
+        <span className="text-muted-foreground">
+          first year · {SOLAR_MONTH_SOURCES.functions.label} and{" "}
+          {SOLAR_MONTH_SOURCES.effects.label}
+        </span>
+      </div>
+      <div className="overflow-x-auto border-t">
+        <table className="w-full text-xs tabular">
+          <thead className="text-2xs uppercase tracking-wide text-muted-foreground">
+            <tr>
+              <th className="px-3 py-1.5 text-left font-normal">From</th>
+              <th className="px-3 py-1.5 text-left font-normal">To</th>
+              <th className="px-3 py-1.5 text-left font-normal">Sun in</th>
+              <th
+                className="px-3 py-1.5 text-left font-normal"
+                title="Sun's own-chart rekhas of 8 (70.19-20)"
+              >
+                Functions
+              </th>
+              <th
+                className="px-3 py-1.5 text-left font-normal"
+                title="Sarvashtakavarga count (72.11-29)"
+              >
+                Month
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {months.map((m, i) => {
+              const r = solarMonthReading(av, m.signIndex);
+              return (
+                <tr
+                  key={i}
+                  className="border-t"
+                  data-testid={`gochara-calendar-solar-month-${i}`}
+                >
+                  <td className="px-3 py-1.5 whitespace-nowrap">
+                    {fmtD(m.start, zone)}
+                  </td>
+                  <td className="px-3 py-1.5 whitespace-nowrap">
+                    {fmtD(m.end, zone)}
+                  </td>
+                  <td className="px-3 py-1.5">
+                    <SignName signIndex={m.signIndex} />
+                  </td>
+                  <td className="px-3 py-1.5 whitespace-nowrap">
+                    <span
+                      className={cn(
+                        "rounded px-1.5 py-0.5 font-medium",
+                        FUNCTIONS_PILL[r.functions],
+                      )}
+                      title={`${r.sunRekhas} rekhas of 8 in the Sun's own Ashtakavarga (${SOLAR_MONTH_SOURCES.functions.label})`}
+                    >
+                      {r.functions === "fit"
+                        ? "fit"
+                        : r.functions === "unfit"
+                          ? "unfit"
+                          : "even"}
+                    </span>
+                    <span className="ml-1.5 text-muted-foreground">
+                      {r.sunRekhas}/8
+                    </span>
+                  </td>
+                  <td className="min-w-[18rem] px-3 py-1.5 text-muted-foreground">
+                    <span
+                      className={cn(
+                        "mr-1.5 rounded px-1.5 py-0.5",
+                        BAND_PILL[av.band[m.signIndex]],
+                      )}
+                      title={`${r.sarva} rekhas in the Sarvashtakavarga (${r.effectSource.label})`}
+                    >
+                      {r.sarva}
+                    </span>
+                    {r.effect}
+                    {r.remedy && (
+                      <span className="text-2xs"> · remedy: {r.remedy}</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
 
@@ -577,6 +709,8 @@ export function GocharaCalendarSection({
               </div>
             )}
 
+            <SolarMonths cal={cal} zone={zone} av={av} />
+
             {upcoming.length > 0 && (
               <div
                 className="rounded-md border bg-card p-3 text-xs"
@@ -639,6 +773,9 @@ export function GocharaCalendarSection({
                 <li key={n}>{n}</li>
               ))}
               {GOCHARA_AV_NOTES.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+              {SOLAR_MONTH_NOTES.map((n) => (
                 <li key={n}>{n}</li>
               ))}
             </ul>

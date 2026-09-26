@@ -44,7 +44,7 @@ export const FATHER_ARISHTA_CAVEATS = [
   "The planets in the 4th from the Sun are the transiting Rahu, Saturn and Mars; the verse does not say whether natal placements also count, so they are not used (provisional).",
   "Malefic association and aspect on Saturn are judged by whole-sign conjunction and the 7th-sign aspect, with Mars' 4th and 8th, at the middle of each window; the nodes' aspects are not in the text (provisional).",
   "The favourable dasa of 70.14 is taken as a Vimshottari maha dasa the app already reads as supportive (chapters 46-64), a provisional identification.",
-  "70.15-18 (the father's own chart) is not applied because the father's birth data are not in the app.",
+  "70.15 and 70.16-18 (3)-(4) read the native's chart against the father's and are not applied because the father's birth data are not in the app; the remaining rules of 70.16-18 appear among the yogas and in the dasa list.",
 ];
 
 interface DasaLike {
