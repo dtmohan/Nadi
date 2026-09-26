@@ -13,7 +13,9 @@
  *
  * Later-practice conditions found in modern compilations but not in the verses above are computed and
  * labelled provisional: exchange of signs with the dispositor; a planet exalted in the debilitation sign
- * standing in a kendra; the debilitated planet exalted in the navamsa; the dispositor in the same sign.
+ * standing in a kendra (Sastri's note 3 on 7.26 records this as a variant reading of the verse); the
+ * debilitated planet itself in a kendra from the lagna or the Moon; the debilitated planet exalted in the
+ * navamsa; the dispositor in the same sign.
  */
 import { EXALTATION, SIGN_LORD, SIGNS, houseFrom, type Planet, type PlanetPosition } from "./astro";
 
@@ -81,7 +83,10 @@ export function neechaBhanga(
   add("exchange", exchange, `${planet} and ${dispositor} ${exchange ? "exchange signs" : "do not exchange signs"}`, "later practice", true);
   const exaltedHere = positions.find((x) => x.planet !== planet && EXALTATION[x.planet]?.sign === p.signIndex);
   const eh = exaltedHere && (kendraLagna(exaltedHere.planet) || kendraMoon(exaltedHere.planet));
-  add("exalted-in-sign-kendra", Boolean(eh), exaltedHere ? `${exaltedHere.planet}, exalted in ${SIGNS[p.signIndex]}, ${eh ? "is in an angle from the lagna or the Moon" : "is in no angle from the lagna or the Moon"}` : `no planet is exalted in ${SIGNS[p.signIndex]}`, "later practice", true);
+  // Sastri's note 3 on 7.26 records a variant reading of taducca-natha as "the planet exalted in that sign"; kept provisional as a commentarial variant.
+  add("exalted-in-sign-kendra", Boolean(eh), exaltedHere ? `${exaltedHere.planet}, exalted in ${SIGNS[p.signIndex]}, ${eh ? `is in an angle from the lagna or the Moon${exaltedHere.signIndex === p.signIndex ? `, conjunct ${planet}` : ""}` : "is in no angle from the lagna or the Moon"}` : `no planet is exalted in ${SIGNS[p.signIndex]}`, "Phaladeepika 7.26, variant reading in Sastri's note", true);
+  const selfKendra = KENDRA.includes(house) || KENDRA.includes(houseFrom(moonIdx, p.signIndex));
+  add("planet-kendra", selfKendra, `${planet} itself ${selfKendra ? `stands in the ${ord(house)} from the lagna and the ${ord(houseFrom(moonIdx, p.signIndex))} from the Moon` : "is in no angle from the lagna or the Moon"}`, "later practice", true);
   const navamsa = (p.signIndex * 9 + Math.floor(p.degInSign / (10 / 3))) % 12;
   const navExalted = navamsa === ex.sign;
   add("navamsa-exalted", navExalted, `${planet} is ${navExalted ? "exalted" : `in ${SIGNS[navamsa]}`} in the navamsa`, "later practice", true);
