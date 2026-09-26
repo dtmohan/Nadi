@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
@@ -770,6 +770,15 @@ export default function ChartPage() {
   const [showTransit, setShowTransit] = useState(true);
   const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
   const [mode, setMode] = useState<SystemMode>("bnn");
+  const tablistRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    // Keep the selected system tab in view when the strip scrolls horizontally on narrow screens.
+    const list = tablistRef.current;
+    const el = list?.querySelector<HTMLElement>(`[data-testid="mode-${mode}"]`);
+    if (!list || !el) return;
+    const left = el.offsetLeft - list.offsetLeft;
+    if (left < list.scrollLeft || left + el.offsetWidth > list.scrollLeft + list.clientWidth) list.scrollTo({ left: Math.max(0, left - 16), behavior: "smooth" });
+  }, [mode]);
   const { mode: readingMode } = useReadingMode();
 
   if (isLoading) {
@@ -828,7 +837,7 @@ export default function ChartPage() {
       <LifeEventsSection chart={chart} />
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-b pb-3">
-        <div role="tablist" aria-label="Reading system" className="hidden max-w-full overflow-x-auto whitespace-nowrap rounded-md border p-0.5 text-sm md:inline-flex">
+        <div role="tablist" aria-label="Reading system" className="inline-flex max-w-full overflow-x-auto whitespace-nowrap rounded-md border p-0.5 text-sm" ref={tablistRef}>
           {MODES.map((m) => (
             <button
               key={m.id}
@@ -840,11 +849,12 @@ export default function ChartPage() {
               data-testid={`mode-${m.id}`}
               title={m.title}
             >
-              {m.label}
+              <span className="sm:hidden">{m.short}</span>
+              <span className="hidden sm:inline">{m.label}</span>
             </button>
           ))}
         </div>
-        <p className="text-xs font-medium md:hidden" aria-live="polite" data-testid="mode-current">{MODES.find((m) => m.id === mode)?.title ?? MODES.find((m) => m.id === mode)?.label}</p>
+        <p className="sr-only" aria-live="polite" data-testid="mode-current">{MODES.find((m) => m.id === mode)?.title ?? MODES.find((m) => m.id === mode)?.label}</p>
         <div className="flex flex-wrap items-center gap-3">
           <p className="text-xs text-muted-foreground">{mode === "bnn" ? "Planet-to-planet reading, no ascendant or houses." : mode === "jaimini" ? (readingMode === "plain" ? "Jaimini's method: the planets ranked into roles, how each house appears to the world, life periods by sign. Kept separate from the Nadi reading." : "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading.") : mode === "alp" ? (readingMode === "plain" ? "A moving rising point: it advances one sign every ten years and the birth planets are read from where it stands now. Framework stage." : "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage.") : mode === "parashari" ? (readingMode === "plain" ? "The classical system: which planets help or hinder this rising sign, how strong they are, the notable combinations, and the life period running now. Kept separate from the other readings." : "Parashara's system: whole-sign bhavas from the lagna, house lords, sign aspects, functional nature by rising sign, Shadbala, vargas, Ashtakavarga, yogas and Vimshottari with dasa effects. Kept separate from the other readings. First pass.") : mode === "rectify" ? (readingMode === "plain" ? "Checking the birth time: the minutes around the recorded time, scored by one method at a time. Not a reading." : "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading.") : mode === "validate" ? "Saved life events read back at their dates: KP period lords and cusp promise, Jaimini chara dasha, Jupiter's transit, and how each planet's periods turned out. Not a reading." : (readingMode === "plain" ? "Krishnamurti's method: each house has a deciding planet, houses are promised or denied, and timing comes from the planetary periods. Kept separate from the other readings. First pass." : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass.")}</p>
           <ReadingModeToggle />

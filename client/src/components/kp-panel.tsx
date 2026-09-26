@@ -854,7 +854,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
       <section className="mt-10 border-t pt-6 text-xs text-muted-foreground" data-testid="section-kp-sources">
         <p className="font-medium text-foreground">Method and sources</p>
         <p className="mt-1">
-          Sidereal longitudes with the Krishnamurti ayanamsa; Placidus cusps; the 249 subs from the nakshatra divided in Vimshottari proportion starting with its own lord; sub-subs by the same division of the sub. Signification follows Krishnamurti's four steps (star lord's occupancy, own occupancy, star lord's ownership, own ownership); the six-step toggle adds the sub lord's occupancy and ownership as taught in the class notes. Rahu and Ketu stand in for their sign lord and the planets sharing their sign. Rules are paraphrased and cited by volume and page.
+          Sidereal longitudes with the Krishnamurti ayanamsa; Placidus cusps; the 249 subs from the nakshatra divided in Vimshottari proportion starting with its own lord; sub-subs by the same division of the sub. Signification follows Krishnamurti's four steps (star lord's occupancy, own occupancy, star lord's ownership, own ownership); the six-step toggle adds the sub lord's occupancy and ownership as taught in the class notes. Rahu and Ketu stand in for their sign lord and the planets sharing their sign. Exaltation, debilitation and their cancellation play no part: the strength of a planet is read from the sub it occupies, not from its sign (Part 2 p. 13, p. 24). Rules are paraphrased and cited by volume and page.
         </p>
         <ul className="mt-2 space-y-1">
           {KP_SOURCES.map((s) => (

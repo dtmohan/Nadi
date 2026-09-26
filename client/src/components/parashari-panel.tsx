@@ -3,6 +3,7 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, SIGNS, type Planet } from "@shared/astro";
 import { computeParashari, ord, listH, roleLabel, LORDSHIP_LABEL, KENDRA, type ParashariFinding, type DashaGloss } from "@shared/parashari";
+import { PHALADEEPIKA_CH7_URL } from "@shared/neechabhanga";
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import { LAYER_LABEL, finePeriodsOf, type DasaReading, type AntarReading, type DasaNote, type FinePeriod } from "@shared/parashari-dasa";
 import { SHADBALA_SOURCES, type ShadbalaResult, type PlanetShadbala } from "@shared/shadbala";
@@ -137,7 +138,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             practitioner={
               <>
                 {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, yogas from chapters 34, 36, 41, 42 and 75 of{" "}
-                <a href={BPHS_URL(24)} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Brihat Parashara Hora Sastra</a> (Santhanam translation). Nodes have no aspect in chapter 26 and own no house; they are read through their sign lord. First pass.
+                <a href={BPHS_URL(24)} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Brihat Parashara Hora Sastra</a> (Santhanam translation). Nodes have no aspect in chapter 26 and own no house; they are read through their sign lord. Cancellation of debilitation follows{" "}
+                <a href={PHALADEEPIKA_CH7_URL} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Phaladeepika 7.26-30</a> (Subrahmanya Sastri translation), since Parashara's verses do not state it; later-practice conditions are shown provisional and not applied. First pass.
               </>
             }
           />
@@ -620,7 +622,7 @@ function Note({ n }: { n: DasaNote }) {
 
 function DasaEffects({ d, open, setOpen, birthIso, asOfIso }: { d: DasaReading; open: string | null; setOpen: (k: string | null) => void; birthIso: string; asOfIso: string }) {
   const plainDE = usePlain();
-  const layers: DasaNote["layer"][] = ["general", "strength", "ashtakavarga", "planet", "lordship", "relation"];
+  const layers: DasaNote["layer"][] = ["general", "dignity", "strength", "ashtakavarga", "planet", "lordship", "relation"];
   const running = d.antars.find((a) => a.current);
   return (
     <div className="mt-8" data-testid="parashari-dasa-effects">

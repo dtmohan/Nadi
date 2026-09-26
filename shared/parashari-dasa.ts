@@ -10,6 +10,7 @@ import { antarasOf, VIMSHOTTARI_ORDER, VIMSHOTTARI_YEARS } from "./kp";
 import { DateTime } from "luxon";
 import { ANTAR_DASA, PRATYANTAR, SOOKSHMA, PRANA, type AntarEntry } from "./parashari-dasa-data";
 import type { ShadbalaResult, PlanetShadbala, IshtaKashta, DasaStartTransit } from "./shadbala";
+import { PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechabhanga";
 import type { AshtakavargaResult } from "./ashtakavarga";
 
 export type Tone = "support" | "strain" | "mixed";
@@ -23,7 +24,7 @@ export interface DasaSource {
 export interface DasaNote {
   id: string;
   /** Which chapter layer the note comes from. */
-  layer: "general" | "strength" | "ashtakavarga" | "planet" | "lordship" | "relation";
+  layer: "general" | "dignity" | "strength" | "ashtakavarga" | "planet" | "lordship" | "relation";
   text: string;
   tone: Tone;
   source: DasaSource;
@@ -344,7 +345,7 @@ function antarVerdict(f: AntarReading["facts"]): Tone {
 }
 
 /** All dasa readings for the Vimshottari sequence. */
-export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], vim: Vimshottari, birthIso: string, asOfIso: string, shadbala?: ShadbalaResult, dasaStarts?: DasaStartTransit[], av?: AshtakavargaResult): DasaReading[] {
+export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: number, yogakaraka: Planet[], vim: Vimshottari, birthIso: string, asOfIso: string, shadbala?: ShadbalaResult, dasaStarts?: DasaStartTransit[], av?: AshtakavargaResult, neecha: NeechaBhanga[] = []): DasaReading[] {
   const c = makeCtx(positions, lagnaIdx, yogakaraka, shadbala, dasaStarts, av);
   const birth = DateTime.fromISO(birthIso), asOf = DateTime.fromISO(asOfIso);
   return vim.dasas.map((d) => {
@@ -355,6 +356,20 @@ export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: numbe
     // 47.5-6 general.
     if (h === 1 || c.strong(p) || c.dignity(p) === "Friendly") notes.push({ id: `${p}-47-5`, layer: "general", tone: "support", text: `${p} is ${h === 1 ? "in the lagna" : c.strong(p) ? c.dignity(p).toLowerCase() : "in a friendly sign"} (${SIGNS[pp.signIndex]}): the general rule reads the dasa as favourable.`, source: S(47, "5-6") });
     if (DUSTHANA.includes(h) || c.dignity(p) === "Debilitated" || c.dignity(p) === "Inimical") notes.push({ id: `${p}-47-6`, layer: "general", tone: "strain", text: `${p} is ${DUSTHANA.includes(h) ? `in the ${ord(h)}` : c.dignity(p).toLowerCase()}${DUSTHANA.includes(h) && ["Debilitated", "Inimical"].includes(c.dignity(p)) ? ` and ${c.dignity(p).toLowerCase()}` : ""}: the general rule reads the dasa as unfavourable.`, source: S(47, "5-6") });
+    // Neechabhanga (Phaladeepika 7.26-28): a debilitated lord whose debility is cancelled. Parashara's verses do not state it, so the note softens rather than removes the strain.
+    const nb = neecha.find((x) => x.planet === p);
+    if (nb && (nb.cancelled || nb.provisionalOnly)) {
+      const met = nb.conditions.filter((x) => x.met);
+      notes.push({
+        id: `${p}-neecha`,
+        layer: "dignity",
+        tone: nb.cancelled ? "mixed" : "strain",
+        text: nb.cancelled
+          ? `${p}'s debilitation is cancelled: ${met.filter((x) => !x.provisional).map((x) => x.text).join("; ")} (Phaladeepika 7.26-28). Read the debilitation results of this dasa as softened, not removed; Parashara's dasa verses do not state the cancellation.`
+          : `${p} is debilitated; only later-practice cancellations apply (${met.map((x) => x.text).join("; ")}), which the classical verses do not state. Shown for information, not applied.`,
+        source: { label: nb.cancelled ? `Phaladeepika 7.${Array.from(new Set(met.filter((x) => !x.provisional).map((x) => x.source.replace("Phaladeepika 7.", "")))).join(", ")}` : "Later practice", url: PHALADEEPIKA_CH7_URL, provisional: !nb.cancelled },
+      });
+    }
     // ch. 27 strength against the requirement of 27.32-33.
     const sb = c.bala(p);
     if (sb) {
@@ -505,6 +520,7 @@ export function finePeriodsOf(chain: Planet[], parentEndIso: string, level: "soo
 
 export const LAYER_LABEL: Record<DasaNote["layer"], string> = {
   general: "General rule (47.5-6)",
+  dignity: "Cancelled debility (Phaladeepika 7)",
   strength: "Shadbala (ch. 27)",
   ashtakavarga: "Ashtakavarga (ch. 66-72)",
   planet: "Placement (ch. 47)",

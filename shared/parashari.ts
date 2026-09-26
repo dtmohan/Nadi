@@ -10,6 +10,7 @@ import { computeAshtakavarga, type AshtakavargaResult } from "./ashtakavarga";
 import { computeBhavaPhala, computeVargaPhala, type BhavaPhala, type VargaPhala } from "./bhava-phala";
 import { computeDasaReadings, type DasaReading } from "./parashari-dasa";
 import { LORD_IN_HOUSE, LAGNA_NATURE, BPHS_URL, type FunctionalRole } from "./parashari-data";
+import { neechaBhanga, PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechabhanga";
 
 export const SEVEN: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 export const KENDRA = [1, 4, 7, 10];
@@ -78,6 +79,8 @@ export interface ParashariResult {
   dashas: DashaGloss[];
   /** Period effects from BPHS ch. 47-48 and 52-61. */
   dasaReadings: DasaReading[];
+  /** Debilitated planets and whether Phaladeepika 7.26-28 cancels the debility. */
+  neechaBhanga: NeechaBhanga[];
   /** Six-fold strength of the seven planets, BPHS ch. 27; absent when the server sent no ephemeris facts. */
   shadbala?: ShadbalaResult;
   ashtakavarga: AshtakavargaResult;
@@ -401,6 +404,36 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
     findings.push({ id: "pa-wealth-5-9", kind: "yoga", title: "Wealth-giving periods", text: `${l5} (5th lord) and ${l9} (9th lord) can bestow wealth${joined.length ? `, as can ${joined.join(", ")} joined to them` : ""}. Their dasa periods are the ones to watch for gains, read together with their strength and functional nature (41.17).`, tone: "support", planets: [l5, l9, ...joined], source: S(41, "16-17") });
   }
 
+  // Neechabhanga, Phaladeepika 7.26-30: cancellation of debilitation. Not a Parashara verse, so cited to Mantreswara.
+  const neecha: NeechaBhanga[] = SEVEN.map((pl) => neechaBhanga(pl, positions, lagnaIdx, drishtiQuarters)).filter((x): x is NeechaBhanga => x !== null);
+  for (const nb of neecha) {
+    const met = nb.conditions.filter((c) => c.met);
+    const canon = met.filter((c) => !c.provisional);
+    const later = met.filter((c) => c.provisional);
+    const PH = (verse: string, provisional?: boolean): ParashariSource => ({ label: `Phaladeepika 7.${verse}`, url: PHALADEEPIKA_CH7_URL, provisional });
+    if (nb.cancelled) {
+      findings.push({
+        id: `pa-neecha-${nb.planet}`,
+        kind: "yoga",
+        title: `Neechabhanga: ${nb.planet}`,
+        text: `${nb.planet} is debilitated in ${nb.sign} (${ord(nb.house)}), but ${canon.map((c) => c.text).join("; ")}. Mantreswara cancels the debility and promises standing and means${nb.inDusthana ? `, with the reservation that ${nb.planet} sits in the ${ord(nb.house)}, where 7.28 expects less` : ""}.${later.length ? ` Later practice adds: ${later.map((c) => c.text).join("; ")} (provisional).` : ""} Parashara's own dasa verses do not state this cancellation; the strain they read for ${nb.planet} is softened, not removed.`,
+        tone: nb.inDusthana ? "mixed" : "support",
+        planets: Array.from(new Set([nb.planet, nb.dispositor, nb.exaltationLord])),
+        source: PH(Array.from(new Set(canon.map((c) => c.source.replace("Phaladeepika 7.", "")))).join(", ")),
+      });
+    } else {
+      findings.push({
+        id: `pa-neecha-${nb.planet}`,
+        kind: "strain",
+        title: `${nb.planet} debilitated, not cancelled`,
+        text: `${nb.planet} is debilitated in ${nb.sign} (${ord(nb.house)}). ${nb.dispositor} and ${nb.exaltationLord} are in no angle from the lagna or the Moon, not in mutual angles, and ${nb.dispositor} casts no aspect of half or more on it, so Mantreswara's cancellations do not apply.${later.length ? ` Later practice would count: ${later.map((c) => c.text).join("; ")} (provisional, not applied).` : ""}`,
+        tone: "strain",
+        planets: [nb.planet],
+        source: PH("26-28"),
+      });
+    }
+  }
+
   // Penury, 42.2-6.
   {
     const l1 = lordOf(1), l6 = lordOf(6), l12 = lordOf(12), l8 = lordOf(8), l2 = lordOf(2);
@@ -442,8 +475,8 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
     return { lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: d.current, owns: n.owns, house: n.house, functional: n.functional, summary: roleText + "." + eff };
   });
 
-  const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts, ashtakavarga);
-  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, vimshottari: vim, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
+  const dasaReadings = computeDasaReadings(positions, lagnaIdx, LAGNA_NATURE[lagnaIdx].yogakaraka, vim, birthIso, asOfIso, shadbala, dasaStarts, ashtakavarga, neecha);
+  return { lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] }, bhavas, natures, findings, neechaBhanga: neecha, vimshottari: vim, dashas, dasaReadings, shadbala, ashtakavarga, bhavaPhala, vargaPhala };
 }
 
 export function ord(n: number): string {
