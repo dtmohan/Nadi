@@ -187,7 +187,11 @@ export const SHADBALA_SOURCES: Record<string, BalaSource> = {
 
 // ---------- planetary relationships, ch. 3 ----------
 
-/** Natural friends and enemies of the seven planets, BPHS 3.55; everyone else is neutral. */
+/**
+ * Natural friends and enemies of the seven planets, BPHS 3.55; everyone else is neutral. The table reproduces the verse's
+ * rule (lords of the 2nd, 4th, 5th, 8th, 9th and 12th from the moolatrikona and the exaltation lord are friends, the rest
+ * enemies, both at once neutral) and the translator's table; cross-checked 2026-09-26.
+ */
 const NATURAL: Record<Seven, { friends: Seven[]; enemies: Seven[] }> = {
   Sun: { friends: ["Moon", "Mars", "Jupiter"], enemies: ["Venus", "Saturn"] },
   Moon: { friends: ["Sun", "Mercury"], enemies: [] },
@@ -195,7 +199,7 @@ const NATURAL: Record<Seven, { friends: Seven[]; enemies: Seven[] }> = {
   Mercury: { friends: ["Sun", "Venus"], enemies: ["Moon"] },
   Jupiter: { friends: ["Sun", "Moon", "Mars"], enemies: ["Mercury", "Venus"] },
   Venus: { friends: ["Mercury", "Saturn"], enemies: ["Sun", "Moon"] },
-  Saturn: { friends: ["Mercury", "Venus"], enemies: ["Sun", "Moon"] },
+  Saturn: { friends: ["Mercury", "Venus"], enemies: ["Sun", "Moon", "Mars"] },
 };
 
 export type Compound = "great friend" | "friend" | "neutral" | "enemy" | "great enemy";

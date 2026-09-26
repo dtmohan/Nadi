@@ -260,7 +260,8 @@ export function rasiAntarNote(D: number, sub: number, deps: RasiDasaDeps): RasiA
   const subLord = SIGN_LORD[sub];
   const fav: string[] = [], adv: string[] = [];
   const own = occ.find((p) => p.planet === subLord);
-  const friendly = occ.filter((p) => p.planet !== subLord && (FRIENDS[subLord] ?? []).includes(p.planet));
+  // Friends by the natural table of 3.55; the nodes are left out since ch. 3 gives them no relationships.
+  const friendly = occ.filter((p) => p.planet !== subLord && p.planet !== "Rahu" && p.planet !== "Ketu" && (FRIENDS[subLord] ?? []).includes(p.planet));
   if (own) fav.push(`${subLord}, its own lord, in it (50.91)`);
   if (friendly.length) fav.push(`${names(friendly)}, ${friendly.length === 1 ? "a friend" : "friends"} of its lord ${subLord}, in it (50.91)`);
   const h = houseFrom(D, sub);

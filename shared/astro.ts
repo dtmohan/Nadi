@@ -193,8 +193,10 @@ export const MOOLATRIKONA: Partial<Record<Planet, number>> = {
   Saturn: 10,
 };
 
-// Natural friendships as used in the Nadi texts (Rao, Naik). The nodes follow the
-// Nadi convention: Rahu behaves like Saturn, Ketu like Mars; both are hostile to the luminaries.
+// Natural friendships as used in the Nadi texts (Rao, Naik). For the seven planets the rows equal
+// the natural relationships of BPHS 3.55 (cross-checked against the verse rule 2026-09-26). The nodes
+// follow the Nadi convention, not any BPHS verse: Rahu behaves like Saturn, Ketu like Mars; both are
+// hostile to the luminaries. Parashari readings that lean on the node rows must say so.
 export const FRIENDS: Record<Planet, Planet[]> = {
   Sun: ["Moon", "Mars", "Jupiter"],
   Moon: ["Sun", "Mercury"],
