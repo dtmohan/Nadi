@@ -18,6 +18,7 @@ import { houseFindings, judgeBhavas, type BhavaJudgement } from "./parashari-hou
 import { yogaFindings } from "./parashari-yogas";
 import { royalFindings } from "./parashari-royal";
 import { fatherFindings, fatherDasaLord } from "./parashari-father";
+import { computeChalit, sandhiDasaNote } from "./chalit";
 import { evilFindings } from "./parashari-evils";
 import { curseFindings } from "./parashari-curses";
 import { computePadas, type PadaResult } from "./parashari-padas";
@@ -538,13 +539,15 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   };
   const kalachakra = computeKalachakra(positions, lagnaLon, birthIso, asOfIso, (p) => naturalBenefic(p, positions), rasiOpts);
   const rasiDasas = computeRasiDasas(positions, lagnaLon, birthIso, asOfIso, { positions, lagnaIdx, benefic: (p) => naturalBenefic(p, positions), ...rasiOpts }, shadbala);
+  const chalit = shadbalaBase ? computeChalit(positions, shadbalaBase.asc, shadbalaBase.mc) : undefined;
   const dashas: DashaGloss[] = vim.dasas.map((d) => {
     const n = natures.find((x) => x.planet === d.lord)!;
     const lordEff = n.owns.map((h) => LORD_IN_HOUSE[h - 1][n.house - 1]);
     const roleText = n.lordship === "node" ? `${d.lord} in the ${ord(n.house)}; it gives the results of its sign lord ${SIGN_LORD[pos(d.lord).signIndex]} and of planets in its company` : `${d.lord} owns the ${listH(n.owns)} and stands in the ${ord(n.house)}`;
     const eff = lordEff.length ? ` Lord-in-house verses: ${lordEff.map((e) => `24.${e.verse}`).join(", ")}.` : "";
     const father = d.lord === fatherDasaLord(lagnaIdx).lord ? " The father enjoys happiness in this dasa (70.16)." : "";
-    return { lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: d.current, owns: n.owns, house: n.house, functional: n.functional, summary: roleText + "." + eff + father };
+    const sandhi = chalit ? sandhiDasaNote(chalit, d.lord) : undefined;
+    return { lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: d.current, owns: n.owns, house: n.house, functional: n.functional, summary: roleText + "." + eff + father + (sandhi ? ` ${sandhi}` : "") };
   });
 
   // Chapters 11-13: house judgement and the stated effects of the 1st and 2nd houses.
