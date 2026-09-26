@@ -43,6 +43,14 @@ import {
 } from "@shared/marriage";
 import { nextChildWindow, type ChildrenReading } from "@shared/children";
 import {
+  ageYears,
+  areaSeason,
+  lifeStage,
+  seasonStart,
+  STAGE_LABEL,
+  type AreaSeason,
+} from "@shared/life-stage";
+import {
   LIFE_AREAS,
   RELATION_LABEL,
   areaKarakaLabel,
@@ -284,14 +292,20 @@ function MarriageCard({
   positions,
   transits,
   asOf,
+  birthIso,
 }: {
   m: MarriageReading;
   positions: PlanetPosition[];
   transits: ChartResult["transits"];
   asOf: string;
+  birthIso: string;
 }) {
   const sp = positions.find((x) => x.planet === m.spouse)!;
-  const win = nextMarriageWindow(m, transits, asOf.slice(0, 10));
+  const win = nextMarriageWindow(
+    m,
+    transits,
+    seasonStart("marriage", birthIso, asOf),
+  );
   const gender =
     m.gender === "female"
       ? "female chart"
@@ -344,7 +358,7 @@ function MarriageCard({
           Triggers: Jupiter over {m.spouseSign} (full) or its trines{" "}
           {m.triggerSigns.slice(1).join(", ")} (three-quarter).
           {win
-            ? ` Next: Jupiter ${win.kind === "over" ? "over" : "in trine from"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.`
+            ? ` Next${ageYears(birthIso, asOf) < 18 ? " (from age 18, provisional onset)" : ""}: Jupiter ${win.kind === "over" ? "over" : "in trine from"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.`
             : ""}
         </p>
       </CardContent>
@@ -586,14 +600,57 @@ function AreaSection({
   s,
   reading,
   gender,
+  season,
 }: {
   s: AreaSynthesis;
   reading: BnnReading;
   gender: Gender;
+  season: AreaSeason;
 }) {
   const { mode } = useReadingMode();
   const full = mode === "practitioner";
   const area = s.area;
+  const [showEarly, setShowEarly] = useState(false);
+  if (!season.inSeason && !showEarly)
+    return (
+      <section
+        aria-labelledby={`area-${area}`}
+        data-testid={`section-area-${area}`}
+        data-deferred="true"
+      >
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b pb-2">
+          <h3 id={`area-${area}`} className="text-base font-semibold">
+            {LIFE_AREAS[area].label}
+            <Badge
+              variant="outline"
+              className="no-default-hover-elevate ml-2 align-middle font-normal text-muted-foreground"
+              data-testid={`badge-tone-${area}`}
+            >
+              Not yet in season
+            </Badge>
+          </h3>
+          <span className="text-xs text-muted-foreground">
+            read from age {season.from} ·{" "}
+            {DateTime.fromISO(season.fromDate!).toFormat("LLL yyyy")}
+          </span>
+        </div>
+        <p
+          className="mt-3 text-sm leading-relaxed text-muted-foreground"
+          data-testid={`text-verdict-${area}`}
+        >
+          The chart holds its promise for this area from birth, but it is not a
+          present matter at this age, so the reading is kept for later.{" "}
+          <button
+            type="button"
+            className="underline underline-offset-2 hover:text-foreground"
+            onClick={() => setShowEarly(true)}
+            data-testid={`button-show-early-${area}`}
+          >
+            Show the promise anyway
+          </button>
+        </p>
+      </section>
+    );
   return (
     <section
       aria-labelledby={`area-${area}`}
@@ -625,6 +682,17 @@ function AreaSection({
           )}
         </span>
       </div>
+      {!season.inSeason && (
+        <p
+          className="mt-3 text-xs text-muted-foreground"
+          data-testid={`text-early-${area}`}
+        >
+          Read early: the native reaches the age from which this area is
+          normally read ({season.from}) in{" "}
+          {DateTime.fromISO(season.fromDate!).toFormat("LLL yyyy")}. Until then
+          this is the promise held in the chart, not a present verdict.
+        </p>
+      )}
       <p
         className="mt-3 text-sm leading-relaxed"
         data-testid={`text-verdict-${area}`}
@@ -696,8 +764,18 @@ const fmtMY = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 function BnnVerdict({ result }: { result: ChartResult }) {
   const { reading, chart, transits, now } = result;
   const gender = chart.gender as Gender;
-  const areas = useMemo(() => synthesize(reading, gender), [reading, gender]);
+  const allAreas = useMemo(
+    () => synthesize(reading, gender),
+    [reading, gender],
+  );
   const asOf = now.asOf.slice(0, 10);
+  const age = ageYears(result.utc, now.asOf);
+  const stage = lifeStage(age);
+  const deferred = allAreas
+    .map((a) => a.area)
+    .filter((a) => !areaSeason(a, result.utc, now.asOf).inSeason);
+  // Areas not yet in season are held back from the verdict; a child is not told about marriage.
+  const areas = allAreas.filter((a) => !deferred.includes(a.area));
 
   // Lead with the three firmest areas and every area that needs care; the rest is "mixed" in one word.
   const firmAll = areas
@@ -724,13 +802,17 @@ function BnnVerdict({ result }: { result: ChartResult }) {
     );
   if (mixedN)
     parts.push(parts.length ? "the rest is mixed" : "every area is mixed");
+  const stageNote =
+    deferred.length > 0
+      ? ` At age ${Math.floor(age)} (${STAGE_LABEL[stage]}) ${joinList(deferred.map((a) => AREA_SHORT[a]))} ${deferred.length === 1 ? "is" : "are"} not yet in season and ${deferred.length === 1 ? "is" : "are"} held for later.${stage === "child" ? " Parashara's order for a child's chart is the evils at birth and their antidotes first (BPHS 9.1), read under Parashari." : ""}`
+      : "";
   const headline = parts.length
     ? parts.join("; ").replace(/^./, (c) => c.toUpperCase()) + "."
     : "The Nadi rules mark no area strongly in this chart.";
   const jeevaP = result.positions.find(
     (p) => p.planet === reading.roles.native,
   );
-  const lead = `${reading.roles.native}, the life force, stands in ${reading.jeeva.sign}${reading.jeeva.companions.length ? ` with ${joinList(reading.jeeva.companions)}` : " alone"}${reading.jeeva.retro ? ", retrograde" : ""}${jeevaP ? ` at ${fmtDeg(jeevaP.lon)}` : ""}.${reading.deha ? ` ${reading.roles.deha}, her own person, stands in ${reading.deha.sign}${reading.deha.companions.length ? ` with ${joinList(reading.deha.companions)}` : ""}.` : ""} Saturn, the work, is in ${reading.karma.sign}.`;
+  const lead = `${reading.roles.native}, the life force, stands in ${reading.jeeva.sign}${reading.jeeva.companions.length ? ` with ${joinList(reading.jeeva.companions)}` : " alone"}${reading.jeeva.retro ? ", retrograde" : ""}${jeevaP ? ` at ${fmtDeg(jeevaP.lon)}` : ""}.${reading.deha ? ` ${reading.roles.deha}, her own person, stands in ${reading.deha.sign}${reading.deha.companions.length ? ` with ${joinList(reading.deha.companions)}` : ""}.` : ""} Saturn, the work, is in ${reading.karma.sign}.${stageNote}`;
 
   const signatures: VerdictSignature[] = useMemo(() => {
     // One signature per life area, the areas that are marked most strongly first, and no rule twice.
@@ -785,7 +867,10 @@ function BnnVerdict({ result }: { result: ChartResult }) {
         </>
       ),
     });
-  if (reading.marriage.promised !== "absent") {
+  if (
+    reading.marriage.promised !== "absent" &&
+    !deferred.includes("marriage")
+  ) {
     const w = nextMarriageWindow(reading.marriage, transits, asOf);
     if (w)
       timing.push({
@@ -799,7 +884,10 @@ function BnnVerdict({ result }: { result: ChartResult }) {
         ),
       });
   }
-  if (reading.children.promised !== "unsigned") {
+  if (
+    reading.children.promised !== "unsigned" &&
+    !deferred.includes("children")
+  ) {
     const w = nextChildWindow(reading.children, transits, asOf, result.utc);
     if (w)
       timing.push({
@@ -827,15 +915,15 @@ function BnnVerdict({ result }: { result: ChartResult }) {
     { label: "Saturn · Karma", text: reading.karma.summary },
     {
       label: "Marriage",
-      text: `${PROMISE_LABEL[reading.marriage.promised]}, read between ${reading.roles.deha} and ${reading.roles.spouse}.`,
+      text: `${PROMISE_LABEL[reading.marriage.promised]}, read between ${reading.roles.deha} and ${reading.roles.spouse}.${deferred.includes("marriage") ? " Not yet in season; held for later." : ""}`,
     },
     {
       label: "Children",
-      text: `${CHILD_PROMISE_LABEL[reading.children.promised]}.`,
+      text: `${CHILD_PROMISE_LABEL[reading.children.promised]}.${deferred.includes("children") ? " Not yet in season; held for later." : ""}`,
     },
     {
       label: "Rules",
-      text: `${reading.findings.length} Nadi rules fire on this chart across ${areas.filter((a) => a.total > 0).length} life areas; each area below opens with its balance, then the signatures that carry it.`,
+      text: `${reading.findings.length} Nadi rules fire on this chart across ${allAreas.filter((a) => a.total > 0).length} life areas; each area below opens with its balance, then the signatures that carry it.${deferred.length ? ` Onset ages (${deferred.map((a) => `${AREA_SHORT[a]} ${areaSeason(a, result.utc, now.asOf).from}`).join(", ")}) are practical conventions, provisional; BPHS has no chapter assigning ages to planets or matters.` : ""}`,
     },
   ];
 
@@ -908,6 +996,7 @@ function Reading({
             positions={positions}
             transits={result.transits}
             asOf={result.now.asOf}
+            birthIso={result.utc}
           />
         </div>
         <div className="lg:col-span-2">
@@ -954,6 +1043,7 @@ function Reading({
           s={s}
           reading={reading}
           gender={chart.gender as Gender}
+          season={areaSeason(s.area, result.utc, result.now.asOf)}
         />
       ))}
     </div>
