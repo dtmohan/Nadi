@@ -367,7 +367,7 @@ export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: numbe
         text: nb.cancelled
           ? `${p}'s debilitation is cancelled: ${met.filter((x) => !x.provisional).map((x) => x.text).join("; ")} (Phaladeepika 7.26-28). Read the debilitation results of this dasa as softened, not removed; Parashara's dasa verses do not state the cancellation.`
           : `${p} is debilitated; only later-practice cancellations apply (${met.map((x) => x.text).join("; ")}), which the classical verses do not state. Shown for information, not applied.`,
-        source: { label: nb.cancelled ? `Phaladeepika 7.${Array.from(new Set(met.filter((x) => !x.provisional).map((x) => x.source.replace("Phaladeepika 7.", "")))).join(", ")}` : "Later practice", url: PHALADEEPIKA_CH7_URL, provisional: !nb.cancelled },
+        source: { label: nb.cancelled ? `Phaladeepika 7.${Array.from(new Set(met.filter((x) => !x.provisional).flatMap((x) => Array.from(x.source.matchAll(/7\.(\d+)/g)).map((m) => Number(m[1]))))).sort((a, b) => a - b).join(", 7.")}` : "Later practice", url: PHALADEEPIKA_CH7_URL, provisional: !nb.cancelled },
       });
     }
     // ch. 27 strength against the requirement of 27.32-33.

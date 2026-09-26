@@ -404,6 +404,34 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
     findings.push({ id: "pa-wealth-5-9", kind: "yoga", title: "Wealth-giving periods", text: `${l5} (5th lord) and ${l9} (9th lord) can bestow wealth${joined.length ? `, as can ${joined.join(", ")} joined to them` : ""}. Their dasa periods are the ones to watch for gains, read together with their strength and functional nature (41.17).`, tone: "support", planets: [l5, l9, ...joined], source: S(41, "16-17") });
   }
 
+  // Raja yogas born of debility, BPHS ch. 39 (Raja Yogas): 39.19-20, 39.28, 39.29-31. Aspect on the lagna counts any
+  // chapter-26 aspect (quarter or more); occupation of the lagna is not an aspect. Combustion in 39.20 is not assessed.
+  {
+    const l1 = lordOf(1);
+    const p1 = pos(l1);
+    const aspectsLagna = (pl: Planet) => drishtiQuarters(pl, pos(pl).signIndex, lagnaIdx) > 0;
+    const l1Strong = (p1.dignity === "Exalted" || p1.dignity === "Own sign" || p1.dignity === "Moolatrikona") && aspectsLagna(l1);
+    const l1Text = `${l1}, the lagna lord, ${p1.dignity === "Exalted" ? "exalted" : "in its own sign"} in ${SIGNS[p1.signIndex]}, aspects the lagna`;
+    const debilitated = positions.filter((p) => p.dignity === "Debilitated");
+    const fallenIn368 = debilitated.filter((p) => [3, 6, 8].includes(houseOf(p.planet)));
+    if (l1Strong && fallenIn368.length) {
+      findings.push({ id: "pa-raja-39-19", kind: "yoga", title: "Raja yoga from debility", text: `${l1Text}, while ${fallenIn368.map((p) => `${p.planet} is debilitated in the ${ord(houseOf(p.planet))}`).join(" and ")}. Parashara names this a Raja yoga (39.19). He speaks of the 3rd, 6th and 8th together; this pass accepts a debilitated planet in any of them, which is a reading, not the letter.`, tone: "support", planets: [l1, ...fallenIn368.map((p) => p.planet)], source: S(39, "19", undefined, fallenIn368.length < 3) });
+    }
+    const evil = Array.from(new Set([lordOf(6), lordOf(8), lordOf(12)])).filter((x) => x !== l1);
+    const weakEvil = evil.filter((x) => pos(x).dignity === "Debilitated" || pos(x).dignity === "Inimical");
+    if (l1Strong && weakEvil.length) {
+      findings.push({ id: "pa-raja-39-20", kind: "yoga", title: "Raja yoga from weak dusthana lords", text: `${l1Text}, while ${weakEvil.map((x) => `${x} (lord of the ${[6, 8, 12].filter((h) => lordOf(h) === x).map(ord).join(" and ")}) is ${pos(x).dignity.toLowerCase() === "inimical" ? "in an inimical sign" : "debilitated"}`).join(", ")}. Parashara counts the 6th, 8th and 12th lords in fall, inimical signs or combustion under such a lagna lord as a Raja yoga (39.20). Combustion is not assessed here; he speaks of all three lords, this pass accepts any.`, tone: "support", planets: [l1, ...weakEvil], source: S(39, "20", undefined, true) });
+    }
+    const fallenEvilAspecting = evil.filter((x) => pos(x).dignity === "Debilitated" && aspectsLagna(x));
+    if (fallenEvilAspecting.length) {
+      findings.push({ id: "pa-raja-39-28", kind: "yoga", title: "Debilitated dusthana lord aspects the lagna", text: `${fallenEvilAspecting.map((x) => `${x}, lord of the ${[6, 8, 12].filter((h) => lordOf(h) === x).map(ord).join(" and ")}, is debilitated in ${SIGNS[pos(x).signIndex]} and aspects the lagna`).join("; ")}. Parashara says even one such lord gives a Raja yoga (39.28).`, tone: "support", planets: fallenEvilAspecting, source: S(39, "28") });
+    }
+    const fallenAspecting = debilitated.filter((p) => [3, 6, 8, 11].includes(houseOf(p.planet)) && aspectsLagna(p.planet));
+    if (fallenAspecting.length) {
+      findings.push({ id: "pa-raja-39-29", kind: "yoga", title: "Debilitated planet aspects the lagna", text: `${fallenAspecting.map((p) => `${p.planet}, debilitated in the ${ord(houseOf(p.planet))}, aspects the lagna`).join("; ")}. Parashara gives a Raja yoga for a debilitated planet in the 6th or 8th, or in the 3rd or 11th, that aspects the lagna (39.29-31). The Arudha Lagna clause of the same verses is not evaluated.`, tone: "support", planets: fallenAspecting.map((p) => p.planet), source: S(39, "29-31") });
+    }
+  }
+
   // Neechabhanga, Phaladeepika 7.26-30: cancellation of debilitation. Not a Parashara verse, so cited to Mantreswara.
   const neecha: NeechaBhanga[] = SEVEN.map((pl) => neechaBhanga(pl, positions, lagnaIdx, drishtiQuarters)).filter((x): x is NeechaBhanga => x !== null);
   for (const nb of neecha) {
@@ -419,7 +447,7 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
         text: `${nb.planet} is debilitated in ${nb.sign} (${ord(nb.house)}), but ${canon.map((c) => c.text).join("; ")}. Mantreswara cancels the debility and promises standing and means${nb.inDusthana ? `, with the reservation that ${nb.planet} sits in the ${ord(nb.house)}, where 7.28 expects less` : ""}.${later.length ? ` Later practice adds: ${later.map((c) => c.text).join("; ")} (provisional).` : ""} Parashara's own dasa verses do not state this cancellation; the strain they read for ${nb.planet} is softened, not removed.`,
         tone: nb.inDusthana ? "mixed" : "support",
         planets: Array.from(new Set([nb.planet, nb.dispositor, nb.exaltationLord])),
-        source: PH(Array.from(new Set(canon.map((c) => c.source.replace("Phaladeepika 7.", "")))).join(", ")),
+        source: PH(Array.from(new Set(canon.flatMap((c) => Array.from(c.source.matchAll(/7\.(\d+)/g)).map((m) => Number(m[1]))))).sort((x, y) => x - y).join(", 7.")),
       });
     } else {
       findings.push({

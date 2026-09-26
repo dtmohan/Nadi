@@ -137,7 +137,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             }
             practitioner={
               <>
-                {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, yogas from chapters 34, 36, 41, 42 and 75 of{" "}
+                {SIGNS[r.lagna.signIndex]} rising, whole-sign bhavas. Lords in houses from chapter 24, planetary nature for this lagna from chapter 34, aspects from chapter 26, yogas from chapters 34, 36, 39, 41, 42 and 75 of{" "}
                 <a href={BPHS_URL(24)} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Brihat Parashara Hora Sastra</a> (Santhanam translation). Nodes have no aspect in chapter 26 and own no house; they are read through their sign lord. Cancellation of debilitation follows{" "}
                 <a href={PHALADEEPIKA_CH7_URL} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2">Phaladeepika 7.26-30</a> (Subrahmanya Sastri translation), since Parashara's verses do not state it; later-practice conditions are shown provisional and not applied. First pass.
               </>
