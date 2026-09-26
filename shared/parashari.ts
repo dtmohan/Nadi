@@ -525,6 +525,7 @@ export function computeParashari(positions: PlanetPosition[], lagnaLon: number, 
   const rasiOpts = {
     strength: shadbala ? (pl: Planet) => shadbala.planets.find((x) => x.planet === pl)?.effect : undefined,
     brightMoon: (() => { const su = positions.find((p) => p.planet === "Sun")!, mo = positions.find((p) => p.planet === "Moon")!; return ((mo.lon - su.lon + 360) % 360) < 180; })(),
+    sarva: ashtakavarga.sarva,
   };
   const kalachakra = computeKalachakra(positions, lagnaLon, birthIso, asOfIso, (p) => naturalBenefic(p, positions), rasiOpts);
   const rasiDasas = computeRasiDasas(positions, lagnaLon, birthIso, asOfIso, { positions, lagnaIdx, benefic: (p) => naturalBenefic(p, positions), ...rasiOpts }, shadbala);

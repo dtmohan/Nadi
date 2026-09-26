@@ -5,6 +5,7 @@
 // 49.6-34 and is shown where it departs from it. R. Santhanam's translation as posted there.
 import { SIGNS, SIGN_LORD, FRIENDS, ENEMIES, houseFrom, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
+import { argalaOn } from "./jaimini";
 
 const CH50 = BPHS_URL(50);
 const CH64 = BPHS_URL(64);
@@ -83,6 +84,8 @@ export interface RasiDasaDeps {
   strength?: (p: Planet) => "full" | "half" | "quarter" | undefined;
   /** Moon in the bright half, for 50.70. */
   brightMoon?: boolean;
+  /** Sarvashtakavarga rekhas by sign, for the sub-period rule of 50.93-94. */
+  sarva?: number[];
 }
 
 const ord = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
@@ -109,6 +112,7 @@ export function rasiDasaReadings(D: number, deps: RasiDasaDeps): RasiReading[] {
   const movable = D % 3 === 0;
   const good: string[] = [];
   const bad: string[] = [];
+  let provGood = false, provBad = false;
 
   // 50.1-3 strength of the lord.
   const st = deps.strength?.(lord);
@@ -195,9 +199,43 @@ export function rasiDasaReadings(D: number, deps: RasiDasaDeps): RasiReading[] {
   if (f4.some((p) => p.planet === "Venus")) good.push(`Venus in the 4th from the sign: enjoyment of music and the arts (50.70)`);
   if (f4.some((p) => p.planet === "Jupiter")) good.push(`Jupiter in the 4th from the sign: a fine conveyance (50.71)`);
 
+  // 50.19, 50.36-37 benefics in the 5th or 9th from the sign; 50.57-58 malefics in both.
+  const b59 = [5, 9].filter((h) => ben(inH(h)).length);
+  if (b59.length) good.push(`${b59.map((h) => `${names(ben(inH(h)))} in the ${ord(h)}`).join(" and ")} from the sign, benefic: a favourable dasa (50.19, 50.36-37)`);
+  if (mal(inH(5)).length && mal(inH(9)).length) bad.push(`malefics in both the 5th (${names(mal(inH(5)))}) and the 9th (${names(mal(inH(9)))}) from the sign: loss of the good effects, distress to children and father, and mental agony (50.57-58)`);
+  // 50.57 an exalted planet or the sign's benefic lord in the 12th from the sign.
+  const loss12 = inH(12).filter((p) => exalted(p) || (p.planet === lord && lordBenefic));
+  if (loss12.length) bad.push(`${names(loss12)} in the 12th from the sign, ${loss12.length === 1 ? "an exalted planet or its benefic lord" : "exalted planets or its benefic lord"}: loss of wealth (50.57)`);
+
+  // 50.29-34, 50.43-44: rules the text states for the dasa of a planet, applied to the sign's lord as 50.32 directs.
+  if (lordPos.dignity === "Inimical") bad.push(`${lord}, the sign's lord, stands in ${SIGNS[lordPos.signIndex]}, an inimical sign: a dasa full of adversities (50.29-32)`);
+  const benAt = (si: number) => ben(positions.filter((p) => p.signIndex === si && p.planet !== lord));
+  const hem2 = benAt((lordPos.signIndex + 1) % 12), hem12 = benAt((lordPos.signIndex + 11) % 12);
+  const b234 = [1, 2, 3].every((k) => benAt((lordPos.signIndex + k) % 12).length);
+  if (hem2.length && hem12.length) { good.push(`${lord}, the sign's lord, is hemmed between benefics (${names(hem12)} in the 12th and ${names(hem2)} in the 2nd from it)${lordBenefic ? "" : ", which the text says turns even a malefic favourable"}: a favourable dasa (50.33-34)`); provGood = true; }
+  else if (b234) { good.push(`${lord}, the sign's lord, has benefics in the 2nd, 3rd and 4th from it: a favourable dasa (50.33-34)`); provGood = true; }
+  const lordH = houseFrom(lagnaIdx, lordPos.signIndex);
+  if ((lordH === 2 || lordH === 7) && good.length) { bad.push(`${lord}, the sign's lord, stands in the ${ord(lordH)} house from the lagna, a maraka house of ch. 44: though the dasa reads favourable otherwise, the text warns of displeasure of those in power and loss of wealth (50.43-44)`); provBad = true; }
+  // 50.46-48 Rahu in the sign: the close of the period.
+  if (rahu.signIndex === D) bad.push(`Rahu in the sign: the text places loss, confinement and exile at the end of a Rahu period${m589.length && mal(inH(5)).length && mal(inH(9)).length ? ", and with malefics in the 5th and 9th from Rahu calls these effects definite" : ""} (50.46-48)`);
+
+  // 50.53-55 argala on the dasa sign, read with Parashara's graha aspects (ch. 26).
+  const aspectsSign = (p: PlanetPosition, si: number) => p.signIndex !== si && (FULL_ASPECT[p.planet] ?? [7]).includes(houseFrom(p.signIndex, si));
+  const arg = argalaOn(D, positions);
+  const freeArg = arg.filter((a) => !a.obstructed).flatMap((a) => a.planets.map((pl) => ({ pl, house: a.house })));
+  const vipArg = arg.filter((a) => a.obstructed);
+  const seeing = freeArg.filter(({ pl }) => { const pp = positions.find((p) => p.planet === pl)!; return aspectsSign(pp, D) || aspectsSign(pp, lagnaIdx); });
+  const benAsp = ben(positions).filter((p) => aspectsSign(p, D));
+  if (seeing.length) { good.push(`${seeing.map((x) => `${x.pl} (argala from the ${ord(x.house)})`).join(", ")} ${seeing.length === 1 ? "causes" : "cause"} unobstructed argala on ${SIGNS[D]} and ${seeing.length === 1 ? "aspects" : "aspect"} the sign or the lagna, so the sign prevails in its dasa (50.53-54)`); provGood = true; }
+  if (benAsp.length) { good.push(`${names(benAsp)}, benefic, ${vb(benAsp, "aspects", "aspect")} the sign: a favourable dasa (50.55)`); provGood = true; }
+  if (!seeing.length && !benAsp.length && (freeArg.length || vipArg.length)) {
+    bad.push(`${freeArg.length ? `the argala on the sign (${freeArg.map((x) => x.pl).join(", ")}) is not backed by an aspect on the sign or the lagna` : ""}${freeArg.length && vipArg.length ? ", and " : ""}${vipArg.length ? `${vipArg.map((a) => a.planets.join(", ")).join(", ")} ${vipArg.length === 1 ? "forms" : "form"} obstructed (vipreeta) argala` : ""}: the text calls such a dasa unfavourable (50.55)`);
+    provBad = true;
+  }
+
   const partial = (b91011.length && b91011.length < 3) || (b579.length && b579.length < 3);
-  if (good.length) out.push({ label: "Favourable marks", text: good.map((g) => g.charAt(0).toUpperCase() + g.slice(1)).join(". ") + ".", source: S("4-72", !!partial), tone: "support" });
-  if (bad.length) out.push({ label: "Adverse marks", text: bad.map((g) => g.charAt(0).toUpperCase() + g.slice(1)).join(". ") + ".", source: S("4-63"), tone: pairTone === "mixed" && bad.length === 1 ? "mixed" : "strain" });
+  if (good.length) out.push({ label: "Favourable marks", text: good.map((g) => g.charAt(0).toUpperCase() + g.slice(1)).join(". ") + ".", source: S("4-72", !!partial || provGood), tone: "support" });
+  if (bad.length) out.push({ label: "Adverse marks", text: bad.map((g) => g.charAt(0).toUpperCase() + g.slice(1)).join(". ") + ".", source: S("4-63", provBad), tone: pairTone === "mixed" && bad.length === 1 ? "mixed" : "strain" });
 
   // 50.88 when in the dasa the results come, by how the sign rises.
   const r = RISING[D];
@@ -205,7 +243,43 @@ export function rasiDasaReadings(D: number, deps: RasiDasaDeps): RasiReading[] {
   return out;
 }
 
+export interface RasiAntarNote {
+  text: string;
+  tone: "support" | "strain" | "mixed";
+  source: { label: string; url: string; provisional?: boolean };
+}
+
+/**
+ * 50.90-96 read on one sub-period sign of a sign dasa: the sign's own lord or a planet friendly to that lord in
+ * it (50.91); the 6th, 8th or 12th from the dasa sign, taken as the lagna of the period (50.95), or a malefic,
+ * debilitated or ill-placed occupant (50.92); and the sign's Sarvashtakavarga count (50.93-94), banded by 72.3-4.
+ */
+export function rasiAntarNote(D: number, sub: number, deps: RasiDasaDeps): RasiAntarNote | undefined {
+  const { positions, benefic } = deps;
+  const occ = positions.filter((p) => p.signIndex === sub);
+  const subLord = SIGN_LORD[sub];
+  const fav: string[] = [], adv: string[] = [];
+  const own = occ.find((p) => p.planet === subLord);
+  const friendly = occ.filter((p) => p.planet !== subLord && (FRIENDS[subLord] ?? []).includes(p.planet));
+  if (own) fav.push(`${subLord}, its own lord, in it (50.91)`);
+  if (friendly.length) fav.push(`${names(friendly)}, ${friendly.length === 1 ? "a friend" : "friends"} of its lord ${subLord}, in it (50.91)`);
+  const h = houseFrom(D, sub);
+  if ([6, 8, 12].includes(h)) adv.push(`the ${ord(h)} from the dasa sign ${SIGNS[D]}, taken as the lagna of the period (50.92, 50.95)`);
+  const why = (p: PlanetPosition) => [p.dignity === "Debilitated" ? "debilitated" : "", p.dignity === "Inimical" ? "in an inimical sign" : "", !benefic(p) ? "a malefic" : ""].filter(Boolean).join(", ");
+  const ill = occ.filter((p) => why(p));
+  if (ill.length) adv.push(`${ill.map((p) => `${p.planet}, ${why(p)}`).join("; ")}, in it (50.92)`);
+  if (deps.sarva) {
+    const n = deps.sarva[sub];
+    if (n > 30) fav.push(`${n} rekhas in the Sarvashtakavarga, a favourable count (50.93 with 72.3)`);
+    else if (n < 25) adv.push(`only ${n} rekhas in the Sarvashtakavarga (50.94 with 72.4)`);
+  }
+  if (!fav.length && !adv.length) return undefined;
+  const tone = fav.length && !adv.length ? "support" : adv.length && !fav.length ? "strain" : "mixed";
+  const text = `${SIGNS[sub]} sub-period. ${fav.length ? `For it: ${fav.join("; ")}.` : ""}${fav.length && adv.length ? " " : ""}${adv.length ? `Against it: ${adv.join("; ")}.` : ""}`;
+  return { text, tone, source: { label: "Parashara 50.90-96", url: CH50, provisional: true } };
+}
+
 export const RASI_DASA_CAVEATS: string[] = [
-  "Ch. 50, Parashara's rules for the dasas of signs (the Chara and the other rasi dasas), is read here on each Kalachakra dasa sign: planets counted from the dasa sign (50.4-10, 23-28, 40-41, 60-71), the owner-occupant pairing (50.6-10), the Badhaka of a movable sign as its 11th (50.20-21; the text gives no Badhaka for fixed or dual signs, so none is applied), the sign lord's Shadbala for the measure of results (50.1-3) and the rising type for timing (50.88, provisional). The transit rules of 50.11-17, the graha-dasa rules of 50.29-39 and 50.73-87, and the sign antar-dasas of 50.90-96, which begin from the dasa lord's sign and belong to the Chara type, are not applied to the Kalachakra; its sub-periods follow 51.12, each sign's share of the dasa in proportion to its years.",
+  "Ch. 50, Parashara's rules for the dasas of signs (the Chara and the other rasi dasas), is read here on each Kalachakra dasa sign: planets counted from the dasa sign (50.4-10, 23-28, 40-41, 60-71), the owner-occupant pairing (50.6-10), the Badhaka of a movable sign as its 11th (50.20-21; the text gives no Badhaka for fixed or dual signs, so none is applied), the sign lord's Shadbala for the measure of results (50.1-3) and the rising type for timing (50.88, provisional). Benefics in the 5th or 9th (50.19, 50.36-37), the 12th from the sign (50.57), Rahu in the sign (50.46-48) and the argala on the sign with Parashara's graha aspects (50.53-55, provisional) are also read. The rules the text states for the dasa of a planet (an inimical sign, 50.29-32; hemmed between benefics, 50.33-34; a maraka house, 50.43-44) are applied to the sign's lord as 50.32 directs, marked provisional. Not applied: the transit rules of 50.11-17 and the commencement rules of 50.35, 50.37-39 and 50.45-52, which need the positions at the start and end of the period; the graha-dasa conditions of 50.73-87, which are read on the Vimshottari lords; and the sign antar-dasas of 50.90-96, which are read on the sub-periods of the ch. 46 sign dasas only, since the Kalachakra sub-periods follow 51.12, each sign's share of the dasa in proportion to its years.",
   "Sub-period readings pair 49.6-34 with ch. 65, which repeats the same table with some departures; the second reading is shown where the two differ in sense. Ch. 64 adds the effect by the lord of the sub-period sign, stated for the Savya chakra (64.2-55); for Apsavya births 64.56-58 says to judge by the lord's nature and its friendship with the dasa lord, which is shown as the natural relation of the two. Capricorn's list in 64.41-44 gives Saturn twice and no Sun; the first Saturn line is kept and the Sun is left ungiven.",
 ];

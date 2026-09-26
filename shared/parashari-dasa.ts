@@ -3,13 +3,13 @@
 // jyotishvidya.com. Rules are evaluated on whole-sign houses from the Lahiri lagna. Verses that hinge on "strong"
 // or "weak" are matched on dignity; the Shadbala of ch. 27, when supplied, is added as its own note against the
 // requirement of 27.32-33 so the two measures stay visible side by side.
-import { houseFrom, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
+import { houseFrom, norm360, EXALTATION, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL, LAGNA_NATURE } from "./parashari-data";
 import type { Vimshottari } from "./kp";
 import { antarasOf, VIMSHOTTARI_ORDER, VIMSHOTTARI_YEARS } from "./kp";
 import { DateTime } from "luxon";
 import { ANTAR_DASA, PRATYANTAR, SOOKSHMA, PRANA, type AntarEntry } from "./parashari-dasa-data";
-import type { ShadbalaResult, PlanetShadbala, IshtaKashta, DasaStartTransit } from "./shadbala";
+import { compoundRelation, type Seven, type ShadbalaResult, type PlanetShadbala, type IshtaKashta, type DasaStartTransit } from "./shadbala";
 import { PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechabhanga";
 import type { AshtakavargaResult } from "./ashtakavarga";
 
@@ -24,7 +24,7 @@ export interface DasaSource {
 export interface DasaNote {
   id: string;
   /** Which chapter layer the note comes from. */
-  layer: "general" | "dignity" | "strength" | "ashtakavarga" | "planet" | "lordship" | "relation";
+  layer: "general" | "dignity" | "strength" | "ashtakavarga" | "planet" | "lordship" | "relation" | "condition";
   text: string;
   tone: Tone;
   source: DasaSource;
@@ -328,6 +328,11 @@ function antarFacts(c: Ctx, dasaLord: Planet, b: Planet): AntarReading["facts"] 
   else if (dig === "Inimical") adv.push("in an inimical sign");
   if (c.pos(b).combust) adv.push("combust");
   if (b === "Moon" && c.waning) adv.push("waning");
+  if (b !== dasaLord && SEVEN_50.includes(b) && SEVEN_50.includes(dasaLord)) {
+    const rel = compoundRelation(b as Seven, dasaLord as Seven, c.pos(b).signIndex, c.pos(dasaLord).signIndex);
+    if (rel === "great friend" || rel === "friend") fav.push(`a ${rel} of the dasa lord by natural and temporal relation (50.89)`);
+    else if (rel === "enemy" || rel === "great enemy") adv.push(`${rel === "enemy" ? "an enemy" : "a great enemy"} of the dasa lord by natural and temporal relation (50.89)`);
+  }
   if (c.withMalefic(b).length) adv.push(`with ${c.withMalefic(b).join(", ")}`);
   const mk = c.owns(b).filter((x) => x === 2 || x === 7);
   const inMk = (b === "Rahu" || b === "Ketu") && (h === 2 || h === 7);
@@ -342,6 +347,68 @@ function antarVerdict(f: AntarReading["facts"]): Tone {
   if (s >= 3 && n <= 1 && !f.maraka) return "support";
   if (n >= 3 && s <= 1) return "strain";
   return "mixed";
+}
+
+/** BPHS ch. 4: signs rising by the head (Sirshodaya), by the hind part (Prishthodaya), or both (Pisces). */
+const RISING_50: Record<number, "head" | "hind" | "both"> = { 0: "hind", 1: "hind", 2: "head", 3: "hind", 4: "head", 5: "head", 6: "head", 7: "head", 8: "head", 9: "hind", 10: "head", 11: "both" };
+const SEVEN_50: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+
+/**
+ * Ch. 50 read on the lord of a Vimshottari dasa: the eighteen conditions and the named dasas of 50.73-83, the
+ * measure by angle, panaphara or apoklima (50.87), the Dharma lord and Jupiter (50.84), retrogression (50.85), the
+ * rising of the lord's sign for timing (50.88), and the planet rules of 50.29-34, 50.43-44 and 50.46-47.
+ */
+function conditionNotes(c: Ctx, p: Planet): DasaNote[] {
+  const out: DasaNote[] = [];
+  const pp = c.pos(p);
+  const h = c.houseOf(p);
+  const note = (id: string, verse: string, text: string, tone: Tone, provisional?: boolean) => out.push({ id: `${p}-50-${id}`, layer: "condition", text, tone, source: S(50, verse, provisional) });
+  const ex = EXALTATION[p];
+  if (ex) {
+    // 50.73-83: where the lord stands on the circle from deep exaltation to deep debilitation and back.
+    const exLon = ex.sign * 30 + ex.deg;
+    const arc = norm360(pp.lon - exLon); // 0 at deep exaltation, 180 at deep debilitation
+    const dig = c.dignity(p);
+    const nearEx = arc <= 1 || arc >= 359, nearDeb = Math.abs(arc - 180) <= 1;
+    const descending = arc > 1 && arc < 179;
+    const name = nearEx ? "in deep exaltation" : nearDeb ? "Rikta, in deep debilitation" : descending ? "Avarohini (descending)" : "Arohini (ascending)";
+    const grade = ["Exalted", "Friendly", "Moolatrikona", "Own sign"].includes(dig) ? "Madhya" : ["Debilitated", "Inimical"].includes(dig) ? "Adhama" : "";
+    const sb = c.bala(p);
+    const tone: Tone = nearEx || (grade === "Madhya" && !descending) ? "support" : nearDeb || grade === "Adhama" ? "strain" : "mixed";
+    note("condition", "73-83",
+      `${p} at ${pp.degInSign.toFixed(1)} deg of ${SIGNS[pp.signIndex]} is ${arc <= 180 ? arc.toFixed(0) : (360 - arc).toFixed(0)} deg ${arc <= 180 ? "past" : "short of"} its deep exaltation point (${ex.deg} deg of ${SIGNS[ex.sign]}), so its dasa is ${name}${grade ? `, and by its ${dig === "Own sign" ? "own" : dig === "Moolatrikona" ? "moolatrikona" : dig === "Inimical" ? "enemy's" : dig === "Friendly" ? "friend's" : dig.toLowerCase()} sign ${grade}` : ""}: ${nearEx ? `the text promises a kingdom and property${sb?.strong ? " to a lord that also has full Shadbala, as this one has" : ", full strength permitting"}` : nearDeb ? "disease, loss of wealth and danger, shown as written" : descending ? "results the name describes as descending, read as waning through the period" : "results the name describes as ascending, read as growing through the period"}${grade === "Madhya" ? "; moderately good effects" : grade === "Adhama" ? "; dangers, distress and sorrow" : ""}. The text names the conditions without degrees; the half-circle from deep exaltation to deep debilitation is taken as the descending arc, and one degree either side as the deep points.`,
+      tone, true);
+  }
+  // 50.87 the measure by house class.
+  const cls = [1, 4, 7, 10].includes(h) ? "angle" : [2, 5, 8, 11].includes(h) ? "panaphara" : "apoklima";
+  note("87", "84-87", `${p} stands in the ${ord(h)}, ${cls === "angle" ? "an angle, so the dasa gives its effects in full" : cls === "panaphara" ? "a panaphara house, so the dasa gives its effects in medium measure" : "an apoklima house, so the dasa gives little of its effects"} (50.87).`, cls === "angle" ? "support" : cls === "panaphara" ? "mixed" : "strain");
+  // 50.84 the Dharma lord and Jupiter related to the lord.
+  const l9 = c.lordOf(9);
+  const related = (q: Planet) => q !== p && (c.withPlanet(p, q) || [1, 4, 7, 10].includes(houseFrom(c.pos(p).signIndex, c.pos(q).signIndex)) || drishti(q, c.pos(q).signIndex, c.pos(p).signIndex) === 4);
+  const rel = Array.from(new Set([l9, "Jupiter" as Planet])).filter(related);
+  if (rel.length) note("84", "84", `${rel.map((q) => `${q}${q === l9 ? ", lord of the 9th" : ""}`).join(" and ")} ${rel.length === 1 ? "is" : "are"} with ${p}, in an angle from it or in full aspect to it: the dasa turns auspicious and augments fortune (50.84).`, "support", true);
+  // 50.85 retrogression at birth.
+  if (pp.retrograde && p !== "Rahu" && p !== "Ketu") note("85", "85", `${p} is retrograde at birth; the text says a planet with a fortunate yoga gives its good effects when free of retrogression and direct, so the good of this dasa is read as delayed rather than denied (50.85).`, "mixed", true);
+  // 50.88 rising of the lord's sign for the timing of results.
+  const r = RISING_50[pp.signIndex];
+  note("88", "88", `${SIGNS[pp.signIndex]}, the lord's sign, rises ${r === "head" ? "by the head (Sirshodaya), so the results come at the commencement of the dasa" : r === "hind" ? "by the hind part (Prishthodaya), so the results come towards the end of the dasa" : "by both (Ubhayodaya), so the results come in the middle of the dasa"} (50.88); the drekkana timing of 47.3-4 is shown separately above.`, "mixed");
+  // 50.29-32 an inimical sign.
+  if (c.dignity(p) === "Inimical") note("29", "29-32", `${p} stands in ${SIGNS[pp.signIndex]}, a sign of its enemy: a dasa full of adversities (50.29-32).`, "strain");
+  // 50.33-34 hemmed between benefics, or benefics in the 2nd, 3rd and 4th from it.
+  const benAt = (k: number) => c.positions.filter((q) => q.planet !== p && q.signIndex === (pp.signIndex + k) % 12 && c.isBenefic(q.planet)).map((q) => q.planet);
+  const hem2 = benAt(1), hem12 = benAt(11);
+  if (hem2.length && hem12.length) note("33", "33-34", `${p} is hemmed between benefics, ${hem12.join(", ")} in the 12th and ${hem2.join(", ")} in the 2nd from it${c.isBenefic(p) ? "" : ", which the text says turns even a malefic favourable"}: a favourable dasa (50.33-34).`, "support");
+  else if ([1, 2, 3].every((k) => benAt(k).length)) note("34", "33-34", `${p} has benefics in the 2nd, 3rd and 4th from it: a favourable dasa (50.34).`, "support");
+  if (c.yogakaraka.includes(p)) note("33y", "33", `${p} is a yogakaraka for this lagna, whose dasa the text calls favourable (50.33).`, "support");
+  // 50.43-44 a maraka house.
+  if (h === 2 || h === 7) note("43", "43-44", `${p} stands in the ${ord(h)}, a maraka house of ch. 44: where the dasa is otherwise favourable the text still warns of displeasure of those in power and loss of wealth (50.43-44).`, "strain");
+  // 50.46-47 the end of Rahu's dasa.
+  if (p === "Rahu") {
+    const m5 = c.positions.filter((q) => q.planet !== "Rahu" && houseFrom(pp.signIndex, q.signIndex) === 5 && !c.isBenefic(q.planet)).map((q) => q.planet);
+    const m9 = c.positions.filter((q) => q.planet !== "Rahu" && houseFrom(pp.signIndex, q.signIndex) === 9 && !c.isBenefic(q.planet)).map((q) => q.planet);
+    note("46", "46-47", `The text places loss, confinement, exile and great distress at the end of Rahu's dasa, shown as written${m5.length && m9.length ? `; with ${m5.join(", ")} in the 5th and ${m9.join(", ")} in the 9th from Rahu it calls these effects definite` : "; it calls them definite only when malefics stand in the 5th and 9th from Rahu, which they do not here"} (50.46-47).`, m5.length && m9.length ? "strain" : "mixed");
+  }
+  return out;
 }
 
 /** All dasa readings for the Vimshottari sequence. */
@@ -440,6 +507,7 @@ export function computeDasaReadings(positions: PlanetPosition[], lagnaIdx: numbe
     }
     if (p === "Rahu" || p === "Ketu") notes.push({ id: `${p}-node`, layer: "lordship", tone: "mixed", text: `${p} owns no house; read it through its sign lord ${SIGN_LORD[pp.signIndex]} (lord of the ${listH(c.owns(SIGN_LORD[pp.signIndex]))}) and the planets in its company (34.16-17).`, source: { label: "Parashara 34.16-17", url: BPHS_URL(34) } });
     notes.push(...relationNotes(c, p));
+    notes.push(...conditionNotes(c, p));
     // 47.3-4 drekkana timing.
     const third = (Math.floor(pp.degInSign / 10) + 1) as 1 | 2 | 3;
     const reversed = pp.retrograde;
@@ -526,5 +594,6 @@ export const LAYER_LABEL: Record<DasaNote["layer"], string> = {
   planet: "Placement (ch. 47)",
   lordship: "House lordship (48.2-8)",
   relation: "Relationships (48.9-20)",
+  condition: "Condition of the lord (ch. 50)",
 };
 

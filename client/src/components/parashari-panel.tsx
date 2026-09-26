@@ -371,7 +371,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         <SectionTitle plain="Life periods" technical="Vimshottari dasa, read by lordship" term="vimshottari" />
         <ModeText
           plain={<>Life is divided into planetary periods of fixed length, 120 years in all, starting from the Moon's position at birth. The period running now colours the present years; each is judged by the houses its planet rules and by its role for {SIGNS[r.lagna.signIndex]} rising. Pick a period to read what the text says about it and to see its sub-periods.</>}
-          practitioner={<>Same Vimshottari sequence as the KP panel but from the Lahiri Moon ({positions.find((p) => p.planet === "Moon")?.nakshatra}), balance {r.vimshottari.balanceYears.toFixed(2)} years of {r.vimshottari.dasas[0].lord}. Each lord is glossed by the houses it owns and occupies and by its role for this rising sign. Pick a dasa row to read its effects from ch. 47-48 and its antar dasas from ch. 52-60.</>}
+          practitioner={<>Same Vimshottari sequence as the KP panel but from the Lahiri Moon ({positions.find((p) => p.planet === "Moon")?.nakshatra}), balance {r.vimshottari.balanceYears.toFixed(2)} years of {r.vimshottari.dasas[0].lord}. Each lord is glossed by the houses it owns and occupies and by its role for this rising sign. Pick a dasa row to read its effects from ch. 47-48 and ch. 50 and its antar dasas from ch. 52-60.</>}
         />
         <LifeTimeline className="mt-3" testid="parashari-timeline" birthIso={result.utc} asOfIso={asOfIso} bands={tlBands} windows={tlWindows} windowsLabel="Verdict" marks={tlMarks} />
         <p className="mt-1 text-xs text-muted-foreground">{plain ? "The Verdict row tints each period by what the text says of its planet for this chart: green favourable, amber mixed, red trying. Saturn's passages are drawn for comparison only." : "The Verdict row carries each dasa's balance of support and strain from BPHS ch. 47-48; Saturn's sign passages are shown for reference and are not part of the dasa judgement."}</p>
@@ -1002,11 +1002,16 @@ function RasiPeriodDetail({ p, sel }: { p: RasiPeriod; sel: RasiDasa }) {
           </p>
           <div className="mt-1 flex flex-wrap gap-1" data-testid="rasi-dasa-antars">
             {p.antardasas.map((a, i) => (
-              <span key={i} className={cn("rounded border px-1.5 py-0.5 text-xs tabular-nums", a.current && "border-primary bg-primary/10")} title={`${fmtD(a.start)} to ${fmtD(a.end)}`}>
+              <span key={i} className={cn("rounded border px-1.5 py-0.5 text-xs tabular-nums", a.current && "border-primary bg-primary/10", a.note?.tone === "support" && "border-l-2 border-l-emerald-500", a.note?.tone === "strain" && "border-l-2 border-l-rose-500")} title={`${fmtD(a.start)} to ${fmtD(a.end)}${a.note ? `. ${a.note.text}` : ""}`}>
                 <SignName signIndex={a.sign} abbr /> <span className="text-muted-foreground">{fmt(a.start)}</span>
               </span>
             ))}
           </div>
+          {p.current && p.antardasas.find((a) => a.current)?.note && (() => { const n = p.antardasas.find((a) => a.current)!.note!; return (
+            <p className="mt-1 text-xs text-muted-foreground" data-testid="rasi-dasa-antar-note">
+              <span className={cn("mr-1.5 inline-block h-2 w-2 rounded-full align-middle", n.tone === "support" ? "bg-emerald-500" : n.tone === "strain" ? "bg-rose-500" : "bg-amber-500")} aria-label={n.tone} /> Running now: {n.text} <SourceLink source={n.source} />
+            </p>
+          ); })()}
         </>
       ) : (
         <p className="mt-2 text-xs text-muted-foreground">The text gives no sub-periods for the Karaka dasa in these verses.</p>
@@ -1378,7 +1383,7 @@ function Note({ n }: { n: DasaNote }) {
 
 function DasaEffects({ d, open, setOpen, birthIso, asOfIso }: { d: DasaReading; open: string | null; setOpen: (k: string | null) => void; birthIso: string; asOfIso: string }) {
   const plainDE = usePlain();
-  const layers: DasaNote["layer"][] = ["general", "dignity", "strength", "ashtakavarga", "planet", "lordship", "relation"];
+  const layers: DasaNote["layer"][] = ["general", "dignity", "strength", "ashtakavarga", "planet", "lordship", "relation", "condition"];
   const running = d.antars.find((a) => a.current);
   return (
     <div className="mt-8" data-testid="parashari-dasa-effects">
@@ -1392,7 +1397,7 @@ function DasaEffects({ d, open, setOpen, birthIso, asOfIso }: { d: DasaReading; 
       <ModeText
         plain={<>What Parashara says a {d.lord} period brings for someone with {d.lord} placed as it is here, judged by the house it stands in, its strength, its leaning towards good or ill, and where it was moving when the period began. Every matching line is listed, favourable and unfavourable alike, so you can see where they pull against each other.</>}
         practitioner={<>
-        Effects of the period from Brihat Parashara Hora Sastra ch. 47 (placement of the lord) and ch. 48 (house lordship and relationships), matched mechanically on whole-sign houses and dignity, with the lord's Shadbala (ch. 27) set against the requirement of 27.32-33, its Ishta and Kashta phala (ch. 28), and its transit house when the dasa begins (48.8). Every matched verse is listed, favourable and unfavourable alike, so contradictions stay visible.
+        Effects of the period from Brihat Parashara Hora Sastra ch. 47 (placement of the lord) and ch. 48 (house lordship and relationships), matched mechanically on whole-sign houses and dignity, with the lord's Shadbala (ch. 27) set against the requirement of 27.32-33, its Ishta and Kashta phala (ch. 28), its transit house when the dasa begins (48.8), and the condition of the lord from ch. 50: its place on the circle from deep exaltation to deep debilitation (50.73-83, provisional as to degrees), the measure by angle, panaphara or apoklima (50.87), the Dharma lord and Jupiter (50.84), and the planet rules of 50.29-34 and 50.43-47; antar lords carry their compound friendship with the dasa lord (50.89). Not applied from ch. 50: the rules on the positions at the start and end of a dasa (50.35, 50.37-39, 50.45, 50.48-52). Every matched verse is listed, favourable and unfavourable alike, so contradictions stay visible.
         </>}
       />
       <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground" data-testid="parashari-dasa-timing">

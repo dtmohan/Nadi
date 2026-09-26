@@ -6,7 +6,7 @@
 import { SIGNS, SIGN_LORD, SIGN_QUALITY, houseFrom, norm360, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
 import { charaKarakas, rasiAspects, CHARA_KARAKA_INFO, type CharaKaraka } from "./jaimini";
-import { rasiDasaReadings, type RasiReading, type RasiDasaDeps } from "./kalachakra-effects";
+import { rasiDasaReadings, rasiAntarNote, type RasiReading, type RasiDasaDeps, type RasiAntarNote } from "./kalachakra-effects";
 import type { ShadbalaResult } from "./shadbala";
 import { DateTime } from "luxon";
 
@@ -48,6 +48,8 @@ export interface RasiAntar {
   start: string;
   end: string;
   current: boolean;
+  /** 50.90-96 read on the sub-period sign. */
+  note?: RasiAntarNote;
 }
 
 export interface RasiPeriod {
@@ -102,7 +104,8 @@ export const RASI_DASA_CAVEATS_46: string[] = [
   "The Brahma planet (46.170-173) is the strongest among the lords of the 6th, 8th and 12th that stands in the visible half of the chart (houses 1 to 7) in an odd sign, the 8th lord in the 8th also qualifying; Saturn, Rahu and Ketu are allowed as the text says; among several the one furthest in degrees is taken. When none qualifies the strongest of the three lords is used and flagged. The phrase within the sixth bhava is read as houses 1 to 7 (provisional).",
   "Sub-periods follow 51.5-12: twelve equal parts, starting from the dasa sign or its 7th, whichever is stronger; sequential for a movable dasa sign, every sixth sign for a fixed sign, and for a dual sign the angles from it, then from its 5th, then from its 9th; onwards from an odd dasa sign and in reverse from an even one. The text names the Chara, Sthira and Trikona dasas for this scheme (51.12); it is shown on the other sign dasas as well, marked provisional.",
   "The Karaka dasa counts from the lagna to the sign of each karaka inclusively (46.178), eight karakas as set for this chart. The Drig, nakshatra-based and Kendradi dasas take the Chara years, which the text implies but does not state for the Drig and nakshatra systems (provisional). Only the nakshatra-based dasa has a balance at birth (46.190); the others begin their first period at birth.",
-  "Chapter 50, Parashara's effects for the dasas of signs, is read on the running period of each system: the sign's house from the lagna, its occupants and aspects, its lord and the sub-period sign, with the same limits as on the Kalachakra page.",
+  "Chapter 50, Parashara's effects for the dasas of signs, is read on the running period of each system: the sign's house from the lagna, its occupants and aspects, its lord and the sub-period sign, with the same limits as on the Kalachakra page. Each sub-period sign also carries the reading of 50.90-96: its own lord or a friend of that lord in it, the 6th, 8th or 12th from the dasa sign taken as the lagna of the period, a malefic, debilitated or ill-placed occupant, and its Sarvashtakavarga count banded by 72.3-4 (provisional, since 50.93 compares counts without a threshold).",
+  "50.90 opens the sub-periods from the sign the dasa lord occupies, while 51.5-6 open them from the dasa sign or its 7th; the app follows ch. 51 and does not show the 50.90 order. 50.95 names the sign from which the dasa commences as the lagna for the sub-periods; it is read here as the dasa sign (provisional).",
 ];
 
 const NOT_COMPUTED = [
@@ -434,7 +437,7 @@ export function computeRasiDasas(positions: PlanetPosition[], lagnaLon: number, 
           p.antardasas = order.map((s, k) => {
             const a0 = cursor.plus({ days: span * k * YEAR_DAYS });
             const a1 = k === 11 ? end : cursor.plus({ days: span * (k + 1) * YEAR_DAYS });
-            return { sign: s, start: a0.toISO()!, end: a1.toISO()!, current: asOf >= a0 && asOf < a1 };
+            return { sign: s, start: a0.toISO()!, end: a1.toISO()!, current: asOf >= a0 && asOf < a1, note: rasiAntarNote(sign, s, deps) };
           });
           p.antarStart = start;
           p.antarRule = rule;
