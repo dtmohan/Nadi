@@ -28,6 +28,7 @@
  *
  * Nothing here is stored; the caller sends the chart and the events with each request.
  */
+import { displayLocal } from "@shared/time-basis";
 import { DateTime } from "luxon";
 import { norm360, type Planet } from "@shared/astro";
 import {
@@ -319,9 +320,13 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const edges = [jd0 - w, ...boundaries, jd0 + w];
 
   const local = (jd: number) =>
-    DateTime.fromMillis(
-      Math.round(((jd - 2440587.5) * 86400000) / 1000) * 1000,
-      { zone: birth.basis.displayZone },
+    displayLocal(
+      DateTime.fromMillis(
+        Math.round(((jd - 2440587.5) * 86400000) / 1000) * 1000,
+        { zone: "utc" },
+      ),
+      birth.basis,
+      birth.basis.displayZone,
     );
   const fmtT = (jd: number) => local(jd).toFormat("HH:mm:ss");
 

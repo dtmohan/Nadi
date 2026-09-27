@@ -1,3 +1,4 @@
+import { displayLocal } from "@shared/time-basis";
 import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -426,7 +427,11 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         <section>
           <SectionTitle plain="Birth day" technical="Janma panchanga">
             <span className="text-xs font-normal text-muted-foreground">
-              {fmtDT(birth.at, result.timeBasis?.displayZone ?? chart.timezone)}{" "}
+              {displayLocal(
+                birth.at,
+                result.timeBasis,
+                chart.timezone,
+              ).toFormat("d LLL yyyy HH:mm")}{" "}
               at {chart.place}
             </span>
           </SectionTitle>

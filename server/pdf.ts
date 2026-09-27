@@ -1,6 +1,7 @@
 // Server-side PDF report for a chart, drawn with PDFKit (vector South Indian chart,
 // positions, reading, relations and Jupiter/Saturn timing).
 
+import { displayLocal } from "@shared/time-basis";
 import PDFDocument from "pdfkit";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
@@ -447,14 +448,15 @@ function panchangaSection(doc: Doc, result: ChartResult) {
   const day = result.panchanga;
   if (!day) return;
   const zone = result.chart.timezone;
-  const t = (iso: string) => DateTime.fromISO(iso).setZone(zone).toFormat("HH:mm");
+  const local = (iso: string) => displayLocal(iso, result.timeBasis, zone);
+  const t = (iso: string) => local(iso).toFormat("HH:mm");
   const pct = (x: number) => `${Math.round(x * 100)}%`;
   const runText = (run: LimbSegment[]) => run.map((s) => `${s.name}${s.detail ? ` (${s.detail})` : ""}${s.end ? ` ends ${t(s.end)}` : " past next sunrise"}`).join(" · ");
 
   doc.addPage();
   sectionTitle(doc, "Panchanga", `the five limbs of the birth day · Surya Siddhanta 1.36, 2.64-69 (tr. Burgess)`);
   doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(
-    `${DateTime.fromISO(day.at).setZone(zone).toFormat("d LLLL yyyy HH:mm")} at ${result.chart.place}. Sunrise ${t(day.sunrise)}, sunset ${t(day.sunset)}, next sunrise ${t(day.nextSunrise)}. Moon ${day.phase.waxing ? "waxing" : "waning"}, ${pct(day.phase.illumination)} lit. Ayanamsa ${day.ayanamsa.key} ${day.ayanamsa.value.toFixed(3)}°.`,
+    `${local(day.at).toFormat("d LLLL yyyy HH:mm")} at ${result.chart.place} (${result.timeBasis?.label ?? zone}). Sunrise ${t(day.sunrise)}, sunset ${t(day.sunset)}, next sunrise ${t(day.nextSunrise)}. Moon ${day.phase.waxing ? "waxing" : "waning"}, ${pct(day.phase.illumination)} lit. Ayanamsa ${day.ayanamsa.key} ${day.ayanamsa.value.toFixed(3)}°.`,
     PAGE.m,
     doc.y,
     { width: CONTENT_W },
@@ -679,7 +681,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   const doc = new PDFDocument({ size: "A4", margins: { top: PAGE.m, bottom: 20, left: PAGE.m, right: PAGE.m }, bufferPages: true, info: { Title: `${result.chart.name} — Nadi reading`, Author: "Nadi" } });
   const { chart, positions, reading, transits, now } = result;
   JEEVA = reading.roles.native;
-  const birthLocal = DateTime.fromISO(result.utc).setZone(result.timeBasis?.displayZone ?? chart.timezone);
+  const birthLocal = displayLocal(result.utc, result.timeBasis, chart.timezone);
   const birthStr = birthLocal.toFormat("d LLLL yyyy, HH:mm");
 
   // ── Header ──

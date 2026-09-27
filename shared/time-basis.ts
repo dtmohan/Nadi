@@ -6,6 +6,11 @@
 // itself: four minutes of time per degree of longitude. The "auto" standard detects the mean-time era and does
 // that; the others let the practitioner force the database offset, the birthplace mean time, or a fixed offset.
 import { DateTime, FixedOffsetZone, IANAZone } from "luxon";
+import {
+  findLegalTimeRule,
+  nethOffsetSeconds,
+  type LegalTimeRule,
+} from "./legal-time";
 
 export type TimeStandardMode = "auto" | "zone" | "lmt" | "fixed";
 
@@ -17,7 +22,7 @@ export const TIME_STANDARDS: {
   {
     id: "auto",
     label: "Automatic",
-    help: "Zone database, except before standard time, when the birthplace's own mean time is used.",
+    help: "Zone database, except before standard time, when the birthplace's own mean time is used; a short table of legal exceptions (Paris, Dublin, Amsterdam, Bombay, Calcutta) overrides both.",
   },
   {
     id: "zone",
@@ -56,6 +61,13 @@ export interface TimeBasis {
   note: string;
   /** Set when the input could not be resolved (bad zone id or offset). */
   error?: string;
+  /** Legal-time exception applied by the automatic standard, if any. */
+  legal?: Pick<
+    LegalTimeRule,
+    "id" | "label" | "note" | "source" | "provisional"
+  >;
+  /** Seconds the minute-precision displayZone drops (offsetSeconds - 60 * round(offsetSeconds / 60)). */
+  displayShiftSeconds: number;
 }
 
 /** Parse "+05:30", "-07:52:58", "UTC+5:30", "5.5" into seconds east of UTC, or undefined. */
@@ -108,6 +120,7 @@ export function resolveTimeBasis(
   zone: string,
   longitude: number,
   timeStandard = "auto",
+  latitude?: number,
 ): TimeBasis {
   const iana = IANAZone.isValidZone(zone) ? IANAZone.create(zone) : undefined;
   const civil = iana
@@ -130,20 +143,46 @@ export function resolveTimeBasis(
     }
   }
   const lmt = lmtOffsetSeconds(longitude);
-  const unnamed = /^GMT[+-]\d{1,2}:\d{2}(:\d{2})?$/.test(zoneName);
-  if (unnamed) zoneName = "mean time of the zone's reference city";
+  const unnamed = /^GMT[+-]?\d{1,2}(:\d{2})?(:\d{2})?$/.test(zoneName);
+  if (unnamed)
+    zoneName =
+      zoneOffsetSeconds % 60 !== 0
+        ? "mean time of the zone's reference city"
+        : `standard time of ${zone}`;
   const base = { auto: false, zoneOffsetSeconds, zoneName, zone };
+  const shift = (sec: number) => sec - 60 * Math.round(sec / 60);
 
   let mode: TimeBasis["mode"];
   let fixedSeconds: number | undefined;
   let auto = false;
   const std = (timeStandard || "auto").trim();
+  let legal: TimeBasis["legal"];
   if (std === "auto") {
-    // Mean-time era: the database offset carries seconds, which standard times (whole minutes) never do.
-    const meanTimeEra =
-      zoneOffsetSeconds % 60 !== 0 || (unnamed && civil.year < 1900);
-    mode = meanTimeEra || !iana ? "lmt" : "zone";
     auto = true;
+    const rule = findLegalTimeRule(date, zone, longitude, latitude);
+    if (rule && iana && civil.isValid) {
+      legal = {
+        id: rule.id,
+        label: rule.label,
+        note: rule.note,
+        source: rule.source,
+        provisional: rule.provisional,
+      };
+      if (rule.kind === "zone") mode = "zone";
+      else if (rule.kind === "fixed") {
+        mode = "fixed";
+        fixedSeconds = rule.offsetSeconds;
+      } else {
+        const n = nethOffsetSeconds(`${date}T${time}`);
+        mode = "fixed";
+        fixedSeconds = n.offsetSeconds;
+        legal.label = n.label;
+      }
+    } else {
+      // Mean-time era: the database offset carries seconds, which standard times (whole minutes) never do.
+      const meanTimeEra = zoneOffsetSeconds % 60 !== 0;
+      mode = meanTimeEra || !iana ? "lmt" : "zone";
+    }
   } else if (std === "zone" || std === "lmt") {
     mode = std;
   } else {
@@ -160,6 +199,7 @@ export function resolveTimeBasis(
         offsetSeconds: 0,
         label: zone,
         displayZone: "utc",
+        displayShiftSeconds: 0,
         note: `Unknown time zone "${zone}".`,
         error: `Unknown time zone "${zone}"`,
       };
@@ -171,11 +211,17 @@ export function resolveTimeBasis(
       mode,
       auto,
       offsetSeconds: zoneOffsetSeconds,
-      label,
+      label: legal
+        ? `${legal.label}, zone database ${fmtOffset(zoneOffsetSeconds)}`
+        : label,
       displayZone: meanTimeEra ? displayZoneFor(zoneOffsetSeconds) : zone,
-      note: meanTimeEra
-        ? `Zone database offset ${fmtOffset(zoneOffsetSeconds)} is the mean time of the zone's reference city, not of the birthplace (whose mean time is ${fmtOffset(lmt)}).`
-        : `Zone database: ${label}.`,
+      displayShiftSeconds: meanTimeEra ? shift(zoneOffsetSeconds) : 0,
+      legal,
+      note: legal
+        ? `${legal.note} Zone database: ${label}.`
+        : meanTimeEra
+          ? `Zone database offset ${fmtOffset(zoneOffsetSeconds)} is the mean time of the zone's reference city, not of the birthplace (whose mean time is ${fmtOffset(lmt)}).`
+          : `Zone database: ${label}.`,
     };
   }
   if (mode === "lmt") {
@@ -189,6 +235,7 @@ export function resolveTimeBasis(
       offsetSeconds: lmt,
       label,
       displayZone: displayZoneFor(lmt),
+      displayShiftSeconds: shift(lmt),
       note: auto
         ? `Before standard time here; the birthplace's own mean time ${fmtOffset(lmt)} is applied instead of the zone database's ${fmtOffset(zoneOffsetSeconds)} (${zoneName}).`
         : differs
@@ -204,6 +251,7 @@ export function resolveTimeBasis(
       offsetSeconds: 0,
       label: "Fixed offset (unset)",
       displayZone: "utc",
+      displayShiftSeconds: 0,
       note: "Enter a fixed offset such as +05:30.",
       error: "Fixed offset not given",
     };
@@ -213,9 +261,15 @@ export function resolveTimeBasis(
     mode: "fixed",
     auto,
     offsetSeconds: fixedSeconds,
-    label: `Fixed offset ${fmtOffset(fixedSeconds)}`,
+    label: legal
+      ? `${legal.label}${legal.label.includes(fmtOffset(fixedSeconds)) ? "" : ` ${fmtOffset(fixedSeconds)}`}`
+      : `Fixed offset ${fmtOffset(fixedSeconds)}`,
     displayZone: displayZoneFor(fixedSeconds),
-    note: `Fixed offset ${fmtOffset(fixedSeconds)} applied${iana && civil.isValid ? `; the zone database would give ${fmtOffset(zoneOffsetSeconds)} (${zoneName})` : ""}.`,
+    displayShiftSeconds: shift(fixedSeconds),
+    legal,
+    note: legal
+      ? `${legal.note} Applied ${fmtOffset(fixedSeconds)}; the zone database would give ${fmtOffset(zoneOffsetSeconds)} (${zoneName}).`
+      : `Fixed offset ${fmtOffset(fixedSeconds)} applied${iana && civil.isValid ? `; the zone database would give ${fmtOffset(zoneOffsetSeconds)} (${zoneName})` : ""}.`,
   };
 }
 
@@ -229,4 +283,21 @@ export function birthUtc(
   if (!civil.isValid)
     throw new Error(`Invalid birth datetime: ${civil.invalidExplanation}`);
   return civil.minus({ seconds: basis.offsetSeconds });
+}
+
+/**
+ * A UTC instant expressed on the basis's clock for display. Luxon's fixed zones are minute-precise, so the
+ * dropped seconds of a mean-time offset are added back first; without this a birth entered as 11:30 shows
+ * as 11:30:02 or 11:29:58.
+ */
+export function displayLocal(
+  utc: DateTime | string,
+  basis: Pick<TimeBasis, "displayZone" | "displayShiftSeconds"> | undefined,
+  fallbackZone: string,
+): DateTime {
+  const dt = typeof utc === "string" ? DateTime.fromISO(utc) : utc;
+  if (!basis) return dt.setZone(fallbackZone);
+  return dt
+    .plus({ seconds: basis.displayShiftSeconds ?? 0 })
+    .setZone(basis.displayZone);
 }

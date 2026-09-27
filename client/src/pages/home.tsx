@@ -295,12 +295,14 @@ export default function Home() {
       form.timezone,
       form.longitude,
       timeStandard,
+      form.latitude,
     );
   }, [
     form.birthDate,
     form.birthTime,
     form.timezone,
     form.longitude,
+    form.latitude,
     timeStandard,
     standardMode,
     fixedText,
@@ -520,6 +522,21 @@ export default function Home() {
                         >
                           {basis.note}
                         </span>
+                        {basis.legal && (
+                          <>
+                            {" "}
+                            <a
+                              className="underline underline-offset-2"
+                              href={basis.legal.source.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              data-testid="link-time-basis-source"
+                            >
+                              {basis.legal.source.label}
+                            </a>
+                            {basis.legal.provisional ? " (provisional)" : ""}
+                          </>
+                        )}
                       </>
                     )}
                   </p>

@@ -61,6 +61,20 @@ export function ChartSettings({
               >
                 {timeBasis.label}
                 {timeBasis.auto ? " (automatic)" : ""}. {timeBasis.note}
+                {timeBasis.legal && (
+                  <>
+                    {" "}
+                    <a
+                      className="underline underline-offset-2"
+                      href={timeBasis.legal.source.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {timeBasis.legal.source.label}
+                    </a>
+                    {timeBasis.legal.provisional ? " (provisional)" : ""}
+                  </>
+                )}
               </div>
             )}
           </dd>

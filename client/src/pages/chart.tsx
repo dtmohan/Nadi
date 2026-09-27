@@ -1,3 +1,4 @@
+import { displayLocal } from "@shared/time-basis";
 import { Soft } from "@/lib/gentle";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "wouter";
@@ -1614,9 +1615,7 @@ export default function ChartPage() {
   }
 
   const { chart, positions, now } = data;
-  const birthLocal = DateTime.fromISO(data.utc).setZone(
-    data.timeBasis?.displayZone ?? chart.timezone,
-  );
+  const birthLocal = displayLocal(data.utc, data.timeBasis, chart.timezone);
   const selectedSign = selected
     ? (positions.find((p) => p.planet === selected)?.signIndex ?? null)
     : null;

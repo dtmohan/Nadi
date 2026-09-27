@@ -79,6 +79,7 @@ export function birthInstant(chart: {
   birthTime: string;
   timezone: string;
   longitude: number;
+  latitude?: number;
   timeStandard?: string;
 }): { utc: DateTime; basis: TimeBasis } {
   const basis = resolveTimeBasis(
@@ -87,6 +88,7 @@ export function birthInstant(chart: {
     chart.timezone,
     chart.longitude,
     chart.timeStandard ?? "auto",
+    chart.latitude,
   );
   if (basis.error) throw new Error(basis.error);
   return { utc: birthUtc(chart.birthDate, chart.birthTime, basis), basis };

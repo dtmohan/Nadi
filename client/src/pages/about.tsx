@@ -1,3 +1,4 @@
+import { LEGAL_TIME_ABOUT } from "@shared/legal-time";
 import { KARAKA, PLANETS } from "@shared/astro";
 import { CHARA_KARAKAS, CHARA_KARAKA_INFO } from "@shared/jaimini";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -487,7 +488,12 @@ export default function AboutPage() {
               <li>
                 Birth time is converted from the birthplace's IANA time zone,
                 including historical daylight-saving rules, before the Julian
-                Day is computed.
+                Day is computed. Before a place adopted standard time the
+                database gives the mean time of the zone's reference city, so
+                the automatic standard substitutes the birthplace's own mean
+                time (four minutes per degree of longitude). {LEGAL_TIME_ABOUT}{" "}
+                The time-standard selector on the form can force the zone
+                database, local mean time, or a fixed offset instead.
               </li>
             </ul>
             <h2>Sensitive results</h2>
