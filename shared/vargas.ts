@@ -25,6 +25,8 @@ export interface VargaDef {
   source: VargaSource;
   /** Where the translation leaves the sign mapping to convention. */
   note?: string;
+  /** Key into BJ_CROSS (shared/bj-cross.ts) where Brihat Jataka 1 states the same division. */
+  cross?: string;
   signOf(sign: number, deg: number): number;
 }
 
@@ -35,18 +37,18 @@ const part = (deg: number, n: number) => Math.min(n - 1, Math.floor((deg * n) / 
 export const VARGAS: VargaDef[] = [
   { key: "D1", n: 1, name: "Rasi", matter: "physique", source: S(6, "5"), signOf: (s) => s },
   {
-    key: "D2", n: 2, name: "Hora", matter: "wealth", source: S(6, "5-6"),
+    key: "D2", n: 2, name: "Hora", matter: "wealth", source: S(6, "5-6"), cross: "hora",
     signOf: (s, d) => (isOdd(s) ? (d < 15 ? 4 : 3) : d < 15 ? 3 : 4),
   },
-  { key: "D3", n: 3, name: "Drekkana", matter: "happiness through co-borns", source: S(6, "7-8"), signOf: (s, d) => (s + 4 * part(d, 3)) % 12 },
+  { key: "D3", n: 3, name: "Drekkana", matter: "happiness through co-borns", source: S(6, "7-8"), cross: "drekkana", signOf: (s, d) => (s + 4 * part(d, 3)) % 12 },
   { key: "D4", n: 4, name: "Chaturthamsa", matter: "fortunes", source: S(6, "9"), signOf: (s, d) => (s + 3 * part(d, 4)) % 12 },
   { key: "D7", n: 7, name: "Saptamsa", matter: "sons and grandsons", source: S(6, "10-11"), signOf: (s, d) => (s + (isOdd(s) ? 0 : 6) + part(d, 7)) % 12 },
   {
-    key: "D9", n: 9, name: "Navamsa", matter: "spouse", source: S(6, "12"),
+    key: "D9", n: 9, name: "Navamsa", matter: "spouse", source: S(6, "12"), cross: "navamsa",
     signOf: (s, d) => ([s, s + 8, s + 4][kind(s)] + part(d, 9)) % 12,
   },
   { key: "D10", n: 10, name: "Dasamsa", matter: "power and position", source: S(6, "13-14"), signOf: (s, d) => (s + (isOdd(s) ? 0 : 8) + part(d, 10)) % 12 },
-  { key: "D12", n: 12, name: "Dvadasamsa", matter: "parents", source: S(6, "15"), signOf: (s, d) => (s + part(d, 12)) % 12 },
+  { key: "D12", n: 12, name: "Dvadasamsa", matter: "parents", source: S(6, "15"), cross: "dwadasamsa", signOf: (s, d) => (s + part(d, 12)) % 12 },
   { key: "D16", n: 16, name: "Shodasamsa", matter: "conveyances, their benefits and adversities", source: S(6, "16"), signOf: (s, d) => ([0, 4, 8][kind(s)] + part(d, 16)) % 12 },
   { key: "D20", n: 20, name: "Vimsamsa", matter: "worship", source: S(6, "17-21"), signOf: (s, d) => ([0, 8, 4][kind(s)] + part(d, 20)) % 12 },
   { key: "D24", n: 24, name: "Siddhamsa", matter: "learning", source: S(6, "22-23"), signOf: (s, d) => ((isOdd(s) ? 4 : 3) + part(d, 24)) % 12 },
@@ -56,7 +58,7 @@ export const VARGAS: VargaDef[] = [
     signOf: (s, d) => (3 * (s % 4) + part(d, 27)) % 12,
   },
   {
-    key: "D30", n: 30, name: "Trimsamsa", matter: "evil effects", source: S(6, "27-28", true),
+    key: "D30", n: 30, name: "Trimsamsa", matter: "evil effects", source: S(6, "27-28", true), cross: "trimsamsa",
     note: "6.27-28 names the lords and their degree spans (Mars 5, Saturn 5, Jupiter 8, Mercury 7, Venus 5 in odd signs, reversed in even); placing them in the lord's odd sign for odd signs and even sign for even signs is the commentators' convention.",
     signOf: (s, d) => {
       if (isOdd(s)) return d < 5 ? 0 : d < 10 ? 10 : d < 18 ? 8 : d < 25 ? 2 : 6;
@@ -291,7 +293,7 @@ export const VARGA_CAVEATS = [
   "The divisions follow 6.5-41 as translated. Three mappings are the commentators' rather than the verse's and are marked provisional: the Bhamsa starting sign by element (6.26), the Trimsamsa signs for the lords named in 6.27-28, and the Shashtiamsa counted from the occupied sign (6.33).",
   "Vimsopaka takes the four schemes and weights of 7.17-25 and the varga viswa of 7.24-25 (own 20, great friend 18, friend 15, neutral 10, enemy 7, great enemy 5). Relationships are the compound ones of 3.55-58, the temporary part taken from the rasi positions. The verse keeps the full twenty for the planet's own sign only; exaltation is not given the same standing here, though some readers grant it. Bands are 7.26-27; the eight classes of 7.30-32 (Poorna to Atiswalpa) are named without thresholds and are not applied.",
   "The designations of 6.42-53 count good vargas: exaltation, moolatrikona, own sign, and the signs of the lords of angles from the arudha lagna (the arudha by the Jaimini rule already in use). 6.53 excludes combust, defeated and weak planets and those in bad avasthas; only combustion is applied here, by the Surya Siddhanta orbs in the translator's note under 7.28-29, and the exclusion is provisional.",
-  "Vargottama (the same sign in rasi and navamsa) is not a term of ch. 6-7 and is shown for reference only.",
+  "Vargottama (the same sign in rasi and navamsa) is not a term of ch. 6-7; it is Brihat Jataka 1.14 (the first navamsa of a movable sign, the middle of a fixed, the last of a dual, called auspicious there) and is shown as Varahamihira defines it, without a reading.",
   "The spouse reading follows 7.1-8, which assigns the navamsa to the spouse, and the chapter's closing remark that the lord of a bhava is as important as the bhava; how to weigh the 7th of the navamsa is not spelt out, so the panel reports positions and leaves the judgement.",
 ];
 

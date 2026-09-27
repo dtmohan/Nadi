@@ -1603,6 +1603,111 @@ function ParashariMethod() {
           are held interpolated by the commentator and are not used. Rahu and
           Ketu give no years in this chapter.
         </li>
+        <li>
+          Cross-check with Brihat Jataka adhyayas 1 (Rasiprabheda) and 2
+          (Grahabheda). The elementary rules the tab applies from Parashara are
+          set against Varahamihira's statements of the same rules, without
+          changing any computation: aspects by quarters with the specials of
+          Saturn, Jupiter and Mars (BPHS 26.2-5,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501596.html"
+            {...ext}
+          >
+            2.13
+          </a>
+          ), benefics and malefics (3.11,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501588.html"
+            {...ext}
+          >
+            2.5
+          </a>
+          ), natural and temporary friendship (3.55-56,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501599.html"
+            {...ext}
+          >
+            2.16-18
+          </a>
+          ), exaltation degrees (3.49-50,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501576.html"
+            {...ext}
+          >
+            1.13
+          </a>
+          ), moolatrikona signs and vargottama (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501577.html"
+            {...ext}
+          >
+            1.14
+          </a>
+          ), the hora, drekkana, navamsa, dwadasamsa and trimsamsa rules (ch. 6,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501569.html"
+            {...ext}
+          >
+            1.6
+          </a>
+          ,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501570.html"
+            {...ext}
+          >
+            1.7
+          </a>
+          ,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501574.html"
+            {...ext}
+          >
+            1.11-12
+          </a>
+          ), house matters and classes (ch. 11,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501578.html"
+            {...ext}
+          >
+            1.15-19
+          </a>
+          ), and the Sthana, Dig, Chesta, Kala and Naisargika components of
+          Shadbala (ch. 27,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501602.html"
+            {...ext}
+          >
+            2.19-21
+          </a>
+          ), which Varahamihira states without values. One difference is
+          recorded: the sign risings (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501573.html"
+            {...ext}
+          >
+            1.10
+          </a>
+          ) count Sagittarius among the back-rising signs where BPHS 4.17 has it
+          rise by the head; Parashara's list is kept. Verse text from Neely
+          (wisdomlib) and Iyer's 1885 translation (pp. 5-24), the Sanskrit
+          checked in the Adyar edition (pp. 14-183). Iyer's and Aiyangar's notes
+          are commentary and are not used as rules. The kalapurusha
+          significators (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501584.html"
+            {...ext}
+          >
+            2.1
+          </a>
+          , BPHS 3.12-15) and the body constituents (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501594.html"
+            {...ext}
+          >
+            2.11
+          </a>
+          , BPHS 3.31) are listed for reference only.
+        </li>
       </ul>
       <h2>Not yet here</h2>
       <p>

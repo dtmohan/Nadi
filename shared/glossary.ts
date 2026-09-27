@@ -413,6 +413,12 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
       "Varahamihira's span of life (Brihat Jataka 7): Pindayu sums years each planet grants between its exaltation and debilitation degrees, Amsayu (Satya's method) counts the navamsas each planet has passed, with the lagna's share, multipliers and the losses for combustion, enemy's sign and the houses behind the horizon.",
     system: "parashari",
   },
+  "bj-cross": {
+    term: "Cross-check with Brihat Jataka",
+    short:
+      "The elementary rules the Parashari tab applies (aspects by quarters, benefics and malefics, friendships, exaltation and moolatrikona, the varga lords, house classes, the sign risings and the Shadbala components) set against Varahamihira's statements of the same rules in Brihat Jataka chapters 1 and 2, with agreement, qualitative match or difference recorded. Nothing is computed from the table.",
+    system: "parashari",
+  },
   "body-marks": {
     term: "Marks on the body",
     short:

@@ -116,6 +116,8 @@ import {
 import { cn } from "@/lib/utils";
 import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 import { Working } from "@/components/working";
+import { BjCrossSection, BjCross } from "@/components/bj-cross";
+import { BJ_CROSS_BY_KEY } from "@shared/bj-cross";
 import { Term } from "@/components/term";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
@@ -538,7 +540,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             <SourceLink
               source={{ label: "Parashara 26.2-5", url: BPHS_URL(26) }}
             />
-            .
+            ; the same quarters in <BjCross c={BJ_CROSS_BY_KEY.aspects} />.
           </p>
           <div
             className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground"
@@ -970,6 +972,13 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           ageYears={ageYears}
           otherEstimates={ayurOthers}
         />
+      </Working>
+      <Working
+        id="parashari-bj-cross"
+        label="Show the cross-check of the ground rules with Brihat Jataka 1-2"
+        className="mt-8"
+      >
+        <BjCrossSection />
       </Working>
       <Working
         id="parashari-sudarshana"
@@ -3214,7 +3223,9 @@ function ShadbalaSection({
         <SourceLink source={sb.sources.bhavaDrishti} /> ·{" "}
         <SourceLink source={sb.sources.bhavaOccupant} /> ·{" "}
         <SourceLink source={sb.sources.bhavaUdaya} /> · rising of the signs{" "}
-        <SourceLink source={sb.sources.udayaSigns} />
+        <SourceLink source={sb.sources.udayaSigns} />, set against{" "}
+        <BjCross c={BJ_CROSS_BY_KEY.risingSigns} /> (Sagittarius is back-rising
+        there; Parashara's list is kept)
       </p>
       {phala && (
         <>
@@ -3481,7 +3492,9 @@ function BalaRows({
                         `${v.varga} ${v.lord === r.planet ? v.relation : `${v.lord}, ${v.relation}`} ${v.virupas}`,
                     )
                     .join("; ")}
-                  . <SourceLink source={src.relations} />
+                  . <SourceLink source={src.relations} />; natural table{" "}
+                  <BjCross c={BJ_CROSS_BY_KEY.naturalFriends} />, temporary{" "}
+                  <BjCross c={BJ_CROSS_BY_KEY.temporaryFriends} />
                 </p>
                 <p>
                   Ojhayugma {r.sthana.ojhayugma}{" "}
@@ -3505,11 +3518,14 @@ function BalaRows({
                 <p>
                   Year {r.kala.varsha}, month {r.kala.masa}, day {r.kala.dina},
                   hora {r.kala.hora} <SourceLink source={src.lords} /> · Ayana{" "}
-                  {fmtV(r.kala.ayana)} <SourceLink source={src.ayana} />
+                  {fmtV(r.kala.ayana)} <SourceLink source={src.ayana} /> · day,
+                  night, fortnight and lords also in{" "}
+                  <BjCross c={BJ_CROSS_BY_KEY.kalaBala} />
                 </p>
                 <p className="mt-1">
                   <span className="font-medium text-foreground">Dig</span>{" "}
-                  {fmtV(r.dig)} <SourceLink source={src.dig} /> ·{" "}
+                  {fmtV(r.dig)} <SourceLink source={src.dig} />{" "}
+                  <BjCross c={BJ_CROSS_BY_KEY.digBala} /> ·{" "}
                   <span className="font-medium text-foreground">Chesta</span>{" "}
                   {fmtV(r.chesta)}{" "}
                   <SourceLink
@@ -3519,11 +3535,12 @@ function BalaRows({
                         : src.chesta
                     }
                   />{" "}
-                  ·{" "}
+                  <BjCross c={BJ_CROSS_BY_KEY.chestaBala} /> ·{" "}
                   <span className="font-medium text-foreground">
                     Naisargika
                   </span>{" "}
-                  {fmtV(r.naisargika)} <SourceLink source={src.naisargika} /> ·{" "}
+                  {fmtV(r.naisargika)} <SourceLink source={src.naisargika} />{" "}
+                  <BjCross c={BJ_CROSS_BY_KEY.naisargika} /> ·{" "}
                   <span className="font-medium text-foreground">Drik</span>{" "}
                   {fmtV(r.drik)} <SourceLink source={src.drik} />
                   {r.yuddha !== 0 && (

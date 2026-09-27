@@ -14,6 +14,8 @@ import {
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
+import { BjCross } from "@/components/bj-cross";
+import { BJ_CROSS_BY_KEY } from "@shared/bj-cross";
 import {
   Table,
   TableBody,
@@ -235,6 +237,12 @@ export function VargasSection({ v, name }: { v: VargasResult; name: string }) {
             data-testid="varga-def"
           >
             <SourceLink source={def.source} />
+            {def.cross && BJ_CROSS_BY_KEY[def.cross] && (
+              <>
+                {" "}
+                · also <BjCross c={BJ_CROSS_BY_KEY[def.cross]} />
+              </>
+            )}
             {def.note && <> · {def.note}</>}
           </p>
         </div>
