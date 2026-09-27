@@ -99,7 +99,22 @@ export interface SudarshanaMonth {
   minus: number;
 }
 
+/** The reading a bhava gives whenever it becomes lagna of a year or a month (74.24-26 with the bhava's own verdict). */
+export interface SudarshanaHouseYear {
+  house: number;
+  verdict: "favourable" | "unfavourable" | "mixed";
+  tally: "favourable" | "unfavourable" | "mixed";
+  plus: number;
+  minus: number;
+  favourable: string[];
+  unfavourable: string[];
+}
+
 export interface SudarshanaResult {
+  /** Birth instant (UTC ISO) the bhava dasa is counted from. */
+  birthIso: string;
+  /** One entry per bhava, index house - 1; the same reading serves any year or month that bhava rules. */
+  houseYears: SudarshanaHouseYear[];
   bases: Record<Ring, { signIndex: number; sign: string }>;
   /** 74.19-20: the chakra is read only when the lagna, Moon and Sun stand in three different signs. */
   applicable: boolean;
@@ -420,6 +435,20 @@ export function computeSudarshana(
     return { fav, unf, verdict, tally, plus, minus };
   };
 
+  const houseYears: SudarshanaHouseYear[] = [];
+  for (let h = 1; h <= 12; h++) {
+    const e = yearEffects(h);
+    houseYears.push({
+      house: h,
+      verdict: e.verdict,
+      tally: e.tally,
+      plus: e.plus,
+      minus: e.minus,
+      favourable: e.fav,
+      unfavourable: e.unf,
+    });
+  }
+
   const years: SudarshanaYear[] = [];
   for (let k = 0; k < 12; k++) {
     const age = cycleStart + k;
@@ -492,6 +521,8 @@ export function computeSudarshana(
     );
 
   return {
+    birthIso: birth.toISO()!,
+    houseYears,
     bases: {
       Lagna: { signIndex: bases.Lagna, sign: SIGNS[bases.Lagna] },
       Moon: { signIndex: bases.Moon, sign: SIGNS[bases.Moon] },

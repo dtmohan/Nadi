@@ -19,6 +19,11 @@ import {
 } from "@/components/ui/table";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
+import type {
+  SudarshanaAgreement,
+  SudarshanaBaselineStat,
+  SudarshanaEventsResult,
+} from "@shared/sudarshana-events";
 import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 import { cn } from "@/lib/utils";
 
@@ -357,7 +362,13 @@ function BhavaDetail({ b, s }: { b: ChakraBhava; s: SudarshanaResult }) {
   );
 }
 
-export function SudarshanaSection({ s }: { s: SudarshanaResult }) {
+export function SudarshanaSection({
+  s,
+  events,
+}: {
+  s: SudarshanaResult;
+  events?: SudarshanaEventsResult;
+}) {
   const plain = usePlain();
   const [sel, setSel] = useState<number>(s.currentYear?.house ?? 1);
   const [yearOpen, setYearOpen] = useState<number | null>(null);
@@ -615,6 +626,8 @@ export function SudarshanaSection({ s }: { s: SudarshanaResult }) {
         </p>
       </div>
 
+      {events && <SudarshanaEvents ev={events} applicable={s.applicable} />}
+
       {!plain && (
         <div
           className="mt-3 text-xs text-muted-foreground"
@@ -625,6 +638,9 @@ export function SudarshanaSection({ s }: { s: SudarshanaResult }) {
             {s.caveats.map((c, i) => (
               <li key={i}>{c}</li>
             ))}
+            {events?.caveats.map((c, i) => (
+              <li key={`e${i}`}>{c}</li>
+            ))}
           </ul>
           <p className="mt-1">
             <SourceLink source={src.ringCount} />{" "}
@@ -634,5 +650,300 @@ export function SudarshanaSection({ s }: { s: SudarshanaResult }) {
         </div>
       )}
     </div>
+  );
+}
+
+const AGREE_LABEL: Record<SudarshanaAgreement, string> = {
+  agree: "agrees",
+  conflict: "conflicts",
+  open: "open",
+};
+
+function outcomeClass(o: string) {
+  return o === "favourable"
+    ? "text-verdict-good"
+    : o === "unfavourable"
+      ? "text-verdict-bad"
+      : "text-muted-foreground";
+}
+
+const ordinal = (n: number) => {
+  const v = n % 100;
+  return (
+    n +
+    (["th", "st", "nd", "rd"][(v - 20) % 10] ||
+      ["th", "st", "nd", "rd"][v] ||
+      "th")
+  );
+};
+
+function agreeClass(a: SudarshanaAgreement) {
+  return a === "agree"
+    ? "text-verdict-good"
+    : a === "conflict"
+      ? "text-verdict-bad"
+      : "text-muted-foreground";
+}
+
+function Stat({
+  label,
+  n,
+  testid,
+}: {
+  label: string;
+  n: { agree: number; conflict: number; open: number };
+  testid: string;
+}) {
+  return (
+    <div className="rounded-md border px-3 py-2" data-testid={testid}>
+      <div className="text-2xs uppercase tracking-wide text-muted-foreground">
+        {label}
+      </div>
+      <div className="mt-0.5 flex flex-wrap gap-x-3 text-xs tabular-nums">
+        <span className="text-verdict-good">{n.agree} agree</span>
+        <span className="text-verdict-bad">{n.conflict} conflict</span>
+        <span className="text-muted-foreground">{n.open} open</span>
+      </div>
+    </div>
+  );
+}
+
+function BaselineLine({
+  label,
+  st,
+}: {
+  label: string;
+  st: SudarshanaBaselineStat;
+}) {
+  return (
+    <span>
+      {label}{" "}
+      <span className="tabular-nums">
+        {st.actual} vs {st.mean} ± {st.sd}
+      </span>
+      ,{" "}
+      <span
+        className={
+          st.verdict === "above"
+            ? "text-verdict-good"
+            : st.verdict === "below"
+              ? "text-verdict-bad"
+              : "text-muted-foreground"
+        }
+      >
+        {st.verdict === "above"
+          ? `beats ${st.percentile}% of random dates`
+          : st.verdict === "below"
+            ? `worse than ${100 - st.percentile}% of random dates`
+            : `chance (${ordinal(st.percentile)} percentile)`}
+      </span>
+    </span>
+  );
+}
+
+function SudarshanaEvents({
+  ev,
+  applicable,
+}: {
+  ev: SudarshanaEventsResult;
+  applicable: boolean;
+}) {
+  const plain = usePlain();
+  const src = ev.sources;
+  return (
+    <div className="mt-6" data-testid="sudarshana-events">
+      <SectionTitle
+        as="h4"
+        plain="Against recorded events"
+        technical="Bhava dasa against the event record"
+        className="text-xs"
+      />
+      <ModeText
+        plain={
+          <>
+            Each event the chart records is placed on the wheel's calendar: the
+            house ruling the year it fell in, and the house ruling the month. A
+            good event in a good year, or a hard event in a hard year, counts as
+            agreement. The same events are then dropped on random dates across
+            the same span to show whether the agreement is better than luck.
+          </>
+        }
+        practitioner={
+          <>
+            Each recorded event is read against the bhava ruling its year and
+            the bhava ruling its month, <SourceLink source={src.dasa} />, with
+            the bhava's reading from the 74.24-26 conditions and its own
+            verdict, <SourceLink source={src.effects} />. The recorded outcome
+            (or the matter's own nature) agrees, conflicts or is left open when
+            either side is mixed; a shuffled-date baseline repeats the count
+            with the events moved to random dates inside their span,{" "}
+            <SourceLink source={src.comparison} />. The relevance mark notes a
+            year- or month-lagna that is one of the matter's KP houses or its
+            cusp, <SourceLink source={src.relevance} />.
+          </>
+        }
+      />
+      {!applicable && ev.rows.length > 0 && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          The chakra is not read for this chart (74.19-20), so the comparison is
+          shown for reference only.
+        </p>
+      )}
+      {ev.rows.length === 0 ? (
+        <p
+          className="mt-2 text-xs text-muted-foreground"
+          data-testid="sudarshana-events-empty"
+        >
+          No events are recorded for this chart. Add dated events on the chart
+          and they will be compared here.
+        </p>
+      ) : (
+        <>
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <Stat
+              label={`Year rulers (${ev.summary.events} events)`}
+              n={ev.summary.year}
+              testid="sudarshana-events-year"
+            />
+            <Stat
+              label="Month rulers"
+              n={ev.summary.month}
+              testid="sudarshana-events-month"
+            />
+            <div
+              className="rounded-md border px-3 py-2"
+              data-testid="sudarshana-events-fits"
+            >
+              <div className="text-2xs uppercase tracking-wide text-muted-foreground">
+                Ruler is a matter house
+              </div>
+              <div className="mt-0.5 text-xs tabular-nums">
+                year {ev.summary.yearFits} · month {ev.summary.monthFits} of{" "}
+                {ev.summary.events}
+              </div>
+            </div>
+          </div>
+          {ev.baseline ? (
+            <p
+              className="mt-2 text-2xs text-muted-foreground"
+              data-testid="sudarshana-events-baseline"
+            >
+              Against {ev.baseline.trials} shuffled-date trials over{" "}
+              {fmtD(ev.baseline.span[0])} – {fmtD(ev.baseline.span[1])}{" "}
+              (agreements minus conflicts):{" "}
+              <BaselineLine label="years" st={ev.baseline.year} />;{" "}
+              <BaselineLine label="months" st={ev.baseline.month} />;{" "}
+              <BaselineLine label="matter-house rulers" st={ev.baseline.fits} />
+              .
+            </p>
+          ) : (
+            <p className="mt-2 text-2xs text-muted-foreground">
+              The shuffled-date baseline needs at least two events spanning a
+              year.
+            </p>
+          )}
+          <Table className="mt-2 text-sm">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="px-2 sm:px-4">Event</TableHead>
+                <TableHead className="hidden px-2 sm:table-cell sm:px-4">
+                  Went
+                </TableHead>
+                <TableHead className="px-2 sm:px-4">Year ruler</TableHead>
+                <TableHead className="px-2 sm:px-4">Month ruler</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {ev.rows.map((r) => (
+                <TableRow
+                  key={r.id}
+                  data-testid={`sudarshana-event-${r.id}`}
+                  data-year={r.yearAgreement}
+                  data-month={r.monthAgreement}
+                >
+                  <TableCell className="px-2 sm:px-4">
+                    <div className="text-xs">{r.matterLabel}</div>
+                    <div className="text-2xs tabular-nums text-muted-foreground">
+                      {fmtD(r.date)} · age {r.age}
+                    </div>
+                    <div
+                      className={cn(
+                        "text-2xs sm:hidden",
+                        outcomeClass(r.outcome),
+                      )}
+                    >
+                      went {r.outcome}
+                    </div>
+                  </TableCell>
+                  <TableCell
+                    className={cn(
+                      "hidden px-2 text-xs sm:table-cell sm:px-4",
+                      outcomeClass(r.outcome),
+                    )}
+                  >
+                    {r.outcome}
+                  </TableCell>
+                  <RulerCell
+                    house={r.yearHouse}
+                    hy={r.year}
+                    a={r.yearAgreement}
+                    fits={r.yearHouseFitsMatter}
+                  />
+                  <RulerCell
+                    house={r.monthHouse}
+                    hy={r.month}
+                    a={r.monthAgreement}
+                    fits={r.monthHouseFitsMatter}
+                  />
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          {!plain && (
+            <p className="mt-1 text-2xs text-muted-foreground">
+              Events are read at midday in the birth zone; the month is the
+              equal twelfth of the birthday-to-birthday year it falls in.
+            </p>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function RulerCell({
+  house,
+  hy,
+  a,
+  fits,
+}: {
+  house: number;
+  hy: SudarshanaEventsResult["rows"][number]["year"];
+  a: SudarshanaAgreement;
+  fits: boolean;
+}) {
+  return (
+    <TableCell className="px-2 text-xs sm:px-4">
+      <div
+        className={cn(
+          "inline-flex items-center gap-1.5",
+          verdictClass(hy.verdict),
+        )}
+      >
+        <span className="tabular-nums text-foreground">{house}</span>
+        <span
+          className={cn(
+            "inline-block h-2 w-2 rounded-full",
+            verdictDot(hy.verdict),
+          )}
+          aria-hidden
+        />
+        {YEAR_LABEL[hy.verdict]}
+      </div>
+      <div className="text-2xs">
+        <span className={agreeClass(a)}>{AGREE_LABEL[a]}</span>
+        {fits && <span className="text-muted-foreground"> · matter house</span>}
+      </div>
+    </TableCell>
   );
 }

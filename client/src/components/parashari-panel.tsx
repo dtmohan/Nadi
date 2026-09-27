@@ -91,6 +91,7 @@ import { computeChalit } from "@shared/chalit";
 import { ChalitSection } from "@/components/chalit";
 import { computeSudarshana } from "@shared/sudarshana";
 import { SudarshanaSection } from "@/components/sudarshana";
+import { compareSudarshanaEvents } from "@shared/sudarshana-events";
 import { computePortions } from "@shared/portions";
 import { PortionsSection } from "@/components/portions";
 import { SouthIndianChart } from "@/components/south-indian-chart";
@@ -277,6 +278,11 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         aspectFloor,
       ),
     [positions, r, result.utc, asOfIso, aspectFloor],
+  );
+  const sudarshanaEvents = useMemo(
+    () =>
+      compareSudarshanaEvents(sudarshana, chart.events ?? [], chart.timezone),
+    [sudarshana, chart.events, chart.timezone],
   );
   const plain = usePlain();
   const [balaOpen, setBalaOpen] = useState<string | null>(null);
@@ -914,7 +920,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         label="Show the three-ring wheel and its year-by-year turn (Sudarshana chakra)"
         className="mt-8"
       >
-        <SudarshanaSection s={sudarshana} />
+        <SudarshanaSection s={sudarshana} events={sudarshanaEvents} />
       </Working>
       <AvTimelineSection
         tl={avTimeline}
