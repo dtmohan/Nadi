@@ -29,13 +29,18 @@
  * Nothing here is stored; the caller sends the chart and the events with each request.
  */
 import { displayLocal } from "@shared/time-basis";
+import { seeded } from "./validate";
+import type {
+  RectifyBaselineStat,
+  RectifySegmentBaseline,
+} from "@shared/rectify-types";
 import { DateTime } from "luxon";
 import { norm360, type Planet } from "@shared/astro";
 import {
   kpPoint,
   houseOf,
   computeSignificators,
-  vimshottari,
+  vimshottariLordsAt,
   rulingPlanets,
   NODES_KP,
   type KpCusp,
@@ -251,6 +256,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
   >();
   // The marks check is whole-drekkana: one computation per rising drekkana (0-35).
   const marksByDrekkana = new Map<number, BodyMarksResult>();
+  // Jaimini dasha fit depends only on the rising sign, the area and the date; memoised across intervals and trials.
+  const jaiminiFitCache = new Map<string, RectifyEventCheck["jaimini"]>();
   const utc0 = birth.utc;
   const jd0 = julianDay(utc0);
   const w = windowMinutes / 1440;
@@ -289,6 +296,41 @@ export function rectify(req: RectifyRequest): RectifyResult {
       opts,
     );
   });
+
+  // Shuffled-date trials for the baseline: the same events at random dates within the span they cover, with the
+  // planetary positions of each trial date computed once and shared by every interval.
+  const evMillis = req.events
+    .map((e) => DateTime.fromISO(e.date, { zone: "utc" }).toMillis())
+    .filter((m) => Number.isFinite(m));
+  const spanLo = Math.min(...evMillis);
+  const spanHi = Math.max(...evMillis);
+  const baselineOn =
+    req.events.length >= 2 && spanHi - spanLo >= 365 * 86400000;
+  const trials = baselineOn ? BASELINE_TRIALS : 0;
+  const rnd = seeded(
+    req.events.reduce(
+      (acc, e) => acc + e.date.length * 31 + e.label.length,
+      req.events.length,
+    ),
+  );
+  const trialDates: string[][] = [];
+  const trialPositions: (ReturnType<typeof positionsAt> | null)[][] = [];
+  for (let t = 0; t < trials; t++) {
+    const dates = req.events.map(() =>
+      DateTime.fromMillis(spanLo + Math.floor(rnd() * (spanHi - spanLo)), {
+        zone: "utc",
+      }).toISODate()!,
+    );
+    trialDates.push(dates);
+    trialPositions.push(
+      dates.map((d) => {
+        const dt = DateTime.fromISO(d, { zone });
+        return dt.isValid
+          ? positionsAt(julianDay(dt.set({ hour: 12 }).toUTC()), opts)
+          : null;
+      }),
+    );
+  }
 
   // Scan the window and locate every change of the lagna's sign, star or sub lord to the second, and every change of
   // the rising drekkana in the chart's own ayanamsa (the Brihat Jataka marks check reads by drekkana).
@@ -389,19 +431,18 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const wSub = weightOf(lagna.subLord, "sub");
     const rpScore = wSign + wStar + 2 * wSub;
 
-    const events: RectifyEventCheck[] = req.events.map((e, ei) => {
-      const evDt = DateTime.fromISO(e.date, { zone });
+    const checkEvent = (
+      e: RectifyRequest["events"][number],
+      dateIso: string,
+      evPositions: ReturnType<typeof positionsAt> | null,
+    ): RectifyEventCheck => {
+      const evDt = DateTime.fromISO(dateIso, { zone });
       const houses = e.houses.filter((h) => h >= 1 && h <= 12);
-      const v = vimshottari(
+      const lords = vimshottariLordsAt(
         moon.lon,
         birthIso,
         evDt.isValid ? evDt.toUTC().toISO()! : birthIso,
       );
-      const lords: [Planet, Planet, Planet] = [
-        v.current.dasa.lord,
-        v.current.bhukti.lord,
-        v.current.antara.lord,
-      ];
       const signified = lords.map((l) =>
         (sig.get(l) ?? []).filter((h) => houses.includes(h)),
       ) as [number[], number[], number[]];
@@ -419,7 +460,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       const score = hits.filter(Boolean).length + (promised ? 1 : 0);
       const max = 3 + (e.cusp ? 1 : 0);
       const transitOf = (planet: Planet): TransitCheck => {
-        const pos = eventPositions[ei]?.find((p) => p.planet === planet);
+        const pos = evPositions?.find((p) => p.planet === planet);
         const lon = pos?.lon ?? 0;
         const pt = kpPoint(lon);
         const signifies = (p: Planet) =>
@@ -440,18 +481,24 @@ export function rectify(req: RectifyRequest): RectifyResult {
       const tDasa = transitOf(lords[0]);
       const tBhukti = transitOf(lords[1]);
       const tScore = [...tDasa.hits, ...tBhukti.hits].filter(Boolean).length;
-      const jaimini =
-        e.area && evDt.isValid
-          ? dashaFitAt(
+      let jaimini: RectifyEventCheck["jaimini"] = null;
+      if (e.area && evDt.isValid) {
+        const key = `${jSign}|${e.area}|${dateIso}`;
+        if (!jaiminiFitCache.has(key))
+          jaiminiFitCache.set(
+            key,
+            dashaFitAt(
               jai.j,
               jai.positions,
               e.area,
               evDt.set({ hour: 12 }).toUTC().toISO()!,
-            )
-          : null;
+            ),
+          );
+        jaimini = jaiminiFitCache.get(key)!;
+      }
       return {
         label: e.label,
-        date: e.date,
+        date: dateIso,
         houses,
         dasa: lords[0],
         bhukti: lords[1],
@@ -465,7 +512,48 @@ export function rectify(req: RectifyRequest): RectifyResult {
         transit: { dasa: tDasa, bhukti: tBhukti, score: tScore, max: 6 },
         jaimini,
       };
-    });
+    };
+    const events: RectifyEventCheck[] = req.events.map((e, ei) =>
+      checkEvent(e, e.date, eventPositions[ei]),
+    );
+
+    // Baseline: the same interval scored at the shuffled dates.
+    let baseline: RectifySegmentBaseline | undefined;
+    if (trials > 0) {
+      const sums = {
+        kpEvents: [] as number[],
+        transit: [] as number[],
+        jaimini: [] as number[],
+      };
+      for (let t = 0; t < trials; t++) {
+        let k = 0,
+          tr = 0,
+          ja = 0;
+        req.events.forEach((e, ei) => {
+          const c = checkEvent(e, trialDates[t][ei], trialPositions[t][ei]);
+          k += c.score;
+          tr += c.transit.score;
+          ja += c.jaimini?.score ?? 0;
+        });
+        sums.kpEvents.push(k);
+        sums.transit.push(tr);
+        sums.jaimini.push(ja);
+      }
+      baseline = {
+        kpEvents: baselineStat(
+          sums.kpEvents,
+          events.reduce((a, e) => a + e.score, 0),
+        ),
+        transit: baselineStat(
+          sums.transit,
+          events.reduce((a, e) => a + e.transit.score, 0),
+        ),
+        jaimini: baselineStat(
+          sums.jaimini,
+          events.reduce((a, e) => a + (e.jaimini?.score ?? 0), 0),
+        ),
+      };
+    }
 
     const evScore = events.reduce((s, e) => s + e.score, 0);
     const evMax = events.reduce((s, e) => s + e.max, 0);
@@ -510,6 +598,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       score: rpScore + evScore,
       max: 4 + evMax,
       given: jd0 >= a && jd0 < b,
+      baseline,
     });
   }
 
@@ -532,5 +621,32 @@ export function rectify(req: RectifyRequest): RectifyResult {
     given: { time: local(jd0).toFormat("HH:mm:ss"), lagna: norm360(asc(jd0)) },
     segments,
     best,
+    baseline: baselineOn
+      ? {
+          trials,
+          span: [
+            DateTime.fromMillis(spanLo, { zone: "utc" }).toISODate()!,
+            DateTime.fromMillis(spanHi, { zone: "utc" }).toISODate()!,
+          ],
+        }
+      : null,
+  };
+}
+
+const BASELINE_TRIALS = 200;
+
+/** Mid-rank percentile of the real score among the shuffled trials, ties counted half. */
+function baselineStat(xs: number[], actual: number): RectifyBaselineStat {
+  const mean = xs.reduce((s, x) => s + x, 0) / xs.length;
+  const sd = Math.sqrt(xs.reduce((s, x) => s + (x - mean) ** 2, 0) / xs.length);
+  const below = xs.filter((x) => x < actual).length;
+  const equal = xs.filter((x) => x === actual).length;
+  const percentile = Math.round(((below + equal / 2) / xs.length) * 100);
+  return {
+    actual,
+    mean: Math.round(mean * 10) / 10,
+    sd: Math.round(sd * 10) / 10,
+    percentile,
+    verdict: percentile >= 95 ? "above" : percentile <= 5 ? "below" : "chance",
   };
 }

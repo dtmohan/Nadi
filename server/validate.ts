@@ -450,7 +450,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
 }
 
 /** Deterministic generator so the baseline is reproducible for a given chart (mulberry32). */
-function seeded(seed: number): () => number {
+export function seeded(seed: number): () => number {
   let a = seed >>> 0;
   return () => {
     a = (a + 0x6d2b79f5) >>> 0;

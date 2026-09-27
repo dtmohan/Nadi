@@ -5,6 +5,7 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, fmtDegShort, type Planet } from "@shared/astro";
 import type {
+  RectifyBaselineStat,
   RectifyResult,
   RectifySegment,
   RectifyEvent,
@@ -199,6 +200,46 @@ function methodScore(
       max: acc.max + e.transit.max,
     }),
     { score: s.sunHint.score, max: s.sunHint.max },
+  );
+}
+
+/** The shuffled-date baseline of one interval under an event method, if the server computed one. */
+function baselineFor(
+  s: RectifySegment,
+  m: RectifyMethod,
+): RectifyBaselineStat | undefined {
+  if (m === "kp-events") return s.baseline?.kpEvents;
+  if (m === "kp-transit") return s.baseline?.transit;
+  if (m === "jaimini-dasha") return s.baseline?.jaimini;
+  return undefined;
+}
+
+const EVENT_METHODS: RectifyMethod[] = [
+  "kp-events",
+  "kp-transit",
+  "jaimini-dasha",
+];
+
+/** Excess over chance and percentile, coloured only when the interval clears the 95th or falls under the 5th. */
+function VsChance({ b }: { b: RectifyBaselineStat | undefined }) {
+  if (!b) return <span className="text-muted-foreground">—</span>;
+  const excess = b.actual - b.mean;
+  return (
+    <span
+      className={cn(
+        "tabular text-xs",
+        b.verdict === "above"
+          ? "text-verdict-good"
+          : b.verdict === "below"
+            ? "text-verdict-bad"
+            : "text-muted-foreground",
+      )}
+      title={`${b.actual} against a shuffled-date mean of ${b.mean} (sd ${b.sd}); ${b.percentile}th percentile`}
+      data-testid="rectify-vs-chance"
+    >
+      {excess >= 0 ? "+" : "−"}
+      {Math.abs(excess).toFixed(1)} · {b.percentile}th
+    </span>
   );
 }
 
@@ -405,26 +446,55 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
   const scored = useMemo(
     () =>
       data
-        ? data.segments.map((s, i) => ({
-            s,
-            i,
-            ...methodScore(s, method, marksCtx),
-          }))
+        ? data.segments.map((s, i) => {
+            const b = baselineFor(s, method);
+            return {
+              s,
+              i,
+              ...methodScore(s, method, marksCtx),
+              b,
+              excess: b ? b.actual - b.mean : undefined,
+            };
+          })
         : [],
     [data, method, marksCtx],
   );
+  // With a baseline the ranking is by excess over chance, and only intervals at or above the 95th percentile
+  // count as singled out; without one it is the raw score.
+  const baselined =
+    EVENT_METHODS.includes(method) && scored.some((r) => r.b !== undefined);
   const top = scored.reduce((t, r) => Math.max(t, r.score), 0);
+  const topExcess = scored.reduce(
+    (t, r) => Math.max(t, r.excess ?? -Infinity),
+    -Infinity,
+  );
   const bestSet = useMemo(
     () =>
-      new Set(scored.filter((r) => r.score === top && top > 0).map((r) => r.i)),
-    [scored, top],
+      baselined
+        ? new Set(
+            scored
+              .filter(
+                (r) =>
+                  r.b?.verdict === "above" &&
+                  Math.abs((r.excess ?? 0) - topExcess) < 1e-9,
+              )
+              .map((r) => r.i),
+          )
+        : new Set(
+            scored.filter((r) => r.score === top && top > 0).map((r) => r.i),
+          ),
+    [scored, top, topExcess, baselined],
   );
   const segments = useMemo(
     () =>
       sortByScore
-        ? [...scored].sort((a, b) => b.score - a.score || a.i - b.i)
+        ? [...scored].sort((a, b) =>
+            baselined
+              ? (b.excess ?? 0) - (a.excess ?? 0) || a.i - b.i
+              : b.score - a.score || a.i - b.i,
+          )
         : scored,
-    [scored, sortByScore],
+    [scored, sortByScore, baselined],
   );
   const maxOf = scored[0]?.max ?? 0;
 
@@ -493,6 +563,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
       max: number;
       given: boolean;
       nearest: number | null;
+      b?: RectifyBaselineStat;
     }> = [];
     data.segments.forEach((s, i) => {
       const g = groups[groups.length - 1];
@@ -509,6 +580,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
           max: sc.max,
           given: s.given,
           nearest: null,
+          b: s.baseline?.jaimini,
         });
       }
     });
@@ -519,6 +591,16 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
     }
     return groups;
   }, [data]);
+  const groupBaselined = signGroups.some((g) => g.b !== undefined);
+  const groupTopExcess = signGroups.reduce(
+    (t, g) => Math.max(t, g.b ? g.b.actual - g.b.mean : -Infinity),
+    -Infinity,
+  );
+  const groupBest = (g: { score: number; b?: RectifyBaselineStat }) =>
+    groupBaselined
+      ? g.b?.verdict === "above" &&
+        Math.abs(g.b.actual - g.b.mean - groupTopExcess) < 1e-9
+      : g.score === groupTop && groupTop > 0;
   const groupTop = signGroups.reduce((t, g) => Math.max(t, g.score), 0);
   // Brihat Jataka marks: rows are rising drekkanas, since every interval in one drekkana reads alike.
   const drekkanaGroups = useMemo(() => {
@@ -576,9 +658,14 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
   const sortedGroups = useMemo(
     () =>
       sortByScore
-        ? [...signGroups].sort((a, b) => b.score - a.score || a.first - b.first)
+        ? [...signGroups].sort((a, b) =>
+            groupBaselined
+              ? (b.b ? b.b.actual - b.b.mean : 0) -
+                  (a.b ? a.b.actual - a.b.mean : 0) || a.first - b.first
+              : b.score - a.score || a.first - b.first,
+          )
         : signGroups,
-    [signGroups, sortByScore],
+    [signGroups, sortByScore, groupBaselined],
   );
   const missingEvents = m.needsEvents && eventPayload.length === 0;
   const givenIndex = data?.segments.findIndex((s) => s.given) ?? -1;
@@ -907,7 +994,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                 ? `${signGroups.length} rising ${signGroups.length === 1 ? "sign" : "signs"} in ± ${data.windowMinutes} min · ${plain ? "Jaimini sign periods" : "Jaimini chara dasha"} · best score ${groupTop} of ${signGroups[0]?.max ?? 0}`
                 : method === "bj-marks"
                   ? `${drekkanaGroups.length} rising ${drekkanaGroups.length === 1 ? "drekkana" : "drekkanas"} in ± ${data.windowMinutes} min · Brihat Jataka marks · ${confirmedMarks.size ? `best ${drekkanaTop} confirmed` : "tick your marks above to score"}`
-                  : `${data.segments.length} ${plain ? "slices" : "intervals"} in ± ${data.windowMinutes} min · ${m.system} ${plain ? m.plainLabel.toLowerCase() : methodLabel(m)} · best score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}`}
+                  : `${data.segments.length} ${plain ? "slices" : "intervals"} in ± ${data.windowMinutes} min · ${m.system} ${plain ? m.plainLabel.toLowerCase() : methodLabel(m)} · best score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}${baselined ? ` · best over chance ${topExcess >= 0 ? "+" : "−"}${Math.abs(topExcess).toFixed(1)}` : ""}`}
             </span>
             <button
               type="button"
@@ -918,6 +1005,38 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
               {sortByScore ? "Sort by time" : "Sort by score"}
             </button>
           </div>
+          {EVENT_METHODS.includes(method) &&
+            eventPayload.length > 0 &&
+            (() => {
+              const isJ = method === "jaimini-dasha";
+              const on = isJ ? groupBaselined : baselined;
+              const above = isJ
+                ? signGroups.filter((g) => g.b?.verdict === "above").length
+                : scored.filter((r) => r.b?.verdict === "above").length;
+              const unit = isJ ? "rising sign" : plain ? "slice" : "interval";
+              const units = isJ
+                ? "rising signs"
+                : plain
+                  ? "slices"
+                  : "intervals";
+              return (
+                <p
+                  className={cn(
+                    "mt-2 rounded border px-3 py-1.5 text-xs",
+                    on && above === 0
+                      ? "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200"
+                      : "border-border/60 bg-muted/30 text-muted-foreground",
+                  )}
+                  data-testid="rectify-baseline-note"
+                >
+                  {!on
+                    ? "No chance baseline: it needs at least two dated events at least a year apart."
+                    : above === 0
+                      ? `None of these ${units} beats its own chance level. Each was scored again at ${data.baseline?.trials ?? 200} shuffled dates drawn from ${data.baseline?.span[0].slice(0, 4)}–${data.baseline?.span[1].slice(0, 4)}, and no real score reaches the 95th percentile of its own trials. These events do not single out a birth time in this window; the raw scores mostly measure how many houses each ${isJ ? "sign" : "sub lord"} signifies whatever the dates.`
+                      : `${above} ${above === 1 ? unit : units} ${above === 1 ? "beats" : "beat"} chance at the 95th percentile of ${data.baseline?.trials ?? 200} shuffled-date trials; the ranking and the highlighted row go by excess over chance, not by raw score.`}
+                </p>
+              );
+            })()}
 
           {(method === "kp-events" || method === "jaimini-dasha") &&
             focus &&
@@ -1120,6 +1239,11 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                       </TableHead>
                     ))}
                     <TableHead className="whitespace-nowrap">Score</TableHead>
+                    {groupBaselined && (
+                      <TableHead className="whitespace-nowrap">
+                        {plain ? "Beats chance by" : "vs chance"}
+                      </TableHead>
+                    )}
                     <TableHead />
                   </TableRow>
                 </TableHeader>
@@ -1127,7 +1251,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                   {sortedGroups.map((g) => {
                     const first = data.segments[g.first];
                     const last = data.segments[g.last];
-                    const best = g.score === groupTop && groupTop > 0;
+                    const best = groupBest(g);
                     return (
                       <TableRow
                         key={g.first}
@@ -1225,6 +1349,11 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                         <TableCell className="whitespace-nowrap">
                           <ScoreBar score={g.score} max={g.max} />
                         </TableCell>
+                        {groupBaselined && (
+                          <TableCell className="whitespace-nowrap">
+                            <VsChance b={g.b} />
+                          </TableCell>
+                        )}
                         <TableCell className="whitespace-nowrap text-right">
                           {g.given ? (
                             <span className="text-muted-foreground">
@@ -1331,11 +1460,16 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                         </TableHead>
                       ))}
                     <TableHead className="whitespace-nowrap">Score</TableHead>
+                    {baselined && (
+                      <TableHead className="whitespace-nowrap">
+                        {plain ? "Beats chance by" : "vs chance"}
+                      </TableHead>
+                    )}
                     <TableHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {segments.map(({ s, i, score, max }) => {
+                  {segments.map(({ s, i, score, max, b }) => {
                     const best = bestSet.has(i);
                     return (
                       <TableRow
@@ -1607,6 +1741,11 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                         <TableCell className="whitespace-nowrap">
                           <ScoreBar score={score} max={max} />
                         </TableCell>
+                        {baselined && (
+                          <TableCell className="whitespace-nowrap">
+                            <VsChance b={b} />
+                          </TableCell>
+                        )}
                         <TableCell className="whitespace-nowrap text-right">
                           <button
                             type="button"

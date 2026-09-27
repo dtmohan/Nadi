@@ -1033,7 +1033,14 @@ function KpMethod() {
           and antara lords must be significators of the houses of that matter
           and the cusp concerned must promise it through its sub lord (Part 1
           pp. 167-172; Part 2 p. 203). The events are chosen from a list of
-          matters with their KP houses.
+          matters with their KP houses. A sub lord that signifies many houses
+          scores well whatever the dates, so every interval is scored again at
+          200 shuffled dates drawn from the span the events cover (the same
+          seeded procedure as the Validate tab), the ranking goes by excess over
+          that chance level, and an interval is singled out only at the 95th
+          percentile of its own trials. When none reaches it the tab says so
+          rather than naming a time. The transit and Jaimini methods carry the
+          same baseline.
         </li>
         <li>
           KP, transits: the sub the Sun transits on the day one works points to

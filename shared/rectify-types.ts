@@ -148,6 +148,27 @@ export interface RectifySegment {
   max: number;
   /** True when the recorded birth time falls in this interval. */
   given: boolean;
+  /**
+   * The same event scores for this interval at shuffled dates (RectifyResult.baseline.trials random dates drawn
+   * from the span the real events cover). A sub lord that signifies many houses scores well whatever the dates;
+   * the percentile shows how much of the interval's score is that bias and how much is the dates.
+   */
+  baseline?: RectifySegmentBaseline;
+}
+
+export interface RectifyBaselineStat {
+  actual: number;
+  mean: number;
+  sd: number;
+  /** Mid-rank percentile of the real score among the shuffled trials, 0-100. */
+  percentile: number;
+  verdict: "above" | "chance" | "below";
+}
+
+export interface RectifySegmentBaseline {
+  kpEvents: RectifyBaselineStat;
+  transit: RectifyBaselineStat;
+  jaimini: RectifyBaselineStat;
 }
 
 export interface RectifyResult {
@@ -167,4 +188,6 @@ export interface RectifyResult {
   given: { time: string; lagna: number };
   segments: RectifySegment[];
   best: number[];
+  /** Shuffled-date baseline behind RectifySegment.baseline; null when there are too few events or too short a span. */
+  baseline: { trials: number; span: [string, string] } | null;
 }
