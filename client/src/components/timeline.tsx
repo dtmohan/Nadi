@@ -344,8 +344,10 @@ export function BnnLifeTimeline({
   asOfIso,
   events,
   zone,
+  deathIso,
   className,
 }: {
+  deathIso?: string | null;
   transits: TransitPeriod[];
   positions: PlanetPosition[];
   findings: Finding[];
@@ -417,6 +419,7 @@ export function BnnLifeTimeline({
         testid="bnn-timeline"
         birthIso={birthIso}
         asOfIso={asOfIso}
+        deathIso={deathIso}
         bands={tlBands}
         windows={tlWindows}
         windowsLabel="Jeeva"

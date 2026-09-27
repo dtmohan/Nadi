@@ -51,6 +51,7 @@ import {
   seasonStart,
   STAGE_LABEL,
   type AreaSeason,
+  lifeAsOf,
 } from "@shared/life-stage";
 import {
   LIFE_AREAS,
@@ -777,11 +778,12 @@ function BnnVerdict({ result }: { result: ChartResult }) {
     [reading, gender],
   );
   const asOf = now.asOf.slice(0, 10);
-  const age = ageYears(result.utc, now.asOf);
+  const lifeAt = lifeAsOf(result.chart, now.asOf);
+  const age = ageYears(result.utc, lifeAt);
   const stage = lifeStage(age);
   const deferred = allAreas
     .map((a) => a.area)
-    .filter((a) => !areaSeason(a, result.utc, now.asOf).inSeason);
+    .filter((a) => !areaSeason(a, result.utc, lifeAt).inSeason);
   // Areas not yet in season are held back from the verdict; a child is not told about marriage.
   const areas = allAreas.filter((a) => !deferred.includes(a.area));
 
@@ -1776,6 +1778,7 @@ export default function ChartPage() {
             birthIso={data.utc}
             roles={data.reading.roles}
             asOfIso={data.now.asOf}
+            deathIso={data.chart.deathDate}
             events={data.chart.events}
             zone={data.chart.timezone}
           />

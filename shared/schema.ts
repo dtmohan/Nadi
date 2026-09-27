@@ -26,6 +26,8 @@ export const charts = sqliteTable("charts", {
   ayanamsa: text("ayanamsa").notNull().default("lahiri"),
   nodeType: text("node_type").notNull().default("mean"),
   notes: text("notes").notNull().default(""),
+  /** Optional date of passing (YYYY-MM-DD). Fixes the age the readings use and lets the lifespan methods be tested on the deceased; never used to compute or display a forecast. */
+  deathDate: text("death_date"),
   /** Remembered life events (matter, date, outcome, note), kept beside the birth data. */
   events: text("events", { mode: "json" }).$type<ChartEvent[]>().notNull().default([]),
 });

@@ -27,6 +27,7 @@ import {
   seasonStart,
   HOUSE_AREA,
   KP_EVENT_AREA,
+  lifeAsOf,
 } from "@shared/life-stage";
 import {
   scoreWindows,
@@ -648,7 +649,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
     Array.from(a)
       .filter((h) => b.has(h) === both)
       .sort((x, y) => x - y);
-  const age = ageYears(result.utc, asOfIso);
+  const age = ageYears(result.utc, lifeAsOf(result.chart, asOfIso));
   const heldHouses = Object.entries(HOUSE_AREA)
     .filter(([, area]) => !areaSeason(area, result.utc, asOfIso).inSeason)
     .map(([h]) => Number(h));
@@ -1470,6 +1471,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
           className="mt-3"
           testid="kp-timeline"
           birthIso={result.utc}
+          deathIso={result.chart.deathDate}
           asOfIso={asOfIso}
           bands={tlBands}
           windows={tlWindows}

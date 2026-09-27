@@ -157,6 +157,7 @@ function normalise(data: InsertChart): Omit<Chart, "id"> {
     ayanamsa: data.ayanamsa ?? "lahiri",
     nodeType: data.nodeType ?? "mean",
     notes: data.notes ?? "",
+    deathDate: /^\d{4}-\d{2}-\d{2}$/.test(data.deathDate ?? "") ? data.deathDate! : null,
     events: sanitiseEvents(data.events),
   };
 }

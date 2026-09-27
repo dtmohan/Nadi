@@ -1,6 +1,8 @@
 import { SlidersHorizontal } from "lucide-react";
 import type { TimeBasis } from "@shared/time-basis";
 import type { Chart } from "@shared/schema";
+import { chartsStore, CHARTS_QUERY_KEY } from "@/lib/charts-store";
+import { queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -84,6 +86,33 @@ export function ChartSettings({
             {fmtCoord(chart.longitude, "E", "W")}
           </dd>
         </dl>
+        <div className="mt-3 border-t pt-3">
+          <label
+            className="text-xs text-muted-foreground"
+            htmlFor="settings-death-date"
+            title="Optional. Fixes the age the readings use and lets the lifespan methods be checked against a life that has run its course. Never used to compute or show a forecast."
+          >
+            Date of passing (optional)
+          </label>
+          <input
+            id="settings-death-date"
+            type="date"
+            className="tabular mt-1 block w-full rounded-md border bg-background px-2 py-1 text-xs"
+            value={chart.deathDate ?? ""}
+            min={chart.birthDate}
+            onChange={async (e) => {
+              const v = e.target.value || null;
+              await chartsStore.update(chart.id, { deathDate: v });
+              await queryClient.invalidateQueries({
+                queryKey: ["chart-result", String(chart.id)],
+              });
+              await queryClient.invalidateQueries({
+                queryKey: CHARTS_QUERY_KEY,
+              });
+            }}
+            data-testid="input-settings-death-date"
+          />
+        </div>
         <div className="mt-3 border-t pt-3">
           <p className="text-xs text-muted-foreground">Chart layout</p>
           <div

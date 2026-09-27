@@ -41,15 +41,38 @@ function ReductionNote({ list }: { list: Reduction[] }) {
   );
 }
 
+/** The span the methods cover, as whole years: Pindayu, Amsayu and any other estimate that parses as years. */
+function rangeAcross(
+  a: AyurdayaResult,
+  others?: { label: string; value: string }[],
+): string {
+  const ys = [a.pinda.total, a.amsa.total].filter((y) => isFinite(y));
+  for (const o of others ?? []) {
+    const m = o.value.match(/^(\d+)y/);
+    if (m) ys.push(Number(m[1]));
+    const r = o.value.match(/(\d+) to (\d+) years/);
+    if (r) ys.push(Number(r[1]), Number(r[2]));
+    const u = o.value.match(/up to about (\d+) years/);
+    if (u) ys.push(0, Number(u[1]));
+  }
+  if (!ys.length) return "—";
+  const lo = Math.floor(Math.min(...ys));
+  const hi = Math.ceil(Math.max(...ys));
+  return lo === hi ? `about ${lo} years` : `about ${lo} to ${hi} years`;
+}
+
 /** Span of life, Brihat Jataka adhyaya 7. */
 export function AyurdayaSection({
   a,
   ageYears,
+  deceased,
   otherEstimates,
 }: {
   a: AyurdayaResult;
   /** Age at the as-of date, in years, when the birth date is known. */
   ageYears?: number;
+  /** True when a date of passing is recorded: the age shown is the age at passing. */
+  deceased?: boolean;
   otherEstimates?: { label: string; value: string }[];
 }) {
   const src = a.sources;
@@ -101,6 +124,18 @@ export function AyurdayaSection({
         }
       />
 
+      <p className="mt-3 text-xs" data-testid="ayur-range">
+        <span className="text-muted-foreground">Across the methods </span>
+        <span className="font-medium tabular-nums">
+          {rangeAcross(a, otherEstimates)}
+        </span>
+        <span className="text-muted-foreground">
+          {" "}
+          · the figures below are the texts' arithmetic to the day; the methods
+          do not carry that precision, and the spread between them is the honest
+          statement.
+        </span>
+      </p>
       <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-xs">
         <div data-testid="ayur-total-pinda">
           <span className="text-muted-foreground">Pindayu </span>
@@ -126,7 +161,8 @@ export function AyurdayaSection({
         </div>
         {ageYears !== undefined && (
           <div className="text-muted-foreground" data-testid="ayur-age">
-            Present age {formatYears(ageYears)}
+            {deceased ? "Age at passing" : "Present age"} {Math.floor(ageYears)}{" "}
+            years
           </div>
         )}
         {otherEstimates?.map((o) => (

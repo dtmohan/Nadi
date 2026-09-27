@@ -39,6 +39,7 @@ import {
   areaSeason,
   lifeStage,
   STAGE_LABEL,
+  lifeAsOf,
 } from "@shared/life-stage";
 import {
   SignName,
@@ -87,7 +88,7 @@ function JaiminiVerdict({ result }: { result: ChartResult }) {
       (a) => a !== "children" && !areaSeason(a, result.utc, asOf).inSeason,
     );
   const areas = allAreas.filter((a) => !deferred.includes(a.area));
-  const age = ageYears(result.utc, asOf);
+  const age = ageYears(result.utc, lifeAsOf(result.chart, asOf));
   const ak = j.karakas[0];
   const dk = j.karakas.find((k) => k.karaka === "DK");
   const amk = j.karakas.find((k) => k.karaka === "AmK");
@@ -487,7 +488,12 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
 
   const al = j.arudhas[0];
   const ul = j.arudhas[11];
-  const ageYears = birth.isValid ? now.diff(birth, "years").years : null;
+  const ageYears = birth.isValid
+    ? DateTime.fromISO(lifeAsOf(result.chart, result.now.asOf)).diff(
+        birth,
+        "years",
+      ).years
+    : null;
   const rasiInfluence = (sign: number) => influencesOn(sign, positions);
   const dashaSignNotes = (p: CharaDashaPeriod) => {
     const notes: string[] = [];

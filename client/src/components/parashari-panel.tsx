@@ -1,3 +1,4 @@
+import { isDeceased, lifeAsOf } from "@shared/life-stage";
 import { GentleNote, Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
@@ -295,12 +296,13 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       ),
     [positions, result.jaimini.lagna.lon, r.shadbala, aspectFloor],
   );
+  const deceased = isDeceased(chart, asOfIso);
   const ageYears = useMemo(() => {
     const birth = DateTime.fromISO(result.utc);
-    const now = DateTime.fromISO(asOfIso);
+    const now = DateTime.fromISO(lifeAsOf(chart, asOfIso));
     if (!birth.isValid || !now.isValid) return undefined;
     return now.diff(birth, "years").years;
-  }, [result.utc, asOfIso]);
+  }, [result.utc, asOfIso, chart]);
   const balarishta = useMemo(
     () =>
       computeBalarishta(
@@ -1015,6 +1017,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 className="mt-3"
                 testid="parashari-timeline"
                 birthIso={result.utc}
+                deathIso={chart.deathDate}
                 asOfIso={asOfIso}
                 bands={tlBands}
                 windows={tlWindows}
@@ -1183,24 +1186,39 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       >
         <KarmajivaSection k={karmajiva} />
       </Working>
-      <Working
-        id="parashari-ayurdaya"
-        label="Show the span of life by planetary years (Brihat Jataka 7)"
-        className="mt-8"
-      >
-        <AyurdayaSection
-          a={ayurdaya}
-          ageYears={ageYears}
-          otherEstimates={ayurOthers}
-        />
-      </Working>
-      <Working
-        id="parashari-balarishta"
-        label="Show the classical checks on infancy (Brihat Jataka 6)"
-        className="mt-8"
-      >
-        <BalarishtaSection b={balarishta} ageYears={ageYears} />
-      </Working>
+      {/* Length-of-life and infancy checks: practitioner reading only, and never for a chart under 18. */}
+      {!plain && ageYears !== undefined && ageYears >= 18 ? (
+        <>
+          <Working
+            id="parashari-ayurdaya"
+            label="Show the span of life by planetary years (Brihat Jataka 7)"
+            className="mt-8"
+          >
+            <AyurdayaSection
+              a={ayurdaya}
+              ageYears={ageYears}
+              deceased={deceased}
+              otherEstimates={ayurOthers}
+            />
+          </Working>
+          <Working
+            id="parashari-balarishta"
+            label="Show the classical checks on infancy (Brihat Jataka 6)"
+            className="mt-8"
+          >
+            <BalarishtaSection b={balarishta} ageYears={ageYears} />
+          </Working>
+        </>
+      ) : (
+        <p
+          className="mt-8 text-xs text-muted-foreground"
+          data-testid="parashari-lifespan-gate"
+        >
+          {ageYears !== undefined && ageYears < 18
+            ? "The classical length-of-life and infancy checks (Brihat Jataka 6-7) are not shown for a chart under eighteen."
+            : "The classical length-of-life and infancy checks (Brihat Jataka 6-7) are shown in the practitioner reading only."}
+        </p>
+      )}
       <Working
         id="parashari-bj-cross"
         label="Show the cross-check of the ground rules with Brihat Jataka 1-2"

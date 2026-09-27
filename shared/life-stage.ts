@@ -16,6 +16,25 @@ export function ageYears(birthIso: string, asOfIso: string): number {
   return (Date.parse(asOfIso) - Date.parse(birthIso)) / (365.25 * 86400e3);
 }
 
+/** The instant the life readings are read at: the date of passing when one is recorded and already past, else `asOfIso`. */
+export function lifeAsOf(
+  chart: { deathDate?: string | null },
+  asOfIso: string,
+): string {
+  const d = chart.deathDate;
+  if (!d || !/^\d{4}-\d{2}-\d{2}$/.test(d)) return asOfIso;
+  const death = `${d}T12:00:00.000Z`;
+  return Date.parse(death) < Date.parse(asOfIso) ? death : asOfIso;
+}
+
+/** True when a date of passing is recorded and already past. */
+export function isDeceased(
+  chart: { deathDate?: string | null },
+  asOfIso: string,
+): boolean {
+  return lifeAsOf(chart, asOfIso) !== asOfIso;
+}
+
 /** ISO date at which the native turns `years`. */
 export function dateAtAge(birthIso: string, years: number): string {
   return new Date(Date.parse(birthIso) + years * 365.25 * 86400e3)

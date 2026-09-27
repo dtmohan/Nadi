@@ -99,11 +99,14 @@ export function LifeTimeline({
   marksLabel = "Events",
   defaultRange = "life",
   horizonYears = 100,
+  deathIso,
   testid,
   className,
 }: {
   birthIso: string;
   asOfIso: string;
+  /** Date of passing, when recorded: the readout then counts years since birth instead of an age. */
+  deathIso?: string | null;
   bands: TlBand[];
   marks?: TlMark[];
   windows?: TlWindow[];
@@ -710,7 +713,9 @@ export function LifeTimeline({
           {hoverT === null ? "Today" : fmtDay(readT)}
           <span className="text-muted-foreground">
             {" "}
-            · age {Math.floor(readout.age)}
+            {deathIso && readT > ms(deathIso)
+              ? `· ${Math.floor(readout.age)} years since birth · passed at ${Math.floor((ms(deathIso) - birth) / YEAR_MS)}`
+              : `· age ${Math.floor(readout.age)}`}
           </span>
         </span>
         {readout.lines.map(({ band, seg }) => (

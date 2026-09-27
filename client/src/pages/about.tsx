@@ -511,7 +511,16 @@ export default function AboutPage() {
               with the same note: they are checks of the text against the chart,
               never a forecast of an event or its date, and the app never
               computes or displays a time of death. Rules that hold are marked
-              in amber as cautions, not in red.
+              in amber as cautions, not in red. The two Brihat Jataka blocks on
+              length of life (ch. 7) and infancy (ch. 6) go further: they appear
+              in the practitioner reading only and never for a chart under
+              eighteen, and the Ayurdaya block leads with the spread across
+              methods in whole years, since the texts' day-level arithmetic
+              carries no such precision. An optional date of passing can be
+              recorded on the form or in the chart settings; it fixes the age
+              the readings use and lets the lifespan methods be checked against
+              lives that have run their course, and is never used to compute or
+              show a forecast.
             </p>
             <h2>Where your charts live</h2>
             <p>

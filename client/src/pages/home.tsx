@@ -50,6 +50,7 @@ const EMPTY: InsertChart = {
   ayanamsa: "lahiri",
   nodeType: "mean",
   notes: "",
+  deathDate: null,
   events: [],
 };
 
@@ -397,6 +398,26 @@ export default function Home() {
                   data-testid="input-time"
                 />
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="death-date"
+                title="Optional. Fixes the age the readings use and lets the lifespan methods be checked against a life that has run its course. Never used to compute or show a forecast."
+              >
+                Date of passing{" "}
+                <span className="font-normal text-muted-foreground">
+                  (optional)
+                </span>
+              </Label>
+              <Input
+                id="death-date"
+                type="date"
+                value={form.deathDate ?? ""}
+                min={form.birthDate || undefined}
+                onChange={(e) => set("deathDate", e.target.value || null)}
+                className="tabular sm:w-1/2"
+                data-testid="input-death-date"
+              />
             </div>
 
             <div className="space-y-1.5">
