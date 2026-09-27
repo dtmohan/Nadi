@@ -76,7 +76,7 @@ export function neechaBhanga(
   const mutual = dispositor !== exaltationLord && KENDRA.includes(houseFrom(pos(dispositor).signIndex, pos(exaltationLord).signIndex));
   add("mutual-kendra", mutual, `${dispositor} and ${exaltationLord} ${mutual ? "stand in mutual angles" : "are not in mutual angles"}`, "Phaladeepika 7.27");
   const q = dispositor !== planet ? aspect(dispositor, pos(dispositor).signIndex, p.signIndex) : 0;
-  add("dispositor-aspect", q >= 2, `${dispositor} ${q >= 2 ? `aspects ${planet} (${q === 4 ? "full" : "half or three-quarter"} sign aspect)` : q > 0 ? `casts only a quarter aspect on ${planet}, not counted` : `does not aspect ${planet}`}`, "Phaladeepika 7.28");
+  add("dispositor-aspect", q >= 2, `${dispositor} ${q >= 2 ? `aspects ${planet} (${q === 4 ? "full" : "half or three-quarter"} sign aspect)` : q > 0 ? `casts only a quarter aspect on ${planet}, not counted` : `does not aspect ${planet} at the strength the rules count`}`, "Phaladeepika 7.28");
 
   // Later practice, provisional.
   const exchange = dispositor !== planet && SIGN_LORD[pos(dispositor).signIndex] === planet;
