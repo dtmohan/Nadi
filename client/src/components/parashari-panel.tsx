@@ -70,12 +70,7 @@ import {
   type ShadbalaResult,
   type PlanetShadbala,
 } from "@shared/shadbala";
-import {
-  BRIHAT_JATAKA_9_2_URL,
-  BRIHAT_JATAKA_ADYAR_URL,
-  type AshtakavargaResult,
-  type Bhinnashtaka,
-} from "@shared/ashtakavarga";
+import type { AshtakavargaResult, Bhinnashtaka } from "@shared/ashtakavarga";
 import {
   BHAVA_PHALA_CAVEATS,
   type BhavaPhala,
@@ -4304,18 +4299,14 @@ function AshtakavargaSection({
             <Badge variant="outline" className="text-2xs">
               provisional
             </Badge>{" "}
-            <Cite href={BRIHAT_JATAKA_9_2_URL}>Brihat Jataka 9.2</Cite>{" "}
-            <Cite
-              href={BRIHAT_JATAKA_ADYAR_URL}
-              title="Adyar Library edition, Aiyangar 1951, p. 432"
-            >
-              Adyar ed. p. 432
-            </Cite>
+            <SourceLink source={av.sources.moonRowBrihatJataka} mark={false} />{" "}
+            <SourceLink source={av.sources.moonRowAdyar} mark={false} />
           </>
         ) : (
           <>
             The {av.saravali.label} gives the same totals for this chart.{" "}
-            <Cite href={BRIHAT_JATAKA_9_2_URL}>Brihat Jataka 9.2</Cite>
+            <SourceLink source={av.sources.moonRowBrihatJataka} mark={false} />{" "}
+            <SourceLink source={av.sources.moonRowAdyar} mark={false} />
           </>
         )}
       </p>

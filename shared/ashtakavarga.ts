@@ -288,6 +288,18 @@ export const ASHTAKAVARGA_SOURCES: Record<string, BalaSource> = {
   bands: S(72, "3-6"),
   wealth: S(72, "7-8"),
   thirds: S(72, "9-10"),
+  /** The Saravali / Brihat Jataka Moon row, as commonly printed (Raman's table). */
+  moonRowBrihatJataka: {
+    label: "Brihat Jataka 9.2 (wisdomlib text)",
+    url: BRIHAT_JATAKA_9_2_URL,
+    provisional: true,
+  },
+  /** Adyar Library edition of Brihat Jataka, Aiyangar 1951, chapters 1-10: the 2nd from Jupiter, agreeing with Parashara. */
+  moonRowAdyar: {
+    label: "Brihat Jataka 9.2, Adyar ed. 1951 p. 432",
+    url: BRIHAT_JATAKA_ADYAR_URL,
+    provisional: true,
+  },
 };
 
 export const SIGNIFICATIONS: Record<Seven, string> = {
