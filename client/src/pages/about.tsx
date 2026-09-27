@@ -433,6 +433,18 @@ export default function AboutPage() {
                 association or exchange cancels the reduction. The wide
                 Parashari orbs are not used.
               </li>
+              <li>
+                Ranking within an area is the app's choice, not a rule of the
+                texts: each finding is scored by the rule's weight, the Nadi
+                strength of the contact (same sign 1, trine 0.75, 12th 0.7, 2nd
+                0.65, 7th 0.5) and the planets' condition, and a three- or
+                four-planet combination carries a bonus large enough that it
+                leads the area over any two-planet rule it contains or competes
+                with, even with its third member in trine. A finding's tone
+                never affects its rank. Where a companion stands apart from the
+                subject, the finding says so after the text, since Rao's
+                "together" covers every Nadi contact.
+              </li>
             </ul>
             <h2>Timing by transit</h2>
             <p>
@@ -584,7 +596,16 @@ export default function AboutPage() {
               12th, the 8th sub lord on 1, 3, 10, 11 disarming the 8th, the 7th
               sub lord on the 6th denying marriage, and their kin). Poor
               agreement across several events is a hint about the birth time,
-              and the Rectify tab is the next step.
+              and the Rectify tab is the next step. Every score is also set
+              against chance: each matter is re-scored at 200 sets of shuffled
+              dates drawn from the span the events cover, and the percentile
+              says how many of those trials the real dates beat. Four or five
+              metrics are read together, so one of them clears the 95th
+              percentile by chance about one time in five; the tab therefore
+              treats a single metric as a signal only from the 99th percentile
+              (Bonferroni, 5% over the family) and says so on the line. One
+              chart, however well remembered, is one witness; it can embarrass a
+              birth time but cannot validate a method.
             </p>
             <h2>Sources</h2>
             <ul>

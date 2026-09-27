@@ -197,8 +197,13 @@ const RELATION_STRENGTH: Record<Relation, number> = {
   none: 0,
 };
 
-/** Score bonus per planet beyond the pair, so "Saturn, Mercury and Ketu" outranks "Saturn with Mercury" on the same contact. */
-const SPECIFICITY_BONUS = 0.15;
+/**
+ * Score bonus per planet beyond the pair, so "Saturn, Mercury and Ketu" outranks "Saturn with Mercury"
+ * on the same contact. Set so that a three-planet statement whose third member stands in trine
+ * (0.75) still outranks a two-planet rule of the same weight in the same sign (3 x 0.75 x 1.4 > 3):
+ * the more specific combination leads the area, whatever its tone. The figure is the app's choice.
+ */
+const SPECIFICITY_BONUS = 0.4;
 
 export const RELATION_LABEL: Record<Relation, string> = {
   conjunct: "conjunct",

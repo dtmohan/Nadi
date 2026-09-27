@@ -63,30 +63,43 @@ function BaselineLine({
     ...(hasJaimini ? [{ key: "jaimini", label: "Jaimini", s: b.jaimini }] : []),
     { key: "bnn", label: "Nadi", s: b.bnn },
   ];
-  const tone = (v: BaselineStat["verdict"]) =>
-    v === "above"
+  // Several metrics are read at once, so one of them clears the 95th by chance more often than one in twenty.
+  // Bonferroni: a single metric counts as a signal only from the (100 - 5/n)th percentile.
+  const n = cells.length;
+  const familyChance = Math.round((1 - Math.pow(0.95, n)) * 100);
+  const corrected = Math.ceil(100 - 5 / n);
+  const tone = (pct: number, v: BaselineStat["verdict"]) =>
+    pct >= corrected
       ? "text-verdict-good"
       : v === "below"
         ? "text-verdict-bad"
         : "text-muted-foreground";
+  const anyAbove = cells.some((c) => c.s.percentile >= corrected);
   return (
     <span
       className="basis-full text-muted-foreground"
       data-testid="validate-baseline"
-      title={`Each matter re-scored at ${b.trials} sets of random dates between ${b.span[0]} and ${b.span[1]}. The percentile is the share of those trials the real dates beat; 50 is pure chance, 95 or more is a real signal.`}
+      title={`Each matter re-scored at ${b.trials} sets of random dates between ${b.span[0]} and ${b.span[1]}. The percentile is the share of those trials the real dates beat; 50 is pure chance. With ${n} metrics read together, at least one reaches the 95th by chance about ${familyChance}% of the time, so a single metric is read as a signal only from the ${corrected}${ordinal(corrected)} percentile (Bonferroni, 5% over the family).`}
     >
       Against chance ({b.trials} random-date trials):{" "}
       {cells.map((c, i) => (
         <span key={c.key} data-testid={`validate-baseline-${c.key}`}>
           {i > 0 && " · "}
           {c.label}{" "}
-          <span className={cn("tabular", tone(c.s.verdict))}>
+          <span className={cn("tabular", tone(c.s.percentile, c.s.verdict))}>
             {c.s.percentile}
             {ordinal(c.s.percentile)}
           </span>
           <span className="tabular"> (chance {c.s.mean})</span>
         </span>
       ))}
+      <span className="block" data-testid="validate-baseline-family">
+        {n} metrics at once: one clears the 95th by chance about {familyChance}%
+        of the time, so a signal here needs the {corrected}
+        {ordinal(corrected)} percentile
+        {anyAbove ? "; reached" : "; none reaches it"}. One chart is one
+        witness, not a test of the method.
+      </span>
     </span>
   );
 }

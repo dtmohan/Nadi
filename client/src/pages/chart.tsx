@@ -575,14 +575,47 @@ function FindingItem({
             f.relation &&
             f.relation !== "conjunct" &&
             f.planets.length === 2 && (
-              <span
-                className="ml-1.5 text-xs text-muted-foreground"
-                data-testid={`finding-relation-${f.ruleId}`}
-              >
-                ({f.planets[1]} {RELATION_LABEL[f.relation]}
-                {f.viaRetro ? ", via retrogression" : ""})
-              </span>
+              <>
+                {" "}
+                <span
+                  className="text-xs text-muted-foreground"
+                  data-testid={`finding-relation-${f.ruleId}`}
+                >
+                  ({f.planets[1]} {RELATION_LABEL[f.relation]}
+                  {f.viaRetro ? ", via retrogression" : ""})
+                </span>
+              </>
             )}
+          {!full &&
+            f.planets.length >= 3 &&
+            (() => {
+              // "Together" in the rule text covers any Nadi contact; say which companions are not in the same sign.
+              const [subject, ...rest] = f.planets;
+              const apart = rest
+                .map((p) => ({
+                  p,
+                  r: relations.find(
+                    (x) => x.subject === subject && x.object === p,
+                  ),
+                }))
+                .filter((x) => x.r && x.r.relation !== "conjunct");
+              if (!apart.length) return null;
+              return (
+                <>
+                  {" "}
+                  <span
+                    className="text-xs text-muted-foreground"
+                    data-testid={`finding-relation-${f.ruleId}`}
+                  >
+                    (
+                    {apart
+                      .map((x) => `${x.p} ${RELATION_LABEL[x.r!.relation]}`)
+                      .join(", ")}
+                    )
+                  </span>
+                </>
+              );
+            })()}
           {!full && f.source && (
             <Cite
               className="ml-1.5"
