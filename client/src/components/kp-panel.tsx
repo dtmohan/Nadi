@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import { Fragment, useMemo, useState } from "react";
 import { Cite } from "@/components/source-link";
 import { useQuery } from "@tanstack/react-query";
@@ -1357,7 +1358,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                           <span className="mr-1.5 text-xs font-medium text-muted-foreground">
                             {f.topic}.
                           </span>
-                          {f.text}
+                          <Soft>{f.text}</Soft>
                           {f.timing && (
                             <span
                               className="ml-1.5 text-xs text-muted-foreground"
@@ -1420,7 +1421,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                           className="text-muted-foreground"
                           data-testid={`kp-finding-${f.ruleId}`}
                         >
-                          {f.text}
+                          <Soft>{f.text}</Soft>
                         </li>
                       ))}
                     </ul>

@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
@@ -394,7 +395,9 @@ function AreaCard({
               {shownNotes.map((n, i) => (
                 <li key={i} className="flex gap-2 leading-snug">
                   <ToneDot tone={n.tone} />
-                  <span>{n.text}</span>
+                  <span>
+                    <Soft>{n.text}</Soft>
+                  </span>
                 </li>
               ))}
             </ul>
@@ -421,7 +424,7 @@ function AreaCard({
                       className="leading-snug"
                       data-testid={`jarea-finding-${f.id}`}
                     >
-                      {f.text}{" "}
+                      <Soft>{f.text}</Soft>{" "}
                       <span className="text-xs text-muted-foreground">
                         <SourceLink source={f.source} />
                       </span>
@@ -476,7 +479,9 @@ function AreaCard({
                     {period.triggers.map((t, i) => (
                       <li key={i} className="flex gap-2 leading-snug">
                         <ToneDot tone={t.tone} />
-                        <span>{t.text}</span>
+                        <span>
+                          <Soft>{t.text}</Soft>
+                        </span>
                       </li>
                     ))}
                   </ul>
@@ -533,7 +538,9 @@ function AreaCard({
                               {w.triggers.map((t, i) => (
                                 <li key={i} className="flex gap-2 leading-snug">
                                   <ToneDot tone={t.tone} />
-                                  <span>{t.text}</span>
+                                  <span>
+                                    <Soft>{t.text}</Soft>
+                                  </span>
                                 </li>
                               ))}
                             </ul>

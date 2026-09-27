@@ -1,3 +1,4 @@
+import { GentleNote, Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
@@ -175,7 +176,9 @@ function Finding({ f }: { f: ParashariFinding }) {
           </Badge>
         )}
       </div>
-      <p className="mt-1 text-sm text-muted-foreground">{f.text}</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        <Soft>{f.text}</Soft>
+      </p>
       <p className="mt-1 text-xs text-muted-foreground">
         <SourceLink source={f.source} mark={false} />
       </p>
@@ -806,6 +809,9 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         )}
         {section === "evils" && (
           <div className="mt-3 grid gap-3 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <GentleNote testId="evils-gentle-note" />
+            </div>
             {evils.length ? (
               evils.map((f) => <Finding key={f.id} f={f} />)
             ) : (
@@ -815,7 +821,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               </p>
             )}
             <p className="text-xs text-muted-foreground md:col-span-2">
-              {[...EVIL_CAVEATS, ...CURSE_CAVEATS].join(" ")}
+              <Soft>{[...EVIL_CAVEATS, ...CURSE_CAVEATS].join(" ")}</Soft>
             </p>
           </div>
         )}
@@ -861,7 +867,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                       />
                     </TableCell>
                     <TableCell className="py-1.5 align-top text-xs text-muted-foreground">
-                      {HOUSE_MATTERS[j.house - 1].matters}
+                      <Soft>{HOUSE_MATTERS[j.house - 1].matters}</Soft>
                       {j.chalitNote && (
                         <div
                           className="mt-1 text-2xs text-verdict-mixed"
@@ -1010,7 +1016,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       </Working>
       <Working
         id="parashari-balarishta"
-        label="Show the infant-death combinations (Brihat Jataka 6)"
+        label="Show the classical checks on infancy (Brihat Jataka 6)"
         className="mt-8"
       >
         <BalarishtaSection b={balarishta} ageYears={ageYears} />
@@ -1250,7 +1256,7 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
       )}
       {k.dehaJiva.map((d, i) => (
         <p key={i} className="mt-2 text-sm" data-testid="kalachakra-deha-jiva">
-          {d.text} <SourceLink source={d.source} />
+          <Soft>{d.text}</Soft> <SourceLink source={d.source} />
         </p>
       ))}
       <Table className="mt-3" data-testid="kalachakra-periods" cards>
@@ -1333,8 +1339,8 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
                   )}
                   aria-label={rd.tone}
                 />
-                <span className="font-medium">{rd.label}.</span> {rd.text}{" "}
-                <SourceLink source={rd.source} />
+                <span className="font-medium">{rd.label}.</span>{" "}
+                <Soft>{rd.text}</Soft> <SourceLink source={rd.source} />
               </li>
             ))}
           </ul>
@@ -1402,7 +1408,9 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
                       <PlanetName planet={sp.byLord.lord} />
                       {k.chakra === "Savya" ? (
                         sp.byLord.text ? (
-                          <>: {sp.byLord.text}.</>
+                          <>
+                            : <Soft>{sp.byLord.text}</Soft>.
+                          </>
                         ) : (
                           <span className="text-muted-foreground">
                             : not given.
@@ -1555,7 +1563,7 @@ function PadasSection({ p }: { p: PadaResult }) {
                 {k.degInSign.toFixed(2)}
               </TableCell>
               <TableCell className="hidden sm:table-cell text-muted-foreground">
-                {k.matters}
+                <Soft>{k.matters}</Soft>
               </TableCell>
             </TableRow>
           ))}
@@ -1579,7 +1587,7 @@ function PadasSection({ p }: { p: PadaResult }) {
             {p.constants.map((c) => (
               <li key={c.matter}>
                 <span>
-                  {c.matter}: <PlanetName planet={c.planet} />
+                  <Soft>{c.matter}</Soft>: <PlanetName planet={c.planet} />
                   {c.house ? (
                     <span className="text-muted-foreground">
                       , read from its {ord(c.house)}
@@ -1810,7 +1818,8 @@ function PadasSection({ p }: { p: PadaResult }) {
               >
                 {ord(h.house)}
               </span>{" "}
-              {h.net.map((q) => PLANET_ABBR[q]).join(" ")} ({h.matter})
+              {h.net.map((q) => PLANET_ABBR[q]).join(" ")} (
+              <Soft>{h.matter}</Soft>)
             </span>
           ))}
           .{" "}
@@ -1890,15 +1899,16 @@ function MarakasSection({ m }: { m: MarakaResult }) {
         plain="Periods that strain health and vitality"
         technical="Maraka planets and periods (ch. 44)"
       />
+      <GentleNote testId="marakas-gentle-note" />
       <ModeText
         plain={
           <>
-            Parashara ranks the planets whose periods can bring the end of life.
-            He ties every one of them to the life span settled in chapter 43,
-            which this app does not judge, and adds that many strong marakas
-            give illness and misery in their periods rather than death. The list
-            below is therefore read as periods calling for care of health, never
-            as a term of life.
+            Parashara ranks the planets whose periods weigh most on health and
+            vitality. He ties every one of them to the life span settled in
+            chapter 43, which this app does not judge, and adds that many strong
+            marakas give illness and misery in their periods rather than the
+            gravest result. The list below is therefore read as periods calling
+            for care of health, never as a term of life.
           </>
         }
         practitioner={
@@ -1934,7 +1944,9 @@ function MarakasSection({ m }: { m: MarakaResult }) {
             {VERDICT_LABEL[m.current.tone]}
           </Badge>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">{m.current.text}</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          <Soft>{m.current.text}</Soft>
+        </p>
         <p className="mt-1 text-xs text-muted-foreground">
           <SourceLink
             source={{
@@ -1987,7 +1999,7 @@ function MarakasSection({ m }: { m: MarakaResult }) {
                   {e.reasons.map((r, i) => (
                     <span key={i}>
                       {i ? "; " : ""}
-                      {r.text}{" "}
+                      <Soft>{r.text}</Soft>{" "}
                       <span className="text-xs">
                         (44.{r.verse}
                         {r.provisional ? ", provisional" : ""})
@@ -2624,8 +2636,8 @@ function RasiPeriodDetail({ p, sel }: { p: RasiPeriod; sel: RasiDasa }) {
                 )}
                 aria-label={rd.tone}
               />
-              <span className="font-medium">{rd.label}.</span> {rd.text}{" "}
-              <SourceLink source={rd.source} />
+              <span className="font-medium">{rd.label}.</span>{" "}
+              <Soft>{rd.text}</Soft> <SourceLink source={rd.source} />
             </li>
           ))}
         </ul>
@@ -2693,7 +2705,8 @@ function RasiPeriodDetail({ p, sel }: { p: RasiPeriod; sel: RasiDasa }) {
                     )}
                     aria-label={n.tone}
                   />{" "}
-                  Running now: {n.text} <SourceLink source={n.source} />
+                  Running now: <Soft>{n.text}</Soft>{" "}
+                  <SourceLink source={n.source} />
                 </p>
               );
             })()}
@@ -3690,7 +3703,9 @@ function Note({ n }: { n: DasaNote }) {
       )}
       data-testid={`parashari-dasa-note-${n.id}`}
     >
-      <p className="text-sm text-muted-foreground">{n.text}</p>
+      <p className="text-sm text-muted-foreground">
+        <Soft>{n.text}</Soft>
+      </p>
       <p className="mt-0.5 text-xs text-muted-foreground">
         {LAYER_LABEL[n.layer]} · <SourceLink source={n.source} />
       </p>
@@ -3780,7 +3795,7 @@ function DasaEffects({
         className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground"
         data-testid="parashari-dasa-timing"
       >
-        {d.timing.text} <SourceLink source={d.timing.source} />
+        <Soft>{d.timing.text}</Soft> <SourceLink source={d.timing.source} />
       </p>
       <ul className="mt-3 space-y-2">
         {layers
@@ -3923,7 +3938,7 @@ function FineRow({
         </span>
       )}
       <span className="min-w-0 basis-full text-xs text-muted-foreground sm:basis-0 sm:flex-1">
-        {p.text} <SourceLink source={p.source} />
+        <Soft>{p.text}</Soft> <SourceLink source={p.source} />
       </span>
     </>
   );
@@ -4593,7 +4608,7 @@ function AshtakavargaSection({
               data-testid={`parashari-av-saturn-${s.owner}`}
             >
               <TableCell className="px-2 py-1.5 sm:px-4 text-xs">
-                {s.matter} <SourceLink source={s.source} />
+                <Soft>{s.matter}</Soft> <SourceLink source={s.source} />
               </TableCell>
               <TableCell className="hidden px-2 py-1.5 sm:px-4 text-xs text-muted-foreground sm:table-cell">
                 {ord(s.houseFrom)} from {s.owner}: {SIGNS[s.signIndex]},{" "}

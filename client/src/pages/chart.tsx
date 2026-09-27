@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -567,7 +568,7 @@ function FindingItem({
       </div>
       <div className={cn(coveredBy && "text-muted-foreground")}>
         <p className="leading-relaxed">
-          {f.text}
+          <Soft>{f.text}</Soft>
           {!full &&
             f.relation &&
             f.relation !== "conjunct" &&

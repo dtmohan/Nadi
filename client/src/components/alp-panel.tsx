@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { Cite } from "@/components/source-link";
 import { DateTime } from "luxon";
@@ -1316,7 +1317,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                       {placed ? ordinal(placed.houseFromAlp) : "—"}
                     </TableCell>
                     <TableCell className="py-1.5 align-top text-xs">
-                      {r.text}{" "}
+                      <Soft>{r.text}</Soft>{" "}
                       <span className="text-muted-foreground">
                         ({r.fromNotes ? "class note" : "from house themes"})
                       </span>
@@ -1440,7 +1441,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                   ))}
                 </span>
                 <span>
-                  {f.text}{" "}
+                  <Soft>{f.text}</Soft>{" "}
                   {f.sourceUrl ? (
                     <Cite href={f.sourceUrl}>{f.source}</Cite>
                   ) : (

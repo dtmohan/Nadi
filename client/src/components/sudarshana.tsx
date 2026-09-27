@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import { Fragment, useState } from "react";
 import { DateTime } from "luxon";
 import { PLANET_ABBR, SIGN_ABBR, type Planet } from "@shared/astro";
@@ -325,7 +326,9 @@ function BhavaDetail({ b, s }: { b: ChakraBhava; s: SudarshanaResult }) {
           </li>
         ))}
       </ul>
-      <p className="mt-2 text-xs text-muted-foreground">{b.text}</p>
+      <p className="mt-2 text-xs text-muted-foreground">
+        <Soft>{b.text}</Soft>
+      </p>
       <div className="mt-2 grid grid-cols-1 gap-1 text-xs sm:grid-cols-2">
         <div>
           <span className="text-muted-foreground">Benefics: </span>

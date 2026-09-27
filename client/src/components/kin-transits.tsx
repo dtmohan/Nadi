@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import type {
@@ -94,7 +95,7 @@ function Row({
           className="border-t px-3 py-2 text-xs"
           data-testid={`kin-transit-notes-${r.planet}-${r.start.slice(0, 10)}`}
         >
-          {r.text}{" "}
+          <Soft>{r.text}</Soft>{" "}
           <SourceLink source={source} className="text-muted-foreground" />
         </div>
       )}
@@ -162,7 +163,7 @@ export function KinTransitsSection({ k }: { k: KinTransitsReading }) {
                   : "note"}
             </span>
             <span className="min-w-0 flex-1">
-              {n.text}{" "}
+              <Soft>{n.text}</Soft>{" "}
               <SourceLink source={n.source} className="text-muted-foreground" />
             </span>
           </li>

@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import { NAKSHATRAS, type Planet } from "@shared/astro";
@@ -129,7 +130,7 @@ function MotherRow({
             SEVERITY_PILL[r.severity],
           )}
         >
-          {r.severity}
+          <Soft>{r.severity}</Soft>
         </span>
       </button>
       {open && (
@@ -138,7 +139,7 @@ function MotherRow({
           data-testid={`av-mother-notes-${key}`}
         >
           <p>
-            Age {r.age}. {r.text}
+            Age {r.age}. <Soft>{r.text}</Soft>
           </p>
           <p className="mt-1 flex flex-wrap gap-x-2 text-muted-foreground">
             <SourceLink source={sources.point} />
@@ -370,7 +371,7 @@ function ArishtaRow({
           data-testid={`av-arishta-notes-${r.start.slice(0, 10)}`}
         >
           <p>
-            Age {r.age}. {r.text}
+            Age {r.age}. <Soft>{r.text}</Soft>
           </p>
           <p className="mt-1 flex flex-wrap gap-x-2 text-muted-foreground">
             {r.sources.map((s) => (
@@ -483,7 +484,7 @@ function Row({
                   : "border border-verdict-bad/40 text-verdict-bad/80",
               )}
             >
-              {h.matter.split(",")[0]}
+              <Soft>{h.matter.split(",")[0]}</Soft>
               {h.kind === "trine" ? " (trine)" : ""}
             </span>
           ))}
@@ -508,7 +509,7 @@ function Row({
           </li>
           {r.notes.map((n, i) => (
             <li key={i}>
-              {n.text} <SourceLink source={n.source} />
+              <Soft>{n.text}</Soft> <SourceLink source={n.source} />
             </li>
           ))}
         </ul>
@@ -551,7 +552,7 @@ function NakRow({ r }: { r: AvNakshatraRow }) {
                 : "border border-verdict-bad/40 text-verdict-bad/80",
             )}
           >
-            {h.matter.split(",")[0]}
+            <Soft>{h.matter.split(",")[0]}</Soft>
             {h.kind === "trine nakshatra" ? " (trine)" : ""}{" "}
             <SourceLink
               source={h.source}

@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
@@ -315,7 +316,7 @@ function GocharaRowView({ r }: { r: GocharaRow }) {
           className="mt-1 text-xs text-verdict-bad"
           data-testid={`gochara-danger-${r.planet}`}
         >
-          {r.danger.text}{" "}
+          <Soft>{r.danger.text}</Soft>{" "}
           <SourceLink
             source={r.danger.source}
             className="text-2xs text-muted-foreground"

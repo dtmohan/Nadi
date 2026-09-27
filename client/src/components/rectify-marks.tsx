@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import {
   TWELVE_LIMBS,
   limbChecklist,
@@ -177,7 +178,7 @@ export function MarksDetail({
               {l.house}
             </span>
             <span className={cn(l.kind === "none" && "text-muted-foreground")}>
-              {l.text}
+              <Soft>{l.text}</Soft>
               {confirmed.has(limbLabel(r.limbs[l.house - 1])) && (
                 <span className="ml-1 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground">
                   ticked

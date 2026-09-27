@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import {
@@ -47,7 +48,7 @@ function Activated({
             <span className="text-muted-foreground">
               {LIFE_AREAS[f.area].label} ·{" "}
             </span>
-            {f.text}
+            <Soft>{f.text}</Soft>
           </span>
         </li>
       ))}

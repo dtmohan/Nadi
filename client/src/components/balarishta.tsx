@@ -10,6 +10,7 @@ import {
 import { SourceLink } from "@/components/source-link";
 import { ModeText, SectionTitle } from "@/components/mode-text";
 import { cn } from "@/lib/utils";
+import { GentleNote, Soft } from "@/lib/gentle";
 
 const STANDING_LABEL: Record<ArishtaStanding, string> = {
   holds: "holds",
@@ -33,7 +34,7 @@ export function StandingMark({
         "inline-block rounded border px-1.5 py-0.5 text-2xs font-medium uppercase tracking-wide",
         s === "holds" &&
           !good &&
-          "border-rose-300 bg-rose-50 text-rose-800 dark:border-rose-700 dark:bg-rose-950/40 dark:text-rose-200",
+          "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200",
         ((s === "clear" && !good) || (s === "holds" && good)) &&
           "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200",
         s === "clear" && good && "border-border text-muted-foreground",
@@ -60,7 +61,7 @@ export function BalarishtaSection({
   return (
     <div data-testid="parashari-balarishta">
       <SectionTitle
-        plain="Danger in infancy, Varahamihira's list"
+        plain="Checks on infancy, Varahamihira's list"
         technical="Balarishta (Brihat Jataka 6)"
         term="bj-balarishta"
       />
@@ -68,9 +69,9 @@ export function BalarishtaSection({
         plain={
           <>
             Varahamihira gives twelve verses, fourteen tests in all, for a child
-            who would not survive infancy, most of them turning on where the
-            Moon stands and which planets stand with or look at her. The tab
-            tests each rule on the chart as written and marks it holds or clear.{" "}
+            at risk in infancy, most of them turning on where the Moon stands
+            and which planets stand with or look at her. The tab tests each rule
+            on the chart as written and marks it holds or clear.{" "}
             {past
               ? "This native is well past the years the chapter speaks of, so the rules that hold were lived through; they stand here as a check on Parashara's list of evils in the tab above, and the commentator's list of what wards them off is shown beneath."
               : "The terms are the chapter's own: at once, a month, four or eight years."}
@@ -89,6 +90,7 @@ export function BalarishtaSection({
         }
       />
 
+      <GentleNote testId="balarishta-gentle-note" />
       <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-xs">
         <div data-testid="balarishta-held">
           <span className="text-muted-foreground">Rules that hold </span>
@@ -125,9 +127,7 @@ export function BalarishtaSection({
             <TableRow
               key={r.key}
               data-testid={`balarishta-row-${r.key}`}
-              className={cn(
-                r.standing === "holds" && "bg-rose-50/40 dark:bg-rose-950/20",
-              )}
+              className={cn(r.standing === "holds" && "bg-muted/40")}
             >
               <TableCell className="py-1.5 align-top text-xs">
                 <SourceLink source={r.source} />
@@ -136,22 +136,24 @@ export function BalarishtaSection({
                 </span>
               </TableCell>
               <TableCell className="py-1.5 align-top text-xs">
-                {r.rule}
-                <span className="block text-muted-foreground">{r.result}</span>
+                <Soft>{r.rule}</Soft>
+                <span className="block text-muted-foreground">
+                  <Soft>{r.result}</Soft>
+                </span>
                 {r.provisional && (
                   <span className="mt-1 block text-2xs text-muted-foreground">
-                    Provisional: {r.provisional}
+                    Provisional: <Soft>{r.provisional}</Soft>
                   </span>
                 )}
                 <span className="mt-1 block text-2xs text-muted-foreground md:hidden">
-                  {r.detail}
+                  <Soft>{r.detail}</Soft>
                 </span>
               </TableCell>
               <TableCell className="py-1.5 align-top">
                 <StandingMark s={r.standing} />
               </TableCell>
               <TableCell className="hidden py-1.5 align-top text-xs text-muted-foreground md:table-cell">
-                {r.detail}
+                <Soft>{r.detail}</Soft>
               </TableCell>
             </TableRow>
           ))}
@@ -192,7 +194,9 @@ export function BalarishtaSection({
         data-testid="balarishta-caveats"
       >
         {b.caveats.map((c, i) => (
-          <li key={i}>{c}</li>
+          <li key={i}>
+            <Soft>{c}</Soft>
+          </li>
         ))}
       </ul>
     </div>

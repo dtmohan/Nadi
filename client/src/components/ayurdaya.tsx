@@ -1,3 +1,4 @@
+import { GentleNote } from "@/lib/gentle";
 import {
   formatYears,
   REDUCTION_LABEL,
@@ -61,6 +62,7 @@ export function AyurdayaSection({
         technical="Ayurdaya (Brihat Jataka 7)"
         term="bj-ayurdaya"
       />
+      <GentleNote testId="ayurdaya-gentle-note" />
       <ModeText
         plain={
           <>

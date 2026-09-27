@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import {
   VerdictCard,
   type VerdictSignature,
@@ -1248,7 +1249,9 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
                     className="py-2"
                     data-testid={`jaimini-finding-${f.id}`}
                   >
-                    <div className="text-sm">{f.text}</div>
+                    <div className="text-sm">
+                      <Soft>{f.text}</Soft>
+                    </div>
                     <div className="mt-0.5 text-xs text-muted-foreground">
                       {f.planets.length ? `${f.planets.join(" · ")} — ` : ""}
                       {f.chart === "navamsa" ? "navamsa" : "rasi"} · weight{" "}
@@ -1368,7 +1371,9 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
                 {j.ayur.adjustments.length > 0 && (
                   <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
                     {j.ayur.adjustments.map((a, i) => (
-                      <li key={i}>{a.text}</li>
+                      <li key={i}>
+                        <Soft>{a.text}</Soft>
+                      </li>
                     ))}
                   </ul>
                 )}

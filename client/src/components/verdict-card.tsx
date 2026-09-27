@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import { useEffect, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import type { Planet } from "@shared/astro";
@@ -126,7 +127,9 @@ export function VerdictCard({
                   {TONE_WORD[s.tone]}
                 </span>
               </div>
-              <p className="mt-1 text-foreground/90">{s.text}</p>
+              <p className="mt-1 text-foreground/90">
+                <Soft>{s.text}</Soft>
+              </p>
             </li>
           ))}
         </ul>
@@ -144,7 +147,9 @@ export function VerdictCard({
                   {t.label}
                 </TimePill>
               </dt>
-              <dd className="text-foreground">{t.text}</dd>
+              <dd className="text-foreground">
+                <Soft>{t.text}</Soft>
+              </dd>
             </div>
           ))}
         </dl>
@@ -177,7 +182,9 @@ export function VerdictCard({
               {lines.map((l, i) => (
                 <div key={i} className="contents">
                   <dt className="text-muted-foreground">{l.label}</dt>
-                  <dd className="max-w-[68ch] leading-relaxed">{l.text}</dd>
+                  <dd className="max-w-[68ch] leading-relaxed">
+                    <Soft>{l.text}</Soft>
+                  </dd>
                 </div>
               ))}
             </dl>

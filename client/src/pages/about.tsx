@@ -490,6 +490,23 @@ export default function AboutPage() {
                 Day is computed.
               </li>
             </ul>
+            <h2>Sensitive results</h2>
+            <p>
+              The classical texts speak plainly of death, loss and disease. The
+              app does not. In the plain reading every such sentence, from any
+              system, is reworded into the register of risk, strain and loss
+              before it is shown: a verse that reads "the child dies" appears as
+              "the child is at risk", a maraka is a maraka and never a killer,
+              and an event is a loss, not a death. The practitioner reading
+              keeps the verse wording, since a practitioner needs to see what
+              the text says. In both readings the blocks that reproduce rules on
+              length of life or loss (Parashara's evils and marakas,
+              Varahamihira's Ayurdaya and Balarishta, the mother's point) open
+              with the same note: they are checks of the text against the chart,
+              never a forecast of an event or its date, and the app never
+              computes or displays a time of death. Rules that hold are marked
+              in amber as cautions, not in red.
+            </p>
             <h2>Where your charts live</h2>
             <p>
               Saved charts are kept in this browser's own storage, on your
