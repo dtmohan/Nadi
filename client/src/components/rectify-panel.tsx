@@ -46,7 +46,11 @@ import { useJudgePlace } from "@/lib/judge-place";
 import { JudgePlaceControl } from "@/components/judge-place";
 import { setBirthTime } from "@/components/birth-time-editor";
 import { Cite } from "@/components/source-link";
-import { scoreMarks, type BodyMarksResult } from "@shared/body-marks";
+import {
+  limbTermsFor,
+  scoreMarks,
+  type BodyMarksResult,
+} from "@shared/body-marks";
 import {
   LimbDots,
   MarksChecklist,
@@ -198,7 +202,7 @@ function methodScore(
   );
 }
 
-const WINDOWS = [10, 15, 30, 60, 120, 180];
+const WINDOWS = [10, 15, 30, 60, 120, 180, 240, 360, 720];
 
 /** Degrees within the sign of `from`, so an interval ending on the sign boundary reads 30°00' rather than 0°00'. */
 function degRange(from: number, to: number): string {
@@ -658,6 +662,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
           confirmed={confirmedMarks}
           onToggle={toggleMark}
           plain={plain}
+          terms={limbTermsFor(chart.gender)}
         />
       )}
 

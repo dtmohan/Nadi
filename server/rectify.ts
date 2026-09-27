@@ -69,9 +69,13 @@ import {
 import { SIGNS } from "@shared/astro";
 import { computeJaimini, type JaiminiResult } from "@shared/jaimini";
 import { dashaFitAt } from "@shared/jaimini-areas";
-import { computeBodyMarks, type BodyMarksResult } from "@shared/body-marks";
+import {
+  computeBodyMarks,
+  limbTermsFor,
+  type BodyMarksResult,
+} from "@shared/body-marks";
 
-const MAX_WINDOW = 180;
+const MAX_WINDOW = 720;
 
 function lagnaKey(lon: number): string {
   const p = kpPoint(lon);
@@ -237,6 +241,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     nodeType: opts.nodeType,
   };
   const zone = chart.timezone;
+  const limbTerms = limbTermsFor(chart.gender);
   const birth = birthInstant(chart);
   // Jaimini is whole-sign: one computation per rising sign serves every interval in it.
   const jaiminiBySign = new Map<
@@ -363,7 +368,10 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const jai = jaiminiBySign.get(jSign)!;
     const dIdx = Math.floor(lagnaJ / 10);
     if (!marksByDrekkana.has(dIdx))
-      marksByDrekkana.set(dIdx, computeBodyMarks(jai.positions, lagnaJ));
+      marksByDrekkana.set(
+        dIdx,
+        computeBodyMarks(jai.positions, lagnaJ, undefined, limbTerms),
+      );
 
     const rpVia: RectifySegment["rp"]["via"] = {};
     const weightOf = (p: Planet, k: "sign" | "star" | "sub") => {

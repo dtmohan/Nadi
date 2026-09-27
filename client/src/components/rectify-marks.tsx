@@ -1,6 +1,7 @@
 import {
-  LIMB_CHECKLIST,
   TWELVE_LIMBS,
+  limbChecklist,
+  type LimbTerms,
   bodyMarkLines,
   limbLabel,
   predictedLimbs,
@@ -17,11 +18,14 @@ export function MarksChecklist({
   confirmed,
   onToggle,
   plain,
+  terms,
 }: {
   confirmed: Set<string>;
   onToggle: (limb: string) => void;
   plain: boolean;
+  terms: LimbTerms;
 }) {
+  const groups = limbChecklist(terms);
   return (
     <div
       className="mt-3 rounded-md border p-3"
@@ -36,7 +40,7 @@ export function MarksChecklist({
         </span>
       </p>
       <div className="mt-2 grid gap-3 sm:grid-cols-3">
-        {LIMB_CHECKLIST.map((g) => (
+        {groups.map((g) => (
           <div key={g.region}>
             <div className="text-2xs uppercase tracking-wide text-muted-foreground">
               {g.region}{" "}

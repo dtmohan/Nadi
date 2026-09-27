@@ -104,6 +104,20 @@ export const DREKKANA_LIMBS: Record<1 | 2 | 3, string[]> = {
   ],
 };
 
+/**
+ * Which words name the third-drekkana limbs. The verse (5.24) names the genitals and the testicles for
+ * houses 2/12 and 3/11; a chart known to be male keeps the verse's words, any other chart uses neutral
+ * terms for the same regions.
+ */
+export type LimbTerms = "verse" | "neutral";
+export const NEUTRAL_LIMBS: Record<string, string> = {
+  genitals: "lower abdomen",
+  testicle: "groin",
+};
+export function limbTermsFor(gender: string | undefined | null): LimbTerms {
+  return gender === "male" ? "verse" : "neutral";
+}
+
 /** 1.4 (via 5.23 and 5.26): the twelve-fold body from the lagna, head first. */
 export const TWELVE_LIMBS = [
   "head",
@@ -214,10 +228,11 @@ export function sideOf(house: number): Side {
 
 export function limbsFor(
   drekkana: 1 | 2 | 3,
+  terms: LimbTerms = "verse",
 ): Array<{ house: number; limb: string; side: Side }> {
   return DREKKANA_LIMBS[drekkana].map((limb, i) => ({
     house: i + 1,
-    limb,
+    limb: terms === "neutral" ? (NEUTRAL_LIMBS[limb] ?? limb) : limb,
     side: sideOf(i + 1),
   }));
 }
@@ -230,11 +245,12 @@ export function computeBodyMarks(
   positions: PlanetPosition[],
   lagnaLon: number,
   aspectFloor: AspectFloor = DEFAULT_ASPECT_FLOOR,
+  terms: LimbTerms = "verse",
 ): BodyMarksResult {
   const lagnaSign = Math.floor(lagnaLon / 30) % 12;
   const degInSign = lagnaLon - Math.floor(lagnaLon / 30) * 30;
   const drekkana = (Math.min(2, Math.floor(degInSign / 10)) + 1) as 1 | 2 | 3;
-  const limbs = limbsFor(drekkana);
+  const limbs = limbsFor(drekkana, terms);
   const aspect = ruleAspect(aspectFloor);
   const benefics = positions.filter((p) => naturalBenefic(p, positions));
   const houseOf = (p: PlanetPosition) => houseFrom(lagnaSign, p.signIndex);
@@ -355,6 +371,10 @@ export function computeBodyMarks(
     "The commentary on 5.24 (Adyar p. 305-306) records a tradition that reads the limbs from the drekkana when its lord is strong, head-first from the lagna when the lagna is strong; the verse itself reads by drekkana, which is what is shown.",
     "5.22 counts the planets from the lagna forward to the Moon (Adyar p. 301); the nodes are left out as the verse says grahas between the lagna and the Moon and the commentary counts the seven. The attendants are a historical check that only the family can confirm.",
   ];
+  if (terms === "neutral")
+    caveats.push(
+      "The verse names the genitals (houses 2 and 12) and the testicles (3 and 11) in the third drekkana; this chart is not marked male, so the same regions are shown as lower abdomen and groin.",
+    );
 
   return {
     lagnaSign,
@@ -421,24 +441,24 @@ export function predictedLimbs(r: BodyMarksResult): string[] {
 }
 
 /** Every limb label the three drekkana tables can name, grouped by region, for the checklist a person fills in. */
-export const LIMB_CHECKLIST: Array<{
-  region: string;
-  drekkana: 1 | 2 | 3;
-  limbs: string[];
-}> = (
-  [
-    ["Head", 1],
-    ["Trunk", 2],
-    ["Lower body", 3],
-  ] as Array<[string, 1 | 2 | 3]>
-).map(([region, d]) => {
-  const limbs: string[] = [];
-  for (const l of limbsFor(d)) {
-    const label = limbLabel(l);
-    if (!limbs.includes(label)) limbs.push(label);
-  }
-  return { region, drekkana: d, limbs };
-});
+export function limbChecklist(
+  terms: LimbTerms,
+): Array<{ region: string; drekkana: 1 | 2 | 3; limbs: string[] }> {
+  return (
+    [
+      ["Head", 1],
+      ["Trunk", 2],
+      ["Lower body", 3],
+    ] as Array<[string, 1 | 2 | 3]>
+  ).map(([region, d]) => {
+    const limbs: string[] = [];
+    for (const l of limbsFor(d, terms)) {
+      const label = limbLabel(l);
+      if (!limbs.includes(label)) limbs.push(label);
+    }
+    return { region, drekkana: d, limbs };
+  });
+}
 
 /** Score of one drekkana against the limbs a person has confirmed: predicted limbs confirmed, out of those predicted. */
 export function scoreMarks(

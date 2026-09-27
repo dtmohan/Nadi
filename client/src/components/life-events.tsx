@@ -111,6 +111,30 @@ export function LifeEventsEditor({
     clearTimeout(noteTimers.current[id]);
     noteTimers.current[id] = setTimeout(() => commitNote(id, value), 600);
   };
+  // Dates: the field keeps its own draft while it has focus. A date input reports a full value at every
+  // keystroke in the year (0001, 0019, 0198, 1982), and writing each of those back into the field resets the
+  // year being typed; so the draft is displayed until blur and only a year of four real digits is saved,
+  // after a short pause or on blur.
+  const dateTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const fullDate = (v: string) =>
+    /^\d{4}-\d{2}-\d{2}$/.test(v) && Number(v.slice(0, 4)) >= 1000;
+  const typeDate = (id: string, value: string) => {
+    setDrafts((d) => ({ ...d, [id]: value }));
+    clearTimeout(dateTimers.current[id]);
+    if (fullDate(value))
+      dateTimers.current[id] = setTimeout(
+        () => void update(id, { date: value }),
+        700,
+      );
+  };
+  const blurDate = (id: string, value: string) => {
+    clearTimeout(dateTimers.current[id]);
+    if (fullDate(value)) void update(id, { date: value });
+    setDrafts((d) => {
+      const { [id]: _drop, ...rest } = d;
+      return rest;
+    });
+  };
   // A new row is saved once it has a date; until then it lives only here.
   const [pending, setPending] = useState<ChartEvent[]>([]);
   const add = () => {
@@ -126,15 +150,11 @@ export function LifeEventsEditor({
   const update = (id: string, patch: Partial<ChartEvent>): Promise<void> => {
     const inSaved = events.some((e) => e.id === id);
     if (inSaved) {
-      if (patch.date !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(patch.date)) {
+      if (patch.date !== undefined && !fullDate(patch.date)) {
         // Partial date: hold it as a draft and keep the saved date until it is complete.
         setDrafts((d) => ({ ...d, [id]: patch.date! }));
         return Promise.resolve();
       }
-      setDrafts((d) => {
-        const { [id]: _drop, ...rest } = d;
-        return rest;
-      });
       return persist((list) =>
         list.map((e) => (e.id === id ? { ...e, ...patch } : e)),
       );
@@ -157,12 +177,8 @@ export function LifeEventsEditor({
           : {}),
         ...patch,
       };
-      if (/^\d{4}-\d{2}-\d{2}$/.test(row.date)) {
+      if (fullDate(row.date)) {
         setPending((p) => p.filter((x) => x.id !== id));
-        setDrafts((d) => {
-          const { [id]: _drop, ...rest } = d;
-          return rest;
-        });
         return persist((list) =>
           list.some((e) => e.id === row.id)
             ? list.map((e) => (e.id === row.id ? { ...e, ...patch } : e))
@@ -222,7 +238,10 @@ export function LifeEventsEditor({
               <Input
                 type="date"
                 value={drafts[e.id] ?? e.date}
-                onChange={(ev) => update(e.id, { date: ev.target.value })}
+                onChange={(ev) => typeDate(e.id, ev.target.value)}
+                onBlur={(ev) => blurDate(e.id, ev.target.value)}
+                min="1000-01-01"
+                max="2999-12-31"
                 className="h-8 w-40 text-xs tabular"
                 data-testid={`input-event-date-${e.id}`}
               />
