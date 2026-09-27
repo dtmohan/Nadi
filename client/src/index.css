@@ -487,3 +487,43 @@
     margin-bottom: 0.2rem;
   }
 }
+
+/* The report page prints as a document: the app shell is hidden and the scroll containers open up. */
+@media print {
+  html.report-print,
+  html.report-print body,
+  html.report-print #root {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  html.report-print [data-sidebar="sidebar"],
+  html.report-print [data-slot="sidebar"],
+  html.report-print header.md\:hidden,
+  html.report-print [aria-label^="Notifications"] {
+    display: none !important;
+  }
+  html.report-print .h-svh,
+  html.report-print main {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  html.report-print article {
+    color: #000;
+  }
+  html.report-print h2 {
+    break-after: avoid;
+  }
+  html.report-print section {
+    break-inside: auto;
+  }
+  html.report-print p,
+  html.report-print tr {
+    break-inside: avoid;
+  }
+  @page {
+    margin: 18mm 16mm;
+  }
+}

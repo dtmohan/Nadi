@@ -534,6 +534,27 @@ export default function AboutPage() {
               lives that have run their course, and is never used to compute or
               show a forecast.
             </p>
+            <h2>The report</h2>
+            <p>
+              The Report button on a chart turns the whole reading into one
+              prose document, printable from the browser as a PDF. It walks the
+              chart in order: the planets and the day of birth, the Nadi reading
+              by life area, Parashara's houses, lords, yogas and strains, the
+              Vimshottari periods with Parashara's tone for each dasa and the
+              running dasa's bhuktis, the Jaimini karakas, padas and Chara dasha
+              by area, the KP cusps and their sub lords, and the sky on the day
+              of writing. Nothing in it is computed afresh; every section calls
+              the same functions as the tab it summarises, and the systems stay
+              separate. Each statement carries a numbered note to its source,
+              gathered at the end with the URL; a rule the text does not state
+              as applied is marked provisional in the margin. The report follows
+              the reading mode: the plain reading softens sensitive matters, the
+              practitioner reading keeps the verse wording. Matters not yet in
+              season at the native's age are held back, and the length-of-life
+              and infancy checks, the maraka planets and the remedy lines of the
+              period chapters are never part of it. The older Export PDF remains
+              as the data sheet.
+            </p>
             <h2>Where your charts live</h2>
             <p>
               Saved charts are kept in this browser's own storage, on your

@@ -17,6 +17,7 @@ import {
   Clock,
   CheckCheck,
   CalendarDays,
+  FileText,
 } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import {
@@ -1676,6 +1677,16 @@ export default function ChartPage() {
             ayanamsaValue={data.ayanamsaValue}
             timeBasis={data.timeBasis}
           />
+          <Button size="sm" variant="outline" asChild>
+            <Link
+              href={`/chart/${chart.id}/report`}
+              data-testid="link-report"
+              title="The whole reading as one prose document, printable"
+            >
+              <FileText className="h-4 w-4" />
+              Report
+            </Link>
+          </Button>
           <Button
             size="sm"
             variant="outline"
