@@ -92,6 +92,9 @@ import { ChalitSection } from "@/components/chalit";
 import { computeSudarshana } from "@shared/sudarshana";
 import { computeKarmajiva } from "@shared/karmajiva";
 import { KarmajivaSection } from "@/components/karmajiva";
+import { computeAyurdaya, formatYears } from "@shared/ayurdaya";
+import { AYUR_RANGE, AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
+import { AyurdayaSection } from "@/components/ayurdaya";
 import { SudarshanaSection } from "@/components/sudarshana";
 import { compareSudarshanaEvents } from "@shared/sudarshana-events";
 import { computePortions } from "@shared/portions";
@@ -271,6 +274,35 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const karmajiva = useMemo(
     () => computeKarmajiva(positions, r.lagna.signIndex, r.shadbala),
     [positions, r.lagna.signIndex, r.shadbala],
+  );
+  const ayurdaya = useMemo(
+    () =>
+      computeAyurdaya(
+        positions,
+        result.jaimini.lagna.lon,
+        r.shadbala,
+        aspectFloor,
+      ),
+    [positions, result.jaimini.lagna.lon, r.shadbala, aspectFloor],
+  );
+  const ageYears = useMemo(() => {
+    const birth = DateTime.fromISO(result.utc);
+    const now = DateTime.fromISO(asOfIso);
+    if (!birth.isValid || !now.isValid) return undefined;
+    return now.diff(birth, "years").years;
+  }, [result.utc, asOfIso]);
+  const ayurOthers = useMemo(
+    () => [
+      {
+        label: "Ashtakavarga",
+        value: formatYears(r.ashtakavarga.ayurdaya),
+      },
+      {
+        label: "Jaimini",
+        value: `${AYUR_TERM_LABEL[result.jaimini.ayur.term]}, ${AYUR_RANGE[result.jaimini.ayur.term]}`,
+      },
+    ],
+    [r.ashtakavarga.ayurdaya, result.jaimini.ayur.term],
   );
   const sudarshana = useMemo(
     () =>
@@ -927,6 +959,17 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         className="mt-8"
       >
         <KarmajivaSection k={karmajiva} />
+      </Working>
+      <Working
+        id="parashari-ayurdaya"
+        label="Show the span of life by planetary years (Brihat Jataka 7)"
+        className="mt-8"
+      >
+        <AyurdayaSection
+          a={ayurdaya}
+          ageYears={ageYears}
+          otherEstimates={ayurOthers}
+        />
       </Working>
       <Working
         id="parashari-sudarshana"

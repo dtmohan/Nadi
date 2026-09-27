@@ -407,6 +407,12 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
       "Varahamihira's reading of livelihood (Brihat Jataka 10): a planet in the tenth from the rising sign or the Moon names the person wealth comes through; otherwise the lord of the tenth is followed into its navamsa, whose lord names the calling.",
     system: "parashari",
   },
+  "bj-ayurdaya": {
+    term: "Ayurdaya",
+    short:
+      "Varahamihira's span of life (Brihat Jataka 7): Pindayu sums years each planet grants between its exaltation and debilitation degrees, Amsayu (Satya's method) counts the navamsas each planet has passed, with the lagna's share, multipliers and the losses for combustion, enemy's sign and the houses behind the horizon.",
+    system: "parashari",
+  },
   "body-marks": {
     term: "Marks on the body",
     short:

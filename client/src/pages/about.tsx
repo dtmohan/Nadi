@@ -1498,6 +1498,111 @@ function ParashariMethod() {
           under Mars, the maternal uncle under Mercury, elder brothers under
           Jupiter) are marked provisional.
         </li>
+        <li>
+          Span of life, Brihat Jataka adhyaya 7 (Varahamihira). Pindayu: the
+          seven planets give 19, 25, 15, 12, 15, 21 and 20 years at their
+          exaltation degrees (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501673.html"
+            {...ext}
+          >
+            7.1
+          </a>
+          ), half at debilitation and in proportion between; the lagna gives the
+          navamsas of the rising sign risen (or, for Manittha's school, the
+          signs from Aries); a planet in an enemy's sign loses a third unless
+          retrograde, a combust planet half unless Venus or Saturn (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501674.html"
+            {...ext}
+          >
+            7.2
+          </a>
+          ); malefics in the 12th to the 7th lose all, a half, a third, a
+          quarter, a fifth and a sixth, benefics half of that, and of several in
+          one sign only the strongest (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501675.html"
+            {...ext}
+          >
+            7.3
+          </a>
+          ); a malefic in the lagna cuts the sum by the navamsas from Aries over
+          108, halved under a benefic's aspect (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501676.html"
+            {...ext}
+          >
+            7.4
+          </a>
+          ). Amsayu, Satya's method: each planet gives as many years as the
+          navamsas it has passed, the twelves cast off (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501681.html"
+            {...ext}
+          >
+            7.9
+          </a>
+          ,
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501682.html"
+            {...ext}
+          >
+            7.10
+          </a>
+          ), trebled when exalted or retrograde and doubled in vargottama, own
+          navamsa, own sign or own drekkana (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501683.html"
+            {...ext}
+          >
+            7.11
+          </a>
+          ), the lagna giving its signs when strong under 1.19 and its navamsas
+          otherwise, with no krurodaya cut (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501684.html"
+            {...ext}
+          >
+            7.12
+          </a>
+          ); Varahamihira calls this the best method and takes only the largest
+          multiplier (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501685.html"
+            {...ext}
+          >
+            7.13
+          </a>
+          ). The Amitayu exception of{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501686.html"
+            {...ext}
+          >
+            7.14
+          </a>{" "}
+          is tested and reported. Checked against the public-domain
+          <a
+            href="https://archive.org/details/brihatjatakavar00iyergoog"
+            {...ext}
+          >
+            Iyer 1885 translation
+          </a>
+          (pp. 59-72) and the Sanskrit of the Adyar edition (pp. 330-368), with
+          Parashara's parallel treatment in
+          <a href="http://jyotishvidya.com/ch43.htm" {...ext}>
+            BPHS 43
+          </a>
+          . Provisional: the commentator's combustion limits (Iyer note f), the
+          retrograde reading of vakra (Badarayana reads Mars), the Shadbala
+          tests for the strongest of several planets in a sign and for the
+          lagna's Pindayu reading (Iyer note d, BPHS 43.15), taking only the
+          larger of two reductions on one planet (BPHS 43.22), and the choice
+          between the two totals, which BPHS 43.32 settles by the strongest of
+          Sun, lagna and Moon while Varahamihira prefers Amsayu. Verses 7.7-8
+          are held interpolated by the commentator and are not used. Rahu and
+          Ketu give no years in this chapter.
+        </li>
       </ul>
       <h2>Not yet here</h2>
       <p>
