@@ -1266,7 +1266,27 @@ function ParashariMethod() {
           72.9-10. The monthly dangers of 72.11-28 are not listed. Chapter 66
           calls the benefic mark a rekha and the malefic a bindu; 28.15-20 says
           bindu for the benefic mark; the app counts benefic marks and calls
-          them rekhas.
+          them rekhas. The Sarvashtakavarga is also shown under the Moon row of
+          Saravali ch. 53 and Brihat Jataka 9.2 (the table Raman and most
+          software carry); the Jupiter cell of that row is a variant reading of
+          9.2, the 12th in the{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501711.html"
+            target="_blank"
+            rel="noreferrer"
+          >
+            wisdomlib text
+          </a>{" "}
+          and the 2nd, as Parashara has it, in the{" "}
+          <a
+            href="https://archive.org/details/in.ernet.dli.2015.382698"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Adyar Library edition
+          </a>{" "}
+          (Aiyangar 1951, chapters 1-10, Sanskrit text and commentary, cited by
+          chapter.verse and page).
         </li>
         <li>
           Ashtakavarga transits: every sign Saturn and Jupiter pass from birth

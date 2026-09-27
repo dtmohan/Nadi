@@ -70,7 +70,12 @@ import {
   type ShadbalaResult,
   type PlanetShadbala,
 } from "@shared/shadbala";
-import type { AshtakavargaResult, Bhinnashtaka } from "@shared/ashtakavarga";
+import {
+  BRIHAT_JATAKA_9_2_URL,
+  BRIHAT_JATAKA_ADYAR_URL,
+  type AshtakavargaResult,
+  type Bhinnashtaka,
+} from "@shared/ashtakavarga";
 import {
   BHAVA_PHALA_CAVEATS,
   type BhavaPhala,
@@ -4298,11 +4303,27 @@ function AshtakavargaSection({
             .{" "}
             <Badge variant="outline" className="text-2xs">
               provisional
-            </Badge>
+            </Badge>{" "}
+            <Cite href={BRIHAT_JATAKA_9_2_URL}>Brihat Jataka 9.2</Cite>{" "}
+            <Cite
+              href={BRIHAT_JATAKA_ADYAR_URL}
+              title="Adyar Library edition, Aiyangar 1951, p. 432"
+            >
+              Adyar ed. p. 432
+            </Cite>
           </>
         ) : (
-          <>The {av.saravali.label} gives the same totals for this chart.</>
+          <>
+            The {av.saravali.label} gives the same totals for this chart.{" "}
+            <Cite href={BRIHAT_JATAKA_9_2_URL}>Brihat Jataka 9.2</Cite>
+          </>
         )}
+      </p>
+      <p className="mt-1 text-2xs text-muted-foreground">
+        The Jupiter cell of that row is a variant reading of Brihat Jataka 9.2:
+        the wisdomlib text reads the 12th, the Adyar Library edition (Aiyangar
+        1951, p. 432, commentary p. 433) reads the 2nd and agrees with
+        Parashara; the Moon and Mars cells are the same in both editions.
       </p>
       {av.ekadhipatyaVariant.length > 0 && (
         <p
