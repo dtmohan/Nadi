@@ -366,7 +366,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const [balaOpen, setBalaOpen] = useState<string | null>(null);
   const [focusHouse, setFocusHouse] = useState<number | null>(null);
   const [section, setSection] = useState<
-    "lords" | "yogas" | "houses" | "evils"
+    "lords" | "yogas" | "houses" | "evils" | "timing"
   >("yogas");
   const [dasaPick, setDasaPick] = useState<string | null>(null);
   const [antarOpen, setAntarOpen] = useState<string | null>(null);
@@ -781,6 +781,22 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 : "Evils, antidotes and curses (ch. 9-10, 83)"}{" "}
               ({evils.length})
             </button>
+            <button
+              role="tab"
+              aria-selected={section === "timing"}
+              onClick={() => setSection("timing")}
+              className={cn(
+                "rounded px-3 py-1",
+                section === "timing"
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+              data-testid="parashari-section-timing"
+            >
+              {plain
+                ? "When things happen"
+                : "Timing (dasas, chakras, transits)"}
+            </button>
           </div>
           {focusHouse && (
             <button
@@ -955,6 +971,170 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             </p>
           </div>
         )}
+        {section === "timing" && (
+          <div data-testid="parashari-timing">
+            <p className="mt-3 text-xs text-muted-foreground">
+              {plain
+                ? "Parashara's clocks for this chart, all read from the same birth positions: the three-ring wheel turning year by year, the life periods and their sub-periods, the sign-based and Kalachakra periods, Varahamihira's planetary years, and the transits scored against the points tables."
+                : "The Parashari timing methods, read from the same natal positions: Sudarshana chakra (ch. 74), Vimshottari with antar dasas (ch. 46-60), the conditional and rasi dasas, Kalachakra (ch. 46, 50), Brihat Jataka 8, and the Ashtakavarga transits (ch. 66-72). Gochara from the Moon stays in the Panchanga tab, being Brihat Samhita and Phaladeepika, not Parashara."}
+            </p>
+            <div className="mt-3" data-testid="parashari-sudarshana">
+              <SudarshanaSection s={sudarshana} events={sudarshanaEvents} />
+            </div>
+            <div className="mt-8">
+              <SectionTitle
+                plain="Life periods"
+                technical="Vimshottari dasa, read by lordship"
+                term="vimshottari"
+              />
+              <ModeText
+                plain={
+                  <>
+                    Life is divided into planetary periods of fixed length, 120
+                    years in all, starting from the Moon's position at birth.
+                    The period running now colours the present years; each is
+                    judged by the houses its planet rules and by its role for{" "}
+                    {SIGNS[r.lagna.signIndex]} rising. Pick a period to read
+                    what the text says about it and to see its sub-periods.
+                  </>
+                }
+                practitioner={
+                  <>
+                    Same Vimshottari sequence as the KP panel but from the
+                    Lahiri Moon (
+                    {positions.find((p) => p.planet === "Moon")?.nakshatra}),
+                    balance {r.vimshottari.balanceYears.toFixed(2)} years of{" "}
+                    {r.vimshottari.dasas[0].lord}. Each lord is glossed by the
+                    houses it owns and occupies and by its role for this rising
+                    sign. Pick a dasa row to read its effects from ch. 47-48 and
+                    ch. 50 and its antar dasas from ch. 52-60.
+                  </>
+                }
+              />
+              <LifeTimeline
+                className="mt-3"
+                testid="parashari-timeline"
+                birthIso={result.utc}
+                asOfIso={asOfIso}
+                bands={tlBands}
+                windows={tlWindows}
+                windowsLabel="Verdict"
+                marks={tlMarks}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {plain
+                  ? "The Verdict row tints each period by what the text says of its planet for this chart: green favourable, amber mixed, red trying. Saturn's passages are drawn for comparison only."
+                  : "The Verdict row carries each dasa's balance of support and strain from BPHS ch. 47-48; Saturn's sign passages are shown for reference and are not part of the dasa judgement."}
+              </p>
+              <Table className="mt-3" data-testid="parashari-dashas" cards>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{plain ? "Period" : "Dasa"}</TableHead>
+                    <TableHead className="text-right">Age</TableHead>
+                    <TableHead className="hidden sm:table-cell">
+                      Dates
+                    </TableHead>
+                    <TableHead>Reading</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {r.dashas.map((d) => (
+                    <TableRow
+                      key={d.lord + d.start}
+                      className={cn(
+                        "cursor-pointer",
+                        d.current && "bg-primary/5",
+                        selDasa?.lord === d.lord &&
+                          "ring-1 ring-inset ring-primary/40",
+                      )}
+                      onClick={() => {
+                        setDasaPick(d.lord);
+                        setAntarOpen(null);
+                      }}
+                      data-testid={`parashari-dasa-${d.lord}`}
+                    >
+                      <TableCell className="py-1.5 whitespace-nowrap">
+                        <PlanetName planet={d.lord} />
+                        {d.current && (
+                          <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
+                            now
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="py-1.5 text-right whitespace-nowrap">
+                        {d.ageStart.toFixed(1)}–{d.ageEnd.toFixed(1)}
+                      </TableCell>
+                      <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell whitespace-nowrap">
+                        {fmt(d.start)} – {fmt(d.end)}
+                      </TableCell>
+                      <TableCell className="py-1.5 text-xs text-muted-foreground">
+                        <span
+                          className={cn(
+                            "mr-1 rounded px-1.5 py-0.5 text-xs font-medium",
+                            ROLE_CLASS[d.functional],
+                          )}
+                        >
+                          {roleLabel(d.functional)}
+                        </span>
+                        {d.summary}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {cur && (
+                <p
+                  className="mt-2 text-xs text-muted-foreground"
+                  data-testid="parashari-current"
+                >
+                  Running now: {cur.lord} dasa,{" "}
+                  {cur.owns.length
+                    ? `lord of the ${listH(cur.owns)}`
+                    : "a node"}{" "}
+                  in the {ord(cur.house)}.
+                </p>
+              )}
+            </div>
+            {selDasa && (
+              <DasaEffects
+                d={selDasa}
+                open={antarOpen}
+                setOpen={setAntarOpen}
+                birthIso={result.utc}
+                asOfIso={asOfIso}
+              />
+            )}
+            <ConditionalDasasSection cd={r.conditionalDasas} />
+            <RasiDasasSection d={r.rasiDasas} />
+
+            <KalachakraSection k={r.kalachakra} />
+            <Working
+              id="parashari-bj-dasa"
+              label="Show the planetary-year dasas (Brihat Jataka 8)"
+              className="mt-8"
+            >
+              <BjDasaSection
+                d={bjDasa}
+                ageYears={ageYears}
+                scheme={dasaScheme}
+                onScheme={setDasaScheme}
+              />
+            </Working>
+            <AvTimelineSection
+              tl={avTimeline}
+              asOfIso={asOfIso}
+              arishta={fatherArishta}
+              mother={motherPoint}
+            />
+            <Working
+              id="parashari-kin"
+              label="Show Mars, Mercury and Venus through their own point tables"
+              className="mt-8"
+            >
+              <KinTransitsSection k={kinTransits} />
+            </Working>
+          </div>
+        )}
       </div>
 
       {r.shadbala && (
@@ -1022,169 +1202,13 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         <BalarishtaSection b={balarishta} ageYears={ageYears} />
       </Working>
       <Working
-        id="parashari-bj-dasa"
-        label="Show the planetary-year dasas (Brihat Jataka 8)"
-        className="mt-8"
-      >
-        <BjDasaSection
-          d={bjDasa}
-          ageYears={ageYears}
-          scheme={dasaScheme}
-          onScheme={setDasaScheme}
-        />
-      </Working>
-      <Working
         id="parashari-bj-cross"
         label="Show the cross-check of the ground rules with Brihat Jataka 1-2"
         className="mt-8"
       >
         <BjCrossSection />
       </Working>
-      <Working
-        id="parashari-sudarshana"
-        label="Show the three-ring wheel and its year-by-year turn (Sudarshana chakra)"
-        className="mt-8"
-      >
-        <SudarshanaSection s={sudarshana} events={sudarshanaEvents} />
-      </Working>
-      <AvTimelineSection
-        tl={avTimeline}
-        asOfIso={asOfIso}
-        arishta={fatherArishta}
-        mother={motherPoint}
-      />
-      <Working
-        id="parashari-kin"
-        label="Show Mars, Mercury and Venus through their own point tables"
-        className="mt-8"
-      >
-        <KinTransitsSection k={kinTransits} />
-      </Working>
 
-      <div className="mt-8">
-        <SectionTitle
-          plain="Life periods"
-          technical="Vimshottari dasa, read by lordship"
-          term="vimshottari"
-        />
-        <ModeText
-          plain={
-            <>
-              Life is divided into planetary periods of fixed length, 120 years
-              in all, starting from the Moon's position at birth. The period
-              running now colours the present years; each is judged by the
-              houses its planet rules and by its role for{" "}
-              {SIGNS[r.lagna.signIndex]} rising. Pick a period to read what the
-              text says about it and to see its sub-periods.
-            </>
-          }
-          practitioner={
-            <>
-              Same Vimshottari sequence as the KP panel but from the Lahiri Moon
-              ({positions.find((p) => p.planet === "Moon")?.nakshatra}), balance{" "}
-              {r.vimshottari.balanceYears.toFixed(2)} years of{" "}
-              {r.vimshottari.dasas[0].lord}. Each lord is glossed by the houses
-              it owns and occupies and by its role for this rising sign. Pick a
-              dasa row to read its effects from ch. 47-48 and ch. 50 and its
-              antar dasas from ch. 52-60.
-            </>
-          }
-        />
-        <LifeTimeline
-          className="mt-3"
-          testid="parashari-timeline"
-          birthIso={result.utc}
-          asOfIso={asOfIso}
-          bands={tlBands}
-          windows={tlWindows}
-          windowsLabel="Verdict"
-          marks={tlMarks}
-        />
-        <p className="mt-1 text-xs text-muted-foreground">
-          {plain
-            ? "The Verdict row tints each period by what the text says of its planet for this chart: green favourable, amber mixed, red trying. Saturn's passages are drawn for comparison only."
-            : "The Verdict row carries each dasa's balance of support and strain from BPHS ch. 47-48; Saturn's sign passages are shown for reference and are not part of the dasa judgement."}
-        </p>
-        <Table className="mt-3" data-testid="parashari-dashas" cards>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{plain ? "Period" : "Dasa"}</TableHead>
-              <TableHead className="text-right">Age</TableHead>
-              <TableHead className="hidden sm:table-cell">Dates</TableHead>
-              <TableHead>Reading</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {r.dashas.map((d) => (
-              <TableRow
-                key={d.lord + d.start}
-                className={cn(
-                  "cursor-pointer",
-                  d.current && "bg-primary/5",
-                  selDasa?.lord === d.lord &&
-                    "ring-1 ring-inset ring-primary/40",
-                )}
-                onClick={() => {
-                  setDasaPick(d.lord);
-                  setAntarOpen(null);
-                }}
-                data-testid={`parashari-dasa-${d.lord}`}
-              >
-                <TableCell className="py-1.5 whitespace-nowrap">
-                  <PlanetName planet={d.lord} />
-                  {d.current && (
-                    <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-                      now
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell className="py-1.5 text-right whitespace-nowrap">
-                  {d.ageStart.toFixed(1)}–{d.ageEnd.toFixed(1)}
-                </TableCell>
-                <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell whitespace-nowrap">
-                  {fmt(d.start)} – {fmt(d.end)}
-                </TableCell>
-                <TableCell className="py-1.5 text-xs text-muted-foreground">
-                  <span
-                    className={cn(
-                      "mr-1 rounded px-1.5 py-0.5 text-xs font-medium",
-                      ROLE_CLASS[d.functional],
-                    )}
-                  >
-                    {roleLabel(d.functional)}
-                  </span>
-                  {d.summary}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        {cur && (
-          <p
-            className="mt-2 text-xs text-muted-foreground"
-            data-testid="parashari-current"
-          >
-            Running now: {cur.lord} dasa,{" "}
-            {cur.owns.length ? `lord of the ${listH(cur.owns)}` : "a node"} in
-            the {ord(cur.house)}.
-          </p>
-        )}
-      </div>
-
-      {selDasa && (
-        <DasaEffects
-          d={selDasa}
-          open={antarOpen}
-          setOpen={setAntarOpen}
-          birthIso={result.utc}
-          asOfIso={asOfIso}
-        />
-      )}
-
-      <ConditionalDasasSection cd={r.conditionalDasas} />
-      <RasiDasasSection d={r.rasiDasas} />
-
-      <KalachakraSection k={r.kalachakra} />
       <PadasSection p={r.padas} />
       <MarakasSection m={r.marakas} />
       <AvasthasSection a={r.avasthas} />

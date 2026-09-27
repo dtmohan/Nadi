@@ -1258,6 +1258,14 @@ function ParashariMethod() {
       </ul>
       <h2>Timing</h2>
       <p>
+        The Parashari tab gathers its timing methods under one section, Timing,
+        beside Yogas, Lords, Houses and Evils: the Sudarshana chakra first, then
+        Vimshottari with its antar dasas, the conditional and rasi dasas,
+        Kalachakra, Varahamihira's planetary-year dasas and the Ashtakavarga
+        transits. Gochara from the Moon stays in the Panchanga tab, being Brihat
+        Samhita and Phaladeepika rather than Parashara.
+      </p>
+      <p>
         Vimshottari dasa is computed from the Lahiri Moon with the same
         arithmetic as the KP mode. Each dasa lord is glossed by the houses it
         owns and occupies and by its functional role for the rising sign, and
