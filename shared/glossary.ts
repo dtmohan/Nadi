@@ -401,6 +401,18 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
       "The boundary between two houses in the chalit. A planet right on one belongs clearly to neither.",
     system: "parashari",
   },
+  karmajiva: {
+    term: "Karmajiva",
+    short:
+      "Varahamihira's reading of livelihood (Brihat Jataka 10): a planet in the tenth from the rising sign or the Moon names the person wealth comes through; otherwise the lord of the tenth is followed into its navamsa, whose lord names the calling.",
+    system: "parashari",
+  },
+  "body-marks": {
+    term: "Marks on the body",
+    short:
+      "Brihat Jataka 5.24-26: the twelve houses are the limbs of the body, head first, taken by the rising drekkana. A malefic in a house gives a wound in that limb, a benefic or its aspect a mole or mark; the pattern changes at every ten degrees of the rising sign, so it can test a birth time.",
+    system: "parashari",
+  },
   sudarshana: {
     term: "Sudarshana chakra",
     short:

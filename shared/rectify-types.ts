@@ -2,6 +2,7 @@
 import type { Planet } from "./astro";
 import type { RulingPlanets } from "./kp";
 import type { DashaFit, JaiminiArea } from "./jaimini-areas";
+import type { BodyMarksResult } from "./body-marks";
 
 export interface RectifyEvent {
   label: string;
@@ -51,7 +52,12 @@ export interface RectifyEventCheck {
    * Transit check (Part 2 p. 203): where the dasa and bhukti lords were transiting on the day of
    * the event, and whether the lords of that sign, star and sub signify the matter in this candidate.
    */
-  transit: { dasa: TransitCheck; bhukti: TransitCheck; score: number; max: number };
+  transit: {
+    dasa: TransitCheck;
+    bhukti: TransitCheck;
+    score: number;
+    max: number;
+  };
   /**
    * Jaimini check (K.N. Rao): the chara dasha and antardasha running at the event, for the lagna sign of this
    * interval, carry the matter's area. Null when the matter has no Jaimini area or the event precedes the birth.
@@ -77,7 +83,12 @@ export interface MoonLordsCheck {
   moonSignLord: Planet;
   /** The lagna sub lord and its own chain of lords at the birth time. */
   subLord: Planet;
-  chain: { starLord: Planet; subLord: Planet; subSubLord: Planet; sookshmaLord: Planet };
+  chain: {
+    starLord: Planet;
+    subLord: Planet;
+    subSubLord: Planet;
+    sookshmaLord: Planet;
+  };
   /**
    * How the lagna sub lord reaches the birth star lord: 4 = it is the birth star lord; 3 = its star lord is;
    * 2 = its sub, sub-sub or sookshma lord is; 1 = the chain of its own sub lord reaches it (second step); 0 = no link.
@@ -104,7 +115,14 @@ export interface RectifySegment {
   starLord: Planet;
   subLord: Planet;
   /** Which of the three lagna lords are ruling planets (or represented by one). */
-  rp: { sign: boolean; star: boolean; sub: boolean; score: number; max: number; via: Partial<Record<"sign" | "star" | "sub", string>> };
+  rp: {
+    sign: boolean;
+    star: boolean;
+    sub: boolean;
+    score: number;
+    max: number;
+    via: Partial<Record<"sign" | "star" | "sub", string>>;
+  };
   /** Sub lords of the twelve cusps at the middle of the interval. */
   cuspSubLords: Planet[];
   /** Moon's star and sub lord at the middle of the interval. */
@@ -118,7 +136,13 @@ export interface RectifySegment {
   /** Sun-transit hint (Part 2 p. 192): the lagna's sub (or star) lord is the sub lord the Sun transits on the day of judgement. */
   sunHint: { star: boolean; sub: boolean; score: number; max: number };
   /** Lagna sign in the chart's own ayanamsa, which the Jaimini check is read from (sign-level only). */
-  jaiminiSign: { index: number; name: string; direction: "forward" | "backward" };
+  jaiminiSign: {
+    index: number;
+    name: string;
+    direction: "forward" | "backward";
+  };
+  /** Rising drekkana of the interval in the chart's own ayanamsa, 0-35 (sign x 3 + third); key into RectifyResult.marks. */
+  drekkana: number;
   events: RectifyEventCheck[];
   score: number;
   max: number;
@@ -135,8 +159,12 @@ export interface RectifyResult {
   /** Every planet accepted as a ruling planet or an agent of one, with the reason. */
   accepted: Array<{ planet: Planet; reason: string; weight: number }>;
   windowMinutes: number;
+  /**
+   * Marks on the body (Brihat Jataka 5.22-26) for every rising drekkana the window crosses, keyed by
+   * RectifySegment.drekkana. Drekkana-level only: every interval in one drekkana reads alike.
+   */
+  marks: Record<number, BodyMarksResult>;
   given: { time: string; lagna: number };
   segments: RectifySegment[];
   best: number[];
 }
-

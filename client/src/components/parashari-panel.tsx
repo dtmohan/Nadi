@@ -90,6 +90,8 @@ import { VargasSection } from "@/components/vargas";
 import { computeChalit } from "@shared/chalit";
 import { ChalitSection } from "@/components/chalit";
 import { computeSudarshana } from "@shared/sudarshana";
+import { computeKarmajiva } from "@shared/karmajiva";
+import { KarmajivaSection } from "@/components/karmajiva";
 import { SudarshanaSection } from "@/components/sudarshana";
 import { compareSudarshanaEvents } from "@shared/sudarshana-events";
 import { computePortions } from "@shared/portions";
@@ -266,6 +268,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
     [positions, result.shadbala],
   );
   const portions = useMemo(() => computePortions(positions), [positions]);
+  const karmajiva = useMemo(
+    () => computeKarmajiva(positions, r.lagna.signIndex, r.shadbala),
+    [positions, r.lagna.signIndex, r.shadbala],
+  );
   const sudarshana = useMemo(
     () =>
       computeSudarshana(
@@ -914,6 +920,13 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         className="mt-8"
       >
         <AshtakavargaSection av={r.ashtakavarga} lagnaIdx={r.lagna.signIndex} />
+      </Working>
+      <Working
+        id="parashari-karmajiva"
+        label="Show where the living comes from (Brihat Jataka 10)"
+        className="mt-8"
+      >
+        <KarmajivaSection k={karmajiva} />
       </Working>
       <Working
         id="parashari-sudarshana"

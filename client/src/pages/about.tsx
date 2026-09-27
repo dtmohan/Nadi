@@ -1038,6 +1038,75 @@ function KpMethod() {
           , and the method itself in Predicting through Jaimini's Chara Dasha
           (Vani Publications). The check is whole-sign, so the table shows one
           row per rising sign; it settles the sign and leaves the minute to a KP
+          method.
+        </li>
+        <li>
+          Brihat Jataka, marks on the body (Varahamihira 5.22-26): the twelve
+          bhavas are the limbs of the body by the rising drekkana, the first
+          drekkana giving the head (lagna the head, 2 and 12 the eyes, 3 and 11
+          the ears, 4 and 10 the nostrils, 5 and 9 the cheeks, 6 and 8 the jaws,
+          7 the mouth), the second the trunk from the neck (neck, shoulders,
+          arms, sides, breast, belly, navel) and the third the body from the
+          pelvis (pelvis, genitals and anus, testicles, thighs, knees, shins,
+          feet), houses 2-6 on the right and 8-12 on the left (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501658.html"
+            {...ext}
+          >
+            5.24
+          </a>
+          ). A malefic in a bhava gives a wound in that limb, a benefic there or
+          a benefic's aspect a mole or mark; own sign, own navamsa or a fixed
+          sign makes it congenital, otherwise it comes later; the wound is by
+          stone or wind for Saturn, fire, weapon or poison for Mars, earth for a
+          malefic Mercury, wood or a quadruped for the Sun, a horned or water
+          animal for the waning Moon (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501659.html"
+            {...ext}
+          >
+            5.25
+          </a>
+          ). Three planets in one sign mark the limb without fail, a malefic in
+          the 6th wounds, under a benefic's aspect as a dark and a white mole (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501660.html"
+            {...ext}
+          >
+            5.26
+          </a>
+          ). The attendants at the birth are the planets between the lagna and
+          the Moon, those in the visible half outside the room (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501656.html"
+            {...ext}
+          >
+            5.22
+          </a>
+          ), and build and complexion follow the lords of the rising navamsa and
+          of the Moon's navamsa (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501657.html"
+            {...ext}
+          >
+            5.23
+          </a>
+          , colours of 2.4). Checked against the public-domain{" "}
+          <a
+            href="https://archive.org/details/brihatjatakavar00iyergoog"
+            {...ext}
+          >
+            Iyer 1885 translation
+          </a>{" "}
+          (pp. 49-53) and the Sanskrit and commentary of the Adyar edition (pp.
+          301-308); the commentary's additions (Rahu and Ketu as poison and
+          fire, dense hair for benefics in the 6th, the side reading of the
+          lagna itself, and the tradition of reading head-first when the lagna
+          is stronger than the drekkana lord) are marked provisional. The person
+          ticks the limbs that carry a scar, mole or birthmark, the list is held
+          in memory only, and each rising drekkana in the window is scored by
+          the predicted limbs it explains. The check is by drekkana, so it
+          settles the ten-degree third of the sign and leaves the minute to a KP
           method. Bhrigu Nandi Nadi reads without a lagna and offers no
           rectification method.
         </li>
@@ -1375,6 +1444,59 @@ function ParashariMethod() {
           Chapters 62 and 63 (sookshma and prana levels) and chapter 64
           (Kalachakra antars) are not applied; chapter 50 (Chara dasa effects)
           belongs with the Jaimini mode and is noted there for later.
+        </li>
+        <li>
+          Livelihood, Brihat Jataka adhyaya 10 (Varahamihira): a planet in the
+          10th from the lagna or from the Moon gives wealth through the person
+          it stands for (Sun father, Moon mother, Mars enemies, Mercury friends,
+          Jupiter brothers, Venus women, Saturn servants), and the calling
+          follows the lord of the navamsa occupied by the lord of the 10th from
+          the lagna, the Moon and the Sun (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501718.html"
+            {...ext}
+          >
+            10.1
+          </a>
+          ), the callings of each navamsa lord being those of{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501719.html"
+            {...ext}
+          >
+            10.2
+          </a>{" "}
+          and{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501720.html"
+            {...ext}
+          >
+            10.3
+          </a>
+          , and the livelihood planet in a friend's, enemy's or own sign, the
+          strong exalted Sun, and benefics in the 11th, lagna or 2nd those of{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501721.html"
+            {...ext}
+          >
+            10.4
+          </a>
+          . Checked against the public-domain{" "}
+          <a
+            href="https://archive.org/details/brihatjatakavar00iyergoog"
+            {...ext}
+          >
+            Iyer 1885 translation
+          </a>{" "}
+          (pp. 110-112) and the Sanskrit of the Adyar edition (pp. 445-452). The
+          Adyar text reads the Moon's person as the mother (janani), as Iyer has
+          it, where Neely's translation gives the father's wife. Which of the
+          three references decides is the commentator's question: Aiyangar first
+          gives only the strongest of the lagna, Moon and Sun (citing Jataka
+          Parijata, p. 446), then allows all three (citing Garga, p. 447); both
+          readings are provisional, so all three are shown and the stronger
+          luminary by Shadbala is marked. The commentary's glosses (kinsmen
+          under Mars, the maternal uncle under Mercury, elder brothers under
+          Jupiter) are marked provisional.
         </li>
       </ul>
       <h2>Not yet here</h2>

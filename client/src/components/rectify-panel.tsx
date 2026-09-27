@@ -46,11 +46,22 @@ import { useJudgePlace } from "@/lib/judge-place";
 import { JudgePlaceControl } from "@/components/judge-place";
 import { setBirthTime } from "@/components/birth-time-editor";
 import { Cite } from "@/components/source-link";
+import { scoreMarks, type BodyMarksResult } from "@shared/body-marks";
+import {
+  LimbDots,
+  MarksChecklist,
+  MarksDetail,
+} from "@/components/rectify-marks";
 import { cn } from "@/lib/utils";
 
 /** Rectification methods. One at a time, never blended; each cites its own source. */
 export type RectifyMethod =
-  "kp-rp" | "kp-moon" | "kp-events" | "kp-transit" | "jaimini-dasha";
+  | "kp-rp"
+  | "kp-moon"
+  | "kp-events"
+  | "kp-transit"
+  | "jaimini-dasha"
+  | "bj-marks";
 const METHODS: Array<{
   id: RectifyMethod;
   system: string;
@@ -129,6 +140,20 @@ const METHODS: Array<{
     needsJudge: false,
     needsEvents: true,
   },
+  {
+    id: "bj-marks",
+    system: "Brihat Jataka",
+    label: "Marks on the body",
+    plainLabel: "Marks on the body",
+    plainShort:
+      "Varahamihira makes the twelve houses the parts of the body, head first, and which set of parts they stand for depends on which third of the rising sign is up: the head, the trunk or the lower body. A harsh planet in a house leaves a wound or scar on that part, a helpful one, or its gaze, a mole or birthmark; parts on the right for houses two to six, on the left for eight to twelve. Tick the marks you actually carry and see which third of the sign explains them. It settles the ten-degree third, not the minute.",
+    short:
+      "The twelve bhavas are the limbs of the body by the rising drekkana: the first drekkana gives the head, the second the trunk from the neck, the third the body from the pelvis; houses 2-6 are the right side, 8-12 the left. A malefic in a bhava wounds that limb, a benefic or a benefic's aspect marks it; own sign, own navamsa or a fixed sign makes the mark congenital. Three planets in one sign mark the limb without fail; a malefic in the 6th wounds. Confirm the limbs that carry marks and the drekkana that explains them is the sieve; it settles the drekkana, not the minute.",
+    source:
+      "Brihat Jataka 5.22-26 (Iyer 1885, pp. 49-53; Adyar 1951, pp. 301-308)",
+    needsJudge: false,
+    needsEvents: false,
+  },
 ];
 
 /** Method label for running text; only "Moon" keeps its capital. */
@@ -140,7 +165,14 @@ function methodLabel(m: { label: string }): string {
 function methodScore(
   s: RectifySegment,
   m: RectifyMethod,
+  marks?: { table: Record<number, BodyMarksResult>; confirmed: Set<string> },
 ): { score: number; max: number } {
+  if (m === "bj-marks") {
+    const r = marks?.table[s.drekkana];
+    if (!r) return { score: 0, max: 0 };
+    const sc = scoreMarks(r, marks!.confirmed);
+    return { score: sc.score, max: sc.max };
+  }
   if (m === "kp-rp") return { score: s.rp.score, max: s.rp.max };
   if (m === "kp-moon")
     return { score: s.moonLords.score, max: s.moonLords.max };
@@ -235,6 +267,17 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
   const [windowMinutes, setWindowMinutes] = useState(30);
   const [sortByScore, setSortByScore] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
+  // Limbs the person confirms a mark on (Brihat Jataka 5.24-26); memory only, never stored.
+  const [confirmedMarks, setConfirmedMarks] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const toggleMark = (l: string) =>
+    setConfirmedMarks((prev) => {
+      const next = new Set(prev);
+      if (next.has(l)) next.delete(l);
+      else next.add(l);
+      return next;
+    });
   const judge = useJudgePlace();
   const plain = usePlain();
 
@@ -283,7 +326,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
 
   /** Why this interval was chosen, for the notes of the copy or of this chart. */
   const provenance = (seg: RectifySegment) => {
-    const sc = methodScore(seg, method);
+    const sc = methodScore(seg, method, marksCtx);
     const inputs = [
       m.needsJudge && data
         ? `judged ${DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from ${data.judgedAt.label}`
@@ -294,7 +337,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
     ]
       .filter(Boolean)
       .join("; ");
-    return `by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}`;
+    return `by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}${method === "bj-marks" && data ? ` (${data.marks[seg.drekkana]?.drekkanaLabel}; confirmed ${Array.from(confirmedMarks).join(", ") || "none"})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}`;
   };
 
   const saveCopy = useMutation({
@@ -351,12 +394,20 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
   const busy = saveCopy.isPending || useHere.isPending;
 
   const data = scan.data;
+  const marksCtx = useMemo(
+    () => (data ? { table: data.marks, confirmed: confirmedMarks } : undefined),
+    [data, confirmedMarks],
+  );
   const scored = useMemo(
     () =>
       data
-        ? data.segments.map((s, i) => ({ s, i, ...methodScore(s, method) }))
+        ? data.segments.map((s, i) => ({
+            s,
+            i,
+            ...methodScore(s, method, marksCtx),
+          }))
         : [],
-    [data, method],
+    [data, method, marksCtx],
   );
   const top = scored.reduce((t, r) => Math.max(t, r.score), 0);
   const bestSet = useMemo(
@@ -465,6 +516,59 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
     return groups;
   }, [data]);
   const groupTop = signGroups.reduce((t, g) => Math.max(t, g.score), 0);
+  // Brihat Jataka marks: rows are rising drekkanas, since every interval in one drekkana reads alike.
+  const drekkanaGroups = useMemo(() => {
+    if (!data) return [];
+    const groups: Array<{
+      first: number;
+      last: number;
+      drekkana: number;
+      score: number;
+      max: number;
+      given: boolean;
+      nearest: number | null;
+    }> = [];
+    data.segments.forEach((s, i) => {
+      const g = groups[groups.length - 1];
+      if (g && g.drekkana === s.drekkana) {
+        g.last = i;
+        g.given = g.given || s.given;
+      } else {
+        const sc = methodScore(s, "bj-marks", marksCtx);
+        groups.push({
+          first: i,
+          last: i,
+          drekkana: s.drekkana,
+          score: sc.score,
+          max: sc.max,
+          given: s.given,
+          nearest: null,
+        });
+      }
+    });
+    const givenIdx = data.segments.findIndex((s) => s.given);
+    for (const g of groups) {
+      if (g.given) continue;
+      g.nearest = givenIdx < g.first ? g.first : g.last;
+    }
+    return groups;
+  }, [data, marksCtx]);
+  const drekkanaTop = drekkanaGroups.reduce((t, g) => Math.max(t, g.score), 0);
+  const sortedDrekkanas = useMemo(
+    () =>
+      sortByScore
+        ? [...drekkanaGroups].sort(
+            (a, b) => b.score - a.score || a.first - b.first,
+          )
+        : drekkanaGroups,
+    [drekkanaGroups, sortByScore],
+  );
+  const [openDrekkana, setOpenDrekkana] = useState<number | null>(null);
+  const shownDrekkana =
+    openDrekkana ??
+    drekkanaGroups.find((g) => g.given)?.drekkana ??
+    drekkanaGroups[0]?.drekkana ??
+    null;
   const sortedGroups = useMemo(
     () =>
       sortByScore
@@ -547,6 +651,13 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
         <JudgePlaceControl
           birthPlace={chart.place}
           birthTimezone={chart.timezone}
+        />
+      )}
+      {method === "bj-marks" && (
+        <MarksChecklist
+          confirmed={confirmedMarks}
+          onToggle={toggleMark}
+          plain={plain}
         />
       )}
 
@@ -779,13 +890,19 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                   ? ` Rows are rising signs, not minute slices. Each event shows the period and sub-period signs running that day (fwd, bwd: the direction the periods run from that rising sign); a full dot means the sign carries the matter by Rao's threshold, a faint one a lighter touch. ${signGroups.length < 2 ? "Only one sign rises in this window; widen it to ± 120 or 180 min to test the neighbouring signs." : ""}`
                   : ` Rows are rising signs, not sub-lord intervals. Each event shows the mahadasha and antardasha signs running that day (fwd, bwd: the direction the dasha runs from that lagna); a full mark means the sign carries the matter by Rao's threshold (the area's karaka in its house, its pada, or the karaka's own sign), a faint one a lighter touch. ${signGroups.length < 2 ? "Only one sign rises in this window; widen it to ± 120 or 180 min to test the neighbouring signs." : ""}`
                 : " Add dated events and scan again to score by this method.")}
+            {method === "bj-marks" &&
+              (plain
+                ? ` Rows are thirds of the rising sign, not minute slices; each lists the body parts the planets should have marked, green where you ticked the part above. ${drekkanaGroups.length < 2 ? "Only one third rises in this window; widen it to ± 60 min or more to test the neighbouring thirds." : ""}`
+                : ` Rows are rising drekkanas, not sub-lord intervals; each lists the limbs the planets and benefic aspects predict, green where confirmed above. ${drekkanaGroups.length < 2 ? "Only one drekkana rises in this window; widen it to ± 60 min or more to test the neighbouring drekkanas." : ""}`)}
           </p>
 
           <div className="mt-3 flex items-center justify-between text-xs">
             <span className="text-muted-foreground">
               {method === "jaimini-dasha"
                 ? `${signGroups.length} rising ${signGroups.length === 1 ? "sign" : "signs"} in ± ${data.windowMinutes} min · ${plain ? "Jaimini sign periods" : "Jaimini chara dasha"} · best score ${groupTop} of ${signGroups[0]?.max ?? 0}`
-                : `${data.segments.length} ${plain ? "slices" : "intervals"} in ± ${data.windowMinutes} min · ${m.system} ${plain ? m.plainLabel.toLowerCase() : methodLabel(m)} · best score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}`}
+                : method === "bj-marks"
+                  ? `${drekkanaGroups.length} rising ${drekkanaGroups.length === 1 ? "drekkana" : "drekkanas"} in ± ${data.windowMinutes} min · Brihat Jataka marks · ${confirmedMarks.size ? `best ${drekkanaTop} confirmed` : "tick your marks above to score"}`
+                  : `${data.segments.length} ${plain ? "slices" : "intervals"} in ± ${data.windowMinutes} min · ${m.system} ${plain ? m.plainLabel.toLowerCase() : methodLabel(m)} · best score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}`}
             </span>
             <button
               type="button"
@@ -834,6 +951,148 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
                 />
               </div>
             )}
+
+          {method === "bj-marks" && (
+            <div className="mt-2 overflow-x-auto" data-testid="rectify-marks">
+              <Table className="text-xs leading-5 [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="whitespace-nowrap">Rising</TableHead>
+                    <TableHead className="whitespace-nowrap">
+                      {plain ? "Third of the sign" : "Drekkana"}
+                    </TableHead>
+                    <TableHead>
+                      {plain
+                        ? "Parts that should be marked"
+                        : "Predicted limbs"}
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap">Score</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sortedDrekkanas.map((g) => {
+                    const first = data.segments[g.first];
+                    const last = data.segments[g.last];
+                    const r = data.marks[g.drekkana];
+                    const best = g.score === drekkanaTop && drekkanaTop > 0;
+                    const shown = shownDrekkana === g.drekkana;
+                    return (
+                      <TableRow
+                        key={g.first}
+                        className={cn(
+                          best && "bg-verdict-good/10",
+                          g.given &&
+                            "outline outline-1 -outline-offset-1 outline-foreground/40",
+                        )}
+                        data-testid={`rectify-drekkana-${g.drekkana}`}
+                      >
+                        <TableCell className="whitespace-nowrap tabular align-top">
+                          {first.start.slice(0, 5)}
+                          <span className="text-muted-foreground">
+                            :{first.start.slice(6)}
+                          </span>
+                          –{last.end.slice(0, 5)}
+                          <span className="text-muted-foreground">
+                            :{last.end.slice(6)}
+                          </span>
+                          {g.given && (
+                            <span className="ml-1.5 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground">
+                              given
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap align-top">
+                          {r ? (
+                            <>
+                              {SIGNS3[r.lagnaSign]}{" "}
+                              {["1st", "2nd", "3rd"][r.drekkana - 1]}{" "}
+                              <span className="text-muted-foreground">
+                                {["head", "trunk", "lower"][r.drekkana - 1]}
+                              </span>
+                            </>
+                          ) : (
+                            "—"
+                          )}
+                        </TableCell>
+                        <TableCell className="align-top">
+                          {r ? (
+                            <LimbDots r={r} confirmed={confirmedMarks} />
+                          ) : (
+                            "—"
+                          )}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap align-top">
+                          <ScoreBar score={g.score} max={g.max} />
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap text-right align-top">
+                          <button
+                            type="button"
+                            className={cn(
+                              "underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground",
+                              shown && "font-medium no-underline",
+                            )}
+                            onClick={() =>
+                              setOpenDrekkana(shown ? null : g.drekkana)
+                            }
+                            data-testid={`button-rectify-marks-open-${g.drekkana}`}
+                          >
+                            {shown ? "Shown below" : "Show limbs"}
+                          </button>
+                          {g.given ? (
+                            <span className="ml-2 text-muted-foreground">
+                              recorded drekkana
+                            </span>
+                          ) : g.nearest !== null ? (
+                            <>
+                              <button
+                                type="button"
+                                className="ml-2 underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50"
+                                title={`Moves this chart to the interval of this drekkana nearest the recorded time, ${data.segments[g.nearest].start} to ${data.segments[g.nearest].end}`}
+                                onClick={() =>
+                                  useHere.mutate(data.segments[g.nearest!])
+                                }
+                                disabled={busy}
+                                data-testid={`button-rectify-use-drekkana-${g.drekkana}`}
+                              >
+                                Use nearest here
+                              </button>
+                              <button
+                                type="button"
+                                className="ml-2 underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50"
+                                title={`Saves a copy at the interval of this drekkana nearest the recorded time, ${data.segments[g.nearest].start} to ${data.segments[g.nearest].end}`}
+                                onClick={() =>
+                                  saveCopy.mutate(data.segments[g.nearest!])
+                                }
+                                disabled={busy}
+                                data-testid={`button-rectify-save-drekkana-${g.drekkana}`}
+                              >
+                                Save nearest
+                              </button>
+                            </>
+                          ) : null}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+              {shownDrekkana !== null && data.marks[shownDrekkana] && (
+                <MarksDetail
+                  r={data.marks[shownDrekkana]}
+                  confirmed={confirmedMarks}
+                  plain={plain}
+                  degrees={`${(shownDrekkana % 3) * 10}°–${(shownDrekkana % 3) * 10 + 10}°`}
+                />
+              )}
+              <p className="mt-2 text-xs text-muted-foreground">
+                The marks settle the drekkana; pick the minute inside it with a
+                KP method. Use nearest here moves this chart to the{" "}
+                {plain ? "slice" : "interval"} of that drekkana closest to the
+                recorded time; Save nearest makes a copy there.
+              </p>
+            </div>
+          )}
 
           {method === "jaimini-dasha" && (
             <div className="mt-2 overflow-x-auto">
@@ -1009,7 +1268,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
             </div>
           )}
 
-          {method !== "jaimini-dasha" && (
+          {method !== "jaimini-dasha" && method !== "bj-marks" && (
             <div className="mt-2 overflow-x-auto">
               <Table className="text-xs leading-5 [&_button]:[word-spacing:0.2em] [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
                 <TableHeader>
@@ -1387,6 +1646,7 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
 
           {open !== null &&
             method !== "jaimini-dasha" &&
+            method !== "bj-marks" &&
             data.segments[open] && (
               <div
                 className="mt-3 rounded-md border p-3 text-xs"
