@@ -95,7 +95,7 @@ import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
 import { eventMarks, transitBand, vimshottariBands } from "@/lib/timeline-data";
-import { SourceLink } from "@/components/source-link";
+import { SourceLink, Cite } from "@/components/source-link";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -361,25 +361,11 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 twelve houses from chapters 12-23, evils at birth and their
                 antidotes from chapters 9-10, curses from the previous birth
                 from chapter 83, yogas from chapters 34 to 42, 75 and 79 of{" "}
-                <a
-                  href={BPHS_URL(24)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline decoration-muted-foreground/50 underline-offset-2"
-                >
-                  Brihat Parashara Hora Sastra
-                </a>{" "}
+                <Cite href={BPHS_URL(24)}>Brihat Parashara Hora Sastra</Cite>{" "}
                 (Santhanam translation). Nodes have no aspect in chapter 26 and
                 own no house; they are read through their sign lord.
                 Cancellation of debilitation follows{" "}
-                <a
-                  href={PHALADEEPIKA_CH7_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="underline decoration-muted-foreground/50 underline-offset-2"
-                >
-                  Phaladeepika 7.26-30
-                </a>{" "}
+                <Cite href={PHALADEEPIKA_CH7_URL}>Phaladeepika 7.26-30</Cite>{" "}
                 (Subrahmanya Sastri translation), since Parashara's verses do
                 not state it; later-practice conditions are shown provisional
                 and not applied. First pass.
@@ -1293,34 +1279,12 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
           </Table>
           <p className="mt-1 text-xs text-muted-foreground">
             Sub-period readings from{" "}
-            <a
-              href={KC_CH49}
-              target="_blank"
-              rel="noreferrer"
-              className="underline decoration-dotted underline-offset-2"
-            >
-              Parashara 49.{KC_SUB_VERSES[sel.sign]}
-            </a>
-            ; 49.7 adds that the planet occupying the sign must be weighed with
+            <Cite href={KC_CH49}>Parashara 49.{KC_SUB_VERSES[sel.sign]}</Cite>;
+            49.7 adds that the planet occupying the sign must be weighed with
             them, and 49.35-37 that the raja-yoga dasa effects apply here too.
-            Where{" "}
-            <a
-              href={KC_CH65}
-              target="_blank"
-              rel="noreferrer"
-              className="underline decoration-dotted underline-offset-2"
-            >
-              Parashara 65.{VERSES_65[sel.sign]}
-            </a>{" "}
+            Where <Cite href={KC_CH65}>Parashara 65.{VERSES_65[sel.sign]}</Cite>{" "}
             differs in sense it is shown beside. The lord column follows{" "}
-            <a
-              href={KC_CH64}
-              target="_blank"
-              rel="noreferrer"
-              className="underline decoration-dotted underline-offset-2"
-            >
-              Parashara 64
-            </a>
+            <Cite href={KC_CH64}>Parashara 64</Cite>
             {k.chakra === "Savya"
               ? ""
               : ", whose lists are for the Savya chakra; for Apsavya births 64.56-58 asks that a friend of the dasa lord be read as favourable and a benefic enemy as not"}

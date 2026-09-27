@@ -1,23 +1,74 @@
 import { useMemo, useState } from "react";
+import { Cite } from "@/components/source-link";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
-import { NAKSHATRAS, PLANET_ABBR, SIGNS, SIGN_ABBR, fmtDegShort, type Planet } from "@shared/astro";
+import {
+  NAKSHATRAS,
+  PLANET_ABBR,
+  SIGNS,
+  SIGN_ABBR,
+  fmtDegShort,
+  type Planet,
+} from "@shared/astro";
 
 const NAK_ARC = 360 / 27;
-import { DEFAULT_ALP_CONFIG, computeAlp, type AlpConfig, type AlpPeriod } from "@shared/alp";
-import { ALP_CHAPTERS, ALP_RULES, ALP_SOURCE_MAGAZINE_2, ALP_SOURCE_SITE, KARMA_BHAVAS, KARMA_REMEDY_NOTE, TWO_PLANET_NOTE, ARP_NOTE, ARP_QUESTIONS_NOTE, ALP_TEN_FEATURES, ALP_HOUSE_THEMES, DUSTHANA_NOTE, alpSignReading, threeWaysFor, threeWaysCount, threeWaysText, THREE_WAYS_NOTE, ALP_PLANET_THEMES } from "@shared/rules-alp";
+import {
+  DEFAULT_ALP_CONFIG,
+  computeAlp,
+  type AlpConfig,
+  type AlpPeriod,
+} from "@shared/alp";
+import {
+  ALP_CHAPTERS,
+  ALP_RULES,
+  ALP_SOURCE_MAGAZINE_2,
+  ALP_SOURCE_SITE,
+  KARMA_BHAVAS,
+  KARMA_REMEDY_NOTE,
+  TWO_PLANET_NOTE,
+  ARP_NOTE,
+  ARP_QUESTIONS_NOTE,
+  ALP_TEN_FEATURES,
+  ALP_HOUSE_THEMES,
+  DUSTHANA_NOTE,
+  alpSignReading,
+  threeWaysFor,
+  threeWaysCount,
+  threeWaysText,
+  THREE_WAYS_NOTE,
+  ALP_PLANET_THEMES,
+} from "@shared/rules-alp";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Working } from "@/components/working";
-import { VerdictCard, type VerdictSignature, type VerdictTiming } from "@/components/verdict-card";
+import {
+  VerdictCard,
+  type VerdictSignature,
+  type VerdictTiming,
+} from "@/components/verdict-card";
 import { toneOfText, gist, firstClause } from "@shared/synthesis";
 import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
-import { PlanetName, SignName, TimePill, PlanetLegend, ElementLegend, planetColor, elementColor } from "@/components/planet-name";
+import {
+  PlanetName,
+  SignName,
+  TimePill,
+  PlanetLegend,
+  ElementLegend,
+  planetColor,
+  elementColor,
+} from "@/components/planet-name";
 import { DasaBar } from "@/components/dasa-bar";
 import { Term } from "@/components/term";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
 function ordinal(n: number) {
@@ -26,23 +77,64 @@ function ordinal(n: number) {
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 const fmtMonth = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 
-function PeriodRow({ p, planets, cols }: { p: AlpPeriod; planets: string; cols: "sign" | "pada" }) {
+function PeriodRow({
+  p,
+  planets,
+  cols,
+}: {
+  p: AlpPeriod;
+  planets: string;
+  cols: "sign" | "pada";
+}) {
   return (
-    <TableRow className={cn(p.current && "bg-primary/5")} data-testid={cols === "sign" ? `row-alp-sign-${p.signIndex}` : `row-alp-pada-${p.padaInSign}`}>
+    <TableRow
+      className={cn(p.current && "bg-primary/5")}
+      data-testid={
+        cols === "sign"
+          ? `row-alp-sign-${p.signIndex}`
+          : `row-alp-pada-${p.padaInSign}`
+      }
+    >
       <TableCell className="py-2 font-medium">
-        {cols === "sign" ? <SignName signIndex={p.signIndex} /> : `${p.padaInSign} · ${p.nakshatraIndex !== undefined ? NAKSHATRAS[p.nakshatraIndex] : ""} ${p.pada ?? ""}`}
-        {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+        {cols === "sign" ? (
+          <SignName signIndex={p.signIndex} />
+        ) : (
+          `${p.padaInSign} · ${p.nakshatraIndex !== undefined ? NAKSHATRAS[p.nakshatraIndex] : ""} ${p.pada ?? ""}`
+        )}
+        {p.current && (
+          <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
+            now
+          </span>
+        )}
       </TableCell>
-      {cols === "pada" && <TableCell className="py-2">{p.nakshatraLord ? <PlanetName planet={p.nakshatraLord} /> : ""}</TableCell>}
-      {cols === "pada" && <TableCell className="hidden py-2 sm:table-cell">{p.navamsaSign !== undefined ? SIGNS[p.navamsaSign] : ""}</TableCell>}
+      {cols === "pada" && (
+        <TableCell className="py-2">
+          {p.nakshatraLord ? <PlanetName planet={p.nakshatraLord} /> : ""}
+        </TableCell>
+      )}
+      {cols === "pada" && (
+        <TableCell className="hidden py-2 sm:table-cell">
+          {p.navamsaSign !== undefined ? SIGNS[p.navamsaSign] : ""}
+        </TableCell>
+      )}
       <TableCell className="py-2 text-right">
         {p.ageStart.toFixed(1)}–{p.ageEnd.toFixed(1)}
       </TableCell>
       <TableCell className="py-2 text-muted-foreground">
-        {cols === "sign" ? `${fmtMonth(p.start)} – ${fmtMonth(p.end)}` : `${fmt(p.start)} – ${fmt(p.end)}`}
+        {cols === "sign"
+          ? `${fmtMonth(p.start)} – ${fmtMonth(p.end)}`
+          : `${fmt(p.start)} – ${fmt(p.end)}`}
       </TableCell>
-      {cols === "sign" && <TableCell className="hidden py-2 sm:table-cell">{p.lord ? <PlanetName planet={p.lord} /> : ""}</TableCell>}
-      {cols === "sign" && <TableCell className="hidden py-2 text-muted-foreground md:table-cell">{planets || "—"}</TableCell>}
+      {cols === "sign" && (
+        <TableCell className="hidden py-2 sm:table-cell">
+          {p.lord ? <PlanetName planet={p.lord} /> : ""}
+        </TableCell>
+      )}
+      {cols === "sign" && (
+        <TableCell className="hidden py-2 text-muted-foreground md:table-cell">
+          {planets || "—"}
+        </TableCell>
+      )}
     </TableRow>
   );
 }
@@ -59,8 +151,16 @@ export function AlpPanel({ result }: { result: ChartResult }) {
   const [asOf, setAsOf] = useState(() => DateTime.local().toISODate()!);
   const config: AlpConfig = DEFAULT_ALP_CONFIG;
   const a = useMemo(() => {
-    const iso = DateTime.fromISO(asOf, { zone: chart.timezone }).isValid ? DateTime.fromISO(asOf, { zone: chart.timezone }).toISO()! : DateTime.local().toISO()!;
-    return computeAlp(positions, result.jaimini.lagna.lon, result.utc, iso, config);
+    const iso = DateTime.fromISO(asOf, { zone: chart.timezone }).isValid
+      ? DateTime.fromISO(asOf, { zone: chart.timezone }).toISO()!
+      : DateTime.local().toISO()!;
+    return computeAlp(
+      positions,
+      result.jaimini.lagna.lon,
+      result.utc,
+      iso,
+      config,
+    );
   }, [asOf, positions, result.jaimini.lagna.lon, result.utc, chart.timezone]);
 
   const alpLord = a.point.lord;
@@ -68,25 +168,54 @@ export function AlpPanel({ result }: { result: ChartResult }) {
   const curSign = a.signPeriods.find((p) => p.current);
   const badges: Record<number, string[]> = {};
   badges[a.point.signIndex] = ["ALP"];
-  badges[a.natalLagna.signIndex] = [...(badges[a.natalLagna.signIndex] ?? []), "Janma"];
-  badges[a.point.navamsaSign] = [...(badges[a.point.navamsaSign] ?? []), "Activated"];
-  badges[a.arp.point.signIndex] = [...(badges[a.arp.point.signIndex] ?? []), "AR"];
+  badges[a.natalLagna.signIndex] = [
+    ...(badges[a.natalLagna.signIndex] ?? []),
+    "Janma",
+  ];
+  badges[a.point.navamsaSign] = [
+    ...(badges[a.point.navamsaSign] ?? []),
+    "Activated",
+  ];
+  badges[a.arp.point.signIndex] = [
+    ...(badges[a.arp.point.signIndex] ?? []),
+    "AR",
+  ];
   const arp = a.arp;
   const arpLordSame = arp.point.lord === a.point.lord;
-  const threeWaysJanma = useMemo(() => threeWaysFor(a.natalLagna, a.natalLagna.signIndex, positions), [a.natalLagna, positions]);
-  const threeWaysAlp = useMemo(() => threeWaysFor(a.point, a.point.signIndex, positions), [a.point, positions]);
-  const signReading = useMemo(() => alpSignReading(a.point.signIndex, a.point.sign), [a.point.signIndex, a.point.sign]);
-  const nakLordHouse = a.placements.find((p) => p.planet === a.point.nakshatraLord)?.houseFromAlp ?? 0;
-  const planetsIn = (sign: number) => positions.filter((p) => p.signIndex === sign).map((p) => PLANET_ABBR[p.planet]).join(" ");
-  const pendingChapters = ALP_CHAPTERS.filter((c) => !ALP_RULES.some((r) => r.chapter === c.id));
+  const threeWaysJanma = useMemo(
+    () => threeWaysFor(a.natalLagna, a.natalLagna.signIndex, positions),
+    [a.natalLagna, positions],
+  );
+  const threeWaysAlp = useMemo(
+    () => threeWaysFor(a.point, a.point.signIndex, positions),
+    [a.point, positions],
+  );
+  const signReading = useMemo(
+    () => alpSignReading(a.point.signIndex, a.point.sign),
+    [a.point.signIndex, a.point.sign],
+  );
+  const nakLordHouse =
+    a.placements.find((p) => p.planet === a.point.nakshatraLord)
+      ?.houseFromAlp ?? 0;
+  const planetsIn = (sign: number) =>
+    positions
+      .filter((p) => p.signIndex === sign)
+      .map((p) => PLANET_ABBR[p.planet])
+      .join(" ");
+  const pendingChapters = ALP_CHAPTERS.filter(
+    (c) => !ALP_RULES.some((r) => r.chapter === c.id),
+  );
   const roleLine = (role: string) => a.placements.find((p) => p.role === role)!;
   const lordP = roleLine("ALP lagna lord");
   const janmaP = roleLine("Janma lagna lord");
   const nakP = roleLine("Lord of the ALP nakshatra");
   const navP = roleLine("Lord of the activated navamsa sign");
-  const activatedHouse = ((a.point.navamsaSign - a.point.signIndex + 12) % 12) + 1;
+  const activatedHouse =
+    ((a.point.navamsaSign - a.point.signIndex + 12) % 12) + 1;
   const curNak = a.nakshatraPeriods.find((n) => n.current);
-  const nextNak = curNak ? a.nakshatraPeriods[a.nakshatraPeriods.indexOf(curNak) + 1] : undefined;
+  const nextNak = curNak
+    ? a.nakshatraPeriods[a.nakshatraPeriods.indexOf(curNak) + 1]
+    : undefined;
   const houseOf = (planet: Planet) => {
     const p = positions.find((x) => x.planet === planet);
     return p ? ((p.signIndex - a.point.signIndex + 12) % 12) + 1 : undefined;
@@ -101,60 +230,207 @@ export function AlpPanel({ result }: { result: ChartResult }) {
     <div data-testid="alp-panel">
       <div className="flex flex-wrap items-center gap-1.5 text-xs">
         <Badge variant="outline" className="no-default-hover-elevate tabular">
-          <Term k="lagna">{plain ? "Birth rising sign" : "Janma lagna"}</Term>&nbsp;{a.natalLagna.sign} {fmtDegShort(a.natalLagna.lon)}
+          <Term k="lagna">{plain ? "Birth rising sign" : "Janma lagna"}</Term>
+          &nbsp;{a.natalLagna.sign} {fmtDegShort(a.natalLagna.lon)}
         </Badge>
-        <Badge variant="secondary" className="no-default-hover-elevate tabular" data-testid="text-alp-lagna">
-          <Term k="alp-lagna">{plain ? "Moving point" : "ALP lagna"}</Term>&nbsp;{a.point.sign} {fmtDegShort(a.point.lon)}
+        <Badge
+          variant="secondary"
+          className="no-default-hover-elevate tabular"
+          data-testid="text-alp-lagna"
+        >
+          <Term k="alp-lagna">{plain ? "Moving point" : "ALP lagna"}</Term>
+          &nbsp;{a.point.sign} {fmtDegShort(a.point.lon)}
         </Badge>
-        <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-alp-pada">
-          {plain ? <>Star-stretch&nbsp;{a.point.nakshatra}&nbsp;·&nbsp;<Term k="alp-pada">quarter</Term>&nbsp;{a.point.pada}&nbsp;·&nbsp;{a.point.padaInSign}&nbsp;of&nbsp;9&nbsp;in&nbsp;sign</> : <>{a.point.nakshatra}&nbsp;<Term k="alp-pada">pada</Term>&nbsp;{a.point.pada}&nbsp;·&nbsp;{a.point.padaInSign}/9&nbsp;in&nbsp;sign</>}
+        <Badge
+          variant="outline"
+          className="no-default-hover-elevate"
+          data-testid="text-alp-pada"
+        >
+          {plain ? (
+            <>
+              Star-stretch&nbsp;{a.point.nakshatra}&nbsp;·&nbsp;
+              <Term k="alp-pada">quarter</Term>&nbsp;{a.point.pada}&nbsp;·&nbsp;
+              {a.point.padaInSign}&nbsp;of&nbsp;9&nbsp;in&nbsp;sign
+            </>
+          ) : (
+            <>
+              {a.point.nakshatra}&nbsp;<Term k="alp-pada">pada</Term>&nbsp;
+              {a.point.pada}&nbsp;·&nbsp;{a.point.padaInSign}
+              /9&nbsp;in&nbsp;sign
+            </>
+          )}
         </Badge>
-        <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-alp-nak-lord">
-          {plain ? "Star ruler" : "Nakshatra lord"}&nbsp;<PlanetName planet={a.point.nakshatraLord} />&nbsp;·&nbsp;{ordinal(nakP.houseFromAlp)}{plain ? " house" : ""}
+        <Badge
+          variant="outline"
+          className="no-default-hover-elevate"
+          data-testid="text-alp-nak-lord"
+        >
+          {plain ? "Star ruler" : "Nakshatra lord"}&nbsp;
+          <PlanetName planet={a.point.nakshatraLord} />
+          &nbsp;·&nbsp;{ordinal(nakP.houseFromAlp)}
+          {plain ? " house" : ""}
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate">
-          {plain ? "Switches on" : "Activates"} {SIGNS[a.point.navamsaSign]} ({ordinal(activatedHouse)}{plain ? " house" : ""})
+          {plain ? "Switches on" : "Activates"} {SIGNS[a.point.navamsaSign]} (
+          {ordinal(activatedHouse)}
+          {plain ? " house" : ""})
         </Badge>
         <Badge variant="outline" className="no-default-hover-elevate tabular">
           Age {a.ageYears.toFixed(1)}
         </Badge>
-        <Badge variant="secondary" className="no-default-hover-elevate" data-testid="text-alp-arp">
-          <Term k="akshaya-rasi">{plain ? "Mind's point" : "Akshaya rasi"}</Term>&nbsp;{arp.point.sign}&nbsp;·&nbsp;{arp.point.nakshatra}&nbsp;{arp.point.pada}
+        <Badge
+          variant="secondary"
+          className="no-default-hover-elevate"
+          data-testid="text-alp-arp"
+        >
+          <Term k="akshaya-rasi">
+            {plain ? "Mind's point" : "Akshaya rasi"}
+          </Term>
+          &nbsp;{arp.point.sign}&nbsp;·&nbsp;{arp.point.nakshatra}&nbsp;
+          {arp.point.pada}
         </Badge>
-        <Badge variant="outline" className="no-default-hover-elevate" data-testid="text-alp-dasa">
-          {plain ? "Period" : "Dasa"}&nbsp;<PlanetName planet={arp.dasa.lord} />&nbsp;·&nbsp;{plain ? "sub-period" : "bhukti"}&nbsp;<PlanetName planet={arp.bhukti.lord} />
+        <Badge
+          variant="outline"
+          className="no-default-hover-elevate"
+          data-testid="text-alp-dasa"
+        >
+          {plain ? "Period" : "Dasa"}&nbsp;
+          <PlanetName planet={arp.dasa.lord} />
+          &nbsp;·&nbsp;{plain ? "sub-period" : "bhukti"}&nbsp;
+          <PlanetName planet={arp.bhukti.lord} />
         </Badge>
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
         <label className="inline-flex items-center gap-2">
           As of
-          <Input type="date" value={asOf} onChange={(e) => e.target.value && setAsOf(e.target.value)} className="h-7 w-40 text-xs" data-testid="input-alp-asof" />
-          <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setAsOf(DateTime.local().toISODate()!)} data-testid="button-alp-today">
+          <Input
+            type="date"
+            value={asOf}
+            onChange={(e) => e.target.value && setAsOf(e.target.value)}
+            className="h-7 w-40 text-xs"
+            data-testid="input-alp-asof"
+          />
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 px-2"
+            onClick={() => setAsOf(DateTime.local().toISODate()!)}
+            data-testid="button-alp-today"
+          >
             Today
           </Button>
         </label>
         <span>
-          {plain ? "Moving point: next quarter" : "Next pada"} {a.nextPadaChange ? fmt(a.nextPadaChange) : "—"} · next {plain ? "star-stretch" : "nakshatra"} {a.nextNakshatraChange ? fmt(a.nextNakshatraChange) : "—"} · next sign {a.nextSignChange ? fmt(a.nextSignChange) : "—"}
+          {plain ? "Moving point: next quarter" : "Next pada"}{" "}
+          {a.nextPadaChange ? fmt(a.nextPadaChange) : "—"} · next{" "}
+          {plain ? "star-stretch" : "nakshatra"}{" "}
+          {a.nextNakshatraChange ? fmt(a.nextNakshatraChange) : "—"} · next sign{" "}
+          {a.nextSignChange ? fmt(a.nextSignChange) : "—"}
         </span>
         <span data-testid="text-alp-arp-next">
-          {plain ? "Mind's point: next quarter" : "Akshaya rasi: next pada"} {arp.nextPadaChange ? fmt(arp.nextPadaChange) : "—"} · {plain ? "sub-period" : "bhukti"} ends {fmt(arp.bhukti.end)} · {plain ? "period" : "dasa"} ends {fmt(arp.dasa.end)}
+          {plain ? "Mind's point: next quarter" : "Akshaya rasi: next pada"}{" "}
+          {arp.nextPadaChange ? fmt(arp.nextPadaChange) : "—"} ·{" "}
+          {plain ? "sub-period" : "bhukti"} ends {fmt(arp.bhukti.end)} ·{" "}
+          {plain ? "period" : "dasa"} ends {fmt(arp.dasa.end)}
         </span>
       </div>
 
       <VerdictCard
         system="Akshaya Lagna Paddhati"
-        headline={<>At age {a.ageYears.toFixed(1)} the moving point stands in {a.point.sign}, the {ordinal(a.houseFromJanma)} sign from the birth rising sign, and the decade is read from there; the questions of the {ordinal(nakP.houseFromAlp)} house ({ALP_HOUSE_THEMES[nakP.houseFromAlp].split(", ").slice(0, 3).join(", ")}) come to the front.</>}
-        lead={a.findings.length === 0 ? "None of the rules entered so far fires for this placement; the method is still being entered chapter by chapter." : `${a.findings.length} of the rules entered so far ${a.findings.length === 1 ? "fires" : "fire"} for this placement; the strongest are shown here and all are written out under Reading.`}
-        signatures={[...a.findings].sort((x, y) => y.weight - x.weight).slice(0, 3).map((f) => { const t = toneOfText(f.text); return { planets: f.planets.slice(0, 2), label: ALP_CHAPTERS.find((c) => c.id === f.chapter)?.book ?? f.chapter, text: firstClause(gist(f.text)), tone: t === "good" ? "good" : t === "hard" ? "bad" : "neutral" } as VerdictSignature; })}
+        headline={
+          <>
+            At age {a.ageYears.toFixed(1)} the moving point stands in{" "}
+            {a.point.sign}, the {ordinal(a.houseFromJanma)} sign from the birth
+            rising sign, and the decade is read from there; the questions of the{" "}
+            {ordinal(nakP.houseFromAlp)} house (
+            {ALP_HOUSE_THEMES[nakP.houseFromAlp]
+              .split(", ")
+              .slice(0, 3)
+              .join(", ")}
+            ) come to the front.
+          </>
+        }
+        lead={
+          a.findings.length === 0
+            ? "None of the rules entered so far fires for this placement; the method is still being entered chapter by chapter."
+            : `${a.findings.length} of the rules entered so far ${a.findings.length === 1 ? "fires" : "fire"} for this placement; the strongest are shown here and all are written out under Reading.`
+        }
+        signatures={[...a.findings]
+          .sort((x, y) => y.weight - x.weight)
+          .slice(0, 3)
+          .map((f) => {
+            const t = toneOfText(f.text);
+            return {
+              planets: f.planets.slice(0, 2),
+              label:
+                ALP_CHAPTERS.find((c) => c.id === f.chapter)?.book ?? f.chapter,
+              text: firstClause(gist(f.text)),
+              tone: t === "good" ? "good" : t === "hard" ? "bad" : "neutral",
+            } as VerdictSignature;
+          })}
         timing={[
-          ...(curSign ? [{ label: "Now", when: "present", text: <>{a.point.sign} decade, ages {curSign.ageStart.toFixed(1)} to {curSign.ageEnd.toFixed(1)}; {arp.dasa.lord}'s period with {arp.bhukti.lord}'s sub-period until {fmt(arp.bhukti.end)}</> } as VerdictTiming] : []),
-          ...(a.nextSignChange ? [{ label: "Next", when: "future", text: <>the point moves into the next sign on {fmt(a.nextSignChange)}</> } as VerdictTiming] : []),
+          ...(curSign
+            ? [
+                {
+                  label: "Now",
+                  when: "present",
+                  text: (
+                    <>
+                      {a.point.sign} decade, ages {curSign.ageStart.toFixed(1)}{" "}
+                      to {curSign.ageEnd.toFixed(1)}; {arp.dasa.lord}'s period
+                      with {arp.bhukti.lord}'s sub-period until{" "}
+                      {fmt(arp.bhukti.end)}
+                    </>
+                  ),
+                } as VerdictTiming,
+              ]
+            : []),
+          ...(a.nextSignChange
+            ? [
+                {
+                  label: "Next",
+                  when: "future",
+                  text: (
+                    <>
+                      the point moves into the next sign on{" "}
+                      {fmt(a.nextSignChange)}
+                    </>
+                  ),
+                } as VerdictTiming,
+              ]
+            : []),
         ]}
         lines={[
-          { label: "The moving point", text: <>In {a.point.sign}; its ruler {lordP.planet} sits in the {ordinal(lordP.houseFromAlp)} house from it.</> },
-          { label: "Within the sign", text: <>The point is crossing the star-stretch of {a.point.nakshatra}, ruled by {nakP.planet}, which stands in the {ordinal(nakP.houseFromAlp)} house from the point.</> },
-          { label: "The mind's point", text: <>{arp.point.sign}, the {ordinal(arp.houseFromAlp)} house from the body's point; {arp.dasa.lord} stands in the {ordinal(arp.dasaLord.houseFromArp)} house from it.</> },
+          {
+            label: "The moving point",
+            text: (
+              <>
+                In {a.point.sign}; its ruler {lordP.planet} sits in the{" "}
+                {ordinal(lordP.houseFromAlp)} house from it.
+              </>
+            ),
+          },
+          {
+            label: "Within the sign",
+            text: (
+              <>
+                The point is crossing the star-stretch of {a.point.nakshatra},
+                ruled by {nakP.planet}, which stands in the{" "}
+                {ordinal(nakP.houseFromAlp)} house from the point.
+              </>
+            ),
+          },
+          {
+            label: "The mind's point",
+            text: (
+              <>
+                {arp.point.sign}, the {ordinal(arp.houseFromAlp)} house from the
+                body's point; {arp.dasa.lord} stands in the{" "}
+                {ordinal(arp.dasaLord.houseFromArp)} house from it.
+              </>
+            ),
+          },
         ]}
         caveat="Dr. S. Pothuvudaimoorthy's method; the progression arithmetic follows the published rate and the rules are a framework, not a verdict."
         testid="alp-verdict"
@@ -163,8 +439,26 @@ export function AlpPanel({ result }: { result: ChartResult }) {
 
       <ModeText
         className="mt-4 max-w-[76ch] text-sm"
-        plain={<>In this method the rising point does not stay where it was at birth: it moves forward one sign every ten years, so that by the age of 120 it has gone round the whole zodiac. The birth planets stay put and are read afresh from wherever the point stands now, so the same chart tells a different story each decade. A second moving point, derived from the Moon, stands for the mind. Hover a dotted term for its meaning; switch to Practitioner for the arithmetic and page references.</>}
-        practitioner={<>Akshaya Lagna Paddhati: the lagna advanced 3° a year from the birth degree (Book 2 pp. 32-41), read by sign, nakshatra and pada; the Akshaya rasi from the Vimshottari-shifted Moon (Book 2 pp. 72-73). Framework stage.</>}
+        plain={
+          <>
+            In this method the rising point does not stay where it was at birth:
+            it moves forward one sign every ten years, so that by the age of 120
+            it has gone round the whole zodiac. The birth planets stay put and
+            are read afresh from wherever the point stands now, so the same
+            chart tells a different story each decade. A second moving point,
+            derived from the Moon, stands for the mind. Hover a dotted term for
+            its meaning; switch to Practitioner for the arithmetic and page
+            references.
+          </>
+        }
+        practitioner={
+          <>
+            Akshaya Lagna Paddhati: the lagna advanced 3° a year from the birth
+            degree (Book 2 pp. 32-41), read by sign, nakshatra and pada; the
+            Akshaya rasi from the Vimshottari-shifted Moon (Book 2 pp. 72-73).
+            Framework stage.
+          </>
+        }
       />
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
@@ -182,92 +476,365 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           />
           <ModeText
             className="mt-2"
-            plain={<>The birth chart with the houses counted from the moving point (ALP) rather than the birth rising sign (Janma). The point's ruler ({PLANET_ABBR[alpLord]}) is in the accent colour; the tinted sign is the one the current quarter-star switches on; AR marks the mind's point.</>}
-            practitioner={<>Numbers are houses from the ALP lagna; the janma lagna is marked for reference. The ALP lagna lord ({PLANET_ABBR[alpLord]}) is drawn in the accent; the tinted sign is the one the current pada activates; AR marks the Akshaya rasi.</>}
+            plain={
+              <>
+                The birth chart with the houses counted from the moving point
+                (ALP) rather than the birth rising sign (Janma). The point's
+                ruler ({PLANET_ABBR[alpLord]}) is in the accent colour; the
+                tinted sign is the one the current quarter-star switches on; AR
+                marks the mind's point.
+              </>
+            }
+            practitioner={
+              <>
+                Numbers are houses from the ALP lagna; the janma lagna is marked
+                for reference. The ALP lagna lord ({PLANET_ABBR[alpLord]}) is
+                drawn in the accent; the tinted sign is the one the current pada
+                activates; AR marks the Akshaya rasi.
+              </>
+            }
           />
 
-          <SectionTitle as="h2" plain="Where the mind stands" technical="Akshaya rasi (Book 2 ch. 9)" term="akshaya-rasi" className="mt-6 text-base" />
-          {plain && <p className="mt-1 text-xs text-muted-foreground">The Moon moves one lunar mansion with each planetary period; the sign it has reached is the mind's point, judged with the period's planet and against the body's point.</p>}
+          <SectionTitle
+            as="h2"
+            plain="Where the mind stands"
+            technical="Akshaya rasi (Book 2 ch. 9)"
+            term="akshaya-rasi"
+            className="mt-6 text-base"
+          />
+          {plain && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              The Moon moves one lunar mansion with each planetary period; the
+              sign it has reached is the mind's point, judged with the period's
+              planet and against the body's point.
+            </p>
+          )}
           {plain ? (
-          <ul className="mt-3 space-y-2 text-sm" data-testid="list-alp-arp">
-            <li>
-              The Moon was born in the lunar mansion of <span className="font-medium">{arp.natalMoon.nakshatra}</span> ({arp.natalMoon.sign}). It moves forward one mansion with each planetary period and has now reached <span className="font-medium">{arp.point.nakshatra}</span>, quarter {arp.point.pada}, so the mind's point is <span className="font-medium">{arp.point.sign}</span>: the {ordinal(arp.houseFromAlp)} house from the body's point, the {ordinal(arp.houseFromJanma)} from the birth rising sign.
-            </li>
-            <li>
-              The running planetary period belongs to <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> (ages {arp.dasa.ageStart.toFixed(1)} to {arp.dasa.ageEnd.toFixed(1)}), with <PlanetName planet={arp.bhukti.lord} tone className="font-medium" /> ruling the sub-period until {fmt(arp.bhukti.end)}. <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> stands in {SIGNS[arp.dasaLord.signIndex]}, the {ordinal(arp.dasaLord.houseFromArp)} house from the mind's point, and that is where the state of mind is read. <PlanetName planet={arp.bhukti.lord} tone className="font-medium" /> is {ordinal(arp.bhuktiLord.houseFromDasaLord)} from it.
-            </li>
-            <li>
-              {arpLordSame ? (
-                <>
-                  <PlanetName planet={a.point.lord} tone className="font-medium" /> rules both the body's point and the mind's point, so body and mind answer to one planet, which stands in the {ordinal(arp.arpLord.houseFromAlp)} house from the body's point.
-                </>
-              ) : (
-                <>
-                  The ruler of the mind's point, <PlanetName planet={arp.point.lord} tone className="font-medium" />, is in {SIGNS[arp.arpLord.signIndex]}, {ordinal(arp.arpLord.houseFromAlpLord)} from the body's ruler <PlanetName planet={a.point.lord} tone className="font-medium" />; the period planet <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> is {ordinal(arp.nakLordsMutual)} from the star ruler <PlanetName planet={a.point.nakshatraLord} tone className="font-medium" />.
-                </>
-              )}{" "}
-              Looked at more finely, the quarter falls in {SIGNS[arp.point.navamsaSign ?? 0]}, the mind's inner tone.
-            </li>
-            <li data-testid="text-alp-questions">
-              What people ask about first: the ruler of the star the body's point is crossing, <PlanetName planet={a.point.nakshatraLord} tone className="font-medium" />, stands in the {ordinal(nakLordHouse)} house from the point, so that house's matters come up first. The period planet <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> is in the {ordinal(arp.dasaLord.houseFromAlp)} and the sub-period planet <PlanetName planet={arp.bhukti.lord} tone className="font-medium" /> in the {ordinal(arp.bhuktiLord.houseFromAlp)} from the point ({ordinal(arp.dasaLord.houseFromArp)} and {ordinal(arp.bhuktiLord.houseFromArp)} from the mind's point).
-              <ul className="mt-1.5 space-y-1 text-xs text-muted-foreground" data-testid="list-alp-questions-gloss">
-                {[
-                  { who: "Star ruler", planet: a.point.nakshatraLord, house: nakLordHouse },
-                  { who: "Period planet", planet: arp.dasa.lord, house: arp.dasaLord.houseFromAlp },
-                  { who: "Sub-period planet", planet: arp.bhukti.lord, house: arp.bhuktiLord.houseFromAlp },
-                ].map((g) => (
-                  <li key={g.who}>
-                    <span className="font-medium text-foreground">{g.who} <PlanetName planet={g.planet} tone /></span> in the {ordinal(g.house)} house: the <span className="text-foreground">{ordinal(g.house)} house</span> covers {ALP_HOUSE_THEMES[g.house]}; <span className="text-foreground">{g.planet}</span> stands for {ALP_PLANET_THEMES[g.planet]}.
-                  </li>
-                ))}
-              </ul>
-            </li>
-          </ul>
+            <ul className="mt-3 space-y-2 text-sm" data-testid="list-alp-arp">
+              <li>
+                The Moon was born in the lunar mansion of{" "}
+                <span className="font-medium">{arp.natalMoon.nakshatra}</span> (
+                {arp.natalMoon.sign}). It moves forward one mansion with each
+                planetary period and has now reached{" "}
+                <span className="font-medium">{arp.point.nakshatra}</span>,
+                quarter {arp.point.pada}, so the mind's point is{" "}
+                <span className="font-medium">{arp.point.sign}</span>: the{" "}
+                {ordinal(arp.houseFromAlp)} house from the body's point, the{" "}
+                {ordinal(arp.houseFromJanma)} from the birth rising sign.
+              </li>
+              <li>
+                The running planetary period belongs to{" "}
+                <PlanetName
+                  planet={arp.dasa.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                (ages {arp.dasa.ageStart.toFixed(1)} to{" "}
+                {arp.dasa.ageEnd.toFixed(1)}), with{" "}
+                <PlanetName
+                  planet={arp.bhukti.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                ruling the sub-period until {fmt(arp.bhukti.end)}.{" "}
+                <PlanetName
+                  planet={arp.dasa.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                stands in {SIGNS[arp.dasaLord.signIndex]}, the{" "}
+                {ordinal(arp.dasaLord.houseFromArp)} house from the mind's
+                point, and that is where the state of mind is read.{" "}
+                <PlanetName
+                  planet={arp.bhukti.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                is {ordinal(arp.bhuktiLord.houseFromDasaLord)} from it.
+              </li>
+              <li>
+                {arpLordSame ? (
+                  <>
+                    <PlanetName
+                      planet={a.point.lord}
+                      tone
+                      className="font-medium"
+                    />{" "}
+                    rules both the body's point and the mind's point, so body
+                    and mind answer to one planet, which stands in the{" "}
+                    {ordinal(arp.arpLord.houseFromAlp)} house from the body's
+                    point.
+                  </>
+                ) : (
+                  <>
+                    The ruler of the mind's point,{" "}
+                    <PlanetName
+                      planet={arp.point.lord}
+                      tone
+                      className="font-medium"
+                    />
+                    , is in {SIGNS[arp.arpLord.signIndex]},{" "}
+                    {ordinal(arp.arpLord.houseFromAlpLord)} from the body's
+                    ruler{" "}
+                    <PlanetName
+                      planet={a.point.lord}
+                      tone
+                      className="font-medium"
+                    />
+                    ; the period planet{" "}
+                    <PlanetName
+                      planet={arp.dasa.lord}
+                      tone
+                      className="font-medium"
+                    />{" "}
+                    is {ordinal(arp.nakLordsMutual)} from the star ruler{" "}
+                    <PlanetName
+                      planet={a.point.nakshatraLord}
+                      tone
+                      className="font-medium"
+                    />
+                    .
+                  </>
+                )}{" "}
+                Looked at more finely, the quarter falls in{" "}
+                {SIGNS[arp.point.navamsaSign ?? 0]}, the mind's inner tone.
+              </li>
+              <li data-testid="text-alp-questions">
+                What people ask about first: the ruler of the star the body's
+                point is crossing,{" "}
+                <PlanetName
+                  planet={a.point.nakshatraLord}
+                  tone
+                  className="font-medium"
+                />
+                , stands in the {ordinal(nakLordHouse)} house from the point, so
+                that house's matters come up first. The period planet{" "}
+                <PlanetName
+                  planet={arp.dasa.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                is in the {ordinal(arp.dasaLord.houseFromAlp)} and the
+                sub-period planet{" "}
+                <PlanetName
+                  planet={arp.bhukti.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                in the {ordinal(arp.bhuktiLord.houseFromAlp)} from the point (
+                {ordinal(arp.dasaLord.houseFromArp)} and{" "}
+                {ordinal(arp.bhuktiLord.houseFromArp)} from the mind's point).
+                <ul
+                  className="mt-1.5 space-y-1 text-xs text-muted-foreground"
+                  data-testid="list-alp-questions-gloss"
+                >
+                  {[
+                    {
+                      who: "Star ruler",
+                      planet: a.point.nakshatraLord,
+                      house: nakLordHouse,
+                    },
+                    {
+                      who: "Period planet",
+                      planet: arp.dasa.lord,
+                      house: arp.dasaLord.houseFromAlp,
+                    },
+                    {
+                      who: "Sub-period planet",
+                      planet: arp.bhukti.lord,
+                      house: arp.bhuktiLord.houseFromAlp,
+                    },
+                  ].map((g) => (
+                    <li key={g.who}>
+                      <span className="font-medium text-foreground">
+                        {g.who} <PlanetName planet={g.planet} tone />
+                      </span>{" "}
+                      in the {ordinal(g.house)} house: the{" "}
+                      <span className="text-foreground">
+                        {ordinal(g.house)} house
+                      </span>{" "}
+                      covers {ALP_HOUSE_THEMES[g.house]};{" "}
+                      <span className="text-foreground">{g.planet}</span> stands
+                      for {ALP_PLANET_THEMES[g.planet]}.
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            </ul>
           ) : (
-          <ul className="mt-3 space-y-2 text-sm" data-testid="list-alp-arp">
-            <li>
-              The Moon was born in <span className="font-medium">{arp.natalMoon.nakshatra}</span> ({arp.natalMoon.sign}). Shifting one nakshatra with each Vimshottari dasa it has reached <span className="font-medium">{arp.point.nakshatra}</span> pada {arp.point.pada}, so the Akshaya rasi is <span className="font-medium">{arp.point.sign}</span>: the {ordinal(arp.houseFromAlp)} from the ALP lagna, the {ordinal(arp.houseFromJanma)} natally.
-            </li>
-            <li>
-              The running dasa is <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> (ages {arp.dasa.ageStart.toFixed(1)}–{arp.dasa.ageEnd.toFixed(1)}), bhukti <PlanetName planet={arp.bhukti.lord} tone className="font-medium" /> until {fmt(arp.bhukti.end)}. The dasa lord <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> sits in {SIGNS[arp.dasaLord.signIndex]}, the {ordinal(arp.dasaLord.houseFromArp)} from the Akshaya rasi: the condition of the mind is read from there. The bhukti lord <PlanetName planet={arp.bhukti.lord} tone className="font-medium" /> is the {ordinal(arp.bhuktiLord.houseFromDasaLord)} from the dasa lord.
-            </li>
-            <li>
-              {arpLordSame ? (
-                <>
-                  <PlanetName planet={a.point.lord} tone className="font-medium" /> rules both the ALP lagna and the Akshaya rasi: body and mind answer to one planet, placed in the {ordinal(arp.arpLord.houseFromAlp)} from the ALP lagna.
-                </>
-              ) : (
-                <>
-                  The Akshaya rasi lord <PlanetName planet={arp.point.lord} tone className="font-medium" /> is in {SIGNS[arp.arpLord.signIndex]}, the {ordinal(arp.arpLord.houseFromAlpLord)} from the ALP lagna lord <PlanetName planet={a.point.lord} tone className="font-medium" />; the dasa lord <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> is the {ordinal(arp.nakLordsMutual)} from the ALP nakshatra lord <PlanetName planet={a.point.nakshatraLord} tone className="font-medium" />.
-                </>
-              )}{" "}
-              The pada's navamsa is {SIGNS[arp.point.navamsaSign ?? 0]}, the subtle point of the mind.
-            </li>
-            <li data-testid="text-alp-questions">
-              Questions to expect: the ALP nakshatra lord <PlanetName planet={a.point.nakshatraLord} tone className="font-medium" /> stands in the {ordinal(nakLordHouse)} from the ALP lagna, so that house's matters are asked about first; the dasa lord <PlanetName planet={arp.dasa.lord} tone className="font-medium" /> is in the {ordinal(arp.dasaLord.houseFromAlp)} and the bhukti lord <PlanetName planet={arp.bhukti.lord} tone className="font-medium" /> in the {ordinal(arp.bhuktiLord.houseFromAlp)} from the ALP lagna, the {ordinal(arp.dasaLord.houseFromArp)} and {ordinal(arp.bhuktiLord.houseFromArp)} from the Akshaya rasi (Book 2 pp. 95-96).
-              <ul className="mt-1.5 space-y-1 text-xs text-muted-foreground" data-testid="list-alp-questions-gloss">
-                {[
-                  { who: "ALP nakshatra lord", planet: a.point.nakshatraLord, house: nakLordHouse },
-                  { who: "Dasa lord", planet: arp.dasa.lord, house: arp.dasaLord.houseFromAlp },
-                  { who: "Bhukti lord", planet: arp.bhukti.lord, house: arp.bhuktiLord.houseFromAlp },
-                ].map((g) => (
-                  <li key={g.who}>
-                    <span className="font-medium text-foreground">{g.who} <PlanetName planet={g.planet} tone /></span>, {ordinal(g.house)}: <span className="text-foreground">{ordinal(g.house)} house</span> is {ALP_HOUSE_THEMES[g.house]}; <span className="text-foreground">{g.planet}</span> is {ALP_PLANET_THEMES[g.planet]} (class notes).
-                  </li>
-                ))}
-              </ul>
-            </li>
-          </ul>
+            <ul className="mt-3 space-y-2 text-sm" data-testid="list-alp-arp">
+              <li>
+                The Moon was born in{" "}
+                <span className="font-medium">{arp.natalMoon.nakshatra}</span> (
+                {arp.natalMoon.sign}). Shifting one nakshatra with each
+                Vimshottari dasa it has reached{" "}
+                <span className="font-medium">{arp.point.nakshatra}</span> pada{" "}
+                {arp.point.pada}, so the Akshaya rasi is{" "}
+                <span className="font-medium">{arp.point.sign}</span>: the{" "}
+                {ordinal(arp.houseFromAlp)} from the ALP lagna, the{" "}
+                {ordinal(arp.houseFromJanma)} natally.
+              </li>
+              <li>
+                The running dasa is{" "}
+                <PlanetName
+                  planet={arp.dasa.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                (ages {arp.dasa.ageStart.toFixed(1)}–
+                {arp.dasa.ageEnd.toFixed(1)}), bhukti{" "}
+                <PlanetName
+                  planet={arp.bhukti.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                until {fmt(arp.bhukti.end)}. The dasa lord{" "}
+                <PlanetName
+                  planet={arp.dasa.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                sits in {SIGNS[arp.dasaLord.signIndex]}, the{" "}
+                {ordinal(arp.dasaLord.houseFromArp)} from the Akshaya rasi: the
+                condition of the mind is read from there. The bhukti lord{" "}
+                <PlanetName
+                  planet={arp.bhukti.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                is the {ordinal(arp.bhuktiLord.houseFromDasaLord)} from the dasa
+                lord.
+              </li>
+              <li>
+                {arpLordSame ? (
+                  <>
+                    <PlanetName
+                      planet={a.point.lord}
+                      tone
+                      className="font-medium"
+                    />{" "}
+                    rules both the ALP lagna and the Akshaya rasi: body and mind
+                    answer to one planet, placed in the{" "}
+                    {ordinal(arp.arpLord.houseFromAlp)} from the ALP lagna.
+                  </>
+                ) : (
+                  <>
+                    The Akshaya rasi lord{" "}
+                    <PlanetName
+                      planet={arp.point.lord}
+                      tone
+                      className="font-medium"
+                    />{" "}
+                    is in {SIGNS[arp.arpLord.signIndex]}, the{" "}
+                    {ordinal(arp.arpLord.houseFromAlpLord)} from the ALP lagna
+                    lord{" "}
+                    <PlanetName
+                      planet={a.point.lord}
+                      tone
+                      className="font-medium"
+                    />
+                    ; the dasa lord{" "}
+                    <PlanetName
+                      planet={arp.dasa.lord}
+                      tone
+                      className="font-medium"
+                    />{" "}
+                    is the {ordinal(arp.nakLordsMutual)} from the ALP nakshatra
+                    lord{" "}
+                    <PlanetName
+                      planet={a.point.nakshatraLord}
+                      tone
+                      className="font-medium"
+                    />
+                    .
+                  </>
+                )}{" "}
+                The pada's navamsa is {SIGNS[arp.point.navamsaSign ?? 0]}, the
+                subtle point of the mind.
+              </li>
+              <li data-testid="text-alp-questions">
+                Questions to expect: the ALP nakshatra lord{" "}
+                <PlanetName
+                  planet={a.point.nakshatraLord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                stands in the {ordinal(nakLordHouse)} from the ALP lagna, so
+                that house's matters are asked about first; the dasa lord{" "}
+                <PlanetName
+                  planet={arp.dasa.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                is in the {ordinal(arp.dasaLord.houseFromAlp)} and the bhukti
+                lord{" "}
+                <PlanetName
+                  planet={arp.bhukti.lord}
+                  tone
+                  className="font-medium"
+                />{" "}
+                in the {ordinal(arp.bhuktiLord.houseFromAlp)} from the ALP
+                lagna, the {ordinal(arp.dasaLord.houseFromArp)} and{" "}
+                {ordinal(arp.bhuktiLord.houseFromArp)} from the Akshaya rasi
+                (Book 2 pp. 95-96).
+                <ul
+                  className="mt-1.5 space-y-1 text-xs text-muted-foreground"
+                  data-testid="list-alp-questions-gloss"
+                >
+                  {[
+                    {
+                      who: "ALP nakshatra lord",
+                      planet: a.point.nakshatraLord,
+                      house: nakLordHouse,
+                    },
+                    {
+                      who: "Dasa lord",
+                      planet: arp.dasa.lord,
+                      house: arp.dasaLord.houseFromAlp,
+                    },
+                    {
+                      who: "Bhukti lord",
+                      planet: arp.bhukti.lord,
+                      house: arp.bhuktiLord.houseFromAlp,
+                    },
+                  ].map((g) => (
+                    <li key={g.who}>
+                      <span className="font-medium text-foreground">
+                        {g.who} <PlanetName planet={g.planet} tone />
+                      </span>
+                      , {ordinal(g.house)}:{" "}
+                      <span className="text-foreground">
+                        {ordinal(g.house)} house
+                      </span>{" "}
+                      is {ALP_HOUSE_THEMES[g.house]};{" "}
+                      <span className="text-foreground">{g.planet}</span> is{" "}
+                      {ALP_PLANET_THEMES[g.planet]} (class notes).
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            </ul>
           )}
 
-          <Working id="alp-arp-dasas" label="Show how the mind's point and its periods are found" className="mt-4">
+          <Working
+            id="alp-arp-dasas"
+            label="Show how the mind's point and its periods are found"
+            className="mt-4"
+          >
             <p className="text-xs text-muted-foreground">{ARP_NOTE}</p>
             <DasaBar
               className="mt-3"
               testId="bar-alp-dasas"
               nowAt={a.ageYears}
               ticks={[0, 20, 40, 60, 80, 100, 120]}
-              segments={arp.dasaTimeline.map((d) => ({ start: d.ageStart, end: d.ageEnd, color: planetColor(d.lord), label: PLANET_ABBR[d.lord], current: d.current, title: `${d.lord} dasa · ${d.nakshatra} · ages ${d.ageStart.toFixed(1)}–${d.ageEnd.toFixed(1)}` }))}
+              segments={arp.dasaTimeline.map((d) => ({
+                start: d.ageStart,
+                end: d.ageEnd,
+                color: planetColor(d.lord),
+                label: PLANET_ABBR[d.lord],
+                current: d.current,
+                title: `${d.lord} dasa · ${d.nakshatra} · ages ${d.ageStart.toFixed(1)}–${d.ageEnd.toFixed(1)}`,
+              }))}
             />
             <PlanetLegend className="mt-3" />
             <Table className="tabular mt-3 [&_td]:px-2 [&_th]:px-2">
@@ -282,13 +849,23 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               </TableHeader>
               <TableBody>
                 {arp.dasaTimeline.map((d, i) => (
-                  <TableRow key={i} className={cn(d.current && "bg-primary/5")} data-testid={`row-alp-dasa-${i}`}>
+                  <TableRow
+                    key={i}
+                    className={cn(d.current && "bg-primary/5")}
+                    data-testid={`row-alp-dasa-${i}`}
+                  >
                     <TableCell className="py-1.5 font-medium">
                       <PlanetName planet={d.lord} />
-                      {d.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                      {d.current && (
+                        <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
+                          now
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell className="py-1.5">{d.nakshatra}</TableCell>
-                    <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{d.signs.map((x) => SIGNS[x]).join(" / ")}</TableCell>
+                    <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">
+                      {d.signs.map((x) => SIGNS[x]).join(" / ")}
+                    </TableCell>
                     <TableCell className="whitespace-nowrap py-1.5 text-right">
                       {d.ageStart.toFixed(1)}–{d.ageEnd.toFixed(1)}
                     </TableCell>
@@ -299,32 +876,60 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                 ))}
               </TableBody>
             </Table>
-            <p className="mt-3 text-xs font-medium">The four padas of the {arp.dasa.lord} dasa ({arp.dasa.nakshatra})</p>
+            <p className="mt-3 text-xs font-medium">
+              The four padas of the {arp.dasa.lord} dasa ({arp.dasa.nakshatra})
+            </p>
             <DasaBar
               className="mt-2"
               testId="bar-alp-arp-padas"
               nowAt={a.ageYears}
-              segments={arp.padaPeriods.map((p) => ({ start: p.ageStart, end: p.ageEnd, color: elementColor(p.signs[0]), label: `${p.pada} · ${SIGNS[p.signs[0]]}`, short: `${p.pada} · ${SIGN_ABBR[p.signs[0]]}`, current: p.current, title: `Pada ${p.pada} · Akshaya rasi ${SIGNS[p.signs[0]]} · ages ${p.ageStart.toFixed(1)}–${p.ageEnd.toFixed(1)}` }))}
+              segments={arp.padaPeriods.map((p) => ({
+                start: p.ageStart,
+                end: p.ageEnd,
+                color: elementColor(p.signs[0]),
+                label: `${p.pada} · ${SIGNS[p.signs[0]]}`,
+                short: `${p.pada} · ${SIGN_ABBR[p.signs[0]]}`,
+                current: p.current,
+                title: `Pada ${p.pada} · Akshaya rasi ${SIGNS[p.signs[0]]} · ages ${p.ageStart.toFixed(1)}–${p.ageEnd.toFixed(1)}`,
+              }))}
             />
             <Table className="tabular mt-2 [&_td]:px-2 [&_th]:px-2">
               <TableHeader>
                 <TableRow>
                   <TableHead>Pada</TableHead>
                   <TableHead>Akshaya rasi</TableHead>
-                  <TableHead className="hidden sm:table-cell">Navamsa</TableHead>
+                  <TableHead className="hidden sm:table-cell">
+                    Navamsa
+                  </TableHead>
                   <TableHead className="text-right">Age</TableHead>
                   <TableHead>From</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {arp.padaPeriods.map((p) => (
-                  <TableRow key={p.pada} className={cn(p.current && "bg-primary/5")} data-testid={`row-alp-arp-pada-${p.pada}`}>
+                  <TableRow
+                    key={p.pada}
+                    className={cn(p.current && "bg-primary/5")}
+                    data-testid={`row-alp-arp-pada-${p.pada}`}
+                  >
                     <TableCell className="py-1.5 font-medium">
                       {p.pada}
-                      {p.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                      {p.current && (
+                        <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
+                          now
+                        </span>
+                      )}
                     </TableCell>
-                    <TableCell className="py-1.5"><SignName signIndex={p.signs[0]} /></TableCell>
-                    <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{p.navamsaSign !== undefined ? <SignName signIndex={p.navamsaSign} /> : ""}</TableCell>
+                    <TableCell className="py-1.5">
+                      <SignName signIndex={p.signs[0]} />
+                    </TableCell>
+                    <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">
+                      {p.navamsaSign !== undefined ? (
+                        <SignName signIndex={p.navamsaSign} />
+                      ) : (
+                        ""
+                      )}
+                    </TableCell>
                     <TableCell className="whitespace-nowrap py-1.5 text-right">
                       {p.ageStart.toFixed(1)}–{p.ageEnd.toFixed(1)}
                     </TableCell>
@@ -335,18 +940,37 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                 ))}
               </TableBody>
             </Table>
-            <p className="mt-1 text-xs text-muted-foreground">The {arp.dasa.lord} dasa ends {fmt(arp.dasa.end)}; each row runs to the start of the next.</p>
-            <p className="mt-3 text-xs font-medium">Bhuktis of the {arp.dasa.lord} dasa</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              The {arp.dasa.lord} dasa ends {fmt(arp.dasa.end)}; each row runs
+              to the start of the next.
+            </p>
+            <p className="mt-3 text-xs font-medium">
+              Bhuktis of the {arp.dasa.lord} dasa
+            </p>
             <DasaBar
               className="mt-2"
               testId="bar-alp-bhuktis"
               nowAt={a.ageYears}
-              segments={arp.bhuktis.map((b) => ({ start: b.ageStart, end: b.ageEnd, color: planetColor(b.lord), label: PLANET_ABBR[b.lord], current: b.current, title: `${b.lord} bhukti · ${fmt(b.start)} – ${fmt(b.end)}` }))}
+              segments={arp.bhuktis.map((b) => ({
+                start: b.ageStart,
+                end: b.ageEnd,
+                color: planetColor(b.lord),
+                label: PLANET_ABBR[b.lord],
+                current: b.current,
+                title: `${b.lord} bhukti · ${fmt(b.start)} – ${fmt(b.end)}`,
+              }))}
             />
-            <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground" data-testid="text-alp-bhuktis">
+            <ul
+              className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground"
+              data-testid="text-alp-bhuktis"
+            >
               {arp.bhuktis.map((b) => (
-                <li key={b.lord} className={cn(b.current && "font-medium text-foreground")}>
-                  <PlanetName planet={b.lord} /> {fmtMonth(b.start)}{b.current ? " (now)" : ""}
+                <li
+                  key={b.lord}
+                  className={cn(b.current && "font-medium text-foreground")}
+                >
+                  <PlanetName planet={b.lord} /> {fmtMonth(b.start)}
+                  {b.current ? " (now)" : ""}
                 </li>
               ))}
             </ul>
@@ -354,63 +978,158 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         </div>
 
         <div>
-          <SectionTitle as="h2" plain="Where the decade stands" technical="ALP lagna placements (Book 2 ch. 2-5)" term="alp-lagna" className="text-base" />
-          {plain && <p className="mt-1 text-xs text-muted-foreground">The body's point, its ruler, the ruler of the birth rising sign, the star-stretch it is crossing and the sign that stretch switches on, all read as houses from the point.</p>}
+          <SectionTitle
+            as="h2"
+            plain="Where the decade stands"
+            technical="ALP lagna placements (Book 2 ch. 2-5)"
+            term="alp-lagna"
+            className="text-base"
+          />
+          {plain && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              The body's point, its ruler, the ruler of the birth rising sign,
+              the star-stretch it is crossing and the sign that stretch switches
+              on, all read as houses from the point.
+            </p>
+          )}
           {plain ? (
-          <ul className="mt-3 space-y-2 text-sm" data-testid="list-alp-placements">
-            <li>
-              The moving point has reached <span className="font-medium">{a.point.sign}</span>, the {ordinal(a.houseFromJanma)} sign from the birth rising sign, and stays there for ages {curSign?.ageStart.toFixed(1)} to {curSign?.ageEnd.toFixed(1)}.
-            </li>
-            <li>
-              Its ruler <PlanetName planet={lordP.planet} tone className="font-medium" /> stands in {SIGNS[lordP.signIndex]}: the {ordinal(lordP.houseFromAlp)} house from the moving point, the {ordinal(lordP.houseFromJanma)} in the birth chart.
-            </li>
-            <li>
-              The ruler of the birth rising sign, <PlanetName planet={janmaP.planet} tone className="font-medium" />, falls in the {ordinal(janmaP.houseFromAlp)} house from the moving point.
-            </li>
-            <li>
-              Within {a.point.sign} the point is crossing the star-stretch of <span className="font-medium">{a.point.nakshatra}</span> (quarter {a.point.pada}), ages {curNak?.ageStart.toFixed(1)} to {curNak?.ageEnd.toFixed(1)}. That star's ruler <PlanetName planet={nakP.planet} tone className="font-medium" /> is in the {ordinal(nakP.houseFromAlp)} house from the point, the {ordinal(nakP.houseFromJanma)} in the birth chart.
-              {nextNak && (
-                <>
-                  {" "}The next stretch, {nextNak.nakshatra} (ruled by {nextNak.nakshatraLord}), begins {fmt(nextNak.start)}.
-                </>
-              )}
-            </li>
-            <li>
-              The quarter the point is in switches on {SIGNS[a.point.navamsaSign]}, the {ordinal(activatedHouse)} house from the point; that sign's ruler <PlanetName planet={navP.planet} tone className="font-medium" /> is in the {ordinal(navP.houseFromAlp)}.
-            </li>
-          </ul>
+            <ul
+              className="mt-3 space-y-2 text-sm"
+              data-testid="list-alp-placements"
+            >
+              <li>
+                The moving point has reached{" "}
+                <span className="font-medium">{a.point.sign}</span>, the{" "}
+                {ordinal(a.houseFromJanma)} sign from the birth rising sign, and
+                stays there for ages {curSign?.ageStart.toFixed(1)} to{" "}
+                {curSign?.ageEnd.toFixed(1)}.
+              </li>
+              <li>
+                Its ruler{" "}
+                <PlanetName
+                  planet={lordP.planet}
+                  tone
+                  className="font-medium"
+                />{" "}
+                stands in {SIGNS[lordP.signIndex]}: the{" "}
+                {ordinal(lordP.houseFromAlp)} house from the moving point, the{" "}
+                {ordinal(lordP.houseFromJanma)} in the birth chart.
+              </li>
+              <li>
+                The ruler of the birth rising sign,{" "}
+                <PlanetName
+                  planet={janmaP.planet}
+                  tone
+                  className="font-medium"
+                />
+                , falls in the {ordinal(janmaP.houseFromAlp)} house from the
+                moving point.
+              </li>
+              <li>
+                Within {a.point.sign} the point is crossing the star-stretch of{" "}
+                <span className="font-medium">{a.point.nakshatra}</span>{" "}
+                (quarter {a.point.pada}), ages {curNak?.ageStart.toFixed(1)} to{" "}
+                {curNak?.ageEnd.toFixed(1)}. That star's ruler{" "}
+                <PlanetName planet={nakP.planet} tone className="font-medium" />{" "}
+                is in the {ordinal(nakP.houseFromAlp)} house from the point, the{" "}
+                {ordinal(nakP.houseFromJanma)} in the birth chart.
+                {nextNak && (
+                  <>
+                    {" "}
+                    The next stretch, {nextNak.nakshatra} (ruled by{" "}
+                    {nextNak.nakshatraLord}), begins {fmt(nextNak.start)}.
+                  </>
+                )}
+              </li>
+              <li>
+                The quarter the point is in switches on{" "}
+                {SIGNS[a.point.navamsaSign]}, the {ordinal(activatedHouse)}{" "}
+                house from the point; that sign's ruler{" "}
+                <PlanetName planet={navP.planet} tone className="font-medium" />{" "}
+                is in the {ordinal(navP.houseFromAlp)}.
+              </li>
+            </ul>
           ) : (
-          <ul className="mt-3 space-y-2 text-sm" data-testid="list-alp-placements">
-            <li>
-              The ALP lagna has reached <span className="font-medium">{a.point.sign}</span>, the {ordinal(a.houseFromJanma)} from the janma lagna, for ages {a.signPeriods.find((p) => p.current)?.ageStart.toFixed(1)}–{a.signPeriods.find((p) => p.current)?.ageEnd.toFixed(1)}.
-            </li>
-            <li>
-              Its lord <PlanetName planet={lordP.planet} tone className="font-medium" /> sits in {SIGNS[lordP.signIndex]}: the {ordinal(lordP.houseFromAlp)} from the ALP lagna, the {ordinal(lordP.houseFromJanma)} natally.
-            </li>
-            <li>
-              The janma lagna lord <PlanetName planet={janmaP.planet} tone className="font-medium" /> falls in the {ordinal(janmaP.houseFromAlp)} from the ALP lagna.
-            </li>
-            <li>
-              Within {a.point.sign} the lagna is in <span className="font-medium">{a.point.nakshatra}</span> (pada {a.point.pada}), ages {curNak?.ageStart.toFixed(1)}–{curNak?.ageEnd.toFixed(1)}; the nakshatra lord <PlanetName planet={nakP.planet} tone className="font-medium" /> is in the {ordinal(nakP.houseFromAlp)} from the ALP lagna, the {ordinal(nakP.houseFromJanma)} natally.
-              {nextNak && (
-                <>
-                  {" "}Next comes {nextNak.nakshatra} ({nextNak.nakshatraLord}) from {fmt(nextNak.start)}.
-                </>
-              )}
-            </li>
-            <li>
-              The pada's navamsa sign is {SIGNS[a.point.navamsaSign]}, the {ordinal(activatedHouse)} from the ALP lagna; its lord <PlanetName planet={navP.planet} tone className="font-medium" /> is in the {ordinal(navP.houseFromAlp)}.
-            </li>
-          </ul>
+            <ul
+              className="mt-3 space-y-2 text-sm"
+              data-testid="list-alp-placements"
+            >
+              <li>
+                The ALP lagna has reached{" "}
+                <span className="font-medium">{a.point.sign}</span>, the{" "}
+                {ordinal(a.houseFromJanma)} from the janma lagna, for ages{" "}
+                {a.signPeriods.find((p) => p.current)?.ageStart.toFixed(1)}–
+                {a.signPeriods.find((p) => p.current)?.ageEnd.toFixed(1)}.
+              </li>
+              <li>
+                Its lord{" "}
+                <PlanetName
+                  planet={lordP.planet}
+                  tone
+                  className="font-medium"
+                />{" "}
+                sits in {SIGNS[lordP.signIndex]}: the{" "}
+                {ordinal(lordP.houseFromAlp)} from the ALP lagna, the{" "}
+                {ordinal(lordP.houseFromJanma)} natally.
+              </li>
+              <li>
+                The janma lagna lord{" "}
+                <PlanetName
+                  planet={janmaP.planet}
+                  tone
+                  className="font-medium"
+                />{" "}
+                falls in the {ordinal(janmaP.houseFromAlp)} from the ALP lagna.
+              </li>
+              <li>
+                Within {a.point.sign} the lagna is in{" "}
+                <span className="font-medium">{a.point.nakshatra}</span> (pada{" "}
+                {a.point.pada}), ages {curNak?.ageStart.toFixed(1)}–
+                {curNak?.ageEnd.toFixed(1)}; the nakshatra lord{" "}
+                <PlanetName planet={nakP.planet} tone className="font-medium" />{" "}
+                is in the {ordinal(nakP.houseFromAlp)} from the ALP lagna, the{" "}
+                {ordinal(nakP.houseFromJanma)} natally.
+                {nextNak && (
+                  <>
+                    {" "}
+                    Next comes {nextNak.nakshatra} ({nextNak.nakshatraLord})
+                    from {fmt(nextNak.start)}.
+                  </>
+                )}
+              </li>
+              <li>
+                The pada's navamsa sign is {SIGNS[a.point.navamsaSign]}, the{" "}
+                {ordinal(activatedHouse)} from the ALP lagna; its lord{" "}
+                <PlanetName planet={navP.planet} tone className="font-medium" />{" "}
+                is in the {ordinal(navP.houseFromAlp)}.
+              </li>
+            </ul>
           )}
 
-          <Working id="alp-book-arithmetic" label="Show the arithmetic behind the moving point" className="mt-4">
-            <div className="rounded-md border bg-muted/30 p-3 text-sm tabular" data-testid="text-alp-book-arithmetic">
+          <Working
+            id="alp-book-arithmetic"
+            label="Show the arithmetic behind the moving point"
+            className="mt-4"
+          >
+            <div
+              className="rounded-md border bg-muted/30 p-3 text-sm tabular"
+              data-testid="text-alp-book-arithmetic"
+            >
               <div>
-                Age {a.book.years} {a.book.years === 1 ? "year" : "years"} {a.book.months} {a.book.months === 1 ? "month" : "months"} → {a.book.years} × 3° = {a.book.degFromYears}°{a.book.degFromMonths ? `, plus ${a.book.degFromMonths}° for ${a.book.months} months (1° per four months)` : ""} = {a.book.degTravelled}° travelled.
+                Age {a.book.years} {a.book.years === 1 ? "year" : "years"}{" "}
+                {a.book.months} {a.book.months === 1 ? "month" : "months"} →{" "}
+                {a.book.years} × 3° = {a.book.degFromYears}°
+                {a.book.degFromMonths
+                  ? `, plus ${a.book.degFromMonths}° for ${a.book.months} months (1° per four months)`
+                  : ""}{" "}
+                = {a.book.degTravelled}° travelled.
               </div>
               <div className="mt-1">
-                Birth lagna point {fmtLon360(a.natalLagna.lon)} ({a.natalLagna.sign}) + {a.book.degTravelled}° = {fmtLon360(a.book.point.lon)} from Aries → {a.book.point.sign} {fmtDegShort(a.book.point.degInSign)}, {a.book.point.nakshatra} pada {a.book.point.pada}.
+                Birth lagna point {fmtLon360(a.natalLagna.lon)} (
+                {a.natalLagna.sign}) + {a.book.degTravelled}° ={" "}
+                {fmtLon360(a.book.point.lon)} from Aries → {a.book.point.sign}{" "}
+                {fmtDegShort(a.book.point.degInSign)}, {a.book.point.nakshatra}{" "}
+                pada {a.book.point.pada}.
               </div>
               <p className="mt-2 text-xs text-muted-foreground">
                 {a.book.agreesWithContinuous
@@ -420,7 +1139,11 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             </div>
           </Working>
 
-          <Working id="alp-houses" label="Show every planet's house from the moving point" className="mt-4">
+          <Working
+            id="alp-houses"
+            label="Show every planet's house from the moving point"
+            className="mt-4"
+          >
             <Table className="tabular [&_td]:px-2 [&_th]:px-2">
               <TableHeader>
                 <TableRow>
@@ -428,191 +1151,360 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                   <TableHead>Sign</TableHead>
                   <TableHead>Lord</TableHead>
                   <TableHead>Planets</TableHead>
-                  <TableHead className="hidden whitespace-nowrap sm:table-cell">To see</TableHead>
-                  <TableHead className="hidden text-right sm:table-cell">Natal house</TableHead>
+                  <TableHead className="hidden whitespace-nowrap sm:table-cell">
+                    To see
+                  </TableHead>
+                  <TableHead className="hidden text-right sm:table-cell">
+                    Natal house
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {a.houses.map((h) => (
-                  <TableRow key={h.house} data-testid={`row-alp-house-${h.house}`}>
-                    <TableCell className="py-1.5 font-medium">{h.house}</TableCell>
+                  <TableRow
+                    key={h.house}
+                    data-testid={`row-alp-house-${h.house}`}
+                  >
+                    <TableCell className="py-1.5 font-medium">
+                      {h.house}
+                    </TableCell>
                     <TableCell className="py-1.5">{h.sign}</TableCell>
-                    <TableCell className="py-1.5 text-muted-foreground">{h.lord}</TableCell>
-                    <TableCell className="py-1.5">{h.planets.map((p) => PLANET_ABBR[p]).join(" ") || "—"}</TableCell>
-                    <TableCell className="hidden whitespace-nowrap py-1.5 text-muted-foreground sm:table-cell">{a.point.lord === h.lord ? PLANET_ABBR[a.point.lord] : `${PLANET_ABBR[a.point.lord]} + ${PLANET_ABBR[h.lord]}`}</TableCell>
-                    <TableCell className="hidden py-1.5 text-right text-muted-foreground sm:table-cell">{h.houseFromJanma}</TableCell>
+                    <TableCell className="py-1.5 text-muted-foreground">
+                      {h.lord}
+                    </TableCell>
+                    <TableCell className="py-1.5">
+                      {h.planets.map((p) => PLANET_ABBR[p]).join(" ") || "—"}
+                    </TableCell>
+                    <TableCell className="hidden whitespace-nowrap py-1.5 text-muted-foreground sm:table-cell">
+                      {a.point.lord === h.lord
+                        ? PLANET_ABBR[a.point.lord]
+                        : `${PLANET_ABBR[a.point.lord]} + ${PLANET_ABBR[h.lord]}`}
+                    </TableCell>
+                    <TableCell className="hidden py-1.5 text-right text-muted-foreground sm:table-cell">
+                      {h.houseFromJanma}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-            <p className="mt-2 text-xs text-muted-foreground">{TWO_PLANET_NOTE}</p>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {TWO_PLANET_NOTE}
+            </p>
           </Working>
         </div>
       </div>
 
-      <Working id="alp-karma-bhavas" label="Show the work and duty houses (Book 2, ch. 3-5)" className="mt-6">
+      <Working
+        id="alp-karma-bhavas"
+        label="Show the work and duty houses (Book 2, ch. 3-5)"
+        className="mt-6"
+      >
         <p className="mb-2 text-xs text-muted-foreground">
-          Book 2 groups the houses from the ALP lagna as present (1, 4, 7, 10), past (2, 5, 8, 11) and future (3, 6, 9, 12), and gives each one a past-life karma bhava: the 4th from it, the 10th counted backwards. Houses 10 to 3 are free-will bhavas where remedies work; 4 to 9 are destined, and the book asks that no remedy be prescribed for them (p. 57). Signs and planets below are from this chart.
+          Book 2 groups the houses from the ALP lagna as present (1, 4, 7, 10),
+          past (2, 5, 8, 11) and future (3, 6, 9, 12), and gives each one a
+          past-life karma bhava: the 4th from it, the 10th counted backwards.
+          Houses 10 to 3 are free-will bhavas where remedies work; 4 to 9 are
+          destined, and the book asks that no remedy be prescribed for them (p.
+          57). Signs and planets below are from this chart.
         </p>
-        <div className="overflow-x-auto"><Table className="tabular">
-          <TableHeader>
-            <TableRow>
-              <TableHead>House</TableHead>
-              <TableHead className="hidden sm:table-cell">Group</TableHead>
-              <TableHead className="hidden sm:table-cell">Control</TableHead>
-              <TableHead>Karma bhava</TableHead>
-              <TableHead>Lords to hold</TableHead>
-              <TableHead className="hidden md:table-cell">Note</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {KARMA_BHAVAS.map((k) => {
-              const h = a.houses[k.house - 1];
-              const kh = a.houses[k.karmaHouse - 1];
-              return (
-                <TableRow key={k.house} data-testid={`row-alp-karma-${k.house}`}>
-                  <TableCell className="py-1.5 align-top">
-                    <span className="font-medium">{k.house}</span> <span className="text-muted-foreground">{h.sign}</span>
-                    <div className="text-xs text-muted-foreground">{k.theme}</div>
-                  </TableCell>
-                  <TableCell className="hidden py-1.5 align-top capitalize text-muted-foreground sm:table-cell">{k.group}</TableCell>
-                  <TableCell className="hidden py-1.5 align-top text-muted-foreground sm:table-cell">{k.control}</TableCell>
-                  <TableCell className="py-1.5 align-top">
-                    <span className="font-medium">{k.karmaHouse}</span> <span className="text-muted-foreground">{kh.sign}</span>
-                    <div className="text-xs text-muted-foreground">{kh.planets.length ? kh.planets.map((p) => PLANET_ABBR[p]).join(" ") : "empty"}</div>
-                  </TableCell>
-                  <TableCell className="py-1.5 align-top text-muted-foreground">
-                    {h.lord === kh.lord ? h.lord : `${h.lord} & ${kh.lord}`}
-                  </TableCell>
-                  <TableCell className="hidden py-1.5 align-top text-xs text-muted-foreground md:table-cell">
-                    {k.karmaNote} <span className="whitespace-nowrap">({k.page})</span>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table></div>
-        <p className="mt-2 text-xs text-muted-foreground">{KARMA_REMEDY_NOTE}</p>
+        <div className="overflow-x-auto">
+          <Table className="tabular">
+            <TableHeader>
+              <TableRow>
+                <TableHead>House</TableHead>
+                <TableHead className="hidden sm:table-cell">Group</TableHead>
+                <TableHead className="hidden sm:table-cell">Control</TableHead>
+                <TableHead>Karma bhava</TableHead>
+                <TableHead>Lords to hold</TableHead>
+                <TableHead className="hidden md:table-cell">Note</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {KARMA_BHAVAS.map((k) => {
+                const h = a.houses[k.house - 1];
+                const kh = a.houses[k.karmaHouse - 1];
+                return (
+                  <TableRow
+                    key={k.house}
+                    data-testid={`row-alp-karma-${k.house}`}
+                  >
+                    <TableCell className="py-1.5 align-top">
+                      <span className="font-medium">{k.house}</span>{" "}
+                      <span className="text-muted-foreground">{h.sign}</span>
+                      <div className="text-xs text-muted-foreground">
+                        {k.theme}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden py-1.5 align-top capitalize text-muted-foreground sm:table-cell">
+                      {k.group}
+                    </TableCell>
+                    <TableCell className="hidden py-1.5 align-top text-muted-foreground sm:table-cell">
+                      {k.control}
+                    </TableCell>
+                    <TableCell className="py-1.5 align-top">
+                      <span className="font-medium">{k.karmaHouse}</span>{" "}
+                      <span className="text-muted-foreground">{kh.sign}</span>
+                      <div className="text-xs text-muted-foreground">
+                        {kh.planets.length
+                          ? kh.planets.map((p) => PLANET_ABBR[p]).join(" ")
+                          : "empty"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-1.5 align-top text-muted-foreground">
+                      {h.lord === kh.lord ? h.lord : `${h.lord} & ${kh.lord}`}
+                    </TableCell>
+                    <TableCell className="hidden py-1.5 align-top text-xs text-muted-foreground md:table-cell">
+                      {k.karmaNote}{" "}
+                      <span className="whitespace-nowrap">({k.page})</span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {KARMA_REMEDY_NOTE}
+        </p>
       </Working>
 
-      <Working id="alp-sign-reading" label={`Show the general reading for the point in ${a.point.sign} (Book 1 class notes)`} className="mt-4">
+      <Working
+        id="alp-sign-reading"
+        label={`Show the general reading for the point in ${a.point.sign} (Book 1 class notes)`}
+        className="mt-4"
+      >
         <p className="mb-2 text-xs text-muted-foreground">
-          Each planet rules one or two houses from the ALP lagna; the two houses are read as one theme carried by that planet. Rows marked "class note" are the practitioner's notes from the basic class; the others are built from the same house themes and wait for the notes on this sign.
+          Each planet rules one or two houses from the ALP lagna; the two houses
+          are read as one theme carried by that planet. Rows marked "class note"
+          are the practitioner's notes from the basic class; the others are
+          built from the same house themes and wait for the notes on this sign.
         </p>
-        <div className="overflow-x-auto"><Table className="tabular [&_td]:px-2 [&_th]:px-2">
-          <TableHeader>
-            <TableRow>
-              <TableHead>Planet</TableHead>
-              <TableHead>Houses</TableHead>
-              <TableHead className="hidden sm:table-cell">Placed</TableHead>
-              <TableHead>Reading</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {signReading.map((r) => {
-              const placed = a.placements.find((p) => p.planet === r.planet) ?? a.houses.flatMap((h) => h.planets.map((pl) => ({ planet: pl, houseFromAlp: h.house }))).find((p) => p.planet === r.planet);
-              return (
-                <TableRow key={r.planet} data-testid={`row-alp-sign-reading-${r.planet}`}>
-                  <TableCell className="py-1.5 align-top font-medium"><PlanetName planet={r.planet} /></TableCell>
-                  <TableCell className="py-1.5 align-top whitespace-nowrap">{r.houses.join(", ")}</TableCell>
-                  <TableCell className="hidden py-1.5 align-top text-muted-foreground sm:table-cell">{placed ? ordinal(placed.houseFromAlp) : "—"}</TableCell>
-                  <TableCell className="py-1.5 align-top text-xs">
-                    {r.text}{" "}
-                    <span className="text-muted-foreground">({r.fromNotes ? "class note" : "from house themes"})</span>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table></div>
+        <div className="overflow-x-auto">
+          <Table className="tabular [&_td]:px-2 [&_th]:px-2">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Planet</TableHead>
+                <TableHead>Houses</TableHead>
+                <TableHead className="hidden sm:table-cell">Placed</TableHead>
+                <TableHead>Reading</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {signReading.map((r) => {
+                const placed =
+                  a.placements.find((p) => p.planet === r.planet) ??
+                  a.houses
+                    .flatMap((h) =>
+                      h.planets.map((pl) => ({
+                        planet: pl,
+                        houseFromAlp: h.house,
+                      })),
+                    )
+                    .find((p) => p.planet === r.planet);
+                return (
+                  <TableRow
+                    key={r.planet}
+                    data-testid={`row-alp-sign-reading-${r.planet}`}
+                  >
+                    <TableCell className="py-1.5 align-top font-medium">
+                      <PlanetName planet={r.planet} />
+                    </TableCell>
+                    <TableCell className="py-1.5 align-top whitespace-nowrap">
+                      {r.houses.join(", ")}
+                    </TableCell>
+                    <TableCell className="hidden py-1.5 align-top text-muted-foreground sm:table-cell">
+                      {placed ? ordinal(placed.houseFromAlp) : "—"}
+                    </TableCell>
+                    <TableCell className="py-1.5 align-top text-xs">
+                      {r.text}{" "}
+                      <span className="text-muted-foreground">
+                        ({r.fromNotes ? "class note" : "from house themes"})
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
       </Working>
 
-      <Working id="alp-dusthana" label="Show the difficult houses: 6th, 8th, 10th and 12th (class notes, rules 4-5)" className="mt-4">
+      <Working
+        id="alp-dusthana"
+        label="Show the difficult houses: 6th, 8th, 10th and 12th (class notes, rules 4-5)"
+        className="mt-4"
+      >
         <p className="mb-2 text-xs text-muted-foreground">{DUSTHANA_NOTE}</p>
-        <p className="text-xs font-medium">Rule 4: where the lords of the 6th, 8th, 10th and 12th stand</p>
-        <ul className="mt-1 space-y-1 text-xs" data-testid="list-alp-dusthana-lords">
+        <p className="text-xs font-medium">
+          Rule 4: where the lords of the 6th, 8th, 10th and 12th stand
+        </p>
+        <ul
+          className="mt-1 space-y-1 text-xs"
+          data-testid="list-alp-dusthana-lords"
+        >
           {[6, 8, 10, 12].map((h) => {
             const lord = a.houses[h - 1].lord;
             const at = a.houses.find((x) => x.planets.includes(lord));
             return (
               <li key={h}>
-                <span className="font-medium">{h}th lord <PlanetName planet={lord} tone /></span> stands in the {at ? ordinal(at.house) : "?"}{at ? ` (${at.sign})` : ""}: {at && at.house === h ? `its own house, so the ${h}th's matters (${ALP_HOUSE_THEMES[h]}) are lived directly.` : `the ${h}th's matters (${ALP_HOUSE_THEMES[h]}) are felt through the ${at ? ordinal(at.house) : "?"}${at ? `, ${ALP_HOUSE_THEMES[at.house]}` : ""}.`}
+                <span className="font-medium">
+                  {h}th lord <PlanetName planet={lord} tone />
+                </span>{" "}
+                stands in the {at ? ordinal(at.house) : "?"}
+                {at ? ` (${at.sign})` : ""}:{" "}
+                {at && at.house === h
+                  ? `its own house, so the ${h}th's matters (${ALP_HOUSE_THEMES[h]}) are lived directly.`
+                  : `the ${h}th's matters (${ALP_HOUSE_THEMES[h]}) are felt through the ${at ? ordinal(at.house) : "?"}${at ? `, ${ALP_HOUSE_THEMES[at.house]}` : ""}.`}
               </li>
             );
           })}
         </ul>
-        <p className="mt-3 text-xs font-medium">Rule 5: planets standing in the 6th, 8th, 10th and 12th</p>
-        <ul className="mt-1 space-y-1 text-xs" data-testid="list-alp-dusthana-occupants">
-          {[6, 8, 10, 12].flatMap((h) => a.houses[h - 1].planets.map((pl) => {
-            const owns = a.houses.filter((x) => x.lord === pl).map((x) => x.house);
-            return (
-              <li key={`${h}-${pl}`}>
-                <PlanetName planet={pl} tone className="font-medium" /> in the {ordinal(h)} ({a.houses[h - 1].sign}){owns.length ? `, owning the ${owns.map(ordinal).join(" and ")}: those houses (${owns.map((o) => ALP_HOUSE_THEMES[o]).join("; ")}) meet the ${ordinal(h)}'s ${h === 6 ? "short-term issues" : h === 8 ? "long-term issues" : h === 10 ? "pressure" : "losses"}.` : ": a node, owning nothing; it colours the house it sits in."}
-              </li>
-            );
-          }))}
-          {![6, 8, 10, 12].some((h) => a.houses[h - 1].planets.length) && <li className="text-muted-foreground">No planet stands in the 6th, 8th, 10th or 12th from the ALP lagna.</li>}
+        <p className="mt-3 text-xs font-medium">
+          Rule 5: planets standing in the 6th, 8th, 10th and 12th
+        </p>
+        <ul
+          className="mt-1 space-y-1 text-xs"
+          data-testid="list-alp-dusthana-occupants"
+        >
+          {[6, 8, 10, 12].flatMap((h) =>
+            a.houses[h - 1].planets.map((pl) => {
+              const owns = a.houses
+                .filter((x) => x.lord === pl)
+                .map((x) => x.house);
+              return (
+                <li key={`${h}-${pl}`}>
+                  <PlanetName planet={pl} tone className="font-medium" /> in the{" "}
+                  {ordinal(h)} ({a.houses[h - 1].sign})
+                  {owns.length
+                    ? `, owning the ${owns.map(ordinal).join(" and ")}: those houses (${owns.map((o) => ALP_HOUSE_THEMES[o]).join("; ")}) meet the ${ordinal(h)}'s ${h === 6 ? "short-term issues" : h === 8 ? "long-term issues" : h === 10 ? "pressure" : "losses"}.`
+                    : ": a node, owning nothing; it colours the house it sits in."}
+                </li>
+              );
+            }),
+          )}
+          {![6, 8, 10, 12].some((h) => a.houses[h - 1].planets.length) && (
+            <li className="text-muted-foreground">
+              No planet stands in the 6th, 8th, 10th or 12th from the ALP lagna.
+            </li>
+          )}
         </ul>
       </Working>
 
       <section className="mt-10" data-testid="section-alp-findings">
-        <SectionTitle as="h2" plain="What the rules say" technical="Reading" className="text-base" />
+        <SectionTitle
+          as="h2"
+          plain="What the rules say"
+          technical="Reading"
+          className="text-base"
+        />
         <ModeText
           className="text-sm"
-          plain={<>Rules from the published books and class notes, matched against the placements above. Dots show how much weight each carries. Only some chapters are entered so far.</>}
-          practitioner={<>
-          {ALP_RULES.length} rules so far: the framework from the published material, and Book 2 chapters 2 to 17 (pp. 32-99, 137-143), and the Book 1 class notes (rules 1-5). The remaining chapters are entered one at a time.
-          </>}
+          plain={
+            <>
+              Rules from the published books and class notes, matched against
+              the placements above. Dots show how much weight each carries. Only
+              some chapters are entered so far.
+            </>
+          }
+          practitioner={
+            <>
+              {ALP_RULES.length} rules so far: the framework from the published
+              material, and Book 2 chapters 2 to 17 (pp. 32-99, 137-143), and
+              the Book 1 class notes (rules 1-5). The remaining chapters are
+              entered one at a time.
+            </>
+          }
         />
         {a.findings.length ? (
           <ul className="mt-3 space-y-3">
             {a.findings.map((f) => (
-              <li key={f.ruleId} className="flex gap-3 text-sm" data-testid={`alp-finding-${f.ruleId}`}>
-                <span className="mt-1.5 flex shrink-0 gap-0.5" aria-label={`weight ${f.weight}`}>
+              <li
+                key={f.ruleId}
+                className="flex gap-3 text-sm"
+                data-testid={`alp-finding-${f.ruleId}`}
+              >
+                <span
+                  className="mt-1.5 flex shrink-0 gap-0.5"
+                  aria-label={`weight ${f.weight}`}
+                >
                   {[1, 2, 3].map((i) => (
-                    <span key={i} className={cn("h-1.5 w-1.5 rounded-full", i <= f.weight ? "bg-foreground" : "bg-muted-foreground/30")} />
+                    <span
+                      key={i}
+                      className={cn(
+                        "h-1.5 w-1.5 rounded-full",
+                        i <= f.weight
+                          ? "bg-foreground"
+                          : "bg-muted-foreground/30",
+                      )}
+                    />
                   ))}
                 </span>
                 <span>
                   {f.text}{" "}
                   {f.sourceUrl ? (
-                    <a href={f.sourceUrl} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
-                      {f.source}
-                    </a>
+                    <Cite href={f.sourceUrl}>{f.source}</Cite>
                   ) : (
-                    <span className="text-xs text-muted-foreground">{f.source}</span>
+                    <Cite>{f.source}</Cite>
                   )}
                 </span>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="mt-3 rounded-md border border-dashed p-4 text-sm text-muted-foreground" data-testid="text-alp-empty">
-            None of the starting rules fire for this placement. The placements above are what a rule from the books would be written against.
+          <p
+            className="mt-3 rounded-md border border-dashed p-4 text-sm text-muted-foreground"
+            data-testid="text-alp-empty"
+          >
+            None of the starting rules fire for this placement. The placements
+            above are what a rule from the books would be written against.
           </p>
         )}
         {pendingChapters.length > 0 && (
           <p className="mt-3 text-xs text-muted-foreground">
-            Pending chapters: {pendingChapters.map((c) => `${c.book} · ${c.title}`).join("; ")}.
+            Pending chapters:{" "}
+            {pendingChapters.map((c) => `${c.book} · ${c.title}`).join("; ")}.
           </p>
         )}
       </section>
 
       <section className="mt-10" data-testid="section-alp-timeline">
-        <SectionTitle as="h2" plain="The moving point, decade by decade" technical="The lagna through the signs" className="text-base" />
+        <SectionTitle
+          as="h2"
+          plain="The moving point, decade by decade"
+          technical="The lagna through the signs"
+          className="text-base"
+        />
         <ModeText
           className="text-sm"
-          plain={<>Ten years to a sign, counted from the exact birth degree, so the birth sign gets only the part of its arc that was left. The bar shows the whole 120 years; the table gives the dates and the birth planets waiting in each sign.</>}
-          practitioner={<>
-          {config.yearsPerSign} years per sign, counted from the natal lagna degree (Book 2 adds the travelled degrees to the birth lagna point), so the birth sign gets only its remaining arc.
-          </>}
+          plain={
+            <>
+              Ten years to a sign, counted from the exact birth degree, so the
+              birth sign gets only the part of its arc that was left. The bar
+              shows the whole 120 years; the table gives the dates and the birth
+              planets waiting in each sign.
+            </>
+          }
+          practitioner={
+            <>
+              {config.yearsPerSign} years per sign, counted from the natal lagna
+              degree (Book 2 adds the travelled degrees to the birth lagna
+              point), so the birth sign gets only its remaining arc.
+            </>
+          }
         />
         <DasaBar
           className="mt-3"
           testId="bar-alp-signs"
           nowAt={a.ageYears}
           ticks={[0, 20, 40, 60, 80, 100, 120]}
-          segments={a.signPeriods.map((p) => ({ start: p.ageStart, end: p.ageEnd, color: elementColor(p.signIndex), label: SIGN_ABBR[p.signIndex], current: p.current, title: `${p.sign} · ages ${p.ageStart.toFixed(1)}–${p.ageEnd.toFixed(1)}` }))}
+          segments={a.signPeriods.map((p) => ({
+            start: p.ageStart,
+            end: p.ageEnd,
+            color: elementColor(p.signIndex),
+            label: SIGN_ABBR[p.signIndex],
+            current: p.current,
+            title: `${p.sign} · ages ${p.ageStart.toFixed(1)}–${p.ageEnd.toFixed(1)}`,
+          }))}
         />
         <ElementLegend className="mt-3" />
         <Table className="tabular mt-3">
@@ -622,48 +1514,101 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               <TableHead className="text-right">Age</TableHead>
               <TableHead>Dates</TableHead>
               <TableHead className="hidden sm:table-cell">Lord</TableHead>
-              <TableHead className="hidden md:table-cell">Natal planets</TableHead>
+              <TableHead className="hidden md:table-cell">
+                Natal planets
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {a.signPeriods.map((p, i) => (
-              <PeriodRow key={`${p.signIndex}-${i}`} p={p} planets={planetsIn(p.signIndex)} cols="sign" />
+              <PeriodRow
+                key={`${p.signIndex}-${i}`}
+                p={p}
+                planets={planetsIn(p.signIndex)}
+                cols="sign"
+              />
             ))}
           </TableBody>
         </Table>
 
         <div id="alp-nakshatras">
-          <SectionTitle plain={`Three star-stretches within ${a.point.sign}`} technical={`Nakshatras within ${a.point.sign}`} term="nakshatra" className="mt-8" />
+          <SectionTitle
+            plain={`Three star-stretches within ${a.point.sign}`}
+            technical={`Nakshatras within ${a.point.sign}`}
+            term="nakshatra"
+            className="mt-8"
+          />
         </div>
         <ModeText
-          plain={<>Each sign is crossed in three stretches of a lunar mansion, roughly three and a third years each. Each stretch brings a second planet, the mansion's ruler, into the reading; its house is counted from the moving point.</>}
-          practitioner={<>The sign is crossed in three stretches of nakshatra; each brings a second lord into play. The lord's house is counted from the ALP lagna.</>}
+          plain={
+            <>
+              Each sign is crossed in three stretches of a lunar mansion,
+              roughly three and a third years each. Each stretch brings a second
+              planet, the mansion's ruler, into the reading; its house is
+              counted from the moving point.
+            </>
+          }
+          practitioner={
+            <>
+              The sign is crossed in three stretches of nakshatra; each brings a
+              second lord into play. The lord's house is counted from the ALP
+              lagna.
+            </>
+          }
         />
         <DasaBar
           className="mt-2"
           testId="bar-alp-nakshatras"
           nowAt={a.ageYears}
-          segments={a.nakshatraPeriods.map((n) => ({ start: n.ageStart, end: n.ageEnd, color: n.nakshatraLord ? planetColor(n.nakshatraLord) : "hsl(var(--muted))", label: `${n.nakshatraLord ? PLANET_ABBR[n.nakshatraLord] : ""} · ${n.nakshatra ?? ""}`, short: n.nakshatraLord ? PLANET_ABBR[n.nakshatraLord] : "", current: n.current, title: `${n.nakshatra} · ${n.nakshatraLord} · ${fmt(n.start)} – ${fmt(n.end)}` }))}
+          segments={a.nakshatraPeriods.map((n) => ({
+            start: n.ageStart,
+            end: n.ageEnd,
+            color: n.nakshatraLord
+              ? planetColor(n.nakshatraLord)
+              : "hsl(var(--muted))",
+            label: `${n.nakshatraLord ? PLANET_ABBR[n.nakshatraLord] : ""} · ${n.nakshatra ?? ""}`,
+            short: n.nakshatraLord ? PLANET_ABBR[n.nakshatraLord] : "",
+            current: n.current,
+            title: `${n.nakshatra} · ${n.nakshatraLord} · ${fmt(n.start)} – ${fmt(n.end)}`,
+          }))}
         />
         <Table className="tabular mt-2" data-testid="table-alp-nakshatras">
           <TableHeader>
             <TableRow>
               <TableHead>Nakshatra</TableHead>
               <TableHead>Lord</TableHead>
-              <TableHead className="hidden sm:table-cell">Lord's house</TableHead>
+              <TableHead className="hidden sm:table-cell">
+                Lord's house
+              </TableHead>
               <TableHead className="text-right">Age</TableHead>
               <TableHead>Dates</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {a.nakshatraPeriods.map((n) => (
-              <TableRow key={n.nakshatraIndex} className={cn(n.current && "bg-primary/5")} data-testid={`row-alp-nak-${n.nakshatraIndex}`}>
+              <TableRow
+                key={n.nakshatraIndex}
+                className={cn(n.current && "bg-primary/5")}
+                data-testid={`row-alp-nak-${n.nakshatraIndex}`}
+              >
                 <TableCell className="py-2 font-medium">
                   {n.nakshatra}
-                  {n.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                  {n.current && (
+                    <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
+                      now
+                    </span>
+                  )}
                 </TableCell>
-                <TableCell className="py-2">{n.nakshatraLord ? <PlanetName planet={n.nakshatraLord} /> : ""}</TableCell>
-                <TableCell className="hidden py-2 text-muted-foreground sm:table-cell">{n.nakshatraLord ? ordinal(houseOf(n.nakshatraLord)!) : ""}</TableCell>
+                <TableCell className="py-2">
+                  {n.nakshatraLord ? (
+                    <PlanetName planet={n.nakshatraLord} />
+                  ) : (
+                    ""
+                  )}
+                </TableCell>
+                <TableCell className="hidden py-2 text-muted-foreground sm:table-cell">
+                  {n.nakshatraLord ? ordinal(houseOf(n.nakshatraLord)!) : ""}
+                </TableCell>
                 <TableCell className="py-2 text-right">
                   {n.ageStart.toFixed(1)}–{n.ageEnd.toFixed(1)}
                 </TableCell>
@@ -675,52 +1620,92 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           </TableBody>
         </Table>
 
-        <Working id="alp-three-ways" label="Show the three ways: present, past, future (Book 2, ch. 17)" className="mt-4">
-          <p className="mb-2 text-xs text-muted-foreground">{THREE_WAYS_NOTE}</p>
+        <Working
+          id="alp-three-ways"
+          label="Show the three ways: present, past, future (Book 2, ch. 17)"
+          className="mt-4"
+        >
+          <p className="mb-2 text-xs text-muted-foreground">
+            {THREE_WAYS_NOTE}
+          </p>
           {[
-            { key: "janma", title: `Birth lagna (the book's reading)`, ways: threeWaysJanma },
-            { key: "alp", title: `ALP lagna (example chart 1, pp. 140-141)`, ways: threeWaysAlp },
+            {
+              key: "janma",
+              title: `Birth lagna (the book's reading)`,
+              ways: threeWaysJanma,
+            },
+            {
+              key: "alp",
+              title: `ALP lagna (example chart 1, pp. 140-141)`,
+              ways: threeWaysAlp,
+            },
           ].map(({ key, title, ways }) => {
             const c = threeWaysCount(ways);
             return (
               <div key={key} className="mt-3" data-testid={`three-ways-${key}`}>
                 <p className="text-xs font-medium">{title}</p>
-                <div className="overflow-x-auto"><Table className="tabular mt-1 [&_td]:px-2 [&_th]:px-2">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Way</TableHead>
-                      <TableHead>House</TableHead>
-                      <TableHead>Time</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {ways.map((w) => (
-                      <TableRow key={w.label}>
-                        <TableCell className="py-1.5 align-top text-xs">
-                          <span className="font-medium">{w.label}</span>
-                          <div className="text-muted-foreground">{w.detail}</div>
-                        </TableCell>
-                        <TableCell className="py-1.5 align-top">{ordinal(w.house)}</TableCell>
-                        <TableCell className="py-1.5 align-top"><TimePill group={w.group} /></TableCell>
+                <div className="overflow-x-auto">
+                  <Table className="tabular mt-1 [&_td]:px-2 [&_th]:px-2">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Way</TableHead>
+                        <TableHead>House</TableHead>
+                        <TableHead>Time</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table></div>
+                    </TableHeader>
+                    <TableBody>
+                      {ways.map((w) => (
+                        <TableRow key={w.label}>
+                          <TableCell className="py-1.5 align-top text-xs">
+                            <span className="font-medium">{w.label}</span>
+                            <div className="text-muted-foreground">
+                              {w.detail}
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-1.5 align-top">
+                            {ordinal(w.house)}
+                          </TableCell>
+                          <TableCell className="py-1.5 align-top">
+                            <TimePill group={w.group} />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {c.present} present, {c.past} past, {c.future} future. {threeWaysText(c)}{key === "janma" ? " (This line also appears in the reading below.)" : ""}
+                  {c.present} present, {c.past} past, {c.future} future.{" "}
+                  {threeWaysText(c)}
+                  {key === "janma"
+                    ? " (This line also appears in the reading below.)"
+                    : ""}
                 </p>
               </div>
             );
           })}
         </Working>
 
-        <Working id="alp-nak-timeline" label="Show every star-stretch over the 120 years" count={a.nakshatraTimeline.length} className="mt-4">
+        <Working
+          id="alp-nak-timeline"
+          label="Show every star-stretch over the 120 years"
+          count={a.nakshatraTimeline.length}
+          className="mt-4"
+        >
           <DasaBar
             className="mb-3"
             testId="bar-alp-nak-timeline"
             nowAt={a.ageYears}
             ticks={[0, 20, 40, 60, 80, 100, 120]}
-            segments={a.nakshatraTimeline.map((n) => ({ start: n.ageStart, end: n.ageEnd, color: n.nakshatraLord ? planetColor(n.nakshatraLord) : "hsl(var(--muted))", label: n.nakshatraLord ? PLANET_ABBR[n.nakshatraLord] : "", current: n.current, title: `${n.nakshatra} · ${n.nakshatraLord} · ages ${n.ageStart.toFixed(1)}–${n.ageEnd.toFixed(1)}` }))}
+            segments={a.nakshatraTimeline.map((n) => ({
+              start: n.ageStart,
+              end: n.ageEnd,
+              color: n.nakshatraLord
+                ? planetColor(n.nakshatraLord)
+                : "hsl(var(--muted))",
+              label: n.nakshatraLord ? PLANET_ABBR[n.nakshatraLord] : "",
+              current: n.current,
+              title: `${n.nakshatra} · ${n.nakshatraLord} · ages ${n.ageStart.toFixed(1)}–${n.ageEnd.toFixed(1)}`,
+            }))}
           />
           <Table className="tabular">
             <TableHeader>
@@ -734,13 +1719,28 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             </TableHeader>
             <TableBody>
               {a.nakshatraTimeline.map((n, i) => (
-                <TableRow key={`${n.nakshatraIndex}-${i}`} className={cn(n.current && "bg-primary/5")}>
+                <TableRow
+                  key={`${n.nakshatraIndex}-${i}`}
+                  className={cn(n.current && "bg-primary/5")}
+                >
                   <TableCell className="py-1.5 font-medium">
                     {n.nakshatra}
-                    {n.current && <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">now</span>}
+                    {n.current && (
+                      <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
+                        now
+                      </span>
+                    )}
                   </TableCell>
-                  <TableCell className="py-1.5">{n.nakshatraLord ? <PlanetName planet={n.nakshatraLord} /> : ""}</TableCell>
-                  <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">{nakSigns(n.nakshatraIndex!)}</TableCell>
+                  <TableCell className="py-1.5">
+                    {n.nakshatraLord ? (
+                      <PlanetName planet={n.nakshatraLord} />
+                    ) : (
+                      ""
+                    )}
+                  </TableCell>
+                  <TableCell className="hidden py-1.5 text-muted-foreground sm:table-cell">
+                    {nakSigns(n.nakshatraIndex!)}
+                  </TableCell>
                   <TableCell className="py-1.5 text-right">
                     {n.ageStart.toFixed(1)}–{n.ageEnd.toFixed(1)}
                   </TableCell>
@@ -751,16 +1751,26 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               ))}
             </TableBody>
           </Table>
-          <p className="mt-2 text-xs text-muted-foreground">One nakshatra takes 4 years 5 months and a few days; a sign holds two and a quarter of them, so a nakshatra can straddle two signs.</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            One nakshatra takes 4 years 5 months and a few days; a sign holds
+            two and a quarter of them, so a nakshatra can straddle two signs.
+          </p>
         </Working>
 
-        <Working id="alp-padas" label={`Show the nine quarter-stars of ${a.point.sign}`} count={a.padaPeriods.length} className="mt-4">
+        <Working
+          id="alp-padas"
+          label={`Show the nine quarter-stars of ${a.point.sign}`}
+          count={a.padaPeriods.length}
+          className="mt-4"
+        >
           <Table className="tabular">
             <TableHeader>
               <TableRow>
                 <TableHead>Pada in sign</TableHead>
                 <TableHead>Lord</TableHead>
-                <TableHead className="hidden sm:table-cell">Activates</TableHead>
+                <TableHead className="hidden sm:table-cell">
+                  Activates
+                </TableHead>
                 <TableHead className="text-right">Age</TableHead>
                 <TableHead>Dates</TableHead>
               </TableRow>
@@ -771,32 +1781,70 @@ export function AlpPanel({ result }: { result: ChartResult }) {
               ))}
             </TableBody>
           </Table>
-          <p className="mt-2 text-xs text-muted-foreground">One pada is ten-ninths of a year, about 1 year 1 month 10 days. "Activates" is the navamsa sign of the pada.</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            One pada is ten-ninths of a year, about 1 year 1 month 10 days.
+            "Activates" is the navamsa sign of the pada.
+          </p>
         </Working>
       </section>
 
       <section className="mt-10" data-testid="section-alp-method">
         <h2 className="text-base font-semibold">Method</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Akshaya Lagna Paddhati moves the ascendant forward with age, ten years to a sign and one nakshatra pada in 1 year 1 month 10 days, so that the whole zodiac is covered in 120 years, and reads the natal planets from the moved lagna. Three layers are tracked: the sign (and its lord), the nakshatra within the sign (and its lord), and the pada (and the navamsa sign it activates). The natal chart, the Vimshottari dasha and transits stay as they are; only the reference point moves.{" "}
-          <a href={ALP_SOURCE_SITE} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
-            alpastrology.org
-          </a>
+          Akshaya Lagna Paddhati moves the ascendant forward with age, ten years
+          to a sign and one nakshatra pada in 1 year 1 month 10 days, so that
+          the whole zodiac is covered in 120 years, and reads the natal planets
+          from the moved lagna. Three layers are tracked: the sign (and its
+          lord), the nakshatra within the sign (and its lord), and the pada (and
+          the navamsa sign it activates). The natal chart, the Vimshottari dasha
+          and transits stay as they are; only the reference point moves.{" "}
+          <Cite href={ALP_SOURCE_SITE}>alpastrology.org</Cite>
         </p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           <li>
-            The rate is confirmed by the author's second e-magazine: 360° over 120 years, 3° a year, so 1° is four months.{" "}
-            <a href={ALP_SOURCE_MAGAZINE_2} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
-              ALP e-magazine 2
-            </a>
+            The rate is confirmed by the author's second e-magazine: 360° over
+            120 years, 3° a year, so 1° is four months.{" "}
+            <Cite href={ALP_SOURCE_MAGAZINE_2}>ALP e-magazine 2</Cite>
           </li>
-          <li>Book 2 (pp. 32-41) settles the start: travelled degrees are added to the birth lagna degree, with 3° for each completed year and 1° for every four months of the remainder. The continuous point used here moves smoothly between those whole-degree steps; the arithmetic is shown in the working above.</li>
-          <li>Book 2 (pp. 72-73) derives the Akshaya rasi from the Vimshottari dasa: the Moon moves from its birth nakshatra to the next with each dasa, a pada for each quarter of it, and the sign the current pada falls in is the Akshaya rasi (the mind), judged with the dasa lord and against the ALP lagna (the body). The first dasa is prorated from the Moon's degree, as in Vimshottari.</li>
+          <li>
+            Book 2 (pp. 32-41) settles the start: travelled degrees are added to
+            the birth lagna degree, with 3° for each completed year and 1° for
+            every four months of the remainder. The continuous point used here
+            moves smoothly between those whole-degree steps; the arithmetic is
+            shown in the working above.
+          </li>
+          <li>
+            Book 2 (pp. 72-73) derives the Akshaya rasi from the Vimshottari
+            dasa: the Moon moves from its birth nakshatra to the next with each
+            dasa, a pada for each quarter of it, and the sign the current pada
+            falls in is the Akshaya rasi (the mind), judged with the dasa lord
+            and against the ALP lagna (the body). The first dasa is prorated
+            from the Moon's degree, as in Vimshottari.
+          </li>
           <li>{ARP_QUESTIONS_NOTE}</li>
-          <li>Book 2 ch. 15 (p. 91) lists ten features to observe before predicting: {ALP_TEN_FEATURES.map((f) => f.toLowerCase()).join("; ")}. The gochar items wait for live planet positions.</li>
-          <li>Book 2 ch. 12 (pp. 86-87) frames the reading: a planet gives its effect from the bhava it occupies, "from wherever it is taken, it is returned to the same place", and the scenes change when the time changes.</li>
-          <li>Still open: whether the year is solar (365.25 days, used here) or savana (360 days); the gochar rules (transiting Mars through the 8th from the ALP lagna, the Moon through the 8th from the Akshaya rasi, pp. 81-82) which need live planet positions and Book 3; the nakshatra-by-nakshatra readings (Books 3 and 4).</li>
-          <li>Kept separate from the Nadi and Jaimini readings; nothing here feeds them.</li>
+          <li>
+            Book 2 ch. 15 (p. 91) lists ten features to observe before
+            predicting:{" "}
+            {ALP_TEN_FEATURES.map((f) => f.toLowerCase()).join("; ")}. The
+            gochar items wait for live planet positions.
+          </li>
+          <li>
+            Book 2 ch. 12 (pp. 86-87) frames the reading: a planet gives its
+            effect from the bhava it occupies, "from wherever it is taken, it is
+            returned to the same place", and the scenes change when the time
+            changes.
+          </li>
+          <li>
+            Still open: whether the year is solar (365.25 days, used here) or
+            savana (360 days); the gochar rules (transiting Mars through the 8th
+            from the ALP lagna, the Moon through the 8th from the Akshaya rasi,
+            pp. 81-82) which need live planet positions and Book 3; the
+            nakshatra-by-nakshatra readings (Books 3 and 4).
+          </li>
+          <li>
+            Kept separate from the Nadi and Jaimini readings; nothing here feeds
+            them.
+          </li>
         </ul>
       </section>
     </div>

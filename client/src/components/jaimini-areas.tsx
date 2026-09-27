@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { SourceLink } from "@/components/source-link";
+import { SourceLink, Cite } from "@/components/source-link";
 import { ModeText } from "@/components/mode-text";
 
 function ordinal(n: number) {
@@ -617,23 +617,9 @@ export function JaiminiAreas({ result }: { result: ChartResult }) {
             transit check under each period follows Rao's confirming step:
             Jupiter and Saturn on or aspecting the area's anchors, ideally both
             at once (double transit).{" "}
-            <a
-              href={RAO_SOURCE.url}
-              target="_blank"
-              rel="noreferrer"
-              className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground"
-            >
-              {RAO_SOURCE.label}
-            </a>
+            <Cite href={RAO_SOURCE.url}>{RAO_SOURCE.label}</Cite>
             {" · "}
-            <a
-              href={RAO_NOTES_SOURCE.url}
-              target="_blank"
-              rel="noreferrer"
-              className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground"
-            >
-              {RAO_NOTES_SOURCE.label}
-            </a>
+            <Cite href={RAO_NOTES_SOURCE.url}>{RAO_NOTES_SOURCE.label}</Cite>
           </>
         }
       />

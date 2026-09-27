@@ -18,7 +18,23 @@ export function placeLabel(h: GeoHit): string {
   return [h.name, h.admin1, h.country].filter(Boolean).join(", ");
 }
 
-export function PlaceSearch({ value, onPick, placeholder = "City of birth", className, inputClassName, id = "place", testId = "input-place" }: { value: string; onPick: (hit: GeoHit) => void; placeholder?: string; className?: string; inputClassName?: string; id?: string; testId?: string }) {
+export function PlaceSearch({
+  value,
+  onPick,
+  placeholder = "City of birth",
+  className,
+  inputClassName,
+  id = "place",
+  testId = "input-place",
+}: {
+  value: string;
+  onPick: (hit: GeoHit) => void;
+  placeholder?: string;
+  className?: string;
+  inputClassName?: string;
+  id?: string;
+  testId?: string;
+}) {
   const [q, setQ] = useState(value);
   const [open, setOpen] = useState(false);
   const dq = useDebounced(q, 300);
@@ -46,10 +62,15 @@ export function PlaceSearch({ value, onPick, placeholder = "City of birth", clas
           autoComplete="off"
           data-testid={testId}
         />
-        {isFetching && <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />}
+        {isFetching && (
+          <Loader2 className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-muted-foreground" />
+        )}
       </div>
       {open && hits && hits.length > 0 && (
-        <ul className="absolute z-20 mt-1 w-full overflow-hidden rounded-md border border-popover-border bg-popover shadow-md" role="listbox">
+        <ul
+          className="absolute z-20 mt-1 w-full overflow-hidden rounded-md border border-popover-border bg-popover shadow-md"
+          role="listbox"
+        >
           {hits.map((h, i) => (
             <li key={i}>
               <button
@@ -67,7 +88,9 @@ export function PlaceSearch({ value, onPick, placeholder = "City of birth", clas
                   {h.name}
                   {h.admin1 ? `, ${h.admin1}` : ""}
                 </span>
-                <span className="shrink-0 text-xs text-muted-foreground">{h.country}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {h.country}
+                </span>
               </button>
             </li>
           ))}

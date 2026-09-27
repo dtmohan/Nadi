@@ -1,4 +1,5 @@
 import { Fragment, useMemo, useState } from "react";
+import { Cite } from "@/components/source-link";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
@@ -1388,14 +1389,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                             <span className="ml-1.5 text-xs text-muted-foreground">
                               {f.evidence}.{" "}
                               {f.sourceUrl ? (
-                                <a
-                                  href={f.sourceUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground"
-                                >
-                                  {f.source}
-                                </a>
+                                <Cite href={f.sourceUrl}>{f.source}</Cite>
                               ) : (
                                 f.source
                               )}
@@ -1432,7 +1426,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                     </ul>
                     {mode === "practitioner" && (
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {income[0].source}
+                        <Cite>{income[0].source}</Cite>
                       </p>
                     )}
                   </Working>
@@ -1921,14 +1915,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
           {KP_SOURCES.map((s) => (
             <li key={s.label}>
               {s.url ? (
-                <a
-                  href={s.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-foreground underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground"
-                >
-                  {s.label}
-                </a>
+                <Cite href={s.url}>{s.label}</Cite>
               ) : (
                 <span className="text-foreground">{s.label}</span>
               )}{" "}

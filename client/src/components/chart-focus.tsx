@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import type { Planet } from "@shared/astro";
 
 /**
@@ -15,7 +23,12 @@ interface FocusState {
   setLayout: (l: ChartLayout) => void;
 }
 
-const FocusCtx = createContext<FocusState>({ hovered: null, setHovered: () => {}, layout: "south", setLayout: () => {} });
+const FocusCtx = createContext<FocusState>({
+  hovered: null,
+  setHovered: () => {},
+  layout: "south",
+  setLayout: () => {},
+});
 
 const CACHE_NAME = "nadi-prefs-v1";
 const CACHE_KEY = "/__nadi__/prefs.json";
@@ -35,7 +48,12 @@ async function savePrefs(prefs: { layout?: ChartLayout }) {
   try {
     if (typeof caches === "undefined") return;
     const cache = await caches.open(CACHE_NAME);
-    await cache.put(CACHE_KEY, new Response(JSON.stringify(prefs), { headers: { "content-type": "application/json" } }));
+    await cache.put(
+      CACHE_KEY,
+      new Response(JSON.stringify(prefs), {
+        headers: { "content-type": "application/json" },
+      }),
+    );
   } catch {
     /* preview frames without Cache Storage keep the choice for the session only */
   }
@@ -47,7 +65,8 @@ export function ChartFocusProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let alive = true;
     loadPrefs().then((p) => {
-      if (alive && (p.layout === "south" || p.layout === "north")) setLayoutState(p.layout);
+      if (alive && (p.layout === "south" || p.layout === "north"))
+        setLayoutState(p.layout);
     });
     return () => void (alive = false);
   }, []);
@@ -56,7 +75,10 @@ export function ChartFocusProvider({ children }: { children: ReactNode }) {
     setLayoutState(l);
     void savePrefs({ layout: l });
   }, []);
-  const value = useMemo(() => ({ hovered, setHovered, layout, setLayout }), [hovered, setHovered, layout, setLayout]);
+  const value = useMemo(
+    () => ({ hovered, setHovered, layout, setLayout }),
+    [hovered, setHovered, layout, setLayout],
+  );
   return <FocusCtx.Provider value={value}>{children}</FocusCtx.Provider>;
 }
 

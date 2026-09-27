@@ -1,6 +1,11 @@
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
-import { PLANET_ABBR, type PlanetPosition, type TransitPeriod, type Planet } from "@shared/astro";
+import {
+  PLANET_ABBR,
+  type PlanetPosition,
+  type TransitPeriod,
+  type Planet,
+} from "@shared/astro";
 import { LIFE_AREAS, type Finding, type Roles } from "@shared/rules";
 import { readTransits, type TransitReading } from "@shared/timing";
 import { Button } from "@/components/ui/button";
@@ -15,18 +20,33 @@ import type { ChartEvent } from "@shared/events";
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 
 function planetTone(p: Planet) {
-  return cn("font-semibold", p === "Jupiter" && "text-[hsl(var(--planet-jupiter))]", p === "Saturn" && "text-[hsl(var(--planet-saturn))]");
+  return cn(
+    "font-semibold",
+    p === "Jupiter" && "text-[hsl(var(--planet-jupiter))]",
+    p === "Saturn" && "text-[hsl(var(--planet-saturn))]",
+  );
 }
 
-function Activated({ items, compact }: { items: Finding[]; compact?: boolean }) {
+function Activated({
+  items,
+  compact,
+}: {
+  items: Finding[];
+  compact?: boolean;
+}) {
   if (!items.length) return null;
   return (
     <ul className={cn("mt-1.5 space-y-1", compact ? "text-xs" : "text-sm")}>
       {items.map((f) => (
         <li key={f.ruleId} className="flex gap-2">
-          <span className="mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/50" aria-hidden />
+          <span
+            className="mt-[0.45em] h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/50"
+            aria-hidden
+          />
           <span>
-            <span className="text-muted-foreground">{LIFE_AREAS[f.area].label} · </span>
+            <span className="text-muted-foreground">
+              {LIFE_AREAS[f.area].label} ·{" "}
+            </span>
             {f.text}
           </span>
         </li>
@@ -39,10 +59,14 @@ function NowCard({ r, birth }: { r: TransitReading; birth: DateTime }) {
   const t = r.period;
   const age = Math.floor(DateTime.utc().diff(birth, "years").years);
   return (
-    <div className="rounded-lg border bg-card p-4" data-testid={`now-${t.planet.toLowerCase()}`}>
+    <div
+      className="rounded-lg border bg-card p-4"
+      data-testid={`now-${t.planet.toLowerCase()}`}
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="text-sm">
-          <span className={planetTone(t.planet)}>{t.planet}</span> in <span className="font-medium">{t.sign}</span>
+          <span className={planetTone(t.planet)}>{t.planet}</span> in{" "}
+          <span className="font-medium">{t.sign}</span>
           <span className="text-muted-foreground"> · age {age}</span>
         </div>
         <div className="tabular text-xs text-muted-foreground">
@@ -80,11 +104,19 @@ export function Timeline({
   const now = DateTime.utc();
   const birth = DateTime.fromISO(birthIso);
 
-  const readings = useMemo(() => readTransits(transits, positions, findings, birthIso, roles), [transits, positions, findings, birthIso, roles]);
+  const readings = useMemo(
+    () => readTransits(transits, positions, findings, birthIso, roles),
+    [transits, positions, findings, birthIso, roles],
+  );
 
   const current = useMemo(() => {
     const cur = (planet: "Jupiter" | "Saturn") =>
-      readings.find((r) => r.period.planet === planet && now >= DateTime.fromISO(r.period.start) && now < DateTime.fromISO(r.period.end));
+      readings.find(
+        (r) =>
+          r.period.planet === planet &&
+          now >= DateTime.fromISO(r.period.start) &&
+          now < DateTime.fromISO(r.period.end),
+      );
     return { Jupiter: cur("Jupiter"), Saturn: cur("Saturn") };
   }, [readings, now]);
 
@@ -94,24 +126,48 @@ export function Timeline({
       .map((r) => {
         const start = DateTime.fromISO(r.period.start);
         const end = DateTime.fromISO(r.period.end);
-        return { r, start, end, age: start.diff(birth, "years").years, current: now >= start && now < end, past: end < now, days: end.diff(start, "days").days };
+        return {
+          r,
+          start,
+          end,
+          age: start.diff(birth, "years").years,
+          current: now >= start && now < end,
+          past: end < now,
+          days: end.diff(start, "days").days,
+        };
       })
-      .filter((x) => !onlyTouches || x.r.conjunct.length > 0 || x.r.trine.length > 0)
-      .filter((x) => !selected || x.r.conjunct.includes(selected) || x.r.trine.includes(selected) || x.r.opposite.includes(selected));
+      .filter(
+        (x) => !onlyTouches || x.r.conjunct.length > 0 || x.r.trine.length > 0,
+      )
+      .filter(
+        (x) =>
+          !selected ||
+          x.r.conjunct.includes(selected) ||
+          x.r.trine.includes(selected) ||
+          x.r.opposite.includes(selected),
+      );
   }, [readings, track, onlyTouches, birth, now, selected]);
 
   const next = useMemo(() => {
-    return readings.find((r) => r.period.planet === track && (r.conjunct.length > 0 || r.trine.length > 0) && DateTime.fromISO(r.period.start) > now);
+    return readings.find(
+      (r) =>
+        r.period.planet === track &&
+        (r.conjunct.length > 0 || r.trine.length > 0) &&
+        DateTime.fromISO(r.period.start) > now,
+    );
   }, [readings, track, now]);
-
 
   return (
     <div>
       {(current.Jupiter || current.Saturn) && (
         <section className="mb-6" data-testid="section-now">
-          <h3 className="font-display text-base font-semibold">Where the karakas stand now</h3>
+          <h3 className="font-display text-base font-semibold">
+            Where the karakas stand now
+          </h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Read against this chart's own combinations: a passage ripens the findings its natal planets take part in, and is counted from the natal Jeeva and Karma.
+            Read against this chart's own combinations: a passage ripens the
+            findings its natal planets take part in, and is counted from the
+            natal Jeeva and Karma.
           </p>
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {current.Jupiter && <NowCard r={current.Jupiter} birth={birth} />}
@@ -122,15 +178,30 @@ export function Timeline({
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex gap-1">
-          <Button size="sm" variant={track === "Jupiter" ? "default" : "outline"} onClick={() => setTrack("Jupiter")} data-testid="button-track-jupiter">
+          <Button
+            size="sm"
+            variant={track === "Jupiter" ? "default" : "outline"}
+            onClick={() => setTrack("Jupiter")}
+            data-testid="button-track-jupiter"
+          >
             Jupiter · yearly
           </Button>
-          <Button size="sm" variant={track === "Saturn" ? "default" : "outline"} onClick={() => setTrack("Saturn")} data-testid="button-track-saturn">
+          <Button
+            size="sm"
+            variant={track === "Saturn" ? "default" : "outline"}
+            onClick={() => setTrack("Saturn")}
+            data-testid="button-track-saturn"
+          >
             Saturn · 2½ years
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <Switch id="touches" checked={onlyTouches} onCheckedChange={setOnlyTouches} data-testid="switch-touches" />
+          <Switch
+            id="touches"
+            checked={onlyTouches}
+            onCheckedChange={setOnlyTouches}
+            data-testid="switch-touches"
+          />
           <Label htmlFor="touches" className="text-sm text-muted-foreground">
             Only passages over or in trine to a natal planet
           </Label>
@@ -145,74 +216,116 @@ export function Timeline({
         {next && (
           <span>
             {" "}
-            Next passage touching a natal planet: {next.period.sign}, {fmt(next.period.start)} ({next.conjunct.length ? "over" : "trine"}{" "}
-            {(next.conjunct.length ? next.conjunct : next.trine).map((p) => PLANET_ABBR[p]).join(" ")}).
+            Next passage touching a natal planet: {next.period.sign},{" "}
+            {fmt(next.period.start)} ({next.conjunct.length ? "over" : "trine"}{" "}
+            {(next.conjunct.length ? next.conjunct : next.trine)
+              .map((p) => PLANET_ABBR[p])
+              .join(" ")}
+            ).
           </span>
         )}
       </p>
 
       <ol className="mt-5 space-y-1">
-        {rows.map(({ r, start, end, age, current: isCurrent, past, days }, i) => (
-          <li
-            key={`${r.period.planet}-${r.period.start}`}
-            className={cn(
-              "grid grid-cols-[4.5rem_1fr] gap-x-4 rounded-md px-3 py-2.5 sm:grid-cols-[4.5rem_11rem_1fr]",
-              isCurrent && "bg-primary/10 ring-1 ring-primary/40",
-              past && !isCurrent && "opacity-60",
-              r.weight === 3 && !isCurrent && "bg-muted/40",
-            )}
-            data-testid={`row-transit-${i}`}
-          >
-            <div className="tabular text-sm">
-              <div className="font-medium">{age <= 0.02 ? "Birth" : `Age ${Math.floor(age)}`}</div>
-              <div className="text-xs text-muted-foreground">{start.year}</div>
-            </div>
-            <div className="text-sm">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{r.period.sign}</span>
-                {r.period.retrogradeEntry && (
-                  <span className="text-xs text-muted-foreground" title="Entered by retrograde motion">
-                    ℞
-                  </span>
-                )}
-                {isCurrent && <Badge className="no-default-hover-elevate">Now</Badge>}
+        {rows.map(
+          ({ r, start, end, age, current: isCurrent, past, days }, i) => (
+            <li
+              key={`${r.period.planet}-${r.period.start}`}
+              className={cn(
+                "grid grid-cols-[4.5rem_1fr] gap-x-4 rounded-md px-3 py-2.5 sm:grid-cols-[4.5rem_11rem_1fr]",
+                isCurrent && "bg-primary/10 ring-1 ring-primary/40",
+                past && !isCurrent && "opacity-60",
+                r.weight === 3 && !isCurrent && "bg-muted/40",
+              )}
+              data-testid={`row-transit-${i}`}
+            >
+              <div className="tabular text-sm">
+                <div className="font-medium">
+                  {age <= 0.02 ? "Birth" : `Age ${Math.floor(age)}`}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {start.year}
+                </div>
               </div>
-              <div className="tabular text-xs text-muted-foreground">
-                {fmt(r.period.start)} – {fmt(end.toISO()!)}
-                {days < 120 && <span> · brief</span>}
-              </div>
-              {(r.conjunct.length > 0 || r.trine.length > 0 || r.opposite.length > 0) && (
-                <div className="mt-1 flex flex-wrap gap-x-2 text-xs text-muted-foreground">
-                  {r.conjunct.length > 0 && (
-                    <span>
-                      over{" "}
-                      {r.conjunct.map((p) => (
-                        <span key={p} className={cn(planetTone(p), "mr-1")}>
-                          {PLANET_ABBR[p]}
-                        </span>
-                      ))}
+              <div className="text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{r.period.sign}</span>
+                  {r.period.retrogradeEntry && (
+                    <span
+                      className="text-xs text-muted-foreground"
+                      title="Entered by retrograde motion"
+                    >
+                      ℞
                     </span>
                   )}
-                  {r.trine.length > 0 && <span>trine {r.trine.map((p) => PLANET_ABBR[p]).join(" ")}</span>}
-                  {r.opposite.length > 0 && <span>7th {r.opposite.map((p) => PLANET_ABBR[p]).join(" ")}</span>}
+                  {isCurrent && (
+                    <Badge className="no-default-hover-elevate">Now</Badge>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="col-span-2 mt-1.5 text-sm sm:col-span-1 sm:mt-0">
-              <p className={cn(r.weight === 0 && "text-muted-foreground")}>{r.headline}</p>
-              {r.weight >= 2 && <Activated items={r.activated.slice(0, isCurrent ? 4 : 3)} compact />}
-              {r.weight === 1 && <Activated items={r.activated.slice(0, 2)} compact />}
-              <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
-                {r.notes.slice(0, r.weight >= 2 ? 3 : 1).map((n, k) => (
-                  <li key={k}>{n}</li>
-                ))}
-              </ul>
-            </div>
-          </li>
-        ))}
+                <div className="tabular text-xs text-muted-foreground">
+                  {fmt(r.period.start)} – {fmt(end.toISO()!)}
+                  {days < 120 && <span> · brief</span>}
+                </div>
+                {(r.conjunct.length > 0 ||
+                  r.trine.length > 0 ||
+                  r.opposite.length > 0) && (
+                  <div className="mt-1 flex flex-wrap gap-x-2 text-xs text-muted-foreground">
+                    {r.conjunct.length > 0 && (
+                      <span>
+                        over{" "}
+                        {r.conjunct.map((p) => (
+                          <span key={p} className={cn(planetTone(p), "mr-1")}>
+                            {PLANET_ABBR[p]}
+                          </span>
+                        ))}
+                      </span>
+                    )}
+                    {r.trine.length > 0 && (
+                      <span>
+                        trine {r.trine.map((p) => PLANET_ABBR[p]).join(" ")}
+                      </span>
+                    )}
+                    {r.opposite.length > 0 && (
+                      <span>
+                        7th {r.opposite.map((p) => PLANET_ABBR[p]).join(" ")}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="col-span-2 mt-1.5 text-sm sm:col-span-1 sm:mt-0">
+                <p className={cn(r.weight === 0 && "text-muted-foreground")}>
+                  {r.headline}
+                </p>
+                {r.weight >= 2 && (
+                  <Activated
+                    items={r.activated.slice(0, isCurrent ? 4 : 3)}
+                    compact
+                  />
+                )}
+                {r.weight === 1 && (
+                  <Activated items={r.activated.slice(0, 2)} compact />
+                )}
+                <ul className="mt-1 space-y-0.5 text-xs text-muted-foreground">
+                  {r.notes.slice(0, r.weight >= 2 ? 3 : 1).map((n, k) => (
+                    <li key={k}>{n}</li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ),
+        )}
       </ol>
-      {rows.length === 0 && <p className="mt-3 text-sm text-muted-foreground">No passages match the current filter.</p>}
-      {!current[track] && rows.length > 0 && <p className="mt-3 text-xs text-muted-foreground">The current date falls outside the listed passages.</p>}
+      {rows.length === 0 && (
+        <p className="mt-3 text-sm text-muted-foreground">
+          No passages match the current filter.
+        </p>
+      )}
+      {!current[track] && rows.length > 0 && (
+        <p className="mt-3 text-xs text-muted-foreground">
+          The current date falls outside the listed passages.
+        </p>
+      )}
     </div>
   );
 }
@@ -221,19 +334,65 @@ export function Timeline({
  * The BNN life on one line: Jupiter's and Saturn's passages as bands, Jupiter's returns over (and trines to)
  * the Jeeva and the Deha as the Nadi clock, and the recorded events above. Rendered full width under the verdict.
  */
-export function BnnLifeTimeline({ transits, positions, findings, birthIso, roles, asOfIso, events, zone, className }: { transits: TransitPeriod[]; positions: PlanetPosition[]; findings: Finding[]; birthIso: string; roles?: Roles; asOfIso: string; events?: ChartEvent[]; zone: string; className?: string }) {
-  const readings = useMemo(() => readTransits(transits, positions, findings, birthIso, roles), [transits, positions, findings, birthIso, roles]);
+export function BnnLifeTimeline({
+  transits,
+  positions,
+  findings,
+  birthIso,
+  roles,
+  asOfIso,
+  events,
+  zone,
+  className,
+}: {
+  transits: TransitPeriod[];
+  positions: PlanetPosition[];
+  findings: Finding[];
+  birthIso: string;
+  roles?: Roles;
+  asOfIso: string;
+  events?: ChartEvent[];
+  zone: string;
+  className?: string;
+}) {
+  const readings = useMemo(
+    () => readTransits(transits, positions, findings, birthIso, roles),
+    [transits, positions, findings, birthIso, roles],
+  );
   // Shared timeline: both karakas' passages, with Jupiter's passages over or in trine to the Jeeva (and the Deha in a female chart) as the Nadi clock.
-  const tlBands = useMemo(() => [transitBand(transits, "Jupiter", asOfIso), transitBand(transits, "Saturn", asOfIso)], [transits, asOfIso]);
+  const tlBands = useMemo(
+    () => [
+      transitBand(transits, "Jupiter", asOfIso),
+      transitBand(transits, "Saturn", asOfIso),
+    ],
+    [transits, asOfIso],
+  );
   const tlWindows = useMemo<TlWindow[]>(() => {
     const out: TlWindow[] = [];
-    const anchors: Array<{ planet: Planet; name: string }> = [{ planet: roles?.native ?? "Jupiter", name: "Jeeva" }];
-    if (roles && roles.deha !== roles.native) anchors.push({ planet: roles.deha, name: "Deha" });
+    const anchors: Array<{ planet: Planet; name: string }> = [
+      { planet: roles?.native ?? "Jupiter", name: "Jeeva" },
+    ];
+    if (roles && roles.deha !== roles.native)
+      anchors.push({ planet: roles.deha, name: "Deha" });
     for (const r of readings) {
       if (r.period.planet !== "Jupiter") continue;
       for (const a of anchors) {
-        if (r.conjunct.includes(a.planet)) out.push({ start: r.period.start, end: r.period.end, label: `Jupiter over the ${a.name} (${r.period.sign})`, tone: "good", strength: 1 });
-        else if (r.trine.includes(a.planet)) out.push({ start: r.period.start, end: r.period.end, label: `Jupiter in trine to the ${a.name} (${r.period.sign})`, tone: "good", strength: 0.45 });
+        if (r.conjunct.includes(a.planet))
+          out.push({
+            start: r.period.start,
+            end: r.period.end,
+            label: `Jupiter over the ${a.name} (${r.period.sign})`,
+            tone: "good",
+            strength: 1,
+          });
+        else if (r.trine.includes(a.planet))
+          out.push({
+            start: r.period.start,
+            end: r.period.end,
+            label: `Jupiter in trine to the ${a.name} (${r.period.sign})`,
+            tone: "good",
+            strength: 0.45,
+          });
       }
     }
     return out;
@@ -243,10 +402,25 @@ export function BnnLifeTimeline({ transits, positions, findings, birthIso, roles
   return (
     <section className={className} data-testid="section-bnn-timeline">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <h3 className="font-display text-base font-semibold">The life on one line</h3>
-        <p className="text-xs text-muted-foreground">Jupiter's yearly and Saturn's 2½-year passages by sign; the Jeeva row is Jupiter over {female ? "the Jeeva or the Deha" : "the natal Jeeva"} (full) or in trine to it (faint); events above.</p>
+        <h3 className="font-display text-base font-semibold">
+          The life on one line
+        </h3>
+        <p className="text-xs text-muted-foreground">
+          Jupiter's yearly and Saturn's 2½-year passages by sign; the Jeeva row
+          is Jupiter over {female ? "the Jeeva or the Deha" : "the natal Jeeva"}{" "}
+          (full) or in trine to it (faint); events above.
+        </p>
       </div>
-      <LifeTimeline className="mt-3" testid="bnn-timeline" birthIso={birthIso} asOfIso={asOfIso} bands={tlBands} windows={tlWindows} windowsLabel="Jeeva" marks={tlMarks} />
+      <LifeTimeline
+        className="mt-3"
+        testid="bnn-timeline"
+        birthIso={birthIso}
+        asOfIso={asOfIso}
+        bands={tlBands}
+        windows={tlWindows}
+        windowsLabel="Jeeva"
+        marks={tlMarks}
+      />
     </section>
   );
 }

@@ -1,62 +1,193 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PLANETS, SIGNS, type Planet } from "@shared/astro";
-import { LIFE_AREAS, RELATION_LABEL, type LifeArea, type Rule } from "@shared/rules";
-import { JAIMINI_GROUP_LABEL, type JaiminiRuleInfo } from "@shared/rules-jaimini";
+import {
+  LIFE_AREAS,
+  RELATION_LABEL,
+  type LifeArea,
+  type Rule,
+} from "@shared/rules";
+import {
+  JAIMINI_GROUP_LABEL,
+  type JaiminiRuleInfo,
+} from "@shared/rules-jaimini";
 import type { JaiminiRuleGroup } from "@shared/jaimini";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useParams } from "wouter";
-import { SourceLink } from "@/components/source-link";
+import { SourceLink, Cite } from "@/components/source-link";
 import { SutraLibrary } from "@/components/sutra-library";
-import { ALP_CHAPTERS, ALP_RULES, ALP_ROLE_LABEL, type AlpRuleWhen } from "@shared/rules-alp";
-import { KP_RULES, KP_CUSP_THEMES, KP_SOURCES, describeKpCondition } from "@shared/rules-kp";
-import { ALP_PLANET_KARAKATWAS, ALP_WEEKDAYS, ALP_HORA_NOTE, ALP_TITHI_NOTE, ALP_YOGAS, ALP_ELEMENT_HOURS, ALP_PANCHANGA_ELEMENTS, CLASS_NOTES_SOURCE } from "@shared/alp-karakatwas";
+import {
+  ALP_CHAPTERS,
+  ALP_RULES,
+  ALP_ROLE_LABEL,
+  type AlpRuleWhen,
+} from "@shared/rules-alp";
+import {
+  KP_RULES,
+  KP_CUSP_THEMES,
+  KP_SOURCES,
+  describeKpCondition,
+} from "@shared/rules-kp";
+import {
+  ALP_PLANET_KARAKATWAS,
+  ALP_WEEKDAYS,
+  ALP_HORA_NOTE,
+  ALP_TITHI_NOTE,
+  ALP_YOGAS,
+  ALP_ELEMENT_HOURS,
+  ALP_PANCHANGA_ELEMENTS,
+  CLASS_NOTES_SOURCE,
+} from "@shared/alp-karakatwas";
 
 function describeAlpCondition(w: AlpRuleWhen) {
-  const ord = (h: number) => `${h}${h === 1 ? "st" : h === 2 ? "nd" : h === 3 ? "rd" : "th"}`;
+  const ord = (h: number) =>
+    `${h}${h === 1 ? "st" : h === 2 ? "nd" : h === 3 ? "rd" : "th"}`;
   const parts: string[] = [];
-  if (w.role) parts.push(`${ALP_ROLE_LABEL[w.role]}${w.roleInHouse ? ` in the ${w.roleInHouse.map(ord).join("/")} from the ALP lagna` : ""}${w.roleWith ? ` with ${w.roleWith.join(" or ")}` : ""}`);
-  if (w.planet) parts.push(`${w.planet}${w.planetInHouse ? ` in the ${w.planetInHouse.map(ord).join("/")} from the ALP lagna` : ""}`);
-  if (w.activatedHouse) parts.push(`current pada activates the ${w.activatedHouse.map(ord).join("/")}`);
-  if (w.nakshatraLord) parts.push(`ALP lagna in a nakshatra of ${w.nakshatraLord.join("/")}`);
-  if (w.activatedFromJanma) parts.push(`current pada's navamsa is the ${w.activatedFromJanma.map(ord).join("/")} from the janma lagna`);
-  if (w.roleInHouseFromJanma) parts.push(`role planet in the ${w.roleInHouseFromJanma.map(ord).join("/")} from the janma lagna`);
-  if (w.roleOwnsHouse) parts.push(`role planet owns the ${w.roleOwnsHouse.map(ord).join("/")} from the ALP lagna`);
-  if (w.lordOf) parts.push(`lord of the ${ord(w.lordOf)} from the ALP lagna${w.lordOfInHouse ? ` in the ${w.lordOfInHouse.map(ord).join("/")}` : ""}`);
-  if (w.activatedTouches !== undefined) parts.push(w.activatedTouches ? "pada's navamsa touches ALP lagna, its 7th, janma lagna or its 7th" : "pada's navamsa touches none of ALP lagna, its 7th, janma lagna, its 7th");
-  if (w.activatedNakLordShashtashtaka !== undefined) parts.push(`pada's navamsa and the nakshatra lord's sign ${w.activatedNakLordShashtashtaka ? "" : "not "}in 6/8`);
-  if (w.lordsTogether) parts.push(`lords of the ${ord(w.lordsTogether[0])} and ${ord(w.lordsTogether[1])} from the ALP lagna in one sign`);
-  if (w.nakshatraStraddlesAhead !== undefined) parts.push(w.nakshatraStraddlesAhead ? "current nakshatra runs into the next sign" : "current nakshatra ends within the sign");
-  if (w.alpHouseFromJanma) parts.push(`ALP lagna in the ${w.alpHouseFromJanma.map(ord).join("/")} from the janma lagna`);
-  if (w.arpHouseFromAlp) parts.push(`Akshaya rasi in the ${w.arpHouseFromAlp.map(ord).join("/")} from the ALP lagna`);
-  if (w.arpLordFromAlpLord) parts.push(`Akshaya rasi lord in the ${w.arpLordFromAlpLord.map(ord).join("/")} from the ALP lagna lord`);
-  if (w.arpNakLordFromAlpNakLord) parts.push(`dasa lord in the ${w.arpNakLordFromAlpNakLord.map(ord).join("/")} from the ALP nakshatra lord`);
-  if (w.bhuktiFromDasa) parts.push(`bhukti lord in the ${w.bhuktiFromDasa.map(ord).join("/")} from the dasa lord`);
-  if (w.alpHouseFromPlanet) parts.push(`ALP lagna in the ${w.alpHouseFromPlanet.houses.map(ord).join("/")} from ${w.alpHouseFromPlanet.planet}`);
-  if (w.arpNakshatra) parts.push(`Akshaya rasi in ${w.arpNakshatra}${w.arpPada ? ` pada ${w.arpPada.join("/")}` : ""}`);
-  if (w.arpLordFromArp) parts.push(`Akshaya rasi lord in the ${w.arpLordFromArp.map(ord).join("/")} from the Akshaya rasi`);
-  if (w.dasaLordFromArp) parts.push(`dasa lord in the ${w.dasaLordFromArp.map(ord).join("/")} from the Akshaya rasi`);
-  if (w.dasaLordFromAlp) parts.push(`dasa lord in the ${w.dasaLordFromAlp.map(ord).join("/")} from the ALP lagna`);
-  if (w.bhuktiLordFromAlp) parts.push(`bhukti lord in the ${w.bhuktiLordFromAlp.map(ord).join("/")} from the ALP lagna`);
-  if (w.threeWays) parts.push(`the three ways: ${w.threeWays.present} present, ${w.threeWays.past} past, ${w.threeWays.future} future`);
-  if (w.nakLordFromAlpLord) parts.push(`ALP nakshatra lord in the ${w.nakLordFromAlpLord.map(ord).join("/")} from the ALP lagna lord`);
-  if (w.alpArpLordsTogetherFromJanma) parts.push(`ALP lagna lord and Akshaya rasi lord in one sign, the ${w.alpArpLordsTogetherFromJanma.map(ord).join("/")} from the janma lagna`);
+  if (w.role)
+    parts.push(
+      `${ALP_ROLE_LABEL[w.role]}${w.roleInHouse ? ` in the ${w.roleInHouse.map(ord).join("/")} from the ALP lagna` : ""}${w.roleWith ? ` with ${w.roleWith.join(" or ")}` : ""}`,
+    );
+  if (w.planet)
+    parts.push(
+      `${w.planet}${w.planetInHouse ? ` in the ${w.planetInHouse.map(ord).join("/")} from the ALP lagna` : ""}`,
+    );
+  if (w.activatedHouse)
+    parts.push(
+      `current pada activates the ${w.activatedHouse.map(ord).join("/")}`,
+    );
+  if (w.nakshatraLord)
+    parts.push(`ALP lagna in a nakshatra of ${w.nakshatraLord.join("/")}`);
+  if (w.activatedFromJanma)
+    parts.push(
+      `current pada's navamsa is the ${w.activatedFromJanma.map(ord).join("/")} from the janma lagna`,
+    );
+  if (w.roleInHouseFromJanma)
+    parts.push(
+      `role planet in the ${w.roleInHouseFromJanma.map(ord).join("/")} from the janma lagna`,
+    );
+  if (w.roleOwnsHouse)
+    parts.push(
+      `role planet owns the ${w.roleOwnsHouse.map(ord).join("/")} from the ALP lagna`,
+    );
+  if (w.lordOf)
+    parts.push(
+      `lord of the ${ord(w.lordOf)} from the ALP lagna${w.lordOfInHouse ? ` in the ${w.lordOfInHouse.map(ord).join("/")}` : ""}`,
+    );
+  if (w.activatedTouches !== undefined)
+    parts.push(
+      w.activatedTouches
+        ? "pada's navamsa touches ALP lagna, its 7th, janma lagna or its 7th"
+        : "pada's navamsa touches none of ALP lagna, its 7th, janma lagna, its 7th",
+    );
+  if (w.activatedNakLordShashtashtaka !== undefined)
+    parts.push(
+      `pada's navamsa and the nakshatra lord's sign ${w.activatedNakLordShashtashtaka ? "" : "not "}in 6/8`,
+    );
+  if (w.lordsTogether)
+    parts.push(
+      `lords of the ${ord(w.lordsTogether[0])} and ${ord(w.lordsTogether[1])} from the ALP lagna in one sign`,
+    );
+  if (w.nakshatraStraddlesAhead !== undefined)
+    parts.push(
+      w.nakshatraStraddlesAhead
+        ? "current nakshatra runs into the next sign"
+        : "current nakshatra ends within the sign",
+    );
+  if (w.alpHouseFromJanma)
+    parts.push(
+      `ALP lagna in the ${w.alpHouseFromJanma.map(ord).join("/")} from the janma lagna`,
+    );
+  if (w.arpHouseFromAlp)
+    parts.push(
+      `Akshaya rasi in the ${w.arpHouseFromAlp.map(ord).join("/")} from the ALP lagna`,
+    );
+  if (w.arpLordFromAlpLord)
+    parts.push(
+      `Akshaya rasi lord in the ${w.arpLordFromAlpLord.map(ord).join("/")} from the ALP lagna lord`,
+    );
+  if (w.arpNakLordFromAlpNakLord)
+    parts.push(
+      `dasa lord in the ${w.arpNakLordFromAlpNakLord.map(ord).join("/")} from the ALP nakshatra lord`,
+    );
+  if (w.bhuktiFromDasa)
+    parts.push(
+      `bhukti lord in the ${w.bhuktiFromDasa.map(ord).join("/")} from the dasa lord`,
+    );
+  if (w.alpHouseFromPlanet)
+    parts.push(
+      `ALP lagna in the ${w.alpHouseFromPlanet.houses.map(ord).join("/")} from ${w.alpHouseFromPlanet.planet}`,
+    );
+  if (w.arpNakshatra)
+    parts.push(
+      `Akshaya rasi in ${w.arpNakshatra}${w.arpPada ? ` pada ${w.arpPada.join("/")}` : ""}`,
+    );
+  if (w.arpLordFromArp)
+    parts.push(
+      `Akshaya rasi lord in the ${w.arpLordFromArp.map(ord).join("/")} from the Akshaya rasi`,
+    );
+  if (w.dasaLordFromArp)
+    parts.push(
+      `dasa lord in the ${w.dasaLordFromArp.map(ord).join("/")} from the Akshaya rasi`,
+    );
+  if (w.dasaLordFromAlp)
+    parts.push(
+      `dasa lord in the ${w.dasaLordFromAlp.map(ord).join("/")} from the ALP lagna`,
+    );
+  if (w.bhuktiLordFromAlp)
+    parts.push(
+      `bhukti lord in the ${w.bhuktiLordFromAlp.map(ord).join("/")} from the ALP lagna`,
+    );
+  if (w.threeWays)
+    parts.push(
+      `the three ways: ${w.threeWays.present} present, ${w.threeWays.past} past, ${w.threeWays.future} future`,
+    );
+  if (w.nakLordFromAlpLord)
+    parts.push(
+      `ALP nakshatra lord in the ${w.nakLordFromAlpLord.map(ord).join("/")} from the ALP lagna lord`,
+    );
+  if (w.alpArpLordsTogetherFromJanma)
+    parts.push(
+      `ALP lagna lord and Akshaya rasi lord in one sign, the ${w.alpArpLordsTogetherFromJanma.map(ord).join("/")} from the janma lagna`,
+    );
   return parts.join(" · ");
 }
 
-const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-const KP_POLARITY_CLASS = { good: "bg-verdict-good", bad: "bg-verdict-bad", neutral: "bg-muted-foreground/50" } as const;
+const ROMAN = [
+  "I",
+  "II",
+  "III",
+  "IV",
+  "V",
+  "VI",
+  "VII",
+  "VIII",
+  "IX",
+  "X",
+  "XI",
+  "XII",
+];
+const KP_POLARITY_CLASS = {
+  good: "bg-verdict-good",
+  bad: "bg-verdict-bad",
+  neutral: "bg-muted-foreground/50",
+} as const;
 
 function KpRules() {
   return (
     <div>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-        Krishnamurti Paddhati rules, grouped by cusp. Each is written against the sub lord of that cusp: the houses it signifies (four-step or six-step), where it sits, whose star it is in, and whether
-        it touches the badhaka or maraka houses. Paraphrased from the user's own copies and cited by volume and page; add rules in{" "}
-        <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules-kp.ts</code>.
+        Krishnamurti Paddhati rules, grouped by cusp. Each is written against
+        the sub lord of that cusp: the houses it signifies (four-step or
+        six-step), where it sits, whose star it is in, and whether it touches
+        the badhaka or maraka houses. Paraphrased from the user's own copies and
+        cited by volume and page; add rules in{" "}
+        <code className="rounded bg-muted px-1 py-0.5 text-xs">
+          shared/rules-kp.ts
+        </code>
+        .
       </p>
       <div className="mt-6 space-y-8">
         {Array.from({ length: 12 }, (_, i) => i + 1).map((cusp) => {
@@ -64,29 +195,43 @@ function KpRules() {
           return (
             <section key={cusp} data-testid={`kp-cusp-rules-${cusp}`}>
               <h2 className="text-sm font-semibold">
-                Cusp {ROMAN[cusp - 1]} · {KP_CUSP_THEMES[cusp]} <span className="font-normal text-muted-foreground">({rules.length})</span>
+                Cusp {ROMAN[cusp - 1]} · {KP_CUSP_THEMES[cusp]}{" "}
+                <span className="font-normal text-muted-foreground">
+                  ({rules.length})
+                </span>
               </h2>
               <ul className="mt-2 divide-y">
                 {rules.map((r) => (
-                  <li key={r.id} className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]" data-testid={`kp-rule-${r.id}`}>
+                  <li
+                    key={r.id}
+                    className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]"
+                    data-testid={`kp-rule-${r.id}`}
+                  >
                     <div className="text-xs text-muted-foreground">
                       <div className="font-mono">{r.id}</div>
                       <div className="mt-1 inline-flex items-center gap-1.5">
-                        <span className={cn("h-2 w-2 rounded-full", KP_POLARITY_CLASS[r.polarity])} /> {r.topic}
+                        <span
+                          className={cn(
+                            "h-2 w-2 rounded-full",
+                            KP_POLARITY_CLASS[r.polarity],
+                          )}
+                        />{" "}
+                        {r.topic}
                       </div>
                     </div>
                     <div>
-                      <div className="text-xs font-medium text-primary">{describeKpCondition(r.when)}</div>
+                      <div className="text-xs font-medium text-primary">
+                        {describeKpCondition(r.when)}
+                      </div>
                       <p className="mt-1 text-sm">{r.text}</p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {r.sourceUrl ? (
-                          <a href={r.sourceUrl} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
-                            {r.source}
-                          </a>
+                          <Cite href={r.sourceUrl}>{r.source}</Cite>
                         ) : (
                           r.source
                         )}
-                        {r.timing && ` · timing: ${r.timing.join("-")} significators`}
+                        {r.timing &&
+                          ` · timing: ${r.timing.join("-")} significators`}
                       </p>
                     </div>
                   </li>
@@ -96,15 +241,16 @@ function KpRules() {
           );
         })}
       </div>
-      <section className="mt-10 text-xs text-muted-foreground" data-testid="kp-rules-sources">
+      <section
+        className="mt-10 text-xs text-muted-foreground"
+        data-testid="kp-rules-sources"
+      >
         <h2 className="text-sm font-semibold text-foreground">Sources</h2>
         <ul className="mt-2 space-y-1">
           {KP_SOURCES.map((s) => (
             <li key={s.label}>
               {s.url ? (
-                <a href={s.url} target="_blank" rel="noreferrer" className="text-foreground underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
-                  {s.label}
-                </a>
+                <Cite href={s.url}>{s.label}</Cite>
               ) : (
                 <span className="text-foreground">{s.label}</span>
               )}{" "}
@@ -121,8 +267,15 @@ function AlpRules() {
   return (
     <div>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-        Akshaya Lagna Paddhati rules, grouped by the chapter they come from. A rule names a role (the ALP lagna lord, the janma lagna lord, the lord of the ALP nakshatra or of the activated navamsa sign) and the houses from the ALP lagna that count. Chapters from the printed volumes are added one at a time in{" "}
-        <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules-alp.ts</code>.
+        Akshaya Lagna Paddhati rules, grouped by the chapter they come from. A
+        rule names a role (the ALP lagna lord, the janma lagna lord, the lord of
+        the ALP nakshatra or of the activated navamsa sign) and the houses from
+        the ALP lagna that count. Chapters from the printed volumes are added
+        one at a time in{" "}
+        <code className="rounded bg-muted px-1 py-0.5 text-xs">
+          shared/rules-alp.ts
+        </code>
+        .
       </p>
       <div className="mt-6 space-y-8">
         {ALP_CHAPTERS.map((c) => {
@@ -135,23 +288,29 @@ function AlpRules() {
                   {rules.length ? `(${rules.length})` : "· pending"}
                 </span>
               </h2>
-              {c.note && !rules.length && <p className="mt-1 text-xs text-muted-foreground">{c.note}</p>}
+              {c.note && !rules.length && (
+                <p className="mt-1 text-xs text-muted-foreground">{c.note}</p>
+              )}
               {rules.length > 0 && (
                 <ul className="mt-2 divide-y">
                   {rules.map((r) => (
-                    <li key={r.id} className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]" data-testid={`alp-rule-${r.id}`}>
+                    <li
+                      key={r.id}
+                      className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]"
+                      data-testid={`alp-rule-${r.id}`}
+                    >
                       <div className="text-xs text-muted-foreground">
                         <div className="font-mono">{r.id}</div>
                         <div className="mt-1">weight {r.weight}</div>
                       </div>
                       <div>
-                        <div className="text-xs font-medium text-primary">{describeAlpCondition(r.when)}</div>
+                        <div className="text-xs font-medium text-primary">
+                          {describeAlpCondition(r.when)}
+                        </div>
                         <p className="mt-1 text-sm">{r.text}</p>
                         <p className="mt-1 text-xs text-muted-foreground">
                           {r.sourceUrl ? (
-                            <a href={r.sourceUrl} target="_blank" rel="noreferrer" className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground">
-                              {r.source}
-                            </a>
+                            <Cite href={r.sourceUrl}>{r.source}</Cite>
                           ) : (
                             r.source
                           )}
@@ -167,20 +326,72 @@ function AlpRules() {
       </div>
 
       <section className="mt-10" data-testid="alp-reference-planets">
-        <h2 className="text-sm font-semibold">Reference · Planet karakatwas <span className="font-normal text-muted-foreground">({CLASS_NOTES_SOURCE})</span></h2>
+        <h2 className="text-sm font-semibold">
+          Reference · Planet karakatwas{" "}
+          <span className="font-normal text-muted-foreground">
+            ({CLASS_NOTES_SOURCE})
+          </span>
+        </h2>
         <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
-          The significations the readings use for each planet. Book 1's chapter on planetary characteristics is not in hand; these are the class notes, which follow the common karakatwas. The first line of each entry is what the chart page quotes.
+          The significations the readings use for each planet. Book 1's chapter
+          on planetary characteristics is not in hand; these are the class
+          notes, which follow the common karakatwas. The first line of each
+          entry is what the chart page quotes.
         </p>
         <ul className="mt-3 divide-y">
           {ALP_PLANET_KARAKATWAS.map((k) => (
-            <li key={k.planet} className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]" data-testid={`alp-karakatwa-${k.planet}`}>
-              <div className="text-sm font-medium">{k.planet}<div className="mt-1 text-xs font-normal text-muted-foreground">{k.deity} · {k.gemstone}</div></div>
+            <li
+              key={k.planet}
+              className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]"
+              data-testid={`alp-karakatwa-${k.planet}`}
+            >
+              <div className="text-sm font-medium">
+                {k.planet}
+                <div className="mt-1 text-xs font-normal text-muted-foreground">
+                  {k.deity} · {k.gemstone}
+                </div>
+              </div>
               <div className="space-y-1 text-xs">
                 <p className="text-sm">{k.summary}.</p>
-                <p><span className="text-muted-foreground">People and qualities: </span>{k.people.join("; ")}.</p>
-                <p><span className="text-muted-foreground">Places and things: </span>{k.things.join("; ")}.</p>
-                <p><span className="text-muted-foreground">Body: </span>{k.body.join(", ")}. <span className="text-muted-foreground">Disease: </span>{k.disease}.</p>
-                <p><span className="text-muted-foreground">Metal </span>{k.metal}; <span className="text-muted-foreground">cereal </span>{k.cereal}; <span className="text-muted-foreground">flower </span>{k.flower}{k.taste ? <>; <span className="text-muted-foreground">taste </span>{k.taste}</> : null}{k.colour ? <>; <span className="text-muted-foreground">colour </span>{k.colour}</> : null}.</p>
+                <p>
+                  <span className="text-muted-foreground">
+                    People and qualities:{" "}
+                  </span>
+                  {k.people.join("; ")}.
+                </p>
+                <p>
+                  <span className="text-muted-foreground">
+                    Places and things:{" "}
+                  </span>
+                  {k.things.join("; ")}.
+                </p>
+                <p>
+                  <span className="text-muted-foreground">Body: </span>
+                  {k.body.join(", ")}.{" "}
+                  <span className="text-muted-foreground">Disease: </span>
+                  {k.disease}.
+                </p>
+                <p>
+                  <span className="text-muted-foreground">Metal </span>
+                  {k.metal};{" "}
+                  <span className="text-muted-foreground">cereal </span>
+                  {k.cereal};{" "}
+                  <span className="text-muted-foreground">flower </span>
+                  {k.flower}
+                  {k.taste ? (
+                    <>
+                      ; <span className="text-muted-foreground">taste </span>
+                      {k.taste}
+                    </>
+                  ) : null}
+                  {k.colour ? (
+                    <>
+                      ; <span className="text-muted-foreground">colour </span>
+                      {k.colour}
+                    </>
+                  ) : null}
+                  .
+                </p>
               </div>
             </li>
           ))}
@@ -188,34 +399,71 @@ function AlpRules() {
       </section>
 
       <section className="mt-10" data-testid="alp-reference-panchanga">
-        <h2 className="text-sm font-semibold">Reference · Panchanga notes <span className="font-normal text-muted-foreground">({CLASS_NOTES_SOURCE})</span></h2>
-        <p className="mt-1 max-w-2xl text-xs text-muted-foreground">Weekdays, tithi, the nitya yogas, the elements through the day, and fasting. Kept as a reference; no chart rule draws on them yet.</p>
+        <h2 className="text-sm font-semibold">
+          Reference · Panchanga notes{" "}
+          <span className="font-normal text-muted-foreground">
+            ({CLASS_NOTES_SOURCE})
+          </span>
+        </h2>
+        <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+          Weekdays, tithi, the nitya yogas, the elements through the day, and
+          fasting. Kept as a reference; no chart rule draws on them yet.
+        </p>
         <h3 className="mt-4 text-xs font-medium">Weekdays</h3>
         <ul className="mt-1 divide-y text-xs">
           {ALP_WEEKDAYS.map((d) => (
-            <li key={d.day} className="grid gap-x-6 py-2 sm:grid-cols-[11rem_1fr]">
-              <div><span className="font-medium">{d.day}</span><div className="text-muted-foreground">{d.planet}</div></div>
-              <div><span className="text-muted-foreground">{d.deity}. </span>{d.note}</div>
+            <li
+              key={d.day}
+              className="grid gap-x-6 py-2 sm:grid-cols-[11rem_1fr]"
+            >
+              <div>
+                <span className="font-medium">{d.day}</span>
+                <div className="text-muted-foreground">{d.planet}</div>
+              </div>
+              <div>
+                <span className="text-muted-foreground">{d.deity}. </span>
+                {d.note}
+              </div>
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-xs text-muted-foreground">{ALP_HORA_NOTE} {ALP_TITHI_NOTE}</p>
-        <h3 className="mt-4 text-xs font-medium">Nitya yogas (as far as the class went)</h3>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {ALP_HORA_NOTE} {ALP_TITHI_NOTE}
+        </p>
+        <h3 className="mt-4 text-xs font-medium">
+          Nitya yogas (as far as the class went)
+        </h3>
         <ul className="mt-1 grid gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
           {ALP_YOGAS.map((y) => (
-            <li key={y.yoga}><span className="font-medium">{y.yoga}</span> <span className="text-muted-foreground">{y.meaning}</span></li>
+            <li key={y.yoga}>
+              <span className="font-medium">{y.yoga}</span>{" "}
+              <span className="text-muted-foreground">{y.meaning}</span>
+            </li>
           ))}
         </ul>
-        <h3 className="mt-4 text-xs font-medium">The five elements through the day</h3>
+        <h3 className="mt-4 text-xs font-medium">
+          The five elements through the day
+        </h3>
         <ul className="mt-1 grid gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
           {ALP_ELEMENT_HOURS.map((e) => (
-            <li key={e.from}><span className="tabular">{e.from} – {e.to}</span> <span className="text-muted-foreground">{e.element}</span></li>
+            <li key={e.from}>
+              <span className="tabular">
+                {e.from} – {e.to}
+              </span>{" "}
+              <span className="text-muted-foreground">{e.element}</span>
+            </li>
           ))}
         </ul>
-        <h3 className="mt-4 text-xs font-medium">The limbs of the panchanga and fasting</h3>
+        <h3 className="mt-4 text-xs font-medium">
+          The limbs of the panchanga and fasting
+        </h3>
         <ul className="mt-1 space-y-1 text-xs">
           {ALP_PANCHANGA_ELEMENTS.map((e) => (
-            <li key={e.limb}><span className="font-medium">{e.limb}</span> <span className="text-muted-foreground">({e.element})</span>: {e.fasting}.</li>
+            <li key={e.limb}>
+              <span className="font-medium">{e.limb}</span>{" "}
+              <span className="text-muted-foreground">({e.element})</span>:{" "}
+              {e.fasting}.
+            </li>
           ))}
         </ul>
       </section>
@@ -223,69 +471,138 @@ function AlpRules() {
   );
 }
 
-const SHORT_REL: Record<string, string> = { conjunct: "conjunction", next: "2nd", prev: "12th", trine: "trine", opposite: "7th" };
+const SHORT_REL: Record<string, string> = {
+  conjunct: "conjunction",
+  next: "2nd",
+  prev: "12th",
+  trine: "trine",
+  opposite: "7th",
+};
 
 function describeCondition(w: Rule["when"]) {
   const parts: string[] = [];
-  if (w.object && w.exchange) parts.push(`${w.subject} and ${w.object} exchange signs`);
-  else if (w.object && w.house) parts.push(`${w.object} in the ${w.house.map((h) => `${h}${h === 1 ? "st" : h === 2 ? "nd" : h === 3 ? "rd" : "th"}`).join(" or ")} from ${w.subject}`);
-  else if (w.object) parts.push(`${w.subject} → ${w.object} by ${(w.relation ?? ["conjunct"]).map((r) => SHORT_REL[r] ?? RELATION_LABEL[r]).join(", ")}`);
+  if (w.object && w.exchange)
+    parts.push(`${w.subject} and ${w.object} exchange signs`);
+  else if (w.object && w.house)
+    parts.push(
+      `${w.object} in the ${w.house.map((h) => `${h}${h === 1 ? "st" : h === 2 ? "nd" : h === 3 ? "rd" : "th"}`).join(" or ")} from ${w.subject}`,
+    );
+  else if (w.object)
+    parts.push(
+      `${w.subject} → ${w.object} by ${(w.relation ?? ["conjunct"]).map((r) => SHORT_REL[r] ?? RELATION_LABEL[r]).join(", ")}`,
+    );
   else parts.push(w.subject);
-  for (const c of w.with ?? []) parts.push(`with ${c.planet} (${(c.relation ?? ["conjunct", "prev", "next"]).map((r) => SHORT_REL[r]).join(", ")})`);
+  for (const c of w.with ?? [])
+    parts.push(
+      `with ${c.planet} (${(c.relation ?? ["conjunct", "prev", "next"]).map((r) => SHORT_REL[r]).join(", ")})`,
+    );
   if (w.alone) parts.push("no planet conjunct, 2nd or 12th");
   if (w.subjectRetro) parts.push("retrograde");
   if (w.subjectCombust) parts.push("combust");
   if (w.subjectDignity) parts.push(w.subjectDignity.join(" or ").toLowerCase());
-  if (w.subjectSign) parts.push(`in ${w.subjectSign.map((i) => SIGNS[i]).join("/")}`);
-  if (w.subjectSignLord) parts.push(`in a sign of ${w.subjectSignLord.join("/")}`);
-  if (w.subjectNakshatraLord) parts.push(`in a nakshatra of ${w.subjectNakshatraLord.join("/")}`);
-  if (w.subjectElement) parts.push(`in a ${w.subjectElement.join("/").toLowerCase()} sign`);
+  if (w.subjectSign)
+    parts.push(`in ${w.subjectSign.map((i) => SIGNS[i]).join("/")}`);
+  if (w.subjectSignLord)
+    parts.push(`in a sign of ${w.subjectSignLord.join("/")}`);
+  if (w.subjectNakshatraLord)
+    parts.push(`in a nakshatra of ${w.subjectNakshatraLord.join("/")}`);
+  if (w.subjectElement)
+    parts.push(`in a ${w.subjectElement.join("/").toLowerCase()} sign`);
   return parts.join(" · ");
 }
 
 function JaiminiRules() {
-  const { data: rules, isLoading } = useQuery<JaiminiRuleInfo[]>({ queryKey: ["/api/jaimini-rules"] });
+  const { data: rules, isLoading } = useQuery<JaiminiRuleInfo[]>({
+    queryKey: ["/api/jaimini-rules"],
+  });
   const [group, setGroup] = useState<JaiminiRuleGroup | "all">("all");
   const [q, setQ] = useState("");
   const filtered = useMemo(
-    () => (rules ?? []).filter((r) => (group === "all" || r.group === group) && (!q || r.text.toLowerCase().includes(q.toLowerCase()) || r.when.toLowerCase().includes(q.toLowerCase()) || r.id.includes(q.toLowerCase()))),
+    () =>
+      (rules ?? []).filter(
+        (r) =>
+          (group === "all" || r.group === group) &&
+          (!q ||
+            r.text.toLowerCase().includes(q.toLowerCase()) ||
+            r.when.toLowerCase().includes(q.toLowerCase()) ||
+            r.id.includes(q.toLowerCase())),
+      ),
     [rules, group, q],
   );
   return (
     <div>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-        The Jaimini rules read the Karakamsa in the navamsa, and the Arudha lagna and Upapada in the rasi chart with rasi drishti. Each rule names the sutra it comes from. Chara dasha is computed, not
-        interpreted, except for the sign notes on the chart page. Add rules in <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules-jaimini.ts</code>.
+        The Jaimini rules read the Karakamsa in the navamsa, and the Arudha
+        lagna and Upapada in the rasi chart with rasi drishti. Each rule names
+        the sutra it comes from. Chara dasha is computed, not interpreted,
+        except for the sign notes on the chart page. Add rules in{" "}
+        <code className="rounded bg-muted px-1 py-0.5 text-xs">
+          shared/rules-jaimini.ts
+        </code>
+        .
       </p>
       <div className="mt-6 flex flex-wrap items-center gap-2">
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search rule text" className="w-56" data-testid="input-jaimini-rule-search" />
-        <div className="flex flex-wrap gap-1" role="group" aria-label="Rule group">
-          <Button size="sm" variant={group === "all" ? "secondary" : "ghost"} onClick={() => setGroup("all")} data-testid="filter-jgroup-all">
+        <Input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search rule text"
+          className="w-56"
+          data-testid="input-jaimini-rule-search"
+        />
+        <div
+          className="flex flex-wrap gap-1"
+          role="group"
+          aria-label="Rule group"
+        >
+          <Button
+            size="sm"
+            variant={group === "all" ? "secondary" : "ghost"}
+            onClick={() => setGroup("all")}
+            data-testid="filter-jgroup-all"
+          >
             All groups
           </Button>
           {(Object.keys(JAIMINI_GROUP_LABEL) as JaiminiRuleGroup[]).map((g) => (
-            <Button key={g} size="sm" variant={group === g ? "secondary" : "ghost"} onClick={() => setGroup(g)} data-testid={`filter-jgroup-${g}`}>
+            <Button
+              key={g}
+              size="sm"
+              variant={group === g ? "secondary" : "ghost"}
+              onClick={() => setGroup(g)}
+              data-testid={`filter-jgroup-${g}`}
+            >
               {JAIMINI_GROUP_LABEL[g]}
             </Button>
           ))}
         </div>
       </div>
-      <div className="mt-6 text-xs text-muted-foreground tabular">{isLoading ? "Loading…" : `${filtered.length} of ${rules?.length ?? 0} rules`}</div>
+      <div className="mt-6 text-xs text-muted-foreground tabular">
+        {isLoading
+          ? "Loading…"
+          : `${filtered.length} of ${rules?.length ?? 0} rules`}
+      </div>
       <ul className="mt-2 divide-y">
         {filtered.map((r) => (
-          <li key={r.id} className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]" data-testid={`jrule-${r.id}`}>
+          <li
+            key={r.id}
+            className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]"
+            data-testid={`jrule-${r.id}`}
+          >
             <div>
-              <div className="text-sm font-medium">{JAIMINI_GROUP_LABEL[r.group]}</div>
+              <div className="text-sm font-medium">
+                {JAIMINI_GROUP_LABEL[r.group]}
+              </div>
               <div className="mt-0.5 text-xs text-muted-foreground">
-                <span className="tabular">weight {r.weight}</span> · <span className="font-mono">{r.id}</span>
-                <span className="ml-1 rounded bg-muted px-1 py-0.5">{r.chart}</span>
+                <span className="tabular">weight {r.weight}</span> ·{" "}
+                <span className="font-mono">{r.id}</span>
+                <span className="ml-1 rounded bg-muted px-1 py-0.5">
+                  {r.chart}
+                </span>
               </div>
             </div>
             <div>
               <div className="text-sm">{r.text}</div>
               <div className="mt-1 text-xs text-muted-foreground">
-                when {r.when} ·{" "}
-                <SourceLink source={r.source} />
+                when {r.when} · <SourceLink source={r.source} />
               </div>
             </div>
           </li>
@@ -298,28 +615,44 @@ function JaiminiRules() {
 export default function RulesPage() {
   const params = useParams<{ ref?: string }>();
   const sutraRef = params.ref ? decodeURIComponent(params.ref) : undefined;
-  const { data: rules, isLoading } = useQuery<Rule[]>({ queryKey: ["/api/rules"] });
+  const { data: rules, isLoading } = useQuery<Rule[]>({
+    queryKey: ["/api/rules"],
+  });
   const [area, setArea] = useState<LifeArea | "all">("all");
   const [planet, setPlanet] = useState<Planet | "all">("all");
   const [q, setQ] = useState("");
-  const [frame, setFrame] = useState<"all" | "male" | "female" | "common">("all");
+  const [frame, setFrame] = useState<"all" | "male" | "female" | "common">(
+    "all",
+  );
 
   const filtered = useMemo(
     () =>
       (rules ?? []).filter(
         (r) =>
           (area === "all" || r.area === area) &&
-          (frame === "all" || (frame === "common" ? !r.frame : r.frame === frame)) &&
-          (planet === "all" || r.when.subject === planet || r.when.object === planet || (r.when.with ?? []).some((c) => c.planet === planet)) &&
-          (!q || r.text.toLowerCase().includes(q.toLowerCase()) || r.id.includes(q.toLowerCase())),
+          (frame === "all" ||
+            (frame === "common" ? !r.frame : r.frame === frame)) &&
+          (planet === "all" ||
+            r.when.subject === planet ||
+            r.when.object === planet ||
+            (r.when.with ?? []).some((c) => c.planet === planet)) &&
+          (!q ||
+            r.text.toLowerCase().includes(q.toLowerCase()) ||
+            r.id.includes(q.toLowerCase())),
       ),
     [rules, area, planet, q, frame],
   );
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-8 md:px-10">
-      <h1 className="font-display text-xl font-bold tracking-tight">Rule book</h1>
-      <Tabs key={sutraRef ?? "rules"} defaultValue={sutraRef !== undefined ? "sutras" : "bnn"} className="mt-4">
+      <h1 className="font-display text-xl font-bold tracking-tight">
+        Rule book
+      </h1>
+      <Tabs
+        key={sutraRef ?? "rules"}
+        defaultValue={sutraRef !== undefined ? "sutras" : "bnn"}
+        className="mt-4"
+      >
         <TabsList>
           <TabsTrigger value="bnn" data-testid="tab-rules-bnn">
             Bhrigu Nandi Nadi
@@ -350,66 +683,137 @@ export default function RulesPage() {
           <SutraLibrary initialRef={sutraRef} />
         </TabsContent>
         <TabsContent value="bnn">
-      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-        Every reading is produced by these declarative rules. A rule names a subject planet, an optional object planet with the sign relations that count, and conditions on retrogression,
-        dignity, sign lord or element. Rules marked male or female belong to one frame: Jupiter is the Jeeva in both; in a male chart Venus is the wife, in a female chart Venus is the native's own person (Deha) and Mars the husband. Add rules in <code className="rounded bg-muted px-1 py-0.5 text-xs">shared/rules.ts</code> and they apply to every chart.
-      </p>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            Every reading is produced by these declarative rules. A rule names a
+            subject planet, an optional object planet with the sign relations
+            that count, and conditions on retrogression, dignity, sign lord or
+            element. Rules marked male or female belong to one frame: Jupiter is
+            the Jeeva in both; in a male chart Venus is the wife, in a female
+            chart Venus is the native's own person (Deha) and Mars the husband.
+            Add rules in{" "}
+            <code className="rounded bg-muted px-1 py-0.5 text-xs">
+              shared/rules.ts
+            </code>{" "}
+            and they apply to every chart.
+          </p>
 
-      <div className="mt-6 flex flex-wrap items-center gap-2">
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search rule text" className="w-56" data-testid="input-rule-search" />
-        <div className="flex flex-wrap gap-1" role="group" aria-label="Chart frame">
-          {(["all", "common", "male", "female"] as const).map((fr) => (
-            <Button key={fr} size="sm" variant={frame === fr ? "secondary" : "ghost"} onClick={() => setFrame(fr)} data-testid={`filter-frame-${fr}`}>
-              {fr === "all" ? "All frames" : fr === "common" ? "Both charts" : fr === "male" ? "Male chart" : "Female chart"}
-            </Button>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-1">
-          <Button size="sm" variant={area === "all" ? "secondary" : "ghost"} onClick={() => setArea("all")} data-testid="filter-area-all">
-            All areas
-          </Button>
-          {(Object.keys(LIFE_AREAS) as LifeArea[]).map((a) => (
-            <Button key={a} size="sm" variant={area === a ? "secondary" : "ghost"} onClick={() => setArea(a)} data-testid={`filter-area-${a}`}>
-              {LIFE_AREAS[a].label.split(" &")[0]}
-            </Button>
-          ))}
-        </div>
-      </div>
-      <div className="mt-2 flex flex-wrap gap-1">
-        <Button size="sm" variant={planet === "all" ? "secondary" : "ghost"} onClick={() => setPlanet("all")} data-testid="filter-planet-all">
-          Any planet
-        </Button>
-        {PLANETS.map((p) => (
-          <Button key={p} size="sm" variant={planet === p ? "secondary" : "ghost"} onClick={() => setPlanet(p)} data-testid={`filter-planet-${p}`}>
-            {p}
-          </Button>
-        ))}
-      </div>
-
-      <div className="mt-6 text-xs text-muted-foreground tabular">
-        {isLoading ? "Loading…" : `${filtered.length} of ${rules?.length ?? 0} rules`}
-      </div>
-
-      <ul className="mt-2 divide-y">
-        {filtered.map((r) => (
-          <li key={r.id} className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]" data-testid={`rule-${r.id}`}>
-            <div>
-              <div className="text-sm font-medium">{LIFE_AREAS[r.area].label}</div>
-              <div className="mt-0.5 text-xs text-muted-foreground">
-                <span className="tabular">weight {r.weight}</span> · <span className="font-mono">{r.id}</span>
-                {r.frame && <span className="ml-1 rounded bg-muted px-1 py-0.5">{r.frame} chart</span>}
-              </div>
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search rule text"
+              className="w-56"
+              data-testid="input-rule-search"
+            />
+            <div
+              className="flex flex-wrap gap-1"
+              role="group"
+              aria-label="Chart frame"
+            >
+              {(["all", "common", "male", "female"] as const).map((fr) => (
+                <Button
+                  key={fr}
+                  size="sm"
+                  variant={frame === fr ? "secondary" : "ghost"}
+                  onClick={() => setFrame(fr)}
+                  data-testid={`filter-frame-${fr}`}
+                >
+                  {fr === "all"
+                    ? "All frames"
+                    : fr === "common"
+                      ? "Both charts"
+                      : fr === "male"
+                        ? "Male chart"
+                        : "Female chart"}
+                </Button>
+              ))}
             </div>
-            <div>
-              <div className={cn("text-sm")}>{r.text}</div>
-              <div className="mt-1 text-xs text-muted-foreground">
-                when {describeCondition(r.when)}
-                {r.source && ` · ${r.source}`}
-              </div>
+            <div className="flex flex-wrap gap-1">
+              <Button
+                size="sm"
+                variant={area === "all" ? "secondary" : "ghost"}
+                onClick={() => setArea("all")}
+                data-testid="filter-area-all"
+              >
+                All areas
+              </Button>
+              {(Object.keys(LIFE_AREAS) as LifeArea[]).map((a) => (
+                <Button
+                  key={a}
+                  size="sm"
+                  variant={area === a ? "secondary" : "ghost"}
+                  onClick={() => setArea(a)}
+                  data-testid={`filter-area-${a}`}
+                >
+                  {LIFE_AREAS[a].label.split(" &")[0]}
+                </Button>
+              ))}
             </div>
-          </li>
-        ))}
-      </ul>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1">
+            <Button
+              size="sm"
+              variant={planet === "all" ? "secondary" : "ghost"}
+              onClick={() => setPlanet("all")}
+              data-testid="filter-planet-all"
+            >
+              Any planet
+            </Button>
+            {PLANETS.map((p) => (
+              <Button
+                key={p}
+                size="sm"
+                variant={planet === p ? "secondary" : "ghost"}
+                onClick={() => setPlanet(p)}
+                data-testid={`filter-planet-${p}`}
+              >
+                {p}
+              </Button>
+            ))}
+          </div>
+
+          <div className="mt-6 text-xs text-muted-foreground tabular">
+            {isLoading
+              ? "Loading…"
+              : `${filtered.length} of ${rules?.length ?? 0} rules`}
+          </div>
+
+          <ul className="mt-2 divide-y">
+            {filtered.map((r) => (
+              <li
+                key={r.id}
+                className="grid gap-x-6 gap-y-1 py-3 sm:grid-cols-[11rem_1fr]"
+                data-testid={`rule-${r.id}`}
+              >
+                <div>
+                  <div className="text-sm font-medium">
+                    {LIFE_AREAS[r.area].label}
+                  </div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    <span className="tabular">weight {r.weight}</span> ·{" "}
+                    <span className="font-mono">{r.id}</span>
+                    {r.frame && (
+                      <span className="ml-1 rounded bg-muted px-1 py-0.5">
+                        {r.frame} chart
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <div className={cn("text-sm")}>{r.text}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    when {describeCondition(r.when)}
+                    {r.source && (
+                      <>
+                        {" · "}
+                        <Cite>{r.source}</Cite>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </TabsContent>
       </Tabs>
     </div>

@@ -4,10 +4,24 @@ import { Term } from "@/components/term";
 import { cn } from "@/lib/utils";
 
 /** One of two wordings for the same idea: everyday language in the plain reading, the technical text for practitioners. */
-export function ModeText({ plain, practitioner, className, testId }: { plain: ReactNode; practitioner: ReactNode; className?: string; testId?: string }) {
+export function ModeText({
+  plain,
+  practitioner,
+  className,
+  testId,
+}: {
+  plain: ReactNode;
+  practitioner: ReactNode;
+  className?: string;
+  testId?: string;
+}) {
   const { mode } = useReadingMode();
   return (
-    <p className={cn("mt-1 text-xs text-muted-foreground", className)} data-testid={testId} data-mode={mode}>
+    <p
+      className={cn("mt-1 text-xs text-muted-foreground", className)}
+      data-testid={testId}
+      data-mode={mode}
+    >
       {mode === "plain" ? plain : practitioner}
     </p>
   );
@@ -37,9 +51,16 @@ export function SectionTitle({
   const trail = mode === "plain" ? technical : plain;
   const trailNode = term ? <Term k={term}>{trail}</Term> : trail;
   return (
-    <Tag className={cn("flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm font-semibold", className)}>
+    <Tag
+      className={cn(
+        "flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm font-semibold",
+        className,
+      )}
+    >
       <span>{lead}</span>
-      <span className="text-xs font-normal text-muted-foreground">{trailNode}</span>
+      <span className="text-xs font-normal text-muted-foreground">
+        {trailNode}
+      </span>
       {children}
     </Tag>
   );

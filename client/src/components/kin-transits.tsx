@@ -1,6 +1,11 @@
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
-import type { KinTransitsReading, KinPlanet, KinTransitRow, KinVerdict } from "@shared/kin-transits";
+import type {
+  KinTransitsReading,
+  KinPlanet,
+  KinTransitRow,
+  KinVerdict,
+} from "@shared/kin-transits";
 import { KIN_MATTER } from "@shared/kin-transits";
 import { SignName, PlanetName } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
@@ -16,31 +21,81 @@ const PILL: Record<KinVerdict, string> = {
   lean: "bg-muted text-muted-foreground",
   even: "bg-verdict-mixed/15 text-verdict-mixed",
 };
-const BORDER: Record<KinVerdict, string> = { favourable: "border-l-verdict-good/70", distress: "border-l-verdict-bad/70", lean: "border-l-border", even: "border-l-verdict-mixed/70" };
-const TONE_PILL = { support: PILL.favourable, strain: PILL.distress, mixed: PILL.even };
+const BORDER: Record<KinVerdict, string> = {
+  favourable: "border-l-verdict-good/70",
+  distress: "border-l-verdict-bad/70",
+  lean: "border-l-border",
+  even: "border-l-verdict-mixed/70",
+};
+const TONE_PILL = {
+  support: PILL.favourable,
+  strain: PILL.distress,
+  mixed: PILL.even,
+};
 const PLANETS: KinPlanet[] = ["Mars", "Mercury", "Venus"];
 
-function Row({ r, open, toggle, source }: { r: KinTransitRow; open: boolean; toggle: () => void; source: { label: string; url: string } }) {
+function Row({
+  r,
+  open,
+  toggle,
+  source,
+}: {
+  r: KinTransitRow;
+  open: boolean;
+  toggle: () => void;
+  source: { label: string; url: string };
+}) {
   return (
-    <li className={cn("rounded-md border border-l-4 bg-card text-xs", BORDER[r.verdict], r.current && "ring-1 ring-primary/40")} data-testid={`kin-transit-${r.planet}-${r.start.slice(0, 10)}`}>
-      <button type="button" className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-3 py-1.5 text-left" onClick={toggle} aria-expanded={open}>
+    <li
+      className={cn(
+        "rounded-md border border-l-4 bg-card text-xs",
+        BORDER[r.verdict],
+        r.current && "ring-1 ring-primary/40",
+      )}
+      data-testid={`kin-transit-${r.planet}-${r.start.slice(0, 10)}`}
+    >
+      <button
+        type="button"
+        className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-3 py-1.5 text-left"
+        onClick={toggle}
+        aria-expanded={open}
+      >
         <span className="min-w-[11.5rem] shrink-0 whitespace-nowrap tabular-nums text-muted-foreground">
           {fmtD(r.start)} – {fmtD(r.end)}
         </span>
         <span className="text-sm">
           <SignName signIndex={r.signIndex} />
         </span>
-        {r.current && <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">now</span>}
+        {r.current && (
+          <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">
+            now
+          </span>
+        )}
         <span className="ml-auto flex flex-wrap items-center gap-2">
           <RekhaMarks givers={r.givers} owner={r.planet} />
           <span className="tabular-nums">{r.rekhas}</span>
-          {r.trikona !== undefined && <span className="text-2xs text-muted-foreground">Trik. {r.trikona}</span>}
-          <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium", PILL[r.verdict])}>{r.verdict}</span>
+          {r.trikona !== undefined && (
+            <span className="text-2xs text-muted-foreground">
+              Trik. {r.trikona}
+            </span>
+          )}
+          <span
+            className={cn(
+              "rounded px-1.5 py-0.5 text-xs font-medium",
+              PILL[r.verdict],
+            )}
+          >
+            {r.verdict}
+          </span>
         </span>
       </button>
       {open && (
-        <div className="border-t px-3 py-2 text-xs" data-testid={`kin-transit-notes-${r.planet}-${r.start.slice(0, 10)}`}>
-          {r.text} <SourceLink source={source} className="text-muted-foreground" />
+        <div
+          className="border-t px-3 py-2 text-xs"
+          data-testid={`kin-transit-notes-${r.planet}-${r.start.slice(0, 10)}`}
+        >
+          {r.text}{" "}
+          <SourceLink source={source} className="text-muted-foreground" />
         </div>
       )}
     </li>
@@ -52,25 +107,63 @@ export function KinTransitsSection({ k }: { k: KinTransitsReading }) {
   const [open, setOpen] = useState<string | null>(null);
   const [caveats, setCaveats] = useState(false);
   const rows = useMemo(() => k.rows[planet], [k, planet]);
-  const source = planet === "Mars" ? k.sources.brothers : planet === "Mercury" ? k.sources.family : k.sources.marriage;
+  const source =
+    planet === "Mars"
+      ? k.sources.brothers
+      : planet === "Mercury"
+        ? k.sources.family
+        : k.sources.marriage;
   return (
     <div className="mt-8" data-testid="parashari-kin-transits">
-      <SectionTitle plain="Brothers, family and marriage as Mars, Mercury and Venus move" technical="Mars, Mercury and Venus through their own charts" />
+      <SectionTitle
+        plain="Brothers, family and marriage as Mars, Mercury and Venus move"
+        technical="Mars, Mercury and Venus through their own charts"
+      />
       <ModeText
-        plain={<>Each planet has its own points table. When Mars passes through signs where it holds many points, brothers, courage and property prosper, and where it holds none they suffer; Mercury's passages through its high-point signs favour family, mother's relatives and friends; Venus's passages through its high-point signs favour money, land, happiness and marriage. Saturn's testing passages are in the timeline above.</>}
-        practitioner={<>
-        Chapter 70 reads brothers, valour and land from Mars' passage through signs rich in rekhas in Mars' own chart, with distress to brothers where it has none <SourceLink source={k.sources.brothers} />; happiness
-        to family, maternal uncle and friends from Mercury's passage through its rekha-rich signs <SourceLink source={k.sources.family} />; and gain of wealth, land, happiness and marriage from Venus' passage through
-        its rekha-rich signs <SourceLink source={k.sources.marriage} />. Saturn's strikes on these matters are in the timeline above.
-        </>}
+        plain={
+          <>
+            Each planet has its own points table. When Mars passes through signs
+            where it holds many points, brothers, courage and property prosper,
+            and where it holds none they suffer; Mercury's passages through its
+            high-point signs favour family, mother's relatives and friends;
+            Venus's passages through its high-point signs favour money, land,
+            happiness and marriage. Saturn's testing passages are in the
+            timeline above.
+          </>
+        }
+        practitioner={
+          <>
+            Chapter 70 reads brothers, valour and land from Mars' passage
+            through signs rich in rekhas in Mars' own chart, with distress to
+            brothers where it has none{" "}
+            <SourceLink source={k.sources.brothers} />; happiness to family,
+            maternal uncle and friends from Mercury's passage through its
+            rekha-rich signs <SourceLink source={k.sources.family} />; and gain
+            of wealth, land, happiness and marriage from Venus' passage through
+            its rekha-rich signs <SourceLink source={k.sources.marriage} />.
+            Saturn's strikes on these matters are in the timeline above.
+          </>
+        }
       />
 
       <ul className="mt-3 space-y-1 text-xs" data-testid="kin-natal">
         {k.natal.map((n, i) => (
           <li key={i} className="flex flex-wrap items-start gap-x-2">
-            <span className={cn("mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-2xs font-medium", TONE_PILL[n.tone])}>{n.tone === "support" ? "favourable" : n.tone === "strain" ? "adverse" : "note"}</span>
+            <span
+              className={cn(
+                "mt-0.5 shrink-0 rounded px-1.5 py-0.5 text-2xs font-medium",
+                TONE_PILL[n.tone],
+              )}
+            >
+              {n.tone === "support"
+                ? "favourable"
+                : n.tone === "strain"
+                  ? "adverse"
+                  : "note"}
+            </span>
             <span className="min-w-0 flex-1">
-              {n.text} <SourceLink source={n.source} className="text-muted-foreground" />
+              {n.text}{" "}
+              <SourceLink source={n.source} className="text-muted-foreground" />
             </span>
           </li>
         ))}
@@ -79,7 +172,18 @@ export function KinTransitsSection({ k }: { k: KinTransitsReading }) {
       <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
         <div className="flex rounded-md border p-0.5" role="tablist">
           {PLANETS.map((p) => (
-            <button key={p} type="button" role="tab" aria-selected={planet === p} className={cn("rounded px-2.5 py-1", planet === p ? "bg-muted font-medium" : "text-muted-foreground")} onClick={() => setPlanet(p)} data-testid={`kin-planet-${p}`}>
+            <button
+              key={p}
+              type="button"
+              role="tab"
+              aria-selected={planet === p}
+              className={cn(
+                "rounded px-2.5 py-1",
+                planet === p ? "bg-muted font-medium" : "text-muted-foreground",
+              )}
+              onClick={() => setPlanet(p)}
+              data-testid={`kin-planet-${p}`}
+            >
               <PlanetName planet={p} />
             </button>
           ))}
@@ -90,16 +194,34 @@ export function KinTransitsSection({ k }: { k: KinTransitsReading }) {
       {k.hasTransits ? (
         <ul className="mt-2 space-y-1.5" data-testid={`kin-rows-${planet}`}>
           {rows.map((r) => (
-            <Row key={r.start} r={r} open={open === r.start} toggle={() => setOpen((v) => (v === r.start ? null : r.start))} source={source} />
+            <Row
+              key={r.start}
+              r={r}
+              open={open === r.start}
+              toggle={() => setOpen((v) => (v === r.start ? null : r.start))}
+              source={source}
+            />
           ))}
-          {rows.length === 0 && <li className="rounded-md border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">No passages computed.</li>}
+          {rows.length === 0 && (
+            <li className="rounded-md border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">
+              No passages computed.
+            </li>
+          )}
         </ul>
       ) : (
-        <p className="mt-2 rounded-md border border-dashed px-3 py-3 text-xs text-muted-foreground">These passages are computed when a chart is opened; reopen this chart to see them.</p>
+        <p className="mt-2 rounded-md border border-dashed px-3 py-3 text-xs text-muted-foreground">
+          These passages are computed when a chart is opened; reopen this chart
+          to see them.
+        </p>
       )}
 
-      <button className="mt-2 text-xs text-muted-foreground underline underline-offset-2" onClick={() => setCaveats((v) => !v)} data-testid="kin-caveats">
-        {caveats ? "Hide" : "Show"} how 70.24-36 was applied ({k.caveats.length} notes)
+      <button
+        className="mt-2 text-xs text-muted-foreground underline underline-offset-2"
+        onClick={() => setCaveats((v) => !v)}
+        data-testid="kin-caveats"
+      >
+        {caveats ? "Hide" : "Show"} how 70.24-36 was applied ({k.caveats.length}{" "}
+        notes)
       </button>
       {caveats && (
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">

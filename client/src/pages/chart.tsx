@@ -108,6 +108,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Cite } from "@/components/source-link";
 import { cn } from "@/lib/utils";
 import { apiRequest } from "@/lib/queryClient";
 import { chartsStore } from "@/lib/charts-store";
@@ -516,7 +517,12 @@ function FindingMeta({
         {f.house && ` — in the ${ordinal(f.house)} from ${f.planets[0]}`}
         {f.viaRetro && " (via retrogression)"}
         {f.modifier && ` · ${f.modifier}`}
-        {f.source && ` · ${f.source}`}
+        {f.source && (
+          <>
+            {" · "}
+            <Cite>{f.source}</Cite>
+          </>
+        )}
         {coveredBy && (
           <span className="italic"> · said within the combination above</span>
         )}
@@ -575,12 +581,12 @@ function FindingItem({
               </span>
             )}
           {!full && f.source && (
-            <span
-              className="ml-1.5 text-xs text-muted-foreground"
-              title={`${f.planets.join(", ")}${f.relation ? `, ${RELATION_LABEL[f.relation]}` : ""}`}
+            <Cite
+              className="ml-1.5"
+              title={`${f.source}${f.relation ? ` · ${f.planets.join(", ")}, ${RELATION_LABEL[f.relation]}` : ""}`}
             >
               {f.source.split(/[,(]/)[0].trim()}
-            </span>
+            </Cite>
           )}
         </p>
         {full && (

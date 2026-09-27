@@ -29,8 +29,22 @@ export function Logo({ size = 28 }: { size?: number }) {
       role="img"
       className="text-foreground"
     >
-      <rect x="2" y="2" width="28" height="28" stroke="currentColor" strokeWidth="1.75" />
-      <rect x="9" y="9" width="14" height="14" stroke="currentColor" strokeWidth="1.75" />
+      <rect
+        x="2"
+        y="2"
+        width="28"
+        height="28"
+        stroke="currentColor"
+        strokeWidth="1.75"
+      />
+      <rect
+        x="9"
+        y="9"
+        width="14"
+        height="14"
+        stroke="currentColor"
+        strokeWidth="1.75"
+      />
       <path
         d="M9 2v7M16 2v7M23 2v7M9 23v7M16 23v7M23 23v7M2 9h7M2 16h7M2 23h7M23 9h7M23 16h7M23 23h7"
         stroke="currentColor"
@@ -49,11 +63,19 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="px-4 pt-5 pb-3">
-        <Link href="/" className="flex items-center gap-3" data-testid="link-home">
+        <Link
+          href="/"
+          className="flex items-center gap-3"
+          data-testid="link-home"
+        >
           <Logo />
           <div className="leading-tight">
-            <div className="font-display text-lg font-bold tracking-tight">Nadi</div>
-            <div className="text-xs text-muted-foreground">Bhrigu Nandi reader</div>
+            <div className="font-display text-lg font-bold tracking-tight">
+              Nadi
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Bhrigu Nandi reader
+            </div>
           </div>
         </Link>
       </SidebarHeader>
@@ -94,14 +116,24 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {charts?.length === 0 && (
-                <div className="px-2 py-1 text-xs text-muted-foreground">None yet. Cast one to begin.</div>
+                <div className="px-2 py-1 text-xs text-muted-foreground">
+                  None yet. Cast one to begin.
+                </div>
               )}
               {charts?.map((c) => (
                 <SidebarMenuItem key={c.id}>
-                  <SidebarMenuButton asChild isActive={location === `/chart/${c.id}`}>
-                    <Link href={`/chart/${c.id}`} data-testid={`link-chart-${c.id}`}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location === `/chart/${c.id}`}
+                  >
+                    <Link
+                      href={`/chart/${c.id}`}
+                      data-testid={`link-chart-${c.id}`}
+                    >
                       <span className="truncate">{c.name}</span>
-                      <span className="ml-auto text-xs text-muted-foreground tabular">{c.birthDate.slice(0, 4)}</span>
+                      <span className="ml-auto text-xs text-muted-foreground tabular">
+                        {c.birthDate.slice(0, 4)}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -111,7 +143,13 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-3">
-        <Button variant="ghost" size="sm" onClick={toggle} className="justify-start" data-testid="button-theme">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggle}
+          className="justify-start"
+          data-testid="button-theme"
+        >
           {theme === "dark" ? <Sun /> : <Moon />}
           <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
         </Button>
