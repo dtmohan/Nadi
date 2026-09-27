@@ -89,6 +89,8 @@ import { computeVargas, type SpouseReading } from "@shared/vargas";
 import { VargasSection } from "@/components/vargas";
 import { computeChalit } from "@shared/chalit";
 import { ChalitSection } from "@/components/chalit";
+import { computeSudarshana } from "@shared/sudarshana";
+import { SudarshanaSection } from "@/components/sudarshana";
 import { computePortions } from "@shared/portions";
 import { PortionsSection } from "@/components/portions";
 import { SouthIndianChart } from "@/components/south-indian-chart";
@@ -263,6 +265,19 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
     [positions, result.shadbala],
   );
   const portions = useMemo(() => computePortions(positions), [positions]);
+  const sudarshana = useMemo(
+    () =>
+      computeSudarshana(
+        positions,
+        r.lagna.signIndex,
+        result.utc,
+        asOfIso,
+        r.ashtakavarga,
+        r.shadbala,
+        aspectFloor,
+      ),
+    [positions, r, result.utc, asOfIso, aspectFloor],
+  );
   const plain = usePlain();
   const [balaOpen, setBalaOpen] = useState<string | null>(null);
   const [focusHouse, setFocusHouse] = useState<number | null>(null);
@@ -893,6 +908,13 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         className="mt-8"
       >
         <AshtakavargaSection av={r.ashtakavarga} lagnaIdx={r.lagna.signIndex} />
+      </Working>
+      <Working
+        id="parashari-sudarshana"
+        label="Show the three-ring wheel and its year-by-year turn (Sudarshana chakra)"
+        className="mt-8"
+      >
+        <SudarshanaSection s={sudarshana} />
       </Working>
       <AvTimelineSection
         tl={avTimeline}

@@ -401,6 +401,12 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
       "The boundary between two houses in the chalit. A planet right on one belongs clearly to neither.",
     system: "parashari",
   },
+  sudarshana: {
+    term: "Sudarshana chakra",
+    short:
+      "The twelve houses drawn three times, from the rising sign, the Moon and the Sun, one ring inside the other. Each house is judged by the planets in or aspecting its three signs, and the houses take turns ruling one year and one month each.",
+    system: "parashari",
+  },
   ashtakavarga: {
     term: "Ashtakavarga",
     short:
