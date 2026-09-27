@@ -3,7 +3,7 @@
 // texts do not state as applied keeps its provisional mark. Nothing here is computed afresh;
 // the sections call the same shared functions the tabs use.
 import { DateTime } from "luxon";
-import type { ChartResult } from "@shared/schema";
+import { SUNRISE_DEFINITIONS, type ChartResult } from "@shared/schema";
 import {
   fmtDeg,
   houseFrom,
@@ -185,7 +185,7 @@ export function buildReport(
       paras: [
         {
           kind: "p",
-          text: `The birth fell on a ${p.vara.name}, the day of ${p.vara.lord}, counted from the sunrise at ${rise} (sunset ${set}). The Moon stood ${Math.round(p.tithi.elapsed * 100)}% through ${p.tithi.name} of the ${p.tithi.paksha === "Shukla" ? "bright" : "dark"} fortnight, in ${p.nakshatra.name} (pada ${p.nakshatra.pada}, lord ${p.nakshatra.lord}); the yoga was ${p.yoga.name} and the karana ${p.karana.name}.`,
+          text: `The birth fell on a ${p.vara.name}, the day of ${p.vara.lord}, counted from the sunrise at ${rise} (sunset ${set}; sunrise taken as the ${(SUNRISE_DEFINITIONS.find((d) => d.id === (p.sunriseDef ?? "edge"))?.label ?? "upper limb, with refraction").toLowerCase()}). The Moon stood ${Math.round(p.tithi.elapsed * 100)}% through ${p.tithi.name} of the ${p.tithi.paksha === "Shukla" ? "bright" : "dark"} fortnight, in ${p.nakshatra.name} (pada ${p.nakshatra.pada}, lord ${p.nakshatra.lord}); the yoga was ${p.yoga.name} and the karana ${p.karana.name}.`,
           cites: [
             src("day"),
             src("tithi"),

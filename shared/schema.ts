@@ -25,6 +25,8 @@ export const charts = sqliteTable("charts", {
   longitude: real("longitude").notNull(),
   ayanamsa: text("ayanamsa").notNull().default("lahiri"),
   nodeType: text("node_type").notNull().default("mean"),
+  /** Which instant counts as sunrise: "edge" (upper limb, refracted), "centre" (disc centre, refracted), "edge-true" (upper limb, no refraction), "centre-true" (disc centre, no refraction). */
+  sunriseDef: text("sunrise_def").notNull().default("edge"),
   notes: text("notes").notNull().default(""),
   /** Optional date of passing (YYYY-MM-DD). Fixes the age the readings use and lets the lifespan methods be tested on the deceased; never used to compute or display a forecast. */
   deathDate: text("death_date"),
@@ -43,6 +45,37 @@ export const AYANAMSAS = [
   { id: "kp", label: "Krishnamurti (KP)" },
   { id: "yukteshwar", label: "Sri Yukteshwar" },
 ] as const;
+
+export const SUNRISE_DEFINITIONS = [
+  {
+    id: "edge",
+    label: "Upper limb, with refraction",
+    short: "edge",
+    note: "The first edge of the disc appears over the horizon; the civil and newspaper convention, Drik Panchang's default and the Swiss Ephemeris default.",
+  },
+  {
+    id: "centre",
+    label: "Disc centre, with refraction",
+    short: "centre",
+    note: "The middle of the disc appears over the horizon (Drik Panchang's \"middle limb\"); about a minute after the edge.",
+  },
+  {
+    id: "edge-true",
+    label: "Upper limb, no refraction",
+    short: "true edge",
+    note: "The edge of the disc is geometrically on the horizon, ignoring the atmosphere; Jagannatha Hora's \"true rise of tip\", about two minutes after the edge.",
+  },
+  {
+    id: "centre-true",
+    label: "Disc centre, no refraction",
+    short: "true centre",
+    note: "The centre of the disc is geometrically on the horizon: the classical madhya-limb sunrise of the Surya Siddhanta computation and Jagannatha Hora's \"true rise of centre\", three to four minutes after the edge.",
+  },
+] as const;
+export type SunriseDefinition = (typeof SUNRISE_DEFINITIONS)[number]["id"];
+export const SUNRISE_DEF_IDS = SUNRISE_DEFINITIONS.map((d) => d.id) as SunriseDefinition[];
+export const normaliseSunriseDef = (v: unknown): SunriseDefinition =>
+  (SUNRISE_DEF_IDS as string[]).includes(v as string) ? (v as SunriseDefinition) : "edge";
 
 export interface ChartResult {
   chart: Chart;

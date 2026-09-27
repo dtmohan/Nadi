@@ -1,3 +1,4 @@
+import type { SunriseDefinition } from "./schema";
 /**
  * Panchanga — the five limbs of the Hindu day: vara (weekday), tithi (lunar day), nakshatra (the Moon's asterism),
  * nitya yoga (Sun + Moon) and karana (half-tithi). The definitions follow the Surya Siddhanta as translated by
@@ -178,6 +179,8 @@ export interface PanchangaDay {
   timezone: string;
   latitude: number;
   longitude: number;
+  /** Which instant counts as sunrise (see SUNRISE_DEFINITIONS in schema.ts); older results may lack it, meaning "edge". */
+  sunriseDef?: SunriseDefinition;
   /** ISO instants of the sunrise that opens the day, the sunset, and the next sunrise. */
   sunrise: string;
   sunset: string;

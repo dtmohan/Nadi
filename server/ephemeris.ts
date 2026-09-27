@@ -5,6 +5,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { DateTime } from "luxon";
 import type { KpBase } from "@shared/kp";
+import type { SunriseDefinition } from "@shared/schema";
 import type { ShadbalaBase, Seven } from "@shared/shadbala";
 import {
   PLANETS,
@@ -57,7 +58,19 @@ const FLAGS = C.SEFLG_SWIEPH | C.SEFLG_SIDEREAL | C.SEFLG_SPEED;
 export interface EphemerisOptions {
   ayanamsa: string; // key of AYANAMSA_MODE
   nodeType: "mean" | "true";
+  /** Sunrise convention; the refracted upper limb unless set. */
+  sunrise?: SunriseDefinition;
 }
+
+/** Swiss Ephemeris rise flags for each sunrise convention. */
+const SUNRISE_FLAGS: Record<SunriseDefinition, number> = {
+  edge: 0,
+  centre: C.SE_BIT_DISC_CENTER,
+  "edge-true": C.SE_BIT_NO_REFRACTION,
+  "centre-true": C.SE_BIT_HINDU_RISING,
+};
+const sunriseFlags = (def?: SunriseDefinition) =>
+  SUNRISE_FLAGS[def ?? "edge"] ?? 0;
 
 function setMode(opts: EphemerisOptions) {
   sweph.set_sid_mode(AYANAMSA_MODE[opts.ayanamsa] ?? C.SE_SIDM_LAHIRI, 0, 0);
@@ -406,11 +419,12 @@ export function nowJd(): number {
   return julianDay(DateTime.utc());
 }
 
-/** Julian day of the last sunrise (upper limb, standard refraction) at or before `jd` for the given place. */
+/** Julian day of the last sunrise at or before `jd` for the given place, under the chosen convention (refracted upper limb by default). */
 export function sunriseBefore(
   jd: number,
   latitude: number,
   longitude: number,
+  def?: SunriseDefinition,
 ): number {
   const rise = (start: number) => {
     const r = sweph.rise_trans(
@@ -418,7 +432,7 @@ export function sunriseBefore(
       C.SE_SUN,
       "",
       C.SEFLG_SWIEPH,
-      C.SE_CALC_RISE,
+      C.SE_CALC_RISE | sunriseFlags(def),
       [longitude, latitude, 0],
       1013.25,
       15,
@@ -441,13 +455,14 @@ function riseOrSetAfter(
   latitude: number,
   longitude: number,
   kind: number,
+  def?: SunriseDefinition,
 ): number {
   const r = sweph.rise_trans(
     start,
     C.SE_SUN,
     "",
     C.SEFLG_SWIEPH,
-    kind,
+    kind | sunriseFlags(def),
     [longitude, latitude, 0],
     1013.25,
     15,
@@ -482,18 +497,20 @@ export function shadbalaBase(
   const asc = norm360(h.data.points[0]);
   const mc = norm360(h.data.points[1]);
   const ayanamsa = sweph.get_ayanamsa_ut(jd);
-  const sunriseJd = sunriseBefore(jd, latitude, longitude);
+  const sunriseJd = sunriseBefore(jd, latitude, longitude, opts.sunrise);
   const sunsetJd = riseOrSetAfter(
     sunriseJd + 0.01,
     latitude,
     longitude,
     C.SE_CALC_SET,
+    opts.sunrise,
   );
   const nextSunriseJd = riseOrSetAfter(
     sunsetJd + 0.01,
     latitude,
     longitude,
     C.SE_CALC_RISE,
+    opts.sunrise,
   );
   const lmtHours = ((((jd + 0.5 + longitude / 360) % 1) + 1) % 1) * 24;
   const dayNumber = Math.floor(sunriseJd + longitude / 360 + 0.5);
@@ -540,7 +557,7 @@ export function specialLagnas(
   longitude: number,
   opts: EphemerisOptions,
 ): { horaLagna: number; ghatikaLagna: number; sunriseJd: number } {
-  const sunriseJd = sunriseBefore(jd, latitude, longitude);
+  const sunriseJd = sunriseBefore(jd, latitude, longitude, opts.sunrise);
   setMode(opts);
   const sun = sweph.calc_ut(sunriseJd, C.SE_SUN, FLAGS) as unknown as {
     flag: number;
@@ -712,13 +729,21 @@ export function panchangaAt(
   date?: string,
   sunriseJd?: number,
 ): PanchangaDay {
-  const sunrise = sunriseJd ?? sunriseBefore(jd, latitude, longitude);
-  const sunset = riseOrSetAfter(sunrise, latitude, longitude, C.SE_CALC_SET);
+  const sunrise =
+    sunriseJd ?? sunriseBefore(jd, latitude, longitude, opts.sunrise);
+  const sunset = riseOrSetAfter(
+    sunrise,
+    latitude,
+    longitude,
+    C.SE_CALC_SET,
+    opts.sunrise,
+  );
   const nextSunrise = riseOrSetAfter(
     sunrise + 0.01,
     latitude,
     longitude,
     C.SE_CALC_RISE,
+    opts.sunrise,
   );
   const sm = sunMoon(jd, opts);
   const weekday = weekdayOf(sunrise, zone);
@@ -728,6 +753,7 @@ export function panchangaAt(
     timezone: zone,
     latitude,
     longitude,
+    sunriseDef: opts.sunrise ?? "edge",
     sunrise: jdToIso(sunrise),
     sunset: jdToIso(sunset),
     nextSunrise: jdToIso(nextSunrise),
@@ -797,7 +823,7 @@ export function panchangaForDate(
   opts: EphemerisOptions,
 ): { day: PanchangaDay; positions: PlanetPosition[] } {
   const noon = julianDay(DateTime.fromISO(`${date}T12:00`, { zone }).toUTC());
-  const sunrise = sunriseBefore(noon, latitude, longitude);
+  const sunrise = sunriseBefore(noon, latitude, longitude, opts.sunrise);
   const day = panchangaAt(
     sunrise,
     latitude,

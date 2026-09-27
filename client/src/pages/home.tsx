@@ -27,6 +27,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import {
   AYANAMSAS,
+  SUNRISE_DEFINITIONS,
   type Chart,
   type GeoHit,
   type InsertChart,
@@ -49,6 +50,7 @@ const EMPTY: InsertChart = {
   longitude: 0,
   ayanamsa: "lahiri",
   nodeType: "mean",
+  sunriseDef: "edge",
   notes: "",
   deathDate: null,
   events: [],
@@ -484,6 +486,28 @@ export default function Home() {
                       <SelectItem value="true">True node</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="sunrise">Sunrise</Label>
+                  <Select
+                    value={form.sunriseDef}
+                    onValueChange={(v) => set("sunriseDef", v)}
+                  >
+                    <SelectTrigger id="sunrise" data-testid="select-sunrise">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SUNRISE_DEFINITIONS.map((d) => (
+                        <SelectItem key={d.id} value={d.id}>
+                          {d.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-2xs text-muted-foreground">
+                    {SUNRISE_DEFINITIONS.find((d) => d.id === form.sunriseDef)
+                      ?.note ?? ""}
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="tz">Time zone</Label>

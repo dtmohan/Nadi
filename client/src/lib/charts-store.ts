@@ -1,6 +1,6 @@
 import { sanitiseEvents } from "@shared/events";
 import { useQuery } from "@tanstack/react-query";
-import { insertChartSchema, type Chart, type InsertChart } from "@shared/schema";
+import { insertChartSchema, normaliseSunriseDef, type Chart, type InsertChart } from "@shared/schema";
 import { queryClient } from "@/lib/queryClient";
 
 /**
@@ -156,6 +156,7 @@ function normalise(data: InsertChart): Omit<Chart, "id"> {
     longitude: data.longitude,
     ayanamsa: data.ayanamsa ?? "lahiri",
     nodeType: data.nodeType ?? "mean",
+    sunriseDef: normaliseSunriseDef(data.sunriseDef),
     notes: data.notes ?? "",
     deathDate: /^\d{4}-\d{2}-\d{2}$/.test(data.deathDate ?? "") ? data.deathDate! : null,
     events: sanitiseEvents(data.events),

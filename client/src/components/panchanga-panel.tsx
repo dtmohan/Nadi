@@ -3,7 +3,7 @@ import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
-import type { ChartResult } from "@shared/schema";
+import { SUNRISE_DEFINITIONS, type ChartResult } from "@shared/schema";
 import type { PlanetPosition } from "@shared/astro";
 import { SIGNS } from "@shared/astro";
 import {
@@ -106,10 +106,24 @@ function DayGrid({
         className="flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs text-muted-foreground"
         data-testid={`${idPrefix}-day`}
       >
-        <span>
+        <span
+          title={
+            SUNRISE_DEFINITIONS.find((d) => d.id === (day.sunriseDef ?? "edge"))
+              ?.label
+          }
+        >
           Sunrise{" "}
           <span className="tabular-nums text-foreground">
             {fmtT(day.sunrise, zone)}
+          </span>{" "}
+          <span data-testid={`${idPrefix}-sunrise-def`}>
+            (
+            {
+              SUNRISE_DEFINITIONS.find(
+                (d) => d.id === (day.sunriseDef ?? "edge"),
+              )?.short
+            }
+            )
           </span>
         </span>
         <span>
@@ -360,6 +374,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         place.timezone,
         chart.ayanamsa,
         chart.nodeType,
+        chart.sunriseDef,
       ],
       enabled: validDate,
       queryFn: async () =>
@@ -371,6 +386,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
             timezone: place.timezone,
             ayanamsa: chart.ayanamsa,
             nodeType: chart.nodeType === "true" ? "true" : "mean",
+            sunriseDef: chart.sunriseDef,
           })
         ).json()) as { day: PanchangaDay; positions: PlanetPosition[] },
       staleTime: 5 * 60_000,

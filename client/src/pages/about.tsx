@@ -507,6 +507,35 @@ export default function AboutPage() {
                 The time-standard selector on the form can force the zone
                 database, local mean time, or a fixed offset instead.
               </li>
+              <li>
+                Sunrise, which fixes the weekday, the Panchanga runs, the Hora
+                and Ghatika lagnas and the day-night split in Shadbala, is by
+                default the moment the Sun's upper edge appears over the horizon
+                with standard refraction: the civil convention,{" "}
+                <a
+                  href="https://www.drikpanchang.com/faq/faq-ans2.html"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Drik Panchang's default
+                </a>{" "}
+                and the Swiss Ephemeris default. Panchanga makers do not agree
+                on this; the classical computation puts the disc's centre on the
+                horizon with no atmosphere, three to four minutes later at
+                Indian latitudes, and Jagannatha Hora offers the true rise of
+                the disc's edge and of its centre besides the apparent edge (
+                <a
+                  href="https://www.indiadivine.org/content/topic/1228669-jhora-702-vs-swiss-ephemeris/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  IndiaDivine thread with Koch and Rao
+                </a>
+                ). The four definitions can be chosen per chart on the form and
+                in the chart settings, so a Panchanga can be matched against any
+                almanac. Which convention a given tradition follows is
+                provisional.
+              </li>
             </ul>
             <h2>Sensitive results</h2>
             <p>

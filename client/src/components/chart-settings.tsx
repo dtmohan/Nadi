@@ -1,6 +1,10 @@
 import { SlidersHorizontal } from "lucide-react";
 import type { TimeBasis } from "@shared/time-basis";
-import type { Chart } from "@shared/schema";
+import {
+  SUNRISE_DEFINITIONS,
+  normaliseSunriseDef,
+  type Chart,
+} from "@shared/schema";
 import { chartsStore, CHARTS_QUERY_KEY } from "@/lib/charts-store";
 import { queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -38,6 +42,9 @@ export function ChartSettings({
           <SlidersHorizontal className="h-4 w-4" />
           <span className="tabular">
             {ayan} · {chart.nodeType} node
+            {normaliseSunriseDef(chart.sunriseDef) !== "edge"
+              ? ` · ${SUNRISE_DEFINITIONS.find((d) => d.id === normaliseSunriseDef(chart.sunriseDef))?.short} sunrise`
+              : ""}
           </span>
         </Button>
       </PopoverTrigger>
@@ -53,6 +60,44 @@ export function ChartSettings({
           </dd>
           <dt className="text-muted-foreground">Nodes</dt>
           <dd>{chart.nodeType} Rahu and Ketu</dd>
+          <dt className="text-muted-foreground">Sunrise</dt>
+          <dd>
+            <select
+              className="tabular block w-full rounded-md border bg-background px-1.5 py-0.5 text-xs"
+              value={normaliseSunriseDef(chart.sunriseDef)}
+              onChange={async (e) => {
+                await chartsStore.update(chart.id, {
+                  sunriseDef: normaliseSunriseDef(e.target.value),
+                });
+                await queryClient.invalidateQueries({
+                  queryKey: ["chart-result", String(chart.id)],
+                });
+                await queryClient.invalidateQueries({
+                  queryKey: CHARTS_QUERY_KEY,
+                });
+              }}
+              aria-label="Sunrise definition"
+              data-testid="select-settings-sunrise"
+            >
+              {SUNRISE_DEFINITIONS.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+            <div
+              className="mt-1 text-2xs text-muted-foreground"
+              data-testid="text-sunrise-note"
+            >
+              {
+                SUNRISE_DEFINITIONS.find(
+                  (d) => d.id === normaliseSunriseDef(chart.sunriseDef),
+                )?.note
+              }{" "}
+              Moves the vara boundary, the Panchanga runs, the Hora and Ghatika
+              lagnas and the day-night split in Shadbala together.
+            </div>
+          </dd>
           <dt className="text-muted-foreground">Time zone</dt>
           <dd>
             {chart.timezone}

@@ -5,6 +5,7 @@ import {
   type Chart,
   type ChartResult,
   type GeoHit,
+  normaliseSunriseDef,
 } from "@shared/schema";
 import { RULES, evaluate } from "@shared/rules";
 import {
@@ -45,6 +46,7 @@ const resultCache = new Map<string, ChartResult>();
 const opts0 = (chart: Chart): EphemerisOptions => ({
   ayanamsa: chart.ayanamsa,
   nodeType: chart.nodeType === "true" ? "true" : "mean",
+  sunrise: normaliseSunriseDef(chart.sunriseDef),
 });
 
 /** Sidereal position of each dasa lord at the start of its maha dasa (48.8). */
@@ -88,10 +90,7 @@ export function computeChart(chart: Chart): ChartResult {
       },
     };
 
-  const opts: EphemerisOptions = {
-    ayanamsa: chart.ayanamsa,
-    nodeType: chart.nodeType === "true" ? "true" : "mean",
-  };
+  const opts: EphemerisOptions = opts0(chart);
   const { utc, basis } = birthInstant(chart);
   const zone = basis.displayZone;
   const jd = julianDay(utc);
@@ -289,6 +288,7 @@ export async function registerRoutes(
       date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
       ayanamsa: z.string().max(24).default("lahiri"),
       nodeType: z.enum(["mean", "true"]).default("mean"),
+      sunriseDef: z.string().max(16).optional(),
     });
     const parsed = schema.safeParse(req.body);
     if (!parsed.success)
@@ -296,14 +296,22 @@ export async function registerRoutes(
         .status(400)
         .json({ message: "Invalid request", issues: parsed.error.issues });
     try {
-      const { date, latitude, longitude, timezone, ayanamsa, nodeType } =
-        parsed.data;
+      const {
+        date,
+        latitude,
+        longitude,
+        timezone,
+        ayanamsa,
+        nodeType,
+        sunriseDef,
+      } = parsed.data;
       if (!DateTime.fromISO(date, { zone: timezone }).isValid)
         return res.status(400).json({ message: "Invalid date or time zone" });
       res.json(
         panchangaForDate(date, latitude, longitude, timezone, {
           ayanamsa,
           nodeType,
+          sunrise: normaliseSunriseDef(sunriseDef),
         }),
       );
     } catch (e) {
