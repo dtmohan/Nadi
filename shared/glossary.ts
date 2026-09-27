@@ -413,6 +413,18 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
       "Varahamihira's span of life (Brihat Jataka 7): Pindayu sums years each planet grants between its exaltation and debilitation degrees, Amsayu (Satya's method) counts the navamsas each planet has passed, with the lagna's share, multipliers and the losses for combustion, enemy's sign and the houses behind the horizon.",
     system: "parashari",
   },
+  "bj-balarishta": {
+    term: "Balarishta",
+    short:
+      "Varahamihira's combinations for death in infancy (Brihat Jataka 6): twelve verses on the Moon's place, her company and her aspects, with the stated terms (at once, a month, four or eight years) and the timing by her return; the commentator's counteracting yogas are provisional.",
+    system: "parashari",
+  },
+  "bj-dasa": {
+    term: "Dasa (Brihat Jataka 8)",
+    short:
+      "Varahamihira's own planetary periods, run on the years of chapter 7: the strongest of lagna, Sun and Moon first, then the planets in kendras, panapharas and apoklimas from it; antardasa shares 1, 1/2, 1/3, 1/7, 1/4; each dasa named Sampurna, Rikta, Arohini, Avarohini and so on by its lord's position. Distinct from Vimsottari.",
+    system: "parashari",
+  },
   "bj-cross": {
     term: "Cross-check with Brihat Jataka",
     short:

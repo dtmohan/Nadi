@@ -93,8 +93,13 @@ import { computeSudarshana } from "@shared/sudarshana";
 import { computeKarmajiva } from "@shared/karmajiva";
 import { KarmajivaSection } from "@/components/karmajiva";
 import { computeAyurdaya, formatYears } from "@shared/ayurdaya";
+import { computeBalarishta } from "@shared/balarishta";
+import { computeBjDasa, type DasaScheme } from "@shared/bj-dasa";
+import { naturalBenefic, ruleAspect } from "@shared/parashari";
 import { AYUR_RANGE, AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
 import { AyurdayaSection } from "@/components/ayurdaya";
+import { BalarishtaSection } from "@/components/balarishta";
+import { BjDasaSection } from "@/components/bj-dasa";
 import { SudarshanaSection } from "@/components/sudarshana";
 import { compareSudarshanaEvents } from "@shared/sudarshana-events";
 import { computePortions } from "@shared/portions";
@@ -293,6 +298,36 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
     if (!birth.isValid || !now.isValid) return undefined;
     return now.diff(birth, "years").years;
   }, [result.utc, asOfIso]);
+  const balarishta = useMemo(
+    () =>
+      computeBalarishta(
+        positions,
+        result.jaimini.lagna.lon,
+        { aspect: ruleAspect(aspectFloor), benefic: naturalBenefic },
+        r.shadbala,
+      ),
+    [positions, result.jaimini.lagna.lon, r.shadbala, aspectFloor],
+  );
+  const [dasaScheme, setDasaScheme] = useState<DasaScheme>("amsa");
+  const bjDasa = useMemo(
+    () =>
+      computeBjDasa(
+        positions,
+        result.jaimini.lagna.lon,
+        ayurdaya,
+        dasaScheme,
+        r.shadbala,
+        ageYears,
+      ),
+    [
+      positions,
+      result.jaimini.lagna.lon,
+      ayurdaya,
+      dasaScheme,
+      r.shadbala,
+      ageYears,
+    ],
+  );
   const ayurOthers = useMemo(
     () => [
       {
@@ -971,6 +1006,25 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           a={ayurdaya}
           ageYears={ageYears}
           otherEstimates={ayurOthers}
+        />
+      </Working>
+      <Working
+        id="parashari-balarishta"
+        label="Show the infant-death combinations (Brihat Jataka 6)"
+        className="mt-8"
+      >
+        <BalarishtaSection b={balarishta} ageYears={ageYears} />
+      </Working>
+      <Working
+        id="parashari-bj-dasa"
+        label="Show the planetary-year dasas (Brihat Jataka 8)"
+        className="mt-8"
+      >
+        <BjDasaSection
+          d={bjDasa}
+          ageYears={ageYears}
+          scheme={dasaScheme}
+          onScheme={setDasaScheme}
         />
       </Working>
       <Working

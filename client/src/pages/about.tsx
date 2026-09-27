@@ -1708,6 +1708,222 @@ function ParashariMethod() {
           </a>
           , BPHS 3.31) are listed for reference only.
         </li>
+        <li>
+          <strong>Balarishta (Brihat Jataka 6)</strong>: the twelve verses of
+          Varahamihira's chapter on death in infancy, tested on the chart as a
+          second witness beside Parashara's chapter 9 evils. The twilight and
+          hora birth and the Moon with three malefics in the kendras (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501661.html"
+            {...ext}
+          >
+            6.1
+          </a>
+          ), Cancer or Scorpio rising with the malefics east and benefics west
+          and the malefic pairs in 12/2 or 6/8 (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501662.html"
+            {...ext}
+          >
+            6.2
+          </a>
+          ), malefics in the lagna, 7th and Moon's sign (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501663.html"
+            {...ext}
+          >
+            6.3
+          </a>
+          ), the waning Moon in the 12th (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501664.html"
+            {...ext}
+          >
+            6.4
+          </a>
+          ), the Moon with a malefic in 1, 7, 8 or 12 (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501665.html"
+            {...ext}
+          >
+            6.5
+          </a>
+          ), the Moon in the 6th or 8th with the stated terms of eight and four
+          years (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501666.html"
+            {...ext}
+          >
+            6.6
+          </a>
+          ), the hemmed Moon and the mother-and-child clause (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501667.html"
+            {...ext}
+          >
+            6.7
+          </a>
+          ), the last navamsa and malefics in 5 and 9 (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501668.html"
+            {...ext}
+          >
+            6.8
+          </a>
+          ), the eclipsed luminary with Mars in the 8th (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501669.html"
+            {...ext}
+          >
+            6.9
+          </a>
+          ), Saturn 12, Sun 9, Moon 1, Mars 8 (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501670.html"
+            {...ext}
+          >
+            6.10
+          </a>
+          ), the Moon with a malefic in six places without a strong Venus,
+          Mercury or Jupiter (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501671.html"
+            {...ext}
+          >
+            6.11
+          </a>
+          ) and the timing by the Moon's return (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501672.html"
+            {...ext}
+          >
+            6.12
+          </a>
+          , transit, not computed). Verse text from Neely and Iyer 1885 (pp.
+          53-58), the Sanskrit checked in the Adyar edition (pp. 310-327; Adyar
+          splits 6.2 so its numbering runs one ahead). The readings of twilight,
+          the eastern half, the eclipsed luminary and the hemming are marked
+          provisional in the tab; the sixteen counteracting yogas printed by
+          Iyer (pp. 58-59) are the commentator's and are shown provisional
+          throughout.
+        </li>
+        <li>
+          <strong>Dasa and antardasa (Brihat Jataka 8)</strong>: Varahamihira's
+          own planetary periods on the years of chapter 7, distinct from
+          Vimsottari and shown beside it. Order from the strongest of lagna, Sun
+          and Moon, then kendras, panapharas and apoklimas (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501687.html"
+            {...ext}
+          >
+            8.1
+          </a>
+          ,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501688.html"
+            {...ext}
+          >
+            8.2
+          </a>
+          ), antardasa shares 1, 1/2, 1/3, 1/7 and 1/4 over a common denominator
+          (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501689.html"
+            {...ext}
+          >
+            8.3
+          </a>
+          ,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501690.html"
+            {...ext}
+          >
+            8.4
+          </a>
+          ), the grades Sampurna, Rikta and Anishta (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501691.html"
+            {...ext}
+          >
+            8.5
+          </a>
+          ), Avarohini, Madhyama, Arohini and Adhama (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501692.html"
+            {...ext}
+          >
+            8.6
+          </a>
+          ), Misraphala (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501693.html"
+            {...ext}
+          >
+            8.7
+          </a>
+          ), the lagna dasa by drekkana (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501694.html"
+            {...ext}
+          >
+            8.8
+          </a>
+          ), the natural dasas of 1, 2, 9, 20, 18, 20 and 50 years (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501695.html"
+            {...ext}
+          >
+            8.9
+          </a>
+          ), the results of each planet's dasa (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501698.html"
+            {...ext}
+          >
+            8.12
+          </a>{" "}
+          to{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501704.html"
+            {...ext}
+          >
+            8.18
+          </a>
+          ) and the reading rules (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501705.html"
+            {...ext}
+          >
+            8.19
+          </a>{" "}
+          to{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501709.html"
+            {...ext}
+          >
+            8.23
+          </a>
+          ). Verse text from Neely and Iyer 1885 (pp. 77-90), the Sanskrit
+          checked in the Adyar edition (pp. 369-425). Provisional: the strength
+          of the lagna for 8.1 (Bhava bala), the place of the lagna dasa when
+          the lagna is not the reference, the commentator's Purna and sign-only
+          Rikta, and the reading of the grade names as benefic, malefic or mixed
+          (Iyer p. 81 note d). The commencement rules (
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501696.html"
+            {...ext}
+          >
+            8.10
+          </a>
+          ,{" "}
+          <a
+            href="https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/doc1501697.html"
+            {...ext}
+          >
+            8.11
+          </a>
+          ) are not computed.
+        </li>
       </ul>
       <h2>Not yet here</h2>
       <p>
