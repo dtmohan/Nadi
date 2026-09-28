@@ -100,7 +100,7 @@ function Chakra({
   return (
     <svg
       viewBox="0 0 460 460"
-      className="mx-auto w-full max-w-[26rem]"
+      className="mx-auto w-full max-w-[44rem]"
       role="img"
       aria-label="Sudarshana chakra"
       data-testid="sudarshana-chakra"
@@ -421,10 +421,11 @@ export function SudarshanaSection({
         {s.applicabilityText} <SourceLink source={src.applicability} />
       </p>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,26rem)_1fr] md:items-start">
+      {/* The wheel takes the full width and the bhava card sits under it, so the three rings can be read. */}
+      <div className="mt-4 flex flex-col gap-4">
         <div>
           <Chakra s={s} selected={sel} onSelect={setSel} />
-          <p className="mt-1 text-center text-2xs text-muted-foreground">
+          <p className="mx-auto mt-2 max-w-[44rem] text-center text-2xs text-muted-foreground">
             Inner ring from the lagna, middle from the Moon, outer from the Sun.
             Bhava 1 at the top, counting anticlockwise. Tint shows the bhava's
             verdict; the outer mark is the current year's bhava
