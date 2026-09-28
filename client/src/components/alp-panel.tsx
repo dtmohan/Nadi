@@ -1,3 +1,4 @@
+import { sensitiveGate } from "@shared/life-stage";
 import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { Cite } from "@/components/source-link";
@@ -161,8 +162,18 @@ export function AlpPanel({ result }: { result: ChartResult }) {
       result.utc,
       iso,
       config,
+      result.sensitive?.withheld ??
+        sensitiveGate(chart, result.utc, result.now.asOf).withheld,
     );
-  }, [asOf, positions, result.jaimini.lagna.lon, result.utc, chart.timezone]);
+  }, [
+    asOf,
+    positions,
+    result.jaimini.lagna.lon,
+    result.utc,
+    chart,
+    result.sensitive,
+    result.now.asOf,
+  ]);
 
   const alpLord = a.point.lord;
   const plain = usePlain();

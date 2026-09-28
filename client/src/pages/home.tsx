@@ -7,7 +7,7 @@ import { PlanetName } from "@/components/planet-name";
 import { SIGNS, type Planet } from "@shared/astro";
 import { Trash2, ArrowRight, Loader2, Download, Upload } from "lucide-react";
 import { PlaceSearch } from "@/components/place-search";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
   chartsStore,
   useSavedCharts,
@@ -29,6 +29,7 @@ import {
   AYANAMSAS,
   SUNRISE_DEFINITIONS,
   type Chart,
+  type ChartResult,
   type GeoHit,
   type InsertChart,
 } from "@shared/schema";
@@ -231,8 +232,16 @@ export default function Home() {
   const create = useMutation({
     mutationFn: async (data: InsertChart) => {
       // The server validates and computes; the chart itself is kept in this browser only.
-      await apiRequest("POST", "/api/compute", data);
-      return await chartsStore.create(data);
+      const result = (await (
+        await apiRequest("POST", "/api/compute", data)
+      ).json()) as ChartResult;
+      const chart = await chartsStore.create(data);
+      // Hand the computed result to the chart page so the cast is not computed twice.
+      queryClient.setQueryData(["chart-result", String(chart.id)], {
+        ...result,
+        chart,
+      });
+      return chart;
     },
     onSuccess: (chart: Chart) => navigate(`/chart/${chart.id}`),
     onError: (e: Error) =>

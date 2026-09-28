@@ -28,6 +28,8 @@ import {
   HOUSE_AREA,
   KP_EVENT_AREA,
   lifeAsOf,
+  sensitiveGate,
+  redactProse,
 } from "@shared/life-stage";
 import {
   scoreWindows,
@@ -475,8 +477,16 @@ export function KpPanel({ result }: { result: ChartResult }) {
   const judgeZone = judge?.timezone ?? chart.timezone;
   const judgeLabel = judge?.label ?? chart.place;
   const kp = useMemo(
-    () => computeKp(kpBase, result.utc, asOfIso, sixStep),
-    [kpBase, result.utc, asOfIso, sixStep],
+    () =>
+      computeKp(
+        kpBase,
+        result.utc,
+        asOfIso,
+        sixStep,
+        result.sensitive?.withheld ??
+          sensitiveGate(chart, result.utc, asOfIso).withheld,
+      ),
+    [kpBase, result.utc, asOfIso, sixStep, result.sensitive, chart],
   );
   const sig = useMemo(() => significatorMap(kp, sixStep), [kp, sixStep]);
   const ev = EVENTS.find((e) => e.id === event) ?? EVENTS[0];
@@ -630,10 +640,13 @@ export function KpPanel({ result }: { result: ChartResult }) {
     kp.planets
       .filter((p) => (sig.get(p.planet) ?? []).some((h) => houses.includes(h)))
       .map((p) => p.planet);
+  // Under the sensitive-content gate the cusp themes lose their longevity and maraka items and the maraka tag is not shown.
+  const cuspTheme = (h: number) =>
+    kp.withheld ? redactProse(KP_CUSP_THEMES[h]) : KP_CUSP_THEMES[h];
   const houseLabel = (h: number) =>
     h === kp.badhaka
       ? `${h} (badhaka)`
-      : kp.marakas.includes(h)
+      : kp.marakas.includes(h) && !kp.withheld
         ? `${h} (maraka)`
         : `${h}`;
   const briefFindings = kp.findings.filter(
@@ -672,7 +685,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
       if (!f) continue;
       out.push({
         planets: [f.subLord],
-        label: `${ordinal(h)} house · ${KP_CUSP_THEMES[h].split(",")[0]}`,
+        label: `${ordinal(h)} house · ${cuspTheme(h).split(",")[0]}`,
         text: firstClause(gist(f.text)),
         tone: f.polarity === "good" ? "good" : "bad",
       });
@@ -684,7 +697,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
   const themeList = (hs: number[]) => {
     const names = hs
       .slice(0, 3)
-      .map((h) => KP_CUSP_THEMES[h].split(",")[0].toLowerCase());
+      .map((h) => cuspTheme(h).split(",")[0].toLowerCase());
     const more = hs.length - names.length;
     const base =
       names.length <= 1
@@ -694,10 +707,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
   };
   const listHouses = (hs: number[]) =>
     hs
-      .map(
-        (h) =>
-          `${ordinal(h)} (${KP_CUSP_THEMES[h].split(",")[0].toLowerCase()})`,
-      )
+      .map((h) => `${ordinal(h)} (${cuspTheme(h).split(",")[0].toLowerCase()})`)
       .join(", ");
 
   return (
@@ -745,8 +755,8 @@ export function KpPanel({ result }: { result: ChartResult }) {
         >
           <Term k="kp-badhaka">{plain ? "Obstructing house" : "Badhaka"}</Term>
           &nbsp;{kp.badhaka}th
-          {plain ? "" : ` (${kp.lagnaQuality.toLowerCase()} lagna)`} ·{" "}
-          {plain ? "harming houses" : "marakas"} 2, 7
+          {plain ? "" : ` (${kp.lagnaQuality.toLowerCase()} lagna)`}
+          {kp.withheld ? "" : ` · ${plain ? "harming houses" : "marakas"} 2, 7`}
         </Badge>
         <Badge
           variant="outline"
@@ -1206,8 +1216,9 @@ export function KpPanel({ result }: { result: ChartResult }) {
                 {levels
                   .map((lv) => `${lv} ${KP_TYPE_LEVEL_LABEL[lv].toLowerCase()}`)
                   .join(" · ")}
-                . Bold in the last column: the badhaka ({kp.badhaka}) and maraka
-                (2, 7) houses.
+                . Bold in the last column: the badhaka ({kp.badhaka})
+                {kp.withheld ? "" : " and maraka (2, 7)"} house
+                {kp.withheld ? "" : "s"}.
               </p>
             </div>
             <div>
@@ -1323,7 +1334,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                       ? `${ordinal(c.house)} house`
                       : `Cusp ${ROMAN[c.house - 1]}`}{" "}
                     <span className="font-normal text-muted-foreground">
-                      · {KP_CUSP_THEMES[c.house]}
+                      · {cuspTheme(c.house)}
                     </span>
                   </h3>
                   <span className="inline-flex flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground">

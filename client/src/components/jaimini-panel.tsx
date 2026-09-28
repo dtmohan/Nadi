@@ -31,6 +31,7 @@ import {
   JAIMINI_TEXT_SOURCE,
 } from "@shared/rules-jaimini";
 import { AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
+import { SENSITIVE_WITHHELD_NOTE, sensitiveGate } from "@shared/life-stage";
 import { Working } from "@/components/working";
 import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 import { readAreas, currentFor, isHot } from "@shared/jaimini-areas";
@@ -80,7 +81,13 @@ const PLAIN_KARAKA: Record<string, string> = {
 function JaiminiVerdict({ result }: { result: ChartResult }) {
   const { jaimini: j, positions } = result;
   const asOf = result.now.asOf;
-  const allAreas = useMemo(() => readAreas(j, positions), [j, positions]);
+  const withheld =
+    result.sensitive?.withheld ??
+    sensitiveGate(result.chart, result.utc, asOf).withheld;
+  const allAreas = useMemo(
+    () => readAreas(j, positions, withheld),
+    [j, positions, withheld],
+  );
   // Areas not yet in season at the native's age are held out of the verdict (the Jaimini "children" area also carries learning, so it stays).
   const deferred = allAreas
     .map((a) => a.area)
@@ -423,7 +430,12 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
   const tlWindows = useMemo<TlWindow[]>(() => {
     // One thin lane per life area; a mahadasha is drawn when it carries the area at Rao's threshold, darker the more triggers it has.
     const out: TlWindow[] = [];
-    readAreas(j, positions).forEach((a, lane) => {
+    readAreas(
+      j,
+      positions,
+      result.sensitive?.withheld ??
+        sensitiveGate(result.chart, result.utc, result.now.asOf).withheld,
+    ).forEach((a, lane) => {
       const max = Math.max(1, ...a.timing.periods.map((p) => p.score));
       for (const p of a.timing.periods) {
         if (!isHot(p.triggers)) continue;
@@ -1294,123 +1306,137 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             }}
           />
         </p>
-        <Working id="ayur" label="Show the classification" className="mt-3">
-          <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_20rem]">
-            <ul className="divide-y sm:hidden">
-              {j.ayur.pairs.map((p) => (
-                <li key={p.id} className="py-2.5 text-sm">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span>
-                      {p.label}{" "}
-                      <span className="text-xs text-muted-foreground">
-                        ({p.sutra})
-                      </span>
-                    </span>
-                    <span className="shrink-0 text-xs text-muted-foreground">
-                      {AYUR_TERM_LABEL[p.term]}
-                    </span>
-                  </div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">
-                    {p.a.planet ? `${p.a.planet} in ` : ""}
-                    {p.a.sign} ({p.a.nature}) ·{" "}
-                    {p.b.planet ? `${p.b.planet} in ` : ""}
-                    {p.b.sign} ({p.b.nature})
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div className="hidden sm:block">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Pair</TableHead>
-                    <TableHead>First</TableHead>
-                    <TableHead>Second</TableHead>
-                    <TableHead>Reads as</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {j.ayur.pairs.map((p) => (
-                    <TableRow key={p.id} data-testid={`ayur-pair-${p.id}`}>
-                      <TableCell className="text-sm">
+        {!j.ayur || plain ? (
+          <p
+            className="mt-3 max-w-3xl text-sm text-muted-foreground"
+            data-testid="jaimini-ayur-gate"
+          >
+            {!j.ayur
+              ? SENSITIVE_WITHHELD_NOTE
+              : "Shown in the practitioner reading only."}
+          </p>
+        ) : (
+          <Working id="ayur" label="Show the classification" className="mt-3">
+            <div className="mt-4 grid gap-6 lg:grid-cols-[1fr_20rem]">
+              <ul className="divide-y sm:hidden">
+                {j.ayur.pairs.map((p) => (
+                  <li key={p.id} className="py-2.5 text-sm">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span>
                         {p.label}{" "}
                         <span className="text-xs text-muted-foreground">
                           ({p.sutra})
                         </span>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {p.a.planet ? `${p.a.planet} in ` : ""}
-                        {p.a.sign}{" "}
-                        <span className="text-xs text-muted-foreground">
-                          {p.a.nature}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {p.b.planet ? `${p.b.planet} in ` : ""}
-                        {p.b.sign}{" "}
-                        <span className="text-xs text-muted-foreground">
-                          {p.b.nature}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-sm">
+                      </span>
+                      <span className="shrink-0 text-xs text-muted-foreground">
                         {AYUR_TERM_LABEL[p.term]}
-                      </TableCell>
+                      </span>
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">
+                      {p.a.planet ? `${p.a.planet} in ` : ""}
+                      {p.a.sign} ({p.a.nature}) ·{" "}
+                      {p.b.planet ? `${p.b.planet} in ` : ""}
+                      {p.b.sign} ({p.b.nature})
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div className="hidden sm:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Pair</TableHead>
+                      <TableHead>First</TableHead>
+                      <TableHead>Second</TableHead>
+                      <TableHead>Reads as</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-            <Card>
-              <CardContent className="p-4 text-sm">
-                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Classification
-                </div>
-                <div className="mt-1 font-medium" data-testid="text-ayur-term">
-                  {AYUR_TERM_LABEL[j.ayur.term]}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {j.ayur.range} in the classical scheme
-                </div>
-                <p className="mt-3 text-xs text-muted-foreground">
-                  Decided by: {j.ayur.decidedBy}.
-                </p>
-                {j.ayur.adjustments.length > 0 && (
-                  <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                    {j.ayur.adjustments.map((a, i) => (
-                      <li key={i}>
-                        <Soft>{a.text}</Soft>
-                      </li>
+                  </TableHeader>
+                  <TableBody>
+                    {j.ayur.pairs.map((p) => (
+                      <TableRow key={p.id} data-testid={`ayur-pair-${p.id}`}>
+                        <TableCell className="text-sm">
+                          {p.label}{" "}
+                          <span className="text-xs text-muted-foreground">
+                            ({p.sutra})
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {p.a.planet ? `${p.a.planet} in ` : ""}
+                          {p.a.sign}{" "}
+                          <span className="text-xs text-muted-foreground">
+                            {p.a.nature}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {p.b.planet ? `${p.b.planet} in ` : ""}
+                          {p.b.sign}{" "}
+                          <span className="text-xs text-muted-foreground">
+                            {p.b.nature}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {AYUR_TERM_LABEL[p.term]}
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </ul>
-                )}
-                {!j.ayur.hasHoraLagna && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    The Hora lagna could not be computed, so only the first two
-                    pairs are read.
+                  </TableBody>
+                </Table>
+              </div>
+              <Card>
+                <CardContent className="p-4 text-sm">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Classification
+                  </div>
+                  <div
+                    className="mt-1 font-medium"
+                    data-testid="text-ayur-term"
+                  >
+                    {AYUR_TERM_LABEL[j.ayur.term]}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {j.ayur.range} in the classical scheme
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Decided by: {j.ayur.decidedBy}.
                   </p>
-                )}
-                {ageYears !== null &&
-                  j.ayur.term === "short" &&
-                  ageYears > 32 && (
+                  {j.ayur.adjustments.length > 0 && (
+                    <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                      {j.ayur.adjustments.map((a, i) => (
+                        <li key={i}>
+                          <Soft>{a.text}</Soft>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {!j.ayur.hasHoraLagna && (
                     <p className="mt-2 text-xs text-muted-foreground">
-                      The chart's owner is already past this bracket, which the
-                      text itself anticipates: the classification is a rough
-                      sort, not a measure.
+                      The Hora lagna could not be computed, so only the first
+                      two pairs are read.
                     </p>
                   )}
-                {ageYears !== null &&
-                  j.ayur.term === "middle" &&
-                  ageYears > 66 && (
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      The chart's owner is already past this bracket, which the
-                      text itself anticipates: the classification is a rough
-                      sort, not a measure.
-                    </p>
-                  )}
-              </CardContent>
-            </Card>
-          </div>
-        </Working>
+                  {ageYears !== null &&
+                    j.ayur.term === "short" &&
+                    ageYears > 32 && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        The chart's owner is already past this bracket, which
+                        the text itself anticipates: the classification is a
+                        rough sort, not a measure.
+                      </p>
+                    )}
+                  {ageYears !== null &&
+                    j.ayur.term === "middle" &&
+                    ageYears > 66 && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        The chart's owner is already past this bracket, which
+                        the text itself anticipates: the classification is a
+                        rough sort, not a measure.
+                      </p>
+                    )}
+                </CardContent>
+              </Card>
+            </div>
+          </Working>
+        )}
       </section>
     </div>
   );

@@ -22,7 +22,7 @@ export const TIME_STANDARDS: {
   {
     id: "auto",
     label: "Automatic",
-    help: "Zone database, except before standard time, when the birthplace's own mean time is used; a short table of legal exceptions (Paris, Dublin, Amsterdam, Bombay, Calcutta) overrides both.",
+    help: "Zone database, except before standard time, when the birthplace's own mean time is used; a short table of legal exceptions (Paris, Dublin, Amsterdam, Bombay, Calcutta, India War Time) overrides both.",
   },
   {
     id: "zone",

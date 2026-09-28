@@ -125,6 +125,19 @@ export const LEGAL_TIME_RULES: LegalTimeRule[] = [
     source: { label: "IANA backzone, Europe/Amsterdam", url: BACKZONE },
   },
   {
+    id: "in-war-time",
+    zones: ["Asia/Kolkata", "Asia/Calcutta"],
+    // Bombay and Calcutta boxes together: elsewhere the database already carries War Time.
+    box: [18.85, 22.75, 72.75, 88.5],
+    from: "1942-09-01",
+    to: "1945-10-15",
+    kind: "zone",
+    label: "India War Time +6:30",
+    note: "Clocks across India were advanced one hour from 1 September 1942 to 15 October 1945, and Bombay followed the wartime standard too, so the municipal Bombay Time and Calcutta Time rows give way here. Astrodienst applies +6:30 to Indian births in this window. The database also carries an advance from October 1941 to May 1942 that its own maintainers call dubious; in that stretch the city rows below still apply.",
+    source: { label: "Time in India", url: WIKI("Time_in_India") },
+    provisional: true,
+  },
+  {
     id: "in-bombay",
     zones: ["Asia/Kolkata", "Asia/Calcutta"],
     box: [18.85, 19.35, 72.75, 73.1],
@@ -250,4 +263,4 @@ export function nethOffsetSeconds(civilIso: string): {
 }
 
 export const LEGAL_TIME_ABOUT =
-  "The automatic standard reads a database offset with leftover seconds as the reference city's mean time and substitutes the birthplace's own. A short table of legal exceptions overrides that where a national or municipal mean time was the clock in law: Greenwich time in Britain from 1880, Dublin Mean Time to 1916 (including Belfast), Paris Mean Time 1891-1911, Amsterdam time 1909-1940 with the Dutch summer rules, Bombay Time to 1955 and Calcutta Time to 1948. Each row names its source; the Indian rows are dated to the year only and are marked provisional.";
+  "The automatic standard reads a database offset with leftover seconds as the reference city's mean time and substitutes the birthplace's own. A short table of legal exceptions overrides that where a national or municipal mean time was the clock in law: Greenwich time in Britain from 1880, Dublin Mean Time to 1916 (including Belfast), Paris Mean Time 1891-1911, Amsterdam time 1909-1940 with the Dutch summer rules, Bombay Time to 1955 and Calcutta Time to 1948, both giving way to India War Time (+6:30) from 1 September 1942 to 15 October 1945, which Bombay followed as well. Each row names its source; the Indian rows are dated to the year only, rest on secondary accounts rather than the ACS or Astrodienst atlas, and are marked provisional.";

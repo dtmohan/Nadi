@@ -115,3 +115,114 @@ export function seasonStart(
   const today = asOfIso.slice(0, 10);
   return s.fromDate && s.fromDate > today ? s.fromDate : today;
 }
+
+// ---------------------------------------------------------------------------------------------
+// Sensitive-content gate. Length of life, maraka periods, arishta and the loss of a parent are
+// read only for a native of 18 or more (at the date of passing when one is recorded); for a
+// younger native the server and every computing module strip such statements before anything
+// is rendered, so one rule covers the API, the PDF, the report and every tab. The age bound is
+// a policy of this app, not a rule of the texts, and is marked provisional in the interface.
+
+import { isSensitive } from "./gentle";
+
+export const SENSITIVE_MIN_AGE = 18;
+
+export interface SensitiveGate {
+  /** True when sensitive statements are withheld for this native. */
+  withheld: boolean;
+  /** Age at the reading instant (the date of passing when recorded and past). */
+  ageYears: number;
+  minAge: number;
+}
+
+export function sensitiveGate(
+  chart: { deathDate?: string | null },
+  birthIso: string,
+  asOfIso: string,
+): SensitiveGate {
+  const age = ageYears(birthIso, lifeAsOf(chart, asOfIso));
+  return { withheld: age < SENSITIVE_MIN_AGE, ageYears: age, minAge: SENSITIVE_MIN_AGE };
+}
+
+export const SENSITIVE_WITHHELD_NOTE = `Length-of-life, maraka and arishta statements, and those on the loss of a parent, are not shown for a native under ${SENSITIVE_MIN_AGE}. The combinations remain in the chart and are read when the native comes of age (a policy of this app, provisional).`;
+
+/** Terms beyond the gentle map that mark a statement as withheld for a minor. */
+const MINOR_RE =
+  /\b(maraka|marakas|longevity|alpayu|madhyayu|purnayu|arishta|balarishta|span of life|length of life|life[- ]span|end of life|one's own end|demise|fatal|loss of (a |the |one's )?(father|mother|parent|parents)|(father|mother|parent)'s (death|passing|end|loss)|risk to life|threat to life|danger to life|killer)\b/i;
+
+/** True when a statement is withheld for a native under the gate age. */
+export function withholdText(text: string): boolean {
+  return MINOR_RE.test(text) || isSensitive(text);
+}
+
+/** Keys that hold identifiers or enumerations, never prose; left untouched by the redaction. */
+const KEEP_KEYS = new Set([
+  "id", "ruleId", "url", "kind", "layer", "tone", "verdict", "functional", "group", "polarity",
+  "chart", "lord", "planet", "planets", "sign", "signName", "karaka", "start", "end", "term",
+  "key", "subLord", "starLord", "source", "when", "area", "role", "level", "standing", "status",
+  "mode", "type", "house", "cusp", "verse", "verses", "ch", "label", "short", "name", "nakshatra",
+]);
+/** Keys whose object is dropped from a list when its own text is withheld. */
+const HEAD_KEYS = ["text", "title", "topic", "headline", "summary", "blurb", "matters"];
+
+/** A sentence that is a bare list of matters (three or more comma-separated items) loses only the offending items. */
+function stripSentence(p: string): string | null {
+  if (!withholdText(p)) return p;
+  const items = p.split(/,\s*/);
+  if (items.length < 3) return null;
+  const kept = items.filter((it) => !withholdText(it));
+  if (kept.length < 2) return null;
+  const tail = /[.;!?]$/.test(p) ? p.slice(-1) : "";
+  const joined = kept.join(", ").replace(/[.;!?]$/, "") + tail;
+  return /^[A-Z]/.test(p) ? joined.replace(/^./, (c) => c.toUpperCase()) : joined;
+}
+
+/** Prose with every withheld sentence removed (a bare list of matters loses only the offending items). */
+export function redactProse(s: string): string {
+  return stripSentences(s);
+}
+
+function stripSentences(s: string): string {
+  if (!withholdText(s)) return s;
+  const parts = s.split(/(?<=[.;!?])\s+/);
+  const kept = parts.map(stripSentence).filter((p): p is string => p !== null);
+  return kept.join(" ").trim();
+}
+
+/**
+ * Deep copy of `value` with every withheld statement removed: sentences are dropped from prose
+ * fields, strings are dropped from lists, and an object in a list is dropped when its heading
+ * text is entirely withheld. Identifiers and enumerations are kept. Used only when the gate is on.
+ */
+export function redactSensitive<T>(value: T, key?: string): T {
+  if (typeof value === "string") {
+    if (key && KEEP_KEYS.has(key)) return value;
+    const out = stripSentences(value);
+    if (out === "" && key === "maraka") return null as unknown as T;
+    return out as unknown as T;
+  }
+  if (Array.isArray(value)) {
+    const out: unknown[] = [];
+    for (const item of value) {
+      if (typeof item === "string") {
+        const s = stripSentences(item);
+        if (s) out.push(s);
+      } else if (item && typeof item === "object") {
+        const o = item as Record<string, unknown>;
+        const headed = HEAD_KEYS.some((k) => typeof o[k] === "string");
+        const dropped =
+          headed &&
+          HEAD_KEYS.some((k) => typeof o[k] === "string" && (o[k] as string) !== "" && stripSentences(o[k] as string) === "");
+        if (!dropped) out.push(redactSensitive(item));
+      } else out.push(item);
+    }
+    return out as unknown as T;
+  }
+  if (value && typeof value === "object") {
+    const o = value as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const k of Object.keys(o)) out[k] = KEEP_KEYS.has(k) && typeof o[k] !== "object" ? o[k] : redactSensitive(o[k], k);
+    return out as T;
+  }
+  return value;
+}

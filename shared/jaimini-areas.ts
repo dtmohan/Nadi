@@ -3,6 +3,7 @@
 // dasha sign is treated as a temporary lagna and the houses from it are read for the
 // area; the antardasha sign is read the same way. Pure functions over JaiminiResult.
 
+import { redactSensitive } from "./life-stage";
 import { DateTime } from "luxon";
 import { SUTRA_RULE_AREA } from "./rules-jaimini-sutras";
 import { SIGNS, SIGN_LORD, dignityOf, houseFrom, type Dignity, type Planet, type PlanetPosition } from "./astro";
@@ -542,7 +543,13 @@ export function dashaFitAt(j: JaiminiResult, positions: PlanetPosition[], area: 
 
 // ── Assembly ──────────────────────────────────────────────────────────────────
 
-export function readAreas(j: JaiminiResult, positions: PlanetPosition[]): AreaReading[] {
+/** Area readings; with `withhold` the sensitive-content gate (shared/life-stage.ts) strips longevity and maraka statements. */
+export function readAreas(j: JaiminiResult, positions: PlanetPosition[], withhold = false): AreaReading[] {
+  const out = readAreas0(j, positions);
+  return withhold ? redactSensitive(out) : out;
+}
+
+function readAreas0(j: JaiminiResult, positions: PlanetPosition[]): AreaReading[] {
   const ctx = makeCtx(j, positions);
   return JAIMINI_AREA_ORDER.map((area) => {
     const spec = JAIMINI_AREAS[area];

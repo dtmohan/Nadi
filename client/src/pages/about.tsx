@@ -563,6 +563,21 @@ export default function AboutPage() {
               lives that have run their course, and is never used to compute or
               show a forecast.
             </p>
+            <p>
+              For a native under eighteen a single gate on the server withholds
+              every statement on length of life, marakas, arishta and the loss
+              of a parent, whichever system it comes from and whichever way it
+              leaves the server: the computed reading, the PDF, the report and
+              every tab. The Jaimini Ayurdaya, Parashara's marakas and evils,
+              the Brihat Jataka lifespan and infancy blocks, the mother's and
+              father's points and the kin transits are held back whole; a period
+              effect or transit line that speaks of death is dropped from its
+              list, and a sentence on a maraka is removed from its paragraph.
+              The combinations remain in the chart and are read when the native
+              comes of age. The age is taken at the date the chart is read, or
+              at the recorded date of passing. Eighteen is the app's policy, not
+              a classical rule, and is marked provisional.
+            </p>
             <h2>The report</h2>
             <p>
               The Report button on a chart turns the whole reading into one

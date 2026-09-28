@@ -54,11 +54,13 @@ const GROUP_LABEL: Record<DasaEntry["group"], string> = {
 export function BjDasaSection({
   d,
   ageYears,
+  deceased = false,
   scheme,
   onScheme,
 }: {
   d: BjDasaResult;
   ageYears?: number;
+  deceased?: boolean;
   scheme: DasaScheme;
   onScheme: (s: DasaScheme) => void;
 }) {
@@ -146,7 +148,8 @@ export function BjDasaSection({
         </div>
         {ageYears !== undefined && (
           <div className="text-muted-foreground">
-            Present age {formatYears(ageYears)}
+            {deceased ? "Age at passing" : "Present age"}{" "}
+            {formatYears(ageYears)}
           </div>
         )}
       </div>

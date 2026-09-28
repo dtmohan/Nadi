@@ -5,6 +5,7 @@
  * results (BS 104.5-45, PD 26.9-24). Phaladeepika adds the vedha (obstruction) points (26.3-8), the dignity rule (26.31-32),
  * and the danger houses (26.33-34). Nothing here is Parashari: BPHS treats transit only through Ashtakavarga.
  */
+import { redactSensitive } from "./life-stage";
 import { houseFrom, type Planet, type PlanetPosition } from "./astro";
 
 export const BS_URL = "https://www.wisdomlib.org/hinduism/book/brihat-samhita/d/doc229368.html";
@@ -225,7 +226,7 @@ export interface GocharaReading {
 const STRONG = new Set(["Exalted", "Moolatrikona", "Own sign"]);
 const WEAK = new Set(["Debilitated", "Inimical"]);
 
-export function computeGochara(natalMoonSign: number, transits: PlanetPosition[], asOf: string): GocharaReading {
+export function computeGochara(natalMoonSign: number, transits: PlanetPosition[], asOf: string, withhold = false): GocharaReading {
   const bySign = (h: number) => transits.filter((p) => houseFrom(natalMoonSign, p.signIndex) === h).map((p) => p.planet);
   const rows: GocharaRow[] = transits.map((p) => {
     const house = houseFrom(natalMoonSign, p.signIndex);
@@ -280,7 +281,16 @@ export function computeGochara(natalMoonSign: number, transits: PlanetPosition[]
       vedhaSource: v.source,
     };
   });
-  return { moonSignIndex: natalMoonSign, asOf, rows, caveats: GOCHARA_CAVEATS };
+  const out: GocharaReading = { moonSignIndex: natalMoonSign, asOf, rows, caveats: GOCHARA_CAVEATS };
+  // The sensitive-content gate (shared/life-stage.ts) strips statements of death and danger to life for a minor.
+  if (!withhold) return out;
+  const r = redactSensitive(out);
+  for (const row of r.rows) {
+    if (row.effect.bs && !row.effect.bs.text) row.effect.bs = undefined;
+    if (row.effect.pd && !row.effect.pd.text) row.effect.pd = undefined;
+    if (row.danger && !row.danger.text) row.danger = undefined;
+  }
+  return r;
 }
 
 export const GOCHARA_CAVEATS: string[] = [

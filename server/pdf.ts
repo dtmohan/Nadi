@@ -19,6 +19,7 @@ import { nextChildWindow } from "@shared/children";
 import { CHARA_KARAKA_INFO, SAVYA, influencesOn, type CharaDashaPeriod } from "@shared/jaimini";
 import { JAIMINI_GROUP_LABEL } from "@shared/rules-jaimini";
 import { AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
+import { SENSITIVE_WITHHELD_NOTE, sensitiveGate } from "@shared/life-stage";
 import { JAIMINI_AREAS, RAO_SOURCE, currentFor, isHot, readAreas, type TransitTarget } from "@shared/jaimini-areas";
 import { TRANSIT_GRADE_LABEL, confirmTransits, summarizeTouches } from "@shared/jaimini-transit";
 import { computeAshtakavarga } from "@shared/ashtakavarga";
@@ -38,6 +39,7 @@ const PAPER = "#f4f0e6";
 const CLASSICAL = new Set<Planet>(["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]);
 
 let JEEVA: Planet = "Jupiter";
+let WITHHELD = false;
 function planetColor(p: Planet): string {
   if (p === JEEVA) return VERMILION;
   if (p === "Saturn") return INDIGO;
@@ -333,6 +335,10 @@ function jaiminiSection(doc: Doc, result: ChartResult) {
   // span of life (Jaimini 2.1), a classification, not a forecast
   ensureSpace(doc, 110);
   sectionTitle(doc, "Span of life (Ayurdaya)", "a classical classification, Jaimini Sutras 2.1.1-14 · not a forecast");
+  if (!j.ayur) {
+    doc.font("Helvetica").fontSize(8.5).fillColor(MUTED).text(SENSITIVE_WITHHELD_NOTE, PAGE.m, doc.y, { width: CONTENT_W });
+    return;
+  }
   doc.font("Helvetica").fontSize(8.5).fillColor(INK);
   for (const p of j.ayur.pairs) {
     const a = `${p.a.planet ? p.a.planet + " in " : ""}${p.a.sign} (${p.a.nature})`;
@@ -349,7 +355,7 @@ function jaiminiSection(doc: Doc, result: ChartResult) {
 }
 
 function jaiminiAreasSection(doc: Doc, result: ChartResult) {
-  const areas = readAreas(result.jaimini, result.positions);
+  const areas = readAreas(result.jaimini, result.positions, WITHHELD);
   const nowIso = result.now.asOf;
   const now = DateTime.fromISO(nowIso);
   const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
@@ -500,7 +506,7 @@ function panchangaSection(doc: Doc, result: ChartResult) {
 
   // gochara
   const moon = result.positions.find((p) => p.planet === "Moon")!;
-  const g = computeGochara(moon.signIndex, result.now.positions, result.now.asOf);
+  const g = computeGochara(moon.signIndex, result.now.positions, result.now.asOf, WITHHELD);
   ensureSpace(doc, 120);
   sectionTitle(doc, "Gochara from the natal Moon", `Brihat Samhita 104 · Phaladeepika 26 · planets as of ${DateTime.fromISO(result.now.asOf).setZone(zone).toFormat("d LLL yyyy HH:mm")}`);
   doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(
@@ -589,7 +595,7 @@ function panchangaSection(doc: Doc, result: ChartResult) {
     doc.y = mhy + 10;
     doc.moveTo(PAGE.m, doc.y - 2).lineTo(PAGE.w - PAGE.m, doc.y - 2).lineWidth(0.4).strokeColor(RULE).stroke();
     for (const m of firstYear) {
-      const r = solarMonthReading(av, m.signIndex);
+      const r = solarMonthReading(av, m.signIndex, WITHHELD);
       const mtext = `${r.sarva} · ${r.effect}${r.remedy ? ` · remedy: ${r.remedy}` : ""}`;
       doc.font("Helvetica").fontSize(7.5);
       const h = Math.max(11, doc.heightOfString(mtext, { width: CONTENT_W - (mcols[4] - PAGE.m) }) + 3);
@@ -681,6 +687,8 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   const doc = new PDFDocument({ size: "A4", margins: { top: PAGE.m, bottom: 20, left: PAGE.m, right: PAGE.m }, bufferPages: true, info: { Title: `${result.chart.name} — Nadi reading`, Author: "Nadi" } });
   const { chart, positions, reading, transits, now } = result;
   JEEVA = reading.roles.native;
+  // The sensitive-content gate for this native (shared/life-stage.ts); the server has already stripped its own material.
+  WITHHELD = result.sensitive?.withheld ?? sensitiveGate(chart, result.utc, now.asOf).withheld;
   const birthLocal = displayLocal(result.utc, result.timeBasis, chart.timezone);
   const birthStr = birthLocal.toFormat("d LLLL yyyy, HH:mm");
 

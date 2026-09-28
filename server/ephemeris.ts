@@ -130,14 +130,10 @@ export function jdToIso(jd: number): string {
     minute: number;
     second: number;
   };
-  return DateTime.utc(
-    r.year,
-    r.month,
-    r.day,
-    r.hour,
-    r.minute,
-    Math.floor(r.second),
-  ).toISO()!;
+  // Nearest second, not the floor: UT1-to-UTC conversion leaves a fraction that truncation turned into a one-second drift.
+  return DateTime.utc(r.year, r.month, r.day, r.hour, r.minute, 0)
+    .plus({ seconds: Math.round(r.second) })
+    .toISO()!;
 }
 
 function siderealLon(

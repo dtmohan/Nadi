@@ -307,7 +307,10 @@ export function RectifyPanel({ result }: { result: ChartResult }) {
   const { chart } = result;
   const { toast } = useToast();
   const [, navigate] = useLocation();
-  const [method, setMethod] = useState<RectifyMethod>("kp-rp");
+  // Open on the dated events when the chart has any: that method can be checked against chance; the ruling planets cannot.
+  const [method, setMethod] = useState<RectifyMethod>(
+    chart.events?.length ? "kp-events" : "kp-rp",
+  );
   const m = METHODS.find((x) => x.id === method)!;
   const [windowMinutes, setWindowMinutes] = useState(30);
   const [sortByScore, setSortByScore] = useState(false);

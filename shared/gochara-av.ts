@@ -4,6 +4,7 @@
 // Ashtakavarga (BPHS 66.70-72; Saturn again in 70.43-44) and from the aggregate count of the sign (72.3-5).
 // Rahu and Ketu have no Ashtakavarga of their own (the eight contributors are the seven planets and the lagna),
 // so for them only the aggregate is shown.
+import { redactSensitive } from "./life-stage";
 import type { Planet } from "./astro";
 import type { AshtakavargaResult } from "./ashtakavarga";
 import type { BalaSource } from "./shadbala";
@@ -155,6 +156,22 @@ export function functionsVerdict(sunRekhas: number): FunctionsVerdict {
 }
 
 export function solarMonthReading(
+  av: AshtakavargaResult,
+  signIndex: number,
+  withhold = false,
+): SolarMonthReading {
+  const out = solarMonthReading0(av, signIndex);
+  // The sensitive-content gate (shared/life-stage.ts) strips the effects that speak of death for a minor.
+  if (!withhold) return out;
+  const r = redactSensitive(out);
+  if (!r.effect) {
+    r.effect = "effect not shown for a native under 18";
+    r.remedy = undefined;
+  }
+  return r;
+}
+
+function solarMonthReading0(
   av: AshtakavargaResult,
   signIndex: number,
 ): SolarMonthReading {

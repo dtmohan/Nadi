@@ -1,3 +1,4 @@
+import { sensitiveGate } from "@shared/life-stage";
 import { displayLocal } from "@shared/time-basis";
 import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
@@ -394,19 +395,24 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
   );
 
   const natalMoon = result.positions.find((p) => p.planet === "Moon")!;
+  const withheld =
+    result.sensitive?.withheld ??
+    sensitiveGate(chart, result.utc, result.now.asOf).withheld;
   const gochara = useMemo(() => {
     if (dayQuery.data)
       return computeGochara(
         natalMoon.signIndex,
         dayQuery.data.positions,
         dayQuery.data.day.sunrise,
+        withheld,
       );
     return computeGochara(
       natalMoon.signIndex,
       result.now.positions,
       result.now.asOf,
+      withheld,
     );
-  }, [dayQuery.data, natalMoon.signIndex, result.now]);
+  }, [dayQuery.data, natalMoon.signIndex, result.now, withheld]);
   const gocharaAt = dayQuery.data
     ? `sunrise ${fmtDT(dayQuery.data.day.sunrise, place.timezone)} at ${place.label}`
     : `${fmtDT(result.now.asOf, chart.timezone)} at ${chart.place}`;

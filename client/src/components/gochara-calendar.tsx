@@ -1,3 +1,4 @@
+import { sensitiveGate } from "@shared/life-stage";
 import { Fragment, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
@@ -130,10 +131,12 @@ function SolarMonths({
   cal,
   zone,
   av,
+  withheld,
 }: {
   cal: Calendar;
   zone: string;
   av: AshtakavargaResult;
+  withheld: boolean;
 }) {
   const months = useMemo(() => solarMonths(cal), [cal]);
   if (!months.length) return null;
@@ -172,7 +175,7 @@ function SolarMonths({
           </thead>
           <tbody>
             {months.map((m, i) => {
-              const r = solarMonthReading(av, m.signIndex);
+              const r = solarMonthReading(av, m.signIndex, withheld);
               return (
                 <tr
                   key={i}
@@ -521,6 +524,9 @@ export function GocharaCalendarSection({
   zone: string;
 }) {
   const chart = result.chart;
+  const withheld =
+    result.sensitive?.withheld ??
+    sensitiveGate(chart, result.utc, result.now.asOf).withheld;
   const natalMoon = result.positions.find((p) => p.planet === "Moon")!;
   const av = useMemo(
     () =>
@@ -709,7 +715,7 @@ export function GocharaCalendarSection({
               </div>
             )}
 
-            <SolarMonths cal={cal} zone={zone} av={av} />
+            <SolarMonths cal={cal} zone={zone} av={av} withheld={withheld} />
 
             {upcoming.length > 0 && (
               <div

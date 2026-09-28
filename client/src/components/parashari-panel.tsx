@@ -1,4 +1,11 @@
-import { isDeceased, lifeAsOf } from "@shared/life-stage";
+import {
+  isDeceased,
+  lifeAsOf,
+  sensitiveGate,
+  redactSensitive,
+  redactProse,
+  SENSITIVE_WITHHELD_NOTE,
+} from "@shared/life-stage";
 import { GentleNote, Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
@@ -192,6 +199,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const asOfIso = result.now.asOf;
   const [aspectFloor, setAspectFloor] =
     useState<AspectFloor>(DEFAULT_ASPECT_FLOOR);
+  // The sensitive-content gate comes from the server; older cached results fall back to the same rule computed here.
+  const withheld =
+    result.sensitive?.withheld ??
+    sensitiveGate(chart, result.utc, asOfIso).withheld;
   const r = useMemo(
     () =>
       computeParashari(
@@ -202,6 +213,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         result.shadbala,
         result.dasaStarts,
         aspectFloor,
+        withheld,
       ),
     [
       positions,
@@ -211,6 +223,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       result.shadbala,
       result.dasaStarts,
       aspectFloor,
+      withheld,
     ],
   );
   const fatherArishta = useMemo(
@@ -227,26 +240,26 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         : undefined,
     [result.fatherArishta, r, result.utc, asOfIso],
   );
-  const motherPoint = useMemo(
-    () =>
-      readMotherPoint(
-        r.ashtakavarga,
-        result.transits,
-        result.saturnNakshatras,
-        result.moonMonth,
-        r.dasaReadings,
-        result.utc,
-        asOfIso,
-      ),
-    [
-      r,
+  const motherPoint = useMemo(() => {
+    const m = readMotherPoint(
+      r.ashtakavarga,
       result.transits,
       result.saturnNakshatras,
       result.moonMonth,
+      r.dasaReadings,
       result.utc,
       asOfIso,
-    ],
-  );
+    );
+    return withheld ? redactSensitive(m) : m;
+  }, [
+    r,
+    result.transits,
+    result.saturnNakshatras,
+    result.moonMonth,
+    result.utc,
+    asOfIso,
+    withheld,
+  ]);
   const kinTransits = useMemo(
     () =>
       readKinTransits(
@@ -255,8 +268,9 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         result.fastTransits,
         r.shadbala,
         asOfIso,
+        withheld,
       ),
-    [r, positions, result.fastTransits, asOfIso],
+    [r, positions, result.fastTransits, asOfIso, withheld],
   );
   const avTimeline = useMemo(
     () =>
@@ -269,6 +283,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         asOfIso,
       ),
     [r, result.transits, result.saturnNakshatras, result.utc, asOfIso],
+  );
+  const avTimelineShown = useMemo(
+    () => (withheld ? redactSensitive(avTimeline) : avTimeline),
+    [avTimeline, withheld],
   );
   const vargas = useMemo(
     () => computeVargas(positions, result.jaimini.lagna.lon),
@@ -339,12 +357,16 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         label: "Ashtakavarga",
         value: formatYears(r.ashtakavarga.ayurdaya),
       },
-      {
-        label: "Jaimini",
-        value: `${AYUR_TERM_LABEL[result.jaimini.ayur.term]}, ${AYUR_RANGE[result.jaimini.ayur.term]}`,
-      },
+      ...(result.jaimini.ayur
+        ? [
+            {
+              label: "Jaimini",
+              value: `${AYUR_TERM_LABEL[result.jaimini.ayur.term]}, ${AYUR_RANGE[result.jaimini.ayur.term]}`,
+            },
+          ]
+        : []),
     ],
-    [r.ashtakavarga.ayurdaya, result.jaimini.ayur.term],
+    [r.ashtakavarga.ayurdaya, result.jaimini.ayur],
   );
   const sudarshana = useMemo(
     () =>
@@ -647,7 +669,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                   url: BPHS_URL(34),
                 }}
               />
-              . {nature.note}
+              . {withheld ? redactProse(nature.note) : nature.note}
               {nature.byRule?.length ? (
                 <>
                   {" "}
@@ -695,7 +717,9 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                       ROLE_CLASS[n.functional],
                     )}
                   >
-                    {n.functional}
+                    {n.functional === "maraka" && withheld
+                      ? "2nd/7th lord"
+                      : n.functional}
                   </span>
                   {n.naturalBenefic && (
                     <span className="ml-1 text-xs text-muted-foreground">
@@ -1077,7 +1101,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                             ROLE_CLASS[d.functional],
                           )}
                         >
-                          {roleLabel(d.functional)}
+                          {roleLabel(d.functional, r.withheld)}
                         </span>
                         {d.summary}
                       </TableCell>
@@ -1111,20 +1135,23 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             <RasiDasasSection d={r.rasiDasas} />
 
             <KalachakraSection k={r.kalachakra} />
-            <Working
-              id="parashari-bj-dasa"
-              label="Show the planetary-year dasas (Brihat Jataka 8)"
-              className="mt-8"
-            >
-              <BjDasaSection
-                d={bjDasa}
-                ageYears={ageYears}
-                scheme={dasaScheme}
-                onScheme={setDasaScheme}
-              />
-            </Working>
+            {!withheld && (
+              <Working
+                id="parashari-bj-dasa"
+                label="Show the planetary-year dasas (Brihat Jataka 8)"
+                className="mt-8"
+              >
+                <BjDasaSection
+                  d={bjDasa}
+                  ageYears={ageYears}
+                  deceased={deceased}
+                  scheme={dasaScheme}
+                  onScheme={setDasaScheme}
+                />
+              </Working>
+            )}
             <AvTimelineSection
-              tl={avTimeline}
+              tl={avTimelineShown}
               asOfIso={asOfIso}
               arishta={fatherArishta}
               mother={motherPoint}
@@ -1177,7 +1204,11 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         label="Show the sign-by-sign points table (Ashtakavarga)"
         className="mt-8"
       >
-        <AshtakavargaSection av={r.ashtakavarga} lagnaIdx={r.lagna.signIndex} />
+        <AshtakavargaSection
+          av={r.ashtakavarga}
+          lagnaIdx={r.lagna.signIndex}
+          withheld={withheld}
+        />
       </Working>
       <Working
         id="parashari-karmajiva"
@@ -1187,7 +1218,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         <KarmajivaSection k={karmajiva} />
       </Working>
       {/* Length-of-life and infancy checks: practitioner reading only, and never for a chart under 18. */}
-      {!plain && ageYears !== undefined && ageYears >= 18 ? (
+      {!plain && !withheld ? (
         <>
           <Working
             id="parashari-ayurdaya"
@@ -1214,8 +1245,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           className="mt-8 text-xs text-muted-foreground"
           data-testid="parashari-lifespan-gate"
         >
-          {ageYears !== undefined && ageYears < 18
-            ? "The classical length-of-life and infancy checks (Brihat Jataka 6-7) are not shown for a chart under eighteen."
+          {withheld
+            ? SENSITIVE_WITHHELD_NOTE
             : "The classical length-of-life and infancy checks (Brihat Jataka 6-7) are shown in the practitioner reading only."}
         </p>
       )}
@@ -1228,7 +1259,16 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       </Working>
 
       <PadasSection p={r.padas} />
-      <MarakasSection m={r.marakas} />
+      {r.marakas ? (
+        <MarakasSection m={r.marakas} />
+      ) : (
+        <p
+          className="mt-8 text-xs text-muted-foreground"
+          data-testid="parashari-marakas-gate"
+        >
+          {SENSITIVE_WITHHELD_NOTE}
+        </p>
+      )}
       <AvasthasSection a={r.avasthas} />
     </div>
   );
@@ -4338,9 +4378,11 @@ const OWNER_ABBR = (o: Bhinnashtaka["owner"]) =>
 function AshtakavargaSection({
   av,
   lagnaIdx,
+  withheld,
 }: {
   av: AshtakavargaResult;
   lagnaIdx: number;
+  withheld: boolean;
 }) {
   const [pick, setPick] = useState<Bhinnashtaka["owner"] | null>(null);
   const [caveats, setCaveats] = useState(false);
@@ -4726,18 +4768,26 @@ function AshtakavargaSection({
             .join("; ")}
           . <SourceLink source={src.thirds} />
         </li>
-        <li>
-          Years of distress by Saturn's rekhas: {av.distressYears.lagnaToSaturn}{" "}
-          (lagna to Saturn) and {av.distressYears.saturnToLagna} (Saturn to
-          lagna); their sum{" "}
-          {av.distressYears.lagnaToSaturn + av.distressYears.saturnToLagna} is
-          the year to watch if an arishta dasa also runs.{" "}
-          <SourceLink source={src.longevityYears} />
-        </li>
-        <li>
-          Longevity by the rekha table, half the eight charts' spans:{" "}
-          {av.ayurdaya.toFixed(1)} years. <SourceLink source={src.ayus} />
-        </li>
+        {withheld ? (
+          <li data-testid="parashari-av-years-gate">
+            {SENSITIVE_WITHHELD_NOTE}
+          </li>
+        ) : (
+          <>
+            <li>
+              Years of distress by Saturn's rekhas:{" "}
+              {av.distressYears.lagnaToSaturn} (lagna to Saturn) and{" "}
+              {av.distressYears.saturnToLagna} (Saturn to lagna); their sum{" "}
+              {av.distressYears.lagnaToSaturn + av.distressYears.saturnToLagna}{" "}
+              is the year to watch if an arishta dasa also runs.{" "}
+              <SourceLink source={src.longevityYears} />
+            </li>
+            <li>
+              Longevity by the rekha table, half the eight charts' spans:{" "}
+              {av.ayurdaya.toFixed(1)} years. <SourceLink source={src.ayus} />
+            </li>
+          </>
+        )}
         <li>
           Saturn's transit through signs with more rekhas in its own chart is
           favourable, through signs with more dots only evil (

@@ -9,6 +9,7 @@
 //
 // Framework choices that the books may refine are collected in AlpConfig with their defaults.
 
+import { redactSensitive } from "./life-stage";
 import { DateTime } from "luxon";
 import { NAKSHATRAS, NAKSHATRA_LORD, SIGNS, SIGN_LORD, houseFrom, norm360, type Planet, type PlanetPosition, type Sign } from "./astro";
 import { navamsaOf } from "./jaimini";
@@ -355,7 +356,7 @@ function computeArp(positions: PlanetPosition[], birth: DateTime, asOf: DateTime
   };
 }
 
-export function computeAlp(positions: PlanetPosition[], natalLagnaLon: number, birthIso: string, asOfIso: string, config: AlpConfig = DEFAULT_ALP_CONFIG): AlpResult {
+export function computeAlp(positions: PlanetPosition[], natalLagnaLon: number, birthIso: string, asOfIso: string, config: AlpConfig = DEFAULT_ALP_CONFIG, withhold = false): AlpResult {
   const birth = DateTime.fromISO(birthIso, { setZone: true });
   const asOf = DateTime.fromISO(asOfIso, { setZone: true });
   const ageYears = Math.max(0, asOf.diff(birth, "days").days / YEAR_DAYS);
@@ -437,7 +438,9 @@ export function computeAlp(positions: PlanetPosition[], natalLagnaLon: number, b
     return nakEnd > signEnd + 1e-9;
   })();
   const arp = computeArp(positions, birth, asOf, janma, alp, point);
-  const findings = evaluateAlp({ positions, janma, alp, point, natalLagna, houses, placements, nakStraddlesAhead, arp });
+  const findings0 = evaluateAlp({ positions, janma, alp, point, natalLagna, houses, placements, nakStraddlesAhead, arp });
+  // The sensitive-content gate (shared/life-stage.ts) strips longevity statements for a minor.
+  const findings = withhold ? redactSensitive(findings0) : findings0;
 
   return {
     config,

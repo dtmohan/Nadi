@@ -56,6 +56,7 @@ import { evilFindings } from "./parashari-evils";
 import { curseFindings } from "./parashari-curses";
 import { computePadas, type PadaResult } from "./parashari-padas";
 import { computeMarakas, type MarakaResult } from "./parashari-marakas";
+import { redactSensitive } from "./life-stage";
 import { computeAvasthas, type AvasthaResult } from "./parashari-avasthas";
 
 export const SEVEN: Planet[] = [
@@ -146,8 +147,10 @@ export interface ParashariResult {
   kalachakra: KalachakraResult;
   /** Padas, Upapada, argala, karakas and Karakamsa, BPHS ch. 29-33. */
   padas: PadaResult;
-  /** Maraka planets and the current period, BPHS ch. 44. */
-  marakas: MarakaResult;
+  /** Maraka planets and the current period, BPHS ch. 44; null when withheld for a native under the sensitive-content age. */
+  marakas: MarakaResult | null;
+  /** True when the sensitive-content gate stripped length-of-life, maraka, arishta and parent-loss statements from this result. */
+  withheld: boolean;
   /** Avasthas of the planets, BPHS ch. 45. */
   avasthas: AvasthaResult;
   dashas: DashaGloss[];
@@ -288,6 +291,7 @@ export function computeParashari(
   shadbalaBase?: ShadbalaBase,
   dasaStarts?: DasaStartTransit[],
   aspectFloor: AspectFloor = DEFAULT_ASPECT_FLOOR,
+  withhold = false,
 ): ParashariResult {
   const lagnaIdx = Math.floor((((lagnaLon % 360) + 360) % 360) / 30);
   const asp = ruleAspect(aspectFloor);
@@ -1110,9 +1114,11 @@ export function computeParashari(
     ...royalFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
   );
   findings.push(...fatherFindings(positions, lagnaIdx));
-  findings.push(
-    ...evilFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
-  );
+  // Ch. 9-10 evils and their checks are infancy-danger rules: never computed under the gate.
+  if (!withhold)
+    findings.push(
+      ...evilFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
+    );
   findings.push(
     ...curseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
   );
@@ -1127,14 +1133,9 @@ export function computeParashari(
     houseDeps,
     shadbala,
   );
-  const marakas = computeMarakas(
-    positions,
-    lagnaIdx,
-    lagnaLon,
-    houseDeps,
-    vim,
-    shadbala,
-  );
+  const marakas = withhold
+    ? null
+    : computeMarakas(positions, lagnaIdx, lagnaLon, houseDeps, vim, shadbala);
   const avasthas = computeAvasthas(
     positions,
     lagnaIdx,
@@ -1157,8 +1158,9 @@ export function computeParashari(
     chalit,
     asp,
   );
-  return {
+  const out: ParashariResult = {
     aspectFloor,
+    withheld: withhold,
     lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] },
     bhavas,
     natures,
@@ -1179,6 +1181,9 @@ export function computeParashari(
     bhavaPhala,
     vargaPhala,
   };
+  // The gate: every prose statement on length of life, maraka periods, arishta or the loss of a
+  // parent is stripped from the whole result before it reaches any view (shared/life-stage.ts).
+  return withhold ? redactSensitive(out) : out;
 }
 
 export function ord(n: number): string {
@@ -1192,7 +1197,8 @@ export function listH(hs: number[]): string {
   return hs.map(ord).join(" and ");
 }
 
-export function roleLabel(r: FunctionalRole): string {
+/** Label for a functional role; under the sensitive-content gate the maraka role is named by its lordship only. */
+export function roleLabel(r: FunctionalRole, withheld = false): string {
   switch (r) {
     case "yogakaraka":
       return "a yoga-giver";
@@ -1201,7 +1207,7 @@ export function roleLabel(r: FunctionalRole): string {
     case "malefic":
       return "functionally malefic";
     case "maraka":
-      return "a maraka (killer) planet";
+      return withheld ? "lord of the 2nd or 7th" : "a maraka (killer) planet";
     default:
       return "neutral";
   }

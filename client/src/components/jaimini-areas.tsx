@@ -1,3 +1,4 @@
+import { sensitiveGate } from "@shared/life-stage";
 import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
@@ -588,7 +589,13 @@ function AreaCard({
 
 export function JaiminiAreas({ result }: { result: ChartResult }) {
   const areas = useMemo(
-    () => readAreas(result.jaimini, result.positions),
+    () =>
+      readAreas(
+        result.jaimini,
+        result.positions,
+        result.sensitive?.withheld ??
+          sensitiveGate(result.chart, result.utc, result.now.asOf).withheld,
+      ),
     [result],
   );
   const now = DateTime.fromISO(result.now.asOf);

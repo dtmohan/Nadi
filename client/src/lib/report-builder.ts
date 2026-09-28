@@ -25,8 +25,11 @@ import {
   ageYears,
   areaSeason,
   lifeAsOf,
+  sensitiveGate,
   AREA_ONSET,
   HOUSE_AREA,
+  SENSITIVE_WITHHELD_NOTE,
+  redactProse,
 } from "@shared/life-stage";
 import { soften, GENTLE_NOTE } from "@shared/gentle";
 import { PANCHANGA_SOURCES } from "@shared/panchanga";
@@ -119,6 +122,9 @@ export function buildReport(
   const lifeAt = lifeAsOf(chart, asOf);
   const deceased = lifeAt !== asOf;
   const age = ageYears(result.utc, lifeAt);
+  const withheld =
+    result.sensitive?.withheld ??
+    sensitiveGate(chart, result.utc, asOf).withheld;
   const inSeason = (area: string) =>
     areaSeason(area, result.utc, lifeAt).inSeason;
   const female = reading.roles.gender === "female";
@@ -331,6 +337,7 @@ export function buildReport(
     result.shadbala,
     result.dasaStarts,
     DEFAULT_ASPECT_FLOOR,
+    withheld,
   );
   {
     const bp = (label: string, url: string, prov?: boolean) => ({
@@ -593,7 +600,7 @@ export function buildReport(
       });
     }
     const sub: ReportSection[] = [];
-    const areas = readAreas(j, positions);
+    const areas = readAreas(j, positions, withheld);
     const held: string[] = [];
     for (const a of areas) {
       if (a.area !== "children" && !inSeason(a.area)) {
@@ -648,7 +655,7 @@ export function buildReport(
 
   // ── 7. KP ──
   {
-    const kp = computeKp(result.kp, result.utc, asOf, false);
+    const kp = computeKp(result.kp, result.utc, asOf, false, withheld);
     const lagna = kp.cusps[0];
     const paras: ReportPara[] = [
       {
@@ -761,7 +768,7 @@ export function buildReport(
       },
       {
         kind: "p",
-        text: `Matters not yet in season at the native's age (marriage and children from ${AREA_ONSET.marriage}, work and wealth from ${AREA_ONSET.career}) are held back rather than read. The classical length-of-life and infancy checks, the maraka planets and the remedies and mantras of the period chapters are not part of this report; nor are rectification and validation, which are tools rather than readings.`,
+        text: `Matters not yet in season at the native's age (marriage and children from ${AREA_ONSET.marriage}, work and wealth from ${AREA_ONSET.career}) are held back rather than read. The classical length-of-life and infancy checks, the maraka planets and the remedies and mantras of the period chapters are not part of this report; nor are rectification and validation, which are tools rather than readings.${withheld ? ` ${SENSITIVE_WITHHELD_NOTE}` : ""}`,
       },
       {
         kind: "p",
@@ -781,7 +788,23 @@ export function buildReport(
     ],
     generated: fmtDate(asOf),
     plain,
-    sections,
+    // The sensitive-content gate: for a native under 18 every statement on length of life, marakas, arishta or the loss of a parent is removed, in either reading mode.
+    sections: withheld ? withholdSections(sections) : sections,
     cites: cites.list,
   };
+}
+
+function withholdSections(sections: ReportSection[]): ReportSection[] {
+  return sections.map((sec) => ({
+    ...sec,
+    paras: sec.paras
+      .map((p) => ({
+        ...p,
+        text: p.text === undefined ? undefined : redactProse(p.text),
+        aside: p.aside === undefined ? undefined : redactProse(p.aside),
+        rows: p.rows?.map((r) => r.map((c) => redactProse(c) || "—")),
+      }))
+      .filter((p) => p.kind === "table" || (p.text ?? "") !== ""),
+    sub: sec.sub ? withholdSections(sec.sub) : undefined,
+  }));
 }

@@ -874,12 +874,13 @@ function BnnVerdict({ result }: { result: ChartResult }) {
         .filter((f) => fits(a, f))
         .map((f) => ({ f, area: a.area, ab: Math.abs(a.balance) })),
     );
+    // Within an area the strongest rule speaks, the same order as the area's own headline; a spoken tone only breaks ties.
     const spoken = (f: Finding) => (toneOf(f) === "neutral" ? 0 : 1);
     all.sort(
       (x, y) =>
         y.ab - x.ab ||
-        spoken(y.f) - spoken(x.f) ||
-        Math.abs(y.f.score) - Math.abs(x.f.score),
+        Math.abs(y.f.score) - Math.abs(x.f.score) ||
+        spoken(y.f) - spoken(x.f),
     );
     const out: VerdictSignature[] = [];
     for (const { f, area } of all) {

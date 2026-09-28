@@ -309,8 +309,8 @@ export interface JaiminiResult {
   findings: JaiminiFinding[];
   /** Hora and Ghatika lagnas (need place and time); absent when the server could not compute sunrise. */
   special?: { horaLagna: JaiminiLagna; ghatikaLagna: JaiminiLagna };
-  /** Longevity classification per Jaimini 2.1. */
-  ayur: AyurResult;
+  /** Longevity classification per Jaimini 2.1; null when withheld for a native under the sensitive-content age. */
+  ayur: AyurResult | null;
 }
 
 /** Natural benefics for Jaimini purposes. The Sun counts as a benefic when exalted or in a friendly sign (Jaimini 1.4). The Moon is a benefic in its bright half. */

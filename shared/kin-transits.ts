@@ -1,3 +1,4 @@
+import { redactSensitive } from "./life-stage";
 import { SIGNS, SIGN_LORD, EXALTATION, ENEMIES, type PlanetPosition, type PlanetSignPeriod } from "./astro";
 import { bhinnaOf, type AshtakavargaResult } from "./ashtakavarga";
 import { BPHS_URL } from "./parashari-data";
@@ -65,6 +66,7 @@ export function readKinTransits(
   fast: PlanetSignPeriod[] | undefined,
   shadbala: ShadbalaResult | undefined,
   asOfIso: string,
+  withhold = false,
 ): KinTransitsReading {
   const now = Date.parse(asOfIso);
   const isNow = (s: string, e: string) => Date.parse(s) <= now && now < Date.parse(e);
@@ -149,7 +151,8 @@ export function readKinTransits(
     source: KIN_SOURCES.marriage,
     tone: "mixed",
   });
-  return { rows, natal, sources: KIN_SOURCES, caveats: KIN_CAVEATS, hasTransits: !!fast };
+  const out: KinTransitsReading = { rows, natal, sources: KIN_SOURCES, caveats: KIN_CAVEATS, hasTransits: !!fast };
+  return withhold ? redactSensitive(out) : out;
 }
 
 export const KIN_MATTER: Record<KinPlanet, string> = {

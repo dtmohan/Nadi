@@ -11,6 +11,7 @@
 // decides whether the matter of that house fructifies, and the houses a planet signifies are read
 // through its star lord first (occupancy, then ownership) and then through the planet itself.
 
+import { redactSensitive } from "./life-stage";
 import { DateTime } from "luxon";
 import {
   NAKSHATRAS,
@@ -688,6 +689,8 @@ export function rulingPlanets(now: KpBase["now"]): RulingPlanets {
 // ---------- the whole result ----------
 
 export interface KpResult {
+  /** True when the sensitive-content gate has stripped longevity and maraka material (native under 18). */
+  withheld: boolean;
   ayanamsaValue: number;
   cusps: KpCusp[];
   planets: KpPlanet[];
@@ -707,6 +710,7 @@ export function computeKp(
   birthIso: string,
   asOfIso: string,
   sixStep = false,
+  withhold = false,
 ): KpResult {
   const cusps: KpCusp[] = base.cusps.map((lon, i) => ({
     ...kpPoint(lon),
@@ -732,6 +736,7 @@ export function computeKp(
     DateTime.fromISO(asOfIso).diff(DateTime.fromISO(birthIso), "days").days /
     YEAR_DAYS;
   const partial: Omit<KpResult, "findings"> = {
+    withheld: withhold,
     ayanamsaValue: base.ayanamsaValue,
     cusps,
     planets,
@@ -745,7 +750,8 @@ export function computeKp(
     ageYears,
   };
   const findings = evaluateKp(partial, sixStep);
-  return { ...partial, findings };
+  // The sensitive-content gate (shared/life-stage.ts): longevity and maraka statements are stripped for a minor.
+  return { ...partial, findings: withhold ? redactSensitive(findings) : findings };
 }
 
 /** Houses a planet signifies, four-step by default. */

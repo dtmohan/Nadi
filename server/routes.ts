@@ -40,6 +40,7 @@ import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
 import { validateEvents } from "./validate";
 import { z } from "zod";
+import { sensitiveGate, redactSensitive } from "@shared/life-stage";
 
 const resultCache = new Map<string, ChartResult>();
 
@@ -154,6 +155,15 @@ export function computeChart(chart: Chart): ChartResult {
       })),
     ),
   };
+  // One gate for every route: a native under the sensitive-content age gets the server-side
+  // material stripped here; the client-side modules read `sensitive.withheld` and strip their own.
+  const sensitive = sensitiveGate(chart, utc.toISO()!, result.now.asOf);
+  result.sensitive = sensitive;
+  if (sensitive.withheld) {
+    result.jaimini = redactSensitive({ ...jaimini, ayur: null });
+    result.reading = redactSensitive(reading);
+    result.fatherArishta = [];
+  }
   resultCache.set(key, result);
   if (resultCache.size > 200)
     resultCache.delete(resultCache.keys().next().value!);
