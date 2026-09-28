@@ -196,7 +196,9 @@ function Finding({ f }: { f: ParashariFinding }) {
 
 export function ParashariPanel({ result }: { result: ChartResult }) {
   const { positions, chart } = result;
-  const asOfIso = result.now.asOf;
+  // Everything "current" is read at the reading date, or at the recorded date of passing: after a
+  // death date nothing here is a forecast, and the running dasa is the one that was running then.
+  const asOfIso = lifeAsOf(chart, result.now.asOf);
   const [aspectFloor, setAspectFloor] =
     useState<AspectFloor>(DEFAULT_ASPECT_FLOOR);
   // The sensitive-content gate comes from the server; older cached results fall back to the same rule computed here.
@@ -314,10 +316,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       ),
     [positions, result.jaimini.lagna.lon, r.shadbala, aspectFloor],
   );
-  const deceased = isDeceased(chart, asOfIso);
+  const deceased = isDeceased(chart, result.now.asOf);
   const ageYears = useMemo(() => {
     const birth = DateTime.fromISO(result.utc);
-    const now = DateTime.fromISO(lifeAsOf(chart, asOfIso));
+    const now = DateTime.fromISO(asOfIso);
     if (!birth.isValid || !now.isValid) return undefined;
     return now.diff(birth, "years").years;
   }, [result.utc, asOfIso, chart]);
@@ -1260,7 +1262,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
 
       <PadasSection p={r.padas} />
       {r.marakas ? (
-        <MarakasSection m={r.marakas} />
+        <MarakasSection m={r.marakas} deceased={deceased} />
       ) : (
         <p
           className="mt-8 text-xs text-muted-foreground"
@@ -1971,7 +1973,13 @@ const TIER_LABEL: Record<1 | 2 | 3, string> = {
   3: "named for periods",
 };
 
-function MarakasSection({ m }: { m: MarakaResult }) {
+function MarakasSection({
+  m,
+  deceased = false,
+}: {
+  m: MarakaResult;
+  deceased?: boolean;
+}) {
   const plain = usePlain();
   const [caveats, setCaveats] = useState(false);
   const [written, setWritten] = useState(false);
@@ -2015,7 +2023,13 @@ function MarakasSection({ m }: { m: MarakaResult }) {
       >
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium">
-            {plain ? "The period now running" : "Current dasa and bhukti"}
+            {deceased
+              ? plain
+                ? "The period at passing"
+                : "Dasa and bhukti at passing"
+              : plain
+                ? "The period now running"
+                : "Current dasa and bhukti"}
           </span>
           <PlanetName planet={m.current.dasa} abbr tone className="text-xs" />
           <PlanetName planet={m.current.bhukti} abbr tone className="text-xs" />

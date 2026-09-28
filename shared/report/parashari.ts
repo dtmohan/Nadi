@@ -25,12 +25,13 @@ import {
 } from "./types";
 
 function computeFor(ctx: ReportContext): ParashariResult {
-  const { result, asOf, withheld } = ctx;
+  const { result, lifeAt, withheld } = ctx;
+  // Read at the reading date, or at the recorded date of passing.
   return computeParashari(
     result.positions,
     result.jaimini.lagna.lon,
     result.utc,
-    asOf,
+    lifeAt,
     result.shadbala,
     result.dasaStarts,
     DEFAULT_ASPECT_FLOOR,

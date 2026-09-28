@@ -166,7 +166,9 @@ export function BjDasaSection({
           data-testid="bj-dasa-current"
         >
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-muted-foreground">Running now</span>
+            <span className="text-muted-foreground">
+              {deceased ? "At passing" : "Running now"}
+            </span>
             <span className="font-medium">
               <Lord lord={cur.lord} /> dasa
             </span>
@@ -262,7 +264,7 @@ export function BjDasaSection({
                     </span>
                     {e.current && (
                       <span className="ml-1 text-2xs uppercase tracking-wide text-muted-foreground">
-                        now
+                        {deceased ? "at passing" : "now"}
                       </span>
                     )}
                     <span className="block text-2xs text-muted-foreground sm:hidden">
