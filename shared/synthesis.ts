@@ -272,6 +272,27 @@ function timingOnly(f: Finding): boolean {
   return hard <= delay;
 }
 
+/**
+ * A contest needs two rules that assert opposite outcomes for the same matter, not two rules that
+ * describe different kinds of it. A reading of what the work is (vehicles, mining, design) carries
+ * incidental tone words ("profit", "hazardous") but no verdict; only a text that promises,
+ * denies, delays, breaks or loses states an outcome that another rule can contradict.
+ */
+const OUTCOME_GOOD =
+  /\b(promis\w*|assured|blessed|granted|comes? (early|in time|on time)|happy|happiness|harmon\w*|steady|secure|stable|stabilit\w*|fulfil\w*|prosper\w*|gain(s|ed)?\b|success\w*|rise[sn]?\b|recognition|abundan\w*|holds? firm|well[- ]placed|supported|favour\w*|fortunate|wealth grows|children (come|are granted)|marriage (comes|is granted|is promised)|long and settled)\b/i;
+const OUTCOME_HARD =
+  /\b(deni\w*|delay\w*|late\b|much later|austere|strain\w*|separat\w*|estrang\w*|break\w*|broken|loss(es)?\b|lose[sr]?\b|childless|no (marriage|children|issue)|obstacl\w*|obstruct\w*|fails?\b|failure|decline[sd]?\b|reduc\w*|unstable|instab\w*|rift|friction|disput\w*|quarrel\w*|debt\w*|hardship|struggl\w*|interrupt\w*|setback\w*|dismiss\w*|demot\w*|scatter\w*|drain\w*|troubled|unhappy|cold\b|distant)\b/i;
+
+/** In marriage and children a favourable description of the spouse or child presupposes the event a denial or delay disputes. */
+const PRESUPPOSES = /\b(spouse|partner|wife|husband|marriage|children|child|son|daughter|progeny)\b/i;
+
+function assertsOutcome(f: Finding, tone: "good" | "hard", area: LifeArea): boolean {
+  const g = f.text.replace(/^[^:]*:\s*/, "");
+  if (tone === "hard") return OUTCOME_HARD.test(g);
+  if (OUTCOME_GOOD.test(g)) return true;
+  return (area === "marriage" || area === "children") && PRESUPPOSES.test(g);
+}
+
 export function findContest(
   area: LifeArea,
   keep: Finding[],
@@ -281,8 +302,13 @@ export function findContest(
   let hard: Finding | undefined;
   for (const f of keep) {
     const t = toneOf(f);
-    if (t === "good" && (!good || f.score > good.score)) good = f;
-    else if (t === "hard" && !timingOnly(f) && (!hard || f.score > hard.score))
+    if (t === "good" && assertsOutcome(f, "good", area) && (!good || f.score > good.score)) good = f;
+    else if (
+      t === "hard" &&
+      !timingOnly(f) &&
+      assertsOutcome(f, "hard", area) &&
+      (!hard || f.score > hard.score)
+    )
       hard = f;
   }
   if (!good || !hard) return undefined;

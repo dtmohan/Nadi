@@ -33,7 +33,13 @@ import {
 import { AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
 import { SENSITIVE_WITHHELD_NOTE, sensitiveGate } from "@shared/life-stage";
 import { Working } from "@/components/working";
-import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
+import {
+  ModeText,
+  SectionTitle,
+  usePlain,
+  NowWord,
+  useNowLabel,
+} from "@/components/mode-text";
 import { readAreas, currentFor, isHot } from "@shared/jaimini-areas";
 import {
   ageYears,
@@ -79,6 +85,7 @@ const PLAIN_KARAKA: Record<string, string> = {
 
 /** The Jaimini answer, first: the balance of the life areas, the three strongest karaka or pada signatures, and the running Chara period. */
 function JaiminiVerdict({ result }: { result: ChartResult }) {
+  const nowLabel = useNowLabel();
   const { jaimini: j, positions } = result;
   const asOf = result.now.asOf;
   const withheld =
@@ -164,7 +171,7 @@ function JaiminiVerdict({ result }: { result: ChartResult }) {
   const timing: VerdictTiming[] = [];
   if (md)
     timing.push({
-      label: "Now",
+      label: nowLabel,
       when: "present",
       text: (
         <>
@@ -361,7 +368,7 @@ function DashaRow({
             variant="secondary"
             className="no-default-hover-elevate ml-auto text-2xs"
           >
-            now
+            <NowWord />
           </Badge>
         )}
       </button>

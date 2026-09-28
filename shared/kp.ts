@@ -24,7 +24,8 @@ import {
   type PlanetPosition,
   type Sign,
 } from "./astro";
-import { evaluateKp, type KpFinding } from "./rules-kp";
+import { evaluateKp, applyKpPrecedence, type KpFinding } from "./rules-kp";
+export { KP_PRECEDENCE } from "./rules-kp";
 
 export const VIMSHOTTARI_ORDER: Planet[] = [
   "Ketu",
@@ -819,7 +820,7 @@ export function computeKp(
     ruling,
     ageYears,
   };
-  const findings = evaluateKp(partial, sixStep);
+  const findings = applyKpPrecedence(evaluateKp(partial, sixStep));
   // The sensitive-content gate (shared/life-stage.ts): longevity and maraka statements are stripped for a minor.
   return { ...partial, findings: withhold ? redactSensitive(findings) : findings };
 }

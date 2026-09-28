@@ -564,12 +564,19 @@ export default function AboutPage() {
               show a forecast.
             </p>
             <p>
-              For a native under eighteen a single gate on the server withholds
-              every statement on length of life, marakas, arishta and the loss
-              of a parent, whichever system it comes from and whichever way it
-              leaves the server: the computed reading, the PDF, the report and
-              every tab. The Jaimini Ayurdaya, Parashara's marakas and evils,
-              the Brihat Jataka lifespan and infancy blocks, the mother's and
+              For a native under eighteen a single gate withholds every
+              statement tagged with a topic a child's reading does not need:
+              length of life in either direction (a "long life" is the same
+              topic as a short one), marakas, arishta, the loss of a parent,
+              spouse or child, and the verse readings of peril to life and limb
+              (hunting, fire, weapons, poison). The gate classifies each
+              statement by topic before anything is rendered, on the server for
+              the computed reading, the PDF and the report, and again in the
+              shared modules the tabs compute from (the sookshma and prana
+              periods, the Ashtakavarga years); the phrase map that softens
+              adult wording is a separate step and is not relied on to protect a
+              minor. The Jaimini Ayurdaya, Parashara's marakas and evils, the
+              Brihat Jataka lifespan and infancy blocks, the mother's and
               father's points and the kin transits are held back whole; a period
               effect or transit line that speaks of death is dropped from its
               list, and a sentence on a maraka is removed from its paragraph.
@@ -587,20 +594,26 @@ export default function AboutPage() {
               outcome are of comparable weight; both are named in the headline
               and neither is summed away. A hard rule that speaks only of timing
               ("delayed", "later") does not contest a promise; that pair is
-              still read as later rather than never. The threshold is the app's
-              convention and is marked provisional.
+              still read as later rather than never. Two rules that describe
+              different kinds of the same thing (a career in vehicles beside one
+              in mining) carry incidental tone words but no verdict, so they do
+              not contest each other: a contest needs a promise against a
+              denial, delay, break or loss, and in marriage and children a
+              favourable description of the spouse or child counts as the
+              promise it presupposes. The threshold is the app's convention and
+              is marked provisional.
             </p>
             <p>
-              Above the tabs, "Where the systems agree" sets Nadi, Parashari,
-              Jaimini and KP side by side on marriage, children, career, parents
-              and, in the practitioner reading for an adult, the span of life.
-              Each stance is the verdict that system's own tab shows, linked to
-              it, and the line only says whether they agree, lean one way or
-              disagree. Nothing is blended and no system corrects another; a
-              disagreement is reported as the finding. The same table closes the
-              report when all four systems are in it. KP stances rest on a cusp
-              sub lord that changes every few minutes of birth time, and are
-              read with that in mind.
+              Above the tabs, "Where the systems agree or differ" sets Nadi,
+              Parashari, Jaimini and KP side by side on marriage, children,
+              career, parents and, in the practitioner reading for an adult, the
+              span of life. Each stance is the verdict that system's own tab
+              shows, linked to it, and the line only says whether they agree,
+              lean one way or disagree. Nothing is blended and no system
+              corrects another; a disagreement is reported as the finding. The
+              same table closes the report when all four systems are in it. KP
+              stances rest on a cusp sub lord that changes every few minutes of
+              birth time, and are read with that in mind.
             </p>
             <h2>The report</h2>
             <p>
@@ -1087,6 +1100,24 @@ function KpMethod() {
         would say something else. The two-minute margin is the app's convention
         and is marked provisional; the twins the texts describe were born three
         to ten minutes apart.
+      </p>
+      <h2>Precedence within a matter</h2>
+      <p>
+        "For answering a query, a group of houses is considered, of which one of
+        the houses is the principal house and its Sub Lord is the deciding
+        factor" (Astro Secrets & KP Part 3 p. 12), with a table: marriage by
+        houses 2, 7, 11 and the sub of the 7th cusp; longevity by the badhaka
+        and maraka houses and the sub of the lagna; child birth by 2, 5, 11 and
+        the sub of the 5th; employment by 2, 6, 10 and the sub of the 10th. When
+        two KP rules on one of these matters disagree, the rule that reads the
+        principal cusp's sub lord by its house significations decides; a rule of
+        the opposite polarity from another cusp (an 8th-cusp reading of a long
+        life against a lagna reading of a short one) or from the planet's nature
+        alone (the Moon as 7th sub lord giving a happy married life against a
+        7th sub lord that denies marriage) is kept as a note under it and left
+        out of the tally, in the tab, the agreement panel and the report. When
+        the principal cusp itself reads both ways nothing is demoted and the
+        matter stays contested.
       </p>
       <h2>Significators</h2>
       <p>

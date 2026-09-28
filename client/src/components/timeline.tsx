@@ -1,4 +1,5 @@
 import { Soft } from "@/lib/gentle";
+import { NowWord } from "@/components/mode-text";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import {
@@ -92,6 +93,7 @@ export function Timeline({
   birthIso,
   selected,
   roles,
+  asOfIso,
 }: {
   transits: TransitPeriod[];
   positions: PlanetPosition[];
@@ -99,10 +101,12 @@ export function Timeline({
   birthIso: string;
   selected: Planet | null;
   roles?: Roles;
+  /** Reading instant; the date of passing for a deceased native, else today. */
+  asOfIso?: string;
 }) {
   const [track, setTrack] = useState<"Jupiter" | "Saturn">("Jupiter");
   const [onlyTouches, setOnlyTouches] = useState(false);
-  const now = DateTime.utc();
+  const now = asOfIso ? DateTime.fromISO(asOfIso) : DateTime.utc();
   const birth = DateTime.fromISO(birthIso);
 
   const readings = useMemo(
@@ -260,7 +264,9 @@ export function Timeline({
                     </span>
                   )}
                   {isCurrent && (
-                    <Badge className="no-default-hover-elevate">Now</Badge>
+                    <Badge className="no-default-hover-elevate">
+                      <NowWord cap />
+                    </Badge>
                   )}
                 </div>
                 <div className="tabular text-xs text-muted-foreground">

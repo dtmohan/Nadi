@@ -1,4 +1,5 @@
 import { displayLocal } from "@shared/time-basis";
+import { DeceasedProvider } from "@/components/mode-text";
 import { Soft } from "@/lib/gentle";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "wouter";
@@ -53,6 +54,7 @@ import {
   STAGE_LABEL,
   type AreaSeason,
   lifeAsOf,
+  isDeceased,
 } from "@shared/life-stage";
 import {
   LIFE_AREAS,
@@ -1694,412 +1696,420 @@ export default function ChartPage() {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-8 pb-24 md:px-10 md:pb-8">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1
-            className="font-display text-xl font-bold tracking-tight"
-            data-testid="text-chart-name"
-          >
-            {chart.name}
-          </h1>
-          <BirthTimeEditor chart={chart} birthLocal={birthLocal} />
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5 text-xs">
-          <ChartSettings
-            chart={chart}
-            ayanamsaValue={data.ayanamsaValue}
-            timeBasis={data.timeBasis}
-          />
-          <Button size="sm" variant="outline" asChild>
-            <Link
-              href={`/chart/${chart.id}/report`}
-              data-testid="link-report"
-              title="The whole reading as one prose document, printable"
+    <DeceasedProvider
+      deceased={!!data && isDeceased(data.chart, new Date().toISOString())}
+    >
+      <div className="mx-auto max-w-6xl px-5 py-8 pb-24 md:px-10 md:pb-8">
+        <header className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1
+              className="font-display text-xl font-bold tracking-tight"
+              data-testid="text-chart-name"
             >
-              <FileText className="h-4 w-4" />
-              Report
-            </Link>
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => exportPdf()}
-            disabled={exporting !== null}
-            data-testid="button-export-pdf"
-          >
-            <FileDown className="h-4 w-4" />
-            {exporting === "all" ? "Preparing PDF" : "Export PDF"}
-          </Button>
-        </div>
-      </header>
-
-      <LifeEventsSection chart={chart} />
-
-      <AgreementPanel
-        className="mt-4"
-        result={data}
-        onOpenTab={(t) => {
-          setMode(t);
-          tablistRef.current?.scrollIntoView({ block: "nearest" });
-        }}
-      />
-
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-b pb-3">
-        <div
-          role="tablist"
-          aria-label="Reading system"
-          className="inline-flex max-w-full overflow-x-auto whitespace-nowrap rounded-md border p-0.5 text-sm"
-          ref={tablistRef}
-        >
-          {MODES.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              role="tab"
-              aria-selected={mode === m.id}
-              onClick={() => setMode(m.id)}
-              className={cn(
-                "rounded px-3 py-1 transition-colors",
-                m.id === "rectify" && "ml-1 border-l",
-                mode === m.id
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-              data-testid={`mode-${m.id}`}
-              title={m.title}
-            >
-              <span className="sm:hidden">{m.short}</span>
-              <span className="hidden sm:inline">{m.label}</span>
-            </button>
-          ))}
-        </div>
-        <p className="sr-only" aria-live="polite" data-testid="mode-current">
-          {MODES.find((m) => m.id === mode)?.title ??
-            MODES.find((m) => m.id === mode)?.label}
-        </p>
-        <div className="flex flex-wrap items-center gap-3">
-          <p className="text-xs text-muted-foreground">
-            {mode === "bnn"
-              ? "Planet-to-planet reading, no ascendant or houses."
-              : mode === "jaimini"
-                ? readingMode === "plain"
-                  ? "Jaimini's method: the planets ranked into roles, how each house appears to the world, life periods by sign. Kept separate from the Nadi reading."
-                  : "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading."
-                : mode === "alp"
-                  ? readingMode === "plain"
-                    ? "A moving rising point: it advances one sign every ten years and the birth planets are read from where it stands now. Framework stage."
-                    : "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage."
-                  : mode === "parashari"
-                    ? readingMode === "plain"
-                      ? "The classical system: which planets help or hinder this rising sign, how strong they are, the notable combinations, and the life period running now. Kept separate from the other readings."
-                      : "Parashara's system: whole-sign bhavas from the lagna, house lords, sign aspects, functional nature by rising sign, Shadbala, vargas, Ashtakavarga, yogas and Vimshottari with dasa effects. Kept separate from the other readings. First pass."
-                    : mode === "panchanga"
-                      ? readingMode === "plain"
-                        ? "The five limbs of the day for the birth and any date, and the planets' transits from the birth Moon read with Brihat Samhita and Phaladeepika."
-                        : "Panchanga per Surya Siddhanta 1.36, 2.64-69; gochara from the natal Moon per Brihat Samhita 104 and Phaladeepika 26, with vedha. Not Parashari."
-                      : mode === "rectify"
-                        ? readingMode === "plain"
-                          ? "Checking the birth time: the minutes around the recorded time, scored by one method at a time. Not a reading."
-                          : "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading."
-                        : mode === "validate"
-                          ? "Saved life events read back at their dates: KP period lords and cusp promise, Jaimini chara dasha, Jupiter's transit, and how each planet's periods turned out. Not a reading."
-                          : readingMode === "plain"
-                            ? "Krishnamurti's method: each house has a deciding planet, houses are promised or denied, and timing comes from the planetary periods. Kept separate from the other readings. First pass."
-                            : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}
-          </p>
-          <ReadingModeToggle />
-          {TAB_MODULE[mode] && (
+              {chart.name}
+            </h1>
+            <BirthTimeEditor chart={chart} birthLocal={birthLocal} />
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+            <ChartSettings
+              chart={chart}
+              ayanamsaValue={data.ayanamsaValue}
+              timeBasis={data.timeBasis}
+            />
+            <Button size="sm" variant="outline" asChild>
+              <Link
+                href={`/chart/${chart.id}/report`}
+                data-testid="link-report"
+                title="The whole reading as one prose document, printable"
+              >
+                <FileText className="h-4 w-4" />
+                Report
+              </Link>
+            </Button>
             <Button
               size="sm"
-              variant="ghost"
-              className="h-7 gap-1 px-2 text-xs"
-              onClick={() => exportPdf([TAB_MODULE[mode]!])}
+              variant="outline"
+              onClick={() => exportPdf()}
               disabled={exporting !== null}
-              title={
-                mode === "rectify"
-                  ? "Export the scan shown here (method, window and events) as a PDF"
-                  : mode === "validate"
-                    ? "Export the events read back against the chart as a PDF"
-                    : `Export the ${MODES.find((m) => m.id === mode)?.label} section alone as a PDF, in the current reading mode`
-              }
-              data-testid="button-export-tab-pdf"
+              data-testid="button-export-pdf"
             >
-              <FileDown className="h-3.5 w-3.5" />
-              {exporting === TAB_MODULE[mode]
-                ? "Preparing PDF"
-                : "This tab as PDF"}
+              <FileDown className="h-4 w-4" />
+              {exporting === "all" ? "Preparing PDF" : "Export PDF"}
             </Button>
-          )}
-        </div>
-      </div>
-
-      {mode === "jaimini" && (
-        <div className="mt-8 animate-in fade-in-0 duration-300">
-          <JaiminiPanel result={data} />
-        </div>
-      )}
-
-      {mode === "alp" && (
-        <div className="mt-8 animate-in fade-in-0 duration-300">
-          <AlpPanel result={data} />
-        </div>
-      )}
-
-      {mode === "kp" && (
-        <div className="mt-8 animate-in fade-in-0 duration-300">
-          <KpPanel result={data} />
-        </div>
-      )}
-
-      {mode === "parashari" && (
-        <div className="mt-8 animate-in fade-in-0 duration-300">
-          <ParashariPanel result={data} />
-        </div>
-      )}
-
-      {mode === "panchanga" && (
-        <div className="mt-8 animate-in fade-in-0 duration-300">
-          <PanchangaPanel result={data} />
-        </div>
-      )}
-
-      {mode === "rectify" && (
-        <div className="mt-8 animate-in fade-in-0 duration-300">
-          <RectifyPanel
-            result={data}
-            onExportState={(s) => {
-              rectifyState.current = s;
-            }}
-          />
-        </div>
-      )}
-
-      {mode === "validate" && (
-        <div className="mt-8 animate-in fade-in-0 duration-300">
-          <ValidatePanel result={data} />
-        </div>
-      )}
-
-      {mode === "bnn" && (
-        <div className="animate-in fade-in-0 duration-300">
-          <BnnVerdict result={data} />
-          <BnnLifeTimeline
-            className="mt-6"
-            transits={data.transits}
-            positions={positions}
-            findings={data.reading.findings}
-            birthIso={data.utc}
-            roles={data.reading.roles}
-            asOfIso={data.now.asOf}
-            deathIso={data.chart.deathDate}
-            events={data.chart.events}
-            zone={data.chart.timezone}
-          />
-          <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,27rem)_1fr] lg:items-start">
-            <div
-              className="lg:sticky lg:top-4 lg:max-h-[calc(100svh-2rem)] lg:overflow-y-auto lg:pr-1"
-              data-testid="bnn-chart-column"
-            >
-              <SouthIndianChart
-                positions={positions}
-                transit={showTransit ? transitNow : []}
-                title="Rasi"
-                subtitle={`${PLANET_ABBR[data.reading.roles.native]} Jeeva · Sa Karma${data.reading.roles.deha !== data.reading.roles.native ? ` · ${PLANET_ABBR[data.reading.roles.deha]} Deha` : ""}`}
-                highlightSign={selectedSign}
-                secondarySigns={
-                  selectedSign === null
-                    ? undefined
-                    : [
-                        (selectedSign + 4) % 12,
-                        (selectedSign + 8) % 12,
-                        (selectedSign + 6) % 12,
-                      ]
-                }
-                jeeva={data.reading.roles.native}
-                deha={
-                  data.reading.roles.deha !== data.reading.roles.native
-                    ? data.reading.roles.deha
-                    : undefined
-                }
-                houseKaraka={houseKaraka ?? data.reading.roles.native}
-                onSignClick={(s) => {
-                  const p = positions.find((x) => x.signIndex === s);
-                  setSelected(
-                    p ? (selected === p.planet ? null : p.planet) : null,
-                  );
-                }}
-              />
-              <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                <span>
-                  <span
-                    className="font-semibold"
-                    style={{ color: planetColor(data.reading.roles.native) }}
-                  >
-                    {PLANET_ABBR[data.reading.roles.native]}
-                  </span>{" "}
-                  Jeeva ·{" "}
-                  <span
-                    className="font-semibold"
-                    style={{ color: planetColor("Saturn") }}
-                  >
-                    Sa
-                  </span>{" "}
-                  Karma
-                  {data.reading.roles.deha !== data.reading.roles.native && (
-                    <>
-                      {" · "}
-                      <span
-                        className="font-semibold"
-                        style={{ color: planetColor(data.reading.roles.deha) }}
-                      >
-                        {PLANET_ABBR[data.reading.roles.deha]}
-                      </span>{" "}
-                      Deha (female chart)
-                    </>
-                  )}{" "}
-                  · R retrograde · <span className="italic">tJu tSa</span>{" "}
-                  transits today · click a sign for its trines and 7th
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowTransit((v) => !v)}
-                  data-testid="button-toggle-transit"
-                >
-                  {showTransit ? <EyeOff /> : <Eye />}
-                  Transits
-                </Button>
-              </div>
-              <Working
-                id="houses"
-                label="Show the twelve houses from the karaka"
-                className="mt-4"
-              >
-                <HousesPanel
-                  positions={positions}
-                  karaka={houseKaraka ?? data.reading.roles.native}
-                  native={data.reading.roles.native}
-                  deha={data.reading.roles.deha}
-                  onChange={setHouseKaraka}
-                  selected={selected}
-                />
-              </Working>
-            </div>
-            <div className="min-w-0 max-w-[76ch]">
-              <Working
-                id="planet-table"
-                label="Show the planet table"
-                count={positions.length}
-              >
-                <PlanetTable
-                  positions={positions}
-                  strength={data.reading.strength}
-                  selected={selected}
-                  onSelect={setSelected}
-                />
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Click a planet to focus the reading on it. Longitudes are
-                  sidereal. c <Term k="combust">combust</Term> · w leads an
-                  enemy by <Term k="degree-order">degree</Term> · struck dignity
-                  is <Term k="set-aside">set aside</Term> by a Nadi rule.
-                </p>
-              </Working>
-
-              <Tabs defaultValue="reading" className="mt-8">
-                <TabsList>
-                  <TabsTrigger value="reading" data-testid="tab-reading">
-                    Reading
-                  </TabsTrigger>
-                  <TabsTrigger value="timeline" data-testid="tab-timeline">
-                    Timing
-                  </TabsTrigger>
-                  <TabsTrigger value="relations" data-testid="tab-relations">
-                    Relations
-                  </TabsTrigger>
-                </TabsList>
-                <TabsContent value="reading" className="mt-6">
-                  <Reading result={data} selected={selected} />
-                </TabsContent>
-                <TabsContent value="timeline" className="mt-6">
-                  <Timeline
-                    transits={data.transits}
-                    positions={positions}
-                    findings={data.reading.findings}
-                    birthIso={data.utc}
-                    selected={selected}
-                    roles={data.reading.roles}
-                  />
-                </TabsContent>
-                <TabsContent value="relations" className="mt-6">
-                  <Relations
-                    relations={data.reading.relations}
-                    positions={positions}
-                  />
-                </TabsContent>
-              </Tabs>
-            </div>
           </div>
-        </div>
-      )}
+        </header>
 
-      <footer className="mt-12 border-t pt-4 text-xs text-muted-foreground">
-        {mode === "bnn"
-          ? "Interpretive text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik. It is a starting set of rules meant to be extended, not a verdict."
-          : mode === "alp"
-            ? "Akshaya Lagna Paddhati is Dr. S. Pothuvudaimoorthy's method. The progression arithmetic follows the published rate; the interpretive rules are being entered from the printed volumes chapter by chapter and are a framework, not a verdict."
-            : mode === "parashari"
-              ? "Parashari text is paraphrased from Brihat Parashara Hora Sastra in R. Santhanam's translation (chapters 24, 26, 34, 36, 41, 42, 75), softened and with verse numbers kept for checking. Planetary strength (ch. 27-28), divisional charts (ch. 6-7), Ashtakavarga (ch. 66-72) and the dasa chapters (46 for the conditional systems and Kalachakra, 47-49 and 52-61 for effects) are applied mechanically; the Sripati chalit, portion stages and the effect amounts of 28.15-20 are provisional readings. A first pass, not a verdict."
-              : mode === "rectify" || mode === "validate"
-                ? "Rectification and validation are checks, not readings. Each method scores by one system's rules at a time (KP sub lords and significators, or K.N. Rao's Chara dasha) and the systems are never blended; a high score narrows the birth time or confirms a rule, it does not prove either."
-                : mode === "kp"
-                  ? "Krishnamurti Paddhati is Prof. K.S. Krishnamurti's stellar method. The arithmetic (KP ayanamsa, Placidus cusps, subs, significators, Vimshottari) is complete; the cuspal readings are paraphrased from Astro Secrets & KP Part 3 and the Kalpurush class notes and are a first pass, not a verdict."
-                  : "Jaimini text follows the Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; Chara dasha follows K.N. Rao's method. It is a starting set of rules meant to be extended, not a verdict."}
-      </footer>
+        <LifeEventsSection chart={chart} />
 
-      <nav
-        aria-label="Reading system"
-        className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
-        data-testid="mode-bar"
-      >
-        <ul className="mx-auto grid max-w-md grid-cols-7">
-          {MODES.map((m) => (
-            <li
-              key={m.id}
-              className={cn(
-                "relative",
-                m.id === "rectify" &&
-                  "before:absolute before:inset-y-2 before:left-0 before:w-px before:bg-border",
-              )}
-            >
+        <AgreementPanel
+          className="mt-4"
+          result={data}
+          onOpenTab={(t) => {
+            setMode(t);
+            tablistRef.current?.scrollIntoView({ block: "nearest" });
+          }}
+        />
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-b pb-3">
+          <div
+            role="tablist"
+            aria-label="Reading system"
+            className="inline-flex max-w-full overflow-x-auto whitespace-nowrap rounded-md border p-0.5 text-sm"
+            ref={tablistRef}
+          >
+            {MODES.map((m) => (
               <button
+                key={m.id}
                 type="button"
-                aria-current={mode === m.id ? "page" : undefined}
-                onClick={() => {
-                  setMode(m.id);
-                  document.querySelector("main")?.scrollTo({ top: 0 });
-                }}
+                role="tab"
+                aria-selected={mode === m.id}
+                onClick={() => setMode(m.id)}
                 className={cn(
-                  "flex w-full flex-col items-center gap-0.5 px-0.5 pb-2 pt-2 text-[10px] leading-none transition-colors",
-                  mode === m.id ? "text-primary" : "text-muted-foreground",
+                  "rounded px-3 py-1 transition-colors",
+                  m.id === "rectify" && "ml-1 border-l",
+                  mode === m.id
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
-                data-testid={`mode-bar-${m.id}`}
+                data-testid={`mode-${m.id}`}
                 title={m.title}
               >
-                <m.Icon
-                  className="h-4 w-4"
-                  strokeWidth={mode === m.id ? 2.2 : 1.7}
-                />
-                <span
-                  className={cn("truncate", mode === m.id && "font-semibold")}
-                >
-                  {m.short}
-                </span>
+                <span className="sm:hidden">{m.short}</span>
+                <span className="hidden sm:inline">{m.label}</span>
               </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
+            ))}
+          </div>
+          <p className="sr-only" aria-live="polite" data-testid="mode-current">
+            {MODES.find((m) => m.id === mode)?.title ??
+              MODES.find((m) => m.id === mode)?.label}
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-xs text-muted-foreground">
+              {mode === "bnn"
+                ? "Planet-to-planet reading, no ascendant or houses."
+                : mode === "jaimini"
+                  ? readingMode === "plain"
+                    ? "Jaimini's method: the planets ranked into roles, how each house appears to the world, life periods by sign. Kept separate from the Nadi reading."
+                    : "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading."
+                  : mode === "alp"
+                    ? readingMode === "plain"
+                      ? "A moving rising point: it advances one sign every ten years and the birth planets are read from where it stands now. Framework stage."
+                      : "Progressed lagna: the ascendant moves ten years to a sign and the natal planets are read from where it stands now. Framework stage."
+                    : mode === "parashari"
+                      ? readingMode === "plain"
+                        ? "The classical system: which planets help or hinder this rising sign, how strong they are, the notable combinations, and the life period running now. Kept separate from the other readings."
+                        : "Parashara's system: whole-sign bhavas from the lagna, house lords, sign aspects, functional nature by rising sign, Shadbala, vargas, Ashtakavarga, yogas and Vimshottari with dasa effects. Kept separate from the other readings. First pass."
+                      : mode === "panchanga"
+                        ? readingMode === "plain"
+                          ? "The five limbs of the day for the birth and any date, and the planets' transits from the birth Moon read with Brihat Samhita and Phaladeepika."
+                          : "Panchanga per Surya Siddhanta 1.36, 2.64-69; gochara from the natal Moon per Brihat Samhita 104 and Phaladeepika 26, with vedha. Not Parashari."
+                        : mode === "rectify"
+                          ? readingMode === "plain"
+                            ? "Checking the birth time: the minutes around the recorded time, scored by one method at a time. Not a reading."
+                            : "Birth time rectification: candidate intervals around the recorded time, scored by one method at a time. Not a reading."
+                          : mode === "validate"
+                            ? "Saved life events read back at their dates: KP period lords and cusp promise, Jaimini chara dasha, Jupiter's transit, and how each planet's periods turned out. Not a reading."
+                            : readingMode === "plain"
+                              ? "Krishnamurti's method: each house has a deciding planet, houses are promised or denied, and timing comes from the planetary periods. Kept separate from the other readings. First pass."
+                              : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}
+            </p>
+            <ReadingModeToggle />
+            {TAB_MODULE[mode] && (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 gap-1 px-2 text-xs"
+                onClick={() => exportPdf([TAB_MODULE[mode]!])}
+                disabled={exporting !== null}
+                title={
+                  mode === "rectify"
+                    ? "Export the scan shown here (method, window and events) as a PDF"
+                    : mode === "validate"
+                      ? "Export the events read back against the chart as a PDF"
+                      : `Export the ${MODES.find((m) => m.id === mode)?.label} section alone as a PDF, in the current reading mode`
+                }
+                data-testid="button-export-tab-pdf"
+              >
+                <FileDown className="h-3.5 w-3.5" />
+                {exporting === TAB_MODULE[mode]
+                  ? "Preparing PDF"
+                  : "This tab as PDF"}
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {mode === "jaimini" && (
+          <div className="mt-8 animate-in fade-in-0 duration-300">
+            <JaiminiPanel result={data} />
+          </div>
+        )}
+
+        {mode === "alp" && (
+          <div className="mt-8 animate-in fade-in-0 duration-300">
+            <AlpPanel result={data} />
+          </div>
+        )}
+
+        {mode === "kp" && (
+          <div className="mt-8 animate-in fade-in-0 duration-300">
+            <KpPanel result={data} />
+          </div>
+        )}
+
+        {mode === "parashari" && (
+          <div className="mt-8 animate-in fade-in-0 duration-300">
+            <ParashariPanel result={data} />
+          </div>
+        )}
+
+        {mode === "panchanga" && (
+          <div className="mt-8 animate-in fade-in-0 duration-300">
+            <PanchangaPanel result={data} />
+          </div>
+        )}
+
+        {mode === "rectify" && (
+          <div className="mt-8 animate-in fade-in-0 duration-300">
+            <RectifyPanel
+              result={data}
+              onExportState={(s) => {
+                rectifyState.current = s;
+              }}
+            />
+          </div>
+        )}
+
+        {mode === "validate" && (
+          <div className="mt-8 animate-in fade-in-0 duration-300">
+            <ValidatePanel result={data} />
+          </div>
+        )}
+
+        {mode === "bnn" && (
+          <div className="animate-in fade-in-0 duration-300">
+            <BnnVerdict result={data} />
+            <BnnLifeTimeline
+              className="mt-6"
+              transits={data.transits}
+              positions={positions}
+              findings={data.reading.findings}
+              birthIso={data.utc}
+              roles={data.reading.roles}
+              asOfIso={data.now.asOf}
+              deathIso={data.chart.deathDate}
+              events={data.chart.events}
+              zone={data.chart.timezone}
+            />
+            <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,27rem)_1fr] lg:items-start">
+              <div
+                className="lg:sticky lg:top-4 lg:max-h-[calc(100svh-2rem)] lg:overflow-y-auto lg:pr-1"
+                data-testid="bnn-chart-column"
+              >
+                <SouthIndianChart
+                  positions={positions}
+                  transit={showTransit ? transitNow : []}
+                  title="Rasi"
+                  subtitle={`${PLANET_ABBR[data.reading.roles.native]} Jeeva · Sa Karma${data.reading.roles.deha !== data.reading.roles.native ? ` · ${PLANET_ABBR[data.reading.roles.deha]} Deha` : ""}`}
+                  highlightSign={selectedSign}
+                  secondarySigns={
+                    selectedSign === null
+                      ? undefined
+                      : [
+                          (selectedSign + 4) % 12,
+                          (selectedSign + 8) % 12,
+                          (selectedSign + 6) % 12,
+                        ]
+                  }
+                  jeeva={data.reading.roles.native}
+                  deha={
+                    data.reading.roles.deha !== data.reading.roles.native
+                      ? data.reading.roles.deha
+                      : undefined
+                  }
+                  houseKaraka={houseKaraka ?? data.reading.roles.native}
+                  onSignClick={(s) => {
+                    const p = positions.find((x) => x.signIndex === s);
+                    setSelected(
+                      p ? (selected === p.planet ? null : p.planet) : null,
+                    );
+                  }}
+                />
+                <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+                  <span>
+                    <span
+                      className="font-semibold"
+                      style={{ color: planetColor(data.reading.roles.native) }}
+                    >
+                      {PLANET_ABBR[data.reading.roles.native]}
+                    </span>{" "}
+                    Jeeva ·{" "}
+                    <span
+                      className="font-semibold"
+                      style={{ color: planetColor("Saturn") }}
+                    >
+                      Sa
+                    </span>{" "}
+                    Karma
+                    {data.reading.roles.deha !== data.reading.roles.native && (
+                      <>
+                        {" · "}
+                        <span
+                          className="font-semibold"
+                          style={{
+                            color: planetColor(data.reading.roles.deha),
+                          }}
+                        >
+                          {PLANET_ABBR[data.reading.roles.deha]}
+                        </span>{" "}
+                        Deha (female chart)
+                      </>
+                    )}{" "}
+                    · R retrograde · <span className="italic">tJu tSa</span>{" "}
+                    transits today · click a sign for its trines and 7th
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowTransit((v) => !v)}
+                    data-testid="button-toggle-transit"
+                  >
+                    {showTransit ? <EyeOff /> : <Eye />}
+                    Transits
+                  </Button>
+                </div>
+                <Working
+                  id="houses"
+                  label="Show the twelve houses from the karaka"
+                  className="mt-4"
+                >
+                  <HousesPanel
+                    positions={positions}
+                    karaka={houseKaraka ?? data.reading.roles.native}
+                    native={data.reading.roles.native}
+                    deha={data.reading.roles.deha}
+                    onChange={setHouseKaraka}
+                    selected={selected}
+                  />
+                </Working>
+              </div>
+              <div className="min-w-0 max-w-[76ch]">
+                <Working
+                  id="planet-table"
+                  label="Show the planet table"
+                  count={positions.length}
+                >
+                  <PlanetTable
+                    positions={positions}
+                    strength={data.reading.strength}
+                    selected={selected}
+                    onSelect={setSelected}
+                  />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Click a planet to focus the reading on it. Longitudes are
+                    sidereal. c <Term k="combust">combust</Term> · w leads an
+                    enemy by <Term k="degree-order">degree</Term> · struck
+                    dignity is <Term k="set-aside">set aside</Term> by a Nadi
+                    rule.
+                  </p>
+                </Working>
+
+                <Tabs defaultValue="reading" className="mt-8">
+                  <TabsList>
+                    <TabsTrigger value="reading" data-testid="tab-reading">
+                      Reading
+                    </TabsTrigger>
+                    <TabsTrigger value="timeline" data-testid="tab-timeline">
+                      Timing
+                    </TabsTrigger>
+                    <TabsTrigger value="relations" data-testid="tab-relations">
+                      Relations
+                    </TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="reading" className="mt-6">
+                    <Reading result={data} selected={selected} />
+                  </TabsContent>
+                  <TabsContent value="timeline" className="mt-6">
+                    <Timeline
+                      transits={data.transits}
+                      positions={positions}
+                      findings={data.reading.findings}
+                      birthIso={data.utc}
+                      selected={selected}
+                      roles={data.reading.roles}
+                      asOfIso={lifeAsOf(data.chart, new Date().toISOString())}
+                    />
+                  </TabsContent>
+                  <TabsContent value="relations" className="mt-6">
+                    <Relations
+                      relations={data.reading.relations}
+                      positions={positions}
+                    />
+                  </TabsContent>
+                </Tabs>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <footer className="mt-12 border-t pt-4 text-xs text-muted-foreground">
+          {mode === "bnn"
+            ? "Interpretive text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik. It is a starting set of rules meant to be extended, not a verdict."
+            : mode === "alp"
+              ? "Akshaya Lagna Paddhati is Dr. S. Pothuvudaimoorthy's method. The progression arithmetic follows the published rate; the interpretive rules are being entered from the printed volumes chapter by chapter and are a framework, not a verdict."
+              : mode === "parashari"
+                ? "Parashari text is paraphrased from Brihat Parashara Hora Sastra in R. Santhanam's translation (chapters 24, 26, 34, 36, 41, 42, 75), softened and with verse numbers kept for checking. Planetary strength (ch. 27-28), divisional charts (ch. 6-7), Ashtakavarga (ch. 66-72) and the dasa chapters (46 for the conditional systems and Kalachakra, 47-49 and 52-61 for effects) are applied mechanically; the Sripati chalit, portion stages and the effect amounts of 28.15-20 are provisional readings. A first pass, not a verdict."
+                : mode === "rectify" || mode === "validate"
+                  ? "Rectification and validation are checks, not readings. Each method scores by one system's rules at a time (KP sub lords and significators, or K.N. Rao's Chara dasha) and the systems are never blended; a high score narrows the birth time or confirms a rule, it does not prove either."
+                  : mode === "kp"
+                    ? "Krishnamurti Paddhati is Prof. K.S. Krishnamurti's stellar method. The arithmetic (KP ayanamsa, Placidus cusps, subs, significators, Vimshottari) is complete; the cuspal readings are paraphrased from Astro Secrets & KP Part 3 and the Kalpurush class notes and are a first pass, not a verdict."
+                    : "Jaimini text follows the Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; Chara dasha follows K.N. Rao's method. It is a starting set of rules meant to be extended, not a verdict."}
+        </footer>
+
+        <nav
+          aria-label="Reading system"
+          className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+          data-testid="mode-bar"
+        >
+          <ul className="mx-auto grid max-w-md grid-cols-7">
+            {MODES.map((m) => (
+              <li
+                key={m.id}
+                className={cn(
+                  "relative",
+                  m.id === "rectify" &&
+                    "before:absolute before:inset-y-2 before:left-0 before:w-px before:bg-border",
+                )}
+              >
+                <button
+                  type="button"
+                  aria-current={mode === m.id ? "page" : undefined}
+                  onClick={() => {
+                    setMode(m.id);
+                    document.querySelector("main")?.scrollTo({ top: 0 });
+                  }}
+                  className={cn(
+                    "flex w-full flex-col items-center gap-0.5 px-0.5 pb-2 pt-2 text-[10px] leading-none transition-colors",
+                    mode === m.id ? "text-primary" : "text-muted-foreground",
+                  )}
+                  data-testid={`mode-bar-${m.id}`}
+                  title={m.title}
+                >
+                  <m.Icon
+                    className="h-4 w-4"
+                    strokeWidth={mode === m.id ? 2.2 : 1.7}
+                  />
+                  <span
+                    className={cn("truncate", mode === m.id && "font-semibold")}
+                  >
+                    {m.short}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </DeceasedProvider>
   );
 }

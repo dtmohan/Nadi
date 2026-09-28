@@ -128,7 +128,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
-import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
+import {
+  ModeText,
+  SectionTitle,
+  usePlain,
+  NowWord,
+  useNowLabel,
+} from "@/components/mode-text";
 import { Working } from "@/components/working";
 import { BjCrossSection, BjCross } from "@/components/bj-cross";
 import { BJ_CROSS_BY_KEY } from "@shared/bj-cross";
@@ -1086,7 +1092,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                         <PlanetName planet={d.lord} />
                         {d.current && (
                           <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-                            now
+                            <NowWord />
                           </span>
                         )}
                       </TableCell>
@@ -1131,6 +1137,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 setOpen={setAntarOpen}
                 birthIso={result.utc}
                 asOfIso={asOfIso}
+                withheld={withheld}
               />
             )}
             <ConditionalDasasSection cd={r.conditionalDasas} />
@@ -1369,7 +1376,7 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
                 <SignName signIndex={p.sign} />
                 {p.current ? (
                   <Badge variant="secondary" className="ml-2">
-                    now
+                    <NowWord />
                   </Badge>
                 ) : null}
                 {p.gati ? (
@@ -1457,7 +1464,7 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
                     <SignName signIndex={sp.sign} />
                     {sp.current ? (
                       <Badge variant="secondary" className="ml-2">
-                        now
+                        <NowWord />
                       </Badge>
                     ) : null}
                   </TableCell>
@@ -2584,7 +2591,7 @@ function RasiDasasSection({ d }: { d: RasiDasasResult }) {
                     ) : null}
                     {p.current ? (
                       <Badge variant="secondary" className="ml-2">
-                        now
+                        <NowWord />
                       </Badge>
                     ) : null}
                     {p.repeated ? (
@@ -2923,7 +2930,7 @@ function ConditionalDasasSection({ cd }: { cd: ConditionalDasasResult }) {
                     ) : null}
                     {p.current ? (
                       <Badge variant="secondary" className="ml-2">
-                        now
+                        <NowWord />
                       </Badge>
                     ) : null}
                     {p.repeated ? (
@@ -3006,6 +3013,7 @@ function ParashariVerdict({
   yogas: ParashariFinding[];
   spouse: SpouseReading;
 }) {
+  const nowLabel = useNowLabel();
   const helpers = r.natures
     .filter(
       (n) => n.functional === "yogakaraka" || n.functional === "auspicious",
@@ -3091,7 +3099,7 @@ function ParashariVerdict({
         cur
           ? [
               {
-                label: "Now",
+                label: nowLabel,
                 when: "present",
                 text: (
                   <>
@@ -3815,12 +3823,14 @@ function DasaEffects({
   setOpen,
   birthIso,
   asOfIso,
+  withheld,
 }: {
   d: DasaReading;
   open: string | null;
   setOpen: (k: string | null) => void;
   birthIso: string;
   asOfIso: string;
+  withheld: boolean;
 }) {
   const plainDE = usePlain();
   const layers: DasaNote["layer"][] = [
@@ -3852,7 +3862,7 @@ function DasaEffects({
         </span>
         {d.current && (
           <span className="rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-            now
+            <NowWord />
           </span>
         )}
       </div>
@@ -3990,6 +4000,7 @@ function DasaEffects({
             pratyantars={running.pratyantars}
             birthIso={birthIso}
             asOfIso={asOfIso}
+            withheld={withheld}
           />
         </div>
       )}
@@ -4030,7 +4041,7 @@ function FineRow({
       </span>
       {p.current && (
         <span className="rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-          now
+          <NowWord />
         </span>
       )}
       <span className="min-w-0 basis-full text-xs text-muted-foreground sm:basis-0 sm:flex-1">
@@ -4067,12 +4078,14 @@ function FineLevels({
   pratyantars,
   birthIso,
   asOfIso,
+  withheld,
 }: {
   dasaLord: Planet;
   antarLord: Planet;
   pratyantars: NonNullable<AntarReading["pratyantars"]>;
   birthIso: string;
   asOfIso: string;
+  withheld: boolean;
 }) {
   const currentP = pratyantars.find((p) => p.current) ?? pratyantars[0];
   const [pSel, setPSel] = useState<string>(currentP.start);
@@ -4085,8 +4098,9 @@ function FineLevels({
         "sookshma",
         birthIso,
         asOfIso,
+        withheld,
       ),
-    [dasaLord, antarLord, pratyantar, birthIso, asOfIso],
+    [dasaLord, antarLord, pratyantar, birthIso, asOfIso, withheld],
   );
   const [sSel, setSSel] = useState<string | null>(null);
   const sookshma =
@@ -4102,9 +4116,10 @@ function FineLevels({
             "prana",
             birthIso,
             asOfIso,
+            withheld,
           )
         : [],
-    [dasaLord, antarLord, pratyantar, sookshma, birthIso, asOfIso],
+    [dasaLord, antarLord, pratyantar, sookshma, birthIso, asOfIso, withheld],
   );
   return (
     <>
@@ -4282,7 +4297,7 @@ function AntarRows({
           <PlanetName planet={a.lord} />
           {a.current && (
             <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-              now
+              <NowWord />
             </span>
           )}
         </TableCell>

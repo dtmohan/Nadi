@@ -6,6 +6,7 @@ import {
   isConditional,
   nearestChangeText,
   KP_CONDITIONAL_SECONDS,
+  KP_PRECEDENCE,
 } from "../kp";
 import { HOUSE_AREA } from "../life-stage";
 import {
@@ -102,6 +103,11 @@ export const kpModule: ReportModule = {
         text: "Significators by the four steps of the class notes: the houses of the planet's star lord's occupation and ownership, then the planet's own. The Placidus cusps and the KP ayanamsa are those of the KP tab.",
         cites: [cites.add("KP class 3.1-3.2, 4.1 (uploaded PDFs)")],
       },
+      {
+        kind: "note",
+        text: "Where a matter's rules disagree, the principal cusp's sub lord read by its houses decides: marriage by the 7th, length of life by the lagna against the badhaka and maraka houses, children by the 5th, work by the 10th. The other reading is kept as a note and left out of the tally.",
+        cites: [cites.add("Astro Secrets & KP, Part 3 p. 12 (uploaded PDF)")],
+      },
     ];
     const sub: ReportSection[] = [];
     const byCusp = new Map<number, typeof kp.findings>();
@@ -119,18 +125,35 @@ export const kpModule: ReportModule = {
       sub.push({
         id: `kp-${cusp}`,
         title: `The ${ORD(cusp)} cusp`,
-        paras: fs.map((f) => ({
-          kind: "p" as const,
-          text: S(`${f.topic}: ${endStop(f.text)}`),
-          cites: [cites.add(f.source, f.sourceUrl)],
-          aside: f.evidence,
-          tone:
-            f.polarity === "good"
-              ? "support"
-              : f.polarity === "bad"
-                ? "strain"
-                : "mixed",
-        })),
+        paras: fs
+          .slice()
+          .sort(
+            (a, b) =>
+              Number(a.standing === "note") - Number(b.standing === "note"),
+          )
+          .map((f) => ({
+            kind: "p" as const,
+            text: S(
+              f.standing === "note"
+                ? `${f.topic}, as a note: ${endStop(f.text)} Overruled by the ${ORD(KP_PRECEDENCE.find((p) => p.topics.includes(f.topic))?.cusp ?? cusp)} cusp sub lord, the deciding factor for this matter; not counted.`
+                : `${f.topic}: ${endStop(f.text)}`,
+            ),
+            cites: [
+              cites.add(f.source, f.sourceUrl),
+              ...(f.standing === "note"
+                ? [cites.add("Astro Secrets & KP, Part 3 p. 12 (uploaded PDF)")]
+                : []),
+            ],
+            aside: f.evidence,
+            tone:
+              f.standing === "note"
+                ? ("mixed" as const)
+                : f.polarity === "good"
+                  ? ("support" as const)
+                  : f.polarity === "bad"
+                    ? ("strain" as const)
+                    : ("mixed" as const),
+          })),
       });
     }
     if (held.length)

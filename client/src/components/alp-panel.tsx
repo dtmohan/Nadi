@@ -48,7 +48,13 @@ import {
   type VerdictTiming,
 } from "@/components/verdict-card";
 import { toneOfText, gist, firstClause } from "@shared/synthesis";
-import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
+import {
+  ModeText,
+  SectionTitle,
+  usePlain,
+  NowWord,
+  useNowLabel,
+} from "@/components/mode-text";
 import {
   PlanetName,
   SignName,
@@ -105,7 +111,7 @@ function PeriodRow({
         )}
         {p.current && (
           <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-            now
+            <NowWord />
           </span>
         )}
       </TableCell>
@@ -149,6 +155,7 @@ function fmtLon360(lon: number): string {
 }
 
 export function AlpPanel({ result }: { result: ChartResult }) {
+  const nowLabel = useNowLabel();
   const { chart, positions } = result;
   const [asOf, setAsOf] = useState(() => DateTime.local().toISODate()!);
   const config: AlpConfig = DEFAULT_ALP_CONFIG;
@@ -385,7 +392,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           ...(curSign
             ? [
                 {
-                  label: "Now",
+                  label: nowLabel,
                   when: "present",
                   text: (
                     <>
@@ -870,7 +877,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                       <PlanetName planet={d.lord} />
                       {d.current && (
                         <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-                          now
+                          <NowWord />
                         </span>
                       )}
                     </TableCell>
@@ -928,7 +935,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                       {p.pada}
                       {p.current && (
                         <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-                          now
+                          <NowWord />
                         </span>
                       )}
                     </TableCell>
@@ -1607,7 +1614,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                   {n.nakshatra}
                   {n.current && (
                     <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-                      now
+                      <NowWord />
                     </span>
                   )}
                 </TableCell>
@@ -1739,7 +1746,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                     {n.nakshatra}
                     {n.current && (
                       <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-                        now
+                        <NowWord />
                       </span>
                     )}
                   </TableCell>

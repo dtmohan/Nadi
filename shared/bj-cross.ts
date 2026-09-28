@@ -171,7 +171,7 @@ export const BJ_CROSS: CrossCitation[] = [
   },
   {
     key: "houses",
-    rule: "House matters (body, family, brothers, relations, sons, enemies, spouse, death, virtue, avocation, gain, loss) and house classes: kendra 1, 4, 7, 10; panaphara 2, 5, 8, 11; apoklima 3, 6, 9, 12; upachaya 3, 6, 10, 11; trikona 5 and 9",
+    rule: "House matters (body, family, brothers, relations, sons, enemies, spouse, longevity, virtue, avocation, gain, loss) and house classes: kendra 1, 4, 7, 10; panaphara 2, 5, 8, 11; apoklima 3, 6, 9, 12; upachaya 3, 6, 10, 11; trikona 5 and 9",
     parashara: P(11, "2-13"),
     bj: BJ(1, "15-19"),
     standing: "partial",

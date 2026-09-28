@@ -12,7 +12,7 @@ import { SignName, PlanetName } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { RekhaMarks } from "@/components/av-timeline";
 import { cn } from "@/lib/utils";
-import { ModeText, SectionTitle } from "@/components/mode-text";
+import { ModeText, SectionTitle, NowWord } from "@/components/mode-text";
 
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 
@@ -69,7 +69,7 @@ function Row({
         </span>
         {r.current && (
           <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">
-            now
+            <NowWord />
           </span>
         )}
         <span className="ml-auto flex flex-wrap items-center gap-2">

@@ -23,6 +23,7 @@ import {
   PRANA,
   type AntarEntry,
 } from "./parashari-dasa-data";
+import { redactProse } from "./life-stage";
 import {
   compoundRelation,
   type Seven,
@@ -1473,6 +1474,8 @@ export function finePeriodsOf(
   level: "sookshma" | "prana",
   birthIso: string,
   asOfIso: string,
+  /** Sensitive-content gate: verse effects tagged longevity, loss or peril are withheld for a minor. */
+  withhold = false,
 ): FinePeriod[] {
   const parent = chain[chain.length - 1];
   const fullDays = chain.reduce(
@@ -1498,7 +1501,7 @@ export function finePeriodsOf(
         start: s.toISO()!,
         end: e.toISO()!,
         current: asOf >= s && asOf < e,
-        text: entry?.text ?? "",
+        text: withhold ? redactProse(entry?.text ?? "") : (entry?.text ?? ""),
         source: S(ch, entry?.verse ?? "1"),
       });
     }

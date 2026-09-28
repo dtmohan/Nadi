@@ -333,8 +333,12 @@ const KP_CUSPS: Record<AgreementTopic, { cusps: number[]; topics: string[] }> =
 function kpStance(topic: AgreementTopic, kp: KpResult): SystemStance {
   const w = WORDS[topic];
   const { cusps, topics } = KP_CUSPS[topic];
+  // Notes overruled by the principal cusp's sub lord (Part 3 p. 12) do not take a stance.
   const fs = kp.findings.filter(
-    (f) => cusps.includes(f.cusp) && topics.includes(f.topic),
+    (f) =>
+      cusps.includes(f.cusp) &&
+      topics.includes(f.topic) &&
+      f.standing !== "note",
   );
   const good = fs.filter((f) => f.polarity === "good");
   const bad = fs.filter((f) => f.polarity === "bad");

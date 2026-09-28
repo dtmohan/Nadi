@@ -97,7 +97,7 @@ export function AgreementPanel({
     <section
       className={cn("rounded-md border bg-card", className)}
       data-testid="agreement-panel"
-      aria-label="Where the systems agree"
+      aria-label="Where the systems agree or differ"
     >
       <button
         type="button"
@@ -106,7 +106,9 @@ export function AgreementPanel({
         aria-expanded={open}
         data-testid="agreement-toggle"
       >
-        <span className="text-sm font-medium">Where the systems agree</span>
+        <span className="text-sm font-medium">
+          Where the systems agree or differ
+        </span>
         <span className="text-xs text-muted-foreground">
           {topics.length} {topics.length === 1 ? "topic" : "topics"}
           {agree ? `, ${agree} in agreement` : ""}
@@ -166,14 +168,12 @@ export function AgreementPanel({
                 ))}
               </span>
             </div>
-            {open && (
-              <p
-                className="mt-1 text-xs"
-                data-testid={`agreement-sentence-${t.topic}`}
-              >
-                <Soft>{t.sentence}</Soft>
-              </p>
-            )}
+            <p
+              className="mt-1 text-xs"
+              data-testid={`agreement-sentence-${t.topic}`}
+            >
+              <Soft>{t.sentence}</Soft>
+            </p>
             {open && (
               <ul className="mt-1.5 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
                 {t.stances.map((s) => (

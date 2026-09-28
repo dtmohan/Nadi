@@ -95,6 +95,66 @@ export interface KpFinding {
   evidence: string;
   sourceUrl?: string;
   subLord: Planet;
+  /**
+   * Precedence within a matter. "decides": the principal cusp's sub lord read by its house
+   * significations, the deciding factor (Astro Secrets & KP Part 3 p. 12). "note": a finding of
+   * the opposite polarity from a secondary cusp or a planet-nature rule, kept as a note under the
+   * deciding verdict and left out of the tally. Absent when the matter has no precedence table or
+   * no conflict arose.
+   */
+  standing?: "decides" | "note";
+  /** For a note: the rule that decided against it. */
+  decidedBy?: string;
+}
+
+/**
+ * Principal cusp per matter, from the table of "relevant houses and the principal Sub lords"
+ * (Astro Secrets & KP Part 3 p. 12): marriage 2, 7, 11 by the sub of the 7th; longevity by the
+ * sub of the lagna against the badhaka and maraka houses; child birth 2, 5, 11 by the sub of the
+ * 5th; employment 2, 6, 10 by the sub of the 10th. Rules are grouped by their topic strings.
+ */
+export const KP_PRECEDENCE: Array<{ matter: string; topics: string[]; cusp: number; source: string }> = [
+  { matter: "marriage", topics: ["Marriage", "Married life", "Partner"], cusp: 7, source: "Astro Secrets & KP Part 3, p. 12" },
+  { matter: "lifespan", topics: ["Longevity"], cusp: 1, source: "Astro Secrets & KP Part 3, p. 12" },
+  { matter: "children", topics: ["Children"], cusp: 5, source: "Astro Secrets & KP Part 3, p. 12" },
+  { matter: "career", topics: ["Career", "Employment", "Profession"], cusp: 10, source: "Astro Secrets & KP Part 3, p. 12" },
+];
+
+/** A rule read from the sub lord's house significations (the book's own test), not from the planet's nature alone. */
+function readsHouses(w: KpRuleWhen): boolean {
+  return !!(w.all || w.any || w.none || w.minOf || w.fewerThan || w.strong || w.badhaka !== undefined || w.maraka !== undefined);
+}
+
+/**
+ * Applies the principal-cusp precedence: within each matter, a finding on the principal cusp that
+ * reads the sub lord's house significations decides; findings of the opposite polarity on other
+ * cusps, or on the principal cusp by the planet's nature alone, become notes. When the principal
+ * cusp itself carries both polarities by house significations nothing is demoted and the matter
+ * stays contested. The book's own words: "one of the houses is the principal house and its Sub
+ * Lord is the deciding factor" (Part 3 p. 12).
+ */
+export function applyKpPrecedence(findings: KpFinding[]): KpFinding[] {
+  const byId = new Map(KP_RULES.map((r) => [r.id, r]));
+  const out = findings.map((f) => ({ ...f }));
+  for (const pr of KP_PRECEDENCE) {
+    const group = out.filter((f) => pr.topics.includes(f.topic) && f.polarity !== "neutral");
+    if (group.length < 2) continue;
+    const principal = group.filter((f) => f.cusp === pr.cusp && readsHouses(byId.get(f.ruleId)?.when ?? { cusp: pr.cusp }));
+    if (!principal.length) continue;
+    const pols = new Set(principal.map((f) => f.polarity));
+    if (pols.size !== 1) continue;
+    const decided = principal[0].polarity;
+    const lead = principal[0];
+    for (const f of principal) f.standing = "decides";
+    for (const f of group) {
+      if (f.standing === "decides") continue;
+      if (f.polarity !== decided) {
+        f.standing = "note";
+        f.decidedBy = lead.ruleId;
+      }
+    }
+  }
+  return out;
 }
 
 const C32 = "Kalpurush Astrology, KP class 3.2 (the 1st cusp), S. Neogi";

@@ -22,7 +22,7 @@ import type {
 import { SignName, PlanetName, planetColor } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { cn } from "@/lib/utils";
-import { ModeText, SectionTitle } from "@/components/mode-text";
+import { ModeText, SectionTitle, NowWord } from "@/components/mode-text";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
@@ -121,7 +121,7 @@ function MotherRow({
         )}
         {r.current && (
           <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">
-            now
+            <NowWord />
           </span>
         )}
         <span
@@ -271,7 +271,7 @@ function MotherSection({
               </span>
               {c.current && (
                 <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">
-                  now
+                  <NowWord />
                 </span>
               )}
               <span
@@ -353,7 +353,7 @@ function ArishtaRow({
         </span>
         {r.current && (
           <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">
-            now
+            <NowWord />
           </span>
         )}
         <span
@@ -457,7 +457,7 @@ function Row({
           )}
           {r.current && (
             <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">
-              now
+              <NowWord />
             </span>
           )}
         </span>
@@ -538,7 +538,7 @@ function NakRow({ r }: { r: AvNakshatraRow }) {
       )}
       {r.current && (
         <span className="rounded bg-primary/10 px-1 text-2xs font-medium text-primary">
-          now
+          <NowWord />
         </span>
       )}
       <span className="ml-auto flex flex-wrap gap-1">

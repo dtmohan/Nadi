@@ -24,6 +24,7 @@ import {
   holdText,
   nearestChangeText,
   KP_CONDITIONAL_SECONDS,
+  KP_PRECEDENCE,
   type KpPeriod,
   type KpStabilityPoint,
   type SignificatorLevel,
@@ -61,7 +62,12 @@ import {
 import { Working } from "@/components/working";
 import { VerdictCard, type VerdictSignature } from "@/components/verdict-card";
 import { gist, firstClause } from "@shared/synthesis";
-import { ModeText, SectionTitle } from "@/components/mode-text";
+import {
+  ModeText,
+  SectionTitle,
+  NowWord,
+  useNowLabel,
+} from "@/components/mode-text";
 import { useReadingMode } from "@/lib/reading-mode";
 import {
   PlanetName,
@@ -229,7 +235,7 @@ function PeriodRow({
         <PlanetName planet={p.lord} />
         {p.current && (
           <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-            now
+            <NowWord />
           </span>
         )}
       </TableCell>
@@ -463,6 +469,7 @@ function WindowDrill({
 }
 
 export function KpPanel({ result }: { result: ChartResult }) {
+  const nowLabel = useNowLabel();
   const { chart } = result;
   const { mode } = useReadingMode();
   const plain = mode === "plain";
@@ -695,11 +702,13 @@ export function KpPanel({ result }: { result: ChartResult }) {
   const briefFindings = kp.findings.filter(
     (f) => f.topic !== "Sources of income",
   );
+  // Notes (findings overruled by the principal cusp's sub lord, Part 3 p. 12) stay out of the tally.
+  const tallied = briefFindings.filter((f) => f.standing !== "note");
   const goodSet = new Set(
-    briefFindings.filter((f) => f.polarity === "good").map((f) => f.cusp),
+    tallied.filter((f) => f.polarity === "good").map((f) => f.cusp),
   );
   const badSet = new Set(
-    briefFindings.filter((f) => f.polarity === "bad").map((f) => f.cusp),
+    tallied.filter((f) => f.polarity === "bad").map((f) => f.cusp),
   );
   const byHouse = (a: Set<number>, b: Set<number>, both: boolean) =>
     Array.from(a)
@@ -717,6 +726,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
     .filter((h) => goodSet.has(h) || badSet.has(h))
     .sort((x, y) => x - y);
   const nextWindow = allWindows.find((w) => !w.past);
+  const overruled = briefFindings.filter((f) => f.standing === "note");
   const stabilityByHouse = new Map(
     (kp.stability?.cusps ?? []).map((p) => [p.house!, p]),
   );
@@ -732,7 +742,8 @@ export function KpPanel({ result }: { result: ChartResult }) {
     for (const h of order) {
       if (heldHouses.includes(h)) continue;
       const f = briefFindings.find(
-        (x) => x.cusp === h && x.polarity !== "neutral",
+        (x) =>
+          x.cusp === h && x.polarity !== "neutral" && x.standing !== "note",
       );
       if (!f) continue;
       out.push({
@@ -936,7 +947,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
         signatures={kpSignatures}
         timing={[
           {
-            label: "Now",
+            label: nowLabel,
             when: "present",
             text: (
               <>
@@ -1012,6 +1023,10 @@ export function KpPanel({ result }: { result: ChartResult }) {
           {
             label: "Method",
             text: "The planet ruling the sub at which a house begins decides whether the house delivers; a matter happens when the period, sub-period and sub-sub-period planets all speak for its houses.",
+          },
+          {
+            label: "Precedence",
+            text: `Where a matter's rules disagree, the principal cusp's sub lord read by its houses decides (marriage the 7th, length of life the lagna, children the 5th, work the 10th); the other reading is kept as a note and left out of the tally.${overruled.length ? ` Here: ${overruled.map((f) => `${f.topic.toLowerCase()} on the ${ordinal(f.cusp)} (${firstClause(gist(f.text)).toLowerCase()})`).join("; ")}.` : ""}`,
           },
           {
             label: "Verdicts",
@@ -1430,7 +1445,12 @@ export function KpPanel({ result }: { result: ChartResult }) {
             const fs = findingsByCusp.get(c.house) ?? [];
             const sl = kp.planets.find((p) => p.planet === c.subLord)!;
             const houses = sig.get(c.subLord) ?? [];
-            const main = fs.filter((f) => f.topic !== "Sources of income");
+            const main = fs
+              .filter((f) => f.topic !== "Sources of income")
+              .sort(
+                (a, b) =>
+                  Number(a.standing === "note") - Number(b.standing === "note"),
+              );
             const income = fs.filter((f) => f.topic === "Sources of income");
             return (
               <article
@@ -1476,14 +1496,31 @@ export function KpPanel({ result }: { result: ChartResult }) {
                         <span
                           className={cn(
                             "mt-1.5 h-2 w-2 shrink-0 rounded-full",
-                            POLARITY_CLASS[f.polarity],
+                            f.standing === "note"
+                              ? "bg-muted-foreground/40"
+                              : POLARITY_CLASS[f.polarity],
                           )}
-                          aria-label={f.polarity}
+                          aria-label={
+                            f.standing === "note" ? "note" : f.polarity
+                          }
                         />
-                        <span>
+                        <span
+                          className={cn(
+                            f.standing === "note" && "text-muted-foreground",
+                          )}
+                        >
                           <span className="mr-1.5 text-xs font-medium text-muted-foreground">
                             {f.topic}.
                           </span>
+                          {f.standing === "note" && (
+                            <span
+                              className="mr-1.5 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground"
+                              title={`Overruled: the ${ordinal(KP_PRECEDENCE.find((p) => p.topics.includes(f.topic))?.cusp ?? c.house)} cusp sub lord decides this matter (Astro Secrets & KP Part 3 p. 12); kept as a note, not counted.`}
+                              data-testid={`kp-note-${f.ruleId}`}
+                            >
+                              note
+                            </span>
+                          )}
                           <Soft>{f.text}</Soft>
                           {f.timing && (
                             <span
@@ -1815,7 +1852,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                         <PlanetName planet={w.antaraLord} abbr />
                         {w.current && (
                           <span className="ml-2 rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
-                            now
+                            <NowWord />
                           </span>
                         )}
                       </TableCell>

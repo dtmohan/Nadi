@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { SourceLink, Cite } from "@/components/source-link";
-import { ModeText } from "@/components/mode-text";
+import { ModeText, NowWord } from "@/components/mode-text";
 
 function ordinal(n: number) {
   return `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
@@ -319,7 +319,7 @@ function AreaCard({
               className="text-xs text-muted-foreground"
               data-testid={`jarea-now-${a.area}`}
             >
-              now {SIGNS[cur.period.sign]}
+              <NowWord /> {SIGNS[cur.period.sign]}
               {cur.window ? ` / ${SIGNS[cur.window.adSign]}` : ""} ·{" "}
               {isHot(cur.period.triggers) || cur.window ? "active" : "quiet"}
             </span>
@@ -527,7 +527,7 @@ function AreaCard({
                                     variant="secondary"
                                     className="no-default-hover-elevate ml-1.5 text-[9px]"
                                   >
-                                    now
+                                    <NowWord />
                                   </Badge>
                                 )}
                               </span>

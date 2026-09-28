@@ -146,13 +146,63 @@ export function sensitiveGate(
 
 export const SENSITIVE_WITHHELD_NOTE = `Length-of-life, maraka and arishta statements, and those on the loss of a parent, are not shown for a native under ${SENSITIVE_MIN_AGE}. The combinations remain in the chart and are read when the native comes of age (a policy of this app, provisional).`;
 
-/** Terms beyond the gentle map that mark a statement as withheld for a minor. */
-const MINOR_RE =
-  /\b(maraka|marakas|longevity|alpayu|madhyayu|purnayu|arishta|balarishta|span of life|length of life|life[- ]span|end of life|one's own end|demise|fatal|loss of (a |the |one's )?(father|mother|parent|parents)|(father|mother|parent)'s (death|passing|end|loss)|risk to life|threat to life|danger to life|killer)\b/i;
+/**
+ * Topics withheld for a minor. A statement is tagged by what it is about, not by the single word
+ * "death": the length of life in either direction (a short or a long life is the same topic), the
+ * planets and periods that can end it, danger to the infant, and the loss of a parent, spouse or
+ * child. Peril covers the verse readings of danger to life and limb (hunting, fire, weapons,
+ * poison), which a child's reading does not need either.
+ */
+export type SensitiveTag =
+  | "longevity"
+  | "maraka"
+  | "arishta"
+  | "parent-loss"
+  | "spouse-loss"
+  | "child-loss"
+  | "peril";
+
+const KIN_PARENT = "(father|mother|parent|parents|elders?)";
+const KIN_SPOUSE = "(spouse|wife|husband|partner|the married partner|life partner)";
+const KIN_CHILD = "(children|child|son|sons|daughter|daughters|progeny|offspring|issue)";
+const LOSS = "(loss|death|destruction|end|passing|demise|bereavement|widowhood) of (a |the |one's |his |her |their )?";
+
+const TAG_RES: Array<[SensitiveTag, RegExp]> = [
+  [
+    "longevity",
+    /\b(longevity|alpayu|madhyayu|purnayu|span of life|length of life|life[- ]?span|end of life|one's own end|demise|fatal|(short|long|full|middle|medium|brief) (span|life|lived|life is read|life span)|long-lived|short-lived|years? of life|lives? (long|to a ripe age)|dies? (early|young|in|at|within|soon)|life (ends|is cut)|the end (falls|comes)|life-?threatening)\b/i,
+  ],
+  ["maraka", /\b(maraka|marakas|killer|killer planet|death-inflicting|death-dealing)\b/i],
+  ["arishta", /\b(arishta|balarishta|arishtas|infant mortality|dies? in (infancy|childhood))\b/i],
+  [
+    "parent-loss",
+    new RegExp(`\\b(${LOSS}${KIN_PARENT}|${KIN_PARENT}'s (death|passing|end|loss|demise)|(father|mother)less|orphan)\\b`, "i"),
+  ],
+  [
+    "spouse-loss",
+    new RegExp(`\\b(${LOSS}${KIN_SPOUSE}|${KIN_SPOUSE}'s (death|passing|end|loss|demise)|widow|widower|widowhood|bereaved of (a|the) ${KIN_SPOUSE})\\b`, "i"),
+  ],
+  [
+    "child-loss",
+    new RegExp(`\\b(${LOSS}${KIN_CHILD}|${KIN_CHILD}'s (death|passing|end|loss|demise)|grief through ${KIN_CHILD}|childless through loss)\\b`, "i"),
+  ],
+  [
+    "peril",
+    /\b(risk to life|threat to life|danger to life|danger of death|death|deaths|dies|dying|hunting|danger (of|from|through) (fire|weapons?|arms|poison|snakes?|water|drowning|the king|enemies|an enemy|thieves|animals|beasts|accidents?)|grave (danger|risk|peril)|mortal|drown(s|ing)?|poison(ed|ing)?|wounds? by|injury from a weapon|assassin|murder)\b/i,
+  ],
+];
+
+/** Every sensitive topic a statement touches; empty for an ordinary statement. */
+export function sensitiveTags(text: string): SensitiveTag[] {
+  const out: SensitiveTag[] = [];
+  for (const [tag, re] of TAG_RES) if (re.test(text)) out.push(tag);
+  if (!out.length && isSensitive(text)) out.push("peril");
+  return out;
+}
 
 /** True when a statement is withheld for a native under the gate age. */
 export function withholdText(text: string): boolean {
-  return MINOR_RE.test(text) || isSensitive(text);
+  return sensitiveTags(text).length > 0;
 }
 
 /** Keys that hold identifiers or enumerations, never prose; left untouched by the redaction. */
@@ -163,13 +213,25 @@ const KEEP_KEYS = new Set([
   "mode", "type", "house", "cusp", "verse", "verses", "ch", "label", "short", "name", "nakshatra",
 ]);
 /** Keys whose object is dropped from a list when its own text is withheld. */
-const HEAD_KEYS = ["text", "title", "topic", "headline", "summary", "blurb", "matters"];
+const HEAD_KEYS = ["text", "title", "topic", "headline", "summary", "blurb", "matters", "label", "effects"];
 
-/** A sentence that is a bare list of matters (three or more comma-separated items) loses only the offending items. */
+/** Tags that name a topic (a house keyword such as "longevity") rather than an event befalling someone. */
+const KEYWORD_TAGS = new Set<SensitiveTag>(["longevity", "maraka", "arishta"]);
+
+/**
+ * A sentence that is a bare list of matters (three or more comma-separated items) loses only the
+ * offending items, and only when those items are topic keywords of a few words ("longevity", "span
+ * of life"). A verse reading that names a loss or a peril among its effects is withheld whole.
+ */
 function stripSentence(p: string): string | null {
   if (!withholdText(p)) return p;
   const items = p.split(/,\s*/);
   if (items.length < 3) return null;
+  const offending = items.filter((it) => withholdText(it));
+  const keywordOnly = offending.every(
+    (it) => it.trim().split(/\s+/).length <= 4 && sensitiveTags(it).every((t) => KEYWORD_TAGS.has(t)),
+  );
+  if (!keywordOnly) return null;
   const kept = items.filter((it) => !withholdText(it));
   if (kept.length < 2) return null;
   const tail = /[.;!?]$/.test(p) ? p.slice(-1) : "";
@@ -210,9 +272,16 @@ export function redactSensitive<T>(value: T, key?: string): T {
       } else if (item && typeof item === "object") {
         const o = item as Record<string, unknown>;
         const headed = HEAD_KEYS.some((k) => typeof o[k] === "string");
+        // An object is dropped from its list when any heading text is wholly withheld, or when a
+        // label (kept verbatim elsewhere, since labels are also identifiers) carries a withheld topic.
         const dropped =
           headed &&
-          HEAD_KEYS.some((k) => typeof o[k] === "string" && (o[k] as string) !== "" && stripSentences(o[k] as string) === "");
+          HEAD_KEYS.some(
+            (k) =>
+              typeof o[k] === "string" &&
+              (o[k] as string) !== "" &&
+              (k === "label" ? withholdText(o[k] as string) : stripSentences(o[k] as string) === ""),
+          );
         if (!dropped) out.push(redactSensitive(item));
       } else out.push(item);
     }

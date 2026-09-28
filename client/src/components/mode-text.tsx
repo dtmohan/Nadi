@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { ReactNode, createContext, useContext } from "react";
 import { useReadingMode } from "@/lib/reading-mode";
 import { Term } from "@/components/term";
 import { cn } from "@/lib/utils";
@@ -64,6 +64,39 @@ export function SectionTitle({
       {children}
     </Tag>
   );
+}
+
+/**
+ * Whether the chart being read has a recorded date of passing. Every "now" marker in the period
+ * tables then reads "at passing", since the reading is taken at that date, not today.
+ */
+const DeceasedContext = createContext(false);
+export function DeceasedProvider({
+  deceased,
+  children,
+}: {
+  deceased: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <DeceasedContext.Provider value={deceased}>
+      {children}
+    </DeceasedContext.Provider>
+  );
+}
+export function useDeceased() {
+  return useContext(DeceasedContext);
+}
+/** The word for the running period: "now", or "at passing" for a native with a recorded date of passing. */
+export function NowWord({ cap = false }: { cap?: boolean }) {
+  const deceased = useDeceased();
+  const w = deceased ? "at passing" : "now";
+  return <>{cap ? w.charAt(0).toUpperCase() + w.slice(1) : w}</>;
+}
+export function useNowLabel(cap = true): string {
+  const deceased = useDeceased();
+  const w = deceased ? "at passing" : "now";
+  return cap ? w.charAt(0).toUpperCase() + w.slice(1) : w;
 }
 
 export function usePlain() {

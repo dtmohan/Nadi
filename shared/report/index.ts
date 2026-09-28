@@ -189,7 +189,7 @@ function agreementSection(
   if (!topics.length) return undefined;
   return {
     id: "agreement",
-    title: "Where the systems agree",
+    title: "Where the systems agree or differ",
     kicker: "Across the readings",
     paras: [
       {
