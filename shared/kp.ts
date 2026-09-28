@@ -53,11 +53,78 @@ const NAK_ARC = 360 / 27;
 const YEAR_DAYS = 365.25;
 
 /** Data the ephemeris must provide (computed server-side with the Krishnamurti ayanamsa). */
+/**
+ * How long a KP point keeps its sub lord either side of the recorded birth time. A cusp moves about
+ * a degree every four minutes and a sub spans 0°46' to 2°13', so a cusp sub lord holds for a few
+ * minutes at most; the texts make a correct birth time the first condition of a KP reading
+ * (Astro Secrets & KP Part 1 pp. 172-173; Part 3 p. 12). Seconds are null when the change lies
+ * beyond the search window.
+ */
+export interface KpStabilityPoint {
+  /** 1..12 for a cusp; absent for the Moon. */
+  house?: number;
+  label: string;
+  starLord: Planet;
+  subLord: Planet;
+  /** Seconds back from the recorded time to the previous sub change. */
+  before: number | null;
+  /** Seconds forward to the next sub change. */
+  after: number | null;
+  prevSub: Planet | null;
+  nextSub: Planet | null;
+}
+
+export interface KpStability {
+  /** Search window either side of the recorded time, in seconds, for the cusps. */
+  cuspWindow: number;
+  /** Search window for the Moon, in seconds. */
+  moonWindow: number;
+  cusps: KpStabilityPoint[];
+  moon: KpStabilityPoint;
+}
+
+/** Below this many seconds to a sub change a cusp verdict is read as conditional on the birth minute. The figure is the app's convention (provisional). */
+export const KP_CONDITIONAL_SECONDS = 120;
+
+/** Seconds to the nearest sub change on either side; Infinity when both lie beyond the window. */
+export function stabilityMargin(p: KpStabilityPoint): number {
+  return Math.min(p.before ?? Infinity, p.after ?? Infinity);
+}
+
+export function isConditional(p: KpStabilityPoint | undefined): boolean {
+  return p !== undefined && stabilityMargin(p) < KP_CONDITIONAL_SECONDS;
+}
+
+/** "holds from 1 min 41 s before to 2 min 5 s after the recorded time". */
+export function holdText(p: KpStabilityPoint): string {
+  return `holds from ${fmtHold(p.before)} before to ${fmtHold(p.after)} after the recorded time`;
+}
+
+/** "changes to Mars 16 s later" or "changed from Sun 7 s earlier", for the nearer side. */
+export function nearestChangeText(p: KpStabilityPoint): string {
+  const b = p.before ?? Infinity;
+  const a = p.after ?? Infinity;
+  if (!isFinite(a) && !isFinite(b)) return "does not change within the search window";
+  return a <= b
+    ? `changes to ${p.nextSub} ${fmtHold(a)} later`
+    : `was ${p.prevSub} until ${fmtHold(b)} earlier`;
+}
+
+export function fmtHold(seconds: number | null): string {
+  if (seconds === null) return "over an hour";
+  if (seconds < 60) return `${Math.round(seconds)} s`;
+  const m = Math.floor(seconds / 60);
+  const s = Math.round(seconds - m * 60);
+  return s ? `${m} min ${s} s` : `${m} min`;
+}
+
 export interface KpBase {
   ayanamsaValue: number;
   positions: PlanetPosition[];
   /** Placidus cusps 1..12, sidereal longitudes. */
   cusps: number[];
+  /** Sub-lord stability of the cusps and the Moon around the recorded time; absent on results computed before it was added. */
+  stability?: KpStability;
   /** Snapshot for the ruling planets: the moment of judgement at the birth place. */
   now: {
     asOf: string;
@@ -691,6 +758,8 @@ export function rulingPlanets(now: KpBase["now"]): RulingPlanets {
 export interface KpResult {
   /** True when the sensitive-content gate has stripped longevity and maraka material (native under 18). */
   withheld: boolean;
+  /** Sub-lord stability around the recorded time, when the server computed it. */
+  stability?: KpStability;
   ayanamsaValue: number;
   cusps: KpCusp[];
   planets: KpPlanet[];
@@ -737,6 +806,7 @@ export function computeKp(
     YEAR_DAYS;
   const partial: Omit<KpResult, "findings"> = {
     withheld: withhold,
+    stability: base.stability,
     ayanamsaValue: base.ayanamsaValue,
     cusps,
     planets,

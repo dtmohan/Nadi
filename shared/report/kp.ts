@@ -1,6 +1,12 @@
 // Krishnamurti Paddhati: cusps, sub lords, significators and the findings per cusp.
 import { fmtDeg } from "../astro";
-import { computeKp } from "../kp";
+import {
+  computeKp,
+  fmtHold,
+  isConditional,
+  nearestChangeText,
+  KP_CONDITIONAL_SECONDS,
+} from "../kp";
 import { HOUSE_AREA } from "../life-stage";
 import {
   endStop,
@@ -20,6 +26,9 @@ export const kpModule: ReportModule = {
     const { result, S, cites, asOf, inSeason, withheld } = ctx;
     const kp = computeKp(result.kp, result.utc, asOf, false, withheld);
     const lagna = kp.cusps[0];
+    const conditional = (kp.stability?.cusps ?? []).filter((p) =>
+      isConditional(p),
+    );
     const paras: ReportPara[] = [
       {
         kind: "lead",
@@ -28,14 +37,44 @@ export const kpModule: ReportModule = {
       },
       {
         kind: "table",
-        head: ["Cusp", "Sign and degree", "Star lord", "Sub lord"],
-        rows: kp.cusps.map((c) => [
-          ORD(c.house),
-          `${c.sign} ${fmtDeg(c.lon)}`,
-          c.starLord,
-          c.subLord,
-        ]),
+        head: [
+          "Cusp",
+          "Sign and degree",
+          "Star lord",
+          "Sub lord",
+          ...(kp.stability ? ["Sub lord holds (before / after)"] : []),
+        ],
+        rows: kp.cusps.map((c) => {
+          const p = kp.stability?.cusps.find((x) => x.house === c.house);
+          return [
+            ORD(c.house),
+            `${c.sign} ${fmtDeg(c.lon)}`,
+            c.starLord,
+            c.subLord,
+            ...(kp.stability
+              ? [
+                  p
+                    ? `${fmtHold(p.before)} / ${fmtHold(p.after)}${isConditional(p) ? " (conditional)" : ""}`
+                    : "—",
+                ]
+              : []),
+          ];
+        }),
       },
+      ...(kp.stability
+        ? [
+            {
+              kind: "note" as const,
+              text: `A cusp moves about a degree every four minutes and a sub spans 46' to 2°13', so a cusp sub lord holds for minutes; the books make a correct birth time the first condition of a reading. ${conditional.length ? `${conditional.length === 1 ? "One cusp" : `${conditional.length} cusps`} (${conditional.map((p) => ORD(p.house!)).join(", ")}) ${conditional.length === 1 ? "changes its" : "change their"} sub lord within ${KP_CONDITIONAL_SECONDS / 60} minutes of the recorded time, so ${conditional.length === 1 ? "its verdict is" : "their verdicts are"} conditional on the minute.` : `No cusp sub lord changes within ${KP_CONDITIONAL_SECONDS / 60} minutes of the recorded time.`} The Moon's sub lord ${nearestChangeText(kp.stability.moon)}. The two-minute margin is the app's convention.`,
+              provisional: true,
+              cites: [
+                cites.add(
+                  "Astro Secrets & KP, Part 1 pp. 172-173; Part 3 p. 12 (uploaded PDFs)",
+                ),
+              ],
+            },
+          ]
+        : []),
       {
         kind: "table",
         head: [

@@ -10,7 +10,7 @@
 import { firstClause, gist, toneOf, type AreaSynthesis } from "./synthesis";
 import type { AreaReading } from "./jaimini-areas";
 import type { ParashariResult } from "./parashari";
-import type { KpResult } from "./kp";
+import { isConditional, nearestChangeText, type KpResult } from "./kp";
 import type { AyurResult } from "./jaimini-ayur";
 
 export type AgreementTopic =
@@ -348,15 +348,22 @@ function kpStance(topic: AgreementTopic, kp: KpResult): SystemStance {
   const denied = bad.find((f) => /denied/.test(f.ruleId));
   const cusp = kp.cusps.find((c) => c.house === cusps[0]);
   const sub = cusp ? `${ordinal(cusps[0])} sub lord ${cusp.subLord}` : "";
+  // A verdict whose cusp sub lord changes within two minutes of the recorded time is conditional.
+  const point = kp.stability?.cusps.find((p) => p.house === cusps[0]);
+  const cond = isConditional(point);
+  const condWord = (w: string) => (cond ? `${w} (conditional)` : w);
+  const condNote =
+    cond && point ? `; the sub lord ${nearestChangeText(point)}` : "";
   if (good.length && bad.length) {
     // The book gives the cusp sub lord the last word, yet the rules here fire on the same cusp in
     // both directions; that is a contest inside KP, not a mixed verdict.
     return {
       system: "kp",
       stance: "contested",
-      word: w.contested,
+      word: condWord(w.contested),
       note: clip(
-        `${sub}: ${lc(firstSentence(good[0].text.replace(/^[^:]*:\s*/, "")))}; yet ${lc(firstSentence((denied ?? bad[0]).text.replace(/^[^:]*:\s*/, "")))}`,
+        `${sub}: ${lc(firstSentence(good[0].text.replace(/^[^:]*:\s*/, "")))}; yet ${lc(firstSentence((denied ?? bad[0]).text.replace(/^[^:]*:\s*/, "")))}${condNote}`,
+        160,
       ),
     };
   }
@@ -364,17 +371,19 @@ function kpStance(topic: AgreementTopic, kp: KpResult): SystemStance {
     return {
       system: "kp",
       stance: "strains",
-      word: denied ? "denied or much delayed" : w.strains,
+      word: condWord(denied ? "denied or much delayed" : w.strains),
       note: clip(
-        `${sub}: ${lc(firstSentence((denied ?? bad[0]).text.replace(/^[^:]*:\s*/, "")))}`,
+        `${sub}: ${lc(firstSentence((denied ?? bad[0]).text.replace(/^[^:]*:\s*/, "")))}${condNote}`,
+        160,
       ),
     };
   return {
     system: "kp",
     stance: "supports",
-    word: w.supports,
+    word: condWord(w.supports),
     note: clip(
-      `${sub}: ${lc(firstSentence(good[0].text.replace(/^[^:]*:\s*/, "")))}`,
+      `${sub}: ${lc(firstSentence(good[0].text.replace(/^[^:]*:\s*/, "")))}${condNote}`,
+      160,
     ),
   };
 }

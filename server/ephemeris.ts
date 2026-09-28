@@ -4,7 +4,12 @@ import { resolveTimeBasis, birthUtc, type TimeBasis } from "@shared/time-basis";
 import path from "node:path";
 import fs from "node:fs";
 import { DateTime } from "luxon";
-import type { KpBase } from "@shared/kp";
+import {
+  lordsAt,
+  type KpBase,
+  type KpStability,
+  type KpStabilityPoint,
+} from "@shared/kp";
 import type { SunriseDefinition } from "@shared/schema";
 import type { ShadbalaBase, Seven } from "@shared/shadbala";
 import {
@@ -599,8 +604,111 @@ export function kpBase(
     ayanamsaValue: ayanamsaAt(jd, opts),
     positions,
     cusps,
+    stability: kpStability(jd, latitude, longitude, nodeType),
     now: judgementNow(latitude, longitude, zone, nodeType),
   };
+}
+
+/** Signed offset of `lon` from `target` in (-180, 180]. */
+function offset(lon: number, target: number): number {
+  const d = norm360(lon - target);
+  return d > 180 ? d - 360 : d;
+}
+
+/**
+ * Seconds from jd0 to the moment `lonAt` crosses `target`, searching forward (dir = 1) or back
+ * (dir = -1) up to `window` seconds; null when the crossing lies beyond the window. The point is
+ * assumed to move forward monotonically over the window, which holds for the cusps over an hour and
+ * for the Moon over a day.
+ */
+function crossingSeconds(
+  lonAt: (jd: number) => number,
+  jd0: number,
+  target: number,
+  dir: 1 | -1,
+  window: number,
+): number | null {
+  const DAY = 86400;
+  const far = jd0 + (dir * window) / DAY;
+  // Forward: the offset is negative now and turns non-negative at the crossing. Back: it is
+  // non-negative now and was negative before the crossing.
+  const crossed = (jd: number) =>
+    dir === 1 ? offset(lonAt(jd), target) >= 0 : offset(lonAt(jd), target) < 0;
+  if (!crossed(far)) return null;
+  let near = jd0;
+  let beyond = far;
+  for (let i = 0; i < 22; i++) {
+    const mid = (near + beyond) / 2;
+    if (crossed(mid)) beyond = mid;
+    else near = mid;
+  }
+  return Math.abs(beyond - jd0) * DAY;
+}
+
+function stabilityOf(
+  lonAt: (jd: number) => number,
+  jd0: number,
+  window: number,
+  label: string,
+  house?: number,
+): KpStabilityPoint {
+  const lon0 = lonAt(jd0);
+  const L = lordsAt(lon0);
+  const EPS = 1e-6;
+  const after = crossingSeconds(lonAt, jd0, L.subEnd, 1, window);
+  const before = crossingSeconds(lonAt, jd0, L.subStart, -1, window);
+  return {
+    house,
+    label,
+    starLord: L.starLord,
+    subLord: L.subLord,
+    before: before === null ? null : Math.round(before * 10) / 10,
+    after: after === null ? null : Math.round(after * 10) / 10,
+    prevSub: before === null ? null : lordsAt(L.subStart - EPS).subLord,
+    nextSub: after === null ? null : lordsAt(L.subEnd + EPS).subLord,
+  };
+}
+
+/**
+ * How long each cusp, and the Moon, keeps its sub lord either side of the recorded time. Cusps are
+ * searched an hour each way, the Moon a day; the sub table is the KP one (shared/kp.ts).
+ */
+export function kpStability(
+  jd: number,
+  latitude: number,
+  longitude: number,
+  nodeType: EphemerisOptions["nodeType"],
+): KpStability {
+  const opts: EphemerisOptions = { ayanamsa: "kp", nodeType };
+  const CUSP_WINDOW = 3600;
+  const MOON_WINDOW = 86400;
+  const cuspCache = new Map<number, number[]>();
+  const cuspsMemo = (t: number) => {
+    let c = cuspCache.get(t);
+    if (!c) {
+      c = cuspsAt(t, latitude, longitude, opts);
+      cuspCache.set(t, c);
+    }
+    return c;
+  };
+  const ord = (n: number) =>
+    n === 2 ? "2nd" : n === 3 ? "3rd" : n === 11 || n === 12 ? `${n}th` : `${n}th`;
+  const cusps = Array.from({ length: 12 }, (_, i) =>
+    stabilityOf(
+      (t) => cuspsMemo(t)[i],
+      jd,
+      CUSP_WINDOW,
+      i === 0 ? "Lagna" : `${ord(i + 1)} cusp`,
+      i + 1,
+    ),
+  );
+  const moon = stabilityOf(
+    (t) => siderealLon(t, C.SE_MOON, opts).lon,
+    jd,
+    MOON_WINDOW,
+    "Moon",
+  );
+  return { cuspWindow: CUSP_WINDOW, moonWindow: MOON_WINDOW, cusps, moon };
 }
 
 /**

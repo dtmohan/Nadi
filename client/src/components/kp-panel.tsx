@@ -18,7 +18,14 @@ import {
   computeKp,
   significatorMap,
   jointPeriods,
+  isConditional,
+  stabilityMargin,
+  fmtHold,
+  holdText,
+  nearestChangeText,
+  KP_CONDITIONAL_SECONDS,
   type KpPeriod,
+  type KpStabilityPoint,
   type SignificatorLevel,
 } from "@shared/kp";
 import {
@@ -144,6 +151,34 @@ const POLARITY_CLASS = {
   bad: "bg-verdict-bad",
   neutral: "bg-muted-foreground/50",
 } as const;
+
+/** How long a cusp keeps its sub lord around the recorded time; "conditional" when a change is within two minutes. */
+function HoldChip({
+  point,
+  plain,
+}: {
+  point: KpStabilityPoint | undefined;
+  plain: boolean;
+}) {
+  if (!point) return null;
+  const cond = isConditional(point);
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-2xs",
+        cond
+          ? "border-verdict-mixed/50 text-verdict-mixed"
+          : "border-border text-muted-foreground",
+      )}
+      title={`${plain ? "The deciding planet" : "The sub lord"} ${holdText(point)}; it ${nearestChangeText(point)}.`}
+      data-testid={`kp-hold-${point.house ?? "moon"}`}
+      data-conditional={cond}
+    >
+      {cond ? "conditional" : "holds"} −{fmtHold(point.before)} / +
+      {fmtHold(point.after)}
+    </span>
+  );
+}
 
 function Houses({
   houses,
@@ -682,6 +717,15 @@ export function KpPanel({ result }: { result: ChartResult }) {
     .filter((h) => goodSet.has(h) || badSet.has(h))
     .sort((x, y) => x - y);
   const nextWindow = allWindows.find((w) => !w.past);
+  const stabilityByHouse = new Map(
+    (kp.stability?.cusps ?? []).map((p) => [p.house!, p]),
+  );
+  const conditionalCusps = (kp.stability?.cusps ?? [])
+    .filter((p) => isConditional(p))
+    .sort((a, b) => stabilityMargin(a) - stabilityMargin(b));
+  const tightestCusp = (kp.stability?.cusps ?? [])
+    .slice()
+    .sort((a, b) => stabilityMargin(a) - stabilityMargin(b))[0];
   const kpSignatures: VerdictSignature[] = useMemo(() => {
     const order = [1, 7, 10, 2, 5, 4, 11, 6, 8, 12, 3, 9];
     const out: VerdictSignature[] = [];
@@ -947,6 +991,24 @@ export function KpPanel({ result }: { result: ChartResult }) {
                 },
               ]
             : []),
+          ...(kp.stability
+            ? [
+                {
+                  label: "Birth time",
+                  text: conditionalCusps.length
+                    ? `${conditionalCusps.length === 1 ? "One cusp sub lord changes" : `${conditionalCusps.length} cusp sub lords change`} within ${KP_CONDITIONAL_SECONDS / 60} minutes of the recorded time (${conditionalCusps
+                        .slice(0, 3)
+                        .map(
+                          (p) =>
+                            `the ${ordinal(p.house!)} ${nearestChangeText(p)}`,
+                        )
+                        .join(
+                          "; ",
+                        )}${conditionalCusps.length > 3 ? "; and more" : ""}); ${conditionalCusps.length === 1 ? "its verdict is" : "their verdicts are"} conditional on the minute. The books make a correct birth time the first condition of a reading; the two-minute margin is the app's convention.`
+                    : `Every cusp sub lord holds for more than ${KP_CONDITIONAL_SECONDS / 60} minutes either side of the recorded time (the tightest, the ${ordinal(tightestCusp!.house!)}, ${nearestChangeText(tightestCusp!)}), so the verdicts do not turn on the birth minute.`,
+                },
+              ]
+            : []),
           {
             label: "Method",
             text: "The planet ruling the sub at which a house begins decides whether the house delivers; a matter happens when the period, sub-period and sub-sub-period planets all speak for its houses.",
@@ -956,7 +1018,11 @@ export function KpPanel({ result }: { result: ChartResult }) {
             text: `${briefFindings.length} cuspal ${briefFindings.length === 1 ? "verdict" : "verdicts"} written out below, house by house; pick another matter under When things happen.`,
           },
         ]}
-        caveat="Arithmetic complete (KP ayanamsa, Placidus cusps, subs, significators, Vimshottari); the cuspal readings paraphrase Astro Secrets & KP Part 3 and the Kalpurush class notes and are a first pass, not a verdict."
+        caveat={`${
+          conditionalCusps.length
+            ? `${conditionalCusps.length} of 12 cusp sub lords change within ${KP_CONDITIONAL_SECONDS / 60} minutes of the recorded birth time (${conditionalCusps.map((p) => ordinal(p.house!)).join(", ")}); those verdicts are conditional on the minute. `
+            : ""
+        }Arithmetic complete (KP ayanamsa, Placidus cusps, subs, significators, Vimshottari); the cuspal readings paraphrase Astro Secrets & KP Part 3 and the Kalpurush class notes and are a first pass, not a verdict.`}
         testid="kp-verdict"
         className="mt-4"
       />
@@ -1022,6 +1088,11 @@ export function KpPanel({ result }: { result: ChartResult }) {
                   <TableHead className="hidden sm:table-cell">
                     Sub-sub
                   </TableHead>
+                  {kp.stability && (
+                    <TableHead title="How long the sub lord holds before and after the recorded birth time">
+                      Holds
+                    </TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1052,10 +1123,29 @@ export function KpPanel({ result }: { result: ChartResult }) {
                     <TableCell className="hidden py-1.5 sm:table-cell">
                       <PlanetName planet={c.subSubLord} abbr />
                     </TableCell>
+                    {kp.stability && (
+                      <TableCell className="py-1.5">
+                        <HoldChip
+                          point={stabilityByHouse.get(c.house)}
+                          plain={plain}
+                        />
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            {kp.stability && (
+              <p className="mt-2 max-w-[76ch] text-xs text-muted-foreground">
+                A cusp moves about a degree every four minutes and a sub spans
+                46' to 2°13', so a cusp sub lord holds for three to nine minutes
+                and, in any chart, about half the cusps sit within two minutes
+                of a change. The Moon's sub lord{" "}
+                {nearestChangeText(kp.stability.moon)}. Marked conditional when
+                a change lies within {KP_CONDITIONAL_SECONDS / 60} minutes (the
+                app's convention).
+              </p>
+            )}
           </Working>
         </section>
 
@@ -1368,6 +1458,10 @@ export function KpPanel({ result }: { result: ChartResult }) {
                     <Houses
                       houses={houses}
                       hilite={[kp.badhaka, ...kp.marakas]}
+                    />
+                    <HoldChip
+                      point={stabilityByHouse.get(c.house)}
+                      plain={plain}
                     />
                   </span>
                 </div>

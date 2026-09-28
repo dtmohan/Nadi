@@ -86,16 +86,21 @@ export function computeChart(chart: Chart): ChartResult {
     return {
       ...cached,
       chart,
-      kp: {
-        ...cached.kp,
-        now: kpBase(
+      kp: (() => {
+        const fresh = kpBase(
           cached.jd,
           chart.latitude,
           chart.longitude,
           cached.timeBasis.displayZone,
           opts0(chart).nodeType,
-        ).now,
-      },
+        );
+        // Results cached before the stability pass existed pick it up here.
+        return {
+          ...cached.kp,
+          stability: cached.kp.stability ?? fresh.stability,
+          now: fresh.now,
+        };
+      })(),
     };
 
   const opts: EphemerisOptions = opts0(chart);

@@ -1072,6 +1072,22 @@ function KpMethod() {
         planet is therefore labelled by its sign lord, star lord, sub lord and
         sub-sub lord.
       </p>
+      <h2>Birth-time stability</h2>
+      <p>
+        A cusp moves about a degree every four minutes and a sub spans 46' to
+        2°13', so a cusp sub lord holds for a few minutes at most; the texts
+        make a correct birth time the first condition of a KP reading and
+        rectify it when in doubt (Astro Secrets & KP Part 1 pp. 172-173; Part 3
+        p. 12). For every cusp, and for the Moon, the app finds the moment
+        either side of the recorded time at which the sub lord changes, and
+        shows how long it holds. A cusp whose sub lord changes within two
+        minutes of the recorded time carries a "conditional" mark on its
+        verdicts, in the tab, the report and the agreement panel: the verdict is
+        what the book says for this minute, and a slightly different minute
+        would say something else. The two-minute margin is the app's convention
+        and is marked provisional; the twins the texts describe were born three
+        to ten minutes apart.
+      </p>
       <h2>Significators</h2>
       <p>
         Krishnamurti's four steps rank a planet's signification: the house
