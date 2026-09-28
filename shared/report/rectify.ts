@@ -130,8 +130,13 @@ export const rectifyModule: ReportModule = {
       );
       paras.push({
         kind: "p",
-        text: `Firm cusps counts the cusps, of twelve, whose sub lord is the same throughout the interval; the intervals are cut only where the lagna's own sub lord changes, so another cusp may still change inside one. Among equally scored intervals the firmer and then the longer ranks first; firmness never outranks a score.${splits.length ? ` In ${splits.length} interval${splits.length === 1 ? "" : "s"} a cusp the events name changes its sub lord inside the interval (marked "splits"): for that matter the interval is two candidates, not one.` : ""}`,
+        text: `Firm cusps counts the cusps, of twelve, whose sub lord is the same throughout the interval; the intervals are cut only where the lagna's own sub lord changes, so another cusp may still change inside one. Among equally scored intervals the one whose matter cusps keep their sub lord ranks first (the cusp in question depends on the corrected time), then the one with more firm cusps, then the one nearer the recorded time (the texts correct a recorded time minimally); firmness never outranks a score. Only the matter-cusp step is traced to the texts; the rest is the app's convention.${splits.length ? ` In ${splits.length} interval${splits.length === 1 ? "" : "s"} a cusp the events name changes its sub lord inside the interval (marked "splits"): for that matter the interval is two candidates, not one.` : ""}`,
         provisional: true,
+        cites: [
+          cites.add(
+            "Astro Secrets & KP, Part 1 pp. 176-177; Part 2 pp. 60-61; Part 3 p. 4, pp. 160-162 (uploaded PDFs)",
+          ),
+        ],
       });
     }
     paras.push({

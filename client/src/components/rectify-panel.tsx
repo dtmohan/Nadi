@@ -401,13 +401,23 @@ export function RectifyPanel({
           ),
     [scored, top, topExcess, baselined],
   );
-  // Ranking: the method's score (or its excess over chance) first; among equals, the interval whose
-  // cusp sub lords are firmer throughout ranks higher, then the longer one, then clock order. Firmness
-  // never outranks a score: it only says which of the equally scored candidates is one candidate.
-  const firmness = (s: RectifySegment) =>
-    s.stability
-      ? (s.stability.matterFirm === false ? -100 : 0) + s.stability.firm
-      : 0;
+  // Ranking: the method's score (or its excess over chance) first. Among equals: intervals whose matter
+  // cusps keep their sub lord throughout (the cusp in question depends on the corrected time, Astro
+  // Secrets Part 1 pp. 176-177, Part 3 p. 4), then more firm cusps of twelve (the app's convention), then
+  // the interval nearer the recorded time (the texts correct a recorded time minimally, Part 2 pp. 60-61,
+  // Part 3 pp. 160-162), then clock order. Firmness never outranks a score.
+  const matterIntact = (s: RectifySegment) =>
+    s.stability?.matterFirm === false ? 0 : 1;
+  const firmCount = (s: RectifySegment) => s.stability?.firm ?? 0;
+  const secondsOf = (hms: string) => {
+    const [h, m, sec] = hms.split(":").map(Number);
+    return h * 3600 + m * 60 + (sec || 0);
+  };
+  const givenSec = data ? secondsOf(data.given.time) : 0;
+  const distance = (s: RectifySegment) => {
+    const d = Math.abs(secondsOf(s.mid) - givenSec);
+    return Math.min(d, 86400 - d);
+  };
   const segments = useMemo(
     () =>
       sortByScore
@@ -416,12 +426,14 @@ export function RectifyPanel({
               (baselined
                 ? (b.excess ?? 0) - (a.excess ?? 0)
                 : b.score - a.score) ||
-              firmness(b.s) - firmness(a.s) ||
-              (b.s.stability?.seconds ?? 0) - (a.s.stability?.seconds ?? 0) ||
+              matterIntact(b.s) - matterIntact(a.s) ||
+              firmCount(b.s) - firmCount(a.s) ||
+              distance(a.s) - distance(b.s) ||
               a.i - b.i,
           )
         : scored,
-    [scored, sortByScore, baselined],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [scored, sortByScore, baselined, givenSec],
   );
   const hasStability = scored.some((r) => r.s.stability);
   const maxOf = scored[0]?.max ?? 0;
@@ -934,7 +946,8 @@ export function RectifyPanel({
             </button>
             {hasStability && sortByScore && (
               <span className="text-2xs text-muted-foreground">
-                ties broken by firm cusps, then length
+                ties broken by matter cusps intact, firm cusps, then nearness to
+                the recorded time
               </span>
             )}
           </div>

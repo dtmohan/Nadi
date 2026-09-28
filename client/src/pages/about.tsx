@@ -1190,10 +1190,14 @@ function KpMethod() {
           intervals are cut only where the lagna's sub lord changes, so a 7th
           cusp can still flip halfway through one, and for a marriage question
           that interval is two candidates, not one; it is marked "splits". Among
-          equally scored intervals the firmer and then the longer ranks first,
-          but firmness never outranks a score. The ranking rule is the app's
-          convention, marked provisional; the texts only ask that the birth time
-          be settled before the cusps are read (Part 1 pp. 172-173).
+          equally scored intervals the one whose matter cusps keep their sub
+          lord ranks first, then the one with more firm cusps, then the one
+          nearer the recorded time; firmness never outranks a score. Only the
+          first step is traced to the texts: the cusp of the matter depends on
+          the corrected time (Part 1 pp. 176-177; Part 3 p. 4), and every worked
+          case corrects a recorded time to a point, minimally (Part 2 pp. 60-61;
+          Part 3 pp. 160-162). Counting all twelve cusps has no counterpart in
+          the books and is the app's convention, marked provisional.
         </li>
         <li>
           KP, transits: the sub the Sun transits on the day one works points to
