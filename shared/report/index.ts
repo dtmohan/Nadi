@@ -21,6 +21,7 @@ import {
   type ReportDoc,
   type ReportModule,
   type ReportSection,
+  type ReportTools,
 } from "./types";
 import { chartModule } from "./chart";
 import { panchangaModule } from "./panchanga";
@@ -29,6 +30,8 @@ import { parashariModule } from "./parashari";
 import { jaiminiModule } from "./jaimini";
 import { kpModule } from "./kp";
 import { alpModule } from "./alp";
+import { rectifyModule } from "./rectify";
+import { validateModule } from "./validate";
 
 export * from "./types";
 
@@ -41,19 +44,28 @@ export const REPORT_MODULES: ReportModule[] = [
   jaiminiModule,
   kpModule,
   alpModule,
+  rectifyModule,
+  validateModule,
 ];
 
 export const REPORT_MODULE_IDS = REPORT_MODULES.map((m) => m.id);
+/** The reading systems: what the whole report carries by default. Tools are exported only by name. */
+export const READING_MODULE_IDS = REPORT_MODULES.filter((m) => !m.tool).map(
+  (m) => m.id,
+);
 
 export interface BuildReportOptions {
   plain: boolean;
   /** Module ids to include; all when omitted. The chart and closing sections are always present. */
   modules?: string[];
+  /** Server-computed tool results for the rectify and validate modules. */
+  tools?: ReportTools;
 }
 
 export function buildContext(
   result: ChartResult,
   plain: boolean,
+  tools: ReportTools = {},
 ): ReportContext {
   const { chart, positions, reading, now } = result;
   const asOf = now.asOf;
@@ -76,6 +88,7 @@ export function buildContext(
     pos: (p: Planet) => positions.find((x) => x.planet === p)!,
     lagnaIdx: result.jaimini.lagna.signIndex,
     birthLocal: displayLocal(result.utc, result.timeBasis, chart.timezone),
+    tools,
   };
 }
 
@@ -83,9 +96,9 @@ export function buildReport(
   result: ChartResult,
   opts: BuildReportOptions,
 ): ReportDoc {
-  const ctx = buildContext(result, opts.plain);
+  const ctx = buildContext(result, opts.plain, opts.tools);
   const wanted = new Set(
-    opts.modules?.length ? [...opts.modules, "chart"] : REPORT_MODULE_IDS,
+    opts.modules?.length ? [...opts.modules, "chart"] : READING_MODULE_IDS,
   );
   const modules = REPORT_MODULES.filter((m) => wanted.has(m.id));
 
@@ -124,8 +137,9 @@ export function buildReport(
 function closing(ctx: ReportContext, modules: ReportModule[]): ReportSection {
   const { plain, withheld } = ctx;
   const systems = modules.filter(
-    (m) => m.tab !== "chart" && m.tab !== "panchanga",
+    (m) => m.tab !== "chart" && m.tab !== "panchanga" && !m.tool,
   );
+  const tools = modules.filter((m) => m.tool);
   return {
     id: "reading",
     title: "How to read this report",
@@ -135,7 +149,9 @@ function closing(ctx: ReportContext, modules: ReportModule[]): ReportSection {
         text:
           systems.length > 1
             ? "Each system above is read on its own terms and none is used to correct another: the Nadi reading has no houses, Parashara and Krishnamurti read from the rising sign in different ways, Jaimini ranks the planets by degree, and ALP moves the lagna itself. Where they agree, the agreement is worth noting; where they differ, the difference is real and is left standing."
-            : "This report carries one system's reading on its own terms; the full report in the app sets it beside the others without using any one to correct another.",
+            : systems.length === 1
+              ? "This report carries one system's reading on its own terms; the full report in the app sets it beside the others without using any one to correct another."
+              : "This export carries a tool's output rather than a reading: it checks the chart against dated events or scans the minutes around the recorded time; the full report in the app carries the readings themselves.",
       },
       {
         kind: "p",
@@ -149,7 +165,7 @@ function closing(ctx: ReportContext, modules: ReportModule[]): ReportSection {
       },
       {
         kind: "p",
-        text: `Matters not yet in season at the native's age (marriage and children from ${AREA_ONSET.marriage}, work and wealth from ${AREA_ONSET.career}) are held back rather than read. The classical length-of-life and infancy checks, the maraka planets and the remedies and mantras of the period chapters are not part of this report; nor are rectification and validation, which are tools rather than readings.${withheld ? ` ${SENSITIVE_WITHHELD_NOTE}` : ""}`,
+        text: `Matters not yet in season at the native's age (marriage and children from ${AREA_ONSET.marriage}, work and wealth from ${AREA_ONSET.career}) are held back rather than read. The classical length-of-life and infancy checks, the maraka planets and the remedies and mantras of the period chapters are not part of this report${tools.length ? "" : "; nor are rectification and validation, which are tools rather than readings"}.${withheld ? ` ${SENSITIVE_WITHHELD_NOTE}` : ""}`,
       },
       {
         kind: "p",

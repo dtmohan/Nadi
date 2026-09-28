@@ -18,8 +18,8 @@ import {
 import { downloadReportPdf } from "@/lib/report-pdf";
 import { useToast } from "@/hooks/use-toast";
 
-/** The systems a reader can leave out of the report; the chart section is always present. */
-const PICKABLE = REPORT_MODULES.filter((m) => m.id !== "chart");
+/** The systems a reader can leave out of the report; the chart section is always present and the two tools export from their own tabs. */
+const PICKABLE = REPORT_MODULES.filter((m) => m.id !== "chart" && !m.tool);
 
 const TONE_RULE: Record<NonNullable<ReportPara["tone"]>, string> = {
   support: "border-verdict-good/50",

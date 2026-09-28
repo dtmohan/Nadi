@@ -81,6 +81,7 @@ import { Term } from "@/components/term";
 import { Working, ReadingModeToggle } from "@/components/working";
 import { useReadingMode } from "@/lib/reading-mode";
 import { downloadReportPdf } from "@/lib/report-pdf";
+import type { RectifyExportState } from "@shared/rectify-methods";
 import type { PlanetStrength } from "@shared/strength";
 import {
   housesFrom,
@@ -1514,6 +1515,8 @@ const TAB_MODULE: Partial<Record<SystemMode, string>> = {
   kp: "kp",
   parashari: "parashari",
   panchanga: "panchanga",
+  rectify: "rectify",
+  validate: "validate",
 };
 
 /** The eight tabs, in order; the last two are tools rather than reading systems and are set apart in both bars. */
@@ -1592,13 +1595,25 @@ export default function ChartPage() {
   const { mode: readingMode } = useReadingMode();
   // The report PDF: the same sections as the Report page, one module per system, in the current
   // reading mode. With no modules the whole report; with one, that tab's section alone.
+  // The Rectify tab reports what it is looking at, so its export reruns the same scan on the server.
+  const rectifyState = useRef<RectifyExportState | null>(null);
   const exportPdf = async (modules?: string[]) => {
     if (!data) return;
+    if (modules?.includes("rectify") && !rectifyState.current) {
+      toast({
+        title: "Nothing to export yet",
+        description: "Open the Rectify tab and choose a method first.",
+      });
+      return;
+    }
     setExporting(modules?.[0] ?? "all");
     try {
       await downloadReportPdf(data.chart, {
         plain: readingMode === "plain",
         modules,
+        tools: modules?.includes("rectify")
+          ? { rectify: rectifyState.current! }
+          : undefined,
       });
     } catch (e: any) {
       toast({
@@ -1782,7 +1797,13 @@ export default function ChartPage() {
               className="h-7 gap-1 px-2 text-xs"
               onClick={() => exportPdf([TAB_MODULE[mode]!])}
               disabled={exporting !== null}
-              title={`Export the ${MODES.find((m) => m.id === mode)?.label} section alone as a PDF, in the current reading mode`}
+              title={
+                mode === "rectify"
+                  ? "Export the scan shown here (method, window and events) as a PDF"
+                  : mode === "validate"
+                    ? "Export the events read back against the chart as a PDF"
+                    : `Export the ${MODES.find((m) => m.id === mode)?.label} section alone as a PDF, in the current reading mode`
+              }
               data-testid="button-export-tab-pdf"
             >
               <FileDown className="h-3.5 w-3.5" />
@@ -1826,7 +1847,12 @@ export default function ChartPage() {
 
       {mode === "rectify" && (
         <div className="mt-8 animate-in fade-in-0 duration-300">
-          <RectifyPanel result={data} />
+          <RectifyPanel
+            result={data}
+            onExportState={(s) => {
+              rectifyState.current = s;
+            }}
+          />
         </div>
       )}
 

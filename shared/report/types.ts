@@ -4,6 +4,17 @@
 import { DateTime } from "luxon";
 import type { ChartResult } from "../schema";
 import type { Planet, PlanetPosition } from "../astro";
+import type { ValidationResult } from "../validate-types";
+import type { RectifyResult } from "../rectify-types";
+import type { RectifyExportState } from "../rectify-methods";
+
+/** Server-computed tool results a report may carry; absent when the module was not asked for. */
+export interface ReportTools {
+  /** Null when the chart has no dated events. */
+  validation?: ValidationResult | null;
+  /** The scan the Rectify tab was looking at, rerun on the server. */
+  rectify?: { result: RectifyResult; state: RectifyExportState } | null;
+}
 
 export interface ReportCite {
   n: number;
@@ -78,10 +89,19 @@ export interface ReportContext {
   pos: (p: Planet) => PlanetPosition;
   lagnaIdx: number;
   birthLocal: DateTime;
+  tools: ReportTools;
 }
 
 export type ReportTab =
-  "chart" | "bnn" | "parashari" | "jaimini" | "kp" | "alp" | "panchanga";
+  | "chart"
+  | "bnn"
+  | "parashari"
+  | "jaimini"
+  | "kp"
+  | "alp"
+  | "panchanga"
+  | "rectify"
+  | "validate";
 
 export interface ReportModule {
   id: string;
@@ -90,6 +110,8 @@ export interface ReportModule {
   /** One or two words for chips and file names. */
   short: string;
   tab: ReportTab;
+  /** Tools rather than readings: excluded from the Report page picker, exported from their own tab. */
+  tool?: boolean;
   build: (ctx: ReportContext) => ReportSection[];
 }
 

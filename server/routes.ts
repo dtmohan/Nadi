@@ -36,7 +36,12 @@ import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
 import { DateTime } from "luxon";
 import { buildChartPdf } from "./pdf";
 import { renderReportPdf } from "./report-pdf";
-import { buildReport, REPORT_MODULE_IDS } from "@shared/report";
+import {
+  buildReport,
+  REPORT_MODULE_IDS,
+  type ReportTools,
+} from "@shared/report";
+import { RECTIFY_METHODS, type RectifyMethod } from "@shared/rectify-methods";
 import { gocharaCalendar } from "./gochara-calendar";
 import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
@@ -201,7 +206,7 @@ export async function registerRoutes(
   // The report PDF: the same sections the Report page shows, one module per system.
   // Body: the chart fields plus optional `plain` (reading mode) and `modules` (ids to include).
   app.post("/api/report.pdf", async (req, res) => {
-    const { plain, modules, ...body } = (req.body ?? {}) as Record<
+    const { plain, modules, tools, ...body } = (req.body ?? {}) as Record<
       string,
       unknown
     >;
@@ -219,7 +224,37 @@ export async function registerRoutes(
     try {
       const chart = { id: 0, ...parsed.data } as Chart;
       const result = computeChart(chart);
-      const rep = buildReport(result, { plain: plain !== false, modules: ids });
+      // The two tools are computed here only when their module is named; the Report page never asks for them.
+      const toolResults: ReportTools = {};
+      if (ids?.includes("validate"))
+        toolResults.validation = parsed.data.events?.length
+          ? validateEvents(parsed.data)
+          : null;
+      if (ids?.includes("rectify")) {
+        const st = reportRectifySchema.safeParse(
+          (tools as Record<string, unknown> | undefined)?.rectify,
+        );
+        if (!st.success)
+          return res.status(400).json({
+            message: "Invalid rectify state",
+            issues: st.error.issues,
+          });
+        const state = st.data;
+        toolResults.rectify = {
+          result: rectify({
+            chart: parsed.data,
+            windowMinutes: state.windowMinutes,
+            events: state.events,
+            judge: state.judge,
+          }),
+          state,
+        };
+      }
+      const rep = buildReport(result, {
+        plain: plain !== false,
+        modules: ids,
+        tools: toolResults,
+      });
       const safe = chart.name.replace(/[^\w.-]+/g, "_").slice(0, 60) || "chart";
       const tag = ids?.length === 1 ? `-${ids[0]}` : "";
       res.setHeader("Content-Type", "application/pdf");
@@ -418,32 +453,43 @@ export async function registerRoutes(
   });
 
   // Birth time rectification: scan a window around the recorded time (nothing is stored)
+  const rectifyEventsSchema = z
+    .array(
+      z.object({
+        label: z.string().max(80),
+        date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        houses: z.array(z.number().int().min(1).max(12)).min(1).max(12),
+        cusp: z.number().int().min(1).max(12).optional(),
+        area: z
+          .enum([
+            "self",
+            "career",
+            "wealth",
+            "marriage",
+            "children",
+            "family",
+            "health",
+          ])
+          .optional(),
+      }),
+    )
+    .max(100)
+    .default([]);
   const rectifySchema = z.object({
     chart: insertChartSchema,
     judge: judgeSchema.optional(),
     windowMinutes: z.number().min(1).max(720).default(30),
-    events: z
-      .array(
-        z.object({
-          label: z.string().max(80),
-          date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-          houses: z.array(z.number().int().min(1).max(12)).min(1).max(12),
-          cusp: z.number().int().min(1).max(12).optional(),
-          area: z
-            .enum([
-              "self",
-              "career",
-              "wealth",
-              "marriage",
-              "children",
-              "family",
-              "health",
-            ])
-            .optional(),
-        }),
-      )
-      .max(100)
-      .default([]),
+    events: rectifyEventsSchema,
+  });
+  /** What the Rectify tab was looking at, sent with a report export so the same scan is rerun. */
+  const reportRectifySchema = z.object({
+    method: z.enum(
+      RECTIFY_METHODS.map((m) => m.id) as [RectifyMethod, ...RectifyMethod[]],
+    ),
+    windowMinutes: z.number().min(1).max(720).default(30),
+    events: rectifyEventsSchema,
+    judge: judgeSchema.optional(),
+    confirmedMarks: z.array(z.string().max(60)).max(40).default([]),
   });
   // Check the saved life events against the chart as it stands (nothing is stored)
   app.post("/api/validate", (req, res) => {
