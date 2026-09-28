@@ -578,6 +578,30 @@ export default function AboutPage() {
               at the recorded date of passing. Eighteen is the app's policy, not
               a classical rule, and is marked provisional.
             </p>
+            <h2>Contested areas and where the systems agree</h2>
+            <p>
+              A Nadi life area used to take one verdict from the sum of its
+              rules, so two strong rules pulling opposite ways could average
+              into "supportive". An area is now marked contested when its
+              strongest supportive rule and its strongest hard rule about the
+              outcome are of comparable weight; both are named in the headline
+              and neither is summed away. A hard rule that speaks only of timing
+              ("delayed", "later") does not contest a promise; that pair is
+              still read as later rather than never. The threshold is the app's
+              convention and is marked provisional.
+            </p>
+            <p>
+              Above the tabs, "Where the systems agree" sets Nadi, Parashari,
+              Jaimini and KP side by side on marriage, children, career, parents
+              and, in the practitioner reading for an adult, the span of life.
+              Each stance is the verdict that system's own tab shows, linked to
+              it, and the line only says whether they agree, lean one way or
+              disagree. Nothing is blended and no system corrects another; a
+              disagreement is reported as the finding. The same table closes the
+              report when all four systems are in it. KP stances rest on a cusp
+              sub lord that changes every few minutes of birth time, and are
+              read with that in mind.
+            </p>
             <h2>The report</h2>
             <p>
               The Report button on a chart turns the whole reading into one

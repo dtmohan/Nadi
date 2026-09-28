@@ -79,6 +79,12 @@ export const bnnModule: ReportModule = {
         },
       ];
       if (a.reconciliation) ps.push({ kind: "p", text: S(a.reconciliation) });
+      if (a.contest)
+        ps.push({
+          kind: "note",
+          text: "Contested: the strongest supportive rule and the strongest hard rule here are of comparable weight, so no single verdict is given. The threshold is the app's own convention, not a Nadi rule.",
+          provisional: true,
+        });
       for (const f of a.key) {
         ps.push({
           kind: "p",

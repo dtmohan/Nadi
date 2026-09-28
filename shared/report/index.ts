@@ -16,10 +16,12 @@ import { soften } from "../gentle";
 import type { ChartResult } from "../schema";
 import {
   Cites,
+  cap,
   fmtDate,
   type ReportContext,
   type ReportDoc,
   type ReportModule,
+  type ReportPara,
   type ReportSection,
   type ReportTools,
 } from "./types";
@@ -32,6 +34,23 @@ import { kpModule } from "./kp";
 import { alpModule } from "./alp";
 import { rectifyModule } from "./rectify";
 import { validateModule } from "./validate";
+import { synthesize } from "../synthesis";
+import { readAreas } from "../jaimini-areas";
+import { computeParashari, DEFAULT_ASPECT_FLOOR } from "../parashari";
+import { computeKp } from "../kp";
+import {
+  AGREEMENT_NOTE,
+  AGREEMENT_SYSTEM_LABEL,
+  computeAgreement,
+  type AgreementSystem,
+} from "../agreement";
+
+const AGREEMENT_SYSTEMS: AgreementSystem[] = [
+  "bnn",
+  "parashari",
+  "jaimini",
+  "kp",
+];
 
 export * from "./types";
 
@@ -113,6 +132,8 @@ export function buildReport(
     }
   }
   if (skyToday) sections.push(skyToday);
+  const agreement = agreementSection(ctx, modules);
+  if (agreement) sections.push(agreement);
   sections.push(closing(ctx, modules));
 
   const { chart } = result;
@@ -131,6 +152,73 @@ export function buildReport(
     // The sensitive-content gate: for a native under 18 every statement on length of life, marakas, arishta or the loss of a parent is removed, in either reading mode.
     sections: ctx.withheld ? withholdSections(sections) : sections,
     cites: ctx.cites.list,
+  };
+}
+
+/**
+ * Where the systems agree: present only when the four systems that give area verdicts are all in
+ * the document, so the comparison never speaks for a system the reader cannot see.
+ */
+function agreementSection(
+  ctx: ReportContext,
+  modules: ReportModule[],
+): ReportSection | undefined {
+  const ids = new Set(modules.map((m) => m.id));
+  if (!["bnn", "parashari", "jaimini", "kp"].every((id) => ids.has(id)))
+    return undefined;
+  const { result, plain, withheld, lifeAt, inSeason, S } = ctx;
+  const topics = computeAgreement({
+    bnn: synthesize(result.reading, result.reading.roles.gender),
+    jaimini: readAreas(result.jaimini, result.positions, withheld),
+    parashari: computeParashari(
+      result.positions,
+      result.jaimini.lagna.lon,
+      result.utc,
+      lifeAt,
+      result.shadbala,
+      result.dasaStarts,
+      DEFAULT_ASPECT_FLOOR,
+      withheld,
+    ),
+    kp: computeKp(result.kp, result.utc, lifeAt, false, withheld),
+    ayur: result.jaimini.ayur,
+    withheld,
+    plain,
+    inSeason,
+  });
+  if (!topics.length) return undefined;
+  return {
+    id: "agreement",
+    title: "Where the systems agree",
+    kicker: "Across the readings",
+    paras: [
+      {
+        kind: "p",
+        text: "Each system above reads the same life on its own terms. This table sets their verdicts side by side on the questions a reader asks first; nothing is blended, and where they disagree the disagreement is the finding.",
+      },
+      ...topics.map((t): ReportPara => ({
+        kind: "p",
+        text: S(t.sentence),
+        tone:
+          t.verdict === "agree"
+            ? "support"
+            : t.verdict === "disagree"
+              ? "strain"
+              : "mixed",
+      })),
+      {
+        kind: "table",
+        head: [
+          "Topic",
+          ...AGREEMENT_SYSTEMS.map((s) => AGREEMENT_SYSTEM_LABEL[s]),
+        ],
+        rows: topics.map((t) => [
+          t.label,
+          ...t.stances.map((s) => `${cap(s.word)}: ${S(s.note)}`),
+        ]),
+      },
+      { kind: "note", text: AGREEMENT_NOTE, provisional: true },
+    ],
   };
 }
 

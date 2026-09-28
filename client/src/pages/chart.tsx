@@ -98,6 +98,7 @@ import { KpPanel } from "@/components/kp-panel";
 import { ParashariPanel } from "@/components/parashari-panel";
 import { RectifyPanel } from "@/components/rectify-panel";
 import { LifeEventsSection } from "@/components/life-events";
+import { AgreementPanel } from "@/components/agreement-panel";
 import { BirthTimeEditor } from "@/components/birth-time-editor";
 import { ValidatePanel } from "@/components/validate-panel";
 import { PanchangaPanel } from "@/components/panchanga-panel";
@@ -488,6 +489,7 @@ const TONE_CLASS: Record<AreaTone, string> = {
   supportive: "border-verdict-good/40 text-verdict-good",
   mixed: "border-verdict-mixed/40 text-verdict-mixed",
   care: "border-verdict-bad/40 text-verdict-bad",
+  contested: "border-dashed border-verdict-mixed/60 text-verdict-mixed",
   quiet: "border-border text-muted-foreground",
 };
 
@@ -834,6 +836,10 @@ function BnnVerdict({ result }: { result: ChartResult }) {
     .map((a) => AREA_SHORT[a.area]);
   const care = careAll.slice(0, 3);
   const careMore = careAll.length - care.length;
+  // Contested areas are named, never folded into "firm" or "mixed": their strong rules disagree.
+  const contested = areas
+    .filter((a) => a.tone === "contested")
+    .map((a) => AREA_SHORT[a.area]);
   const mixedN =
     areas.filter((a) => a.tone === "mixed").length +
     Math.max(0, firmAll.length - 3);
@@ -845,6 +851,10 @@ function BnnVerdict({ result }: { result: ChartResult }) {
   if (care.length)
     parts.push(
       `${joinList(careMore > 0 ? [...care, `${careMore} more`] : care)} ${care.length === 1 ? "needs" : "need"} care`,
+    );
+  if (contested.length)
+    parts.push(
+      `${joinList(contested)} ${contested.length === 1 ? "is" : "are"} contested, with strong rules on both sides`,
     );
   if (mixedN)
     parts.push(parts.length ? "the rest is mixed" : "every area is mixed");
@@ -1725,6 +1735,15 @@ export default function ChartPage() {
       </header>
 
       <LifeEventsSection chart={chart} />
+
+      <AgreementPanel
+        className="mt-4"
+        result={data}
+        onOpenTab={(t) => {
+          setMode(t);
+          tablistRef.current?.scrollIntoView({ block: "nearest" });
+        }}
+      />
 
       <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-b pb-3">
         <div

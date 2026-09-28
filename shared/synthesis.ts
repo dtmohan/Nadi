@@ -16,14 +16,45 @@ import {
 import type { Gender } from "./marriage";
 
 export type Tone = "good" | "hard" | "neutral";
-export type AreaTone = "supportive" | "mixed" | "care" | "quiet";
+export type AreaTone =
+  | "supportive"
+  | "mixed"
+  | "care"
+  | "contested"
+  | "quiet";
 
 export const AREA_TONE_LABEL: Record<AreaTone, string> = {
   supportive: "Supportive",
   mixed: "Mixed",
   care: "Needs care",
+  contested: "Contested",
   quiet: "Lightly marked",
 };
+
+/**
+ * An area is contested when its strongest supportive rule and its strongest hard rule are of
+ * comparable weight: each at least CONTEST_FLOOR and within CONTEST_RATIO of the other. Summing
+ * such rules into one balance would hide the disagreement; the honest verdict names both. The
+ * thresholds are the app's own convention (provisional), not a Nadi rule.
+ */
+export const CONTEST_FLOOR = 2;
+export const CONTEST_RATIO = 0.8;
+/** Areas with an outcome to contest; temperament, learning, travel and the inner life are descriptive. */
+export const CONTEST_AREAS = new Set<LifeArea>([
+  "marriage",
+  "children",
+  "career",
+  "family",
+  "wealth",
+  "health",
+]);
+
+export interface AreaContest {
+  /** The strongest supportive rule. */
+  good: Finding;
+  /** The strongest hard rule. */
+  hard: Finding;
+}
 
 export interface AreaSynthesis {
   area: LifeArea;
@@ -38,6 +69,8 @@ export interface AreaSynthesis {
   coveredBy: Record<string, string>;
   /** Plain sentence reconciling promise against delay or denial, when both are present. */
   reconciliation?: string;
+  /** Set when the tone is "contested": the two rules that pull opposite ways. */
+  contest?: AreaContest;
   /** Weighted balance: positive leans good, negative leans hard. */
   balance: number;
   total: number;
@@ -212,9 +245,51 @@ function headlineFor(
     supportive: "Well supported.",
     mixed: "A mixed picture.",
     care: "Asks for care.",
+    contested: "The strong rules disagree.",
     quiet: "Lightly marked.",
   };
   return `${lead[tone]} ${uc(gists[0])}${gists[1] ? `; ${gists[1]}` : ""}.`;
+}
+
+/** Headline for a contested area: both sides named, the supportive one first. */
+function contestedHeadline(c: AreaContest): string {
+  // Drop a parenthesis the clause cut open, e.g. "... path (provisional wording".
+  const clean = (t: string) => t.replace(/\s*\([^)]*$/, "");
+  const g = lc(clean(firstClause(gist(c.good.text))));
+  const h = lc(clean(firstClause(gist(c.hard.text))));
+  return `The strong rules disagree. ${uc(g)}; yet ${h}. Read both before deciding.`;
+}
+
+/**
+ * A hard finding that speaks only of timing ("delayed", "later", "a long wait") does not contest a
+ * promise; promise against delay is reconciled as "later rather than never" below. Only a hard
+ * finding about the outcome itself (austere, denied, hazardous, loss) can contest.
+ */
+function timingOnly(f: Finding): boolean {
+  const t = gist(f.text);
+  const hard = (t.match(new RegExp(HARD.source, "gi")) ?? []).length;
+  const delay = (t.match(new RegExp(DELAY.source, "gi")) ?? []).length;
+  return hard <= delay;
+}
+
+export function findContest(
+  area: LifeArea,
+  keep: Finding[],
+): AreaContest | undefined {
+  if (!CONTEST_AREAS.has(area)) return undefined;
+  let good: Finding | undefined;
+  let hard: Finding | undefined;
+  for (const f of keep) {
+    const t = toneOf(f);
+    if (t === "good" && (!good || f.score > good.score)) good = f;
+    else if (t === "hard" && !timingOnly(f) && (!hard || f.score > hard.score))
+      hard = f;
+  }
+  if (!good || !hard) return undefined;
+  const lo = Math.min(good.score, hard.score);
+  const hi = Math.max(good.score, hard.score);
+  if (lo < CONTEST_FLOOR || lo < CONTEST_RATIO * hi) return undefined;
+  return { good, hard };
 }
 
 export function synthesizeArea(
@@ -237,19 +312,32 @@ export function synthesizeArea(
       hardCount++;
     }
   }
-  const tone = areaTone(balance, keep.length, hardCount, goodCount);
-  const key = keep.slice(0, 3);
-  const rest = [...keep.slice(3), ...demoted];
+  const contest = findContest(area, keep);
+  const tone = contest
+    ? "contested"
+    : areaTone(balance, keep.length, hardCount, goodCount);
+  // In a contested area the two opposed rules lead the key findings, whatever their rank.
+  const key = contest
+    ? [
+        contest.good,
+        contest.hard,
+        ...keep.filter((f) => f !== contest.good && f !== contest.hard),
+      ].slice(0, 3)
+    : keep.slice(0, 3);
+  const rest = [...keep.filter((f) => !key.includes(f)), ...demoted];
   const karaka = areaKaraka(area, gender);
   const reconciliation = reconcile(area, keep, karaka);
   return {
     area,
     tone,
-    headline: headlineFor(area, tone, key, reading, Boolean(reconciliation)),
+    headline: contest
+      ? contestedHeadline(contest)
+      : headlineFor(area, tone, key, reading, Boolean(reconciliation)),
     key,
     rest,
     coveredBy,
     reconciliation,
+    contest,
     balance: Math.round(balance * 100) / 100,
     total: items.length,
   };
