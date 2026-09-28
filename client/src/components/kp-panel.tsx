@@ -28,6 +28,7 @@ import {
   HOUSE_AREA,
   KP_EVENT_AREA,
   lifeAsOf,
+  isDeceased,
   sensitiveGate,
   redactProse,
 } from "@shared/life-stage";
@@ -430,7 +431,12 @@ export function KpPanel({ result }: { result: ChartResult }) {
   const { chart } = result;
   const { mode } = useReadingMode();
   const plain = mode === "plain";
-  const [asOf, setAsOf] = useState(() => DateTime.local().toISODate()!);
+  // "As of" opens on today, or on the recorded date of passing: after a death date nothing on this
+  // tab is a forecast, and the windows and Sun path are read against the life that was lived.
+  const deceased = isDeceased(chart, DateTime.local().toISO()!);
+  const [asOf, setAsOf] = useState(() =>
+    lifeAsOf(chart, DateTime.local().toISO()!).slice(0, 10),
+  );
   const [sixStep, setSixStep] = useState(false);
   // Default to the first matter that is in season at the native's age; a child's chart opens on education, not marriage.
   const [event, setEvent] = useState<string>(() =>
@@ -535,6 +541,8 @@ export function KpPanel({ result }: { result: ChartResult }) {
     const b = rawWindows
       .reduce((m, w) => (w.end > m ? w.end : m), rawWindows[0].end)
       .slice(0, 10);
+    // Every window already past and past windows hidden: nothing to draw, so no request.
+    if (a > b) return null;
     return { start: a, end: b };
   }, [rawWindows, showPast, asOfIso]);
   const sunPath = useQuery<SunSample[]>({
@@ -794,6 +802,18 @@ export function KpPanel({ result }: { result: ChartResult }) {
           >
             Today
           </Button>
+          {deceased && chart.deathDate && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 px-2"
+              onClick={() => setAsOf(chart.deathDate!.slice(0, 10))}
+              data-testid="button-kp-passing"
+              title="Read the tab at the recorded date of passing"
+            >
+              At passing
+            </Button>
+          )}
         </label>
         <div
           role="radiogroup"
