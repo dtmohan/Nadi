@@ -35,6 +35,8 @@ import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
 import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
 import { DateTime } from "luxon";
 import { buildChartPdf } from "./pdf";
+import { renderReportPdf } from "./report-pdf";
+import { buildReport, REPORT_MODULE_IDS } from "@shared/report";
 import { gocharaCalendar } from "./gochara-calendar";
 import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
@@ -191,6 +193,41 @@ export async function registerRoutes(
         `attachment; filename="nadi-${safe}.pdf"`,
       );
       buildChartPdf(result).pipe(res);
+    } catch (e: any) {
+      res.status(400).json({ message: e.message });
+    }
+  });
+
+  // The report PDF: the same sections the Report page shows, one module per system.
+  // Body: the chart fields plus optional `plain` (reading mode) and `modules` (ids to include).
+  app.post("/api/report.pdf", async (req, res) => {
+    const { plain, modules, ...body } = (req.body ?? {}) as Record<
+      string,
+      unknown
+    >;
+    const parsed = insertChartSchema.safeParse(body);
+    if (!parsed.success)
+      return res
+        .status(400)
+        .json({ message: "Invalid chart", issues: parsed.error.issues });
+    const ids = Array.isArray(modules)
+      ? (modules as unknown[]).filter(
+          (m): m is string =>
+            typeof m === "string" && REPORT_MODULE_IDS.includes(m),
+        )
+      : undefined;
+    try {
+      const chart = { id: 0, ...parsed.data } as Chart;
+      const result = computeChart(chart);
+      const rep = buildReport(result, { plain: plain !== false, modules: ids });
+      const safe = chart.name.replace(/[^\w.-]+/g, "_").slice(0, 60) || "chart";
+      const tag = ids?.length === 1 ? `-${ids[0]}` : "";
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="nadi-report-${safe}${tag}.pdf"`,
+      );
+      renderReportPdf(result, rep).pipe(res);
     } catch (e: any) {
       res.status(400).json({ message: e.message });
     }

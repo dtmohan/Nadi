@@ -41,7 +41,14 @@ function Para({ p }: { p: ReportPara }) {
   if (p.kind === "table")
     return (
       <div className="my-4 overflow-x-auto print:overflow-visible">
-        <table className="w-full text-[0.85em]">
+        <table
+          className={cn(
+            "w-full",
+            (p.head?.length ?? 0) > 8
+              ? "text-[0.72em] whitespace-nowrap"
+              : "text-[0.85em]",
+          )}
+        >
           <thead>
             <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
               {p.head?.map((h) => (

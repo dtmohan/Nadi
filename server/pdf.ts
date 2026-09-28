@@ -29,12 +29,12 @@ import { computeGochara, GOCHARA_CAVEATS, BS_URL, PD_URL } from "@shared/gochara
 import { gocharaCalendar } from "./gochara-calendar";
 import { nowJd } from "./ephemeris";
 
-const INK = "#2b241e";
-const MUTED = "#7a6f66";
-const RULE = "#cfc6b8";
-const VERMILION = "#a83e22";
-const INDIGO = "#45507d";
-const PAPER = "#f4f0e6";
+export const INK = "#2b241e";
+export const MUTED = "#7a6f66";
+export const RULE = "#cfc6b8";
+export const VERMILION = "#a83e22";
+export const INDIGO = "#45507d";
+export const PAPER = "#f4f0e6";
 
 const CLASSICAL = new Set<Planet>(["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]);
 
@@ -48,8 +48,8 @@ function planetColor(p: Planet): string {
 
 type Doc = InstanceType<typeof PDFDocument>;
 
-const PAGE = { w: 595.28, h: 841.89, m: 48 }; // A4 portrait, points
-const CONTENT_W = PAGE.w - PAGE.m * 2;
+export const PAGE = { w: 595.28, h: 841.89, m: 48 }; // A4 portrait, points
+export const CONTENT_W = PAGE.w - PAGE.m * 2;
 
 function ensureSpace(doc: Doc, needed: number) {
   if (doc.y + needed > PAGE.h - PAGE.m - 24) doc.addPage();
@@ -93,7 +93,7 @@ interface DrawOpts {
   accent?: Planet[];
 }
 
-function drawSouthIndianChart(doc: Doc, x: number, y: number, size: number, positions: DrawPlanet[], transit: PlanetPosition[], title: string, subtitle: string, opts: DrawOpts = {}) {
+export function drawSouthIndianChart(doc: Doc, x: number, y: number, size: number, positions: DrawPlanet[], transit: PlanetPosition[], title: string, subtitle: string, opts: DrawOpts = {}) {
   const cell = size / 4;
   const colorOf = (pl: Planet) => (opts.accent ? (opts.accent.includes(pl) ? VERMILION : INK) : planetColor(pl));
   doc.save();

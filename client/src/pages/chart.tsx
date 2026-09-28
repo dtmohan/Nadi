@@ -1578,16 +1578,21 @@ export default function ChartPage() {
   });
   const { toast } = useToast();
   const [exporting, setExporting] = useState(false);
+  const { mode: readingMode } = useReadingMode();
+  // The report PDF: the same sections as the Report page, one module per system, in the current reading mode.
   const exportPdf = async () => {
     if (!data) return;
     setExporting(true);
     try {
-      const res = await apiRequest("POST", "/api/pdf", data.chart);
+      const res = await apiRequest("POST", "/api/report.pdf", {
+        ...data.chart,
+        plain: readingMode === "plain",
+      });
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `nadi-${data.chart.name.replace(/[^\w.-]+/g, "_").slice(0, 60) || "chart"}.pdf`;
+      a.download = `nadi-report-${data.chart.name.replace(/[^\w.-]+/g, "_").slice(0, 60) || "chart"}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (e: any) {
@@ -1617,8 +1622,6 @@ export default function ChartPage() {
     )
       list.scrollTo({ left: Math.max(0, left - 16), behavior: "smooth" });
   }, [mode]);
-  const { mode: readingMode } = useReadingMode();
-
   if (isLoading) {
     return (
       <div className="mx-auto max-w-6xl px-5 py-8 md:px-10">

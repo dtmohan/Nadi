@@ -586,18 +586,23 @@ export default function AboutPage() {
               by life area, Parashara's houses, lords, yogas and strains, the
               Vimshottari periods with Parashara's tone for each dasa and the
               running dasa's bhuktis, the Jaimini karakas, padas and Chara dasha
-              by area, the KP cusps and their sub lords, and the sky on the day
-              of writing. Nothing in it is computed afresh; every section calls
-              the same functions as the tab it summarises, and the systems stay
-              separate. Each statement carries a numbered note to its source,
-              gathered at the end with the URL; a rule the text does not state
-              as applied is marked provisional in the margin. The report follows
-              the reading mode: the plain reading softens sensitive matters, the
-              practitioner reading keeps the verse wording. Matters not yet in
-              season at the native's age are held back, and the length-of-life
-              and infancy checks, the maraka planets and the remedy lines of the
-              period chapters are never part of it. The older Export PDF remains
-              as the data sheet.
+              by area, the KP cusps and their sub lords, the ALP progressed
+              lagna and its periods, Parashara's tables of strength, divisions
+              and points, and the sky on the day of writing with the gochara
+              from the Moon. Nothing in it is computed afresh; every section
+              calls the same functions as the tab it summarises, and the systems
+              stay separate. Each statement carries a numbered note to its
+              source, gathered at the end with the URL; a rule the text does not
+              state as applied is marked provisional in the margin. The report
+              follows the reading mode: the plain reading softens sensitive
+              matters, the practitioner reading keeps the verse wording. Matters
+              not yet in season at the native's age are held back, and the
+              length-of-life and infancy checks, the maraka planets and the
+              remedy lines of the period chapters are never part of it. The
+              report is built one module per system, so each tab can carry its
+              own export, and Export PDF on the chart page prints the same
+              document from the server, in the reading mode then selected, with
+              the South Indian chart at its head.
             </p>
             <h2>Where your charts live</h2>
             <p>
