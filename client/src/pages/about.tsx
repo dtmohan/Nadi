@@ -1185,7 +1185,15 @@ function KpMethod() {
           that chance level, and an interval is singled out only at the 95th
           percentile of its own trials. When none reaches it the tab says so
           rather than naming a time. The transit and Jaimini methods carry the
-          same baseline.
+          same baseline. Each interval also reports its firm cusps: how many of
+          the twelve keep the same sub lord from its start to its end. The
+          intervals are cut only where the lagna's sub lord changes, so a 7th
+          cusp can still flip halfway through one, and for a marriage question
+          that interval is two candidates, not one; it is marked "splits". Among
+          equally scored intervals the firmer and then the longer ranks first,
+          but firmness never outranks a score. The ranking rule is the app's
+          convention, marked provisional; the texts only ask that the birth time
+          be settled before the cusps are read (Part 1 pp. 172-173).
         </li>
         <li>
           KP, transits: the sub the Sun transits on the day one works points to

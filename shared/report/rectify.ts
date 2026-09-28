@@ -101,27 +101,56 @@ export const rectifyModule: ReportModule = {
         provisional: true,
       });
     }
+    const hasStability = scan.segments.some((sg) => sg.stability);
+    const firmCol = hasStability ? ["Firm cusps"] : [];
     const head = eventMethod
       ? [
           "From",
           "To",
           "Lagna",
           "Sign / star / sub lord",
+          ...firmCol,
           "Score",
           "Chance mean",
           "Percentile",
           "",
         ]
-      : ["From", "To", "Lagna", "Sign / star / sub lord", "Score", ""];
+      : [
+          "From",
+          "To",
+          "Lagna",
+          "Sign / star / sub lord",
+          ...firmCol,
+          "Score",
+          "",
+        ];
+    if (hasStability) {
+      const splits = scan.segments.filter(
+        (sg) => sg.stability?.matterFirm === false,
+      );
+      paras.push({
+        kind: "p",
+        text: `Firm cusps counts the cusps, of twelve, whose sub lord is the same throughout the interval; the intervals are cut only where the lagna's own sub lord changes, so another cusp may still change inside one. Among equally scored intervals the firmer and then the longer ranks first; firmness never outranks a score.${splits.length ? ` In ${splits.length} interval${splits.length === 1 ? "" : "s"} a cusp the events name changes its sub lord inside the interval (marked "splits"): for that matter the interval is two candidates, not one.` : ""}`,
+        provisional: true,
+      });
+    }
     paras.push({
       kind: "table",
       head,
       rows: scored.map((x) => {
+        const st = x.seg.stability;
         const base = [
           x.seg.start.slice(0, 5),
           x.seg.end.slice(0, 5),
           x.seg.sign,
           `${x.seg.signLord} / ${x.seg.starLord} / ${x.seg.subLord}`,
+          ...(hasStability
+            ? [
+                st
+                  ? `${st.firm}/12${st.matterFirm === false ? " (splits)" : ""}`
+                  : "—",
+              ]
+            : []),
           `${fmtScore(x.sc.score)} / ${x.sc.max}`,
         ];
         if (eventMethod)

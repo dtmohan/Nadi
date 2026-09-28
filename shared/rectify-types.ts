@@ -100,6 +100,24 @@ export interface MoonLordsCheck {
   max: number;
 }
 
+/**
+ * How firm the cusp sub lords are across an interval. The intervals are cut where the lagna's own
+ * sub lord changes, so inside one the other eleven cusps may still change theirs; a candidate whose
+ * 7th cusp sub lord flips halfway is two candidates for a marriage question, not one.
+ */
+export interface RectifySegmentStability {
+  /** Cusps (1-12) whose sub lord is the same at the start, middle and end of the interval. */
+  firm: number;
+  /** Houses whose sub lord changes inside the interval. */
+  changing: number[];
+  /** Length of the interval in seconds. */
+  seconds: number;
+  /** Cusps the dated events name (RectifyEvent.cusp); empty when none do. */
+  matterCusps: number[];
+  /** True when every matter cusp is firm; undefined when no event names a cusp. */
+  matterFirm?: boolean;
+}
+
 export interface RectifySegment {
   /** Local civil times in the birth zone, HH:mm:ss. */
   start: string;
@@ -125,6 +143,8 @@ export interface RectifySegment {
   };
   /** Sub lords of the twelve cusps at the middle of the interval. */
   cuspSubLords: Planet[];
+  /** Cusp sub-lord firmness across the interval; absent on results computed before it was added. */
+  stability?: RectifySegmentStability;
   /** Moon's star and sub lord at the middle of the interval. */
   moon: { starLord: Planet; subLord: Planet };
   /**

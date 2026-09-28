@@ -8,6 +8,7 @@ import type {
   RectifyBaselineStat,
   RectifyResult,
   RectifySegment,
+  RectifySegmentStability,
   RectifyEvent,
 } from "@shared/rectify-types";
 import { matterOf } from "@shared/events";
@@ -129,6 +130,48 @@ function Mark({ on, title }: { on: boolean; title?: string }) {
     />
   );
 }
+
+/**
+ * Cusps whose sub lord holds through the whole interval, of twelve. A matter cusp (one a dated event
+ * names) that changes inside the interval is called out: for that question the interval is two
+ * candidates, not one.
+ */
+function FirmCell({
+  st,
+  plain,
+}: {
+  st: RectifySegmentStability | undefined;
+  plain: boolean;
+}) {
+  if (!st) return <span className="text-muted-foreground">—</span>;
+  const split = st.matterFirm === false;
+  const matterChanging = st.changing.filter((c) => st.matterCusps.includes(c));
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 tabular",
+        split && "text-verdict-mixed",
+      )}
+      title={
+        st.changing.length
+          ? `${plain ? "Deciding planet changes inside this slice for the" : "Sub lord changes inside the interval on the"} ${st.changing.map(ordinalOf).join(", ")}${split ? `; the matter's ${matterChanging.map(ordinalOf).join(", ")} among them` : ""}. Interval ${Math.round(st.seconds)} s long.`
+          : `Every cusp keeps its sub lord through the interval (${Math.round(st.seconds)} s).`
+      }
+      data-testid="rectify-firm"
+      data-split={split}
+    >
+      {st.firm}/12
+      {split && (
+        <span className="rounded border border-verdict-mixed/50 px-1 text-2xs uppercase tracking-wide">
+          {plain ? "splits" : "matter cusp splits"}
+        </span>
+      )}
+    </span>
+  );
+}
+
+const ordinalOf = (n: number) =>
+  `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
 
 function ScoreBar({ score, max }: { score: number; max: number }) {
   const pct = max > 0 ? Math.round((score / max) * 100) : 0;
@@ -358,17 +401,29 @@ export function RectifyPanel({
           ),
     [scored, top, topExcess, baselined],
   );
+  // Ranking: the method's score (or its excess over chance) first; among equals, the interval whose
+  // cusp sub lords are firmer throughout ranks higher, then the longer one, then clock order. Firmness
+  // never outranks a score: it only says which of the equally scored candidates is one candidate.
+  const firmness = (s: RectifySegment) =>
+    s.stability
+      ? (s.stability.matterFirm === false ? -100 : 0) + s.stability.firm
+      : 0;
   const segments = useMemo(
     () =>
       sortByScore
-        ? [...scored].sort((a, b) =>
-            baselined
-              ? (b.excess ?? 0) - (a.excess ?? 0) || a.i - b.i
-              : b.score - a.score || a.i - b.i,
+        ? [...scored].sort(
+            (a, b) =>
+              (baselined
+                ? (b.excess ?? 0) - (a.excess ?? 0)
+                : b.score - a.score) ||
+              firmness(b.s) - firmness(a.s) ||
+              (b.s.stability?.seconds ?? 0) - (a.s.stability?.seconds ?? 0) ||
+              a.i - b.i,
           )
         : scored,
     [scored, sortByScore, baselined],
   );
+  const hasStability = scored.some((r) => r.s.stability);
   const maxOf = scored[0]?.max ?? 0;
 
   // Shared timeline for the event methods: the candidate under review (the opened interval, else the best), its clock, and each event tinted by how well that candidate fits it.
@@ -877,6 +932,11 @@ export function RectifyPanel({
             >
               {sortByScore ? "Sort by time" : "Sort by score"}
             </button>
+            {hasStability && sortByScore && (
+              <span className="text-2xs text-muted-foreground">
+                ties broken by firm cusps, then length
+              </span>
+            )}
           </div>
           {EVENT_METHODS.includes(method) &&
             eventPayload.length > 0 &&
@@ -1332,6 +1392,14 @@ export function RectifyPanel({
                           )}
                         </TableHead>
                       ))}
+                    {hasStability && (
+                      <TableHead
+                        className="whitespace-nowrap"
+                        title="Cusps whose sub lord is the same throughout the interval, of 12"
+                      >
+                        {plain ? "Firm houses" : "Firm cusps"}
+                      </TableHead>
+                    )}
                     <TableHead className="whitespace-nowrap">Score</TableHead>
                     {baselined && (
                       <TableHead className="whitespace-nowrap">
@@ -1611,6 +1679,11 @@ export function RectifyPanel({
                               </span>
                             </TableCell>
                           ))}
+                        {hasStability && (
+                          <TableCell className="whitespace-nowrap">
+                            <FirmCell st={s.stability} plain={plain} />
+                          </TableCell>
+                        )}
                         <TableCell className="whitespace-nowrap">
                           <ScoreBar score={score} max={max} />
                         </TableCell>

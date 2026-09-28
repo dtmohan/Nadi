@@ -33,6 +33,7 @@ import { seeded } from "./validate";
 import type {
   RectifyBaselineStat,
   RectifySegmentBaseline,
+  RectifySegmentStability,
 } from "@shared/rectify-types";
 import { DateTime } from "luxon";
 import { norm360, type Planet } from "@shared/astro";
@@ -557,7 +558,37 @@ export function rectify(req: RectifyRequest): RectifyResult {
 
     const evScore = events.reduce((s, e) => s + e.score, 0);
     const evMax = events.reduce((s, e) => s + e.max, 0);
+    // Firmness of the twelve cusp sub lords across the interval: the same at both ends and the middle.
+    const EPS = 0.2 / 86400;
+    const subsAt = (t: number) =>
+      cuspsAt(t, chart.latitude, chart.longitude, opts).map(
+        (lon) => kpPoint(lon).subLord,
+      );
+    const subsA = subsAt(a + EPS);
+    const subsB = subsAt(b - EPS);
+    const changing = cusps
+      .map((c, k) =>
+        subsA[k] === c.subLord && subsB[k] === c.subLord ? 0 : k + 1,
+      )
+      .filter(Boolean);
+    const matterCusps = Array.from(
+      new Set(
+        req.events
+          .map((e) => e.cusp)
+          .filter((c): c is number => !!c && c >= 1 && c <= 12),
+      ),
+    ).sort((x, y) => x - y);
+    const stability: RectifySegmentStability = {
+      firm: 12 - changing.length,
+      changing,
+      seconds: Math.round((b - a) * 86400),
+      matterCusps,
+      matterFirm: matterCusps.length
+        ? matterCusps.every((c) => !changing.includes(c))
+        : undefined,
+    };
     segments.push({
+      stability,
       start: fmtT(a),
       end: fmtT(b),
       mid: fmtT(mid),
