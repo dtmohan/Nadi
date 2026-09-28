@@ -599,10 +599,12 @@ export default function AboutPage() {
               not yet in season at the native's age are held back, and the
               length-of-life and infancy checks, the maraka planets and the
               remedy lines of the period chapters are never part of it. The
-              report is built one module per system, so each tab can carry its
-              own export, and Export PDF on the chart page prints the same
-              document from the server, in the reading mode then selected, with
-              the South Indian chart at its head.
+              report is built one module per system: Export PDF on the chart
+              page prints the whole document from the server, in the reading
+              mode then selected, with the South Indian chart at its head; each
+              reading tab has a "This tab as PDF" button for its own section
+              alone; and the Report page lets you leave systems out before
+              downloading.
             </p>
             <h2>Where your charts live</h2>
             <p>
