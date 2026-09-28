@@ -601,10 +601,13 @@ export default function AboutPage() {
               remedy lines of the period chapters are never part of it. The
               report is built one module per system: Export PDF on the chart
               page prints the whole document from the server, in the reading
-              mode then selected, with the South Indian chart at its head; each
-              reading tab has a "This tab as PDF" button for its own section
-              alone; and the Report page lets you leave systems out before
-              downloading.
+              mode then selected, with the South Indian chart at its head; every
+              tab has a "This tab as PDF" button: a reading tab exports its own
+              section alone, Rectify exports the scan it is showing (method,
+              window, events and confirmed marks are rerun on the server) and
+              Validate the events read back with their chance baseline; and the
+              Report page lets you leave systems out before downloading. The two
+              tools never join the report of readings.
             </p>
             <h2>Where your charts live</h2>
             <p>
