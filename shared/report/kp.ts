@@ -14,6 +14,7 @@ import {
 export const kpModule: ReportModule = {
   id: "kp",
   label: "KP: cusps and sub lords",
+  short: "KP",
   tab: "kp",
   build(ctx) {
     const { result, S, cites, asOf, inSeason, withheld } = ctx;

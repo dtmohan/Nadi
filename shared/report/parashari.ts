@@ -483,6 +483,7 @@ function tablesSection(
 export const parashariModule: ReportModule = {
   id: "parashari",
   label: "Parashari: houses, periods and tables",
+  short: "Parashari",
   tab: "parashari",
   build(ctx) {
     const par = computeFor(ctx);

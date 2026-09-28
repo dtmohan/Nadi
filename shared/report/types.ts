@@ -87,6 +87,8 @@ export interface ReportModule {
   id: string;
   /** Title used in section pickers and per-tab exports. */
   label: string;
+  /** One or two words for chips and file names. */
+  short: string;
   tab: ReportTab;
   build: (ctx: ReportContext) => ReportSection[];
 }

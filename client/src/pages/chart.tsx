@@ -80,6 +80,7 @@ import {
 import { Term } from "@/components/term";
 import { Working, ReadingModeToggle } from "@/components/working";
 import { useReadingMode } from "@/lib/reading-mode";
+import { downloadReportPdf } from "@/lib/report-pdf";
 import type { PlanetStrength } from "@shared/strength";
 import {
   housesFrom,
@@ -1505,6 +1506,16 @@ type SystemMode =
   | "rectify"
   | "validate";
 
+/** The report module each reading tab exports on its own (shared/report); the two tools have none. */
+const TAB_MODULE: Partial<Record<SystemMode, string>> = {
+  bnn: "bnn",
+  jaimini: "jaimini",
+  alp: "alp",
+  kp: "kp",
+  parashari: "parashari",
+  panchanga: "panchanga",
+};
+
 /** The eight tabs, in order; the last two are tools rather than reading systems and are set apart in both bars. */
 const MODES: {
   id: SystemMode;
@@ -1577,24 +1588,18 @@ export default function ChartPage() {
     },
   });
   const { toast } = useToast();
-  const [exporting, setExporting] = useState(false);
+  const [exporting, setExporting] = useState<string | null>(null);
   const { mode: readingMode } = useReadingMode();
-  // The report PDF: the same sections as the Report page, one module per system, in the current reading mode.
-  const exportPdf = async () => {
+  // The report PDF: the same sections as the Report page, one module per system, in the current
+  // reading mode. With no modules the whole report; with one, that tab's section alone.
+  const exportPdf = async (modules?: string[]) => {
     if (!data) return;
-    setExporting(true);
+    setExporting(modules?.[0] ?? "all");
     try {
-      const res = await apiRequest("POST", "/api/report.pdf", {
-        ...data.chart,
+      await downloadReportPdf(data.chart, {
         plain: readingMode === "plain",
+        modules,
       });
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `nadi-report-${data.chart.name.replace(/[^\w.-]+/g, "_").slice(0, 60) || "chart"}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
     } catch (e: any) {
       toast({
         title: "Could not export PDF",
@@ -1602,7 +1607,7 @@ export default function ChartPage() {
         variant: "destructive",
       });
     } finally {
-      setExporting(false);
+      setExporting(null);
     }
   };
   const [selected, setSelected] = useState<Planet | null>(null);
@@ -1694,12 +1699,12 @@ export default function ChartPage() {
           <Button
             size="sm"
             variant="outline"
-            onClick={exportPdf}
-            disabled={exporting}
+            onClick={() => exportPdf()}
+            disabled={exporting !== null}
             data-testid="button-export-pdf"
           >
             <FileDown className="h-4 w-4" />
-            {exporting ? "Preparing PDF" : "Export PDF"}
+            {exporting === "all" ? "Preparing PDF" : "Export PDF"}
           </Button>
         </div>
       </header>
@@ -1770,6 +1775,22 @@ export default function ChartPage() {
                             : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}
           </p>
           <ReadingModeToggle />
+          {TAB_MODULE[mode] && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 gap-1 px-2 text-xs"
+              onClick={() => exportPdf([TAB_MODULE[mode]!])}
+              disabled={exporting !== null}
+              title={`Export the ${MODES.find((m) => m.id === mode)?.label} section alone as a PDF, in the current reading mode`}
+              data-testid="button-export-tab-pdf"
+            >
+              <FileDown className="h-3.5 w-3.5" />
+              {exporting === TAB_MODULE[mode]
+                ? "Preparing PDF"
+                : "This tab as PDF"}
+            </Button>
+          )}
         </div>
       </div>
 

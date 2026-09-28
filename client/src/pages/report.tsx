@@ -1,7 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, FileDown, Printer } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { chartsStore } from "@/lib/charts-store";
@@ -11,9 +11,15 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   buildReport,
+  REPORT_MODULES,
   type ReportPara,
   type ReportSection,
 } from "@/lib/report-builder";
+import { downloadReportPdf } from "@/lib/report-pdf";
+import { useToast } from "@/hooks/use-toast";
+
+/** The systems a reader can leave out of the report; the chart section is always present. */
+const PICKABLE = REPORT_MODULES.filter((m) => m.id !== "chart");
 
 const TONE_RULE: Record<NonNullable<ReportPara["tone"]>, string> = {
   support: "border-verdict-good/50",
@@ -163,10 +169,44 @@ export default function ReportPage() {
       return { ...result, chart };
     },
   });
-  const doc = useMemo(
-    () => (data ? buildReport(data, { plain: mode === "plain" }) : null),
-    [data, mode],
+  // Which systems the report carries; all of them until the reader turns some off.
+  const [off, setOff] = useState<Set<string>>(new Set());
+  const modules = useMemo(
+    () => PICKABLE.map((m) => m.id).filter((id) => !off.has(id)),
+    [off],
   );
+  const toggle = (id: string) =>
+    setOff((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else if (next.size < PICKABLE.length - 1) next.add(id);
+      return next;
+    });
+  const doc = useMemo(
+    () =>
+      data ? buildReport(data, { plain: mode === "plain", modules }) : null,
+    [data, mode, modules],
+  );
+  const { toast } = useToast();
+  const [exporting, setExporting] = useState(false);
+  const exportPdf = async () => {
+    if (!data) return;
+    setExporting(true);
+    try {
+      await downloadReportPdf(data.chart, {
+        plain: mode === "plain",
+        modules: off.size ? modules : undefined,
+      });
+    } catch (e: any) {
+      toast({
+        title: "Could not export PDF",
+        description: e.message,
+        variant: "destructive",
+      });
+    } finally {
+      setExporting(false);
+    }
+  };
   useEffect(() => {
     document.documentElement.classList.add("report-print");
     return () => document.documentElement.classList.remove("report-print");
@@ -212,12 +252,53 @@ export default function ReportPage() {
           <Button
             size="sm"
             variant="outline"
+            onClick={exportPdf}
+            disabled={exporting}
+            data-testid="button-report-pdf"
+          >
+            <FileDown className="h-4 w-4" />
+            {exporting ? "Preparing PDF" : "Download PDF"}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
             onClick={() => window.print()}
             data-testid="button-report-print"
+            title="Print this page from the browser"
           >
-            <Printer className="h-4 w-4" /> Print or save as PDF
+            <Printer className="h-4 w-4" /> Print
           </Button>
         </div>
+      </div>
+
+      <div
+        className="mb-6 flex flex-wrap items-center gap-1.5 print:hidden"
+        role="group"
+        aria-label="Systems in the report"
+        data-testid="report-modules"
+      >
+        <span className="mr-1 text-xs text-muted-foreground">Include</span>
+        {PICKABLE.map((m) => {
+          const on = !off.has(m.id);
+          return (
+            <button
+              key={m.id}
+              type="button"
+              aria-pressed={on}
+              onClick={() => toggle(m.id)}
+              className={cn(
+                "rounded-full border px-2.5 py-0.5 text-xs transition-colors",
+                on
+                  ? "border-primary/40 bg-primary/10 text-foreground"
+                  : "border-border text-muted-foreground line-through hover:text-foreground",
+              )}
+              title={m.label}
+              data-testid={`report-module-${m.id}`}
+            >
+              {m.short}
+            </button>
+          );
+        })}
       </div>
 
       <header>

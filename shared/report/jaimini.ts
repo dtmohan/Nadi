@@ -18,6 +18,7 @@ const SUTRAS_URL = "https://www.wisdomlib.org/hinduism/book/jaimini-sutras";
 export const jaiminiModule: ReportModule = {
   id: "jaimini",
   label: "The Jaimini reading",
+  short: "Jaimini",
   tab: "jaimini",
   build(ctx) {
     const { result, S, cites, lifeAt, deceased, inSeason, withheld, pos } = ctx;

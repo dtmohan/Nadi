@@ -14,6 +14,7 @@ import {
 export const alpModule: ReportModule = {
   id: "alp",
   label: "ALP: the progressed lagna",
+  short: "ALP",
   tab: "alp",
   build(ctx) {
     const { result, S, cites, asOf, lifeAt, deceased, withheld } = ctx;

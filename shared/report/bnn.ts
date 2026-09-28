@@ -16,6 +16,7 @@ import {
 export const bnnModule: ReportModule = {
   id: "bnn",
   label: "The Nadi reading",
+  short: "Nadi",
   tab: "bnn",
   build(ctx) {
     const { result, S, cites, asOf, deceased, inSeason, female } = ctx;

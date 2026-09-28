@@ -5,6 +5,7 @@ import { fmtDate, type ReportModule, type ReportPara } from "./types";
 export const chartModule: ReportModule = {
   id: "chart",
   label: "The chart",
+  short: "Chart",
   tab: "chart",
   build(ctx) {
     const { result, deceased, age, birthLocal, lagnaIdx, pos } = ctx;

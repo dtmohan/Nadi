@@ -15,6 +15,7 @@ import {
 export const panchangaModule: ReportModule = {
   id: "panchanga",
   label: "Day of birth and the sky today",
+  short: "Panchanga",
   tab: "panchanga",
   build(ctx) {
     const { result, cites, asOf, deceased, pos, withheld } = ctx;
