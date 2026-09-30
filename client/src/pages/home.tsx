@@ -332,6 +332,49 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 md:px-10 md:py-12">
+      {charts?.length === 0 && (
+        <section
+          className="mb-10 rounded-md border bg-muted/30 p-4"
+          data-testid="card-start-here"
+          aria-labelledby="start-heading"
+        >
+          <h2 id="start-heading" className="text-lg font-semibold">
+            Start here
+          </h2>
+          <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm text-muted-foreground">
+            <li>
+              Cast a chart — a name, a date, a time and a place are enough — or
+              import a backup file under Saved charts.
+            </li>
+            <li>
+              Read the Nadi tab first: the planets read against each other by
+              sign, with no houses. Every other tab is one more system and each
+              is kept separate; none is blended into another.
+            </li>
+            <li>
+              Compare the systems in “Where the systems agree or differ”, above
+              the tabs on the chart page: each gives its own verdict on
+              marriage, children, career and parents.
+            </li>
+            <li>
+              Test it: add dated life events to the chart, then let Rectify
+              check a birth time and Validate read the events back at their
+              dates. Checks, not readings.
+            </li>
+          </ol>
+          <p className="mt-3 text-xs text-muted-foreground">
+            The{" "}
+            <Link
+              href="/about"
+              className="underline decoration-muted-foreground/40 underline-offset-2 hover:decoration-current"
+              data-testid="link-start-method"
+            >
+              Method page
+            </Link>{" "}
+            explains what each system reads and where its rules come from.
+          </p>
+        </section>
+      )}
       <div className="grid gap-10 lg:grid-cols-[minmax(0,26rem)_1fr] lg:gap-16">
         <section aria-labelledby="cast-heading">
           <h1
