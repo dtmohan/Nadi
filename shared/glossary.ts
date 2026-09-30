@@ -161,6 +161,12 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
     short: "Another name for the Karakamsa, the Atmakaraka's navamsa sign.",
     system: "jaimini",
   },
+  "indu-lagna": {
+    term: "Indu Lagna",
+    short:
+      "The wealth ascendant (Uttara Kalamrita IV.27): add the ray-numbers of the ninth lords from the lagna and from the Moon, divide by twelve, and count the remainder from the Moon's sign. Read for the scale of wealth.",
+    system: "jaimini",
+  },
   d9: {
     term: "Navamsa (D9)",
     short:

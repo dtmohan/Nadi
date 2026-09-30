@@ -2,6 +2,7 @@
 import { fmtDeg, SIGNS } from "../astro";
 import { CHARA_KARAKA_INFO } from "../jaimini";
 import { readAreas } from "../jaimini-areas";
+import { vimshottari, type KpPeriod } from "../kp";
 import {
   endStop,
   fmtDate,
@@ -132,6 +133,53 @@ export const jaiminiModule: ReportModule = {
         kind: "note",
         text: `Held for later at this age: ${list(held)}.`,
       });
+    {
+      // Indu Lagna (Uttara Kalamrita IV.27): calculation classical, reading rules
+      // from the DNA Astrology of Wealth book, pp. 92-93. Its own subsection.
+      const uk = cites.add(
+        "Kalidasa, Uttara Kalamrita IV.27 (V. Subrahmanya Sastri, trans. 1939)",
+        "https://www.astrojyoti.com/uttarakalamritam2.htm",
+      );
+      const book = cites.add(
+        "S. Prakash, DNA Astrology of Wealth (2022), pp. 92-93",
+      );
+      const i = j.indu;
+      const moon = positions.find((x) => x.planet === "Moon")!;
+      let dasas: KpPeriod[] = [];
+      try {
+        dasas = vimshottari(moon.lon, result.utc, ctx.asOf).dasas;
+      } catch {
+        dasas = [];
+      }
+      const timingIds = ["il-ben-dasha", "il-ben-trine", "il-ben-kendra", "il-second"];
+      const induParas: ReportPara[] = [
+        {
+          kind: "p",
+          text: `The Indu Lagna, the wealth ascendant: the 9th from the lagna is ${i.ninthFromLagna.sign} (${i.ninthFromLagna.lord}, ${i.ninthFromLagna.kala} kalas) and the 9th from the Moon in ${moon.sign} is ${i.ninthFromMoon.sign} (${i.ninthFromMoon.lord}, ${i.ninthFromMoon.kala} kalas). Their sum ${i.sum} leaves a remainder of ${i.remainder} modulo twelve, so the ${ORD(i.remainder)} sign from the Moon is the Indu Lagna: ${i.sign}.${i.sameLord ? ` ${i.ninthFromLagna.lord} rules both ninths and its kalas are counted twice.` : ""}`,
+          cites: [uk],
+          aside: "a Parashari-lineage special lagna; it feeds nothing in the Nadi reading",
+        },
+        ...[...i.classical, ...i.findings].map(
+          (f): ReportPara => ({
+            kind: "p",
+            text:
+              S(endStop(f.text)) +
+              (timingIds.includes(f.id) && f.planets.length
+                ? ` ${list(
+                    f.planets
+                      .map((pl) => {
+                        const d = dasas.find((x) => x.lord === pl);
+                        return d ? `${pl} ${fmtDate(d.start)} to ${fmtDate(d.end)}` : "";
+                      })
+                      .filter(Boolean),
+                  )}.`
+                : ""),
+            cites: [f.source === "classical" ? uk : book],
+          }),
+        ),
+      ];
+      sub.push({ id: "jaimini-indu", title: "Indu Lagna", paras: induParas });
+    }
     return [
       {
         id: "jaimini",

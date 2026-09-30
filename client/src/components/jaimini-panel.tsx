@@ -52,6 +52,7 @@ import {
   SignName,
   ElementLegend,
   elementColor,
+  planetColor,
 } from "@/components/planet-name";
 import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
 import { charaBands, eventMarks, transitBand } from "@/lib/timeline-data";
@@ -70,6 +71,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { vimshottari, type KpPeriod } from "@shared/kp";
+import { INDU_SOURCE } from "@shared/indu-lagna";
 import { cn } from "@/lib/utils";
 
 const PLAIN_KARAKA: Record<string, string> = {
@@ -425,6 +428,16 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
   const [focusSign, setFocusSign] = useState<number>(j.lagna.signIndex);
   const [showPrimer, setShowPrimer] = useState(false);
   const plain = usePlain();
+
+  // Vimshottari mahadashas, for the Indu Lagna reading's timing clauses.
+  const moonPos = positions.find((x) => x.planet === "Moon")!;
+  let dasas: KpPeriod[] = [];
+  try {
+    dasas = vimshottari(moonPos.lon, result.utc, result.now.asOf).dasas;
+  } catch {
+    dasas = [];
+  }
+  const dasaOf = (planet: Planet) => dasas.find((d) => d.lord === planet);
 
   // Shared timeline: Chara periods with Jupiter's passages, the antardashas each area runs hot in, and the recorded events.
   const tlBands = useMemo(
@@ -822,6 +835,125 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
               </Card>
             ))}
           </div>
+        </Working>
+      </section>
+
+      <section className="mt-10" data-testid="section-indu">
+        <SectionTitle
+          as="h2"
+          plain="The wealth ascendant"
+          technical="Indu Lagna"
+          term="indu-lagna"
+          className="text-base"
+        />
+        <ModeText
+          className="text-sm"
+          plain={
+            <>
+              A second rising point built only for money: the ninth lord from
+              the birth ascendant and the ninth lord from the Moon each carry a
+              fixed number of rays, the two numbers are added, and the
+              remainder is counted round the zodiac from the Moon. What sits in
+              that sign, its second and its eleventh, is read for the scale of
+              wealth.
+            </>
+          }
+          practitioner={
+            <>
+              Indu Lagna, the wealth ascendant of Uttara Kalamrita IV.27
+              (Kalidasa; Sastri's translation, public-domain e-text at{" "}
+              <SourceLink source={INDU_SOURCE} />
+              ): the kalas of the ninth lord from the lagna and of the ninth
+              lord from the Moon are summed, divided by twelve, and the
+              remainder counted from the Moon's sign. A Parashari-lineage
+              technique shown here beside the other special lagnas; it feeds
+              nothing in the Nadi reading. Reading rules: DNA Astrology of
+              Wealth, pp. 92-93.
+            </>
+          }
+        />
+        <Working
+          id="indu"
+          label="Show the Indu Lagna working and its wealth readings"
+          className="mt-3"
+        >
+          <Card data-testid="card-indu" className="mt-3">
+            <CardContent className="p-5">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                <h3 className="text-base font-semibold">
+                  Indu Lagna ·{" "}
+                  <span data-testid="text-indu-lagna">{j.indu.sign}</span>
+                </h3>
+                <span className="tabular text-xs text-muted-foreground">
+                  {j.indu.ninthFromLagna.lord} {j.indu.ninthFromLagna.kala} +{" "}
+                  {j.indu.ninthFromMoon.lord} {j.indu.ninthFromMoon.kala} ={" "}
+                  {j.indu.sum} → {j.indu.remainder}
+                </span>
+              </div>
+              <p
+                className="mt-2 text-sm leading-relaxed"
+                data-testid="text-indu-working"
+              >
+                The 9th from the lagna is {j.indu.ninthFromLagna.sign} (
+                {j.indu.ninthFromLagna.lord}, {j.indu.ninthFromLagna.kala}{" "}
+                kalas); the 9th from the Moon in {moonPos.sign} is{" "}
+                {j.indu.ninthFromMoon.sign} ({j.indu.ninthFromMoon.lord},{" "}
+                {j.indu.ninthFromMoon.kala} kalas). Their sum {j.indu.sum}{" "}
+                leaves a remainder of {j.indu.remainder} modulo twelve, so the
+                {" "}
+                {ordinal(j.indu.remainder)} sign from the Moon is the Indu
+                Lagna: {j.indu.sign}.
+                {j.indu.sameLord
+                  ? ` ${j.indu.ninthFromLagna.lord} rules both ninths and its kalas are counted twice, as the verse adds the two lords' values.`
+                  : ""}
+              </p>
+              <div className="mt-3 space-y-1.5 text-sm leading-relaxed">
+                {[...j.indu.classical, ...j.indu.findings].map((f) => {
+                  const d = f.planets
+                    .map((pl) => dasaOf(pl))
+                    .filter((x): x is KpPeriod => !!x);
+                  const state = d.some((x) => x.current)
+                    ? " (running)"
+                    : d.length && d.every((x) => DateTime.fromISO(x.end) < now)
+                      ? " (passed)"
+                      : "";
+                  return (
+                    <p
+                      key={f.id}
+                      className="text-muted-foreground"
+                      data-testid={`indu-${f.id}`}
+                    >
+                      {f.planets.map((pl, i) => (
+                        <span key={pl}>
+                          {i > 0 ? " " : ""}
+                          <span style={{ color: planetColor(pl) }}>{pl}</span>
+                        </span>
+                      ))}
+                      {f.planets.length ? " — " : ""}
+                      <span className="text-foreground">{f.text}</span>
+                      {d.length &&
+                      ["il-ben-dasha", "il-ben-trine", "il-ben-kendra", "il-second"].includes(f.id)
+                        ? ` Mahadasha${d.length === 1 ? "" : "s"} ${d
+                            .map(
+                              (x) =>
+                                `${DateTime.fromISO(x.start).toFormat("yyyy")}–${DateTime.fromISO(x.end).toFormat("yyyy")}`,
+                            )
+                            .join(", ")}${state}.`
+                        : ""}{" "}
+                      <span className="text-xs">
+                        ({f.source === "classical" ? INDU_SOURCE.label : f.pages})
+                      </span>
+                    </p>
+                  );
+                })}
+              </div>
+              <ul className="mt-3 space-y-1 text-xs leading-relaxed text-muted-foreground">
+                {j.indu.notes.map((n) => (
+                  <li key={n}>{n}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         </Working>
       </section>
 

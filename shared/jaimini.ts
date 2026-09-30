@@ -7,6 +7,7 @@ import { DateTime } from "luxon";
 import { SIGNS, SIGN_LORD, SIGN_QUALITY, houseFrom, type Planet, type PlanetPosition, type Sign } from "./astro";
 import { evaluateJaimini } from "./rules-jaimini";
 import { computeAyur, type AyurResult } from "./jaimini-ayur";
+import { computeInduLagna, type InduLagnaResult } from "./indu-lagna";
 
 // ── Chara karakas ─────────────────────────────────────────────────────────────
 
@@ -311,6 +312,8 @@ export interface JaiminiResult {
   special?: { horaLagna: JaiminiLagna; ghatikaLagna: JaiminiLagna };
   /** Longevity classification per Jaimini 2.1; null when withheld for a native under the sensitive-content age. */
   ayur: AyurResult | null;
+  /** Indu Lagna, the wealth ascendant of Uttara Kalamrita IV.27 — a Parashari-lineage special lagna shown here beside the others, not a Jaimini technique. */
+  indu: InduLagnaResult;
 }
 
 /** Natural benefics for Jaimini purposes. The Sun counts as a benefic when exalted or in a friendly sign (Jaimini 1.4). The Moon is a benefic in its bright half. */
@@ -350,6 +353,7 @@ export function computeJaimini(positions: PlanetPosition[], lagnaLon: number, bi
   ];
   const findings = evaluateJaimini({ positions, navamsa, lagnaSign, karakas, karakamsa: karakamsa.signIndex, arudhas, horaLagna: special?.horaLagna.signIndex, ghatikaLagna: special?.ghatikaLagna.signIndex });
   const ayur = computeAyur(positions, lagnaSign, special?.horaLagna.signIndex);
+  const indu = computeInduLagna(positions, lagnaLon);
   return {
     lagna,
     navamsaLagna: { signIndex: nl.signIndex, sign: SIGNS[nl.signIndex] },
@@ -362,5 +366,6 @@ export function computeJaimini(positions: PlanetPosition[], lagnaLon: number, bi
     findings,
     special,
     ayur,
+    indu,
   };
 }
