@@ -19,6 +19,8 @@ import {
   CheckCheck,
   CalendarDays,
   FileText,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import {
@@ -1589,6 +1591,137 @@ const MODES: {
   },
 ];
 
+function ModeBar({
+  mode,
+  onPick,
+}: {
+  mode: SystemMode;
+  onPick: (m: SystemMode) => void;
+}) {
+  const listRef = useRef<HTMLUListElement>(null);
+  const [edges, setEdges] = useState({ left: false, right: false });
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const measure = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      setEdges({ left: el.scrollLeft > 4, right: el.scrollLeft < max - 4 });
+    };
+    measure();
+    el.addEventListener("scroll", measure, { passive: true });
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", measure);
+      ro.disconnect();
+    };
+  }, []);
+  // Keep the active system visible when the strip scrolls on narrow screens.
+  useEffect(() => {
+    const el = listRef.current;
+    const active = el?.querySelector<HTMLElement>(
+      `[data-testid="mode-bar-${mode}"]`,
+    );
+    const item = active?.closest("li");
+    if (!el || !item) return;
+    const left = item.offsetLeft - el.offsetLeft;
+    if (
+      left < el.scrollLeft ||
+      left + item.offsetWidth > el.scrollLeft + el.clientWidth
+    )
+      el.scrollTo({ left: Math.max(0, left - 16), behavior: "smooth" });
+  }, [mode]);
+  const nudge = (dir: 1 | -1) => {
+    const el = listRef.current;
+    if (el)
+      el.scrollBy({ left: (dir * el.clientWidth) / 1.6, behavior: "smooth" });
+  };
+  return (
+    <nav
+      aria-label="Reading system"
+      className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+      data-testid="mode-bar"
+    >
+      <div className="relative mx-auto max-w-md">
+        <ul
+          ref={listRef}
+          className="flex items-stretch overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {MODES.map((m) => (
+            <li
+              key={m.id}
+              className={cn(
+                "relative min-w-[3.5rem] shrink-0 grow",
+                m.id === "rectify" &&
+                  "before:absolute before:inset-y-2 before:left-0 before:w-px before:bg-border",
+              )}
+            >
+              <button
+                type="button"
+                aria-current={mode === m.id ? "page" : undefined}
+                onClick={() => onPick(m.id)}
+                className={cn(
+                  "flex w-full flex-col items-center gap-0.5 px-1 pb-2 pt-2 text-[10px] leading-none transition-colors",
+                  mode === m.id ? "text-primary" : "text-muted-foreground",
+                )}
+                data-testid={`mode-bar-${m.id}`}
+                title={m.title}
+              >
+                <m.Icon
+                  className="h-4 w-4"
+                  strokeWidth={mode === m.id ? 2.2 : 1.7}
+                />
+                <span
+                  className={cn(
+                    "whitespace-nowrap",
+                    mode === m.id && "font-semibold",
+                  )}
+                >
+                  {m.short}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        {edges.left && (
+          <div
+            className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-background to-transparent"
+            data-testid="mode-bar-fade-left"
+          />
+        )}
+        {edges.left && (
+          <button
+            type="button"
+            onClick={() => nudge(-1)}
+            aria-label="Scroll the system bar to the left"
+            className="absolute inset-y-0 left-0 flex w-7 items-center justify-center text-muted-foreground"
+            data-testid="mode-bar-nudge-left"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        )}
+        {edges.right && (
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background to-transparent"
+            data-testid="mode-bar-fade-right"
+          />
+        )}
+        {edges.right && (
+          <button
+            type="button"
+            onClick={() => nudge(1)}
+            aria-label="Scroll the system bar to the right"
+            className="absolute inset-y-0 right-0 flex w-7 items-center justify-center text-muted-foreground"
+            data-testid="mode-bar-nudge-right"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+    </nav>
+  );
+}
+
 export default function ChartPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = useQuery<ChartResult>({
@@ -1746,7 +1879,9 @@ export default function ChartPage() {
           result={data}
           onOpenTab={(t) => {
             setMode(t);
-            tablistRef.current?.scrollIntoView({ block: "nearest" });
+            if (tablistRef.current?.offsetParent)
+              tablistRef.current.scrollIntoView({ block: "nearest" });
+            else document.querySelector("main")?.scrollTo({ top: 0 });
           }}
         />
 
@@ -1754,7 +1889,7 @@ export default function ChartPage() {
           <div
             role="tablist"
             aria-label="Reading system"
-            className="inline-flex max-w-full overflow-x-auto whitespace-nowrap rounded-md border p-0.5 text-sm"
+            className="hidden max-w-full overflow-x-auto whitespace-nowrap rounded-md border p-0.5 text-sm md:inline-flex"
             ref={tablistRef}
           >
             {MODES.map((m) => (
@@ -2066,49 +2201,13 @@ export default function ChartPage() {
                     : "Jaimini text follows the Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; Chara dasha follows K.N. Rao's method. It is a starting set of rules meant to be extended, not a verdict."}
         </footer>
 
-        <nav
-          aria-label="Reading system"
-          className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
-          data-testid="mode-bar"
-        >
-          <ul className="mx-auto grid max-w-md grid-cols-7">
-            {MODES.map((m) => (
-              <li
-                key={m.id}
-                className={cn(
-                  "relative",
-                  m.id === "rectify" &&
-                    "before:absolute before:inset-y-2 before:left-0 before:w-px before:bg-border",
-                )}
-              >
-                <button
-                  type="button"
-                  aria-current={mode === m.id ? "page" : undefined}
-                  onClick={() => {
-                    setMode(m.id);
-                    document.querySelector("main")?.scrollTo({ top: 0 });
-                  }}
-                  className={cn(
-                    "flex w-full flex-col items-center gap-0.5 px-0.5 pb-2 pt-2 text-[10px] leading-none transition-colors",
-                    mode === m.id ? "text-primary" : "text-muted-foreground",
-                  )}
-                  data-testid={`mode-bar-${m.id}`}
-                  title={m.title}
-                >
-                  <m.Icon
-                    className="h-4 w-4"
-                    strokeWidth={mode === m.id ? 2.2 : 1.7}
-                  />
-                  <span
-                    className={cn("truncate", mode === m.id && "font-semibold")}
-                  >
-                    {m.short}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <ModeBar
+          mode={mode}
+          onPick={(m) => {
+            setMode(m);
+            document.querySelector("main")?.scrollTo({ top: 0 });
+          }}
+        />
       </div>
     </DeceasedProvider>
   );
