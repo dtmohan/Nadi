@@ -84,7 +84,7 @@ export const validateModule: ReportModule = {
             ? `${e.jaimini.mdSignName} / ${e.jaimini.adSignName} ${e.jaimini.score}/${e.jaimini.max}`
             : "—",
           `${e.bnn.verdict} ${e.bnn.score}/${e.bnn.max}`,
-          `${e.windows.bnn ? `Ju ${e.windows.bnn.sign}` : "—"} / ${e.windows.kp ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord}${e.windows.kp.antaraSignifies ? " (+A)" : ""}` : "—"}`,
+          `${e.windows.bnn ? `Ju ${e.windows.bnn.sign}` : "—"} / ${e.windows.kp ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord}${e.windows.kp.antaraSignifies ? " (+A)" : ""}` : "—"} / ${e.windows.kpStrict ? `${e.windows.kpStrict.dasaLord}-${e.windows.kpStrict.bhuktiLord}${e.windows.kpStrict.antaraSignifies ? " (+A)" : ""}` : "—"}`,
         ]),
       },
       {
@@ -110,11 +110,11 @@ export const validateModule: ReportModule = {
         paras: [
           {
             kind: "p",
-            text: `The table above asks what was running on the day; this one asks the prior question: was the date inside a window the system itself names in advance? A Nadi window is a Jupiter passage over the matter's karaka or in its count-signs from the Jeeva; a KP joint period is the dasa-bhukti of the matter's significators — the level the books' worked marriages are dated by — with the antara carried as a refinement and counted separately as the full three-level match; Method I grades are carried on the window, not used to set it aside. Nadi windows caught ${w.bnnCaught} of ${w.events} event${w.events === 1 ? "" : "s"}, of ${w.bnnPast} past windows for these matters; KP joint periods caught ${w.kpCaught}, of ${w.kpPast}, of which ${w.kpFull} also had the antara lord signifying.`,
+            text: `The table above asks what was running on the day; this one asks the prior question: was the date inside a window the system itself names in advance? A Nadi window is a Jupiter passage over the matter's karaka or in its count-signs from the Jeeva; a KP joint period is the dasa-bhukti of the matter's significators — the level the books' worked marriages are dated by — with the antara carried as a refinement and counted separately as the full three-level match; Method I grades are carried on the window, not used to set it aside. The strict KP window rereads the same periods through the ordered significator hierarchy of Part 2 p. 151 (planets in the stars of a bhava's occupants first, then the occupants, then the stars of the owner, then the owner), keeping a significator only when deposited in the sub of another significator of the matter (the same page, stated for the job houses, so generalised here provisionally). Nadi windows caught ${w.bnnCaught} of ${w.events} event${w.events === 1 ? "" : "s"}, of ${w.bnnPast} past windows for these matters; KP joint periods caught ${w.kpCaught}, of ${w.kpPast}, of which ${w.kpFull} also had the antara lord signifying; the strict reading caught ${w.kpStrictCaught} of ${w.kpStrictPast}, of which ${w.kpStrictFull} full.`,
             cites: [bnnSrc, winSrc],
             provisional: true,
           },
-          ...(w.bnn.length + w.kp.length
+          ...(w.bnn.length + w.kp.length + w.kpStrict.length
             ? [
                 {
                   kind: "table" as const,
@@ -143,6 +143,18 @@ export const validateModule: ReportModule = {
                         )
                         .join("; "),
                     ]),
+                    ...w.kpStrict.map((r) => [
+                      "KP strict",
+                      S(r.matterLabel),
+                      `${r.dasaLord}-${r.bhuktiLord} (${r.verdict})`,
+                      `${r.start.slice(0, 10)} to ${r.end.slice(0, 10)}`,
+                      r.events
+                        .map(
+                          (e) =>
+                            `${S(e.label)} ${e.date}${e.note ? ` (${S(e.note)})` : ""}`,
+                        )
+                        .join("; "),
+                    ]),
                   ],
                 },
               ]
@@ -152,12 +164,16 @@ export const validateModule: ReportModule = {
                   text: "No past window caught a recorded event.",
                 },
               ]),
-          ...(v.events.some((e) => !e.windows.bnn && !e.windows.kp)
+          ...(v.events.some(
+            (e) => !e.windows.bnn && !e.windows.kp && !e.windows.kpStrict,
+          )
             ? [
                 {
                   kind: "note" as const,
                   text: `No window of its matter was open at: ${v.events
-                    .filter((e) => !e.windows.bnn && !e.windows.kp)
+                    .filter(
+                      (e) => !e.windows.bnn && !e.windows.kp && !e.windows.kpStrict,
+                    )
                     .map((e) => `${S(e.label)} (${e.date})`)
                     .join("; ")}.`,
                 },
@@ -207,6 +223,8 @@ export const validateModule: ReportModule = {
               row("Events inside a Nadi window", b.bnnWindow),
               row("Events inside a KP joint period", b.kpWindow),
               row("Events inside a full KP joint period", b.kpFullWindow),
+              row("Events inside a strict KP joint period", b.kpStrictWindow),
+              row("Events inside a full strict KP joint period", b.kpStrictFullWindow),
               row("Days the luminaries' trigger held", b.luminary),
             ],
           },

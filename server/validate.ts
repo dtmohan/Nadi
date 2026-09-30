@@ -136,6 +136,39 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   }));
   const sigs = computeSignificators(planets);
   const sig = new Map(sigs.map((s) => [s.planet, s.houses]));
+  // Strict significators, the ordered hierarchy of Astro Secrets Part 2 p. 151: planets in the
+  // stars of a bhava's occupants are its strongest significators; the occupants count only when
+  // no planet sits in their stars; then the planets in the stars of the owner; then the owner.
+  // The loose A-D union kept above uses every level at once; this map keeps, for each house,
+  // only the first level that supplies any significator.
+  const cov = (lv: "A" | "B" | "C") => {
+    const s = new Set<number>();
+    for (const sg of sigs) for (const h of sg.levels[lv]) s.add(h);
+    return s;
+  };
+  const covA = cov("A");
+  const covB = cov("B");
+  const covC = cov("C");
+  const strictOf = (sg: (typeof sigs)[number]): number[] => {
+    const keep = (hs: number[], lv: "B" | "C" | "D") =>
+      hs.filter((h) =>
+        lv === "B"
+          ? !covA.has(h)
+          : lv === "C"
+            ? !covA.has(h) && !covB.has(h)
+            : !covA.has(h) && !covB.has(h) && !covC.has(h),
+      );
+    return Array.from(
+      new Set([
+        ...sg.levels.A,
+        ...keep(sg.levels.B, "B"),
+        ...keep(sg.levels.C, "C"),
+        ...keep(sg.levels.D, "D"),
+      ]),
+    ).sort((a, b) => a - b);
+  };
+  const sigStrict = new Map(sigs.map((sg) => [sg.planet, strictOf(sg)]));
+  const kpBy = new Map(planets.map((p) => [p.planet, p]));
   const moon = planets.find((p) => p.planet === "Moon")!;
 
   // Jaimini and Nadi frames use the chart's own ayanamsa.
@@ -195,7 +228,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   });
   const windowsByMatter = new Map<
     string,
-    { bnn: Held<BnnWindowHit>[]; kp: Held<KpWindowHit>[] }
+    { bnn: Held<BnnWindowHit>[]; kp: Held<KpWindowHit>[]; kpStrict: Held<KpWindowHit>[] }
   >();
   for (const e of events) {
     const m = matterOf(e.matter);
@@ -222,6 +255,68 @@ export function validateEvents(chart: InsertChart): ValidationResult {
           karaka: contact?.planet ?? null,
           fromJeeva: fj,
           via: contact && count ? "both" : contact ? "contact" : "count",
+        }),
+      );
+    }
+    // Strict KP windows (Part 2 p. 151; Part 3 pp. 25 and 108 date the worked marriages by the
+    // conjoined periods of the significators, antara included): the same dasa-bhukti spans,
+    // qualified by the ordered hierarchy instead of the A-D union, and a significator counts
+    // only when deposited in the sub of another significator of the matter (fruitful sub; the
+    // book states it for the job houses 2-6-10-11, so its use here for every matter is
+    // provisional). The antara refinement is kept the same way as above.
+    const sigFruit = new Map<Planet, number[]>(
+      planets.map((p) => {
+        const hs = (sigStrict.get(p.planet) ?? []).filter((h) =>
+          m.houses.includes(h),
+        );
+        if (!hs.length) return [p.planet, []];
+        const subIn = (sigStrict.get(kpBy.get(p.planet)!.subLord) ?? []).filter(
+          (h) => m.houses.includes(h),
+        );
+        return [p.planet, subIn.length ? hs : []];
+      }),
+    );
+    const strictPeriods = jointPeriods(vim, sigFruit, m.houses, birthIso, birthIso, 120);
+    const strictScored = scoreWindows(
+      strictPeriods,
+      m.houses,
+      m.cusp,
+      planets,
+      cusps,
+      sigs,
+      sig,
+    );
+    const strictByPair = new Map<
+      string,
+      {
+        best: (typeof strictScored)[number];
+        full: { lord: Planet; start: string; end: string }[];
+      }
+    >();
+    for (const w of strictScored) {
+      const key = `${w.dasaLord}-${w.bhuktiLord}`;
+      const g = strictByPair.get(key) ?? { best: w, full: [] };
+      if (w.score > g.best.score) g.best = w;
+      g.full.push({ lord: w.antaraLord, start: w.start, end: w.end });
+      strictByPair.set(key, g);
+    }
+    const kpStrict: Held<KpWindowHit>[] = [];
+    for (const b of vim.bhuktis) {
+      const hd = sigFruit.get(b.dasaLord) ?? [];
+      const hb = sigFruit.get(b.lord) ?? [];
+      if (!hd.length || !hb.length) continue;
+      if (b.end <= birthIso) continue;
+      const g = strictByPair.get(`${b.dasaLord}-${b.lord}`);
+      kpStrict.push(
+        heldOf({
+          dasaLord: b.dasaLord,
+          bhuktiLord: b.lord,
+          start: b.start < birthIso ? birthIso : b.start,
+          end: b.end,
+          fullAntaras: g?.full ?? [],
+          verdict: g?.best.verdict ?? "weak",
+          score: g?.best.score ?? 0,
+          max: g?.best.max ?? 20,
         }),
       );
     }
@@ -281,7 +376,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
         }),
       );
     }
-    windowsByMatter.set(m.id, { bnn, kp });
+    windowsByMatter.set(m.id, { bnn, kp, kpStrict });
   }
 
   const scoreEvent = (e: ChartEvent, date: string): EventValidation => {
@@ -299,6 +394,8 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       held?.bnn.find((t) => t.startMs <= evMs && evMs < t.endMs)?.hit ?? null;
     const kpHeld =
       held?.kp.find((t) => t.startMs <= evMs && evMs < t.endMs) ?? null;
+    const ksHeld =
+      held?.kpStrict.find((t) => t.startMs <= evMs && evMs < t.endMs) ?? null;
     const houses = m.houses;
     const lords = vimshottariLordsAt(moon.lon, birthIso, evIso);
     const signified = lords.map((l) =>
@@ -455,6 +552,14 @@ export function validateEvents(chart: InsertChart): ValidationResult {
     const kpHit = kpHeld
       ? { ...kpHeld.hit, antaraSignifies: hits[2] }
       : null;
+    const ksHit = ksHeld
+      ? {
+          ...ksHeld.hit,
+          antaraSignifies: ksHeld.hit.fullAntaras.some(
+            (a) => Date.parse(a.start) <= evMs && evMs < Date.parse(a.end),
+          ),
+        }
+      : null;
 
     return {
       id: e.id,
@@ -496,7 +601,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
           }
         : null,
       bnn,
-      windows: { bnn: bnnHit, kp: kpHit },
+      windows: { bnn: bnnHit, kp: kpHit, kpStrict: ksHit },
     };
   };
   const out: EventValidation[] = events.map((e) => scoreEvent(e, e.date));
@@ -516,8 +621,10 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   );
   const bnnRows: BnnWindowRow[] = [];
   const kpRows: KpWindowRow[] = [];
+  const ksRows: KpWindowRow[] = [];
   let bnnPast = 0;
   let kpPast = 0;
+  let ksPast = 0;
   for (const [matterId, list] of Array.from(windowsByMatter)) {
     const m = matterOf(matterId);
     const evs = out.filter((e) => e.matter === matterId);
@@ -559,15 +666,40 @@ export function validateEvents(chart: InsertChart): ValidationResult {
           })),
         });
     }
+    for (const t of list.kpStrict) {
+      if (t.endMs > asOfMs) continue;
+      ksPast++;
+      const caught = inside(t);
+      if (caught.length)
+        ksRows.push({
+          ...t.hit,
+          matter: m.id,
+          matterLabel: m.label,
+          events: caught.map((e) => ({
+            id: e.id,
+            label: e.label,
+            date: e.date,
+            note: e.windows.kpStrict
+              ? e.windows.kpStrict.antaraSignifies
+                ? "full joint period"
+                : "antara not a significator"
+              : undefined,
+          })),
+        });
+    }
   }
   const windows: WindowsReport = {
     bnn: bnnRows.sort((a, b) => a.start.localeCompare(b.start)),
     kp: kpRows.sort((a, b) => a.start.localeCompare(b.start)),
+    kpStrict: ksRows.sort((a, b) => a.start.localeCompare(b.start)),
     bnnCaught: out.filter((e) => e.windows.bnn).length,
     kpCaught: out.filter((e) => e.windows.kp).length,
     kpFull: out.filter((e) => e.windows.kp?.antaraSignifies).length,
+    kpStrictCaught: out.filter((e) => e.windows.kpStrict).length,
+    kpStrictFull: out.filter((e) => e.windows.kpStrict?.antaraSignifies).length,
     bnnPast,
     kpPast,
+    kpStrictPast: ksPast,
     events: out.length,
   };
 
@@ -719,6 +851,9 @@ function chanceBaseline(
     kpWindow: (vs) => vs.filter((v) => v.windows.kp).length,
     kpFullWindow: (vs) =>
       vs.filter((v) => v.windows.kp?.antaraSignifies).length,
+    kpStrictWindow: (vs) => vs.filter((v) => v.windows.kpStrict).length,
+    kpStrictFullWindow: (vs) =>
+      vs.filter((v) => v.windows.kpStrict?.antaraSignifies).length,
     luminary: (vs) =>
       vs.filter((v) => v.kp.transit.luminary.sun || v.kp.transit.luminary.moon)
         .length,
@@ -733,6 +868,8 @@ function chanceBaseline(
     bnnWindow: [],
     kpWindow: [],
     kpFullWindow: [],
+    kpStrictWindow: [],
+    kpStrictFullWindow: [],
     luminary: [],
   };
   for (let t = 0; t < BASELINE_TRIALS; t++) {
@@ -780,6 +917,8 @@ function chanceBaseline(
     bnnWindow: stat("bnnWindow"),
     kpWindow: stat("kpWindow"),
     kpFullWindow: stat("kpFullWindow"),
+    kpStrictWindow: stat("kpStrictWindow"),
+    kpStrictFullWindow: stat("kpStrictFullWindow"),
     luminary: stat("luminary"),
   };
 }

@@ -65,6 +65,12 @@ function BaselineLine({
     { key: "bnnWindow", label: "Nadi windows", s: b.bnnWindow },
     { key: "kpWindow", label: "KP periods", s: b.kpWindow },
     { key: "kpFullWindow", label: "KP full", s: b.kpFullWindow },
+    { key: "kpStrictWindow", label: "KP strict", s: b.kpStrictWindow },
+    {
+      key: "kpStrictFullWindow",
+      label: "KP strict full",
+      s: b.kpStrictFullWindow,
+    },
     { key: "luminary", label: "Sun/Moon", s: b.luminary },
   ];
   // Several metrics are read at once, so one of them clears the 95th by chance more often than one in twenty.
@@ -740,6 +746,20 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                             ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord} (${e.windows.kp.verdict}), antara ${e.windows.kp.antaraSignifies ? "yes" : "no"}`
                             : "KP: no window"}
                         </span>
+                        <span
+                          className={cn(
+                            !e.windows.kpStrict && "text-muted-foreground",
+                          )}
+                          title={
+                            e.windows.kpStrict
+                              ? `Strict reading (Part 2 p. 151: ordered hierarchy, fruitful sub): ${e.windows.kpStrict.dasaLord}-${e.windows.kpStrict.bhuktiLord} from ${fmtDate(e.windows.kpStrict.start)} to ${fmtDate(e.windows.kpStrict.end)}; antara lord ${e.windows.kpStrict.antaraSignifies ? "also qualified" : "did not qualify"}`
+                              : "No strict KP joint period for this matter was open at the date"
+                          }
+                        >
+                          {e.windows.kpStrict
+                            ? `strict ${e.windows.kpStrict.dasaLord}-${e.windows.kpStrict.bhuktiLord}, antara ${e.windows.kpStrict.antaraSignifies ? "yes" : "no"}`
+                            : "strict: no window"}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -779,16 +799,23 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             {v.windows.bnnCaught}, of {v.windows.bnnPast} past windows for these
             matters; KP joint periods caught {v.windows.kpCaught}, of{" "}
             {v.windows.kpPast}, of which {v.windows.kpFull} also had the antara
-            lord signifying (full three-level match).
+            lord signifying (full three-level match); the strict reading
+            (ordered hierarchy and fruitful sub, Part 2 p. 151) caught{" "}
+            {v.windows.kpStrictCaught} of {v.windows.kpStrictPast}, of which{" "}
+            {v.windows.kpStrictFull} full.
           </p>
-          {v.events.some((e) => !e.windows.bnn && !e.windows.kp) && (
+          {v.events.some(
+            (e) => !e.windows.bnn && !e.windows.kp && !e.windows.kpStrict,
+          ) && (
             <p
               className="mt-1 text-xs text-muted-foreground"
               data-testid="validate-windows-missed"
             >
               No window of its matter was open at:{" "}
               {v.events
-                .filter((e) => !e.windows.bnn && !e.windows.kp)
+                .filter(
+                  (e) => !e.windows.bnn && !e.windows.kp && !e.windows.kpStrict,
+                )
                 .map((e) => `${e.label.toLowerCase()} (${fmtDate(e.date)})`)
                 .join("; ")}
               .
@@ -814,7 +841,9 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {v.windows.bnn.length === 0 && v.windows.kp.length === 0 && (
+                {v.windows.bnn.length === 0 &&
+                  v.windows.kp.length === 0 &&
+                  v.windows.kpStrict.length === 0 && (
                   <TableRow>
                     <TableCell
                       colSpan={4}
@@ -862,6 +891,34 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                     <TableCell
                       className="whitespace-nowrap"
                       title={`Best antara window scores ${w.score}/${w.max}; ${w.fullAntaras.length} antara${w.fullAntaras.length === 1 ? "" : "s"} whose lord also signifies`}
+                    >
+                      {w.dasaLord}-{w.bhuktiLord} ({w.verdict}),{" "}
+                      {fmtDate(w.start)} to {fmtDate(w.end)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {w.events.map((e) => (
+                        <span key={e.id} className="mr-2">
+                          {e.label}, {fmtDate(e.date)}
+                          {e.note ? ` (${e.note})` : ""}
+                        </span>
+                      ))}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {v.windows.kpStrict.map((w) => (
+                  <TableRow
+                    key={`ks-${w.matter}-${w.start}`}
+                    data-testid="validate-window-kp-strict"
+                  >
+                    <TableCell className="whitespace-nowrap">
+                      KP strict
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {w.matterLabel}
+                    </TableCell>
+                    <TableCell
+                      className="whitespace-nowrap"
+                      title={`Strict reading: significators by the ordered hierarchy of Part 2 p. 151, kept only when deposited in the sub of another significator of the matter. Best antara window scores ${w.score}/${w.max}; ${w.fullAntaras.length} antara${w.fullAntaras.length === 1 ? "" : "s"} whose lord also qualifies`}
                     >
                       {w.dasaLord}-{w.bhuktiLord} ({w.verdict}),{" "}
                       {fmtDate(w.start)} to {fmtDate(w.end)}
@@ -973,7 +1030,14 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             significators (the houses for each matter: Part 3 p. 15; worked
             marriages dated at this level: Part 3 pp. 25, 65), with the antara
             counted separately as the full three-level match and Method I grades
-            (Part 2 p. 24) carried on the window, not used to set it aside. A
+            (Part 2 p. 24) carried on the window, not used to set it aside. The
+            strict KP window rereads the same periods through the ordered
+            significator hierarchy (Part 2 p. 151: planets in the stars of a
+            bhava's occupants first, then the occupants, then the stars of the
+            owner, then the owner) and keeps a significator only when deposited
+            in the sub of another significator of the matter (the same page;
+            stated there for the job houses 2-6-10-11, so its use for every
+            matter is provisional). A
             poor score across several events points to the birth time rather
             than to the events: take it to the Rectify tab.
           </p>

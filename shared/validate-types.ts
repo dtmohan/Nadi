@@ -62,6 +62,15 @@ export interface EventValidation {
   windows: {
     bnn: BnnWindowHit | null;
     kp: (KpWindowHit & { antaraSignifies: boolean }) | null;
+    /**
+     * The same joint period read through the strict significators: the ordered hierarchy of
+     * Astro Secrets Part 2 p. 151 (planets in the stars of a bhava's occupants first, then the
+     * occupants, then the stars of the owner, then the owner), and a significator counts only
+     * when deposited in the sub of another significator of the matter (same page; stated there
+     * for the job houses 2-6-10-11, so its use for every matter is provisional). antaraSignifies
+     * says whether the antara lord, under the same strict reading, also signified.
+     */
+    kpStrict: (KpWindowHit & { antaraSignifies: boolean }) | null;
   };
 }
 
@@ -122,12 +131,19 @@ export interface WindowsReport {
   /** Past windows that caught at least one recorded event. */
   bnn: BnnWindowRow[];
   kp: KpWindowRow[];
+  /** Past strict windows that caught at least one recorded event. */
+  kpStrict: KpWindowRow[];
   /** Events caught by each system's windows, of all events. */
   bnnCaught: number;
   /** Events inside a KP dasa-bhukti joint period of the matter's significators. */
   kpCaught: number;
   /** Of those, events whose antara lord also signified the matter: the full three-level match. */
   kpFull: number;
+  /** Events inside a strict KP joint period, and of those the full three-level matches. */
+  kpStrictCaught: number;
+  kpStrictFull: number;
+  /** Past strict windows named for these matters, caught or not. */
+  kpStrictPast: number;
   /** Past windows the systems named for these matters, caught or not: the honest denominator. */
   bnnPast: number;
   kpPast: number;
@@ -222,6 +238,8 @@ export type BaselineMeasure =
   | "bnnWindow"
   | "kpWindow"
   | "kpFullWindow"
+  | "kpStrictWindow"
+  | "kpStrictFullWindow"
   | "luminary";
 
 export interface BaselineStat {
@@ -250,6 +268,10 @@ export interface ChanceBaseline {
   kpWindow: BaselineStat;
   /** Events inside a full three-level KP joint period, against the same at random dates. */
   kpFullWindow: BaselineStat;
+  /** Events inside a strict KP joint period (ordered hierarchy, fruitful sub), against the same at random dates. */
+  kpStrictWindow: BaselineStat;
+  /** Events inside a strict full three-level KP joint period, against the same at random dates. */
+  kpStrictFullWindow: BaselineStat;
   /** Days the luminaries' transit trigger held, against the same at random dates. */
   luminary: BaselineStat;
 }
