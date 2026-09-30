@@ -8,6 +8,10 @@ import { BPHS_URL } from "./parashari-data";
  * from the 4th from the Moon, its rekhas times the Moon's yoga pinda giving, by 27, the nakshatra whose Saturn
  * transit brings death or distress to the mother and, by 12, the sign whose transit may bring her death;
  * (c) trines of that nakshatra and sign bring distress only.
+ *
+ * The sensitive-content gate (shared/life-stage.ts): for a native under 18 the rows whose severity names the
+ * mother's passing are dropped here — the sign-point and nakshatra-point rows — while the trine rows, which
+ * the verse limits to distress, remain. The generic redaction still strips the caveat that quotes the verse.
  */
 export type MotherSeverity = "death or distress" | "death may occur" | "distress";
 
@@ -74,6 +78,7 @@ export function readMotherPoint(
   dasaReadings: DasaReadingLike[],
   birthIso: string,
   asOfIso: string,
+  withhold = false,
 ): MotherPointReading | null {
   const point = av.saturnPoints.find((p) => p.owner === "Moon" && p.houseFrom === 4);
   if (!point) return null;
@@ -134,6 +139,7 @@ export function readMotherPoint(
             : ` The ${r.runningDasa.lord} dasa reads as mixed.`;
     }
   }
+  const shown = withhold ? rows.filter((r) => r.severity === "distress") : rows;
   const moon = bhinnaOf(av, "Moon");
   const calendar: MoonCalendarRow[] | null =
     moonMonth && moon
@@ -147,7 +153,7 @@ export function readMotherPoint(
     pointNakshatra: point.nakshatraIndex,
     rekhas: point.rekhas,
     product: point.product,
-    rows,
+    rows: shown,
     hasNakshatras: !!saturnNakshatras,
     calendar,
     sources: MOTHER_SOURCES,

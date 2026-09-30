@@ -267,8 +267,9 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       r.dasaReadings,
       result.utc,
       asOfIso,
+      withheld,
     );
-    return withheld ? redactSensitive(m) : m;
+    return withheld && m ? redactSensitive(m) : m;
   }, [
     r,
     result.transits,
@@ -1193,6 +1194,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               asOfIso={asOfIso}
               arishta={fatherArishta}
               mother={motherPoint}
+              withheld={withheld}
             />
             <Working
               id="parashari-kin"

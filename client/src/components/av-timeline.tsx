@@ -154,9 +154,11 @@ function MotherRow({
 function MotherSection({
   m,
   inRange,
+  withheld,
 }: {
   m: MotherPointReading;
   inRange: (s: string, e: string) => boolean;
+  withheld?: boolean;
 }) {
   const [open, setOpen] = useState<string | null>(null);
   const [caveats, setCaveats] = useState(false);
@@ -191,9 +193,21 @@ function MotherSection({
             {m.rekhas} rekhas in the Moon's chart times the Moon's yoga pinda
             give {m.product}, whose remainders by 27 and 12 name{" "}
             {NAKSHATRAS[m.pointNakshatra]} and{" "}
-            <SignName signIndex={m.pointSign} />. Saturn in that nakshatra
-            brings death of, or distress to, the mother; in that sign her death
-            may occur; in their trines, distress.{" "}
+            <SignName signIndex={m.pointSign} />.{" "}
+            {withheld ? (
+              <>
+                The verse's clauses on the mother under these passages are not
+                shown for a native under 18, a policy of this app (provisional);
+                the trine passages, which it limits to distress, remain
+                listed.{" "}
+              </>
+            ) : (
+              <>
+                Saturn in that nakshatra
+                brings death of, or distress to, the mother; in that sign her
+                death may occur; in their trines, distress.{" "}
+              </>
+            )}
             <SourceLink source={m.sources.point} /> The verses give no planetary
             condition like 70.12 for the mother, so none is tested.
           </>
@@ -570,11 +584,13 @@ export function AvTimelineSection({
   asOfIso,
   arishta,
   mother,
+  withheld,
 }: {
   tl: AvTimeline;
   asOfIso: string;
   arishta?: FatherArishtaReading[];
   mother?: MotherPointReading | null;
+  withheld?: boolean;
 }) {
   const [planet, setPlanet] = useState<"Saturn" | "Jupiter">("Saturn");
   const [range, setRange] = useState<Range>("around");
@@ -819,7 +835,9 @@ export function AvTimelineSection({
             </ul>
           )}
 
-          {mother && <MotherSection m={mother} inRange={inRange} />}
+          {mother && (
+            <MotherSection m={mother} inRange={inRange} withheld={withheld} />
+          )}
 
           <SectionTitle
             as="h4"
