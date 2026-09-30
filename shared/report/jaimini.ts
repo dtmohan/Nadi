@@ -174,7 +174,15 @@ export const jaiminiModule: ReportModule = {
                       .filter(Boolean),
                   )}.`
                 : ""),
-            cites: [f.source === "classical" ? uk : book],
+            cites: [
+              f.source === "classical"
+                ? cites.add(
+                    f.sourceLabel ??
+                      "Kalidasa, Uttara Kalamrita IV.27 (V. Subrahmanya Sastri, trans. 1939)",
+                    "https://www.astrojyoti.com/uttarakalamritam2.htm",
+                  )
+                : book,
+            ],
           }),
         ),
       ];

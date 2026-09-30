@@ -941,7 +941,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
                             .join(", ")}${state}.`
                         : ""}{" "}
                       <span className="text-xs">
-                        ({f.source === "classical" ? INDU_SOURCE.label : f.pages})
+                        ({f.source === "classical" ? f.sourceLabel ?? INDU_SOURCE.label : f.pages})
                       </span>
                     </p>
                   );

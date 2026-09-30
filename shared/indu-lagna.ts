@@ -43,8 +43,10 @@ export interface InduFinding {
   id: string;
   text: string;
   planets: Planet[];
-  /** "classical": UK IV.27's own scale; "book": DNA Astrology of Wealth pp. 92-93 (modern, self-published). */
+  /** "classical": UK verse(s) of its own; "book": DNA Astrology of Wealth (modern, self-published). */
   source: "classical" | "book";
+  /** Label for the classical source when it is not IV.27 itself. */
+  sourceLabel?: string;
   pages?: string;
 }
 
@@ -103,7 +105,7 @@ export function computeInduLagna(positions: PlanetPosition[], lagnaLon: number):
   if (occupants.length === 0) {
     classical.push({
       id: "il-empty",
-      text: `The Indu Lagna (${SIGNS[signIndex]}) stands empty. The verse fixes its scale only for occupied signs, so the classical reading here is silence, not a verdict.`,
+      text: `The Indu Lagna (${SIGNS[signIndex]}) stands empty. The verse fixes its scale only for occupied signs, so its own tiers are silent here — the lagna is then read through its lord, below, the way any empty bhava is.`,
       planets: [],
       source: "classical",
     });
@@ -139,9 +141,63 @@ export function computeInduLagna(positions: PlanetPosition[], lagnaLon: number):
     });
   }
 
+  // ── The Indu Lagna's own lord ────────────────────────────────────────────
+  // The book reads "Indu Lagna lord is X, standing in the Nth from it" in every
+  // case study (pp. 172-249), occupied sign or not — when the Indu Lagna stands
+  // empty its lord is the primary witness. The flourishing/destruction conditions
+  // are the same text's own bhava-lord doctrine (UK IV.10-12, seventeen slokas
+  // before the Indu Lagna verse; Phaladeepika XV.2-3 agrees), applied to the
+  // Indu Lagna as the bhava concerned — an extension, marked provisional.
+  const ilLord = SIGN_LORD[signIndex];
+  const lp = pos(ilLord);
+  const hIL = houseFrom(signIndex, lp.signIndex);
+  const associates = positions.filter((p) => p.planet !== ilLord && p.signIndex === lp.signIndex).map((p) => p.planet);
+  const benAssoc = associates.filter(ben);
+  const benAspect = positions.some((p) => p.planet !== ilLord && ben(p.planet) && p.signIndex !== lp.signIndex && drishtiQuarters(p.planet, p.signIndex, lp.signIndex) >= 4);
+  const aspectsIL = lp.signIndex !== signIndex && drishtiQuarters(ilLord, lp.signIndex, signIndex) >= 4;
+  const dignity = lp.dignity;
+  const houseRoute = [1, 3, 4, 5, 7, 9, 10, 11].includes(hIL);
+  const dignityRoute = ["Friendly", "Exalted", "Own sign", "Moolatrikona"].includes(dignity);
+  const harmed = hIL === 8 || dignity === "Debilitated" || dignity === "Inimical";
+  const rescued = benAssoc.length > 0 || benAspect;
+  const harmedWhy = hIL === 8 ? `in the 8th from it` : dignity === "Debilitated" ? `debilitated in ${lp.sign}` : `in an inimical sign (${lp.sign})`;
+  classical.push(
+    harmed && !rescued
+      ? {
+          id: "il-lord-uk",
+          text: `${ilLord}, lord of the Indu Lagna, stands ${harmedWhy} with no benefic joined or aspecting it: Uttara Kalamrita IV.10's destruction clause for a bhava lord, read here against the Indu Lagna (an extension; provisional).`,
+          planets: [ilLord],
+          source: "classical",
+          sourceLabel: "Uttara Kalamrita IV.10-12",
+        }
+      : (houseRoute || dignityRoute) && rescued
+        ? {
+            id: "il-lord-uk",
+            text: `${ilLord}, lord of the Indu Lagna, stands in the ${ord(hIL)} from it${houseRoute ? ", one of IV.11's houses" : ""}${dignityRoute ? `, in a ${dignity.toLowerCase()} sign` : ""}, joined by benefics${benAssoc.length ? ` (${list(benAssoc)})` : ""}${benAspect && !benAssoc.length ? " and aspected by a benefic" : ""}: Uttara Kalamrita IV.11's prosperity clause for a bhava lord, read here against the Indu Lagna (an extension; provisional).`,
+            planets: [ilLord, ...benAssoc],
+            source: "classical",
+            sourceLabel: "Uttara Kalamrita IV.10-12",
+          }
+        : {
+            id: "il-lord-uk",
+            text: `${ilLord}, lord of the Indu Lagna, stands in the ${ord(hIL)} from it in ${lp.sign} (${dignity.toLowerCase()}): neither IV.11's prosperity clause nor IV.10's destruction clause is cleanly met, so the lord is read mixed (provisional).`,
+            planets: [ilLord],
+            source: "classical",
+            sourceLabel: "Uttara Kalamrita IV.10-12",
+          },
+  );
+
   // ── Reading rules, DNA Astrology of Wealth pp. 92-93 ──────────────────────
   const findings: InduFinding[] = [];
   const PAGES = "DNA Astrology of Wealth, pp. 92-93";
+
+  findings.push({
+    id: "il-lord",
+    text: `The Indu Lagna's own lord ${ilLord} stands in the ${ord(hIL)} from it, in ${lp.sign}${dignity !== "—" ? ` (${dignity.toLowerCase()})` : ""}${associates.length ? `, with ${list(associates)}` : ", alone"}${aspectsIL ? ", and aspects the Indu Lagna" : ""}.`,
+    planets: [ilLord, ...associates],
+    source: "book",
+    pages: "DNA Astrology of Wealth, case studies pp. 172-249",
+  });
 
   const benInIL = occBen;
   if (benInIL.length) {
@@ -236,6 +292,7 @@ export function computeInduLagna(positions: PlanetPosition[], lagnaLon: number):
     `The DNA Astrology of Wealth book uses this lagna in all twenty-two case studies yet never states the calculation; the reading rules above (2nd and 11th from the Indu Lagna, benefic dashas, the soft planets in 2nd/4th and 5th/9th/11th) are its own, pp. 92-93.`,
     "Benefic and malefic follow BPHS 3.11 natural classification (Jupiter and Venus; the waxing Moon; Mercury unless joined by a malefic). \"Aspected\" means full sign-based graha drishti — the book names no aspect scheme, so that choice is provisional.",
     "The Indu Lagna feeds nothing in the Nadi reading: the systems stay separate, and this panel only reports it.",
+    "The Indu Lagna's lord is read in every one of the book's case studies (pp. 172-249) — an empty Indu Lagna is read through it, the way any empty bhava is. The flourishing and destruction conditions come from Uttara Kalamrita IV.10-12, the same text's bhava-lord doctrine seventeen slokas before the Indu Lagna verse (Phaladeepika XV.2-3 agrees, Sastri trans., wisdomlib.org); applying them to the Indu Lagna as the bhava concerned is an extension, so that finding is provisional. Combustion (\"eclipsed\" in IV.10) is left to the eye: the texts differ on the orbs.",
   ];
   if (lordL === lordM) {
     notes.splice(1, 0, `${lordL} rules the ninth from both the lagna and the Moon; its ${INDU_KALAS[lordL as keyof typeof INDU_KALAS]} kalas are counted twice, as the verse adds the two lords' values without an exception clause.`);
