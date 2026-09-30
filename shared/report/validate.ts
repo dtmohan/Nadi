@@ -48,6 +48,9 @@ export const validateModule: ReportModule = {
     );
     const raoSrc = cites.add(RAO_SOURCE.label, RAO_SOURCE.url);
     const bnnSrc = cites.add("R.G. Rao, Bhrigu Nandi Nadi");
+    const winSrc = cites.add(
+      "Astro Secrets & KP, Part 2 p. 24 (uploaded PDF)",
+    );
     const s = v.summary;
     const paras: ReportPara[] = [
       {
@@ -68,6 +71,7 @@ export const validateModule: ReportModule = {
           "KP",
           "Chara dasha",
           "Nadi",
+          "Window",
         ],
         rows: v.events.map((e) => [
           e.date,
@@ -82,11 +86,12 @@ export const validateModule: ReportModule = {
             ? `${e.jaimini.mdSignName} / ${e.jaimini.adSignName} ${e.jaimini.score}/${e.jaimini.max}`
             : "—",
           `${e.bnn.verdict} ${e.bnn.score}/${e.bnn.max}`,
+          `${e.windows.bnn ? `Ju ${e.windows.bnn.sign}` : "—"} / ${e.windows.kp ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord}-${e.windows.kp.antaraLord}` : "—"}`,
         ]),
       },
       {
         kind: "note",
-        text: "Hits: D, B and A mark a dasa, bhukti or antara lord that signifies one of the matter's houses by the four-step rule; a dash marks one that does not. Promised: the sub lord of the matter's cusp signifies the matter. KP verdict: confirmed when promised and both dasa and bhukti lords signify, partial when something links, missed when nothing does. The chara dasha column gives the mahadasha and antardasha signs running that day and Rao's fit; the Nadi column scores Jupiter's and Saturn's contacts with the matter's karakas that day out of six. The scoring scales are the app's, not the books'.",
+        text: "Hits: D, B and A mark a dasa, bhukti or antara lord that signifies one of the matter's houses by the four-step rule; a dash marks one that does not. Promised: the sub lord of the matter's cusp signifies the matter. KP verdict: confirmed when promised and both dasa and bhukti lords signify, partial when something links, missed when nothing does. The chara dasha column gives the mahadasha and antardasha signs running that day and Rao's fit; the Nadi column scores Jupiter's and Saturn's contacts with the matter's karakas that day out of six. Window: the timing window each system names in advance, if one was open at the date — Jupiter's passage for Nadi (left of the slash), the conjoined period for KP (right). The scoring scales are the app's, not the books'.",
         cites: [kpSrc, filterSrc],
         provisional: true,
       },
@@ -99,9 +104,74 @@ export const validateModule: ReportModule = {
       });
 
     const sub: ReportSection[] = [];
+    {
+      const w = v.windows;
+      sub.push({
+        id: "validate-windows",
+        title: "Which timing windows the events fell in",
+        paras: [
+          {
+            kind: "p",
+            text: `The table above asks what was running on the day; this one asks the prior question: was the date inside a window the system itself names in advance? A Nadi window is a Jupiter passage over the matter's karaka or in its count-signs from the Jeeva; a KP window is the conjoined period whose dasa, bhukti and antara lords all signify the matter, weak windows set aside by Method I. Nadi windows caught ${w.bnnCaught} of ${w.events} event${w.events === 1 ? "" : "s"}, of ${w.bnnPast} past windows for these matters; KP windows caught ${w.kpCaught}, of ${w.kpPast}${w.kpWeak ? `, with ${w.kpWeak} weak windows set aside` : ""}.`,
+            cites: [bnnSrc, winSrc],
+            provisional: true,
+          },
+          ...(w.bnn.length + w.kp.length
+            ? [
+                {
+                  kind: "table" as const,
+                  head: [
+                    "System",
+                    "Matter",
+                    "Window",
+                    "Open",
+                    "Caught",
+                  ],
+                  rows: [
+                    ...w.bnn.map((r) => [
+                      "Nadi",
+                      S(r.matterLabel),
+                      `Jupiter in ${r.sign}${
+                        r.contact
+                          ? `, ${r.contact} ${r.karaka}`
+                          : `, ${r.fromJeeva} from the Jeeva`
+                      }`,
+                      `${r.start.slice(0, 10)} to ${r.end.slice(0, 10)}`,
+                      r.events.map((e) => `${S(e.label)} ${e.date}`).join("; "),
+                    ]),
+                    ...w.kp.map((r) => [
+                      "KP",
+                      S(r.matterLabel),
+                      `${r.dasaLord}-${r.bhuktiLord}-${r.antaraLord} (${r.verdict})`,
+                      `${r.start.slice(0, 10)} to ${r.end.slice(0, 10)}`,
+                      r.events.map((e) => `${S(e.label)} ${e.date}`).join("; "),
+                    ]),
+                  ],
+                },
+              ]
+            : [
+                {
+                  kind: "note" as const,
+                  text: "No past window caught a recorded event.",
+                },
+              ]),
+          ...(v.events.some((e) => !e.windows.bnn && !e.windows.kp)
+            ? [
+                {
+                  kind: "note" as const,
+                  text: `No window of its matter was open at: ${v.events
+                    .filter((e) => !e.windows.bnn && !e.windows.kp)
+                    .map((e) => `${S(e.label)} (${e.date})`)
+                    .join("; ")}.`,
+                },
+              ]
+            : []),
+        ],
+      });
+    }
     if (v.baseline) {
       const b = v.baseline;
-      const measures = 5;
+      const measures = 7;
       const corrected = Math.round(100 - 5 / measures);
       const row = (name: string, st: BaselineStat) => [
         name,
@@ -120,7 +190,7 @@ export const validateModule: ReportModule = {
         paras: [
           {
             kind: "p",
-            text: `Each matter was re-scored at ${b.trials} sets of random dates between ${b.span[0]} and ${b.span[1]}. The percentile is the share of those trials the real dates beat; 50 is pure chance. Five measures are read together, so one of them clears the 95th percentile by chance about ${Math.round((1 - Math.pow(0.95, measures)) * 100)}% of the time; a single measure is a signal only from the ${corrected}th percentile (Bonferroni, 5% over the family).`,
+            text: `Each matter was re-scored at ${b.trials} sets of random dates between ${b.span[0]} and ${b.span[1]}. The percentile is the share of those trials the real dates beat; 50 is pure chance. Seven measures are read together, so one of them clears the 95th percentile by chance about ${Math.round((1 - Math.pow(0.95, measures)) * 100)}% of the time; a single measure is a signal only from the ${corrected}th percentile (Bonferroni, 5% over the family).`,
           },
           {
             kind: "table",
@@ -137,6 +207,8 @@ export const validateModule: ReportModule = {
               row("KP transit points", b.transit),
               row("Chara dasha points", b.jaimini),
               row("Nadi timer points", b.bnn),
+              row("Events inside a Nadi window", b.bnnWindow),
+              row("Events inside a KP window", b.kpWindow),
             ],
           },
           {

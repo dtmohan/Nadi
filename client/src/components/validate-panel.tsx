@@ -62,6 +62,8 @@ function BaselineLine({
     { key: "transit", label: "transits", s: b.transit },
     ...(hasJaimini ? [{ key: "jaimini", label: "Jaimini", s: b.jaimini }] : []),
     { key: "bnn", label: "Nadi", s: b.bnn },
+    { key: "bnnWindow", label: "Nadi windows", s: b.bnnWindow },
+    { key: "kpWindow", label: "KP windows", s: b.kpWindow },
   ];
   // Several metrics are read at once, so one of them clears the 95th by chance more often than one in twenty.
   // Bonferroni: a single metric counts as a signal only from the (100 - 5/n)th percentile.
@@ -401,9 +403,10 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             as recorded: were the KP period lords significators of the matter
             and did its cusp promise it, did the Jaimini chara dasha carry the
             area, and did Jupiter and Saturn touch the matter's Nadi karakas.
-            The second table turns the same events round to show how each
-            planet's periods actually went, against what its houses lead KP to
-            expect.
+            The window tables read the same events the other way round: which
+            timing windows, named in advance by each system, the dates fell
+            inside. The planet table then shows how each planet's periods
+            actually went, against what its houses lead KP to expect.
           </p>
         </div>
       </div>
@@ -585,6 +588,12 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                   >
                     Nadi transit
                   </TableHead>
+                  <TableHead
+                    className="whitespace-nowrap"
+                    title="Whether the date fell inside a timing window the system itself names in advance: Jupiter's passage over the matter's karaka or its count-signs from the Jeeva for Nadi; the conjoined period whose three lords all signify the matter for KP (Method I, weak windows set aside)."
+                  >
+                    Window
+                  </TableHead>
                   <TableHead className="whitespace-nowrap">Verdict</TableHead>
                 </TableRow>
               </TableHeader>
@@ -685,8 +694,177 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                     <TableCell className="whitespace-nowrap">
                       <NadiCell fit={e.bnn} />
                     </TableCell>
+                    <TableCell
+                      className="whitespace-nowrap"
+                      data-testid={`validate-event-windows-${e.id}`}
+                    >
+                      <div className="flex flex-col gap-0.5">
+                        <span
+                          className={cn(
+                            !e.windows.bnn && "text-muted-foreground",
+                          )}
+                          title={
+                            e.windows.bnn
+                              ? `Jupiter in ${e.windows.bnn.sign} from ${fmtDate(e.windows.bnn.start)} to ${fmtDate(e.windows.bnn.end)}; ${e.windows.bnn.via === "count" ? "by count from the Jeeva only" : `${e.windows.bnn.contact} ${e.windows.bnn.karaka}`}`
+                              : "No Nadi window for this matter was open at the date"
+                          }
+                        >
+                          {e.windows.bnn
+                            ? `Ju in ${e.windows.bnn.sign}, ${
+                                e.windows.bnn.contact
+                                  ? `${e.windows.bnn.contact} ${e.windows.bnn.karaka}`
+                                  : `${ordinal(e.windows.bnn.fromJeeva)} from Jeeva`
+                              }`
+                            : "Ju: no window"}
+                        </span>
+                        <span
+                          className={cn(
+                            !e.windows.kp && "text-muted-foreground",
+                          )}
+                          title={
+                            e.windows.kp
+                              ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord}-${e.windows.kp.antaraLord} from ${fmtDate(e.windows.kp.start)} to ${fmtDate(e.windows.kp.end)}; ${e.windows.kp.verdict} window, score ${e.windows.kp.score}/${e.windows.kp.max}`
+                              : "No KP window for this matter was open at the date"
+                          }
+                        >
+                          {e.windows.kp
+                            ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord}-${e.windows.kp.antaraLord} (${e.windows.kp.verdict})`
+                            : "KP: no window"}
+                        </span>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <VerdictBadge verdict={e.kp.verdict} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <h3
+            className="mt-8 text-base font-semibold"
+            data-testid="validate-windows-title"
+          >
+            Which timing windows the events fell in
+          </h3>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+            The table above asks what was running on the day; this one asks the
+            prior question. Was the date inside a window the system itself names
+            in advance — for Nadi, a Jupiter passage over the matter's karaka or
+            in its count-signs from the Jeeva; for KP, the conjoined period
+            whose dasa, bhukti and antara lords all signify the matter (Method
+            I, weak windows set aside)? Only the past windows that caught a
+            recorded event are listed, with the counts giving the honest
+            denominator of windows that caught nothing; the chance line above
+            carries the same measure, so a window real events fall in no more
+            often than random dates reads as chance, not as a hit.
+          </p>
+          <p
+            className="mt-2 text-xs text-muted-foreground"
+            data-testid="validate-windows-summary"
+          >
+            {v.windows.events} recorded{" "}
+            {v.windows.events === 1 ? "event" : "events"}: Nadi windows caught{" "}
+            {v.windows.bnnCaught}, of {v.windows.bnnPast} past windows for these
+            matters; KP windows caught {v.windows.kpCaught}, of{" "}
+            {v.windows.kpPast}
+            {v.windows.kpWeak > 0
+              ? ` (${v.windows.kpWeak} weak windows set aside by Method I)`
+              : ""}
+            .
+          </p>
+          {v.events.some((e) => !e.windows.bnn && !e.windows.kp) && (
+            <p
+              className="mt-1 text-xs text-muted-foreground"
+              data-testid="validate-windows-missed"
+            >
+              No window of its matter was open at:{" "}
+              {v.events
+                .filter((e) => !e.windows.bnn && !e.windows.kp)
+                .map((e) => `${e.label.toLowerCase()} (${fmtDate(e.date)})`)
+                .join("; ")}
+              .
+            </p>
+          )}
+          <div className="mt-3 overflow-x-auto rounded-md border">
+            <Table
+              className="text-xs [&_td]:px-3 [&_th]:px-3"
+              data-testid="validate-windows-table"
+              cards
+            >
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="whitespace-nowrap">System</TableHead>
+                  <TableHead className="whitespace-nowrap">Matter</TableHead>
+                  <TableHead
+                    className="whitespace-nowrap"
+                    title="The window as the system names it, and the dates it was open."
+                  >
+                    Window
+                  </TableHead>
+                  <TableHead className="whitespace-nowrap">Caught</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {v.windows.bnn.length === 0 && v.windows.kp.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="text-muted-foreground"
+                      data-testid="validate-windows-none"
+                    >
+                      No past window caught a recorded event.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {v.windows.bnn.map((w) => (
+                  <TableRow
+                    key={`bnn-${w.matter}-${w.start}`}
+                    data-testid="validate-window-bnn"
+                  >
+                    <TableCell className="whitespace-nowrap">Nadi</TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {w.matterLabel}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      Jupiter in {w.sign},{" "}
+                      {w.contact
+                        ? `${w.contact} ${w.karaka}`
+                        : `${ordinal(w.fromJeeva)} from the Jeeva`}
+                      , {fmtDate(w.start)} to {fmtDate(w.end)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {w.events.map((e) => (
+                        <span key={e.id} className="mr-2">
+                          {e.label}, {fmtDate(e.date)}
+                        </span>
+                      ))}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {v.windows.kp.map((w) => (
+                  <TableRow
+                    key={`kp-${w.matter}-${w.start}`}
+                    data-testid="validate-window-kp"
+                  >
+                    <TableCell className="whitespace-nowrap">KP</TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {w.matterLabel}
+                    </TableCell>
+                    <TableCell
+                      className="whitespace-nowrap"
+                      title={`Score ${w.score}/${w.max}`}
+                    >
+                      {w.dasaLord}-{w.bhuktiLord}-{w.antaraLord} ({w.verdict}
+                      ), {fmtDate(w.start)} to {fmtDate(w.end)}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      {w.events.map((e) => (
+                        <span key={e.id} className="mr-2">
+                          {e.label}, {fmtDate(e.date)}
+                        </span>
+                      ))}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -779,8 +957,13 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             7th, and the count from the natal Jeeva follows the BNN tab. Strong
             needs 4 of 6. A confirmed verdict needs the cusp promise and both
             dasa and bhukti lords signifying; partial means something links;
-            missed means nothing does. A poor score across several events points
-            to the birth time rather than to the events: take it to the Rectify
+            missed means nothing does. Timing windows: a Nadi window is a
+            Jupiter passage over the matter's karaka or in its count-signs from
+            the Jeeva (R.G. Rao; Naik on the female Deha), the same tests as the
+            day score; a KP window is the conjoined period of the significators
+            in which the matter should fructify, Method I, Part 2 p. 24, with
+            weak windows set aside. A poor score across several events points to
+            the birth time rather than to the events: take it to the Rectify
             tab.
           </p>
         </div>

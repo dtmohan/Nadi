@@ -3,6 +3,7 @@ import type { Planet, Sign } from "./astro";
 import type { DashaFit } from "./jaimini-areas";
 import type { EventOutcome } from "./events";
 import type { TransitCheck } from "./rectify-types";
+import type { WindowVerdict } from "./kp-windows";
 
 export type KpVerdict = "confirmed" | "partial" | "missed";
 
@@ -52,6 +53,67 @@ export interface EventValidation {
   jaimini: (DashaFit & { mdSignName: Sign; adSignName: Sign }) | null;
   /** Jupiter's and Saturn's transits that day against the natal chart, the Nadi timers, scored for the matter. */
   bnn: BnnFit;
+  /** The timing window each system itself names for the matter, open at this date; null when none was. */
+  windows: { bnn: BnnWindowHit | null; kp: KpWindowHit | null };
+}
+
+/** A Nadi timing window: Jupiter's passage over the matter's karaka or in the matter's count from the Jeeva. */
+export interface BnnWindowHit {
+  sign: Sign;
+  start: string;
+  end: string;
+  /** Best karaka contact the passage makes: over (2), trine or opposite (1); null when it qualifies by count only. */
+  contact: BnnContact | null;
+  karaka: Planet | null;
+  /** Jupiter's count from the natal Jeeva during the passage, 1..12. */
+  fromJeeva: number;
+  via: "contact" | "count" | "both";
+}
+
+/** A KP timing window: a conjoined period whose three lords all signify the matter's houses (Method I). */
+export interface KpWindowHit {
+  dasaLord: Planet;
+  bhuktiLord: Planet;
+  antaraLord: Planet;
+  start: string;
+  end: string;
+  verdict: WindowVerdict;
+  score: number;
+  max: number;
+}
+
+export interface WindowEventRef {
+  id: string;
+  label: string;
+  date: string;
+}
+
+export interface BnnWindowRow extends BnnWindowHit {
+  matter: string;
+  matterLabel: string;
+  events: WindowEventRef[];
+}
+
+export interface KpWindowRow extends KpWindowHit {
+  matter: string;
+  matterLabel: string;
+  events: WindowEventRef[];
+}
+
+/** The past windows of the recorded matters, read against the events that fell inside them. */
+export interface WindowsReport {
+  /** Past windows that caught at least one recorded event. */
+  bnn: BnnWindowRow[];
+  kp: KpWindowRow[];
+  /** Events caught by each system's windows, of all events. */
+  bnnCaught: number;
+  kpCaught: number;
+  /** Past windows the systems named for these matters, caught or not: the honest denominator. */
+  bnnPast: number;
+  kpPast: number;
+  /** KP windows set aside by Method I while scanning the past. */
+  kpWeak: number;
+  events: number;
 }
 
 /** One hit house of a period lord, seen through the sub lord of that house's cusp. */
@@ -134,7 +196,13 @@ export interface PlanetTally {
 }
 
 export type BaselineMeasure =
-  "confirmed" | "kp" | "transit" | "jaimini" | "bnn";
+  | "confirmed"
+  | "kp"
+  | "transit"
+  | "jaimini"
+  | "bnn"
+  | "bnnWindow"
+  | "kpWindow";
 
 export interface BaselineStat {
   actual: number;
@@ -156,6 +224,10 @@ export interface ChanceBaseline {
   transit: BaselineStat;
   jaimini: BaselineStat;
   bnn: BaselineStat;
+  /** Events inside a Nadi window, against the same at random dates. */
+  bnnWindow: BaselineStat;
+  /** Events inside a KP window, against the same at random dates. */
+  kpWindow: BaselineStat;
 }
 
 export interface ValidationResult {
@@ -163,6 +235,8 @@ export interface ValidationResult {
   lagna: { sign: Sign; degree: number };
   events: EventValidation[];
   planets: PlanetTally[];
+  /** Past timing windows of the recorded matters, against the events that fell inside them. */
+  windows: WindowsReport;
   /** Null when fewer than two events or a span under a year. */
   baseline: ChanceBaseline | null;
   summary: {

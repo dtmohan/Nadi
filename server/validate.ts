@@ -16,6 +16,13 @@
  *    combinations in that life area to life (1). Karakas resolve by gender: the spouse is Venus or Mars,
  *    the Deha is Jupiter or Venus.
  *
+ * 4. Timing windows, read both ways: each event is checked against the windows the systems themselves
+ *    name in advance — Nadi, Jupiter's passage over the matter's karaka or its count-signs from the Jeeva;
+ *    KP, the conjoined period whose dasa, bhukti and antara lords all signify the matter (Method I, Part 2
+ *    p. 24, weak windows set aside) — and the report lists which past windows caught a recorded event. The
+ *    chance baseline carries the same measure, so a window that real events fall in no more often than
+ *    random dates is reported as chance, not as a hit.
+ *
  * The planet tally then turns the events round: for each planet, the houses it signifies decide what KP
  * expects of it (Part 1 pp. 17-19: a planet tied to 6, 8, 12 turns harmful in its periods, one tied to
  * 2, 3, 10, 11 turns favourable, whatever its natural character), and the outcomes of the events that
@@ -36,6 +43,8 @@ import {
   houseOf,
   computeSignificators,
   vimshottariLordsAt,
+  vimshottari,
+  jointPeriods,
   NODES_KP,
   type KpCusp,
   type KpPlanet,
@@ -59,7 +68,13 @@ import type {
   Nature,
   PlanetTally,
   ValidationResult,
+  WindowsReport,
+  BnnWindowHit,
+  BnnWindowRow,
+  KpWindowHit,
+  KpWindowRow,
 } from "@shared/validate-types";
+import { scoreWindows } from "@shared/kp-windows";
 import { evaluate, rolesFor } from "@shared/rules";
 import type { Gender } from "@shared/marriage";
 import type { TransitCheck } from "@shared/rectify-types";
@@ -72,6 +87,7 @@ import {
   positionsLite,
   ascendantAt,
   cuspsAt,
+  transitPeriods,
   type EphemerisOptions,
 } from "./ephemeris";
 
@@ -117,9 +133,8 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       ? []
       : owners.map((o, k) => (o === p.planet ? k + 1 : 0)).filter(Boolean),
   }));
-  const sig = new Map(
-    computeSignificators(planets).map((s) => [s.planet, s.houses]),
-  );
+  const sigs = computeSignificators(planets);
+  const sig = new Map(sigs.map((s) => [s.planet, s.houses]));
   const moon = planets.find((p) => p.planet === "Moon")!;
 
   // Jaimini and Nadi frames use the chart's own ayanamsa.
@@ -161,6 +176,87 @@ export function validateEvents(chart: InsertChart): ValidationResult {
     return best;
   };
 
+  // Timing windows, named in advance: for every matter among the events, the Jupiter passages that put
+  // the matter in season by Nadi rules, and the KP conjoined periods. The day-level checks ask what was
+  // running on the date; these ask whether the date fell inside a window the system would have named first.
+  const transitsJ = transitPeriods("Jupiter", jd0, jd0 + 100 * 365.25, optsJ);
+  const vim = vimshottari(moon.lon, birthIso, birthIso);
+  const asOfMs = Date.now();
+  interface Held<T> {
+    hit: T;
+    startMs: number;
+    endMs: number;
+  }
+  const heldOf = <T extends { start: string; end: string }>(hit: T): Held<T> => ({
+    hit,
+    startMs: Date.parse(hit.start),
+    endMs: Date.parse(hit.end),
+  });
+  const windowsByMatter = new Map<
+    string,
+    { bnn: Held<BnnWindowHit>[]; kp: Held<KpWindowHit>[]; weak: number }
+  >();
+  for (const e of events) {
+    const m = matterOf(e.matter);
+    if (windowsByMatter.has(m.id)) continue;
+    const karakas = bnnKarakasFor(m.bnn, roles);
+    const bnn: Held<BnnWindowHit>[] = [];
+    for (const t of transitsJ) {
+      const contact = contactOf(t.signIndex, karakas);
+      const fj = ((t.signIndex - natalJupiter.signIndex + 12) % 12) + 1;
+      const fd =
+        roles.deha !== roles.native
+          ? ((t.signIndex - natalDeha.signIndex + 12) % 12) + 1
+          : null;
+      const count =
+        m.bnn.fromJeeva.includes(fj) ||
+        (fd !== null && m.bnn.fromJeeva.includes(fd));
+      if (!contact && !count) continue;
+      bnn.push(
+        heldOf({
+          sign: t.sign,
+          start: t.start,
+          end: t.end,
+          contact: contact?.contact ?? null,
+          karaka: contact?.planet ?? null,
+          fromJeeva: fj,
+          via: contact && count ? "both" : contact ? "contact" : "count",
+        }),
+      );
+    }
+    const kp: Held<KpWindowHit>[] = [];
+    let weak = 0;
+    for (const w of scoreWindows(
+      jointPeriods(vim, sig, m.houses, birthIso, birthIso, 120),
+      m.houses,
+      m.cusp,
+      planets,
+      cusps,
+      sigs,
+      sig,
+    )) {
+      // Method I (Part 2 p. 24): a lord whose sub lord does not connect with the matter sets the
+      // whole period aside; such windows are counted, not named.
+      if (w.verdict === "weak") {
+        weak++;
+        continue;
+      }
+      kp.push(
+        heldOf({
+          dasaLord: w.dasaLord,
+          bhuktiLord: w.bhuktiLord,
+          antaraLord: w.antaraLord,
+          start: w.start,
+          end: w.end,
+          verdict: w.verdict,
+          score: w.score,
+          max: w.max,
+        }),
+      );
+    }
+    windowsByMatter.set(m.id, { bnn, kp, weak });
+  }
+
   const scoreEvent = (e: ChartEvent, date: string): EventValidation => {
     const m = matterOf(e.matter);
     const evDt = DateTime.fromISO(date, { zone }).set({
@@ -170,6 +266,12 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       millisecond: 0,
     });
     const evIso = evDt.toUTC().toISO()!;
+    const evMs = evDt.toUTC().toMillis();
+    const held = windowsByMatter.get(m.id);
+    const bnnHit =
+      held?.bnn.find((t) => t.startMs <= evMs && evMs < t.endMs)?.hit ?? null;
+    const kpHit =
+      held?.kp.find((t) => t.startMs <= evMs && evMs < t.endMs)?.hit ?? null;
     const houses = m.houses;
     const lords = vimshottariLordsAt(moon.lon, birthIso, evIso);
     const signified = lords.map((l) =>
@@ -340,9 +442,71 @@ export function validateEvents(chart: InsertChart): ValidationResult {
           }
         : null,
       bnn,
+      windows: { bnn: bnnHit, kp: kpHit },
     };
   };
   const out: EventValidation[] = events.map((e) => scoreEvent(e, e.date));
+
+  // The report the panel lists: past windows of the recorded matters, and the events that fell inside.
+  // The event instant is noon in the birth zone, as the day-level checks take it.
+  const eventMs = new Map(
+    out.map((e) => [
+      e.id,
+      Date.parse(
+        DateTime.fromISO(e.date, { zone })
+          .set({ hour: 12, minute: 0, second: 0, millisecond: 0 })
+          .toUTC()
+          .toISO()!,
+      ),
+    ]),
+  );
+  const bnnRows: BnnWindowRow[] = [];
+  const kpRows: KpWindowRow[] = [];
+  let bnnPast = 0;
+  let kpPast = 0;
+  for (const [matterId, list] of Array.from(windowsByMatter)) {
+    const m = matterOf(matterId);
+    const evs = out.filter((e) => e.matter === matterId);
+    const inside = (t: { startMs: number; endMs: number }) =>
+      evs.filter((e) => {
+        const ms = eventMs.get(e.id)!;
+        return t.startMs <= ms && ms < t.endMs;
+      });
+    for (const t of list.bnn) {
+      if (t.endMs > asOfMs) continue;
+      bnnPast++;
+      const caught = inside(t);
+      if (caught.length)
+        bnnRows.push({
+          ...t.hit,
+          matter: m.id,
+          matterLabel: m.label,
+          events: caught.map((e) => ({ id: e.id, label: e.label, date: e.date })),
+        });
+    }
+    for (const t of list.kp) {
+      if (t.endMs > asOfMs) continue;
+      kpPast++;
+      const caught = inside(t);
+      if (caught.length)
+        kpRows.push({
+          ...t.hit,
+          matter: m.id,
+          matterLabel: m.label,
+          events: caught.map((e) => ({ id: e.id, label: e.label, date: e.date })),
+        });
+    }
+  }
+  const windows: WindowsReport = {
+    bnn: bnnRows.sort((a, b) => a.start.localeCompare(b.start)),
+    kp: kpRows.sort((a, b) => a.start.localeCompare(b.start)),
+    bnnCaught: out.filter((e) => e.windows.bnn).length,
+    kpCaught: out.filter((e) => e.windows.kp).length,
+    bnnPast,
+    kpPast,
+    kpWeak: Array.from(windowsByMatter.values()).reduce((n, l) => n + l.weak, 0),
+    events: out.length,
+  };
 
   // Chance baseline: the same matters scored at random dates drawn from the span the real events cover.
   // A score that random dates reach as often as the real ones did is not evidence for the birth time.
@@ -420,6 +584,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
     lagna: { sign: SIGNS[Math.floor(lagnaLon / 30)], degree: lagnaLon % 30 },
     events: out,
     planets: tallies,
+    windows,
     baseline,
     summary: {
       events: out.length,
@@ -487,6 +652,8 @@ function chanceBaseline(
     transit: (vs) => vs.reduce((s, v) => s + v.kp.transit.score, 0),
     jaimini: (vs) => vs.reduce((s, v) => s + (v.jaimini?.score ?? 0), 0),
     bnn: (vs) => vs.reduce((s, v) => s + v.bnn.score, 0),
+    bnnWindow: (vs) => vs.filter((v) => v.windows.bnn).length,
+    kpWindow: (vs) => vs.filter((v) => v.windows.kp).length,
   };
   const keys = Object.keys(measures) as BaselineMeasure[];
   const samples: Record<BaselineMeasure, number[]> = {
@@ -495,6 +662,8 @@ function chanceBaseline(
     transit: [],
     jaimini: [],
     bnn: [],
+    bnnWindow: [],
+    kpWindow: [],
   };
   for (let t = 0; t < BASELINE_TRIALS; t++) {
     const trial = events.map((e) =>
@@ -538,5 +707,7 @@ function chanceBaseline(
     transit: stat("transit"),
     jaimini: stat("jaimini"),
     bnn: stat("bnn"),
+    bnnWindow: stat("bnnWindow"),
+    kpWindow: stat("kpWindow"),
   };
 }
