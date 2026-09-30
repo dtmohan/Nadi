@@ -48,9 +48,7 @@ export const validateModule: ReportModule = {
     );
     const raoSrc = cites.add(RAO_SOURCE.label, RAO_SOURCE.url);
     const bnnSrc = cites.add("R.G. Rao, Bhrigu Nandi Nadi");
-    const winSrc = cites.add(
-      "Astro Secrets & KP, Part 2 p. 24 (uploaded PDF)",
-    );
+    const winSrc = cites.add("Astro Secrets & KP, Part 2 p. 24 (uploaded PDF)");
     const s = v.summary;
     const paras: ReportPara[] = [
       {
@@ -86,12 +84,12 @@ export const validateModule: ReportModule = {
             ? `${e.jaimini.mdSignName} / ${e.jaimini.adSignName} ${e.jaimini.score}/${e.jaimini.max}`
             : "—",
           `${e.bnn.verdict} ${e.bnn.score}/${e.bnn.max}`,
-          `${e.windows.bnn ? `Ju ${e.windows.bnn.sign}` : "—"} / ${e.windows.kp ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord}-${e.windows.kp.antaraLord}` : "—"}`,
+          `${e.windows.bnn ? `Ju ${e.windows.bnn.sign}` : "—"} / ${e.windows.kp ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord}${e.windows.kp.antaraSignifies ? " (+A)" : ""}` : "—"}`,
         ]),
       },
       {
         kind: "note",
-        text: "Hits: D, B and A mark a dasa, bhukti or antara lord that signifies one of the matter's houses by the four-step rule; a dash marks one that does not. Promised: the sub lord of the matter's cusp signifies the matter. KP verdict: confirmed when promised and both dasa and bhukti lords signify, partial when something links, missed when nothing does. The chara dasha column gives the mahadasha and antardasha signs running that day and Rao's fit; the Nadi column scores Jupiter's and Saturn's contacts with the matter's karakas that day out of six. Window: the timing window each system names in advance, if one was open at the date — Jupiter's passage for Nadi (left of the slash), the conjoined period for KP (right). The scoring scales are the app's, not the books'.",
+        text: "Hits: D, B and A mark a dasa, bhukti or antara lord that signifies one of the matter's houses by the four-step rule; a dash marks one that does not. Promised: the sub lord of the matter's cusp signifies the matter. KP verdict: confirmed when promised and both dasa and bhukti lords signify, partial when something links, missed when nothing does. The chara dasha column gives the mahadasha and antardasha signs running that day and Rao's fit; the Nadi column scores Jupiter's and Saturn's contacts with the matter's karakas that day out of six. Window: the timing window each system names in advance, if one was open at the date — Jupiter's passage for Nadi (left of the slash), the KP dasa-bhukti joint period (right), with +A marking an antara lord that also signifies the matter. Within the conjoined period, the book's day trigger is the transiting Sun or Moon in the sign, star or sub of the period lords (Part 2 p. 26, provisional reading), shown in the app's transit column. The scoring scales are the app's, not the books'.",
         cites: [kpSrc, filterSrc],
         provisional: true,
       },
@@ -112,7 +110,7 @@ export const validateModule: ReportModule = {
         paras: [
           {
             kind: "p",
-            text: `The table above asks what was running on the day; this one asks the prior question: was the date inside a window the system itself names in advance? A Nadi window is a Jupiter passage over the matter's karaka or in its count-signs from the Jeeva; a KP window is the conjoined period whose dasa, bhukti and antara lords all signify the matter, weak windows set aside by Method I. Nadi windows caught ${w.bnnCaught} of ${w.events} event${w.events === 1 ? "" : "s"}, of ${w.bnnPast} past windows for these matters; KP windows caught ${w.kpCaught}, of ${w.kpPast}${w.kpWeak ? `, with ${w.kpWeak} weak windows set aside` : ""}.`,
+            text: `The table above asks what was running on the day; this one asks the prior question: was the date inside a window the system itself names in advance? A Nadi window is a Jupiter passage over the matter's karaka or in its count-signs from the Jeeva; a KP joint period is the dasa-bhukti of the matter's significators — the level the books' worked marriages are dated by — with the antara carried as a refinement and counted separately as the full three-level match; Method I grades are carried on the window, not used to set it aside. Nadi windows caught ${w.bnnCaught} of ${w.events} event${w.events === 1 ? "" : "s"}, of ${w.bnnPast} past windows for these matters; KP joint periods caught ${w.kpCaught}, of ${w.kpPast}, of which ${w.kpFull} also had the antara lord signifying.`,
             cites: [bnnSrc, winSrc],
             provisional: true,
           },
@@ -120,13 +118,7 @@ export const validateModule: ReportModule = {
             ? [
                 {
                   kind: "table" as const,
-                  head: [
-                    "System",
-                    "Matter",
-                    "Window",
-                    "Open",
-                    "Caught",
-                  ],
+                  head: ["System", "Matter", "Window", "Open", "Caught"],
                   rows: [
                     ...w.bnn.map((r) => [
                       "Nadi",
@@ -142,9 +134,14 @@ export const validateModule: ReportModule = {
                     ...w.kp.map((r) => [
                       "KP",
                       S(r.matterLabel),
-                      `${r.dasaLord}-${r.bhuktiLord}-${r.antaraLord} (${r.verdict})`,
+                      `${r.dasaLord}-${r.bhuktiLord} (${r.verdict})`,
                       `${r.start.slice(0, 10)} to ${r.end.slice(0, 10)}`,
-                      r.events.map((e) => `${S(e.label)} ${e.date}`).join("; "),
+                      r.events
+                        .map(
+                          (e) =>
+                            `${S(e.label)} ${e.date}${e.note ? ` (${S(e.note)})` : ""}`,
+                        )
+                        .join("; "),
                     ]),
                   ],
                 },
@@ -208,7 +205,9 @@ export const validateModule: ReportModule = {
               row("Chara dasha points", b.jaimini),
               row("Nadi timer points", b.bnn),
               row("Events inside a Nadi window", b.bnnWindow),
-              row("Events inside a KP window", b.kpWindow),
+              row("Events inside a KP joint period", b.kpWindow),
+              row("Events inside a full KP joint period", b.kpFullWindow),
+              row("Days the luminaries' trigger held", b.luminary),
             ],
           },
           {

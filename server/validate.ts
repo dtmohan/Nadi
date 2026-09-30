@@ -18,9 +18,10 @@
  *
  * 4. Timing windows, read both ways: each event is checked against the windows the systems themselves
  *    name in advance — Nadi, Jupiter's passage over the matter's karaka or its count-signs from the Jeeva;
- *    KP, the conjoined period whose dasa, bhukti and antara lords all signify the matter (Method I, Part 2
- *    p. 24, weak windows set aside) — and the report lists which past windows caught a recorded event. The
- *    chance baseline carries the same measure, so a window that real events fall in no more often than
+ *    KP, the conjoined period of the matter's significators at the dasa-bhukti level, the level the books'
+ *    worked marriages are dated by (Part 3 pp. 25, 65), with the antara carried as a refinement and counted
+ *    separately as the full three-level match. The report lists which past windows caught a recorded event,
+ *    and the chance baseline carries the same measures, so a window real events fall in no more often than
  *    random dates is reported as chance, not as a hit.
  *
  * The planet tally then turns the events round: for each planet, the houses it signifies decide what KP
@@ -194,7 +195,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   });
   const windowsByMatter = new Map<
     string,
-    { bnn: Held<BnnWindowHit>[]; kp: Held<KpWindowHit>[]; weak: number }
+    { bnn: Held<BnnWindowHit>[]; kp: Held<KpWindowHit>[] }
   >();
   for (const e of events) {
     const m = matterOf(e.matter);
@@ -224,9 +225,14 @@ export function validateEvents(chart: InsertChart): ValidationResult {
         }),
       );
     }
-    const kp: Held<KpWindowHit>[] = [];
-    let weak = 0;
-    for (const w of scoreWindows(
+    // KP windows: the conjoined period of the significators at the dasa-bhukti level — every bhukti
+    // whose two lords both signify the matter's houses (Part 3 p. 15 gives each matter's houses) — the
+    // level the books' worked marriages are dated by (Part 3 pp. 25, 65). The antara windows within are
+    // carried as the refinement (Part 2 p. 26: within the conjoined period the event takes place when
+    // the luminaries transit the sensitive positions); the books never require the antara lord itself
+    // to be a significator, so the full three-level match is counted, not assumed. Method I grades
+    // (Part 2 p. 24) are carried on the window, not used to set it aside: a graded period is still a period.
+    const scored = scoreWindows(
       jointPeriods(vim, sig, m.houses, birthIso, birthIso, 120),
       m.houses,
       m.cusp,
@@ -234,27 +240,48 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       cusps,
       sigs,
       sig,
-    )) {
-      // Method I (Part 2 p. 24): a lord whose sub lord does not connect with the matter sets the
-      // whole period aside; such windows are counted, not named.
-      if (w.verdict === "weak") {
-        weak++;
-        continue;
+    );
+    const byPair = new Map<
+      string,
+      {
+        best: (typeof scored)[number];
+        full: { lord: Planet; start: string; end: string }[];
       }
+    >();
+    for (const w of scored) {
+      const key = `${w.dasaLord}-${w.bhuktiLord}`;
+      const g = byPair.get(key) ?? { best: w, full: [] };
+      if (w.score > g.best.score) g.best = w;
+      g.full.push({
+        lord: w.antaraLord,
+        start: w.start,
+        end: w.end,
+      });
+      byPair.set(key, g);
+    }
+    const kp: Held<KpWindowHit>[] = [];
+    for (const b of vim.bhuktis) {
+      const hd = (sig.get(b.dasaLord) ?? []).filter((h) =>
+        m.houses.includes(h),
+      );
+      const hb = (sig.get(b.lord) ?? []).filter((h) => m.houses.includes(h));
+      if (!hd.length || !hb.length) continue;
+      if (b.end <= birthIso) continue;
+      const g = byPair.get(`${b.dasaLord}-${b.lord}`);
       kp.push(
         heldOf({
-          dasaLord: w.dasaLord,
-          bhuktiLord: w.bhuktiLord,
-          antaraLord: w.antaraLord,
-          start: w.start,
-          end: w.end,
-          verdict: w.verdict,
-          score: w.score,
-          max: w.max,
+          dasaLord: b.dasaLord,
+          bhuktiLord: b.lord,
+          start: b.start < birthIso ? birthIso : b.start,
+          end: b.end,
+          fullAntaras: g?.full ?? [],
+          verdict: g?.best.verdict ?? "weak",
+          score: g?.best.score ?? 0,
+          max: g?.best.max ?? 20,
         }),
       );
     }
-    windowsByMatter.set(m.id, { bnn, kp, weak });
+    windowsByMatter.set(m.id, { bnn, kp });
   }
 
   const scoreEvent = (e: ChartEvent, date: string): EventValidation => {
@@ -270,8 +297,8 @@ export function validateEvents(chart: InsertChart): ValidationResult {
     const held = windowsByMatter.get(m.id);
     const bnnHit =
       held?.bnn.find((t) => t.startMs <= evMs && evMs < t.endMs)?.hit ?? null;
-    const kpHit =
-      held?.kp.find((t) => t.startMs <= evMs && evMs < t.endMs)?.hit ?? null;
+    const kpHeld =
+      held?.kp.find((t) => t.startMs <= evMs && evMs < t.endMs) ?? null;
     const houses = m.houses;
     const lords = vimshottariLordsAt(moon.lon, birthIso, evIso);
     const signified = lords.map((l) =>
@@ -337,6 +364,23 @@ export function validateEvents(chart: InsertChart): ValidationResult {
     const tDasa = transitOf(lords[0]);
     const tBhukti = transitOf(lords[1]);
     const tScore = [...tDasa.hits, ...tBhukti.hits].filter(Boolean).length;
+    // The luminaries complete the timing (Part 2 p. 26): within the conjoined period, the event
+    // takes place when the luminaries transit the three sensitive positions. The book's sentence
+    // names the conjoined period and the luminaries together, so the positions are read here as the
+    // sign, star and sub of the dasa, bhukti and antara lords (provisional: the wording allows the
+    // significators too, a reading that holds on almost any day and so tells nothing).
+    const periodLords = [lords[0], lords[1], lords[2]];
+    const luminaryTrigger = (planet: Planet): boolean => {
+      const lon = dayPositions.find((p) => p.planet === planet)?.lon ?? 0;
+      const pt = kpPoint(lon);
+      return [pt.signLord, pt.starLord, pt.subLord].some((l) =>
+        periodLords.includes(l),
+      );
+    };
+    const luminary = {
+      sun: luminaryTrigger("Sun"),
+      moon: luminaryTrigger("Moon"),
+    };
     const score = hits.filter(Boolean).length + (promised ? 1 : 0);
     const verdict =
       promised && hits[0] && hits[1]
@@ -408,6 +452,10 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       verdict: bnnScore >= 4 ? "strong" : bnnScore >= 2 ? "some" : "quiet",
     };
 
+    const kpHit = kpHeld
+      ? { ...kpHeld.hit, antaraSignifies: hits[2] }
+      : null;
+
     return {
       id: e.id,
       matter: m.id,
@@ -429,7 +477,13 @@ export function validateEvents(chart: InsertChart): ValidationResult {
         filtered,
         effective,
         deniedAtCusp,
-        transit: { dasa: tDasa, bhukti: tBhukti, score: tScore, max: 6 },
+        transit: {
+          dasa: tDasa,
+          bhukti: tBhukti,
+          score: tScore,
+          max: 6,
+          luminary,
+        },
         score,
         max: 4,
         verdict,
@@ -493,7 +547,16 @@ export function validateEvents(chart: InsertChart): ValidationResult {
           ...t.hit,
           matter: m.id,
           matterLabel: m.label,
-          events: caught.map((e) => ({ id: e.id, label: e.label, date: e.date })),
+          events: caught.map((e) => ({
+            id: e.id,
+            label: e.label,
+            date: e.date,
+            note: e.windows.kp
+              ? e.windows.kp.antaraSignifies
+                ? "full joint period"
+                : "antara not a significator"
+              : undefined,
+          })),
         });
     }
   }
@@ -502,9 +565,9 @@ export function validateEvents(chart: InsertChart): ValidationResult {
     kp: kpRows.sort((a, b) => a.start.localeCompare(b.start)),
     bnnCaught: out.filter((e) => e.windows.bnn).length,
     kpCaught: out.filter((e) => e.windows.kp).length,
+    kpFull: out.filter((e) => e.windows.kp?.antaraSignifies).length,
     bnnPast,
     kpPast,
-    kpWeak: Array.from(windowsByMatter.values()).reduce((n, l) => n + l.weak, 0),
     events: out.length,
   };
 
@@ -654,6 +717,11 @@ function chanceBaseline(
     bnn: (vs) => vs.reduce((s, v) => s + v.bnn.score, 0),
     bnnWindow: (vs) => vs.filter((v) => v.windows.bnn).length,
     kpWindow: (vs) => vs.filter((v) => v.windows.kp).length,
+    kpFullWindow: (vs) =>
+      vs.filter((v) => v.windows.kp?.antaraSignifies).length,
+    luminary: (vs) =>
+      vs.filter((v) => v.kp.transit.luminary.sun || v.kp.transit.luminary.moon)
+        .length,
   };
   const keys = Object.keys(measures) as BaselineMeasure[];
   const samples: Record<BaselineMeasure, number[]> = {
@@ -664,6 +732,8 @@ function chanceBaseline(
     bnn: [],
     bnnWindow: [],
     kpWindow: [],
+    kpFullWindow: [],
+    luminary: [],
   };
   for (let t = 0; t < BASELINE_TRIALS; t++) {
     const trial = events.map((e) =>
@@ -709,5 +779,7 @@ function chanceBaseline(
     bnn: stat("bnn"),
     bnnWindow: stat("bnnWindow"),
     kpWindow: stat("kpWindow"),
+    kpFullWindow: stat("kpFullWindow"),
+    luminary: stat("luminary"),
   };
 }

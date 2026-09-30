@@ -42,6 +42,8 @@ export interface EventValidation {
       bhukti: TransitCheck;
       score: number;
       max: number;
+      /** Whether the transiting Sun and Moon stood in the sign, star or sub of a significator of the matter that day (Part 2 p. 26). */
+      luminary: { sun: boolean; moon: boolean };
     };
     /** Period-lord hits plus the promise: 0..4. */
     score: number;
@@ -53,8 +55,14 @@ export interface EventValidation {
   jaimini: (DashaFit & { mdSignName: Sign; adSignName: Sign }) | null;
   /** Jupiter's and Saturn's transits that day against the natal chart, the Nadi timers, scored for the matter. */
   bnn: BnnFit;
-  /** The timing window each system itself names for the matter, open at this date; null when none was. */
-  windows: { bnn: BnnWindowHit | null; kp: KpWindowHit | null };
+  /**
+   * The timing window each system itself names for the matter, open at this date; null when none was.
+   * The KP window is the dasa-bhukti joint period; antaraSignifies says whether the third level also held.
+   */
+  windows: {
+    bnn: BnnWindowHit | null;
+    kp: (KpWindowHit & { antaraSignifies: boolean }) | null;
+  };
 }
 
 /** A Nadi timing window: Jupiter's passage over the matter's karaka or in the matter's count from the Jeeva. */
@@ -70,13 +78,20 @@ export interface BnnWindowHit {
   via: "contact" | "count" | "both";
 }
 
-/** A KP timing window: a conjoined period whose three lords all signify the matter's houses (Method I). */
+/**
+ * A KP timing window: the conjoined period of the significators, the dasa and bhukti whose lords both
+ * signify the matter's houses — the level the books' worked marriages are dated by (Part 3 pp. 25, 65).
+ * The antara is a refinement, carried in fullAntaras: the sub-periods whose lord also signifies.
+ */
 export interface KpWindowHit {
   dasaLord: Planet;
   bhuktiLord: Planet;
-  antaraLord: Planet;
+  /** The dasa-bhukti span. */
   start: string;
   end: string;
+  /** Antaras within whose lord also signifies the matter: the full three-level joint periods. */
+  fullAntaras: { lord: Planet; start: string; end: string }[];
+  /** Best Method I grade of the antara windows within. */
   verdict: WindowVerdict;
   score: number;
   max: number;
@@ -86,6 +101,8 @@ export interface WindowEventRef {
   id: string;
   label: string;
   date: string;
+  /** How the event sat inside the window, when it needs saying (KP: the antara level). */
+  note?: string;
 }
 
 export interface BnnWindowRow extends BnnWindowHit {
@@ -107,12 +124,13 @@ export interface WindowsReport {
   kp: KpWindowRow[];
   /** Events caught by each system's windows, of all events. */
   bnnCaught: number;
+  /** Events inside a KP dasa-bhukti joint period of the matter's significators. */
   kpCaught: number;
+  /** Of those, events whose antara lord also signified the matter: the full three-level match. */
+  kpFull: number;
   /** Past windows the systems named for these matters, caught or not: the honest denominator. */
   bnnPast: number;
   kpPast: number;
-  /** KP windows set aside by Method I while scanning the past. */
-  kpWeak: number;
   events: number;
 }
 
@@ -202,7 +220,9 @@ export type BaselineMeasure =
   | "jaimini"
   | "bnn"
   | "bnnWindow"
-  | "kpWindow";
+  | "kpWindow"
+  | "kpFullWindow"
+  | "luminary";
 
 export interface BaselineStat {
   actual: number;
@@ -228,6 +248,10 @@ export interface ChanceBaseline {
   bnnWindow: BaselineStat;
   /** Events inside a KP window, against the same at random dates. */
   kpWindow: BaselineStat;
+  /** Events inside a full three-level KP joint period, against the same at random dates. */
+  kpFullWindow: BaselineStat;
+  /** Days the luminaries' transit trigger held, against the same at random dates. */
+  luminary: BaselineStat;
 }
 
 export interface ValidationResult {

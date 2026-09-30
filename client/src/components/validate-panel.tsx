@@ -63,7 +63,9 @@ function BaselineLine({
     ...(hasJaimini ? [{ key: "jaimini", label: "Jaimini", s: b.jaimini }] : []),
     { key: "bnn", label: "Nadi", s: b.bnn },
     { key: "bnnWindow", label: "Nadi windows", s: b.bnnWindow },
-    { key: "kpWindow", label: "KP windows", s: b.kpWindow },
+    { key: "kpWindow", label: "KP periods", s: b.kpWindow },
+    { key: "kpFullWindow", label: "KP full", s: b.kpFullWindow },
+    { key: "luminary", label: "Sun/Moon", s: b.luminary },
   ];
   // Several metrics are read at once, so one of them clears the 95th by chance more often than one in twenty.
   // Bonferroni: a single metric counts as a signal only from the (100 - 5/n)th percentile.
@@ -590,7 +592,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                   </TableHead>
                   <TableHead
                     className="whitespace-nowrap"
-                    title="Whether the date fell inside a timing window the system itself names in advance: Jupiter's passage over the matter's karaka or its count-signs from the Jeeva for Nadi; the conjoined period whose three lords all signify the matter for KP (Method I, weak windows set aside)."
+                    title="Whether the date fell inside a timing window the system itself names in advance: Jupiter's passage over the matter's karaka or its count-signs from the Jeeva for Nadi; for KP, the conjoined period of the matter's significators at the dasa-bhukti level, with the antara as a refinement."
                   >
                     Window
                   </TableHead>
@@ -655,6 +657,13 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                       <div className="flex flex-col gap-0.5">
                         <Transit t={e.kp.transit.dasa} />
                         <Transit t={e.kp.transit.bhukti} />
+                        <span
+                          className="inline-flex items-center gap-1 text-muted-foreground"
+                          title="The luminaries complete the timing (Part 2 p. 26): within the conjoined period, the event takes place when the Sun or Moon transits the sign, star or sub of the dasa, bhukti or antara lord (provisional reading; the book's wording also allows the significators, which holds on almost any day). Su marks the Sun, Mo the Moon."
+                        >
+                          Su <Mark on={e.kp.transit.luminary.sun} /> Mo{" "}
+                          <Mark on={e.kp.transit.luminary.moon} />
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
@@ -713,7 +722,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                             ? `Ju in ${e.windows.bnn.sign}, ${
                                 e.windows.bnn.contact
                                   ? `${e.windows.bnn.contact} ${e.windows.bnn.karaka}`
-                                  : `${ordinal(e.windows.bnn.fromJeeva)} from Jeeva`
+                                  : `${e.windows.bnn.fromJeeva}${ordinal(e.windows.bnn.fromJeeva)} from Jeeva`
                               }`
                             : "Ju: no window"}
                         </span>
@@ -723,12 +732,12 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                           )}
                           title={
                             e.windows.kp
-                              ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord}-${e.windows.kp.antaraLord} from ${fmtDate(e.windows.kp.start)} to ${fmtDate(e.windows.kp.end)}; ${e.windows.kp.verdict} window, score ${e.windows.kp.score}/${e.windows.kp.max}`
-                              : "No KP window for this matter was open at the date"
+                              ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord} from ${fmtDate(e.windows.kp.start)} to ${fmtDate(e.windows.kp.end)}; ${e.windows.kp.verdict} at best among its antara windows, score ${e.windows.kp.score}/${e.windows.kp.max}; ${e.windows.kp.fullAntaras.length} antara${e.windows.kp.fullAntaras.length === 1 ? "" : "s"} whose lord also signifies`
+                              : "No KP joint period for this matter was open at the date"
                           }
                         >
                           {e.windows.kp
-                            ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord}-${e.windows.kp.antaraLord} (${e.windows.kp.verdict})`
+                            ? `${e.windows.kp.dasaLord}-${e.windows.kp.bhuktiLord} (${e.windows.kp.verdict}), antara ${e.windows.kp.antaraSignifies ? "yes" : "no"}`
                             : "KP: no window"}
                         </span>
                       </div>
@@ -752,13 +761,14 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             The table above asks what was running on the day; this one asks the
             prior question. Was the date inside a window the system itself names
             in advance — for Nadi, a Jupiter passage over the matter's karaka or
-            in its count-signs from the Jeeva; for KP, the conjoined period
-            whose dasa, bhukti and antara lords all signify the matter (Method
-            I, weak windows set aside)? Only the past windows that caught a
-            recorded event are listed, with the counts giving the honest
-            denominator of windows that caught nothing; the chance line above
-            carries the same measure, so a window real events fall in no more
-            often than random dates reads as chance, not as a hit.
+            in its count-signs from the Jeeva; for KP, the conjoined period of
+            the matter's significators, read at the dasa-bhukti level the books'
+            worked marriages are dated by, with the antara carried as a
+            refinement? Only the past windows that caught a recorded event are
+            listed, with the counts giving the honest denominator of windows
+            that caught nothing; the chance line above carries the same
+            measures, so a window real events fall in no more often than random
+            dates reads as chance, not as a hit.
           </p>
           <p
             className="mt-2 text-xs text-muted-foreground"
@@ -767,12 +777,9 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             {v.windows.events} recorded{" "}
             {v.windows.events === 1 ? "event" : "events"}: Nadi windows caught{" "}
             {v.windows.bnnCaught}, of {v.windows.bnnPast} past windows for these
-            matters; KP windows caught {v.windows.kpCaught}, of{" "}
-            {v.windows.kpPast}
-            {v.windows.kpWeak > 0
-              ? ` (${v.windows.kpWeak} weak windows set aside by Method I)`
-              : ""}
-            .
+            matters; KP joint periods caught {v.windows.kpCaught}, of{" "}
+            {v.windows.kpPast}, of which {v.windows.kpFull} also had the antara
+            lord signifying (full three-level match).
           </p>
           {v.events.some((e) => !e.windows.bnn && !e.windows.kp) && (
             <p
@@ -831,7 +838,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                       Jupiter in {w.sign},{" "}
                       {w.contact
                         ? `${w.contact} ${w.karaka}`
-                        : `${ordinal(w.fromJeeva)} from the Jeeva`}
+                        : `${w.fromJeeva}${ordinal(w.fromJeeva)} from the Jeeva`}
                       , {fmtDate(w.start)} to {fmtDate(w.end)}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
@@ -854,15 +861,16 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                     </TableCell>
                     <TableCell
                       className="whitespace-nowrap"
-                      title={`Score ${w.score}/${w.max}`}
+                      title={`Best antara window scores ${w.score}/${w.max}; ${w.fullAntaras.length} antara${w.fullAntaras.length === 1 ? "" : "s"} whose lord also signifies`}
                     >
-                      {w.dasaLord}-{w.bhuktiLord}-{w.antaraLord} ({w.verdict}
-                      ), {fmtDate(w.start)} to {fmtDate(w.end)}
+                      {w.dasaLord}-{w.bhuktiLord} ({w.verdict}),{" "}
+                      {fmtDate(w.start)} to {fmtDate(w.end)}
                     </TableCell>
                     <TableCell className="whitespace-nowrap">
                       {w.events.map((e) => (
                         <span key={e.id} className="mr-2">
                           {e.label}, {fmtDate(e.date)}
+                          {e.note ? ` (${e.note})` : ""}
                         </span>
                       ))}
                     </TableCell>
@@ -943,28 +951,31 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             data-testid="validate-sources"
           >
             KP period lords and cusp promise: Astro Secrets & KP Part 1, pp.
-            167-172; transit of the period lords on the day: Part 2, p. 203;
-            planets turned benefic or malefic by their houses: Part 1, pp. 17-19
-            (the four-step significators stand in for "lord of, or in the star
-            of the lord of" in the text); the cusp sub lord as the limit of what
-            a period lord can give, and its denial when it signifies the 12th
-            from the cusp: Part 3, ch. 5, pp. 27-34, and Part 2, ch. 7, pp.
-            52-54. Jaimini: <SourceLink source={RAO_SOURCE} />. Nadi transit:
-            Jupiter is the timer and Saturn the second hand (R.G. Rao, Bhrigu
-            Nandi Nadi; Naik on the female Deha); the karakas are the matter's
-            own (Venus or Mars for the spouse, Saturn for work, Sun for the
-            father, Rahu for foreign places), contact is by sign, trine or the
-            7th, and the count from the natal Jeeva follows the BNN tab. Strong
-            needs 4 of 6. A confirmed verdict needs the cusp promise and both
-            dasa and bhukti lords signifying; partial means something links;
-            missed means nothing does. Timing windows: a Nadi window is a
+            167-172; transit of the period lords on the day: Part 2, p. 203; the
+            luminaries' transit of a significator's sign, star or sub: Part 2,
+            p. 26; planets turned benefic or malefic by their houses: Part 1,
+            pp. 17-19 (the four-step significators stand in for "lord of, or in
+            the star of the lord of" in the text); the cusp sub lord as the
+            limit of what a period lord can give, and its denial when it
+            signifies the 12th from the cusp: Part 3, ch. 5, pp. 27-34, and Part
+            2, ch. 7, pp. 52-54. Jaimini: <SourceLink source={RAO_SOURCE} />.
+            Nadi transit: Jupiter is the timer and Saturn the second hand (R.G.
+            Rao, Bhrigu Nandi Nadi; Naik on the female Deha); the karakas are
+            the matter's own (Venus or Mars for the spouse, Saturn for work, Sun
+            for the father, Rahu for foreign places), contact is by sign, trine
+            or the 7th, and the count from the natal Jeeva follows the BNN tab.
+            Strong needs 4 of 6. A confirmed verdict needs the cusp promise and
+            both dasa and bhukti lords signifying; partial means something
+            links; missed means nothing does. Timing windows: a Nadi window is a
             Jupiter passage over the matter's karaka or in its count-signs from
             the Jeeva (R.G. Rao; Naik on the female Deha), the same tests as the
-            day score; a KP window is the conjoined period of the significators
-            in which the matter should fructify, Method I, Part 2 p. 24, with
-            weak windows set aside. A poor score across several events points to
-            the birth time rather than to the events: take it to the Rectify
-            tab.
+            day score; a KP joint period is the dasa-bhukti of the matter's
+            significators (the houses for each matter: Part 3 p. 15; worked
+            marriages dated at this level: Part 3 pp. 25, 65), with the antara
+            counted separately as the full three-level match and Method I grades
+            (Part 2 p. 24) carried on the window, not used to set it aside. A
+            poor score across several events points to the birth time rather
+            than to the events: take it to the Rectify tab.
           </p>
         </div>
       )}
