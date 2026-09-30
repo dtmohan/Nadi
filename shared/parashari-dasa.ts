@@ -910,6 +910,12 @@ function antarFacts(
         ? "a yogakaraka for this lagna, owning a kendra and a trikona (34.13-14)"
         : "a yogakaraka for this lagna (34.19-44)",
     );
+  else if (LAGNA_NATURE[c.lagnaIdx]?.yogaPair?.includes(b)) {
+    const pair = LAGNA_NATURE[c.lagnaIdx]!.yogaPair!;
+    fav.push(
+      `one half of this lagna's raja-yoga pair with ${pair[0] === b ? pair[1] : pair[0]} (${LAGNA_NATURE[c.lagnaIdx]!.verses}); the verse names the two in the dual, and neither owns both a kendra and a trikona alone`,
+    );
+  }
   if (c.withBenefic(b).length) fav.push(`with ${c.withBenefic(b).join(", ")}`);
   if (c.aspectedByBenefic(b).length)
     fav.push(`aspected by ${c.aspectedByBenefic(b).join(", ")}`);
@@ -1138,6 +1144,16 @@ function conditionNotes(c: Ctx, p: Planet): DasaNote[] {
       `${p} is a yogakaraka for this lagna, whose dasa the text calls favourable (50.33).`,
       "support",
     );
+  else if (LAGNA_NATURE[c.lagnaIdx]?.yogaPair?.includes(p)) {
+    const pair = LAGNA_NATURE[c.lagnaIdx]!.yogaPair!;
+    note(
+      "33p",
+      "33",
+      `${p} is one half of this lagna's raja-yoga pair with ${pair[0] === p ? pair[1] : pair[0]} (Parashara ${LAGNA_NATURE[c.lagnaIdx]!.verses}). The verse names the two in the dual; neither owns both a kendra and a trikona, so the yoga comes only from the pair, and reading ${p}'s dasa as favourable by 50.33 extends the single-planet rule.`,
+      "support",
+      true,
+    );
+  }
   // 50.43-44 a maraka house.
   if (h === 2 || h === 7)
     note(

@@ -272,6 +272,7 @@ function lordshipClass(owns: number[]): PlanetNature["lordship"] {
 function functionalRole(planet: Planet, lagnaIdx: number): FunctionalRole {
   const n = LAGNA_NATURE[lagnaIdx];
   if (n.yogakaraka.includes(planet)) return "yogakaraka";
+  if (n.yogaPair?.includes(planet)) return "yogaPair";
   if (n.auspicious.includes(planet)) return "auspicious";
   if (n.maraka.includes(planet) && !n.malefic.includes(planet)) return "maraka";
   if (n.malefic.includes(planet)) return "malefic";
@@ -1201,7 +1202,9 @@ export function listH(hs: number[]): string {
 export function roleLabel(r: FunctionalRole, withheld = false): string {
   switch (r) {
     case "yogakaraka":
-      return "a yoga-giver";
+      return "a yogakaraka, owning an angle and a trine";
+    case "yogaPair":
+      return "half of the lagna's raja-yoga pair, a yoga-giver only together with its partner";
     case "auspicious":
       return "functionally auspicious";
     case "malefic":

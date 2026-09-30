@@ -162,10 +162,20 @@ const TONE_CLASS: Record<ParashariFinding["tone"], string> = {
 
 const ROLE_CLASS: Record<string, string> = {
   yogakaraka: "bg-verdict-good/15 text-verdict-good",
+  yogaPair: "bg-verdict-good/15 text-verdict-good",
   auspicious: "bg-verdict-good/10 text-verdict-good",
   malefic: "bg-verdict-bad/10 text-verdict-bad",
   maraka: "bg-verdict-bad/15 text-verdict-bad",
   neutral: "bg-muted text-muted-foreground",
+};
+
+const ROLE_NAME: Record<string, string> = {
+  yogakaraka: "yogakaraka",
+  yogaPair: "raja-yoga pair",
+  auspicious: "auspicious",
+  malefic: "malefic",
+  maraka: "maraka",
+  neutral: "neutral",
 };
 
 function Finding({ f }: { f: ParashariFinding }) {
@@ -663,9 +673,11 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               The same planet helps one rising sign and troubles another,
               depending on which houses it rules. Parashara lists the roles for
               each rising sign; these are his for {SIGNS[r.lagna.signIndex]}. A{" "}
-              <Term k="yogakaraka">yogakaraka</Term> is the chief helper, a{" "}
-              <Term k="maraka">maraka</Term> a planet whose periods can bring
-              illness or loss.
+              <Term k="yogakaraka">yogakaraka</Term> is the chief helper — a
+              planet ruling both an angle and a trine — while some rising
+              signs instead name two planets that give their raja yoga only
+              together, and a <Term k="maraka">maraka</Term> is a planet
+              whose periods can bring illness or loss.
             </>
           }
           practitioner={
@@ -686,6 +698,23 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                   turns auspicious only by that double lordship,{" "}
                   <SourceLink
                     source={{ label: "Parashara 34.13-14", url: BPHS_URL(34) }}
+                  />
+                  .
+                </>
+              ) : null}
+              {nature.yogaPair ? (
+                <>
+                  {" "}
+                  The verse names {nature.yogaPair[0]} and{" "}
+                  {nature.yogaPair[1]} in the dual as its yoga-givers: neither
+                  owns both a kendra and a trikona, so they give the yoga only
+                  as a pair, and the role table names each member a half of
+                  that pair rather than a yogakaraka,{" "}
+                  <SourceLink
+                    source={{
+                      label: "Parashara 34.13-14",
+                      url: BPHS_URL(34),
+                    }}
                   />
                   .
                 </>
@@ -727,7 +756,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                   >
                     {n.functional === "maraka" && withheld
                       ? "2nd/7th lord"
-                      : n.functional}
+                      : (ROLE_NAME[n.functional] ?? n.functional)}
                   </span>
                   {n.naturalBenefic && (
                     <span className="ml-1 text-xs text-muted-foreground">
@@ -2995,6 +3024,7 @@ function ConditionalDasasSection({ cd }: { cd: ConditionalDasasResult }) {
 
 const PLAIN_ROLE: Record<string, string> = {
   yogakaraka: "the chief helper",
+  yogaPair: "half of a raja-yoga pair",
   auspicious: "a helper",
   malefic: "a hinderer",
   maraka: "a planet whose periods can bring illness or loss",
@@ -3016,7 +3046,10 @@ function ParashariVerdict({
   const nowLabel = useNowLabel();
   const helpers = r.natures
     .filter(
-      (n) => n.functional === "yogakaraka" || n.functional === "auspicious",
+      (n) =>
+        n.functional === "yogakaraka" ||
+        n.functional === "yogaPair" ||
+        n.functional === "auspicious",
     )
     .map((n) => n.planet);
   const hinderers = r.natures

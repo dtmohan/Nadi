@@ -320,7 +320,7 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
   yogakaraka: {
     term: "Yogakaraka",
     short:
-      "The planet that does most good for a given rising sign, usually because it rules both an angle and a trine. Parashara names one for most rising signs.",
+      "In the strict sense, the planet that rules both an angle and a trine for a given rising sign (Saturn for Taurus and Libra, Mars for Cancer and Leo, Venus for Capricorn and Aquarius). Rising signs with no such planet have their verse name two planets in the dual that give the raja yoga only as a pair — each alone owns just one of the two.",
     system: "parashari",
   },
   maraka: {

@@ -1606,7 +1606,12 @@ function ParashariMethod() {
           roles follow the lagna verses of 34.19-44, and a planet owning both a
           kendra and a trikona (Saturn for Taurus and Libra, Mars for Cancer and
           Leo, Venus for Capricorn and Aquarius) is yogakaraka by 34.13-14 even
-          where the lagna verse calls it only auspicious. The sixteen divisional
+          where the lagna verse calls it only auspicious. For the rising signs
+          with no such planet, the verse names two planets in the dual — Venus
+          and Mercury for Virgo, Moon and Mercury for Libra, Sun and Moon for
+          Scorpio, Sun and Mercury for Sagittarius, Mars and Jupiter for Pisces
+          — and they are shown as halves of a raja-yoga pair, since neither
+          owns both a kendra and a trikona alone. The sixteen divisional
           charts are drawn by the rules of 6.5-41, with the Bhamsa, Trimsamsa
           and Shashtiamsa sign mappings marked as the commentators' where the
           verse gives only the rule, and each is labelled with the matter 7.1-8

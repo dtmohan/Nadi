@@ -188,16 +188,18 @@ export const LORD_IN_HOUSE: Array<Array<{ verse: number; text: string; tone: "su
   ],
 ];
 
-export type FunctionalRole = "auspicious" | "malefic" | "yogakaraka" | "maraka" | "neutral";
+export type FunctionalRole = "auspicious" | "malefic" | "yogakaraka" | "yogaPair" | "maraka" | "neutral";
 
 export interface LagnaNature {
   verses: string;
   auspicious: Planet[];
   malefic: Planet[];
-  /** Planets Parashara names as capable of a yoga on their own, or as a pair (both listed), plus any planet owning both a kendra and a trikona from this lagna (34.13-14), listed again under byRule. */
+  /** Planets owning both a kendra and a trikona from this lagna — the single-planet yogakaraka of 34.13-14 — whether the lagna verse names it or the rule does (byRule). */
   yogakaraka: Planet[];
-  /** Planets that own a kendra and a trikona together, made yogakaraka by the general rule of 34.13-14 rather than named in the lagna verse. */
+  /** Planets owning a kendra and a trikona together by the general rule of 34.13-14, not named so in the lagna verse. */
   byRule?: Planet[];
+  /** The verse's dual: two planets (a kendra lord and a trikona lord) it names in the dual as the raja-yoga or yoga kārakas. They give the yoga only together — each alone owns just one of the two. */
+  yogaPair?: [Planet, Planet];
   /** Planets named as killers (independently or by association). */
   maraka: Planet[];
   neutral: Planet[];
@@ -211,13 +213,13 @@ export const LAGNA_NATURE: LagnaNature[] = [
   { verses: "34.25-26", auspicious: ["Venus"], malefic: ["Mars", "Jupiter", "Sun"], yogakaraka: [], maraka: ["Moon"], neutral: ["Saturn", "Mercury"], note: "Venus is the only benefic. The Moon is the prime killer, by association." },
   { verses: "34.27-28", auspicious: ["Mars", "Jupiter", "Moon"], malefic: ["Venus", "Mercury"], yogakaraka: ["Mars"], byRule: ["Mars"], maraka: ["Saturn", "Sun"], neutral: [], note: "Mars alone gives a full yoga, owning the 5th and 10th." },
   { verses: "34.29-30", auspicious: ["Mars", "Jupiter", "Sun"], malefic: ["Mercury", "Venus", "Saturn"], yogakaraka: ["Mars"], byRule: ["Mars"], maraka: ["Saturn", "Moon"], neutral: [], note: "Mars owns the 4th and 9th and is yogakaraka by the general rule of 34.13-14; the verse names it only as auspicious. Jupiter and Venus together give no good, though they own a trine and an angle." },
-  { verses: "34.31-32", auspicious: ["Mercury", "Venus"], malefic: ["Mars", "Jupiter", "Moon"], yogakaraka: ["Venus", "Mercury"], maraka: ["Venus"], neutral: ["Sun", "Saturn"], note: "Venus with Mercury gives yoga; Venus is also a killer. The Sun follows its company." },
-  { verses: "34.33-34", auspicious: ["Saturn", "Mercury"], malefic: ["Jupiter", "Sun", "Mars"], yogakaraka: ["Moon", "Mercury", "Saturn"], byRule: ["Saturn"], maraka: ["Mars"], neutral: ["Venus"], note: "Saturn owns the 4th and 5th and is yogakaraka by the general rule of 34.13-14; the verse names it only as auspicious. Moon and Mercury as a pair give raja yoga. Jupiter and the other malefics can also kill." },
-  { verses: "34.35-36", auspicious: ["Jupiter", "Moon"], malefic: ["Venus", "Mercury", "Saturn"], yogakaraka: ["Sun", "Moon"], maraka: ["Venus"], neutral: ["Mars"], note: "Sun and Moon are yogakarakas. Venus and the other malefics acquire killing power." },
-  { verses: "34.37-38", auspicious: ["Mars", "Sun"], malefic: ["Venus"], yogakaraka: ["Sun", "Mercury"], maraka: ["Saturn", "Venus"], neutral: ["Jupiter", "Moon"], note: "Only Venus is inauspicious. Sun with Mercury gives yoga." },
+  { verses: "34.31-32", auspicious: ["Mercury", "Venus"], malefic: ["Mars", "Jupiter", "Moon"], yogakaraka: [], yogaPair: ["Venus", "Mercury"], maraka: ["Venus"], neutral: ["Sun", "Saturn"], note: "The verse names Venus and Mercury in the dual as the two yogakarakas (bhārgavendusutāv eva bhavetāṃ yogakārakau): Venus owns the 9th trine, Mercury the 10th angle, and they give the yoga only as a pair — neither owns an angle and a trine alone. Venus is also a killer. The Sun follows its company." },
+  { verses: "34.33-34", auspicious: ["Saturn", "Mercury"], malefic: ["Jupiter", "Sun", "Mars"], yogakaraka: ["Saturn"], byRule: ["Saturn"], yogaPair: ["Moon", "Mercury"], maraka: ["Mars"], neutral: ["Venus"], note: "Saturn alone owns the 4th angle and the 5th trine, and is the single-planet yogakaraka by 34.13-14; the verse names it only as auspicious. The Moon and Mercury become the two karakas of raja yoga (bhavetāṃ rājayogasya kārakau, dual) — the 10th and 9th lords, a yoga only as a pair. Jupiter and the other malefics can also kill." },
+  { verses: "34.35-36", auspicious: ["Jupiter", "Moon"], malefic: ["Venus", "Mercury", "Saturn"], yogakaraka: [], yogaPair: ["Sun", "Moon"], maraka: ["Venus"], neutral: ["Mars"], note: "The verse names the Sun and the Moon in the dual as the two yogakarakas (sūryācandramasāv eva bhavetāṃ yogakārakau): the Sun owns the 10th angle, the Moon the 9th trine, and the yoga comes only from the pair — this lagna has no single-planet yogakaraka. Venus and the other malefics acquire killing power." },
+  { verses: "34.37-38", auspicious: ["Mars", "Sun"], malefic: ["Venus"], yogakaraka: [], yogaPair: ["Sun", "Mercury"], maraka: ["Saturn", "Venus"], neutral: ["Jupiter", "Moon"], note: "Only Venus is inauspicious. The yoga arises through the Sun and Mercury together (yogo bhāskarasaumyābhyām, dual instrumental) — the 9th and 10th lords as a pair, not singly. Saturn is the killer." },
   { verses: "34.39-40", auspicious: ["Venus", "Mercury"], malefic: ["Mars", "Jupiter", "Moon"], yogakaraka: ["Venus"], byRule: ["Venus"], maraka: ["Mars"], neutral: ["Sun", "Saturn"], note: "Only Venus gives a superior yoga, owning the 5th and 10th. Saturn does not kill on its own." },
   { verses: "34.41-42", auspicious: ["Venus", "Saturn"], malefic: ["Jupiter", "Moon", "Mars"], yogakaraka: ["Venus"], byRule: ["Venus"], maraka: ["Jupiter", "Sun", "Mars"], neutral: ["Mercury"], note: "Venus is the only raja yoga planet, owning the 4th and 9th. Mercury gives mixed effects." },
-  { verses: "34.43-44", auspicious: ["Mars", "Moon"], malefic: ["Saturn", "Venus", "Sun", "Mercury"], yogakaraka: ["Mars", "Jupiter"], maraka: ["Saturn", "Mercury"], neutral: ["Jupiter"], note: "Mars with Jupiter gives yoga. Mars is a killer but not on its own." },
+  { verses: "34.43-44", auspicious: ["Mars", "Moon"], malefic: ["Saturn", "Venus", "Sun", "Mercury"], yogakaraka: [], yogaPair: ["Mars", "Jupiter"], maraka: ["Saturn", "Mercury"], neutral: ["Jupiter"], note: "The verse names Mars and Jupiter in the dual as the two yogakarakas (mahīsutagurū yogakārakau): Mars owns the 9th trine, Jupiter the 10th angle, and they give the yoga only as a pair. Mars is a killer but not on its own." },
 ];
 
 export const BPHS_URL = (ch: number) => `http://jyotishvidya.com/ch${ch}.htm`;
