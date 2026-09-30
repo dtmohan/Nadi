@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { DateTime } from "luxon";
+import { ChevronDown } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, fmtDegShort, type Planet } from "@shared/astro";
 import type {
@@ -206,6 +207,7 @@ export function RectifyPanel({
     chart.events?.length ? "kp-events" : "kp-rp",
   );
   const m = RECTIFY_METHODS.find((x) => x.id === method)!;
+  const [showHow, setShowHow] = useState(false);
   const [windowMinutes, setWindowMinutes] = useState(30);
   const [sortByScore, setSortByScore] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
@@ -621,31 +623,52 @@ export function RectifyPanel({
         term="kp-rectification"
         className="text-base"
       />
-      <ModeText
-        className="text-sm"
-        plain={
-          <>
-            Recorded birth times are often a few minutes off, and a few minutes
-            can change the planet that decides the rising degree. The minutes
-            around the recorded time {chart.birthTime} are cut into slices
-            wherever that deciding planet, its star ruler or the rising sign
-            changes, and each slice is scored by one method at a time; the
-            methods are never blended. One scan serves every method. Use here
-            moves this chart to that time, keeping its name and life events;
-            Save makes a copy at that time and leaves this one untouched.
-          </>
-        }
-        practitioner={
-          <>
-            The window around the recorded time {chart.birthTime} is cut at
-            every change of the lagna's sign, star and sub lord, and each
-            interval is scored by the method you choose. One scan serves every
-            method; switch between them without scanning again. Use here moves
-            this chart to that interval's midpoint, keeping its name and events;
-            Save makes a copy at that time and leaves this one untouched.
-          </>
-        }
-      />
+      <div>
+        <button
+          type="button"
+          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+          onClick={() => setShowHow((v) => !v)}
+          aria-expanded={showHow}
+          data-testid="toggle-rectify-how"
+        >
+          <ChevronDown
+            className={cn(
+              "h-3.5 w-3.5 transition-transform",
+              showHow && "rotate-180",
+            )}
+          />
+          How the scan works
+        </button>
+        {showHow && (
+          <ModeText
+            className="mt-2 text-sm"
+            plain={
+              <>
+                Recorded birth times are often a few minutes off, and a few
+                minutes can change the planet that decides the rising degree.
+                The minutes around the recorded time {chart.birthTime} are cut
+                into slices wherever that deciding planet, its star ruler or the
+                rising sign changes, and each slice is scored by one method at a
+                time; the methods are never blended. One scan serves every
+                method. Use here moves this chart to that time, keeping its name
+                and life events; Save makes a copy at that time and leaves this
+                one untouched.
+              </>
+            }
+            practitioner={
+              <>
+                The window around the recorded time {chart.birthTime} is cut at
+                every change of the lagna's sign, star and sub lord, and each
+                interval is scored by the method you choose. One scan serves
+                every method; switch between them without scanning again. Use
+                here moves this chart to that interval's midpoint, keeping its
+                name and events; Save makes a copy at that time and leaves this
+                one untouched.
+              </>
+            }
+          />
+        )}
+      </div>
 
       <div
         role="tablist"
