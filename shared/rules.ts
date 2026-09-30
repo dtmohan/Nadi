@@ -20,6 +20,7 @@ import { FEMALE_RULES, MALE_FRAME_IDS } from "./rules-female";
 import { CHILDREN_RULES } from "./rules-children";
 import { HOUSE_RULES } from "./rules-houses";
 import { assessChildren, type ChildrenReading } from "./children";
+import { assessLakshmi, type LakshmiReading } from "./lakshmi";
 import { assessStrength, type PlanetStrength } from "./strength";
 import {
   degreeChains,
@@ -163,6 +164,8 @@ export interface Reading {
   /** Marriage read between karakas, gender-aware (no house lords). */
   marriage: MarriageReading;
   children: ChildrenReading;
+  /** Ashtalakshmi: Venus as Lagna, the eight wealth forms (DNA Astrology of Wealth, 2022). */
+  lakshmi: LakshmiReading;
   roles: Roles;
   jeeva: {
     sign: string;
@@ -1311,6 +1314,7 @@ export function evaluate(
     chains: degreeChains(positions),
     marriage: assessMarriage(positions, gender),
     children: assessChildren(positions, gender),
+    lakshmi: assessLakshmi(positions),
     roles,
     jeeva: summarise(byPlanet[roles.native], "Jeeva karaka"),
     karma: summarise(byPlanet.Saturn, "Karma karaka"),

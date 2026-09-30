@@ -3,6 +3,7 @@ import { LIFE_AREAS, RELATION_LABEL, type Finding } from "../rules";
 import { synthesize, AREA_TONE_LABEL } from "../synthesis";
 import { nextMarriageWindow } from "../marriage";
 import { nextChildWindow } from "../children";
+import { vimshottari, type KpPeriod } from "../kp";
 import { AREA_ONSET } from "../life-stage";
 import {
   endStop,
@@ -129,6 +130,48 @@ export const bnnModule: ReportModule = {
         id: `bnn-${a.area}`,
         title: LIFE_AREAS[a.area].label,
         paras: ps,
+      });
+    }
+    // Ashtalakshmi: the Venus-lagna wealth reading, kept beside the area verdicts
+    // as its own subsection because it comes from a different source than the
+    // Rao/Naik combinations above.
+    {
+      const l = reading.lakshmi;
+      const book = cites.add(
+        "S. Prakash, DNA Astrology of Wealth (2022), pp. 53-91, 173, 177",
+      );
+      const moon = result.positions.find((x) => x.planet === "Moon")!;
+      let dasas: KpPeriod[] = [];
+      try {
+        dasas = vimshottari(moon.lon, result.utc, asOf).dasas;
+      } catch {
+        dasas = [];
+      }
+      const lakshmiParas: ReportPara[] = [
+        {
+          kind: "p",
+          text: S(l.headline),
+          cites: [book],
+        },
+        ...l.forms.map((f): ReportPara => {
+          const d = dasas.find((x) => x.lord === f.planet);
+          return {
+            kind: "p",
+            text: S(
+              `${f.planet} in the ${f.house}${["th", "st", "nd", "rd"][f.house % 10 < 4 && (f.house < 11 || f.house > 13) ? f.house % 10 : 0]} from Venus — ${f.form}: ${f.domain}.${f.via === "case-study" ? " Read in the book's case studies, beyond the chapter diagrams." : ""}`,
+            ),
+            cites: [book],
+            aside: d
+              ? `Mahadasha ${fmtMonth(d.start)} to ${fmtMonth(d.end)}${d.current ? " (running)" : ""}`
+              : undefined,
+          };
+        }),
+        { kind: "note", text: l.notes.join(" ") },
+      ];
+      sub.push({
+        id: "bnn-lakshmi",
+        title: "Wealth: the eight Lakshmi forms",
+        paras: lakshmiParas,
       });
     }
     if (deferred.length)

@@ -53,6 +53,8 @@ import {
   lastChildWindow,
   type ChildrenReading,
 } from "@shared/children";
+import { type LakshmiReading } from "@shared/lakshmi";
+import { vimshottari, type KpPeriod } from "@shared/kp";
 import {
   ageYears,
   areaSeason,
@@ -483,6 +485,97 @@ function ChildrenCard({
             ? ` Next (from age 18): Jupiter ${win.kind === "return" ? "returns to" : win.kind === "fifth" ? "over the 5th," : "in trine,"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.`
             : ""}
         </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function LakshmiCard({
+  l,
+  positions,
+  asOf,
+  birthIso,
+}: {
+  l: LakshmiReading;
+  positions: PlanetPosition[];
+  asOf: string;
+  birthIso: string;
+}) {
+  const moon = positions.find((x) => x.planet === "Moon")!;
+  let dasas: KpPeriod[] = [];
+  try {
+    dasas = vimshottari(moon.lon, birthIso, asOf).dasas;
+  } catch {
+    dasas = [];
+  }
+  const dasaOf = (planet: Planet): KpPeriod | undefined =>
+    dasas.find((d) => d.lord === planet);
+  return (
+    <Card data-testid="card-lakshmi">
+      <CardContent className="p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+          <h3 className="text-base font-semibold">
+            <span style={{ color: planetColor("Venus") }}>Venus</span> ·
+            Lakshmi lagna · wealth
+          </h3>
+          <span className="tabular text-xs text-muted-foreground">
+            Venus in {l.venusSign}
+          </span>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Venus is Lakshmi. Taking her as lagna, each planet standing in set
+          houses from her promises one of her eight forms, and each form ripens
+          in that planet's mahadasha (DNA Astrology of Wealth, pp. 53-91; the
+          timing from case 1, p. 173).
+        </p>
+        <p className="mt-2 text-sm leading-relaxed">
+          <Badge
+            variant="secondary"
+            className="no-default-hover-elevate mr-1.5 font-normal"
+            data-testid="badge-lakshmi-count"
+          >
+            {l.forms.length} of 8 forms
+          </Badge>
+          {l.headline}
+        </p>
+        {l.forms.length > 0 && (
+          <ul
+            className="mt-2 space-y-1.5 text-sm leading-relaxed"
+            data-testid="list-lakshmi-forms"
+          >
+            {l.forms.map((f) => {
+              const d = dasaOf(f.planet);
+              const state = d?.current
+                ? " (running)"
+                : d && DateTime.fromISO(d.end) < DateTime.fromISO(asOf)
+                  ? " (passed)"
+                  : "";
+              return (
+                <li key={f.planet} className="text-muted-foreground">
+                  <span style={{ color: planetColor(f.planet) }}>
+                    {f.planet}
+                  </span>{" "}
+                  in the {ordinal(f.house)} from Venus —{" "}
+                  <span className="text-foreground">{f.form}</span>: {f.domain}
+                  .
+                  {d
+                    ? ` Mahadasha ${DateTime.fromISO(d.start).toFormat("yyyy")}–${DateTime.fromISO(d.end).toFormat("yyyy")}${state}.`
+                    : ""}
+                  {f.via === "case-study"
+                    ? " Read in the book's case studies, beyond the chapter diagrams."
+                    : ""}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {l.notes.length > 0 && (
+          <ul className="mt-2 space-y-1 text-xs leading-relaxed text-muted-foreground">
+            {l.notes.map((n) => (
+              <li key={n}>{n}</li>
+            ))}
+          </ul>
+        )}
       </CardContent>
     </Card>
   );
@@ -1111,6 +1204,14 @@ function Reading({
             c={reading.children}
             positions={positions}
             transits={result.transits}
+            asOf={result.now.asOf}
+            birthIso={result.utc}
+          />
+        </div>
+        <div className="lg:col-span-2">
+          <LakshmiCard
+            l={reading.lakshmi}
+            positions={positions}
             asOf={result.now.asOf}
             birthIso={result.utc}
           />
