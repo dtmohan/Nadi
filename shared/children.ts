@@ -28,6 +28,13 @@ export interface ChildrenReading {
   daughters: number;
   /** Planets counted whose sex depends on sign parity or is left open (nodes). */
   undecided: Planet[];
+  /** Planets delivered through a node: held at the same degree (within 1° across the trinal
+   *  directions) or standing in its star. The indication survives but carries the node's
+   *  signature of delay and the unusual route. */
+  takenOver: Array<{ planet: Planet; by: Planet; via: "degree" | "star" }>;
+  /** Male planets whose sex indication a node broke: the Sun under Rahu (Rao's note on
+   *  difficulty for a male child, tightened from the trine to the same degree or the star). */
+  cancelled: Planet[];
   /** House of Venus from Jupiter. */
   venusHouse: number;
   promised: "strong" | "moderate" | "weak" | "faint" | "unsigned";
@@ -53,6 +60,27 @@ function houseWord(h: number): string {
 }
 function list(xs: string[]): string {
   return xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
+}
+
+/**
+ * Node takeover, the precedence the lineage reads into combinations: the nodes are the
+ * strongest agents, and a planet they hold at the same degree (within 1° across the trinal
+ * directions — Rao's "at the same degree" bond) or that stands in their star is delivered
+ * through them, not on its own. The degree bond is Rao's; extending it by the star follows
+ * the DNA book's star principle, stated there for wealth — provisional for children. The
+ * one cancellation the sources name is Rahu holding the Sun: the indication of a son gives
+ * way (difficulty for a male child). A held female planet keeps her indication, delivered
+ * with the node's signature of delay or the unusual route.
+ */
+function nodeGrip(
+  node: PlanetPosition,
+  p: PlanetPosition,
+): { by: Planet; via: "degree" | "star" } | null {
+  if (p.planet === node.planet) return null;
+  if (![1, 5, 9].includes(houseFrom(node.signIndex, p.signIndex))) return null;
+  if (Math.abs(node.degInSign - p.degInSign) <= 1) return { by: node.planet, via: "degree" };
+  if (p.nakshatraLord === node.planet) return { by: node.planet, via: "star" };
+  return null;
 }
 
 export function assessChildren(positions: PlanetPosition[], gender: Gender): ChildrenReading {
@@ -97,9 +125,19 @@ export function assessChildren(positions: PlanetPosition[], gender: Gender): Chi
   let sons = 0;
   let daughters = 0;
   const undecided: Planet[] = [];
+  const takenOver: Array<{ planet: Planet; by: Planet; via: "degree" | "star" }> = [];
+  const cancelled: Planet[] = [];
+  const gripOf = (p: PlanetPosition) => nodeGrip(by.Rahu, p) ?? nodeGrip(by.Ketu, p);
   for (const pl of [...inFifth, ...aspectingFifth]) {
-    if (MALE.includes(pl)) sons++;
-    else if (FEMALE.includes(pl)) daughters++;
+    const g = gripOf(by[pl]);
+    if (g) takenOver.push({ planet: pl, by: g.by, via: g.via });
+    if (MALE.includes(pl)) {
+      if (pl === "Sun" && g?.by === "Rahu") {
+        cancelled.push(pl);
+        continue;
+      }
+      sons++;
+    } else if (FEMALE.includes(pl)) daughters++;
     else if (NEUTER.includes(pl)) {
       // Odd signs are male, even signs female (Sakurkar).
       if (by[pl].signIndex % 2 === 0) sons++;
@@ -118,6 +156,14 @@ export function assessChildren(positions: PlanetPosition[], gender: Gender): Chi
     notes.push(`The 5th from Jupiter (${fifthSign}) is empty and unaspected: the count is not fixed by the chart; children come through Jupiter's own companions and transits.`);
   }
   if ([3, 7, 11].includes(fifthIdx)) notes.push(`${fifthSign}, the 5th from Jupiter, is a watery sign: trouble or delay in getting children; care in pregnancy.`);
+  if (takenOver.length)
+    notes.push(
+      `${list(takenOver.map((t) => `${t.planet} (held by ${t.by} at ${t.via === "degree" ? "the same degree" : "his star"})`))}: delivered through the node — the indication survives with its signature of delay or the unusual route (Rao's degree bond; the star reading generalised from the DNA book's star principle, provisional).`,
+    );
+  if (cancelled.includes("Sun"))
+    notes.push(
+      "Rahu holds the Sun itself: the indication of a son gives way entirely — difficulty for a male child read at its strictest.",
+    );
 
   // Companions of Jupiter and Venus.
   const nodesOnJu = (["Rahu", "Ketu"] as Planet[]).filter((n) => close(by[n], ju));
@@ -127,8 +173,17 @@ export function assessChildren(positions: PlanetPosition[], gender: Gender): Chi
   if (close(by.Ketu, ve)) notes.push("Ketu with or in trine to Venus: setbacks or delay in progeny.");
   if (close(sa, ve) && !close(sa, ju)) notes.push("Saturn with or in trine to Venus: delay in begetting a child.");
   if (close(by.Rahu, by.Sun)) notes.push("Rahu with or in trine to the Sun: difficulty for a male child, or a son of delicate health.");
-  if (close(ju, by.Sun)) notes.push("Jupiter with or in trine to the Sun: a son is indicated.");
-  if (close(ju, ve) && !close(by.Ketu, ve)) notes.push("Jupiter with or in trine to Venus: a daughter is indicated.");
+  if (close(ju, by.Sun)) notes.push(
+    gripOf(by.Sun)?.by === "Rahu"
+      ? "Jupiter with the Sun would indicate a son, but Rahu holds the Sun: the son indication gives way."
+      : "Jupiter with or in trine to the Sun: a son is indicated.",
+  );
+  if (close(ju, ve) && !close(by.Ketu, ve)) {
+    const gv = gripOf(ve);
+    notes.push(
+      `Jupiter with or in trine to Venus: a daughter is indicated${gv ? `, delivered through ${gv.by} — after a wait, or by an unusual route` : ""}.`,
+    );
+  }
   if (close(ju, by.Sun) && close(ju, by.Mars)) notes.push("Sun, Mars and Jupiter combined: Rao reads at least two male children.");
   if (close(by.Moon, ju)) notes.push(`Moon with or in trine to Jupiter: ${female ? "motherhood is a source of joy; conception is easy" : "the wife conceives easily; children bring joy to the home"}.`);
   if (nodesOnJu.length && close(sa, ju) && !close(ve, ju)) {
@@ -147,6 +202,8 @@ export function assessChildren(positions: PlanetPosition[], gender: Gender): Chi
     sons,
     daughters,
     undecided,
+    takenOver,
+    cancelled,
     venusHouse,
     promised,
     headline,

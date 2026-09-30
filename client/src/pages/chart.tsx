@@ -453,6 +453,9 @@ function ChildrenCard({
             {c.undecided.filter((p) => p === "Mercury" || p === "Saturn").length
               ? ` (${c.undecided.filter((p) => p === "Mercury" || p === "Saturn").join(", ")} by sign parity)`
               : ""}
+            {c.cancelled.length
+              ? `; ${c.cancelled.join(", ")} cancelled — held by Rahu at the same degree or in his star`
+              : ""}
             . Read as an upper bound, not a promise.
           </p>
         )}
