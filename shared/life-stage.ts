@@ -188,7 +188,7 @@ const TAG_RES: Array<[SensitiveTag, RegExp]> = [
   ],
   [
     "peril",
-    /\b(risk to life|threat to life|danger to life|danger of death|death|deaths|dies|dying|hunting|danger (of|from|through) (fire|weapons?|arms|poison|snakes?|water|drowning|the king|enemies|an enemy|thieves|animals|beasts|accidents?)|grave (danger|risk|peril)|mortal|drown(s|ing)?|poison(ed|ing)?|wounds? by|injury from a weapon|assassin|murder)\b/i,
+    /\b(risk to life|threat to life|danger to life|danger of death|death|deaths|dies|dying|hunting|danger (of|from|through) (fire|weapons?|arms|poison|snakes?|water|drowning|the king|enemies|an enemy|thieves|animals|beasts|accidents?)|grave (danger|risk|peril)|mortal|drown(s|ing)?|poison(ed|ing)?|wounds? by|injury from a weapon|falls? from (vehicles|heights|a height)|assassin|murder)\b/i,
   ],
 ];
 

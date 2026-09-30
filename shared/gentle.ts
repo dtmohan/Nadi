@@ -58,6 +58,7 @@ const PHRASES: [RegExp, string][] = [
   [/danger of death/gi, "risk to life"],
   [/danger from death/gi, "risk to life"],
   [/fear of death/gi, "deep fear"],
+  [/falls from vehicles or heights/gi, "care around vehicles and heights"],
   [/death-like (suffering|distress|danger)/gi, "grave $1"],
   [/sickness or death/gi, "sickness or grave risk"],
   [/equivalent to death/gi, "of the gravest kind"],

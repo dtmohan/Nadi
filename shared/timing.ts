@@ -66,6 +66,7 @@ const FROM_KARMA: Record<number, string> = {
 const AREA_SHORT: Record<LifeArea, string> = {
   self: "self",
   career: "career",
+  authority: "standing and authority",
   marriage: "marriage",
   children: "children",
   wealth: "wealth",

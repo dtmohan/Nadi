@@ -172,3 +172,21 @@ export function nextChildWindow(
   if (!first) return null;
   return { period: first, kind: first.sign === c.karakaSign ? "return" : first.sign === c.fifthSign ? "fifth" : "trine" };
 }
+
+/** The most recent Jupiter passage over the children triggers that has already passed, read from age 18. */
+export function lastChildWindow(
+  c: ChildrenReading,
+  transits: TransitPeriod[],
+  fromIso: string,
+  birthIso: string,
+  minAge = 18,
+): { period: TransitPeriod; kind: "return" | "fifth" | "trine" } | null {
+  const birth = Date.parse(birthIso);
+  const passed = transits
+    .filter((t) => t.planet === "Jupiter" && t.end <= fromIso && c.triggerSigns.includes(t.sign))
+    .filter((t) => (Date.parse(t.start) - birth) / (365.25 * 86400e3) >= minAge)
+    .sort((a, b) => b.start.localeCompare(a.start));
+  const first = passed[0];
+  if (!first) return null;
+  return { period: first, kind: first.sign === c.karakaSign ? "return" : first.sign === c.fifthSign ? "fifth" : "trine" };
+}

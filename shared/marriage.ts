@@ -253,3 +253,29 @@ export function nextMarriageWindow(
     kind: first.sign === m.spouseSign ? "over" : "trine",
   };
 }
+
+/** The most recent Jupiter passage over the marriage triggers that has already passed, read from adulthood. */
+export function lastMarriageWindow(
+  m: MarriageReading,
+  transits: TransitPeriod[],
+  fromIso: string,
+  birthIso: string,
+  minAge = 16,
+): { period: TransitPeriod; kind: "over" | "trine" } | null {
+  const birth = Date.parse(birthIso);
+  const passed = transits
+    .filter(
+      (t) =>
+        t.planet === "Jupiter" &&
+        t.end <= fromIso &&
+        m.triggerSigns.includes(t.sign),
+    )
+    .filter((t) => (Date.parse(t.start) - birth) / (365.25 * 86400e3) >= minAge)
+    .sort((a, b) => b.start.localeCompare(a.start));
+  const first = passed[0];
+  if (!first) return null;
+  return {
+    period: first,
+    kind: first.sign === m.spouseSign ? "over" : "trine",
+  };
+}

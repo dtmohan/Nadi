@@ -171,6 +171,25 @@ export const EXTRA_RULES: Rule[] = [
   pair("me-ra-wealth", "wealth", "Mercury", "Rahu", "Mercury with Rahu: income through technology, foreign trade or clever dealing.", 1),
   pair("sa-ra-career2", "career", "Saturn", "Rahu", "Saturn with Rahu: service under foreign management; shift work, factories or large anonymous organisations.", 1, ALL, NAIK),
   pair("ke-ra-n-a", "spirituality", "Ketu", "Saturn", "Ketu supported by Saturn: disciplined practice; austerity yields insight over years.", 1, ["trine"], NAIK),
+
+  // ───────────── Standing and authority ─────────────
+  // The Sun is the karaka of authority. The DNA Astrology of Wealth book ties the Sun to
+  // Rajya Lakshmi, "authority, royalty and power" (p. 57), and the Sun-ruled star
+  // Uttarashadha to leadership (p. 115); the planet combinations below are general Nadi
+  // principles and are marked provisional in their wording.
+  {
+    id: "auth-ju-sunstar",
+    area: "authority",
+    when: { subject: "Jupiter", subjectNakshatraLord: ["Sun"] },
+    text: "Jupiter, the life force, in a Sun-ruled star (Krittika, Uttara Phalguni, Uttara Ashadha): leadership and public standing are in the grain of the life; the native rises to be heard. (Uttara Ashadha is the sourced star; the other Sun stars by extension, provisional)",
+    weight: 2,
+    source: "DNA Astrology of Wealth (Bhrigu Nandi Nadi): Rajya Lakshmi and the Sun, p. 57; Uttarashadha and leadership, p. 115",
+  },
+  pair("auth-ju-su", "authority", "Jupiter", "Sun", "Jupiter with the Sun: standing and authority travel with the father's line, government and institutions; the native's name carries past his own circle. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
+  pair("auth-su-ra", "authority", "Sun", "Rahu", "the Sun with Rahu: power among crowds; a rise that is public, unconventional or contested — politics, movements, mass attention. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
+  pair("auth-ju-ra", "authority", "Jupiter", "Rahu", "Jupiter with Rahu: a following gathers; causes, crowds or movements look to the native, and leadership runs with the many. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
+  pair("auth-su-sa", "authority", "Sun", "Saturn", "the Sun with Saturn: authority the slow way — built in institutions, service and time, and held with discipline; standing that outlasts its critics. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
+  { id: "auth-su-strong", area: "authority", when: { subject: "Sun", subjectDignity: ["Own sign", "Exalted"] }, text: "the Sun in his own strength: born to authority; command sits naturally on the native and others defer. (provisional)", weight: 2, source: "General Nadi principles (Rao, Naik)" },
 ];
 
 // Nakshatra-lord colouring for the three primary karakas.

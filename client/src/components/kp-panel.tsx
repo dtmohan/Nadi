@@ -726,6 +726,17 @@ export function KpPanel({ result }: { result: ChartResult }) {
     .filter((h) => goodSet.has(h) || badSet.has(h))
     .sort((x, y) => x - y);
   const nextWindow = allWindows.find((w) => !w.past);
+  const pastWindows = allWindows
+    .filter((w) => w.past && (showWeak || w.verdict !== "weak"))
+    .sort((a, b) => a.start.localeCompare(b.start));
+  const lastPastWindow = pastWindows.length
+    ? pastWindows[pastWindows.length - 1]
+    : null;
+  // When a matter has already had its windows, one dated decades ahead is not the
+  // reading to lead with; show the passed one and note the far one instead.
+  const nextIsFar =
+    Boolean(nextWindow && lastPastWindow) &&
+    Date.parse(nextWindow!.start) - Date.parse(asOfIso) > 15 * 365.25 * 86400e3;
   const overruled = briefFindings.filter((f) => f.standing === "note");
   const stabilityByHouse = new Map(
     (kp.stability?.cusps ?? []).map((p) => [p.house!, p]),
@@ -957,6 +968,21 @@ export function KpPanel({ result }: { result: ChartResult }) {
               </>
             ),
           },
+          ...(lastPastWindow
+            ? [
+                {
+                  label: `${ev.label} · last`,
+                  when: "past" as const,
+                  text: (
+                    <>
+                      {fmt(lastPastWindow.start)} to {fmt(lastPastWindow.end)} (
+                      {lastPastWindow.dasaLord}-{lastPastWindow.bhuktiLord}-
+                      {lastPastWindow.antaraLord}), passed
+                    </>
+                  ),
+                },
+              ]
+            : []),
           nextWindow
             ? {
                 label: ev.label,
@@ -967,9 +993,11 @@ export function KpPanel({ result }: { result: ChartResult }) {
                     {nextWindow.dasaLord}-{nextWindow.bhuktiLord}-
                     {nextWindow.antaraLord})
                     {nextWindow.current ? ", running now" : ""}
-                    {!evSeason.inSeason
-                      ? `; searched from age ${evSeason.from}, the provisional onset for this matter`
-                      : ""}
+                    {nextIsFar
+                      ? "; far ahead, so the passed window above is the one to read"
+                      : !evSeason.inSeason
+                        ? `; searched from age ${evSeason.from}, the provisional onset for this matter`
+                        : ""}
                   </>
                 ),
               }

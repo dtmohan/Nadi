@@ -33,6 +33,7 @@ import { assessMarriage, type Gender, type MarriageReading } from "./marriage";
 export type LifeArea =
   | "self"
   | "career"
+  | "authority"
   | "marriage"
   | "children"
   | "wealth"
@@ -45,6 +46,7 @@ export type LifeArea =
 export const LIFE_AREAS: Record<LifeArea, { label: string; karaka: Planet }> = {
   self: { label: "Self & temperament", karaka: "Jupiter" },
   career: { label: "Career & livelihood", karaka: "Saturn" },
+  authority: { label: "Standing & authority", karaka: "Sun" },
   marriage: { label: "Marriage & partnership", karaka: "Venus" },
   children: { label: "Children & progeny", karaka: "Jupiter" },
   wealth: { label: "Wealth & assets", karaka: "Jupiter" },

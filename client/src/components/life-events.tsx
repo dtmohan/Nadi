@@ -366,6 +366,9 @@ export function LifeEventsSection({ chart }: { chart: Chart }) {
             data-testid="text-life-events-summary"
           >
             {eventsSummary(events, chart.timezone)}
+            {events.length === 0
+              ? " · dated events let Validate read each system's timing against what happened"
+              : ""}
           </span>
         </button>
       </CollapsibleTrigger>

@@ -174,13 +174,13 @@ export const KP_CUSP_THEMES: Record<number, string> = {
   3: "Courage, siblings, short journeys, writing, communications",
   4: "Education, home, property, vehicles, mother",
   5: "Children, speculation, love, arts, mantra",
-  6: "Illness, loans, service, litigation, competitors",
+  6: "Service, loans, illness, litigation, competitors",
   7: "Marriage, partners, the other party",
   8: "Longevity, accidents, surgery, legacy, debts",
   9: "Father, higher learning, long journeys, faith",
   10: "Profession, status, government",
   11: "Fulfilment of desires, gains, friends, recovery",
-  12: "Loss, foreign lands, hospital, confinement, the left eye",
+  12: "Foreign lands, loss, hospital, confinement, the left eye",
 };
 
 export const KP_RULES: KpRule[] = [

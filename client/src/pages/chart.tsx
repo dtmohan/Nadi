@@ -44,10 +44,15 @@ import {
 } from "@shared/flow";
 import {
   nextMarriageWindow,
+  lastMarriageWindow,
   type Gender,
   type MarriageReading,
 } from "@shared/marriage";
-import { nextChildWindow, type ChildrenReading } from "@shared/children";
+import {
+  nextChildWindow,
+  lastChildWindow,
+  type ChildrenReading,
+} from "@shared/children";
 import {
   ageYears,
   areaSeason,
@@ -318,6 +323,7 @@ function MarriageCard({
     transits,
     seasonStart("marriage", birthIso, asOf),
   );
+  const lastWin = lastMarriageWindow(m, transits, asOf, birthIso);
   const gender =
     m.gender === "female"
       ? "female chart"
@@ -369,6 +375,9 @@ function MarriageCard({
         >
           Triggers: Jupiter over {m.spouseSign} (full) or its trines{" "}
           {m.triggerSigns.slice(1).join(", ")} (three-quarter).
+          {lastWin
+            ? ` Last: Jupiter ${lastWin.kind === "over" ? "over" : "in trine from"} ${lastWin.period.sign}, ${DateTime.fromISO(lastWin.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(lastWin.period.end).toFormat("LLL yyyy")} (passed).`
+            : ""}
           {win
             ? ` Next${ageYears(birthIso, asOf) < 18 ? " (from age 18, provisional onset)" : ""}: Jupiter ${win.kind === "over" ? "over" : "in trine from"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.`
             : ""}
@@ -401,6 +410,7 @@ function ChildrenCard({
 }) {
   const ju = positions.find((x) => x.planet === "Jupiter")!;
   const win = nextChildWindow(c, transits, asOf.slice(0, 10), birthIso);
+  const lastWin2 = lastChildWindow(c, transits, asOf.slice(0, 10), birthIso);
   const counted = c.inFifth.length + c.aspectingFifth.length;
   return (
     <Card data-testid="card-children">
@@ -463,6 +473,9 @@ function ChildrenCard({
             .filter((x) => x !== c.karakaSign && x !== c.fifthSign)
             .join(", ")}
           .
+          {lastWin2
+            ? ` Last (from age 18): Jupiter ${lastWin2.kind === "return" ? "returns to" : lastWin2.kind === "fifth" ? "over the 5th," : "in trine,"} ${lastWin2.period.sign}, ${DateTime.fromISO(lastWin2.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(lastWin2.period.end).toFormat("LLL yyyy")} (passed).`
+            : ""}
           {win
             ? ` Next (from age 18): Jupiter ${win.kind === "return" ? "returns to" : win.kind === "fifth" ? "over the 5th," : "in trine,"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.`
             : ""}
@@ -795,6 +808,7 @@ function AreaSection({
 const AREA_SHORT: Record<LifeArea, string> = {
   self: "temperament",
   career: "career",
+  authority: "standing",
   marriage: "marriage",
   children: "children",
   wealth: "wealth",
@@ -932,6 +946,18 @@ function BnnVerdict({ result }: { result: ChartResult }) {
     reading.marriage.promised !== "absent" &&
     !deferred.includes("marriage")
   ) {
+    const lw = lastMarriageWindow(reading.marriage, transits, asOf, result.utc);
+    if (lw)
+      timing.push({
+        label: "Marriage · last",
+        when: "past",
+        text: (
+          <>
+            Jupiter {lw.kind === "over" ? "over" : "in trine from"}{" "}
+            {lw.period.sign}, {fmtMY(lw.period.start)} to {fmtMY(lw.period.end)}
+          </>
+        ),
+      });
     const w = nextMarriageWindow(reading.marriage, transits, asOf);
     if (w)
       timing.push({
@@ -949,6 +975,23 @@ function BnnVerdict({ result }: { result: ChartResult }) {
     reading.children.promised !== "unsigned" &&
     !deferred.includes("children")
   ) {
+    const lw = lastChildWindow(reading.children, transits, asOf, result.utc);
+    if (lw)
+      timing.push({
+        label: "Children · last",
+        when: "past",
+        text: (
+          <>
+            Jupiter{" "}
+            {lw.kind === "return"
+              ? "returns to"
+              : lw.kind === "fifth"
+                ? "reaches the 5th from"
+                : "trines"}{" "}
+            {lw.period.sign}, {fmtMY(lw.period.start)} to {fmtMY(lw.period.end)}
+          </>
+        ),
+      });
     const w = nextChildWindow(reading.children, transits, asOf, result.utc);
     if (w)
       timing.push({
