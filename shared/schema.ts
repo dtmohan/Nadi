@@ -109,6 +109,8 @@ export interface ChartResult {
   moonMonth?: SignPeriod[];
   /** Mars, Mercury and Venus sign passages from six months before to two years after the day the chart was computed, for BPHS 70.24-36. */
   fastTransits?: PlanetSignPeriod[];
+  /** Nakshatra wealth rules of the DNA Astrology of Wealth book (twenty stars, pp. 96-169); needs the lagna, so it is computed server-side. */
+  nakshatraWealth?: import("./nakshatra-wealth").NakshatraWealthReading;
 }
 
 export interface GeoHit {

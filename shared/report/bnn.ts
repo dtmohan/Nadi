@@ -174,6 +174,31 @@ export const bnnModule: ReportModule = {
         paras: lakshmiParas,
       });
     }
+    // Nakshatra wealth: the twenty wealth stars and their rule lists (DNA
+    // Astrology of Wealth, pp. 96-169). Its own subsection for the same reason.
+    if (result.nakshatraWealth) {
+      const nw = result.nakshatraWealth;
+      const book2 = cites.add(
+        "S. Prakash, DNA Astrology of Wealth (2022), pp. 96-169",
+      );
+      const nwParas: ReportPara[] = [
+        { kind: "p", text: S(nw.headline), cites: [book2] },
+        ...nw.hits.map(
+          (h): ReportPara => ({
+            kind: "p",
+            text: S(h.text),
+            cites: [book2],
+            aside: `${h.nakshatra} · ${h.pages.replace("DNA Astrology of Wealth, ", "")}`,
+          }),
+        ),
+        { kind: "note", text: nw.notes.join(" ") },
+      ];
+      sub.push({
+        id: "bnn-nakshatra-wealth",
+        title: "Wealth: the twenty nakshatras",
+        paras: nwParas,
+      });
+    }
     if (deferred.length)
       paras.push({
         kind: "note",

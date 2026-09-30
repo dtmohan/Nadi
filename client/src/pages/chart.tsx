@@ -54,6 +54,7 @@ import {
   type ChildrenReading,
 } from "@shared/children";
 import { type LakshmiReading } from "@shared/lakshmi";
+import { type NakshatraWealthReading, NAKSHATRA_WEALTH_THEMES } from "@shared/nakshatra-wealth";
 import { vimshottari, type KpPeriod } from "@shared/kp";
 import {
   ageYears,
@@ -572,6 +573,67 @@ function LakshmiCard({
         {l.notes.length > 0 && (
           <ul className="mt-2 space-y-1 text-xs leading-relaxed text-muted-foreground">
             {l.notes.map((n) => (
+              <li key={n}>{n}</li>
+            ))}
+          </ul>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function NakshatraWealthCard({ nw }: { nw: NakshatraWealthReading }) {
+  const theme = (nak: string) =>
+    (NAKSHATRA_WEALTH_THEMES as Record<string, string>)[nak] ?? "";
+  return (
+    <Card data-testid="card-nakshatra-wealth">
+      <CardContent className="p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+          <h3 className="text-base font-semibold">
+            Wealth nakshatras · the twenty stars
+          </h3>
+          <span className="tabular text-xs text-muted-foreground">
+            Lagna in {nw.lagnaNakshatra ?? "—"}
+          </span>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          The book's twenty "important nakshatras of wealth" each carry their
+          own rule lists: a planet (or the lagna) in the star, conditioned on
+          the house class it occupies (wealth 2/5/9/11, Kendra 1/4/7/10, Trikon
+          1/5/9). (DNA Astrology of Wealth, pp. 96-169.)
+        </p>
+        <p className="mt-2 text-sm leading-relaxed">
+          <Badge
+            variant="secondary"
+            className="no-default-hover-elevate mr-1.5 font-normal"
+            data-testid="badge-nakshatra-wealth-count"
+          >
+            {nw.hits.length} rule{nw.hits.length === 1 ? "" : "s"}
+          </Badge>
+          {nw.headline}
+        </p>
+        {nw.hits.length > 0 && (
+          <ul
+            className="mt-2 space-y-1.5 text-sm leading-relaxed"
+            data-testid="list-nakshatra-wealth"
+          >
+            {nw.hits.map((h) => (
+              <li
+                key={`${h.nakshatra}-${h.planet}-${h.conjunctWith ?? ""}`}
+                className="text-muted-foreground"
+              >
+                {h.text}{" "}
+                {theme(h.nakshatra)
+                  ? `${h.nakshatra} — ${theme(h.nakshatra)}`
+                  : h.nakshatra}{" "}
+                ({h.pages.replace("DNA Astrology of Wealth, ", "")})
+              </li>
+            ))}
+          </ul>
+        )}
+        {nw.notes.length > 0 && (
+          <ul className="mt-2 space-y-1 text-xs leading-relaxed text-muted-foreground">
+            {nw.notes.map((n) => (
               <li key={n}>{n}</li>
             ))}
           </ul>
@@ -1216,6 +1278,11 @@ function Reading({
             birthIso={result.utc}
           />
         </div>
+        {result.nakshatraWealth && (
+          <div className="lg:col-span-2">
+            <NakshatraWealthCard nw={result.nakshatraWealth} />
+          </div>
+        )}
       </div>
 
       <Working id="strength" label="Show planetary strength and degree order">

@@ -8,6 +8,7 @@ import {
   normaliseSunriseDef,
 } from "@shared/schema";
 import { RULES, evaluate } from "@shared/rules";
+import { assessNakshatraWealth } from "@shared/nakshatra-wealth";
 import {
   birthInstant,
   julianDay,
@@ -166,6 +167,7 @@ export function computeChart(chart: Chart): ChartResult {
         end: jdToIso(m.end),
       })),
     ),
+    nakshatraWealth: assessNakshatraWealth(positions, asc),
   };
   // One gate for every route: a native under the sensitive-content age gets the server-side
   // material stripped here; the client-side modules read `sensitive.withheld` and strip their own.
