@@ -88,6 +88,20 @@ export interface KpRuleWhen {
   subLordSignIn?: number[];
   /** A second cusp whose sub lord must also meet a condition. */
   otherCusp?: { cusp: number; all?: number[]; any?: number[]; none?: number[]; minOf?: { houses: number[]; count: number } };
+  /**
+   * Saturn and Mars do not cast graha drishti on the sub lord's sign (P1 ch. 16 p. 137: "the
+   * fourth sublord should not be subjected to aspects from Saturn and Mars"). A sub lord that is
+   * itself Saturn or Mars, and signifies 9 and 11, is exempt ("no harm... but should be connected
+   * to houses 9-11"). Graha drishti is sign-based: Saturn the 3rd, 7th and 10th from itself,
+   * Mars the 4th, 7th and 8th (BPHS 26.2-5).
+   */
+  noSaturnMarsAspect?: boolean;
+  /** Jupiter stands in the 5th or 9th sign from the sub lord, its special aspect, and not the 7th (P1 p. 137). */
+  jupiterAspect59?: boolean;
+  /** Every listed cusp's sub lord signifies at least one of these houses. */
+  everyCusps?: { cusps: number[]; any: number[] };
+  /** The lagna's sign lord signifies none of these houses (the lagna-lord strength guard, P1 p. 98: "without any connection to houses 5-8-12"). */
+  lagnaLordNone?: number[];
 }
 
 export interface KpRule {
@@ -142,7 +156,7 @@ export const KP_PRECEDENCE: Array<{ matter: string; topics: string[]; cusp: numb
 
 /** A rule read from the sub lord's house significations (the book's own test), not from the planet's nature alone. */
 function readsHouses(w: KpRuleWhen): boolean {
-  return !!(w.all || w.any || w.none || w.minOf || w.fewerThan || w.strong || w.strongMinOf || w.strongMaraka !== undefined || w.strongBadhaka !== undefined || w.fullSignifier || w.venusAfflicted !== undefined || w.badhaka !== undefined || w.maraka !== undefined);
+  return !!(w.all || w.any || w.none || w.minOf || w.fewerThan || w.strong || w.strongMinOf || w.strongMaraka !== undefined || w.strongBadhaka !== undefined || w.fullSignifier || w.everyCusps || w.lagnaLordNone || w.venusAfflicted !== undefined || w.badhaka !== undefined || w.maraka !== undefined);
 }
 
 /**
@@ -300,6 +314,7 @@ export const KP_RULES: KpRule[] = [
   { id: "kp3-meetings", cusp: 3, topic: "Communications", when: { cusp: 3, all: [3], minOf: { houses: [1, 7, 9, 11], count: 2 } }, text: "The 3rd sub lord signifies the 3rd with two of 1, 7, 9 and 11: appointments are kept and the people sought are met.", polarity: "good", source: P1("135") },
   { id: "kp3-electricals", cusp: 3, topic: "Possessions", when: { cusp: 3, all: [3, 12], minOf: { houses: [1, 5], count: 1 } }, text: "The 3rd sub lord signifies 3 and 12 with 1 or 5: purchase of radios, televisions and electrical goods.", polarity: "neutral", source: P1("135") },
   { id: "kp3-vehicle-grand", cusp: 3, topic: "Possessions", when: { cusp: 3, none: [4, 8], minOf: { houses: [1, 3, 5, 10, 11, 12], count: 4 } }, text: "The 3rd sub lord is clear of 4 and 8 and well connected to 3, 11, 12, 5, 1 and 10: with a strong lagna lord and a supporting 4th sub lord, vehicles of the highest class, even ship or aircraft travel as a way of life.", polarity: "good", source: P1("137") },
+  { id: "kp3-vehicles-owned", cusp: 3, topic: "Vehicles", when: { cusp: 3, any: [3, 11, 12], everyCusps: { cusps: [2, 4, 10, 11], any: [3, 11, 12] }, lagnaLordNone: [5, 8, 12] }, text: "The sub lords of the 2nd, 4th, 10th and 11th are each connected to 3, 11 or 12, and the lagna lord stays clear of 5, 8 and 12: vehicles are owned as destined — two, four or multi-wheelers. The book adds 'without any unfavourable aspect', which this rule does not model; the lagna-lord guard follows P1's reading of a strong lagna lord.", polarity: "good", timing: [3, 11, 12], source: P1("136-137") },
   { id: "kp3-lottery", cusp: 3, topic: "Gains", when: { cusp: 3, all: [3, 8, 11] }, text: "The 3rd sub lord signifies 3, 8 and 11: gains by lottery, windfall or speculation; timed by the 2, 6 and 11 significators linked to the 3rd.", polarity: "good", timing: [2, 6, 11], ...DUTTA("third", "third") },
   { id: "kp3-rumour-saturn", cusp: 3, topic: "Communications", when: { cusp: 3, starLordIs: ["Saturn"] }, text: "The 3rd sub lord is in the star of Saturn: rumours and news that reach the native are false or delayed.", polarity: "neutral", ...DUTTA("third", "third") },
   { id: "kp3-rumour-mars", cusp: 3, topic: "Communications", when: { cusp: 3, starLordIs: ["Mars"] }, text: "The 3rd sub lord is in the star of Mars: news reaches the native twisted or mischievous.", polarity: "neutral", ...DUTTA("third", "third") },
@@ -314,7 +329,7 @@ export const KP_RULES: KpRule[] = [
 
   // ---------------- Cusp IV ----------------
   { id: "kp4-education", cusp: 4, topic: "Education", when: { cusp: 4, starLordIs: ["Mercury", "Jupiter"] }, text: "The 4th sub lord is in the star of Mercury or Jupiter: a studious mind and sound education.", polarity: "good", source: P3("44") },
-  { id: "kp4-higher", cusp: 4, topic: "Education", when: { cusp: 4, minOf: { houses: [4, 9, 11], count: 2 } }, text: "The 4th sub lord signifies 4, 9 and 11: education is completed and higher studies come through.", polarity: "good", timing: [4, 9, 11], source: P3("45") },
+  { id: "kp4-higher", cusp: 4, topic: "Education", when: { cusp: 4, minOf: { houses: [4, 9, 11], count: 2 }, none: [8, 12], noSaturnMarsAspect: true }, text: "The 4th sub lord is well connected to 4, 9 and 11 with no connection to 8 or 12, and free of Saturn's and Mars's aspects: higher education is completed, delivered in the periods of the 4-9-11 significators. A sub lord that is itself Saturn or Mars, and signifies 9 and 11, is exempt from the aspect condition.", polarity: "good", timing: [4, 9, 11], source: `${P3("45")}; ${P1("137")}` },
   { id: "kp4-breaks", cusp: 4, topic: "Education", when: { cusp: 4, all: [8, 12] }, text: "The 4th sub lord signifies 8 and 12: interruptions and breaks in education.", polarity: "bad", source: P3("45") },
   { id: "kp4-exam-11", cusp: 4, topic: "Education", when: { cusp: 4, all: [11], none: [3] }, text: "The 4th sub lord signifies the 11th without the 3rd: examinations are passed.", polarity: "good", source: P3("45") },
   { id: "kp4-house", cusp: 4, topic: "Property", when: { cusp: 4, all: [4], any: [11, 12], connectedTo: ["Mars", "Saturn"] }, text: "The 4th sub lord signifies 4 with 11 or 12 and is connected to Mars or Saturn: building or acquiring a house, in the conjoined period of 4, 11 and 12.", polarity: "good", timing: [4, 11, 12], source: P3("44") },
@@ -332,7 +347,7 @@ export const KP_RULES: KpRule[] = [
   { id: "kp4-vehicle-air", cusp: 4, topic: "Vehicles", when: { cusp: 4, subLordIs: ["Mercury", "Venus"], subLordSubIs: ["Venus", "Mercury"], minOf: { houses: [3, 11, 12], count: 2 }, none: [4] }, text: "Mercury in the sub of Venus, or Venus in the sub of Mercury, as 4th sub lord tied to 3, 11 and 12 and clear of the 4th: air travel as a way of life, even one's own aircraft, when the lagna lord and the 2nd, 10th and 11th are all strong.", polarity: "good", source: P1("136-137") },
   { id: "kp4-vehicle-ship", cusp: 4, topic: "Vehicles", when: { cusp: 4, subLordIs: ["Moon"], subLordSubIs: ["Venus"], minOf: { houses: [3, 11, 12], count: 2 } }, text: "Moon in the sub of Venus as 4th sub lord tied to 3, 11 and 12: travel or command of ships; with a strong lagna lord, a vessel of one's own.", polarity: "good", source: P1("136-137") },
   { id: "kp4-edu-intermediate", cusp: 4, topic: "Education", when: { cusp: 4, all: [4], none: [9, 11] }, text: "The 4th sub lord signifies the 4th without 9 or 11: by the sub lord's own significations, schooling to the intermediate level; higher education needs the 9th and its completion the 11th (check the six-step table and the 9th sub lord before concluding).", polarity: "neutral", source: P1("138") },
-  { id: "kp4-edu-highest", cusp: 4, topic: "Education", when: { cusp: 4, all: [4, 9, 11], none: [8, 12], otherCusp: { cusp: 9, minOf: { houses: [4, 9, 11], count: 2 } } }, text: "The 4th sub lord signifies 4, 9 and 11 without 8 or 12, and the 9th sub lord joins the same houses: higher education of the highest order, the native becoming an authority in the subject; the grade reached follows the nature of the planet, in its dasa or bhukti.", polarity: "good", timing: [4, 9, 11], source: P1("137-139") },
+  { id: "kp4-edu-highest", cusp: 4, topic: "Education", when: { cusp: 4, all: [4, 9, 11], none: [8, 12], noSaturnMarsAspect: true, jupiterAspect59: true, otherCusp: { cusp: 9, minOf: { houses: [4, 9, 11], count: 2 } } }, text: "The 4th sub lord signifies 4, 9 and 11 without 8 or 12, free of Saturn's and Mars's aspects and aspected by Jupiter's special (5th or 9th) aspect rather than the 7th, and the 9th sub lord joins the same houses: higher education of the highest order, the native becoming an authority in the subject; the grade reached follows the nature of the planet, in its dasa or bhukti.", polarity: "good", timing: [4, 9, 11], source: P1("137-139") },
   { id: "kp4-edu-no-11", cusp: 4, topic: "Education", when: { cusp: 4, all: [4, 9], none: [11] }, text: "The 4th sub lord signifies 4 and 9 but not the 11th: higher studies are begun and not brought to the goal; with a fixed lagna the book has it stopping early.", polarity: "bad", source: P1("138, 142") },
   { id: "kp4-edu-no-9", cusp: 4, topic: "Education", when: { cusp: 4, all: [4, 11], none: [9] }, text: "The 4th sub lord signifies 4 and 11 but not the 9th: education to a lower level is completed, but the higher degree does not come.", polarity: "neutral", source: P1("138, 142") },
   { id: "kp4-edu-none", cusp: 4, topic: "Education", when: { cusp: 4, subLordIs: ["Mars", "Saturn"], all: [8, 12] }, text: "Mars or Saturn as 4th sub lord signifying 8 and 12: little or no schooling.", polarity: "bad", source: P1("142") },
@@ -566,7 +581,7 @@ export const KP_RULES: KpRule[] = [
   { id: "kp10-self", cusp: 10, topic: "Career", when: { cusp: 10, any: [2, 10], none: [6, 7] }, text: "The 10th sub lord signifies 2 or 10 without 6 or 7: earnings by self-exertion and independent work.", polarity: "neutral", source: P3("55") },
   { id: "kp10-politics", cusp: 10, topic: "Public life", when: { cusp: 10, minOf: { houses: [1, 6, 9, 10, 11], count: 4 }, connectedTo: ["Jupiter", "Mercury", "Mars", "Saturn"] }, text: "The 10th sub lord signifies 1, 6, 9, 10 and 11 with Jupiter, Mercury, Mars or Saturn connected: success in politics and public office (1 success, 6 defeat of opponents, 9 fortune, 10 honour, 11 ambition).", polarity: "good", source: P3("55") },
   { id: "kp10-illegal", cusp: 10, topic: "Career", when: { cusp: 10, subLordIs: ["Saturn"], all: [11] }, text: "Saturn as 10th sub lord signifying the 11th: the book warns of earnings by irregular means.", polarity: "bad", source: P3("56") },
-  { id: "kp10-tax", cusp: 10, topic: "Career", when: { cusp: 10, minOf: { houses: [7, 8, 12], count: 2 } }, text: "The 10th sub lord signifies 7, 8 and 12: trouble with tax and official scrutiny.", polarity: "bad", source: P3("55") },
+  { id: "kp10-tax", cusp: 10, topic: "Career", when: { cusp: 10, strongMinOf: { houses: [7, 8, 12], count: 2 } }, text: "The 10th sub lord strongly signifies at least two of 7, 8 and 12: trouble with tax and official scrutiny.", polarity: "bad", source: P3("55") },
   { id: "kp10-sell-property", cusp: 10, topic: "Property", when: { cusp: 10, minOf: { houses: [3, 5, 10], count: 2 }, all: [3] }, text: "The 10th sub lord signifies 3, 5 and 10: disposal or sale of immovable property.", polarity: "neutral", timing: [3, 5, 10], source: `${P3("55")}; ${P3("46")}` },
   { id: "kp10-pilgrimage", cusp: 10, topic: "Journeys", when: { cusp: 10, all: [3, 9] }, text: "The 10th sub lord signifies 3, 9 and 10: pilgrimage.", polarity: "good", source: P3("55") },
   // ── Cusp X from Astro Secrets Part 1, ch. 16 (pp. 188-198), with two more of Dutta's tenth-house rules ──
@@ -574,8 +589,8 @@ export const KP_RULES: KpRule[] = [
   { id: "kp10-reinstatement-denied", cusp: 10, topic: "Career", when: { cusp: 10, minOf: { houses: [1, 5, 9, 12], count: 3 }, none: [2, 6, 10] }, text: "The 10th sub lord leans on 1, 5, 9 and 12 without 2, 6 or 10: no reinstatement once service is lost.", polarity: "bad", ...DUTTA("tenth", "tenth") },
   { id: "kp10-public-no-return", cusp: 10, topic: "Career", when: { cusp: 10, all: [7], fewerThan: { houses: [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12], count: 1 } }, text: "The 10th sub lord signifies the 7th and nothing else: a life of public activity without material return.", polarity: "neutral", ...DUTTA("tenth", "tenth") },
   { id: "kp10-honest-steady", cusp: 10, topic: "Standing", when: { cusp: 10, all: [10], none: [2, 7], badhaka: false }, text: "The 10th sub lord signifies the 10th clear of the marakas and the badhaka house: a long life, higher status and straight conduct; the gains may be middling but they are steady and honestly earned.", polarity: "good", source: P1("189-190") },
-  { id: "kp10-disgrace", cusp: 10, topic: "Standing", when: { cusp: 10, minOf: { houses: [5, 8, 12], count: 2 }, any: [6] }, text: "The 10th sub lord ties the 10th to 5, 8, 12 and 6: the house loses its true nature and offers disgrace, ill repute or scandal.", polarity: "bad", source: P1("190") },
-  { id: "kp10-loss", cusp: 10, topic: "Career", when: { cusp: 10, all: [5, 8, 12] }, text: "The 10th sub lord signifies 5, 8 and 12: the profession runs at a loss.", polarity: "bad", timing: [5, 8, 12], source: P1("192") },
+  { id: "kp10-disgrace", cusp: 10, topic: "Standing", when: { cusp: 10, strongMinOf: { houses: [5, 8, 12], count: 2 }, strong: [6] }, text: "The 10th sub lord strongly ties the 10th to 5, 8 and 12 together with the 6th: afflicted in the book's words, the house loses its true nature and offers disgrace, ill repute or scandal.", polarity: "bad", source: P1("190") },
+  { id: "kp10-loss", cusp: 10, topic: "Career", when: { cusp: 10, strongMinOf: { houses: [5, 8, 12], count: 3 } }, text: "The 10th sub lord strongly signifies 5, 8 and 12: the profession runs at a loss.", polarity: "bad", timing: [5, 8, 12], source: P1("192") },
   { id: "kp10-prime-minister", cusp: 10, topic: "Public life", when: { cusp: 10, all: [10], any: [9, 11], badhaka: false, otherCusp: { cusp: 1, minOf: { houses: [2, 6, 10, 11], count: 3 } } }, text: "The 10th sub lord connects 10 with 9 or 11, neither acting as badhaka, and the lagna also carries 2-10-11-6: destined for the office of Minister or Prime Minister.", polarity: "good", timing: [9, 10, 11], source: P1("190") },
   { id: "kp10-industrialist", cusp: 10, topic: "Wealth", when: { cusp: 10, all: [2, 6, 10, 11] }, text: "The 10th sub lord signifies the full 2-6-10-11: great wealth through industry, provided its own sub lord repeats the same houses.", polarity: "good", timing: [2, 6, 10, 11], source: P1("190") },
   { id: "kp10-respect-only", cusp: 10, topic: "Career", when: { cusp: 10, all: [1, 10], fewerThan: { houses: [2, 3, 4, 5, 6, 7, 8, 9, 11, 12], count: 1 } }, text: "The 10th sub lord signifies only 1 and 10: respect and appreciation but no material rise; the first post is held unchanged to the end, and the native never stoops to corruption or short cuts.", polarity: "neutral", source: P1("190-191") },
@@ -687,7 +702,7 @@ export const KP_RULES: KpRule[] = [
   { id: "kp12-dacoity", cusp: 12, topic: "Dealings", when: { cusp: 12, subLordIs: ["Saturn"], all: [6, 8, 12], any: [10] }, text: "Saturn as 12th sub lord signifying 10, 6, 8 and 12: the book's combination for a mind turned to robbery.", polarity: "bad", source: P1("208") },
   { id: "kp12-violence", cusp: 12, topic: "Dealings", when: { cusp: 12, subLordIs: ["Mars"], all: [5, 6, 8, 12] }, text: "Mars as 12th sub lord signifying 5, 6, 8 and 12: the book's combination for sensual violence, entered as its attribution and to be read with the lagna.", polarity: "bad", source: P1("208") },
   { id: "kp12-renunciation", cusp: 12, topic: "Faith", when: { cusp: 12, subLordIs: ["Saturn", "Ketu"], all: [1, 4, 12] }, text: "Saturn or Ketu as 12th sub lord signifying 4, 1 and 12: renunciation (sanyasa).", polarity: "neutral", source: P1("208-209") },
-  { id: "kp12-loss-profession", cusp: 12, topic: "Career", when: { cusp: 12, all: [5, 8, 12] }, text: "The 12th sub lord signifies 5, 8 and 12: loss in the profession.", polarity: "bad", timing: [5, 8, 12], source: P1("209") },
+  { id: "kp12-loss-profession", cusp: 12, topic: "Career", when: { cusp: 12, strongMinOf: { houses: [5, 8, 12], count: 3 } }, text: "The 12th sub lord strongly signifies 5, 8 and 12: loss in the profession.", polarity: "bad", timing: [5, 8, 12], source: P1("209") },
   // Part 3 ch. 5 and Part 2 ch. 7: the cusp sub lord is the barometer of its house. A dasa lord moves, for a
   // house, only what the sub lord of that house's cusp signifies; it cannot deliver the rest of the house.
   { id: "kp12-evil-diverted", cusp: 12, topic: "Finance", when: { cusp: 12, minOf: { houses: [1, 2, 3, 6, 10, 11], count: 2 } }, text: "The 12th sub lord is connected to the improving houses (1, 2, 3, 6, 10, 11): the losses, seclusion and obstacles of the 12th are not felt in their full weight, even in the dasa of a planet signifying the 12th fully.", polarity: "good", source: P3C5("27") },
@@ -764,6 +779,40 @@ function isFullSignifier(r: Partial, planet: Planet, house: number): boolean {
     if (!inItsStar || p.starLord === planet) return true;
   }
   return false;
+}
+
+/** Graha drishti in signs counted from the aspecting planet (BPHS 26.2-5): Saturn 3/7/10, Mars 4/7/8. */
+function houseFromSigns(from: number, to: number): number {
+  return ((to - from + 12) % 12) + 1;
+}
+
+/**
+ * Saturn or Mars casts graha drishti on the sub lord's sign (P1 ch. 16 p. 137: "the fourth
+ * sublord should not be subjected to aspects from Saturn and Mars"). A sub lord that is itself
+ * Saturn or Mars, and signifies 9 and 11, is exempt ("no harm... but should be connected to
+ * houses 9-11").
+ */
+function saturnMarsAspectsSubLord(r: Partial, sl: Planet): boolean {
+  const target = r.planets.find((p) => p.planet === sl);
+  if (!target) return false;
+  if (sl === "Saturn" || sl === "Mars") {
+    const H = r.significators.find((s) => s.planet === sl)?.houses ?? [];
+    if (H.includes(9) && H.includes(11)) return false;
+  }
+  const hits = (p: Planet, asp: number[]) => {
+    const from = r.planets.find((x) => x.planet === p);
+    return !!from && asp.includes(houseFromSigns(from.signIndex, target.signIndex));
+  };
+  return hits("Saturn", [3, 7, 10]) || hits("Mars", [4, 7, 8]);
+}
+
+/** Jupiter stands in the 5th or 9th sign from the sub lord, its special aspect (P1 p. 137). */
+function jupiterSpecialAspectOnSubLord(r: Partial, sl: Planet): boolean {
+  const target = r.planets.find((p) => p.planet === sl);
+  const jup = r.planets.find((p) => p.planet === "Jupiter");
+  if (!target || !jup) return false;
+  const k = houseFromSigns(jup.signIndex, target.signIndex);
+  return k === 5 || k === 9;
 }
 
 /** Connection between two planets in the KP sense used by the rules. */
@@ -894,6 +943,21 @@ function meets(r: Partial, w: KpRuleWhen, six: boolean): { ok: boolean; used: nu
     if (o.none && o.none.some((h) => OH.includes(h))) return { ok: false, used: [] };
     if (o.minOf && o.minOf.houses.filter((h) => OH.includes(h)).length < o.minOf.count) return { ok: false, used: [] };
   }
+  if (w.noSaturnMarsAspect && saturnMarsAspectsSubLord(r, sl)) return { ok: false, used: [] };
+  if (w.jupiterAspect59 !== undefined && jupiterSpecialAspectOnSubLord(r, sl) !== w.jupiterAspect59) return { ok: false, used: [] };
+  if (w.everyCusps) {
+    const ec = w.everyCusps;
+    const each = ec.cusps.every((c) => {
+      const EH = houses(r, r.cusps[c - 1].subLord, six);
+      return ec.any.some((h) => EH.includes(h));
+    });
+    if (!each) return { ok: false, used: [] };
+    ec.cusps.forEach((c) => used.add(c));
+  }
+  if (w.lagnaLordNone) {
+    const LH = houses(r, r.cusps[0].signLord, six);
+    if (w.lagnaLordNone.some((h) => LH.includes(h))) return { ok: false, used: [] };
+  }
   return { ok: true, used: Array.from(used).sort((a, b) => a - b) };
 }
 
@@ -949,6 +1013,10 @@ export function describeKpCondition(w: KpRuleWhen): string {
   if (w.subLordSignIn) parts.push(`sub lord in ${w.subLordSignIn.map((i) => SIGNS[i]).join(" or ")}`);
   if (w.notStrong) parts.push(`not a strong significator of ${w.notStrong.join(", ")}`);
   if (w.otherCusp) parts.push(w.otherCusp.cusp === w.cusp ? `also signifies at least ${w.otherCusp.minOf?.count} of ${list(w.otherCusp.minOf?.houses ?? [])}` : `the ${w.otherCusp.cusp}th cusp sub lord signifies ${w.otherCusp.all ? list(w.otherCusp.all) : w.otherCusp.any ? `one of ${list(w.otherCusp.any)}` : w.otherCusp.minOf ? `at least ${w.otherCusp.minOf.count} of ${list(w.otherCusp.minOf.houses)}` : `none of ${list(w.otherCusp.none ?? [])}`}`);
+  if (w.noSaturnMarsAspect) parts.push("free of Saturn-Mars aspect");
+  if (w.jupiterAspect59) parts.push("Jupiter's special aspect");
+  if (w.everyCusps) parts.push(`the ${w.everyCusps.cusps.join("/ ")}th cusp sub lords each speak for one of ${list(w.everyCusps.any)}`);
+  if (w.lagnaLordNone) parts.push(`lagna lord clear of ${list(w.lagnaLordNone)}`);
   return parts.join(" · ");
 }
 
