@@ -33,7 +33,7 @@ const OWN_OR_EXALTED = ["Exalted", "Moolatrikona", "Own sign"];
 export const YOGA_CAVEATS: string[] = [
   "Nabhasa yogas (chapter 35) are judged from the seven planets, Rahu and Ketu excluded, as 35.13 speaks of all seven. Where the text says the planets occupy a set of houses, every house in the set must hold a planet. A Sankhya yoga is shown only when no other Nabhasa yoga holds (35.17), and 35.50 says the results of these yogas are felt through every dasa. Ardhachandra is named in 35.3-6 and given effects in 35.40 but not defined in this text; the usual reading (seven continuous houses starting from a house that is not an angle) is used and marked provisional.",
   "Strength in chapter 36 is Shadbala against the 27.32-33 requirement, so Kahala, the second Sankha, Bheri, Mridanga and Sarada cards that need it are withheld when Shadbala is absent. Verses 36.38-39 (Parijatamsa and the other divisional dignities of the lagna lord) are not applied.",
-  "In chapters 37 and 38 a planet means one of the seven; Rahu and Ketu are not counted. The 37.6 clause for a single benefic in an upachaya from the Moon (negligible wealth) is not shown. In 37.2-4 the contrary case is read as a Moon in a neutral navamsa, since the Moon has no natural enemies by 3.55; that reading is provisional.",
+  "In chapters 37 and 38 a planet means one of the seven; Rahu and Ketu are not counted. The 37.6 clause for a single benefic in an upachaya from the Moon (negligible wealth) is not shown. In 37.2-4 the contrary case is read as a Moon in a neutral navamsa, since the Moon has no natural enemies by 3.55; that reading is provisional. The Kemadruma of 37.11-13 is formed by Parashara's own test, but where the Moon is aspected (Saravali ch. 13 v. 2 requires an un-aspected Moon for the yoga to form) or planets stand in a kendra from the Moon (Phaladeepika 6.5, reported as the view of some), the finding is shown as cancelled rather than as Parashara's strain.",
 ];
 
 export function yogaFindings(positions: PlanetPosition[], lagnaIdx: number, lagnaLon: number, deps: HouseDeps, shadbala?: ShadbalaResult): ParashariFinding[] {
@@ -315,7 +315,34 @@ export function yogaFindings(positions: PlanetPosition[], lagnaIdx: number, lagn
     } else if (twelfth.length) {
       push("pa-lunar-anapha", "Anapha yoga", `${list(twelfth)} in the 12th from the Moon. Parashara gives kingly standing, freedom from disease, virtue, fame, charm and happiness.`, "support", ["Moon", ...twelfth], S(37, "7-10"));
     } else if (!withMoon.length && !sixFromMoon.some((p) => KENDRA.includes(h7(p)))) {
-      push("pa-lunar-kemadruma", "Kemadruma yoga", "Apart from the Sun, no planet is with the Moon, in the 2nd or 12th from it, or in an angle from the lagna. Parashara reads reproach, want of learning and penury; shown as written and to be weighed against the yogas above.", "strain", ["Moon"], S(37, "11-13"));
+      // Parashara's test (37.11-13) is met. The other classical texts dissolve it: Saravali ch. 13 v. 2
+      // requires the Moon also to be un-aspected by all the planets for the yoga to form ("if she is
+      // un-aspected by all the planets"), and Phaladeepika 6.5 reports the view of some that planets
+      // in a kendra reckoned from the Moon leave no Kemadruma.
+      const aspecting = SEVEN.filter((pl) => pl !== "Moon" && deps.aspect(pl, pos(pl).signIndex, moon.signIndex) > 0);
+      const benAsp = aspecting.filter((pl) => deps.benefic(pos(pl), positions));
+      const kendraFromMoon = sixFromMoon.filter((p) => KENDRA.includes(fromMoon(p))).map((p) => p.planet);
+      if (!aspecting.length && !kendraFromMoon.length) {
+        push("pa-lunar-kemadruma", "Kemadruma yoga", "Apart from the Sun, no planet is with the Moon, in the 2nd or 12th from it, or in an angle from the lagna. Parashara reads reproach, want of learning and penury; shown as written and to be weighed against the yogas above.", "strain", ["Moon"], S(37, "11-13"));
+      } else {
+        const bits: string[] = [];
+        if (aspecting.length)
+          bits.push(
+            `the Moon is aspected by ${list(aspecting)}${benAsp.length ? `, of which ${list(benAsp)} ${benAsp.length === 1 ? "is a benefic" : "are benefics"}` : ""} — Saravali requires a Moon un-aspected by all the planets for the yoga to form, so by its test there is no Kemadruma here`,
+          );
+        if (kendraFromMoon.length)
+          bits.push(
+            `${list(kendraFromMoon)} ${kendraFromMoon.length === 1 ? "stands" : "stand"} in a kendra from the Moon, which Phaladeepika reports as the view of some that no Kemadruma then exists`,
+          );
+        push(
+          "pa-lunar-kemadruma",
+          "Kemadruma yoga (cancelled)",
+          `Apart from the Sun, no planet is with the Moon, in the 2nd or 12th from it, or in an angle from the lagna — Parashara's test is met. But ${bits.join("; and ")}. Shown as cancelled and much reduced rather than as Parashara's reproach, want of learning and penury, and to be weighed against the yogas above.`,
+          "mixed",
+          ["Moon", ...aspecting, ...kendraFromMoon],
+          { label: "Parashara 37.11-13; cancelled per Saravali 13.2 and Phaladeepika 6.5", url: "http://www.astrojyoti.com/saravalipage3-1.htm" },
+        );
+      }
     }
   }
 
