@@ -55,6 +55,7 @@ import type {
   RectifyResult,
   TransitCheck,
   MoonLordsCheck,
+  DuttaRpMoonCheck,
 } from "@shared/rectify-types";
 export type {
   RectifyRequest,
@@ -73,7 +74,7 @@ import {
   judgementNow,
   type EphemerisOptions,
 } from "./ephemeris";
-import { SIGNS } from "@shared/astro";
+import { SIGNS, SIGN_LORD } from "@shared/astro";
 import { computeJaimini, type JaiminiResult } from "@shared/jaimini";
 import { dashaFitAt } from "@shared/jaimini-areas";
 import {
@@ -83,6 +84,77 @@ import {
 } from "@shared/body-marks";
 
 const MAX_WINDOW = 720;
+
+/**
+ * Dutta's linkage test ("Birth Time Rectification through KP Astrology", the first testing): does
+ * the lagna's lord X at the candidate time link to the RP Moon's lord Z at the moment of judgement?
+ * Linkage is any of his five conditions: the same planet; X in the sub of Z or the reverse; X in the
+ * star of Z or the reverse; X in the sign of Z or the reverse; or X in the star or sub of a third
+ * planet that appears as Z's star or sub lord (judged now). Nodes own no sign, so the sign
+ * conditions fall away for them by themselves.
+ */
+function duttaLink(
+  X: Planet,
+  Z: Planet,
+  xChart: KpPlanet | undefined,
+  zNow: ReturnType<typeof kpPoint> | undefined,
+): { linked: boolean; via: string } {
+  if (X === Z) return { linked: true, via: `${X} and ${Z} are the same planet` };
+  if (!xChart || !zNow)
+    return { linked: false, via: "a position is missing for the linkage test" };
+  if (xChart.subLord === Z)
+    return { linked: true, via: `${X} stands in the sub of ${Z}` };
+  if (zNow.subLord === X)
+    return {
+      linked: true,
+      via: `${Z}, judged now, stands in the sub of ${X}`,
+    };
+  if (xChart.starLord === Z)
+    return { linked: true, via: `${X} stands in the star of ${Z}` };
+  if (zNow.starLord === X)
+    return {
+      linked: true,
+      via: `${Z}, judged now, stands in the star of ${X}`,
+    };
+  if (SIGN_LORD[xChart.signIndex] === Z)
+    return { linked: true, via: `${X} stands in ${Z}'s sign` };
+  if (SIGN_LORD[zNow.signIndex] === X)
+    return { linked: true, via: `${Z}, judged now, stands in ${X}'s sign` };
+  const third = [zNow.starLord, zNow.subLord].find(
+    (T) => xChart.starLord === T || xChart.subLord === T,
+  );
+  if (third)
+    return {
+      linked: true,
+      via: `${X} stands in the star or sub of ${third}, which rules ${Z} at its ${zNow.starLord === third ? "star" : "sub"} level, judged now`,
+    };
+  return { linked: false, via: "no linkage at any of the five conditions" };
+}
+
+/** The whole first testing for one candidate interval; the RP Moon's lords are fixed for the scan. */
+function duttaRpMoonCheck(
+  lagna: KpCusp,
+  planets: KpPlanet[],
+  rpm: { signLord: Planet; starLord: Planet; subLord: Planet },
+  now: { positions: ReturnType<typeof positionsAt> },
+): DuttaRpMoonCheck {
+  const xAt = (p: Planet) => planets.find((x) => x.planet === p);
+  const zPt = (p: Planet) => {
+    const pos = now.positions.find((x) => x.planet === p);
+    return pos ? kpPoint(pos.lon) : undefined;
+  };
+  const sign = duttaLink(lagna.signLord, rpm.signLord, xAt(lagna.signLord), zPt(rpm.signLord));
+  const star = duttaLink(lagna.starLord, rpm.starLord, xAt(lagna.starLord), zPt(rpm.starLord));
+  const sub = duttaLink(lagna.subLord, rpm.subLord, xAt(lagna.subLord), zPt(rpm.subLord));
+  return {
+    moon: rpm,
+    linked: { sign: sign.linked, star: star.linked, sub: sub.linked },
+    via: { sign: sign.via, star: star.via, sub: sub.via },
+    score:
+      (sign.linked ? 1 : 0) + (star.linked ? 1 : 0) + (sub.linked ? 2 : 0),
+    max: 4,
+  };
+}
 
 function lagnaKey(lon: number): string {
   const p = kpPoint(lon);
@@ -431,6 +503,13 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const wStar = weightOf(lagna.starLord, "star");
     const wSub = weightOf(lagna.subLord, "sub");
     const rpScore = wSign + wStar + 2 * wSub;
+    const rpm = ruling.moon;
+    const dutta = duttaRpMoonCheck(
+      lagna,
+      planets,
+      { signLord: rpm.signLord, starLord: rpm.starLord, subLord: rpm.subLord },
+      now,
+    );
 
     const checkEvent = (
       e: RectifyRequest["events"][number],
@@ -611,6 +690,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       cuspSubLords: cusps.map((c) => c.subLord),
       moon: { starLord: moon.starLord, subLord: moon.subLord },
       moonLords: moonLordsCheck(lagna, moon, planets),
+      dutta,
       jaiminiSign: {
         index: jSign,
         name: SIGNS[jSign],

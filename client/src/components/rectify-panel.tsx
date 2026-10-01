@@ -927,8 +927,8 @@ export function RectifyPanel({
                 : " Several intervals usually pass at some level; keep those at the top level, then settle between them with the ruling planets or dated events. Shanmugham allows the chain to run to the sookshma because births are timed at different moments (first cry, laid down, head appearing).")}
             {method === "kp-rp" &&
               (plain
-                ? " Outlined badges are doubtful rulers (moving backwards today) or their stand-ins and count half. Rerun on another day and the ruling planets change; the slices that agree every time are the ones to trust."
-                : " Half-weight badges are doubtful ruling planets (retrograde now) or their stand-ins. Rerun on another day and the ruling planets change; the intervals that agree every time are the ones to trust.")}
+                ? " Outlined badges are doubtful rulers (moving backwards today) or their stand-ins and count half. The second set of marks is Dutta's test: the rising degree's sign, star and deciding planets must each link to the sign, star and deciding planets of the Moon ruling the moment you judge — the same planet, or one in the other's sign, star or sub, or through a third planet ruling at that level; all three linking is his mark of the correct slice. Rerun on another day and the ruling planets change; the slices that agree every time are the ones to trust."
+                : " Half-weight badges are doubtful ruling planets (retrograde now) or their stand-ins. The second set of marks is Dutta's first testing: the lagna's sign, star and sub lords must each link, level to level, to the sign, star and sub lords of the RP Moon — the same planet, or one in the other's sign, star or sub, or through a third planet ruling at that level; all three levels linking is his mark of the correct interval (Birth Time Rectification through KP Astrology). Rerun on another day and the ruling planets change; the intervals that agree every time are the ones to trust.")}
             {method === "kp-events" &&
               (eventPayload.length
                 ? plain
@@ -1391,6 +1391,11 @@ export function RectifyPanel({
                           ? "Sign · star · deciding"
                           : "Sign · star · sub"}
                     </TableHead>
+                    {method === "kp-rp" && (
+                      <TableHead className="whitespace-nowrap">
+                        {plain ? "Moon ruling now" : "RP Moon link"}
+                      </TableHead>
+                    )}
                     {method === "kp-transit" && (
                       <TableHead className="whitespace-nowrap">
                         {plain ? "Sun's hint" : "Sun sub"}
@@ -1525,6 +1530,45 @@ export function RectifyPanel({
                             </span>
                           )}
                         </TableCell>
+                        {method === "kp-rp" && (
+                          <TableCell className="whitespace-nowrap">
+                            {s.dutta ? (
+                              <span
+                                className="inline-flex items-center gap-1.5"
+                                title={`RP Moon's lords, judged now: ${s.dutta.moon.signLord} (sign), ${s.dutta.moon.starLord} (star), ${s.dutta.moon.subLord} (sub)`}
+                              >
+                                <Mark
+                                  on={s.dutta.linked.sign}
+                                  title={s.dutta.via.sign}
+                                />{" "}
+                                <PlanetName
+                                  planet={s.dutta.moon.signLord}
+                                  abbr
+                                />
+                                <span className="text-muted-foreground">·</span>
+                                <Mark
+                                  on={s.dutta.linked.star}
+                                  title={s.dutta.via.star}
+                                />{" "}
+                                <PlanetName
+                                  planet={s.dutta.moon.starLord}
+                                  abbr
+                                />
+                                <span className="text-muted-foreground">·</span>
+                                <Mark
+                                  on={s.dutta.linked.sub}
+                                  title={s.dutta.via.sub}
+                                />{" "}
+                                <PlanetName
+                                  planet={s.dutta.moon.subLord}
+                                  abbr
+                                />
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                        )}
                         {method === "kp-transit" && (
                           <TableCell className="whitespace-nowrap">
                             <ScoreBar

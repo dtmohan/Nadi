@@ -33,11 +33,11 @@ export const RECTIFY_METHODS: Array<{
     label: "Ruling planets",
     plainLabel: "Planets ruling now",
     plainShort:
-      "Krishnamurti holds that the planets ruling the sky at the moment you sit down to judge also rule the true rising degree: its sign ruler, star ruler and, most of all, its deciding planet should be among them. Rahu or Ketu can stand in for a planet whose sign or star they occupy; a planet moving backwards today is doubtful and its star ruler is admitted instead. Rerun on another day and trust the minutes that agree every time.",
+      "Krishnamurti holds that the planets ruling the sky at the moment you sit down to judge also rule the true rising degree: its sign ruler, star ruler and, most of all, its deciding planet should be among them. Rahu or Ketu can stand in for a planet whose sign or star they occupy; a planet moving backwards today is doubtful and its star ruler is admitted instead. Dutta's added test links the rising degree's sign, star and deciding planets, level by level, to the sign, star and deciding planets of the Moon ruling that same moment; all three levels linking is his mark of the correct time. Rerun on another day and trust the minutes that agree every time.",
     short:
-      "At the true birth time the lagna's sign lord, star lord and sub lord agree with the ruling planets of the moment you sit down to judge; the sub lord is the decisive agreement. A node in a ruling planet's sign or star acts for it; a retrograde ruling planet is doubtful and its star lord is admitted in its place.",
+      "At the true birth time the lagna's sign lord, star lord and sub lord agree with the ruling planets of the moment you sit down to judge; the sub lord is the decisive agreement. A node in a ruling planet's sign or star acts for it; a retrograde ruling planet is doubtful and its star lord is admitted in its place. Dutta's first testing adds a level-to-level link between those same three lagna lords and the sign, star and sub lords of the RP Moon: same planet, or one in the other's sign, star or sub, or through a third planet that rules the other at its star or sub level; all three levels linking confirms the time.",
     source:
-      "Astro Secrets & KP Part 3, ch. 30, pp. 160-163; Part 1, pp. 173-178",
+      "Astro Secrets & KP Part 3, ch. 30, pp. 160-163; Part 1, pp. 173-178; Andrew Dutta, Birth Time Rectification through KP Astrology (the RP-Moon three-level linkage, first testing)",
     needsJudge: true,
     needsEvents: false,
   },
@@ -127,7 +127,13 @@ export function methodScore(
     const sc = scoreMarks(r, marks!.confirmed);
     return { score: sc.score, max: sc.max };
   }
-  if (m === "kp-rp") return { score: s.rp.score, max: s.rp.max };
+  if (m === "kp-rp")
+    // The book RP agreement (max 4) plus Dutta's RP-Moon three-level linkage (max 4, absent on
+    // cached results from before it was added); both rule the same judgement moment.
+    return {
+      score: s.rp.score + (s.dutta?.score ?? 0),
+      max: s.rp.max + (s.dutta?.max ?? 0),
+    };
   if (m === "kp-moon")
     return { score: s.moonLords.score, max: s.moonLords.max };
   if (m === "kp-events")

@@ -118,6 +118,24 @@ export interface RectifySegmentStability {
   matterFirm?: boolean;
 }
 
+/**
+ * Dutta's RP-Moon three-level linkage ("Birth Time Rectification through KP Astrology", first
+ * testing): the lagna's sign, star and sub lords at the candidate time must each link to the sign,
+ * star and sub lords of the Moon ruling at the moment of judgement. Linkage is any of: the same
+ * planet; one in the sub of the other; one in the star of the other; one in the other's sign; or
+ * X in the star or sub of a third planet that rules Z at its star or sub level. All three levels
+ * linking is the author's mark of the correct birth time. The scoring weights the sub level double,
+ * mirroring the book RP method's own weighting of the sub lord as decisive.
+ */
+export interface DuttaRpMoonCheck {
+  /** The RP Moon's sign, star and sub lords at the moment of judgement (fixed for the whole scan). */
+  moon: { signLord: Planet; starLord: Planet; subLord: Planet };
+  linked: { sign: boolean; star: boolean; sub: boolean };
+  via: { sign: string; star: string; sub: string };
+  score: number;
+  max: number;
+}
+
 export interface RectifySegment {
   /** Local civil times in the birth zone, HH:mm:ss. */
   start: string;
@@ -153,6 +171,12 @@ export interface RectifySegment {
    * the Moon sign. Telling the very birth star is the stronger confirmation.
    */
   moonLords: MoonLordsCheck;
+  /**
+   * Dutta's RP-Moon three-level linkage, the first testing of his birth-time rectification: the lagna's
+   * sign, star and sub lords link, level to level, to the Moon ruling at the moment of judgement. Absent on
+   * results computed before it was added.
+   */
+  dutta?: DuttaRpMoonCheck;
   /** Sun-transit hint (Part 2 p. 192): the lagna's sub (or star) lord is the sub lord the Sun transits on the day of judgement. */
   sunHint: { star: boolean; sub: boolean; score: number; max: number };
   /** Lagna sign in the chart's own ayanamsa, which the Jaimini check is read from (sign-level only). */
