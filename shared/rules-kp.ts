@@ -26,6 +26,26 @@ export interface KpRuleWhen {
   fewerThan?: { houses: number[]; count: number };
   /** The sub lord is a strong significator (star-lord occupancy or own occupancy) of one of these. */
   strong?: number[];
+  /** The sub lord is a strong significator of at least `count` of these houses. */
+  strongMinOf?: { houses: number[]; count: number };
+  /** The sub lord strongly signifies a maraka house (2 or 7). */
+  strongMaraka?: boolean;
+  /** The sub lord strongly signifies the badhaka house. */
+  strongBadhaka?: boolean;
+  /**
+   * The sub lord is a FULL significator of one of these houses in the ch. 5 sense (Part 3 ch. 5
+   * p. 28: it owns the house's cusp, or occupies the house with no planet in its stars, or is in
+   * the star of a planet occupying the house, or is in its own star in the house).
+   */
+  fullSignifier?: number[];
+  /**
+   * Venus affliction, the book's qualifier on the marriage rules ("with unafflicted venus...",
+   * "position of venus too be looked into", Part 3 ch. 6 p. 51). The operationalization is
+   * provisional: combust within 8° of the Sun (Part 3 p. 215), or standing in the star of a planet
+   * that strongly signifies the divorce houses (6, 10, 12, 8 — Part 3 p. 11) without strongly
+   * signifying any marriage house (2, 7, 11).
+   */
+  venusAfflicted?: boolean;
   subLordIs?: Planet[];
   subLordNot?: Planet[];
   /** The sub lord is posited in one of these bhavas. */
@@ -113,16 +133,16 @@ export interface KpFinding {
  * sub of the lagna against the badhaka and maraka houses; child birth 2, 5, 11 by the sub of the
  * 5th; employment 2, 6, 10 by the sub of the 10th. Rules are grouped by their topic strings.
  */
-export const KP_PRECEDENCE: Array<{ matter: string; topics: string[]; cusp: number; source: string }> = [
+export const KP_PRECEDENCE: Array<{ matter: string; topics: string[]; cusp: number; coPrincipal?: number[]; source: string }> = [
   { matter: "marriage", topics: ["Marriage", "Married life", "Partner"], cusp: 7, source: "Astro Secrets & KP Part 3, p. 12" },
-  { matter: "lifespan", topics: ["Longevity"], cusp: 1, source: "Astro Secrets & KP Part 3, p. 12" },
+  { matter: "lifespan", topics: ["Longevity"], cusp: 1, coPrincipal: [1, 8], source: "Astro Secrets & KP Part 3, p. 12; Part 1, ch. 16, pp. 180-182 (the 8th cusp)" },
   { matter: "children", topics: ["Children"], cusp: 5, source: "Astro Secrets & KP Part 3, p. 12" },
   { matter: "career", topics: ["Career", "Employment", "Profession"], cusp: 10, source: "Astro Secrets & KP Part 3, p. 12" },
 ];
 
 /** A rule read from the sub lord's house significations (the book's own test), not from the planet's nature alone. */
 function readsHouses(w: KpRuleWhen): boolean {
-  return !!(w.all || w.any || w.none || w.minOf || w.fewerThan || w.strong || w.badhaka !== undefined || w.maraka !== undefined);
+  return !!(w.all || w.any || w.none || w.minOf || w.fewerThan || w.strong || w.strongMinOf || w.strongMaraka !== undefined || w.strongBadhaka !== undefined || w.fullSignifier || w.venusAfflicted !== undefined || w.badhaka !== undefined || w.maraka !== undefined);
 }
 
 /**
@@ -132,6 +152,12 @@ function readsHouses(w: KpRuleWhen): boolean {
  * cusp itself carries both polarities by house significations nothing is demoted and the matter
  * stays contested. The book's own words: "one of the houses is the principal house and its Sub
  * Lord is the deciding factor" (Part 3 p. 12).
+ *
+ * Longevity is the one matter read from two cusps: the lagna sub lord against the badhaka and
+ * maraka houses (Part 3 p. 12; Part 3 ch. 5 p. 31) and the 8th sub lord (Part 1 ch. 16
+ * pp. 180-182: "If the 8th house's sublord signifies 5-8-3-10, then a long life..."). Both are
+ * treated as principal, so a lagna short-life reading against an 8th-cusp long-life reading
+ * leaves the matter contested rather than letting one demote the other.
  */
 export function applyKpPrecedence(findings: KpFinding[]): KpFinding[] {
   const byId = new Map(KP_RULES.map((r) => [r.id, r]));
@@ -139,7 +165,8 @@ export function applyKpPrecedence(findings: KpFinding[]): KpFinding[] {
   for (const pr of KP_PRECEDENCE) {
     const group = out.filter((f) => pr.topics.includes(f.topic) && f.polarity !== "neutral");
     if (group.length < 2) continue;
-    const principal = group.filter((f) => f.cusp === pr.cusp && readsHouses(byId.get(f.ruleId)?.when ?? { cusp: pr.cusp }));
+    const principalCusps = pr.coPrincipal ?? [pr.cusp];
+    const principal = group.filter((f) => principalCusps.includes(f.cusp) && readsHouses(byId.get(f.ruleId)?.when ?? { cusp: pr.cusp }));
     if (!principal.length) continue;
     const pols = new Set(principal.map((f) => f.polarity));
     if (pols.size !== 1) continue;
@@ -186,10 +213,10 @@ export const KP_CUSP_THEMES: Record<number, string> = {
 export const KP_RULES: KpRule[] = [
   // ---------------- Cusp I ----------------
   { id: "kp1-life-long", cusp: 1, topic: "Longevity", when: { cusp: 1, minOf: { houses: [1, 5, 9, 11], count: 2 }, fewerThan: { houses: [6, 8, 12], count: 2 } }, text: "The lagna sub lord leans on the life-supporting houses 1, 5, 9 and 11 and stays clear of 6, 8, 12: a long span is promised.", polarity: "good", source: C32 },
-  { id: "kp1-life-short", cusp: 1, topic: "Longevity", when: { cusp: 1, minOf: { houses: [6, 8, 12], count: 2 }, fewerThan: { houses: [1, 5, 9, 11], count: 2 } }, text: "The lagna sub lord leans on 6, 8 and 12 without the support of 1, 5, 9, 11: the body is under strain and longevity needs care, the more so if the badhaka or a maraka house joins in.", polarity: "bad", source: C32 },
-  { id: "kp1-life-medium", cusp: 1, topic: "Longevity", when: { cusp: 1, minOf: { houses: [6, 8, 12], count: 2 }, otherCusp: { cusp: 1, minOf: { houses: [1, 5, 9, 11], count: 2 } } }, text: "The lagna sub lord signifies both the supporting houses (1, 5, 9, 11) and the draining ones (6, 8, 12): a middling span, with health needing care in the periods of the 6-8-12 significators.", polarity: "neutral", source: C32 },
-  { id: "kp1-badhaka", cusp: 1, topic: "Longevity", when: { cusp: 1, badhaka: true }, text: "The lagna sub lord signifies the badhaka house (the 11th for a movable lagna, the 9th for fixed, the 7th for dual). The class notes and the book both rank this above a maraka link as an obstruction to health and life.", polarity: "bad", source: `${C32}; ${P3("38")}` },
-  { id: "kp1-maraka", cusp: 1, topic: "Longevity", when: { cusp: 1, maraka: true, badhaka: false }, text: "The lagna sub lord signifies a maraka house (2 or 7): the periods of the 2nd and 7th significators call for care with health.", polarity: "bad", source: `${C32}; ${P3("38")}` },
+  { id: "kp1-life-short", cusp: 1, topic: "Longevity", when: { cusp: 1, strongMinOf: { houses: [6, 8, 12], count: 2 }, fewerThan: { houses: [1, 5, 9, 11], count: 2 } }, text: "The lagna sub lord leans strongly (star-lord or own occupancy) on 6, 8 and 12 without any link to 1, 5, 9, 11: the body is under strain and longevity needs care, the more so if the badhaka or a maraka house joins in. Harsh verdicts are read at the strong level of the four-step table; any link at all to the supporting houses softens them — the book's own asymmetry (Part 3 ch. 5: signify 5th and 11th and the 6th's matters never come to pass).", polarity: "bad", source: C32 },
+  { id: "kp1-life-medium", cusp: 1, topic: "Longevity", when: { cusp: 1, strongMinOf: { houses: [6, 8, 12], count: 2 }, otherCusp: { cusp: 1, minOf: { houses: [1, 5, 9, 11], count: 2 } } }, text: "The lagna sub lord strongly signifies the draining houses (6, 8, 12) while keeping links to the supporting ones (1, 5, 9, 11): a middling span, with health needing care in the periods of the 6-8-12 significators.", polarity: "neutral", source: C32 },
+  { id: "kp1-badhaka", cusp: 1, topic: "Longevity", when: { cusp: 1, strongBadhaka: true }, text: "The lagna sub lord strongly signifies the badhaka house (the 11th for a movable lagna, the 9th for fixed, the 7th for dual). The class notes and the book both rank this above a maraka link as an obstruction to health and life.", polarity: "bad", source: `${C32}; ${P3("38")}` },
+  { id: "kp1-maraka", cusp: 1, topic: "Longevity", when: { cusp: 1, strongMaraka: true, strongBadhaka: false }, text: "The lagna sub lord strongly signifies a maraka house (2 or 7): the periods of the 2nd and 7th significators call for care with health.", polarity: "bad", source: `${C32}; ${P3("38")}` },
   { id: "kp1-sickly", cusp: 1, topic: "Health", when: { cusp: 1, starLordOccupies: [6] }, text: "The lagna sub lord sits in the star of a planet in the 6th: a constitution prone to illness.", polarity: "bad", source: P3("39") },
   { id: "kp1-healthy", cusp: 1, topic: "Health", when: { cusp: 1, starLordOccupies: [1, 11] }, text: "The lagna sub lord sits in the star of a planet in the 1st or 11th: good health and recovery when ill.", polarity: "good", source: P3("39") },
   { id: "kp1-recovery", cusp: 1, topic: "Health", when: { cusp: 1, minOf: { houses: [1, 3, 5], count: 2 } }, text: "The lagna sub lord signifies 1, 3 and 5: illness is recovered from, in the conjoined period of the 1-5-9-11 significators (for a movable lagna take the 9th rather than the 11th).", polarity: "good", timing: [1, 5, 9, 11], source: C32 },
@@ -244,7 +271,7 @@ export const KP_RULES: KpRule[] = [
   { id: "kp2-marriage", cusp: 2, topic: "Family", when: { cusp: 2, all: [7, 11] }, text: "The 2nd sub lord signifies 7 and 11: marriage and addition to the family.", polarity: "good", timing: [2, 7, 11], source: P3("40") },
   { id: "kp2-borrow", cusp: 2, topic: "Finance", when: { cusp: 2, any: [6], none: [10, 11] }, text: "The 2nd sub lord signifies the 6th without 10 or 11: money by borrowing, debts accumulate.", polarity: "bad", source: P3("40") },
   { id: "kp2-second-marriage", cusp: 2, topic: "Family", when: { cusp: 2, subLordIs: ["Mercury"], all: [7] }, text: "Mercury (a dual planet) as 2nd sub lord signifying the 7th: more than one marriage or a second union is possible.", polarity: "neutral", source: C41 },
-  { id: "kp2-maraka", cusp: 2, topic: "Longevity", when: { cusp: 2, all: [7], badhaka: true }, text: "The 2nd sub lord signifies the 7th and the badhaka house: both marakas and the badhaka meet; the conjoined periods need care with health.", polarity: "bad", source: P3("40") },
+  { id: "kp2-maraka", cusp: 2, topic: "Longevity", when: { cusp: 2, strong: [7], strongBadhaka: true }, text: "The 2nd sub lord strongly signifies the 7th and the badhaka house: both marakas and the badhaka meet; the conjoined periods need care with health.", polarity: "bad", source: P3("40") },
 
   // ---------------- Cusp III ----------------
   { id: "kp3-success", cusp: 3, topic: "Communications", when: { cusp: 3, all: [3, 11] }, text: "The 3rd sub lord signifies 3 and 11: success in negotiations, correspondence, agreements and short journeys.", polarity: "good", timing: [3, 11], source: P3("42") },
@@ -336,8 +363,8 @@ export const KP_RULES: KpRule[] = [
   { id: "kp4-venus-dual", cusp: 4, topic: "Comforts", when: { cusp: 4, subLordIs: ["Venus"], subLordSignQuality: ["Dual"], any: IMPROVING }, text: "Venus as 4th sub lord in a dual sign tied to the improving houses: the comforts come as small luxuries about the house.", polarity: "good", ...DUTTA("fourth", "fourth") },
 
   // ---------------- Cusp V ----------------
-  { id: "kp5-children", cusp: 5, topic: "Children", when: { cusp: 5, minOf: { houses: [2, 5, 11], count: 2 } }, text: "The 5th sub lord signifies 2, 5 and 11: children are promised, in the conjoined period of their significators.", polarity: "good", timing: [2, 5, 11], source: P3("46") },
-  { id: "kp5-children-denied", cusp: 5, topic: "Children", when: { cusp: 5, minOf: { houses: [1, 4, 10], count: 2 }, none: [2, 5, 11] }, text: "The 5th sub lord signifies 1, 4 and 10 (the houses opposite to 7, 10 and 4, i.e. the negations of 5, 2 and 11) and none of 2, 5, 11: children are denied or much delayed.", polarity: "bad", source: P3("46") },
+  { id: "kp5-children", cusp: 5, topic: "Children", when: { cusp: 5, all: [2, 5, 11] }, text: "The 5th sub lord signifies 2, 5 and 11: children are promised, in the conjoined period of their significators.", polarity: "good", timing: [2, 5, 11], source: P3("46") },
+  { id: "kp5-children-denied", cusp: 5, topic: "Children", when: { cusp: 5, all: [1, 4, 10], none: [2, 5, 11] }, text: "The 5th sub lord signifies 1, 4 and 10 (the houses that negate the 5th's matters) and none of 2, 5, 11: the book reads that one can never have a child; the softened wording and the none-of guard are this app's reading, provisional.", polarity: "bad", source: P3("46") },
   { id: "kp5-spec-win", cusp: 5, topic: "Speculation", when: { cusp: 5, all: [6, 11] }, text: "The 5th sub lord signifies 6 and 11: gains in speculation.", polarity: "good", source: P3("47") },
   { id: "kp5-spec-moderate", cusp: 5, topic: "Speculation", when: { cusp: 5, all: [2, 10], none: [6, 11] }, text: "The 5th sub lord signifies 2 and 10: moderate gains in speculation.", polarity: "neutral", source: P3("47") },
   { id: "kp5-spec-loss", cusp: 5, topic: "Speculation", when: { cusp: 5, all: [5, 12] }, text: "The 5th sub lord signifies 5 and 12: losses in speculation; keep away from it.", polarity: "bad", source: P3("47") },
@@ -372,7 +399,7 @@ export const KP_RULES: KpRule[] = [
   { id: "kp5-actor", cusp: 5, topic: "Arts", when: { cusp: 5, all: [5, 10], minOf: { houses: [7, 11], count: 1 } }, text: "The 5th sub lord signifies 5 and 10 with 7 or 11: acting in cinema or on the stage as a career.", polarity: "good", source: P1("152") },
   { id: "kp5-wealth-jupiter", cusp: 5, topic: "Finance", when: { cusp: 5, subLordIs: ["Jupiter"], all: [5, 11], minOf: { houses: [2, 3, 6], count: 2 }, none: [8, 12] }, text: "Jupiter as 5th sub lord signifying 5 and 11 with 2, 6 and 3, clear of 8 and 12: enormous wealth.", polarity: "good", timing: [2, 5, 11], source: P1("152") },
   { id: "kp5-astrologer", cusp: 5, topic: "Public life", when: { cusp: 5, subLordIs: ["Saturn", "Mercury", "Jupiter"], all: [5], minOf: { houses: [2, 7, 9, 10, 11], count: 3 } }, text: "Saturn, Mercury or Jupiter as 5th sub lord tying the 5th to 9, 10, 11, 2 and 7: a popular astrologer.", polarity: "good", source: P1("152") },
-  { id: "kp5-children-denied-full", cusp: 5, topic: "Children", when: { cusp: 5, minOf: { houses: [4, 6, 10, 12], count: 3 }, none: [2, 5, 11] }, text: "The 5th sub lord signifies 4, 12, 10 and 6 with none of 2, 5 and 11: children are denied.", polarity: "bad", source: P1("152") },
+  { id: "kp5-children-denied-full", cusp: 5, topic: "Children", when: { cusp: 5, strongMinOf: { houses: [4, 6, 10, 12], count: 3 }, none: [2, 5, 11] }, text: "The 5th sub lord strongly signifies 4, 12, 10 and 6 with none of 2, 5 and 11: children are denied — the book's own example is a sub lord strongly signifying the 4th, by being in the star of a planet connected to it.", polarity: "bad", source: P1("147-149, 152") },
   { id: "kp5-intellect", cusp: 5, topic: "Mind", when: { cusp: 5, all: [5, 11], minOf: { houses: [1, 3, 9, 10], count: 2 } }, text: "The 5th sub lord signifies 5 and 11 with 3, 9, 10 and 1: strong intelligence and clear thinking.", polarity: "good", source: P1("152") },
   { id: "kp5-eccentric", cusp: 5, topic: "Mind", when: { cusp: 5, minOf: { houses: [1, 4, 6, 8, 12], count: 3 }, none: [5, 11], connectedTo: ["Rahu", "Ketu"] }, text: "The 5th sub lord ties 4, 8, 6, 1 and 12 together with a node connected and without 5 or 11: loose, eccentric thinking; the book goes as far as near-insanity.", polarity: "bad", source: P1("152") },
   { id: "kp5-alcohol", cusp: 5, topic: "Mind", when: { cusp: 5, subLordIs: ["Saturn", "Mars"], minOf: { houses: [1, 2, 3, 4, 6], count: 3 } }, text: "Saturn or Mars as 5th sub lord tying 3, 6, 2, 1 and 4: a leaning to drink.", polarity: "bad", source: P1("152") },
@@ -426,8 +453,8 @@ export const KP_RULES: KpRule[] = [
   { id: "kp6-tenant-leaves", cusp: 6, topic: "Property", when: { cusp: 6, all: [6, 8] }, text: "The 6th sub lord signifies 6 and 8 (the 3rd from the 6th): a tenant leaves in the conjoined period of 6 and 8.", polarity: "neutral", timing: [6, 8], ...DUTTA("sixth", "sixth") },
 
   // ---------------- Cusp VII ----------------
-  { id: "kp7-marriage", cusp: 7, topic: "Marriage", when: { cusp: 7, minOf: { houses: [2, 7, 11], count: 2 } }, text: "The 7th sub lord signifies 2, 7 and 11: marriage is promised, fructifying in the conjoined period of the 2-7-11 significators (Venus should be free of affliction).", polarity: "good", timing: [2, 7, 11], source: P3("51") },
-  { id: "kp7-marriage-denied", cusp: 7, topic: "Marriage", when: { cusp: 7, minOf: { houses: [1, 6, 10, 12], count: 2 }, none: [2, 7, 11] }, text: "The 7th sub lord signifies 1, 6, 10 or 12 and none of 2, 7, 11: marriage is denied or much delayed.", polarity: "bad", source: P3("51") },
+  { id: "kp7-marriage", cusp: 7, topic: "Marriage", when: { cusp: 7, all: [2, 7, 11], venusAfflicted: false }, text: "The 7th sub lord signifies 2, 7 and 11, with unafflicted Venus: marriage is promised, fructifying in the conjoined period of the 2-7-11 significators. The book does not operationalize 'unafflicted Venus'; the reading used here — not combust within 8° of the Sun, and its star lord not strongly tied to the divorce houses 6-10-12-8 without a marriage house — is provisional.", polarity: "good", timing: [2, 7, 11], source: P3("51") },
+  { id: "kp7-marriage-denied", cusp: 7, topic: "Marriage", when: { cusp: 7, strongMinOf: { houses: [1, 6, 10, 12], count: 2 }, none: [2, 7, 11], venusAfflicted: true }, text: "The 7th sub lord strongly signifies 1, 6, 10 or 12, none of 2, 7, 11 at any level, and Venus stands afflicted: the book reads 'marriage will not take place with the party in question' — with a given party, as the horary chapter frames it — 'position of venus too be looked into'. The strength, none-of and Venus readings are this app's operationalization and are provisional.", polarity: "bad", source: P3("51") },
   { id: "kp7-happy", cusp: 7, topic: "Marriage", when: { cusp: 7, subLordIs: ["Venus", "Jupiter"], all: [2, 11] }, text: "Venus or Jupiter as 7th sub lord signifying 2 and 11: a very happy married life.", polarity: "good", source: P3("52") },
   { id: "kp7-harmony", cusp: 7, topic: "Marriage", when: { cusp: 7, minOf: { houses: [2, 5, 7, 11], count: 3 } }, text: "The 7th sub lord signifies 2, 5, 7 and 11: harmony and comfort in the union.", polarity: "good", source: P3("51") },
   { id: "kp7-partner-6-11", cusp: 7, topic: "Partnership", when: { cusp: 7, starLordSignifies: [6, 11] }, text: "The 7th sub lord is in the star of a planet signifying 6 and 11: a business partner is gained.", polarity: "good", source: P3("51") },
@@ -479,14 +506,14 @@ export const KP_RULES: KpRule[] = [
   // ── Cusp VIII from Astro Secrets Part 1, ch. 16 (pp. 179-183) and Dutta's free bhava rules ──
   { id: "kp8-long-life", cusp: 8, topic: "Longevity", when: { cusp: 8, minOf: { houses: [3, 5, 8, 10], count: 3 } }, text: "The 8th sub lord signifies 8, 5, 10 and 3: a long life.", polarity: "good", source: P1("180, 182") },
   { id: "kp8-full-span", cusp: 8, topic: "Longevity", when: { cusp: 8, minOf: { houses: [3, 5, 8, 10], count: 3 }, none: [2, 7], badhaka: false }, text: "The 8th sub lord signifies 5-8-3-10 and is free of the marakas 2 and 7 and of the badhaka: the book allows the full span of life.", polarity: "good", source: P1("180") },
-  { id: "kp8-short-life", cusp: 8, topic: "Longevity", when: { cusp: 8, all: [2, 7], badhaka: true }, text: "The 8th sub lord signifies 2 and 7 and the badhaka house: the span of life is threatened in the conjoined periods of the maraka and badhaka significators. Weigh the lagna and 8th cusps together before saying so.", polarity: "bad", timing: [2, 7], source: P1("180, 182") },
-  { id: "kp8-manner-mars", cusp: 8, topic: "Longevity", when: { cusp: 8, all: [2, 7], badhaka: true, subLordIs: ["Mars"] }, text: "Mars as 8th sub lord on 2, 7 and the badhaka: the book names weapons or gunfire as the manner of the end.", polarity: "bad", source: P1("180") },
-  { id: "kp8-manner-saturn", cusp: 8, topic: "Longevity", when: { cusp: 8, all: [2, 7], badhaka: true, subLordIs: ["Saturn"] }, text: "Saturn as 8th sub lord on 2, 7 and the badhaka: the book names strangulation or hanging.", polarity: "bad", source: P1("180") },
-  { id: "kp8-manner-mercury", cusp: 8, topic: "Longevity", when: { cusp: 8, all: [2, 7], badhaka: true, subLordIs: ["Mercury"] }, text: "Mercury as 8th sub lord on 2, 7 and the badhaka: the book names air, wind or poisonous gas.", polarity: "bad", source: P1("180") },
-  { id: "kp8-manner-jupiter", cusp: 8, topic: "Longevity", when: { cusp: 8, all: [2, 7], badhaka: true, subLordIs: ["Jupiter"] }, text: "Jupiter as 8th sub lord on 2, 7 and the badhaka: the book names a heavy object falling on the body.", polarity: "bad", source: P1("180") },
-  { id: "kp8-manner-venus", cusp: 8, topic: "Longevity", when: { cusp: 8, all: [2, 7], badhaka: true, subLordIs: ["Venus"] }, text: "Venus as 8th sub lord on 2, 7 and the badhaka: the book names a vehicle accident.", polarity: "bad", source: P1("180") },
-  { id: "kp8-manner-poison", cusp: 8, topic: "Longevity", when: { cusp: 8, all: [2, 7], badhaka: true, subLordIs: ["Moon", "Rahu"] }, text: "The Moon or Rahu as 8th sub lord on 2, 7 and the badhaka: the book names poison.", polarity: "bad", source: P1("180-181") },
-  { id: "kp8-manner-sun", cusp: 8, topic: "Longevity", when: { cusp: 8, all: [2, 7], badhaka: true, subLordIs: ["Sun"] }, text: "The Sun as 8th sub lord on 2, 7 and the badhaka: the book names a blow from an iron rod or bar.", polarity: "bad", source: P1("181") },
+  { id: "kp8-short-life", cusp: 8, topic: "Longevity", when: { cusp: 8, strongMinOf: { houses: [2, 7], count: 2 }, strongBadhaka: true }, text: "The 8th sub lord strongly signifies 2 and 7 and the badhaka house: the span of life is threatened in the conjoined periods of the maraka and badhaka significators. The lagna and 8th cusps are weighed together before saying so.", polarity: "bad", timing: [2, 7], source: P1("180, 182") },
+  { id: "kp8-manner-mars", cusp: 8, topic: "Longevity", when: { cusp: 8, strongMinOf: { houses: [2, 7], count: 2 }, strongBadhaka: true, subLordIs: ["Mars"] }, text: "Mars as 8th sub lord strongly on 2, 7 and the badhaka: the book names weapons or gunfire as the manner of the end.", polarity: "bad", source: P1("180") },
+  { id: "kp8-manner-saturn", cusp: 8, topic: "Longevity", when: { cusp: 8, strongMinOf: { houses: [2, 7], count: 2 }, strongBadhaka: true, subLordIs: ["Saturn"] }, text: "Saturn as 8th sub lord strongly on 2, 7 and the badhaka: the book names strangulation or hanging.", polarity: "bad", source: P1("180") },
+  { id: "kp8-manner-mercury", cusp: 8, topic: "Longevity", when: { cusp: 8, strongMinOf: { houses: [2, 7], count: 2 }, strongBadhaka: true, subLordIs: ["Mercury"] }, text: "Mercury as 8th sub lord strongly on 2, 7 and the badhaka: the book names air, wind or poisonous gas.", polarity: "bad", source: P1("180") },
+  { id: "kp8-manner-jupiter", cusp: 8, topic: "Longevity", when: { cusp: 8, strongMinOf: { houses: [2, 7], count: 2 }, strongBadhaka: true, subLordIs: ["Jupiter"] }, text: "Jupiter as 8th sub lord strongly on 2, 7 and the badhaka: the book names a heavy object falling on the body.", polarity: "bad", source: P1("180") },
+  { id: "kp8-manner-venus", cusp: 8, topic: "Longevity", when: { cusp: 8, strongMinOf: { houses: [2, 7], count: 2 }, strongBadhaka: true, subLordIs: ["Venus"] }, text: "Venus as 8th sub lord strongly on 2, 7 and the badhaka: the book names a vehicle accident.", polarity: "bad", source: P1("180") },
+  { id: "kp8-manner-poison", cusp: 8, topic: "Longevity", when: { cusp: 8, strongMinOf: { houses: [2, 7], count: 2 }, strongBadhaka: true, subLordIs: ["Moon", "Rahu"] }, text: "The Moon or Rahu as 8th sub lord strongly on 2, 7 and the badhaka: the book names poison.", polarity: "bad", source: P1("180-181") },
+  { id: "kp8-manner-sun", cusp: 8, topic: "Longevity", when: { cusp: 8, strongMinOf: { houses: [2, 7], count: 2 }, strongBadhaka: true, subLordIs: ["Sun"] }, text: "The Sun as 8th sub lord strongly on 2, 7 and the badhaka: the book names a blow from an iron rod or bar.", polarity: "bad", source: P1("181") },
   { id: "kp8-others-property", cusp: 8, topic: "Legacy", when: { cusp: 8, all: [2], minOf: { houses: [1, 10, 11], count: 2 } }, text: "The 8th sub lord signifies 10, 2, 1 and 11: property comes from others.", polarity: "good", timing: [2, 8, 11], source: P1("181") },
   { id: "kp8-wife-property", cusp: 8, topic: "Legacy", when: { cusp: 8, all: [2, 7], minOf: { houses: [3, 6, 11], count: 1 } }, text: "The 8th sub lord signifies 2 and 7 with 3, 6 or 11: property comes through the wife (stridhana).", polarity: "good", timing: [2, 7, 11], source: P1("181-182") },
   { id: "kp8-lottery", cusp: 8, topic: "Finance", when: { cusp: 8, all: [11], minOf: { houses: [2, 3, 5, 6], count: 3 } }, text: "The 8th sub lord signifies 6, 11, 2, 3 and 5: money through a lottery or prize.", polarity: "good", timing: [2, 5, 11], source: P1("181") },
@@ -607,7 +634,7 @@ export const KP_RULES: KpRule[] = [
   { id: "kp11-institution", cusp: 11, topic: "Career", when: { cusp: 11, all: [6, 10] }, text: "The 11th sub lord signifies 6 and 10: the institution or enterprise the native runs prospers.", polarity: "good", timing: [6, 10, 11], ...DUTTA("eleventh", "eleventh") },
   { id: "kp11-reunion", cusp: 11, topic: "Marriage", when: { cusp: 11, all: [2, 7, 11] }, text: "The 11th sub lord signifies 2, 7 and 11: reunion with the partner after a separation, in the conjoined period of the 2-7-11 significators.", polarity: "good", timing: [2, 7, 11], ...DUTTA("eleventh", "eleventh") },
   { id: "kp11-recover-property", cusp: 11, topic: "Wealth", when: { cusp: 11, all: [2, 6, 11] }, text: "The 11th sub lord signifies 2, 6 and 11: lost property is recovered, in the conjoined period of the 2-6-11 significators.", polarity: "good", timing: [2, 6, 11], ...DUTTA("eleventh", "eleventh") },
-  { id: "kp11-badhaka-movable", cusp: 11, topic: "Longevity", when: { cusp: 11, all: [11], lagnaQuality: ["Movable"] }, text: "For Aries, Cancer, Libra and Capricorn lagnas the 11th is the badhaka house: the book warns that for a movable lagna this house does not give good results in general, and is of no use for going abroad or for research.", polarity: "bad", source: P1("201, 203") },
+  { id: "kp11-badhaka-movable", cusp: 11, topic: "Longevity", when: { cusp: 11, strong: [11], lagnaQuality: ["Movable"] }, text: "For Aries, Cancer, Libra and Capricorn lagnas the 11th is the badhaka house, and its sub lord strongly signifies it: the book warns that for a movable lagna this house does not give good results in general, and is of no use for going abroad or for research.", polarity: "bad", source: P1("201, 203") },
   { id: "kp11-profession", cusp: 11, topic: "Career", when: { cusp: 11, all: [10, 11], none: [5, 8, 12] }, text: "The 11th sub lord signifies 10 and 11: the profession prospers, the 11th completing what the 10th starts.", polarity: "good", timing: [10, 11], source: P1("202") },
   { id: "kp11-grand-marriage", cusp: 11, topic: "Marriage", when: { cusp: 11, all: [7, 11], none: [6, 12] }, text: "The 11th sub lord signifies 7 and 11: marriage celebrated in a grand manner and a lasting friendship with the partner.", polarity: "good", timing: [7, 11], source: P1("202") },
   { id: "kp11-child", cusp: 11, topic: "Children", when: { cusp: 11, all: [5, 11], none: [12] }, text: "The 11th sub lord signifies 5 and 11: a child, and a normal delivery.", polarity: "good", timing: [5, 11], source: P1("202") },
@@ -668,7 +695,7 @@ export const KP_RULES: KpRule[] = [
   { id: "kp12-income", cusp: 12, topic: "Finance", when: { cusp: 12, all: [2] }, text: "The 12th sub lord signifies the 2nd: regular income even in the period of a 12th-house significator, contrary to what the house alone would suggest.", polarity: "good", source: P3C5("30-31") },
   { id: "kp2-depleted", cusp: 2, topic: "Finance", when: { cusp: 2, all: [12], none: [2, 11] }, text: "The 2nd sub lord signifies the 12th and not 2 or 11: in the period of a 2nd-house significator income depletes and expenditure grows, the reverse of what the period lord seems to promise.", polarity: "bad", source: P3C5("30-31") },
   { id: "kp2-weak-8", cusp: 2, topic: "Finance", when: { cusp: 2, all: [8], none: [11] }, text: "The 2nd sub lord is tied to the 8th (directly or through a node acting for the 8th occupant): the financial standing falls short of what a 2nd-house period promises; legacy money arrives and is spent within the period, with mental strain over family matters.", polarity: "bad", source: P3C5("29-30") },
-  { id: "kp7-denied-by-6", cusp: 7, topic: "Marriage", when: { cusp: 7, all: [6], none: [2, 7, 11] }, text: "The 7th sub lord signifies the 6th (the 12th to the 7th) and none of 2, 7, 11: marriage does not come, even while a 2-7-11 significator's period runs; only the other matters the 7th sub lord signifies can happen in that period.", polarity: "bad", source: P3C5("28") },
+  { id: "kp7-denied-by-6", cusp: 7, topic: "Marriage", when: { cusp: 7, fullSignifier: [6], none: [2, 7, 11] }, text: "The 7th sub lord is a full significator of the 6th (the 12th to the 7th — it owns the 6th cusp, occupies the 6th with no planet in its stars, or stands in the star of a planet in the 6th) and none of 2, 7, 11: the book's answer to 'when will his marriage come up' is 'no marriage' — even while a 2-7-11 significator's period runs, this sub lord cannot deliver marriage, and only the other matters it signifies can happen in that period. The book says to apply this to natal charts too; the none-of guard is this app's reading, provisional.", polarity: "bad", source: P3C5("28") },
   { id: "kp7-career-not-marriage", cusp: 7, topic: "Marriage", when: { cusp: 7, all: [6, 10], none: [2, 7, 11] }, text: "The 7th sub lord signifies 6 and 10 without 2, 7, 11: no marriage, but the period of the 7th significator brings occupational advance instead (business if the sub lord is in an earthy sign).", polarity: "neutral", source: P3C5("29") },
   { id: "kp7-affairs", cusp: 7, topic: "Marriage", when: { cusp: 7, all: [2, 5, 9], none: [7, 11] }, text: "The 7th sub lord signifies 2, 5 and 9 without 7 or 11: the book reads no marriage but relationships in the period of the 7th significator.", polarity: "neutral", source: P3C5("29") },
   { id: "kp8-harmless", cusp: 8, topic: "Accidents", when: { cusp: 8, minOf: { houses: [1, 3, 10, 11], count: 2 } }, text: "The 8th sub lord is connected to the improving houses, 1, 3, 10 and 11 above all: the 8th's matters turn to advantage. Even the period of a full 8th-house significator brings no accident or lasting harm, only passing strain, and money can come from unforeseen sources.", polarity: "good", source: `${P3C5("29")}; ${P2C7("53")}` },
@@ -681,7 +708,7 @@ export const KP_RULES: KpRule[] = [
   { id: "kp11-ambitions-fail", cusp: 11, topic: "Gains", when: { cusp: 11, any: [8, 12], none: [11] }, text: "The 11th sub lord is tied to 8 or 12 and not to the 11th itself: ambitions fall short through life, and even the period of a full 11th significator gives little of what was desired.", polarity: "bad", source: P3C5("32") },
   { id: "kp3-writer", cusp: 3, topic: "Communications", when: { cusp: 3, all: [3, 11] }, text: "The 3rd sub lord signifies 3 and 11: in the period of a 3rd-house significator, boldness, writing that earns a name, communicative gifts and beneficial journeys.", polarity: "good", timing: [3, 11], source: P3C5("32-33") },
   { id: "kp11-badhaka-loosened", cusp: 11, topic: "Longevity", when: { cusp: 11, subLordInHouse: [10], lagnaQuality: ["Movable"] }, text: "Movable lagna: the 11th is the badhaka, but its sub lord sits in the 10th, the 12th to the 11th, so the badhaka loses its strength and long life is read.", polarity: "good", source: P2C7("55-56") },
-  { id: "kp1-early-end", cusp: 1, topic: "Longevity", when: { cusp: 1, maraka: true, badhaka: true }, text: "The lagna sub lord signifies a maraka house (2 or 7) and the badhaka: the book reads a short span, below 33, closing in the period of a 1st-house significator; the sign quality colours the circumstances (movable: in comfort; fixed: in a position of power; dual: amid business and public contacts). Weigh with the 8th cusp before saying so.", polarity: "bad", source: P3C5("31") },
+  { id: "kp1-early-end", cusp: 1, topic: "Longevity", when: { cusp: 1, strongMaraka: true, strongBadhaka: true }, text: "The lagna sub lord strongly signifies a maraka house (2 or 7) and the badhaka: the book reads a short span — for a movable lagna very early, even in the period of a 1st-house significator, in affluent circumstances; for a fixed lagna very early, before 33, in a position of power; for a dual lagna death comes in rather early, amid good public contacts and business through the partner. The 8th cusp is weighed with it before saying so (Part 1 ch. 16 pp. 180-182).", polarity: "bad", source: P3C5("31") },
 ];
 
 // ---------- evaluation ----------
@@ -697,6 +724,46 @@ function strongHouses(r: Partial, planet: Planet): number[] {
   const s = r.significators.find((x) => x.planet === planet);
   if (!s) return [];
   return Array.from(new Set([...s.levels.A, ...s.levels.B]));
+}
+
+/**
+ * Venus affliction, the book's unoperationalized qualifier on the 7th-cusp marriage rules
+ * ("with unafflicted venus", "position of venus too be looked into" — Part 3 ch. 6 p. 51),
+ * read provisionally: combust within 8° of the Sun (Part 3 p. 215: "Said to a planet closer
+ * than 8 degrees to the Sun"), or standing in the star of a planet that strongly signifies
+ * the houses that serve divorce (6, 10, 12, 8 — Part 3 p. 11) without strongly signifying any
+ * marriage house (2, 7, 11). The Part 3 ch. 19 case judges a significator's capacity exactly
+ * this way, through its star lord.
+ */
+function venusIsAfflicted(r: Partial): boolean {
+  const venus = r.planets.find((p) => p.planet === "Venus");
+  const sun = r.planets.find((p) => p.planet === "Sun");
+  if (!venus || !sun) return false;
+  const dist = Math.abs(((venus.lon - sun.lon + 540) % 360) - 180);
+  if (dist <= 8) return true;
+  const st = strongHouses(r, venus.starLord);
+  const divorce = [6, 10, 12, 8];
+  const marriage = [2, 7, 11];
+  return st.some((h) => divorce.includes(h)) && !st.some((h) => marriage.includes(h));
+}
+
+/**
+ * Full signification in the ch. 5 sense (Part 3 ch. 5 p. 28: "how it signifies 7 fully. This
+ * happens when the planet owns the 7th cusp or [is] a planet in 7th having no planet in its
+ * stars; or may be found stationed in the star of a planet in 7th or deposited in its own star
+ * in 7th house"): cusp ownership, vacant occupancy, star-of-occupant, or own-star occupancy.
+ */
+function isFullSignifier(r: Partial, planet: Planet, house: number): boolean {
+  const p = r.planets.find((x) => x.planet === planet);
+  if (!p) return false;
+  if (r.cusps[house - 1].signLord === planet) return true;
+  const star = r.planets.find((x) => x.planet === p.starLord);
+  if (star && star.house === house) return true;
+  if (p.house === house) {
+    const inItsStar = r.planets.some((q) => q.planet !== planet && q.starLord === planet);
+    if (!inItsStar || p.starLord === planet) return true;
+  }
+  return false;
 }
 
 /** Connection between two planets in the KP sense used by the rules. */
@@ -741,6 +808,29 @@ function meets(r: Partial, w: KpRuleWhen, six: boolean): { ok: boolean; used: nu
   if (w.strong) {
     const st = strongHouses(r, sl);
     const hit = w.strong.filter((h) => st.includes(h));
+    if (!hit.length) return { ok: false, used: [] };
+    hit.forEach((h) => used.add(h));
+  }
+  if (w.strongMinOf) {
+    const st = strongHouses(r, sl);
+    const hit = w.strongMinOf.houses.filter((h) => st.includes(h));
+    if (hit.length < w.strongMinOf.count) return { ok: false, used: [] };
+    hit.forEach((h) => used.add(h));
+  }
+  if (w.strongMaraka !== undefined) {
+    const st = strongHouses(r, sl);
+    const hit = r.marakas.filter((h) => st.includes(h));
+    if ((hit.length > 0) !== w.strongMaraka) return { ok: false, used: [] };
+    hit.forEach((h) => used.add(h));
+  }
+  if (w.strongBadhaka !== undefined) {
+    const st = strongHouses(r, sl);
+    if (st.includes(r.badhaka) !== w.strongBadhaka) return { ok: false, used: [] };
+    if (w.strongBadhaka) used.add(r.badhaka);
+  }
+  if (w.venusAfflicted !== undefined && venusIsAfflicted(r) !== w.venusAfflicted) return { ok: false, used: [] };
+  if (w.fullSignifier) {
+    const hit = w.fullSignifier.filter((h) => isFullSignifier(r, sl, h));
     if (!hit.length) return { ok: false, used: [] };
     hit.forEach((h) => used.add(h));
   }
