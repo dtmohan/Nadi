@@ -3,6 +3,8 @@ import type { TimeBasis } from "@shared/time-basis";
 import {
   SUNRISE_DEFINITIONS,
   normaliseSunriseDef,
+  normaliseParashariHouseMethod,
+  PARASHARI_HOUSE_METHOD_IDS,
   type Chart,
 } from "@shared/schema";
 import { chartsStore, CHARTS_QUERY_KEY } from "@/lib/charts-store";
@@ -96,6 +98,47 @@ export function ChartSettings({
               }{" "}
               Moves the vara boundary, the Panchanga runs, the Hora and Ghatika
               lagnas and the day-night split in Shadbala together.
+            </div>
+          </dd>
+          <dt className="text-muted-foreground">Houses</dt>
+          <dd>
+            <select
+              className="tabular block w-full rounded-md border bg-background px-1.5 py-0.5 text-xs"
+              value={normaliseParashariHouseMethod(chart.parashariHouseMethod)}
+              onChange={async (e) => {
+                await chartsStore.update(chart.id, {
+                  parashariHouseMethod: normaliseParashariHouseMethod(
+                    e.target.value,
+                  ),
+                });
+                await queryClient.invalidateQueries({
+                  queryKey: ["chart-result", String(chart.id)],
+                });
+                await queryClient.invalidateQueries({
+                  queryKey: CHARTS_QUERY_KEY,
+                });
+              }}
+              aria-label="Parashari house method"
+              data-testid="select-settings-parashari-house-method"
+            >
+              {PARASHARI_HOUSE_METHOD_IDS.map((m) => (
+                <option key={m} value={m}>
+                  {m === "rashi"
+                    ? "Rashi (whole sign)"
+                    : m === "sripati"
+                      ? "Bhava chalit — Sripati"
+                      : "Bhava chalit — equal"}
+                </option>
+              ))}
+            </select>
+            <div
+              className="mt-1 text-2xs text-muted-foreground"
+              data-testid="text-house-method-note"
+            >
+              Carries the Parashari house, node, house-effects and house-lord
+              readings. The texts state their results by whole sign, so a chalit
+              reading is marked provisional. KP keeps its Placidus cusps; the
+              sign-counted yoga layers, Jaimini, BNN and ALP keep whole sign.
             </div>
           </dd>
           <dt className="text-muted-foreground">Time zone</dt>

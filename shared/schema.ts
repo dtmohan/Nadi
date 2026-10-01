@@ -28,6 +28,8 @@ export const charts = sqliteTable("charts", {
   nodeType: text("node_type").notNull().default("mean"),
   /** Which instant counts as sunrise: "edge" (upper limb, refracted), "centre" (disc centre, refracted), "edge-true" (upper limb, no refraction), "centre-true" (disc centre, no refraction). */
   sunriseDef: text("sunrise_def").notNull().default("edge"),
+  /** House placement for the Parashari house, node, house-effects and house-lord readings: "rashi" (whole sign, the default) | "sripati" | "equal" (bhava chalit). */
+  parashariHouseMethod: text("parashari_house_method").notNull().default("rashi"),
   notes: text("notes").notNull().default(""),
   /** Optional date of passing (YYYY-MM-DD). Fixes the age the readings use and lets the lifespan methods be tested on the deceased; never used to compute or display a forecast. */
   deathDate: text("death_date"),
@@ -77,6 +79,11 @@ export type SunriseDefinition = (typeof SUNRISE_DEFINITIONS)[number]["id"];
 export const SUNRISE_DEF_IDS = SUNRISE_DEFINITIONS.map((d) => d.id) as SunriseDefinition[];
 export const normaliseSunriseDef = (v: unknown): SunriseDefinition =>
   (SUNRISE_DEF_IDS as string[]).includes(v as string) ? (v as SunriseDefinition) : "edge";
+
+export const PARASHARI_HOUSE_METHOD_IDS = ["rashi", "sripati", "equal"] as const;
+export type ParashariHouseMethodId = (typeof PARASHARI_HOUSE_METHOD_IDS)[number];
+export const normaliseParashariHouseMethod = (v: unknown): ParashariHouseMethodId =>
+  (PARASHARI_HOUSE_METHOD_IDS as readonly string[]).includes(v as string) ? (v as ParashariHouseMethodId) : "rashi";
 
 export interface ChartResult {
   chart: Chart;

@@ -6,6 +6,7 @@ import { norm360, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
 import type { AshtakavargaResult } from "./ashtakavarga";
 import { SEVEN, sphutaDrishti, type BalaSource, type Seven, type ShadbalaResult } from "./shadbala";
+import type { HouseView } from "./house-view";
 
 export interface PhalaPart {
   label: string;
@@ -57,7 +58,7 @@ export function computeVargaPhala(sb: ShadbalaResult): VargaPhala[] {
  * 28.15-20 for the twelve houses. Benefic and malefic follow the same rule as Shadbala's Drik bala
  * (Jupiter, Venus, the waxing Moon, and Mercury without a malefic in its sign).
  */
-export function computeBhavaPhala(positions: PlanetPosition[], sb: ShadbalaResult, av: AshtakavargaResult): BhavaPhala[] {
+export function computeBhavaPhala(positions: PlanetPosition[], sb: ShadbalaResult, av: AshtakavargaResult, view?: HouseView): BhavaPhala[] {
   const pos = (p: Planet) => positions.find((x) => x.planet === p)!;
   const sun = pos("Sun"), moon = pos("Moon");
   const waxing = norm360(moon.lon - sun.lon) < 180;
@@ -72,7 +73,14 @@ export function computeBhavaPhala(positions: PlanetPosition[], sb: ShadbalaResul
 
   return sb.bhavas.map((b) => {
     const parts: PhalaPart[] = [];
-    const lord = b.lord;
+    // Placement follows the selected house view: the sign the house is named after, its lord and its
+    // occupants. Bhava bala (b.total) stays as measured on the equal cusps in the Shadbala pass; cusp
+    // aspects stay on that same cusp — a stated approximation under Sripati, exact under equal.
+    const house = b.house;
+    const si = view ? view.signOfHouse(house) : b.signIndex;
+    // SIGN_LORD holds only the seven classical lords (Parashara: the nodes own no house), so the cast is safe.
+    const lord = (view ? view.lordOf(house) : b.lord) as Seven;
+    const occupies = (q: Seven) => (view ? view.occupantsOf(house).some((p) => p.planet === q) : pos(q).signIndex === si);
     const L = bala(lord), LI = ik(lord);
     // 28.15: the effect is a combination of the bhava's and the lord's strength; the lord's Ishta and Kashta
     // split that combined strength into its auspicious and inauspicious shares.
@@ -80,13 +88,13 @@ export function computeBhavaPhala(positions: PlanetPosition[], sb: ShadbalaResul
     parts.push({ label: `Bhava bala ${b.total.toFixed(0)} and lord ${lord} ${L.total.toFixed(0)}, split by the lord's Ishta ${LI.ishta.toFixed(0)} / Kashta ${LI.kashta.toFixed(0)}`, subha: (combined * LI.ishta) / 60, asubha: (combined * LI.kashta) / 60, source: PHALA_SOURCES.base });
     // 28.16-17: a benefic in the house adds its Ishta to the good and takes it from the ill; a malefic the reverse with its Kashta.
     for (const q of SEVEN) {
-      if (pos(q).signIndex !== b.signIndex) continue;
+      if (!occupies(q)) continue;
       const good = isBenefic(q), v = good ? ik(q).ishta : ik(q).kashta;
       parts.push({ label: `${q} in the house (${good ? "benefic" : "malefic"}), ${good ? "Ishta" : "Kashta"} ${v.toFixed(0)}`, subha: good ? v : -v, asubha: good ? -v : v, source: PHALA_SOURCES.occupant });
     }
     // 28.17 "similarly aspects": each aspect on the cusp, weighted by the aspecting planet's Ishta or Kashta share.
     for (const q of SEVEN) {
-      if (pos(q).signIndex === b.signIndex) continue;
+      if (occupies(q)) continue;
       const d = sphutaDrishti(q, b.cusp - pos(q).lon);
       if (d <= 0) continue;
       const good = isBenefic(q);
@@ -99,14 +107,14 @@ export function computeBhavaPhala(positions: PlanetPosition[], sb: ShadbalaResul
     else if (rasi.subhanka <= 4) parts.push({ label: `Lord ${lord} in rasi: ${rasi.relation}, asubhanka ${60 - rasi.subhanka}`, subha: -(60 - rasi.subhanka), asubha: 60 - rasi.subhanka, source: PHALA_SOURCES.dignity });
     else parts.push({ label: `Lord ${lord} in a neutral sign: no dignity adjustment (28.10)`, subha: 0, asubha: 0, source: PHALA_SOURCES.dignity });
     // 28.19: Ashtakavarga rekhas of the sign added to the good, the dots (56 less the rekhas in the aggregate) taken.
-    const rek = av.sarva[b.signIndex], dots = 56 - rek;
+    const rek = av.sarva[si], dots = 56 - rek;
     parts.push({ label: `Sarvashtakavarga ${rek} rekhas, ${dots} dots in the sign`, subha: rek - dots, asubha: dots - rek, source: PHALA_SOURCES.ashtakavarga });
 
     const subha = parts.reduce((a, p) => a + p.subha, 0);
     const asubha = parts.reduce((a, p) => a + p.asubha, 0);
     const net = subha - asubha;
     const share = subha + asubha > 0 ? subha / (subha + asubha) : 0.5;
-    return { house: b.house, signIndex: b.signIndex, lord, subha, asubha, net, share, verdict: share >= 0.6 ? "auspicious" : share <= 0.4 ? "inauspicious" : "even", parts };
+    return { house: b.house, signIndex: si, lord, subha, asubha, net, share, verdict: share >= 0.6 ? "auspicious" : share <= 0.4 ? "inauspicious" : "even", parts };
   });
 }
 

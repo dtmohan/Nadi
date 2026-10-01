@@ -6,6 +6,7 @@
  * and that is how it is shown.
  */
 import { SIGNS, SIGN_LORD, houseFrom, type Planet, type PlanetPosition } from "./astro";
+import type { HouseView } from "./house-view";
 import type { ParashariFinding, ParashariSource } from "./parashari";
 
 const P = (verse: string): ParashariSource => ({
@@ -57,24 +58,36 @@ const KETU: { tone: ParashariFinding["tone"]; text: (h: number, sign: string, di
 
 export function nodeFindings(
   positions: PlanetPosition[],
+  view: HouseView,
   lagnaIdx: number,
 ): ParashariFinding[] {
   const F: ParashariFinding[] = [];
   for (const node of ["Rahu", "Ketu"] as const) {
     const p = positions.find((x) => x.planet === node)!;
-    const h = houseFrom(lagnaIdx, p.signIndex);
+    const h = view.houseOf(p);
     const sign = SIGNS[p.signIndex];
     const disp = SIGN_LORD[p.signIndex];
     const entry = (node === "Rahu" ? RAHU : KETU)[h - 1];
+    const chalit = view.method !== "rashi";
+    const rashiH = houseFrom(lagnaIdx, p.signIndex);
+    const src: ParashariSource = node === "Rahu" ? P("25-27") : P("28-33");
+    if (chalit) {
+      src.label += ", bhava-chalit placement";
+      src.provisional = true;
+    }
     F.push({
       id: `pa-node-${node.toLowerCase()}`,
       kind: "house",
       house: h,
       title: `${node} in the ${ord(h)}`,
-      text: entry.text(h, sign, disp),
+      text:
+        entry.text(h, sign, disp) +
+        (chalit
+          ? ` Read in the ${ord(h)} bhava of the ${view.method === "sripati" ? "Sripati" : "equal"} construction; by whole sign ${node} is in the ${ord(rashiH)}. Phaladeepika states the result by sign from the lagna, so this is a bhava-chalit reinterpretation, provisional.`
+          : ""),
       tone: entry.tone,
       planets: [node as Planet],
-      source: node === "Rahu" ? P("25-27") : P("28-33"),
+      source: src,
     });
   }
   return F;

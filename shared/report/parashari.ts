@@ -10,6 +10,7 @@ import {
 import { HOUSE_MATTERS, HOUSE_MATTERS_SOURCE } from "../parashari-houses";
 import { LAGNA_NATURE, BPHS_URL } from "../parashari-data";
 import { computeVargas, VARGAS, SCHEMES } from "../vargas";
+import { normaliseParashariHouseMethod } from "../schema";
 import { AREA_ONSET, HOUSE_AREA } from "../life-stage";
 import { GENTLE_NOTE } from "../gentle";
 import {
@@ -36,6 +37,7 @@ function computeFor(ctx: ReportContext): ParashariResult {
     result.dasaStarts,
     DEFAULT_ASPECT_FLOOR,
     withheld,
+    normaliseParashariHouseMethod(result.chart.parashariHouseMethod),
   );
 }
 

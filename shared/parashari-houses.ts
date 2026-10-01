@@ -7,6 +7,7 @@ import { SIGNS, SIGN_LORD, houseFrom, type Planet, type PlanetPosition } from ".
 import { BPHS_URL } from "./parashari-data";
 import { computeVargas } from "./vargas";
 import type { ShadbalaResult } from "./shadbala";
+import type { HouseView } from "./house-view";
 import type { ParashariFinding, ParashariSource } from "./parashari";
 
 const S = (ch: number, verse: string, provisional?: boolean): ParashariSource => ({ label: `Parashara ${ch}.${verse}`, url: BPHS_URL(ch), provisional });
@@ -62,15 +63,15 @@ export interface HouseDeps {
   benefic: (p: PlanetPosition, all: PlanetPosition[]) => boolean;
 }
 
-export function judgeBhavas(positions: PlanetPosition[], lagnaIdx: number, deps: HouseDeps, shadbala?: ShadbalaResult): BhavaJudgement[] {
+export function judgeBhavas(positions: PlanetPosition[], view: HouseView, deps: HouseDeps, shadbala?: ShadbalaResult): BhavaJudgement[] {
   const losers = new Set<Planet>((shadbala?.wars ?? []).map((w) => w.loser));
   const out: BhavaJudgement[] = [];
   for (let h = 1; h <= 12; h++) {
-    const si = (lagnaIdx + h - 1) % 12;
-    const lord = SIGN_LORD[si];
+    const si = view.signOfHouse(h);
+    const lord = view.lordOf(h);
     const lp = positions.find((p) => p.planet === lord)!;
-    const lordHouse = houseFrom(lagnaIdx, lp.signIndex);
-    const occupants = positions.filter((p) => p.signIndex === si);
+    const lordHouse = view.houseOf(lp);
+    const occupants = view.occupantsOf(h);
     const support: string[] = [];
     const strain: string[] = [];
     const benIn = occupants.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
@@ -81,8 +82,8 @@ export function judgeBhavas(positions: PlanetPosition[], lagnaIdx: number, deps:
     if (lp.signIndex !== si && deps.aspect(lord, lp.signIndex, si) === 0) strain.push(`lord ${lord} does not aspect the house`);
     const withMal = positions.filter((p) => p.signIndex === lp.signIndex && p.planet !== lord && !deps.benefic(p, positions)).map((p) => p.planet);
     if (withMal.length) strain.push(`lord with ${list(withMal)}`);
-    const evilLords = EVIL_LORDS.map((e) => SIGN_LORD[(lagnaIdx + e - 1) % 12]).filter((e) => e !== lord);
-    const withEvil = positions.filter((p) => p.signIndex === lp.signIndex && p.planet !== lord && evilLords.includes(p.planet) && !withMal.includes(p.planet)).map((p) => `${p.planet} (lord of the ${list(EVIL_LORDS.filter((e) => SIGN_LORD[(lagnaIdx + e - 1) % 12] === p.planet).map(ord))})`);
+    const evilLords = EVIL_LORDS.map((e) => view.lordOf(e)).filter((e) => e !== lord);
+    const withEvil = positions.filter((p) => p.signIndex === lp.signIndex && p.planet !== lord && evilLords.includes(p.planet) && !withMal.includes(p.planet)).map((p) => `${p.planet} (lord of the ${list(EVIL_LORDS.filter((e) => view.lordOf(e) === p.planet).map(ord))})`);
     if (withEvil.length) strain.push(`lord with ${list(withEvil)}`);
     if (losers.has(lord)) strain.push(`lord ${lord} defeated in planetary war`);
     const tone = support.length && strain.length ? "mixed" : support.length ? "support" : strain.length ? "strain" : "none";
@@ -95,12 +96,13 @@ const QUADRUPED = new Set([0, 1, 4, 9]); // Aries, Taurus, Leo, Capricorn (whole
 const navamsaSign = (p: PlanetPosition) => (p.signIndex * 9 + Math.floor(p.degInSign / (30 / 9))) % 12;
 
 /** Findings for the 1st (ch. 12) and 2nd (ch. 13) houses. */
-export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lagnaLon: number, deps: HouseDeps, shadbala?: ShadbalaResult): ParashariFinding[] {
+export function houseFindings(positions: PlanetPosition[], view: HouseView, lagnaLon: number, lagnaIdx: number, deps: HouseDeps, shadbala?: ShadbalaResult): ParashariFinding[] {
   const F: ParashariFinding[] = [];
   const pos = (pl: Planet) => positions.find((p) => p.planet === pl)!;
-  const houseOf = (pl: Planet) => houseFrom(lagnaIdx, pos(pl).signIndex);
-  const signOfHouse = (h: number) => (lagnaIdx + h - 1) % 12;
-  const lordOf = (h: number) => SIGN_LORD[signOfHouse(h)];
+  const houseOf = (pl: Planet) => view.houseOf(pos(pl));
+  const signOfHouse = (h: number) => view.signOfHouse(h);
+  const lordOf = (h: number) => view.lordOf(h);
+  const inHouse = (h: number) => view.occupantsOf(h);
   const ben = (pl: Planet) => deps.benefic(pos(pl), positions);
   const inSign = (si: number) => positions.filter((p) => p.signIndex === si);
   const withPl = (pl: Planet) => inSign(pos(pl).signIndex).filter((p) => p.planet !== pl);
@@ -126,21 +128,24 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   }
   const l1Weak = pos(l1).dignity === "Debilitated" ? "debilitated" : pos(l1).dignity === "Inimical" ? "in an enemy's sign" : combust(l1) ? "combust" : null;
   if (l1Weak) {
-    const benKT = positions.filter((p) => p.planet !== l1 && deps.benefic(p, positions) && inKT(houseFrom(lagnaIdx, p.signIndex))).map((p) => p.planet);
+    const benKT = positions.filter((p) => p.planet !== l1 && deps.benefic(p, positions) && inKT(view.houseOf(p))).map((p) => p.planet);
     push("pa-h1-12-2b", 1, benKT.length ? "Disease from the lagna lord, relieved" : "Disease from the lagna lord", `${l1}, lord of the lagna, is ${l1Weak}, which Parashara reads as disease. ${benKT.length ? `A benefic in an angle or trine removes all disease, he adds, and ${list(benKT)} ${v(benKT, "stands", "stand")} so placed (the lagna lord itself is not counted).` : "No other benefic stands in an angle or trine to remove it."}`, benKT.length ? "mixed" : "strain", [l1, ...benKT], S(12, "2", benKT.length > 0));
   }
   // 12.3: lagna or Moon with or aspected by a malefic and without a benefic's aspect.
-  for (const [what, si] of [["the lagna", signOfHouse(1)], ["the Moon", pos("Moon").signIndex]] as [string, number][]) {
-    const malIn = inSign(si).filter((p) => !deps.benefic(p, positions) && p.planet !== "Moon").map((p) => p.planet);
+  for (const [what, oc, si] of [
+    ["the lagna", inHouse(1), signOfHouse(1)],
+    ["the Moon", inSign(pos("Moon").signIndex), pos("Moon").signIndex],
+  ] as [string, PlanetPosition[], number][]) {
+    const malIn = oc.filter((p) => !deps.benefic(p, positions) && p.planet !== "Moon").map((p) => p.planet);
     const malAsp = aspectingSign(si, "malefic");
     const benAsp = aspectingSign(si, "benefic");
-    const benIn = inSign(si).filter((p) => deps.benefic(p, positions) && p.planet !== "Moon").map((p) => p.planet);
+    const benIn = oc.filter((p) => deps.benefic(p, positions) && p.planet !== "Moon").map((p) => p.planet);
     if ((malIn.length || malAsp.length) && !benAsp.length && !benIn.length) {
       push(`pa-h1-12-3-${what === "the Moon" ? "moon" : "lagna"}`, 1, `${what === "the Moon" ? "Moon" : "Lagna"} under malefics alone`, `${what[0].toUpperCase()}${what.slice(1)} is ${malIn.length ? `joined by ${list(malIn)}` : ""}${malIn.length && malAsp.length ? " and " : ""}${malAsp.length ? `aspected by ${list(malAsp)}` : ""}, with no benefic aspect. Parashara denies bodily health in this case.`, "strain", [...(what === "the Moon" ? ["Moon" as Planet] : []), ...malIn, ...malAsp], S(12, "3"));
     }
   }
   // 12.4: appearance from planets in the lagna, felicity from a benefic joining or aspecting it.
-  const inL = inSign(signOfHouse(1));
+  const inL = inHouse(1);
   const benL = inL.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
   const malL = inL.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
   const benAspL = aspectingSign(signOfHouse(1), "benefic");
@@ -181,7 +186,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   const h2 = houseOf(l2);
   const l11 = lordOf(11);
   const h11 = houseOf(l11);
-  const in2 = inSign(signOfHouse(2));
+  const in2 = inHouse(2);
   const ben2 = in2.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
   const mal2 = in2.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
   if (h2 === 2 || inKT(h2)) {
@@ -225,7 +230,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
     push("pa-h2-13-8", 2, "Loss of wealth through authority", `${l2} and ${l11}, lords of the 2nd and 11th, are in the ${ord(h2)} and ${ord(h11)}, Mars is in the 11th and Rahu in the 2nd. Parashara says wealth is lost through royal punishment.`, "strain", [l2, l11, "Mars", "Rahu"], S(13, "8"));
   }
   // 13.9: expenses on good accounts.
-  const ben12 = inSign(signOfHouse(12)).filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
+  const ben12 = inHouse(12).filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
   if (houseOf("Jupiter") === 11 && houseOf("Venus") === 2 && ben12.length && beneficsWith(l2).length) {
     push("pa-h2-13-9", 2, "Spending on good causes", `Jupiter is in the 11th, Venus in the 2nd, ${list(ben12)} in the 12th and ${l2}, lord of the 2nd, is joined by ${list(beneficsWith(l2))}. Parashara says expenses go to religious and charitable ends.`, "support", ["Jupiter", "Venus", ...ben12, l2], S(13, "9"));
   }
@@ -253,7 +258,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   // ---- Chapter 14: the 3rd house ----
   const l3 = lordOf(3);
   const s3 = signOfHouse(3);
-  const in3 = inSign(s3);
+  const in3 = inHouse(3);
   const ben3 = in3.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
   const benAsp3 = aspectingSign(s3, "benefic");
   if (ben3.length || benAsp3.length) {
@@ -309,7 +314,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   const l10 = lordOf(10);
   const l11b = lordOf(11);
   const s4 = signOfHouse(4);
-  const in4 = inSign(s4);
+  const in4 = inHouse(4);
   const benAsp4 = aspectingSign(s4, "benefic");
   if ((houseOf(l4) === 4 || houseOf(l1) === 4) && benAsp4.length) {
     push("pa-h4-15-2", 4, "Residential comforts", `${houseOf(l4) === 4 ? `${l4}, lord of the 4th,` : `${l1}, lord of the lagna,`} occupies the 4th and ${list(benAsp4)} ${v(benAsp4, "aspects", "aspect")} it. Parashara promises housing comforts in full.`, "support", [houseOf(l4) === 4 ? l4 : l1, ...benAsp4], S(15, "2"));
@@ -354,7 +359,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   const l9 = lordOf(9);
   const h5 = houseOf(l5);
   const s5 = signOfHouse(5);
-  const in5 = inSign(s5);
+  const in5 = inHouse(5);
   const own = (pl: Planet) => ["Own sign", "Moolatrikona"].includes(pos(pl).dignity);
   const l5Deb = pos(l5).dignity === "Debilitated";
   const mal5 = in5.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
@@ -425,7 +430,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   const l12 = lordOf(12);
   const h6 = houseOf(l6);
   const s6 = signOfHouse(6);
-  const in6 = inSign(s6);
+  const in6 = inHouse(6);
   const exch = (a: Planet, b: Planet, ha: number, hb: number) => a !== b && houseOf(a) === hb && houseOf(b) === ha;
   const withEach = (a: Planet, b: Planet) => a !== b && pos(a).signIndex === pos(b).signIndex;
   const natMal = (pl: Planet) => ["Sun", "Mars", "Saturn"].includes(pl);
@@ -447,7 +452,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   }
   if (houseOf(l6) === 1 && houseOf(l8) === 1) {
     const DIS: Partial<Record<Planet, string>> = { Sun: "fever and tumours", Mars: "swelling and hardening of blood vessels, wounds and injuries by weapons", Mercury: "bilious complaints", Jupiter: "the destruction of disease", Venus: "disease through women", Saturn: "windy complaints", Rahu: "danger through men of low station", Ketu: "navel complaints", Moon: "danger through water and phlegmatic disorders" };
-    const third = inSign(signOfHouse(1)).map((p) => p.planet).filter((p) => p !== l6 && p !== l8 && DIS[p]);
+    const third = inHouse(1).map((p) => p.planet).filter((p) => p !== l6 && p !== l8 && DIS[p]);
     if (third.length) push("pa-h6-17-9", 6, "Disease from the lagna", `${l6} and ${l8}, lords of the 6th and 8th, are in the lagna with ${list(third)}. Parashara reads ${list(third.map((p) => `${DIS[p]} (${p})`))}.`, third.includes("Jupiter") && third.length === 1 ? "support" : "strain", [l6, l8, ...third], S(17, "9-12"));
   }
   {
@@ -501,7 +506,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   const l7 = lordOf(7);
   const h7 = houseOf(l7);
   const s7 = signOfHouse(7);
-  const in7 = inSign(s7);
+  const in7 = inHouse(7);
   const disp = (pl: Planet) => SIGN_LORD[pos(pl).signIndex];
   const l7Deb = pos(l7).dignity === "Debilitated";
   const l7Exalt = pos(l7).dignity === "Exalted";
@@ -538,7 +543,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
     }
   }
   {
-    const mal12 = inSign(signOfHouse(12)).filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
+    const mal12 = inHouse(12).filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
     const mal7 = in7.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
     if (mal12.length && mal7.length && houseOf("Moon") === 5 && !ben("Moon")) {
       push("pa-h7-18-10", 7, "Spouse holds sway", `${list(mal12)} in the 12th, ${list(mal7)} in the 7th, and the waning Moon in the 5th. Parashara reads a native governed by the spouse, who is at odds with the family.`, "strain", [...mal12, ...mal7, "Moon"], S(18, "10"));
@@ -631,7 +636,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   // ---- Chapter 19: the 8th house ----
   const h8 = houseOf(l8);
   const s8 = signOfHouse(8);
-  const mal8 = inSign(s8).filter((p) => !deps.benefic(p, positions) && p.planet !== l8).map((p) => p.planet);
+  const mal8 = inHouse(8).filter((p) => !deps.benefic(p, positions) && p.planet !== l8).map((p) => p.planet);
   if (KENDRA.includes(h8)) {
     push("pa-h8-19-1", 8, "Long life", `${l8}, lord of the 8th, is in the ${ord(h8)}, an angle. Parashara reads long life${strong(l1) === false ? `, though 19.8 sets the lagna lord's weakness against the same placement, and ${l1} is short of its Shadbala requirement here` : ""}.`, strong(l1) === false ? "mixed" : "support", [l8], S(19, "1"));
   }
@@ -748,9 +753,9 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
 
   // ---- Chapter 21: the 10th house ----
   const s10 = signOfHouse(10);
-  const in10 = inSign(s10);
+  const in10 = inHouse(10);
   const mal10 = in10.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
-  const mal11 = inSign(signOfHouse(11)).filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
+  const mal11 = inHouse(11).filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
   const ownNav = (pl: Planet) => SIGN_LORD[navamsaSign(pos(pl))] === pl;
   if (strong(l10) === true && (exalted(l10) || own(l10) || ownNav(l10))) {
     push("pa-h10-21-2", 10, "Fame and good deeds", `${l10}, lord of the 10th, is above its Shadbala requirement and ${exalted(l10) ? "exalted" : own(l10) ? "in its own sign" : "in its own navamsa"}. Parashara reads great happiness from the father, fame and good deeds.`, "support", [l10], S(21, "2"));
@@ -820,7 +825,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   }
 
   // ---- Chapter 22: the 11th house ----
-  const in11 = inSign(signOfHouse(11));
+  const in11 = inHouse(11);
   const ben11 = in11.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
   if (h11 === 11 || inKT(h11) || exalted(l11)) {
     push("pa-h11-22-2", 11, "Many gains", `${l11}, lord of the 11th, is ${h11 === 11 ? "in the 11th itself" : inKT(h11) ? `in the ${ord(h11)}, an angle or trine` : "exalted"}${exalted(l11) && combust(l11) ? ", and though combust its exaltation is enough by 22.2" : ""}. Parashara reads many gains.`, "support", [l11], S(22, "2"));
@@ -855,7 +860,7 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
 
   // ---- Chapter 23: the 12th house ----
   const s12 = signOfHouse(12);
-  const in12 = inSign(s12);
+  const in12 = inHouse(12);
   const ben12h = in12.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
   const mal12h = in12.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
   const benW12 = beneficsWith(l12);

@@ -14,6 +14,7 @@
 // bhava: full at the madhya, nil at a sandhi, and in proportion between (rule of three); 15.13 says a planet in
 // a sandhi is ineffective however strong, to be noted before reading its dasa and bhukti.
 import { SIGNS, type Planet, type PlanetPosition } from "./astro";
+import type { ParashariHouseMethod } from "./house-view";
 import { BPHS_URL } from "./parashari-data";
 
 export interface ChalitSource {
@@ -277,12 +278,15 @@ const sandhiClause = (cmp: ChalitComparison): string => {
 
 /**
  * Colour from the bhava chalit for one planet, or undefined when both constructions keep it in its whole-sign
- * house with a clear share of the effect. The sentence is appended to occupancy readings; it never relocates the
- * planet for any rule. Provisional: the constructions and the sandhi threshold are not Parashara's.
+ * house with a clear share of the effect. The sentence is appended to occupancy readings. When a chalit method
+ * is selected the readings themselves follow that construction, so the note flips: it states the whole-sign
+ * house the quoted sources speak in, rather than advising the chalit result be weighed alongside.
+ * Provisional: the constructions and the sandhi threshold are not Parashara's.
  */
 export function bhavaAnnotation(
   c: ChalitResult,
   planet: Planet,
+  method: ParashariHouseMethod = "rashi",
 ): string | undefined {
   const cmp = c.comparison.find((x) => x.planet === planet);
   if (!cmp) return undefined;
@@ -292,21 +296,41 @@ export function bhavaAnnotation(
   if (cmp.unchanged && !anySandhi) return undefined;
   const sign = SIGNS[Math.floor(cmp.lon / 30)];
   let body: string;
-  if (cmp.unchanged) {
+  if (method !== "rashi") {
+    const k = cmp[method];
+    body =
+      k.chalitHouse === cmp.rasiHouse
+        ? `${planet} keeps the ${ordinal(cmp.rasiHouse)} under the selected construction as well (${pct(k.effect)} of the bhava effect).`
+        : `${planet} is read in the ${ordinal(k.chalitHouse)} here (${method === "sripati" ? "Sripati" : "equal"} construction, ${pct(k.effect)} of the bhava effect); by whole sign it is in the ${ordinal(cmp.rasiHouse)}, which is how the quoted sources state the result.`;
+  } else if (cmp.unchanged) {
     body = `${planet} keeps the ${ordinal(cmp.rasiHouse)} in both constructions (Sripati ${pct(s.effect)}, equal ${pct(e.effect)} of the bhava effect).`;
   } else if (cmp.agree) {
     body = `${planet} stays in ${sign} but both constructions read it in the ${ordinal(s.chalitHouse)} rather than the ${ordinal(cmp.rasiHouse)} (Sripati ${pct(s.effect)}, equal ${pct(e.effect)} of the bhava effect), so weigh the ${ordinal(s.chalitHouse)}-house results alongside this reading.`;
   } else {
     body = `${planet} stays in ${sign}; Sripati reads it in the ${ordinal(s.chalitHouse)} (${pct(s.effect)}) and the equal construction in the ${ordinal(e.chalitHouse)} (${pct(e.effect)}), against the ${ordinal(cmp.rasiHouse)} by whole sign, so the constructions disagree and the choice is yours.`;
   }
-  return `By bhava (provisional): ${body}${sandhiClause(cmp)}`;
+  return `${method !== "rashi" ? "By whole sign (provisional)" : "By bhava (provisional)"}: ${body}${sandhiClause(cmp)}`;
 }
 
 /** Bhava colour for a whole-sign house: planets that leave it or enter it under either construction. */
 export function bhavaHouseAnnotation(
   c: ChalitResult,
   house: number,
+  method: ParashariHouseMethod = "rashi",
 ): string | undefined {
+  if (method !== "rashi") {
+    const parts: string[] = [];
+    for (const cmp of c.comparison) {
+      const k = cmp[method];
+      if (k.chalitHouse === house && cmp.rasiHouse !== house)
+        parts.push(`${cmp.planet} is in this bhava by the selected construction; by whole sign it is in the ${ordinal(cmp.rasiHouse)}`);
+      else if (k.chalitHouse !== house && cmp.rasiHouse === house)
+        parts.push(`${cmp.planet} would be here by whole sign; the selected construction reads it in the ${ordinal(k.chalitHouse)}`);
+      else if (k.chalitHouse === house && cmp.rasiHouse === house && k.atSandhi)
+        parts.push(`${cmp.planet} stands at a sandhi (15.13)`);
+    }
+    return parts.length ? `By whole sign (provisional): ${parts.join("; ")}.` : undefined;
+  }
   const parts: string[] = [];
   for (const cmp of c.comparison) {
     const s = cmp.sripati,

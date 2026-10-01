@@ -43,6 +43,8 @@ import { YOGA_CAVEATS } from "@shared/parashari-yogas";
 import { ROYAL_CAVEATS } from "@shared/parashari-royal";
 import { FATHER_YOGA_CAVEATS } from "@shared/parashari-father";
 import { NODES_CAVEATS, PHALADEEPIKA_CH8_URL } from "@shared/parashari-nodes";
+import { normaliseParashariHouseMethod } from "@shared/schema";
+import { HOUSE_METHOD_CAVEAT } from "@shared/house-view";
 import { EVIL_CAVEATS } from "@shared/parashari-evils";
 import { CURSE_CAVEATS } from "@shared/parashari-curses";
 import type {
@@ -233,6 +235,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         result.dasaStarts,
         aspectFloor,
         withheld,
+        normaliseParashariHouseMethod(chart.parashariHouseMethod),
       ),
     [
       positions,
@@ -243,6 +246,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       result.dasaStarts,
       aspectFloor,
       withheld,
+      chart.parashariHouseMethod,
     ],
   );
   const fatherArishta = useMemo(
@@ -1018,6 +1022,15 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 strength pass before reading them as outcomes.{" "}
                 {NODES_CAVEATS.join(" ")}
               </p>
+              {r.houseMethod !== "rashi" && (
+                <p
+                  className="rounded border border-verdict-mixed/30 bg-verdict-mixed/10 px-2 py-1.5 text-xs text-muted-foreground md:col-span-2"
+                  data-testid="parashari-house-method-caveat"
+                >
+                  {HOUSE_METHOD_CAVEAT}
+                  {r.houseMethodNote ? ` ${r.houseMethodNote}` : ""}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -1241,7 +1254,14 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           label="Show the house-boundary cross-check (bhava chalit)"
           className="mt-8"
         >
-          <ChalitSection c={chalit} />
+          <ChalitSection
+            c={chalit}
+            defaultMethod={
+              r.houseMethod === "sripati" || r.houseMethod === "equal"
+                ? r.houseMethod
+                : undefined
+            }
+          />
         </Working>
       )}
       <Working

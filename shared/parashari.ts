@@ -53,6 +53,7 @@ import { yogaFindings } from "./parashari-yogas";
 import { royalFindings } from "./parashari-royal";
 import { fatherFindings, fatherDasaLord } from "./parashari-father";
 import { computeChalit, bhavaAnnotation, bhavaHouseAnnotation } from "./chalit";
+import { houseViewFor, type ParashariHouseMethod } from "./house-view";
 import { evilFindings } from "./parashari-evils";
 import { curseFindings } from "./parashari-curses";
 import { computePadas, type PadaResult } from "./parashari-padas";
@@ -140,6 +141,10 @@ export interface ParashariResult {
   bhavas: Bhava[];
   natures: PlanetNature[];
   findings: ParashariFinding[];
+  /** Parashari house method used for the house, node and house-effects readings. */
+  houseMethod: ParashariHouseMethod;
+  /** Set when the selected chalit construction could not be computed, or needs a stated approximation. */
+  houseMethodNote?: string;
   vimshottari: Vimshottari;
   /** Other nakshatra dasas of BPHS ch. 46 with their conditions. */
   conditionalDasas: ConditionalDasasResult;
@@ -294,31 +299,36 @@ export function computeParashari(
   dasaStarts?: DasaStartTransit[],
   aspectFloor: AspectFloor = DEFAULT_ASPECT_FLOOR,
   withhold = false,
+  houseMethod: ParashariHouseMethod = "rashi",
 ): ParashariResult {
   const lagnaIdx = Math.floor((((lagnaLon % 360) + 360) % 360) / 30);
   const asp = ruleAspect(aspectFloor);
   const shadbala = shadbalaBase
     ? computeShadbala(positions, lagnaIdx, shadbalaBase)
     : undefined;
-  // Bhava chalit colour: annotations only; no rule is evaluated on chalit houses.
+  // Bhava chalit: the selected construction can also carry the house readings; annotations keep the
+  // other construction and the whole-sign placement visible.
   const chalit = shadbalaBase
     ? computeChalit(positions, shadbalaBase.asc, shadbalaBase.mc)
     : undefined;
+  const { view: houseView, fellBack } = houseViewFor(houseMethod, lagnaIdx, positions, chalit);
+  const houseMethodNote = fellBack
+    ? "Bhava chalit could not be computed for this chart (no ephemeris facts for the ascendant and meridian); the readings fell back to rashi houses."
+    : houseMethod === "sripati"
+      ? "Under Sripati, the bhava bala and cusp aspects in the house-effects table stay measured on the equal cusps of the Shadbala pass; only placement follows Sripati."
+      : undefined;
   const bhavaNote = (p: Planet) =>
-    chalit ? bhavaAnnotation(chalit, p) : undefined;
+    chalit ? bhavaAnnotation(chalit, p, houseMethod) : undefined;
   const ashtakavarga = computeAshtakavarga(positions, lagnaIdx);
   const bhavaPhala = shadbala
-    ? computeBhavaPhala(positions, shadbala, ashtakavarga)
+    ? computeBhavaPhala(positions, shadbala, ashtakavarga, houseView)
     : undefined;
   const vargaPhala = shadbala ? computeVargaPhala(shadbala) : undefined;
   const pos = (pl: Planet) => positions.find((p) => p.planet === pl)!;
-  const houseOf = (pl: Planet) => houseFrom(lagnaIdx, pos(pl).signIndex);
-  const signOfHouse = (h: number) => (lagnaIdx + h - 1) % 12;
-  const lordOf = (h: number) => SIGN_LORD[signOfHouse(h)];
-  const inHouse = (h: number) =>
-    positions
-      .filter((p) => houseFrom(lagnaIdx, p.signIndex) === h)
-      .map((p) => p.planet);
+  const houseOf = (pl: Planet) => houseView.houseOf(pos(pl));
+  const signOfHouse = (h: number) => houseView.signOfHouse(h);
+  const lordOf = (h: number) => houseView.lordOf(h);
+  const inHouse = (h: number) => houseView.occupantsOf(h).map((p) => p.planet);
 
   const bhavas: Bhava[] = [];
   for (let h = 1; h <= 12; h++) {
@@ -346,7 +356,7 @@ export function computeParashari(
     return {
       planet: p.planet,
       owns,
-      house: houseFrom(lagnaIdx, p.signIndex),
+      house: houseView.houseOf(p),
       lordship: owns.length ? lordshipClass(owns) : "node",
       functional:
         p.planet === "Rahu" || p.planet === "Ketu"
@@ -1105,11 +1115,14 @@ export function computeParashari(
 
   // Chapters 11-13: house judgement and the stated effects of the 1st and 2nd houses.
   const houseDeps = { aspect: asp, benefic: naturalBenefic };
-  findings.push(
-    ...houseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
-  );
+  const houseReading = houseFindings(positions, houseView, lagnaLon, lagnaIdx, houseDeps, shadbala);
+  if (houseMethod !== "rashi" && !fellBack)
+    for (const f of houseReading) {
+      f.source = { ...f.source, label: `${f.source.label}, bhava-chalit placement`, provisional: true };
+    }
+  findings.push(...houseReading);
   // Phaladeepika 8.25-33: the nodes by house placement.
-  findings.push(...nodeFindings(positions, lagnaIdx));
+  findings.push(...nodeFindings(positions, houseView, lagnaIdx));
   // Chapters 35-38: Nabhasa, remaining ch. 36, lunar and solar yogas.
   findings.push(
     ...yogaFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
@@ -1126,10 +1139,10 @@ export function computeParashari(
   findings.push(
     ...curseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
   );
-  const bhavaJudgement = judgeBhavas(positions, lagnaIdx, houseDeps, shadbala);
+  const bhavaJudgement = judgeBhavas(positions, houseView, houseDeps, shadbala);
   if (chalit)
     for (const j of bhavaJudgement)
-      j.chalitNote = bhavaHouseAnnotation(chalit, j.house);
+      j.chalitNote = bhavaHouseAnnotation(chalit, j.house, houseMethod);
   const padas = computePadas(
     positions,
     lagnaIdx,
@@ -1165,6 +1178,8 @@ export function computeParashari(
   const out: ParashariResult = {
     aspectFloor,
     withheld: withhold,
+    houseMethod,
+    ...(houseMethodNote ? { houseMethodNote } : {}),
     lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] },
     bhavas,
     natures,

@@ -14,6 +14,7 @@ import {
 } from "../life-stage";
 import { soften } from "../gentle";
 import type { ChartResult } from "../schema";
+import { normaliseParashariHouseMethod } from "../schema";
 import {
   Cites,
   cap,
@@ -179,6 +180,7 @@ function agreementSection(
       result.dasaStarts,
       DEFAULT_ASPECT_FLOOR,
       withheld,
+      normaliseParashariHouseMethod(result.chart.parashariHouseMethod),
     ),
     kp: computeKp(result.kp, result.utc, lifeAt, false, withheld),
     ayur: result.jaimini.ayur,

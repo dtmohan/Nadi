@@ -148,9 +148,16 @@ function HouseTable({ k }: { k: ChalitConstruction }) {
   );
 }
 
-export function ChalitSection({ c }: { c: ChalitResult }) {
+export function ChalitSection({
+  c,
+  defaultMethod,
+}: {
+  c: ChalitResult;
+  /** The chart's Parashari house method, when it is a chalit construction; opens the picker on it. */
+  defaultMethod?: ChalitMethod;
+}) {
   const [caveats, setCaveats] = useState(false);
-  const [method, setMethod] = useState<ChalitMethod>("sripati");
+  const [method, setMethod] = useState<ChalitMethod>(defaultMethod ?? "sripati");
   const k = c[method];
   const moved = c.comparison.filter((x) => !x.unchanged);
   const differ = c.comparison.filter((x) => !x.agree);

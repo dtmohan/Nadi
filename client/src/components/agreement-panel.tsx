@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
+import { normaliseParashariHouseMethod } from "@shared/schema";
 import { synthesize } from "@shared/synthesis";
 import { readAreas } from "@shared/jaimini-areas";
 import { computeParashari, DEFAULT_ASPECT_FLOOR } from "@shared/parashari";
@@ -75,6 +76,7 @@ export function AgreementPanel({
       result.dasaStarts,
       DEFAULT_ASPECT_FLOOR,
       withheld,
+      normaliseParashariHouseMethod(result.chart.parashariHouseMethod),
     );
     const kp = computeKp(result.kp, result.utc, lifeAt, false, withheld);
     return computeAgreement({
