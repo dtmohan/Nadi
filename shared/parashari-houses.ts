@@ -616,6 +616,9 @@ export function houseFindings(positions: PlanetPosition[], lagnaIdx: number, lag
   const bereave = (id: string, when: string, why: string, pls: Planet[], verse: string) => push(`pa-h7-18-${id}`, 7, `Spouse's life at risk in the ${when}`, `${why}. Parashara reads the loss of the spouse in the ${when}; a hard verse, shown as written and to be weighed against 18.1, 18.4 and the 7th lord's strength.`, "strain", pls, S(18, verse));
   if (l7Deb && houseOf("Venus") === 8) bereave("35", "18th or 33rd year", `${l7}, lord of the 7th, is debilitated and Venus is in the 8th`, [l7, "Venus"], "35");
   if (h7 === 8 && houseOf(l12) === 7) bereave("36", "19th year", `${l7}, lord of the 7th, is in the 8th and ${l12}, lord of the 12th, is in the 7th`, [l7, l12], "36");
+  if (houseOf("Rahu") === 2 && houseOf("Mars") === 7) {
+    bereave("35b", "first three days of marriage", `Rahu is in the 2nd and Mars is in the 7th; his word for the cause is a snake bite`, ["Rahu", "Mars"], "35-39");
+  }
   if (houseOf("Venus") === 8 && disp("Venus") !== "Saturn" && SIGN_LORD[pos(disp("Venus")).signIndex] === "Saturn") bereave("38", "12th or 21st year", `Venus is in the 8th and its dispositor ${disp("Venus")} is in ${SIGNS[pos(disp("Venus")).signIndex]}, a sign of Saturn`, ["Venus", disp("Venus")], "38");
   if (pos(l1).dignity === "Debilitated" && houseOf(l2) === 8) bereave("39", "13th year", `${l1}, lord of the lagna, is debilitated and ${l2}, lord of the 2nd, is in the 8th`, [l1, l2], "39");
   if (houseFrom(pos("Venus").signIndex, pos("Moon").signIndex) === 7 && houseFrom(pos("Moon").signIndex, pos("Mercury").signIndex) === 7 && houseOf(l8) === 5) {

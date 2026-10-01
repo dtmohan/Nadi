@@ -48,6 +48,7 @@ import {
   judgeBhavas,
   type BhavaJudgement,
 } from "./parashari-houses";
+import { nodeFindings } from "./parashari-nodes";
 import { yogaFindings } from "./parashari-yogas";
 import { royalFindings } from "./parashari-royal";
 import { fatherFindings, fatherDasaLord } from "./parashari-father";
@@ -1107,6 +1108,8 @@ export function computeParashari(
   findings.push(
     ...houseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
   );
+  // Phaladeepika 8.25-33: the nodes by house placement.
+  findings.push(...nodeFindings(positions, lagnaIdx));
   // Chapters 35-38: Nabhasa, remaining ch. 36, lunar and solar yogas.
   findings.push(
     ...yogaFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),

@@ -42,6 +42,7 @@ import {
 import { YOGA_CAVEATS } from "@shared/parashari-yogas";
 import { ROYAL_CAVEATS } from "@shared/parashari-royal";
 import { FATHER_YOGA_CAVEATS } from "@shared/parashari-father";
+import { NODES_CAVEATS, PHALADEEPIKA_CH8_URL } from "@shared/parashari-nodes";
 import { EVIL_CAVEATS } from "@shared/parashari-evils";
 import { CURSE_CAVEATS } from "@shared/parashari-curses";
 import type {
@@ -505,7 +506,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 from chapter 83, yogas from chapters 34 to 42, 75 and 79 of{" "}
                 <Cite href={BPHS_URL(24)}>Brihat Parashara Hora Sastra</Cite>{" "}
                 (Santhanam translation). Nodes have no aspect in chapter 26 and
-                own no house; they are read through their sign lord.
+                own no house; they are read through their sign lord, and their
+                house placements follow{" "}
+                <Cite href={PHALADEEPIKA_CH8_URL}>Phaladeepika 8.25-33</Cite>,{" "}
+                the one classical table of Rahu and Ketu in each house.
                 Cancellation of debilitation follows{" "}
                 <Cite href={PHALADEEPIKA_CH7_URL}>Phaladeepika 7.26-30</Cite>{" "}
                 (Subrahmanya Sastri translation), since Parashara's verses do
@@ -1011,7 +1015,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 {HOUSE_CAVEATS.join(" ")} Verses on the loss of children,
                 co-born, spouse or father are shown in Parashara's sense but
                 worded plainly; weigh them against the supporting verses and the
-                strength pass before reading them as outcomes.
+                strength pass before reading them as outcomes.{" "}
+                {NODES_CAVEATS.join(" ")}
               </p>
             </div>
           </div>
