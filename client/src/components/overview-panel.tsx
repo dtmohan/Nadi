@@ -84,18 +84,18 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
   const sun = positions.find((p) => p.planet === "Sun")!;
 
   // Notable planet states: retrogrades (the nodes always move "retrograde" and are left out)
-  // and the dignities a reader actually notices — the strong and the weak.
+  // and the dignities a reader actually notices — the strong and the weak, as the engine grades
+  // them (effective dignity, after the cancellation rules), not the raw sign dignity.
   const retro = positions
     .filter((p) => p.retrograde && p.planet !== "Rahu" && p.planet !== "Ketu")
     .map((p) => p.planet);
-  const notable = positions.filter(
-    (p) =>
-      p.dignity === "Exalted" ||
-      p.dignity === "Moolatrikona" ||
-      p.dignity === "Own sign" ||
-      p.dignity === "Debilitated" ||
-      p.dignity === "Inimical",
-  );
+  const NOTABLE_DIGNITY = new Set([
+    "Exalted",
+    "Moolatrikona",
+    "Own sign",
+    "Debilitated",
+    "Inimical",
+  ]);
   const dignityPhrase = (d: string) =>
     d === "Own sign"
       ? "in own sign"
@@ -106,7 +106,16 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
           : d.toLowerCase();
   const noteParts: string[] = [];
   if (retro.length) noteParts.push(`${joinList(retro)} retrograde`);
-  for (const p of notable) noteParts.push(`${p.planet} ${dignityPhrase(p.dignity)}`);
+  for (const s of reading.strength) {
+    if (NOTABLE_DIGNITY.has(s.effectiveDignity)) {
+      noteParts.push(`${s.planet} ${dignityPhrase(s.effectiveDignity)}`);
+    } else if (
+      NOTABLE_DIGNITY.has(s.dignity) &&
+      s.dignity !== s.effectiveDignity
+    ) {
+      noteParts.push(`${s.planet} ${dignityPhrase(s.dignity)} (set aside)`);
+    }
+  }
 
   const allAreas = useMemo(() => synthesize(reading, gender), [reading, gender]);
   const areas = allAreas.filter((a) =>
