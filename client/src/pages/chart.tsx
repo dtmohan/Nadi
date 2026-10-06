@@ -21,6 +21,7 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
+  HelpCircle,
 } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import {
@@ -127,6 +128,7 @@ import { AgreementPanel } from "@/components/agreement-panel";
 import { BirthTimeEditor } from "@/components/birth-time-editor";
 import { ValidatePanel } from "@/components/validate-panel";
 import { PanchangaPanel } from "@/components/panchanga-panel";
+import { PrasnaPanel } from "@/components/prasna-panel";
 import { Timeline, BnnLifeTimeline } from "@/components/timeline";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -1815,6 +1817,7 @@ type SystemMode =
   | "alp"
   | "kp"
   | "parashari"
+  | "prasna"
   | "panchanga"
   | "rectify"
   | "validate";
@@ -1863,6 +1866,13 @@ const MODES: {
     short: "Parashari",
     title: "Brihat Parashara Hora Sastra",
     Icon: BookOpen,
+  },
+  {
+    id: "prasna",
+    label: "Prasna Marga",
+    short: "Prasna",
+    title: "Prasna Marga (Kerala): effects of planets in houses",
+    Icon: HelpCircle,
   },
   {
     id: "panchanga",
@@ -2235,7 +2245,9 @@ export default function ChartPage() {
                       ? readingMode === "plain"
                         ? "The classical system: which planets help or hinder this rising sign, how strong they are, the notable combinations, and the life period running now. Kept separate from the other readings."
                         : "Parashara's system: whole-sign bhavas from the lagna, house lords, sign aspects, functional nature by rising sign, Shadbala, vargas, Ashtakavarga, yogas and Vimshottari with dasa effects. Kept separate from the other readings. First pass."
-                      : mode === "panchanga"
+                      : mode === "prasna"
+                        ? "Prasna Marga, the Kerala classic: what a malefic and what a benefic bring in each occupied house, read from the ascendant. First pass."
+                        : mode === "panchanga"
                         ? readingMode === "plain"
                           ? "The five limbs of the day for the birth and any date, and the planets' transits from the birth Moon read with Brihat Samhita and Phaladeepika."
                           : "Panchanga per Surya Siddhanta 1.36, 2.64-69; gochara from the natal Moon per Brihat Samhita 104 and Phaladeepika 26, with vedha. Not Parashari."
@@ -2302,6 +2314,12 @@ export default function ChartPage() {
         {mode === "parashari" && (
           <div className="mt-8 animate-in fade-in-0 duration-300">
             <ParashariPanel result={data} />
+          </div>
+        )}
+
+        {mode === "prasna" && (
+          <div className="mt-8 animate-in fade-in-0 duration-300">
+            <PrasnaPanel result={data} />
           </div>
         )}
 
