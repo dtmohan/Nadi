@@ -6,6 +6,7 @@ import {
   computePrasnaDispositions,
   computePrasnaFructification,
   computeProgeny,
+  computeSantanaTrisphuta,
   PRASNA_BHAVA_SIGNIFICATIONS,
   PRASNA_CAVEATS,
   PRASNA_KARAKAS,
@@ -144,6 +145,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
   const progeny = useMemo(
     () => computeProgeny(positions, result.chart.gender as "male" | "female" | "unspecified"),
     [positions, result.chart.gender],
+  );
+  const trisphuta = useMemo(
+    () => computeSantanaTrisphuta(positions, birthLagnaIdx),
+    [positions, birthLagnaIdx],
   );
   const prasna = useMemo(
     () => (arudhaIdx === null ? null : computePrasna(now.positions, arudhaIdx)),
@@ -451,6 +456,32 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             </p>
             <p className="mt-1 text-xs leading-relaxed text-foreground/90">
               {progeny.note}
+            </p>
+          </div>
+
+          <div
+            className="mt-2 rounded-md border bg-card p-3"
+            data-testid="prasna-trisphuta"
+            data-afflicted={trisphuta.afflicted}
+          >
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-sm font-medium">Santana Trisphuta</span>
+              <span
+                className={cn(
+                  "rounded px-1.5 py-0.5 text-2xs uppercase tracking-wide",
+                  trisphuta.afflicted
+                    ? "border border-verdict-bad/40 text-verdict-bad"
+                    : "border border-verdict-good/40 text-verdict-good",
+                )}
+              >
+                {trisphuta.afflicted ? "afflicted" : "clear"}
+              </span>
+              <span className="ml-auto text-2xs text-muted-foreground">
+                {trisphuta.source}
+              </span>
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-foreground/90">
+              {trisphuta.note}
             </p>
           </div>
         </div>

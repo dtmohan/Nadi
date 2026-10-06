@@ -554,6 +554,59 @@ export function computeProgeny(
   };
 }
 
+// The second progeny method (19.17-19): Santana Graha Sphuta. Each of the Sun, Moon and Jupiter
+// is multiplied by 5 and summed, and the result is the Santana Trisphuta. If it falls in the 3rd,
+// 5th or 7th asterism from the birth star, or in the 6th, 8th or 12th house from the ascendant, the
+// text reads "no issue". The 88th/108th-quarter check from the radical Moon is not yet entered.
+
+export interface PrasnaSantanaTrisphuta {
+  trisphuta: number;
+  nakshatraIndex: number;
+  signIndex: number;
+  fromBirthStar: number; // 0..26 offset from the birth nakshatra
+  inBadStar: boolean;
+  inBadHouse: boolean;
+  afflicted: boolean;
+  note: string;
+  source: string;
+}
+
+export function computeSantanaTrisphuta(
+  positions: PlanetPosition[],
+  lagnaIdx: number,
+): PrasnaSantanaTrisphuta {
+  const lon = (p: string) => positions.find((x) => x.planet === p)!.lon;
+  const moonLon = lon("Moon");
+  const trisphuta = (((5 * (lon("Sun") + lon("Moon") + lon("Jupiter"))) % 360) + 360) % 360;
+  const NAK = 360 / 27;
+  const nakshatraIndex = Math.floor(trisphuta / NAK);
+  const birthNak = Math.floor(((moonLon % 360) + 360) % 360 / NAK);
+  const fromBirthStar = (nakshatraIndex - birthNak + 27) % 27;
+  const inBadStar = [2, 4, 6].includes(fromBirthStar); // 3rd, 5th, 7th asterism
+  const signIndex = Math.floor(trisphuta / 30);
+  const inBadHouse = [6, 8, 12].includes(houseFrom(lagnaIdx, signIndex));
+  const afflicted = inBadStar || inBadHouse;
+  const parts: string[] = [];
+  if (inBadStar) parts.push(`the ${ord(fromBirthStar + 1)} asterism from the birth star`);
+  if (inBadHouse) parts.push(`the ${ord(houseFrom(lagnaIdx, signIndex))} house from the ascendant`);
+  return {
+    trisphuta,
+    nakshatraIndex,
+    signIndex,
+    fromBirthStar,
+    inBadStar,
+    inBadHouse,
+    afflicted,
+    note: afflicted
+      ? `Santana Trisphuta falls in ${parts.join(" and ")} — the text reads this as no issue, or issue only after remedies (19.18).`
+      : "Santana Trisphuta is clear of the afflicting stars and houses.",
+    source: "Prasna Marga 19.18",
+  };
+}
+
+const ord = (n: number): string =>
+  n === 1 ? "1st" : n === 2 ? "2nd" : n === 3 ? "3rd" : `${n}th`;
+
 const FRUCTIFICATION_NOTE: Record<PrasnaBhavaVerdict, string> = {
   full: "Lord and karaka both strong, in favourable places: the house's promise is fully experienced.",
   "seen-not-enjoyed":
