@@ -11,9 +11,20 @@ import {
   type AreaSynthesis,
   type AreaTone,
 } from "@shared/synthesis";
+import { computeGochara, type GocharaVerdict } from "@shared/gochara";
 import { Soft } from "@/lib/gentle";
-import { PlanetName } from "@/components/planet-name";
+import { PlanetName, SignName } from "@/components/planet-name";
 import { cn } from "@/lib/utils";
+
+const VERDICT_PILL: Record<GocharaVerdict, string> = {
+  favourable: "bg-verdict-good/15 text-verdict-good",
+  obstructed: "bg-verdict-mixed/15 text-verdict-mixed",
+  neutral: "bg-muted text-muted-foreground",
+  unfavourable: "bg-verdict-bad/10 text-verdict-bad",
+};
+
+const ord = (h: number) =>
+  h === 1 ? "1st" : h === 2 ? "2nd" : h === 3 ? "3rd" : `${h}th`;
 
 const TONE_CLASS: Record<AreaTone, string> = {
   supportive: "border-verdict-good/40 text-verdict-good",
@@ -87,8 +98,32 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
     .sort((x, y) => x.balance - y.balance);
 
   const vim = vimshottari(moon.lon, result.utc, lifeAt);
-  const jupNow = now.positions.find((p) => p.planet === "Jupiter");
-  const satNow = now.positions.find((p) => p.planet === "Saturn");
+
+  // Transits read against the natal Moon (Phaladeepika 26.1 names it the chief lagna for gochara).
+  const gochara = useMemo(
+    () =>
+      computeGochara(
+        moon.signIndex,
+        now.positions,
+        now.asOf,
+        result.sensitive?.withheld ?? false,
+      ),
+    [moon.signIndex, now.positions, now.asOf, result.sensitive?.withheld],
+  );
+  const jupRow = gochara.rows.find((r) => r.planet === "Jupiter");
+  const satRow = gochara.rows.find((r) => r.planet === "Saturn");
+
+  // The next slow-planet sign change after today: the next "weather" turn.
+  const nextIngress = useMemo(() => {
+    const up = result.transits
+      .filter(
+        (t) =>
+          (t.planet === "Jupiter" || t.planet === "Saturn") &&
+          t.start > now.asOf,
+      )
+      .sort((a, b) => a.start.localeCompare(b.start));
+    return up[0];
+  }, [result.transits, now.asOf]);
 
   return (
     <section
@@ -184,7 +219,7 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
       {/* What is running now */}
       <div className="mt-4 rounded-lg border bg-card p-5 sm:p-6">
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          Right now
+          {deceased ? "At passing" : "Right now"}
         </p>
         <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
           <div className="flex items-baseline gap-2">
@@ -199,30 +234,59 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
               </span>
             </dd>
           </div>
-          <div className="flex items-baseline gap-2">
-            <dt className="shrink-0 text-muted-foreground">Sky</dt>
-            <dd className="text-foreground">
-              {jupNow && (
-                <>
-                  Jupiter in {jupNow.sign}
-                  {jupNow.signIndex ===
-                  positions.find((p) => p.planet === "Jupiter")?.signIndex
-                    ? " (its natal sign)"
-                    : ""}
-                </>
-              )}
-              {satNow && (
-                <>
-                  {jupNow ? ", " : ""}Saturn in {satNow.sign}
-                  {satNow.signIndex ===
-                  positions.find((p) => p.planet === "Saturn")?.signIndex
-                    ? " (its natal sign)"
-                    : ""}
-                </>
-              )}
-            </dd>
-          </div>
+          {!deceased && nextIngress && (
+            <div className="flex items-baseline gap-2">
+              <dt className="shrink-0 text-muted-foreground">Next</dt>
+              <dd className="text-foreground">
+                {nextIngress.planet} enters {nextIngress.sign} in{" "}
+                {DateTime.fromISO(nextIngress.start).toFormat("LLL yyyy")}
+              </dd>
+            </div>
+          )}
         </dl>
+
+        {/* Transit weather: the slow planets read against the natal Moon (today's sky; the deceased are read at passing, not against it). */}
+        {!deceased && (jupRow || satRow) && (
+          <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+            {[jupRow, satRow].filter(Boolean).map((r) => (
+              <li
+                key={r!.planet}
+                className="rounded-md border bg-card p-3 text-xs"
+                data-testid={`overview-weather-${r!.planet}`}
+                data-verdict={r!.verdict}
+              >
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span className="text-sm font-medium">
+                    <PlanetName planet={r!.planet} />
+                  </span>
+                  <span className="text-muted-foreground">
+                    <SignName signIndex={r!.signIndex} /> · your {ord(r!.house)}{" "}
+                    from the Moon
+                  </span>
+                  <span
+                    className={cn(
+                      "ml-auto rounded px-1.5 py-0.5 text-xs font-medium",
+                      VERDICT_PILL[r!.verdict],
+                    )}
+                  >
+                    {r!.verdict}
+                  </span>
+                </div>
+                {r!.effect.pd && (
+                  <p className="mt-1.5 leading-relaxed text-foreground/90">
+                    <Soft>{r!.effect.pd.text}</Soft>
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+        {!deceased && (
+          <p className="mt-3 text-2xs text-muted-foreground">
+            Counted from the natal Moon (Phaladeepika 26.1); the full gochara,
+            with vedha, is on the Panchanga tab.
+          </p>
+        )}
       </div>
     </section>
   );
