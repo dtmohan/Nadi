@@ -35,6 +35,31 @@ export function isDeceased(
   return lifeAsOf(chart, asOfIso) !== asOfIso;
 }
 
+/**
+ * Periods for a timing clause, read at the reading date or at the recorded date of passing. After a
+ * date of passing, periods that begin later are dropped: nothing after a recorded death is read as a
+ * forecast. Pass periods computed at `lifeAt`, so `current` marks the one running then.
+ */
+export function lifePeriods<P extends { start: string }>(
+  periods: P[],
+  lifeAt: string,
+  deceased: boolean,
+): P[] {
+  return deceased
+    ? periods.filter((p) => Date.parse(p.start) <= Date.parse(lifeAt))
+    : periods;
+}
+
+/** " (running)", " (running at passing)", " (passed)" or "" for a period beside a timing clause. */
+export function periodStateLabel(
+  p: { end: string; current?: boolean },
+  lifeAt: string,
+  deceased: boolean,
+): string {
+  if (p.current) return deceased ? " (running at passing)" : " (running)";
+  return Date.parse(p.end) < Date.parse(lifeAt) ? " (passed)" : "";
+}
+
 /** ISO date at which the native turns `years`. */
 export function dateAtAge(birthIso: string, years: number): string {
   return new Date(Date.parse(birthIso) + years * 365.25 * 86400e3)

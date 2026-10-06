@@ -1,4 +1,4 @@
-import { sensitiveGate } from "@shared/life-stage";
+import { sensitiveGate, lifeAsOf } from "@shared/life-stage";
 import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { Cite } from "@/components/source-link";
@@ -157,7 +157,10 @@ function fmtLon360(lon: number): string {
 export function AlpPanel({ result }: { result: ChartResult }) {
   const nowLabel = useNowLabel();
   const { chart, positions } = result;
-  const [asOf, setAsOf] = useState(() => DateTime.local().toISODate()!);
+  // "As of" opens on today, or on the recorded date of passing.
+  const [asOf, setAsOf] = useState(() =>
+    lifeAsOf(chart, DateTime.local().toISO()!).slice(0, 10),
+  );
   const config: AlpConfig = DEFAULT_ALP_CONFIG;
   const a = useMemo(() => {
     const iso = DateTime.fromISO(asOf, { zone: chart.timezone }).isValid

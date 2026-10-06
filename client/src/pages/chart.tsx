@@ -65,6 +65,8 @@ import {
   type AreaSeason,
   lifeAsOf,
   isDeceased,
+  lifePeriods,
+  periodStateLabel,
 } from "@shared/life-stage";
 import {
   LIFE_AREAS,
@@ -495,17 +497,25 @@ function LakshmiCard({
   l,
   positions,
   asOf,
+  deceased,
   birthIso,
 }: {
   l: LakshmiReading;
   positions: PlanetPosition[];
+  /** The reading date, or the recorded date of passing when that is earlier. */
   asOf: string;
+  deceased: boolean;
   birthIso: string;
 }) {
   const moon = positions.find((x) => x.planet === "Moon")!;
+  // After a date of passing, mahadashas that begin later are dropped: nothing is read as a forecast.
   let dasas: KpPeriod[] = [];
   try {
-    dasas = vimshottari(moon.lon, birthIso, asOf).dasas;
+    dasas = lifePeriods(
+      vimshottari(moon.lon, birthIso, asOf).dasas,
+      asOf,
+      deceased,
+    );
   } catch {
     dasas = [];
   }
@@ -546,11 +556,7 @@ function LakshmiCard({
           >
             {l.forms.map((f) => {
               const d = dasaOf(f.planet);
-              const state = d?.current
-                ? " (running)"
-                : d && DateTime.fromISO(d.end) < DateTime.fromISO(asOf)
-                  ? " (passed)"
-                  : "";
+              const state = d ? periodStateLabel(d, asOf, deceased) : "";
               return (
                 <li key={f.planet} className="text-muted-foreground">
                   <span style={{ color: planetColor(f.planet) }}>
@@ -991,8 +997,11 @@ function BnnVerdict({ result }: { result: ChartResult }) {
     () => synthesize(reading, gender),
     [reading, gender],
   );
-  const asOf = now.asOf.slice(0, 10);
+  // Timing is read at the reading date, or at the recorded date of passing; after a death date
+  // nothing ahead is offered, so the "next" windows are dropped.
   const lifeAt = lifeAsOf(result.chart, now.asOf);
+  const deceased = lifeAt !== now.asOf;
+  const asOf = lifeAt.slice(0, 10);
   const age = ageYears(result.utc, lifeAt);
   const stage = lifeStage(age);
   const deferred = allAreas
@@ -1092,9 +1101,13 @@ function BnnVerdict({ result }: { result: ChartResult }) {
   );
   if (ju)
     timing.push({
-      label: "Now",
+      label: deceased ? "At passing" : "Now",
       when: "present",
-      text: (
+      text: deceased ? (
+        <>
+          Jupiter was in {ju.sign}, {fmtMY(ju.start)} to {fmtMY(ju.end)}
+        </>
+      ) : (
         <>
           Jupiter moves through {ju.sign} until {fmtMY(ju.end)}
         </>
@@ -1116,7 +1129,9 @@ function BnnVerdict({ result }: { result: ChartResult }) {
           </>
         ),
       });
-    const w = nextMarriageWindow(reading.marriage, transits, asOf);
+    const w = deceased
+      ? null
+      : nextMarriageWindow(reading.marriage, transits, asOf);
     if (w)
       timing.push({
         label: "Marriage",
@@ -1150,7 +1165,9 @@ function BnnVerdict({ result }: { result: ChartResult }) {
           </>
         ),
       });
-    const w = nextChildWindow(reading.children, transits, asOf, result.utc);
+    const w = deceased
+      ? null
+      : nextChildWindow(reading.children, transits, asOf, result.utc);
     if (w)
       timing.push({
         label: "Children",
@@ -1274,7 +1291,8 @@ function Reading({
           <LakshmiCard
             l={reading.lakshmi}
             positions={positions}
-            asOf={result.now.asOf}
+            asOf={lifeAsOf(result.chart, result.now.asOf)}
+            deceased={isDeceased(result.chart, result.now.asOf)}
             birthIso={result.utc}
           />
         </div>

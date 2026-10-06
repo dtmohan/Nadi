@@ -3,6 +3,7 @@ import { fmtDeg, SIGNS } from "../astro";
 import { CHARA_KARAKA_INFO } from "../jaimini";
 import { readAreas } from "../jaimini-areas";
 import { vimshottari, type KpPeriod } from "../kp";
+import { lifePeriods } from "../life-stage";
 import {
   endStop,
   fmtDate,
@@ -147,7 +148,12 @@ export const jaiminiModule: ReportModule = {
       const moon = positions.find((x) => x.planet === "Moon")!;
       let dasas: KpPeriod[] = [];
       try {
-        dasas = vimshottari(moon.lon, result.utc, ctx.asOf).dasas;
+        // Read at the reading date, or at the date of passing; later periods are dropped then.
+        dasas = lifePeriods(
+          vimshottari(moon.lon, result.utc, lifeAt).dasas,
+          lifeAt,
+          deceased,
+        );
       } catch {
         dasas = [];
       }

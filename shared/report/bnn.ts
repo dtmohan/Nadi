@@ -4,7 +4,7 @@ import { synthesize, AREA_TONE_LABEL } from "../synthesis";
 import { nextMarriageWindow } from "../marriage";
 import { nextChildWindow } from "../children";
 import { vimshottari, type KpPeriod } from "../kp";
-import { AREA_ONSET } from "../life-stage";
+import { AREA_ONSET, lifePeriods, periodStateLabel } from "../life-stage";
 import {
   endStop,
   fmtMonth,
@@ -20,7 +20,7 @@ export const bnnModule: ReportModule = {
   short: "Nadi",
   tab: "bnn",
   build(ctx) {
-    const { result, S, cites, asOf, deceased, inSeason, female } = ctx;
+    const { result, S, cites, asOf, lifeAt, deceased, inSeason, female } = ctx;
     const { reading, transits } = result;
     const roles = reading.roles;
     const areas = synthesize(reading, roles.gender);
@@ -141,9 +141,14 @@ export const bnnModule: ReportModule = {
         "S. Prakash, DNA Astrology of Wealth (2022), pp. 53-91, 173, 177",
       );
       const moon = result.positions.find((x) => x.planet === "Moon")!;
+      // Read at the reading date, or at the date of passing; later periods are dropped then.
       let dasas: KpPeriod[] = [];
       try {
-        dasas = vimshottari(moon.lon, result.utc, asOf).dasas;
+        dasas = lifePeriods(
+          vimshottari(moon.lon, result.utc, lifeAt).dasas,
+          lifeAt,
+          deceased,
+        );
       } catch {
         dasas = [];
       }
@@ -162,7 +167,7 @@ export const bnnModule: ReportModule = {
             ),
             cites: [book],
             aside: d
-              ? `Mahadasha ${fmtMonth(d.start)} to ${fmtMonth(d.end)}${d.current ? " (running)" : ""}`
+              ? `Mahadasha ${fmtMonth(d.start)} to ${fmtMonth(d.end)}${periodStateLabel(d, lifeAt, deceased)}`
               : undefined,
           };
         }),

@@ -47,6 +47,9 @@ import {
   lifeStage,
   STAGE_LABEL,
   lifeAsOf,
+  isDeceased,
+  lifePeriods,
+  periodStateLabel,
 } from "@shared/life-stage";
 import {
   SignName,
@@ -90,10 +93,12 @@ const PLAIN_KARAKA: Record<string, string> = {
 function JaiminiVerdict({ result }: { result: ChartResult }) {
   const nowLabel = useNowLabel();
   const { jaimini: j, positions } = result;
-  const asOf = result.now.asOf;
+  // The running period and the areas in season are read at the reading date, or at the recorded
+  // date of passing.
+  const asOf = lifeAsOf(result.chart, result.now.asOf);
   const withheld =
     result.sensitive?.withheld ??
-    sensitiveGate(result.chart, result.utc, asOf).withheld;
+    sensitiveGate(result.chart, result.utc, result.now.asOf).withheld;
   const allAreas = useMemo(
     () => readAreas(j, positions, withheld),
     [j, positions, withheld],
@@ -416,7 +421,9 @@ function DashaRow({
 
 export function JaiminiPanel({ result }: { result: ChartResult }) {
   const { jaimini: j, positions, chart } = result;
-  const now = DateTime.fromISO(result.now.asOf);
+  // "Now" in the period tables is the reading date, or the recorded date of passing.
+  const lifeNow = lifeAsOf(chart, result.now.asOf);
+  const now = DateTime.fromISO(lifeNow);
   const birth = DateTime.fromISO(result.utc);
   const [openDasha, setOpenDasha] = useState<string | null>(() => {
     const cur = j.charaDasha.periods.find(
@@ -429,11 +436,18 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
   const [showPrimer, setShowPrimer] = useState(false);
   const plain = usePlain();
 
-  // Vimshottari mahadashas, for the Indu Lagna reading's timing clauses.
+  // Vimshottari mahadashas, for the Indu Lagna reading's timing clauses. Read at the date of passing
+  // when one is recorded; periods that begin later are dropped, so nothing is read as a forecast.
   const moonPos = positions.find((x) => x.planet === "Moon")!;
+  const induAt = lifeNow;
+  const induDeceased = isDeceased(chart, result.now.asOf);
   let dasas: KpPeriod[] = [];
   try {
-    dasas = vimshottari(moonPos.lon, result.utc, result.now.asOf).dasas;
+    dasas = lifePeriods(
+      vimshottari(moonPos.lon, result.utc, induAt).dasas,
+      induAt,
+      induDeceased,
+    );
   } catch {
     dasas = [];
   }
@@ -442,10 +456,10 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
   // Shared timeline: Chara periods with Jupiter's passages, the antardashas each area runs hot in, and the recorded events.
   const tlBands = useMemo(
     () => [
-      ...charaBands(j.charaDasha, result.now.asOf),
-      transitBand(result.transits, "Jupiter", result.now.asOf),
+      ...charaBands(j.charaDasha, lifeNow),
+      transitBand(result.transits, "Jupiter", lifeNow),
     ],
-    [j.charaDasha, result.transits, result.now.asOf],
+    [j.charaDasha, result.transits, lifeNow],
   );
   const tlWindows = useMemo<TlWindow[]>(() => {
     // One thin lane per life area; a mahadasha is drawn when it carries the area at Rao's threshold, darker the more triggers it has.
@@ -600,7 +614,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
             className="no-default-hover-elevate"
             data-testid="text-current-dasha"
           >
-            Now: {currentMd.signName}
+            <NowWord cap />: {currentMd.signName}
             {currentAd ? ` / ${currentAd.signName}` : ""}
           </Badge>
         )}
@@ -912,9 +926,11 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
                   const d = f.planets
                     .map((pl) => dasaOf(pl))
                     .filter((x): x is KpPeriod => !!x);
-                  const state = d.some((x) => x.current)
-                    ? " (running)"
-                    : d.length && d.every((x) => DateTime.fromISO(x.end) < now)
+                  const running = d.find((x) => x.current);
+                  const state = running
+                    ? periodStateLabel(running, induAt, induDeceased)
+                    : d.length &&
+                        d.every((x) => Date.parse(x.end) < Date.parse(induAt))
                       ? " (passed)"
                       : "";
                   return (
@@ -1327,7 +1343,8 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           className="mt-4"
           testid="jaimini-timeline"
           birthIso={result.utc}
-          asOfIso={result.now.asOf}
+          asOfIso={lifeNow}
+          deathIso={chart.deathDate}
           bands={tlBands}
           windows={tlWindows}
           windowsLabel="Hot"
