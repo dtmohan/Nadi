@@ -28,6 +28,7 @@ import {
   computeSantanaTrisphuta,
   computeSphutas,
   rasiAgreement,
+  timeSphutasFromGhatis,
 } from "@shared/rules-prasna";
 
 // -----------------------------------------------------------------------------------------------
@@ -313,4 +314,15 @@ test("Prasna Marga 5.17-19 worked example: the six sphutas", () => {
   approxLon(s.pranasphuta, 280 + 11 / 60, "pranasphuta");
   approxLon(s.dehasphuta, 212 + 18 / 60, "dehasphuta");
   approxLon(s.mrityusphuta, 32 + 14 / 60, "mrityusphuta");
+});
+
+test("Prasna Marga 5.20-23 worked example: time-based sphutas", () => {
+  // prasna 25.7 ghatis, day 31 ghatis, Sun 84° (Gemini, common sign), Thursday
+  const s = timeSphutasFromGhatis(25.7, 31, 84, 4);
+  // The text rounds the quotient to 99.48, so the results agree to within ~0.2°.
+  const near = (got: number, want: number, msg: string) =>
+    assert.ok(Math.abs(got - want) < 0.2, `${msg}: ${got} !~ ${want}`);
+  near(s.pranasphutaAlt, 308.4, "Pranasphuta alt (Aquarius 8°24')");
+  near(s.mrityusphutaAlt, 270.3, "Mrityusphuta alt (Capricorn 0°18')");
+  near(s.kalasphuta, 30.3, "Kalasphuta (Taurus 0°18')");
 });

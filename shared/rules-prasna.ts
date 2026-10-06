@@ -946,3 +946,38 @@ export function computeSphutas(
 
 export const PRASNA_SPHUTA_NOTE =
   "The six sphutas of Ch. V (17-19): derived points read by sign and nakshatra. The Ch. XIX progeny sphutas (Beeja, Kshetra, Santana Trisphuta) are shown under Progeny. Not applied: the alternative Pranasphuta by prasna-ghatis (20-22), the Mrityu/Kalasphuta by weekday (23), the Kundagata Sphuta of lagna rectification (8-9), and the obsolete Parahita-to-Drik Moon correction (10-13).";
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// Time-based sphutas (Ch. V, stanzas 20–23): the alternative Pranasphuta by prasna-ghatis, and the
+// Mrityu/Kalasphuta by weekday. Both use the time of the query in ghatis (1 ghati = 24 minutes,
+// counted from sunrise by day or sunset by night) and the day's duration in ghatis.
+
+export interface TimeSphutas {
+  pranasphutaAlt: number; // 5.20-22: X = quotient + Sun, then ±4 signs by the Sun's sign
+  mrityusphutaAlt: number; // 5.23: Y + the weekday offset
+  kalasphuta: number; // 5.23: Y - the weekday offset
+}
+
+const WEEKDAY_OFFSET_DEG: number[] = [30, 300, 75, 155, 120, 210, 255]; // Sun..Sat
+
+export function timeSphutasFromGhatis(
+  prasnaGhatis: number,
+  dayLengthGhatis: number,
+  sunLon: number,
+  weekday: number, // 0 = Sunday .. 6 = Saturday
+): TimeSphutas {
+  const norm = (x: number) => ((x % 360) + 360) % 360;
+  const quotient = norm((prasnaGhatis * 3600) / dayLengthGhatis);
+  const X = norm(quotient + sunLon);
+  const sunSign = Math.floor(norm(sunLon) / 30);
+  const fixed = [1, 4, 7, 10].includes(sunSign);
+  const movable = [0, 3, 6, 9].includes(sunSign);
+  const adj = fixed ? -120 : movable ? 0 : 120; // common sign: +4 signs
+  const Y = norm((prasnaGhatis * 1050) / dayLengthGhatis);
+  const off = WEEKDAY_OFFSET_DEG[weekday] ?? 0;
+  return {
+    pranasphutaAlt: norm(X + adj),
+    mrityusphutaAlt: norm(Y + off),
+    kalasphuta: norm(Y - off),
+  };
+}

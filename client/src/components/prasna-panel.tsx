@@ -703,18 +703,25 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             The sphutas
           </summary>
           <p className="mt-1 text-xs text-muted-foreground">
-            Derived points read by sign and nakshatra (Prasna Marga 5.17–19).
+            Derived points read by sign and nakshatra (Prasna Marga 5.17–23).
           </p>
           <ul className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
             {(
               [
-                ["Thrisphuta", sphutas.thrisphuta],
-                ["Chatusphuta", sphutas.chatusphuta],
-                ["Panchasphuta", sphutas.panchasphuta],
-                ["Pranasphuta", sphutas.pranasphuta],
-                ["Dehasphuta", sphutas.dehasphuta],
-                ["Mrityusphuta", sphutas.mrityusphuta],
-              ] as const
+                ["Thrisphuta", sphutas.thrisphuta, ""],
+                ["Chatusphuta", sphutas.chatusphuta, ""],
+                ["Panchasphuta", sphutas.panchasphuta, ""],
+                ["Pranasphuta", sphutas.pranasphuta, ""],
+                ["Dehasphuta", sphutas.dehasphuta, ""],
+                ["Mrityusphuta", sphutas.mrityusphuta, ""],
+                ...(result.timeSphutas
+                  ? ([
+                      ["Pranasphuta (by ghatis)", result.timeSphutas.pranasphutaAlt, "alt"],
+                      ["Mrityusphuta (by weekday)", result.timeSphutas.mrityusphutaAlt, "alt"],
+                      ["Kalasphuta", result.timeSphutas.kalasphuta, "alt"],
+                    ] as const)
+                  : []),
+              ] as ReadonlyArray<readonly [string, number, string]>
             ).map(([name, lon]) => {
               const sign = Math.floor(lon / 30);
               const nak = NAKSHATRAS[Math.floor(lon / (360 / 27))];
@@ -723,7 +730,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                 <li
                   key={name}
                   className="text-xs leading-relaxed"
-                  data-testid={`prasna-sphuta-${name.toLowerCase()}`}
+                  data-testid={`prasna-sphuta-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                 >
                   <span className="font-medium">{name}</span>{" "}
                   <span className="tabular">{deg.toFixed(1)}°</span> {SIGNS[sign]}{" "}

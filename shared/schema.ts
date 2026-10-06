@@ -131,6 +131,8 @@ export interface ChartResult {
   panchanga?: PanchangaDay;
   /** Gulika (Mandi), the upagraha: its sidereal longitude and sign, and whether the birth was by day. */
   gulika?: { lon: number; signIndex: number; day: boolean };
+  /** The time-based sphutas read at the query instant (Prasna Marga 5.20-23). */
+  timeSphutas?: { pranasphutaAlt: number; mrityusphutaAlt: number; kalasphuta: number };
   /** Where each Vimshottari dasa lord stands when its dasa begins, for BPHS 48.8. */
   dasaStarts?: DasaStartTransit[];
   /** Saturn's nakshatra ingresses from birth to 100 years, for the Ashtakavarga transit points of BPHS ch. 70. */

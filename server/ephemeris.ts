@@ -23,6 +23,7 @@ import {
   signOf,
   SIGNS,
 } from "@shared/astro";
+import { timeSphutasFromGhatis } from "@shared/rules-prasna";
 
 const C = sweph.constants;
 
@@ -946,6 +947,27 @@ export function gulikaLongitude(
   const gulikaTime = start + saturnIdx * part;
   const lon = ascendantAt(gulikaTime, latitude, longitude, opts);
   return { lon, signIndex: Math.floor(lon / 30), day };
+}
+
+/** The time-based sphutas (Ch. V 20-23) read at the query instant `jd`, from the day's ghatis. */
+export function timeSphutas(
+  jd: number,
+  latitude: number,
+  longitude: number,
+  zone: string,
+  opts: EphemerisOptions,
+) {
+  const sunrise = sunriseBefore(jd, latitude, longitude, opts.sunrise);
+  const sunset = riseOrSetAfter(sunrise, latitude, longitude, C.SE_CALC_SET, opts.sunrise);
+  const nextSunrise = riseOrSetAfter(sunset, latitude, longitude, C.SE_CALC_RISE, opts.sunrise);
+  const day = jd < sunset;
+  const start = day ? sunrise : sunset;
+  const end = day ? sunset : nextSunrise;
+  const dayLengthGhatis = (end - start) * 60;
+  const prasnaGhatis = Math.max(0, Math.min(dayLengthGhatis, (jd - start) * 60));
+  const sunLon = siderealLon(jd, C.SE_SUN, opts).lon;
+  const weekday = weekdayOf(start, zone);
+  return timeSphutasFromGhatis(prasnaGhatis, dayLengthGhatis, sunLon, weekday);
 }
 
 /** Panchanga for a calendar date at a place: read at that day's sunrise. */
