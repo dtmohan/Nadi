@@ -4,11 +4,13 @@ import { SIGNS } from "@shared/astro";
 import {
   computePrasna,
   computePrasnaDispositions,
+  computePrasnaFructification,
   PRASNA_BHAVA_SIGNIFICATIONS,
   PRASNA_CAVEATS,
   PRASNA_KARAKAS,
   PRASNA_KARAKA_RULE,
   PRASNA_NODE_NOTE,
+  type PrasnaBhavaVerdict,
   type PrasnaHouseReading,
 } from "@shared/rules-prasna";
 import { PlanetName } from "@/components/planet-name";
@@ -18,6 +20,22 @@ import { cn } from "@/lib/utils";
 
 const ord = (h: number) =>
   h === 1 ? "1st" : h === 2 ? "2nd" : h === 3 ? "3rd" : `${h}th`;
+
+const FRUCT_LABEL: Record<PrasnaBhavaVerdict, string> = {
+  full: "Ripens",
+  "seen-not-enjoyed": "Seen, not enjoyed",
+  little: "A little",
+  mixed: "Mixed",
+  negative: "Negative",
+};
+
+const FRUCT_CLASS: Record<PrasnaBhavaVerdict, string> = {
+  full: "border border-verdict-good/40 text-verdict-good",
+  "seen-not-enjoyed": "border border-verdict-mixed/40 text-verdict-mixed",
+  little: "border border-verdict-mixed/40 text-verdict-mixed",
+  mixed: "border border-verdict-mixed/40 text-verdict-mixed",
+  negative: "border border-verdict-bad/40 text-verdict-bad",
+};
 
 /** The eight directions and the signs each holds (Prasna Marga 2.7–9). */
 const DIRECTION_NOTE =
@@ -84,6 +102,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
   const dispositions = useMemo(
     () => computePrasnaDispositions(reading.strength),
     [reading.strength],
+  );
+  const fructification = useMemo(
+    () => computePrasnaFructification(positions, reading.strength, birthLagnaIdx),
+    [positions, reading.strength, birthLagnaIdx],
   );
   const prasna = useMemo(
     () => (arudhaIdx === null ? null : computePrasna(now.positions, arudhaIdx)),
@@ -203,6 +225,47 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             </ul>
           </div>
         )}
+
+        <div className="mt-6" aria-label="Fructification of bhavas">
+          <h4 className="text-sm font-semibold">
+            Does each house's promise ripen?
+          </h4>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Fructification of bhavas (Prasna Marga 14.39–41), from each
+            house's lord and karaka — their strength and their place.
+          </p>
+          <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {fructification.map((f) => (
+              <li
+                key={f.house}
+                className="rounded-md border bg-card p-3"
+                data-testid={`prasna-fruct-${f.house}`}
+                data-verdict={f.verdict}
+              >
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span className="text-sm font-semibold">
+                    {ord(f.house)} house
+                  </span>
+                  <span
+                    className={cn(
+                      "rounded px-1.5 py-0.5 text-2xs uppercase tracking-wide",
+                      FRUCT_CLASS[f.verdict],
+                    )}
+                  >
+                    {FRUCT_LABEL[f.verdict]}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  lord <PlanetName planet={f.lord} /> · karaka{" "}
+                  <PlanetName planet={f.karaka} />
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-foreground/90">
+                  {f.note}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </div>
       </section>
 
       {/* Reference: house significations and karakas */}

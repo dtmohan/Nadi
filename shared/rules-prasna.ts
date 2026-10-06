@@ -11,7 +11,7 @@
 // from the ascendant. Every text is paraphrased and cited by chapter and stanza.
 
 import type { Planet, PlanetPosition } from "./astro";
-import { houseFrom } from "./astro";
+import { houseFrom, SIGN_LORD } from "./astro";
 import { naturalBenefic } from "./parashari";
 import type { PlanetStrength } from "./strength";
 
@@ -411,3 +411,134 @@ export const PRASNA_KARAKAS: PrasnaKaraka[] = [
 
 export const PRASNA_KARAKA_RULE =
   "If the karakas are strong, the matters they signify are seen predominantly; if weak, only in name. Saturn is the reverse: strong, he lessens misery and disease; weak, he brings them in abundance (14.32).";
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// "Fructification of Bhavas" (Chapter XIV, stanzas 37–47): whether each house's promise ripens,
+// from the house's lord and its karaka — their strength (strong = exalted, moolatrikona, own or
+// friendly; weak = debilitated or inimical) and their position counted from the lagna (favourable
+// = kendras, trines and the 11th; unfavourable = the 6th, 8th and 12th). The karaka for each house
+// is this app's mapping of the planet karakas (14.31) onto the house significations (14.3–14); the
+// text does not state it house by house, so that mapping is provisional.
+
+const PRASNA_BHAVA_KARAKA: Planet[] = [
+  "Sun", // 1st: body, self
+  "Jupiter", // 2nd: family, wealth
+  "Mars", // 3rd: brothers, courage
+  "Moon", // 4th: mother, home
+  "Jupiter", // 5th: children, intellect
+  "Saturn", // 6th: disease, enemies
+  "Venus", // 7th: spouse
+  "Saturn", // 8th: death, chronic disease
+  "Sun", // 9th: father, fortune, spirituality
+  "Mercury", // 10th: actions, profession
+  "Jupiter", // 11th: gains
+  "Saturn", // 12th: loss, expenses
+];
+
+export type PrasnaBhavaVerdict =
+  | "full"
+  | "seen-not-enjoyed"
+  | "little"
+  | "mixed"
+  | "negative";
+
+export interface PrasnaBhavaFructification {
+  house: number;
+  lord: Planet;
+  karaka: Planet;
+  lordStrong: boolean | null;
+  karakaStrong: boolean | null;
+  lordFavourable: boolean | null;
+  karakaFavourable: boolean | null;
+  verdict: PrasnaBhavaVerdict;
+  note: string;
+  source: string;
+}
+
+const PRASNA_STRONG = new Set(["Exalted", "Moolatrikona", "Own sign", "Friendly"]);
+const PRASNA_WEAK = new Set(["Debilitated", "Inimical"]);
+
+const posClass = (house: number): boolean | null =>
+  [1, 4, 5, 7, 9, 10, 11].includes(house)
+    ? true
+    : [6, 8, 12].includes(house)
+      ? false
+      : null; // 2nd and 3rd are neither
+
+const FRUCTIFICATION_NOTE: Record<PrasnaBhavaVerdict, string> = {
+  full: "Lord and karaka both strong, in favourable places: the house's promise is fully experienced.",
+  "seen-not-enjoyed":
+    "Strong, but in an unfavourable place: the promise exists, yet the native does not enjoy it.",
+  little:
+    "Weak, but favourably placed: the promise is experienced, however little.",
+  mixed: "One of the lord and karaka is strong, the other weak: the influence is mixed.",
+  negative:
+    "Lord and karaka both weak, in unfavourable places: the house's results turn negative.",
+};
+
+/** Read "Fructification of Bhavas" for a chart: one verdict per house, from its lord and karaka. */
+export function computePrasnaFructification(
+  positions: PlanetPosition[],
+  strength: PlanetStrength[],
+  lagnaIdx: number,
+): PrasnaBhavaFructification[] {
+  const byStrength = new Map(strength.map((s) => [s.planet, s]));
+  const posOf = (p: Planet) => positions.find((x) => x.planet === p)!;
+  const out: PrasnaBhavaFructification[] = [];
+  for (let house = 1; house <= 12; house++) {
+    const signIdx = (lagnaIdx + house - 1) % 12;
+    const lord = SIGN_LORD[signIdx];
+    const karaka = PRASNA_BHAVA_KARAKA[house - 1];
+
+    const ls = byStrength.get(lord);
+    const ks = byStrength.get(karaka);
+    const lordStrong = ls
+      ? PRASNA_STRONG.has(ls.effectiveDignity)
+        ? true
+        : PRASNA_WEAK.has(ls.effectiveDignity)
+          ? false
+          : null
+      : null;
+    const karakaStrong = ks
+      ? PRASNA_STRONG.has(ks.effectiveDignity)
+        ? true
+        : PRASNA_WEAK.has(ks.effectiveDignity)
+          ? false
+          : null
+      : null;
+
+    const lordFavourable = posClass(houseFrom(lagnaIdx, posOf(lord).signIndex));
+    const karakaFavourable = posClass(
+      houseFrom(lagnaIdx, posOf(karaka).signIndex),
+    );
+
+    let verdict: PrasnaBhavaVerdict;
+    if (lordStrong === true && karakaStrong === true) {
+      verdict =
+        lordFavourable === true && karakaFavourable === true
+          ? "full"
+          : "seen-not-enjoyed";
+    } else if (lordStrong === false && karakaStrong === false) {
+      verdict =
+        lordFavourable === false && karakaFavourable === false
+          ? "negative"
+          : "little";
+    } else {
+      verdict = "mixed";
+    }
+
+    out.push({
+      house,
+      lord,
+      karaka,
+      lordStrong,
+      karakaStrong,
+      lordFavourable,
+      karakaFavourable,
+      verdict,
+      note: FRUCTIFICATION_NOTE[verdict],
+      source: "Prasna Marga 14.39-41",
+    });
+  }
+  return out;
+}
