@@ -13,6 +13,7 @@ import {
   positionsAt,
   ayanamsaAt,
   ascendantAt,
+  gulikaLongitude,
   type EphemerisOptions,
 } from "../server/ephemeris";
 import { tithiOf, nakshatraOf, yogaOf, karanaOf } from "@shared/panchanga";
@@ -21,6 +22,12 @@ import { evaluate } from "@shared/rules";
 import { synthesize, type AreaSynthesis } from "@shared/synthesis";
 import { soften } from "@shared/gentle";
 import { resolveTimeBasis, birthUtc, parseFixedOffset } from "@shared/time-basis";
+import {
+  sphutaPlanetLon,
+  computeProgeny,
+  computeSantanaTrisphuta,
+  rasiAgreement,
+} from "@shared/rules-prasna";
 
 // -----------------------------------------------------------------------------------------------
 // Reference chart: 1990-01-01 12:00 UTC, 0N/0E, Lahiri ayanamsa, mean node. Every value below is
@@ -239,4 +246,53 @@ test("gentle: sensitive phrases are softened, technical names stay", () => {
   assert.equal(soften("death of father"), "loss of father");
   // The rewrite must not touch the word when it is already benign.
   assert.equal(soften("wealth and happiness"), "wealth and happiness");
+});
+
+// -----------------------------------------------------------------------------------------------
+// Prasna Marga — worked examples from B.V. Raman's notes, pinned as anchors for the harvests.
+// -----------------------------------------------------------------------------------------------
+
+test("Prasna Marga 19.5 worked example: Beeja longitude of a planet", () => {
+  // Jupiter at 12°2' Scorpio (222.033°), 8°42' into Anuradha → 39.15 ghatis → ÷5 = 7s 24.9°
+  // = Scorpio 24.9° = 234.9°.
+  const got = sphutaPlanetLon(222.033);
+  assert.ok(Math.abs(got - 234.9) < 0.05, `sphuta ${got} !~ 234.9`);
+});
+
+test("Prasna Marga 19.18 worked example: nakshatra indexing", () => {
+  // Leo 21°3' (141.05°) is Purva Phalguni, nakshatra index 10.
+  const nak = Math.floor(141.05 / (360 / 27));
+  assert.equal(nak, 10);
+});
+
+test("Prasna Marga progeny sphuta on the reference chart", () => {
+  const male = computeProgeny(positions, "male");
+  assert.equal(male.kind, "beeja");
+  approxLon(male.longitude, 297.61766822134086, "beeja sphuta");
+  assert.equal(male.verdict, "remedy");
+  const female = computeProgeny(positions, "female");
+  assert.equal(female.kind, "kshetra");
+  assert.equal(female.verdict, "remedy");
+});
+
+test("Prasna Marga Santana Trisphuta on the reference chart", () => {
+  const lagnaIdx = Math.floor(ascendantAt(jd, 0, 0, opts) / 30);
+  const t = computeSantanaTrisphuta(positions, lagnaIdx);
+  approxLon(t.trisphuta, 310.3431104235824, "trisphuta");
+  assert.equal(t.nakshatraIndex, 23);
+  assert.equal(t.inBadHouse, true);
+});
+
+test("Prasna Marga Gulika position on the reference chart", () => {
+  const g = gulikaLongitude(jd, 0, 0, "UTC", opts);
+  assert.equal(g.signIndex, 0);
+  assert.equal(g.day, true);
+});
+
+test("Prasna Marga 21 Rasi agreement: the twelve relative houses", () => {
+  const expected = ["good", "bad", "moderate", "moderate", "bad", "bad", "good", "bad", "good", "good", "good", "bad"];
+  for (let h = 1; h <= 12; h++) {
+    const maleMoon = (11 + h - 1) % 12; // bride's Moon = Pisces (11), groom at house h
+    assert.equal(rasiAgreement(maleMoon, 11).verdict, expected[h - 1], `${h}h`);
+  }
 });

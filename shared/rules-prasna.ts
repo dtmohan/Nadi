@@ -505,7 +505,7 @@ const SPHUTA_NOTE: Record<PrasnaSphutaVerdict, string> = {
 /** A planet's sphuta contribution: the expired portion of its nakshatra in ghatis (4.5 per degree),
  * divided by 5 and read as signs — i.e. the expired portion in degrees × 27 (19.5, with Raman's
  * example). This is the primary method; the simple longitude sum of 19.11 is an alternative view. */
-function sphutaPlanetLon(planetLon: number): number {
+export function sphutaPlanetLon(planetLon: number): number {
   const NAK = 360 / 27;
   const expired = ((planetLon % NAK) + NAK) % NAK;
   return (((expired * 27) % 360) + 360) % 360;
