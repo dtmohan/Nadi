@@ -97,11 +97,23 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5000", 10);
+  httpServer.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE") {
+      // On macOS, port 5000 is commonly held by the AirPlay Receiver (ControlCenter).
+      console.error(
+        `Port ${port} is already in use. ` +
+          `On macOS this is often the AirPlay Receiver; disable it in System Settings, ` +
+          `or start on another port with PORT=5100 npm run dev.`,
+      );
+    } else {
+      console.error(err);
+    }
+    process.exit(1);
+  });
   httpServer.listen(
     {
       port,
       host: "0.0.0.0",
-      reusePort: true,
     },
     () => {
       log(`serving on port ${port}`);

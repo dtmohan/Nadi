@@ -1,0 +1,242 @@
+// Engine regression tests. Pin the current correct outputs of the ephemeris wrapper and the
+// pure engines (panchanga, dasa, synthesis, time basis, gentle wording) so that a refactor that
+// changes a number, a rule count, a dasa lord or a softened phrase fails here.
+//
+// Run from the repository root: `npm test` (the ephemeris wrapper finds ./ephe by cwd).
+
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import {
+  birthInstant,
+  julianDay,
+  positionsAt,
+  ayanamsaAt,
+  ascendantAt,
+  type EphemerisOptions,
+} from "../server/ephemeris";
+import { tithiOf, nakshatraOf, yogaOf, karanaOf } from "@shared/panchanga";
+import { vimshottari } from "@shared/kp";
+import { evaluate } from "@shared/rules";
+import { synthesize, type AreaSynthesis } from "@shared/synthesis";
+import { soften } from "@shared/gentle";
+import { resolveTimeBasis, birthUtc, parseFixedOffset } from "@shared/time-basis";
+
+// -----------------------------------------------------------------------------------------------
+// Reference chart: 1990-01-01 12:00 UTC, 0N/0E, Lahiri ayanamsa, mean node. Every value below is
+// the output the deployed server produces for this chart; a change to the Swiss Ephemeris wrapper,
+// the ayanamsa table, the sign/nakshatra arithmetic or the rule set moves at least one of them.
+// -----------------------------------------------------------------------------------------------
+
+const REFERENCE_CHART = {
+  birthDate: "1990-01-01",
+  birthTime: "12:00",
+  timezone: "UTC",
+  timeStandard: "auto",
+  latitude: 0,
+  longitude: 0,
+};
+
+const opts: EphemerisOptions = { ayanamsa: "lahiri", nodeType: "mean" };
+
+const { utc } = birthInstant(REFERENCE_CHART);
+const jd = julianDay(utc);
+const positions = positionsAt(jd, opts);
+const byPlanet = Object.fromEntries(positions.map((p) => [p.planet, p]));
+
+/** Longitudes are pinned to ~0.0036″; the native sweph binary differs by ~1e-12 across platforms. */
+const approxLon = (actual: number, expected: number, msg?: string) =>
+  assert.ok(
+    Math.abs(actual - expected) < 1e-6,
+    `${msg ?? "longitude"}: ${actual} !~ ${expected}`,
+  );
+
+test("ephemeris: Julian day and ayanamsa for the reference instant", () => {
+  approxLon(jd, 2447893.000003784, "JD");
+  approxLon(ayanamsaAt(jd, opts), 23.717425749502183, "Lahiri ayanamsa");
+});
+
+test("ephemeris: sidereal longitudes match the pinned snapshot", () => {
+  const expected: Record<string, number> = {
+    Sun: 257.093550746519,
+    Moon: 309.546991790444,
+    Mars: 226.279374105087,
+    Mercury: 271.952110330263,
+    Jupiter: 71.428079547754,
+    Venus: 282.501246306518,
+    Saturn: 261.936784818342,
+    Rahu: 294.714269632697,
+    Ketu: 114.714269632697,
+  };
+  for (const [planet, lon] of Object.entries(expected)) {
+    approxLon(byPlanet[planet].lon, lon, `${planet} longitude`);
+  }
+});
+
+test("ephemeris: Rahu and Ketu are exactly opposite", () => {
+  const rahu = byPlanet["Rahu"].lon;
+  const ketu = byPlanet["Ketu"].lon;
+  approxLon((rahu + 180) % 360, ketu, "Rahu + 180 == Ketu");
+});
+
+test("ephemeris: sign, nakshatra and pada are self-consistent", () => {
+  for (const p of positions) {
+    const lon = ((p.lon % 360) + 360) % 360;
+    assert.equal(p.signIndex, Math.floor(lon / 30), `${p.planet} sign`);
+    assert.equal(
+      p.nakshatraIndex,
+      Math.floor(lon / (360 / 27)),
+      `${p.planet} nakshatra`,
+    );
+    // pada is 1-indexed in the app.
+    const pada = Math.floor((lon % (360 / 27)) / (360 / 27 / 4)) + 1;
+    assert.equal(p.pada, pada, `${p.planet} pada`);
+  }
+});
+
+test("ephemeris: the four ayanamsas are distinct and pinned", () => {
+  const ayanamsa = (key: string) =>
+    ayanamsaAt(jd, { ayanamsa: key, nodeType: "mean" });
+  approxLon(ayanamsa("lahiri"), 23.717425749502183, "Lahiri");
+  approxLon(ayanamsa("raman"), 22.271124, "Raman");
+  approxLon(ayanamsa("kp"), 23.62057342377659, "KP");
+  approxLon(ayanamsa("yukteshwar"), 22.339136, "Yukteshwar");
+});
+
+test("ephemeris: ascendant for the reference place (0N/0E)", () => {
+  const asc = ascendantAt(jd, 0, 0, opts);
+  approxLon(asc, 348.11250666377487, "ascendant");
+});
+
+// -----------------------------------------------------------------------------------------------
+
+test("panchanga: tithi, nakshatra, yoga and karana for the reference instant", () => {
+  const sun = byPlanet["Sun"].lon;
+  const moon = byPlanet["Moon"].lon;
+  const tithi = tithiOf(moon, sun);
+  assert.equal(tithi.name, "Panchami");
+  assert.equal(tithi.paksha, "Shukla");
+  const nak = nakshatraOf(moon);
+  assert.equal(nak.name, "Shatabhisha");
+  assert.equal(nak.lord, "Rahu");
+  assert.equal(yogaOf(moon, sun).name, "Siddhi");
+  assert.equal(karanaOf(moon, sun).name, "Bava");
+});
+
+// -----------------------------------------------------------------------------------------------
+
+test("vimshottari: birth dasa lord and balance for the reference Moon", () => {
+  const moon = byPlanet["Moon"].lon;
+  const vim = vimshottari(moon, utc.toISO()!, utc.toISO()!);
+  // Moon in Shatabhisha (lord Rahu) → the running dasa at birth is Rahu.
+  assert.equal(vim.dasas[0].lord, "Rahu");
+  assert.equal(vim.current.dasa.lord, "Rahu");
+  // Balance of Rahu maha dasa at birth ≈ 14.11 years.
+  assert.ok(
+    Math.abs(vim.balanceYears - 14.1116) < 0.01,
+    `balanceYears ${vim.balanceYears}`,
+  );
+});
+
+test("vimshottari: nine maha dasas, each lord appearing once", () => {
+  const vim = vimshottari(byPlanet["Moon"].lon, utc.toISO()!, utc.toISO()!);
+  assert.equal(vim.dasas.length, 9);
+  assert.equal(new Set(vim.dasas.map((d) => d.lord)).size, 9);
+});
+
+// -----------------------------------------------------------------------------------------------
+
+test("rules: the Nadi rule engine fires the pinned finding count", () => {
+  const reading = evaluate(positions, undefined, "male");
+  // 111 findings for the reference chart. A rule addition/removal/reweight moves this.
+  assert.equal(reading.findings.length, 111);
+  // Fixed roles for a male chart.
+  assert.deepEqual(reading.roles, {
+    gender: "male",
+    native: "Jupiter",
+    deha: "Jupiter",
+    spouse: "Venus",
+    karma: "Saturn",
+  });
+  assert.equal(reading.jeeva.sign, "Gemini");
+  assert.equal(reading.karma.sign, "Sagittarius");
+});
+
+test("synthesis: every life area has a valid tone, a headline and a finite balance", () => {
+  const reading = evaluate(positions, undefined, "male");
+  const areas = synthesize(reading, "male");
+  assert.ok(areas.length > 0, "expected at least one life area");
+  const validTones = new Set([
+    "supportive",
+    "mixed",
+    "care",
+    "contested",
+    "quiet",
+  ]);
+  for (const a of areas) {
+    assert.ok(validTones.has(a.tone), `tone ${a.tone} for ${a.area}`);
+    assert.ok(a.headline.length > 0, `headline for ${a.area}`);
+    assert.ok(a.key.length <= 3, `key ≤ 3 for ${a.area}`);
+    assert.ok(Number.isFinite(a.balance), `balance for ${a.area}`);
+  }
+});
+
+// -----------------------------------------------------------------------------------------------
+
+test("time basis: automatic standard applies birthplace LMT before standard time", () => {
+  // Einstein: 14 Mar 1879 11:30 Ulm → LMT +0:39:57, not Berlin's +0:53:28.
+  const e = resolveTimeBasis(
+    "1879-03-14",
+    "11:30",
+    "Europe/Berlin",
+    9.9876,
+    "auto",
+    48.4011,
+  );
+  assert.equal(e.mode, "lmt");
+  assert.equal(e.offsetSeconds, Math.round(9.9876 * 240));
+  assert.equal(birthUtc("1879-03-14", "11:30", e).toISO(), "1879-03-14T10:50:03.000Z");
+
+  // Gandhi: 2 Oct 1869 07:12 Porbandar → LMT +4:38:31.
+  const g = resolveTimeBasis(
+    "1869-10-02",
+    "07:12",
+    "Asia/Kolkata",
+    69.6293,
+    "auto",
+    21.6417,
+  );
+  assert.equal(g.mode, "lmt");
+  assert.equal(birthUtc("1869-10-02", "07:12", g).toISO(), "1869-10-02T02:33:29.000Z");
+
+  // Modern IST: 24 Apr 1973 13:00 → the zone database (+5:30).
+  const m = resolveTimeBasis(
+    "1973-04-24",
+    "13:00",
+    "Asia/Kolkata",
+    72.833,
+    "auto",
+    18.967,
+  );
+  assert.equal(m.mode, "zone");
+  assert.equal(birthUtc("1973-04-24", "13:00", m).toISO(), "1973-04-24T07:30:00.000Z");
+});
+
+test("time basis: fixed-offset parsing", () => {
+  assert.equal(parseFixedOffset("+05:30"), 5 * 3600 + 30 * 60);
+  assert.equal(parseFixedOffset("-07:52:58"), -(7 * 3600 + 52 * 60 + 58));
+  assert.equal(parseFixedOffset("5.5"), Math.round(5.5 * 3600));
+  assert.equal(parseFixedOffset("UTC+5:30"), 5 * 3600 + 30 * 60);
+  assert.equal(parseFixedOffset("bogus"), undefined);
+});
+
+// -----------------------------------------------------------------------------------------------
+
+test("gentle: sensitive phrases are softened, technical names stay", () => {
+  assert.equal(soften("danger of death from drowning"), "grave danger from drowning");
+  assert.equal(soften("the child dies soon after birth"), "the child is at risk soon after birth");
+  assert.equal(soften("a maraka (killer) planet"), "a maraka planet");
+  assert.equal(soften("death of father"), "loss of father");
+  // The rewrite must not touch the word when it is already benign.
+  assert.equal(soften("wealth and happiness"), "wealth and happiness");
+});

@@ -1,8 +1,6 @@
 import type { PanchangaDay } from "./panchanga";
 import type { SensitiveGate } from "./life-stage";
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
-import { createInsertSchema } from "drizzle-zod";
-import type * as z from "zod/mini";
+import { z } from "zod";
 import type { PlanetPosition, TransitPeriod, NakshatraPeriod, SignPeriod, PlanetSignPeriod } from "./astro";
 import type { FatherArishtaWindow } from "./father-arishta";
 import type { Reading } from "./rules";
@@ -12,37 +10,59 @@ import type { ShadbalaBase, DasaStartTransit } from "./shadbala";
 import { chartEventsSchema, type ChartEvent } from "./events";
 import type { TimeBasis } from "./time-basis";
 
-export const charts = sqliteTable("charts", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  name: text("name").notNull(),
-  gender: text("gender").notNull().default("unspecified"),
-  birthDate: text("birth_date").notNull(), // YYYY-MM-DD (local civil date)
-  birthTime: text("birth_time").notNull(), // HH:MM (local civil time, 24h)
-  timezone: text("timezone").notNull(), // IANA tz id
+// The chart is the request/response shape for every endpoint. The server is stateless: charts are
+// saved in the visitor's browser, so this schema exists only to validate and type the birth data,
+// not to address a database. It is written as plain Zod rather than derived from an ORM table.
+export const insertChartSchema = z.object({
+  /** Human label shown on the home page and reports. */
+  name: z.string(),
+  gender: z.string().optional(),
+  birthDate: z.string(), // YYYY-MM-DD (local civil date)
+  birthTime: z.string(), // HH:MM (local civil time, 24h)
+  timezone: z.string(), // IANA tz id
   /** How the civil time is turned into an instant: "auto" | "zone" | "lmt" | a fixed offset such as "+05:30". */
-  timeStandard: text("time_standard").notNull().default("auto"),
-  place: text("place").notNull(),
-  latitude: real("latitude").notNull(),
-  longitude: real("longitude").notNull(),
-  ayanamsa: text("ayanamsa").notNull().default("lahiri"),
-  nodeType: text("node_type").notNull().default("mean"),
+  timeStandard: z.string().optional(),
+  place: z.string(),
+  latitude: z.number(),
+  longitude: z.number(),
+  ayanamsa: z.string().optional(),
+  nodeType: z.string().optional(),
   /** Which instant counts as sunrise: "edge" (upper limb, refracted), "centre" (disc centre, refracted), "edge-true" (upper limb, no refraction), "centre-true" (disc centre, no refraction). */
-  sunriseDef: text("sunrise_def").notNull().default("edge"),
+  sunriseDef: z.string().optional(),
   /** House placement for the Parashari house, node, house-effects and house-lord readings: "rashi" (whole sign, the default) | "sripati" | "equal" (bhava chalit). */
-  parashariHouseMethod: text("parashari_house_method").notNull().default("rashi"),
-  notes: text("notes").notNull().default(""),
+  parashariHouseMethod: z.string().optional(),
+  notes: z.string().optional(),
   /** Optional date of passing (YYYY-MM-DD). Fixes the age the readings use and lets the lifespan methods be tested on the deceased; never used to compute or display a forecast. */
-  deathDate: text("death_date"),
+  deathDate: z.string().nullable().optional(),
   /** How sure the birth time is, as ± minutes (0 = as stated). The Nadi reading marks lines whose direction or bond changes inside the band; nothing else uses it. */
-  timeUncertaintyMin: integer("time_uncertainty_min").notNull().default(0),
+  timeUncertaintyMin: z.number().int().optional(),
   /** Remembered life events (matter, date, outcome, note), kept beside the birth data. */
-  events: text("events", { mode: "json" }).$type<ChartEvent[]>().notNull().default([]),
+  events: chartEventsSchema.optional(),
 });
 
-export const insertChartSchema = createInsertSchema(charts, { events: chartEventsSchema.optional() }).omit({ id: true });
-
 export type InsertChart = z.infer<typeof insertChartSchema>;
-export type Chart = typeof charts.$inferSelect;
+
+/** A saved chart: every field present (defaults filled in), plus its local id. */
+export interface Chart {
+  id: number;
+  name: string;
+  gender: string;
+  birthDate: string;
+  birthTime: string;
+  timezone: string;
+  timeStandard: string;
+  place: string;
+  latitude: number;
+  longitude: number;
+  ayanamsa: string;
+  nodeType: string;
+  sunriseDef: string;
+  parashariHouseMethod: string;
+  notes: string;
+  deathDate: string | null;
+  timeUncertaintyMin: number;
+  events: ChartEvent[];
+}
 
 /** Birth-time band choices, ± minutes. */
 export const TIME_UNCERTAINTY_OPTIONS = [0, 2, 5, 10, 15, 30, 60] as const;

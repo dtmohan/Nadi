@@ -56,6 +56,11 @@ npm install
 npm run dev        # Express with Vite middleware on http://localhost:5000
 ```
 
+> **macOS note:** port 5000 is often held by the AirPlay Receiver (ControlCenter), which makes `npm run dev`
+> fail with `EADDRINUSE`. Either disable AirPlay Receiver in System Settings, or start on another port:
+> `PORT=5100 npm run dev`. (A `reusePort` flag was removed because it made the server fail with `ENOTSUP`
+> on macOS.)
+
 Production build:
 
 ```sh
@@ -72,6 +77,7 @@ Checks:
 
 ```sh
 npm run check                       # TypeScript
+npm test                            # engine regression suite (ephemeris, panchanga, dasa, synthesis, time basis, gentle)
 node scripts/check-time-basis.mjs   # time-basis regression; needs the server on port 5000
 ```
 
