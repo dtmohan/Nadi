@@ -13,6 +13,7 @@
 import type { Planet, PlanetPosition } from "./astro";
 import { houseFrom, SIGN_LORD } from "./astro";
 import { drishtiQuarters, naturalBenefic } from "./parashari";
+import { toneOfText } from "./synthesis";
 import type { PlanetStrength } from "./strength";
 
 export interface PrasnaHouseRule {
@@ -606,6 +607,147 @@ export function computeSantanaTrisphuta(
 
 const ord = (n: number): string =>
   n === 1 ? "1st" : n === 2 ? "2nd" : n === 3 ? "3rd" : `${n}th`;
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// "Effects of Transits" (Chapter XXII): each planet's effect as it transits the twelve houses from
+// the natal Moon (Janma Rasi), condensed from Varahamihira's Brihat Samhita (22.1-24). The nodes
+// are not given; the sign-portion timing (22.26) and propitiation (22.25, 27) are noted separately.
+
+export const PRASNA_TRANSIT_EFFECTS: Partial<Record<Planet, string[]>> = {
+  Sun: [
+    "Fatigue, loss of good name and position, painful work and disease.",
+    "Loss of money, disease in the eye and deception from others.",
+    "Elevation to a new position, ruin to enemies, increase of wealth and good health.",
+    "Obstacles in enjoying the wife's company and disease of the stomach.",
+    "Affliction from enemies and disease.",
+    "Recovery from illness, fall of enemies and pacification of mental grief.",
+    "Fatigue from journeys, helplessness and disease of the stomach.",
+    "Repulsion from women, fear from rulers and disease.",
+    "Calamities of all sorts, privation, severe disease and a break in the profession.",
+    "Success in all undertakings and victory in all quarters.",
+    "Promotion to an elevated position, prosperity, recovery from disease and a tendency to good actions.",
+    "The native cannot reap the fruits of good actions.",
+  ],
+  Moon: [
+    "Wholesome food, bed comfort and the gain of valuable things.",
+    "Obstacles to good actions, loss of fame and money.",
+    "Enjoyment with women, comfort from good clothes and fresh wealth.",
+    "Fear from others.",
+    "Troubles of all sorts and obstruction to journeys.",
+    "Gain of wealth, happiness, peace with enemies and pacification of disease.",
+    "Wholesome food, presents, gain of money, comfortable sleep and enjoyment of women.",
+    "Trouble from fire.",
+    "Disease of the stomach and fear of imprisonment.",
+    "Benefits from the government.",
+    "Visits from relatives and increase of wealth.",
+    "Loss of money and obstacles to all work.",
+  ],
+  Mars: [
+    "Obstacles to all undertakings.",
+    "Fear from rulers, trouble from thieves and fire, sorrow from enemies and ailments from grief.",
+    "Gain of valuable metals, the favour of Subrahmanya and easy destruction of enemies.",
+    "Association with bad men, disease of the stomach, high fever and unconscious flow of seminal fluid.",
+    "Troubles from foes, sorrow over children and dread of disease.",
+    "Gain of metals such as copper and gold, fear from quarrels and fresh breaks with enemies.",
+    "Misunderstanding with the wife and disease of the stomach and eyes.",
+    "Blood pressure from severe blows, broken limbs, fear of dishonour and depression.",
+    "Loss of money, disease and defeat.",
+    "Profits in all ways.",
+    "Elevation to the headship of a village and general happiness.",
+    "Troubles of all sorts, waste of money, disease from heat and disease of the eye.",
+  ],
+  Mercury: [
+    "Quarrels with relations, loss of money by libel or unlawful words, and journeys to distant places.",
+    "Fresh wealth and influence, and general prosperity.",
+    "Fear from enemies and the anger of rulers.",
+    "Gain of money, prosperity of relatives and progress of the family.",
+    "Quarrels with wife and children.",
+    "Success in all things, general luck and rapid promotion.",
+    "Quarrels.",
+    "Victory, happiness from children, gain of clothes, increase of income, peace and learning.",
+    "Disease of all kinds.",
+    "Destruction of enemies, gain of money and happiness from women.",
+    "Good speech, fresh gains, happiness, success in everything, and closer association with wife and children.",
+    "Troubles from foes and disease.",
+  ],
+  Jupiter: [
+    "Loss of money, demotion, quarrels and mental dejection.",
+    "Gain of wealth, ruin to foes and happiness with women.",
+    "Some change in profession and obstacles to all actions.",
+    "Sorrow from relatives and want of peace.",
+    "Acquisition of vehicles, ornaments and children, happiness from women, clothes and houses.",
+    "Unhappiness though one has everything to be comfortable.",
+    "Cleverness in speech, sharpness of intellect, accomplishment of actions, gain of money and happiness in enjoyment.",
+    "Unbearable grief, disease, loss of liberty, over-exertion and fatigue.",
+    "Profits, happiness with wife and children, acquisition of authority and success in all actions.",
+    "Loss of position or profession and fruitlessness of all actions.",
+    "Favours, success in all actions and elevation to a distinguished station.",
+    "Fatigue from long walks and severe miseries.",
+  ],
+  Venus: [
+    "Wholesome food, enjoyment with the wife, perfumed articles, fresh bedding, valuable clothes and happiness.",
+    "Wealth and grains, ornaments and flowers, the favour of rulers and family happiness.",
+    "Respect for one's opinions, profits, honours, clothes and the destruction of enemies.",
+    "Happy reconciliation with relatives and great prosperity.",
+    "Gain of money, birth of children, help from relatives and the satisfaction of elders.",
+    "Troubles from enemies and disease.",
+    "Trouble and danger from women.",
+    "Happiness from women and household utensils and ornaments.",
+    "Gain of wealth, fruition of charitable actions and happiness with women.",
+    "Rivalry, quarrels and dishonour.",
+    "Enjoyment of good food, perfumed articles and favour from relatives.",
+    "Gain of wealth in many ways, and clothes and ornaments.",
+  ],
+  Saturn: [
+    "Fear from poison and fire, loss of relatives and friends, exile, quarrels with relatives, monetary misunderstanding and distant journeys.",
+    "Loss of wealth, happiness and health, and decrease of desires.",
+    "Gain of elephants and buffaloes, good health and success in all actions.",
+    "A cloud on the mind, separation from wife and wealth, and quarrels with all.",
+    "Sorrow from the death of children.",
+    "Pacification of enemies and disease.",
+    "Intimacy with female servants and distant journeys.",
+    "Misunderstanding with one's own people and extreme helplessness.",
+    "Enmity with all, imprisonment or bondage, obstruction to charity and heart trouble.",
+    "Loss of fame, wealth and education, yet success in one's actions.",
+    "Intimacy with other women, huge profits, and increase of honour and authority.",
+    "A succession of intermittent griefs and overwhelming calamities.",
+  ],
+};
+
+export type PrasnaTransitTone = "good" | "hard" | "neutral";
+
+export interface PrasnaTransit {
+  planet: Planet;
+  house: number; // from the natal Moon
+  text: string;
+  tone: PrasnaTransitTone;
+}
+
+/** The seven planets' transit effects read from the natal Moon, per Prasna Marga 22.1-24. */
+export function computePrasnaTransits(
+  moonSignIndex: number,
+  positions: PlanetPosition[],
+): PrasnaTransit[] {
+  return positions
+    .filter((p) => p.planet !== "Rahu" && p.planet !== "Ketu")
+    .map((p) => {
+      const house = houseFrom(moonSignIndex, p.signIndex);
+      const text = PRASNA_TRANSIT_EFFECTS[p.planet]?.[house - 1] ?? "";
+      const t = toneOfText(text);
+      return {
+        planet: p.planet,
+        house,
+        text,
+        tone: t === "good" ? "good" : t === "hard" ? "hard" : "neutral",
+      };
+    });
+}
+
+export const PRASNA_TRANSIT_NOTES = [
+  "Effects of Transits, Prasna Marga Chapter XXII, condensed from Varahamihira's Brihat Samhita (22.1). Counted from the natal Moon.",
+  "The Sun and Mars give their effects at the beginning of the sign; Jupiter and Venus in the middle; the Moon and Saturn in the last part; Mercury throughout (22.26).",
+  "Unfavourable planets aspected by benefics are not fully evil, and favourable planets aspected by malefics do not give full good (22.26 notes).",
+];
 
 const FRUCTIFICATION_NOTE: Record<PrasnaBhavaVerdict, string> = {
   full: "Lord and karaka both strong, in favourable places: the house's promise is fully experienced.",

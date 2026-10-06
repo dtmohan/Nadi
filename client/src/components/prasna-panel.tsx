@@ -5,8 +5,10 @@ import {
   computePrasna,
   computePrasnaDispositions,
   computePrasnaFructification,
+  computePrasnaTransits,
   computeProgeny,
   computeSantanaTrisphuta,
+  PRASNA_TRANSIT_NOTES,
   PRASNA_BHAVA_SIGNIFICATIONS,
   PRASNA_CAVEATS,
   PRASNA_KARAKAS,
@@ -17,6 +19,7 @@ import {
   type PrasnaSphutaVerdict,
 } from "@shared/rules-prasna";
 import { PlanetName } from "@/components/planet-name";
+import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Soft } from "@/lib/gentle";
 import { Button } from "@/components/ui/button";
 import {
@@ -150,6 +153,11 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
     () => computeSantanaTrisphuta(positions, birthLagnaIdx),
     [positions, birthLagnaIdx],
   );
+  const natalMoon = positions.find((p) => p.planet === "Moon")!;
+  const transits = useMemo(
+    () => computePrasnaTransits(natalMoon.signIndex, now.positions),
+    [natalMoon.signIndex, now.positions],
+  );
   const prasna = useMemo(
     () => (arudhaIdx === null ? null : computePrasna(now.positions, arudhaIdx)),
     [now.positions, arudhaIdx],
@@ -217,7 +225,13 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               <span className="font-semibold">{SIGNS[arudhaIdx]}</span>{" "}
               <span className="text-muted-foreground">· the sky now</span>
             </p>
-            <div className="mt-2">
+            <div className="mt-3 grid gap-4 md:grid-cols-[minmax(0,16rem)_1fr]">
+              <SouthIndianChart
+                positions={now.positions}
+                lagnaSign={arudhaIdx}
+                title="Prasna"
+                subtitle={`Arudha · ${SIGNS[arudhaIdx]}`}
+              />
               <HouseEffectsList readings={prasna} />
             </div>
           </div>
@@ -327,6 +341,47 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
           </ul>
         </div>
       )}
+
+      {/* Transits now, from the natal Moon */}
+      <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
+        <h3 className="text-base font-semibold">Transits now</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          The seven planets' effects in transit, read from the natal Moon
+          (Prasna Marga 22.1–24).
+        </p>
+        <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+          {transits.map((t) => (
+            <li
+              key={t.planet}
+              className={cn(
+                "rounded-md border border-l-[3px] p-2.5 text-xs leading-relaxed",
+                t.tone === "good"
+                  ? "border-l-verdict-good/70"
+                  : t.tone === "hard"
+                    ? "border-l-verdict-bad/70"
+                    : "border-l-border",
+              )}
+              data-testid={`prasna-transit-${t.planet}`}
+              data-tone={t.tone}
+            >
+              <div className="flex items-baseline gap-2">
+                <PlanetName planet={t.planet} />
+                <span className="text-muted-foreground">
+                  {ord(t.house)} from the Moon
+                </span>
+              </div>
+              <p className="mt-0.5">
+                <Soft>{t.text}</Soft>
+              </p>
+            </li>
+          ))}
+        </ul>
+        <ul className="mt-2 space-y-0.5 text-2xs text-muted-foreground">
+          {PRASNA_TRANSIT_NOTES.map((n, i) => (
+            <li key={i}>{n}</li>
+          ))}
+        </ul>
+      </div>
 
       {/* Birth chart */}
       <section className="mt-6" aria-label="Birth chart">
