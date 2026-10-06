@@ -5,6 +5,7 @@ import {
   computePrasna,
   computePrasnaDispositions,
   computePrasnaFructification,
+  computeProgeny,
   PRASNA_BHAVA_SIGNIFICATIONS,
   PRASNA_CAVEATS,
   PRASNA_KARAKAS,
@@ -106,6 +107,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
   const fructification = useMemo(
     () => computePrasnaFructification(positions, reading.strength, birthLagnaIdx),
     [positions, reading.strength, birthLagnaIdx],
+  );
+  const progeny = useMemo(
+    () => computeProgeny(positions, result.chart.gender as "male" | "female" | "unspecified"),
+    [positions, result.chart.gender],
   );
   const prasna = useMemo(
     () => (arudhaIdx === null ? null : computePrasna(now.positions, arudhaIdx)),
@@ -265,6 +270,45 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               </li>
             ))}
           </ul>
+        </div>
+
+        <div className="mt-6" aria-label="Progeny">
+          <h4 className="text-sm font-semibold">Progeny</h4>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {progeny.kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta, the sum of
+            the three relevant longitudes (Prasna Marga 19.6–11).
+          </p>
+          <div
+            className="mt-2 rounded-md border bg-card p-3"
+            data-testid="prasna-progeny"
+            data-strong={progeny.strong}
+          >
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-sm font-medium">
+                {progeny.kind === "beeja" ? "Beeja Sphuta" : "Kshetra Sphuta"}
+              </span>
+              <span
+                className={cn(
+                  "rounded px-1.5 py-0.5 text-2xs uppercase tracking-wide",
+                  progeny.strong
+                    ? "border border-verdict-good/40 text-verdict-good"
+                    : "border border-verdict-bad/40 text-verdict-bad",
+                )}
+              >
+                {progeny.strong ? "strong" : "weak"}
+              </span>
+              <span className="ml-auto text-2xs text-muted-foreground">
+                {progeny.source}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground tabular">
+              {SIGNS[progeny.signIndex]} · navamsa {progeny.navamsaIndex + 1} ·{" "}
+              {progeny.longitude.toFixed(2)}°
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-foreground/90">
+              {progeny.note}
+            </p>
+          </div>
         </div>
       </section>
 

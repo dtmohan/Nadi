@@ -465,6 +465,59 @@ const posClass = (house: number): boolean | null =>
       ? false
       : null; // 2nd and 3rd are neither
 
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// "Issues According to Birth Horoscope" (Chapter XIX): progeny read from the natal chart. The
+// core is the Beeja Sphuta (male) and Kshetra Sphuta (female), each the sum of three longitudes
+// (19.11), strong when the sum falls in the right sign and navamsa (19.6-7). The benefic aspect
+// modifier and the Santana Trisphuta checks (19.18-21) are not yet entered.
+
+export type PrasnaSphutaKind = "beeja" | "kshetra";
+
+export interface PrasnaSphuta {
+  kind: PrasnaSphutaKind;
+  longitude: number;
+  signIndex: number;
+  navamsaIndex: number; // 0..8 (navamsa 1..9)
+  strong: boolean;
+  note: string;
+  source: string;
+}
+
+export function sphutaOf(sum: number, kind: PrasnaSphutaKind): PrasnaSphuta {
+  const longitude = ((sum % 360) + 360) % 360;
+  const signIndex = Math.floor(longitude / 30);
+  const degInSign = longitude - signIndex * 30;
+  const navamsaIndex = Math.floor(degInSign / (30 / 9));
+  // Aries is the 1st (odd) sign; navamsa 1 is odd. Beeja wants odd/odd, Kshetra wants even/even.
+  const oddSign = signIndex % 2 === 0;
+  const oddNavamsa = navamsaIndex % 2 === 0;
+  const strong = kind === "beeja" ? oddSign && oddNavamsa : !oddSign && !oddNavamsa;
+  const want = kind === "beeja" ? "an odd sign and odd navamsa" : "an even sign and even navamsa";
+  return {
+    kind,
+    longitude,
+    signIndex,
+    navamsaIndex,
+    strong,
+    note: strong
+      ? `${kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta in ${want} — strong.`
+      : `${kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta not in ${want} — children come with difficulty, or after remedies (19.14).`,
+    source: "Prasna Marga 19.6-7, 19.11",
+  };
+}
+
+/** Read the progeny sphuta for a chart: Beeja for a male, Kshetra for a female (19.9). */
+export function computeProgeny(
+  positions: PlanetPosition[],
+  gender: "male" | "female" | "unspecified",
+): PrasnaSphuta {
+  const lon = (p: string) => positions.find((x) => x.planet === p)!.lon;
+  if (gender === "female") {
+    return sphutaOf(lon("Moon") + lon("Mars") + lon("Jupiter"), "kshetra");
+  }
+  return sphutaOf(lon("Sun") + lon("Venus") + lon("Jupiter"), "beeja");
+}
+
 const FRUCTIFICATION_NOTE: Record<PrasnaBhavaVerdict, string> = {
   full: "Lord and karaka both strong, in favourable places: the house's promise is fully experienced.",
   "seen-not-enjoyed":
