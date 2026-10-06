@@ -1,0 +1,10 @@
+node_modules
+dist
+.git
+.gitignore
+docs
+*.patch
+*.md
+scripts
+baseline
+.DS_Store

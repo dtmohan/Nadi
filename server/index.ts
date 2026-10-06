@@ -66,6 +66,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Liveness probe for the host's health check; returns before any heavy work is done.
+app.get("/health", (_req, res) => {
+  res.json({ ok: true });
+});
+
 (async () => {
   await registerRoutes(httpServer, app);
 
