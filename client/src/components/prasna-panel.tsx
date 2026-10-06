@@ -3,7 +3,9 @@ import type { ChartResult } from "@shared/schema";
 import { SIGNS } from "@shared/astro";
 import {
   computePrasna,
+  computePrasnaDispositions,
   PRASNA_CAVEATS,
+  PRASNA_NODE_NOTE,
 } from "@shared/rules-prasna";
 import { PlanetName } from "@/components/planet-name";
 import { Soft } from "@/lib/gentle";
@@ -18,11 +20,15 @@ const ord = (h: number) =>
  * First pass: the special planet-and-house effects and the empty-house readings are not yet entered.
  */
 export function PrasnaPanel({ result }: { result: ChartResult }) {
-  const { positions } = result;
+  const { positions, reading } = result;
   const lagnaIdx = result.jaimini.lagna.signIndex;
   const readings = useMemo(
     () => computePrasna(positions, lagnaIdx),
     [positions, lagnaIdx],
+  );
+  const dispositions = useMemo(
+    () => computePrasnaDispositions(reading.strength),
+    [reading.strength],
   );
 
   return (
@@ -83,12 +89,58 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         ))}
       </ul>
 
+      {/* How each planet stands: the well-disposed and the afflicted */}
+      {dispositions.length > 0 && (
+        <section className="mt-6" aria-label="Favourable and unfavourable planets">
+          <h3 className="text-sm font-semibold">
+            How each planet stands
+          </h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Favourable and unfavourable positions of planets (Prasna Marga
+            14.90–100), read from the app's strength pass.
+          </p>
+          <ul className="mt-3 space-y-3">
+            {dispositions.map((d) => (
+              <li
+                key={d.planet}
+                className="rounded-md border bg-card p-3"
+                data-testid={`prasna-disposition-${d.planet}`}
+                data-disposition={d.disposition}
+              >
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span className="text-sm font-medium">
+                    <PlanetName planet={d.planet} />
+                  </span>
+                  <span
+                    className={cn(
+                      "rounded px-1.5 py-0.5 text-2xs uppercase tracking-wide",
+                      d.disposition === "favourable"
+                        ? "border border-verdict-good/40 text-verdict-good"
+                        : "border border-verdict-bad/40 text-verdict-bad",
+                    )}
+                  >
+                    {d.disposition}
+                  </span>
+                  <span className="ml-auto text-2xs text-muted-foreground">
+                    {d.source}
+                  </span>
+                </div>
+                <p className="mt-1.5 text-xs leading-relaxed text-foreground/90">
+                  <Soft>{d.text}</Soft>
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <ul className={cn("mt-4 space-y-1 text-2xs text-muted-foreground")}>
         {PRASNA_CAVEATS.map((c, i) => (
           <li key={i} data-testid={`prasna-caveat-${i}`}>
             {c}
           </li>
         ))}
+        <li>{PRASNA_NODE_NOTE}</li>
       </ul>
     </section>
   );

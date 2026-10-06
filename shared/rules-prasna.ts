@@ -10,9 +10,10 @@
 // "good" planets without defining them; that choice is provisional. Houses are whole signs counted
 // from the ascendant. Every text is paraphrased and cited by chapter and stanza.
 
-import type { PlanetPosition } from "./astro";
+import type { Planet, PlanetPosition } from "./astro";
 import { houseFrom } from "./astro";
 import { naturalBenefic } from "./parashari";
+import type { PlanetStrength } from "./strength";
 
 export interface PrasnaHouseRule {
   house: number; // 1..12 from the ascendant
@@ -170,3 +171,135 @@ export const PRASNA_CAVEATS = [
   "\"Malefic\" and \"benefic\" are this app's natural classification (Jupiter and Venus; the waxing Moon; Mercury unless with a malefic — BPHS 3.11); the stanzas name \"evil\" and \"good\" planets without defining them, so that choice is provisional.",
   "The text's special effects for each planet-and-house combination, and its reading of empty houses by their lords, are not yet entered — this is the first slice.",
 ];
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// "Favourable and Unfavourable Positions of Planets" (Chapter XIV, stanzas 90–100): for each planet
+// the results when it is well disposed and when it is afflicted. "Favourable" and "unfavourable"
+// are this app's reading of the app's own strength pass (strong effective dignity and not combust
+// nor hemmed by enemies vs. weak effective dignity, combust or hemmed by enemies); the text only
+// says "well disposed" and "afflicted", so that mapping is provisional.
+
+export interface PrasnaPlanetRule {
+  planet: Planet; // Sun .. Saturn; the nodes are read by sign lord and are not entered yet
+  stanza: string;
+  favourable: string;
+  unfavourable: string;
+}
+
+export const PRASNA_PLANET_DISPOSITIONS: PrasnaPlanetRule[] = [
+  {
+    planet: "Sun",
+    stanza: "90",
+    favourable:
+      "A well-placed Sun gives a sattwic nature, the favour of Siva, the father and rulers, copper utensils, and wealth through journeys and trade in woollen goods, grass, gold, leather and medicines.",
+    unfavourable:
+      "An unfavourable Sun brings the wrath of rulers, of God Siva and of the father, disease of the heart, stomach and eyes, bone trouble, Pitta ailments, fear from quadrupeds and fire, loss of copper vessels and decline of influence.",
+  },
+  {
+    planet: "Moon",
+    stanza: "91",
+    favourable:
+      "A favourable Moon brings the grace of the queen and Durga, the mother's satisfaction, money through trade in ghee, sugar and clothes, income by mantras, cattle, marine traffic and diamonds through women, and increase of crops, fame and riches.",
+    unfavourable:
+      "An unfavourable Moon brings the queen's anger, the mother's dissatisfaction or illness, Vatha and Pitta ailments, impure blood, enmity with superiors and relatives, Durga's fury, loss of crops, danger to life and ill fame.",
+  },
+  {
+    planet: "Mars",
+    stanza: "92",
+    favourable:
+      "A favourable Mars brings land, gold and weapons, the favour of the commander and the grace of Subrahmanya, and profit from the loss of enemies, brothers and kings.",
+    unfavourable:
+      "An unfavourable Mars brings misunderstanding with brothers, loss of land and gold, fear from fire, thieves and enemies, Subrahmanya's wrath, trouble from the military, impure blood, fever, eye disease, loss of vessels, and cuts and wounds from weapons.",
+  },
+  {
+    planet: "Mercury",
+    stanza: "93",
+    favourable:
+      "A favourable Mercury brings horses, gold and lands, increase of friends, wealth through Brahmins and good advisers, skill in sculpture and arbitration, fame, righteous deeds, earnings by writing and figures, and the grace of Vishnu.",
+    unfavourable:
+      "An unfavourable Mercury brings Vishnu's ire, the heir-apparent's anger, abusive language and trouble from thieves.",
+  },
+  {
+    planet: "Jupiter",
+    stanza: "94",
+    favourable:
+      "A favourable Jupiter brings clarity of mind, gains from religious practice, from the learned and from the favour of rulers; gold, horses and elephants come unsolicited, and gods and Brahmins bestow blessings.",
+    unfavourable:
+      "An unfavourable Jupiter brings ear trouble, sickness to sons, the anger of gods and Brahmins, and enmity with the wicked.",
+  },
+  {
+    planet: "Venus",
+    stanza: "95",
+    favourable:
+      "A favourable Venus brings silver utensils, fine clothes, ornaments, diamonds, underground treasures, marriage, money, taste for music, cattle and luxurious food.",
+    unfavourable:
+      "An unfavourable Venus brings sickness to the wife and female relations, loss of clothes, decline of prosperity, sorrow in love, and the loss of silverware and quadrupeds.",
+  },
+  {
+    planet: "Saturn",
+    stanza: "96",
+    favourable:
+      "A favourable Saturn brings abatement of sorrows, increase of servants and iron goods, headship of a town, buffaloes and grain.",
+    unfavourable:
+      "An afflicted Saturn brings wind and phlegm ailments, ignorance, a tendency to steal, irritability, calamity, inertia, physical and mental debility, the sarcasm of women, servants and children, dislocation of the limbs and jealousy.",
+  },
+];
+
+export type PrasnaDisposition = "favourable" | "unfavourable";
+
+export interface PrasnaDispositionReading {
+  planet: Planet;
+  disposition: PrasnaDisposition;
+  text: string;
+  source: string;
+}
+
+const STRONG_DIGNITY: ReadonlySet<string> = new Set([
+  "Exalted",
+  "Moolatrikona",
+  "Own sign",
+]);
+const WEAK_DIGNITY: ReadonlySet<string> = new Set(["Debilitated", "Inimical"]);
+
+/** The app's reading of "well disposed" vs "afflicted" for a planet (provisional). */
+export function dispositionOf(
+  s: PlanetStrength,
+): PrasnaDisposition | undefined {
+  if (
+    STRONG_DIGNITY.has(s.effectiveDignity) &&
+    !s.effectiveCombust &&
+    s.hemmed !== "enemies"
+  )
+    return "favourable";
+  if (
+    WEAK_DIGNITY.has(s.effectiveDignity) ||
+    s.effectiveCombust ||
+    s.hemmed === "enemies"
+  )
+    return "unfavourable";
+  return undefined;
+}
+
+/** Read "Favourable and Unfavourable Positions of Planets" for a chart's strength pass. */
+export function computePrasnaDispositions(
+  strength: PlanetStrength[],
+): PrasnaDispositionReading[] {
+  const byPlanet = new Map(strength.map((s) => [s.planet, s]));
+  const out: PrasnaDispositionReading[] = [];
+  for (const rule of PRASNA_PLANET_DISPOSITIONS) {
+    const s = byPlanet.get(rule.planet);
+    if (!s) continue;
+    const d = dispositionOf(s);
+    if (!d) continue;
+    out.push({
+      planet: rule.planet,
+      disposition: d,
+      text: d === "favourable" ? rule.favourable : rule.unfavourable,
+      source: `Prasna Marga 14.${rule.stanza}`,
+    });
+  }
+  return out;
+}
+
+export const PRASNA_NODE_NOTE =
+  "Rahu gives the results of the lord of the sign he occupies and of Saturn; Ketu, of the lord of the sign he occupies and of Mars (stanza 97). This is not yet entered.";
