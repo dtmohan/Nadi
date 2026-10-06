@@ -907,3 +907,42 @@ export function rasiAgreement(
     source: "Prasna Marga 21.4-16",
   };
 }
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// The sphutas (Ch. V, stanzas 17–19): derived points astrologers read by sign and nakshatra. The
+// six here are simple sums of the lagna, Moon, Sun, Rahu and Gulika longitudes, with the author's
+// own worked example (Sun 301°12', Moon 18°29', Lagna 43°9', Gulika 64°26', Rahu 6°9').
+// The Beeja, Kshetra and Santana Trisphuta of Ch. XIX are separate (progeny).
+
+export interface PrasnaSphutas {
+  thrisphuta: number; // Lagna + Moon + Gulika
+  chatusphuta: number; // Thrisphuta + Sun
+  panchasphuta: number; // Chatusphuta + Rahu
+  pranasphuta: number; // Lagna × 5 + Gulika
+  dehasphuta: number; // Moon × 8 + Gulika
+  mrityusphuta: number; // Gulika × 7 + Sun
+}
+
+export function computeSphutas(
+  lagnaLon: number,
+  moonLon: number,
+  sunLon: number,
+  rahuLon: number,
+  gulikaLon: number,
+): PrasnaSphutas {
+  const norm = (x: number) => ((x % 360) + 360) % 360;
+  const thrisphuta = norm(lagnaLon + moonLon + gulikaLon);
+  const chatusphuta = norm(thrisphuta + sunLon);
+  const panchasphuta = norm(chatusphuta + rahuLon);
+  return {
+    thrisphuta,
+    chatusphuta,
+    panchasphuta,
+    pranasphuta: norm(lagnaLon * 5 + gulikaLon),
+    dehasphuta: norm(moonLon * 8 + gulikaLon),
+    mrityusphuta: norm(gulikaLon * 7 + sunLon),
+  };
+}
+
+export const PRASNA_SPHUTA_NOTE =
+  "The six sphutas of Ch. V (17-19): derived points read by sign and nakshatra. The Ch. XIX progeny sphutas (Beeja, Kshetra, Santana Trisphuta) are shown under Progeny. Not applied: the alternative Pranasphuta by prasna-ghatis (20-22), the Mrityu/Kalasphuta by weekday (23), the Kundagata Sphuta of lagna rectification (8-9), and the obsolete Parahita-to-Drik Moon correction (10-13).";

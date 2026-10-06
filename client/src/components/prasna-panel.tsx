@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { ChartResult } from "@shared/schema";
-import { SIGNS } from "@shared/astro";
+import { NAKSHATRAS, SIGNS } from "@shared/astro";
 import {
   computeGulikaReading,
   computePrasna,
@@ -9,7 +9,9 @@ import {
   computePrasnaTransits,
   computeProgeny,
   computeSantanaTrisphuta,
+  computeSphutas,
   rasiAgreement,
+  PRASNA_SPHUTA_NOTE,
   PRASNA_TRANSIT_NOTES,
   PRASNA_BHAVA_SIGNIFICATIONS,
   PRASNA_CAVEATS,
@@ -19,6 +21,7 @@ import {
   type PrasnaBhavaVerdict,
   type PrasnaHouseReading,
   type PrasnaSphutaVerdict,
+  type PrasnaSphutas,
   type RasiVerdict,
 } from "@shared/rules-prasna";
 import { PlanetName } from "@/components/planet-name";
@@ -174,6 +177,17 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         : null,
     [result.gulika, birthLagnaIdx],
   );
+  const sphutas = useMemo(() => {
+    if (!result.gulika) return null;
+    const lon = (p: string) => positions.find((x) => x.planet === p)!.lon;
+    return computeSphutas(
+      result.jaimini.lagna.lon,
+      lon("Moon"),
+      lon("Sun"),
+      lon("Rahu"),
+      result.gulika.lon,
+    );
+  }, [result.gulika, result.jaimini.lagna.lon, positions]);
   const [partnerMoon, setPartnerMoon] = useState<number | null>(null);
   const femaleChart = result.chart.gender === "female";
   const agreement = useMemo(() => {
@@ -682,6 +696,47 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
           {PRASNA_KARAKA_RULE}
         </p>
       </details>
+
+      {sphutas && (
+        <details className="mt-3" data-testid="prasna-sphutas">
+          <summary className="cursor-pointer text-sm font-semibold">
+            The sphutas
+          </summary>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Derived points read by sign and nakshatra (Prasna Marga 5.17–19).
+          </p>
+          <ul className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+            {(
+              [
+                ["Thrisphuta", sphutas.thrisphuta],
+                ["Chatusphuta", sphutas.chatusphuta],
+                ["Panchasphuta", sphutas.panchasphuta],
+                ["Pranasphuta", sphutas.pranasphuta],
+                ["Dehasphuta", sphutas.dehasphuta],
+                ["Mrityusphuta", sphutas.mrityusphuta],
+              ] as const
+            ).map(([name, lon]) => {
+              const sign = Math.floor(lon / 30);
+              const nak = NAKSHATRAS[Math.floor(lon / (360 / 27))];
+              const deg = lon - sign * 30;
+              return (
+                <li
+                  key={name}
+                  className="text-xs leading-relaxed"
+                  data-testid={`prasna-sphuta-${name.toLowerCase()}`}
+                >
+                  <span className="font-medium">{name}</span>{" "}
+                  <span className="tabular">{deg.toFixed(1)}°</span> {SIGNS[sign]}{" "}
+                  <span className="text-muted-foreground">· {nak}</span>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-2 text-2xs text-muted-foreground">
+            {PRASNA_SPHUTA_NOTE}
+          </p>
+        </details>
+      )}
 
       <ul className="mt-4 space-y-1 text-2xs text-muted-foreground">
         {PRASNA_CAVEATS.map((c, i) => (

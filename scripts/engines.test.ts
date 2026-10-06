@@ -26,6 +26,7 @@ import {
   sphutaPlanetLon,
   computeProgeny,
   computeSantanaTrisphuta,
+  computeSphutas,
   rasiAgreement,
 } from "@shared/rules-prasna";
 
@@ -295,4 +296,21 @@ test("Prasna Marga 21 Rasi agreement: the twelve relative houses", () => {
     const maleMoon = (11 + h - 1) % 12; // bride's Moon = Pisces (11), groom at house h
     assert.equal(rasiAgreement(maleMoon, 11).verdict, expected[h - 1], `${h}h`);
   }
+});
+
+test("Prasna Marga 5.17-19 worked example: the six sphutas", () => {
+  // Sun 301°12', Moon 18°29', Lagna 43°9', Gulika 64°26', Rahu 6°9'
+  const s = computeSphutas(
+    43 + 9 / 60,
+    18 + 29 / 60,
+    301 + 12 / 60,
+    6 + 9 / 60,
+    64 + 26 / 60,
+  );
+  approxLon(s.thrisphuta, 126 + 4 / 60, "thrisphuta");
+  approxLon(s.chatusphuta, 67 + 16 / 60, "chatusphuta");
+  approxLon(s.panchasphuta, 73 + 25 / 60, "panchasphuta");
+  approxLon(s.pranasphuta, 280 + 11 / 60, "pranasphuta");
+  approxLon(s.dehasphuta, 212 + 18 / 60, "dehasphuta");
+  approxLon(s.mrityusphuta, 32 + 14 / 60, "mrityusphuta");
 });
