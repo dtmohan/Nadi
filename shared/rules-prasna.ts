@@ -814,3 +814,87 @@ export function computePrasnaFructification(
   }
   return out;
 }
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// "Effects of Gulika" (Chapter XIV, stanzas 66–70): Gulika (Mandi), the upagraha, read by the house
+// it occupies from the ascendant. Its position is the ascendant at Saturn's portion of the day or
+// night, computed server-side (provisional; conventions differ on Saturn's vs the eighth portion).
+
+export const PRASNA_GULIKA_EFFECTS: string[] = [
+  "A sickly body, suffering from sores and ailments.",
+  "Untidy in dress, generally using abusive language.",
+  "Hates brothers, but is valorous.",
+  "Generally unhappy, and fear from enemies.",
+  "No respect for elders and preceptors, and deprived of issues.",
+  "A tendency to find fault with relatives.",
+  "Affliction to the wife, and a strong sex instinct.",
+  "Short life, chronic complaints, sharp intelligence, and death from poison, weapon or fire.",
+  "Irreligious and uncharitable.",
+  "Unsullied fame and an inclination for social work.",
+  "Greatness, prosperity, courage, wealth, attendants and servants.",
+  "Hideous dreams, diseases of the nails, and loss of limbs.",
+];
+
+export interface PrasnaGulikaReading {
+  signIndex: number;
+  house: number;
+  text: string;
+  source: string;
+}
+
+/** Read Gulika for a chart: which house it occupies and what the text says of it (14.67-70). */
+export function computeGulikaReading(
+  gulika: { signIndex: number; day: boolean },
+  lagnaIdx: number,
+): PrasnaGulikaReading {
+  const house = houseFrom(lagnaIdx, gulika.signIndex);
+  return {
+    signIndex: gulika.signIndex,
+    house,
+    text: PRASNA_GULIKA_EFFECTS[house - 1],
+    source: "Prasna Marga 14.67-70",
+  };
+}
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// "Marriage Compatibility" (Chapter XXI): the Rasi agreement — the groom's Moon counted from the
+// bride's Moon, and what each relative position promises (21.4-16).
+
+export type RasiVerdict = "good" | "moderate" | "bad";
+
+export interface RasiAgreement {
+  house: number; // the groom's Moon sign counted from the bride's
+  verdict: RasiVerdict;
+  note: string;
+  source: string;
+}
+
+const RASI_AGREEMENT: { verdict: RasiVerdict; note: string }[] = [
+  { verdict: "good", note: "The same Janma Rasi: good, provided the nakshatra differs (21.4, 21.16)." },
+  { verdict: "bad", note: "Loss of money and poverty (21.6, 21.10)." },
+  { verdict: "moderate", note: "Sorrow (21.6)." },
+  { verdict: "moderate", note: "Quarrels and misunderstandings; passable if other factors agree (21.6, 21.14)." },
+  { verdict: "bad", note: "Loss of children (21.6, 21.10)." },
+  { verdict: "bad", note: "Disease, danger and separation; allowed only in special cases (21.5-7, 21.10)." },
+  { verdict: "good", note: "The couple love each other dearly (21.16)." },
+  { verdict: "bad", note: "Losses and ruin, unless the lords are the same or friendly (21.7); allowed only in special cases (21.5)." },
+  { verdict: "good", note: "Prosperity, happiness and wealth (21.10)." },
+  { verdict: "good", note: "Prosperity, happiness and wealth (21.10)." },
+  { verdict: "good", note: "Prosperity, happiness and wealth (21.10)." },
+  { verdict: "bad", note: "Poverty (21.10)." },
+];
+
+/** Rasi agreement: the groom's Moon sign counted from the bride's (21.1-16). */
+export function rasiAgreement(
+  maleMoonSign: number,
+  femaleMoonSign: number,
+): RasiAgreement {
+  const house = houseFrom(femaleMoonSign, maleMoonSign);
+  const r = RASI_AGREEMENT[house - 1];
+  return {
+    house,
+    verdict: r.verdict,
+    note: r.note,
+    source: "Prasna Marga 21.4-16",
+  };
+}

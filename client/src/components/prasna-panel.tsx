@@ -2,12 +2,14 @@ import { useMemo, useState } from "react";
 import type { ChartResult } from "@shared/schema";
 import { SIGNS } from "@shared/astro";
 import {
+  computeGulikaReading,
   computePrasna,
   computePrasnaDispositions,
   computePrasnaFructification,
   computePrasnaTransits,
   computeProgeny,
   computeSantanaTrisphuta,
+  rasiAgreement,
   PRASNA_TRANSIT_NOTES,
   PRASNA_BHAVA_SIGNIFICATIONS,
   PRASNA_CAVEATS,
@@ -17,6 +19,7 @@ import {
   type PrasnaBhavaVerdict,
   type PrasnaHouseReading,
   type PrasnaSphutaVerdict,
+  type RasiVerdict,
 } from "@shared/rules-prasna";
 import { PlanetName } from "@/components/planet-name";
 import { SouthIndianChart } from "@/components/south-indian-chart";
@@ -59,6 +62,12 @@ const SPHUTA_CLASS: Record<PrasnaSphutaVerdict, string> = {
   strong: "border border-verdict-good/40 text-verdict-good",
   remedy: "border border-verdict-mixed/40 text-verdict-mixed",
   weak: "border border-verdict-bad/40 text-verdict-bad",
+};
+
+const RASI_CLASS: Record<RasiVerdict, string> = {
+  good: "border border-verdict-good/40 text-verdict-good",
+  moderate: "border border-verdict-mixed/40 text-verdict-mixed",
+  bad: "border border-verdict-bad/40 text-verdict-bad",
 };
 
 /** The eight directions and the signs each holds (Prasna Marga 2.7–9). */
@@ -158,6 +167,21 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
     () => computePrasnaTransits(natalMoon.signIndex, now.positions),
     [natalMoon.signIndex, now.positions],
   );
+  const gulika = useMemo(
+    () =>
+      result.gulika
+        ? computeGulikaReading(result.gulika, birthLagnaIdx)
+        : null,
+    [result.gulika, birthLagnaIdx],
+  );
+  const [partnerMoon, setPartnerMoon] = useState<number | null>(null);
+  const femaleChart = result.chart.gender === "female";
+  const agreement = useMemo(() => {
+    if (partnerMoon === null) return null;
+    const maleSign = femaleChart ? partnerMoon : natalMoon.signIndex;
+    const femaleSign = femaleChart ? natalMoon.signIndex : partnerMoon;
+    return rasiAgreement(maleSign, femaleSign);
+  }, [partnerMoon, femaleChart, natalMoon.signIndex]);
   const prasna = useMemo(
     () => (arudhaIdx === null ? null : computePrasna(now.positions, arudhaIdx)),
     [now.positions, arudhaIdx],
@@ -539,8 +563,86 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               {trisphuta.note}
             </p>
           </div>
+
+          {gulika && (
+            <div
+              className="mt-2 rounded-md border bg-card p-3"
+              data-testid="prasna-gulika"
+            >
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <span className="text-sm font-medium">Gulika</span>
+                <span className="text-xs text-muted-foreground">
+                  {SIGNS[gulika.signIndex]} · {ord(gulika.house)} house
+                </span>
+                <span className="ml-auto text-2xs text-muted-foreground">
+                  {gulika.source}
+                </span>
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-foreground/90">
+                <Soft>{gulika.text}</Soft>
+              </p>
+            </div>
+          )}
         </div>
       </section>
+
+      {/* Marriage compatibility: Rasi agreement */}
+      <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
+        <h3 className="text-base font-semibold">Marriage compatibility</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Rasi agreement (Prasna Marga 21.1–16): the groom's Moon counted from
+          the bride's.
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-muted-foreground">
+            {femaleChart ? "Partner's" : "This chart's"} Moon is{" "}
+            {SIGNS[natalMoon.signIndex]}. Partner's Moon:
+          </span>
+          <select
+            value={partnerMoon ?? ""}
+            onChange={(e) =>
+              setPartnerMoon(e.target.value === "" ? null : Number(e.target.value))
+            }
+            className="h-8 rounded-md border bg-background px-2 text-sm"
+            data-testid="prasna-partner-moon"
+            aria-label="Partner's Moon sign"
+          >
+            <option value="">Pick a sign</option>
+            {SIGNS.map((s, i) => (
+              <option key={s} value={i}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+        {agreement && (
+          <div
+            className="mt-3 rounded-md border bg-card p-3"
+            data-testid="prasna-rasi-agreement"
+            data-verdict={agreement.verdict}
+          >
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-sm font-medium">
+                {ord(agreement.house)} from the bride's Moon
+              </span>
+              <span
+                className={cn(
+                  "rounded px-1.5 py-0.5 text-2xs uppercase tracking-wide",
+                  RASI_CLASS[agreement.verdict],
+                )}
+              >
+                {agreement.verdict}
+              </span>
+              <span className="ml-auto text-2xs text-muted-foreground">
+                {agreement.source}
+              </span>
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-foreground/90">
+              {agreement.note}
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Reference: house significations and karakas */}
       <details className="mt-6" data-testid="prasna-bhava-significations">

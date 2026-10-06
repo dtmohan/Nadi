@@ -129,6 +129,8 @@ export interface ChartResult {
   shadbala?: ShadbalaBase;
   /** The five limbs of the birth day (Surya Siddhanta 1.36, 2.64-69), read at the birth instant. */
   panchanga?: PanchangaDay;
+  /** Gulika (Mandi), the upagraha: its sidereal longitude and sign, and whether the birth was by day. */
+  gulika?: { lon: number; signIndex: number; day: boolean };
   /** Where each Vimshottari dasa lord stands when its dasa begins, for BPHS 48.8. */
   dasaStarts?: DasaStartTransit[];
   /** Saturn's nakshatra ingresses from birth to 100 years, for the Ashtakavarga transit points of BPHS ch. 70. */

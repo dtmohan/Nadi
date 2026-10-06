@@ -27,6 +27,7 @@ import {
   sunPath,
   panchangaAt,
   panchangaForDate,
+  gulikaLongitude,
   type EphemerisOptions,
 } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
@@ -151,6 +152,7 @@ export function computeChart(chart: Chart): ChartResult {
     kp: kpBase(jd, chart.latitude, chart.longitude, zone, opts.nodeType),
     shadbala: shadbalaBase(jd, chart.latitude, chart.longitude, opts),
     panchanga: panchangaAt(jd, chart.latitude, chart.longitude, zone, opts),
+    gulika: gulikaLongitude(jd, chart.latitude, chart.longitude, zone, opts),
     dasaStarts: dasaStartTransits(
       positions.find((p) => p.planet === "Moon")!.lon,
       utc.toISO()!,

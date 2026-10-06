@@ -918,6 +918,36 @@ export function panchangaAt(
   };
 }
 
+/**
+ * Gulika (Mandi), the upagraha. The day (or night) is divided into eight equal parts whose lords
+ * cycle Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu; the day counts from the weekday
+ * lord, the night from the fifth planet from the weekday lord. Gulika is read at Saturn's portion,
+ * and its longitude is the sidereal ascendant at the start of that portion. Conventions differ on
+ * whether Gulika is Saturn's portion or the eighth ("no lord") portion; Saturn's portion is used
+ * here (provisional).
+ */
+export function gulikaLongitude(
+  jd: number,
+  latitude: number,
+  longitude: number,
+  zone: string,
+  opts: EphemerisOptions,
+): { lon: number; signIndex: number; day: boolean } {
+  const sunrise = sunriseBefore(jd, latitude, longitude, opts.sunrise);
+  const sunset = riseOrSetAfter(sunrise, latitude, longitude, C.SE_CALC_SET, opts.sunrise);
+  const nextSunrise = riseOrSetAfter(sunset, latitude, longitude, C.SE_CALC_RISE, opts.sunrise);
+  const day = jd < sunset;
+  const start = day ? sunrise : sunset;
+  const end = day ? sunset : nextSunrise;
+  const part = (end - start) / 8;
+  const weekday = weekdayOf(start, zone); // 0 = Sunday .. 6 = Saturday
+  const cycleStart = day ? weekday : (weekday + 4) % 8;
+  const saturnIdx = (6 - cycleStart + 8) % 8; // Saturn is index 6 in the eight-planet cycle
+  const gulikaTime = start + saturnIdx * part;
+  const lon = ascendantAt(gulikaTime, latitude, longitude, opts);
+  return { lon, signIndex: Math.floor(lon / 30), day };
+}
+
 /** Panchanga for a calendar date at a place: read at that day's sunrise. */
 export function panchangaForDate(
   date: string,
