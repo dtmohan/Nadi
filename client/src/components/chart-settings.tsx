@@ -98,7 +98,8 @@ export function ChartSettings({
                 )?.note
               }{" "}
               Moves the vara boundary, the Panchanga runs, the Hora and Ghatika
-              lagnas and the day-night split in Shadbala together.
+              lagnas, the day-night split in Shadbala, Gulika and the prasna-ghati
+              sphutas together.
             </div>
           </dd>
           <dt className="text-muted-foreground">Houses</dt>
