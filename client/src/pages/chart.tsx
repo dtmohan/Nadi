@@ -116,6 +116,7 @@ import {
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, planetColor } from "@/components/planet-name";
 import { ChartSettings } from "@/components/chart-settings";
+import { OverviewPanel } from "@/components/overview-panel";
 import { JaiminiPanel } from "@/components/jaimini-panel";
 import { AlpPanel } from "@/components/alp-panel";
 import { KpPanel } from "@/components/kp-panel";
@@ -1808,6 +1809,7 @@ function Relations({
 }
 
 type SystemMode =
+  | "overview"
   | "bnn"
   | "jaimini"
   | "alp"
@@ -1829,7 +1831,7 @@ const TAB_MODULE: Partial<Record<SystemMode, string>> = {
   validate: "validate",
 };
 
-/** The eight tabs, in order; the last two are tools rather than reading systems and are set apart in both bars. */
+/** The nine tabs, in order; the first is the overview and the last two are tools rather than reading systems. */
 const MODES: {
   id: SystemMode;
   label: string;
@@ -1838,6 +1840,7 @@ const MODES: {
   tool?: boolean;
   Icon: typeof Orbit;
 }[] = [
+  { id: "overview", label: "Overview", short: "Overview", Icon: Eye },
   { id: "bnn", label: "Bhrigu Nandi Nadi", short: "Nadi", Icon: Orbit },
   { id: "jaimini", label: "Jaimini", short: "Jaimini", Icon: Compass },
   {
@@ -2069,7 +2072,7 @@ export default function ChartPage() {
   const [selected, setSelected] = useState<Planet | null>(null);
   const [showTransit, setShowTransit] = useState(true);
   const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
-  const [mode, setMode] = useState<SystemMode>("bnn");
+  const [mode, setMode] = useState<SystemMode>("overview");
   const tablistRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // Keep the selected system tab in view when the strip scrolls horizontally on narrow screens.
@@ -2216,9 +2219,11 @@ export default function ChartPage() {
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <p className="text-xs text-muted-foreground">
-              {mode === "bnn"
-                ? "Planet-to-planet reading, no ascendant or houses."
-                : mode === "jaimini"
+              {mode === "overview"
+                ? "The whole chart in a minute: what rests on firm ground, what asks for care, and the period and slow planets running now."
+                : mode === "bnn"
+                  ? "Planet-to-planet reading, no ascendant or houses."
+                  : mode === "jaimini"
                   ? readingMode === "plain"
                     ? "Jaimini's method: the planets ranked into roles, how each house appears to the world, life periods by sign. Kept separate from the Nadi reading."
                     : "Ascendant-based: karakas, padas, navamsa and Chara dasha. Kept separate from the Nadi reading."
@@ -2269,6 +2274,12 @@ export default function ChartPage() {
             )}
           </div>
         </div>
+
+        {mode === "overview" && (
+          <div className="mt-8 animate-in fade-in-0 duration-300">
+            <OverviewPanel result={data} />
+          </div>
+        )}
 
         {mode === "jaimini" && (
           <div className="mt-8 animate-in fade-in-0 duration-300">
