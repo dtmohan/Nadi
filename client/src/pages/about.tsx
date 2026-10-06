@@ -723,14 +723,30 @@ export default function AboutPage() {
             <ul>
               <li>R.G. Rao, Bhrigu Nandi Nadi (Sagar Publications).</li>
               <li>
-                Satyanarayana Naik, Prediction Secrets: Naadi Astrology and Nadi
-                Astrology Guide.
+                Satyanarayana Naik, Prediction Secrets: Naadi Astrology (Sagar
+                Publications).
               </li>
               <li>Swiss Ephemeris, Astrodienst AG.</li>
             </ul>
           </div>
         </TabsContent>
       </Tabs>
+      <p
+        className="mt-12 border-t pt-4 text-xs text-muted-foreground"
+        data-testid="text-source-code"
+      >
+        Nadi is free software under the GNU Affero General Public License,
+        version 3 or later. The source code is at{" "}
+        <a
+          href="https://github.com/dtmohan/Nadi"
+          {...ext}
+          className="underline underline-offset-2 hover:text-foreground"
+          data-testid="link-source-code"
+        >
+          github.com/dtmohan/Nadi
+        </a>
+        .
+      </p>
     </article>
   );
 }

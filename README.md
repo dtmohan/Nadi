@@ -127,4 +127,15 @@ The repository holds no copies of these books. Rules are paraphrased, quoted onl
 
 ## Licence
 
-No licence has been chosen yet. The Swiss Ephemeris is used through the `sweph` package and its data files are bundled in `ephe/`. Astrodienst distributes it under either AGPL-3.0 or the Swiss Ephemeris Professional Licence, so any licence for this project needs to be compatible with one of those.
+Copyright (C) 2026 dtmohan.
+
+Nadi is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See [LICENSE](LICENSE) for the full terms.
+
+The AGPL also covers use over a network. If you run a modified version as a service, you must offer its users the source of that version. The app links to this repository from its method page.
+
+### Third-party material
+
+- The Swiss Ephemeris is used through the `sweph` package, and its data files are bundled in `ephe/`. Astrodienst AG distributes it under either AGPL-3.0 or the Swiss Ephemeris Professional Licence.
+- `shared/data/jaimini-sutras.json` holds the Jaimini Sutras text from the 1949 Raman Publications edition (Bangalore) of B. Suryanarain Rao's English translation, with that edition's notes. It was transcribed from the Digital Library of India scan and is not covered by this licence.
+- Short quotations from the cited books remain their authors' and are included for citation.
+- npm dependencies keep their own licences.
