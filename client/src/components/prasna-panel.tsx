@@ -13,6 +13,7 @@ import {
   PRASNA_NODE_NOTE,
   type PrasnaBhavaVerdict,
   type PrasnaHouseReading,
+  type PrasnaSphutaVerdict,
 } from "@shared/rules-prasna";
 import { PlanetName } from "@/components/planet-name";
 import { Soft } from "@/lib/gentle";
@@ -48,6 +49,12 @@ const OUTCOME_CLASS: Record<PrasnaOutcome, string> = {
   yes: "border border-verdict-good/40 text-verdict-good",
   no: "border border-verdict-bad/40 text-verdict-bad",
   partial: "border border-verdict-mixed/40 text-verdict-mixed",
+};
+
+const SPHUTA_CLASS: Record<PrasnaSphutaVerdict, string> = {
+  strong: "border border-verdict-good/40 text-verdict-good",
+  remedy: "border border-verdict-mixed/40 text-verdict-mixed",
+  weak: "border border-verdict-bad/40 text-verdict-bad",
 };
 
 /** The eight directions and the signs each holds (Prasna Marga 2.7–9). */
@@ -419,7 +426,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
           <div
             className="mt-2 rounded-md border bg-card p-3"
             data-testid="prasna-progeny"
-            data-strong={progeny.strong}
+            data-verdict={progeny.verdict}
           >
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <span className="text-sm font-medium">
@@ -428,12 +435,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               <span
                 className={cn(
                   "rounded px-1.5 py-0.5 text-2xs uppercase tracking-wide",
-                  progeny.strong
-                    ? "border border-verdict-good/40 text-verdict-good"
-                    : "border border-verdict-bad/40 text-verdict-bad",
+                  SPHUTA_CLASS[progeny.verdict],
                 )}
               >
-                {progeny.strong ? "strong" : "weak"}
+                {progeny.verdict}
               </span>
               <span className="ml-auto text-2xs text-muted-foreground">
                 {progeny.source}
@@ -441,7 +446,8 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             </div>
             <p className="mt-1 text-xs text-muted-foreground tabular">
               {SIGNS[progeny.signIndex]} · navamsa {progeny.navamsaIndex + 1} ·{" "}
-              {progeny.longitude.toFixed(2)}°
+              {progeny.longitude.toFixed(2)}° · {progeny.parityOk ? "right" : "wrong"}{" "}
+              sign/navamsa · {progeny.beneficSupport ? "benefic-supported" : "no benefic support"}
             </p>
             <p className="mt-1 text-xs leading-relaxed text-foreground/90">
               {progeny.note}

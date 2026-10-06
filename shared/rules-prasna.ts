@@ -12,7 +12,7 @@
 
 import type { Planet, PlanetPosition } from "./astro";
 import { houseFrom, SIGN_LORD } from "./astro";
-import { naturalBenefic } from "./parashari";
+import { drishtiQuarters, naturalBenefic } from "./parashari";
 import type { PlanetStrength } from "./strength";
 
 export interface PrasnaHouseRule {
@@ -455,7 +455,10 @@ export interface PrasnaBhavaFructification {
   source: string;
 }
 
-const PRASNA_STRONG = new Set(["Exalted", "Moolatrikona", "Own sign", "Friendly"]);
+// Strength for the fructification rule (14.39-41). The text names debilitation as the weakness and
+// own/exaltation/friendly as strength; "Neutral" and "Inimical" are not named, so a planet is read
+// as strong unless it is clearly weak (debilitated or in an inimical sign). A binary keeps a
+// "Neutral" dignity from mass-producing "mixed".
 const PRASNA_WEAK = new Set(["Debilitated", "Inimical"]);
 
 const posClass = (house: number): boolean | null =>
@@ -472,39 +475,31 @@ const posClass = (house: number): boolean | null =>
 // modifier and the Santana Trisphuta checks (19.18-21) are not yet entered.
 
 export type PrasnaSphutaKind = "beeja" | "kshetra";
+export type PrasnaSphutaVerdict = "strong" | "remedy" | "weak";
 
 export interface PrasnaSphuta {
   kind: PrasnaSphutaKind;
   longitude: number;
   signIndex: number;
   navamsaIndex: number; // 0..8 (navamsa 1..9)
-  strong: boolean;
+  parityOk: boolean;
+  beneficSupport: boolean;
+  maleficAffliction: boolean;
+  verdict: PrasnaSphutaVerdict;
   note: string;
   source: string;
 }
 
-export function sphutaOf(sum: number, kind: PrasnaSphutaKind): PrasnaSphuta {
-  const longitude = ((sum % 360) + 360) % 360;
-  const signIndex = Math.floor(longitude / 30);
-  const degInSign = longitude - signIndex * 30;
-  const navamsaIndex = Math.floor(degInSign / (30 / 9));
-  // Aries is the 1st (odd) sign; navamsa 1 is odd. Beeja wants odd/odd, Kshetra wants even/even.
-  const oddSign = signIndex % 2 === 0;
-  const oddNavamsa = navamsaIndex % 2 === 0;
-  const strong = kind === "beeja" ? oddSign && oddNavamsa : !oddSign && !oddNavamsa;
-  const want = kind === "beeja" ? "an odd sign and odd navamsa" : "an even sign and even navamsa";
-  return {
-    kind,
-    longitude,
-    signIndex,
-    navamsaIndex,
-    strong,
-    note: strong
-      ? `${kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta in ${want} — strong.`
-      : `${kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta not in ${want} — children come with difficulty, or after remedies (19.14).`,
-    source: "Prasna Marga 19.6-7, 19.11",
-  };
-}
+/** Graha drishti onto the sphuta's sign (BPHS 26.2-5, the app's aspect). */
+const aspectsSphuta = (p: PlanetPosition, targetSign: number): boolean =>
+  drishtiQuarters(p.planet, p.signIndex, targetSign) > 0;
+
+const SPHUTA_NOTE: Record<PrasnaSphutaVerdict, string> = {
+  strong: "In the required sign and navamsa and supported by benefics — strong.",
+  remedy:
+    "Partially strong — children come after remedial measures (19.14).",
+  weak: "Not in the required sign and navamsa and without benefic support — children come with difficulty.",
+};
 
 /** Read the progeny sphuta for a chart: Beeja for a male, Kshetra for a female (19.9). */
 export function computeProgeny(
@@ -512,10 +507,51 @@ export function computeProgeny(
   gender: "male" | "female" | "unspecified",
 ): PrasnaSphuta {
   const lon = (p: string) => positions.find((x) => x.planet === p)!.lon;
-  if (gender === "female") {
-    return sphutaOf(lon("Moon") + lon("Mars") + lon("Jupiter"), "kshetra");
-  }
-  return sphutaOf(lon("Sun") + lon("Venus") + lon("Jupiter"), "beeja");
+  const kind: PrasnaSphutaKind = gender === "female" ? "kshetra" : "beeja";
+  const sum =
+    kind === "kshetra"
+      ? lon("Moon") + lon("Mars") + lon("Jupiter")
+      : lon("Sun") + lon("Venus") + lon("Jupiter");
+  const longitude = ((sum % 360) + 360) % 360;
+  const signIndex = Math.floor(longitude / 30);
+  const navamsaIndex = Math.floor((longitude - signIndex * 30) / (30 / 9));
+  // Aries is the 1st (odd) sign; navamsa 1 is odd. Beeja wants odd/odd, Kshetra wants even/even.
+  const oddSign = signIndex % 2 === 0;
+  const oddNavamsa = navamsaIndex % 2 === 0;
+  const parityOk =
+    kind === "beeja" ? oddSign && oddNavamsa : !oddSign && !oddNavamsa;
+
+  // Support and affliction: a benefic or malefic that joins (same sign) or aspects the sphuta.
+  const beneficSupport = positions.some(
+    (p) =>
+      naturalBenefic(p, positions) &&
+      (p.signIndex === signIndex || aspectsSphuta(p, signIndex)),
+  );
+  const maleficAffliction = positions.some(
+    (p) =>
+      !naturalBenefic(p, positions) &&
+      (p.signIndex === signIndex || aspectsSphuta(p, signIndex)),
+  );
+
+  const verdict: PrasnaSphutaVerdict =
+    parityOk && beneficSupport && !maleficAffliction
+      ? "strong"
+      : parityOk || beneficSupport
+        ? "remedy"
+        : "weak";
+
+  return {
+    kind,
+    longitude,
+    signIndex,
+    navamsaIndex,
+    parityOk,
+    beneficSupport,
+    maleficAffliction,
+    verdict,
+    note: SPHUTA_NOTE[verdict],
+    source: "Prasna Marga 19.6-7, 19.11, 19.14",
+  };
 }
 
 const FRUCTIFICATION_NOTE: Record<PrasnaBhavaVerdict, string> = {
@@ -545,20 +581,8 @@ export function computePrasnaFructification(
 
     const ls = byStrength.get(lord);
     const ks = byStrength.get(karaka);
-    const lordStrong = ls
-      ? PRASNA_STRONG.has(ls.effectiveDignity)
-        ? true
-        : PRASNA_WEAK.has(ls.effectiveDignity)
-          ? false
-          : null
-      : null;
-    const karakaStrong = ks
-      ? PRASNA_STRONG.has(ks.effectiveDignity)
-        ? true
-        : PRASNA_WEAK.has(ks.effectiveDignity)
-          ? false
-          : null
-      : null;
+    const lordStrong = ls ? !PRASNA_WEAK.has(ls.effectiveDignity) : null;
+    const karakaStrong = ks ? !PRASNA_WEAK.has(ks.effectiveDignity) : null;
 
     const lordFavourable = posClass(houseFrom(lagnaIdx, posOf(lord).signIndex));
     const karakaFavourable = posClass(
