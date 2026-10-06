@@ -81,6 +81,33 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
   const age = ageYears(result.utc, lifeAt);
   const deceased = lifeAt !== now.asOf;
 
+  const sun = positions.find((p) => p.planet === "Sun")!;
+
+  // Notable planet states: retrogrades (the nodes always move "retrograde" and are left out)
+  // and the dignities a reader actually notices — the strong and the weak.
+  const retro = positions
+    .filter((p) => p.retrograde && p.planet !== "Rahu" && p.planet !== "Ketu")
+    .map((p) => p.planet);
+  const notable = positions.filter(
+    (p) =>
+      p.dignity === "Exalted" ||
+      p.dignity === "Moolatrikona" ||
+      p.dignity === "Own sign" ||
+      p.dignity === "Debilitated" ||
+      p.dignity === "Inimical",
+  );
+  const dignityPhrase = (d: string) =>
+    d === "Own sign"
+      ? "in own sign"
+      : d === "Inimical"
+        ? "in inimical sign"
+        : d === "Moolatrikona"
+          ? "in moolatrikona"
+          : d.toLowerCase();
+  const noteParts: string[] = [];
+  if (retro.length) noteParts.push(`${joinList(retro)} retrograde`);
+  for (const p of notable) noteParts.push(`${p.planet} ${dignityPhrase(p.dignity)}`);
+
   const allAreas = useMemo(() => synthesize(reading, gender), [reading, gender]);
   const areas = allAreas.filter((a) =>
     areaSeason(a.area, result.utc, lifeAt).inSeason,
@@ -98,6 +125,11 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
     .sort((x, y) => x.balance - y.balance);
 
   const vim = vimshottari(moon.lon, result.utc, lifeAt);
+  const dasaIdx = vim.dasas.findIndex((d) => d.current);
+  const nextDasa =
+    dasaIdx >= 0 && dasaIdx < vim.dasas.length - 1
+      ? vim.dasas[dasaIdx + 1]
+      : undefined;
 
   // Transits read against the natal Moon (Phaladeepika 26.1 names it the chief lagna for gochara).
   const gochara = useMemo(
@@ -147,8 +179,44 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
           data-testid="overview-identity"
         >
           {deceased ? "Read at age " : "Age "}
-          {Math.floor(age)} · {rising} rising · {moon.sign} Moon
+          {Math.floor(age)}
         </p>
+        <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
+              Rising
+            </dt>
+            <dd className="text-sm font-medium">{rising}</dd>
+          </div>
+          <div>
+            <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
+              Sun
+            </dt>
+            <dd className="text-sm font-medium">{sun.sign}</dd>
+          </div>
+          <div>
+            <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
+              Moon
+            </dt>
+            <dd className="text-sm font-medium">{moon.sign}</dd>
+          </div>
+          <div>
+            <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
+              Birth star
+            </dt>
+            <dd className="text-sm font-medium">
+              {moon.nakshatra} · {moon.nakshatraLord}, p{moon.pada}
+            </dd>
+          </div>
+        </dl>
+        {noteParts.length > 0 && (
+          <p
+            className="mt-2 text-xs text-muted-foreground"
+            data-testid="overview-notable"
+          >
+            {noteParts.join(" · ")}
+          </p>
+        )}
 
         {(firm.length > 0 || watch.length > 0) && (
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -224,13 +292,18 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
         <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
           <div className="flex items-baseline gap-2">
             <dt className="shrink-0 text-muted-foreground">Period</dt>
-            <dd className="flex flex-wrap items-baseline gap-x-1.5">
-              <PlanetName planet={vim.current.dasa.lord} />
-              <span className="text-muted-foreground">dasa ·</span>
-              <PlanetName planet={vim.current.bhukti.lord} />
-              <span className="text-muted-foreground">bhukti to</span>
-              <span className="tabular">
-                {DateTime.fromISO(vim.current.bhukti.end).toFormat("LLL yyyy")}
+            <dd className="text-sm">
+              <span className="flex flex-wrap items-baseline gap-x-1.5">
+                <PlanetName planet={vim.current.dasa.lord} />
+                <span className="text-muted-foreground">dasa ·</span>
+                <PlanetName planet={vim.current.bhukti.lord} />
+                <span className="text-muted-foreground">bhukti</span>
+              </span>
+              <span className="mt-0.5 block text-xs text-muted-foreground tabular">
+                bhukti to{" "}
+                {DateTime.fromISO(vim.current.bhukti.end).toFormat("LLL yyyy")} ·
+                dasa to {DateTime.fromISO(vim.current.dasa.end).toFormat("LLL yyyy")}
+                {nextDasa ? ` · then ${nextDasa.lord} dasa` : ""}
               </span>
             </dd>
           </div>
