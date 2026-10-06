@@ -35,13 +35,22 @@ import {
   KARAKA,
 } from "@shared/astro";
 import {
-  GIVES,
-  RECEIVES,
+  DIRECTION_SOURCE,
+  directionClause,
   flowGloss,
+  givesOf,
+  receivesOf,
   tierLabel,
   approachLabel,
   type DegreeChain,
 } from "@shared/flow";
+import {
+  DIRECTION_NOTE,
+  GRADE_DOTS,
+  GRADE_LABEL,
+  GRADE_NOTE,
+  gradeReasons,
+} from "@shared/grade";
 import {
   nextMarriageWindow,
   lastMarriageWindow,
@@ -72,6 +81,7 @@ import {
   LIFE_AREAS,
   RELATION_LABEL,
   areaKarakaLabel,
+  bandSentence,
   type Finding,
   type LifeArea,
   type PairRelation,
@@ -649,10 +659,21 @@ function NakshatraWealthCard({ nw }: { nw: NakshatraWealthReading }) {
   );
 }
 
-function ScoreDots({ score }: { score: number }) {
-  const n = Math.max(1, Math.min(3, Math.round(score)));
+/** Enhanced 3, full 2, reduced 1, cancelled none; older saved results without a grade fall back to the score. */
+function GradeDots({ f }: { f: Finding }) {
+  const n = f.grade
+    ? GRADE_DOTS[f.grade.level]
+    : Math.max(1, Math.min(3, Math.round(f.score)));
   return (
-    <span className="inline-flex gap-0.5" aria-label={`strength ${n} of 3`}>
+    <span
+      className="inline-flex gap-0.5"
+      aria-label={
+        f.grade
+          ? `grade: ${GRADE_LABEL[f.grade.level].toLowerCase()}`
+          : `strength ${n} of 3`
+      }
+      title={f.grade ? GRADE_LABEL[f.grade.level] : undefined}
+    >
       {[1, 2, 3].map((i) => (
         <span
           key={i}
@@ -705,7 +726,6 @@ function FindingMeta({
         {companionLabels(f, relations)}
         {f.house && ` — in the ${ordinal(f.house)} from ${f.planets[0]}`}
         {f.viaRetro && " (via retrogression)"}
-        {f.modifier && ` · ${f.modifier}`}
         {f.source && (
           <>
             {" · "}
@@ -716,20 +736,6 @@ function FindingMeta({
           <span className="italic"> · said within the combination above</span>
         )}
       </p>
-      {f.flow && (
-        <p
-          className="mt-0.5 text-xs text-muted-foreground"
-          title={flowGloss(f.flow)}
-        >
-          <span className="font-medium text-foreground/80">
-            {f.flow.from} ahead
-          </span>{" "}
-          → {f.flow.to}
-          {f.flow.tier !== "sign" ? ` · ${tierLabel(f.flow.tier)}` : ""}
-          {f.flow.approach === "closing" ? " · closing" : ""}:{" "}
-          {GIVES[f.flow.from]} colour {RECEIVES[f.flow.to]}.
-        </p>
-      )}
     </>
   );
 }
@@ -739,25 +745,29 @@ function FindingItem({
   relations,
   full,
   coveredBy,
+  female = false,
 }: {
   f: Finding;
   relations: PairRelation[];
   full: boolean;
   coveredBy?: string;
+  female?: boolean;
 }) {
   const tone = toneOf(f);
+  const band = bandSentence(f, female);
   return (
     <li
       className="grid grid-cols-[auto_1fr] gap-x-3 text-sm"
       data-testid={`finding-${f.ruleId}`}
     >
       <div className="pt-1.5">
-        <ScoreDots score={f.score} />
+        <GradeDots f={f} />
       </div>
       <div className={cn(coveredBy && "text-muted-foreground")}>
         <p className="leading-relaxed">
           <Soft>{f.text}</Soft>
           {!full &&
+            !f.grade &&
             f.relation &&
             f.relation !== "conjunct" &&
             f.planets.length === 2 && (
@@ -773,6 +783,7 @@ function FindingItem({
               </>
             )}
           {!full &&
+            !f.grade &&
             f.planets.length >= 3 &&
             (() => {
               // "Together" in the rule text covers any Nadi contact; say which companions are not in the same sign.
@@ -811,6 +822,45 @@ function FindingItem({
             </Cite>
           )}
         </p>
+        {f.grade && (
+          <p
+            className="mt-0.5 text-xs text-muted-foreground"
+            data-testid={`grade-${f.ruleId}`}
+          >
+            <span className="font-medium text-foreground/80">
+              {GRADE_LABEL[f.grade.level]}
+            </span>
+            {": "}
+            {gradeReasons(f.grade, full)}
+            {full && f.grade.ratio !== 1 && (
+              <span className="tabular"> · net ×{f.grade.ratio.toFixed(2)}</span>
+            )}
+          </p>
+        )}
+        {f.flow && (
+          <p
+            className="mt-0.5 text-xs leading-relaxed"
+            title={flowGloss(f.flow, female)}
+            data-testid={`direction-${f.ruleId}`}
+          >
+            <span className="text-muted-foreground">Direction: </span>
+            <Soft>{directionClause(f.flow, female)}.</Soft>
+            {full && (
+              <span className="text-muted-foreground">
+                {" "}
+                ({DIRECTION_SOURCE}; wording provisional)
+              </span>
+            )}
+          </p>
+        )}
+        {band && (
+          <p
+            className="mt-0.5 text-xs text-muted-foreground"
+            data-testid={`direction-band-${f.ruleId}`}
+          >
+            <Soft>{band}</Soft>
+          </p>
+        )}
         {full && (
           <FindingMeta f={f} relations={relations} coveredBy={coveredBy} />
         )}
@@ -942,6 +992,7 @@ function AreaSection({
             f={f}
             relations={reading.relations}
             full={full}
+            female={gender === "female"}
           />
         ))}
       </ul>
@@ -960,6 +1011,7 @@ function AreaSection({
                 relations={reading.relations}
                 full
                 coveredBy={s.coveredBy[f.ruleId]}
+                female={gender === "female"}
               />
             ))}
           </ul>
@@ -1308,6 +1360,7 @@ function Reading({
           strength={reading.strength}
           chains={reading.chains}
           selected={selected}
+          female={chart.gender === "female"}
         />
       </Working>
 
@@ -1329,6 +1382,14 @@ function Reading({
           rule that fired, with its source.
         </p>
       )}
+      <p
+        className="text-xs leading-relaxed text-muted-foreground"
+        data-testid="text-grade-note"
+      >
+        {GRADE_NOTE} {DIRECTION_NOTE}
+        {(chart.timeUncertaintyMin ?? 0) > 0 &&
+          ` The birth time is taken as ±${chart.timeUncertaintyMin} minutes; lines whose direction or bond changes inside that band say so.`}
+      </p>
 
       {areas.map((s) => (
         <AreaSection
@@ -1347,10 +1408,12 @@ function StrengthNotes({
   strength,
   chains,
   selected,
+  female = false,
 }: {
   strength: PlanetStrength[];
   chains: DegreeChain[];
   selected: Planet | null;
+  female?: boolean;
 }) {
   const rows = strength.filter(
     (s) => s.notes.length && (!selected || s.planet === selected),
@@ -1462,7 +1525,8 @@ function StrengthNotes({
                         {l.viaRetro
                           ? ", by retrogression at half strength"
                           : ""}
-                        ): {GIVES[l.from]} colour {RECEIVES[l.to]}.
+                        ): {givesOf(l.from, female)} colour{" "}
+                        {receivesOf(l.to, female)}.
                       </span>
                     ))}
                   </span>

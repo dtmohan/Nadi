@@ -6,13 +6,14 @@ import PDFDocument from "pdfkit";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANETS, PLANET_ABBR, SIGNS, SIGN_ABBR, SOUTH_INDIAN_CELLS, fmtDeg, fmtDegShort, houseFrom, type Planet, type PlanetPosition } from "@shared/astro";
-import { LIFE_AREAS, RELATION_LABEL, type LifeArea, areaKarakaLabel } from "@shared/rules";
+import { LIFE_AREAS, RELATION_LABEL, type Finding, type LifeArea, areaKarakaLabel, bandSentence } from "@shared/rules";
+import { DIRECTION_NOTE, GRADE_DOTS, GRADE_LABEL, GRADE_NOTE, gradeReasons } from "@shared/grade";
 import { synthesize, AREA_TONE_LABEL } from "@shared/synthesis";
 import { GLOSSARY } from "@shared/glossary";
 import type { Gender } from "@shared/marriage";
 import type { PlanetStrength } from "@shared/strength";
 import { readTransits, type TransitReading } from "@shared/timing";
-import { chainSummary, tierLabel } from "@shared/flow";
+import { chainSummary, directionClause, tierLabel } from "@shared/flow";
 import { housesFrom, retroNotes, HOUSE_CLASS_LABEL } from "@shared/houses";
 import { nextMarriageWindow } from "@shared/marriage";
 import { nextChildWindow } from "@shared/children";
@@ -676,6 +677,14 @@ function planetTable(doc: Doc, x: number, y: number, w: number, positions: Plane
   return ry;
 }
 
+/** The line's grade as dots: enhanced 3, full 2, reduced 1, cancelled none (older results: the score). */
+function gradeDots(doc: Doc, x: number, y: number, f: Finding) {
+  const n = f.grade ? GRADE_DOTS[f.grade.level] : Math.max(1, Math.min(3, Math.round(f.score)));
+  for (let i = 1; i <= 3; i++) {
+    doc.circle(x + (i - 1) * 6, y, 1.8).fillColor(i <= n ? INK : RULE).fill();
+  }
+}
+
 function scoreDots(doc: Doc, x: number, y: number, score: number) {
   const n = Math.max(1, Math.min(3, Math.round(score)));
   for (let i = 1; i <= 3; i++) {
@@ -821,7 +830,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
 
   // ── Reading ──
   sectionTitle(doc, "Reading", `${reading.findings.length} findings from ${reading.findings.length ? "the rule book" : "no rules"}`);
-  doc.font("Helvetica").fontSize(8.5).fillColor(MUTED).text("Each area opens with the balance of what the Nadi rules say and the signatures that carry it; the working follows, strongest first. A finding marked with a dagger is already said within a larger combination above it.", PAGE.m, doc.y, { width: CONTENT_W });
+  doc.font("Helvetica").fontSize(8.5).fillColor(MUTED).text(`Each area opens with the balance of what the Nadi rules say and the signatures that carry it; the working follows, strongest first. A finding marked with a dagger is already said within a larger combination above it. The dots show each line's grade: three enhanced, two full, one reduced. ${GRADE_NOTE} ${DIRECTION_NOTE}`, PAGE.m, doc.y, { width: CONTENT_W });
   doc.moveDown(0.5);
   for (const s of synthesize(reading, reading.roles.gender as Gender)) {
     const area = s.area;
@@ -837,15 +846,26 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
       const covered = s.coveredBy[f.ruleId];
       const textX = PAGE.m + 24;
       const textW = CONTENT_W - 24;
+      const female = reading.roles.gender === "female";
+      const dir = f.flow ? `Direction: ${directionClause(f.flow, female)}.` : null;
+      const band = bandSentence(f, female);
+      const dirLine = dir ? `${dir}${band ? ` ${band}` : ""}` : band;
+      const gradeLine = f.grade ? `${GRADE_LABEL[f.grade.level]}: ${gradeReasons(f.grade, true)}` : null;
+      const house = f.house ? `in the ${f.house}${f.house === 1 ? "st" : f.house === 2 ? "nd" : f.house === 3 ? "rd" : "th"} from ${f.planets[0]}` : null;
+      const meta = [f.planets.join(" · "), f.relation ? RELATION_LABEL[f.relation] : null, house, f.viaRetro ? "via retrogression" : null, f.grade ? null : (f.modifier ?? null), f.source ?? null].filter(Boolean).join(" — ");
       doc.font("Helvetica").fontSize(9);
-      const h = doc.heightOfString(f.text, { width: textW }) + 12;
+      let h = doc.heightOfString(f.text, { width: textW }) + 8;
+      doc.fontSize(7.5);
+      if (dirLine) h += doc.heightOfString(dirLine, { width: textW }) + 1;
+      doc.fontSize(7);
+      if (gradeLine) h += doc.heightOfString(gradeLine, { width: textW }) + 1;
+      h += doc.heightOfString(meta, { width: textW });
       ensureSpace(doc, h + 6);
       const y = doc.y;
-      scoreDots(doc, PAGE.m + 3, y + 5, f.score);
-      doc.fillColor(covered ? MUTED : INK).text(`${covered ? "† " : ""}${f.text}`, textX, y, { width: textW });
-      const flow = f.flow ? `${f.flow.from} ahead > ${f.flow.to}${f.flow.tier !== "sign" ? ` (${tierLabel(f.flow.tier)})` : ""}${f.flow.approach === "closing" ? " closing" : ""}` : null;
-      const house = f.house ? `in the ${f.house}${f.house === 1 ? "st" : f.house === 2 ? "nd" : f.house === 3 ? "rd" : "th"} from ${f.planets[0]}` : null;
-      const meta = [f.planets.join(" · "), f.relation ? RELATION_LABEL[f.relation] : null, house, flow, f.viaRetro ? "via retrogression" : null, f.modifier ?? null, f.source ?? null].filter(Boolean).join(" — ");
+      gradeDots(doc, PAGE.m + 3, y + 5, f);
+      doc.font("Helvetica").fontSize(9).fillColor(covered ? MUTED : INK).text(`${covered ? "† " : ""}${f.text}`, textX, y, { width: textW });
+      if (dirLine) doc.font("Helvetica").fontSize(7.5).fillColor(INK).text(dirLine, textX, doc.y + 1, { width: textW });
+      if (gradeLine) doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(gradeLine, textX, doc.y + 1, { width: textW });
       doc.font("Helvetica").fontSize(7).fillColor(MUTED).text(meta, textX, doc.y, { width: textW });
       doc.y += 6;
     }

@@ -160,8 +160,15 @@ function normalise(data: InsertChart): Omit<Chart, "id"> {
     parashariHouseMethod: normaliseParashariHouseMethod(data.parashariHouseMethod),
     notes: data.notes ?? "",
     deathDate: /^\d{4}-\d{2}-\d{2}$/.test(data.deathDate ?? "") ? data.deathDate! : null,
+    timeUncertaintyMin: normaliseTimeBand(data.timeUncertaintyMin),
     events: sanitiseEvents(data.events),
   };
+}
+
+/** ± minutes of birth-time uncertainty; anything unknown or out of range reads as 0 (as stated). */
+function normaliseTimeBand(v: unknown): number {
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) && n > 0 ? Math.min(n, 180) : 0;
 }
 
 export function useSavedCharts() {

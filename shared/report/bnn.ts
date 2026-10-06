@@ -1,5 +1,7 @@
 // The Bhrigu Nandi Nadi reading by life area, from the same synthesis the BNN tab shows.
-import { LIFE_AREAS, RELATION_LABEL, type Finding } from "../rules";
+import { LIFE_AREAS, RELATION_LABEL, bandSentence, type Finding } from "../rules";
+import { DIRECTION_NOTE, GRADE_NOTE, gradeSummary } from "../grade";
+import { directionClause } from "../flow";
 import { synthesize, AREA_TONE_LABEL } from "../synthesis";
 import { nextMarriageWindow } from "../marriage";
 import { nextChildWindow } from "../children";
@@ -20,7 +22,7 @@ export const bnnModule: ReportModule = {
   short: "Nadi",
   tab: "bnn",
   build(ctx) {
-    const { result, S, cites, asOf, lifeAt, deceased, inSeason, female } = ctx;
+    const { result, S, cites, asOf, lifeAt, deceased, inSeason, female, plain } = ctx;
     const { reading, transits } = result;
     const roles = reading.roles;
     const areas = synthesize(reading, roles.gender);
@@ -56,6 +58,12 @@ export const bnnModule: ReportModule = {
       { kind: "p", text: S(reading.karma.summary) },
     ];
     if (reading.deha) paras.push({ kind: "p", text: S(reading.deha.summary) });
+    paras.push({
+      kind: "note",
+      text: `${GRADE_NOTE} ${DIRECTION_NOTE}`,
+      cites: [rao(), cites.add("S. Naik, Prediction Secrets: Naadi Astrology")],
+      provisional: true,
+    });
 
     const sub: ReportSection[] = [];
     const deferred: string[] = [];
@@ -91,10 +99,22 @@ export const bnnModule: ReportModule = {
           kind: "p",
           text: S(endStop(f.text)),
           cites: [rao(f.source)],
-          aside:
-            [relOf(f), f.modifier].filter(Boolean).join(" · ") || undefined,
+          // The grade names the relation, so it replaces the bare relation note.
+          aside: f.grade
+            ? gradeSummary(f.grade, !plain)
+            : [relOf(f), f.modifier].filter(Boolean).join(" · ") || undefined,
           provisional: /provisional/i.test(f.text),
         });
+        // Direction is part of the reading: the planet ahead by degree gives to the one behind.
+        if (f.flow) {
+          const band = bandSentence(f, female);
+          ps.push({
+            kind: "p",
+            text: S(`Direction: ${directionClause(f.flow, female)}.${band ? ` ${band}` : ""}`),
+            cites: [rao(), cites.add("S. Naik, Prediction Secrets: Naadi Astrology")],
+            provisional: true,
+          });
+        }
       }
       if (a.area === "marriage") {
         const m = reading.marriage;

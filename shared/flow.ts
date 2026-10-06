@@ -156,9 +156,45 @@ export function approachLabel(a: Approach): string {
   return a === "closing" ? "closing on each other" : a === "separating" ? "separating" : "moving the same way";
 }
 
-export function flowGloss(f: Flow): string {
+export function flowGloss(f: Flow, female = false): string {
   const bond = f.tier === "pada" ? "same pada, the tightest bond" : tierLabel(f.tier);
-  return `${f.from} ahead by degree hands ${GIVES[f.from]} to ${f.to}: read ${RECEIVES[f.to]} in that light (${bond}, ${approachLabel(f.approach)}).`;
+  return `${f.from} ahead by degree hands ${givesOf(f.from, female)} to ${f.to}: read ${receivesOf(f.to, female)} in that light (${bond}, ${approachLabel(f.approach)}).`;
+}
+
+/**
+ * In a woman's chart Venus is the Deha, the native herself, and Mars the husband's karaka
+ * (the roles the rest of the Nadi reading uses), so their glosses change with the chart.
+ */
+const FEMALE_GIVES: Partial<Record<Planet, string>> = {
+  Venus: "her own person, comforts and the arts",
+  Mars: "the husband, drive and property",
+};
+const FEMALE_RECEIVES: Partial<Record<Planet, string>> = {
+  Venus: "her own person and comforts",
+  Mars: "the husband, siblings and property",
+};
+export function givesOf(p: Planet, female = false): string {
+  return (female && FEMALE_GIVES[p]) || GIVES[p];
+}
+export function receivesOf(p: Planet, female = false): string {
+  return (female && FEMALE_RECEIVES[p]) || RECEIVES[p];
+}
+
+/**
+ * The direction read as part of the line: the planet ahead by degree gives its karakatwa to the
+ * one behind (Rao's basic rules; Naik). The wording of what each planet gives and receives is
+ * this app's gloss and is labelled provisional where it is shown.
+ */
+export function directionClause(f: Flow, female = false): string {
+  const the = (p: Planet) => (p === "Sun" || p === "Moon" ? `the ${p}` : p);
+  return `${the(f.from)} is ahead by degree, so ${givesOf(f.from, female)} colour ${receivesOf(f.to, female)}`;
+}
+
+export const DIRECTION_SOURCE = "Rao's basic rules; Naik";
+
+export function sameFlow(a: Flow | undefined, b: Flow | undefined): boolean {
+  if (!a || !b) return !a && !b;
+  return a.from === b.from && a.to === b.to && a.tier === b.tier;
 }
 
 /**

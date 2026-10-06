@@ -7,7 +7,7 @@ import {
   type GeoHit,
   normaliseSunriseDef,
 } from "@shared/schema";
-import { RULES, evaluate } from "@shared/rules";
+import { RULES, applyBand, evaluate } from "@shared/rules";
 import { assessNakshatraWealth } from "@shared/nakshatra-wealth";
 import {
   birthInstant,
@@ -109,11 +109,20 @@ export function computeChart(chart: Chart): ChartResult {
   const zone = basis.displayZone;
   const jd = julianDay(utc);
   const positions = positionsAt(jd, opts);
-  const reading = evaluate(
-    positions,
-    undefined,
-    (chart.gender as "male" | "female" | "unspecified") ?? "unspecified",
-  );
+  const gender =
+    (chart.gender as "male" | "female" | "unspecified") ?? "unspecified";
+  const reading = evaluate(positions, undefined, gender);
+  // Birth-time band: read the Nadi lines again at both ends; lines whose direction, bond or
+  // firing changes inside the band say so. The reading at the stated time is unchanged.
+  const band = Math.max(0, Math.min(180, Number(chart.timeUncertaintyMin ?? 0) || 0));
+  if (band > 0)
+    applyBand(
+      reading,
+      positionsAt(jd - band / 1440, opts),
+      positionsAt(jd + band / 1440, opts),
+      band,
+      gender,
+    );
   const endJd = jd + 100 * 365.25;
   const transits = [
     ...transitPeriods("Jupiter", jd, endJd, opts),

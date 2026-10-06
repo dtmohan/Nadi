@@ -24,11 +24,21 @@ import { assessLakshmi, type LakshmiReading } from "./lakshmi";
 import { assessStrength, type PlanetStrength } from "./strength";
 import {
   degreeChains,
+  directionClause,
   flowBetween,
   readsFromPreviousSign,
+  sameFlow,
+  tierLabel,
   type DegreeChain,
   type Flow,
 } from "./flow";
+import {
+  GRADE_CEILING,
+  GRADE_FLOOR,
+  levelOf,
+  type Grade,
+  type GradeReason,
+} from "./grade";
 import { assessMarriage, type Gender, type MarriageReading } from "./marriage";
 
 export type LifeArea =
@@ -137,13 +147,37 @@ export interface Finding {
   planets: Planet[];
   relation: Relation | null;
   viaRetro: boolean;
-  /** Nadi strength modifier applied to the score, e.g. combustion of the subject. */
+  /** No longer set: strength now lives in `grade`. Kept so older saved results still read. */
   modifier?: string;
   /** Degree order when the pair shares a sign: the planet ahead hands its matters to the one behind. */
   flow?: Flow;
   /** Whole-sign house of the object counted from the subject, for house rules. */
   house?: number;
   source?: string;
+  /** The combination as written (rule weight, sign relation, retrogression, companions), before strength. */
+  base?: number;
+  /** Full, enhanced, reduced or cancelled, with each reason; `score` is the graded value. */
+  grade?: Grade;
+  /** Set when the birth-time band changes the line's direction or whether it fires. */
+  band?: FlowBand;
+}
+
+/** What a line looks like at one end of the birth-time band, when it differs from the stated time. */
+export interface BandEdge {
+  /** Whether the line still fires at this end. */
+  fires: boolean;
+  /** The direction at this end, when the planets still share a direction. */
+  flow?: Flow;
+  /** The sign relation at this end, when it differs. */
+  relation?: Relation | null;
+  /** For house-count lines, the house at this end, when it differs. */
+  house?: number;
+}
+export interface FlowBand {
+  /** Half-width of the band in minutes. */
+  minutes: number;
+  earlier?: BandEdge;
+  later?: BandEdge;
 }
 
 export interface PairRelation {
@@ -1044,6 +1078,226 @@ function bestRelation(
   return best;
 }
 
+/** What the grader needs besides the finding: the rule, its kind, and the factors already in the base. */
+interface GradeInput {
+  f: Finding;
+  rule: Rule;
+  kind: "house" | "pair" | "extra" | "single";
+  /** The same line at full strength: rule weight × specificity (× the house-count weight for house rules). */
+  max: number;
+  companions: Array<{ planet: Planet; relation: Relation }>;
+  relFactor: number;
+  extraFactor: number;
+  retroFactor: number;
+}
+
+const REL_FROM: Record<Relation, string> = {
+  conjunct: "in the same sign as",
+  prev: "in the 12th from",
+  next: "in the 2nd from",
+  trine: "in trine to",
+  opposite: "in the 7th from",
+  none: "unrelated to",
+};
+
+const ordinalOf = (n: number) =>
+  `${n}${n % 10 === 1 && n !== 11 ? "st" : n % 10 === 2 && n !== 12 ? "nd" : n % 10 === 3 && n !== 13 ? "rd" : "th"}`;
+const listOf = (ps: string[]) =>
+  ps.length <= 1 ? ps.join("") : `${ps.slice(0, -1).join(", ")} and ${ps[ps.length - 1]}`;
+
+/**
+ * Grade one line. The base score already holds the combination as written; this names those
+ * factors and applies the planets' strength as computed by the Nadi strength layer:
+ * combustion of the subject (Naik), effective dignity after its set-asides (Rao's basic rules 5
+ * and 8; Naik), hemming (Rao's basic rule 4), the degree contest between enemies in one sign
+ * (Naik), and for planets in one direction the tightness and approach of the bond. Only the
+ * line's own planets (subject and object) are weighed; companions are named, not weighed.
+ * The size of every weight is this app's convention.
+ */
+/** "the Sun", "the Moon"; other planets by name. */
+const nm = (p: string): string => (p === "Sun" || p === "Moon" ? `the ${p}` : p);
+
+function gradeFinding(g: GradeInput, strengthOf: Record<Planet, PlanetStrength>): void {
+  const { f, rule, kind } = g;
+  const w = rule.when;
+  const reasons: GradeReason[] = [];
+  const [subject, object] = f.planets;
+  const linePlanets: Planet[] =
+    (kind === "pair" || kind === "house") && object ? [subject, object] : [subject];
+
+  // The combination as written: already in the base score, named here so the grade reads whole.
+  if (kind === "pair" && object) {
+    if (w.exchange) reasons.push({ text: `${nm(subject)} and ${nm(object)} exchange signs`, effect: "note" });
+    else if (f.relation === "conjunct")
+      reasons.push({ text: `${nm(object)} in the same sign as ${nm(subject)}`, effect: "note" });
+    else if (f.relation && g.relFactor < 1)
+      reasons.push({ text: `${nm(object)} ${REL_FROM[f.relation]} ${nm(subject)}`, effect: "weight", factor: g.relFactor });
+  }
+  if (kind === "house" && object && f.house)
+    reasons.push({ text: `${nm(object)} in the ${ordinalOf(f.house)} from ${nm(subject)}`, effect: "note" });
+  const apart = g.companions.filter((c) => c.relation !== "conjunct");
+  if (apart.length && g.extraFactor < 1)
+    reasons.push({
+      text: `with ${listOf(apart.map((c) => `${nm(c.planet)} ${REL_FROM[c.relation]} ${nm(subject)}`))}`,
+      effect: "weight",
+      factor: g.extraFactor,
+    });
+  if (f.viaRetro && g.retroFactor < 1)
+    reasons.push({
+      text: "read from the previous sign by retrogression, at reduced strength",
+      effect: "down",
+      factor: g.retroFactor,
+      source: kind === "extra" ? undefined : "Rao's basic rules",
+    });
+  // Retrogression's half strength is already in the base score; it still lowers the grade.
+  const retroInBase = f.viaRetro && g.retroFactor < 1 ? g.retroFactor : 1;
+
+  // Strength: sourced principles move the score and the grade; the app's own readings
+  // (gradeOnly) move the grade alone.
+  let mult = 1;
+  let gradeMult = 1;
+  const apply = (r: GradeReason) => {
+    reasons.push(r);
+    if ((r.effect === "up" || r.effect === "down") && r.factor) {
+      if (r.gradeOnly) gradeMult *= r.factor;
+      else mult *= r.factor;
+    }
+  };
+  // Combustion of the subject, unless the rule is about the Sun pairing or about the combustion itself.
+  const sst = strengthOf[subject];
+  if (sst?.effectiveCombust && !f.planets.includes("Sun") && w.subjectCombust === undefined)
+    apply({ text: `${nm(subject)} combust: its results come in lesser degree`, effect: "down", factor: 0.7, source: "Naik" });
+  else if (sst?.combust && sst.combustNote && w.subjectCombust === undefined && !f.planets.includes("Sun"))
+    reasons.push({ text: sst.combustNote, effect: "note", source: "Naik" });
+
+  for (const p of linePlanets) {
+    const st = strengthOf[p];
+    if (!st) continue;
+    // A rule that names the subject's dignity or sign already says it; do not count it twice.
+    const gated =
+      p === subject && (w.subjectDignity !== undefined || w.subjectSign !== undefined);
+    if (!gated) {
+      if (st.effectiveDignity === "Exalted")
+        apply({ text: `${nm(p)} exalted, with no enemy beside it and a planet to deliver it`, effect: "up", factor: 1.15, source: "Rao's basic rules 5 and 8" });
+      else if (st.effectiveDignity === "Debilitated")
+        apply({ text: `${nm(p)} debilitated, and nothing cancels it`, effect: "down", factor: 0.8 });
+    }
+    if (st.dignityNote)
+      reasons.push({ text: `${nm(p)}: ${st.dignityNote.charAt(0).toLowerCase()}${st.dignityNote.slice(1)}`, effect: "note", source: /Rao rule/.test(st.dignityNote) ? undefined : "Naik" });
+    if (st.hemmed === "friends")
+      apply({ text: `${nm(p)} hemmed by friends: its significations flow freely`, effect: "up", factor: 1.1, source: "Rao's basic rule 4" });
+    else if (st.hemmed === "enemies")
+      apply({ text: `${nm(p)} hemmed by enemies: its significations are obstructed`, effect: "down", factor: 0.8, source: "Rao's basic rule 4" });
+    else if (st.hemmed === "mixed")
+      reasons.push({ text: `${nm(p)} flanked by friends and enemies`, effect: "note", source: "Rao's basic rule 4" });
+    // Degree contest between enemies in one sign: the planet behind yields (Naik). Only a
+    // subject that yields lowers the line; who leads, and an object's contests, are noted.
+    if (p === subject) {
+      if (st.losingTo.length)
+        apply({ text: `${nm(p)} behind ${listOf(st.losingTo.map(nm))} by degree in one sign: it yields to the enemy`, effect: "down", factor: 0.85, source: "Naik" });
+      if (st.winningOver.length)
+        reasons.push({ text: `${nm(p)} ahead of ${listOf(st.winningOver.map(nm))} by degree in one sign: it leads`, effect: "note", source: "Naik" });
+    } else {
+      const yields = st.losingTo.filter((q) => q !== subject);
+      const leads = st.winningOver.filter((q) => q !== subject);
+      if (yields.length)
+        reasons.push({ text: `${nm(p)} behind ${listOf(yields.map(nm))} by degree in one sign: it yields`, effect: "note", source: "Naik" });
+      if (leads.length)
+        reasons.push({ text: `${nm(p)} ahead of ${listOf(leads.map(nm))} by degree in one sign: it leads`, effect: "note", source: "Naik" });
+    }
+  }
+
+  // The bond between planets in one direction: how tight, and whether they are closing. The
+  // direction itself is Rao's and Naik's; this ordering of bonds is the app's reading of it.
+  if (f.flow) {
+    const t = f.flow.tier;
+    if (t === "pada") apply({ text: "in the same pada, the tightest bond", effect: "up", factor: 1.15, gradeOnly: true });
+    else if (t === "degree") apply({ text: "at the same degree across signs", effect: "up", factor: 1.1, gradeOnly: true });
+    else if (t === "nakshatra") apply({ text: "in the same nakshatra", effect: "up", factor: 1.05, gradeOnly: true });
+    if (f.flow.approach === "closing") apply({ text: "closing on each other", effect: "up", factor: 1.1, gradeOnly: true });
+    else if (f.flow.approach === "separating") apply({ text: "drawing apart", effect: "down", factor: 0.9, gradeOnly: true });
+  }
+
+  const m = Math.min(GRADE_CEILING, Math.max(GRADE_FLOOR, mult));
+  f.base = f.score;
+  f.score = Math.round(f.score * m * 100) / 100;
+  // The level is strength alone: the sign relation and companions rank the line (they are in
+  // the score) but do not set its grade.
+  const ratio = Math.min(GRADE_CEILING, Math.max(GRADE_FLOOR, mult * gradeMult * retroInBase));
+  f.grade = { level: levelOf(ratio), ratio: Math.round(ratio * 100) / 100, reasons };
+}
+
+/**
+ * Birth-time band: read the chart again at both ends of ±`minutes` and mark each line whose
+ * direction or bond changes there, or which stops firing. Nothing is averaged; the reading at the
+ * stated time stands, and the band says where it would read differently.
+ */
+export function applyBand(
+  reading: Reading,
+  earlier: PlanetPosition[],
+  later: PlanetPosition[],
+  minutes: number,
+  gender: Gender = "unspecified",
+): void {
+  if (!(minutes > 0)) return;
+  const at = (ps: PlanetPosition[]) =>
+    new Map(evaluate(ps, RULES, gender).findings.map((x) => [x.ruleId, x]));
+  const E = at(earlier);
+  const L = at(later);
+  for (const f of reading.findings) {
+    const edge = (m: Map<string, Finding>): BandEdge | undefined => {
+      const g = m.get(f.ruleId);
+      if (!g) return { fires: false };
+      const relChanged = g.relation !== f.relation;
+      const houseChanged = g.house !== f.house;
+      if (sameFlow(f.flow, g.flow) && !relChanged && !houseChanged) return undefined;
+      return {
+        fires: true,
+        flow: g.flow,
+        relation: relChanged ? g.relation : undefined,
+        house: houseChanged ? g.house : undefined,
+      };
+    };
+    const e = edge(E);
+    const l = edge(L);
+    if (e || l) f.band = { minutes, earlier: e, later: l };
+  }
+}
+
+// How a bond reads in a sentence, and its order for "tightens" and "loosens" (as the grade weighs them).
+const BOND_PHRASE: Record<Flow["tier"], string> = {
+  pada: "one pada",
+  degree: "the same degree",
+  nakshatra: "one nakshatra",
+  sign: "one sign",
+  trine: "the trine",
+};
+const TIER_RANK: Record<Flow["tier"], number> = { pada: 4, degree: 3, nakshatra: 2, sign: 1, trine: 1 };
+
+/** "Within the ±15-minute birth-time band: at the later end the order reverses ..." */
+export function bandSentence(f: Finding, female = false): string | null {
+  const band = f.band;
+  if (!band) return null;
+  const [subject, object] = f.planets;
+  const part = (label: string, e?: BandEdge) => {
+    if (!e) return null;
+    if (!e.fires) return `at the ${label} end this line does not fire`;
+    if (e.flow && f.flow && e.flow.from === f.flow.from && e.flow.to === f.flow.to) {
+      const move = TIER_RANK[e.flow.tier] > TIER_RANK[f.flow.tier] ? "tightens" : TIER_RANK[e.flow.tier] < TIER_RANK[f.flow.tier] ? "loosens" : "changes";
+      return `at the ${label} end the bond ${move} from ${BOND_PHRASE[f.flow.tier]} to ${BOND_PHRASE[e.flow.tier]}`;
+    }
+    if (e.flow)
+      return `at the ${label} end the order ${f.flow ? "reverses" : "is"}: ${directionClause(e.flow, female)}`;
+    if (e.relation && object) return `at the ${label} end ${object} is ${REL_FROM[e.relation]} ${subject}`;
+    if (e.house && object) return `at the ${label} end ${object} is in the ${ordinalOf(e.house)} from ${subject}`;
+    if (f.flow) return `at the ${label} end the two no longer share a direction`;
+    return null;
+  };
+  const bits = [part("earlier", band.earlier), part("later", band.later)].filter(Boolean);
+  if (!bits.length) return null;
+  return `Within the ±${band.minutes}-minute birth-time band: ${bits.join("; ")}.`;
+}
+
 export function evaluate(
   positions: PlanetPosition[],
   rules: Rule[] = RULES,
@@ -1085,14 +1339,11 @@ export function evaluate(
   ) as Record<Planet, PlanetStrength>;
 
   const findings: Finding[] = [];
-  const push = (f: Finding) => {
-    // A combust subject (not cancelled) delivers "in lesser degree" unless the rule is about the Sun pairing itself.
-    const st = strengthOf[f.planets[0]];
-    if (st?.effectiveCombust && !f.planets.includes("Sun")) {
-      f.score = Math.round(f.score * 0.7 * 100) / 100;
-      f.modifier = "combust: reduced";
-    }
+  const toGrade: GradeInput[] = [];
+  // Strength is applied once every rule has fired (gradeFinding), so each reason is named once.
+  const push = (f: Finding, g: Omit<GradeInput, "f">) => {
     findings.push(f);
+    toGrade.push({ f, ...g });
   };
   const roles = rolesFor(gender);
   const frame = roles.gender === "female" ? "female" : "male";
@@ -1140,6 +1391,7 @@ export function evaluate(
 
     // Extra companions (three- and four-planet combinations)
     const extra: Planet[] = [];
+    const extraRels: GradeInput["companions"] = [];
     let extraOk = true;
     let extraStrength = 1;
     let extraRetro = false;
@@ -1152,6 +1404,7 @@ export function evaluate(
         break;
       }
       extra.push(c.planet);
+      extraRels.push({ planet: c.planet, relation: rel.relation });
       extraStrength = Math.min(extraStrength, RELATION_STRENGTH[rel.relation]);
       extraRetro = extraRetro || rel.viaRetro;
     }
@@ -1189,6 +1442,14 @@ export function evaluate(
         viaRetro,
         house: h,
         source: rule.source,
+      }, {
+        rule,
+        kind: "house",
+        max: rule.weight * HOUSE_STRENGTH * specificity,
+        companions: extraRels,
+        relFactor: 1,
+        extraFactor: Math.max(extraStrength, 0.6),
+        retroFactor: viaRetro ? RETRO_STRENGTH : 1,
       });
       continue;
     }
@@ -1236,6 +1497,15 @@ export function evaluate(
         viaRetro,
         source: rule.source,
         flow,
+      }, {
+        rule,
+        kind: "pair",
+        // An exchange is graded on its own footing: the sign relation does not reduce it.
+        max: rule.weight * specificity * (w.exchange ? strength : 1),
+        companions: extraRels,
+        relFactor: w.exchange ? 1 : strength,
+        extraFactor: Math.max(extraStrength, 0.6),
+        retroFactor: viaRetro ? RETRO_STRENGTH : 1,
       });
     } else if (extra.length) {
       const score =
@@ -1252,6 +1522,14 @@ export function evaluate(
         relation: null,
         viaRetro: extraRetro,
         source: rule.source,
+      }, {
+        rule,
+        kind: "extra",
+        max: rule.weight * specificity,
+        companions: extraRels,
+        relFactor: 1,
+        extraFactor: Math.max(extraStrength, 0.6),
+        retroFactor: extraRetro ? 0.85 : 1,
       });
     } else {
       push({
@@ -1263,9 +1541,18 @@ export function evaluate(
         relation: null,
         viaRetro: false,
         source: rule.source,
+      }, {
+        rule,
+        kind: "single",
+        max: rule.weight,
+        companions: [],
+        relFactor: 1,
+        extraFactor: 1,
+        retroFactor: 1,
       });
     }
   }
+  for (const g of toGrade) gradeFinding(g, strengthOf);
   findings.sort((a, b) => b.score - a.score);
 
   const summarise = (p: PlanetPosition, role: string): Reading["jeeva"] => {

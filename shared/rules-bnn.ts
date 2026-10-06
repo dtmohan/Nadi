@@ -186,9 +186,9 @@ export const EXTRA_RULES: Rule[] = [
     source: "DNA Astrology of Wealth (Bhrigu Nandi Nadi): Rajya Lakshmi and the Sun, p. 57; Uttarashadha and leadership, p. 115",
   },
   pair("auth-ju-su", "authority", "Jupiter", "Sun", "Jupiter with the Sun: standing and authority travel with the father's line, government and institutions; the native's name carries past his own circle. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
-  pair("auth-su-ra", "authority", "Sun", "Rahu", "the Sun with Rahu: power among crowds; a rise that is public, unconventional or contested — politics, movements, mass attention. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
+  pair("auth-su-ra", "authority", "Sun", "Rahu", "The Sun with Rahu: power among crowds; a rise that is public, unconventional or contested — politics, movements, mass attention. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
   pair("auth-ju-ra", "authority", "Jupiter", "Rahu", "Jupiter with Rahu: a following gathers; causes, crowds or movements look to the native, and leadership runs with the many. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
-  pair("auth-su-sa", "authority", "Sun", "Saturn", "the Sun with Saturn: authority the slow way — built in institutions, service and time, and held with discipline; standing that outlasts its critics. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
+  pair("auth-su-sa", "authority", "Sun", "Saturn", "The Sun with Saturn: authority the slow way — built in institutions, service and time, and held with discipline; standing that outlasts its critics. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
   { id: "auth-su-strong", area: "authority", when: { subject: "Sun", subjectDignity: ["Own sign", "Exalted"] }, text: "the Sun in his own strength: born to authority; command sits naturally on the native and others defer. (provisional)", weight: 2, source: "General Nadi principles (Rao, Naik)" },
 ];
 

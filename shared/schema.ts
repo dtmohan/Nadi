@@ -33,6 +33,8 @@ export const charts = sqliteTable("charts", {
   notes: text("notes").notNull().default(""),
   /** Optional date of passing (YYYY-MM-DD). Fixes the age the readings use and lets the lifespan methods be tested on the deceased; never used to compute or display a forecast. */
   deathDate: text("death_date"),
+  /** How sure the birth time is, as ± minutes (0 = as stated). The Nadi reading marks lines whose direction or bond changes inside the band; nothing else uses it. */
+  timeUncertaintyMin: integer("time_uncertainty_min").notNull().default(0),
   /** Remembered life events (matter, date, outcome, note), kept beside the birth data. */
   events: text("events", { mode: "json" }).$type<ChartEvent[]>().notNull().default([]),
 });
@@ -41,6 +43,9 @@ export const insertChartSchema = createInsertSchema(charts, { events: chartEvent
 
 export type InsertChart = z.infer<typeof insertChartSchema>;
 export type Chart = typeof charts.$inferSelect;
+
+/** Birth-time band choices, ± minutes. */
+export const TIME_UNCERTAINTY_OPTIONS = [0, 2, 5, 10, 15, 30, 60] as const;
 
 export const AYANAMSAS = [
   { id: "lahiri", label: "Lahiri (Chitrapaksha)" },

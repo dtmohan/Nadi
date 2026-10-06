@@ -215,7 +215,7 @@ export function Timeline({
 
       <p className="mt-3 text-sm text-muted-foreground">
         {track === "Jupiter"
-          ? `Transiting Jupiter${roles?.gender === "female" ? ", the universal timer (Venus is this native's Jeeva)," : ", the Jeeva,"} wakes whichever natal planet it passes over, together with everything that planet is combined with. Signs of the same direction count too: a passage in trine to a natal planet is a real trigger at about three-quarter strength, the 7th at half. Each row is one sign passage, so retrograde re-entries appear as short repeats.`
+          ? `Transiting Jupiter${roles?.gender === "female" ? ", the universal timer (Venus is this native's Jeeva)," : ", the Jeeva,"} wakes whichever natal planet it passes over, together with everything that planet is combined with. Signs of the same direction count too: a passage in trine to a natal planet is a real trigger at about three-quarter strength, the 7th at half. Those fractions, and the weights that rank which of the chart's graded lines a passage wakes first, are this app's conventions and provisional. Each row is one sign passage, so retrograde re-entries appear as short repeats.`
           : "Transiting Saturn, the Karma, brings duty, pressure and consolidation to whatever natal planet it passes over, and to the combinations that planet belongs to."}
         {selected && <span> Showing passages that touch {selected}.</span>}
         {next && (
