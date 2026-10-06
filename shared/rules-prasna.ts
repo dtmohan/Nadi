@@ -502,6 +502,15 @@ const SPHUTA_NOTE: Record<PrasnaSphutaVerdict, string> = {
   weak: "Not in the required sign and navamsa and without benefic support — children come with difficulty.",
 };
 
+/** A planet's sphuta contribution: the expired portion of its nakshatra in ghatis (4.5 per degree),
+ * divided by 5 and read as signs — i.e. the expired portion in degrees × 27 (19.5, with Raman's
+ * example). This is the primary method; the simple longitude sum of 19.11 is an alternative view. */
+function sphutaPlanetLon(planetLon: number): number {
+  const NAK = 360 / 27;
+  const expired = ((planetLon % NAK) + NAK) % NAK;
+  return (((expired * 27) % 360) + 360) % 360;
+}
+
 /** Read the progeny sphuta for a chart: Beeja for a male, Kshetra for a female (19.9). */
 export function computeProgeny(
   positions: PlanetPosition[],
@@ -511,8 +520,8 @@ export function computeProgeny(
   const kind: PrasnaSphutaKind = gender === "female" ? "kshetra" : "beeja";
   const sum =
     kind === "kshetra"
-      ? lon("Moon") + lon("Mars") + lon("Jupiter")
-      : lon("Sun") + lon("Venus") + lon("Jupiter");
+      ? sphutaPlanetLon(lon("Moon")) + sphutaPlanetLon(lon("Mars")) + sphutaPlanetLon(lon("Jupiter"))
+      : sphutaPlanetLon(lon("Sun")) + sphutaPlanetLon(lon("Venus")) + sphutaPlanetLon(lon("Jupiter"));
   const longitude = ((sum % 360) + 360) % 360;
   const signIndex = Math.floor(longitude / 30);
   const navamsaIndex = Math.floor((longitude - signIndex * 30) / (30 / 9));
