@@ -17,6 +17,11 @@ import {
 import { PlanetName } from "@/components/planet-name";
 import { Soft } from "@/lib/gentle";
 import { Button } from "@/components/ui/button";
+import {
+  prasnaStore,
+  useSavedPrasnas,
+  type PrasnaOutcome,
+} from "@/lib/prasna-store";
 import { cn } from "@/lib/utils";
 
 const ord = (h: number) =>
@@ -38,9 +43,28 @@ const FRUCT_CLASS: Record<PrasnaBhavaVerdict, string> = {
   negative: "border border-verdict-bad/40 text-verdict-bad",
 };
 
+const OUTCOME_CLASS: Record<PrasnaOutcome, string> = {
+  pending: "border border-muted-foreground/40 text-muted-foreground",
+  yes: "border border-verdict-good/40 text-verdict-good",
+  no: "border border-verdict-bad/40 text-verdict-bad",
+  partial: "border border-verdict-mixed/40 text-verdict-mixed",
+};
+
 /** The eight directions and the signs each holds (Prasna Marga 2.7–9). */
 const DIRECTION_NOTE =
   "Arudha by direction (2.7–9): east Aries/Taurus · south-east Gemini · south Cancer/Leo · south-west Virgo · west Libra/Scorpio · north-west Sagittarius · north Capricorn/Aquarius · north-east Pisces. In uncertain cases the querist touches a point on a direction circle and that sign is the Arudha (2.11).";
+
+function buildPrasnaSummary(readings: PrasnaHouseReading[]): string {
+  return readings
+    .map((r) => {
+      const occ = r.occupants.map((p) => p.planet).join(", ");
+      const bits = [`${ord(r.house)}: ${occ}`];
+      if (r.maleficText) bits.push(`malefic — ${r.maleficText}`);
+      if (r.beneficText) bits.push(`benefic — ${r.beneficText}`);
+      return bits.join(" | ");
+    })
+    .join("\n");
+}
 
 function HouseEffectsList({ readings }: { readings: PrasnaHouseReading[] }) {
   return (
@@ -95,6 +119,8 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
   const { positions, reading, now } = result;
   const birthLagnaIdx = result.jaimini.lagna.signIndex;
   const [arudhaIdx, setArudhaIdx] = useState<number | null>(null);
+  const [question, setQuestion] = useState("");
+  const savedPrasnas = useSavedPrasnas();
 
   const natal = useMemo(
     () => computePrasna(positions, birthLagnaIdx),
@@ -116,6 +142,20 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
     () => (arudhaIdx === null ? null : computePrasna(now.positions, arudhaIdx)),
     [now.positions, arudhaIdx],
   );
+
+  const register = () => {
+    if (arudhaIdx === null || !prasna) return;
+    void prasnaStore.register({
+      question: question.trim() || "(no question noted)",
+      askedAt: now.asOf,
+      arudhaIdx,
+      arudhaSign: SIGNS[arudhaIdx],
+      summary: buildPrasnaSummary(prasna),
+    });
+    setQuestion("");
+  };
+  const confirm = (id: string, outcome: PrasnaOutcome) =>
+    void prasnaStore.setOutcome(id, outcome);
 
   return (
     <section data-testid="prasna-panel" aria-label="Prasna Marga">
@@ -175,8 +215,106 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             Generate an Arudha, or pick a sign, to read the query chart.
           </p>
         )}
+        {prasna && arudhaIdx !== null && (
+          <div className="mt-3 space-y-2">
+            <label className="block">
+              <span className="text-xs text-muted-foreground">
+                What is the query about? (kept on this device)
+              </span>
+              <input
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                className="mt-1 block h-8 w-full rounded-md border bg-background px-2 text-sm"
+                placeholder="e.g. Will the pending matter resolve soon?"
+                data-testid="prasna-question"
+              />
+            </label>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={register}
+              data-testid="prasna-register"
+            >
+              Register this prasna
+            </Button>
+          </div>
+        )}
         <p className="mt-3 text-2xs text-muted-foreground">{DIRECTION_NOTE}</p>
       </div>
+
+      {/* Registered prasnas: confirmed later against what actually happened */}
+      {savedPrasnas.data && savedPrasnas.data.length > 0 && (
+        <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
+          <h3 className="text-base font-semibold">Registered prasnas</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Kept on this device. Mark the outcome when it is known, and the
+            rules can be checked against what actually happened.
+          </p>
+          <ul className="mt-3 space-y-2">
+            {savedPrasnas.data.map((p) => (
+              <li
+                key={p.id}
+                className="rounded-md border bg-background p-3"
+                data-testid={`prasna-saved-${p.id}`}
+              >
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span className="text-sm font-medium">
+                    {p.question || "—"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {p.arudhaSign} ·{" "}
+                    {new Date(p.askedAt).toLocaleString(undefined, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </span>
+                  <span
+                    className={cn(
+                      "ml-auto rounded px-1.5 py-0.5 text-2xs uppercase tracking-wide",
+                      OUTCOME_CLASS[p.outcome],
+                    )}
+                  >
+                    {p.outcome}
+                  </span>
+                </div>
+                <details className="mt-1.5">
+                  <summary className="cursor-pointer text-xs text-muted-foreground">
+                    Reading
+                  </summary>
+                  <pre className="mt-1 whitespace-pre-wrap text-xs leading-relaxed">
+                    {p.summary}
+                  </pre>
+                </details>
+                <div className="mt-2 flex flex-wrap items-center gap-1">
+                  {(["yes", "no", "partial"] as const).map((o) => (
+                    <button
+                      key={o}
+                      type="button"
+                      onClick={() => confirm(p.id, o)}
+                      className={cn(
+                        "rounded border px-2 py-0.5 text-xs",
+                        p.outcome === o
+                          ? "border-foreground bg-foreground text-background"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                      data-testid={`prasna-confirm-${o}-${p.id}`}
+                    >
+                      {o}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => void prasnaStore.remove(p.id)}
+                    className="ml-auto text-xs text-muted-foreground hover:text-verdict-bad"
+                  >
+                    delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Birth chart */}
       <section className="mt-6" aria-label="Birth chart">
