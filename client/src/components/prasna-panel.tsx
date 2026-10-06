@@ -4,7 +4,10 @@ import { SIGNS } from "@shared/astro";
 import {
   computePrasna,
   computePrasnaDispositions,
+  PRASNA_BHAVA_SIGNIFICATIONS,
   PRASNA_CAVEATS,
+  PRASNA_KARAKAS,
+  PRASNA_KARAKA_RULE,
   PRASNA_NODE_NOTE,
   type PrasnaHouseReading,
 } from "@shared/rules-prasna";
@@ -201,6 +204,45 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
           </div>
         )}
       </section>
+
+      {/* Reference: house significations and karakas */}
+      <details className="mt-6" data-testid="prasna-bhava-significations">
+        <summary className="cursor-pointer text-sm font-semibold">
+          What each house signifies
+        </summary>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Significations of the twelve bhavas (Prasna Marga 14.3–14).
+        </p>
+        <ul className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+          {PRASNA_BHAVA_SIGNIFICATIONS.map((b) => (
+            <li key={b.house} className="text-xs leading-relaxed">
+              <span className="font-medium">{ord(b.house)} house</span>{" "}
+              <span className="text-muted-foreground">· 14.{b.stanza}</span> —{" "}
+              {b.text}
+            </li>
+          ))}
+        </ul>
+      </details>
+
+      <details className="mt-3" data-testid="prasna-karakas">
+        <summary className="cursor-pointer text-sm font-semibold">
+          Karakas or significators
+        </summary>
+        <p className="mt-1 text-xs text-muted-foreground">
+          The planets' significations (Prasna Marga 14.31).
+        </p>
+        <ul className="mt-2 space-y-1.5">
+          {PRASNA_KARAKAS.map((k) => (
+            <li key={k.planet} className="text-xs leading-relaxed">
+              <PlanetName planet={k.planet} /> — {k.text}{" "}
+              <span className="text-muted-foreground">· 14.{k.stanza}</span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {PRASNA_KARAKA_RULE}
+        </p>
+      </details>
 
       <ul className="mt-4 space-y-1 text-2xs text-muted-foreground">
         {PRASNA_CAVEATS.map((c, i) => (

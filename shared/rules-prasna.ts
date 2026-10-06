@@ -303,3 +303,111 @@ export function computePrasnaDispositions(
 
 export const PRASNA_NODE_NOTE =
   "Rahu gives the results of the lord of the sign he occupies and of Saturn; Ketu, of the lord of the sign he occupies and of Mars (stanza 97). This is not yet entered.";
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// "Significations of Bhavas" (Chapter XIV, stanzas 3–14): what each of the twelve houses rules.
+// The source numbers the stanzas 3, 4, 5, 5, 7 … and "77" for the ninth; the sequence is restored
+// to 3–14 (one stanza per house, in order).
+
+export interface PrasnaBhavaSignification {
+  house: number; // 1..12
+  stanza: string;
+  text: string;
+}
+
+export const PRASNA_BHAVA_SIGNIFICATIONS: PrasnaBhavaSignification[] = [
+  {
+    house: 1,
+    stanza: "3",
+    text: "The body, shape, health, strength, welfare, fame, general happiness and success in all undertakings.",
+  },
+  {
+    house: 2,
+    stanza: "4",
+    text: "Family, wealth, speech, the right eye and all kinds of knowledge.",
+  },
+  {
+    house: 3,
+    stanza: "5",
+    text: "Courage, vitality, evil inclinations, brothers, the right ear and help.",
+  },
+  {
+    house: 4,
+    stanza: "6",
+    text: "Mother, relatives, uncle, nephew, house and property, happiness, vehicles, things to sit on, popularity, water, beds and cots, affluence, cattle and the house of birth.",
+  },
+  {
+    house: 5,
+    stanza: "7",
+    text: "Intelligence, prudence, memory, discrimination, merit earned in previous births, capacity to advise, ministers, children and the condition of the mind.",
+  },
+  {
+    house: 6,
+    stanza: "8",
+    text: "Thieves, enemies, obstacles, mental worries, diseases, wounds and death due to enemies or weapons.",
+  },
+  {
+    house: 7,
+    stanza: "9",
+    text: "Marriage, sexual instincts, wife or husband, relations with others, beds and cots, the wife's birthplace, lost or hidden things and sex relations.",
+  },
+  {
+    house: 8,
+    stanza: "10",
+    text: "Ruin of everything, dangers, evil repute, the cause and place of death, servants, outhouses, chronic diseases and obstructions.",
+  },
+  {
+    house: 9,
+    stanza: "11",
+    text: "Luck or fortune, righteousness, kindness, merit, spirituality, the father, grandchildren, charities, the spiritual quest, good conduct and preceptors.",
+  },
+  {
+    house: 10,
+    stanza: "12",
+    text: "Places of worship, towns, council halls, wayside inns, servants, all actions, the power to command and service under others.",
+  },
+  {
+    house: 11,
+    stanza: "13",
+    text: "The gain of everything desired, the elder brother, sons already born, the left ear and monetary gains.",
+  },
+  {
+    house: 12,
+    stanza: "14",
+    text: "Sinful actions, expenses, breaks and falls, the left eye, loss of position or profession, and bodily injuries.",
+  },
+];
+
+// "Karakas or Significators" (Chapter XIV, stanzas 31–32): the planets' significations, and how
+// their strength makes those results appear or vanish.
+
+export interface PrasnaKaraka {
+  planet: Planet;
+  stanza: string;
+  text: string;
+}
+
+export const PRASNA_KARAKAS: PrasnaKaraka[] = [
+  { planet: "Sun", stanza: "31", text: "The father and spiritual influence." },
+  { planet: "Moon", stanza: "31", text: "The mother and the mind." },
+  { planet: "Mars", stanza: "31", text: "Brothers, landed property and courage." },
+  { planet: "Mercury", stanza: "31", text: "Speech and knowledge." },
+  {
+    planet: "Jupiter",
+    stanza: "31",
+    text: "Intelligence, children, wisdom and bodily health.",
+  },
+  {
+    planet: "Venus",
+    stanza: "31",
+    text: "Vehicles, the wife and sense-pleasures.",
+  },
+  {
+    planet: "Saturn",
+    stanza: "31",
+    text: "Death, diseases, sorrow, servants and followers.",
+  },
+];
+
+export const PRASNA_KARAKA_RULE =
+  "If the karakas are strong, the matters they signify are seen predominantly; if weak, only in name. Saturn is the reverse: strong, he lessens misery and disease; weak, he brings them in abundance (14.32).";
