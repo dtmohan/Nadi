@@ -13,6 +13,7 @@ import {
 } from "@shared/synthesis";
 import { computeGochara, type GocharaVerdict } from "@shared/gochara";
 import { Soft } from "@/lib/gentle";
+import { useT } from "@/lib/i18n";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { cn } from "@/lib/utils";
 
@@ -72,6 +73,7 @@ function glanceSentence(areas: AreaSynthesis[]): string {
  * else on the page is the working behind these lines.
  */
 export function OverviewPanel({ result }: { result: ChartResult }) {
+  const t = useT();
   const { reading, chart, now, positions } = result;
   const gender = chart.gender as Gender;
   const moon = positions.find((p) => p.planet === "Moon")!;
@@ -105,15 +107,15 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
           ? "in moolatrikona"
           : d.toLowerCase();
   const noteParts: string[] = [];
-  if (retro.length) noteParts.push(`${joinList(retro)} retrograde`);
+  if (retro.length) noteParts.push(`${joinList(retro)} ${t("retrograde")}`);
   for (const s of reading.strength) {
     if (NOTABLE_DIGNITY.has(s.effectiveDignity)) {
-      noteParts.push(`${s.planet} ${dignityPhrase(s.effectiveDignity)}`);
+      noteParts.push(`${s.planet} ${t(dignityPhrase(s.effectiveDignity))}`);
     } else if (
       NOTABLE_DIGNITY.has(s.dignity) &&
       s.dignity !== s.effectiveDignity
     ) {
-      noteParts.push(`${s.planet} ${dignityPhrase(s.dignity)} (set aside)`);
+      noteParts.push(`${s.planet} ${t(dignityPhrase(s.dignity))} ${t("(set aside)")}`);
     }
   }
 
@@ -175,7 +177,7 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
       {/* Identity and the glance sentence */}
       <div className="rounded-lg border bg-card p-5 sm:p-6">
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          Overview · the chart in a minute
+          {t("Overview · the chart in a minute")}
         </p>
         <h2
           className="font-display mt-2 max-w-[40ch] text-xl font-semibold leading-snug"
@@ -187,31 +189,31 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
           className="mt-2 text-sm text-muted-foreground"
           data-testid="overview-identity"
         >
-          {deceased ? "Read at age " : "Age "}
+          {deceased ? t("Read at age ") : t("Age ")}
           {Math.floor(age)}
         </p>
         <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
-              Rising
+              {t("Rising")}
             </dt>
             <dd className="text-sm font-medium">{rising}</dd>
           </div>
           <div>
             <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
-              Sun
+              {t("Sun")}
             </dt>
             <dd className="text-sm font-medium">{sun.sign}</dd>
           </div>
           <div>
             <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
-              Moon
+              {t("Moon")}
             </dt>
             <dd className="text-sm font-medium">{moon.sign}</dd>
           </div>
           <div>
             <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
-              Birth star
+              {t("Birth star")}
             </dt>
             <dd className="text-sm font-medium">
               {moon.nakshatra} · {moon.nakshatraLord}, p{moon.pada}
@@ -235,10 +237,10 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
                 data-testid="overview-firm"
               >
                 <p className="text-2xs font-semibold uppercase tracking-wide text-verdict-good">
-                  Firm ground
+                  {t("Firm ground")}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed">
-                  {joinList(firm.map((a) => areaNoun(a.area)))}
+                  {joinList(firm.map((a) => t(areaNoun(a.area))))}
                 </p>
               </div>
             )}
@@ -248,10 +250,10 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
                 data-testid="overview-watch"
               >
                 <p className="text-2xs font-semibold uppercase tracking-wide text-verdict-bad">
-                  Asks for care
+                  {t("Asks for care")}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed">
-                  {joinList(watch.map((a) => areaNoun(a.area)))}
+                  {joinList(watch.map((a) => t(areaNoun(a.area))))}
                 </p>
               </div>
             )}
@@ -269,14 +271,16 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
             data-tone={a.tone}
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="text-sm font-semibold">{areaNoun(a.area)}</span>
+              <span className="text-sm font-semibold">
+                {t(areaNoun(a.area))}
+              </span>
               <span
                 className={cn(
                   "rounded border px-1.5 py-0.5 text-2xs uppercase tracking-wide",
                   TONE_CLASS[a.tone],
                 )}
               >
-                {AREA_TONE_LABEL[a.tone]}
+                {t(AREA_TONE_LABEL[a.tone])}
               </span>
             </div>
             <p className="mt-1.5 text-xs leading-relaxed text-foreground/90">
@@ -287,7 +291,7 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
       </ul>
       {deferred.length > 0 && (
         <p className="mt-3 text-xs text-muted-foreground">
-          {joinList(deferred.map((a) => areaNoun(a.area)))} is held back for
+          {joinList(deferred.map((a) => t(areaNoun(a.area))))} is held back for
           later: {deferred.length === 1 ? "it is" : "they are"} not a present
           matter at this age.
         </p>
@@ -296,29 +300,29 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
       {/* What is running now */}
       <div className="mt-4 rounded-lg border bg-card p-5 sm:p-6">
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          {deceased ? "At passing" : "Right now"}
+          {deceased ? t("At passing") : t("Right now")}
         </p>
         <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
           <div className="flex items-baseline gap-2">
-            <dt className="shrink-0 text-muted-foreground">Period</dt>
+            <dt className="shrink-0 text-muted-foreground">{t("Period")}</dt>
             <dd className="text-sm">
               <span className="flex flex-wrap items-baseline gap-x-1.5">
                 <PlanetName planet={vim.current.dasa.lord} />
-                <span className="text-muted-foreground">dasa ·</span>
+                <span className="text-muted-foreground">{t("dasa")} ·</span>
                 <PlanetName planet={vim.current.bhukti.lord} />
-                <span className="text-muted-foreground">bhukti</span>
+                <span className="text-muted-foreground">{t("bhukti")}</span>
               </span>
               <span className="mt-0.5 block text-xs text-muted-foreground tabular">
-                bhukti to{" "}
+                {t("bhukti")} to{" "}
                 {DateTime.fromISO(vim.current.bhukti.end).toFormat("LLL yyyy")} ·
-                dasa to {DateTime.fromISO(vim.current.dasa.end).toFormat("LLL yyyy")}
+                {t("dasa")} to {DateTime.fromISO(vim.current.dasa.end).toFormat("LLL yyyy")}
                 {nextDasa ? ` · then ${nextDasa.lord} dasa` : ""}
               </span>
             </dd>
           </div>
           {!deceased && nextIngress && (
             <div className="flex items-baseline gap-2">
-              <dt className="shrink-0 text-muted-foreground">Next</dt>
+              <dt className="shrink-0 text-muted-foreground">{t("Next")}</dt>
               <dd className="text-foreground">
                 {nextIngress.planet} enters {nextIngress.sign} in{" "}
                 {DateTime.fromISO(nextIngress.start).toFormat("LLL yyyy")}

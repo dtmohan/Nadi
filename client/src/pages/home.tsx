@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useT, LanguageToggle } from "@/lib/i18n";
 import {
   AYANAMSAS,
   SUNRISE_DEFINITIONS,
@@ -81,6 +82,7 @@ function ChartCard({
   chart: Chart;
   onDelete: () => void;
 }) {
+  const t = useT();
   const { id, ...body } = chart;
   const summary = useQuery<ChartSummary>({
     queryKey: [
@@ -130,7 +132,7 @@ function ChartCard({
             </span>
             {age !== null && (
               <span className="shrink-0 text-xs text-muted-foreground tabular">
-                age {age}
+                {t("age")} {age}
               </span>
             )}
           </div>
@@ -161,13 +163,13 @@ function ChartCard({
             >
               <div className="flex items-baseline gap-2">
                 <dt className="w-14 shrink-0 text-2xs uppercase tracking-wide text-muted-foreground">
-                  Rising
+                  {t("Rising")}
                 </dt>
                 <dd>{SIGNS[s.lagnaIdx]}</dd>
               </div>
               <div className="flex items-baseline gap-2">
                 <dt className="w-14 shrink-0 text-2xs uppercase tracking-wide text-muted-foreground">
-                  Period
+                  {t("Period")}
                 </dt>
                 <dd className="flex flex-wrap items-baseline gap-x-1.5">
                   <PlanetName planet={s.dasa.lord} />
@@ -181,7 +183,7 @@ function ChartCard({
               </div>
               <div className="flex items-baseline gap-2">
                 <dt className="w-14 shrink-0 text-2xs uppercase tracking-wide text-muted-foreground">
-                  Today
+                  {t("Today")}
                 </dt>
                 <dd className="text-muted-foreground">
                   Jupiter in {SIGNS[s.transit.jupiter]}
@@ -221,6 +223,7 @@ function ChartCard({
 export default function Home() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const t = useT();
   const [form, setForm] = useState<InsertChart>(EMPTY);
   const set = <K extends keyof InsertChart>(k: K, v: InsertChart[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -332,6 +335,9 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 md:px-10 md:py-12">
+      <div className="mb-6 flex justify-end">
+        <LanguageToggle />
+      </div>
       {charts?.length === 0 && (
         <section
           className="mb-10 rounded-md border bg-muted/30 p-4"
@@ -339,7 +345,7 @@ export default function Home() {
           aria-labelledby="start-heading"
         >
           <h2 id="start-heading" className="text-lg font-semibold">
-            Start here
+            {t("Start here")}
           </h2>
           <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm text-muted-foreground">
             <li>
@@ -381,11 +387,12 @@ export default function Home() {
             id="cast-heading"
             className="font-display text-xl font-bold tracking-tight"
           >
-            Cast a chart
+            {t("Cast a chart")}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Sidereal positions from the Swiss Ephemeris. No lagna is needed:
-            Nadi reads the planets by sign alone.
+            {t(
+              "Sidereal positions from the Swiss Ephemeris. No lagna is needed: Nadi reads the planets by sign alone.",
+            )}
           </p>
 
           <form
@@ -397,12 +404,12 @@ export default function Home() {
           >
             <div className="grid gap-4 sm:grid-cols-[1fr_9rem]">
               <div className="space-y-1.5">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t("Name")}</Label>
                 <Input
                   id="name"
                   value={form.name}
                   onChange={(e) => set("name", e.target.value)}
-                  placeholder="Who is this chart for?"
+                  placeholder={t("Who is this chart for?")}
                   data-testid="input-name"
                 />
               </div>
@@ -411,7 +418,7 @@ export default function Home() {
                   htmlFor="gender"
                   title="Female charts are read with Venus as the native and Mars as the husband (Rao). Unspecified reads as male."
                 >
-                  Gender
+                  {t("Gender")}
                 </Label>
                 <Select
                   value={form.gender}
@@ -421,9 +428,9 @@ export default function Home() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="unspecified">Unspecified</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="unspecified">{t("Unspecified")}</SelectItem>
+                    <SelectItem value="female">{t("Female")}</SelectItem>
+                    <SelectItem value="male">{t("Male")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -431,7 +438,7 @@ export default function Home() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="date">Date of birth</Label>
+                <Label htmlFor="date">{t("Date of birth")}</Label>
                 <Input
                   id="date"
                   type="date"
@@ -442,7 +449,7 @@ export default function Home() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="time">Local time</Label>
+                <Label htmlFor="time">{t("Local time")}</Label>
                 <Input
                   id="time"
                   type="time"
@@ -458,9 +465,9 @@ export default function Home() {
                 htmlFor="death-date"
                 title="Optional. Fixes the age the readings use and lets the lifespan methods be checked against a life that has run its course. Never used to compute or show a forecast."
               >
-                Date of passing{" "}
+                {t("Date of passing")}{" "}
                 <span className="font-normal text-muted-foreground">
-                  (optional)
+                  {t("(optional)")}
                 </span>
               </Label>
               <Input
@@ -475,7 +482,7 @@ export default function Home() {
             </div>
 
             <div className="space-y-1.5">
-              <Label htmlFor="place">Place of birth</Label>
+              <Label htmlFor="place">{t("Place of birth")}</Label>
               <PlaceSearch
                 value={form.place}
                 onPick={(h) =>
@@ -503,11 +510,11 @@ export default function Home() {
 
             <details className="group rounded-md border border-card-border">
               <summary className="cursor-pointer select-none px-3 py-2 text-sm font-medium text-muted-foreground">
-                Ayanamsa, nodes & time standard
+                {t("Ayanamsa, nodes & time standard")}
               </summary>
               <div className="grid gap-4 border-t border-card-border p-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="ayanamsa">Ayanamsa</Label>
+                  <Label htmlFor="ayanamsa">{t("Ayanamsa")}</Label>
                   <Select
                     value={form.ayanamsa}
                     onValueChange={(v) => set("ayanamsa", v)}
@@ -525,7 +532,7 @@ export default function Home() {
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="node">Rahu / Ketu</Label>
+                  <Label htmlFor="node">{t("Rahu / Ketu")}</Label>
                   <Select
                     value={form.nodeType}
                     onValueChange={(v) => set("nodeType", v)}
@@ -534,13 +541,13 @@ export default function Home() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="mean">Mean node</SelectItem>
-                      <SelectItem value="true">True node</SelectItem>
+                      <SelectItem value="mean">{t("Mean node")}</SelectItem>
+                      <SelectItem value="true">{t("True node")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="sunrise">Sunrise</Label>
+                  <Label htmlFor="sunrise">{t("Sunrise")}</Label>
                   <Select
                     value={form.sunriseDef}
                     onValueChange={(v) => set("sunriseDef", v)}
@@ -562,7 +569,7 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="tz">Time zone</Label>
+                  <Label htmlFor="tz">{t("Time zone")}</Label>
                   <Input
                     id="tz"
                     value={form.timezone}
@@ -572,7 +579,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="tstd">Time standard</Label>
+                  <Label htmlFor="tstd">{t("Time standard")}</Label>
                   <Select
                     value={standardMode}
                     onValueChange={(v) =>
@@ -640,7 +647,7 @@ export default function Home() {
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1.5">
-                    <Label htmlFor="lat">Latitude</Label>
+                    <Label htmlFor="lat">{t("Latitude")}</Label>
                     <Input
                       id="lat"
                       type="number"
@@ -652,7 +659,7 @@ export default function Home() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="lon">Longitude</Label>
+                    <Label htmlFor="lon">{t("Longitude")}</Label>
                     <Input
                       id="lon"
                       type="number"
@@ -678,7 +685,7 @@ export default function Home() {
               ) : (
                 <ArrowRight />
               )}
-              Cast and read
+              {t("Cast and read")}
             </Button>
           </form>
         </section>
@@ -686,7 +693,7 @@ export default function Home() {
         <section aria-labelledby="recent-heading" className="min-w-0">
           <div className="flex items-baseline justify-between">
             <h2 id="recent-heading" className="text-lg font-semibold">
-              Saved charts
+              {t("Saved charts")}
             </h2>
             <div className="flex items-center gap-1">
               {charts && charts.length > 0 && (
@@ -702,7 +709,7 @@ export default function Home() {
                 title="Import charts from a backup file"
               >
                 <Upload className="h-4 w-4" />
-                Import
+                {t("Import")}
               </Button>
               <Button
                 variant="ghost"
@@ -713,7 +720,7 @@ export default function Home() {
                 title="Download every saved chart as a backup file"
               >
                 <Download className="h-4 w-4" />
-                Export
+                {t("Export")}
               </Button>
               <input
                 ref={fileInput}
@@ -747,7 +754,7 @@ export default function Home() {
 
           {charts && charts.length === 0 && (
             <div className="mt-4 rounded-md border border-dashed border-border p-6 text-sm text-muted-foreground">
-              <p>No charts saved yet.</p>
+              <p>{t("No charts saved yet.")}</p>
               <p className="mt-2">
                 Once you cast one, you will see Jupiter as the Jeeva karaka (the
                 native), Saturn as the Karma karaka (the profession), and how

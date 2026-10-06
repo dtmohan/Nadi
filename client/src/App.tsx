@@ -5,6 +5,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReadingModeProvider } from "@/lib/reading-mode";
+import { LocaleProvider, LanguageToggle } from "@/lib/i18n";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme";
@@ -40,6 +41,7 @@ function App() {
       <ThemeProvider>
         <TooltipProvider>
           <ReadingModeProvider>
+            <LocaleProvider>
             <ChartFocusProvider>
               <Router hook={useHashLocation}>
                 <SidebarProvider
@@ -54,6 +56,7 @@ function App() {
                         <span className="font-display text-base font-bold">
                           Nadi
                         </span>
+                        <LanguageToggle className="ml-auto" />
                       </header>
                       <main className="min-h-0 flex-1 overflow-y-auto [overscroll-behavior:contain]">
                         <AppRouter />
@@ -64,6 +67,7 @@ function App() {
               </Router>
               <Toaster />
             </ChartFocusProvider>
+            </LocaleProvider>
           </ReadingModeProvider>
         </TooltipProvider>
       </ThemeProvider>
