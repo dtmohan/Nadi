@@ -493,7 +493,7 @@ test("Sarvartha Chintamani 1.25-27 Amsha tiers and 2-8 house significations", ()
 });
 
 test("Sarvartha Chintamani 2-3 bhava phala rules", () => {
-  assert.equal(SC_BHAVA_RULES.length, 2);
+  assert.equal(SC_BHAVA_RULES.length, 4);
   for (const h of SC_BHAVA_RULES) {
     assert.ok(h.rules.length >= 20, `house ${h.house} has enough rules`);
     for (const r of h.rules) {
@@ -506,4 +506,9 @@ test("Sarvartha Chintamani 2-3 bhava phala rules", () => {
   assert.ok(h2.find((r) => r.stanza === 24)?.then.includes("innumerable"));
   const h1 = SC_BHAVA_RULES[0].rules; // 1st house
   assert.ok(h1.find((r) => r.stanza === 89)?.then.includes("consumption"));
+  const h3 = SC_BHAVA_RULES[2].rules; // 3rd house
+  assert.ok(h3.find((r) => r.stanza === 31)?.then.includes("patient, brave and learned"));
+  const h4 = SC_BHAVA_RULES[3].rules; // 4th house
+  assert.ok(h4.find((r) => r.stanza === 89)?.then.includes("costly house"));
+  assert.ok(h4.find((r) => r.stanza === 168)?.then.includes("foreign land"));
 });
