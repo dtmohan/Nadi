@@ -120,7 +120,7 @@ export interface ChartResult {
   positions: PlanetPosition[];
   reading: Reading;
   transits: TransitPeriod[];
-  now: { positions: PlanetPosition[]; asOf: string };
+  now: { positions: PlanetPosition[]; asOf: string; lagnaLon?: number };
   /** Jaimini module: ascendant-based, kept separate from the BNN reading. */
   jaimini: JaiminiResult;
   /** Krishnamurti Paddhati base data (KP ayanamsa, Placidus cusps); the reading is derived in the client. */

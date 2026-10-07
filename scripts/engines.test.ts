@@ -27,6 +27,7 @@ import {
   computeProgeny,
   computeSantanaTrisphuta,
   computeSphutas,
+  computeChatraRasi,
   rasiAgreement,
   timeSphutasFromGhatis,
 } from "@shared/rules-prasna";
@@ -325,4 +326,11 @@ test("Prasna Marga 5.20-23 worked example: time-based sphutas", () => {
   near(s.pranasphutaAlt, 308.4, "Pranasphuta alt (Aquarius 8°24')");
   near(s.mrityusphutaAlt, 270.3, "Mrityusphuta alt (Capricorn 0°18')");
   near(s.kalasphuta, 30.3, "Kalasphuta (Taurus 0°18')");
+});
+
+test("Prasna Marga 8.1 worked example: Chatra Rasi", () => {
+  // Arudha Vrishabha (Taurus=1), Lagna Simha (Leo=4), Sun in Mesha (Aries=0) → Chatra = Simha (Leo=4).
+  assert.equal(computeChatraRasi(0, 1, 4), 4);
+  // Sun in Scorpio → Veethi Gemini; Arudha Aries, Lagna Cancer (count 4) → Virgo.
+  assert.equal(computeChatraRasi(7, 0, 3), 5);
 });

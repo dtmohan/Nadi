@@ -981,3 +981,100 @@ export function timeSphutasFromGhatis(
     kalasphuta: norm(Y - off),
   };
 }
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// "Effects of Arudha" (Ch. VIII, stanzas 1-6): the prasna is read from six rasis (Arudha, Lagna,
+// Navamsa Lagna, Chatra, Sprishtanga, Jaama). Sprishtanga (the organ touched) and Jaama are not
+// available to the app; Arudha, Lagna and Chatra are. The organ each sign governs follows
+// Varahamihira (8.1 note); an afflicted Arudha or Lagna points disease at that organ (8.3).
+
+export const PRASNA_BODY_PARTS: string[] = [
+  "the head", "the face", "the chest", "the heart", "the belly", "the waist",
+  "the abdomen", "the sex organs", "the thighs", "the knees", "the buttocks", "the feet",
+];
+
+/** Chatra Rasi (8.1 note): count from the Arudha to the Lagna, then mark the same from the
+ * Veethi Rasi, which the Sun's sign fixes (Taurus/Gemini/Cancer/Leo → Aries; Scorpio/Sagittarius/
+ * Capricorn/Aquarius → Gemini; Virgo/Libra/Pisces/Aries → Taurus). */
+export function computeChatraRasi(
+  sunSign: number,
+  arudhaIdx: number,
+  lagnaIdx: number,
+): number {
+  const veethi = [1, 2, 3, 4].includes(sunSign) ? 0 : [7, 8, 9, 10].includes(sunSign) ? 2 : 1;
+  const count = houseFrom(arudhaIdx, lagnaIdx); // 1..12, inclusive
+  return (veethi + count - 1) % 12;
+}
+
+export type ArudhaVerdict = "fortunate" | "danger" | "mixed";
+
+export interface PrasnaArudhaReading {
+  arudhaPart: string;
+  lagnaPart: string;
+  arudhaAfflicted: boolean;
+  lagnaAfflicted: boolean;
+  chatraSign: number;
+  verdict: ArudhaVerdict;
+  note: string;
+  source: string;
+}
+
+/** Read the Arudha for a query (8.1-6): the organs at risk, the Chatra Rasi, and the fortune or
+ * danger verdict from the lords' strength (8.6). The 6th/8th/9th/12th are counted from the Lagna. */
+export function computeArudhaReading(
+  positions: PlanetPosition[],
+  sunSign: number,
+  arudhaIdx: number,
+  lagnaIdx: number,
+): PrasnaArudhaReading {
+  const maleficIn = (signIdx: number) =>
+    positions.some((p) => p.signIndex === signIdx && !naturalBenefic(p, positions));
+  const arudhaAfflicted = maleficIn(arudhaIdx);
+  const lagnaAfflicted = maleficIn(lagnaIdx);
+
+  const lordStrong = (signIdx: number): boolean | null => {
+    const p = positions.find((x) => x.planet === SIGN_LORD[signIdx]);
+    return p ? !PRASNA_WEAK.has(p.dignity) : null;
+  };
+  const arudhaLord = lordStrong(arudhaIdx);
+  const eighth = lordStrong((lagnaIdx + 7) % 12);
+  const ninth = lordStrong((lagnaIdx + 8) % 12);
+  const sixth = lordStrong((lagnaIdx + 5) % 12);
+  const twelfth = lordStrong((lagnaIdx + 11) % 12);
+
+  const danger = arudhaLord === false && eighth === true;
+  const fortune =
+    arudhaLord === true &&
+    ninth === true &&
+    sixth === false &&
+    eighth === false &&
+    twelfth === false;
+  const verdict: ArudhaVerdict = danger ? "danger" : fortune ? "fortunate" : "mixed";
+
+  const notes: string[] = [];
+  if (arudhaAfflicted || lagnaAfflicted) {
+    const seats = [
+      arudhaAfflicted ? PRASNA_BODY_PARTS[arudhaIdx] : null,
+      lagnaAfflicted ? PRASNA_BODY_PARTS[lagnaIdx] : null,
+    ].filter(Boolean);
+    notes.push(`an afflicted ${seats.length === 1 ? seats[0] : "seat of " + seats.join(" and ")} points disease or a wound there (8.3)`);
+  }
+  notes.push(
+    verdict === "fortunate"
+      ? "the lords of the Arudha and 9th are strong and the 6th, 8th and 12th are weak — an influx of fortune (8.6)"
+      : verdict === "danger"
+        ? "the lord of the Arudha is weak and the lord of the 8th is strong — beset on all sides by danger (8.6)"
+        : "the Arudha lords do not clearly show fortune or danger (8.6)",
+  );
+
+  return {
+    arudhaPart: PRASNA_BODY_PARTS[arudhaIdx],
+    lagnaPart: PRASNA_BODY_PARTS[lagnaIdx],
+    arudhaAfflicted,
+    lagnaAfflicted,
+    chatraSign: computeChatraRasi(sunSign, arudhaIdx, lagnaIdx),
+    verdict,
+    note: notes.join(" · "),
+    source: "Prasna Marga 8.1-6",
+  };
+}

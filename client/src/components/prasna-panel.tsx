@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { ChartResult } from "@shared/schema";
 import { NAKSHATRAS, SIGNS } from "@shared/astro";
 import {
+  computeArudhaReading,
   computeGulikaReading,
   computePrasna,
   computePrasnaDispositions,
@@ -18,6 +19,7 @@ import {
   PRASNA_KARAKAS,
   PRASNA_KARAKA_RULE,
   PRASNA_NODE_NOTE,
+  type ArudhaVerdict,
   type PrasnaBhavaVerdict,
   type PrasnaHouseReading,
   type PrasnaSphutaVerdict,
@@ -71,6 +73,12 @@ const RASI_CLASS: Record<RasiVerdict, string> = {
   good: "border border-verdict-good/40 text-verdict-good",
   moderate: "border border-verdict-mixed/40 text-verdict-mixed",
   bad: "border border-verdict-bad/40 text-verdict-bad",
+};
+
+const ARUDHA_CLASS: Record<ArudhaVerdict, string> = {
+  fortunate: "border border-verdict-good/40 text-verdict-good",
+  mixed: "border border-verdict-mixed/40 text-verdict-mixed",
+  danger: "border border-verdict-bad/40 text-verdict-bad",
 };
 
 /** The eight directions and the signs each holds (Prasna Marga 2.7–9). */
@@ -200,6 +208,12 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
     () => (arudhaIdx === null ? null : computePrasna(now.positions, arudhaIdx)),
     [now.positions, arudhaIdx],
   );
+  const arudhaReading = useMemo(() => {
+    if (arudhaIdx === null || now.lagnaLon === undefined) return null;
+    const sunSign = now.positions.find((p) => p.planet === "Sun")!.signIndex;
+    const nowLagna = Math.floor(now.lagnaLon / 30);
+    return computeArudhaReading(now.positions, sunSign, arudhaIdx, nowLagna);
+  }, [now.positions, now.lagnaLon, arudhaIdx]);
 
   const register = () => {
     if (arudhaIdx === null || !prasna) return;
@@ -272,6 +286,35 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               />
               <HouseEffectsList readings={prasna} />
             </div>
+            {arudhaReading && (
+              <div
+                className="mt-3 rounded-md border bg-card p-3"
+                data-testid="prasna-arudha-reading"
+                data-verdict={arudhaReading.verdict}
+              >
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span className="text-sm font-medium">Effects of Arudha</span>
+                  <span
+                    className={cn(
+                      "rounded px-1.5 py-0.5 text-2xs uppercase tracking-wide",
+                      ARUDHA_CLASS[arudhaReading.verdict],
+                    )}
+                  >
+                    {arudhaReading.verdict}
+                  </span>
+                  <span className="ml-auto text-2xs text-muted-foreground">
+                    {arudhaReading.source}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground tabular">
+                  Arudha governs {arudhaReading.arudhaPart} · lagna governs{" "}
+                  {arudhaReading.lagnaPart} · Chatra {SIGNS[arudhaReading.chatraSign]}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-foreground/90">
+                  <Soft>{arudhaReading.note}</Soft>
+                </p>
+              </div>
+            )}
           </div>
         )}
         {arudhaIdx === null && (

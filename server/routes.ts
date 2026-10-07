@@ -148,7 +148,11 @@ export function computeChart(chart: Chart): ChartResult {
     positions,
     reading,
     transits,
-    now: { positions: positionsAt(nj, opts), asOf: DateTime.utc().toISO()! },
+    now: {
+      positions: positionsAt(nj, opts),
+      asOf: DateTime.utc().toISO()!,
+      lagnaLon: ascendantAt(nj, chart.latitude, chart.longitude, opts),
+    },
     jaimini,
     kp: kpBase(jd, chart.latitude, chart.longitude, zone, opts.nodeType),
     shadbala: shadbalaBase(jd, chart.latitude, chart.longitude, opts),
