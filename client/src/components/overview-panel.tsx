@@ -141,6 +141,9 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
     dasaIdx >= 0 && dasaIdx < vim.dasas.length - 1
       ? vim.dasas[dasaIdx + 1]
       : undefined;
+  // A chart read after its 120-year Vimshottari sequence has ended (no date of death recorded).
+  const pastEnd =
+    !deceased && lifeAt >= vim.dasas[vim.dasas.length - 1].end;
 
   // Transits read against the natal Moon (Phaladeepika 26.1 names it the chief lagna for gochara).
   const gochara = useMemo(
@@ -300,24 +303,32 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
       {/* What is running now */}
       <div className="mt-4 rounded-lg border bg-card p-5 sm:p-6">
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          {deceased ? t("At passing") : t("Right now")}
+          {deceased ? t("At passing") : pastEnd ? t("Past the periods") : t("Right now")}
         </p>
         <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
           <div className="flex items-baseline gap-2">
             <dt className="shrink-0 text-muted-foreground">{t("Period")}</dt>
             <dd className="text-sm">
-              <span className="flex flex-wrap items-baseline gap-x-1.5">
-                <PlanetName planet={vim.current.dasa.lord} />
-                <span className="text-muted-foreground">{t("dasa")} ·</span>
-                <PlanetName planet={vim.current.bhukti.lord} />
-                <span className="text-muted-foreground">{t("bhukti")}</span>
-              </span>
-              <span className="mt-0.5 block text-xs text-muted-foreground tabular">
-                {t("bhukti")} to{" "}
-                {DateTime.fromISO(vim.current.bhukti.end).toFormat("LLL yyyy")} ·
-                {t("dasa")} to {DateTime.fromISO(vim.current.dasa.end).toFormat("LLL yyyy")}
-                {nextDasa ? ` · then ${nextDasa.lord} dasa` : ""}
-              </span>
+              {pastEnd ? (
+                <span className="text-muted-foreground">
+                  the 120-year Vimshottari sequence has run its course
+                </span>
+              ) : (
+                <>
+                  <span className="flex flex-wrap items-baseline gap-x-1.5">
+                    <PlanetName planet={vim.current.dasa.lord} />
+                    <span className="text-muted-foreground">{t("dasa")} ·</span>
+                    <PlanetName planet={vim.current.bhukti.lord} />
+                    <span className="text-muted-foreground">{t("bhukti")}</span>
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground tabular">
+                    {t("bhukti")} to{" "}
+                    {DateTime.fromISO(vim.current.bhukti.end).toFormat("LLL yyyy")} ·
+                    {t("dasa")} to {DateTime.fromISO(vim.current.dasa.end).toFormat("LLL yyyy")}
+                    {nextDasa ? ` · then ${nextDasa.lord} dasa` : ""}
+                  </span>
+                </>
+              )}
             </dd>
           </div>
           {!deceased && nextIngress && (

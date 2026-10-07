@@ -111,6 +111,20 @@ function housesSection(
         tone: f.tone,
       });
     }
+    // Length of life is read by several verses (19.1-15) that can point both ways on one chart;
+    // say so once, so "long life" beside "20 to 32 years" is read as the text's views, not a sum.
+    if (
+      b.house === 8 &&
+      fs.some((f) => f.tone === "support") &&
+      fs.some((f) => f.tone === "strain" || f.tone === "mixed")
+    ) {
+      ps.push({
+        kind: "note",
+        text: S(
+          "Parashara's length-of-life verses may read both ways on one chart; 19.7 leaves the decision to planetary strength, so the readings above are views of the text, not a contradiction.",
+        ),
+      });
+    }
     const j = par.bhavaJudgement.find((x) => x.house === b.house);
     if (j && j.tone !== "none") {
       const c = cite(j);

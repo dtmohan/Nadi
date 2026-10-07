@@ -61,6 +61,7 @@ const ML: Record<string, string> = {
   "Asks for care": "ശ്രദ്ധ വേണ്ടത്",
   "Right now": "ഇപ്പോൾ",
   "At passing": "വിയോഗ സമയത്ത്",
+  "Past the periods": "ദശാകാലം കഴിഞ്ഞു",
   Period: "ദശ",
   Next: "അടുത്തത്",
   dasa: "ദശ",
