@@ -117,6 +117,7 @@ import { SudarshanaSection } from "@/components/sudarshana";
 import { compareSudarshanaEvents } from "@shared/sudarshana-events";
 import { computePortions } from "@shared/portions";
 import { PortionsSection } from "@/components/portions";
+import { SarvarthaSection } from "@/components/sarvartha-section";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
@@ -1336,6 +1337,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         </p>
       )}
       <AvasthasSection a={r.avasthas} />
+      <SarvarthaSection />
     </div>
   );
 }
