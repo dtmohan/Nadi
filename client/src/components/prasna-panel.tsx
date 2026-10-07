@@ -40,6 +40,7 @@ import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Soft } from "@/lib/gentle";
 import { redactProse } from "@shared/life-stage";
 import { computeKootas } from "@shared/prasna-kootas";
+import { PRASNA_DISEASE_REMEDIES, PRASNA_DISEASE_NOTES } from "@shared/prasna-diseases";
 import { ModeText, SectionTitle } from "@/components/mode-text";
 import { Button } from "@/components/ui/button";
 import {
@@ -907,6 +908,36 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               <span className="text-muted-foreground">· 14.{b.stanza}</span> —{" "}
               {b.text}
             </li>
+          ))}
+        </ul>
+      </details>
+
+      <details className="mt-3" data-testid="prasna-diseases">
+        <summary className="cursor-pointer text-sm font-semibold">
+          Diseases, their causes and remedies
+        </summary>
+        <p className="mt-1 text-xs text-muted-foreground">
+          The Karma Vipaka table (Prasna Marga 23.2–37): for each disease, the
+          past-life act it names as cause and the remedy. Reference, not a
+          diagnosis.
+        </p>
+        <ul className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+          {PRASNA_DISEASE_REMEDIES.map((d) => (
+            <li
+              key={d.disease}
+              className="text-xs leading-relaxed"
+              data-testid={`prasna-disease-${d.disease.toLowerCase().replace(/\s+/g, "-")}`}
+            >
+              <span className="font-medium">{d.disease}</span>{" "}
+              <span className="text-muted-foreground">— {d.cause}.</span>{" "}
+              <Soft>{d.remedy}.</Soft>{" "}
+              <span className="text-muted-foreground">({d.source})</span>
+            </li>
+          ))}
+        </ul>
+        <ul className="mt-2 space-y-0.5 text-2xs text-muted-foreground">
+          {PRASNA_DISEASE_NOTES.map((n, i) => (
+            <li key={i}>{n}</li>
           ))}
         </ul>
       </details>
