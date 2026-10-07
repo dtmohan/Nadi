@@ -40,6 +40,7 @@ import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Soft } from "@/lib/gentle";
 import { redactProse } from "@shared/life-stage";
 import { computeKootas } from "@shared/prasna-kootas";
+import { ModeText, SectionTitle } from "@/components/mode-text";
 import { Button } from "@/components/ui/button";
 import {
   prasnaStore,
@@ -387,10 +388,11 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
 
       {/* Prasna (query) */}
       <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
-        <h3 className="text-base font-semibold">Cast a prasna</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Read the current sky from an Arudha lagna.
-        </p>
+        <SectionTitle plain="Cast a prasna" technical="Prasna kriya" as="h3" />
+        <ModeText
+          plain="Ask a question and read the sky now, from an Arudha lagna cast with shells."
+          practitioner="The query is read from an Arudha lagna (4.51-55), with the planets as they stand now, the house effects (14.50-65) and Gulika read from it."
+        />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button
             size="sm"
@@ -612,11 +614,11 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
 
       {/* Transits now, from the natal Moon */}
       <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
-        <h3 className="text-base font-semibold">Transits now</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          The seven planets' effects in transit, read from the natal Moon
-          (Prasna Marga 22.1–24).
-        </p>
+        <SectionTitle plain="Transits now" technical="Gochara (22)" as="h3" />
+        <ModeText
+          plain="How the planets moving now touch this chart."
+          practitioner="The seven planets' effects in transit, read from the natal Moon (22.1-24), with the Vedha obstructions (22.34-53)."
+        />
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
           {transits.map((t) => (
             <li
@@ -674,12 +676,11 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
 
       {/* Birth chart: the twelve-house walk */}
       <section className="mt-6" aria-label="Birth chart">
-        <h3 className="text-sm font-semibold">The twelve houses</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Each house read whole-sign from the {SIGNS[birthLagnaIdx]} ascendant:
-          its signification (14.3–14), the planets in it (14.50–65), how the
-          promise ripens (14.39–41) and the lord's standing (14.90–100).
-        </p>
+        <SectionTitle plain="The twelve houses" technical="Bhava phala (14)" as="h3" />
+        <ModeText
+          plain="Each house and what it promises, in one place."
+          practitioner={`Each house read whole-sign from the ${SIGNS[birthLagnaIdx]} ascendant: its signification (14.3-14), the planets in it (14.50-65), how the promise ripens (14.39-41) and the lord's standing (14.90-100).`}
+        />
         <div className="mt-3">
           <HouseWalk
             natal={natal}
@@ -690,11 +691,11 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         </div>
 
         <div className="mt-6" aria-label="Progeny">
-          <h4 className="text-sm font-semibold">Progeny</h4>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {progeny.kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta, the sum of
-            the three relevant longitudes (Prasna Marga 19.6–11).
-          </p>
+          <SectionTitle plain="Progeny" technical="Santhana (19)" as="h4" />
+          <ModeText
+            plain="Children, and how they come."
+            practitioner={`${progeny.kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta, the sum of the three relevant longitudes (19.6-11), and the Santana Trisphuta (19.18).`}
+          />
           <div
             className="mt-2 rounded-md border bg-card p-3"
             data-testid="prasna-progeny"
@@ -776,11 +777,11 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
 
       {/* Marriage compatibility: Rasi agreement + kootas */}
       <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
-        <h3 className="text-base font-semibold">Marriage compatibility</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Rasi agreement (21.1–16) and the star- and lord-based kootas
-          (21.17–50): the groom read from the bride.
-        </p>
+        <SectionTitle plain="Marriage compatibility" technical="Vivaha (21)" as="h3" />
+        <ModeText
+          plain="How well two charts agree."
+          practitioner="Rasi agreement (21.1-16) and the star- and lord-based kootas (21.17-50): the groom read from the bride."
+        />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">
             {femaleChart ? "Partner's" : "This chart's"} Moon is{" "}
