@@ -300,7 +300,7 @@ export function RectifyPanel({
     ]
       .filter(Boolean)
       .join("; ");
-    return `by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}${method === "bj-marks" && data ? ` (${data.marks[seg.drekkana]?.drekkanaLabel}; confirmed ${Array.from(confirmedMarks).join(", ") || "none"})` : ""}${method === "kunda" && seg.kunda ? ` (${seg.kunda.via})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}`;
+    return `by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}${method === "bj-marks" && data ? ` (${data.marks[seg.drekkana]?.drekkanaLabel}; confirmed ${Array.from(confirmedMarks).join(", ") || "none"})` : ""}${method === "kunda" && seg.kunda ? ` (${seg.kunda.via})` : ""}${method === "bj-nashta" && seg.bjNashta ? ` (${seg.bjNashta.via})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}`;
   };
 
   const saveCopy = useMutation({
@@ -1419,6 +1419,11 @@ export function RectifyPanel({
                         {plain ? "Kunda star" : "Kunda vs birth star"}
                       </TableHead>
                     )}
+                    {method === "bj-nashta" && (
+                      <TableHead className="whitespace-nowrap">
+                        {plain ? "Lost horoscope" : "Nashta star vs birth star"}
+                      </TableHead>
+                    )}
                     {(method === "kp-events" || method === "kp-transit") &&
                       eventPayload.map((e) => (
                         <TableHead
@@ -1702,6 +1707,28 @@ export function RectifyPanel({
                               </span>
                               <span className="text-muted-foreground">
                                 vs {NAKSHATRAS[s.kunda.birthStar]}
+                              </span>
+                            </span>
+                          </TableCell>
+                        )}
+                        {method === "bj-nashta" && s.bjNashta && (
+                          <TableCell className="whitespace-nowrap">
+                            <span
+                              className="inline-flex items-center gap-1.5"
+                              title={s.bjNashta.via}
+                            >
+                              <Mark on={s.bjNashta.trine} title={s.bjNashta.via} />
+                              <span
+                                className={cn(
+                                  s.bjNashta.trine
+                                    ? "text-foreground"
+                                    : "text-muted-foreground",
+                                )}
+                              >
+                                {NAKSHATRAS[s.bjNashta.nakshatra]}
+                              </span>
+                              <span className="text-muted-foreground">
+                                vs {NAKSHATRAS[s.bjNashta.birthStar]}
                               </span>
                             </span>
                           </TableCell>

@@ -39,6 +39,7 @@ import {
 import { computePrasnaAvReadings } from "@shared/prasna-av";
 import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
+import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
 // -----------------------------------------------------------------------------------------------
@@ -459,4 +460,14 @@ test("Prasna Marga 5.8-9 Kunda worked example: lagna 11°34' → Aridra", () => 
   assert.equal(k.kundaNakshatra, 5); // Aridra
   assert.equal(k.birthStar, 4); // Mrigasira
   assert.equal(k.trine, false); // Aridra is not Mrigasira nor its trines
+});
+
+test("Brihat Jataka 26.9 worked example: Rasi + Graha factor sum", () => {
+  // Lagna 5s 10°20' (Virgo) with Jupiter and Venus in the rising sign → sum 9s 17°20'.
+  const sum = nashtaFactorSum(160 + 20 / 60, ["Jupiter", "Venus"]);
+  const expected = 9 + 17 / 30 + 20 / 1800; // 9s 17°20' = 9.5778 signs
+  assert.ok(Math.abs(sum - expected) < 0.01, `sum ${sum} !~ ${expected}`);
+  // The nakshatra from the same sum ×7 -9 (Virgo is common), reduced by 27.
+  const nak = nashtaNakshatra(160 + 20 / 60, ["Jupiter", "Venus"]);
+  assert.equal(Math.floor(((expected * 7 - 9) % 27 + 27) % 27), nak);
 });

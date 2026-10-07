@@ -16,7 +16,8 @@ export type RectifyMethod =
   | "kp-transit"
   | "jaimini-dasha"
   | "bj-marks"
-  | "kunda";
+  | "kunda"
+  | "bj-nashta";
 export const RECTIFY_METHODS: Array<{
   id: RectifyMethod;
   system: string;
@@ -123,6 +124,20 @@ export const RECTIFY_METHODS: Array<{
     needsJudge: false,
     needsEvents: false,
   },
+  {
+    id: "bj-nashta",
+    system: "Brihat Jataka",
+    label: "Lost horoscope",
+    plainLabel: "Lost horoscope",
+    plainShort:
+      "Varahamihira's check from the lost-horoscope chapter: the rising degree, multiplied by its sign's factor and by the factor of each planet in it, then by seven, reads a birth star; when it lands on the querent's star or its trines, the time is plausible.",
+    short:
+      "The lagna, multiplied by the Rasi factor (Aries/Libra 7, Taurus/Leo 10, Gemini/Scorpio 8, Cancer 4, Virgo/Capricorn 5, Sagittarius 9, Aquarius 11, Pisces 12) and by the Graha factor of each planet in the rising sign (Jupiter 10, Mars 8, Venus 7, others 5), the products reduced by 12 and summed, multiplied by 7, adjusted by 9 for the sign's character and reduced by 27, gives the birth nakshatra (26.9-10).",
+    source:
+      "Brihat Jataka 26.9-10 (Usha-Shashi, Sagar Publications). The ±9 adjustment follows the text's note that every remainder is in signs; Bhatta-Utpala keys it to the rising drekkana, so it is provisional.",
+    needsJudge: false,
+    needsEvents: false,
+  },
 ];
 
 /** Method label for running text; only "Moon" keeps its capital. */
@@ -144,6 +159,10 @@ export function methodScore(
   }
   if (m === "kunda") {
     const k = s.kunda;
+    return k ? { score: k.score, max: k.max } : { score: 0, max: 0 };
+  }
+  if (m === "bj-nashta") {
+    const k = s.bjNashta;
     return k ? { score: k.score, max: k.max } : { score: 0, max: 0 };
   }
   if (m === "kp-rp")

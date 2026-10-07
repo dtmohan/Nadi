@@ -152,6 +152,16 @@ export interface KundaCheck {
   max: number;
 }
 
+/** Brihat Jataka 26.9-10 Lost Horoscope nakshatra check against the birth star. */
+export interface BjNashtaCheck {
+  nakshatra: number;
+  birthStar: number;
+  trine: boolean;
+  via: string;
+  score: number;
+  max: number;
+}
+
 export interface RectifySegment {
   /** Local civil times in the birth zone, HH:mm:ss. */
   start: string;
@@ -205,6 +215,8 @@ export interface RectifySegment {
   drekkana: number;
   /** Prasna Marga 5.8-9 Kunda check of the lagna against the birth star. */
   kunda?: KundaCheck;
+  /** Brihat Jataka 26.9-10 Lost Horoscope nakshatra check. */
+  bjNashta?: BjNashtaCheck;
   events: RectifyEventCheck[];
   score: number;
   max: number;

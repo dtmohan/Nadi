@@ -37,6 +37,7 @@ import type {
 } from "@shared/rectify-types";
 import { DateTime } from "luxon";
 import { norm360, NAKSHATRAS, type Planet } from "@shared/astro";
+import { nashtaNakshatra } from "@shared/brihat-jataka";
 import {
   kpPoint,
   houseOf,
@@ -57,6 +58,7 @@ import type {
   MoonLordsCheck,
   DuttaRpMoonCheck,
   KundaCheck,
+  BjNashtaCheck,
 } from "@shared/rectify-types";
 export type {
   RectifyRequest,
@@ -330,6 +332,35 @@ export function kundaCheck(lagnaLon: number, moonLon: number): KundaCheck {
     via: trine
       ? `${NAKSHATRAS[kundaNakshatra]} is the birth star ${NAKSHATRAS[birthStar]} or its trine — the lagna reads accurate (5.8)`
       : `${NAKSHATRAS[kundaNakshatra]} is not the birth star ${NAKSHATRAS[birthStar]} nor its trines — the lagna wants shifting (5.8-9)`,
+    score: trine ? 1 : 0,
+    max: 1,
+  };
+}
+
+/** Brihat Jataka 26.9-10 Lost Horoscope check: the nakshatra read from the lagna and its planets. */
+function bjNashtaCheck(
+  lagnaLon: number,
+  moonLon: number,
+  positions: { planet: string; signIndex: number }[],
+): BjNashtaCheck {
+  const norm = (x: number) => ((x % 360) + 360) % 360;
+  const signIdx = Math.floor(norm(lagnaLon) / 30);
+  const inSign = positions
+    .filter((p) => p.signIndex === signIdx)
+    .map((p) => p.planet as Planet);
+  const nakshatra = nashtaNakshatra(lagnaLon, inSign);
+  const birthStar = Math.floor(norm(moonLon) / (360 / 27));
+  const trine =
+    nakshatra === birthStar ||
+    nakshatra === (birthStar + 9) % 27 ||
+    nakshatra === (birthStar + 18) % 27;
+  return {
+    nakshatra,
+    birthStar,
+    trine,
+    via: trine
+      ? `${NAKSHATRAS[nakshatra]} is the birth star ${NAKSHATRAS[birthStar]} or its trine — the lagna reads plausible (26.9-10)`
+      : `${NAKSHATRAS[nakshatra]} is not the birth star ${NAKSHATRAS[birthStar]} nor its trines — the lagna wants shifting (26.9-10)`,
     score: trine ? 1 : 0,
     max: 1,
   };
@@ -721,6 +752,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       moon: { starLord: moon.starLord, subLord: moon.subLord },
       moonLords: moonLordsCheck(lagna, moon, planets),
       kunda: kundaCheck(lagna.lon, moon.lon),
+      bjNashta: bjNashtaCheck(lagna.lon, moon.lon, planets),
       dutta,
       jaiminiSign: {
         index: jSign,
