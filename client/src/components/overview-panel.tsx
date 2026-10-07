@@ -300,6 +300,30 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
         </p>
       )}
 
+      {/* Sarvartha Chintamani highlights */}
+      {result.sarvartha && result.sarvartha.findings.length > 0 && (
+        <div
+          className="mt-4 rounded-lg border bg-card p-5 sm:p-6"
+          data-testid="overview-sarvartha"
+        >
+          <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Sarvartha Chintamani
+          </p>
+          <p className="mt-2 text-sm leading-relaxed">
+            {result.sarvartha.findings.slice(0, 3).map((f) => (
+              <span key={`${f.house}.${f.stanza}`} className="block">
+                <span className="font-medium">{f.topic}:</span> {f.text}
+              </span>
+            ))}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {result.sarvartha.findings.length} of {result.sarvartha.computable}{" "}
+            computable rules apply to this chart — the full house-walk is in the
+            Parashari tab.
+          </p>
+        </div>
+      )}
+
       {/* What is running now */}
       <div className="mt-4 rounded-lg border bg-card p-5 sm:p-6">
         <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">

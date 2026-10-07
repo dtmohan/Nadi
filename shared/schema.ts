@@ -152,6 +152,8 @@ export interface ChartResult {
   fastTransits?: PlanetSignPeriod[];
   /** Nakshatra wealth rules of the DNA Astrology of Wealth book (twenty stars, pp. 96-169); needs the lagna, so it is computed server-side. */
   nakshatraWealth?: import("./nakshatra-wealth").NakshatraWealthReading;
+  /** Sarvartha Chintamani (Venkatesha) bhava-phala rules that fire for this chart, computed server-side. */
+  sarvartha?: import("./sarvartha").SarvarthaResult;
 }
 
 export interface GeoHit {

@@ -1,6 +1,7 @@
-import { SC_BHAVAS, SC_BHAVA_RULES, SC_METHOD_NOTE } from "@shared/sarvartha";
+import { SC_BHAVAS, SC_BHAVA_RULES, SC_METHOD_NOTE, type SarvarthaResult } from "@shared/sarvartha";
 import { PLANET_ABBR } from "@shared/astro";
 import { SectionTitle, ModeText } from "@/components/mode-text";
+import { cn } from "@/lib/utils";
 
 const ORDINAL = [
   "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th",
@@ -8,9 +9,11 @@ const ORDINAL = [
 
 /**
  * Sarvartha Chintamani (Venkatesha): a Parashari-lineage bhava-phala text shown as a second voice
- * on the houses. Significations and the house/lord/karaka method first, then the harvested rules.
+ * on the houses. Significations and the house/lord/karaka method first, then the harvested rules,
+ * with the ones that fire for this chart marked.
  */
-export function SarvarthaSection() {
+export function SarvarthaSection({ sarvartha }: { sarvartha?: SarvarthaResult }) {
+  const fired = new Set(sarvartha?.findings.map((f) => `${f.house}.${f.stanza}`));
   return (
     <section className="mt-8" data-testid="sarvartha-section">
       <SectionTitle
@@ -22,10 +25,9 @@ export function SarvarthaSection() {
           <>
             A second classical voice on the twelve houses, from Venkatesha&apos;s
             Sarvartha Chintamani. It names what each house covers, then reads
-            each thing from the house, its lord and its significator — with the
-            named strength grades (Parijata up to Vaisheshika). The first two
-            houses&apos; specific promises are listed below; the rest are being
-            added.
+            each thing from the house, its lord and its significator. The rules
+            that apply to this chart are marked; the rest are the author&apos;s
+            full reference.
           </>
         }
         practitioner={
@@ -33,8 +35,10 @@ export function SarvarthaSection() {
             Sarvartha Chintamani (Venkatesha, Bhasin translation, Sagar
             Publications), a Parashari-lineage bhava-phala text. {SC_METHOD_NOTE}{" "}
             Rules are cited by chapter and shloka; the Amsha tiers of 1.25-27
-            are the same varga classification as Parashara 6.42-53. Harvest in
-            progress: the 1st and 2nd houses are complete.
+            are the same varga classification as Parashara 6.42-53.{" "}
+            {sarvartha
+              ? `${sarvartha.findings.length} of ${sarvartha.computable} computable rules apply to this chart.`
+              : ""}
           </>
         }
       />
@@ -66,15 +70,26 @@ export function SarvarthaSection() {
             {ORDINAL[h.house - 1]} house — chapter {h.chapter}
           </h4>
           <ul className="mt-2 space-y-1.5 text-xs leading-5">
-            {h.rules.map((r) => (
-              <li key={r.stanza} className="text-muted-foreground">
-                <span className="font-medium text-foreground">{r.topic}:</span>{" "}
-                {r.when} — {r.then}
-                <span className="ml-1 text-muted-foreground/70">
-                  ({h.chapter}.{r.stanza})
-                </span>
-              </li>
-            ))}
+            {h.rules.map((r) => {
+              const key = `${h.house}.${r.stanza}`;
+              const on = fired.has(key);
+              return (
+                <li
+                  key={r.stanza}
+                  className={cn(
+                    "text-muted-foreground",
+                    on && "font-medium text-foreground",
+                  )}
+                >
+                  {on && <span className="mr-1 text-verdict-good">✓</span>}
+                  <span className="font-medium text-foreground">{r.topic}:</span>{" "}
+                  {r.when} — {r.then}
+                  <span className="ml-1 text-muted-foreground/70">
+                    ({h.chapter}.{r.stanza})
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </div>
       ))}
