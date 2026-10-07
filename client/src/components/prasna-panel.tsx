@@ -41,6 +41,11 @@ import { Soft } from "@/lib/gentle";
 import { redactProse } from "@shared/life-stage";
 import { computeKootas } from "@shared/prasna-kootas";
 import { PRASNA_DISEASE_REMEDIES, PRASNA_DISEASE_NOTES } from "@shared/prasna-diseases";
+import {
+  PRASNA_DEITY_MAPPING,
+  PRASNA_DEITY_REMEDIES,
+  PRASNA_DEITY_NOTE,
+} from "@shared/prasna-deities";
 import { ModeText, SectionTitle } from "@/components/mode-text";
 import { Button } from "@/components/ui/button";
 import {
@@ -940,6 +945,33 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             <li key={i}>{n}</li>
           ))}
         </ul>
+      </details>
+
+      <details className="mt-3" data-testid="prasna-deities">
+        <summary className="cursor-pointer text-sm font-semibold">
+          Deities behind the karma
+        </summary>
+        <p className="mt-1 text-xs text-muted-foreground">
+          The Deva Kopa mapping (Prasna Marga 15.3–7): which deity each planet
+          signifies, by its sign, drekkana and strength.
+        </p>
+        <ul className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+          {PRASNA_DEITY_MAPPING.map((d) => (
+            <li
+              key={`${d.planet}-${d.deity}`}
+              className="text-xs leading-relaxed"
+              data-testid={`prasna-deity-${d.planet.toLowerCase()}`}
+            >
+              <span className="font-medium">{d.planet}</span>{" "}
+              <span className="text-muted-foreground">· {d.condition}</span> —{" "}
+              {d.deity}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-xs text-muted-foreground">
+          Palliatives: {PRASNA_DEITY_REMEDIES.join(" ")}
+        </p>
+        <p className="mt-2 text-2xs text-muted-foreground">{PRASNA_DEITY_NOTE}</p>
       </details>
 
       <details className="mt-3" data-testid="prasna-karakas">
