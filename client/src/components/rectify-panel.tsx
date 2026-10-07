@@ -1418,8 +1418,7 @@ export function RectifyPanel({
                         {plain ? "Kunda star" : "Kunda vs birth star"}
                       </TableHead>
                     )}
-                    {method !== "kp-rp" &&
-                      method !== "kp-moon" &&
+                    {(method === "kp-events" || method === "kp-transit") &&
                       eventPayload.map((e) => (
                         <TableHead
                           key={e.label + e.date}
