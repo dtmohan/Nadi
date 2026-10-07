@@ -933,3 +933,30 @@ export function computeSarvartha(positions: PlanetPosition[], lagnaLon: number, 
   const rajyogas = SC_RAJYOGAS.filter((r) => r.test && r.test(ctx)).map((r) => ({ stanza: r.stanza, text: r.then }));
   return { findings, rajyogas, computable, total };
 }
+
+// ── Ch. 13-16 Dasha phala (ruling periods) ─────────────────────────────────
+
+/** A dasha-phala rule: what a main + sub ruling period gives. Keyed by the house whose lord runs the main period. */
+export interface ScDashaPhala {
+  house: number; // 0 = general rule
+  stanza: number;
+  when: string;
+  then: string;
+}
+
+export const SC_DASHA_PHALA: ScDashaPhala[] = [
+  { house: 2, stanza: 20, when: "main period of the lord of the 2nd, with the sub-period of Saturn, Mars, Rahu or the Sun", then: "loss of wealth" },
+  { house: 2, stanza: 23, when: "main period of a benefic placed in the 2nd, with the sub-period of a benefic lord of the 2nd", then: "wealth, and pleasure from speech and sons" },
+  { house: 3, stanza: 24, when: "main period of the lord of the 3rd, with the sub-period of malefics", then: "loss of brothers and rift with them" },
+  { house: 3, stanza: 25, when: "main period of a malefic lord of the 3rd", then: "trouble from fire, thieves and government, with inertia of mind; none if aspected by a benefic" },
+  { house: 5, stanza: 28, when: "main period of the lord of the 5th, with the sub-period of malefics", then: "confusion of intellect and bad food; not so with a benefic sub-period lord" },
+  { house: 6, stanza: 29, when: "main period of the lord of the 6th, with the sub-period of malefics", then: "suffering from the king's orders, thieves, bad habits, and seminal, colic, consumption or bile diseases" },
+  { house: 7, stanza: 30, when: "dasa of a malefic lord of the 7th", then: "opposition from the wife or her death, foreign travel, trouble in the semen and rectum, and the government's wrath" },
+  { house: 8, stanza: 31, when: "main period of the lord of the 8th, with the sub-period of Rahu, Mars or Saturn", then: "loss of longevity, fame and wealth, and destruction of wife, relatives and brothers" },
+  { house: 9, stanza: 32, when: "main period of the lord of the 9th, with the sub-period of Saturn, Mars, Rahu or the Sun", then: "suffering in career, opposition from brothers, foreign travel and rift; modified in a benefic sub-period if the 9th lord is benefic" },
+  { house: 10, stanza: 33, when: "main period of the lord of the 10th, with the sub-period of malefics", then: "imprisonment, sorrow, bad dreams, great mental worry and defame" },
+  { house: 11, stanza: 35, when: "main period of the lord of the 11th, with the sub-period of the Sun, Mars, Rahu or Saturn", then: "loss of things, paucity of work and income, and the government's wrath" },
+  { house: 12, stanza: 35, when: "main period of the lord of the 12th, with the sub-period of Saturn, the Sun or Mars", then: "mental grief, consumption, loss of honour and wealth; in Rahu's sub-period, trouble from a serpent" },
+  { house: 0, stanza: 36, when: "the sub-period lord is a temporary friend of the main-period lord", then: "half the bad results it would give as an enemy" },
+  { house: 0, stanza: 36, when: "the main and sub-period lords are 6th or 8th to each other", then: "relinquishment of office or even death" },
+];

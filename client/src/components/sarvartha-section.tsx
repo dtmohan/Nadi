@@ -1,4 +1,4 @@
-import { SC_BHAVAS, SC_BHAVA_RULES, SC_RAJYOGAS, SC_METHOD_NOTE, type SarvarthaResult } from "@shared/sarvartha";
+import { SC_BHAVAS, SC_BHAVA_RULES, SC_RAJYOGAS, SC_DASHA_PHALA, SC_METHOD_NOTE, type SarvarthaResult } from "@shared/sarvartha";
 import { PLANET_ABBR } from "@shared/astro";
 import { SectionTitle, ModeText } from "@/components/mode-text";
 import { cn } from "@/lib/utils";
@@ -106,6 +106,28 @@ export function SarvarthaSection({ sarvartha }: { sarvartha?: SarvarthaResult })
           {SC_RAJYOGAS.map((r) => (
             <li key={r.stanza} className="text-muted-foreground">
               <span className="text-muted-foreground/70">(9.{r.stanza})</span>{" "}
+              {r.when} — {r.then}.
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-6">
+        <h4 className="text-sm font-semibold">
+          Ruling periods — chapters 13–16
+        </h4>
+        <p className="mt-1 text-xs text-muted-foreground">
+          What the main period of each house&apos;s lord gives with a
+          sub-period, as the author summarises them.
+        </p>
+        <ul className="mt-2 space-y-1.5 text-xs leading-5">
+          {SC_DASHA_PHALA.map((r, i) => (
+            <li key={i} className="text-muted-foreground">
+              {r.house > 0 && (
+                <span className="font-medium text-foreground">
+                  {ORDINAL[r.house - 1]} house —{" "}
+                </span>
+              )}
               {r.when} — {r.then}.
             </li>
           ))}
