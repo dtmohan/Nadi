@@ -40,6 +40,7 @@ import { computePrasnaAvReadings } from "@shared/prasna-av";
 import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
+import { scAmshaName, SC_BHAVAS } from "@shared/sarvartha";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
 // -----------------------------------------------------------------------------------------------
@@ -470,4 +471,23 @@ test("Brihat Jataka 26.9 worked example: Rasi + Graha factor sum", () => {
   // The nakshatra from the same sum ×7 -9 (Virgo is common), reduced by 27.
   const nak = nashtaNakshatra(160 + 20 / 60, ["Jupiter", "Venus"]);
   assert.equal(Math.floor(((expected * 7 - 9) % 27 + 27) % 27), nak);
+});
+
+test("Sarvartha Chintamani 1.25-27 Amsha tiers and 2-8 house significations", () => {
+  // Good-varga count → named amsha.
+  const expect = ["", "", "Parijata", "Uttama", "Gopura", "Simhasana", "Paravata", "Devaloka", "Amar", "Airavata", "Vaisheshika"];
+  for (let n = 2; n <= 10; n++) assert.equal(scAmshaName(n), expect[n]);
+  assert.equal(scAmshaName(1), null);
+  assert.equal(scAmshaName(11), "Vaisheshika");
+  // Twelve houses with significations and a karaka.
+  assert.equal(SC_BHAVAS.length, 12);
+  for (let h = 1; h <= 12; h++) {
+    const b = SC_BHAVAS[h - 1];
+    assert.equal(b.house, h);
+    assert.ok(b.significations.length >= 3, `house ${h} significations`);
+    assert.ok(b.karaka.length > 0, `house ${h} karaka`);
+  }
+  assert.equal(SC_BHAVAS[1].karaka, "Jupiter"); // 2nd house
+  assert.equal(SC_BHAVAS[7].karaka, "Saturn"); // 8th house
+  assert.ok(SC_BHAVAS[1].significations.includes("accumulated wealth"));
 });
