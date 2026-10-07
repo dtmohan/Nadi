@@ -323,7 +323,7 @@ function jaiminiStance(
 
 const KP_CUSPS: Record<AgreementTopic, { cusps: number[]; topics: string[] }> =
   {
-    marriage: { cusps: [7], topics: ["Marriage", "Partner", "Married life"] },
+    marriage: { cusps: [7], topics: ["Marriage", "Partner", "Married life", "Love"] },
     children: { cusps: [5], topics: ["Children"] },
     career: { cusps: [10], topics: ["Career", "Standing", "Public life"] },
     parents: { cusps: [9, 4], topics: ["Father", "Mother", "Parents"] },

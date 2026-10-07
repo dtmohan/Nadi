@@ -32,6 +32,7 @@ import {
 import { PlanetName } from "@/components/planet-name";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Soft } from "@/lib/gentle";
+import { redactProse } from "@shared/life-stage";
 import { Button } from "@/components/ui/button";
 import {
   prasnaStore,
@@ -152,6 +153,7 @@ function HouseEffectsList({ readings }: { readings: PrasnaHouseReading[] }) {
 export function PrasnaPanel({ result }: { result: ChartResult }) {
   const { positions, reading, now } = result;
   const birthLagnaIdx = result.jaimini.lagna.signIndex;
+  const withheld = result.sensitive?.withheld ?? false;
   const [arudhaIdx, setArudhaIdx] = useState<number | null>(null);
   const [shellCast, setShellCast] = useState<{
     handful: number;
@@ -200,8 +202,8 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
   );
   const natalMoon = positions.find((p) => p.planet === "Moon")!;
   const transits = useMemo(
-    () => computePrasnaTransits(natalMoon.signIndex, now.positions),
-    [natalMoon.signIndex, now.positions],
+    () => computePrasnaTransits(natalMoon.signIndex, now.positions, withheld),
+    [natalMoon.signIndex, now.positions, withheld],
   );
   const gulika = useMemo(
     () =>
@@ -373,7 +375,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                   </span>
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-foreground/90">
-                  <Soft>{prasnaGulika.text}</Soft>
+                  <Soft>{withheld ? redactProse(prasnaGulika.text) : prasnaGulika.text}</Soft>
                 </p>
               </div>
             )}
@@ -520,9 +522,15 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                   {ord(t.house)} from the Moon
                 </span>
               </div>
-              <p className="mt-0.5">
-                <Soft>{t.text}</Soft>
-              </p>
+              {t.text ? (
+                <p className="mt-0.5">
+                  <Soft>{t.text}</Soft>
+                </p>
+              ) : (
+                <p className="mt-0.5 text-muted-foreground">
+                  held back for a minor
+                </p>
+              )}
             </li>
           ))}
         </ul>
@@ -705,7 +713,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                 </span>
               </div>
               <p className="mt-1 text-xs leading-relaxed text-foreground/90">
-                <Soft>{gulika.text}</Soft>
+                <Soft>{withheld ? redactProse(gulika.text) : gulika.text}</Soft>
               </p>
             </div>
           )}

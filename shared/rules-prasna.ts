@@ -14,6 +14,7 @@ import type { Planet, PlanetPosition } from "./astro";
 import { houseFrom, SIGN_LORD } from "./astro";
 import { drishtiQuarters, naturalBenefic } from "./parashari";
 import { toneOfText } from "./synthesis";
+import { redactProse } from "./life-stage";
 import type { PlanetStrength } from "./strength";
 
 export interface PrasnaHouseRule {
@@ -736,12 +737,17 @@ export interface PrasnaTransit {
 export function computePrasnaTransits(
   moonSignIndex: number,
   positions: PlanetPosition[],
+  withhold = false,
 ): PrasnaTransit[] {
   return positions
     .filter((p) => p.planet !== "Rahu" && p.planet !== "Ketu")
     .map((p) => {
       const house = houseFrom(moonSignIndex, p.signIndex);
-      const text = PRASNA_TRANSIT_EFFECTS[p.planet]?.[house - 1] ?? "";
+      // The sensitive-content gate (shared/life-stage.ts) strips child-loss and death statements
+      // for a minor, matching the Overview's own Saturn transit.
+      const text = withhold
+        ? redactProse(PRASNA_TRANSIT_EFFECTS[p.planet]?.[house - 1] ?? "")
+        : PRASNA_TRANSIT_EFFECTS[p.planet]?.[house - 1] ?? "";
       const t = toneOfText(text);
       return {
         planet: p.planet,

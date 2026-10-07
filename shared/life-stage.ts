@@ -271,7 +271,9 @@ export function redactProse(s: string): string {
 
 function stripSentences(s: string): string {
   if (!withholdText(s)) return s;
-  const parts = s.split(/(?<=[.;!?])\s+/);
+  // Split on sentence ends, but not after the "ch." chapter abbreviation ("ch. 44"), which
+  // otherwise leaves a dangling "44: …" fragment when the maraka half of the sentence is withheld.
+  const parts = s.split(/(?<!ch\.)(?<=[.;!?])\s+/);
   const kept = parts.map(stripSentence).filter((p): p is string => p !== null);
   return kept.join(" ").trim();
 }

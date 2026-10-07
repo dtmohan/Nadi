@@ -148,7 +148,7 @@ export interface KpFinding {
  * 5th; employment 2, 6, 10 by the sub of the 10th. Rules are grouped by their topic strings.
  */
 export const KP_PRECEDENCE: Array<{ matter: string; topics: string[]; cusp: number; coPrincipal?: number[]; source: string }> = [
-  { matter: "marriage", topics: ["Marriage", "Married life", "Partner"], cusp: 7, source: "Astro Secrets & KP Part 3, p. 12" },
+  { matter: "marriage", topics: ["Marriage", "Married life", "Partner", "Love"], cusp: 7, source: "Astro Secrets & KP Part 3, p. 12" },
   { matter: "lifespan", topics: ["Longevity"], cusp: 1, coPrincipal: [1, 8], source: "Astro Secrets & KP Part 3, p. 12; Part 1, ch. 16, pp. 180-182 (the 8th cusp)" },
   { matter: "children", topics: ["Children"], cusp: 5, source: "Astro Secrets & KP Part 3, p. 12" },
   { matter: "career", topics: ["Career", "Employment", "Profession"], cusp: 10, source: "Astro Secrets & KP Part 3, p. 12" },
