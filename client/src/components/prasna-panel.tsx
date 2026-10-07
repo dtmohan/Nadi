@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { ChartResult } from "@shared/schema";
-import { NAKSHATRAS, SIGNS } from "@shared/astro";
+import { NAKSHATRAS, SIGN_LORD, SIGNS } from "@shared/astro";
 import {
   arudhaFromHandful,
   ashtamangalaFromGroups,
@@ -27,7 +27,9 @@ import {
   PRASNA_KARAKA_RULE,
   PRASNA_NODE_NOTE,
   type ArudhaVerdict,
+  type PrasnaBhavaFructification,
   type PrasnaBhavaVerdict,
+  type PrasnaDispositionReading,
   type PrasnaHouseReading,
   type PrasnaSphutaVerdict,
   type PrasnaSphutas,
@@ -55,14 +57,6 @@ const FRUCT_LABEL: Record<PrasnaBhavaVerdict, string> = {
   little: "A little",
   mixed: "Mixed",
   negative: "Negative",
-};
-
-const FRUCT_CLASS: Record<PrasnaBhavaVerdict, string> = {
-  full: "border border-verdict-good/40 text-verdict-good",
-  "seen-not-enjoyed": "border border-verdict-mixed/40 text-verdict-mixed",
-  little: "border border-verdict-mixed/40 text-verdict-mixed",
-  mixed: "border border-verdict-mixed/40 text-verdict-mixed",
-  negative: "border border-verdict-bad/40 text-verdict-bad",
 };
 
 const OUTCOME_CLASS: Record<PrasnaOutcome, string> = {
@@ -146,6 +140,93 @@ function HouseEffectsList({ readings }: { readings: PrasnaHouseReading[] }) {
           )}
         </li>
       ))}
+    </ul>
+  );
+}
+
+/** The twelve-house walk: signification, occupants, fructification and the lord's standing, together. */
+function HouseWalk({
+  natal,
+  fructification,
+  dispositions,
+  lagnaIdx,
+}: {
+  natal: PrasnaHouseReading[];
+  fructification: PrasnaBhavaFructification[];
+  dispositions: PrasnaDispositionReading[];
+  lagnaIdx: number;
+}) {
+  const byHouse = new Map(natal.map((r) => [r.house, r]));
+  const fruct = new Map(fructification.map((f) => [f.house, f]));
+  const disp = new Map(dispositions.map((d) => [d.planet, d]));
+  return (
+    <ul className="space-y-3">
+      {Array.from({ length: 12 }, (_, i) => i + 1).map((house) => {
+        const sign = (lagnaIdx + house - 1) % 12;
+        const lord = SIGN_LORD[sign];
+        const sig = PRASNA_BHAVA_SIGNIFICATIONS[house - 1];
+        const r = byHouse.get(house);
+        const f = fruct.get(house);
+        const d = disp.get(lord);
+        return (
+          <li
+            key={house}
+            className="rounded-md border bg-card p-3"
+            data-testid={`prasna-house-walk-${house}`}
+          >
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-sm font-semibold">{ord(house)} house</span>
+              <span className="text-xs text-muted-foreground">
+                {SIGNS[sign]} · lord <PlanetName planet={lord} />
+              </span>
+              <span className="ml-auto text-2xs text-muted-foreground">
+                Prasna Marga 14.{sig.stanza}
+              </span>
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              {sig.text}
+            </p>
+            {r ? (
+              <>
+                {r.maleficText && (
+                  <p className="mt-1.5 border-l-2 border-verdict-bad/60 pl-2 text-xs leading-relaxed text-foreground/90">
+                    <span className="font-medium text-verdict-bad">
+                      {r.malefics.map((p) => p.planet).join(", ")} ·{" "}
+                    </span>
+                    <Soft>{r.maleficText}</Soft>
+                  </p>
+                )}
+                {r.beneficText && (
+                  <p className="mt-1.5 border-l-2 border-verdict-good/60 pl-2 text-xs leading-relaxed text-foreground/90">
+                    <span className="font-medium text-verdict-good">
+                      {r.benefics.map((p) => p.planet).join(", ")} ·{" "}
+                    </span>
+                    <Soft>{r.beneficText}</Soft>
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                No planet stands in it.
+              </p>
+            )}
+            {f && (
+              <p className="mt-1.5 text-xs leading-relaxed text-foreground/90">
+                <span className="font-medium">
+                  {FRUCT_LABEL[f.verdict]}.
+                </span>{" "}
+                {f.note}
+              </p>
+            )}
+            {d && (
+              <p className="mt-1 text-xs leading-relaxed text-foreground/90">
+                <span className="font-medium">Its lord {d.planet} is {d.disposition}.</span>{" "}
+                <Soft>{d.text}</Soft>
+              </p>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -591,98 +672,21 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         )}
       </div>
 
-      {/* Birth chart */}
+      {/* Birth chart: the twelve-house walk */}
       <section className="mt-6" aria-label="Birth chart">
-        <h3 className="text-sm font-semibold">Birth chart</h3>
+        <h3 className="text-sm font-semibold">The twelve houses</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Effects of planets in houses (Prasna Marga 14.50–65), read whole-sign
-          from the {SIGNS[birthLagnaIdx]} ascendant.
+          Each house read whole-sign from the {SIGNS[birthLagnaIdx]} ascendant:
+          its signification (14.3–14), the planets in it (14.50–65), how the
+          promise ripens (14.39–41) and the lord's standing (14.90–100).
         </p>
         <div className="mt-3">
-          <HouseEffectsList readings={natal} />
-        </div>
-
-        {dispositions.length > 0 && (
-          <div className="mt-6" aria-label="Favourable and unfavourable planets">
-            <h4 className="text-sm font-semibold">How each planet stands</h4>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Favourable and unfavourable positions of planets (Prasna Marga
-              14.90–100), read from the app's strength pass.
-            </p>
-            <ul className="mt-3 space-y-3">
-              {dispositions.map((d) => (
-                <li
-                  key={d.planet}
-                  className="rounded-md border bg-card p-3"
-                  data-testid={`prasna-disposition-${d.planet}`}
-                  data-disposition={d.disposition}
-                >
-                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                    <span className="text-sm font-medium">
-                      <PlanetName planet={d.planet} />
-                    </span>
-                    <span
-                      className={cn(
-                        "rounded px-1.5 py-0.5 text-2xs uppercase tracking-wide",
-                        d.disposition === "favourable"
-                          ? "border border-verdict-good/40 text-verdict-good"
-                          : "border border-verdict-bad/40 text-verdict-bad",
-                      )}
-                    >
-                      {d.disposition}
-                    </span>
-                    <span className="ml-auto text-2xs text-muted-foreground">
-                      {d.source}
-                    </span>
-                  </div>
-                  <p className="mt-1.5 text-xs leading-relaxed text-foreground/90">
-                    <Soft>{d.text}</Soft>
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <div className="mt-6" aria-label="Fructification of bhavas">
-          <h4 className="text-sm font-semibold">
-            Does each house's promise ripen?
-          </h4>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Fructification of bhavas (Prasna Marga 14.39–41), from each
-            house's lord and karaka — their strength and their place.
-          </p>
-          <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {fructification.map((f) => (
-              <li
-                key={f.house}
-                className="rounded-md border bg-card p-3"
-                data-testid={`prasna-fruct-${f.house}`}
-                data-verdict={f.verdict}
-              >
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                  <span className="text-sm font-semibold">
-                    {ord(f.house)} house
-                  </span>
-                  <span
-                    className={cn(
-                      "rounded px-1.5 py-0.5 text-2xs uppercase tracking-wide",
-                      FRUCT_CLASS[f.verdict],
-                    )}
-                  >
-                    {FRUCT_LABEL[f.verdict]}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  lord <PlanetName planet={f.lord} /> · karaka{" "}
-                  <PlanetName planet={f.karaka} />
-                </p>
-                <p className="mt-1 text-xs leading-relaxed text-foreground/90">
-                  {f.note}
-                </p>
-              </li>
-            ))}
-          </ul>
+          <HouseWalk
+            natal={natal}
+            fructification={fructification}
+            dispositions={dispositions}
+            lagnaIdx={birthLagnaIdx}
+          />
         </div>
 
         <div className="mt-6" aria-label="Progeny">
