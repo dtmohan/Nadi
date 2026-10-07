@@ -15,6 +15,8 @@ import {
   computeSantanaTrisphuta,
   computeSphutas,
   computeTertiaryReading,
+  computeFructificationTiming,
+  PRASNA_TIME_PERIODS,
   rasiAgreement,
   PRASNA_SPHUTA_NOTE,
   PRASNA_TRANSIT_NOTES,
@@ -232,6 +234,15 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         withheld,
       ),
     [positions, birthLagnaIdx, withheld],
+  );
+  const timing = useMemo(
+    () =>
+      computeFructificationTiming(
+        positions,
+        result.jaimini.lagna.lon,
+        birthLagnaIdx,
+      ),
+    [positions, result.jaimini.lagna.lon, birthLagnaIdx],
   );
   const [partnerMoon, setPartnerMoon] = useState<number | null>(null);
   const femaleChart = result.chart.gender === "female";
@@ -902,6 +913,44 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             </li>
           ))}
         </ul>
+      </details>
+
+      <details className="mt-3" data-testid="prasna-fructification-timing">
+        <summary className="cursor-pointer text-sm font-semibold">
+          When bhavas fructify
+        </summary>
+        <p className="mt-1 text-xs text-muted-foreground">
+          The period a bhava's promise takes to show, from its lord's allotted
+          time (14.81–85). The seven periods follow Brihat Jataka.
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          {timing.periods
+            .map((p) => `${p.planet} ${p.classical} (${p.label})`)
+            .join(" · ")}
+        </p>
+        <p className="mt-2 text-xs leading-relaxed text-foreground/90">
+          {timing.lagnaNavamsa.text}
+        </p>
+        <p className="mt-1 text-xs leading-relaxed text-foreground/90">
+          {timing.sorrow.text}
+        </p>
+        <ul className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
+          {timing.houses.map((h) => (
+            <li
+              key={h.house}
+              className="text-xs leading-relaxed"
+              data-testid={`prasna-timing-house-${h.house}`}
+            >
+              <span className="font-medium">{ord(h.house)}</span>{" "}
+              <span className="text-muted-foreground">—</span> {h.text}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2 text-2xs text-muted-foreground">
+          {timing.source}. The transit trigger of 14.86 (the event when the Sun,
+          Moon or effect-giver crosses the lagna, its sign or its exaltation)
+          and the "other methods" pointer of 14.84 are noted, not computed.
+        </p>
       </details>
 
       <ul className="mt-4 space-y-1 text-2xs text-muted-foreground">

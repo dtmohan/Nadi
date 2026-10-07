@@ -1248,3 +1248,104 @@ export function computeTertiaryReading(
     };
   });
 }
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// "Time when Bhavas Fructify" (Ch. XIV, stanzas 81-86). The period a bhava's promise takes to
+// materialise is the time allotted to its lord (Brihat Jataka's Ayana, Kshana, Vasara, Ritu, Masa,
+// Ardha, Sama) times the navamsas the lord has gained (14.81-82); a sorrow reads the lagna lord's
+// time times the signs to the malefic (14.83); and a bhava read whole-sign gives its lord's signs
+// away as months in the invisible half, days in the visible (14.85).
+
+export const PRASNA_TIME_PERIODS: Partial<
+  Record<Planet, { classical: string; label: string; months: number }>
+> = {
+  Sun: { classical: "Ayana", label: "six months", months: 6 },
+  Moon: { classical: "Kshana", label: "48 minutes", months: 48 / 43200 },
+  Mars: { classical: "Vasara", label: "one week", months: 7 / 30 },
+  Mercury: { classical: "Ritu", label: "two months", months: 2 },
+  Jupiter: { classical: "Masa", label: "one month", months: 1 },
+  Venus: { classical: "Ardha", label: "a fortnight", months: 0.5 },
+  Saturn: { classical: "Sama", label: "one year", months: 12 },
+};
+
+const fmtMonths = (m: number): string => {
+  if (m >= 36) return `${(m / 12).toFixed(1).replace(/\.0$/, "")} years`;
+  if (m >= 1) return `${Math.round(m)} month${Math.round(m) === 1 ? "" : "s"}`;
+  return `${Math.max(1, Math.round(m * 30))} day${Math.round(m * 30) === 1 ? "" : "s"}`;
+};
+
+const navamsaNumber = (lon: number) => Math.floor((((lon % 30) + 30) % 30) / (30 / 9)) + 1;
+const navamsaSign = (lon: number) => {
+  const sign = Math.floor((((lon % 360) + 360) % 360) / 30);
+  return (sign * 9 + navamsaNumber(lon) - 1) % 12;
+};
+
+export interface FructificationTiming {
+  periods: { planet: Planet; classical: string; label: string }[];
+  lagnaNavamsa: { navamsaSign: number; lord: Planet; navamsas: number; text: string };
+  sorrow: { lord: Planet; signs: number; text: string };
+  houses: { house: number; lord: Planet; lordHouse: number; visible: boolean; signs: number; text: string }[];
+  source: string;
+}
+
+export function computeFructificationTiming(
+  positions: PlanetPosition[],
+  lagnaLon: number,
+  lagnaIdx: number,
+): FructificationTiming {
+  const lordOf = (signIdx: number) => SIGN_LORD[((signIdx % 12) + 12) % 12];
+  const posOf = (p: Planet) => positions.find((x) => x.planet === p)!;
+
+  const periods = Object.entries(PRASNA_TIME_PERIODS)
+    .filter(([, v]) => v)
+    .map(([planet, v]) => ({ planet: planet as Planet, classical: v!.classical, label: v!.label }));
+
+  // 14.82: the lagna navamsa lord's time × the navamsas it has gained.
+  const lnSign = navamsaSign(lagnaLon);
+  const lnLord = lordOf(lnSign);
+  const lnPos = posOf(lnLord);
+  const lnNavamsas = navamsaNumber(lnPos.lon);
+  const lnMonths = (PRASNA_TIME_PERIODS[lnLord]?.months ?? 0) * lnNavamsas;
+  const lagnaNavamsa = {
+    navamsaSign: lnSign,
+    lord: lnLord,
+    navamsas: lnNavamsas,
+    text: `${lnLord}, lord of the rising navamsa, gives ${PRASNA_TIME_PERIODS[lnLord]?.label}; in its ${ord(lnNavamsas)} navamsa that is ${lnNavamsas} × ${PRASNA_TIME_PERIODS[lnLord]?.classical.toLowerCase()} = ${fmtMonths(lnMonths)} (14.82).`,
+  };
+
+  // 14.83: the lagna lord's time × the signs to the strongest malefic.
+  const lagnaLord = lordOf(lagnaIdx);
+  const malefics = positions.filter((p) => p.planet === "Mars" || p.planet === "Saturn" || p.planet === "Sun");
+  const strongestMalefic = malefics.sort(
+    (a, b) => (PRASNA_TIME_PERIODS[a.planet]?.months ?? 0) - (PRASNA_TIME_PERIODS[b.planet]?.months ?? 0),
+  )[0];
+  const maleficSigns = strongestMalefic ? houseFrom(lagnaIdx, strongestMalefic.signIndex) : 0;
+  const sorrow = {
+    lord: lagnaLord,
+    signs: maleficSigns,
+    text: strongestMalefic
+      ? `${strongestMalefic.planet} in the ${ord(maleficSigns)} from the lagna: the lagna lord ${lagnaLord}'s time (${PRASNA_TIME_PERIODS[lagnaLord]?.label}) × ${maleficSigns} = ${fmtMonths((PRASNA_TIME_PERIODS[lagnaLord]?.months ?? 0) * maleficSigns)} of sorrow (14.83).`
+      : "No malefic is present to time the sorrow (14.83).",
+  };
+
+  // 14.85: each bhava's lord, its house, and the signs between the bhava and the lord.
+  const houses = Array.from({ length: 12 }, (_, i) => i + 1).map((house) => {
+    const houseSign = (lagnaIdx + house - 1) % 12;
+    const lord = lordOf(houseSign);
+    const lordSign = posOf(lord).signIndex;
+    const lordHouse = houseFrom(lagnaIdx, lordSign);
+    const visible = lordHouse >= 7 && lordHouse <= 12;
+    const signs = houseFrom(houseSign, lordSign);
+    const unit = visible ? "days" : "months";
+    return {
+      house,
+      lord,
+      lordHouse,
+      visible,
+      signs,
+      text: `${lord} in the ${ord(lordHouse)} (the ${visible ? "visible" : "invisible"} half): ${signs} ${unit} (14.85).`,
+    };
+  });
+
+  return { periods, lagnaNavamsa, sorrow, houses, source: "Prasna Marga 14.81-85" };
+}

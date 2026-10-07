@@ -33,6 +33,7 @@ import {
   computeTertiaryPlanets,
   rasiAgreement,
   timeSphutasFromGhatis,
+  computeFructificationTiming,
 } from "@shared/rules-prasna";
 import { computePrasnaAvReadings } from "@shared/prasna-av";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
@@ -397,4 +398,24 @@ test("Prasna Marga 32.61-72 Ashtakavarga readings: sums over the collective poin
   // Sign-thirds: Pisces-Gemini 12+1+2+3=18, Cancer-Libra 4+5+6+7=22, Scorpio-Aquarius 8+9+10+11=38.
   assert.equal(r.lifeThirds[0].total, 18);
   assert.equal(r.lifeThirds[2].total, 38);
+});
+
+test("Prasna Marga 14.82 worked example: lagna navamsa lord times its navamsas", () => {
+  // Rising navamsa Leo → lord Sun (Ayana, 6 months); the Sun in its 5th navamsa → 5 × 6 = 30 months.
+  const planets = [
+    ["Sun", 14], ["Moon", 100], ["Mars", 200], ["Mercury", 50],
+    ["Jupiter", 150], ["Venus", 250], ["Saturn", 300],
+  ].map(([planet, lon]) => ({
+    planet,
+    lon,
+    signIndex: Math.floor(lon / 30),
+    degInSign: lon % 30,
+  })) as unknown as Parameters<typeof computeFructificationTiming>[0];
+  const t = computeFructificationTiming(planets, 14, 0);
+  assert.equal(t.lagnaNavamsa.lord, "Sun");
+  assert.equal(t.lagnaNavamsa.navamsas, 5);
+  assert.ok(t.lagnaNavamsa.text.includes("30 months"), t.lagnaNavamsa.text);
+  // The seven periods follow Brihat Jataka.
+  assert.equal(t.periods.length, 7);
+  assert.equal(t.periods.find((p) => p.planet === "Sun")?.classical, "Ayana");
 });
