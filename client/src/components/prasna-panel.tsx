@@ -3,6 +3,7 @@ import type { ChartResult } from "@shared/schema";
 import { NAKSHATRAS, SIGNS } from "@shared/astro";
 import {
   arudhaFromHandful,
+  ashtamangalaFromGroups,
   PRASNA_COWRIES,
   computeArudhaReading,
   computeGulikaReading,
@@ -152,14 +153,28 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
   const { positions, reading, now } = result;
   const birthLagnaIdx = result.jaimini.lagna.signIndex;
   const [arudhaIdx, setArudhaIdx] = useState<number | null>(null);
-  const [shellCast, setShellCast] = useState<{ handful: number; remainder: number } | null>(null);
+  const [shellCast, setShellCast] = useState<{
+    handful: number;
+    remainder: number;
+    groups: [number, number, number];
+    ashtamangala: { digits: [number, number, number]; number: number };
+  } | null>(null);
   const [question, setQuestion] = useState("");
 
   const castShells = () => {
     const handful = 1 + Math.floor(Math.random() * PRASNA_COWRIES);
     const remainder = handful % 12;
-    setShellCast({ handful, remainder });
     setArudhaIdx(arudhaFromHandful(handful));
+    // Ashtamangala: split the 108 cowries into three groups and read each ÷8.
+    const a = 1 + Math.floor(Math.random() * 106);
+    const b = 1 + Math.floor(Math.random() * (108 - a));
+    const groups: [number, number, number] = [a, b, 108 - a - b];
+    setShellCast({
+      handful,
+      remainder,
+      groups,
+      ashtamangala: ashtamangalaFromGroups(groups[0], groups[1], groups[2]),
+    });
   };
   const savedPrasnas = useSavedPrasnas();
 
@@ -224,6 +239,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
     const nowLagna = Math.floor(now.lagnaLon / 30);
     return computeArudhaReading(now.positions, sunSign, arudhaIdx, nowLagna);
   }, [now.positions, now.lagnaLon, arudhaIdx]);
+  const prasnaGulika = useMemo(() => {
+    if (arudhaIdx === null || !now.gulika) return null;
+    return computeGulikaReading(now.gulika, arudhaIdx);
+  }, [now.gulika, arudhaIdx]);
 
   const register = () => {
     if (arudhaIdx === null || !prasna) return;
@@ -291,7 +310,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               <p className="mt-1 text-xs text-muted-foreground tabular" data-testid="prasna-shell-cast">
                 A handful of {shellCast.handful} cowries ÷ 12 → remainder{" "}
                 {shellCast.remainder === 0 ? 12 : shellCast.remainder} →{" "}
-                {SIGNS[arudhaIdx]}
+                {SIGNS[arudhaIdx]} · Ashtamangala: {shellCast.groups[0]} ·{" "}
+                {shellCast.groups[1]} · {shellCast.groups[2]} cowries → digits{" "}
+                {shellCast.ashtamangala.digits.join("·")} →{" "}
+                {shellCast.ashtamangala.number}
               </p>
             )}
             <div className="mt-3 grid gap-4 md:grid-cols-[minmax(0,16rem)_1fr]">
@@ -300,6 +322,9 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                 lagnaSign={arudhaIdx}
                 title="Prasna"
                 subtitle={`Arudha · ${SIGNS[arudhaIdx]}`}
+                badges={
+                  now.gulika ? { [now.gulika.signIndex]: ["Gulika"] } : undefined
+                }
               />
               <HouseEffectsList readings={prasna} />
             </div>
@@ -329,6 +354,26 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                 </p>
                 <p className="mt-1 text-xs leading-relaxed text-foreground/90">
                   <Soft>{arudhaReading.note}</Soft>
+                </p>
+              </div>
+            )}
+            {prasnaGulika && (
+              <div
+                className="mt-3 rounded-md border bg-card p-3"
+                data-testid="prasna-gulika-reading"
+              >
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span className="text-sm font-medium">Gulika</span>
+                  <span className="text-xs text-muted-foreground">
+                    {SIGNS[prasnaGulika.signIndex]} · {ord(prasnaGulika.house)}{" "}
+                    from the Arudha
+                  </span>
+                  <span className="ml-auto text-2xs text-muted-foreground">
+                    {prasnaGulika.source}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs leading-relaxed text-foreground/90">
+                  <Soft>{prasnaGulika.text}</Soft>
                 </p>
               </div>
             )}

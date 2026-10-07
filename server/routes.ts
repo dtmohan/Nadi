@@ -152,6 +152,7 @@ export function computeChart(chart: Chart): ChartResult {
       positions: positionsAt(nj, opts),
       asOf: DateTime.utc().toISO()!,
       lagnaLon: ascendantAt(nj, chart.latitude, chart.longitude, opts),
+      gulika: gulikaLongitude(nj, chart.latitude, chart.longitude, zone, opts),
     },
     jaimini,
     kp: kpBase(jd, chart.latitude, chart.longitude, zone, opts.nodeType),

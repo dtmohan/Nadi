@@ -1093,3 +1093,23 @@ export function arudhaFromHandful(handful: number): number {
   const remainder = ((handful % 12) + 12) % 12;
   return remainder === 0 ? 11 : remainder - 1;
 }
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// The Ashtamangala Number (Ch. IV, stanzas 54-55): the cowries are divided into three groups
+// (left, front, right); each is counted and multiples of eight are expunged, the remainders forming
+// the hundreds, tens and units of a three-digit number. The text keeps the remainder of ÷8, so each
+// digit is 0-7; some practitioners read a zero remainder as 8.
+
+export interface Ashtamangala {
+  digits: [number, number, number]; // left (hundreds), front (tens), right (units)
+  number: number;
+}
+
+export function ashtamangalaFromGroups(
+  left: number,
+  front: number,
+  right: number,
+): Ashtamangala {
+  const digits: [number, number, number] = [left % 8, front % 8, right % 8];
+  return { digits, number: digits[0] * 100 + digits[1] * 10 + digits[2] };
+}

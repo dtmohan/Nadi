@@ -29,6 +29,7 @@ import {
   computeSphutas,
   computeChatraRasi,
   arudhaFromHandful,
+  ashtamangalaFromGroups,
   rasiAgreement,
   timeSphutasFromGhatis,
 } from "@shared/rules-prasna";
@@ -344,4 +345,17 @@ test("Prasna Marga 4.38, 51-55 cowrie Arudha: remainder names the sign", () => {
   assert.equal(arudhaFromHandful(12), 11); // Pisces (remainder 0)
   assert.equal(arudhaFromHandful(13), 0); // Aries (wraps)
   assert.equal(arudhaFromHandful(108), 11); // Pisces
+});
+
+test("Prasna Marga 4.54-55 Ashtamangala number: remainders of three ÷8 groups", () => {
+  const a = ashtamangalaFromGroups(35, 40, 33);
+  // 35 % 8 = 3, 40 % 8 = 0, 33 % 8 = 1 → 301
+  assert.deepEqual(a.digits, [3, 0, 1]);
+  assert.equal(a.number, 301);
+  const b = ashtamangalaFromGroups(8, 16, 24);
+  assert.deepEqual(b.digits, [0, 0, 0]);
+  assert.equal(b.number, 0);
+  const c = ashtamangalaFromGroups(3, 5, 7);
+  assert.deepEqual(c.digits, [3, 5, 7]);
+  assert.equal(c.number, 357);
 });
