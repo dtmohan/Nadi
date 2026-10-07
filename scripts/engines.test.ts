@@ -40,7 +40,7 @@ import { computePrasnaAvReadings } from "@shared/prasna-av";
 import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
-import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA } from "@shared/sarvartha";
+import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY } from "@shared/sarvartha";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
 // -----------------------------------------------------------------------------------------------
@@ -553,5 +553,7 @@ test("Sarvartha Chintamani computeSarvartha evaluates rules against a chart", ()
   assert.ok(SC_RAJYOGAS.length >= 12);
   assert.ok(SC_DASHA_PHALA.length >= 12);
   assert.ok(SC_DASHA_PHALA.find((r) => r.house === 8)?.then.includes("longevity"));
+  assert.ok(SC_LONGEVITY.length >= 10);
+  assert.ok(SC_LONGEVITY.find((r) => r.chapter === 10 && r.stanza === 7)?.then.includes("short"));
   for (const r of res.rajyogas) assert.ok(r.stanza > 0 && r.text);
 });

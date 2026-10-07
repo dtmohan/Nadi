@@ -1,4 +1,4 @@
-import { SC_BHAVAS, SC_BHAVA_RULES, SC_RAJYOGAS, SC_DASHA_PHALA, SC_METHOD_NOTE, type SarvarthaResult } from "@shared/sarvartha";
+import { SC_BHAVAS, SC_BHAVA_RULES, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, SC_METHOD_NOTE, type SarvarthaResult } from "@shared/sarvartha";
 import { PLANET_ABBR } from "@shared/astro";
 import { SectionTitle, ModeText } from "@/components/mode-text";
 import { cn } from "@/lib/utils";
@@ -128,6 +128,25 @@ export function SarvarthaSection({ sarvartha }: { sarvartha?: SarvarthaResult })
                   {ORDINAL[r.house - 1]} house —{" "}
                 </span>
               )}
+              {r.when} — {r.then}.
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-6">
+        <h4 className="text-sm font-semibold">
+          Longevity — chapters 10–11
+        </h4>
+        <p className="mt-1 text-xs text-muted-foreground">
+          The span of life and what cancels a short-life yoga.
+        </p>
+        <ul className="mt-2 space-y-1.5 text-xs leading-5">
+          {SC_LONGEVITY.map((r, i) => (
+            <li key={i} className="text-muted-foreground">
+              <span className="text-muted-foreground/70">
+                ({r.chapter}.{r.stanza})
+              </span>{" "}
               {r.when} — {r.then}.
             </li>
           ))}
