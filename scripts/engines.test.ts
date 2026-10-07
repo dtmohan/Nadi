@@ -38,6 +38,7 @@ import {
 } from "@shared/rules-prasna";
 import { computePrasnaAvReadings } from "@shared/prasna-av";
 import { computeKootas } from "@shared/prasna-kootas";
+import { kundaCheck } from "../server/rectify";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
 // -----------------------------------------------------------------------------------------------
@@ -449,4 +450,13 @@ test("Prasna Marga 22.34-53 Vedha: a favourable position obstructed by the Vedha
   assert.equal(v[0].house, 3);
   assert.equal(v[0].vedhaHouse, 9);
   assert.equal(v[0].obstructor, "Mars");
+});
+
+test("Prasna Marga 5.8-9 Kunda worked example: lagna 11°34' → Aridra", () => {
+  // 11°34' = 694' × 81 = 56214; mod 12 = 6 → Aridra (index 5); birth star Mrigasira (index 4).
+  const k = kundaCheck(11 + 34 / 60, 4 * (360 / 27) + 1); // Moon just inside Mrigasira
+  assert.equal(k.remainder, 6);
+  assert.equal(k.kundaNakshatra, 5); // Aridra
+  assert.equal(k.birthStar, 4); // Mrigasira
+  assert.equal(k.trine, false); // Aridra is not Mrigasira nor its trines
 });

@@ -15,7 +15,8 @@ export type RectifyMethod =
   | "kp-events"
   | "kp-transit"
   | "jaimini-dasha"
-  | "bj-marks";
+  | "bj-marks"
+  | "kunda";
 export const RECTIFY_METHODS: Array<{
   id: RectifyMethod;
   system: string;
@@ -108,6 +109,20 @@ export const RECTIFY_METHODS: Array<{
     needsJudge: false,
     needsEvents: false,
   },
+  {
+    id: "kunda",
+    system: "Prasna Marga",
+    label: "Kunda",
+    plainLabel: "Kunda check",
+    plainShort:
+      "Prasna Marga's own check of the rising sign: the lagna in arc-minutes, times 81, with the multiples of 12 struck out, is read as a nakshatra from Aswini; when it is the birth star or its trines, the lagna reads accurate, otherwise it wants shifting.",
+    short:
+      "The lagna in arc-minutes, times the Kunda (81), with multiples of 12 expunged, read as a nakshatra counted from Aswini; if it is the birth star or its trines the lagna is accurate, otherwise add or subtract ten minutes per asterism (5.8-9).",
+    source:
+      "Prasna Marga 5.8-9 (B.V. Raman). The translation divides by 12, which reaches only the first twelve nakshatras; the classical division by 27 uses a different unit, so this is provisional.",
+    needsJudge: false,
+    needsEvents: false,
+  },
 ];
 
 /** Method label for running text; only "Moon" keeps its capital. */
@@ -126,6 +141,10 @@ export function methodScore(
     if (!r) return { score: 0, max: 0 };
     const sc = scoreMarks(r, marks!.confirmed);
     return { score: sc.score, max: sc.max };
+  }
+  if (m === "kunda") {
+    const k = s.kunda;
+    return k ? { score: k.score, max: k.max } : { score: 0, max: 0 };
   }
   if (m === "kp-rp")
     // The book RP agreement (max 4) plus Dutta's RP-Moon three-level linkage (max 4, absent on

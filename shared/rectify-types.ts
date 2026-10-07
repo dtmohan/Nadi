@@ -136,6 +136,22 @@ export interface DuttaRpMoonCheck {
   max: number;
 }
 
+/**
+ * The Kunda check (Prasna Marga 5.8-9): the lagna in arc-minutes, times 81, with multiples of 12
+ * expunged, read as a nakshatra counted from Aswini. When that nakshatra is the birth star or its
+ * trines, the lagna reads accurate. Raman's translation divides by 12, which reaches only the first
+ * twelve nakshatras (provisional).
+ */
+export interface KundaCheck {
+  remainder: number;
+  kundaNakshatra: number;
+  birthStar: number;
+  trine: boolean;
+  via: string;
+  score: number;
+  max: number;
+}
+
 export interface RectifySegment {
   /** Local civil times in the birth zone, HH:mm:ss. */
   start: string;
@@ -187,6 +203,8 @@ export interface RectifySegment {
   };
   /** Rising drekkana of the interval in the chart's own ayanamsa, 0-35 (sign x 3 + third); key into RectifyResult.marks. */
   drekkana: number;
+  /** Prasna Marga 5.8-9 Kunda check of the lagna against the birth star. */
+  kunda?: KundaCheck;
   events: RectifyEventCheck[];
   score: number;
   max: number;

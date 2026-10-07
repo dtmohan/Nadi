@@ -36,7 +36,7 @@ import type {
   RectifySegmentStability,
 } from "@shared/rectify-types";
 import { DateTime } from "luxon";
-import { norm360, type Planet } from "@shared/astro";
+import { norm360, NAKSHATRAS, type Planet } from "@shared/astro";
 import {
   kpPoint,
   houseOf,
@@ -56,6 +56,7 @@ import type {
   TransitCheck,
   MoonLordsCheck,
   DuttaRpMoonCheck,
+  KundaCheck,
 } from "@shared/rectify-types";
 export type {
   RectifyRequest,
@@ -302,6 +303,35 @@ function moonLordsCheck(
     sign,
     score: 2 * star.level + (sign.owns || sign.occupies ? 1 : 0),
     max: 9,
+  };
+}
+
+/**
+ * The Kunda check (Prasna Marga 5.8-9): the lagna in arc-minutes, times 81, multiples of 12
+ * expunged, read as a nakshatra counted from Aswini. When it is the birth star or its trines the
+ * lagna reads accurate. Raman's translation divides by 12, which reaches only the first twelve
+ * nakshatras, so the method is provisional; the classical division by 27 needs a different unit.
+ */
+export function kundaCheck(lagnaLon: number, moonLon: number): KundaCheck {
+  const norm = (x: number) => ((x % 360) + 360) % 360;
+  const raw = ((lagnaLon * 60 * 81) % 12 + 12) % 12;
+  const remainder = Math.floor(raw); // 0..11
+  const kundaNakshatra = (remainder + 11) % 12; // 0 = Aswini ... 11 = Uttara Phalguni
+  const birthStar = Math.floor(norm(moonLon) / (360 / 27));
+  const trine =
+    kundaNakshatra === birthStar ||
+    kundaNakshatra === (birthStar + 9) % 27 ||
+    kundaNakshatra === (birthStar + 18) % 27;
+  return {
+    remainder,
+    kundaNakshatra,
+    birthStar,
+    trine,
+    via: trine
+      ? `${NAKSHATRAS[kundaNakshatra]} is the birth star ${NAKSHATRAS[birthStar]} or its trine — the lagna reads accurate (5.8)`
+      : `${NAKSHATRAS[kundaNakshatra]} is not the birth star ${NAKSHATRAS[birthStar]} nor its trines — the lagna wants shifting (5.8-9)`,
+    score: trine ? 1 : 0,
+    max: 1,
   };
 }
 
@@ -690,6 +720,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       cuspSubLords: cusps.map((c) => c.subLord),
       moon: { starLord: moon.starLord, subLord: moon.subLord },
       moonLords: moonLordsCheck(lagna, moon, planets),
+      kunda: kundaCheck(lagna.lon, moon.lon),
       dutta,
       jaiminiSign: {
         index: jSign,
