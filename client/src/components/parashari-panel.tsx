@@ -83,6 +83,7 @@ import {
   type PlanetShadbala,
 } from "@shared/shadbala";
 import type { AshtakavargaResult, Bhinnashtaka } from "@shared/ashtakavarga";
+import { computePrasnaAvReadings } from "@shared/prasna-av";
 import {
   BHAVA_PHALA_CAVEATS,
   type BhavaPhala,
@@ -4477,6 +4478,7 @@ function AshtakavargaSection({
   const [caveats, setCaveats] = useState(false);
   const chart = pick ? av.charts.find((c) => c.owner === pick) : undefined;
   const src = av.sources;
+  const prasnaAv = computePrasnaAvReadings(av);
   return (
     <div className="mt-8" data-testid="parashari-ashtakavarga">
       <SectionTitle
@@ -4891,6 +4893,48 @@ function AshtakavargaSection({
           />
         </li>
       </ul>
+
+      {/* Prasna Marga Ch. 32: applications of the same collective Ashtakavarga. */}
+      <div className="mt-4 rounded-md border border-card-border p-3" data-testid="parashari-av-prasna">
+        <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Prasna Marga readings on the same points
+        </p>
+        <ul className="mt-2 space-y-1.5 text-xs leading-relaxed">
+          <li data-testid="prasna-av-vithaya">
+            <Soft>{prasnaAv.vithaya.text}</Soft>{" "}
+            <span className="text-muted-foreground">({prasnaAv.sources.vithaya})</span>
+          </li>
+          <li data-testid="prasna-av-theertha">
+            <Soft>{prasnaAv.theertha.text}</Soft>{" "}
+            <span className="text-muted-foreground">({prasnaAv.sources.theertha})</span>
+          </li>
+          <li data-testid="prasna-av-categories">
+            <Soft>{prasnaAv.categories.text}</Soft>{" "}
+            <span className="text-muted-foreground">({prasnaAv.sources.categories})</span>
+          </li>
+          <li data-testid="prasna-av-antarbhaga">
+            <Soft>{prasnaAv.antarbhaga.text}</Soft>{" "}
+            <span className="text-muted-foreground">({prasnaAv.sources.antarbhaga})</span>
+          </li>
+          <li data-testid="prasna-av-life-thirds">
+            The happy third of life by the two groupings:{" "}
+            {prasnaAv.lifeThirds
+              .map((t) => `${t.span} ${t.total} (${t.method})`)
+              .join(" · ")}
+            .{" "}
+            <span className="text-muted-foreground">({prasnaAv.sources.lifeThirds})</span>
+          </li>
+        </ul>
+        <p className="mt-2 text-2xs text-muted-foreground">
+          Each house's rekhas against its required minimum (32.63):{" "}
+          {prasnaAv.minimums
+            .filter((m) => !m.met)
+            .map((m) => `the ${m.house}${m.house === 1 ? "st" : m.house === 2 ? "nd" : m.house === 3 ? "rd" : "th"} (${m.actual}/${m.required})`)
+            .join(", ") || "every house meets its minimum"}
+          .
+        </p>
+      </div>
+
       <button
         className="mt-2 text-xs text-muted-foreground underline underline-offset-2"
         onClick={() => setCaveats((v) => !v)}

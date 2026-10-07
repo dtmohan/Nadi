@@ -34,6 +34,8 @@ import {
   rasiAgreement,
   timeSphutasFromGhatis,
 } from "@shared/rules-prasna";
+import { computePrasnaAvReadings } from "@shared/prasna-av";
+import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
 // -----------------------------------------------------------------------------------------------
 // Reference chart: 1990-01-01 12:00 UTC, 0N/0E, Lahiri ayanamsa, mean node. Every value below is
@@ -370,4 +372,29 @@ test("Prasna Marga 14.72 tertiary planets: Upaketu + 30 returns the Sun", () => 
     // The text's own check: adding 30° to Upaketu (the fifth) returns the Sun's longitude.
     assert.ok(Math.abs(norm(pts[4].lon + 30) - norm(sun)) < 1e-9, `sun ${sun}`);
   }
+});
+
+test("Prasna Marga 32.61-72 Ashtakavarga readings: sums over the collective points", () => {
+  // Synthetic collective: sign i has i+1 rekhas; house h has h rekhas (house 1 = 1 … 12 = 12).
+  const av = {
+    sarva: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    houses: Array.from({ length: 12 }, (_, i) => ({
+      house: i + 1,
+      signIndex: i,
+      rekhas: i + 1,
+      band: "favourable" as const,
+    })),
+  } as unknown as AshtakavargaResult;
+  const r = computePrasnaAvReadings(av);
+  assert.equal(r.vithaya.total, 2 + 4 + 9 + 10 + 11); // 36
+  assert.equal(r.theertha.total, 6 + 8 + 12); // 26
+  assert.equal(r.categories.bhanduka, 1 + 5 + 9); // 15
+  assert.equal(r.categories.sevaka, 2 + 6 + 10); // 18
+  assert.equal(r.categories.poshaka, 3 + 7 + 11); // 21
+  assert.equal(r.categories.ghataka, 4 + 8 + 12); // 24
+  assert.equal(r.antarbhaga.antarbhaga, 1 + 4 + 5 + 7 + 9 + 10); // 36
+  assert.equal(r.antarbhaga.bahirbhaga, 2 + 3 + 6 + 8 + 11 + 12); // 42
+  // Sign-thirds: Pisces-Gemini 12+1+2+3=18, Cancer-Libra 4+5+6+7=22, Scorpio-Aquarius 8+9+10+11=38.
+  assert.equal(r.lifeThirds[0].total, 18);
+  assert.equal(r.lifeThirds[2].total, 38);
 });
