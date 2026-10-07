@@ -228,7 +228,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
       <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
         <h3 className="text-base font-semibold">Cast a prasna</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Derive an Arudha lagna and read the current sky from it.
+          Read the current sky from an Arudha lagna.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button
@@ -236,7 +236,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             onClick={() => setArudhaIdx(Math.floor(Math.random() * 12))}
             data-testid="prasna-generate-arudha"
           >
-            Generate Arudha
+            Random Arudha
           </Button>
           <select
             value={arudhaIdx ?? ""}
@@ -276,9 +276,15 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         )}
         {arudhaIdx === null && (
           <p className="mt-3 text-xs text-muted-foreground">
-            Generate an Arudha, or pick a sign, to read the query chart.
+            Generate a random Arudha, or pick a sign, to read the query chart.
           </p>
         )}
+        <p className="mt-3 text-2xs text-muted-foreground" data-testid="prasna-arudha-caveat">
+          The “Random Arudha” is a demonstration: the classical determination —
+          by the querist's direction, breath or touch (2.7–11) — is not yet
+          implemented. Use “Pick a sign” to set the direction-based Arudha, or
+          treat a random cast as practice, not a live reading.
+        </p>
         {prasna && arudhaIdx !== null && (
           <div className="mt-3 space-y-2">
             <label className="block">
