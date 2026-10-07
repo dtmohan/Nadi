@@ -7,6 +7,7 @@
 // than recomputed. This module harvests the house significations (ch. 2-8) and karakas (ch. 17).
 import { SIGN_LORD, houseFrom, type Dignity, type Planet, type PlanetPosition } from "./astro";
 import { naturalBenefic, drishtiQuarters } from "./parashari";
+import type { VargasResult } from "./vargas";
 
 /** Ch. 1.25-27: the good-varga count earns a named amsha. Mirrors the app's BPHS varga designation. */
 export const SC_AMSHA_TIERS: Array<{ good: number; name: string; bpbsName: string }> = [
@@ -631,13 +632,21 @@ export interface SarvarthaContext {
   combust(p: Planet): boolean;
   moonStrong: boolean;
   moonWeak: boolean;
+  /** The named Amsha tier (ch. 1.25-27) a planet's ten-fold good-varga count earns, or null. */
+  amsa(p: Planet): string | null;
 }
 
 const MALEFICS: Planet[] = ["Sun", "Mars", "Saturn", "Rahu", "Ketu"];
 
-export function buildSarvarthaContext(positions: PlanetPosition[], lagnaLon: number): SarvarthaContext {
+export function buildSarvarthaContext(positions: PlanetPosition[], lagnaLon: number, vargas?: VargasResult): SarvarthaContext {
   const lagnaSign = Math.floor(((lagnaLon % 360) + 360) % 360 / 30);
   const pos = (p: Planet): PlanetPosition => positions.find((x) => x.planet === p)!;
+  const dasaGood = (p: Planet): number =>
+    vargas?.planets.find((x) => x.planet === p)?.designation?.dasa?.good ?? 0;
+  const amsa = (p: Planet): string | null => {
+    const g = dasaGood(p);
+    return g >= 2 ? scAmshaName(g) : null;
+  };
   const isBenefic = (p: PlanetPosition): boolean => naturalBenefic(p, positions);
   const isMalefic = (p: PlanetPosition): boolean =>
     MALEFICS.includes(p.planet) || (p.planet === "Moon" && !isBenefic(p));
@@ -685,7 +694,7 @@ export function buildSarvarthaContext(positions: PlanetPosition[], lagnaLon: num
   return {
     positions, lagnaSign, houseOf, lordOf, lordHouse, lordNature: (h) => isBenefic(lordPos(h)),
     lordDignity: (h) => lordPos(h).dignity, lordWith, lordAspected, houseHas, isKendra, isTrine, isBad,
-    strong, combust, moonStrong, moonWeak,
+    strong, combust, moonStrong, moonWeak, amsa,
   };
 }
 
@@ -853,10 +862,36 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "12.25": (c) => c.lordWith(12, "benefic"),
   "12.26": (c) => c.lordWith(12, "malefic"),
   "12.27": (c) => c.houseHas(12, "Jupiter") || c.houseHas(12, "Venus") || c.houseHas(12, "Mercury"),
+  // Amsha-tier rules (ch. 1.25-27: the ten-fold good-varga count names the tier).
+  "2.18": (c) => c.amsa(c.lordOf(2)) === "Gopura",
+  "2.21": (c) => c.amsa("Moon") === "Paravata" && c.houseHas(2, "Moon"),
+  "2.22": (c) => ["Simhasana", "Paravata"].includes(c.amsa(c.lordOf(2)) ?? ""),
+  "2.24": (c) => c.amsa(c.lordOf(2)) === "Airavata",
+  "2.53": (c) => (c.isKendra(c.lordHouse(2)) || c.isTrine(c.lordHouse(2))) && c.amsa(c.lordOf(2)) === "Vaisheshika",
+  "3.19": (c) => c.amsa(c.lordOf(3)) === "Gopura" && c.amsa("Mars") === "Simhasana",
+  "3.23": (c) => c.amsa(c.lordOf(3)) === "Vaisheshika",
+  "3.38": (c) => ["Simhasana", "Paravata", "Gopura"].includes(c.amsa(c.lordOf(3)) ?? ""),
+  "4.56": (c) => c.amsa(c.lordOf(4)) === "Vaisheshika",
+  "4.60": (c) => ["Simhasana", "Gopura"].includes(c.amsa(c.lordOf(4)) ?? ""),
+  "4.61": (c) => c.amsa(c.lordOf(4)) === "Paravata",
+  "4.82": (c) => c.lordHouse(4) === 5 && c.amsa(c.lordOf(4)) === "Gopura",
+  "4.89": (c) => c.amsa(c.lordOf(4)) === "Vaisheshika" && c.amsa("Mars") === "Vaisheshika",
+  "4.144": (c) => c.amsa(c.lordOf(4)) === "Gopura",
+  "4.171": (c) => c.amsa(c.lordOf(4)) === "Gopura" && c.strong(c.lordOf(4)),
+  "5.7": (c) => c.amsa(c.lordOf(5)) === "Vaisheshika" && c.amsa("Jupiter") === "Vaisheshika",
+  "5.19": (c) => c.amsa(c.lordOf(5)) === "Gopura",
+  "5.21": (c) => c.amsa(c.lordOf(5)) === "Paravata",
+  "5.52": (c) => c.amsa("Jupiter") === "Gopura" || c.amsa(c.lordOf(5)) === "Gopura",
+  "5.54": (c) => c.amsa(c.lordOf(5)) === "Gopura",
+  "6.57": (c) => c.amsa(c.lordOf(6)) === "Gopura",
+  "7.36": (c) => c.amsa(c.lordOf(7)) === "Gopura",
+  "7.61": (c) => c.amsa(c.lordOf(7)) === "Paravata",
+  "9.14": (c) => c.amsa(c.lordOf(9)) === "Paravata",
+  "9.16": (c) => c.amsa("Sun") === "Gopura",
 };
 
-export function computeSarvartha(positions: PlanetPosition[], lagnaLon: number): SarvarthaResult {
-  const ctx = buildSarvarthaContext(positions, lagnaLon);
+export function computeSarvartha(positions: PlanetPosition[], lagnaLon: number, vargas?: VargasResult): SarvarthaResult {
+  const ctx = buildSarvarthaContext(positions, lagnaLon, vargas);
   const findings: SarvarthaFinding[] = [];
   let computable = 0;
   let total = 0;
