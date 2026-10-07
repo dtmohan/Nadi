@@ -493,7 +493,7 @@ test("Sarvartha Chintamani 1.25-27 Amsha tiers and 2-8 house significations", ()
 });
 
 test("Sarvartha Chintamani 2-3 bhava phala rules", () => {
-  assert.equal(SC_BHAVA_RULES.length, 9);
+  assert.equal(SC_BHAVA_RULES.length, 12);
   for (const h of SC_BHAVA_RULES) {
     assert.ok(h.rules.length >= 10, `house ${h.house} has enough rules`);
     for (const r of h.rules) {
@@ -523,4 +523,9 @@ test("Sarvartha Chintamani 2-3 bhava phala rules", () => {
   assert.ok(h8.find((r) => r.stanza === 19)?.then.includes("32"));
   const h9 = SC_BHAVA_RULES[8].rules; // 9th house
   assert.ok(h9.find((r) => r.stanza === 7)?.then.includes("religious institution"));
+  assert.equal(SC_BHAVA_RULES.length, 12);
+  const h10 = SC_BHAVA_RULES[9].rules;
+  assert.ok(h10.find((r) => r.stanza === 15)?.then.includes("ruling powers"));
+  const h12 = SC_BHAVA_RULES[11].rules;
+  assert.ok(h12.find((r) => r.stanza === 15)?.then.includes("limb"));
 });
