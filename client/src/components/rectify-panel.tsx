@@ -1382,6 +1382,7 @@ export function RectifyPanel({
                     <TableHead className="whitespace-nowrap">
                       {plain ? "Rising degree" : "Lagna"}
                     </TableHead>
+                    <TableHead className="whitespace-nowrap">Score</TableHead>
                     <TableHead className="whitespace-nowrap">
                       {method === "kp-moon"
                         ? plain
@@ -1445,7 +1446,6 @@ export function RectifyPanel({
                         {plain ? "Firm houses" : "Firm cusps"}
                       </TableHead>
                     )}
-                    <TableHead className="whitespace-nowrap">Score</TableHead>
                     {baselined && (
                       <TableHead className="whitespace-nowrap">
                         {plain ? "Beats chance by" : "vs chance"}
@@ -1481,6 +1481,9 @@ export function RectifyPanel({
                               given
                             </span>
                           )}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          <ScoreBar score={score} max={max} />
                         </TableCell>
                         <TableCell className="whitespace-nowrap tabular">
                           {s.sign.slice(0, 3)}{" "}
@@ -1790,9 +1793,6 @@ export function RectifyPanel({
                             <FirmCell st={s.stability} plain={plain} />
                           </TableCell>
                         )}
-                        <TableCell className="whitespace-nowrap">
-                          <ScoreBar score={score} max={max} />
-                        </TableCell>
                         {baselined && (
                           <TableCell className="whitespace-nowrap">
                             <VsChance b={b} />
