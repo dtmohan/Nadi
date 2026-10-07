@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import { DateTime } from "luxon";
 import { ChevronDown } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
-import { PLANET_ABBR, fmtDegShort, type Planet } from "@shared/astro";
+import { NAKSHATRAS, PLANET_ABBR, fmtDegShort, type Planet } from "@shared/astro";
 import type {
   RectifyBaselineStat,
   RectifyResult,
@@ -300,7 +300,7 @@ export function RectifyPanel({
     ]
       .filter(Boolean)
       .join("; ");
-    return `by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}${method === "bj-marks" && data ? ` (${data.marks[seg.drekkana]?.drekkanaLabel}; confirmed ${Array.from(confirmedMarks).join(", ") || "none"})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}`;
+    return `by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}${method === "bj-marks" && data ? ` (${data.marks[seg.drekkana]?.drekkanaLabel}; confirmed ${Array.from(confirmedMarks).join(", ") || "none"})` : ""}${method === "kunda" && seg.kunda ? ` (${seg.kunda.via})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}`;
   };
 
   const saveCopy = useMutation({
@@ -1413,6 +1413,11 @@ export function RectifyPanel({
                         Moon sign
                       </TableHead>
                     )}
+                    {method === "kunda" && (
+                      <TableHead className="whitespace-nowrap">
+                        {plain ? "Kunda star" : "Kunda vs birth star"}
+                      </TableHead>
+                    )}
                     {method !== "kp-rp" &&
                       method !== "kp-moon" &&
                       eventPayload.map((e) => (
@@ -1674,6 +1679,28 @@ export function RectifyPanel({
                                 }
                               />{" "}
                               in it
+                            </span>
+                          </TableCell>
+                        )}
+                        {method === "kunda" && s.kunda && (
+                          <TableCell className="whitespace-nowrap">
+                            <span
+                              className="inline-flex items-center gap-1.5"
+                              title={s.kunda.via}
+                            >
+                              <Mark on={s.kunda.trine} title={s.kunda.via} />
+                              <span
+                                className={cn(
+                                  s.kunda.trine
+                                    ? "text-foreground"
+                                    : "text-muted-foreground",
+                                )}
+                              >
+                                {NAKSHATRAS[s.kunda.kundaNakshatra]}
+                              </span>
+                              <span className="text-muted-foreground">
+                                vs {NAKSHATRAS[s.kunda.birthStar]}
+                              </span>
                             </span>
                           </TableCell>
                         )}
