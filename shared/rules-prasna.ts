@@ -1119,3 +1119,132 @@ export function ashtamangalaFromGroups(
   const digits: [number, number, number] = [left % 8, front % 8, right % 8];
   return { digits, number: digits[0] * 100 + digits[1] * 10 + digits[2] };
 }
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// The five tertiary planets or "doshas" (Ch. XIV, stanzas 72-79): Dhuma, Vyatipata, Parivesha,
+// Indrachapa and Upaketu. Their longitudes derive from the Sun (14.72); each is read by the house
+// it occupies from the lagna, in prasna and in the birth chart alike. Upaketu is the text's
+// "Kethu", different from the Moon's descending node; the name is used to avoid the clash.
+
+export type TertiaryPlanet = "Dhuma" | "Vyatipata" | "Parivesha" | "Indrachapa" | "Upaketu";
+
+export const PRASNA_TERTIARY_EFFECTS: Record<TertiaryPlanet, string[]> = {
+  Dhuma: [
+    "A fall into a well.",
+    "Indistinct speech.",
+    "A brother becomes lame.",
+    "The maternal uncle becomes the guardian of temple property.",
+    "Irritable.",
+    "Injury from wild tigers.",
+    "Excommunication.",
+    "Injury by weapons.",
+    "An atheist.",
+    "Death by lightning.",
+    "Acquisition of new residences.",
+    "Going away from home.",
+  ],
+  Vyatipata: [
+    "Skin diseases.",
+    "Eloquence.",
+    "Musical talents.",
+    "Owns horses.",
+    "Affliction to children.",
+    "Quarrels in the family.",
+    "Poverty.",
+    "Learned in the fine arts.",
+    "Unlucky.",
+    "Danger from burns or fire.",
+    "Favoured by rulers.",
+    "A fallen person.",
+  ],
+  Parivesha: [
+    "Death from serpents.",
+    "Acquisition of treasures.",
+    "An unsound mind.",
+    "Will not live in his own house.",
+    "Incarceration.",
+    "Becomes a thief.",
+    "Loses one eye.",
+    "Danger from weapons.",
+    "Disrespectful towards elders.",
+    "Generous.",
+    "Poor in speech.",
+    "Affected by chronic diseases.",
+  ],
+  Indrachapa: [
+    "Rheumatism.",
+    "Deafness.",
+    "Inclination to harm Brahmins.",
+    "Squandering public wealth.",
+    "A magician and a coward.",
+    "Fear from foes.",
+    "Deformed limbs.",
+    "A wanderer in quest of impossible things.",
+    "Death through a son, or incarceration.",
+    "Shabby dress and quick eating.",
+    "Valiant, and a good hunter.",
+    "Leaving the native place through the government's disfavour.",
+  ],
+  Upaketu: [
+    "Bald-headed.",
+    "Physical debility, and speech through the nose.",
+    "Highly sensitive, speaking through the nose.",
+    "Fond of perfumes and scents.",
+    "Soola disease — for a woman, birth of twins.",
+    "Sand-blind, and death through kapha diseases in a stranger's house.",
+    "Death while thieving.",
+    "Death by poison.",
+    "Performs wonderful deeds, and dies in the end.",
+    "Death by a fall.",
+    "Gains treasure and mines.",
+    "Sleepless, squandering money, and meeting calamities.",
+  ],
+};
+
+export interface TertiaryPosition {
+  name: TertiaryPlanet;
+  lon: number;
+  signIndex: number;
+}
+
+/** The five longitudes from the Sun (14.72): Dhuma = Sun + 133°, then each from the last. */
+export function computeTertiaryPlanets(sunLon: number): TertiaryPosition[] {
+  const norm = (x: number) => ((x % 360) + 360) % 360;
+  const dhuma = norm(sunLon + 133);
+  const vyatipata = norm(360 - dhuma);
+  const parivesha = norm(180 + vyatipata);
+  const indrachapa = norm(360 - parivesha);
+  const upaketu = norm(indrachapa + 17);
+  return [
+    { name: "Dhuma", lon: dhuma, signIndex: Math.floor(dhuma / 30) },
+    { name: "Vyatipata", lon: vyatipata, signIndex: Math.floor(vyatipata / 30) },
+    { name: "Parivesha", lon: parivesha, signIndex: Math.floor(parivesha / 30) },
+    { name: "Indrachapa", lon: indrachapa, signIndex: Math.floor(indrachapa / 30) },
+    { name: "Upaketu", lon: upaketu, signIndex: Math.floor(upaketu / 30) },
+  ];
+}
+
+export interface TertiaryReading {
+  name: TertiaryPlanet;
+  house: number;
+  text: string;
+  source: string;
+}
+
+/** Read the five tertiary planets by their house from the lagna (14.72-79). */
+export function computeTertiaryReading(
+  sunLon: number,
+  lagnaIdx: number,
+  withhold = false,
+): TertiaryReading[] {
+  return computeTertiaryPlanets(sunLon).map((t) => {
+    const house = houseFrom(lagnaIdx, t.signIndex);
+    const text = PRASNA_TERTIARY_EFFECTS[t.name][house - 1];
+    return {
+      name: t.name,
+      house,
+      text: withhold ? redactProse(text) : text,
+      source: "Prasna Marga 14.72-79",
+    };
+  });
+}

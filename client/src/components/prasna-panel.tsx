@@ -14,6 +14,7 @@ import {
   computeProgeny,
   computeSantanaTrisphuta,
   computeSphutas,
+  computeTertiaryReading,
   rasiAgreement,
   PRASNA_SPHUTA_NOTE,
   PRASNA_TRANSIT_NOTES,
@@ -223,6 +224,15 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
       result.gulika.lon,
     );
   }, [result.gulika, result.jaimini.lagna.lon, positions]);
+  const tertiary = useMemo(
+    () =>
+      computeTertiaryReading(
+        positions.find((p) => p.planet === "Sun")!.lon,
+        birthLagnaIdx,
+        withheld,
+      ),
+    [positions, birthLagnaIdx, withheld],
+  );
   const [partnerMoon, setPartnerMoon] = useState<number | null>(null);
   const femaleChart = result.chart.gender === "female";
   const agreement = useMemo(() => {
@@ -864,6 +874,35 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
           </p>
         </details>
       )}
+
+      <details className="mt-3" data-testid="prasna-tertiary">
+        <summary className="cursor-pointer text-sm font-semibold">
+          The five tertiary planets
+        </summary>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Dhuma, Vyatipata, Parivesha, Indrachapa and Upaketu, from the Sun
+          (14.72), read by the house each occupies from the lagna (14.73–79).
+        </p>
+        <ul className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+          {tertiary.map((t) => (
+            <li
+              key={t.name}
+              className="text-xs leading-relaxed"
+              data-testid={`prasna-tertiary-${t.name.toLowerCase()}`}
+            >
+              <span className="font-medium">{t.name}</span>{" "}
+              <span className="text-muted-foreground">
+                · {ord(t.house)} house
+              </span>
+              {t.text ? (
+                <span> — <Soft>{t.text}</Soft></span>
+              ) : (
+                <span className="text-muted-foreground"> — held back for a minor</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </details>
 
       <ul className="mt-4 space-y-1 text-2xs text-muted-foreground">
         {PRASNA_CAVEATS.map((c, i) => (

@@ -30,6 +30,7 @@ import {
   computeChatraRasi,
   arudhaFromHandful,
   ashtamangalaFromGroups,
+  computeTertiaryPlanets,
   rasiAgreement,
   timeSphutasFromGhatis,
 } from "@shared/rules-prasna";
@@ -358,4 +359,15 @@ test("Prasna Marga 4.54-55 Ashtamangala number: remainders of three ÷8 groups",
   const c = ashtamangalaFromGroups(3, 5, 7);
   assert.deepEqual(c.digits, [3, 5, 7]);
   assert.equal(c.number, 357);
+});
+
+test("Prasna Marga 14.72 tertiary planets: Upaketu + 30 returns the Sun", () => {
+  const norm = (x: number) => ((x % 360) + 360) % 360;
+  for (const sun of [0, 84, 194.7, 301.2]) {
+    const pts = computeTertiaryPlanets(sun);
+    assert.equal(pts[0].name, "Dhuma");
+    assert.ok(Math.abs(pts[0].lon - norm(sun + 133)) < 1e-9);
+    // The text's own check: adding 30° to Upaketu (the fifth) returns the Sun's longitude.
+    assert.ok(Math.abs(norm(pts[4].lon + 30) - norm(sun)) < 1e-9, `sun ${sun}`);
+  }
 });
