@@ -40,7 +40,7 @@ import { computePrasnaAvReadings } from "@shared/prasna-av";
 import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
-import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES } from "@shared/sarvartha";
+import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha } from "@shared/sarvartha";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
 // -----------------------------------------------------------------------------------------------
@@ -528,4 +528,24 @@ test("Sarvartha Chintamani 2-3 bhava phala rules", () => {
   assert.ok(h10.find((r) => r.stanza === 15)?.then.includes("ruling powers"));
   const h12 = SC_BHAVA_RULES[11].rules;
   assert.ok(h12.find((r) => r.stanza === 15)?.then.includes("limb"));
+});
+
+test("Sarvartha Chintamani computeSarvartha evaluates rules against a chart", () => {
+  const opts = { ayanamsa: "lahiri", nodeType: "mean" } as const;
+  const { utc } = birthInstant({ birthDate: "1982-11-01", birthTime: "07:20", timezone: "Asia/Kolkata" } as never);
+  const jd = julianDay(utc);
+  const positions = positionsAt(jd, opts as never);
+  const asc = ascendantAt(jd, 9.93988, 76.26022, opts as never);
+  const res = computeSarvartha(positions, asc);
+  const total = SC_BHAVA_RULES.reduce((n, h) => n + h.rules.length, 0);
+  assert.equal(res.total, total);
+  assert.ok(res.computable > 100, `computable ${res.computable}`);
+  assert.ok(res.findings.length > 0);
+  // Deepak's Libra lagna with Venus in the 1st → 1.105 (Venus in lagna, happy first half) fires.
+  const has = (house: number, stanza: number) => res.findings.some((f) => f.house === house && f.stanza === stanza);
+  assert.ok(has(1, 105), "1.105 Venus in lagna should fire");
+  // Shape check.
+  for (const f of res.findings) {
+    assert.ok(f.house >= 1 && f.house <= 12 && f.stanza > 0 && f.topic && f.text);
+  }
 });

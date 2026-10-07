@@ -1337,7 +1337,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         </p>
       )}
       <AvasthasSection a={r.avasthas} />
-      <SarvarthaSection />
+      <SarvarthaSection sarvartha={result.sarvartha} />
     </div>
   );
 }

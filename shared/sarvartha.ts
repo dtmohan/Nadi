@@ -5,7 +5,8 @@
 // "Amsha" tiers of ch. 1.25-27 are the same ten-fold varga classification the app already computes
 // under BPHS 6.42-53 (vargas.ts); only three of the names differ, so they are aliased here rather
 // than recomputed. This module harvests the house significations (ch. 2-8) and karakas (ch. 17).
-import type { Planet } from "./astro";
+import { SIGN_LORD, houseFrom, type Dignity, type Planet, type PlanetPosition } from "./astro";
+import { naturalBenefic, drishtiQuarters } from "./parashari";
 
 /** Ch. 1.25-27: the good-varga count earns a named amsha. Mirrors the app's BPHS varga designation. */
 export const SC_AMSHA_TIERS: Array<{ good: number; name: string; bpbsName: string }> = [
@@ -593,3 +594,280 @@ export const SC_BHAVA_RULES: ScHouseRules[] = [
     ],
   },
 ];
+
+// ── Computation against a chart ─────────────────────────────────────────────
+
+export interface SarvarthaFinding {
+  house: number;
+  stanza: number;
+  topic: string;
+  text: string;
+}
+
+export interface SarvarthaResult {
+  findings: SarvarthaFinding[];
+  /** Rules evaluated against the chart. */
+  computable: number;
+  /** Rules harvested in total (computable + reference-only). */
+  total: number;
+}
+
+export interface SarvarthaContext {
+  positions: PlanetPosition[];
+  lagnaSign: number;
+  houseOf(p: Planet): number;
+  lordOf(h: number): Planet;
+  lordHouse(h: number): number;
+  lordDignity(h: number): Dignity;
+  /** Whether the lord of house h is a natural benefic. */
+  lordNature(h: number): boolean;
+  lordWith(h: number, kind: "benefic" | "malefic" | Planet): boolean;
+  lordAspected(h: number, kind: "benefic" | "malefic" | Planet): boolean;
+  houseHas(h: number, kind: "benefic" | "malefic" | Planet): boolean;
+  isKendra(h: number): boolean;
+  isTrine(h: number): boolean;
+  isBad(h: number): boolean;
+  strong(p: Planet): boolean;
+  combust(p: Planet): boolean;
+  moonStrong: boolean;
+  moonWeak: boolean;
+}
+
+const MALEFICS: Planet[] = ["Sun", "Mars", "Saturn", "Rahu", "Ketu"];
+
+export function buildSarvarthaContext(positions: PlanetPosition[], lagnaLon: number): SarvarthaContext {
+  const lagnaSign = Math.floor(((lagnaLon % 360) + 360) % 360 / 30);
+  const pos = (p: Planet): PlanetPosition => positions.find((x) => x.planet === p)!;
+  const isBenefic = (p: PlanetPosition): boolean => naturalBenefic(p, positions);
+  const isMalefic = (p: PlanetPosition): boolean =>
+    MALEFICS.includes(p.planet) || (p.planet === "Moon" && !isBenefic(p));
+  const houseOf = (p: Planet): number => houseFrom(lagnaSign, pos(p).signIndex);
+  const lordOf = (h: number): Planet => SIGN_LORD[(lagnaSign + h - 1) % 12];
+  const lordHouse = (h: number): number => houseOf(lordOf(h));
+  const lordPos = (h: number): PlanetPosition => pos(lordOf(h));
+  const inHouse = (h: number): Planet[] =>
+    positions.filter((p) => houseOf(p.planet) === h).map((p) => p.planet);
+  const matches = (p: PlanetPosition, kind: "benefic" | "malefic" | Planet): boolean =>
+    kind === "benefic" ? isBenefic(p) : kind === "malefic" ? isMalefic(p) : p.planet === kind;
+  const lordWith = (h: number, kind: "benefic" | "malefic" | Planet): boolean => {
+    const lp = lordPos(h);
+    return positions.some(
+      (p) => p.planet !== lp.planet && p.signIndex === lp.signIndex && matches(p, kind),
+    );
+  };
+  const lordAspected = (h: number, kind: "benefic" | "malefic" | Planet): boolean => {
+    const lp = lordPos(h);
+    return positions.some(
+      (p) => p.signIndex !== lp.signIndex && drishtiQuarters(p.planet, p.signIndex, lp.signIndex) >= 1 && matches(p, kind),
+    );
+  };
+  const houseHas = (h: number, kind: "benefic" | "malefic" | Planet): boolean => {
+    const s = (lagnaSign + h - 1) % 12;
+    if (kind === "benefic" || kind === "malefic")
+      return positions.some((p) => p.signIndex === s && (kind === "benefic" ? isBenefic(p) : isMalefic(p)));
+    return positions.some((p) => p.signIndex === s && p.planet === kind);
+  };
+  const isKendra = (h: number) => [1, 4, 7, 10].includes(h);
+  const isTrine = (h: number) => [1, 5, 9].includes(h);
+  const isBad = (h: number) => [6, 8, 12].includes(h);
+  const combust = (p: Planet): boolean => {
+    const sun = pos("Sun");
+    const pp = pos(p);
+    return Math.abs(pp.lon - sun.lon) < 7;
+  };
+  const strong = (p: Planet): boolean => {
+    const pp = pos(p);
+    return ["Exalted", "Own sign", "Moolatrikona", "Friendly"].includes(pp.dignity) && !combust(p);
+  };
+  const moonElongation = Math.abs((pos("Moon").lon - pos("Sun").lon + 360) % 360);
+  const moonWeak = moonElongation <= 72;
+  const moonStrong = moonElongation > 72;
+  return {
+    positions, lagnaSign, houseOf, lordOf, lordHouse, lordNature: (h) => isBenefic(lordPos(h)),
+    lordDignity: (h) => lordPos(h).dignity, lordWith, lordAspected, houseHas, isKendra, isTrine, isBad,
+    strong, combust, moonStrong, moonWeak,
+  };
+}
+
+type ScTest = (c: SarvarthaContext) => boolean;
+
+/** Tests for the rules whose conditions map cleanly to chart facts; keyed "house.stanza". */
+const SC_RULE_TESTS: Record<string, ScTest> = {
+  // 1st house (ch. 2)
+  "1.69": (c) => c.lordWith(1, "benefic") || c.lordAspected(1, "benefic"),
+  "1.72": (c) => c.strong(c.lordOf(1)),
+  "1.73": (c) => c.lordWith(1, "malefic") || c.lordHouse(1) === 8,
+  "1.94": (c) => c.houseHas(1, "malefic"),
+  "1.105": (c) => c.houseHas(1, "Venus"),
+  // 2nd house (ch. 3)
+  "2.12": (c) => c.lordNature(2) && (c.isKendra(c.lordHouse(2)) || ["Exalted", "Friendly"].includes(c.lordDignity(2))),
+  "2.15": (c) => !c.lordNature(2) && c.lordWith(2, "malefic"),
+  "2.25": (c) => c.isKendra(c.lordHouse(2)) && c.lordAspected(2, "benefic"),
+  "2.27": (c) => c.houseHas(2, "malefic") && (c.lordWith(2, "malefic") || c.lordDignity(2) === "Debilitated"),
+  "2.29": (c) => c.lordWith(2, "benefic") && (c.isKendra(c.lordHouse(2)) || c.isTrine(c.lordHouse(2))),
+  "2.36": (c) => c.houseHas(2, "Mars"),
+  "2.40": (c) => (c.lordOf(2) === "Jupiter" || c.lordOf(2) === "Venus") && (c.lordDignity(2) === "Exalted" || c.lordDignity(2) === "Moolatrikona"),
+  "2.41": (c) => c.lordOf(2) === "Jupiter" && c.strong(c.lordOf(2)),
+  "2.54": (c) => c.lordHouse(1) === 2 && c.lordHouse(2) === 11 && c.lordHouse(11) === 1,
+  "2.88": (c) => c.isKendra(c.lordHouse(1)) && c.isKendra(c.lordHouse(2)),
+  "2.109": (c) => c.houseHas(2, "malefic") && c.lordHouse(1) === 12,
+  "2.121": (c) => c.isKendra(c.lordHouse(2)) && c.lordWith(2, "Venus"),
+  "2.149": (c) => c.houseHas(2, "Saturn") || c.houseHas(2, "Rahu"),
+  "2.151": (c) => c.houseHas(2, "Mercury") && !c.strong("Mercury"),
+  // 3rd house (ch. 4)
+  "3.2": (c) => c.lordHouse(3) === 8 && c.lordHouse(8) === 8,
+  "3.15": (c) => c.houseHas(3, "benefic") && c.strong(c.lordOf(3)),
+  "3.17": (c) => c.isKendra(c.lordHouse(3)) && ["Exalted", "Own sign", "Friendly"].includes(c.lordDignity(3)),
+  "3.24": (c) => c.lordOf(1) !== c.lordOf(3),
+  "3.31": (c) => c.strong(c.lordOf(3)) && (c.isKendra(c.lordHouse(3)) || c.isTrine(c.lordHouse(3))),
+  "3.36": (c) => c.lordDignity(3) === "Debilitated",
+  "3.40": (c) => c.lordWith(3, "Sun"),
+  "3.42": (c) => c.lordWith(3, "Saturn"),
+  "3.44": (c) => c.lordWith(3, "Rahu") || c.lordWith(3, "Mercury"),
+  "3.47": (c) => c.houseHas(3, "Mars"),
+  "3.48": (c) => c.houseHas(3, "Saturn"),
+  // 4th house (ch. 4)
+  "4.55": (c) => c.isKendra(c.lordHouse(4)) && c.lordAspected(4, "benefic"),
+  "4.57": (c) => c.isKendra(c.lordHouse(4)),
+  "4.63": (c) => c.lordHouse(4) === 8,
+  "4.64": (c) => c.lordWith(4, "malefic") && (c.lordDignity(4) === "Debilitated" || c.lordDignity(4) === "Inimical"),
+  "4.66": (c) => (c.isKendra(c.lordHouse(4)) || c.isTrine(c.lordHouse(4))) && !c.lordWith(4, "malefic"),
+  "4.68": (c) => c.houseHas(4, "benefic") && c.strong("Mercury"),
+  "4.69": (c) => c.houseHas(4, "malefic") && c.lordWith(4, "malefic"),
+  "4.73": (c) => c.lordWith(4, "malefic") && !c.lordAspected(4, "benefic"),
+  "4.75": (c) => c.lordHouse(4) === 4,
+  "4.79": (c) => c.lordHouse(4) === 10 && c.lordHouse(10) === 4 && c.strong("Mars"),
+  "4.90": (c) => c.lordHouse(4) === 2 && c.lordWith(4, "malefic"),
+  "4.97": (c) => c.lordAspected(4, "benefic") && c.houseHas(4, "benefic"),
+  "4.101": (c) => c.houseHas(4, "malefic") && !c.strong("Jupiter") && !c.strong(c.lordOf(4)),
+  "4.110": (c) => c.lordHouse(4) === 4 && c.lordWith(4, "malefic"),
+  "4.135": (c) => c.houseHas(4, "Saturn") && c.houseHas(4, "benefic") === false,
+  "4.139": (c) => c.houseHas(4, "malefic"),
+  "4.143": (c) => c.houseHas(4, "benefic"),
+  "4.148": (c) => c.lordHouse(1) === c.lordHouse(4),
+  "4.152": (c) => c.strong(c.lordOf(4)) && c.houseHas(4, "benefic"),
+  "4.163": (c) => c.isKendra(c.lordHouse(4)),
+  "4.168": (c) => c.lordHouse(4) === 12,
+  // 5th house (ch. 5)
+  "5.3": (c) => c.houseHas(5, "benefic") && c.lordAspected(5, "benefic"),
+  "5.4": (c) => c.lordNature(5) && c.lordWith(5, "benefic"),
+  "5.5": (c) => c.lordHouse(1) === 5 && c.strong(c.lordOf(5)) && c.strong("Jupiter"),
+  "5.6": (c) => c.lordOf(5) === "Jupiter" && c.strong("Jupiter"),
+  "5.14": (c) => c.houseHas(5, "malefic") && c.lordWith(5, "malefic"),
+  "5.16": (c) => c.lordDignity(5) === "Debilitated" || c.isBad(c.lordHouse(5)),
+  "5.18": (c) => c.isBad(c.lordHouse(5)),
+  "5.29": (c) => c.houseHas(5, "malefic"),
+  "5.33": (c) => c.lordDignity(5) === "Exalted",
+  "5.34": (c) => c.strong("Mercury") && c.lordAspected(5, "benefic") && c.houseHas(5, "benefic"),
+  "5.44": (c) => c.houseHas(5, "malefic") && c.lordWith(5, "malefic"),
+  "5.47": (c) => c.houseHas(5, "Saturn") && c.lordAspected(5, "malefic"),
+  "5.58": (c) => c.lordHouse(1) === c.lordHouse(5),
+  "5.65": (c) => c.houseHas(5, "malefic") && c.lordWith(5, "malefic"),
+  // 6th house (ch. 5)
+  "6.2": (c) => c.lordHouse(6) === 1 || c.lordHouse(6) === 8,
+  "6.9": (c) => c.lordWith(6, "Sun"),
+  "6.12": (c) => c.lordHouse(7) === 6 && c.lordHouse(7) === 6,
+  "6.13": (c) => c.isKendra(c.lordHouse(6)) || c.isTrine(c.lordHouse(6)),
+  "6.32": (c) => c.houseHas(6, "Sun"),
+  "6.33": (c) => c.houseHas(6, "Moon"),
+  "6.36": (c) => c.houseHas(6, "Moon") && c.houseHas(6, "Mars"),
+  "6.44": (c) => c.isKendra(c.lordHouse(6)),
+  "6.45": (c) => c.lordHouse(6) === 6,
+  "6.47": (c) => c.isBad(c.lordHouse(6)) && c.strong(c.lordOf(1)),
+  "6.48": (c) => c.lordAspected(6, "benefic") || c.lordWith(6, "benefic"),
+  "6.53": (c) => c.lordOf(6) === "Jupiter" && c.lordWith(6, "benefic"),
+  "6.54": (c) => c.lordWith(6, "malefic"),
+  "6.58": (c) => c.houseHas(6, "benefic") && c.lordWith(6, "benefic"),
+  // 7th house (ch. 6)
+  "7.2": (c) => c.houseHas(7, "Venus"),
+  "7.3": (c) => c.houseHas(7, "Mars"),
+  "7.6": (c) => c.lordWith(7, "Rahu") || c.lordWith(7, "Ketu"),
+  "7.10": (c) => c.moonWeak && c.houseHas(7, "Moon"),
+  "7.12": (c) => c.houseHas(7, "Venus") && c.lordDignity(7) === "Debilitated",
+  "7.13": (c) => c.lordHouse(2) === 2 && c.lordHouse(7) === 7,
+  "7.15": (c) => c.lordDignity(7) === "Exalted",
+  "7.16": (c) => c.lordHouse(1) === 8 && c.houseHas(7, "malefic"),
+  "7.25": (c) => c.lordDignity(7) === "Debilitated" || c.combust(c.lordOf(7)),
+  "7.31": (c) => c.lordHouse(7) === c.lordHouse(11),
+  "7.39": (c) => c.lordDignity(7) === "Debilitated",
+  "7.40": (c) => c.lordWith(7, "benefic") || c.lordAspected(7, "benefic"),
+  "7.50": (c) => c.lordOf(7) === "Mars" && (c.lordDignity(7) === "Debilitated" || c.combust(c.lordOf(7))),
+  "7.55": (c) => c.lordOf(7) === "Venus" && c.strong("Venus") && c.lordWith(7, "benefic"),
+  "7.56": (c) => c.lordOf(7) === "Saturn" && c.lordWith(7, "malefic"),
+  "7.57": (c) => c.lordOf(7) === "Saturn" && c.lordAspected(7, "benefic"),
+  "7.58": (c) => c.houseHas(7, "Rahu") || c.houseHas(7, "Ketu"),
+  "7.68": (c) => c.lordDignity(7) === "Debilitated" || c.lordDignity(7) === "Inimical",
+  "7.73": (c) => c.lordHouse(7) !== c.lordHouse(1),
+  "7.92": (c) => c.houseHas(7, "Mars"),
+  "7.110": (c) => c.lordOf(7) === "Moon" || c.lordOf(7) === "Jupiter",
+  // 8th house (ch. 7)
+  "8.2": (c) => c.lordHouse(8) === 12 || c.lordHouse(8) === 6,
+  "8.3": (c) => c.lordHouse(8) === 7,
+  "8.5": (c) => c.lordDignity(10) === "Exalted" || c.lordDignity(10) === "Friendly",
+  "8.7": (c) => c.isKendra(c.lordHouse(1)) && (c.lordWith(1, "Jupiter") || c.lordWith(1, "Venus")),
+  "8.8": (c) => c.isKendra(c.lordHouse(1)) && c.lordWith(1, "benefic"),
+  "8.15": (c) => c.houseHas(6, "malefic") && c.houseHas(8, "malefic") && c.houseHas(12, "malefic"),
+  "8.17": (c) => c.houseHas(6, "malefic") || c.houseHas(8, "malefic"),
+  "8.20": (c) => c.lordDignity(1) === "Inimical",
+  "8.27": (c) => c.lordHouse(8) === 6 && c.lordHouse(1) === 6,
+  "8.57": (c) => c.houseHas(8, "malefic"),
+  "8.58": (c) => c.houseHas(8, "benefic"),
+  "8.59": (c) => c.lordWith(8, "malefic"),
+  // 9th house (ch. 7)
+  "9.2": (c) => c.houseHas(9, "benefic"),
+  "9.6": (c) => c.lordNature(9) || c.lordDignity(9) === "Exalted",
+  "9.8": (c) => c.lordAspected(9, "benefic"),
+  "9.11": (c) => c.lordDignity(9) === "Debilitated",
+  "9.13": (c) => c.lordNature(9) && c.houseHas(9, "benefic"),
+  "9.17": (c) => c.lordWith(9, "malefic"),
+  "9.19": (c) => c.lordDignity(9) === "Debilitated" || c.lordWith(9, "malefic"),
+  // 10th house (ch. 8)
+  "10.2": (c) => c.lordDignity(10) === "Debilitated" || c.lordWith(10, "malefic"),
+  "10.15": (c) => c.lordNature(10) || c.lordAspected(10, "benefic"),
+  "10.16": (c) => c.houseHas(10, "Sun") && c.houseHas(10, "Mars"),
+  "10.18": (c) => c.isKendra(c.lordHouse(10)) && c.lordWith(10, "benefic"),
+  "10.22": (c) => c.lordNature(10) && (c.lordDignity(10) === "Exalted" || c.lordDignity(10) === "Own sign" || c.lordDignity(10) === "Friendly"),
+  "10.24": (c) => c.lordWith(10, "malefic"),
+  "10.27": (c) => c.houseHas(10, "Jupiter") || c.houseHas(10, "Venus"),
+  "10.28": (c) => c.houseHas(10, "malefic"),
+  "10.30": (c) => c.lordHouse(6) === 10,
+  "10.33": (c) => c.houseHas(10, "malefic"),
+  // 11th house (ch. 8)
+  "11.2": (c) => c.isKendra(c.lordHouse(11)) || c.isTrine(c.lordHouse(11)) || c.houseHas(11, "malefic"),
+  "11.3": (c) => c.lordHouse(2) === 11 && c.lordHouse(11) === 2,
+  "11.10": (c) => c.houseHas(11, "malefic"),
+  "11.11": (c) => c.lordNature(11) && c.lordAspected(11, "benefic") && c.strong(c.lordOf(11)),
+  "11.12": (c) => c.lordWith(11, "malefic"),
+  "11.14": (c) => c.houseHas(11, "benefic"),
+  "11.15": (c) => c.houseHas(11, "malefic"),
+  // 12th house (ch. 8)
+  "12.2": (c) => c.houseHas(12, "malefic"),
+  "12.3": (c) => c.houseHas(12, "Saturn") || c.houseHas(12, "Rahu"),
+  "12.5": (c) => c.houseHas(12, "Jupiter") || c.houseHas(12, "Venus"),
+  "12.9": (c) => c.lordWith(12, "malefic") || c.lordHouse(12) === 6,
+  "12.10": (c) => c.lordDignity(7) === "Debilitated" && c.lordWith(12, "malefic"),
+  "12.11": (c) => !c.strong("Mars") && c.lordWith(12, "malefic"),
+  "12.12": (c) => !c.strong(c.lordOf(5)) && c.lordWith(12, "malefic"),
+  "12.13": (c) => c.lordWith(12, "Sun"),
+  "12.15": (c) => c.lordDignity(12) === "Debilitated",
+  "12.25": (c) => c.lordWith(12, "benefic"),
+  "12.26": (c) => c.lordWith(12, "malefic"),
+  "12.27": (c) => c.houseHas(12, "Jupiter") || c.houseHas(12, "Venus") || c.houseHas(12, "Mercury"),
+};
+
+export function computeSarvartha(positions: PlanetPosition[], lagnaLon: number): SarvarthaResult {
+  const ctx = buildSarvarthaContext(positions, lagnaLon);
+  const findings: SarvarthaFinding[] = [];
+  let computable = 0;
+  let total = 0;
+  for (const h of SC_BHAVA_RULES) {
+    for (const r of h.rules) {
+      total++;
+      const test = SC_RULE_TESTS[`${h.house}.${r.stanza}`];
+      if (!test) continue;
+      computable++;
+      if (test(ctx)) findings.push({ house: h.house, stanza: r.stanza, topic: r.topic, text: r.then });
+    }
+  }
+  return { findings, computable, total };
+}
