@@ -1,4 +1,4 @@
-import { SC_BHAVAS, SC_BHAVA_RULES, SC_METHOD_NOTE, type SarvarthaResult } from "@shared/sarvartha";
+import { SC_BHAVAS, SC_BHAVA_RULES, SC_RAJYOGAS, SC_METHOD_NOTE, type SarvarthaResult } from "@shared/sarvartha";
 import { PLANET_ABBR } from "@shared/astro";
 import { SectionTitle, ModeText } from "@/components/mode-text";
 import { cn } from "@/lib/utils";
@@ -93,6 +93,24 @@ export function SarvarthaSection({ sarvartha }: { sarvartha?: SarvarthaResult })
           </ul>
         </div>
       ))}
+
+      <div className="mt-6">
+        <h4 className="text-sm font-semibold">Rajyogas — chapter 9</h4>
+        {sarvartha && sarvartha.rajyogas.length > 0 && (
+          <p className="mt-2 text-xs leading-5">
+            <span className="font-medium">Applies to this chart:</span>{" "}
+            {sarvartha.rajyogas.map((r) => r.text).join("; ")}.
+          </p>
+        )}
+        <ul className="mt-2 space-y-1.5 text-xs leading-5">
+          {SC_RAJYOGAS.map((r) => (
+            <li key={r.stanza} className="text-muted-foreground">
+              <span className="text-muted-foreground/70">(9.{r.stanza})</span>{" "}
+              {r.when} — {r.then}.
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }
