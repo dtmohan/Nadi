@@ -960,3 +960,27 @@ export const SC_DASHA_PHALA: ScDashaPhala[] = [
   { house: 0, stanza: 36, when: "the sub-period lord is a temporary friend of the main-period lord", then: "half the bad results it would give as an enemy" },
   { house: 0, stanza: 36, when: "the main and sub-period lords are 6th or 8th to each other", then: "relinquishment of office or even death" },
 ];
+
+// ── Ch. 10-12 Longevity (span of life) ─────────────────────────────────────
+
+/** A longevity rule from ch. 10 (span of life) or ch. 11 (cancellation of short life). */
+export interface ScLongevity {
+  chapter: number;
+  stanza: number;
+  when: string;
+  then: string;
+}
+
+export const SC_LONGEVITY: ScLongevity[] = [
+  { chapter: 10, stanza: 2, when: "the span of life", then: "less than 32 years is short, 32 to 70 medium, above 70 long, and over 100 the highest (uttam)" },
+  { chapter: 10, stanza: 7, when: "the lagna lord is an enemy of the Sun", then: "short life; neutral, medium; a friend, long" },
+  { chapter: 10, stanza: 10, when: "the lagna lord and the 8th lord are both in movable signs, or one fixed and one common", then: "long life; both in fixed signs, short; both in common, medium" },
+  { chapter: 10, stanza: 8, when: "born in a yoga of short life", then: "death in the dasa of the Vipat star (the 3rd asterism from the birth star)" },
+  { chapter: 10, stanza: 9, when: "born in a yoga of long life", then: "death in the dasa of the Vadha star (the 7th asterism from the birth star)" },
+  { chapter: 10, stanza: 14, when: "the Vipat, Pratyari or Vadha governing planet is aspected by malefics", then: "physical suffering in those three dasas" },
+  { chapter: 11, stanza: 1, when: "Jupiter is in the lagna", then: "destroys the evil of weak planets, like bowing to Shiva destroying sin" },
+  { chapter: 11, stanza: 2, when: "the lagna lord is very strong in kendra, with benefics and free of malefic aspect", then: "fortunate, and lives a long life" },
+  { chapter: 11, stanza: 5, when: "even one of Jupiter, Venus or Mercury is strong in a kendra, free of malefics", then: "destroys all danger to short life" },
+  { chapter: 11, stanza: 9, when: "Jupiter away from the Sun is in the 10th house", then: "destroys all danger to short life" },
+  { chapter: 11, stanza: 12, when: "the Moon farthest from the Sun is under benefic aspect, free of malefics", then: "destroys all danger to short life" },
+];
