@@ -40,7 +40,7 @@ import { computePrasnaAvReadings } from "@shared/prasna-av";
 import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
-import { scAmshaName, SC_BHAVAS } from "@shared/sarvartha";
+import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES } from "@shared/sarvartha";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
 // -----------------------------------------------------------------------------------------------
@@ -490,4 +490,20 @@ test("Sarvartha Chintamani 1.25-27 Amsha tiers and 2-8 house significations", ()
   assert.equal(SC_BHAVAS[1].karaka, "Jupiter"); // 2nd house
   assert.equal(SC_BHAVAS[7].karaka, "Saturn"); // 8th house
   assert.ok(SC_BHAVAS[1].significations.includes("accumulated wealth"));
+});
+
+test("Sarvartha Chintamani 2-3 bhava phala rules", () => {
+  assert.equal(SC_BHAVA_RULES.length, 2);
+  for (const h of SC_BHAVA_RULES) {
+    assert.ok(h.rules.length >= 20, `house ${h.house} has enough rules`);
+    for (const r of h.rules) {
+      assert.ok(r.stanza > 0 && r.topic && r.when && r.then, `rule ${h.house}.${r.stanza}`);
+    }
+  }
+  // A couple of pinned readings from the text.
+  const h2 = SC_BHAVA_RULES[1].rules; // 2nd house
+  assert.ok(h2.find((r) => r.stanza === 54)?.then.includes("bank balance"));
+  assert.ok(h2.find((r) => r.stanza === 24)?.then.includes("innumerable"));
+  const h1 = SC_BHAVA_RULES[0].rules; // 1st house
+  assert.ok(h1.find((r) => r.stanza === 89)?.then.includes("consumption"));
 });
