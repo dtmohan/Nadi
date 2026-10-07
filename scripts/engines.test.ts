@@ -40,7 +40,7 @@ import { computePrasnaAvReadings } from "@shared/prasna-av";
 import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
-import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha } from "@shared/sarvartha";
+import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS } from "@shared/sarvartha";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
 // -----------------------------------------------------------------------------------------------
@@ -548,4 +548,8 @@ test("Sarvartha Chintamani computeSarvartha evaluates rules against a chart", ()
   for (const f of res.findings) {
     assert.ok(f.house >= 1 && f.house <= 12 && f.stanza > 0 && f.topic && f.text);
   }
+  // Rajyogas (ch. 9) evaluate too; Deepak has Saturn in the lagna (Libra) → 9.22 does not fire.
+  assert.ok(Array.isArray(res.rajyogas));
+  assert.ok(SC_RAJYOGAS.length >= 12);
+  for (const r of res.rajyogas) assert.ok(r.stanza > 0 && r.text);
 });

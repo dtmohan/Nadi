@@ -316,6 +316,12 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
               </span>
             ))}
           </p>
+          {result.sarvartha.rajyogas.length > 0 && (
+            <p className="mt-2 text-xs leading-relaxed">
+              <span className="font-medium">Rajyoga:</span>{" "}
+              {result.sarvartha.rajyogas.map((r) => r.text).join("; ")}.
+            </p>
+          )}
           <p className="mt-1 text-xs text-muted-foreground">
             {result.sarvartha.findings.length} of {result.sarvartha.computable}{" "}
             computable rules apply to this chart — the full house-walk is in the

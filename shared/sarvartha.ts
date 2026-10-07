@@ -607,11 +607,37 @@ export interface SarvarthaFinding {
 
 export interface SarvarthaResult {
   findings: SarvarthaFinding[];
+  /** Rajyogas (ch. 9) that fire for this chart. */
+  rajyogas: { stanza: number; text: string }[];
   /** Rules evaluated against the chart. */
   computable: number;
   /** Rules harvested in total (computable + reference-only). */
   total: number;
 }
+
+/** A ch. 9 Rajyoga: a chart-level (not house-level) combination for affluence and power. */
+export interface ScRajyoga {
+  stanza: number;
+  when: string;
+  then: string;
+  test?: ScTest;
+}
+
+export const SC_RAJYOGAS: ScRajyoga[] = [
+  { stanza: 1, when: "five planets are exalted, with Jupiter strong in the lagna", then: "becomes a king", test: (c) => c.positions.filter((p) => p.dignity === "Exalted").length >= 5 && c.strong("Jupiter") && c.houseOf("Jupiter") === 1 },
+  { stanza: 3, when: "all the planets occupy their signs of exaltation", then: "becomes a king", test: (c) => c.positions.every((p) => p.dignity === "Exalted") },
+  { stanza: 3, when: "all the planets occupy their own signs", then: "equal in status to a king", test: (c) => c.positions.every((p) => ["Own sign", "Moolatrikona", "Exalted"].includes(p.dignity)) },
+  { stanza: 4, when: "three planets are in their moolatrikona signs", then: "status equal to that of a king", test: (c) => c.positions.filter((p) => p.dignity === "Moolatrikona").length >= 3 },
+  { stanza: 5, when: "many planets occupy inimical or debilitation signs", then: "devoid of wealth and comforts, foolish and diseased", test: (c) => c.positions.filter((p) => p.dignity === "Debilitated" || p.dignity === "Inimical").length >= 4 },
+  { stanza: 9, when: "the Moon is in the lagna, Jupiter in the 4th, Venus in the 10th, and Saturn exalted or own", then: "equal to a king", test: (c) => c.houseOf("Moon") === 1 && c.houseOf("Jupiter") === 4 && c.houseOf("Venus") === 10 && ["Exalted", "Own sign"].includes(c.positions.find((p) => p.planet === "Saturn")!.dignity) },
+  { stanza: 11, when: "benefics occupy kendras and trines, malefics the 3rd, 6th and 11th, and the lagna lord is strong", then: "equal to a king", test: (c) => c.strong(c.lordOf(1)) && [1, 4, 5, 7, 9, 10].every((h) => c.houseHas(h, "benefic")) && [3, 6, 11].every((h) => c.houseHas(h, "malefic")) },
+  { stanza: 20, when: "Jupiter is in the lagna and Mercury in a kendra", then: "equal in status to that of a king", test: (c) => c.houseOf("Jupiter") === 1 && c.isKendra(c.houseOf("Mercury")) },
+  { stanza: 21, when: "Jupiter is in the 7th or a trine, aspected by the lagna lord", then: "equal in status to that of a king", test: (c) => c.houseOf("Jupiter") === 7 || c.isTrine(c.houseOf("Jupiter")) },
+  { stanza: 22, when: "Saturn is in a kendra or trine, exalted or own, aspected by the 10th lord", then: "favour from the king", test: (c) => (c.isKendra(c.houseOf("Saturn")) || c.isTrine(c.houseOf("Saturn"))) && ["Exalted", "Own sign", "Moolatrikona"].includes(c.positions.find((p) => p.planet === "Saturn")!.dignity) },
+  { stanza: 27, when: "all the planets are in houses 1 to 6 and the 9th lord is in the 2nd with the Moon", then: "becomes a king", test: (c) => c.positions.every((p) => c.houseOf(p.planet) <= 6) && c.lordHouse(9) === 2 && c.houseOf("Moon") === 2 },
+  { stanza: 29, when: "the Moon with Mars is in the 2nd or 3rd, and Rahu is in the 5th", then: "king of kings", test: (c) => [2, 3].includes(c.houseOf("Moon")) && c.houseOf("Moon") === c.houseOf("Mars") && c.houseOf("Rahu") === 5 },
+  { stanza: 37, when: "Rahu is in the 10th and Saturn in the 11th", then: "equal in status to that of a king", test: (c) => c.houseOf("Rahu") === 10 && c.houseOf("Saturn") === 11 },
+];
 
 export interface SarvarthaContext {
   positions: PlanetPosition[];
@@ -904,5 +930,6 @@ export function computeSarvartha(positions: PlanetPosition[], lagnaLon: number, 
       if (test(ctx)) findings.push({ house: h.house, stanza: r.stanza, topic: r.topic, text: r.then });
     }
   }
-  return { findings, computable, total };
+  const rajyogas = SC_RAJYOGAS.filter((r) => r.test && r.test(ctx)).map((r) => ({ stanza: r.stanza, text: r.then }));
+  return { findings, rajyogas, computable, total };
 }
