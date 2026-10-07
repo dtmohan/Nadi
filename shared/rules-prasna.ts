@@ -1261,7 +1261,7 @@ export const PRASNA_TIME_PERIODS: Partial<
 > = {
   Sun: { classical: "Ayana", label: "six months", months: 6 },
   Moon: { classical: "Kshana", label: "48 minutes", months: 48 / 43200 },
-  Mars: { classical: "Vasara", label: "one week", months: 7 / 30 },
+  Mars: { classical: "Vasara", label: "one day", months: 1 / 30 },
   Mercury: { classical: "Ritu", label: "two months", months: 2 },
   Jupiter: { classical: "Masa", label: "one month", months: 1 },
   Venus: { classical: "Ardha", label: "a fortnight", months: 0.5 },
