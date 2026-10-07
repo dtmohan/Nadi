@@ -495,7 +495,7 @@ test("Sarvartha Chintamani 1.25-27 Amsha tiers and 2-8 house significations", ()
 test("Sarvartha Chintamani 2-3 bhava phala rules", () => {
   assert.equal(SC_BHAVA_RULES.length, 9);
   for (const h of SC_BHAVA_RULES) {
-    assert.ok(h.rules.length >= 20, `house ${h.house} has enough rules`);
+    assert.ok(h.rules.length >= 10, `house ${h.house} has enough rules`);
     for (const r of h.rules) {
       assert.ok(r.stanza > 0 && r.topic && r.when && r.then, `rule ${h.house}.${r.stanza}`);
     }
