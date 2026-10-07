@@ -33,6 +33,7 @@ import {
 } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
 import { computeSarvartha } from "@shared/sarvartha";
+import { computeVargas } from "@shared/vargas";
 import { vimshottari } from "@shared/kp";
 import type { DasaStartTransit } from "@shared/shadbala";
 import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
@@ -187,7 +188,7 @@ export function computeChart(chart: Chart): ChartResult {
       })),
     ),
     nakshatraWealth: assessNakshatraWealth(positions, asc),
-    sarvartha: computeSarvartha(positions, asc),
+    sarvartha: computeSarvartha(positions, asc, computeVargas(positions, asc)),
   };
   // One gate for every route: a native under the sensitive-content age gets the server-side
   // material stripped here; the client-side modules read `sensitive.withheld` and strip their own.
