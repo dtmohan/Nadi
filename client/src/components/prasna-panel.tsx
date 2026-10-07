@@ -11,6 +11,7 @@ import {
   computePrasnaDispositions,
   computePrasnaFructification,
   computePrasnaTransits,
+  computePrasnaVedha,
   computeProgeny,
   computeSantanaTrisphuta,
   computeSphutas,
@@ -208,6 +209,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
   const transits = useMemo(
     () => computePrasnaTransits(natalMoon.signIndex, now.positions, withheld),
     [natalMoon.signIndex, now.positions, withheld],
+  );
+  const vedha = useMemo(
+    () => computePrasnaVedha(now.positions, natalMoon.signIndex),
+    [now.positions, natalMoon.signIndex],
   );
   const gulika = useMemo(
     () =>
@@ -569,6 +574,21 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             <li key={i}>{n}</li>
           ))}
         </ul>
+        {vedha.length > 0 && (
+          <p
+            className="mt-2 rounded-md border border-verdict-mixed/40 bg-verdict-mixed/[0.06] p-2 text-xs"
+            data-testid="prasna-vedha"
+          >
+            Vedha (22.34–53):{" "}
+            {vedha
+              .map(
+                (v) =>
+                  `${v.planet} in its ${ord(v.house)} (a favourable place) is obstructed by ${v.obstructor} in the ${ord(v.vedhaHouse)}`,
+              )
+              .join("; ")}
+            .
+          </p>
+        )}
       </div>
 
       {/* Birth chart */}

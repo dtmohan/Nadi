@@ -34,6 +34,7 @@ import {
   rasiAgreement,
   timeSphutasFromGhatis,
   computeFructificationTiming,
+  computePrasnaVedha,
 } from "@shared/rules-prasna";
 import { computePrasnaAvReadings } from "@shared/prasna-av";
 import { computeKootas } from "@shared/prasna-kootas";
@@ -432,4 +433,20 @@ test("Prasna Marga 21 kootas: star- and lord-based lookups", () => {
   // Aswini (0) → Brahmin; Rohini (3) → Sudra. Man Brahmin, woman Sudra → admissible (fair).
   assert.equal(k.varna.grade, "fair");
   assert.equal(k.total, 11);
+});
+
+test("Prasna Marga 22.34-53 Vedha: a favourable position obstructed by the Vedha sign", () => {
+  // Moon in Aries (0); the Sun in the 3rd from it (Vedhya) with Mars in the 9th (Vedha).
+  const mk = (planet: string, lon: number) => ({
+    planet,
+    lon,
+    signIndex: Math.floor(lon / 30),
+    degInSign: lon % 30,
+  }) as Parameters<typeof computePrasnaVedha>[0][number];
+  const v = computePrasnaVedha([mk("Sun", 60), mk("Mars", 240)], 0);
+  assert.equal(v.length, 1);
+  assert.equal(v[0].planet, "Sun");
+  assert.equal(v[0].house, 3);
+  assert.equal(v[0].vedhaHouse, 9);
+  assert.equal(v[0].obstructor, "Mars");
 });

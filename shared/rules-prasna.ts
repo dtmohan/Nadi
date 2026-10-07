@@ -1349,3 +1349,59 @@ export function computeFructificationTiming(
 
   return { periods, lagnaNavamsa, sorrow, houses, source: "Prasna Marga 14.81-85" };
 }
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// Vedha and Vipareeta-vedha (Ch. XXII, stanzas 34-53): a planet transiting a favourable (Vedhya)
+// position from the natal Moon has its good nullified when another planet occupies the Vedha
+// (obstruction) sign; a planet in an unfavourable place, counter-afflicted from its own Vedha,
+// does good instead (22.35, 22.53). The pairs follow 22.46-51, and the exempt pairs 22.52
+// (Saturn does not vedha the Sun, nor the Sun Saturn; the Moon and Mercury are not mutually
+// afflictive).
+
+export const PRASNA_VEDHA: Partial<Record<Planet, Array<[number, number]>>> = {
+  Sun: [[3, 9], [6, 12], [10, 4], [11, 5]],
+  Moon: [[7, 2], [1, 5], [6, 12], [11, 8], [10, 9], [3, 4]],
+  Mars: [[3, 12], [6, 9], [11, 5]],
+  Mercury: [[2, 5], [4, 7], [6, 9], [8, 1], [10, 8], [11, 12]],
+  Jupiter: [[2, 12], [5, 4], [9, 10], [7, 3], [11, 8]],
+  Venus: [[2, 7], [3, 1], [4, 10], [5, 9], [8, 5], [9, 4], [11, 12], [12, 6]],
+  Saturn: [[3, 12], [6, 9], [11, 5]],
+  Rahu: [[3, 12], [6, 9], [11, 5]],
+  Ketu: [[3, 12], [6, 9], [11, 5]],
+};
+
+const VEDHA_EXEMPT: Array<[Planet, Planet]> = [
+  ["Sun", "Saturn"],
+  ["Moon", "Mercury"],
+];
+
+export interface PrasnaVedhaAffliction {
+  planet: Planet;
+  house: number; // the Vedhya (favourable) house
+  vedhaHouse: number; // the obstructing house
+  obstructor: Planet;
+}
+
+/** Which transiting planets are Vedha-afflicted, from the natal Moon (22.34-53). */
+export function computePrasnaVedha(
+  positions: PlanetPosition[],
+  moonSignIndex: number,
+): PrasnaVedhaAffliction[] {
+  const houseOf = (p: PlanetPosition) => houseFrom(moonSignIndex, p.signIndex);
+  const exempt = (a: Planet, b: Planet) =>
+    VEDHA_EXEMPT.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+  const out: PrasnaVedhaAffliction[] = [];
+  for (const p of positions) {
+    const table = PRASNA_VEDHA[p.planet];
+    if (!table) continue;
+    const h = houseOf(p);
+    const entry = table.find(([vedhya]) => vedhya === h);
+    if (!entry) continue;
+    const vedhaHouse = entry[1];
+    const obstructor = positions.find(
+      (q) => q.planet !== p.planet && !exempt(p.planet, q.planet) && houseOf(q) === vedhaHouse,
+    );
+    if (obstructor) out.push({ planet: p.planet, house: h, vedhaHouse, obstructor: obstructor.planet });
+  }
+  return out;
+}
