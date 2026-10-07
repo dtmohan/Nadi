@@ -28,6 +28,7 @@ import {
   computeSantanaTrisphuta,
   computeSphutas,
   computeChatraRasi,
+  arudhaFromHandful,
   rasiAgreement,
   timeSphutasFromGhatis,
 } from "@shared/rules-prasna";
@@ -333,4 +334,14 @@ test("Prasna Marga 8.1 worked example: Chatra Rasi", () => {
   assert.equal(computeChatraRasi(0, 1, 4), 4);
   // Sun in Scorpio → Veethi Gemini; Arudha Aries, Lagna Cancer (count 4) → Virgo.
   assert.equal(computeChatraRasi(7, 0, 3), 5);
+});
+
+test("Prasna Marga 4.38, 51-55 cowrie Arudha: remainder names the sign", () => {
+  // Remainder 1 = Aries … 11 = Aquarius, 0 = Pisces.
+  assert.equal(arudhaFromHandful(1), 0); // Aries
+  assert.equal(arudhaFromHandful(7), 6); // Libra
+  assert.equal(arudhaFromHandful(11), 10); // Aquarius
+  assert.equal(arudhaFromHandful(12), 11); // Pisces (remainder 0)
+  assert.equal(arudhaFromHandful(13), 0); // Aries (wraps)
+  assert.equal(arudhaFromHandful(108), 11); // Pisces
 });

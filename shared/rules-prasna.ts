@@ -1078,3 +1078,18 @@ export function computeArudhaReading(
     source: "Prasna Marga 8.1-6",
   };
 }
+
+// ───────────────────────────────────────────────────────────────────────────────────────────────
+// The cowrie-division Arudha (Ch. IV, stanzas 38, 51-55): the astrologer works with a lot of 108
+// cowries. A handful is taken and divided by twelve, and the remainder names the Arudha sign
+// (1 = Aries … 11 = Aquarius, 0 = Pisces). The text's canonical Arudha is the gold piece placed by
+// an innocent person (4.51-53); the cowrie division by eight yields the Ashtamangala number
+// (4.54-55). This helper simulates the handful-and-remainder practice many astrologers use.
+
+export const PRASNA_COWRIES = 108;
+
+/** A handful of cowries divided by twelve, read as the Arudha sign (0 = Aries … 11 = Pisces). */
+export function arudhaFromHandful(handful: number): number {
+  const remainder = ((handful % 12) + 12) % 12;
+  return remainder === 0 ? 11 : remainder - 1;
+}

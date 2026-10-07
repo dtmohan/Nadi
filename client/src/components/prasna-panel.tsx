@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import type { ChartResult } from "@shared/schema";
 import { NAKSHATRAS, SIGNS } from "@shared/astro";
 import {
+  arudhaFromHandful,
+  PRASNA_COWRIES,
   computeArudhaReading,
   computeGulikaReading,
   computePrasna,
@@ -150,7 +152,15 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
   const { positions, reading, now } = result;
   const birthLagnaIdx = result.jaimini.lagna.signIndex;
   const [arudhaIdx, setArudhaIdx] = useState<number | null>(null);
+  const [shellCast, setShellCast] = useState<{ handful: number; remainder: number } | null>(null);
   const [question, setQuestion] = useState("");
+
+  const castShells = () => {
+    const handful = 1 + Math.floor(Math.random() * PRASNA_COWRIES);
+    const remainder = handful % 12;
+    setShellCast({ handful, remainder });
+    setArudhaIdx(arudhaFromHandful(handful));
+  };
   const savedPrasnas = useSavedPrasnas();
 
   const natal = useMemo(
@@ -247,10 +257,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button
             size="sm"
-            onClick={() => setArudhaIdx(Math.floor(Math.random() * 12))}
+            onClick={castShells}
             data-testid="prasna-generate-arudha"
           >
-            Random Arudha
+            Cast shells
           </Button>
           <select
             value={arudhaIdx ?? ""}
@@ -277,6 +287,13 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               <span className="font-semibold">{SIGNS[arudhaIdx]}</span>{" "}
               <span className="text-muted-foreground">· the sky now</span>
             </p>
+            {shellCast && (
+              <p className="mt-1 text-xs text-muted-foreground tabular" data-testid="prasna-shell-cast">
+                A handful of {shellCast.handful} cowries ÷ 12 → remainder{" "}
+                {shellCast.remainder === 0 ? 12 : shellCast.remainder} →{" "}
+                {SIGNS[arudhaIdx]}
+              </p>
+            )}
             <div className="mt-3 grid gap-4 md:grid-cols-[minmax(0,16rem)_1fr]">
               <SouthIndianChart
                 positions={now.positions}
@@ -319,14 +336,15 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         )}
         {arudhaIdx === null && (
           <p className="mt-3 text-xs text-muted-foreground">
-            Generate a random Arudha, or pick a sign, to read the query chart.
+            Cast shells, or pick a sign, to read the query chart.
           </p>
         )}
         <p className="mt-3 text-2xs text-muted-foreground" data-testid="prasna-arudha-caveat">
-          The “Random Arudha” is a demonstration: the classical determination —
-          by the querist's direction, breath or touch (2.7–11) — is not yet
-          implemented. Use “Pick a sign” to set the direction-based Arudha, or
-          treat a random cast as practice, not a live reading.
+          “Cast shells” simulates the cowrie method: a handful is taken from a
+          lot of 108 and divided by twelve, the remainder names the Arudha. It
+          is a simulation, not a live ritual — the text's canonical Arudha is the
+          gold piece placed by an innocent person (4.51–53), and the cowrie
+          division by eight yields the Ashtamangala number (4.54–55).
         </p>
         {prasna && arudhaIdx !== null && (
           <div className="mt-3 space-y-2">
