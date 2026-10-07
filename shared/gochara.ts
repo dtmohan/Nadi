@@ -297,6 +297,7 @@ export const GOCHARA_CAVEATS: string[] = [
   "Counted from the natal Moon's sign, which Phaladeepika 26.1 names the chief lagna for transits; Brihat Samhita 104 does the same throughout.",
   "A favourable planet gives results only in proportion to the running dasa and the person's station (Brihat Samhita 104.46); read this layer under the Vimshottari and Ashtakavarga layers, not above them.",
   "Vedha follows Phaladeepika 26.3-8: Saturn does not obstruct the Sun, Mercury does not obstruct the Moon, the Sun does not obstruct Saturn. The nodes are not named as obstructors and their own vedha points are borrowed from the Sun, which is provisional.",
+  "Prasna Marga 22.46-51 gives a different Vedha table (the Moon's 3rd/10th and Mercury's 4th pair differently, Venus and the nodes diverge, and the nodes take Saturn's points); the Prasna Marga tab shows that table, and the two are kept apart rather than reconciled.",
   "Rahu and Ketu are absent from Brihat Samhita 104; Phaladeepika 26.2 treats them like the Sun and 26.24 gives Rahu's house results. Ketu's row repeats Rahu's and is provisional.",
   "Dignity here is the sidereal sign dignity and the Nadi combustion orb (3°20'); Phaladeepika 26.32 speaks of depression, inimical houses and eclipse without giving an orb.",
   "Effective portions of the sign (Brihat Samhita 104.49-51; Phaladeepika 26.25) differ between the two texts and are shown, not applied to the verdict.",
