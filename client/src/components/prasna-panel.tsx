@@ -36,6 +36,7 @@ import { PlanetName } from "@/components/planet-name";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Soft } from "@/lib/gentle";
 import { redactProse } from "@shared/life-stage";
+import { computeKootas } from "@shared/prasna-kootas";
 import { Button } from "@/components/ui/button";
 import {
   prasnaStore,
@@ -244,14 +245,22 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
       ),
     [positions, result.jaimini.lagna.lon, birthLagnaIdx],
   );
-  const [partnerMoon, setPartnerMoon] = useState<number | null>(null);
+  const [partnerNak, setPartnerNak] = useState<number | null>(null);
   const femaleChart = result.chart.gender === "female";
   const agreement = useMemo(() => {
-    if (partnerMoon === null) return null;
-    const maleSign = femaleChart ? partnerMoon : natalMoon.signIndex;
-    const femaleSign = femaleChart ? natalMoon.signIndex : partnerMoon;
+    if (partnerNak === null) return null;
+    const partnerSign = Math.floor((partnerNak * (360 / 27)) / 30);
+    const maleSign = femaleChart ? partnerSign : natalMoon.signIndex;
+    const femaleSign = femaleChart ? natalMoon.signIndex : partnerSign;
     return rasiAgreement(maleSign, femaleSign);
-  }, [partnerMoon, femaleChart, natalMoon.signIndex]);
+  }, [partnerNak, femaleChart, natalMoon.signIndex]);
+  const kootas = useMemo(() => {
+    if (partnerNak === null) return null;
+    const partnerLon = partnerNak * (360 / 27);
+    const maleLon = femaleChart ? partnerLon : natalMoon.lon;
+    const femaleLon = femaleChart ? natalMoon.lon : partnerLon;
+    return computeKootas(maleLon, femaleLon);
+  }, [partnerNak, femaleChart, natalMoon.lon]);
   const prasna = useMemo(
     () => (arudhaIdx === null ? null : computePrasna(now.positions, arudhaIdx)),
     [now.positions, arudhaIdx],
@@ -741,31 +750,32 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         </div>
       </section>
 
-      {/* Marriage compatibility: Rasi agreement */}
+      {/* Marriage compatibility: Rasi agreement + kootas */}
       <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
         <h3 className="text-base font-semibold">Marriage compatibility</h3>
         <p className="mt-1 text-xs text-muted-foreground">
-          Rasi agreement (Prasna Marga 21.1–16): the groom's Moon counted from
-          the bride's.
+          Rasi agreement (21.1–16) and the star- and lord-based kootas
+          (21.17–50): the groom read from the bride.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">
             {femaleChart ? "Partner's" : "This chart's"} Moon is{" "}
-            {SIGNS[natalMoon.signIndex]}. Partner's Moon:
+            {SIGNS[natalMoon.signIndex]} ({natalMoon.nakshatra}). Partner's Moon
+            star:
           </span>
           <select
-            value={partnerMoon ?? ""}
+            value={partnerNak ?? ""}
             onChange={(e) =>
-              setPartnerMoon(e.target.value === "" ? null : Number(e.target.value))
+              setPartnerNak(e.target.value === "" ? null : Number(e.target.value))
             }
             className="h-8 rounded-md border bg-background px-2 text-sm"
             data-testid="prasna-partner-moon"
-            aria-label="Partner's Moon sign"
+            aria-label="Partner's Moon nakshatra"
           >
-            <option value="">Pick a sign</option>
-            {SIGNS.map((s, i) => (
-              <option key={s} value={i}>
-                {s}
+            <option value="">Pick a star</option>
+            {NAKSHATRAS.map((n, i) => (
+              <option key={n} value={i}>
+                {n}
               </option>
             ))}
           </select>
@@ -794,6 +804,64 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             </div>
             <p className="mt-1 text-xs leading-relaxed text-foreground/90">
               {agreement.note}
+            </p>
+          </div>
+        )}
+        {kootas && (
+          <div
+            className="mt-3 rounded-md border bg-card p-3"
+            data-testid="prasna-kootas"
+          >
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-sm font-medium">The kootas</span>
+              <span className="text-xs text-muted-foreground">
+                {kootas.good} of {kootas.total} good
+              </span>
+              <span className="ml-auto text-2xs text-muted-foreground">
+                Prasna Marga 21.17–50
+              </span>
+            </div>
+            <ul className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
+              {(
+                [
+                  ["Vasya", kootas.vasya],
+                  ["Rasyadhipati", kootas.rasyadhipati],
+                  ["Mahendra", kootas.mahendra],
+                  ["Dina", kootas.dina],
+                  ["Streedeergha", kootas.streedeegha],
+                  ["Gana", kootas.gana],
+                  ["Yoni", kootas.yoni],
+                  ["Varna", kootas.varna],
+                  ["Vedha", kootas.vedha],
+                  ["Rajju", kootas.rajju],
+                  ["Bhuta", kootas.bhuta],
+                ] as const
+              ).map(([name, k]) => (
+                <li
+                  key={name}
+                  className="text-xs leading-relaxed"
+                  data-testid={`prasna-koota-${name.toLowerCase()}`}
+                >
+                  <span className="font-medium">{name}</span>{" "}
+                  <span
+                    className={cn(
+                      "rounded px-1 py-0.5 text-2xs uppercase",
+                      k.grade === "good"
+                        ? "text-verdict-good"
+                        : k.grade === "fair"
+                          ? "text-verdict-mixed"
+                          : "text-verdict-bad",
+                    )}
+                  >
+                    {k.grade}
+                  </span>{" "}
+                  — {k.text}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-2xs text-muted-foreground">
+              Not applied: Gotra, Vihanga, the animal-yoni enmities, Vaya by
+              ages, the Ashtakavarga agreement, Aya/Vyaya and Rinanukulya.
             </p>
           </div>
         )}

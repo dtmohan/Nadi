@@ -36,6 +36,7 @@ import {
   computeFructificationTiming,
 } from "@shared/rules-prasna";
 import { computePrasnaAvReadings } from "@shared/prasna-av";
+import { computeKootas } from "@shared/prasna-kootas";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
 // -----------------------------------------------------------------------------------------------
@@ -402,10 +403,12 @@ test("Prasna Marga 32.61-72 Ashtakavarga readings: sums over the collective poin
 
 test("Prasna Marga 14.82 worked example: lagna navamsa lord times its navamsas", () => {
   // Rising navamsa Leo → lord Sun (Ayana, 6 months); the Sun in its 5th navamsa → 5 × 6 = 30 months.
-  const planets = [
-    ["Sun", 14], ["Moon", 100], ["Mars", 200], ["Mercury", 50],
-    ["Jupiter", 150], ["Venus", 250], ["Saturn", 300],
-  ].map(([planet, lon]) => ({
+  const planets = (
+    [
+      ["Sun", 14], ["Moon", 100], ["Mars", 200], ["Mercury", 50],
+      ["Jupiter", 150], ["Venus", 250], ["Saturn", 300],
+    ] as Array<[string, number]>
+  ).map(([planet, lon]) => ({
     planet,
     lon,
     signIndex: Math.floor(lon / 30),
@@ -418,4 +421,15 @@ test("Prasna Marga 14.82 worked example: lagna navamsa lord times its navamsas",
   // The seven periods follow Brihat Jataka.
   assert.equal(t.periods.length, 7);
   assert.equal(t.periods.find((p) => p.planet === "Sun")?.classical, "Ayana");
+});
+
+test("Prasna Marga 21 kootas: star- and lord-based lookups", () => {
+  // Male Aswini (0°), female Rohini (3rd star, 40°).
+  const k = computeKootas(0, 3 * (360 / 27));
+  assert.equal(k.mahendra.grade, "good"); // girl's star 4th from the boy's
+  assert.equal(k.bhuta.grade, "good"); // both earthy (Prithvi)
+  assert.equal(k.gana.grade, "good"); // Deva man, Nara woman
+  // Aswini (0) → Brahmin; Rohini (3) → Sudra. Man Brahmin, woman Sudra → admissible (fair).
+  assert.equal(k.varna.grade, "fair");
+  assert.equal(k.total, 11);
 });
