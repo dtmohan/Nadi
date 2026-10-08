@@ -39,16 +39,32 @@ export function log(message: string, source = "express") {
 const RATE_WINDOW_MS = 60_000;
 const RATE_MAX = 120;
 const rateBuckets = new Map<string, { count: number; reset: number }>();
+// Behind the pplx.app proxy every request arrives from the proxy's address, so each visitor is
+// counted by the first X-Forwarded-For entry when there is one. A client can write that header
+// itself, which only lets it dodge its own limit; the overall ceiling still caps the API.
+const RATE_MAX_ALL = 1200;
+let rateAll = { count: 0, reset: 0 };
+function rateKey(req: Request): string {
+  const fwd = req.headers["x-forwarded-for"];
+  const first = (Array.isArray(fwd) ? fwd[0] : fwd)?.split(",")[0]?.trim();
+  return first || req.ip || "unknown";
+}
 app.use("/api", (req, res, next) => {
-  const key = req.ip ?? "unknown";
+  const key = rateKey(req);
   const now = Date.now();
+  if (rateAll.reset < now) rateAll = { count: 0, reset: now + RATE_WINDOW_MS };
+  rateAll.count += 1;
   let b = rateBuckets.get(key);
   if (!b || b.reset < now) {
     b = { count: 0, reset: now + RATE_WINDOW_MS };
     rateBuckets.set(key, b);
   }
   b.count += 1;
-  if (rateBuckets.size > 5000) rateBuckets.forEach((v, k) => { if (v.reset < now) rateBuckets.delete(k); });
+  if (rateBuckets.size > 5000) {
+    rateBuckets.forEach((v, k) => { if (v.reset < now) rateBuckets.delete(k); });
+    if (rateBuckets.size > 5000) rateBuckets.clear();
+  }
+  if (rateAll.count > RATE_MAX_ALL) b = rateAll;
   if (b.count > RATE_MAX) {
     res.setHeader("Retry-After", Math.ceil((b.reset - now) / 1000));
     return res.status(429).json({ message: "Too many requests, please slow down" });

@@ -52,9 +52,47 @@ import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
 import { validateEvents } from "./validate";
 import { z } from "zod";
+import { createHash } from "node:crypto";
 import { sensitiveGate, redactSensitive, withholdText } from "@shared/life-stage";
 
-const resultCache = new Map<string, ChartResult>();
+// Computed readings kept briefly so repeat requests are quick. An entry holds no name, notes,
+// life events or birth inputs (the request supplies those again on a hit), is looked up by a
+// hash of the request, and expires after ten minutes. The derived timelines still imply the
+// birth date, which is why entries do not outlive the TTL.
+type CachedResult = Omit<ChartResult, "chart" | "utc" | "jd" | "timeBasis">;
+const RESULT_TTL_MS = 10 * 60_000;
+const RESULT_CACHE_MAX = 200;
+const resultCache = new Map<string, { at: number; result: CachedResult }>();
+
+function resultCacheKey(chart: Chart): string {
+  const request = JSON.stringify({
+    ...chart,
+    id: undefined,
+    name: undefined,
+    notes: undefined,
+    day: DateTime.utc().toISODate(),
+  });
+  return createHash("sha256").update(request).digest("hex");
+}
+
+function resultCacheGet(key: string): CachedResult | undefined {
+  const now = Date.now();
+  // Entries sit in insertion order, so the expired ones are at the front.
+  for (;;) {
+    const first = resultCache.entries().next();
+    if (first.done || now - first.value[1].at <= RESULT_TTL_MS) break;
+    resultCache.delete(first.value[0]);
+  }
+  return resultCache.get(key)?.result;
+}
+
+function resultCachePut(key: string, result: ChartResult): void {
+  const { chart: _chart, utc: _utc, jd: _jd, timeBasis: _basis, ...derived } = result;
+  resultCache.delete(key);
+  resultCache.set(key, { at: Date.now(), result: derived });
+  while (resultCache.size > RESULT_CACHE_MAX)
+    resultCache.delete(resultCache.keys().next().value!);
+}
 
 const opts0 = (chart: Chart): EphemerisOptions => ({
   ayanamsa: chart.ayanamsa,
@@ -79,34 +117,32 @@ function dasaStartTransits(
 }
 
 export function computeChart(chart: Chart): ChartResult {
-  const key = JSON.stringify({
-    ...chart,
-    id: undefined,
-    name: undefined,
-    notes: undefined,
-    day: DateTime.utc().toISODate(),
-  });
-  const cached = resultCache.get(key);
-  if (cached)
+  const key = resultCacheKey(chart);
+  const cached = resultCacheGet(key);
+  if (cached) {
+    // The chart and its birth instant come from the request, never from the cache.
+    const { utc, basis } = birthInstant(chart);
+    const jd = julianDay(utc);
+    const fresh = kpBase(
+      jd,
+      chart.latitude,
+      chart.longitude,
+      basis.displayZone,
+      opts0(chart).nodeType,
+    );
     return {
       ...cached,
       chart,
-      kp: (() => {
-        const fresh = kpBase(
-          cached.jd,
-          chart.latitude,
-          chart.longitude,
-          cached.timeBasis.displayZone,
-          opts0(chart).nodeType,
-        );
-        // Results cached before the stability pass existed pick it up here.
-        return {
-          ...cached.kp,
-          stability: cached.kp.stability ?? fresh.stability,
-          now: fresh.now,
-        };
-      })(),
+      utc: utc.toISO()!,
+      timeBasis: basis,
+      jd,
+      kp: {
+        ...cached.kp,
+        stability: cached.kp.stability ?? fresh.stability,
+        now: fresh.now,
+      },
     };
+  }
 
   const opts: EphemerisOptions = opts0(chart);
   const { utc, basis } = birthInstant(chart);
@@ -209,9 +245,7 @@ export function computeChart(chart: Chart): ChartResult {
         ),
       };
   }
-  resultCache.set(key, result);
-  if (resultCache.size > 200)
-    resultCache.delete(resultCache.keys().next().value!);
+  resultCachePut(key, result);
   return result;
 }
 
