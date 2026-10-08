@@ -275,6 +275,53 @@ export function charaDasha(lagnaSign: number, positions: PlanetPosition[], birth
   return { direction, ninthSign, periods };
 }
 
+// ── Sthira dasha ──────────────────────────────────────────────────────────────
+
+export interface SthiraDashaPeriod {
+  sign: number;
+  signName: Sign;
+  years: number; // seven, or the fractional remainder at birth for the first
+  start: string;
+  end: string;
+  ageStart: number;
+}
+
+export interface SthiraDasha {
+  akPlanet: Planet;
+  akSign: number;
+  direction: "forward" | "backward";
+  /** The twelve sign-periods; the first is the Atmakaraka's sign, prorated from birth. */
+  periods: SthiraDashaPeriod[];
+}
+
+/**
+ * Sthira dasha: seven fixed years for every sign, starting from the Atmakaraka's rasi sign,
+ * forward when that sign is savya (odd-footed), backward otherwise. The remainder at birth is
+ * (30° minus the Atmakaraka's degree) over 30 of seven years. Twelve signs make an 84-year cycle.
+ */
+export function sthiraDasha(positions: PlanetPosition[], birthIso: string, maxYears = 84): SthiraDasha {
+  const ak = charaKarakas(positions)[0];
+  const akPos = positions.find((p) => p.planet === ak.planet)!;
+  const akSign = akPos.signIndex;
+  const direction: "forward" | "backward" = SAVYA.has(akSign) ? "forward" : "backward";
+  const step = direction === "forward" ? 1 : 11;
+  const firstYears = ((30 - akPos.degInSign) / 30) * 7;
+  const birth = DateTime.fromISO(birthIso, { zone: "utc" });
+  const periods: SthiraDashaPeriod[] = [];
+  let cursor = birth;
+  let elapsed = 0;
+  let years = firstYears;
+  for (let i = 0; i < 12 && elapsed < maxYears; i++) {
+    const sign = (akSign + step * i) % 12;
+    const end = cursor.plus({ years });
+    periods.push({ sign, signName: SIGNS[sign], years, start: cursor.toISO()!, end: end.toISO()!, ageStart: elapsed });
+    cursor = end;
+    elapsed += years;
+    years = 7;
+  }
+  return { akPlanet: ak.planet, akSign, direction, periods };
+}
+
 // ── Assembled result ──────────────────────────────────────────────────────────
 
 export interface JaiminiLagna {
@@ -307,6 +354,7 @@ export interface JaiminiResult {
   arudhas: ArudhaPada[];
   argala: { target: string; sign: number; items: Argala[] }[];
   charaDasha: CharaDasha;
+  sthiraDasha: SthiraDasha;
   findings: JaiminiFinding[];
   /** Hora and Ghatika lagnas (need place and time); absent when the server could not compute sunrise. */
   special?: { horaLagna: JaiminiLagna; ghatikaLagna: JaiminiLagna };
@@ -363,6 +411,7 @@ export function computeJaimini(positions: PlanetPosition[], lagnaLon: number, bi
     arudhas,
     argala,
     charaDasha: charaDasha(lagnaSign, positions, birthIso),
+    sthiraDasha: sthiraDasha(positions, birthIso),
     findings,
     special,
     ayur,

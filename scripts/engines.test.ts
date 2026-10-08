@@ -41,6 +41,7 @@ import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
 import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY } from "@shared/sarvartha";
+import { sthiraDasha, charaKarakas, SAVYA } from "@shared/jaimini";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
 // -----------------------------------------------------------------------------------------------
@@ -556,4 +557,25 @@ test("Sarvartha Chintamani computeSarvartha evaluates rules against a chart", ()
   assert.ok(SC_LONGEVITY.length >= 10);
   assert.ok(SC_LONGEVITY.find((r) => r.chapter === 10 && r.stanza === 7)?.then.includes("short"));
   for (const r of res.rajyogas) assert.ok(r.stanza > 0 && r.text);
+});
+
+test("Jaimini sthira dasha: seven years per sign from the Atmakaraka's sign", () => {
+  const opts = { ayanamsa: "lahiri", nodeType: "mean" } as const;
+  const { utc } = birthInstant({ birthDate: "1982-11-01", birthTime: "07:20", timezone: "Asia/Kolkata" } as never);
+  const jd = julianDay(utc);
+  const positions = positionsAt(jd, opts as never);
+  const ak = charaKarakas(positions)[0];
+  const akPos = positions.find((p) => p.planet === ak.planet)!;
+  const d = sthiraDasha(positions, utc.toISO()!);
+  assert.equal(d.akPlanet, ak.planet);
+  assert.equal(d.akSign, akPos.signIndex);
+  assert.equal(d.direction, SAVYA.has(akPos.signIndex) ? "forward" : "backward");
+  assert.equal(d.periods.length, 12);
+  // First period is the Atmakaraka's sign, prorated from birth; later periods are seven years.
+  assert.equal(d.periods[0].sign, akPos.signIndex);
+  assert.ok(d.periods[0].years > 0 && d.periods[0].years <= 7);
+  for (let i = 1; i < 12; i++) assert.equal(d.periods[i].years, 7);
+  // From birth the twelve periods sum to 84 minus the Atmakaraka sign's already-elapsed share.
+  const total = d.periods.reduce((n, p) => n + p.years, 0);
+  assert.ok(total > 77 && total <= 84, `total ${total}`);
 });
