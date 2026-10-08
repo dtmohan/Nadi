@@ -300,14 +300,14 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
         </p>
       )}
 
-      {/* Sarvartha Chintamani highlights */}
+      {/* Sarvartha Chintamani highlights (Parashari-lineage) */}
       {result.sarvartha && result.sarvartha.findings.length > 0 && (
         <div
           className="mt-4 rounded-lg border bg-card p-5 sm:p-6"
           data-testid="overview-sarvartha"
         >
           <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            Sarvartha Chintamani
+            Parashari · Sarvartha Chintamani
           </p>
           <p className="mt-2 text-sm leading-relaxed">
             {result.sarvartha.findings.slice(0, 3).map((f) => (
