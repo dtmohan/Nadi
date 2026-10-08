@@ -1431,6 +1431,75 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
         </ul>
       </section>
 
+      <section className="mt-10" data-testid="section-kerala-dashas">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <SectionTitle
+            plain="The Kerala school"
+            technical="Kerala Jaimini dashas"
+            className="text-base"
+          />
+        </div>
+        <ModeText
+          className="text-sm"
+          plain={
+            <>
+              Two timing systems from the Kerala tradition of Jaimini. The
+              frog dasha leaps over every other sign, marking the sudden,
+              unexpected turns of life. The Brahma dasha runs from the stronger
+              of the rising sign&apos;s lord and the eighth lord, and marks the
+              great, irreversible changes.
+            </>
+          }
+          practitioner={
+            <>
+              Manduka ("frog") dasha: the signs leap by skipping alternates —
+              odd signs in order then even (or the reverse when the lagna is
+              even), each sign taking its Chara-dasha years. Brahma dasha: the
+              Brahma planet is the stronger of the lagna lord and 8th lord
+              (exaltation, own sign, moolatrikona, or kendra/trikona), the lagna
+              lord winning a tie; it runs from that planet&apos;s sign,
+              {" "}
+              {j.brahmaDasha.direction}.
+            </>
+          }
+        />
+        <div className="mt-3 grid gap-4 md:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold">
+              Manduka · {j.mandukaDasha.leap}
+            </p>
+            <ul className="mt-1 space-y-0.5 text-xs leading-5 text-muted-foreground">
+              {j.mandukaDasha.periods.map((p, i) => {
+                const cur = p.start <= lifeNow && lifeNow < p.end;
+                return (
+                  <li key={i} className={cn(cur && "font-medium text-foreground")}>
+                    {cur && <span className="mr-1 text-verdict-good">▶</span>}
+                    {p.signName} · {p.years.toFixed(1)}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <div>
+            <p className="text-xs font-semibold">
+              Brahma · {j.brahmaDasha.brahmaPlanet} in{" "}
+              {SIGNS[j.brahmaDasha.brahmaSign]}
+            </p>
+            <ul className="mt-1 space-y-0.5 text-xs leading-5 text-muted-foreground">
+              {j.brahmaDasha.periods.map((p, i) => {
+                const cur = p.start <= lifeNow && lifeNow < p.end;
+                return (
+                  <li key={i} className={cn(cur && "font-medium text-foreground")}>
+                    {cur && <span className="mr-1 text-verdict-good">▶</span>}
+                    {p.signName} · {p.years.toFixed(1)}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <JaiminiAreas result={result} />
 
       <section className="mt-10" data-testid="section-jaimini-findings">

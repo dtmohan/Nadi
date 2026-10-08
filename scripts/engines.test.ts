@@ -41,7 +41,7 @@ import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
 import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY } from "@shared/sarvartha";
-import { sthiraDasha, charaKarakas, SAVYA } from "@shared/jaimini";
+import { sthiraDasha, charaKarakas, SAVYA, mandukaDasha, brahmaDasha } from "@shared/jaimini";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
 // -----------------------------------------------------------------------------------------------
@@ -578,4 +578,26 @@ test("Jaimini sthira dasha: seven years per sign from the Atmakaraka's sign", ()
   // From birth the twelve periods sum to 84 minus the Atmakaraka sign's already-elapsed share.
   const total = d.periods.reduce((n, p) => n + p.years, 0);
   assert.ok(total > 77 && total <= 84, `total ${total}`);
+});
+
+test("Jaimini Manduka and Brahma dashas (Kerala tradition)", () => {
+  const opts = { ayanamsa: "lahiri", nodeType: "mean" } as const;
+  const { utc } = birthInstant({ birthDate: "1982-11-01", birthTime: "07:20", timezone: "Asia/Kolkata" } as never);
+  const jd = julianDay(utc);
+  const positions = positionsAt(jd, opts as never);
+  const lagnaSign = 6; // Libra
+  // Manduka: Libra is odd? Libra index 6 is even -> lagnaSign % 2 === 0 -> odd-first.
+  const m = mandukaDasha(lagnaSign, positions, utc.toISO()!);
+  assert.equal(m.leap, "odd-first");
+  assert.equal(m.periods.length, 12);
+  // The frog skips: odd signs in forward order first (Aries=0, Gemini=2, Leo=4 ...).
+  assert.equal(m.periods[0].sign, 0);
+  assert.equal(m.periods[1].sign, 2);
+  assert.equal(m.periods[5].sign, 10); // Aquarius ends the odd group
+  assert.equal(m.periods[6].sign, 1); // Taurus begins the even group
+  // Brahma: starts from the stronger of lagna lord (Venus) and 8th lord (Mars).
+  const b = brahmaDasha(positions, lagnaSign, utc.toISO()!);
+  assert.equal(b.periods.length, 12);
+  assert.equal(b.periods[0].sign, b.brahmaSign);
+  assert.equal(b.direction, SAVYA.has(b.brahmaSign) ? "forward" : "backward");
 });
