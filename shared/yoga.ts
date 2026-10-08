@@ -9,6 +9,8 @@ import {
   type PlanetPosition,
 } from "./astro";
 import { SC_RAJYOGAS, buildSarvarthaContext } from "./sarvartha";
+import { charaKarakas } from "./jaimini";
+import { rasiAspects } from "./jaimini-core";
 
 export type YogaText =
   | "Brihat Jataka"
@@ -122,6 +124,12 @@ const ben = (ctx: YogaContext, p: PlanetPosition) =>
 /** The number of distinct signs the seven planets occupy. */
 const distinctSigns = (ctx: YogaContext) =>
   new Set(seven(ctx.positions).map((p) => p.signIndex)).size;
+
+/** All nine bodies present (the nodes are required by the Sarvartha and Jaimini rules). */
+const hasAll9 = (positions: PlanetPosition[]) =>
+  ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"].every(
+    (p) => positions.some((x) => x.planet === p),
+  );
 
 /** The five tara grahas from Mars to Saturn (the "planets" of the lunar yogas). */
 const FIVE = ["Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
@@ -676,16 +684,87 @@ const SARVARTHA_RAJA: Yoga[] = SC_RAJYOGAS.map((r) => ({
   condition: r.when,
   result: r.then,
   test: r.test
-    ? (ctx) => {
-        const hasAll = [
-          "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn",
-          "Rahu", "Ketu",
-        ].every((p) => ctx.positions.some((x) => x.planet === p));
-        if (!hasAll) return false;
-        return r.test!(buildSarvarthaContext(ctx.positions, ctx.lagnaIdx * 30));
-      }
+    ? (ctx) =>
+        hasAll9(ctx.positions) &&
+        r.test!(buildSarvarthaContext(ctx.positions, ctx.lagnaIdx * 30))
     : undefined,
 }));
+
+// ── Jaimini guide ch. 16: the raja-yoga rules (modern prose, no stanza) ──
+
+const JAIMINI_GUIDE: Yoga[] = [
+  {
+    id: "jaimini-ak-amk",
+    name: "Atmakaraka–Amatyakaraka raja yoga",
+    source: { text: "Jaimini", chapter: 16 },
+    category: "raja",
+    condition:
+      "the Atmakaraka and Amatyakaraka in mutual kendra or trikona, in mutual sign aspect, or in the same sign",
+    result:
+      "raja yoga aligned with the soul's purpose — success that satisfies inwardly",
+    test: (ctx) => {
+      if (!hasAll9(ctx.positions)) return false;
+      const kk = charaKarakas(ctx.positions);
+      const ak = ctx.positions.find((p) => p.planet === kk[0].planet)!;
+      const amk = ctx.positions.find((p) => p.planet === kk[1].planet)!;
+      const kt = [1, 4, 5, 7, 9, 10];
+      return (
+        ak.signIndex === amk.signIndex ||
+        (rasiAspects(ak.signIndex, amk.signIndex) &&
+          rasiAspects(amk.signIndex, ak.signIndex)) ||
+        kt.includes(houseFrom(amk.signIndex, ak.signIndex)) ||
+        kt.includes(houseFrom(ak.signIndex, amk.signIndex))
+      );
+    },
+  },
+  {
+    id: "jaimini-lagna-trikona",
+    name: "Lagna–trikona raja yoga",
+    source: { text: "Jaimini", chapter: 16 },
+    category: "raja",
+    condition:
+      "the lagna lord and the 5th or 9th lord in mutual sign aspect or in the same sign",
+    result: "the combined benefit of intellect, fortune and personality",
+    test: (ctx) => {
+      if (!hasAll9(ctx.positions)) return false;
+      const rel = (a: PlanetPosition, b: PlanetPosition) =>
+        a.signIndex === b.signIndex ||
+        (rasiAspects(a.signIndex, b.signIndex) &&
+          rasiAspects(b.signIndex, a.signIndex));
+      const lagnaLord = ctx.positions.find(
+        (p) => p.planet === SIGN_LORD[ctx.lagnaIdx],
+      )!;
+      const fifthLord = ctx.positions.find(
+        (p) => p.planet === SIGN_LORD[(ctx.lagnaIdx + 4) % 12],
+      )!;
+      const ninthLord = ctx.positions.find(
+        (p) => p.planet === SIGN_LORD[(ctx.lagnaIdx + 8) % 12],
+      )!;
+      return rel(lagnaLord, fifthLord) || rel(lagnaLord, ninthLord);
+    },
+  },
+  {
+    id: "jaimini-dasama",
+    name: "Tenth-house raja yoga",
+    source: { text: "Jaimini", chapter: 16 },
+    category: "raja",
+    condition:
+      "benefics in the 10th house and the 10th lord in the ascendant, 5th or 9th",
+    result: "extraordinary advancement in profession and fame",
+    test: (ctx) => {
+      if (!hasAll9(ctx.positions)) return false;
+      const benIn10 = ctx.positions.some(
+        (p) =>
+          ["Jupiter", "Venus"].includes(p.planet) &&
+          houseFrom(ctx.lagnaIdx, p.signIndex) === 10,
+      );
+      const tenthLord = ctx.positions.find(
+        (p) => p.planet === SIGN_LORD[(ctx.lagnaIdx + 9) % 12],
+      )!;
+      return benIn10 && [1, 5, 9].includes(houseFrom(ctx.lagnaIdx, tenthLord.signIndex));
+    },
+  },
+];
 
 export const YOGAS: Yoga[] = [
   ...NABHASA,
@@ -695,6 +774,7 @@ export const YOGAS: Yoga[] = [
   ...RAJA,
   ...MISC_MALEFIC,
   ...SARVARTHA_RAJA,
+  ...JAIMINI_GUIDE,
 ];
 
 /** The yogas whose predicate fires for the chart, applying the Nabhasa precedence. */

@@ -828,3 +828,18 @@ test("Yoga database: Sarvartha Chintamani raja yogas unified", () => {
   const names = computeYogas({ positions: all9, lagnaIdx: 0 }).map((y) => y.name);
   assert.ok(names.includes("Raja yoga"));
 });
+
+test("Yoga database: Jaimini guide raja yogas", () => {
+  const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const at = (planet: string, signIndex: number, deg = 0) => ({
+    planet, lon: signIndex * 30 + deg, signIndex, sign: SIGNS[signIndex],
+    degInSign: deg, speed: 0, retrograde: false, nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity: "—", combust: false, signLord: "Mars",
+  }) as any;
+  const names = (positions: any[], lagnaIdx: number) =>
+    computeYogas({ positions, lagnaIdx }).map((y) => y.name);
+  // Lagna-trikona: lagna 0 (Aries), lagna lord Mars in Aries (0), 5th lord Sun in same sign (0) → mutual.
+  const chart = [
+    at("Sun", 0, 2), at("Moon", 5), at("Mars", 0, 1), at("Mercury", 6), at("Jupiter", 7), at("Venus", 9), at("Saturn", 11), at("Rahu", 8), at("Ketu", 2),
+  ];
+  assert.ok(names(chart, 0).includes("Lagna–trikona raja yoga"));
+});
