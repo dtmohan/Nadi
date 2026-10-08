@@ -423,7 +423,9 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
       chart.ayanamsa,
       chart.nodeType,
       chart.sunriseDef,
+      date,
     ],
+    enabled: validDate,
     queryFn: async () =>
       (await (
         await apiRequest("POST", "/api/tara-fortnight", {
@@ -431,6 +433,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
           longitude: place.longitude,
           timezone: place.timezone,
           days: 14,
+          from: date,
           ayanamsa: chart.ayanamsa,
           nodeType: chart.nodeType === "true" ? "true" : "mean",
           sunriseDef: chart.sunriseDef,
@@ -576,14 +579,15 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
       </section>
 
       <section>
-        <SectionTitle plain="The coming fortnight" technical="Tara days" />
+        <SectionTitle plain="The fortnight" technical="Tara days" />
         <ModeText
           plain={
             <>
-              The next two weeks, marking the days the Moon stands in a star
-              that works against your birth star — the Vipat, Pratyari or Vadha
-              (the 3rd, 5th and 7th) — or in a trijanma star (your birth star,
-              the 10th and the 19th). These days are avoided for muhurta.
+              Fourteen days from the date above, marking the days the Moon
+              stands in a star that works against your birth star — the Vipat,
+              Pratyari or Vadha (the 3rd, 5th and 7th) — or in a trijanma star
+              (your birth star, the 10th and the 19th). These days are avoided
+              for muhurta.
             </>
           }
           practitioner={

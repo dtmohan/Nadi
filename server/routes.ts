@@ -433,6 +433,7 @@ export async function registerRoutes(
   app.post("/api/tara-fortnight", (req, res) => {
     const schema = judgeSchema.extend({
       days: z.number().int().min(7).max(31).default(14),
+      from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
       ayanamsa: z.string().max(24).default("lahiri"),
       nodeType: z.enum(["mean", "true"]).default("mean"),
       sunriseDef: z.string().max(16).optional(),
@@ -448,6 +449,7 @@ export async function registerRoutes(
         longitude,
         timezone,
         days,
+        from,
         ayanamsa,
         nodeType,
         sunriseDef,
@@ -457,7 +459,10 @@ export async function registerRoutes(
         nodeType,
         sunrise: normaliseSunriseDef(sunriseDef),
       };
-      const start = DateTime.now().setZone(timezone).startOf("day");
+      const picked = from && DateTime.fromISO(from, { zone: timezone }).isValid
+        ? DateTime.fromISO(from, { zone: timezone })
+        : DateTime.now().setZone(timezone);
+      const start = picked.startOf("day");
       const out: { date: string; nakshatraName: string }[] = [];
       for (let d = 0; d < days; d++) {
         const day = start.plus({ days: d });
