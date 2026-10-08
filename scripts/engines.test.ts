@@ -41,7 +41,7 @@ import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
 import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, sarvarthaTone, ruleFidelity } from "@shared/sarvartha";
-import { taraOf, adverseTara, TARA_NAMES } from "@shared/tara";
+import { taraOf, adverseTara, TARA_NAMES, trijanmaStars, taraFlag } from "@shared/tara";
 import { sthiraDasha, charaKarakas, SAVYA, mandukaDasha, brahmaDasha } from "@shared/jaimini";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
@@ -635,4 +635,17 @@ test("Tara classification: the adverse 3rd, 5th and 7th stars", () => {
   // Vimshottari lord of nakshatra 2 (Krittika) is the 3rd in the Ketu..Mercury order: Sun.
   assert.equal(adverse[0].lord, "Sun");
   assert.equal(TARA_NAMES.length, 9);
+});
+
+test("Tara fortnight flags: trijanma and adverse tara", () => {
+  // Birth Ashwini (0): trijanma = Ashwini (0), Magha (9), Jyeshtha (18).
+  assert.deepEqual(trijanmaStars(0).map((t) => t.nakshatraName), ["Ashwini", "Magha", "Mula"]);
+  assert.equal(taraFlag(0, 0), "Trijanma");
+  assert.equal(taraFlag(0, 9), "Trijanma");
+  assert.equal(taraFlag(0, 18), "Trijanma");
+  assert.equal(taraFlag(0, 2), "Vipat tara");
+  assert.equal(taraFlag(0, 4), "Pratyari tara");
+  assert.equal(taraFlag(0, 6), "Vadha tara");
+  assert.equal(taraFlag(0, 1), undefined); // Sampat, clean
+  assert.equal(taraFlag(0, 8), undefined); // Parama-Mitra, clean
 });
