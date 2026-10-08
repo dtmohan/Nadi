@@ -774,3 +774,23 @@ test("Yoga database: Brihat Jataka 16 ascetic (Sanyasa) yoga", () => {
   ];
   assert.ok(!names(three, 0).includes("Sanyasa (Pravrajya)"));
 });
+
+test("Yoga database: Brihat Jataka 11 raja yogas", () => {
+  const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const at = (planet: string, signIndex: number, dignity = "—") => ({
+    planet, lon: signIndex * 30, signIndex, sign: SIGNS[signIndex],
+    degInSign: 0, speed: 0, retrograde: false, nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity, combust: false, signLord: "Mars",
+  }) as any;
+  const names = (positions: any[], lagnaIdx: number) =>
+    computeYogas({ positions, lagnaIdx }).map((y) => y.name);
+  // Three planets exalted → Uccha raja yoga.
+  const exalted = [
+    at("Sun", 0, "Exalted"), at("Moon", 3), at("Mars", 9, "Exalted"), at("Mercury", 5, "Exalted"), at("Jupiter", 7), at("Venus", 10), at("Saturn", 11),
+  ];
+  assert.ok(names(exalted, 0).includes("Uccha raja yoga"));
+  // Comfort yoga: Sun in the 10th from lagna 0 (Capricorn).
+  const comfort = [
+    at("Sun", 9), at("Moon", 5), at("Mars", 3), at("Mercury", 6), at("Jupiter", 7), at("Venus", 8), at("Saturn", 11),
+  ];
+  assert.ok(names(comfort, 0).includes("Comfort yoga"));
+});
