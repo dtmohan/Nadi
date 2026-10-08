@@ -1,6 +1,10 @@
 import type { ReactNode } from "react";
 import { sutraHref } from "@/lib/sutras";
 
+/** Keeps a verse range such as 2.67-69 whole when a chip wraps: a word joiner follows the dash. */
+const keepRanges = (c: ReactNode): ReactNode =>
+  typeof c === "string" ? c.replace(/(\d)([-\u2013])(?=\d)/g, "$1$2\u2060") : c;
+
 /**
  * Citation chip. Renders a link when `href` is given, otherwise a plain reference. The chip is set in
  * the monospace face at a smaller size with a hairline border so a source never reads as prose.
@@ -27,7 +31,7 @@ export function Cite({
         <span className="cite-mark" aria-hidden>
           §
         </span>
-        {children}
+        {keepRanges(children)}
       </span>
     );
   }
@@ -43,7 +47,7 @@ export function Cite({
       <span className="cite-mark" aria-hidden>
         §
       </span>
-      {children}
+      {keepRanges(children)}
     </a>
   );
 }

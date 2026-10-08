@@ -174,7 +174,7 @@ export function Timeline({
             findings its natal planets take part in, and is counted from the
             natal Jeeva and Karma.
           </p>
-          <div className="mt-3 grid gap-3 md:grid-cols-2">
+          <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(15rem,100%),1fr))] gap-3">
             {current.Jupiter && <NowCard r={current.Jupiter} birth={birth} />}
             {current.Saturn && <NowCard r={current.Saturn} birth={birth} />}
           </div>

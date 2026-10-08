@@ -81,7 +81,7 @@ function Limb({
           <li
             key={i}
             className={cn(
-              "flex justify-between gap-2",
+              "flex flex-wrap justify-between gap-x-2",
               s.current && "text-foreground",
             )}
           >
@@ -91,7 +91,7 @@ function Limb({
                 <span className="text-muted-foreground"> · {s.detail}</span>
               )}
             </span>
-            <span className="tabular-nums">
+            <span className="ml-auto whitespace-nowrap tabular-nums">
               {s.end ? `ends ${fmtT(s.end, zone)}` : "past next sunrise"}
             </span>
           </li>
@@ -161,7 +161,7 @@ function DayGrid({
           Ayanamsa {day.ayanamsa.key} {day.ayanamsa.value.toFixed(3)}°
         </span>
       </div>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+      <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(12.5rem,100%),1fr))] gap-3">
         <div
           className="rounded-md border bg-card p-3 text-xs"
           data-testid={`${idPrefix}-vara`}
@@ -173,19 +173,24 @@ function DayGrid({
           <div className="text-muted-foreground">
             lord <PlanetName planet={day.vara.lord} />
           </div>
-          <div className="mt-1 text-2xs text-muted-foreground">
-            <SourceLink source={PANCHANGA_SOURCES.day} />
-            {" · lord: "}
-            <SourceLink source={PANCHANGA_SOURCES.varaLords} />
+          <div className="mt-1 space-y-1 text-2xs text-muted-foreground">
+            <div>
+              <SourceLink source={PANCHANGA_SOURCES.day} />
+            </div>
+            <div>
+              lord <SourceLink source={PANCHANGA_SOURCES.varaLords} />
+            </div>
           </div>
           <ul className="mt-2 space-y-0.5 border-t pt-2 text-muted-foreground">
-            <li className="flex justify-between gap-2">
+            <li className="flex flex-wrap justify-between gap-x-2">
               <span>from sunrise</span>
-              <span className="tabular-nums">{fmtT(day.sunrise, zone)}</span>
+              <span className="ml-auto whitespace-nowrap tabular-nums">
+                {fmtT(day.sunrise, zone)}
+              </span>
             </li>
-            <li className="flex justify-between gap-2">
+            <li className="flex flex-wrap justify-between gap-x-2">
               <span>to next sunrise</span>
-              <span className="tabular-nums">
+              <span className="ml-auto whitespace-nowrap tabular-nums">
                 {fmtT(day.nextSunrise, zone)}
               </span>
             </li>

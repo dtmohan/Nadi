@@ -198,7 +198,7 @@ function Finding({ f }: { f: ParashariFinding }) {
     >
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium">{f.title}</span>
-        <span className="flex gap-1">
+        <span className="flex flex-wrap gap-1">
           {f.planets.map((p) => (
             <PlanetName key={p} planet={p} abbr tone className="text-xs" />
           ))}

@@ -106,7 +106,7 @@ export function VerdictCard({
 
       {sigs.length > 0 && (
         <ul
-          className="mt-4 grid gap-2 sm:grid-cols-3"
+          className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3"
           data-testid={`${testid}-signatures`}
         >
           {sigs.map((s, i) => (
@@ -118,12 +118,12 @@ export function VerdictCard({
               )}
               data-tone={s.tone}
             >
-              <div className="flex items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-x-1.5">
                 {s.planets?.map((p) => (
                   <PlanetDot key={p} planet={p} />
                 ))}
                 <span className="font-semibold text-foreground">{s.label}</span>
-                <span className="ml-auto text-2xs text-muted-foreground">
+                <span className="ml-auto whitespace-nowrap text-2xs text-muted-foreground">
                   {TONE_WORD[s.tone]}
                 </span>
               </div>

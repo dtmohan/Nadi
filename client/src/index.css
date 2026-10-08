@@ -287,8 +287,15 @@
   .cite {
     @apply inline-flex items-baseline gap-1 rounded-sm border border-border/80 bg-muted/50 px-1.5 py-px align-baseline font-mono text-2xs font-medium leading-4 tracking-tight text-muted-foreground no-underline;
     font-variant-numeric: tabular-nums lining-nums;
-    white-space: nowrap;
+    /* A chip stays on one line when it fits; one wider than its box wraps inside its border
+       instead of running out of the box. Table cells keep chips whole, as before. */
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: break-word;
     transform: translateY(-1px);
+  }
+  :where(td, th) .cite {
+    white-space: nowrap;
   }
   a.cite {
     @apply transition-colors hover:border-foreground/40 hover:bg-muted hover:text-foreground;
