@@ -42,6 +42,7 @@ import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
 import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, sarvarthaTone, ruleFidelity } from "@shared/sarvartha";
 import { taraOf, adverseTara, TARA_NAMES, trijanmaStars, taraFlag } from "@shared/tara";
+import { computeCombinations, grahaYuddha } from "@shared/combinations";
 import { sthiraDasha, charaKarakas, SAVYA, mandukaDasha, brahmaDasha } from "@shared/jaimini";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
@@ -648,4 +649,30 @@ test("Tara fortnight flags: trijanma and adverse tara", () => {
   assert.equal(taraFlag(0, 6), "Vadha tara");
   assert.equal(taraFlag(0, 1), undefined); // Sampat, clean
   assert.equal(taraFlag(0, 8), undefined); // Parama-Mitra, clean
+});
+
+test("Combinations: stellium group, lead planet and planetary war", () => {
+  // A 5-planet stellium in the lagna sign (Aries), degrees 1..25.
+  const mk = (planet: string, deg: number) => ({
+    planet, lon: deg, signIndex: 0, sign: "Aries", degInSign: deg, speed: 0, retrograde: false,
+    nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity: "—", combust: false, signLord: "Mars",
+  }) as any;
+  const positions = [mk("Sun", 3), mk("Moon", 7), mk("Mars", 5.2), mk("Mercury", 20), mk("Venus", 25)];
+  const combos = computeCombinations(positions, 0, undefined);
+  assert.equal(combos.length, 1);
+  assert.equal(combos[0].count, 5);
+  assert.equal(combos[0].house, 1);
+  assert.equal(combos[0].lead.planet, "Venus");
+
+  // Planetary war: Mars and Saturn within 1 degree; Mars (north, lat +1) beats Saturn (lat -1).
+  const base = { bodies: {
+    Sun: { decl: 0, lat: 0, tropLon: 0 }, Moon: { decl: 0, lat: 0, tropLon: 0 },
+    Mars: { decl: 0, lat: 1, tropLon: 0 }, Mercury: { decl: 0, lat: 0, tropLon: 0 },
+    Jupiter: { decl: 0, lat: 0, tropLon: 0 }, Venus: { decl: 0, lat: 0, tropLon: 0 }, Saturn: { decl: 0, lat: -1, tropLon: 0 },
+  } } as any;
+  const warPos = [mk("Mars", 5.0), mk("Saturn", 5.4)];
+  const wars = grahaYuddha(warPos, base);
+  assert.equal(wars.length, 1);
+  assert.equal(wars[0].victor, "Mars");
+  assert.equal(wars[0].loser, "Saturn");
 });

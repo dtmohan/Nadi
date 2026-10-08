@@ -119,6 +119,7 @@ import { computePortions } from "@shared/portions";
 import { PortionsSection } from "@/components/portions";
 import { SarvarthaSection } from "@/components/sarvartha-section";
 import { SC_SOURCE } from "@shared/sarvartha";
+import { computeCombinations, CONJUNCTIONS_NOTE } from "@shared/combinations";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
@@ -218,6 +219,15 @@ function Finding({ f }: { f: ParashariFinding }) {
 
 export function ParashariPanel({ result }: { result: ChartResult }) {
   const { positions, chart } = result;
+  const combinations = useMemo(
+    () =>
+      computeCombinations(
+        positions,
+        result.jaimini.lagna.signIndex,
+        result.shadbala,
+      ),
+    [positions, result.jaimini.lagna.signIndex, result.shadbala],
+  );
   // Everything "current" is read at the reading date, or at the recorded date of passing: after a
   // death date nothing here is a forecast, and the running dasa is the one that was running then.
   const asOfIso = lifeAsOf(chart, result.now.asOf);
@@ -1368,6 +1378,63 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       )}
       <AvasthasSection a={r.avasthas} />
       <SarvarthaSection sarvartha={result.sarvartha} />
+
+      <section className="mt-8" data-testid="conjunctions-section">
+        <SectionTitle plain="Planets gathered together" technical="Conjunctions" />
+        <ModeText
+          plain={
+            <>
+              Where two or more planets stand in one sign, their matters
+              gather. The planet ahead by degree leads the group; two of Mars
+              to Saturn within one degree fight, the more northern one
+              winning.
+            </>
+          }
+          practitioner={<>{CONJUNCTIONS_NOTE}</>}
+        />
+        {combinations.length === 0 ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            No sign holds two or more planets.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {combinations.map((c) => (
+              <li
+                key={c.signIndex}
+                className="rounded-md border bg-card p-3 text-xs"
+              >
+                <span className="font-medium">
+                  {c.count} planets in the {ord(c.house)} house ({c.sign})
+                </span>{" "}
+                <span className="text-muted-foreground">
+                  — led by {c.lead.planet} (highest degree).
+                </span>
+                {c.wars.length > 0 && (
+                  <div className="mt-1 text-verdict-mixed">
+                    {c.wars
+                      .map(
+                        (w) =>
+                          `${w.victor} defeats ${w.loser} (${w.separation.toFixed(1)}° apart)`,
+                      )
+                      .join("; ")}
+                    .
+                  </div>
+                )}
+                {c.combust.length > 0 && (
+                  <div className="mt-1 text-verdict-mixed">
+                    {c.combust.map((p) => p.planet).join(", ")} combust.
+                  </div>
+                )}
+                <div className="mt-1 text-muted-foreground">
+                  {c.planets
+                    .map((p) => `${p.planet} ${p.degInSign.toFixed(1)}°`)
+                    .join(" · ")}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
