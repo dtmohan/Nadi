@@ -120,6 +120,7 @@ import { PortionsSection } from "@/components/portions";
 import { SarvarthaSection } from "@/components/sarvartha-section";
 import { SC_SOURCE } from "@shared/sarvartha";
 import { computeCombinations, CONJUNCTIONS_NOTE } from "@shared/combinations";
+import { computeYogas, YOGA_CATEGORY_LABEL, YOGA_NOTE } from "@shared/yoga";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
@@ -227,6 +228,11 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         result.shadbala,
       ),
     [positions, result.jaimini.lagna.signIndex, result.shadbala],
+  );
+  const firedYogas = useMemo(
+    () =>
+      computeYogas({ positions, lagnaIdx: result.jaimini.lagna.signIndex }),
+    [positions, result.jaimini.lagna.signIndex],
   );
   // Everything "current" is read at the reading date, or at the recorded date of passing: after a
   // death date nothing here is a forecast, and the running dasa is the one that was running then.
@@ -1430,6 +1436,47 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                     .map((p) => `${p.planet} ${p.degInSign.toFixed(1)}°`)
                     .join(" · ")}
                 </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="mt-8" data-testid="yogas-section">
+        <SectionTitle plain="Yogas" technical="Nabhasa yogas" />
+        <ModeText
+          plain={
+            <>
+              The named combinations from Brihat Jataka chapter 12, checked
+              from the seven planets (Rahu and Ketu take no part). Each is
+              cited to its stanza.
+            </>
+          }
+          practitioner={<>{YOGA_NOTE}</>}
+        />
+        {firedYogas.length === 0 ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            No Nabhasa yoga holds for this chart.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {firedYogas.map((y) => (
+              <li
+                key={y.id}
+                className="rounded-md border bg-card p-3 text-xs"
+              >
+                <span className="font-medium">{y.name}</span>{" "}
+                <span className="text-muted-foreground">
+                  · {YOGA_CATEGORY_LABEL[y.category]} — {y.condition}.
+                </span>{" "}
+                <span>{y.result}.</span>{" "}
+                <SourceLink
+                  source={{
+                    label: `${y.source.text} ${y.source.chapter}.${y.source.stanza}`,
+                    url: y.source.url ?? "",
+                  }}
+                  mark={false}
+                />
               </li>
             ))}
           </ul>
