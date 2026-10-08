@@ -541,7 +541,62 @@ const ASCETIC: Yoga[] = [
   },
 ];
 
-export const YOGAS: Yoga[] = [...NABHASA, ...LUNAR, ...DVI_GRAHA, ...ASCETIC];
+// ── Brihat Jataka ch. 11: the raja-yoga rules (the general ones; the 96 named
+//    configurations of 11.4-18 are enumerations, not individually harvested) ──
+
+const RAJA: Yoga[] = [
+  {
+    id: "uccha-raja",
+    name: "Uccha raja yoga",
+    source: BJ(11, 1),
+    category: "raja",
+    condition: "three or more planets in their exaltation signs",
+    result:
+      "becomes a king — tyrannical if the exalted are malefics, good if benefics, and both by turns if mixed",
+    note: "The same holds for planets in their moolatrikona (11.1 note). The 96 specific raja-yoga configurations of 11.4-18 are enumerations and not individually harvested.",
+    test: (ctx) =>
+      ctx.positions.filter((p) => p.dignity === "Exalted").length >= 3,
+  },
+  {
+    id: "uccha-moola-raja",
+    name: "Uccha/Moolatrikona raja yoga",
+    source: BJ(11, 13),
+    category: "raja",
+    condition:
+      "three or more powerful planets in their exaltation or moolatrikona signs (five or more to rule regardless of birth)",
+    result:
+      "a king if born in a king's family; with five or more, a king even in a low family; with fewer, rich but not a king",
+    note: "The 'powerful' gate is provisional — the predicate counts exalted or moolatrikona planets without a strength check.",
+    test: (ctx) =>
+      ctx.positions.filter(
+        (p) => p.dignity === "Exalted" || p.dignity === "Moolatrikona",
+      ).length >= 3,
+  },
+  {
+    id: "sukha-raja",
+    name: "Comfort yoga",
+    source: BJ(11, 20),
+    category: "raja",
+    condition:
+      "Jupiter, Venus or Mercury in the ascendant, or Saturn in the 7th, or the Sun in the 10th",
+    result: "lives in comfort and luxury",
+    test: (ctx) => {
+      const h = (p: PlanetPosition) => houseFrom(ctx.lagnaIdx, p.signIndex);
+      const benInLagna = ctx.positions.some(
+        (p) => ["Jupiter", "Venus", "Mercury"].includes(p.planet) && h(p) === 1,
+      );
+      const saturnIn7 = ctx.positions.some(
+        (p) => p.planet === "Saturn" && h(p) === 7,
+      );
+      const sunIn10 = ctx.positions.some(
+        (p) => p.planet === "Sun" && h(p) === 10,
+      );
+      return benInLagna || saturnIn7 || sunIn10;
+    },
+  },
+];
+
+export const YOGAS: Yoga[] = [...NABHASA, ...LUNAR, ...DVI_GRAHA, ...ASCETIC, ...RAJA];
 
 /** The yogas whose predicate fires for the chart, applying the Nabhasa precedence. */
 export function computeYogas(ctx: YogaContext): Yoga[] {
