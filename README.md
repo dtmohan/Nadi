@@ -12,7 +12,7 @@ A published snapshot runs at [astroengine.pplx.app](https://astroengine.pplx.app
 - **Every rule names its source.** Rules are paraphrased and cited by chapter and verse or by page. Some rules aren't stated in any source, and some sources leave a choice open, such as a threshold, a weight or a house convention. The app marks those provisional in the tabs, the report and the PDFs.
 - **Plain and practitioner readings.** The plain reading rewords death, loss and disease in terms of risk and strain. The practitioner reading keeps the verse wording and shows sources, weights and working. The app never computes or displays a time of death.
 - **Charts of minors.** Under 18, a topic-tagged gate withholds certain readings before anything is rendered: longevity, maraka, arishta, peril, and loss of a parent, spouse or child. The gate applies in the API, the tabs and the PDFs alike.
-- **Charts stay on the user's device.** The server is stateless. Saved charts and their life events live in the browser's Cache Storage, and Export and Import move them as a JSON file.
+- **Charts stay on the user's device.** The server writes nothing to disk and keeps no charts. Saved charts and their life events live in the browser's Cache Storage, and Export and Import move them as a JSON file.
 
 ## The tabs
 
@@ -99,7 +99,7 @@ docs/     Screenshots for this README
 
 ## API
 
-POST endpoints take a JSON body. Every response is JSON except the two PDFs, and no endpoint stores anything.
+POST endpoints take a JSON body. Every response is JSON except the two PDFs. No endpoint saves a chart; the short-lived result cache is described under Data and privacy.
 
 | Method | Path | Returns |
 |---|---|---|
@@ -118,7 +118,7 @@ POST endpoints take a JSON body. Every response is JSON except the two PDFs, and
 
 ## Data and privacy
 
-The server computes each response from the birth data in the request and keeps nothing. Saved charts and life events live only in the browser that saved them. Clearing site data removes them, so export a backup. Place search sends the typed name to the [Open-Meteo geocoding API](https://open-meteo.com/en/docs/geocoding-api).
+The server computes each response from the birth data in the request and writes nothing to disk. To make repeat requests quick it holds computed readings in memory for up to ten minutes. Each is looked up by a hash of the request and holds no name, notes, life events or birth details, though its timelines still imply the birth date. Saved charts and life events live only in the browser that saved them. Clearing site data removes them, so export a backup. Place search sends the typed name to the [Open-Meteo geocoding API](https://open-meteo.com/en/docs/geocoding-api).
 
 ## Sources
 
