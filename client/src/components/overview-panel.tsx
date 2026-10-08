@@ -14,6 +14,7 @@ import {
 import { computeGochara, type GocharaVerdict } from "@shared/gochara";
 import { Soft } from "@/lib/gentle";
 import { useT } from "@/lib/i18n";
+import { useAgreement } from "@/lib/use-agreement";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { cn } from "@/lib/utils";
 
@@ -82,6 +83,10 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
   const lifeAt = lifeAsOf(chart, now.asOf);
   const age = ageYears(result.utc, lifeAt);
   const deceased = lifeAt !== now.asOf;
+  const agreement = useAgreement(result);
+  const crossSchool = agreement.filter(
+    (a) => a.verdict === "disagree" || a.verdict === "lean",
+  );
 
   const sun = positions.find((p) => p.planet === "Sun")!;
 
@@ -298,6 +303,33 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
           later: {deferred.length === 1 ? "it is" : "they are"} not a present
           matter at this age.
         </p>
+      )}
+
+      {/* Cross-school agreement feedback */}
+      {crossSchool.length > 0 && (
+        <div
+          className="mt-4 rounded-md border border-verdict-mixed/40 bg-verdict-mixed/[0.05] p-3"
+          data-testid="overview-agreement"
+        >
+          <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {t("Across the systems")}
+          </p>
+          <div className="mt-1 space-y-1">
+            {crossSchool.map((a) => (
+              <p
+                key={a.topic}
+                className={cn(
+                  "text-xs leading-relaxed",
+                  a.verdict === "disagree"
+                    ? "text-verdict-bad"
+                    : "text-verdict-mixed",
+                )}
+              >
+                {a.sentence}
+              </p>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Sarvartha Chintamani highlights (Parashari-lineage) */}

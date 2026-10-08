@@ -1,22 +1,14 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
-import { normaliseParashariHouseMethod } from "@shared/schema";
-import { synthesize } from "@shared/synthesis";
-import { readAreas } from "@shared/jaimini-areas";
-import { computeParashari, DEFAULT_ASPECT_FLOOR } from "@shared/parashari";
-import { computeKp } from "@shared/kp";
 import {
   AGREEMENT_NOTE,
   AGREEMENT_SYSTEM_LABEL,
-  computeAgreement,
   type AgreementSystem,
   type AgreementVerdict,
   type Stance,
-  type TopicAgreement,
 } from "@shared/agreement";
-import { areaSeason, lifeAsOf, sensitiveGate } from "@shared/life-stage";
-import { useReadingMode } from "@/lib/reading-mode";
+import { useAgreement } from "@/lib/use-agreement";
 import { Soft } from "@/lib/gentle";
 import { cn } from "@/lib/utils";
 
@@ -57,40 +49,8 @@ export function AgreementPanel({
   onOpenTab: (tab: AgreementSystem) => void;
   className?: string;
 }) {
-  const { mode } = useReadingMode();
-  const plain = mode === "plain";
   const [open, setOpen] = useState(false);
-  const asOf = result.now.asOf;
-  const lifeAt = lifeAsOf(result.chart, asOf);
-  const withheld = sensitiveGate(result.chart, result.utc, asOf).withheld;
-
-  const topics: TopicAgreement[] = useMemo(() => {
-    const bnn = synthesize(result.reading, result.reading.roles.gender);
-    const jaimini = readAreas(result.jaimini, result.positions, withheld);
-    const parashari = computeParashari(
-      result.positions,
-      result.jaimini.lagna.lon,
-      result.utc,
-      lifeAt,
-      result.shadbala,
-      result.dasaStarts,
-      DEFAULT_ASPECT_FLOOR,
-      withheld,
-      normaliseParashariHouseMethod(result.chart.parashariHouseMethod),
-    );
-    const kp = computeKp(result.kp, result.utc, lifeAt, false, withheld);
-    return computeAgreement({
-      bnn,
-      parashari,
-      sarvartha: result.sarvartha,
-      jaimini,
-      kp,
-      ayur: result.jaimini.ayur,
-      withheld,
-      plain,
-      inSeason: (area) => areaSeason(area, result.utc, lifeAt).inSeason,
-    });
-  }, [result, lifeAt, withheld, plain]);
+  const topics = useAgreement(result);
 
   if (!topics.length) return null;
   const disagree = topics.filter((t) => t.verdict === "disagree").length;
