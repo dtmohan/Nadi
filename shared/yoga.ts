@@ -2,6 +2,7 @@
 // citing its own text, chapter and stanza. Yogas are never blended across texts; the compute step
 // only evaluates each entry's own predicate against the chart.
 import {
+  SIGN_LORD,
   SIGN_QUALITY,
   houseFrom,
   naturalBenefic,
@@ -24,7 +25,9 @@ export type YogaCategory =
   | "lunar"
   | "solar"
   | "dvi-graha"
-  | "ascetic";
+  | "ascetic"
+  | "misc"
+  | "malefic";
 
 export const YOGA_CATEGORY_LABEL: Record<YogaCategory, string> = {
   "nabhasa-asraya": "Nabhasa · Asraya (support)",
@@ -36,6 +39,8 @@ export const YOGA_CATEGORY_LABEL: Record<YogaCategory, string> = {
   solar: "Solar",
   "dvi-graha": "Two-planet",
   ascetic: "Ascetic (Sanyasa)",
+  misc: "Miscellaneous",
+  malefic: "Malefic",
 };
 
 export interface YogaSource {
@@ -596,7 +601,78 @@ const RAJA: Yoga[] = [
   },
 ];
 
-export const YOGAS: Yoga[] = [...NABHASA, ...LUNAR, ...DVI_GRAHA, ...ASCETIC, ...RAJA];
+// ── Brihat Jataka ch. 22-23: the miscellaneous and malefic yogas (tractable rules) ──
+
+const MISC_MALEFIC: Yoga[] = [
+  {
+    id: "kendra-sukha",
+    name: "Kendra happiness",
+    source: BJ(22, 5),
+    category: "misc",
+    condition: "Jupiter, the lord of the Moon's sign, or the lord of the ascendant in a kendra",
+    result: "happy in manhood",
+    test: (ctx) => {
+      const kendra = [1, 4, 7, 10];
+      const h = (p: PlanetPosition) => houseFrom(ctx.lagnaIdx, p.signIndex);
+      return ctx.positions.some(
+        (p) =>
+          (p.planet === "Jupiter" ||
+            p.planet === SIGN_LORD[moonSign(ctx)] ||
+            p.planet === SIGN_LORD[ctx.lagnaIdx]) &&
+          kendra.includes(h(p)),
+      );
+    },
+  },
+  {
+    id: "putra-kalatra",
+    name: "Putra–Kalatra",
+    source: BJ(23, 1),
+    category: "malefic",
+    condition:
+      "the 5th and 7th houses from the ascendant or the Moon occupied or aspected by benefics or their lords",
+    result: "sons and a wife; otherwise neither",
+    note: "The aspect half is not yet computed — the predicate checks occupation by a benefic (Jupiter, Venus, Mercury) or by the 5th/7th lord.",
+    test: (ctx) => {
+      const ben = ["Jupiter", "Venus", "Mercury"];
+      const ok = (base: number, p: PlanetPosition) => {
+        const h = houseFrom(base, p.signIndex);
+        if (h !== 5 && h !== 7) return false;
+        if (ben.includes(p.planet)) return true;
+        if (h === 5 && p.planet === SIGN_LORD[(base + 4) % 12]) return true;
+        if (h === 7 && p.planet === SIGN_LORD[(base + 6) % 12]) return true;
+        return false;
+      };
+      return ctx.positions.some(
+        (p) => ok(ctx.lagnaIdx, p) || ok(moonSign(ctx), p),
+      );
+    },
+  },
+  {
+    id: "chandra-shani-kalatra",
+    name: "Moon–Saturn kalatra",
+    source: BJ(23, 1),
+    category: "malefic",
+    condition: "the Moon and Saturn in the 7th house",
+    result: "the wife quits him and marries another",
+    test: (ctx) => {
+      const in7 = (p: PlanetPosition) =>
+        houseFrom(ctx.lagnaIdx, p.signIndex) === 7;
+      return (
+        ctx.positions.some((p) => p.planet === "Moon" && in7(p)) &&
+        ctx.positions.some((p) => p.planet === "Saturn" && in7(p))
+      );
+    },
+  },
+];
+
+export const YOGAS: Yoga[] = [
+  ...NABHASA,
+  ...LUNAR,
+  ...DVI_GRAHA,
+  ...ASCETIC,
+  ...RAJA,
+  ...MISC_MALEFIC,
+];
 
 /** The yogas whose predicate fires for the chart, applying the Nabhasa precedence. */
 export function computeYogas(ctx: YogaContext): Yoga[] {

@@ -794,3 +794,23 @@ test("Yoga database: Brihat Jataka 11 raja yogas", () => {
   ];
   assert.ok(names(comfort, 0).includes("Comfort yoga"));
 });
+
+test("Yoga database: Brihat Jataka 22-23 misc and malefic yogas", () => {
+  const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const at = (planet: string, signIndex: number) => ({
+    planet, lon: signIndex * 30, signIndex, sign: SIGNS[signIndex],
+    degInSign: 0, speed: 0, retrograde: false, nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity: "—", combust: false, signLord: "Mars",
+  }) as any;
+  const names = (positions: any[], lagnaIdx: number) =>
+    computeYogas({ positions, lagnaIdx }).map((y) => y.name);
+  // Jupiter in a kendra (7th from lagna 0 = Libra) → Kendra happiness.
+  const kendra = [
+    at("Sun", 3), at("Moon", 2), at("Mars", 4), at("Mercury", 5), at("Jupiter", 6), at("Venus", 8), at("Saturn", 10),
+  ];
+  assert.ok(names(kendra, 0).includes("Kendra happiness"));
+  // Moon and Saturn in the 7th from lagna 0 (Libra) → Moon–Saturn kalatra.
+  const ms = [
+    at("Sun", 3), at("Moon", 6), at("Mars", 2), at("Mercury", 4), at("Jupiter", 5), at("Venus", 8), at("Saturn", 6),
+  ];
+  assert.ok(names(ms, 0).includes("Moon–Saturn kalatra"));
+});
