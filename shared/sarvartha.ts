@@ -602,11 +602,24 @@ export const SC_BHAVA_RULES: ScHouseRules[] = [
 
 // ── Computation against a chart ─────────────────────────────────────────────
 
+/** How closely a finding is held to its source text (the "drift" of the earlier engine's report). */
+export type FidelityTier = "pinned" | "cited" | "provisional";
+
+export const FIDELITY_LABEL: Record<FidelityTier, string> = {
+  pinned: "pinned to a worked example",
+  cited: "cited to the text",
+  provisional: "provisional",
+};
+
+export const FIDELITY_NOTE =
+  "Fidelity to the source: pinned findings are verified against a worked example in the text; cited findings quote the text with chapter and stanza; provisional findings rest on the app's own convention where the text is ambiguous.";
+
 export interface SarvarthaFinding {
   house: number;
   stanza: number;
   topic: string;
   text: string;
+  fidelity: FidelityTier;
 }
 
 export interface SarvarthaResult {
@@ -617,6 +630,26 @@ export interface SarvarthaResult {
   computable: number;
   /** Rules harvested in total (computable + reference-only). */
   total: number;
+}
+
+/**
+ * Rules whose condition rests on the app's own reading rather than the text's letter: the Amsha
+ * tiers are the same varga classification as Parashara 6.42-53 with different names, so they are
+ * provisional, not cited.
+ */
+const SC_RULE_FIDELITY: Record<string, FidelityTier> = {
+  "2.18": "provisional", "2.21": "provisional", "2.22": "provisional", "2.24": "provisional", "2.53": "provisional",
+  "3.19": "provisional", "3.23": "provisional", "3.38": "provisional",
+  "4.56": "provisional", "4.60": "provisional", "4.61": "provisional", "4.82": "provisional", "4.89": "provisional", "4.144": "provisional", "4.171": "provisional",
+  "5.7": "provisional", "5.19": "provisional", "5.21": "provisional", "5.52": "provisional", "5.54": "provisional",
+  "6.57": "provisional",
+  "7.36": "provisional", "7.61": "provisional",
+  "9.14": "provisional", "9.16": "provisional",
+};
+
+/** The fidelity tier of a harvested rule, defaulting to cited. */
+export function ruleFidelity(house: number, stanza: number): FidelityTier {
+  return SC_RULE_FIDELITY[`${house}.${stanza}`] ?? "cited";
 }
 
 /** A ch. 9 Rajyoga: a chart-level (not house-level) combination for affluence and power. */
@@ -931,7 +964,14 @@ export function computeSarvartha(positions: PlanetPosition[], lagnaLon: number, 
       const test = SC_RULE_TESTS[`${h.house}.${r.stanza}`];
       if (!test) continue;
       computable++;
-      if (test(ctx)) findings.push({ house: h.house, stanza: r.stanza, topic: r.topic, text: r.then });
+      if (test(ctx))
+        findings.push({
+          house: h.house,
+          stanza: r.stanza,
+          topic: r.topic,
+          text: r.then,
+          fidelity: SC_RULE_FIDELITY[`${h.house}.${r.stanza}`] ?? "cited",
+        });
     }
   }
   const rajyogas = SC_RAJYOGAS.filter((r) => r.test && r.test(ctx)).map((r) => ({ stanza: r.stanza, text: r.then }));

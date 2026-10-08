@@ -1,4 +1,4 @@
-import { SC_BHAVAS, SC_BHAVA_RULES, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, SC_METHOD_NOTE, SC_SOURCE, type SarvarthaResult } from "@shared/sarvartha";
+import { SC_BHAVAS, SC_BHAVA_RULES, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, SC_METHOD_NOTE, SC_SOURCE, FIDELITY_LABEL, FIDELITY_NOTE, ruleFidelity, type FidelityTier, type SarvarthaResult } from "@shared/sarvartha";
 import { PLANET_ABBR } from "@shared/astro";
 import { SectionTitle, ModeText } from "@/components/mode-text";
 import { cn } from "@/lib/utils";
@@ -73,6 +73,7 @@ export function SarvarthaSection({ sarvartha }: { sarvartha?: SarvarthaResult })
             {h.rules.map((r) => {
               const key = `${h.house}.${r.stanza}`;
               const on = fired.has(key);
+              const fidelity: FidelityTier = ruleFidelity(h.house, r.stanza);
               return (
                 <li
                   key={r.stanza}
@@ -87,6 +88,18 @@ export function SarvarthaSection({ sarvartha }: { sarvartha?: SarvarthaResult })
                   <span className="ml-1 text-muted-foreground/70">
                     ({h.chapter}.{r.stanza})
                   </span>
+                  {fidelity !== "cited" && (
+                    <span
+                      className={cn(
+                        "ml-1.5 inline-block h-1.5 w-1.5 rounded-full align-middle",
+                        fidelity === "provisional"
+                          ? "bg-amber-400"
+                          : "bg-emerald-500",
+                      )}
+                      title={FIDELITY_LABEL[fidelity]}
+                      aria-label={FIDELITY_LABEL[fidelity]}
+                    />
+                  )}
                 </li>
               );
             })}
@@ -152,6 +165,11 @@ export function SarvarthaSection({ sarvartha }: { sarvartha?: SarvarthaResult })
           ))}
         </ul>
       </div>
+
+      <p className="mt-6 flex items-start gap-2 text-2xs leading-4 text-muted-foreground">
+        <span className="mt-0.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+        <span>{FIDELITY_NOTE}</span>
+      </p>
     </section>
   );
 }

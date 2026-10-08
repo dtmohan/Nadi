@@ -40,7 +40,7 @@ import { computePrasnaAvReadings } from "@shared/prasna-av";
 import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
-import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, sarvarthaTone } from "@shared/sarvartha";
+import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, sarvarthaTone, ruleFidelity } from "@shared/sarvartha";
 import { sthiraDasha, charaKarakas, SAVYA, mandukaDasha, brahmaDasha } from "@shared/jaimini";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
@@ -610,4 +610,12 @@ test("Sarvartha Chintamani sarvarthaTone classifier", () => {
   assert.equal(sarvarthaTone("a chaste wife"), "good");
   assert.equal(sarvarthaTone("the wife dies by drowning"), "hard");
   assert.equal(sarvarthaTone("long life"), "good");
+});
+
+test("Sarvartha Chintamani ruleFidelity tiers", () => {
+  // Amsha-tier rules are provisional (aliased to the varga engine); ordinary rules are cited.
+  assert.equal(ruleFidelity(2, 18), "provisional");
+  assert.equal(ruleFidelity(9, 14), "provisional");
+  assert.equal(ruleFidelity(2, 2), "cited");
+  assert.equal(ruleFidelity(8, 2), "cited");
 });
