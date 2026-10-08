@@ -14,7 +14,7 @@
 // shown in the Jaimini tab only because that tab holds the special lagnas.
 
 import { SIGNS, SIGN_LORD, houseFrom, type Planet, type PlanetPosition, type Sign } from "./astro";
-import { drishtiQuarters, naturalBenefic } from "./parashari";
+import { drishtiQuarters, naturalBenefic } from "./astro";
 
 /** Kalas of the seven classical planets, UK IV.27. Rahu and Ketu have none and never rule the ninth. */
 export const INDU_KALAS: Record<"Sun" | "Moon" | "Mars" | "Mercury" | "Jupiter" | "Venus" | "Saturn", number> = {

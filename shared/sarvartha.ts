@@ -5,8 +5,7 @@
 // "Amsha" tiers of ch. 1.25-27 are the same ten-fold varga classification the app already computes
 // under BPHS 6.42-53 (vargas.ts); only three of the names differ, so they are aliased here rather
 // than recomputed. This module harvests the house significations (ch. 2-8) and karakas (ch. 17).
-import { SIGN_LORD, houseFrom, type Dignity, type Planet, type PlanetPosition } from "./astro";
-import { naturalBenefic, drishtiQuarters } from "./parashari";
+import { SIGN_LORD, houseFrom, drishtiQuarters, naturalBenefic, type Dignity, type Planet, type PlanetPosition } from "./astro";
 import type { VargasResult } from "./vargas";
 
 /** Ch. 1.25-27: the good-varga count earns a named amsha. Mirrors the app's BPHS varga designation. */
