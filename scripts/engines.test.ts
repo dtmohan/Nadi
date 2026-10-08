@@ -40,7 +40,7 @@ import { computePrasnaAvReadings } from "@shared/prasna-av";
 import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
-import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY } from "@shared/sarvartha";
+import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, sarvarthaTone } from "@shared/sarvartha";
 import { sthiraDasha, charaKarakas, SAVYA, mandukaDasha, brahmaDasha } from "@shared/jaimini";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
@@ -600,4 +600,14 @@ test("Jaimini Manduka and Brahma dashas (Kerala tradition)", () => {
   assert.equal(b.periods.length, 12);
   assert.equal(b.periods[0].sign, b.brahmaSign);
   assert.equal(b.direction, SAVYA.has(b.brahmaSign) ? "forward" : "backward");
+});
+
+test("Sarvartha Chintamani sarvarthaTone classifier", () => {
+  assert.equal(sarvarthaTone("loss of wealth"), "hard");
+  assert.equal(sarvarthaTone("destruction of sons"), "hard");
+  assert.equal(sarvarthaTone("definitely gets a son"), "good");
+  assert.equal(sarvarthaTone("acquires a house"), "good");
+  assert.equal(sarvarthaTone("a chaste wife"), "good");
+  assert.equal(sarvarthaTone("the wife dies by drowning"), "hard");
+  assert.equal(sarvarthaTone("long life"), "good");
 });

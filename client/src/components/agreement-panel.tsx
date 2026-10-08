@@ -82,6 +82,7 @@ export function AgreementPanel({
     return computeAgreement({
       bnn,
       parashari,
+      sarvartha: result.sarvartha,
       jaimini,
       kp,
       ayur: result.jaimini.ayur,

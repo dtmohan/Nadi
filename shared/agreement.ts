@@ -12,6 +12,7 @@ import type { AreaReading } from "./jaimini-areas";
 import type { ParashariResult } from "./parashari";
 import { isConditional, nearestChangeText, type KpResult } from "./kp";
 import type { AyurResult } from "./jaimini-ayur";
+import { sarvarthaTone, type SarvarthaResult } from "./sarvartha";
 
 export type AgreementTopic =
   "marriage" | "children" | "career" | "parents" | "lifespan";
@@ -66,6 +67,8 @@ const TOPIC_SEASON: Partial<Record<AgreementTopic, string>> = {
 export interface AgreementInput {
   bnn: AreaSynthesis[];
   parashari: ParashariResult;
+  /** Sarvartha Chintamani bhava-phala findings, folded into the Parashari stance (Parashari-lineage). */
+  sarvartha?: SarvarthaResult;
   jaimini: AreaReading[];
   kp: KpResult;
   /** Jaimini ayur, when computed; null when withheld. */
@@ -189,6 +192,7 @@ const PAR_HOUSES: Record<AgreementTopic, number[]> = {
 function parashariStance(
   topic: AgreementTopic,
   par: ParashariResult,
+  sarvartha?: SarvarthaResult,
 ): SystemStance {
   const w = WORDS[topic];
   const houses = PAR_HOUSES[topic];
@@ -222,6 +226,17 @@ function parashariStance(
         support += 0.5;
         strain += 0.5;
       }
+    }
+    // Sarvartha Chintamani (Parashari-lineage) joins the same houses as cited second evidence.
+    for (const f of sarvartha?.findings.filter((x) => x.house === h) ?? []) {
+      const tone = sarvarthaTone(f.text);
+      if (tone === "good") support += 1;
+      else if (tone === "hard") strain += 1;
+      else {
+        support += 0.5;
+        strain += 0.5;
+      }
+      notes.push(`Sarvartha ${f.house}.${f.stanza}: ${f.text}`);
     }
   }
   if (!support && !strain)
@@ -472,7 +487,7 @@ export function computeAgreement(input: AgreementInput): TopicAgreement[] {
     if (topic === "lifespan" && (input.withheld || input.plain)) continue;
     const stances: SystemStance[] = [
       bnnStance(topic, input.bnn),
-      parashariStance(topic, input.parashari),
+      parashariStance(topic, input.parashari, input.sarvartha),
       jaiminiStance(topic, input.jaimini, input.ayur),
       kpStance(topic, input.kp),
     ];
