@@ -12,6 +12,7 @@ import {
   type AreaTone,
 } from "@shared/synthesis";
 import { computeGochara, type GocharaVerdict } from "@shared/gochara";
+import { adverseTara } from "@shared/tara";
 import { Soft } from "@/lib/gentle";
 import { useT } from "@/lib/i18n";
 import { useAgreement } from "@/lib/use-agreement";
@@ -141,6 +142,8 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
     .sort((x, y) => x.balance - y.balance);
 
   const vim = vimshottari(moon.lon, result.utc, lifeAt);
+  const adverse = adverseTara(Math.floor(moon.lon / (360 / 27)));
+  const adverseNow = adverse.find((a) => a.lord === vim.current.dasa.lord);
   const dasaIdx = vim.dasas.findIndex((d) => d.current);
   const nextDasa =
     dasaIdx >= 0 && dasaIdx < vim.dasas.length - 1
@@ -403,6 +406,29 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
             </div>
           )}
         </dl>
+
+        {/* The adverse tara: the 3rd, 5th and 7th stars from the birth star, and the dasa lords they name. */}
+        <p
+          className="mt-3 text-xs text-muted-foreground"
+          data-testid="overview-tara"
+        >
+          {adverse.map((a) => (
+            <span key={a.tara} className="mr-1">
+              {a.name} {a.nakshatraName} ({a.lord})
+            </span>
+          ))}
+          {adverseNow ? (
+            <span className="text-verdict-mixed">
+              — the current {vim.current.dasa.lord} dasa is the{" "}
+              {adverseNow.name}-tara lord.
+            </span>
+          ) : (
+            <span>
+              — the three stars that work against the birth star; none rules
+              the current dasa.
+            </span>
+          )}
+        </p>
 
         {/* Transit weather: the slow planets read against the natal Moon (today's sky; the deceased are read at passing, not against it). */}
         {!deceased && (jupRow || satRow) && (

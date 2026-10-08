@@ -41,6 +41,7 @@ import { computeKootas } from "@shared/prasna-kootas";
 import { kundaCheck } from "../server/rectify";
 import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
 import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, sarvarthaTone, ruleFidelity } from "@shared/sarvartha";
+import { taraOf, adverseTara, TARA_NAMES } from "@shared/tara";
 import { sthiraDasha, charaKarakas, SAVYA, mandukaDasha, brahmaDasha } from "@shared/jaimini";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
@@ -618,4 +619,20 @@ test("Sarvartha Chintamani ruleFidelity tiers", () => {
   assert.equal(ruleFidelity(9, 14), "provisional");
   assert.equal(ruleFidelity(2, 2), "cited");
   assert.equal(ruleFidelity(8, 2), "cited");
+});
+
+test("Tara classification: the adverse 3rd, 5th and 7th stars", () => {
+  // Birth star Ashwini (0): 3rd = Krittika (2) Vipat, 5th = Mrigasira (4) Pratyari, 7th = Ardra (6) Vadha.
+  assert.deepEqual(taraOf(0, 0).name, "Janma");
+  assert.equal(taraOf(0, 2).name, "Vipat");
+  assert.equal(taraOf(0, 2).adverse, true);
+  assert.equal(taraOf(0, 4).name, "Pratyari");
+  assert.equal(taraOf(0, 6).name, "Vadha");
+  assert.equal(taraOf(0, 8).name, "Parama-Mitra");
+  const adverse = adverseTara(0);
+  assert.deepEqual(adverse.map((a) => a.name), ["Vipat", "Pratyari", "Vadha"]);
+  assert.deepEqual(adverse.map((a) => a.nakshatra), [2, 4, 6]);
+  // Vimshottari lord of nakshatra 2 (Krittika) is the 3rd in the Ketu..Mercury order: Sun.
+  assert.equal(adverse[0].lord, "Sun");
+  assert.equal(TARA_NAMES.length, 9);
 });
