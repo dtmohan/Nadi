@@ -6,8 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { SUNRISE_DEFINITIONS, type ChartResult } from "@shared/schema";
 import type { PlanetPosition } from "@shared/astro";
-import { SIGNS } from "@shared/astro";
-import { adverseTara, type AdverseTara } from "@shared/tara";
+import { NAKSHATRAS, SIGNS } from "@shared/astro";
+import { adverseTara, taraFlag, type AdverseTara } from "@shared/tara";
 import {
   PANCHANGA_CAVEATS,
   PANCHANGA_SOURCES,
@@ -412,8 +412,36 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
     },
   );
 
+  const fortnightQuery = useQuery<{
+    days: { date: string; nakshatraName: string }[];
+  }>({
+    queryKey: [
+      "tara-fortnight",
+      place.latitude,
+      place.longitude,
+      place.timezone,
+      chart.ayanamsa,
+      chart.nodeType,
+      chart.sunriseDef,
+    ],
+    queryFn: async () =>
+      (await (
+        await apiRequest("POST", "/api/tara-fortnight", {
+          latitude: place.latitude,
+          longitude: place.longitude,
+          timezone: place.timezone,
+          days: 14,
+          ayanamsa: chart.ayanamsa,
+          nodeType: chart.nodeType === "true" ? "true" : "mean",
+          sunriseDef: chart.sunriseDef,
+        })
+      ).json()) as { days: { date: string; nakshatraName: string }[] },
+    staleTime: 5 * 60_000,
+  });
+
   const natalMoon = result.positions.find((p) => p.planet === "Moon")!;
-  const adverseStars = adverseTara(Math.floor(natalMoon.lon / (360 / 27)));
+  const birthStarIdx = Math.floor(natalMoon.lon / (360 / 27));
+  const adverseStars = adverseTara(birthStarIdx);
   const adverseByStar = new Map(
     adverseStars.map((a) => [a.nakshatraName, a]),
   );
@@ -545,6 +573,73 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
             <li key={c}>{c}</li>
           ))}
         </ul>
+      </section>
+
+      <section>
+        <SectionTitle plain="The coming fortnight" technical="Tara days" />
+        <ModeText
+          plain={
+            <>
+              The next two weeks, marking the days the Moon stands in a star
+              that works against your birth star — the Vipat, Pratyari or Vadha
+              (the 3rd, 5th and 7th) — or in a trijanma star (your birth star,
+              the 10th and the 19th). These days are avoided for muhurta.
+            </>
+          }
+          practitioner={
+            <>
+              Prasna Marga lists the trijanma nakshatras (birth, 10th, 19th)
+              and the Vipat, Pratyak and Naidhana nakshatras as inauspicious
+              days. The Moon's nakshatra per day is from Surya Siddhanta 2.64.
+            </>
+          }
+        />
+        <div className="mt-3" data-testid="tara-fortnight">
+          {fortnightQuery.isLoading && (
+            <p className="text-xs text-muted-foreground">Computing the fortnight…</p>
+          )}
+          {fortnightQuery.isError && (
+            <p className="text-xs text-verdict-bad">
+              Could not compute the fortnight.
+            </p>
+          )}
+          {fortnightQuery.data && (
+            <ul className="grid grid-cols-2 gap-1.5 sm:grid-cols-4 lg:grid-cols-7">
+              {fortnightQuery.data.days.map((day) => {
+                const flag = taraFlag(
+                  birthStarIdx,
+                  NAKSHATRAS.indexOf(
+                    day.nakshatraName as (typeof NAKSHATRAS)[number],
+                  ),
+                );
+                return (
+                  <li
+                    key={day.date}
+                    className={cn(
+                      "rounded-md border p-2 text-xs",
+                      flag
+                        ? "border-amber-400/50 bg-amber-400/10"
+                        : "border-border",
+                    )}
+                    title={flag ?? "clear day"}
+                  >
+                    <div className="font-medium tabular">
+                      {DateTime.fromISO(day.date).toFormat("d LLL")}
+                    </div>
+                    <div className="text-muted-foreground">
+                      {day.nakshatraName}
+                    </div>
+                    {flag && (
+                      <div className="mt-0.5 text-2xs font-medium text-amber-600">
+                        {flag}
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
       </section>
 
       <section>

@@ -58,3 +58,27 @@ export function adverseTara(birthStar: number): AdverseTara[] {
     };
   });
 }
+
+/** The trijanma nakshatras: the birth star, the 10th from it and the 19th from it (Prasna Marga). */
+export interface TrijanmaStar {
+  nakshatra: number;
+  nakshatraName: string;
+}
+
+export function trijanmaStars(birthStar: number): TrijanmaStar[] {
+  return [0, 9, 18].map((d) => {
+    const n = (birthStar + d) % 27;
+    return { nakshatra: n, nakshatraName: NAKSHATRAS[n] };
+  });
+}
+
+/**
+ * Why a day is inauspicious for a native, or undefined when clean: the adverse tara (Vipat,
+ * Pratyari, Vadha) or a trijanma star (birth, 10th, 19th).
+ */
+export function taraFlag(birthStar: number, nakshatraIndex: number): string | undefined {
+  const t = taraOf(birthStar, nakshatraIndex);
+  if (t.adverse) return `${t.name} tara`;
+  if (trijanmaStars(birthStar).some((x) => x.nakshatra === nakshatraIndex)) return "Trijanma";
+  return undefined;
+}

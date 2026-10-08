@@ -429,6 +429,53 @@ export async function registerRoutes(
     }
   });
 
+  /** The Moon's nakshatra for each of the next days, for the adverse-tara / trijanma fortnight view. */
+  app.post("/api/tara-fortnight", (req, res) => {
+    const schema = judgeSchema.extend({
+      days: z.number().int().min(7).max(31).default(14),
+      ayanamsa: z.string().max(24).default("lahiri"),
+      nodeType: z.enum(["mean", "true"]).default("mean"),
+      sunriseDef: z.string().max(16).optional(),
+    });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success)
+      return res
+        .status(400)
+        .json({ message: "Invalid request", issues: parsed.error.issues });
+    try {
+      const {
+        latitude,
+        longitude,
+        timezone,
+        days,
+        ayanamsa,
+        nodeType,
+        sunriseDef,
+      } = parsed.data;
+      const opts: EphemerisOptions = {
+        ayanamsa,
+        nodeType,
+        sunrise: normaliseSunriseDef(sunriseDef),
+      };
+      const start = DateTime.now().setZone(timezone).startOf("day");
+      const out: { date: string; nakshatraName: string }[] = [];
+      for (let d = 0; d < days; d++) {
+        const day = start.plus({ days: d });
+        const pd = panchangaAt(
+          julianDay(day.toUTC()),
+          latitude,
+          longitude,
+          timezone,
+          opts,
+        );
+        out.push({ date: day.toISODate()!, nakshatraName: pd.nakshatra.name });
+      }
+      res.json({ days: out });
+    } catch (e) {
+      res.status(500).json({ message: (e as Error).message });
+    }
+  });
+
   app.post("/api/kp/ruling", (req, res) => {
     const parsed = judgeSchema
       .extend({ nodeType: z.enum(["mean", "true"]).default("mean") })
