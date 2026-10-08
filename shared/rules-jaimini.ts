@@ -3,7 +3,8 @@
 
 import { SIGN_LORD, houseFrom, type Planet, type PlanetPosition } from "./astro";
 import { SUTRA_RULES, sutraRuleText } from "./rules-jaimini-sutras";
-import { isBenefic, rasiAspects, type ArudhaPada, type CharaKaraka, type JaiminiFinding, type JaiminiRuleGroup, type VargaPosition } from "./jaimini";
+import { isBenefic, rasiAspects } from "./jaimini-core";
+import type { ArudhaPada, CharaKaraka, JaiminiFinding, JaiminiRuleGroup, VargaPosition } from "./jaimini";
 
 export interface JaiminiContext {
   positions: PlanetPosition[];

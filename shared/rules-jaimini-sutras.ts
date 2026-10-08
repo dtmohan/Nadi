@@ -3,7 +3,7 @@
 // Wording is deliberately softened where the sutra is blunt; the sutra text itself is in the sutra library.
 
 import { SIGNS, SIGN_LORD, dignityOf, houseFrom, type Planet, type PlanetPosition } from "./astro";
-import { argalaOn, isBenefic, rasiAspects } from "./jaimini";
+import { argalaOn, isBenefic, rasiAspects } from "./jaimini-core";
 import type { JaiminiArea } from "./jaimini-areas";
 import type { JaiminiContext, JaiminiRule, JaiminiSource } from "./rules-jaimini";
 
