@@ -14,6 +14,8 @@ import {
 import { computeGochara, type GocharaVerdict } from "@shared/gochara";
 import { adverseTara } from "@shared/tara";
 import { Soft } from "@/lib/gentle";
+import { usePlain } from "@/components/mode-text";
+import { sarvarthaLeftOut } from "@/components/sarvartha-section";
 import { useT } from "@/lib/i18n";
 import { useAgreement } from "@/lib/use-agreement";
 import { PlanetName, SignName } from "@/components/planet-name";
@@ -85,6 +87,12 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
   const age = ageYears(result.utc, lifeAt);
   const deceased = lifeAt !== now.asOf;
   const agreement = useAgreement(result);
+  const plain = usePlain();
+  // Sarvartha's own length-of-life rules stay in the practitioner reading, and the gate's topics stay out for a minor.
+  const scShown = (result.sarvartha?.findings ?? []).filter(
+    (f) =>
+      !sarvarthaLeftOut(f.topic, f.text, plain, result.sensitive?.withheld ?? false),
+  );
   const crossSchool = agreement.filter(
     (a) => a.verdict === "disagree" || a.verdict === "lean",
   );
@@ -336,7 +344,7 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
       )}
 
       {/* Sarvartha Chintamani highlights (Parashari-lineage) */}
-      {result.sarvartha && result.sarvartha.findings.length > 0 && (
+      {result.sarvartha && scShown.length > 0 && (
         <div
           className="mt-4 rounded-lg border bg-card p-5 sm:p-6"
           data-testid="overview-sarvartha"
@@ -345,9 +353,10 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
             Parashari · Sarvartha Chintamani
           </p>
           <p className="mt-2 text-sm leading-relaxed">
-            {result.sarvartha.findings.slice(0, 3).map((f) => (
+            {scShown.slice(0, 3).map((f) => (
               <span key={`${f.house}.${f.stanza}`} className="block">
-                <span className="font-medium">{f.topic}:</span> {f.text}
+                <span className="font-medium">{f.topic}:</span>{" "}
+                <Soft>{f.text}</Soft>
               </span>
             ))}
           </p>
@@ -358,7 +367,7 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
             </p>
           )}
           <p className="mt-1 text-xs text-muted-foreground">
-            {result.sarvartha.findings.length} of {result.sarvartha.computable}{" "}
+            {scShown.length} of {result.sarvartha.computable}{" "}
             computable rules apply to this chart — the full house-walk is in the
             Parashari tab.
           </p>

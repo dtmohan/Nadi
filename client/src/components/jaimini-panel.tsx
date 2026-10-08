@@ -77,6 +77,8 @@ import {
 import { vimshottari, type KpPeriod } from "@shared/kp";
 import { INDU_SOURCE } from "@shared/indu-lagna";
 import { cn } from "@/lib/utils";
+import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
+import { computeYogas, YOGAS } from "@shared/yoga";
 
 const PLAIN_KARAKA: Record<string, string> = {
   AK: "self",
@@ -269,7 +271,7 @@ function JaiminiVerdict({ result }: { result: ChartResult }) {
         <>
           {j.findings.length} {j.findings.length === 1 ? "line" : "lines"} of
           Jaimini's sutras {j.findings.length === 1 ? "matches" : "match"} this
-          chart, written out below.
+          chart, written out in the sutras chapter.
         </>
       ),
     },
@@ -435,6 +437,56 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
   const [focusSign, setFocusSign] = useState<number>(j.lagna.signIndex);
   const [showPrimer, setShowPrimer] = useState(false);
   const plain = usePlain();
+  // Jaimini's own raja yogas (chara karakas, Karakamsa, Arudha lagna, sign aspects) from the yoga
+  // database; the Parashari tab reads only the Parashari-lineage texts.
+  const rajaYogas = useMemo(
+    () =>
+      computeYogas({ positions, lagnaIdx: j.lagna.signIndex }).filter(
+        (y) => y.source.text === "Jaimini",
+      ),
+    [positions, j.lagna.signIndex],
+  );
+  const rajaYogaRules = YOGAS.filter((y) => y.source.text === "Jaimini").length;
+  const chapterDefs: ChapterDef[] = [
+    { id: "brief", plain: "In brief", technical: "Summary" },
+    {
+      id: "areas",
+      plain: "Life areas",
+      technical: "Life areas",
+      blurb: "Seven areas of life, each with its balance, its foundations and the sign-periods that bring it forward.",
+    },
+    {
+      id: "dashas",
+      plain: "Periods",
+      technical: "Dashas",
+      blurb: "Chara dasha in K.N. Rao's method, the fixed Sthira dasha, and the Kerala school's Manduka and Brahma dashas.",
+    },
+    {
+      id: "roles",
+      plain: "Chart and roles",
+      technical: "Karakas, padas, drishti",
+      blurb: "The rasi and navamsa, the eight planets' roles, how each house appears to the world, the wealth ascendant, and how the signs see each other.",
+    },
+    {
+      id: "yogas",
+      plain: "Combinations",
+      technical: "Raja yogas",
+      count: rajaYogas.length,
+      blurb: "Jaimini's royal combinations from the planets' roles and the sign aspects; provisional until matched to the sutras.",
+    },
+    {
+      id: "sutras",
+      plain: "The sutras",
+      technical: "Sutras",
+      blurb: "What Jaimini's sutras say of this chart, verse by verse.",
+    },
+    {
+      id: "ayur",
+      plain: "Span of life",
+      technical: "Ayurdaya",
+      blurb: "How the text classifies the span of life, as a classification and not a forecast.",
+    },
+  ];
 
   // Vimshottari mahadashas, for the Indu Lagna reading's timing clauses. Read at the date of passing
   // when one is recorded; periods that begin later are dropped, so nothing is read as a forecast.
@@ -620,6 +672,8 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
         )}
       </div>
 
+      <Chapters tab="jaimini" chapters={chapterDefs} className="mt-4">
+      <Chapter id="brief">
       <JaiminiVerdict result={result} />
 
       <ModeText
@@ -645,6 +699,9 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
         }
       />
 
+      </Chapter>
+
+      <Chapter id="roles">
       <div className="mt-6 grid gap-8 lg:grid-cols-[5fr_4fr] lg:items-start">
         <div>
           <SouthIndianChart
@@ -1271,6 +1328,9 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
         </Working>
       </section>
 
+      </Chapter>
+
+      <Chapter id="dashas">
       <section className="mt-10" data-testid="section-chara-dasha">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
@@ -1354,7 +1414,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
         <ElementLegend className="mt-3" />
         <p className="mt-1 text-2xs text-muted-foreground">
           {plain
-            ? "The Hot stripes are the seven life areas in the order of the cards above (self, career, wealth, marriage, children, family, health): a stripe is drawn where a sign period carries that area strongly by Rao's rules, green where it supports it, red where it strains it, darker the stronger. Jupiter's passages are shown for comparison with the Nadi timing; they are not part of the Chara reading."
+            ? "The Hot stripes are the seven life areas in the order of the life-area cards (self, career, wealth, marriage, children, family, health): a stripe is drawn where a sign period carries that area strongly by Rao's rules, green where it supports it, red where it strains it, darker the stronger. Jupiter's passages are shown for comparison with the Nadi timing; they are not part of the Chara reading."
             : "The Hot stripes are the seven areas in card order (self, career, wealth, marriage, children, family, health); a mahadasha is drawn where it carries the area at Rao's threshold (a weight-2 trigger or score ≥ 3), tinted by the balance of support and strain and shaded by score. Jupiter's sign passages are drawn for comparison with the Nadi timing only."}
         </p>
         <ul className="mt-3 space-y-1.5">
@@ -1500,7 +1560,72 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
         </div>
       </section>
 
+      </Chapter>
+
+      <Chapter id="areas">
       <JaiminiAreas result={result} />
+      </Chapter>
+
+      <Chapter id="yogas">
+      <section className="mt-10" data-testid="section-jaimini-yogas">
+        <SectionTitle
+          as="h2"
+          plain="Royal combinations"
+          technical="Raja yogas"
+          className="text-base"
+        />
+        <ModeText
+          className="text-sm"
+          plain={
+            <>
+              Combinations Jaimini&apos;s method reads for rise and standing,
+              from the planets&apos; roles and the signs that see each other.
+              They come from a modern guide&apos;s summary (chapter 16) rather
+              than from numbered sutras, so each is marked provisional.
+            </>
+          }
+          practitioner={
+            <>
+              Raja yogas from the chara karakas, the Karakamsa, the Arudha lagna
+              and rasi drishti, as summarised in chapter 16 of a modern Jaimini
+              guide. The guide gives no sutra numbers, so every rule here is
+              provisional until it is matched to the sutras. {rajaYogaRules}{" "}
+              rules are checked.
+            </>
+          }
+        />
+        {rajaYogas.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground" data-testid="jaimini-yogas-none">
+            None of the {rajaYogaRules} raja yogas holds for this chart.
+          </p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {rajaYogas.map((y) => (
+              <li
+                key={y.id}
+                className="rounded-md border bg-card p-3 text-xs leading-5"
+                data-testid={`jaimini-yoga-${y.id}`}
+              >
+                <span className="font-medium">{y.name}</span>{" "}
+                <span className="text-muted-foreground">— {y.condition}.</span>{" "}
+                <span>
+                  <Soft>{y.result}</Soft>.
+                </span>{" "}
+                <SourceLink
+                  source={{
+                    label: `Jaimini guide ch. ${y.source.chapter}`,
+                    url: "",
+                    provisional: true,
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      </Chapter>
+
+      <Chapter id="sutras">
 
       <section className="mt-10" data-testid="section-jaimini-findings">
         <SectionTitle
@@ -1564,7 +1689,9 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           ))}
         </Working>
       </section>
+      </Chapter>
 
+      <Chapter id="ayur">
       <section className="mt-10" data-testid="section-ayur">
         <SectionTitle
           as="h2"
@@ -1720,6 +1847,8 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
           </Working>
         )}
       </section>
+      </Chapter>
+      </Chapters>
     </div>
   );
 }

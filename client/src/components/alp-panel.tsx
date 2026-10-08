@@ -78,6 +78,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 
 function ordinal(n: number) {
   return `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
@@ -248,6 +249,34 @@ export function AlpPanel({ result }: { result: ChartResult }) {
     return lo === hi ? SIGNS[lo] : `${SIGNS[lo]} / ${SIGNS[hi]}`;
   };
 
+  const chapterDefs: ChapterDef[] = [
+    { id: "brief", plain: "In brief", technical: "Summary" },
+    {
+      id: "placements",
+      plain: "Where it stands",
+      technical: "Placements",
+      blurb: "Where the mind stands and where the decade stands, with the work, duty and difficult houses.",
+    },
+    {
+      id: "reading",
+      plain: "What the rules say",
+      technical: "Reading",
+      blurb: "The rules that apply at the moving point's present sign, each with its source.",
+    },
+    {
+      id: "timeline",
+      plain: "Decade by decade",
+      technical: "Progression",
+      blurb: "The moving point through the signs, one decade at a time.",
+    },
+    {
+      id: "method",
+      plain: "Method",
+      technical: "Method",
+      blurb: "The progression arithmetic and the volumes the rules come from.",
+    },
+  ];
+
   return (
     <div data-testid="alp-panel">
       <div className="flex flex-wrap items-center gap-1.5 text-xs">
@@ -358,6 +387,8 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         </span>
       </div>
 
+      <Chapters tab="alp" chapters={chapterDefs} className="mt-4">
+      <Chapter id="brief">
       <VerdictCard
         system="Akshaya Lagna Paddhati"
         headline={
@@ -483,8 +514,11 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         }
       />
 
+      </Chapter>
+
+      <Chapter id="placements">
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
-        <div className="lg:sticky lg:top-4 lg:max-h-[calc(100svh-2rem)] lg:overflow-y-auto lg:pr-1">
+        <div className="lg:sticky lg:top-14 lg:max-h-[calc(100svh-4.5rem)] lg:overflow-y-auto lg:pr-1">
           <SouthIndianChart
             positions={positions}
             title="Rasi"
@@ -1412,6 +1446,9 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         </ul>
       </Working>
 
+      </Chapter>
+
+      <Chapter id="reading">
       <section className="mt-10" data-testid="section-alp-findings">
         <SectionTitle
           as="h2"
@@ -1424,7 +1461,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           plain={
             <>
               Rules from the published books and class notes, matched against
-              the placements above. Dots show how much weight each carries. Only
+              the placements under Where it stands. Dots show how much weight each carries. Only
               some chapters are entered so far.
             </>
           }
@@ -1478,7 +1515,8 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             data-testid="text-alp-empty"
           >
             None of the starting rules fire for this placement. The placements
-            above are what a rule from the books would be written against.
+            under {plain ? "Where it stands" : "Placements"} are what a rule
+            from the books would be written against.
           </p>
         )}
         {pendingChapters.length > 0 && (
@@ -1489,6 +1527,9 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         )}
       </section>
 
+      </Chapter>
+
+      <Chapter id="timeline">
       <section className="mt-10" data-testid="section-alp-timeline">
         <SectionTitle
           as="h2"
@@ -1699,7 +1740,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                   {c.present} present, {c.past} past, {c.future} future.{" "}
                   {threeWaysText(c)}
                   {key === "janma"
-                    ? " (This line also appears in the reading below.)"
+                    ? " (This line also appears in the reading.)"
                     : ""}
                 </p>
               </div>
@@ -1810,6 +1851,9 @@ export function AlpPanel({ result }: { result: ChartResult }) {
         </Working>
       </section>
 
+      </Chapter>
+
+      <Chapter id="method">
       <section className="mt-10" data-testid="section-alp-method">
         <h2 className="text-base font-semibold">Method</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -1833,7 +1877,8 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             the birth lagna degree, with 3° for each completed year and 1° for
             every four months of the remainder. The continuous point used here
             moves smoothly between those whole-degree steps; the arithmetic is
-            shown in the working above.
+            shown under {plain ? "Where it stands" : "Placements"}, in the
+            working on the moving point.
           </li>
           <li>
             Book 2 (pp. 72-73) derives the Akshaya rasi from the Vimshottari
@@ -1869,6 +1914,8 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           </li>
         </ul>
       </section>
+      </Chapter>
+      </Chapters>
     </div>
   );
 }

@@ -599,7 +599,10 @@ export function JaiminiAreas({ result }: { result: ChartResult }) {
     [result],
   );
   const now = DateTime.fromISO(result.now.asOf);
-  const [filter, setFilter] = useState<JaiminiArea | "all">("all");
+  // One area at a time: seven full cards read as a book. "All areas" still shows every card.
+  const [filter, setFilter] = useState<JaiminiArea | "all">(
+    areas[0]?.area ?? "all",
+  );
   const shown =
     filter === "all" ? areas : areas.filter((a) => a.area === filter);
   return (
@@ -657,6 +660,19 @@ export function JaiminiAreas({ result }: { result: ChartResult }) {
             data-testid={`filter-jarea-${a.area}`}
           >
             {a.label}
+            <span
+              aria-label={
+                a.balance >= 2 ? "supported" : a.balance <= -2 ? "strained" : "mixed"
+              }
+              className={cn(
+                "ml-1.5 inline-block h-1.5 w-1.5 rounded-full",
+                a.balance >= 2
+                  ? "bg-[hsl(var(--chart-4))]"
+                  : a.balance <= -2
+                    ? "bg-destructive"
+                    : "bg-muted-foreground/50",
+              )}
+            />
           </Button>
         ))}
       </div>

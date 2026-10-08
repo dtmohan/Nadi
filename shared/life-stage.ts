@@ -169,14 +169,14 @@ export function sensitiveGate(
   return { withheld: age < SENSITIVE_MIN_AGE, ageYears: age, minAge: SENSITIVE_MIN_AGE };
 }
 
-export const SENSITIVE_WITHHELD_NOTE = `Length-of-life, maraka and arishta statements, and those on the loss of a parent, are not shown for a native under ${SENSITIVE_MIN_AGE}. The combinations remain in the chart and are read when the native comes of age (a policy of this app, provisional).`;
+export const SENSITIVE_WITHHELD_NOTE = `Length-of-life, maraka and arishta statements, and those on the loss of a parent, spouse, child or sibling or on danger to life and limb, are not shown for a native under ${SENSITIVE_MIN_AGE}. The combinations remain in the chart and are read when the native comes of age (a policy of this app, provisional).`;
 
 /**
  * Topics withheld for a minor. A statement is tagged by what it is about, not by the single word
  * "death": the length of life in either direction (a short or a long life is the same topic), the
- * planets and periods that can end it, danger to the infant, and the loss of a parent, spouse or
- * child. Peril covers the verse readings of danger to life and limb (hunting, fire, weapons,
- * poison), which a child's reading does not need either.
+ * planets and periods that can end it, danger to the infant, and the loss of a parent, spouse,
+ * child or sibling. Peril covers the verse readings of danger to life and limb (hunting, fire,
+ * weapons, poison, bites, falls and blows), which a child's reading does not need either.
  */
 export type SensitiveTag =
   | "longevity"
@@ -185,11 +185,13 @@ export type SensitiveTag =
   | "parent-loss"
   | "spouse-loss"
   | "child-loss"
+  | "sibling-loss"
   | "peril";
 
 const KIN_PARENT = "(father|mother|parent|parents|elders?)";
 const KIN_SPOUSE = "(spouse|wife|husband|partner|the married partner|life partner)";
 const KIN_CHILD = "(children|child|son|sons|daughter|daughters|progeny|offspring|issue)";
+const KIN_SIBLING = "(brothers?|sisters?|siblings?|co-borns?)";
 const LOSS = "(loss|death|destruction|end|passing|demise|bereavement|widowhood) of (a |the |one's |his |her |their )?";
 
 const TAG_RES: Array<[SensitiveTag, RegExp]> = [
@@ -212,8 +214,12 @@ const TAG_RES: Array<[SensitiveTag, RegExp]> = [
     new RegExp(`\\b(${LOSS}${KIN_CHILD}|${KIN_CHILD}'s (death|passing|end|loss|demise)|grief through ${KIN_CHILD}|childless through loss)\\b`, "i"),
   ],
   [
+    "sibling-loss",
+    new RegExp(`\\b(${LOSS}${KIN_SIBLING}|${KIN_SIBLING}'s (death|passing|end|loss|demise))\\b`, "i"),
+  ],
+  [
     "peril",
-    /\b(risk to life|threat to life|danger to life|danger of death|death|deaths|dies|dying|hunting|danger (of|from|through) (fire|weapons?|arms|poison|snakes?|water|drowning|the king|enemies|an enemy|thieves|animals|beasts|accidents?)|grave (danger|risk|peril)|mortal|drown(s|ing)?|poison(ed|ing)?|wounds? by|injury from a weapon|falls? from (vehicles|heights|a height)|assassin|murder)\b/i,
+    /\b(risk to life|threat to life|danger to life|danger of death|death|deaths|dies|dying|hunting|danger (of|from|through) (fire|weapons?|arms|poison|snakes?|water|drowning|the king|enemies|an enemy|thieves|animals|beasts|accidents?)|grave (danger|risk|peril)|mortal|drown(s|ing)?|poison(ed|ing)?|wounds? by|injury from a weapon|falls? from (vehicles|heights|a height)|assassin|murder|(serpent|snake|dog)[- ]?bites?|bitten by (a |the )?(dog|snake|serpent)|trouble from a serpent|head injury|injur(y|ed|ies) by (stone|sword|weapons?)|falls? in(to)? a (well|river|tank)|dead spirits?|souls of the dead)\b/i,
   ],
 ];
 

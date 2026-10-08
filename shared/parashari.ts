@@ -155,7 +155,7 @@ export interface ParashariResult {
   padas: PadaResult;
   /** Maraka planets and the current period, BPHS ch. 44; null when withheld for a native under the sensitive-content age. */
   marakas: MarakaResult | null;
-  /** True when the sensitive-content gate stripped length-of-life, maraka, arishta and parent-loss statements from this result. */
+  /** True when the sensitive-content gate stripped length-of-life, maraka, arishta, kin-loss and peril statements from this result. */
   withheld: boolean;
   /** Avasthas of the planets, BPHS ch. 45. */
   avasthas: AvasthaResult;

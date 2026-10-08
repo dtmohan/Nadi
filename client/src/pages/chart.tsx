@@ -1,7 +1,7 @@
 import { displayLocal } from "@shared/time-basis";
 import { DeceasedProvider } from "@/components/mode-text";
 import { Soft } from "@/lib/gentle";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
@@ -104,6 +104,12 @@ import {
 } from "@/components/verdict-card";
 import { Term } from "@/components/term";
 import { Working, ReadingModeToggle } from "@/components/working";
+import {
+  Chapter,
+  ChapterMemoryProvider,
+  Chapters,
+  type ChapterDef,
+} from "@/components/chapters";
 import { useReadingMode } from "@/lib/reading-mode";
 import { downloadReportPdf } from "@/lib/report-pdf";
 import type { RectifyExportState } from "@shared/rectify-methods";
@@ -1279,9 +1285,12 @@ function BnnVerdict({ result }: { result: ChartResult }) {
 function Reading({
   result,
   selected,
+  part,
 }: {
   result: ChartResult;
   selected: Planet | null;
+  /** The karaka cards, or the life areas with their notes; both when omitted. */
+  part?: "karakas" | "areas";
 }) {
   const { reading, positions, chart } = result;
   const { mode } = useReadingMode();
@@ -1294,6 +1303,7 @@ function Reading({
 
   return (
     <div className="space-y-8">
+      {part !== "areas" && (
       <div className="grid gap-4">
         <KarakaCard
           title={
@@ -1357,7 +1367,10 @@ function Reading({
           </div>
         )}
       </div>
+      )}
 
+      {part !== "karakas" && (
+      <>
       <Working id="strength" label="Show planetary strength and degree order">
         <StrengthNotes
           strength={reading.strength}
@@ -1403,6 +1416,8 @@ function Reading({
           season={areaSeason(s.area, result.utc, result.now.asOf)}
         />
       ))}
+      </>
+      )}
     </div>
   );
 }
@@ -2137,10 +2152,139 @@ export default function ChartPage() {
     (p) => p.planet === "Jupiter" || p.planet === "Saturn",
   );
 
+  // The Nadi tab in chapters: the sticky rasi chart stays beside every chapter after the brief.
+  const bnnChartColumn = (
+        <div
+          className="lg:sticky lg:top-14 lg:max-h-[calc(100svh-4.5rem)] lg:overflow-y-auto lg:pr-1"
+          data-testid="bnn-chart-column"
+        >
+          <SouthIndianChart
+            positions={positions}
+            transit={showTransit ? transitNow : []}
+            title="Rasi"
+            subtitle={`${PLANET_ABBR[data.reading.roles.native]} Jeeva · Sa Karma${data.reading.roles.deha !== data.reading.roles.native ? ` · ${PLANET_ABBR[data.reading.roles.deha]} Deha` : ""}`}
+            highlightSign={selectedSign}
+            secondarySigns={
+              selectedSign === null
+                ? undefined
+                : [
+                    (selectedSign + 4) % 12,
+                    (selectedSign + 8) % 12,
+                    (selectedSign + 6) % 12,
+                  ]
+            }
+            jeeva={data.reading.roles.native}
+            deha={
+              data.reading.roles.deha !== data.reading.roles.native
+                ? data.reading.roles.deha
+                : undefined
+            }
+            houseKaraka={houseKaraka ?? data.reading.roles.native}
+            onSignClick={(s) => {
+              const p = positions.find((x) => x.signIndex === s);
+              setSelected(
+                p ? (selected === p.planet ? null : p.planet) : null,
+              );
+            }}
+          />
+          <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
+            <span>
+              <span
+                className="font-semibold"
+                style={{ color: planetColor(data.reading.roles.native) }}
+              >
+                {PLANET_ABBR[data.reading.roles.native]}
+              </span>{" "}
+              Jeeva ·{" "}
+              <span
+                className="font-semibold"
+                style={{ color: planetColor("Saturn") }}
+              >
+                Sa
+              </span>{" "}
+              Karma
+              {data.reading.roles.deha !== data.reading.roles.native && (
+                <>
+                  {" · "}
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color: planetColor(data.reading.roles.deha),
+                    }}
+                  >
+                    {PLANET_ABBR[data.reading.roles.deha]}
+                  </span>{" "}
+                  Deha (female chart)
+                </>
+              )}{" "}
+              · R retrograde · <span className="italic">tJu tSa</span>{" "}
+              transits today · click a sign for its trines and 7th
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowTransit((v) => !v)}
+              data-testid="button-toggle-transit"
+            >
+              {showTransit ? <EyeOff /> : <Eye />}
+              Transits
+            </Button>
+          </div>
+          <Working
+            id="houses"
+            label="Show the twelve houses from the karaka"
+            className="mt-4"
+          >
+            <HousesPanel
+              positions={positions}
+              karaka={houseKaraka ?? data.reading.roles.native}
+              native={data.reading.roles.native}
+              deha={data.reading.roles.deha}
+              onChange={setHouseKaraka}
+              selected={selected}
+            />
+          </Working>
+        </div>
+  );
+  const bnnGrid = (content: ReactNode) => (
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,27rem)_1fr] lg:items-start">
+      {bnnChartColumn}
+      <div className="min-w-0 max-w-[76ch]">{content}</div>
+    </div>
+  );
+  const bnnChapters: ChapterDef[] = [
+    { id: "brief", plain: "In brief", technical: "Summary" },
+    {
+      id: "areas",
+      plain: "Life areas",
+      technical: "Areas",
+      blurb: "Each area of life with its balance, the signatures that carry it and the rules behind them.",
+    },
+    {
+      id: "karakas",
+      plain: "Key planets",
+      technical: "Karakas",
+      blurb: "Jupiter for the native and Saturn for work, with marriage, children and wealth read from their karakas.",
+    },
+    {
+      id: "timing",
+      plain: "Timing",
+      technical: "Transits",
+      blurb: "When the passages of Jupiter and Saturn over the birth planets bring each matter forward.",
+    },
+    {
+      id: "relations",
+      plain: "Relations",
+      technical: "Relations",
+      blurb: "A grid of how each planet links to the others: together, next door, in trine or opposite.",
+    },
+  ];
+
   return (
     <DeceasedProvider
       deceased={!!data && isDeceased(data.chart, new Date().toISOString())}
     >
+      <ChapterMemoryProvider key={chart.id}>
       <div className="mx-auto max-w-6xl px-5 py-8 pb-24 md:px-10 md:pb-8">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -2185,6 +2329,7 @@ export default function ChartPage() {
 
         <AgreementPanel
           className="mt-4"
+          compact={mode !== "overview"}
           result={data}
           onOpenTab={(t) => {
             setMode(t);
@@ -2347,168 +2492,78 @@ export default function ChartPage() {
         )}
 
         {mode === "bnn" && (
-          <div className="animate-in fade-in-0 duration-300">
-            <BnnVerdict result={data} />
-            <BnnLifeTimeline
-              className="mt-6"
-              transits={data.transits}
-              positions={positions}
-              findings={data.reading.findings}
-              birthIso={data.utc}
-              roles={data.reading.roles}
-              asOfIso={data.now.asOf}
-              deathIso={data.chart.deathDate}
-              events={data.chart.events}
-              zone={data.chart.timezone}
-            />
-            <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,27rem)_1fr] lg:items-start">
-              <div
-                className="lg:sticky lg:top-4 lg:max-h-[calc(100svh-2rem)] lg:overflow-y-auto lg:pr-1"
-                data-testid="bnn-chart-column"
-              >
-                <SouthIndianChart
+          <div className="mt-6 animate-in fade-in-0 duration-300">
+            <Chapters tab="bnn" chapters={bnnChapters}>
+              <Chapter id="brief">
+                <BnnVerdict result={data} />
+                <BnnLifeTimeline
+                  className="mt-6"
+                  transits={data.transits}
                   positions={positions}
-                  transit={showTransit ? transitNow : []}
-                  title="Rasi"
-                  subtitle={`${PLANET_ABBR[data.reading.roles.native]} Jeeva · Sa Karma${data.reading.roles.deha !== data.reading.roles.native ? ` · ${PLANET_ABBR[data.reading.roles.deha]} Deha` : ""}`}
-                  highlightSign={selectedSign}
-                  secondarySigns={
-                    selectedSign === null
-                      ? undefined
-                      : [
-                          (selectedSign + 4) % 12,
-                          (selectedSign + 8) % 12,
-                          (selectedSign + 6) % 12,
-                        ]
-                  }
-                  jeeva={data.reading.roles.native}
-                  deha={
-                    data.reading.roles.deha !== data.reading.roles.native
-                      ? data.reading.roles.deha
-                      : undefined
-                  }
-                  houseKaraka={houseKaraka ?? data.reading.roles.native}
-                  onSignClick={(s) => {
-                    const p = positions.find((x) => x.signIndex === s);
-                    setSelected(
-                      p ? (selected === p.planet ? null : p.planet) : null,
-                    );
-                  }}
+                  findings={data.reading.findings}
+                  birthIso={data.utc}
+                  roles={data.reading.roles}
+                  asOfIso={data.now.asOf}
+                  deathIso={data.chart.deathDate}
+                  events={data.chart.events}
+                  zone={data.chart.timezone}
                 />
-                <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
-                  <span>
-                    <span
-                      className="font-semibold"
-                      style={{ color: planetColor(data.reading.roles.native) }}
+              </Chapter>
+              <Chapter id="areas">
+                {bnnGrid(
+                  <>
+                    <Working
+                      id="planet-table"
+                      label="Show the planet table"
+                      count={positions.length}
                     >
-                      {PLANET_ABBR[data.reading.roles.native]}
-                    </span>{" "}
-                    Jeeva ·{" "}
-                    <span
-                      className="font-semibold"
-                      style={{ color: planetColor("Saturn") }}
-                    >
-                      Sa
-                    </span>{" "}
-                    Karma
-                    {data.reading.roles.deha !== data.reading.roles.native && (
-                      <>
-                        {" · "}
-                        <span
-                          className="font-semibold"
-                          style={{
-                            color: planetColor(data.reading.roles.deha),
-                          }}
-                        >
-                          {PLANET_ABBR[data.reading.roles.deha]}
-                        </span>{" "}
-                        Deha (female chart)
-                      </>
-                    )}{" "}
-                    · R retrograde · <span className="italic">tJu tSa</span>{" "}
-                    transits today · click a sign for its trines and 7th
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowTransit((v) => !v)}
-                    data-testid="button-toggle-transit"
-                  >
-                    {showTransit ? <EyeOff /> : <Eye />}
-                    Transits
-                  </Button>
-                </div>
-                <Working
-                  id="houses"
-                  label="Show the twelve houses from the karaka"
-                  className="mt-4"
-                >
-                  <HousesPanel
+                      <PlanetTable
+                        positions={positions}
+                        strength={data.reading.strength}
+                        selected={selected}
+                        onSelect={setSelected}
+                      />
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Click a planet to focus the reading on it. Longitudes are
+                        sidereal. c <Term k="combust">combust</Term> · w leads an
+                        enemy by <Term k="degree-order">degree</Term> · struck
+                        dignity is <Term k="set-aside">set aside</Term> by a Nadi
+                        rule.
+                      </p>
+                    </Working>
+                    <div className="mt-8">
+                      <Reading result={data} selected={selected} part="areas" />
+                    </div>
+                  </>,
+                )}
+              </Chapter>
+              <Chapter id="karakas">
+                {bnnGrid(
+                  <Reading result={data} selected={selected} part="karakas" />,
+                )}
+              </Chapter>
+              <Chapter id="timing">
+                {bnnGrid(
+                  <Timeline
+                    transits={data.transits}
                     positions={positions}
-                    karaka={houseKaraka ?? data.reading.roles.native}
-                    native={data.reading.roles.native}
-                    deha={data.reading.roles.deha}
-                    onChange={setHouseKaraka}
+                    findings={data.reading.findings}
+                    birthIso={data.utc}
                     selected={selected}
-                  />
-                </Working>
-              </div>
-              <div className="min-w-0 max-w-[76ch]">
-                <Working
-                  id="planet-table"
-                  label="Show the planet table"
-                  count={positions.length}
-                >
-                  <PlanetTable
+                    roles={data.reading.roles}
+                    asOfIso={lifeAsOf(data.chart, new Date().toISOString())}
+                  />,
+                )}
+              </Chapter>
+              <Chapter id="relations">
+                {bnnGrid(
+                  <Relations
+                    relations={data.reading.relations}
                     positions={positions}
-                    strength={data.reading.strength}
-                    selected={selected}
-                    onSelect={setSelected}
-                  />
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Click a planet to focus the reading on it. Longitudes are
-                    sidereal. c <Term k="combust">combust</Term> · w leads an
-                    enemy by <Term k="degree-order">degree</Term> · struck
-                    dignity is <Term k="set-aside">set aside</Term> by a Nadi
-                    rule.
-                  </p>
-                </Working>
-
-                <Tabs defaultValue="reading" className="mt-8">
-                  <TabsList>
-                    <TabsTrigger value="reading" data-testid="tab-reading">
-                      Reading
-                    </TabsTrigger>
-                    <TabsTrigger value="timeline" data-testid="tab-timeline">
-                      Timing
-                    </TabsTrigger>
-                    <TabsTrigger value="relations" data-testid="tab-relations">
-                      Relations
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="reading" className="mt-6">
-                    <Reading result={data} selected={selected} />
-                  </TabsContent>
-                  <TabsContent value="timeline" className="mt-6">
-                    <Timeline
-                      transits={data.transits}
-                      positions={positions}
-                      findings={data.reading.findings}
-                      birthIso={data.utc}
-                      selected={selected}
-                      roles={data.reading.roles}
-                      asOfIso={lifeAsOf(data.chart, new Date().toISOString())}
-                    />
-                  </TabsContent>
-                  <TabsContent value="relations" className="mt-6">
-                    <Relations
-                      relations={data.reading.relations}
-                      positions={positions}
-                    />
-                  </TabsContent>
-                </Tabs>
-              </div>
-            </div>
+                  />,
+                )}
+              </Chapter>
+            </Chapters>
           </div>
         )}
 
@@ -2523,7 +2578,13 @@ export default function ChartPage() {
                   ? "Rectification and validation are checks, not readings. Each method scores by one system's rules at a time (KP sub lords and significators, or K.N. Rao's Chara dasha) and the systems are never blended; a high score narrows the birth time or confirms a rule, it does not prove either."
                   : mode === "kp"
                     ? "Krishnamurti Paddhati is Prof. K.S. Krishnamurti's stellar method. The arithmetic (KP ayanamsa, Placidus cusps, subs, significators, Vimshottari) is complete; the cuspal readings are paraphrased from Astro Secrets & KP Part 3 and the Kalpurush class notes and are a first pass, not a verdict."
-                    : "Jaimini text follows the Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; Chara dasha follows K.N. Rao's method. It is a starting set of rules meant to be extended, not a verdict."}
+                    : mode === "overview"
+                      ? "The Overview sets each system's own reading side by side and shows where they agree or differ. Nothing is blended: every line comes from one tab and is read there in full."
+                      : mode === "prasna"
+                        ? "Prasna Marga is paraphrased from B.V. Raman's English translation and cited by chapter and stanza. The prasna mode is a horary tool for a question asked now; the twelve-house walk reads the same rules against the birth chart. A first pass, not a verdict."
+                        : mode === "panchanga"
+                          ? "The panchanga follows Surya Siddhanta (tr. Burgess) with ending times from the ephemeris; transits from the birth Moon follow Brihat Samhita 104 and Phaladeepika 26. These are day-and-transit tables, not a reading of the chart."
+                          : "Jaimini text follows the Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; Chara dasha follows K.N. Rao's method. It is a starting set of rules meant to be extended, not a verdict."}
         </footer>
 
         <ModeBar
@@ -2534,6 +2595,7 @@ export default function ChartPage() {
           }}
         />
       </div>
+      </ChapterMemoryProvider>
     </DeceasedProvider>
   );
 }

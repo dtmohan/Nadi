@@ -7,6 +7,7 @@ import {
   SENSITIVE_WITHHELD_NOTE,
 } from "@shared/life-stage";
 import { GentleNote, Soft } from "@/lib/gentle";
+import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
@@ -117,7 +118,7 @@ import { SudarshanaSection } from "@/components/sudarshana";
 import { compareSudarshanaEvents } from "@shared/sudarshana-events";
 import { computePortions } from "@shared/portions";
 import { PortionsSection } from "@/components/portions";
-import { SarvarthaSection } from "@/components/sarvartha-section";
+import { SarvarthaSection, sarvarthaLeftOut } from "@/components/sarvartha-section";
 import { SC_SOURCE } from "@shared/sarvartha";
 import { computeCombinations, CONJUNCTIONS_NOTE } from "@shared/combinations";
 import { computeYogas, YOGA_CATEGORY_LABEL, YOGA_NOTE } from "@shared/yoga";
@@ -231,7 +232,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   );
   const firedYogas = useMemo(
     () =>
-      computeYogas({ positions, lagnaIdx: result.jaimini.lagna.signIndex }),
+      computeYogas({
+        positions,
+        lagnaIdx: result.jaimini.lagna.signIndex,
+      }).filter((y) => y.source.text !== "Jaimini"),
     [positions, result.jaimini.lagna.signIndex],
   );
   // Everything "current" is read at the reading date, or at the recorded date of passing: after a
@@ -434,7 +438,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const [focusHouse, setFocusHouse] = useState<number | null>(null);
   const [section, setSection] = useState<
     "lords" | "yogas" | "houses" | "evils" | "timing"
-  >("yogas");
+  >("houses");
   const [dasaPick, setDasaPick] = useState<string | null>(null);
   const [antarOpen, setAntarOpen] = useState<string | null>(null);
 
@@ -500,8 +504,78 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       badges[b.signIndex] = [KENDRA.includes(b.house) ? "kendra" : "trikona"];
   }
 
+  const chapterDefs: ChapterDef[] = [
+    { id: "brief", plain: "In brief", technical: "Summary" },
+    {
+      id: "houses",
+      plain: "Houses",
+      technical: "Bhavas",
+      blurb: "The twelve houses and their rulers, with what Parashara says of each (ch. 11-24) and the house-boundary check.",
+    },
+    {
+      id: "planets",
+      plain: "Planets",
+      technical: "Grahas",
+      blurb: "Helpers and hinderers for this rising sign, how strong each planet is, its state and the planets gathered together.",
+    },
+    {
+      id: "yogas",
+      plain: "Combinations",
+      technical: "Yogas",
+      count: yogas.length + firedYogas.length,
+      blurb: "The named combinations that hold, from Parashara and from Brihat Jataka and Sarvartha Chintamani, each cited.",
+    },
+    {
+      id: "timing",
+      plain: "Timing",
+      technical: "Dasas",
+      blurb: "The life periods and their sub-periods, the three-ring wheel, the sign-based and Kalachakra periods, and transits.",
+    },
+    {
+      id: "vargas",
+      plain: "Finer charts",
+      technical: "Vargas",
+      blurb: "The divisional charts and how comfortably each planet sits in them (ch. 6-7).",
+    },
+    {
+      id: "av",
+      plain: "Points table",
+      technical: "Ashtakavarga",
+      blurb: "The sign-by-sign points of ch. 66-72, with the Prasna Marga readings on the same points.",
+    },
+    {
+      id: "padas",
+      plain: "Padas",
+      technical: "Padas and Karakamsa",
+      blurb: "How each house shows itself in the world, the marriage pada, the significators and the Karakamsa (ch. 29-33).",
+    },
+    {
+      id: "trials",
+      plain: "Trials",
+      technical: "Arishta and marakas",
+      blurb: "Early trials and their remedies, and the periods that strain health, in the gentle wording of the plain reading.",
+    },
+    {
+      id: "sarvartha",
+      plain: "Sarvartha",
+      technical: "Sarvartha Chintamani",
+      count: result.sarvartha?.findings.filter(
+        (f) => !sarvarthaLeftOut(f.topic, f.text, plain, withheld),
+      ).length,
+      blurb: "Venkatesha's house-by-house rules, with the ones that apply to this chart first and the full text after.",
+    },
+    {
+      id: "bj",
+      plain: "Brihat Jataka",
+      technical: "Brihat Jataka",
+      blurb: "Varahamihira on where the living comes from (ch. 10) and the same ground rules checked in his text (ch. 1-2).",
+    },
+  ];
+
   return (
     <div data-testid="parashari-panel">
+      <Chapters tab="parashari" chapters={chapterDefs}>
+      <Chapter id="brief">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <h2 className="text-xl font-semibold">Parashari</h2>
@@ -545,9 +619,12 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       </div>
 
       <ParashariVerdict r={r} cur={cur} yogas={yogas} spouse={vargas.spouse} />
+      </Chapter>
+
+      <Chapter id="houses">
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
-        <div className="lg:sticky lg:top-4 lg:max-h-[calc(100svh-2rem)] lg:overflow-y-auto lg:pr-1">
+        <div className="lg:sticky lg:top-14 lg:max-h-[calc(100svh-4.5rem)] lg:overflow-y-auto lg:pr-1">
           <SouthIndianChart
             positions={positions}
             title="Rasi"
@@ -689,6 +766,9 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         </div>
       </div>
 
+      </Chapter>
+
+      <Chapter id="planets">
       <div className="mt-8">
         <SectionTitle
           plain={`Helpers and hinderers for ${SIGNS[r.lagna.signIndex]} rising`}
@@ -801,106 +881,67 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         </Table>
       </div>
 
-      <div className="mt-8">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div
-            role="tablist"
-            aria-label="Parashari section"
-            className="inline-flex flex-wrap rounded-md border p-0.5 text-sm"
-          >
-            <button
-              role="tab"
-              aria-selected={section === "yogas"}
-              onClick={() => setSection("yogas")}
-              className={cn(
-                "rounded px-3 py-1",
-                section === "yogas"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-              data-testid="parashari-section-yogas"
-            >
-              {plain ? "Notable combinations" : "Yogas and combinations"} (
-              {yogas.length})
-            </button>
-            <button
-              role="tab"
-              aria-selected={section === "lords"}
-              onClick={() => setSection("lords")}
-              className={cn(
-                "rounded px-3 py-1",
-                section === "lords"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-              data-testid="parashari-section-lords"
-            >
-              {plain ? "Where each house's ruler sits" : "Lords in houses"} (
-              {shownLords.length}
-              {focusHouse ? ` of 12` : ""})
-            </button>
-            <button
-              role="tab"
-              aria-selected={section === "houses"}
-              onClick={() => setSection("houses")}
-              className={cn(
-                "rounded px-3 py-1",
-                section === "houses"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-              data-testid="parashari-section-houses"
-            >
-              {plain ? "What each house says" : "Houses (ch. 11-23)"} (
-              {shownHouses.length}
-              {focusHouse ? ` of ${houseFinds.length}` : ""})
-            </button>
-            <button
-              role="tab"
-              aria-selected={section === "evils"}
-              onClick={() => setSection("evils")}
-              className={cn(
-                "rounded px-3 py-1",
-                section === "evils"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-              data-testid="parashari-section-evils"
-            >
-              {plain
-                ? "Early trials, remedies and past-life debts"
-                : "Evils, antidotes and curses (ch. 9-10, 83)"}{" "}
-              ({evils.length})
-            </button>
-            <button
-              role="tab"
-              aria-selected={section === "timing"}
-              onClick={() => setSection("timing")}
-              className={cn(
-                "rounded px-3 py-1",
-                section === "timing"
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-              data-testid="parashari-section-timing"
-            >
-              {plain
-                ? "When things happen"
-                : "Timing (dasas, chakras, transits)"}
-            </button>
-          </div>
-          {focusHouse && (
-            <button
-              className="text-xs text-muted-foreground underline underline-offset-2"
-              onClick={() => setFocusHouse(null)}
-              data-testid="parashari-clear-focus"
-            >
-              Clear focus on the {ord(focusHouse)}
-            </button>
-          )}
-        </div>
+      </Chapter>
 
-        {section === "yogas" && (
+      <Chapter id="houses">
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-2">
+        <div
+          role="tablist"
+          aria-label="House views"
+          className="inline-flex flex-wrap rounded-md border p-0.5 text-sm"
+        >
+          <button
+            role="tab"
+            aria-selected={section !== "lords"}
+            onClick={() => setSection("houses")}
+            className={cn(
+              "rounded px-3 py-1",
+              section !== "lords"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+            data-testid="parashari-section-houses"
+          >
+            {plain ? "What each house says" : "Houses (ch. 11-23)"} (
+            {shownHouses.length}
+            {focusHouse ? ` of ${houseFinds.length}` : ""})
+          </button>
+          <button
+            role="tab"
+            aria-selected={section === "lords"}
+            onClick={() => setSection("lords")}
+            className={cn(
+              "rounded px-3 py-1",
+              section === "lords"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+            data-testid="parashari-section-lords"
+          >
+            {plain ? "Where each house's ruler sits" : "Lords in houses"} (
+            {shownLords.length}
+            {focusHouse ? ` of 12` : ""})
+          </button>
+        </div>
+        {focusHouse && (
+          <button
+            className="text-xs text-muted-foreground underline underline-offset-2"
+            onClick={() => setFocusHouse(null)}
+            data-testid="parashari-clear-focus"
+          >
+            Clear focus on the {ord(focusHouse)}
+          </button>
+        )}
+      </div>
+      </Chapter>
+
+      <Chapter id="yogas">
+        <SectionTitle
+          plain="Combinations Parashara names"
+          technical="Yogas (BPHS 34-42)"
+          className="mt-8"
+        />
+        {(
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {yogas.map((f) => (
               <Finding key={f.id} f={f} />
@@ -914,7 +955,14 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             </p>
           </div>
         )}
-        {section === "evils" && (
+      </Chapter>
+      <Chapter id="trials">
+        <SectionTitle
+          plain="Early trials, remedies and past-life debts"
+          technical="Evils, antidotes and curses (ch. 9-10, 83)"
+          className="mt-8"
+        />
+        {(
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             <div className="md:col-span-2">
               <GentleNote testId="evils-gentle-note" />
@@ -932,7 +980,9 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             </p>
           </div>
         )}
-        {section === "houses" && (
+      </Chapter>
+      <Chapter id="houses">
+        {section !== "lords" && (
           <div className="mt-3">
             <Table data-testid="parashari-house-judgement" cards>
               <TableHeader>
@@ -1003,7 +1053,9 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                       {(() => {
                         const fs =
                           result.sarvartha?.findings.filter(
-                            (f) => f.house === j.house,
+                            (f) =>
+                              f.house === j.house &&
+                              !sarvarthaLeftOut(f.topic, f.text, plain, withheld),
                           ) ?? [];
                         if (!fs.length)
                           return <span className="text-muted-foreground">—</span>;
@@ -1014,7 +1066,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                                 <span className="font-medium text-foreground">
                                   {f.topic}:
                                 </span>{" "}
-                                {f.text}
+                                <Soft>{f.text}</Soft>
                               </div>
                             ))}
                             {fs.length > 3 && (
@@ -1082,6 +1134,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             </div>
           </div>
         )}
+      </Chapter>
+      <Chapter id="houses">
         {section === "lords" && (
           <div className="mt-3 grid gap-3 md:grid-cols-2">
             {shownLords.map((f) => (
@@ -1096,12 +1150,19 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               />
               .{" "}
               {r.shadbala
-                ? "The qualifier in each card uses the Shadbala below: full at or above the requirement of 27.32-33, half from three quarters of it, a quarter below that; the thresholds for half and quarter are not stated in the text."
+                ? "The qualifier in each card uses the Shadbala in the planets chapter: full at or above the requirement of 27.32-33, half from three quarters of it, a quarter below that; the thresholds for half and quarter are not stated in the text."
                 : "Strength (Shadbala) needs a recomputed chart; open the chart again to fetch it."}
             </p>
           </div>
         )}
-        {section === "timing" && (
+      </Chapter>
+      <Chapter id="timing">
+        <SectionTitle
+          plain="When things happen"
+          technical="Timing: dasas, chakras and transits"
+          className="mt-8"
+        />
+        {(
           <div data-testid="parashari-timing">
             <p className="mt-3 text-xs text-muted-foreground">
               {plain
@@ -1271,8 +1332,9 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             </Working>
           </div>
         )}
-      </div>
+      </Chapter>
 
+      <Chapter id="planets">
       {r.shadbala && (
         <Working
           id="parashari-shadbala"
@@ -1288,7 +1350,11 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           />
         </Working>
       )}
+      </Chapter>
+      <Chapter id="vargas">
       <VargasSection v={vargas} name={chart.name} />
+      </Chapter>
+      <Chapter id="planets">
       <Working
         id="parashari-portions"
         label="Show where each planet stands within its sign (hora, decanate, trimsamsa)"
@@ -1296,6 +1362,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       >
         <PortionsSection r={portions} />
       </Working>
+      </Chapter>
+      <Chapter id="houses">
       {chalit && (
         <Working
           id="parashari-chalit"
@@ -1312,24 +1380,22 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           />
         </Working>
       )}
-      <Working
-        id="parashari-ashtakavarga"
-        label="Show the sign-by-sign points table (Ashtakavarga)"
-        className="mt-8"
-      >
+      </Chapter>
+      <Chapter id="av">
+      <div className="mt-8" data-testid="parashari-ashtakavarga">
         <AshtakavargaSection
           av={r.ashtakavarga}
           lagnaIdx={r.lagna.signIndex}
           withheld={withheld}
         />
-      </Working>
-      <Working
-        id="parashari-karmajiva"
-        label="Show where the living comes from (Brihat Jataka 10)"
-        className="mt-8"
-      >
+      </div>
+      </Chapter>
+      <Chapter id="bj">
+      <div className="mt-8" data-testid="parashari-karmajiva">
         <KarmajivaSection k={karmajiva} />
-      </Working>
+      </div>
+      </Chapter>
+      <Chapter id="trials">
       {/* Length-of-life and infancy checks: practitioner reading only, and never for a chart under 18. */}
       {!plain && !withheld ? (
         <>
@@ -1363,15 +1429,17 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             : "The classical length-of-life and infancy checks (Brihat Jataka 6-7) are shown in the practitioner reading only."}
         </p>
       )}
-      <Working
-        id="parashari-bj-cross"
-        label="Show the cross-check of the ground rules with Brihat Jataka 1-2"
-        className="mt-8"
-      >
+      </Chapter>
+      <Chapter id="bj">
+      <div className="mt-8" data-testid="parashari-bj-cross">
         <BjCrossSection />
-      </Working>
+      </div>
+      </Chapter>
 
+      <Chapter id="padas">
       <PadasSection p={r.padas} />
+      </Chapter>
+      <Chapter id="trials">
       {r.marakas ? (
         <MarakasSection m={r.marakas} deceased={deceased} />
       ) : (
@@ -1382,9 +1450,15 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           {SENSITIVE_WITHHELD_NOTE}
         </p>
       )}
+      </Chapter>
+      <Chapter id="planets">
       <AvasthasSection a={r.avasthas} />
-      <SarvarthaSection sarvartha={result.sarvartha} />
+      </Chapter>
+      <Chapter id="sarvartha">
+      <SarvarthaSection sarvartha={result.sarvartha} withheld={withheld} />
+      </Chapter>
 
+      <Chapter id="planets">
       <section className="mt-8" data-testid="conjunctions-section">
         <SectionTitle plain="Planets gathered together" technical="Conjunctions" />
         <ModeText
@@ -1441,18 +1515,30 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           </ul>
         )}
       </section>
+      </Chapter>
 
+      <Chapter id="yogas">
       <section className="mt-8" data-testid="yogas-section">
-        <SectionTitle plain="Yogas" technical="Nabhasa yogas" />
+        <SectionTitle
+          plain="Combinations in the later texts"
+          technical="Yogas of Brihat Jataka and Sarvartha Chintamani"
+        />
         <ModeText
           plain={
             <>
-              The named combinations from Brihat Jataka chapter 12, checked
-              from the seven planets (Rahu and Ketu take no part). Each is
-              cited to its stanza.
+              Named combinations from Varahamihira&apos;s Brihat Jataka
+              (chapters 11-16 and 22-23) and Venkatesha&apos;s Sarvartha
+              Chintamani (chapter 9) that hold for this chart, each cited to its
+              chapter and stanza. Jaimini&apos;s own raja yogas are read in the
+              Jaimini tab.
             </>
           }
-          practitioner={<>{YOGA_NOTE}</>}
+          practitioner={
+            <>
+              {YOGA_NOTE} Jaimini&apos;s raja yogas (chara karakas and sign
+              aspects) are read in the Jaimini tab, not here.
+            </>
+          }
         />
         {firedYogas.length === 0 ? (
           <p className="mt-2 text-xs text-muted-foreground">
@@ -1467,12 +1553,14 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               >
                 <span className="font-medium">{y.name}</span>{" "}
                 <span className="text-muted-foreground">
-                  · {YOGA_CATEGORY_LABEL[y.category]} — {y.condition}.
+                  · {YOGA_CATEGORY_LABEL[y.category]} · {y.source.text} — {y.condition}.
                 </span>{" "}
-                <span>{y.result}.</span>{" "}
+                <span>
+                  <Soft>{y.result}</Soft>.
+                </span>{" "}
                 <SourceLink
                   source={{
-                    label: `${y.source.text} ${y.source.chapter}.${y.source.stanza}`,
+                    label: `${y.source.text} ${y.source.chapter}${y.source.stanza ? `.${y.source.stanza}` : ""}`,
                     url: y.source.url ?? "",
                   }}
                   mark={false}
@@ -1482,6 +1570,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           </ul>
         )}
       </section>
+      </Chapter>
+      </Chapters>
     </div>
   );
 }
@@ -1823,7 +1913,7 @@ function PadasSection({ p }: { p: PadaResult }) {
             (31.1-6); seven karakas 32.1-17 with the Matri and Putra karakas
             merged (32.16); the Karakamsa as the Atmakaraka's navamsa sign
             (33.1), with planets counted from it in the navamsa. All aspects
-            here are rasi drishti. Findings are kept out of the synthesis above.
+            here are rasi drishti. Findings are kept out of the summary.
           </>
         }
       />

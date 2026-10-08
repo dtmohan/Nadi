@@ -31,6 +31,7 @@ import { GocharaCalendarSection } from "@/components/gochara-calendar";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 
 const fmtT = (iso: string, zone: string) =>
   DateTime.fromISO(iso).setZone(zone).toFormat("HH:mm");
@@ -472,6 +473,28 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
 
   const birth = result.panchanga;
 
+  const chapterDefs: ChapterDef[] = [
+    { id: "birth", plain: "Birth day", technical: "Janma panchanga" },
+    {
+      id: "day",
+      plain: "Any day",
+      technical: "Dina panchanga",
+      blurb: "The five limbs for any date and place, and the fourteen days that follow with the days to avoid for muhurta.",
+    },
+    {
+      id: "gochara",
+      plain: "Transits",
+      technical: "Gochara",
+      blurb: "The planets' passages counted from the birth Moon, read with Brihat Samhita 104 and Phaladeepika 26.",
+    },
+    {
+      id: "calendar",
+      plain: "Transit calendar",
+      technical: "Gochara calendar",
+      blurb: "The same transit verdicts over the coming years, with Saturn's passage around the Moon and the Ashtakavarga marks.",
+    },
+  ];
+
   return (
     <div className="space-y-8" data-testid="panchanga-panel">
       <div>
@@ -498,7 +521,9 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         />
       </div>
 
+      <Chapters tab="panchanga" chapters={chapterDefs}>
       {birth && (
+        <Chapter id="birth">
         <section>
           <SectionTitle plain="Birth day" technical="Janma panchanga">
             <span className="text-xs font-normal text-muted-foreground">
@@ -519,8 +544,10 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
             />
           </div>
         </section>
+        </Chapter>
       )}
 
+      <Chapter id="day">
       <section>
         <SectionTitle plain="Any day" technical="Dina panchanga" />
         <div className="mt-3 flex flex-wrap items-end gap-3">
@@ -578,7 +605,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         </ul>
       </section>
 
-      <section>
+      <section className="mt-8">
         <SectionTitle plain="The fortnight" technical="Tara days" />
         <ModeText
           plain={
@@ -646,6 +673,9 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         </div>
       </section>
 
+      </Chapter>
+
+      <Chapter id="gochara">
       <section>
         <SectionTitle plain="Transits from the birth Moon" technical="Gochara">
           <span className="text-xs font-normal text-muted-foreground">
@@ -696,7 +726,12 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         </ul>
       </section>
 
+      </Chapter>
+
+      <Chapter id="calendar">
       <GocharaCalendarSection result={result} zone={place.timezone} />
+      </Chapter>
+      </Chapters>
     </div>
   );
 }

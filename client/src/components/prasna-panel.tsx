@@ -54,6 +54,7 @@ import {
   type PrasnaOutcome,
 } from "@/lib/prasna-store";
 import { cn } from "@/lib/utils";
+import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 
 const ord = (h: number) =>
   h === 1 ? "1st" : h === 2 ? "2nd" : h === 3 ? "3rd" : `${h}th`;
@@ -383,14 +384,45 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
   const confirm = (id: string, outcome: PrasnaOutcome) =>
     void prasnaStore.setOutcome(id, outcome);
 
+  const chapterDefs: ChapterDef[] = [
+    { id: "houses", plain: "The twelve houses", technical: "Bhava phala" },
+    {
+      id: "prasna",
+      plain: "Ask a question",
+      technical: "Prasna",
+      blurb: "Cast a prasna for a question asked now, read from its Arudha lagna, and confirm it later against what happened.",
+    },
+    {
+      id: "transits",
+      plain: "Transits now",
+      technical: "Gochara",
+      blurb: "The planets as they move now, counted from the birth Moon (ch. 22).",
+    },
+    {
+      id: "marriage",
+      plain: "Marriage",
+      technical: "Vivaha",
+      blurb: "Two charts compared by the agreement of their signs and by the kootas (ch. 21).",
+    },
+    {
+      id: "reference",
+      plain: "Reference",
+      technical: "Reference",
+      blurb: "What each house signifies, diseases and remedies, deities, karakas, the sphutas, the tertiary planets and when the houses fructify.",
+    },
+  ];
+
   return (
     <section data-testid="prasna-panel" aria-label="Prasna Marga">
       <h2 className="text-xl font-semibold">Prasna Marga</h2>
       <p className="mt-1 max-w-[68ch] text-sm text-muted-foreground">
         The Kerala horary classic. A query is read from an Arudha lagna derived
         at the time of asking, with the planets as they stand now; the same
-        house rules are also read against the birth chart below.
+        house rules are also read against the birth chart.
       </p>
+
+      <Chapters tab="prasna" chapters={chapterDefs} className="mt-4">
+      <Chapter id="prasna">
 
       {/* Prasna (query) */}
       <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
@@ -618,6 +650,9 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         </div>
       )}
 
+      </Chapter>
+
+      <Chapter id="transits">
       {/* Transits now, from the natal Moon */}
       <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
         <SectionTitle plain="Transits now" technical="Gochara (22)" as="h3" />
@@ -680,6 +715,9 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         )}
       </div>
 
+      </Chapter>
+
+      <Chapter id="houses">
       {/* Birth chart: the twelve-house walk */}
       <section className="mt-6" aria-label="Birth chart">
         <SectionTitle plain="The twelve houses" technical="Bhava phala (14)" as="h3" />
@@ -781,6 +819,9 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         </div>
       </section>
 
+      </Chapter>
+
+      <Chapter id="marriage">
       {/* Marriage compatibility: Rasi agreement + kootas */}
       <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
         <SectionTitle plain="Marriage compatibility" technical="Vivaha (21)" as="h3" />
@@ -898,6 +939,9 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         )}
       </div>
 
+      </Chapter>
+
+      <Chapter id="reference">
       {/* Reference: house significations and karakas */}
       <details className="mt-6" data-testid="prasna-bhava-significations">
         <summary className="cursor-pointer text-sm font-semibold">
@@ -1117,6 +1161,8 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         ))}
         <li>{PRASNA_NODE_NOTE}</li>
       </ul>
+      </Chapter>
+      </Chapters>
     </section>
   );
 }

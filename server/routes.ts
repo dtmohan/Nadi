@@ -32,7 +32,7 @@ import {
   type EphemerisOptions,
 } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
-import { computeSarvartha } from "@shared/sarvartha";
+import { computeSarvartha, SC_LIFESPAN_TOPICS } from "@shared/sarvartha";
 import { computeVargas } from "@shared/vargas";
 import { vimshottari } from "@shared/kp";
 import type { DasaStartTransit } from "@shared/shadbala";
@@ -52,7 +52,7 @@ import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
 import { validateEvents } from "./validate";
 import { z } from "zod";
-import { sensitiveGate, redactSensitive } from "@shared/life-stage";
+import { sensitiveGate, redactSensitive, withholdText } from "@shared/life-stage";
 
 const resultCache = new Map<string, ChartResult>();
 
@@ -198,6 +198,16 @@ export function computeChart(chart: Chart): ChartResult {
     result.jaimini = redactSensitive({ ...jaimini, ayur: null });
     result.reading = redactSensitive(reading);
     result.fatherArishta = [];
+    // Sarvartha Chintamani's own length-of-life and loss rules are withheld the same way.
+    if (result.sarvartha)
+      result.sarvartha = {
+        ...result.sarvartha,
+        findings: result.sarvartha.findings.filter(
+          (f) =>
+            !SC_LIFESPAN_TOPICS.has(f.topic) &&
+            !withholdText(`${f.topic}: ${f.text}`),
+        ),
+      };
   }
   resultCache.set(key, result);
   if (resultCache.size > 200)
