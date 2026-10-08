@@ -1374,6 +1374,63 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
         </ul>
       </section>
 
+      <section className="mt-10" data-testid="section-sthira-dasha">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <SectionTitle
+            plain="The fixed rhythm"
+            technical="Sthira dasha"
+            className="text-base"
+          />
+          <Badge variant="outline" className="no-default-hover-elevate">
+            {j.sthiraDasha.direction} · from {SIGNS[j.sthiraDasha.akSign]}
+          </Badge>
+        </div>
+        <ModeText
+          className="text-sm"
+          plain={
+            <>
+              A slower, steadier timing from the same signs: every sign rules
+              for seven years, beginning from the sign of the planet of the
+              self and running {j.sthiraDasha.direction}. It marks the long
+              phases of life — health, longevity and permanent changes — where
+              the year-by-year Chara dasha gives the fine detail.
+            </>
+          }
+          practitioner={
+            <>
+              Seven fixed years per sign, starting from the Atmakaraka&apos;s
+              sign ({SIGNS[j.sthiraDasha.akSign]}, the sign of{" "}
+              {j.sthiraDasha.akPlanet}),{" "}
+              {j.sthiraDasha.direction} because that sign is{" "}
+              {SAVYA.has(j.sthiraDasha.akSign) ? "savya" : "apasavya"}. The first
+              period is prorated: (30° minus the Atmakaraka&apos;s degree) over
+              30 of seven years. Twelve signs make an 84-year cycle.
+            </>
+          }
+        />
+        <ul className="mt-3 space-y-1 text-xs leading-5">
+          {j.sthiraDasha.periods.map((p, i) => {
+            const cur =
+              p.start <= lifeNow && lifeNow < p.end;
+            return (
+              <li
+                key={i}
+                className={cn(
+                  "text-muted-foreground",
+                  cur && "font-medium text-foreground",
+                )}
+              >
+                {cur && <span className="mr-1 text-verdict-good">▶</span>}
+                {p.signName}
+                <span className="ml-1 text-muted-foreground/70">
+                  · {p.years.toFixed(1)} yrs
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
       <JaiminiAreas result={result} />
 
       <section className="mt-10" data-testid="section-jaimini-findings">
