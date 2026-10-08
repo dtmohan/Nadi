@@ -464,7 +464,49 @@ const LUNAR: Yoga[] = [
   },
 ];
 
-export const YOGAS: Yoga[] = [...NABHASA, ...LUNAR];
+// ── Brihat Jataka ch. 15: the double-planetary (dvi-graha) yogas ──
+
+const sameSign = (ctx: YogaContext, a: string, b: string) => {
+  const pa = ctx.positions.find((p) => p.planet === a);
+  const pb = ctx.positions.find((p) => p.planet === b);
+  return !!pa && !!pb && pa.signIndex === pb.signIndex;
+};
+
+const dvi = (a: string, b: string, stanza: number, result: string): Yoga => ({
+  id: `${a.toLowerCase()}-${b.toLowerCase()}`,
+  name: `${a}–${b}`,
+  source: BJ(15, stanza),
+  category: "dvi-graha",
+  condition: `${a} and ${b} in the same sign`,
+  result,
+  test: (ctx) => sameSign(ctx, a, b),
+});
+
+const DVI_GRAHA: Yoga[] = [
+  dvi("Sun", "Moon", 1, "a maker of fire engines, works in stones"),
+  dvi("Sun", "Mars", 1, "addicted to sinful deeds"),
+  dvi("Sun", "Mercury", 1, "skilled in work, intelligent, famous, lives in comfort"),
+  dvi("Sun", "Jupiter", 1, "cruel, works for other men"),
+  dvi("Sun", "Venus", 1, "gains money by public sports and the use of weapons"),
+  dvi("Sun", "Saturn", 1, "skilled in metal work and earthen-ware"),
+  dvi("Moon", "Mars", 2, "earns by selling works of art, women, liquor and pots; troubles his mother"),
+  dvi("Moon", "Mercury", 2, "sweet speech, skilled in literary interpretation, popular, famous"),
+  dvi("Moon", "Jupiter", 2, "defeats enemies, important in his family, not of firm views, very rich"),
+  dvi("Moon", "Venus", 2, "skilled in cloth work (weaving, stitching, dyeing)"),
+  dvi("Moon", "Saturn", 2, "the son of a re-married woman"),
+  dvi("Mars", "Mercury", 3, "deals in roots, oil and works of art, skilled in duels"),
+  dvi("Mars", "Jupiter", 3, "chief of a town or a king, or a wealthy Brahmin"),
+  dvi("Mars", "Venus", 3, "protects cows, duels, skilled in work, adulterous, a gambler"),
+  dvi("Mars", "Saturn", 3, "afflicted with grief, a liar, despised by others"),
+  dvi("Mercury", "Jupiter", 4, "skilled in duels, fond of music, learned in dance"),
+  dvi("Mercury", "Venus", 4, "good speech, a ruler over countries and men"),
+  dvi("Mercury", "Saturn", 4, "skilled in deceiving others, rejects his preceptor's advice"),
+  dvi("Jupiter", "Venus", 4, "learned, wealth, a wife and various virtues"),
+  dvi("Jupiter", "Saturn", 4, "a barber, a potman or a cook"),
+  dvi("Venus", "Saturn", 5, "short-sighted, wealth through a young woman's friendship, skilled in writing and painting"),
+];
+
+export const YOGAS: Yoga[] = [...NABHASA, ...LUNAR, ...DVI_GRAHA];
 
 /** The yogas whose predicate fires for the chart, applying the Nabhasa precedence. */
 export function computeYogas(ctx: YogaContext): Yoga[] {
