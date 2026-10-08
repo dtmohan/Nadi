@@ -9,7 +9,7 @@ import {
   type PlanetPosition,
 } from "./astro";
 import { SC_RAJYOGAS, buildSarvarthaContext } from "./sarvartha";
-import { charaKarakas } from "./jaimini";
+import { charaKarakas, navamsaOf, arudhaOf } from "./jaimini";
 import { rasiAspects } from "./jaimini-core";
 
 export type YogaText =
@@ -764,7 +764,48 @@ const JAIMINI_GUIDE: Yoga[] = [
       return benIn10 && [1, 5, 9].includes(houseFrom(ctx.lagnaIdx, tenthLord.signIndex));
     },
   },
+  {
+    id: "jaimini-karakamsa",
+    name: "Karakamsha kendra-trikona raja yoga",
+    source: { text: "Jaimini", chapter: 16 },
+    category: "raja",
+    condition:
+      "benefics (Jupiter or Venus) in the kendra or trikona from the Karakamsha Lagna (the navamsa sign of the Atmakaraka)",
+    result: "raja yoga from the soul's purpose",
+    test: (ctx) => {
+      if (!hasAll9(ctx.positions)) return false;
+      const kk = charaKarakas(ctx.positions);
+      const ak = ctx.positions.find((p) => p.planet === kk[0].planet)!;
+      const karakamsa = navamsaOf(ak.lon).signIndex;
+      return ctx.positions.some(
+        (p) =>
+          ["Jupiter", "Venus"].includes(p.planet) &&
+          [1, 4, 5, 7, 9, 10].includes(houseFrom(karakamsa, p.signIndex)),
+      );
+    },
+  },
+  {
+    id: "jaimini-arudha",
+    name: "Arudha-aspect raja yoga",
+    source: { text: "Jaimini", chapter: 16 },
+    category: "raja",
+    condition:
+      "Jupiter and Venus together cast their sign aspect on the Arudha Lagna",
+    result: "an extraordinarily luminous social image, honoured and respected",
+    test: (ctx) => {
+      if (!hasAll9(ctx.positions)) return false;
+      const al = arudhaOf(1, ctx.lagnaIdx, ctx.positions).signIndex;
+      const jup = ctx.positions.find((p) => p.planet === "Jupiter")!;
+      const ven = ctx.positions.find((p) => p.planet === "Venus")!;
+      return rasiAspects(jup.signIndex, al) && rasiAspects(ven.signIndex, al);
+    },
+  },
 ];
+
+// Prasna Marga's "yogas" are muhurta (Dagdha, Mrityu, Ekargala, Siddha, Amrita), disease
+// combinations (ch. 124, 126) and longevity (ch. 99), not named natal yogas, so they are
+// intentionally not in this database. Its raja-yoga-adjacent content is the Yogayus/Dasayus
+// longevity rules already harvested in the longevity module.
 
 export const YOGAS: Yoga[] = [
   ...NABHASA,
