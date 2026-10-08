@@ -506,7 +506,42 @@ const DVI_GRAHA: Yoga[] = [
   dvi("Venus", "Saturn", 5, "short-sighted, wealth through a young woman's friendship, skilled in writing and painting"),
 ];
 
-export const YOGAS: Yoga[] = [...NABHASA, ...LUNAR, ...DVI_GRAHA];
+// ── Brihat Jataka ch. 16: the ascetic (Sanyasa / Pravrajya) yogas ──
+
+const ASCETIC: Yoga[] = [
+  {
+    id: "sanyasa",
+    name: "Sanyasa (Pravrajya)",
+    source: BJ(16, 1),
+    category: "ascetic",
+    condition: "four or more powerful planets in a single sign",
+    result:
+      "becomes an ascetic, of a class set by the most powerful planet — Mars: Sakya; Mercury: Ajivika; Jupiter: Bhikshuka; Moon: Vriddhasravaka; Venus: Chakra; Saturn: Nirgrantha; Sun: Vanyasana",
+    note: "If no planet is powerful there is no Pravrajya; if the powerful planet suffered defeat in conjunction, the ascetic reverts (16.1-2). The predicate takes the sign holding four or more planets, the 'powerful' call being provisional.",
+    test: (ctx) => {
+      const count = new Map<number, number>();
+      let max = 0;
+      for (const p of seven(ctx.positions)) {
+        const n = (count.get(p.signIndex) ?? 0) + 1;
+        count.set(p.signIndex, n);
+        if (n > max) max = n;
+      }
+      return max >= 4;
+    },
+  },
+  {
+    id: "chandra-sani-pravrajya",
+    name: "Moon–Saturn Pravrajya",
+    source: BJ(16, 3),
+    category: "ascetic",
+    condition:
+      "the lord of the Moon's sign aspects Saturn unaspected by others; or Saturn aspects that lord when it is not powerful; or the Moon in Saturn's drekkana and Saturn's or Mars' navamsa aspected by Saturn",
+    result: "becomes an ascetic",
+    note: "Reference entry — the aspect and varga conditions are not yet computed.",
+  },
+];
+
+export const YOGAS: Yoga[] = [...NABHASA, ...LUNAR, ...DVI_GRAHA, ...ASCETIC];
 
 /** The yogas whose predicate fires for the chart, applying the Nabhasa precedence. */
 export function computeYogas(ctx: YogaContext): Yoga[] {

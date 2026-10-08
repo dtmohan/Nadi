@@ -754,3 +754,23 @@ test("Yoga database: Brihat Jataka 15 two-planet yogas", () => {
   ];
   assert.ok(!names(apart, 0).includes("Sun–Mercury"));
 });
+
+test("Yoga database: Brihat Jataka 16 ascetic (Sanyasa) yoga", () => {
+  const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const at = (planet: string, signIndex: number) => ({
+    planet, lon: signIndex * 30, signIndex, sign: SIGNS[signIndex],
+    degInSign: 0, speed: 0, retrograde: false, nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity: "—", combust: false, signLord: "Mars",
+  }) as any;
+  const names = (positions: any[], lagnaIdx: number) =>
+    computeYogas({ positions, lagnaIdx }).map((y) => y.name);
+  // Four planets (Sun, Moon, Mars, Mercury) in Aries → Sanyasa.
+  const four = [
+    at("Sun", 0), at("Moon", 0), at("Mars", 0), at("Mercury", 0), at("Jupiter", 4), at("Venus", 6), at("Saturn", 9),
+  ];
+  assert.ok(names(four, 0).includes("Sanyasa (Pravrajya)"));
+  // Three planets in one sign, none elsewhere → no Sanyasa.
+  const three = [
+    at("Sun", 0), at("Moon", 0), at("Mars", 0), at("Mercury", 3), at("Jupiter", 4), at("Venus", 6), at("Saturn", 9),
+  ];
+  assert.ok(!names(three, 0).includes("Sanyasa (Pravrajya)"));
+});
