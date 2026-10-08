@@ -729,3 +729,28 @@ test("Yoga database: Brihat Jataka 14 lunar yogas", () => {
   // Mercury in the 6th (Virgo), Jupiter 7th (Libra), Venus 8th (Scorpio) → Adhi.
   assert.ok(names(place(3, 0, 2, 5, 6, 7, 9), 0).includes("Adhi"));
 });
+
+test("Yoga database: Brihat Jataka 15 two-planet yogas", () => {
+  const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const at = (planet: string, signIndex: number) => ({
+    planet, lon: signIndex * 30, signIndex, sign: SIGNS[signIndex],
+    degInSign: 0, speed: 0, retrograde: false, nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity: "—", combust: false, signLord: "Mars",
+  }) as any;
+  const names = (positions: any[], lagnaIdx: number) =>
+    computeYogas({ positions, lagnaIdx }).map((y) => y.name);
+  // Sun and Mercury conjunct (Budha-Aditya) in Aries.
+  const sunMercury = [
+    at("Sun", 0), at("Moon", 5), at("Mars", 3), at("Mercury", 0), at("Jupiter", 7), at("Venus", 9), at("Saturn", 11),
+  ];
+  assert.ok(names(sunMercury, 0).includes("Sun–Mercury"));
+  // Moon and Jupiter conjunct.
+  const moonJupiter = [
+    at("Sun", 3), at("Moon", 6), at("Mars", 2), at("Mercury", 4), at("Jupiter", 6), at("Venus", 8), at("Saturn", 10),
+  ];
+  assert.ok(names(moonJupiter, 0).includes("Moon–Jupiter"));
+  // No conjunction: Sun and Mercury apart → not Sun–Mercury.
+  const apart = [
+    at("Sun", 0), at("Moon", 5), at("Mars", 3), at("Mercury", 6), at("Jupiter", 7), at("Venus", 9), at("Saturn", 11),
+  ];
+  assert.ok(!names(apart, 0).includes("Sun–Mercury"));
+});
