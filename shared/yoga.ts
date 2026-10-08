@@ -8,6 +8,7 @@ import {
   naturalBenefic,
   type PlanetPosition,
 } from "./astro";
+import { SC_RAJYOGAS, buildSarvarthaContext } from "./sarvartha";
 
 export type YogaText =
   | "Brihat Jataka"
@@ -665,6 +666,27 @@ const MISC_MALEFIC: Yoga[] = [
   },
 ];
 
+// ── Sarvartha Chintamani ch. 9: the raja yogas (reusing the harvested tests) ──
+
+const SARVARTHA_RAJA: Yoga[] = SC_RAJYOGAS.map((r) => ({
+  id: `sc-raja-${r.stanza}`,
+  name: "Raja yoga",
+  source: { text: "Sarvartha Chintamani", chapter: 9, stanza: r.stanza },
+  category: "raja",
+  condition: r.when,
+  result: r.then,
+  test: r.test
+    ? (ctx) => {
+        const hasAll = [
+          "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn",
+          "Rahu", "Ketu",
+        ].every((p) => ctx.positions.some((x) => x.planet === p));
+        if (!hasAll) return false;
+        return r.test!(buildSarvarthaContext(ctx.positions, ctx.lagnaIdx * 30));
+      }
+    : undefined,
+}));
+
 export const YOGAS: Yoga[] = [
   ...NABHASA,
   ...LUNAR,
@@ -672,6 +694,7 @@ export const YOGAS: Yoga[] = [
   ...ASCETIC,
   ...RAJA,
   ...MISC_MALEFIC,
+  ...SARVARTHA_RAJA,
 ];
 
 /** The yogas whose predicate fires for the chart, applying the Nabhasa precedence. */

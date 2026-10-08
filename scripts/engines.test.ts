@@ -814,3 +814,17 @@ test("Yoga database: Brihat Jataka 22-23 misc and malefic yogas", () => {
   ];
   assert.ok(names(ms, 0).includes("Moon–Saturn kalatra"));
 });
+
+test("Yoga database: Sarvartha Chintamani raja yogas unified", () => {
+  const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const at = (planet: string, signIndex: number) => ({
+    planet, lon: signIndex * 30, signIndex, sign: SIGNS[signIndex],
+    degInSign: 0, speed: 0, retrograde: false, nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity: "—", combust: false, signLord: "Mars",
+  }) as any;
+  // SC 9.20: Jupiter in the lagna and Mercury in a kendra (7th from lagna 0 = Libra).
+  const all9 = [
+    at("Sun", 3), at("Moon", 2), at("Mars", 4), at("Mercury", 6), at("Jupiter", 0), at("Venus", 8), at("Saturn", 10), at("Rahu", 11), at("Ketu", 5),
+  ];
+  const names = computeYogas({ positions: all9, lagnaIdx: 0 }).map((y) => y.name);
+  assert.ok(names.includes("Raja yoga"));
+});
