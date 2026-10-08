@@ -7,6 +7,7 @@ import { DateTime } from "luxon";
 import { SUNRISE_DEFINITIONS, type ChartResult } from "@shared/schema";
 import type { PlanetPosition } from "@shared/astro";
 import { SIGNS } from "@shared/astro";
+import { adverseTara, type AdverseTara } from "@shared/tara";
 import {
   PANCHANGA_CAVEATS,
   PANCHANGA_SOURCES,
@@ -46,6 +47,7 @@ function Limb({
   run,
   zone,
   source,
+  adverse,
 }: {
   id: string;
   title: string;
@@ -54,6 +56,7 @@ function Limb({
   run: LimbSegment[];
   zone: string;
   source: { label: string; url: string; provisional?: boolean };
+  adverse?: string;
 }) {
   return (
     <div className="rounded-md border bg-card p-3 text-xs" data-testid={id}>
@@ -64,6 +67,11 @@ function Limb({
         {value}
       </div>
       {sub && <div className="text-muted-foreground">{sub}</div>}
+      {adverse && (
+        <div className="mt-1 text-verdict-mixed" data-testid={`${id}-adverse`}>
+          {adverse}
+        </div>
+      )}
       <div className="mt-1 text-2xs text-muted-foreground">
         <SourceLink source={source} />
       </div>
@@ -96,11 +104,16 @@ function DayGrid({
   day,
   zone,
   idPrefix,
+  adverseStars,
 }: {
   day: PanchangaDay;
   zone: string;
   idPrefix: string;
+  adverseStars: AdverseTara[];
 }) {
+  const adverseNote = adverseStars.find(
+    (a) => a.nakshatraName === day.nakshatra.name,
+  );
   return (
     <>
       <div
@@ -194,6 +207,11 @@ function DayGrid({
           run={day.runs.nakshatra}
           zone={zone}
           source={PANCHANGA_SOURCES.nakshatra}
+          adverse={
+            adverseNote
+              ? `${adverseNote.name} tara of your birth star — avoid for muhurta.`
+              : undefined
+          }
         />
         <Limb
           id={`${idPrefix}-yoga`}
@@ -395,6 +413,10 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
   );
 
   const natalMoon = result.positions.find((p) => p.planet === "Moon")!;
+  const adverseStars = adverseTara(Math.floor(natalMoon.lon / (360 / 27)));
+  const adverseByStar = new Map(
+    adverseStars.map((a) => [a.nakshatraName, a]),
+  );
   const withheld =
     result.sensitive?.withheld ??
     sensitiveGate(chart, result.utc, result.now.asOf).withheld;
@@ -462,6 +484,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
               day={birth}
               zone={result.timeBasis?.displayZone ?? chart.timezone}
               idPrefix="panchanga-birth"
+              adverseStars={adverseStars}
             />
           </div>
         </section>
@@ -513,6 +536,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
               day={dayQuery.data.day}
               zone={place.timezone}
               idPrefix="panchanga-day"
+              adverseStars={adverseStars}
             />
           )}
         </div>
