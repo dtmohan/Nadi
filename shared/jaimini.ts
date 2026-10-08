@@ -322,6 +322,88 @@ export function sthiraDasha(positions: PlanetPosition[], birthIso: string, maxYe
   return { akPlanet: ak.planet, akSign, direction, periods };
 }
 
+// ── Kerala Jaimini dashas: Manduka (frog) and Brahma ──────────────────────────
+
+export interface SignDashaPeriod {
+  sign: number;
+  signName: Sign;
+  years: number;
+  lord: Planet;
+  start: string;
+  end: string;
+  ageStart: number;
+}
+
+/** Build mahadasha periods from an ordered sign sequence, each sign taking its Chara-dasha years. */
+function sequenceDasha(sequence: number[], positions: PlanetPosition[], birthIso: string): SignDashaPeriod[] {
+  const birth = DateTime.fromISO(birthIso, { zone: "utc" });
+  const periods: SignDashaPeriod[] = [];
+  let cursor = birth;
+  let elapsed = 0;
+  for (const sign of sequence) {
+    const y = dashaYearsOf(sign, positions);
+    const end = cursor.plus({ years: y.years });
+    periods.push({ sign, signName: SIGNS[sign], years: y.years, lord: y.lord, start: cursor.toISO()!, end: end.toISO()!, ageStart: elapsed });
+    cursor = end;
+    elapsed += y.years;
+  }
+  return periods;
+}
+
+export interface MandukaDasha {
+  lagnaSign: number;
+  /** Odd signs first when the lagna is odd, even first when it is even. */
+  leap: "odd-first" | "even-first";
+  periods: SignDashaPeriod[];
+}
+
+/**
+ * Manduka ("frog") dasha of the Kerala tradition: the signs leap by skipping alternates — the odd
+ * signs (Aries, Gemini, Leo, Libra, Sagittarius, Aquarius) in order, then the even, when the lagna
+ * is odd, and the reverse when it is even. Each sign takes its Chara-dasha years.
+ */
+export function mandukaDasha(lagnaSign: number, positions: PlanetPosition[], birthIso: string): MandukaDasha {
+  const odd = [0, 2, 4, 6, 8, 10];
+  const even = [1, 3, 5, 7, 9, 11];
+  const leap: MandukaDasha["leap"] = lagnaSign % 2 === 0 ? "odd-first" : "even-first";
+  const sequence = leap === "odd-first" ? [...odd, ...even] : [...even, ...odd];
+  return { lagnaSign, leap, periods: sequenceDasha(sequence, positions, birthIso) };
+}
+
+export interface BrahmaDasha {
+  brahmaPlanet: Planet;
+  brahmaSign: number;
+  direction: "forward" | "backward";
+  periods: SignDashaPeriod[];
+}
+
+/** A planet is Brahma-strong when exalted, in its own or moolatrikona sign, or in a kendra or trine. */
+function brahmaStrong(positions: PlanetPosition[], lagnaSign: number, p: Planet): boolean {
+  const pos = positions.find((x) => x.planet === p)!;
+  if (["Exalted", "Own sign", "Moolatrikona"].includes(pos.dignity)) return true;
+  const h = houseFrom(lagnaSign, pos.signIndex);
+  return [1, 4, 7, 10, 5, 9].includes(h);
+}
+
+/**
+ * Brahma dasha of the Kerala tradition: the Brahma planet is the stronger of the lagna lord and
+ * the 8th lord (exaltation, own sign, moolatrikona, or kendra/trikona placement), the lagna lord
+ * winning a tie. The dasha runs from the Brahma planet's sign, forward for savya and backward
+ * otherwise, each sign taking its Chara-dasha years.
+ */
+export function brahmaDasha(positions: PlanetPosition[], lagnaSign: number, birthIso: string): BrahmaDasha {
+  const lagnaLord = SIGN_LORD[lagnaSign];
+  const eighthLord = SIGN_LORD[(lagnaSign + 7) % 12];
+  const l = brahmaStrong(positions, lagnaSign, lagnaLord);
+  const e = brahmaStrong(positions, lagnaSign, eighthLord);
+  const brahmaPlanet = l === e ? lagnaLord : l ? lagnaLord : eighthLord;
+  const brahmaSign = positions.find((x) => x.planet === brahmaPlanet)!.signIndex;
+  const direction: "forward" | "backward" = SAVYA.has(brahmaSign) ? "forward" : "backward";
+  const step = direction === "forward" ? 1 : 11;
+  const sequence = Array.from({ length: 12 }, (_, i) => (brahmaSign + step * i) % 12);
+  return { brahmaPlanet, brahmaSign, direction, periods: sequenceDasha(sequence, positions, birthIso) };
+}
+
 // ── Assembled result ──────────────────────────────────────────────────────────
 
 export interface JaiminiLagna {
@@ -355,6 +437,8 @@ export interface JaiminiResult {
   argala: { target: string; sign: number; items: Argala[] }[];
   charaDasha: CharaDasha;
   sthiraDasha: SthiraDasha;
+  mandukaDasha: MandukaDasha;
+  brahmaDasha: BrahmaDasha;
   findings: JaiminiFinding[];
   /** Hora and Ghatika lagnas (need place and time); absent when the server could not compute sunrise. */
   special?: { horaLagna: JaiminiLagna; ghatikaLagna: JaiminiLagna };
@@ -412,6 +496,8 @@ export function computeJaimini(positions: PlanetPosition[], lagnaLon: number, bi
     argala,
     charaDasha: charaDasha(lagnaSign, positions, birthIso),
     sthiraDasha: sthiraDasha(positions, birthIso),
+    mandukaDasha: mandukaDasha(lagnaSign, positions, birthIso),
+    brahmaDasha: brahmaDasha(positions, lagnaSign, birthIso),
     findings,
     special,
     ayur,
