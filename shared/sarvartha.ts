@@ -144,6 +144,11 @@ export const SC_BHAVAS: ScBhava[] = [
 export const SC_METHOD_NOTE =
   "Sarvartha Chintamani's method (its preface): each house's significations are stated first, then read from the house, its lord and its significator (karaka), with the Amsha divisions (ch. 1.25-27) grading strength.";
 
+/** The citation, as the app cites any secondary author (cf. K.N. Rao in the Jaimini tab). */
+export const SC_SOURCE = {
+  label: "Venkatesha, Sarvartha Chintamani (tr. J.N. Bhasin, Sagar Publications)",
+};
+
 export interface ScRule {
   stanza: number;
   topic: string;

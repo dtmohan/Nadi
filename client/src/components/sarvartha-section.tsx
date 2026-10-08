@@ -1,4 +1,4 @@
-import { SC_BHAVAS, SC_BHAVA_RULES, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, SC_METHOD_NOTE, type SarvarthaResult } from "@shared/sarvartha";
+import { SC_BHAVAS, SC_BHAVA_RULES, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, SC_METHOD_NOTE, SC_SOURCE, type SarvarthaResult } from "@shared/sarvartha";
 import { PLANET_ABBR } from "@shared/astro";
 import { SectionTitle, ModeText } from "@/components/mode-text";
 import { cn } from "@/lib/utils";
@@ -8,9 +8,9 @@ const ORDINAL = [
 ];
 
 /**
- * Sarvartha Chintamani (Venkatesha): a Parashari-lineage bhava-phala text shown as a second voice
- * on the houses. Significations and the house/lord/karaka method first, then the harvested rules,
- * with the ones that fire for this chart marked.
+ * Sarvartha Chintamani (Venkatesha): a Parashari-lineage elaboration of the house results, shown
+ * under Parashari with its own citations. Significations and the house/lord/karaka method first,
+ * then the harvested rules, with the ones that fire for this chart marked.
  */
 export function SarvarthaSection({ sarvartha }: { sarvartha?: SarvarthaResult }) {
   const fired = new Set(sarvartha?.findings.map((f) => `${f.house}.${f.stanza}`));
@@ -18,12 +18,12 @@ export function SarvarthaSection({ sarvartha }: { sarvartha?: SarvarthaResult })
     <section className="mt-8" data-testid="sarvartha-section">
       <SectionTitle
         plain="Sarvartha Chintamani"
-        technical="Sarvartha Chintamani (Venkatesha)"
+        technical="Sarvartha Chintamani (Venkatesha) — Parashari-lineage"
       />
       <ModeText
         plain={
           <>
-            A second classical voice on the twelve houses, from Venkatesha&apos;s
+            Parashara&apos;s house results, elaborated by Venkatesha in his
             Sarvartha Chintamani. It names what each house covers, then reads
             each thing from the house, its lord and its significator. The rules
             that apply to this chart are marked; the rest are the author&apos;s
@@ -32,10 +32,10 @@ export function SarvarthaSection({ sarvartha }: { sarvartha?: SarvarthaResult })
         }
         practitioner={
           <>
-            Sarvartha Chintamani (Venkatesha, Bhasin translation, Sagar
-            Publications), a Parashari-lineage bhava-phala text. {SC_METHOD_NOTE}{" "}
-            Rules are cited by chapter and shloka; the Amsha tiers of 1.25-27
-            are the same varga classification as Parashara 6.42-53.{" "}
+            {SC_SOURCE.label}, a Parashari-lineage elaboration of the bhava
+            phala. {SC_METHOD_NOTE} Rules are cited by chapter and shloka; the
+            Amsha tiers of 1.25-27 are the same varga classification as Parashara
+            6.42-53.{" "}
             {sarvartha
               ? `${sarvartha.findings.length} of ${sarvartha.computable} computable rules apply to this chart.`
               : ""}
