@@ -212,53 +212,10 @@ export function ruleAspect(floor: AspectFloor): AspectFn {
   };
 }
 
-/** Graha drishti in quarters, BPHS 26.2-5, sign-based. Nodes are not assigned aspects in the chapter. */
-export function drishtiQuarters(
-  planet: Planet,
-  fromSign: number,
-  toSign: number,
-): number {
-  if (planet === "Rahu" || planet === "Ketu") return 0;
-  const h = houseFrom(fromSign, toSign);
-  if (h === 7) return 4;
-  if (h === 3 || h === 10) return planet === "Saturn" ? 4 : 1;
-  if (h === 5 || h === 9) return planet === "Jupiter" ? 4 : 2;
-  if (h === 4 || h === 8) return planet === "Mars" ? 4 : 3;
-  return 0;
-}
-
-/** The Moon is waxing (bright half) when its elongation from the Sun is under 180 degrees. */
-export function moonWaxing(all: PlanetPosition[]): boolean {
-  const sun = all.find((x) => x.planet === "Sun"),
-    moon = all.find((x) => x.planet === "Moon");
-  if (!sun || !moon) return true;
-  return (((moon.lon - sun.lon) % 360) + 360) % 360 < 180;
-}
-
-/**
- * Natural benefics per BPHS 3.11 (with 34.8-10): Jupiter and Venus; the Moon while increasing; Mercury unless he joins a
- * malefic, the malefics being the Sun, Mars, Saturn, Rahu, Ketu and the decreasing Moon. Cross-checked 2026-09-26; the
- * earlier build had counted the Moon benefic from the 8th tithi of the bright half to the 8th of the dark half, a later
- * convention that the chapter does not state.
- */
-export function naturalBenefic(
-  p: PlanetPosition,
-  all: PlanetPosition[],
-): boolean {
-  if (p.planet === "Jupiter" || p.planet === "Venus") return true;
-  const waxing = moonWaxing(all);
-  if (p.planet === "Moon") return waxing;
-  if (p.planet === "Mercury") {
-    const withMalefic = all.some(
-      (x) =>
-        x.signIndex === p.signIndex &&
-        (["Sun", "Mars", "Saturn", "Rahu", "Ketu"].includes(x.planet) ||
-          (x.planet === "Moon" && !waxing)),
-    );
-    return !withMalefic;
-  }
-  return false;
-}
+// Drishti and natural benefic/malefic live in astro.ts (shared by several modules) to avoid a
+// module cycle; re-export them here so the Parashari tab keeps its public surface.
+export { drishtiQuarters, moonWaxing, naturalBenefic } from "./astro";
+import { drishtiQuarters, naturalBenefic } from "./astro";
 
 function lordshipClass(owns: number[]): PlanetNature["lordship"] {
   const k = owns.filter((h) => KENDRA.includes(h)).length;
