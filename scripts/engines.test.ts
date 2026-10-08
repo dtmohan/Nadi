@@ -678,19 +678,30 @@ test("Combinations: stellium group, lead planet and planetary war", () => {
   assert.equal(wars[0].loser, "Saturn");
 });
 
-test("Yoga database: Brihat Jataka 12 Asraya and Dala yogas", () => {
+test("Yoga database: Brihat Jataka 12 Nabhasa yogas", () => {
+  const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
   const mk = (planet: string, signIndex: number) => ({
-    planet, lon: signIndex * 30, signIndex, sign: ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"][signIndex],
+    planet, lon: signIndex * 30, signIndex, sign: SIGNS[signIndex],
     degInSign: 0, speed: 0, retrograde: false, nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity: "—", combust: false, signLord: "Mars",
   }) as any;
-  const names = (r: any[]) => r.map((y) => y.name);
-  // All seven in movable signs (0,3,6,9): Rajju.
-  const movable = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"].map((p, i) => mk(p, [0,3,6,9][i % 4]));
-  assert.deepEqual(names(computeYogas({ positions: movable, lagnaIdx: 0 })), ["Rajju"]);
-  // All in fixed signs (1,4,7,10): Musala.
-  const fixed = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"].map((p, i) => mk(p, [1,4,7,10][i % 4]));
-  assert.deepEqual(names(computeYogas({ positions: fixed, lagnaIdx: 0 })), ["Musala"]);
+  const P = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"];
+  const fired = (signs: number[], lagnaIdx: number) =>
+    computeYogas({ positions: P.map((p, i) => mk(p, signs[i % signs.length])), lagnaIdx }).map((y) => y.name);
+
+  // Rajju: all seven in movable signs; lagna 1 so the movable signs are not all kendras.
+  assert.ok(fired([0, 3, 6, 9], 1).includes("Rajju"));
+  // Musala: all seven in fixed signs.
+  assert.ok(fired([1, 4, 7, 10], 0).includes("Musala"));
   // Rahu and Ketu do not break an Asraya yoga.
-  const withNodes = [...fixed, mk("Rahu", 3), mk("Ketu", 9)];
-  assert.deepEqual(names(computeYogas({ positions: withNodes, lagnaIdx: 0 })), ["Musala"]);
+  const nodes = computeYogas({
+    positions: [...P.map((p, i) => mk(p, [1, 4, 7, 10][i % 4])), mk("Rahu", 3), mk("Ketu", 9)],
+    lagnaIdx: 0,
+  }).map((y) => y.name);
+  assert.ok(nodes.includes("Musala"));
+  // Damini: all seven in six distinct signs (no other Nabhasa yoga matches).
+  assert.ok(fired([0, 1, 2, 3, 4, 5, 0], 0).includes("Damini"));
+  // Sakata (Akriti, houses 1 & 7) supersedes Yuga (Sankhya, two signs).
+  const sakata = fired([0, 6], 0); // Aries and Libra from lagna 0 = houses 1 and 7
+  assert.ok(sakata.includes("Sakata"));
+  assert.ok(!sakata.includes("Yuga"));
 });

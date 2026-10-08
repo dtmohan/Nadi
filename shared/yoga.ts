@@ -55,6 +55,8 @@ export interface Yoga {
   condition: string;
   /** The promised result, plain text. */
   result: string;
+  /** A provisional reading, precedence or other caveat. */
+  note?: string;
   /** Predicate over the chart; omitted for reference-only entries. */
   test?: (ctx: YogaContext) => boolean;
 }
@@ -66,7 +68,7 @@ export interface YogaContext {
 }
 
 export const YOGA_NOTE =
-  "Brihat Jataka 12 counts the Nabhasa yogas from the seven planets — Rahu and Ketu take no part (ch. 12 note), and exaltation, moolatrikona and the waxing Moon are not considered. The Dala yogas' benefic/malefic call uses the app's BPHS 3.11 natural benefic rule (provisional where the Sun and Moon are concerned).";
+  "Brihat Jataka 12 counts the Nabhasa yogas from the seven planets — Rahu and Ketu take no part (ch. 12 note), and exaltation, moolatrikona and the waxing Moon are not considered. The Dala yogas' benefic/malefic call uses the app's BPHS 3.11 natural benefic rule (provisional where the Sun and Moon are concerned). A Sankhya yoga yields to any other Nabhasa yoga that holds at the same time (ch. 12, stanza 10 note).";
 
 const BJ_BASE =
   "https://www.wisdomlib.org/hinduism/book/brihat-jataka-by-varahamihira-sanskrit-english/d/";
@@ -82,77 +84,277 @@ const BJ = (chapter: number, stanza: number): YogaSource => ({
 const seven = (positions: PlanetPosition[]) =>
   positions.filter((p) => p.planet !== "Rahu" && p.planet !== "Ketu");
 
-const KENDRA = new Set([1, 4, 7, 10]);
+const KENDRA = [1, 4, 7, 10];
+const PANAPHARA_APOKLIMA = [2, 3, 5, 6, 8, 9, 11, 12];
 
 const quality = (p: PlanetPosition) => SIGN_QUALITY[p.signIndex];
 
-// ── Brihat Jataka ch. 12: the 32 Nabhasa yogas (Asraya and Dala groups first) ──
+const house = (ctx: YogaContext, p: PlanetPosition) =>
+  houseFrom(ctx.lagnaIdx, p.signIndex);
 
-export const YOGAS: Yoga[] = [
+/** The set of houses the seven planets occupy. */
+const houseSet = (ctx: YogaContext) =>
+  new Set(seven(ctx.positions).map((p) => house(ctx, p)));
+
+/** Every planet is in one of `hs`. */
+const inHouses = (ctx: YogaContext, hs: number[]) =>
+  seven(ctx.positions).every((p) => hs.includes(house(ctx, p)));
+
+/** The occupied houses are exactly the set `hs` (same size, no extras). */
+const exactlyHouses = (ctx: YogaContext, hs: number[]) => {
+  const s = houseSet(ctx);
+  return s.size === hs.length && hs.every((h) => s.has(h));
+};
+
+/** One of the target house-sets is occupied exactly. */
+const oneOf = (ctx: YogaContext, sets: number[][]) =>
+  sets.some((hs) => exactlyHouses(ctx, hs));
+
+const ben = (ctx: YogaContext, p: PlanetPosition) =>
+  naturalBenefic(p, ctx.positions);
+
+/** The number of distinct signs the seven planets occupy. */
+const distinctSigns = (ctx: YogaContext) =>
+  new Set(seven(ctx.positions).map((p) => p.signIndex)).size;
+
+// ── Brihat Jataka ch. 12: the 32 Nabhasa yogas ──
+
+const NABHASA: Yoga[] = [
+  // Asraya (support), 12.2, effects 12.11
   {
-    id: "rajju",
-    name: "Rajju",
-    source: BJ(12, 2),
-    category: "nabhasa-asraya",
+    id: "rajju", name: "Rajju", source: BJ(12, 2), category: "nabhasa-asraya",
     condition: "all seven planets in movable signs",
-    result: "fond of travel, moving about, crafty, cruel, thievish",
+    result: "jealous of others' wealth, goes to foreign lands, fond of travelling",
     test: (ctx) => seven(ctx.positions).every((p) => quality(p) === "Movable"),
   },
   {
-    id: "musala",
-    name: "Musala",
-    source: BJ(12, 2),
-    category: "nabhasa-asraya",
+    id: "musala", name: "Musala", source: BJ(12, 2), category: "nabhasa-asraya",
     condition: "all seven planets in fixed signs",
-    result: "proud, learned, wealthy, steady, a favourite of kings",
+    result: "respectable, rich, engages in various undertakings",
     test: (ctx) => seven(ctx.positions).every((p) => quality(p) === "Fixed"),
   },
   {
-    id: "nala",
-    name: "Nala",
-    source: BJ(12, 2),
-    category: "nabhasa-asraya",
+    id: "nala", name: "Nala", source: BJ(12, 2), category: "nabhasa-asraya",
     condition: "all seven planets in common (dual) signs",
-    result: "addicted to gain, ready in business, of helpful nature, skilful",
+    result: "defective organs, settled views, rich, skilled in work",
     test: (ctx) => seven(ctx.positions).every((p) => quality(p) === "Dual"),
   },
+  // Dala (lobe), 12.2, effects 12.11
   {
-    id: "srik",
-    name: "Srik (Mala)",
-    source: BJ(12, 2),
-    category: "nabhasa-dala",
+    id: "srik", name: "Srik (Mala)", source: BJ(12, 2), category: "nabhasa-dala",
     condition: "the planets occupying the kendras are benefics",
-    result: "comforts, vehicles, wealth, good reputation, happiness from relatives",
+    result: "lives in comfort and luxury",
     test: (ctx) => {
-      const inKendra = seven(ctx.positions).filter((p) =>
-        KENDRA.has(houseFrom(ctx.lagnaIdx, p.signIndex)),
-      );
-      return (
-        inKendra.length > 0 &&
-        inKendra.every((p) => naturalBenefic(p, ctx.positions))
-      );
+      const k = seven(ctx.positions).filter((p) => KENDRA.includes(house(ctx, p)));
+      return k.length > 0 && k.every((p) => ben(ctx, p));
     },
   },
   {
-    id: "sarpa",
-    name: "Sarpa",
-    source: BJ(12, 2),
-    category: "nabhasa-dala",
+    id: "sarpa", name: "Sarpa", source: BJ(12, 2), category: "nabhasa-dala",
     condition: "the planets occupying the kendras are malefics",
-    result: "cruel, mean, penniless, earning by fraudulent means",
+    result: "miserable in many ways",
     test: (ctx) => {
-      const inKendra = seven(ctx.positions).filter((p) =>
-        KENDRA.has(houseFrom(ctx.lagnaIdx, p.signIndex)),
-      );
-      return (
-        inKendra.length > 0 &&
-        inKendra.every((p) => !naturalBenefic(p, ctx.positions))
-      );
+      const k = seven(ctx.positions).filter((p) => KENDRA.includes(house(ctx, p)));
+      return k.length > 0 && k.every((p) => !ben(ctx, p));
     },
+  },
+  // Akriti (shape), 12.4, effects 12.13
+  {
+    id: "gada", name: "Gada", source: BJ(12, 4), category: "nabhasa-akriti",
+    condition: "all seven planets in two adjacent kendras (1-4, 4-7, 7-10 or 10-1)",
+    result: "performs sacrificial rites, rich, ever acquiring wealth",
+    test: (ctx) => oneOf(ctx, [[1, 4], [4, 7], [7, 10], [10, 1]]),
+  },
+  {
+    id: "sakata", name: "Sakata", source: BJ(12, 4), category: "nabhasa-akriti",
+    condition: "all seven planets in the ascendant and the 7th house",
+    result: "lives by carts, afflicted with diseases, mean wife",
+    test: (ctx) => exactlyHouses(ctx, [1, 7]),
+  },
+  {
+    id: "vihaga", name: "Vihaga (Andaja)", source: BJ(12, 4), category: "nabhasa-akriti",
+    condition: "all seven planets in the 4th and 10th houses",
+    result: "lives by carrying messages, fond of travel, causes quarrels",
+    test: (ctx) => exactlyHouses(ctx, [4, 10]),
+  },
+  {
+    id: "sringataka", name: "Sringataka", source: BJ(12, 4), category: "nabhasa-akriti",
+    condition: "all seven planets in the ascendant, 5th and 9th houses",
+    result: "happy in the latter end of life",
+    test: (ctx) => exactlyHouses(ctx, [1, 5, 9]),
+  },
+  {
+    id: "hala", name: "Hala", source: BJ(12, 4), category: "nabhasa-akriti",
+    condition: "all seven planets in the other triangular houses (2-6-10, 3-7-11 or 4-8-12)",
+    result: "tills lands",
+    test: (ctx) => oneOf(ctx, [[2, 6, 10], [3, 7, 11], [4, 8, 12]]),
+  },
+  // Akriti, 12.5, effects 12.14
+  {
+    id: "vajra", name: "Vajra", source: BJ(12, 5), category: "nabhasa-akriti",
+    condition: "benefics in the ascendant and 7th, malefics in the 4th and 10th",
+    result: "happy at the beginning and end of life, a general favourite, bold in fight",
+    test: (ctx) => {
+      const s = seven(ctx.positions);
+      if (!s.every((p) => KENDRA.includes(house(ctx, p)))) return false;
+      const l = s.filter((p) => [1, 7].includes(house(ctx, p)));
+      const r = s.filter((p) => [4, 10].includes(house(ctx, p)));
+      return l.every((p) => ben(ctx, p)) && r.every((p) => !ben(ctx, p));
+    },
+  },
+  {
+    id: "yava", name: "Yava", source: BJ(12, 5), category: "nabhasa-akriti",
+    condition: "malefics in the ascendant and 7th, benefics in the 4th and 10th",
+    result: "powerful, happy in the middle of life",
+    test: (ctx) => {
+      const s = seven(ctx.positions);
+      if (!s.every((p) => KENDRA.includes(house(ctx, p)))) return false;
+      const l = s.filter((p) => [1, 7].includes(house(ctx, p)));
+      const r = s.filter((p) => [4, 10].includes(house(ctx, p)));
+      return l.every((p) => !ben(ctx, p)) && r.every((p) => ben(ctx, p));
+    },
+  },
+  {
+    id: "kamala", name: "Kamala (Padma)", source: BJ(12, 5), category: "nabhasa-akriti",
+    condition: "all seven planets in the four kendras",
+    result: "great renown, greatly happy, many attainments",
+    test: (ctx) => exactlyHouses(ctx, KENDRA),
+  },
+  {
+    id: "vapi", name: "Vapi", source: BJ(12, 5), category: "nabhasa-akriti",
+    condition: "all seven planets in the panaphara and apoklima (non-kendra) houses",
+    result: "poor comfort for a long time, buries wealth, a miser",
+    test: (ctx) => inHouses(ctx, PANAPHARA_APOKLIMA),
+  },
+  // Akriti, 12.7, effects 12.15
+  {
+    id: "yupa", name: "Yupa", source: BJ(12, 7), category: "nabhasa-akriti",
+    condition: "all seven planets in the four signs from the ascendant (1-2-3-4)",
+    result: "liberal in gifts, performs high sacrificial rites",
+    test: (ctx) => exactlyHouses(ctx, [1, 2, 3, 4]),
+  },
+  {
+    id: "ishu", name: "Ishu (Bana)", source: BJ(12, 7), category: "nabhasa-akriti",
+    condition: "all seven planets in the four signs from the 4th (4-5-6-7)",
+    result: "indulges in torture, a jailor, makes arrows",
+    test: (ctx) => exactlyHouses(ctx, [4, 5, 6, 7]),
+  },
+  {
+    id: "sakti", name: "Sakti", source: BJ(12, 7), category: "nabhasa-akriti",
+    condition: "all seven planets in the four signs from the 7th (7-8-9-10)",
+    result: "disgraceful deeds, unskilled, without money and comfort",
+    test: (ctx) => exactlyHouses(ctx, [7, 8, 9, 10]),
+  },
+  {
+    id: "danda", name: "Danda", source: BJ(12, 7), category: "nabhasa-akriti",
+    condition: "all seven planets in the four signs from the 10th (10-11-12-1)",
+    result: "separated from the beloved, earns by servitude",
+    test: (ctx) => exactlyHouses(ctx, [10, 11, 12, 1]),
+  },
+  // Akriti, 12.8, effects 12.16-17
+  {
+    id: "nau", name: "Nau", source: BJ(12, 8), category: "nabhasa-akriti",
+    condition: "all seven planets in the seven signs from the ascendant (1-7)",
+    result: "wide-spread fame, happy only now and then, a miser",
+    test: (ctx) => exactlyHouses(ctx, [1, 2, 3, 4, 5, 6, 7]),
+  },
+  {
+    id: "kuta", name: "Kuta", source: BJ(12, 8), category: "nabhasa-akriti",
+    condition: "all seven planets in the seven signs from the 4th (4-10)",
+    result: "indulges in lies, a jailor",
+    test: (ctx) => exactlyHouses(ctx, [4, 5, 6, 7, 8, 9, 10]),
+  },
+  {
+    id: "chhatra", name: "Chhatra", source: BJ(12, 8), category: "nabhasa-akriti",
+    condition: "all seven planets in the seven signs from the 7th (7-12-1)",
+    result: "makes his people happy, comfort in the latter end of life",
+    test: (ctx) => exactlyHouses(ctx, [7, 8, 9, 10, 11, 12, 1]),
+  },
+  {
+    id: "chapa", name: "Chapa", source: BJ(12, 8), category: "nabhasa-akriti",
+    condition: "all seven planets in the seven signs from the 10th (10-12-1-4)",
+    result: "delights in fight, comfort at the beginning and end of life",
+    test: (ctx) => exactlyHouses(ctx, [10, 11, 12, 1, 2, 3, 4]),
+  },
+  {
+    id: "ardha-chandra", name: "Ardha-Chandra", source: BJ(12, 8), category: "nabhasa-akriti",
+    condition: "all seven planets in seven houses from a panaphara or apoklima",
+    result: "a general favourite, agreeable person, respected by all",
+    test: (ctx) =>
+      oneOf(ctx, [
+        [2, 3, 4, 5, 6, 7, 8], [3, 4, 5, 6, 7, 8, 9],
+        [5, 6, 7, 8, 9, 10, 11], [6, 7, 8, 9, 10, 11, 12],
+        [8, 9, 10, 11, 12, 1, 2], [9, 10, 11, 12, 1, 2, 3],
+        [11, 12, 1, 2, 3, 4, 5], [12, 1, 2, 3, 4, 5, 6],
+      ]),
+  },
+  // Akriti, 12.9, effects 12.17
+  {
+    id: "samudra", name: "Samudra", source: BJ(12, 9), category: "nabhasa-akriti",
+    condition: "all seven planets in the six alternate houses from the 2nd (2-4-6-8-10-12)",
+    result: "prosperous as a king, lives in comfort",
+    test: (ctx) => exactlyHouses(ctx, [2, 4, 6, 8, 10, 12]),
+  },
+  {
+    id: "chakra", name: "Chakra", source: BJ(12, 9), category: "nabhasa-akriti",
+    condition: "all seven planets in the six alternate houses from the ascendant (1-3-5-7-9-11)",
+    result: "an emperor, king of kings",
+    test: (ctx) => exactlyHouses(ctx, [1, 3, 5, 7, 9, 11]),
+  },
+  // Sankhya (number), 12.10, effects 12.17-19
+  {
+    id: "vallaki", name: "Vallaki", source: BJ(12, 10), category: "nabhasa-sankhya",
+    condition: "all seven planets occupy seven signs",
+    result: "intelligent, delights in music and dance",
+    test: (ctx) => distinctSigns(ctx) === 7,
+  },
+  {
+    id: "damini", name: "Damini", source: BJ(12, 10), category: "nabhasa-sankhya",
+    condition: "all seven planets occupy six signs",
+    result: "liberal in gifts, delights in helping others, many cows",
+    test: (ctx) => distinctSigns(ctx) === 6,
+  },
+  {
+    id: "pasa", name: "Pasa", source: BJ(12, 10), category: "nabhasa-sankhya",
+    condition: "all seven planets occupy five signs",
+    result: "with servants and kinsmen, earns wealth by proper means",
+    test: (ctx) => distinctSigns(ctx) === 5,
+  },
+  {
+    id: "kedara", name: "Kedara", source: BJ(12, 10), category: "nabhasa-sankhya",
+    condition: "all seven planets occupy four signs",
+    result: "tills lands, useful to many by good deeds",
+    test: (ctx) => distinctSigns(ctx) === 4,
+  },
+  {
+    id: "sula", name: "Sula", source: BJ(12, 10), category: "nabhasa-sankhya",
+    condition: "all seven planets occupy three signs",
+    result: "bold in fight, receives blows, fond of money but poor",
+    test: (ctx) => distinctSigns(ctx) === 3,
+  },
+  {
+    id: "yuga", name: "Yuga", source: BJ(12, 10), category: "nabhasa-sankhya",
+    condition: "all seven planets occupy two signs",
+    result: "poor, acts in contravention of Vedic rules",
+    test: (ctx) => distinctSigns(ctx) === 2,
+  },
+  {
+    id: "gola", name: "Gola", source: BJ(12, 10), category: "nabhasa-sankhya",
+    condition: "all seven planets occupy a single sign",
+    result: "poor, dirty, ignorant, low deeds, unskilled, ill, wandering",
+    test: (ctx) => distinctSigns(ctx) === 1,
   },
 ];
 
-/** The yogas whose predicate fires for the chart. */
+export const YOGAS: Yoga[] = NABHASA;
+
+/** The yogas whose predicate fires for the chart, applying the Nabhasa precedence. */
 export function computeYogas(ctx: YogaContext): Yoga[] {
-  return YOGAS.filter((y) => y.test && y.test(ctx));
+  const fired = YOGAS.filter((y) => y.test && y.test(ctx));
+  const hasOtherNabhasa = fired.some(
+    (y) => y.category.startsWith("nabhasa") && y.category !== "nabhasa-sankhya",
+  );
+  return fired.filter(
+    (y) => y.category !== "nabhasa-sankhya" || !hasOtherNabhasa,
+  );
 }
