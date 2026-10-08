@@ -11,7 +11,7 @@
 // This is a classical classification of the chart, not a forecast about any person.
 
 import { SIGN_LORD, SIGNS, dignityOf, houseFrom, type Planet, type PlanetPosition } from "./astro";
-import { isBenefic, rasiAspects } from "./jaimini";
+import { isBenefic, rasiAspects } from "./jaimini-core";
 
 export type AyurTerm = "short" | "middle" | "long";
 export type SignNature = "movable" | "fixed" | "dual";

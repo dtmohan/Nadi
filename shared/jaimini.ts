@@ -4,10 +4,13 @@
 // It is kept apart from the Bhrigu Nandi Nadi engine: the two systems never mix.
 
 import { DateTime } from "luxon";
-import { SIGNS, SIGN_LORD, SIGN_QUALITY, houseFrom, type Planet, type PlanetPosition, type Sign } from "./astro";
+import { SIGNS, SIGN_LORD, houseFrom, type Planet, type PlanetPosition, type Sign } from "./astro";
+import { rasiAspects, isBenefic, argalaOn, type Argala } from "./jaimini-core";
 import { evaluateJaimini } from "./rules-jaimini";
 import { computeAyur, type AyurResult } from "./jaimini-ayur";
 import { computeInduLagna, type InduLagnaResult } from "./indu-lagna";
+
+export { rasiAspects, isBenefic, argalaOn, type Argala };
 
 // ── Chara karakas ─────────────────────────────────────────────────────────────
 
@@ -73,15 +76,6 @@ export function navamsaPositions(positions: PlanetPosition[]): VargaPosition[] {
 // ── Rasi drishti ──────────────────────────────────────────────────────────────
 
 /** Jaimini sign aspect: movable signs aspect the fixed signs except the adjacent one, fixed signs aspect the movable signs except the adjacent one, dual signs aspect each other. */
-export function rasiAspects(fromSign: number, toSign: number): boolean {
-  if (fromSign === toSign) return false;
-  const q = SIGN_QUALITY[fromSign];
-  const t = SIGN_QUALITY[toSign];
-  if (q === "Movable") return t === "Fixed" && toSign !== (fromSign + 1) % 12;
-  if (q === "Fixed") return t === "Movable" && toSign !== (fromSign + 11) % 12;
-  return t === "Dual";
-}
-
 export function signsAspectedBy(sign: number): number[] {
   return SIGNS.map((_, i) => i).filter((i) => rasiAspects(sign, i));
 }
@@ -92,36 +86,6 @@ export function influencesOn(sign: number, positions: { planet: Planet; signInde
     occupants: positions.filter((p) => p.signIndex === sign).map((p) => p.planet),
     aspecting: positions.filter((p) => rasiAspects(p.signIndex, sign)).map((p) => p.planet),
   };
-}
-
-// ── Argala ────────────────────────────────────────────────────────────────────
-
-export interface Argala {
-  /** House counted from the reference sign that intervenes (2, 4, 11 primary; 5 secondary). */
-  house: number;
-  kind: "primary" | "secondary";
-  planets: Planet[];
-  /** House whose occupants obstruct this argala (12 for 2, 10 for 4, 3 for 11, 9 for 5). */
-  obstructingHouse: number;
-  obstructedBy: Planet[];
-  /** True when the obstructing house holds at least as many planets. */
-  obstructed: boolean;
-}
-
-const ARGALA_PAIRS: Array<{ house: number; kind: "primary" | "secondary"; obstructingHouse: number }> = [
-  { house: 2, kind: "primary", obstructingHouse: 12 },
-  { house: 4, kind: "primary", obstructingHouse: 10 },
-  { house: 11, kind: "primary", obstructingHouse: 3 },
-  { house: 5, kind: "secondary", obstructingHouse: 9 },
-];
-
-export function argalaOn(sign: number, positions: { planet: Planet; signIndex: number }[]): Argala[] {
-  const inHouse = (h: number) => positions.filter((p) => houseFrom(sign, p.signIndex) === h).map((p) => p.planet);
-  return ARGALA_PAIRS.map(({ house, kind, obstructingHouse }) => {
-    const planets = inHouse(house);
-    const obstructedBy = inHouse(obstructingHouse);
-    return { house, kind, planets, obstructingHouse, obstructedBy, obstructed: planets.length > 0 && obstructedBy.length >= planets.length };
-  }).filter((a) => a.planets.length > 0);
 }
 
 // ── Arudha padas ──────────────────────────────────────────────────────────────
@@ -446,18 +410,6 @@ export interface JaiminiResult {
   ayur: AyurResult | null;
   /** Indu Lagna, the wealth ascendant of Uttara Kalamrita IV.27 — a Parashari-lineage special lagna shown here beside the others, not a Jaimini technique. */
   indu: InduLagnaResult;
-}
-
-/** Natural benefics for Jaimini purposes. The Sun counts as a benefic when exalted or in a friendly sign (Jaimini 1.4). The Moon is a benefic in its bright half. */
-export function isBenefic(p: PlanetPosition, sunLon?: number): boolean {
-  if (p.planet === "Jupiter" || p.planet === "Venus" || p.planet === "Mercury") return true;
-  if (p.planet === "Moon") {
-    if (sunLon === undefined) return true;
-    const elong = ((p.lon - sunLon) % 360 + 360) % 360;
-    return elong >= 90 && elong < 270;
-  }
-  if (p.planet === "Sun") return p.dignity === "Exalted" || p.dignity === "Friendly" || p.dignity === "Own sign" || p.dignity === "Moolatrikona";
-  return false;
 }
 
 // ── Assembly (pure; the server supplies the sidereal ascendant) ───────────────
