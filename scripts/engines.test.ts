@@ -43,6 +43,7 @@ import { nashtaFactorSum, nashtaNakshatra } from "@shared/brihat-jataka";
 import { scAmshaName, SC_BHAVAS, SC_BHAVA_RULES, computeSarvartha, SC_RAJYOGAS, SC_DASHA_PHALA, SC_LONGEVITY, sarvarthaTone, ruleFidelity } from "@shared/sarvartha";
 import { taraOf, adverseTara, TARA_NAMES, trijanmaStars, taraFlag } from "@shared/tara";
 import { computeCombinations, grahaYuddha } from "@shared/combinations";
+import { computeYogas } from "@shared/yoga";
 import { sthiraDasha, charaKarakas, SAVYA, mandukaDasha, brahmaDasha } from "@shared/jaimini";
 import type { AshtakavargaResult } from "@shared/ashtakavarga";
 
@@ -675,4 +676,21 @@ test("Combinations: stellium group, lead planet and planetary war", () => {
   assert.equal(wars.length, 1);
   assert.equal(wars[0].victor, "Mars");
   assert.equal(wars[0].loser, "Saturn");
+});
+
+test("Yoga database: Brihat Jataka 12 Asraya and Dala yogas", () => {
+  const mk = (planet: string, signIndex: number) => ({
+    planet, lon: signIndex * 30, signIndex, sign: ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"][signIndex],
+    degInSign: 0, speed: 0, retrograde: false, nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity: "—", combust: false, signLord: "Mars",
+  }) as any;
+  const names = (r: any[]) => r.map((y) => y.name);
+  // All seven in movable signs (0,3,6,9): Rajju.
+  const movable = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"].map((p, i) => mk(p, [0,3,6,9][i % 4]));
+  assert.deepEqual(names(computeYogas({ positions: movable, lagnaIdx: 0 })), ["Rajju"]);
+  // All in fixed signs (1,4,7,10): Musala.
+  const fixed = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"].map((p, i) => mk(p, [1,4,7,10][i % 4]));
+  assert.deepEqual(names(computeYogas({ positions: fixed, lagnaIdx: 0 })), ["Musala"]);
+  // Rahu and Ketu do not break an Asraya yoga.
+  const withNodes = [...fixed, mk("Rahu", 3), mk("Ketu", 9)];
+  assert.deepEqual(names(computeYogas({ positions: withNodes, lagnaIdx: 0 })), ["Musala"]);
 });
