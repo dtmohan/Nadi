@@ -705,3 +705,27 @@ test("Yoga database: Brihat Jataka 12 Nabhasa yogas", () => {
   assert.ok(sakata.includes("Sakata"));
   assert.ok(!sakata.includes("Yuga"));
 });
+
+test("Yoga database: Brihat Jataka 14 lunar yogas", () => {
+  const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
+  const at = (planet: string, signIndex: number) => ({
+    planet, lon: signIndex * 30, signIndex, sign: SIGNS[signIndex],
+    degInSign: 0, speed: 0, retrograde: false, nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity: "—", combust: false, signLord: "Mars",
+  }) as any;
+  const place = (sun: number, moon: number, mars: number, mercury: number, jupiter: number, venus: number, saturn: number) => [
+    at("Sun", sun), at("Moon", moon), at("Mars", mars), at("Mercury", mercury), at("Jupiter", jupiter), at("Venus", venus), at("Saturn", saturn),
+  ];
+  const names = (positions: any[], lagnaIdx: number) =>
+    computeYogas({ positions, lagnaIdx }).map((y) => y.name);
+
+  // Moon in Aries: Mars in the 2nd (Taurus) → Sunapha.
+  assert.ok(names(place(3, 0, 1, 4, 5, 6, 7), 0).includes("Sunapha"));
+  // Mars in the 12th (Pisces) → Anapha.
+  assert.ok(names(place(3, 0, 11, 4, 5, 6, 7), 0).includes("Anapha"));
+  // Mars in 2nd, Saturn in 12th → Durudhura.
+  assert.ok(names(place(3, 0, 1, 4, 5, 6, 11), 0).includes("Durudhura"));
+  // No planet in the 2nd or 12th → Kemadruma.
+  assert.ok(names(place(3, 0, 4, 5, 6, 7, 8), 0).includes("Kemadruma"));
+  // Mercury in the 6th (Virgo), Jupiter 7th (Libra), Venus 8th (Scorpio) → Adhi.
+  assert.ok(names(place(3, 0, 2, 5, 6, 7, 9), 0).includes("Adhi"));
+});
