@@ -219,7 +219,7 @@ export function LifeEventsEditor({
                 onValueChange={(v) => update(e.id, { matter: v })}
               >
                 <SelectTrigger
-                  className="h-8 w-56 text-xs"
+                  className="h-8 w-auto min-w-56 max-w-full text-xs"
                   data-testid={`select-event-matter-${e.id}`}
                 >
                   <SelectValue />

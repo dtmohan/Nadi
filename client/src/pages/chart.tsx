@@ -1786,7 +1786,7 @@ function Relations({
         </table>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(11rem,100%),1fr))] gap-3">
         {positions.map((p) => {
           const links = relations.filter((r) => r.subject === p.planet);
           return (
@@ -2247,7 +2247,7 @@ export default function ChartPage() {
         </div>
   );
   const bnnGrid = (content: ReactNode) => (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,27rem)_1fr] lg:items-start">
+    <div className="grid gap-8 lg:grid-cols-[minmax(0,20rem)_1fr] lg:items-start xl:grid-cols-[minmax(0,27rem)_1fr]">
       {bnnChartColumn}
       <div className="min-w-0 max-w-[76ch]">{content}</div>
     </div>
