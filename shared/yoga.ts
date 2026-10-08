@@ -117,6 +117,19 @@ const ben = (ctx: YogaContext, p: PlanetPosition) =>
 const distinctSigns = (ctx: YogaContext) =>
   new Set(seven(ctx.positions).map((p) => p.signIndex)).size;
 
+/** The five tara grahas from Mars to Saturn (the "planets" of the lunar yogas). */
+const FIVE = ["Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+/** The natural benefics named for the Adhi and upachaya yogas: Mercury, Jupiter, Venus. */
+const BENEFICS = ["Mercury", "Jupiter", "Venus"];
+
+const moonSign = (ctx: YogaContext) =>
+  ctx.positions.find((p) => p.planet === "Moon")!.signIndex;
+
+const fromMoon = (ctx: YogaContext, p: PlanetPosition) =>
+  houseFrom(moonSign(ctx), p.signIndex);
+
+const UPACHAYA = [3, 6, 10, 11];
+
 // ── Brihat Jataka ch. 12: the 32 Nabhasa yogas ──
 
 const NABHASA: Yoga[] = [
@@ -346,7 +359,112 @@ const NABHASA: Yoga[] = [
   },
 ];
 
-export const YOGAS: Yoga[] = NABHASA;
+// ── Brihat Jataka ch. 14: the lunar (Chandra) yogas ──
+
+const LUNAR: Yoga[] = [
+  {
+    id: "adhi",
+    name: "Adhi",
+    source: BJ(14, 2),
+    category: "lunar",
+    condition: "Mercury, Jupiter or Venus in the 6th, 7th or 8th house from the Moon",
+    result: "a general, minister or king; great pleasures and wealth, subdued enemies, long life, free from disease and fear",
+    test: (ctx) =>
+      BENEFICS.some((b) => {
+        const p = ctx.positions.find((x) => x.planet === b);
+        return p && [6, 7, 8].includes(fromMoon(ctx, p));
+      }),
+  },
+  {
+    id: "sunapha",
+    name: "Sunapha",
+    source: BJ(14, 3),
+    category: "lunar",
+    condition: "a planet from Mars to Saturn in the 2nd house from the Moon (and none in the 12th)",
+    result: "self-acquired property, a king or king-like, intelligent, wealthy, renown",
+    note: "Effects per the yoga planet are 14.7-8 (Mars: active, fond of fight; Mercury: skilled, good speech; Jupiter: wealthy, virtuous; Venus: passionate, very wealthy; Saturn: enjoys others' wealth).",
+    test: (ctx) => {
+      const second = ctx.positions.some(
+        (p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 2,
+      );
+      const twelfth = ctx.positions.some(
+        (p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 12,
+      );
+      return second && !twelfth;
+    },
+  },
+  {
+    id: "anapha",
+    name: "Anapha",
+    source: BJ(14, 3),
+    category: "lunar",
+    condition: "a planet from Mars to Saturn in the 12th house from the Moon (and none in the 2nd)",
+    result: "influence and authority, free from disease, control over passions, great renown, all pleasures, neat dress, free from grief",
+    test: (ctx) => {
+      const second = ctx.positions.some(
+        (p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 2,
+      );
+      const twelfth = ctx.positions.some(
+        (p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 12,
+      );
+      return !second && twelfth;
+    },
+  },
+  {
+    id: "durudhura",
+    name: "Durudhura",
+    source: BJ(14, 3),
+    category: "lunar",
+    condition: "planets from Mars to Saturn in both the 2nd and the 12th house from the Moon",
+    result: "all pleasures, wealth and carriages, liberal in gifts, good servants",
+    test: (ctx) => {
+      const second = ctx.positions.some(
+        (p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 2,
+      );
+      const twelfth = ctx.positions.some(
+        (p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 12,
+      );
+      return second && twelfth;
+    },
+  },
+  {
+    id: "kemadruma",
+    name: "Kemadruma",
+    source: BJ(14, 3),
+    category: "lunar",
+    condition: "no planet from Mars to Saturn in the 2nd or 12th house from the Moon",
+    result: "dirty, afflicted with grief, deeds unsuited to rank, poor, serves others, wicked",
+    note: "Cancelled (14.3 note) when the Moon is in a kendra from the ascendant or accompanied by a planet.",
+    test: (ctx) => {
+      const second = ctx.positions.some(
+        (p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 2,
+      );
+      const twelfth = ctx.positions.some(
+        (p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 12,
+      );
+      return !second && !twelfth;
+    },
+  },
+  {
+    id: "upachaya-dhana",
+    name: "Upachaya dhana",
+    source: BJ(14, 9),
+    category: "lunar",
+    condition: "Mercury, Jupiter or Venus in the upachaya (3rd, 6th, 10th, 11th) from the Ascendant or the Moon",
+    result: "rich (the more such benefics, the greater the wealth)",
+    test: (ctx) =>
+      BENEFICS.some((b) => {
+        const p = ctx.positions.find((x) => x.planet === b);
+        if (!p) return false;
+        return (
+          UPACHAYA.includes(houseFrom(ctx.lagnaIdx, p.signIndex)) ||
+          UPACHAYA.includes(fromMoon(ctx, p))
+        );
+      }),
+  },
+];
+
+export const YOGAS: Yoga[] = [...NABHASA, ...LUNAR];
 
 /** The yogas whose predicate fires for the chart, applying the Nabhasa precedence. */
 export function computeYogas(ctx: YogaContext): Yoga[] {
