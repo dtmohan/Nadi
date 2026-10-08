@@ -924,6 +924,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                   <TableHead>Signifies (11.2-13)</TableHead>
                   <TableHead>Prospers by (11.14-15)</TableHead>
                   <TableHead>Suffers by (11.16)</TableHead>
+                  <TableHead>Sarvartha Chintamani adds</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -980,6 +981,33 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
+                    </TableCell>
+                    <TableCell className="py-1.5 align-top text-xs text-muted-foreground">
+                      {(() => {
+                        const fs =
+                          result.sarvartha?.findings.filter(
+                            (f) => f.house === j.house,
+                          ) ?? [];
+                        if (!fs.length)
+                          return <span className="text-muted-foreground">—</span>;
+                        return (
+                          <>
+                            {fs.slice(0, 3).map((f, i) => (
+                              <div key={i} className="text-2xs leading-4">
+                                <span className="font-medium text-foreground">
+                                  {f.topic}:
+                                </span>{" "}
+                                {f.text}
+                              </div>
+                            ))}
+                            {fs.length > 3 && (
+                              <span className="text-2xs text-muted-foreground">
+                                +{fs.length - 3} more
+                              </span>
+                            )}
+                          </>
+                        );
+                      })()}
                     </TableCell>
                   </TableRow>
                 ))}

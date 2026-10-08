@@ -984,3 +984,19 @@ export const SC_LONGEVITY: ScLongevity[] = [
   { chapter: 11, stanza: 9, when: "Jupiter away from the Sun is in the 10th house", then: "destroys all danger to short life" },
   { chapter: 11, stanza: 12, when: "the Moon farthest from the Sun is under benefic aspect, free of malefics", then: "destroys all danger to short life" },
 ];
+
+/**
+ * A coarse good/hard classification of a Sarvartha rule's result text, for the agreement stance.
+ * The app's own convention (provisional): hard wording is checked first, then good wording.
+ */
+export function sarvarthaTone(text: string): "good" | "hard" | "mixed" {
+  const t = text.toLowerCase();
+  // Negating outcomes: these make the rule hard whatever good nouns follow.
+  const hard =
+    /\b(loss|lose|destroy\w*|destruction|death|dies?|denie\w*|devoid|fool\w*|weak|harm|suffer\w*|defeat|debt|poor|disease|trouble|enem\w*|imprison|sterile|defame|short life|short-lived|miserable|cruel|quarrel|thie\w*|bitten|consumption|leprosy|colic|urinary|sudden death|hanged|punish|injur\w*|drown\w*|expense\w*|bere\w*|ruin|sorrow|grief|anger|cheat|wound|boil|fever|epilepsy|prostitute|ferocious|danger|opposed|inimical|illegitimate|enmity|deceitful|bad)\b/.test(t);
+  if (hard) return "hard";
+  const good =
+    /\b(gets? a son|gains?|acquir\w*|supports?|protects?|rules?|king|rich|wealth\w*|fame|honou?r|comfort|chaste|long life|long-lived|intelligence|intellect|memory|valou?r|brave|conveyance|house|property|income|religious|fortunate|charity|enjoys?|happy|success|power|learned|wise|speaker|mathematician|peace|clean mind|without deceit|exalted|equal to a king|favou?r|prosper|benefit|helps?|respect|good|auspicious|blessed|virtuous|devoted|friendly|dutiful|satisfied|efficient|adept|healthy|possesses?)\b/.test(t);
+  if (good) return "good";
+  return "mixed";
+}
