@@ -90,6 +90,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 const fmtMonth = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
@@ -784,6 +785,46 @@ export function KpPanel({ result }: { result: ChartResult }) {
       .map((h) => `${ordinal(h)} (${cuspTheme(h).split(",")[0].toLowerCase()})`)
       .join(", ");
 
+  const chapterDefs: ChapterDef[] = [
+    { id: "brief", plain: "In brief", technical: "Summary" },
+    {
+      id: "houses",
+      plain: "House promises",
+      technical: "Cuspal sub lords",
+      blurb: "What each house promises, read from the sub lord of its cusp.",
+    },
+    {
+      id: "timing",
+      plain: "Timing",
+      technical: "Timing",
+      blurb: "When things happen: the periods from the Moon and the houses each one brings forward.",
+    },
+    {
+      id: "significators",
+      plain: "Significators",
+      technical: "Significators",
+      blurb: "Which planets speak for which houses, in four or six steps.",
+    },
+    {
+      id: "cusps",
+      plain: "Cusps and planets",
+      technical: "Cusps and planets",
+      blurb: "Where each house begins and where each planet stands, with their star and sub lords.",
+    },
+    {
+      id: "ruling",
+      plain: "Ruling planets",
+      technical: "Ruling planets",
+      blurb: "The planets ruling this moment, used to confirm a timing.",
+    },
+    {
+      id: "method",
+      plain: "Method",
+      technical: "Method and sources",
+      blurb: "How the reading is computed and the books it follows.",
+    },
+  ];
+
   return (
     <div data-testid="kp-panel">
       <div className="flex flex-wrap items-center gap-1.5 text-xs">
@@ -919,6 +960,8 @@ export function KpPanel({ result }: { result: ChartResult }) {
         </span>
       </div>
 
+      <Chapters tab="kp" chapters={chapterDefs} className="mt-4">
+      <Chapter id="brief">
       <VerdictCard
         system="Krishnamurti Paddhati"
         headline={
@@ -1058,7 +1101,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
           },
           {
             label: "Verdicts",
-            text: `${briefFindings.length} cuspal ${briefFindings.length === 1 ? "verdict" : "verdicts"} written out below, house by house; pick another matter under When things happen.`,
+            text: `${briefFindings.length} cuspal ${briefFindings.length === 1 ? "verdict" : "verdicts"} written out house by house in the next chapter; pick another matter under Timing.`,
           },
         ]}
         caveat={`${
@@ -1081,7 +1124,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
             happens when the planets ruling the running period, sub-period and
             sub-sub-period all speak for the houses of that matter. The books
             call the deciding planet the sub lord and say it signifies the
-            houses it speaks for; the verdicts below keep that wording. Hover a
+            houses it speaks for; the house verdicts keep that wording. Hover a
             dotted term for its meaning; switch to Practitioner for the cusp,
             planet and significator tables and the page references.
           </>
@@ -1096,7 +1139,10 @@ export function KpPanel({ result }: { result: ChartResult }) {
         }
       />
 
+      </Chapter>
+
       {/* Cusps and planets */}
+      <Chapter id="cusps">
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
         <section data-testid="section-kp-cusps">
           <SectionTitle
@@ -1279,7 +1325,10 @@ export function KpPanel({ result }: { result: ChartResult }) {
         </section>
       </div>
 
+      </Chapter>
+
       {/* Significators */}
+      <Chapter id="significators">
       <section className="mt-10" data-testid="section-kp-significators">
         <SectionTitle
           as="h2"
@@ -1426,7 +1475,10 @@ export function KpPanel({ result }: { result: ChartResult }) {
         </Working>
       </section>
 
+      </Chapter>
+
       {/* Cuspal sub lord reading */}
+      <Chapter id="houses">
       <section className="mt-10" data-testid="section-kp-reading">
         <SectionTitle
           as="h2"
@@ -1629,7 +1681,10 @@ export function KpPanel({ result }: { result: ChartResult }) {
         </div>
       </section>
 
+      </Chapter>
+
       {/* Timing */}
+      <Chapter id="timing">
       <section className="mt-10" data-testid="section-kp-timing">
         <SectionTitle
           as="h2"
@@ -1645,7 +1700,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
               birth, each split into sub-periods and sub-sub-periods. A promised
               matter comes about when all three running planets speak for its
               houses. Pick a matter and the windows in the next thirty years are
-              listed; the house must be promised above first.
+              listed; the house must first be promised under House promises.
             </>
           }
           practitioner={
@@ -1653,7 +1708,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
               A promised matter fructifies when the dasa, bhukti and antara
               lords are all significators of its houses. Pick a matter and the
               windows in the next thirty years are listed; the sub lord of the
-              cusp above must promise it first.
+              cusp (under Cuspal sub lords) must promise it first.
             </>
           }
         />
@@ -2000,7 +2055,10 @@ export function KpPanel({ result }: { result: ChartResult }) {
         </Working>
       </section>
 
+      </Chapter>
+
       {/* Ruling planets */}
+      <Chapter id="ruling">
       <section className="mt-10" data-testid="section-kp-ruling">
         <SectionTitle
           as="h2"
@@ -2086,8 +2144,11 @@ export function KpPanel({ result }: { result: ChartResult }) {
         </p>
       </section>
 
+      </Chapter>
+
+      <Chapter id="method">
       <section
-        className="mt-10 border-t pt-6 text-xs text-muted-foreground"
+        className="mt-10 text-xs text-muted-foreground"
         data-testid="section-kp-sources"
       >
         <p className="font-medium text-foreground">Method and sources</p>
@@ -2122,6 +2183,8 @@ export function KpPanel({ result }: { result: ChartResult }) {
           zone (the year) and the Moon's (the day); horary.
         </p>
       </section>
+      </Chapter>
+      </Chapters>
     </div>
   );
 }

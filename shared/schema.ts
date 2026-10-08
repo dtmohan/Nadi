@@ -144,7 +144,7 @@ export interface ChartResult {
   saturnNakshatras?: NakshatraPeriod[];
   /** Saturn passages over the father's Ashtakavarga point with Rahu, Saturn or Mars in the 4th from the Sun, BPHS 70.12-14. */
   fatherArishta?: FatherArishtaWindow[];
-  /** The sensitive-content gate for this native: when `withheld`, length-of-life, maraka, arishta and parent-loss statements have been stripped server-side and every computing module strips its own. */
+  /** The sensitive-content gate for this native: when `withheld`, length-of-life, maraka, arishta, kin-loss and peril statements have been stripped server-side and every computing module strips its own. */
   sensitive?: SensitiveGate;
   /** The Moon's sign passages for thirty days from the day the chart was computed, for BPHS 70.21. */
   moonMonth?: SignPeriod[];

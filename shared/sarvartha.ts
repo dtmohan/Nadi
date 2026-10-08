@@ -622,6 +622,16 @@ export interface SarvarthaFinding {
   fidelity: FidelityTier;
 }
 
+/**
+ * Topics on the length of life and its end. Like the other length-of-life checks under Parashari
+ * they are read in the practitioner view only, and never for a native under the sensitive age.
+ */
+export const SC_LIFESPAN_TOPICS: ReadonlySet<string> = new Set([
+  "death",
+  "longevity",
+  "afterlife",
+]);
+
 export interface SarvarthaResult {
   findings: SarvarthaFinding[];
   /** Rajyogas (ch. 9) that fire for this chart. */

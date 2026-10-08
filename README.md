@@ -18,16 +18,20 @@ A published snapshot runs at [astroengine.pplx.app](https://astroengine.pplx.app
 
 | Tab | What it reads |
 |---|---|
+| Overview | The chart at a glance: a short sentence, the life areas as plain cards, where the systems agree or differ on the same questions, the period running now, the adverse stars and the slow transits. Nothing is blended; each line names its system and links to its tab. |
 | Nadi | Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik. There is no lagna and there are no houses. Planets are karakas: Jupiter is the native, Saturn the work and Venus the spouse. In a woman's chart, Venus also stands for the native and Mars for the husband. Lines are read by sign relation and by degree order within a direction. Timing follows the passages of Jupiter and Saturn. |
-| Jaimini | Eight chara karakas, navamsa and Karakamsa, rasi drishti, argala, arudha padas, and Chara dasha by K.N. Rao's method. The tab also shows the sutra text and the rules drawn from it. |
+| Jaimini | Eight chara karakas, navamsa and Karakamsa, rasi drishti, argala, arudha padas, and Chara dasha by K.N. Rao's method, with the Sthira dasha and the Kerala school's Manduka and Brahma dashas. Raja yogas taken from a modern guide's summary carry no sutra number and are marked provisional. The tab also shows the sutra text and the rules drawn from it. |
 | ALP | Akshaya Lagna Paddhati, Dr. S. Pothuvudaimoorthy's progressed-lagna method. The lagna moves forward with age at ten years per sign, and the natal planets are read from it. Interpretive rules are being entered from the published volumes chapter by chapter. |
 | KP | Krishnamurti Paddhati, Prof. K.S. Krishnamurti's stellar method: KP ayanamsa, Placidus cusps, star, sub and sub-sub lords, significators and Vimshottari timing. The cuspal sub lord decides each matter, and contrary rules stay visible as notes. |
-| Parashari | Brihat Parashara Hora Shastra: placements, aspects and yogas, along with Shadbala and bhava bala strength, divisional charts and Ashtakavarga. It also covers padas and karakas, and the dasa systems (Vimshottari, conditional dasas, Kalachakra, sign dasas and the Sudarshana chakra). Brihat Jataka and other classics are read as parallel witnesses. Houses are whole-sign by default, with Sripati and equal bhavas as provisional alternatives for house-based readings. |
-| Panchanga | Vara, tithi, nakshatra, yoga and karana at sunrise, with Moon-based gochara and Ashtakavarga transit marks. |
+| Parashari | Brihat Parashara Hora Shastra: placements, aspects and yogas, along with Shadbala and bhava bala strength, divisional charts and Ashtakavarga. It also covers padas and karakas, and the dasa systems (Vimshottari, conditional dasas, Kalachakra, sign dasas and the Sudarshana chakra). Brihat Jataka, Sarvartha Chintamani and other classics are read as parallel witnesses. Houses are whole-sign by default, with Sripati and equal bhavas as provisional alternatives for house-based readings. |
+| Prasna Marga | The Kerala horary classic. A prasna cast for a question asked now is read from its Arudha lagna, and can be confirmed later against what happened. The same house rules are read against the birth chart, with transits from the birth Moon, marriage compatibility and the reference tables of the text. |
+| Panchanga | Vara, tithi, nakshatra, yoga and karana at sunrise, the fortnight's tara days for muhurta, and Moon-based gochara with a transit calendar and Ashtakavarga marks. |
 | Rectify | Scores candidate birth times around the recorded one. The methods are KP ruling planets, Moon lords, dated events, transits, Jaimini Chara dasha and marks on the body. Event-based methods are ranked against shuffled dates. |
 | Validate | Checks a chart's dated life events against each system's timing, one system at a time, and compares each score with shuffled-date baselines. |
 
 Rectify and Validate are checks, not readings. A high score narrows a birth time or supports a rule; it proves neither.
+
+Each long tab is split into chapters. A short summary opens the tab, a strip along the top moves between chapters, and Everything (All in the practitioner reading) shows the whole tab on one page. The strip remembers the open chapter of each tab while the chart stays open.
 
 Each Nadi line carries a grade: full, enhanced, reduced or cancelled. The reasons behind a grade are dignity, combustion, hemming by friends or enemies, the degree contest within a sign and retrogression. In the practitioner reading, each reason shows its source where Rao or Naik state the principle. A reason without a source is the app's own. The size of every weight is the app's own convention, so the grade is labelled provisional. For planets in one direction, how tight their bond is and whether they are closing also move the grade. That part is the app's reading, so it changes the label but never decides which lines print. A direction line says which planet leads by degree.
 
@@ -128,6 +132,8 @@ The repository holds no copies of these books. Rules are paraphrased, quoted onl
 - Andrew Dutta (Sri Indrajit), KP bhava rules and Birth Time Rectification through KP Astrology
 - Brihat Parashara Hora Shastra, in R. Santhanam's translation
 - Jaimini Sutras, with K.N. Rao's method for Chara dasha
+- Venkatesha, Sarvartha Chintamani, in J.N. Bhasin's translation
+- Prasna Marga, in B.V. Raman's translation
 - Varahamihira, Brihat Jataka and Brihat Samhita; Mantreswara, Phaladeepika; Kalyanavarma, Saravali; Kalidasa, Uttara Kalamrita; Vaidyanatha, Jataka Parijata; Surya Siddhanta. Several of these are cited from public translations on [wisdomlib](https://www.wisdomlib.org).
 - Swiss Ephemeris, Astrodienst AG
 

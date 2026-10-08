@@ -19,6 +19,13 @@ const VERDICT_LABEL: Record<AgreementVerdict, string> = {
   quiet: "quiet",
 };
 
+const VERDICT_TEXT: Record<AgreementVerdict, string> = {
+  agree: "text-verdict-good",
+  lean: "text-verdict-mixed",
+  disagree: "text-verdict-bad",
+  quiet: "text-muted-foreground",
+};
+
 const VERDICT_CLASS: Record<AgreementVerdict, string> = {
   agree: "border-verdict-good/40 text-verdict-good",
   lean: "border-verdict-mixed/40 text-verdict-mixed",
@@ -44,12 +51,16 @@ export function AgreementPanel({
   result,
   onOpenTab,
   className,
+  compact = false,
 }: {
   result: ChartResult;
   onOpenTab: (tab: AgreementSystem) => void;
   className?: string;
+  /** Over a system tab: one summary line until opened, so the tab's own reading starts near the top. */
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const rows = !compact || open;
   const topics = useAgreement(result);
 
   if (!topics.length) return null;
@@ -77,6 +88,21 @@ export function AgreementPanel({
           {agree ? `, ${agree} in agreement` : ""}
           {disagree ? `, ${disagree} in dispute` : ""}
         </span>
+        {!rows && (
+          <span
+            className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs"
+            data-testid="agreement-summary"
+          >
+            {topics.map((t) => (
+              <span key={t.topic} className="whitespace-nowrap">
+                {t.label}{" "}
+                <span className={VERDICT_TEXT[t.verdict]}>
+                  {VERDICT_LABEL[t.verdict]}
+                </span>
+              </span>
+            ))}
+          </span>
+        )}
         <span className="ml-auto text-muted-foreground">
           {open ? (
             <ChevronUp className="h-4 w-4" />
@@ -85,6 +111,7 @@ export function AgreementPanel({
           )}
         </span>
       </button>
+      {rows && (
       <ul className="divide-y border-t" data-testid="agreement-topics">
         {topics.map((t) => (
           <li
@@ -152,6 +179,7 @@ export function AgreementPanel({
           </li>
         ))}
       </ul>
+      )}
       {open && (
         <p
           className="border-t px-3 py-2 text-2xs text-muted-foreground"

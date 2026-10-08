@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/table";
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
+import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 
 function Mark({ on, title }: { on: boolean; title?: string }) {
   return (
@@ -332,6 +333,22 @@ function NadiCell({ fit }: { fit: BnnFit }) {
   );
 }
 
+const VALIDATE_CHAPTERS: ChapterDef[] = [
+  { id: "events", plain: "Events", technical: "Events" },
+  {
+    id: "windows",
+    plain: "Timing windows",
+    technical: "Timing windows",
+    blurb: "Which of the windows each system names in advance the events fell in, with the windows that caught nothing.",
+  },
+  {
+    id: "planets",
+    plain: "Planet periods",
+    technical: "Planet periods",
+    blurb: "How each planet's periods went across the recorded events.",
+  },
+];
+
 export function ValidatePanel({ result }: { result: ChartResult }) {
   const { chart } = result;
   const events = chart.events ?? [];
@@ -481,6 +498,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
 
       {v && v.events.length > 0 && (
         <div className="mt-6" data-testid="validate-results">
+          <Chapters tab="validate" chapters={VALIDATE_CHAPTERS}>
+          <Chapter id="events">
           <LifeTimeline
             className="mb-5"
             testid="validate-timeline"
@@ -771,6 +790,9 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             </Table>
           </div>
 
+          </Chapter>
+
+          <Chapter id="windows">
           <h3
             className="mt-8 text-base font-semibold"
             data-testid="validate-windows-title"
@@ -778,7 +800,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             Which timing windows the events fell in
           </h3>
           <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-            The table above asks what was running on the day; this one asks the
+            The events table asks what was running on the day; this one asks the
             prior question. Was the date inside a window the system itself names
             in advance — for Nadi, a Jupiter passage over the matter's karaka or
             in its count-signs from the Jeeva; for KP, the conjoined period of
@@ -786,7 +808,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             worked marriages are dated by, with the antara carried as a
             refinement? Only the past windows that caught a recorded event are
             listed, with the counts giving the honest denominator of windows
-            that caught nothing; the chance line above carries the same
+            that caught nothing; the chance line under Events carries the same
             measures, so a window real events fall in no more often than random
             dates reads as chance, not as a hit.
           </p>
@@ -937,6 +959,9 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             </Table>
           </div>
 
+          </Chapter>
+
+          <Chapter id="planets">
           <h3
             className="mt-8 text-base font-semibold"
             data-testid="validate-planets-title"
@@ -1041,6 +1066,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             poor score across several events points to the birth time rather
             than to the events: take it to the Rectify tab.
           </p>
+          </Chapter>
+          </Chapters>
         </div>
       )}
     </section>
