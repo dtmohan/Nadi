@@ -27,6 +27,7 @@ import {
   sunPath,
   panchangaAt,
   panchangaForDate,
+  signStay,
   gulikaLongitude,
   timeSphutas,
   type EphemerisOptions,
@@ -48,6 +49,7 @@ import {
 } from "@shared/report";
 import { RECTIFY_METHODS, type RectifyMethod } from "@shared/rectify-methods";
 import { gocharaCalendar } from "./gochara-calendar";
+import type { OwnMarks } from "@shared/gochara";
 import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
 import { validateEvents } from "./validate";
@@ -191,6 +193,7 @@ export function computeChart(chart: Chart): ChartResult {
       asOf: DateTime.utc().toISO()!,
       lagnaLon: ascendantAt(nj, chart.latitude, chart.longitude, opts),
       gulika: gulikaLongitude(nj, chart.latitude, chart.longitude, zone, opts),
+      marsStay: signStay("Mars", nj, opts),
     },
     jaimini,
     kp: kpBase(jd, chart.latitude, chart.longitude, zone, opts.nodeType),
@@ -422,15 +425,33 @@ export async function registerRoutes(
     if (typeof from !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(from))
       return res.status(400).json({ message: "from must be YYYY-MM-DD" });
     const span = Math.min(12, Math.max(1, Number(years) || 5));
+    // The birth chart's own-Ashtakavarga marks (Phaladeepika 26.41), twelve 0-8 counts per planet; optional.
+    const marks = z
+      .object(
+        Object.fromEntries(
+          ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"].map((p) => [
+            p,
+            z.array(z.number().int().min(0).max(8)).length(12).optional(),
+          ]),
+        ),
+      )
+      .strict()
+      .optional()
+      .safeParse(req.body?.ownMarks);
+    if (!marks.success)
+      return res.status(400).json({ message: "ownMarks must give twelve marks of 0-8 per planet" });
     try {
       const start = DateTime.fromISO(from, { zone: "utc" });
       const jdStart = julianDay(start);
       const jdEnd = julianDay(start.plus({ years: span }));
       res.json(
-        gocharaCalendar(Math.floor(moonSignIndex), jdStart, jdEnd, {
-          ayanamsa,
-          nodeType,
-        }),
+        gocharaCalendar(
+          Math.floor(moonSignIndex),
+          jdStart,
+          jdEnd,
+          { ayanamsa, nodeType },
+          marks.data as OwnMarks | undefined,
+        ),
       );
     } catch (e: any) {
       res.status(400).json({ message: e.message });
@@ -461,13 +482,15 @@ export async function registerRoutes(
       } = parsed.data;
       if (!DateTime.fromISO(date, { zone: timezone }).isValid)
         return res.status(400).json({ message: "Invalid date or time zone" });
-      res.json(
-        panchangaForDate(date, latitude, longitude, timezone, {
-          ayanamsa,
-          nodeType,
-          sunrise: normaliseSunriseDef(sunriseDef),
-        }),
-      );
+      const eopts = {
+        ayanamsa,
+        nodeType,
+        sunrise: normaliseSunriseDef(sunriseDef),
+      };
+      const out = panchangaForDate(date, latitude, longitude, timezone, eopts);
+      // Mars's stay in its sign at that sunrise, for the practitioner checks beside the gochara.
+      const sunriseJd = julianDay(DateTime.fromISO(out.day.sunrise).toUTC());
+      res.json({ ...out, marsStay: signStay("Mars", sunriseJd, eopts) });
     } catch (e) {
       res.status(500).json({ message: (e as Error).message });
     }

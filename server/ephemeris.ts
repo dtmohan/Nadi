@@ -18,6 +18,7 @@ import {
   type PlanetPosition,
   type TransitPeriod,
   type NakshatraPeriod,
+  type PlanetSignPeriod,
   describePosition,
   norm360,
   signOf,
@@ -211,6 +212,35 @@ function enteredByRetrogression(
     if (s !== signIndex) return s === (signIndex + 1) % 12;
   }
   return false;
+}
+
+/**
+ * The stretch a planet spends in its present sign around an instant: walks out a day at a time each way (up to
+ * `maxDays`) and narrows both edges to about a minute. Used for Mars's stay beside the gochara.
+ */
+export function signStay(planet: Planet, jd: number, opts: EphemerisOptions, maxDays = 400): PlanetSignPeriod {
+  const body = BODY[planet];
+  const signAt = (t: number) => signOf(siderealLon(t, body, opts).lon);
+  const s = signAt(jd);
+  const edge = (dir: 1 | -1): number => {
+    let inside = jd;
+    for (let k = 1; k <= maxDays; k++) {
+      const t = jd + dir * k;
+      if (signAt(t) !== s) {
+        let a = inside;
+        let b = t;
+        while (Math.abs(b - a) > 1e-3) {
+          const mid = (a + b) / 2;
+          if (signAt(mid) === s) a = mid;
+          else b = mid;
+        }
+        return a;
+      }
+      inside = t;
+    }
+    return inside;
+  };
+  return { planet, signIndex: s, start: jdToIso(edge(-1)), end: jdToIso(edge(1)) };
 }
 
 // Sign-ingress periods for a slow planet between two Julian days.

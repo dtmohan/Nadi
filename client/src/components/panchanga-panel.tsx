@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { SUNRISE_DEFINITIONS, type ChartResult } from "@shared/schema";
-import type { PlanetPosition } from "@shared/astro";
+import type { PlanetPosition, PlanetSignPeriod } from "@shared/astro";
 import { NAKSHATRAS, SIGNS } from "@shared/astro";
 import { adverseTara, taraFlag, type AdverseTara } from "@shared/tara";
 import {
@@ -16,12 +16,16 @@ import {
 } from "@shared/panchanga";
 import {
   computeGochara,
+  natalOwnMarks,
   GOCHARA_CAVEATS,
   BS_URL,
+  PD,
   PD_URL,
   type GocharaRow,
   type GocharaVerdict,
 } from "@shared/gochara";
+import { gocharaPractice } from "@shared/gochara-practice";
+import { GocharaPracticeCard } from "@/components/gochara-practice";
 import { apiRequest } from "@/lib/queryClient";
 import { useJudgePlace } from "@/lib/judge-place";
 import { SourceLink, Cite } from "@/components/source-link";
@@ -339,11 +343,42 @@ function GocharaRowView({ r }: { r: GocharaRow }) {
         <span>
           felt in: {r.portion.bs ? `BS ${r.portion.bs}; ` : ""}PD {r.portion.pd}
         </span>
+        {r.aspects.length > 0 && (
+          <span data-testid={`gochara-aspects-${r.planet}`}>
+            aspected by{" "}
+            {r.aspects
+              .map((a) => `${a.by} (${ORD(a.aspect)}, ${a.nature})`)
+              .join(", ")}{" "}
+            · <SourceLink source={PD("30", true)} mark={false} />
+          </span>
+        )}
       </div>
+      {r.avNote && (
+        <p className="mt-1 text-xs" data-testid={`gochara-av-${r.planet}`}>
+          {r.avNote.text}{" "}
+          {r.avNote.sources.map((s, i) => (
+            <span key={i} className="text-2xs text-muted-foreground">
+              {i > 0 && ", "}
+              <SourceLink source={s} />
+            </span>
+          ))}
+        </p>
+      )}
       {r.dignityNote && (
         <p className="mt-1 text-xs" data-testid={`gochara-dignity-${r.planet}`}>
           {r.dignityNote.text}{" "}
           {r.dignityNote.sources.map((s, i) => (
+            <span key={i} className="text-2xs text-muted-foreground">
+              {i > 0 && ", "}
+              <SourceLink source={s} />
+            </span>
+          ))}
+        </p>
+      )}
+      {r.aspectNote && (
+        <p className="mt-1 text-xs" data-testid={`gochara-aspect-${r.planet}`}>
+          {r.aspectNote.text}{" "}
+          {r.aspectNote.sources.map((s, i) => (
             <span key={i} className="text-2xs text-muted-foreground">
               {i > 0 && ", "}
               <SourceLink source={s} />
@@ -389,7 +424,11 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
   const validDate =
     /^\d{4}-\d{2}-\d{2}$/.test(date) && DateTime.fromISO(date).isValid;
 
-  const dayQuery = useQuery<{ day: PanchangaDay; positions: PlanetPosition[] }>(
+  const dayQuery = useQuery<{
+    day: PanchangaDay;
+    positions: PlanetPosition[];
+    marsStay?: PlanetSignPeriod;
+  }>(
     {
       queryKey: [
         "panchanga",
@@ -413,7 +452,11 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
             nodeType: chart.nodeType === "true" ? "true" : "mean",
             sunriseDef: chart.sunriseDef,
           })
-        ).json()) as { day: PanchangaDay; positions: PlanetPosition[] },
+        ).json()) as {
+          day: PanchangaDay;
+          positions: PlanetPosition[];
+          marsStay?: PlanetSignPeriod;
+        },
       staleTime: 5 * 60_000,
     },
   );
@@ -457,6 +500,12 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
   const withheld =
     result.sensitive?.withheld ??
     sensitiveGate(chart, result.utc, result.now.asOf).withheld;
+  // The birth chart's own-Ashtakavarga marks, for Phaladeepika 26.41.
+  const lagnaLon = result.jaimini.lagna.lon;
+  const ownMarks = useMemo(
+    () => natalOwnMarks(result.positions, lagnaLon),
+    [result.positions, lagnaLon],
+  );
   const gochara = useMemo(() => {
     if (dayQuery.data)
       return computeGochara(
@@ -464,14 +513,40 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         dayQuery.data.positions,
         dayQuery.data.day.sunrise,
         withheld,
+        { ownMarks },
       );
     return computeGochara(
       natalMoon.signIndex,
       result.now.positions,
       result.now.asOf,
       withheld,
+      { ownMarks },
     );
-  }, [dayQuery.data, natalMoon.signIndex, result.now, withheld]);
+  }, [dayQuery.data, natalMoon.signIndex, result.now, withheld, ownMarks]);
+  // Practitioner checks beside the verdicts (modern, provisional; never change the colours).
+  const practice = useMemo(
+    () =>
+      gocharaPractice({
+        natalMoonSign: natalMoon.signIndex,
+        natalLagnaSign: Math.floor((((lagnaLon % 360) + 360) % 360) / 30),
+        birthStar: birthStarIdx,
+        positions: dayQuery.data?.positions ?? result.now.positions,
+        asOf: dayQuery.data?.day.sunrise ?? result.now.asOf,
+        marsStay: dayQuery.data ? dayQuery.data.marsStay : result.now.marsStay,
+        saturnPeriods: result.transits,
+        fmtDate: (iso) =>
+          DateTime.fromISO(iso).setZone(place.timezone).toFormat("d LLL yyyy"),
+      }),
+    [
+      dayQuery.data,
+      natalMoon.signIndex,
+      lagnaLon,
+      birthStarIdx,
+      result.now,
+      result.transits,
+      place.timezone,
+    ],
+  );
   const gocharaAt = dayQuery.data
     ? `sunrise ${fmtDT(dayQuery.data.day.sunrise, place.timezone)} at ${place.label}`
     : `${fmtDT(result.now.asOf, chart.timezone)} at ${chart.place}`;
@@ -699,12 +774,13 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
           }
           practitioner={
             <>
-              Favourable houses BS 104.4 and PD 26.2; vedha PD 26.3-8; house
-              results BS 104.5-45 and PD 26.9-24; dignity PD 26.31-32 and BS
-              104.53, 55; danger houses PD 26.33-34; effective portion BS
-              104.49-51 and PD 26.25. Verdict: favourable, obstructed
-              (favourable house under vedha), unfavourable, or neutral when
-              dignity cancels the house.
+              Favourable houses BS 104.4 and PD 26.2; own Ashtakavarga marks PD
+              26.41; vedha PD 26.3-8; house results BS 104.5-45 and PD 26.9-24;
+              dignity PD 26.31-32 and BS 104.53, 55; aspects PD 26.30 and BS
+              104.53; danger houses PD 26.33-34; effective portion BS 104.49-51
+              and PD 26.25. Verdict: favourable, obstructed (favourable house
+              under vedha), unfavourable, or neutral when dignity or an aspect
+              cancels the house.
             </>
           }
         />
@@ -729,6 +805,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
             <li key={c}>{c}</li>
           ))}
         </ul>
+        <GocharaPracticeCard checks={practice} />
       </section>
 
       </Chapter>

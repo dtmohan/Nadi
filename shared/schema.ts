@@ -125,6 +125,8 @@ export interface ChartResult {
     asOf: string;
     lagnaLon?: number;
     gulika?: { lon: number; signIndex: number; day: boolean };
+    /** Mars's stay in its present sign, for the practitioner checks beside the gochara (Pande, ch. 6). */
+    marsStay?: PlanetSignPeriod;
   };
   /** Jaimini module: ascendant-based, kept separate from the BNN reading. */
   jaimini: JaiminiResult;

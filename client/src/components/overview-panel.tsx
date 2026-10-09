@@ -11,7 +11,7 @@ import {
   type AreaSynthesis,
   type AreaTone,
 } from "@shared/synthesis";
-import { computeGochara, type GocharaVerdict } from "@shared/gochara";
+import { computeGochara, natalOwnMarks, type GocharaVerdict } from "@shared/gochara";
 import { adverseTara } from "@shared/tara";
 import { Soft } from "@/lib/gentle";
 import { usePlain } from "@/components/mode-text";
@@ -169,8 +169,16 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
         now.positions,
         now.asOf,
         result.sensitive?.withheld ?? false,
+        { ownMarks: natalOwnMarks(result.positions, result.jaimini.lagna.lon) },
       ),
-    [moon.signIndex, now.positions, now.asOf, result.sensitive?.withheld],
+    [
+      moon.signIndex,
+      now.positions,
+      now.asOf,
+      result.sensitive?.withheld,
+      result.positions,
+      result.jaimini.lagna.lon,
+    ],
   );
   const jupRow = gochara.rows.find((r) => r.planet === "Jupiter");
   const satRow = gochara.rows.find((r) => r.planet === "Saturn");

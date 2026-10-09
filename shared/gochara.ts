@@ -2,11 +2,13 @@
  * Gochara — transit results counted from the natal Moon, after Brihat Samhita ch. 104 (Varahamihira, tr. N. Chidambaram
  * Iyer, 1884) and Phaladeepika ch. 26 (Mantreswara, tr. V. Subrahmanya Sastri, 1937). Both texts take the Moon's sign as
  * the reference (Phaladeepika 26.1), list the same favourable houses (BS 104.4, PD 26.2), and give house-by-house
- * results (BS 104.5-45, PD 26.9-24). Phaladeepika adds the vedha (obstruction) points (26.3-8), the dignity rule (26.31-32),
- * and the danger houses (26.33-34). Nothing here is Parashari: BPHS treats transit only through Ashtakavarga.
+ * results (BS 104.5-45, PD 26.9-24). Phaladeepika adds the vedha (obstruction) points (26.3-8), the aspect rule (26.30,
+ * with BS 104.52-53), the dignity rule (26.31-32), the danger houses (26.33-34) and the Ashtakavarga rule (26.41). Nothing
+ * here is Parashari: BPHS treats transit only through Ashtakavarga.
  */
 import { redactSensitive } from "./life-stage";
-import { houseFrom, type Planet, type PlanetPosition } from "./astro";
+import { ENEMIES, houseFrom, type Planet, type PlanetPosition } from "./astro";
+import { computeAshtakavarga, type AshtakavargaResult } from "./ashtakavarga";
 
 export const BS_URL = "https://www.wisdomlib.org/hinduism/book/brihat-samhita/d/doc229368.html";
 export const PD_URL = "https://www.wisdomlib.org/hinduism/book/phaladeepika-by-mantreswara-text-and-translation/d/doc1621598.html";
@@ -51,6 +53,94 @@ export const VEDHA: Record<Planet, { points: Record<number, number>; exempt?: Pl
 
 /** Which planets can cause vedha: the seven visible planets (the nodes are not named as obstructors in 26.3-8). */
 const OBSTRUCTORS: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+
+/**
+ * Full aspects, counted sign to sign from the aspecting planet: every planet the 7th; Mars also the 4th and 8th, Jupiter the
+ * 5th and 9th, Saturn the 3rd and 10th. Phaladeepika 26.30 does not say which aspects count, so full aspects only is a
+ * reading (provisional). The nodes cast none here, and as with vedha only the seven visible planets aspect.
+ */
+export const FULL_ASPECTS: Partial<Record<Planet, number[]>> = {
+  Sun: [7],
+  Moon: [7],
+  Mercury: [7],
+  Venus: [7],
+  Mars: [4, 7, 8],
+  Jupiter: [5, 7, 9],
+  Saturn: [3, 7, 10],
+};
+
+/** Phaladeepika's own classes, given in its notes on the Sarvatobhadra chakra (ch. 26, after 26.48). */
+export const NATURE_SOURCE: GocharaSource = { label: "Phaladeepika 26.48 notes", url: PD_URL };
+const NATURAL_MALEFICS = new Set<Planet>(["Saturn", "Sun", "Rahu", "Ketu", "Mars"]);
+
+/**
+ * Benefic or malefic in transit as Phaladeepika classes them (ch. 26, Sarvatobhadra notes): Saturn, the Sun, Rahu, Ketu and
+ * Mars are malefic and the rest benefic; Mercury is malefic when with a malefic (read here as in the same sign), and so is the
+ * waning Moon (more than 180° past the Sun).
+ */
+export function natureOf(planet: Planet, transits: PlanetPosition[]): "benefic" | "malefic" {
+  if (NATURAL_MALEFICS.has(planet)) return "malefic";
+  const me = transits.find((p) => p.planet === planet);
+  if (!me) return "benefic";
+  if (planet === "Mercury" && transits.some((q) => q.planet !== "Mercury" && NATURAL_MALEFICS.has(q.planet) && q.signIndex === me.signIndex)) return "malefic";
+  if (planet === "Moon") {
+    const sun = transits.find((p) => p.planet === "Sun");
+    if (sun && ((((me.lon - sun.lon) % 360) + 360) % 360) >= 180) return "malefic";
+  }
+  return "benefic";
+}
+
+export interface GocharaAspect {
+  by: Planet;
+  /** Which aspect, counted from the aspecting planet (3, 4, 5, 7, 8, 9 or 10). */
+  aspect: number;
+  nature: "benefic" | "malefic";
+  /** The aspecting planet is a natural enemy of the aspected one (the seven planets' rows of the friendship table). */
+  enemy: boolean;
+}
+
+/** Full aspects falling on a transiting planet from the other transiting planets. */
+export function aspectsOn(target: PlanetPosition, transits: PlanetPosition[]): GocharaAspect[] {
+  const out: GocharaAspect[] = [];
+  for (const q of transits) {
+    if (q.planet === target.planet || !OBSTRUCTORS.includes(q.planet)) continue;
+    const n = houseFrom(q.signIndex, target.signIndex);
+    if (!FULL_ASPECTS[q.planet]?.includes(n)) continue;
+    out.push({
+      by: q.planet,
+      aspect: n,
+      nature: natureOf(q.planet, transits),
+      // The node rows of the friendship table follow the Nadi convention, so the nodes are never counted as enemies here.
+      enemy: OBSTRUCTORS.includes(target.planet) && ENEMIES[target.planet].includes(q.planet),
+    });
+  }
+  return out;
+}
+
+/** Rekhas (benefic marks, 0-8) per sign in each planet's own Ashtakavarga of the birth chart, Aries first. */
+export type OwnMarks = Partial<Record<Planet, number[]>>;
+
+export function ownMarksFrom(av: AshtakavargaResult): OwnMarks {
+  const out: OwnMarks = {};
+  for (const c of av.charts) if (c.owner !== "Lagna") out[c.owner] = [...c.rekhas];
+  return out;
+}
+
+/** The own-Ashtakavarga marks of a birth chart (BPHS 66), from the natal positions and the lagna's longitude. */
+export function natalOwnMarks(positions: PlanetPosition[], lagnaLon: number): OwnMarks {
+  return ownMarksFrom(computeAshtakavarga(positions, Math.floor((((lagnaLon % 360) + 360) % 360) / 30)));
+}
+
+export interface GocharaOptions {
+  /** The birth chart's own-Ashtakavarga marks, for Phaladeepika 26.41. Without them that rule is not applied. */
+  ownMarks?: OwnMarks;
+}
+
+/** Marks of eight at or above which Phaladeepika 26.41's "more benefic dots" is read as met (provisional). */
+export const AV_GOOD_MARKS = 5;
+
+const ordinal = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
+const aspectText = (a: GocharaAspect) => `${a.by} (${a.nature}${a.enemy ? ", its enemy" : ""}, ${ordinal(a.aspect)} aspect)`;
 
 interface HouseText {
   bs?: { verse: string; text: string };
@@ -209,6 +299,14 @@ export interface GocharaRow {
   verdict: GocharaVerdict;
   /** Dignity modifier from PD 26.31-32 / BS 104.53, 55. */
   dignityNote?: { text: string; sources: GocharaSource[] };
+  /** Full aspects on this planet from the other transiting planets (see FULL_ASPECTS). */
+  aspects: GocharaAspect[];
+  /** PD 26.30 applied: an aspect that voids the good or the ill of this house. */
+  aspectNote?: { text: string; sources: GocharaSource[]; by: Planet[] };
+  /** Rekhas of eight in the planet's own Ashtakavarga for this sign, when the birth chart's marks were given. */
+  avMarks?: number;
+  /** PD 26.41 applied: enough marks in the planet's own Ashtakavarga make an unfavourable house good. */
+  avNote?: { text: string; sources: GocharaSource[] };
   danger?: { text: string; source: GocharaSource };
   effect: { bs?: { text: string; source: GocharaSource }; pd?: { text: string; source: GocharaSource } };
   portion: { bs?: string; pd: string };
@@ -226,26 +324,55 @@ export interface GocharaReading {
 const STRONG = new Set(["Exalted", "Moolatrikona", "Own sign"]);
 const WEAK = new Set(["Debilitated", "Inimical"]);
 
-export function computeGochara(natalMoonSign: number, transits: PlanetPosition[], asOf: string, withhold = false): GocharaReading {
+/**
+ * The order of the rules is a reading, not stated in the texts: the house from the Moon (BS 104.4, PD 26.2), the Ashtakavarga
+ * rule (26.41), vedha (26.3-8), dignity and combustion (26.31-32), and last the aspect rule (26.30), which is not applied
+ * where dignity has already decided the house.
+ */
+export function computeGochara(
+  natalMoonSign: number,
+  transits: PlanetPosition[],
+  asOf: string,
+  withhold = false,
+  opts: GocharaOptions = {},
+): GocharaReading {
   const bySign = (h: number) => transits.filter((p) => houseFrom(natalMoonSign, p.signIndex) === h).map((p) => p.planet);
   const rows: GocharaRow[] = transits.map((p) => {
     const house = houseFrom(natalMoonSign, p.signIndex);
     const favourable = FAVOURABLE[p.planet].includes(house);
+    // PD 26.41: a sign with more benefic marks in the planet's own Ashtakavarga gives good results even in the 12th, 6th or 8th.
+    const avMarks = opts.ownMarks?.[p.planet]?.[p.signIndex];
+    const avGood = !favourable && typeof avMarks === "number" && avMarks >= AV_GOOD_MARKS;
+    const good = favourable || avGood;
     const v = VEDHA[p.planet];
+    // Vedha points are given only for the favourable houses, so a house made good by 26.41 has none.
     const vedhaPoint = favourable ? v.points[house] : undefined;
     const vedhaBy = vedhaPoint ? bySign(vedhaPoint).filter((q) => OBSTRUCTORS.includes(q) && q !== p.planet && q !== v.exempt) : [];
-    let verdict: GocharaVerdict = favourable ? (vedhaBy.length ? "obstructed" : "favourable") : "unfavourable";
+    let verdict: GocharaVerdict = good ? (vedhaBy.length ? "obstructed" : "favourable") : "unfavourable";
+
+    const wouldDanger = !!DANGER_33[p.planet]?.includes(house) || DANGER_34[p.planet] === house;
+    // When a rule voids the ill of the house (26.41, 26.31, 26.30), the danger reading of 26.33-34 is set aside and the note
+    // says so. For a minor the danger houses are withheld altogether, so the note does not mention them either.
+    const SET_ASIDE = wouldDanger && !withhold ? " The danger reading of 26.33-34 is set aside here." : "";
+    let illVoid = avGood;
+    const avNote: GocharaRow["avNote"] = avGood
+      ? {
+          text: `${avMarks} of 8 marks in ${p.planet}'s own Ashtakavarga: good even in this house (26.41).${SET_ASIDE}`,
+          sources: [PD("41", true)],
+        }
+      : undefined;
 
     let dignityNote: GocharaRow["dignityNote"];
     const isNode = p.planet === "Rahu" || p.planet === "Ketu";
-    if (!isNode && STRONG.has(p.dignity) && !favourable) {
-      dignityNote = { text: `${p.dignity} in transit: an unfavourable house does no harm (26.31).`, sources: [PD("31")] };
+    if (!isNode && STRONG.has(p.dignity) && !good) {
+      dignityNote = { text: `${p.dignity} in transit: an unfavourable house does no harm (26.31).${SET_ASIDE}`, sources: [PD("31")] };
       verdict = "neutral";
-    } else if (!isNode && STRONG.has(p.dignity) && favourable && !vedhaBy.length) {
+      illVoid = true;
+    } else if (!isNode && STRONG.has(p.dignity) && good && !vedhaBy.length) {
       dignityNote = { text: `${p.dignity} in a favourable house: full results (26.31).`, sources: [PD("31")] };
     } else if (!isNode && (WEAK.has(p.dignity) || p.combust)) {
       const why = p.combust ? "combust" : p.dignity.toLowerCase();
-      if (favourable) {
+      if (good) {
         dignityNote = { text: `${why} in transit: the good of this house is void (26.32; BS 104.53).`, sources: [PD("32"), BS("53")] };
         verdict = "neutral";
       } else {
@@ -254,8 +381,27 @@ export function computeGochara(natalMoonSign: number, transits: PlanetPosition[]
       if (p.planet === "Saturn" && p.combust) dignityNote = { text: "Saturn combust does not trouble the righteous (BS 104.55), though 26.32 voids his good results.", sources: [BS("55"), PD("32")] };
     }
 
+    // PD 26.30: a benefic's aspect voids an ill result, a malefic's voids a good one, and an enemy's voids either; BS 104.53
+    // agrees that an enemy's aspect spoils the good. Applied only where dignity has not already decided the house.
+    const aspects = aspectsOn(p, transits);
+    let aspectNote: GocharaRow["aspectNote"];
+    if (!dignityNote && (verdict === "favourable" || verdict === "unfavourable")) {
+      const goodVoid = verdict === "favourable";
+      const hits = aspects.filter((a) => a.enemy || a.nature === (goodVoid ? "malefic" : "benefic"));
+      if (hits.length) {
+        if (!goodVoid) illVoid = true;
+        aspectNote = {
+          text: `Aspected by ${hits.map(aspectText).join(", ")}: the ${goodVoid ? "good" : "ill"} of this house is void (26.30).${goodVoid ? "" : SET_ASIDE}`,
+          sources: [PD("30", true), ...(goodVoid && hits.some((a) => a.enemy) ? [BS("53")] : [])],
+          by: hits.map((a) => a.by),
+        };
+        verdict = "neutral";
+      }
+    }
+
     let danger: GocharaRow["danger"];
-    if (DANGER_33[p.planet]?.includes(house)) danger = { text: "12th, 8th or 1st from the Moon: danger to life, position and wealth.", source: PD("33") };
+    if (illVoid) danger = undefined;
+    else if (DANGER_33[p.planet]?.includes(house)) danger = { text: "12th, 8th or 1st from the Moon: danger to life, position and wealth.", source: PD("33") };
     else if (DANGER_34[p.planet] === house) danger = { text: "The worst house for this planet: loss of honour and wealth, danger to life, if all conditions concur.", source: PD("34") };
 
     const t = HOUSE_TEXT[p.planet][house] ?? {};
@@ -271,6 +417,10 @@ export function computeGochara(natalMoonSign: number, transits: PlanetPosition[]
       vedhaPoint,
       verdict,
       dignityNote,
+      aspects,
+      aspectNote,
+      avMarks,
+      avNote,
       danger,
       effect: {
         bs: t.bs ? { text: t.bs.text, source: BS(t.bs.verse) } : undefined,
@@ -301,5 +451,8 @@ export const GOCHARA_CAVEATS: string[] = [
   "Rahu and Ketu are absent from Brihat Samhita 104; Phaladeepika 26.2 treats them like the Sun and 26.24 gives Rahu's house results. Ketu's row repeats Rahu's and is provisional.",
   "Dignity here is the sidereal sign dignity and the Nadi combustion orb (3°20'); Phaladeepika 26.32 speaks of depression, inimical houses and eclipse without giving an orb.",
   "Effective portions of the sign (Brihat Samhita 104.49-51; Phaladeepika 26.25) differ between the two texts and are shown, not applied to the verdict.",
-  "Not implemented: Phaladeepika's nakshatra-based tara and limb tables (26.26-30, 35-41), latta (26.42-47) and the Sarvatobhadra chakra (26.48).",
+  "Aspects follow Phaladeepika 26.30: a planet giving ill results that is aspected by a benefic, or one giving good results that is aspected by a malefic, gives neither, and the same holds when the aspect comes from the planet's enemy; Brihat Samhita 104.53 agrees that an enemy's aspect spoils the good. The verse does not say which planets aspect or how, so these choices are provisional: the aspecting planets are the other planets in transit (as with vedha), only full aspects count (the 7th for all; Mars also the 4th and 8th, Jupiter the 5th and 9th, Saturn the 3rd and 10th), sign to sign, and the nodes cast none. Benefic and malefic follow Phaladeepika's own list in its Sarvatobhadra notes (ch. 26); enemies follow the natural friendships of the seven planets, so for Rahu and Ketu as the aspected planet only the benefic and malefic part applies (the node rows of the friendship table follow the Nadi convention). Brihat Samhita 104.52 on a benefic and a malefic together in one sign is not applied.",
+  "The order of the rules is a reading, not stated in either text: the house from the Moon, then the Ashtakavarga rule (26.41), vedha, dignity (26.31-32) and last the aspect. Where dignity has already decided the house, the aspect is not applied. Where a rule voids the ill of a house (26.31, 26.30 or 26.41), the danger reading of 26.33-34 is set aside with it; that too is a reading.",
+  "Phaladeepika 26.41: a planet passing through a sign with more benefic dots in the Ashtakavarga gives good results always, even in the 12th, 6th or 8th. Here 'more' is read as five or more of eight in the planet's own Ashtakavarga, and the marks are those of the BPHS Ashtakavarga computed for the birth chart (Phaladeepika's own tables in ch. 23 are not checked against them); where the rule applies, the danger houses of 26.33-34 are set aside. All three choices are provisional. Rahu and Ketu have no Ashtakavarga of their own, so the rule does not apply to them.",
+  "Not implemented: Phaladeepika's nakshatra tara tables (26.26-29), the Sun-transit limb tables (26.35-40), latta (26.42-47) and the Sarvatobhadra chakra (26.48).",
 ];

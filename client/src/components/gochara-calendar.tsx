@@ -27,6 +27,7 @@ import {
   type AvOwnVerdict,
   type GocharaAvMark,
 } from "@shared/gochara-av";
+import { ownMarksFrom } from "@shared/gochara";
 import { apiRequest } from "@/lib/queryClient";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { ModeText, SectionTitle } from "@/components/mode-text";
@@ -238,6 +239,11 @@ function SolarMonths({
 const OPEN_BY_DEFAULT = new Set<Planet>(["Jupiter", "Saturn", "Rahu", "Ketu"]);
 const HORIZONS = [1, 2, 5, 10];
 
+/** "aspect of Mars, Jupiter voids the ill (26.30)" from the pooled aspecting planets. */
+function aspectWhy(s: GocharaSegment): string {
+  return `aspect of ${s.aspectBy!.join(", ")} voids the ${s.aspectVoids ?? "good"} (26.30)`;
+}
+
 function segmentTitle(
   s: GocharaSegment,
   zone: string,
@@ -251,6 +257,7 @@ function segmentTitle(
   if (s.vedhaBy.length) parts.push(`vedha by ${s.vedhaBy.join(", ")}`);
   if (s.combust && !s.note) parts.push("combust for part of the stretch");
   if (s.note) parts.push(s.note);
+  if (s.aspectBy?.length) parts.push(aspectWhy(s));
   if (s.danger)
     parts.push(
       s.danger === "33" ? "danger house (26.33)" : "worst house (26.34)",
@@ -461,6 +468,7 @@ function SegmentList({
                     : s.combust
                       ? "combust for part of the stretch"
                       : "",
+                  s.aspectBy?.length ? aspectWhy(s) : "",
                   s.danger
                     ? s.danger === "33"
                       ? "danger house, 26.33"
@@ -543,6 +551,8 @@ export function GocharaCalendarSection({
   const validFrom =
     /^\d{4}-\d{2}-\d{2}$/.test(from) && DateTime.fromISO(from).isValid;
 
+  // Own-Ashtakavarga marks for Phaladeepika 26.41, sent with the request (nothing is stored server-side).
+  const ownMarks = useMemo(() => ownMarksFrom(av), [av]);
   const query = useQuery<Calendar>({
     queryKey: [
       "gochara-calendar",
@@ -551,6 +561,7 @@ export function GocharaCalendarSection({
       years,
       chart.ayanamsa,
       chart.nodeType,
+      JSON.stringify(ownMarks),
     ],
     enabled: validFrom,
     queryFn: async () =>
@@ -559,6 +570,7 @@ export function GocharaCalendarSection({
           moonSignIndex: natalMoon.signIndex,
           from,
           years,
+          ownMarks,
           ayanamsa: chart.ayanamsa,
           nodeType: chart.nodeType === "true" ? "true" : "mean",
         })
@@ -598,10 +610,10 @@ export function GocharaCalendarSection({
         }
         practitioner={
           <>
-            Verdicts follow the day view (BS 104.4, PD 26.2-8, 26.31-34) sampled
-            daily and narrowed to the hour. The Moon is omitted as row and as
-            obstructor; its vedha is a matter of days and is shown on the day
-            view. Saturn's 12th-1st-2nd passage is listed from BS 104.44-45 and
+            Verdicts follow the day view (BS 104.4, PD 26.2-8, 26.30-34, 26.41)
+            sampled daily and narrowed to the hour. The Moon is omitted as row,
+            as obstructor and as aspecting planet; its vedha and aspect are a
+            matter of days and are shown on the day view. Saturn's 12th-1st-2nd passage is listed from BS 104.44-45 and
             PD 26.23. Each stretch also carries the sign's Ashtakavarga marks
             (BPHS 66.70-72, 70.43-44, 72.3-5), Parashara's own test of a
             transit.
