@@ -219,7 +219,7 @@ export function Chapters({
       data-chapter={id}
       onClick={() => open(id)}
       className={cn(
-        "relative shrink-0 whitespace-nowrap px-3 py-2.5 text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+        "relative shrink-0 whitespace-nowrap px-3 py-2.5 text-sm outline-hidden transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
         selected
           ? "font-medium text-foreground after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary"
           : "text-muted-foreground hover:text-foreground",
@@ -235,7 +235,7 @@ export function Chapters({
       <div ref={anchorRef} aria-hidden />
       <nav
         aria-label="Chapters in this tab"
-        className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+        className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80"
         data-testid={`chapter-bar-${tab}`}
       >
         <div

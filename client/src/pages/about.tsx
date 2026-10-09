@@ -571,7 +571,8 @@ export default function AboutPage() {
               spouse or child, and the verse readings of peril to life and limb
               (hunting, fire, weapons, poison). The gate classifies each
               statement by topic before anything is rendered, on the server for
-              the computed reading, the PDF and the report, and again in the
+              the computed reading, the transit calendar, the PDF and the
+              report, and again in the
               shared modules the tabs compute from (the sookshma and prana
               periods, the Ashtakavarga years); the phrase map that softens
               adult wording is a separate step and is not relied on to protect a

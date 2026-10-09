@@ -6,11 +6,28 @@
 import { computeGochara, type GocharaRow, type OwnMarks } from "@shared/gochara";
 import { CALENDAR_PLANETS, GOCHARA_CALENDAR_NOTES, SATURN_NAMED_HOUSES, type GocharaCalendar, type GocharaPlanetCalendar, type GocharaSegment, type SaturnPassage } from "@shared/gochara-calendar";
 import type { Planet, PlanetPosition } from "@shared/astro";
+import { sensitiveGate } from "@shared/life-stage";
 import { positionsLite, jdToIso, type EphemerisOptions } from "./ephemeris";
 
 interface State {
   row: GocharaRow;
   key: string;
+}
+
+/**
+ * The minor gate for the calendar, decided here from the birth instant the request carries, as the chart and PDF
+ * endpoints decide it from the chart (shared/life-stage.ts). Without a valid birth instant the danger houses are
+ * withheld: gentle by default. A caller may ask for more withholding (withhold: true), never for less.
+ */
+export function calendarWithhold(
+  body: { birthUtc?: unknown; deathDate?: unknown; withhold?: unknown },
+  asOfIso: string,
+): boolean {
+  if (body.withhold === true) return true;
+  const birth = typeof body.birthUtc === "string" ? body.birthUtc : "";
+  if (!birth || Number.isNaN(Date.parse(birth))) return true;
+  const deathDate = typeof body.deathDate === "string" ? body.deathDate : null;
+  return sensitiveGate({ deathDate }, birth, asOfIso).withheld;
 }
 
 /** The Moon is left out as an obstructor and as an aspecting planet here; see GOCHARA_CALENDAR_NOTES. */

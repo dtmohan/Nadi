@@ -1,6 +1,19 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss" source(none);
+@import "tw-animate-css";
+/* Tailwind 4 with the v3 JavaScript theme: sources as before (client/index.html and client/src). */
+@source "../index.html";
+@source "./**/*.{js,jsx,ts,tsx}";
+@config "../../tailwind.config.ts";
+/* The About page's prose blocks (prose, prose-sm, prose-invert). */
+@plugin "@tailwindcss/typography";
+
+/* A form label over its control. Tailwind 3's space-y put the gap above the control, which is where it has to go
+   when the label is an inline element; Tailwind 4's space-y puts it under the label, where an inline box ignores it. */
+@utility field-stack {
+  & > :not([hidden]) ~ :not([hidden]) {
+    margin-top: calc(var(--spacing) * 1.5);
+  }
+}
 
 /* LIGHT MODE */
 :root {
@@ -261,6 +274,29 @@
 @layer base {
   * {
     @apply border-border;
+  }
+  /* Tailwind 4's preflight gives buttons the default cursor; keep the pointer the app had under Tailwind 3. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  /* Tailwind 4's preflight zeroes every element's padding; table cells and options keep the browser's
+     defaults they had under Tailwind 3. */
+  th,
+  td {
+    padding: 1px;
+  }
+  option {
+    padding: 0 2px 1px;
+  }
+  /* Tailwind 4's preflight lets form controls inherit the whole font; under Tailwind 3 their numerals
+     stayed proportional inside tabular text. */
+  button,
+  input,
+  select,
+  optgroup,
+  textarea {
+    font-variant-numeric: normal;
   }
 
   html,

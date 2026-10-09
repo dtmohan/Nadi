@@ -14,7 +14,7 @@ import type { ReportDoc } from "@shared/report/types";
 import { AGREEMENT_TOPIC_LABEL } from "@shared/agreement";
 import { saturnShortName } from "@shared/gochara";
 import { computeChart } from "../server/routes";
-import { gocharaCalendar } from "../server/gochara-calendar";
+import { gocharaCalendar, calendarWithhold } from "../server/gochara-calendar";
 import { julianDay } from "../server/ephemeris";
 
 const ADULT: Chart = {
@@ -77,4 +77,17 @@ test("calendar: a minor's danger houses are withheld before rendering; Saturn's 
   assert.ok(!gated.notes.some((n) => /danger/.test(n)));
   assert.equal(gated.saturnPassages[0]?.house, 12);
   assert.equal(saturnShortName(gated.saturnPassages[0]!.house), "Sade Sati, first phase");
+});
+
+test("calendar gate: decided on the server from the birth instant, withheld by default, never loosened by the caller", () => {
+  const now = "2026-10-08T12:00:00.000Z";
+  assert.equal(calendarWithhold({}, now), true);
+  assert.equal(calendarWithhold({ birthUtc: "not a date" }, now), true);
+  assert.equal(calendarWithhold({ birthUtc: "1975-03-14T00:40:00.000Z" }, now), false);
+  assert.equal(calendarWithhold({ birthUtc: "2015-05-01T00:00:00.000Z" }, now), true);
+  assert.equal(calendarWithhold({ birthUtc: "2015-05-01T00:00:00.000Z", withhold: false }, now), true);
+  assert.equal(calendarWithhold({ birthUtc: "1975-03-14T00:40:00.000Z", withhold: true }, now), true);
+  // A life that ended in childhood stays gated; one that ended in adulthood does not.
+  assert.equal(calendarWithhold({ birthUtc: "1975-03-14T00:40:00.000Z", deathDate: "1985-01-01" }, now), true);
+  assert.equal(calendarWithhold({ birthUtc: "1950-01-01T00:00:00.000Z", deathDate: "2010-01-01" }, now), false);
 });

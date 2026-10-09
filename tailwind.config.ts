@@ -134,5 +134,7 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  // Tailwind 4 reads this file through @config in client/src/index.css, which also loads the typography plugin
+  // (@plugin) and tw-animate-css, the enter/exit animations that replace the tailwindcss-animate plugin.
+  plugins: [],
 } satisfies Config;
