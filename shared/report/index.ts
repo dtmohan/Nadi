@@ -167,7 +167,7 @@ function agreementSection(
   const ids = new Set(modules.map((m) => m.id));
   if (!["bnn", "parashari", "jaimini", "kp"].every((id) => ids.has(id)))
     return undefined;
-  const { result, plain, withheld, lifeAt, inSeason, S } = ctx;
+  const { result, plain, withheld, lifeAt, inSeason, S, deceased } = ctx;
   const topics = computeAgreement({
     bnn: synthesize(result.reading, result.reading.roles.gender),
     jaimini: readAreas(result.jaimini, result.positions, withheld),
@@ -186,6 +186,7 @@ function agreementSection(
     ayur: result.jaimini.ayur,
     withheld,
     plain,
+    deceased,
     inSeason,
   });
   if (!topics.length) return undefined;
@@ -225,7 +226,7 @@ function agreementSection(
 }
 
 function closing(ctx: ReportContext, modules: ReportModule[]): ReportSection {
-  const { plain, withheld } = ctx;
+  const { plain, withheld, deceased } = ctx;
   const systems = modules.filter(
     (m) => m.tab !== "chart" && m.tab !== "panchanga" && !m.tool,
   );
@@ -255,7 +256,7 @@ function closing(ctx: ReportContext, modules: ReportModule[]): ReportSection {
       },
       {
         kind: "p",
-        text: `Matters not yet in season at the native's age (marriage and children from ${AREA_ONSET.marriage}, work and wealth from ${AREA_ONSET.career}) are held back rather than read. The classical length-of-life and infancy checks, the maraka planets and the remedies and mantras of the period chapters are not part of this report${tools.length ? "" : "; nor are rectification and validation, which are tools rather than readings"}.${withheld ? ` ${SENSITIVE_WITHHELD_NOTE}` : ""}`,
+        text: `Matters not yet in season at the native's age (marriage and children from ${AREA_ONSET.marriage}, work and wealth from ${AREA_ONSET.career}) are held back rather than read. The classical length-of-life and infancy checks, the maraka planets and the remedies and mantras of the period chapters are not part of this report${tools.length ? "" : "; nor are rectification and validation, which are tools rather than readings"}.${deceased && !plain && !withheld ? " The one exception: for a life that has run its course, the agreement table sets the Jaimini span beside the recorded life, as a test of the method." : ""}${withheld ? ` ${SENSITIVE_WITHHELD_NOTE}` : ""}`,
       },
       {
         kind: "p",

@@ -7,7 +7,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { SIGNS, SIGN_LORD, NAKSHATRAS, type Dignity, type Planet, type PlanetPosition, type TransitPeriod } from "@shared/astro";
-import { computeGochara, natureOf, GOCHARA_CAVEATS } from "@shared/gochara";
+import { computeGochara, natureOf, GOCHARA_CAVEATS, saturnPracticeName, saturnShortName } from "@shared/gochara";
 import { gocharaPractice, saturnLoops, GOCHARA_PRACTICE_NOTES } from "@shared/gochara-practice";
 
 function P(planet: Planet, signIndex: number, deg = 15, dignity: Dignity = "Neutral", lonOverride?: number): PlanetPosition {
@@ -233,4 +233,23 @@ test("practice: Saturn's retrograde loop is found from the sign periods", () => 
 
 test("practice notes leave out the author's dasa weighting", () => {
   assert.ok(GOCHARA_PRACTICE_NOTES.some((n) => /Not used: the author's weighting of dasa against gochara \(ch\. 7\)/.test(n)));
+});
+
+test("Saturn's practice names: provisional labels by house from the Moon, on Saturn's row only", () => {
+  assert.deepEqual(
+    [12, 1, 2, 4, 7, 8, 10].map(saturnShortName),
+    ["Sade Sati, first phase", "Sade Sati, middle phase", "Sade Sati, last phase", "Ardhashtama or Kandaka Shani", "Kandaka Shani", "Ashtama Shani", "Kandaka Shani"],
+  );
+  for (const h of [3, 5, 6, 9, 11]) assert.equal(saturnShortName(h), undefined);
+  // Moon in Aries: Saturn in Scorpio is the 8th; Jupiter in Scorpio carries no name; Saturn in Gemini (3rd) carries none.
+  const g = computeGochara(ARIES, [P("Saturn", 7), P("Jupiter", 7)], AS_OF);
+  const sat = row(g, "Saturn").practiceName!;
+  assert.equal(sat.text, saturnPracticeName(8));
+  assert.ok(sat.source.provisional);
+  assert.equal(row(g, "Jupiter").practiceName, undefined);
+  assert.equal(row(computeGochara(ARIES, [P("Saturn", 2)], AS_OF), "Saturn").practiceName, undefined);
+});
+
+test("caveats: the medical-care line is among the three the report prints", () => {
+  assert.ok(GOCHARA_CAVEATS.slice(0, 3).some((c) => /not a diagnosis/.test(c) && /doctor/.test(c)));
 });

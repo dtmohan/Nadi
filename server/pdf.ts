@@ -26,7 +26,7 @@ import { TRANSIT_GRADE_LABEL, confirmTransits, summarizeTouches } from "@shared/
 import { computeAshtakavarga } from "@shared/ashtakavarga";
 import { GOCHARA_AV_NOTES, SOLAR_MONTH_NOTES, avMarkText, gocharaAvMark, solarMonthReading } from "@shared/gochara-av";
 import { PANCHANGA_CAVEATS, PANCHANGA_SOURCES, SURYA_SIDDHANTA_URL, type LimbSegment } from "@shared/panchanga";
-import { computeGochara, GOCHARA_CAVEATS, BS_URL, PD_URL, natalOwnMarks } from "@shared/gochara";
+import { computeGochara, GOCHARA_CAVEATS, BS_URL, PD_URL, natalOwnMarks, saturnShortName } from "@shared/gochara";
 import { gocharaPractice, GOCHARA_PRACTICE_NOTES } from "@shared/gochara-practice";
 import { gocharaCalendar } from "./gochara-calendar";
 import { nowJd } from "./ephemeris";
@@ -533,6 +533,7 @@ function panchangaSection(doc: Doc, result: ChartResult) {
     if (r.avNote) lines.push({ text: `${r.avNote.text} (${r.avNote.sources.map((s) => s.label).join(", ")}, provisional)` });
     if (r.dignityNote) lines.push({ text: `${r.dignityNote.text} (${r.dignityNote.sources.map((s) => s.label).join(", ")})` });
     if (r.aspectNote) lines.push({ text: `${r.aspectNote.text} (${r.aspectNote.sources.map((s) => s.label).join(", ")}, provisional)` });
+    if (r.practiceName) lines.push({ text: `Name in practice: ${r.practiceName.text} (provisional)`, muted: true });
     if (r.danger) lines.push({ text: `${r.danger.text} (${r.danger.source.label})` });
     doc.font("Helvetica").fontSize(8);
     const h = 14 + lines.reduce((a, l) => a + doc.heightOfString(l.text, { width: CONTENT_W - 12 }) + 2, 0) + 6;
@@ -587,25 +588,32 @@ function panchangaSection(doc: Doc, result: ChartResult) {
     doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(`• ${GOCHARA_PRACTICE_NOTES[5]}`, PAGE.m, doc.y + 2, { width: CONTENT_W });
   }
 
-  // calendar: the slow movers over the next five years, plus Saturn's 12th-1st-2nd passage
+  // calendar: the slow movers over the next five years, plus Saturn's named passages from the Moon
   const jd0 = Math.floor(nowJd() - 0.5) + 0.5;
-  const cal = gocharaCalendar(moon.signIndex, jd0, jd0 + 5 * 365.25, { ayanamsa: result.chart.ayanamsa, nodeType: result.chart.nodeType === "true" ? "true" : "mean" }, ownMarks);
+  const cal = gocharaCalendar(moon.signIndex, jd0, jd0 + 5 * 365.25, { ayanamsa: result.chart.ayanamsa, nodeType: result.chart.nodeType === "true" ? "true" : "mean" }, ownMarks, WITHHELD);
   const d = (iso: string) => DateTime.fromISO(iso).setZone(zone).toFormat("d LLL yyyy");
   const av = computeAshtakavarga(result.positions, Math.floor((((result.jaimini.lagna.lon % 360) + 360) % 360) / 30));
   const avText = (planet: Planet, signIndex: number) => avMarkText(gocharaAvMark(av, planet, signIndex));
   ensureSpace(doc, 120);
   sectionTitle(doc, "Gochara calendar", `Slow movers from the Moon, solar months · ${d(cal.from)} to ${d(cal.to)} · Ashtakavarga marks (BPHS 66.70-72, 70.19-20, 72.3-29)`);
   if (cal.saturnPassages.length) {
-    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INDIGO).text("Saturn over the 12th, 1st and 2nd from the Moon (BS 104.44-45; PD 26.23; the name sade sati is not in either text)", PAGE.m, doc.y, { width: CONTENT_W });
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INDIGO).text("Saturn's named passages from the Moon (results BS 104.39-45, PD 26.22-23; the names are regional practice, not in either text, provisional)", PAGE.m, doc.y, { width: CONTENT_W });
     doc.y += 2;
     for (const p of cal.saturnPassages) {
-      ensureSpace(doc, 14);
-      const y = doc.y;
       const psign = (cal.moonSignIndex + p.house - 1) % 12;
-      doc.font("Helvetica").fontSize(8).fillColor(INK).text(`${ORD(p.house)} from the Moon · ${SIGNS[psign]}`, PAGE.m, y, { lineBreak: false });
-      doc.fillColor(MUTED).text(`Ashtakavarga ${avText("Saturn", psign)}`, PAGE.m + 0.42 * CONTENT_W, y, { lineBreak: false });
-      doc.fillColor(MUTED).text(`${d(p.start)} – ${d(p.end)}`, PAGE.m, y, { width: CONTENT_W, align: "right", lineBreak: false });
-      doc.y = y + 12;
+      const left = `${ORD(p.house)} from the Moon · ${SIGNS[psign]} · ${saturnShortName(p.house) ?? ""}`;
+      const avLine = `Ashtakavarga ${avText("Saturn", psign)}`;
+      const dates = `${d(p.start)} – ${d(p.end)}`;
+      doc.font("Helvetica").fontSize(8);
+      // Measured, not fixed, columns: the dates drop to a second line when the three pieces would meet.
+      const avX = PAGE.m + Math.max(0.5 * CONTENT_W, doc.widthOfString(left) + 10);
+      const wrap = avX + doc.widthOfString(avLine) + 10 > PAGE.m + CONTENT_W - doc.widthOfString(dates);
+      ensureSpace(doc, wrap ? 24 : 14);
+      const y = doc.y;
+      doc.font("Helvetica").fontSize(8).fillColor(INK).text(left, PAGE.m, y, { lineBreak: false });
+      doc.fillColor(MUTED).text(avLine, avX, y, { lineBreak: false });
+      doc.fillColor(MUTED).text(dates, PAGE.m, wrap ? y + 10 : y, { width: CONTENT_W, align: "right", lineBreak: false });
+      doc.y = y + (wrap ? 22 : 12);
     }
     doc.y += 4;
   }

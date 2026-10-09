@@ -28,11 +28,17 @@ export interface GocharaPlanetCalendar {
   segments: GocharaSegment[];
 }
 
-/** Saturn's passage through the 12th, 1st and 2nd from the natal Moon, read from Brihat Samhita 104.44-45 and Phaladeepika 26.23. */
+/** The houses from the Moon whose Saturn passages practice names (see saturnPracticeName in shared/gochara.ts). */
+export const SATURN_NAMED_HOUSES = [12, 1, 2, 4, 7, 8, 10];
+
+/**
+ * Saturn's stay in one of the named houses from the natal Moon. The results are the texts' own, house by house
+ * (Brihat Samhita 104.39-45, Phaladeepika 26.22-23); the names are regional practice and provisional.
+ */
 export interface SaturnPassage {
   start: string;
   end: string;
-  house: 12 | 1 | 2;
+  house: number;
 }
 
 export interface GocharaCalendar {
@@ -51,6 +57,6 @@ export const GOCHARA_CALENDAR_NOTES: string[] = [
   "Combustion appears where it changes the verdict (a favourable house made void, 26.32) or as a flag; the aggravation of an unfavourable house by combustion is read on the day view.",
   "The Moon has no row here and is counted neither as an obstructor nor as an aspecting planet: its 2¼-day sign transits, the vedha it causes and its aspect belong to the day view above. Phaladeepika 26.3-8 does count the Moon among the obstructors, so a favourable stretch here can still be briefly obstructed or its verdict briefly changed on a given day.",
   "Verdicts use the same rules as the day view: favourable houses (Brihat Samhita 104.4, Phaladeepika 26.2), the planet's own Ashtakavarga marks (26.41), vedha (26.3-8), dignity and combustion (26.31-32, Brihat Samhita 104.53, 55), aspects (26.30) and the danger houses (26.33-34). The order of the rules and the reading of 26.30 and 26.41 are provisional; see the notes in the day view.",
-  "Saturn's passage through the 12th, 1st and 2nd from the Moon is listed from Brihat Samhita 104.44-45 and Phaladeepika 26.23; the popular name for it (sade sati) does not occur in either text, so the label is provisional.",
+  "Saturn's stays in the 12th, 1st and 2nd from the Moon (sade sati) and in the 4th, 7th, 8th and 10th are listed with the names practice gives them; neither Brihat Samhita 104 nor Phaladeepika 26 uses the names, and the houses each covers vary by region, so the labels are provisional. The results are the texts' own, house by house (BS 104.39-45, PD 26.22-23).",
   "Results are conditioned by the running dasa and the person's station (Brihat Samhita 104.46); a calendar of transits is not a calendar of events.",
 ];
