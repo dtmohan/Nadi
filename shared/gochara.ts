@@ -307,11 +307,51 @@ export interface GocharaRow {
   avMarks?: number;
   /** PD 26.41 applied: enough marks in the planet's own Ashtakavarga make an unfavourable house good. */
   avNote?: { text: string; sources: GocharaSource[] };
+  /** Saturn only: the name practice gives this passage from the Moon (see saturnPracticeName); provisional, never a verdict. */
+  practiceName?: { text: string; source: GocharaSource };
   danger?: { text: string; source: GocharaSource };
   effect: { bs?: { text: string; source: GocharaSource }; pd?: { text: string; source: GocharaSource } };
   portion: { bs?: string; pd: string };
   favourableSources: GocharaSource[];
   vedhaSource: GocharaSource;
+}
+
+/**
+ * Names that practice gives Saturn's passages from the natal Moon. None occurs in Brihat Samhita 104 or Phaladeepika 26,
+ * which read Saturn house by house (BS 104.39-45, PD 26.22-23) and count the 12th, 8th and 1st among the danger houses
+ * (PD 26.33); Prasna Marga 22 condenses the same Brihat Samhita reading. The houses each name covers vary by region:
+ * Kerala usage: Ezhara Shani (12th, 1st, 2nd), Kandaka Shani (4th and 10th; some add the 7th), Ashtama Shani (8th).
+ * Tamil usage: Elarai Sani (12th, 1st, 2nd), Ardhashtama Sani (4th), Kandaka Sani (7th), Ashtama Sani (8th).
+ * Hindi usage: Sade Sati (12th, 1st, 2nd) and the two Dhaiya periods, the small Panoti (4th and 8th).
+ * Kantaka ("thorn") is also Varahamihira's word for the kendras, the 1st, 4th, 7th and 10th.
+ */
+export const SATURN_NAMES_SOURCE: GocharaSource = { label: "Name from regional practice", url: "", provisional: true };
+
+/** The short name of Saturn's passage through a house from the Moon, when practice names it. */
+export function saturnShortName(house: number): string | undefined {
+  return ({
+    12: "Sade Sati, first phase",
+    1: "Sade Sati, middle phase",
+    2: "Sade Sati, last phase",
+    4: "Ardhashtama or Kandaka Shani",
+    7: "Kandaka Shani",
+    8: "Ashtama Shani",
+    10: "Kandaka Shani",
+  } as Record<number, string>)[house];
+}
+
+/** The full practice name of Saturn's passage through a house from the Moon, with the usage it comes from. */
+export function saturnPracticeName(house: number): string | undefined {
+  const SADE = "(Ezhara Shani in Kerala usage, Elarai Sani in Tamil usage)";
+  return ({
+    12: `Sade Sati, its first phase ${SADE}`,
+    1: `Sade Sati, its middle phase ${SADE}`,
+    2: `Sade Sati, its last phase ${SADE}`,
+    4: "Ardhashtama Shani in Tamil usage, Kandaka Shani in Kerala usage; with the 8th, one of the two Dhaiya periods (the small Panoti) of Hindi usage",
+    7: "Kandaka Shani in Tamil usage and in some Kerala usage",
+    8: "Ashtama Shani; with the 4th, one of the two Dhaiya periods (the small Panoti) of Hindi usage",
+    10: "Kandaka Shani in Kerala usage",
+  } as Record<number, string>)[house];
 }
 
 export interface GocharaReading {
@@ -421,6 +461,10 @@ export function computeGochara(
       aspectNote,
       avMarks,
       avNote,
+      practiceName:
+        p.planet === "Saturn" && saturnPracticeName(house)
+          ? { text: saturnPracticeName(house)!, source: SATURN_NAMES_SOURCE }
+          : undefined,
       danger,
       effect: {
         bs: t.bs ? { text: t.bs.text, source: BS(t.bs.verse) } : undefined,
@@ -446,6 +490,7 @@ export function computeGochara(
 export const GOCHARA_CAVEATS: string[] = [
   "Counted from the natal Moon's sign, which Phaladeepika 26.1 names the chief lagna for transits; Brihat Samhita 104 does the same throughout.",
   "A favourable planet gives results only in proportion to the running dasa and the person's station (Brihat Samhita 104.46); read this layer under the Vimshottari and Ashtakavarga layers, not above them.",
+  "Where a verse speaks of disease or other ill health, it gives the text's reading of the period, not a diagnosis; questions of health belong with a doctor.",
   "Vedha follows Phaladeepika 26.3-8: Saturn does not obstruct the Sun, Mercury does not obstruct the Moon, the Sun does not obstruct Saturn. The nodes are not named as obstructors and their own vedha points are borrowed from the Sun, which is provisional.",
   "Prasna Marga 22.46-51 gives a different Vedha table (the Moon's 3rd/10th and Mercury's 4th pair differently, Venus and the nodes diverge, and the nodes take Saturn's points); the Prasna Marga tab shows that table, and the two are kept apart rather than reconciled.",
   "Rahu and Ketu are absent from Brihat Samhita 104; Phaladeepika 26.2 treats them like the Sun and 26.24 gives Rahu's house results. Ketu's row repeats Rahu's and is provisional.",
@@ -454,5 +499,6 @@ export const GOCHARA_CAVEATS: string[] = [
   "Aspects follow Phaladeepika 26.30: a planet giving ill results that is aspected by a benefic, or one giving good results that is aspected by a malefic, gives neither, and the same holds when the aspect comes from the planet's enemy; Brihat Samhita 104.53 agrees that an enemy's aspect spoils the good. The verse does not say which planets aspect or how, so these choices are provisional: the aspecting planets are the other planets in transit (as with vedha), only full aspects count (the 7th for all; Mars also the 4th and 8th, Jupiter the 5th and 9th, Saturn the 3rd and 10th), sign to sign, and the nodes cast none. Benefic and malefic follow Phaladeepika's own list in its Sarvatobhadra notes (ch. 26); enemies follow the natural friendships of the seven planets, so for Rahu and Ketu as the aspected planet only the benefic and malefic part applies (the node rows of the friendship table follow the Nadi convention). Brihat Samhita 104.52 on a benefic and a malefic together in one sign is not applied.",
   "The order of the rules is a reading, not stated in either text: the house from the Moon, then the Ashtakavarga rule (26.41), vedha, dignity (26.31-32) and last the aspect. Where dignity has already decided the house, the aspect is not applied. Where a rule voids the ill of a house (26.31, 26.30 or 26.41), the danger reading of 26.33-34 is set aside with it; that too is a reading.",
   "Phaladeepika 26.41: a planet passing through a sign with more benefic dots in the Ashtakavarga gives good results always, even in the 12th, 6th or 8th. Here 'more' is read as five or more of eight in the planet's own Ashtakavarga, and the marks are those of the BPHS Ashtakavarga computed for the birth chart (Phaladeepika's own tables in ch. 23 are not checked against them); where the rule applies, the danger houses of 26.33-34 are set aside. All three choices are provisional. Rahu and Ketu have no Ashtakavarga of their own, so the rule does not apply to them.",
+  "Saturn's passages carry the names practice gives them, which Brihat Samhita 104 and Phaladeepika 26 do not use; both read Saturn house by house (BS 104.39-45, PD 26.22-23). Usage varies by region: Kerala usage names the 12th, 1st and 2nd Ezhara Shani, the 4th and 10th (some add the 7th) Kandaka Shani and the 8th Ashtama Shani; Tamil usage names the 12th, 1st and 2nd Elarai Sani, the 4th Ardhashtama, the 7th Kandaka and the 8th Ashtama Sani; Hindi usage names the 12th, 1st and 2nd Sade Sati and the 4th and 8th the two Dhaiya periods (the small Panoti). Kantaka, 'thorn', is also Varahamihira's word for the kendras. The names are provisional and never change a colour.",
   "Not implemented: Phaladeepika's nakshatra tara tables (26.26-29), the Sun-transit limb tables (26.35-40), latta (26.42-47) and the Sarvatobhadra chakra (26.48).",
 ];

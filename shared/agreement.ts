@@ -77,6 +77,11 @@ export interface AgreementInput {
   withheld: boolean;
   /** Plain reading: the life span row is a practitioner matter and is dropped. */
   plain: boolean;
+  /**
+   * A date of passing is recorded. Only then is the life span row shown, as a test of the method against a life that
+   * has run its course; for the living the app does not judge the span, and the Jaimini tab keeps its own framing.
+   */
+  deceased: boolean;
   inSeason: (area: string) => boolean;
 }
 
@@ -484,7 +489,7 @@ export function computeAgreement(input: AgreementInput): TopicAgreement[] {
   for (const topic of AGREEMENT_TOPICS) {
     const season = TOPIC_SEASON[topic];
     if (season && !input.inSeason(season)) continue;
-    if (topic === "lifespan" && (input.withheld || input.plain)) continue;
+    if (topic === "lifespan" && (input.withheld || input.plain || !input.deceased)) continue;
     const stances: SystemStance[] = [
       bnnStance(topic, input.bnn),
       parashariStance(topic, input.parashari, input.sarvartha),

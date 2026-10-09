@@ -386,6 +386,15 @@ function GocharaRowView({ r }: { r: GocharaRow }) {
           ))}
         </p>
       )}
+      {r.practiceName && (
+        <p
+          className="mt-1 text-xs text-muted-foreground"
+          data-testid={`gochara-name-${r.planet}`}
+        >
+          Name in practice: {r.practiceName.text}.{" "}
+          <SourceLink source={r.practiceName.source} className="text-2xs" />
+        </p>
+      )}
       {r.danger && (
         <p
           className="mt-1 text-xs text-verdict-bad"

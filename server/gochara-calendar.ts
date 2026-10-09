@@ -4,7 +4,7 @@
  * in shared/gochara.ts (Brihat Samhita 104, Phaladeepika 26); this file only walks them over time.
  */
 import { computeGochara, type GocharaRow, type OwnMarks } from "@shared/gochara";
-import { CALENDAR_PLANETS, GOCHARA_CALENDAR_NOTES, type GocharaCalendar, type GocharaPlanetCalendar, type GocharaSegment, type SaturnPassage } from "@shared/gochara-calendar";
+import { CALENDAR_PLANETS, GOCHARA_CALENDAR_NOTES, SATURN_NAMED_HOUSES, type GocharaCalendar, type GocharaPlanetCalendar, type GocharaSegment, type SaturnPassage } from "@shared/gochara-calendar";
 import type { Planet, PlanetPosition } from "@shared/astro";
 import { positionsLite, jdToIso, type EphemerisOptions } from "./ephemeris";
 
@@ -14,9 +14,10 @@ interface State {
 }
 
 /** The Moon is left out as an obstructor and as an aspecting planet here; see GOCHARA_CALENDAR_NOTES. */
-function rowsAt(jd: number, moonSign: number, opts: EphemerisOptions, ownMarks?: OwnMarks): Map<Planet, State> {
+function rowsAt(jd: number, moonSign: number, opts: EphemerisOptions, ownMarks?: OwnMarks, withhold = false): Map<Planet, State> {
   const positions: PlanetPosition[] = positionsLite(jd, opts).filter((p) => p.planet !== "Moon");
-  const reading = computeGochara(moonSign, positions, jdToIso(jd), false, { ownMarks });
+  // For a minor the danger houses are withheld before anything is rendered (shared/gochara.ts, as in the day view).
+  const reading = computeGochara(moonSign, positions, jdToIso(jd), withhold, { ownMarks });
   const out = new Map<Planet, State>();
   for (const row of reading.rows) {
     if (!CALENDAR_PLANETS.includes(row.planet)) continue;
@@ -75,6 +76,7 @@ export function gocharaCalendar(
   jdEnd: number,
   opts: EphemerisOptions,
   ownMarks?: OwnMarks,
+  withhold = false,
 ): GocharaCalendar {
   const STEP = 1; // day
   const RESOLVE = 1 / 24; // hour
@@ -82,7 +84,7 @@ export function gocharaCalendar(
   const segments = new Map<Planet, GocharaSegment[]>(CALENDAR_PLANETS.map((p) => [p, []]));
 
   let prevJd = jdStart;
-  let prev = rowsAt(prevJd, moonSign, opts, ownMarks);
+  let prev = rowsAt(prevJd, moonSign, opts, ownMarks, withhold);
   for (const p of CALENDAR_PLANETS) open.set(p, { state: prev.get(p)!, start: jdStart });
 
   const close = (planet: Planet, at: number) => {
@@ -93,7 +95,7 @@ export function gocharaCalendar(
 
   for (let jd = jdStart + STEP; jd < jdEnd + STEP; jd += STEP) {
     const t1 = Math.min(jd, jdEnd);
-    const cur = rowsAt(t1, moonSign, opts, ownMarks);
+    const cur = rowsAt(t1, moonSign, opts, ownMarks, withhold);
     for (const planet of CALENDAR_PLANETS) {
       const a = prev.get(planet)!;
       const b = cur.get(planet)!;
@@ -103,7 +105,7 @@ export function gocharaCalendar(
       let hi = t1;
       while (hi - lo > RESOLVE) {
         const mid = (lo + hi) / 2;
-        const m = rowsAt(mid, moonSign, opts, ownMarks).get(planet)!;
+        const m = rowsAt(mid, moonSign, opts, ownMarks, withhold).get(planet)!;
         if (m.key === a.key) lo = mid;
         else hi = mid;
       }
@@ -138,15 +140,19 @@ export function gocharaCalendar(
     segments.set(planet, merged);
   }
 
-  // Saturn through the 12th, 1st and 2nd from the Moon, merged across verdict changes within a house.
+  // Saturn through the houses practice names (12th, 1st and 2nd; 4th, 7th, 8th, 10th), merged across verdict changes within a house.
   const saturnPassages: SaturnPassage[] = [];
   for (const s of segments.get("Saturn")!) {
-    if (s.house !== 12 && s.house !== 1 && s.house !== 2) continue;
+    if (!SATURN_NAMED_HOUSES.includes(s.house)) continue;
     const last = saturnPassages[saturnPassages.length - 1];
     if (last && last.house === s.house && last.end === s.start) last.end = s.end;
     else saturnPassages.push({ start: s.start, end: s.end, house: s.house });
   }
 
   const planets: GocharaPlanetCalendar[] = CALENDAR_PLANETS.map((planet) => ({ planet, segments: segments.get(planet)! }));
-  return { moonSignIndex: moonSign, from: jdToIso(jdStart), to: jdToIso(jdEnd), planets, saturnPassages, notes: GOCHARA_CALENDAR_NOTES };
+  // For a minor the danger houses are withheld, so the method note does not list them among the rules.
+  const notes = withhold
+    ? GOCHARA_CALENDAR_NOTES.map((n) => n.replace(", aspects (26.30) and the danger houses (26.33-34).", " and aspects (26.30)."))
+    : GOCHARA_CALENDAR_NOTES;
+  return { moonSignIndex: moonSign, from: jdToIso(jdStart), to: jdToIso(jdEnd), planets, saturnPassages, notes };
 }

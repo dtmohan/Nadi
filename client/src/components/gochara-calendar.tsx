@@ -27,7 +27,7 @@ import {
   type AvOwnVerdict,
   type GocharaAvMark,
 } from "@shared/gochara-av";
-import { ownMarksFrom } from "@shared/gochara";
+import { ownMarksFrom, saturnShortName } from "@shared/gochara";
 import { apiRequest } from "@/lib/queryClient";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { ModeText, SectionTitle } from "@/components/mode-text";
@@ -384,10 +384,12 @@ function Timeline({
             {v}
           </span>
         ))}
-        <span className="flex items-center gap-1">
-          <span className="inline-block h-2.5 w-4 rounded-[1px] ring-1 ring-inset ring-verdict-bad/60" />{" "}
-          danger house (26.33-34)
-        </span>
+        {cal.planets.some((p) => p.segments.some((s) => s.danger)) && (
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-2.5 w-4 rounded-[1px] ring-1 ring-inset ring-verdict-bad/60" />{" "}
+            danger house (26.33-34)
+          </span>
+        )}
         <span className="flex items-center gap-1">
           <span className="inline-block h-[2px] w-4 bg-verdict-good" />
           <span className="inline-block h-[2px] w-4 bg-muted-foreground/40" />
@@ -562,6 +564,7 @@ export function GocharaCalendarSection({
       chart.ayanamsa,
       chart.nodeType,
       JSON.stringify(ownMarks),
+      withheld,
     ],
     enabled: validFrom,
     queryFn: async () =>
@@ -571,6 +574,8 @@ export function GocharaCalendarSection({
           from,
           years,
           ownMarks,
+          // The age gate: for a minor the server withholds the danger houses before anything is rendered.
+          withhold: withheld,
           ayanamsa: chart.ayanamsa,
           nodeType: chart.nodeType === "true" ? "true" : "mean",
         })
@@ -676,15 +681,15 @@ export function GocharaCalendarSection({
 
             {cal.saturnPassages.length > 0 && (
               <div
-                className="rounded-md border border-l-4 border-l-verdict-bad/70 bg-card p-3 text-xs"
+                className="rounded-md border border-l-4 border-l-muted-foreground/40 bg-card p-3 text-xs"
                 data-testid="gochara-calendar-saturn"
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">
-                    Saturn over the 12th, 1st and 2nd from the Moon
+                    Saturn's named passages from the Moon
                   </span>
                   <Badge variant="outline" className="text-2xs">
-                    sade sati: name provisional
+                    names from regional practice, provisional
                   </Badge>
                 </div>
                 <ul className="mt-2 space-y-0.5 text-muted-foreground">
@@ -698,7 +703,14 @@ export function GocharaCalendarSection({
                           {ORD(p.house)} from the Moon ·{" "}
                           <SignName
                             signIndex={(cal.moonSignIndex + p.house - 1) % 12}
-                          />
+                          />{" "}
+                          ·{" "}
+                          <span
+                            className="text-foreground"
+                            data-testid={`gochara-saturn-name-${i}`}
+                          >
+                            {saturnShortName(p.house)}
+                          </span>
                         </span>
                         <AvMarkPills
                           m={gocharaAvMark(
@@ -716,13 +728,21 @@ export function GocharaCalendarSection({
                   ))}
                 </ul>
                 <p className="mt-2 text-2xs text-muted-foreground">
-                  Results: Brihat Samhita 104.44-45 and Phaladeepika 26.23
-                  (12th: much grief; 1st: danger to life, position and wealth
-                  per 26.33-34; 2nd: loss of wealth and comfort). Both texts
-                  scale this by the running dasa (BS 104.46) and by dignity (PD
-                  26.31-32). Parashara reads the same passage by the sign's
-                  marks in Saturn's own Ashtakavarga (70.43-44) and the
-                  aggregate (72.3-5), shown as the two pills.
+                  The results are the texts' own, house by house: the 12th BS
+                  104.45 and PD 26.23; the 1st BS 104.39 and PD 26.22; the 2nd
+                  BS 104.40 and PD 26.22; the 4th BS 104.42 and PD 26.22; the
+                  7th and 8th BS 104.44 and PD 26.22; the 10th BS 104.45 and PD
+                  26.23.
+                  {!withheld &&
+                    " Phaladeepika 26.33 counts the 12th, 8th and 1st among Saturn's danger houses."}{" "}
+                  Both texts scale this by the running dasa (BS 104.46) and by
+                  dignity (PD 26.31-32). Parashara reads the same passage by the
+                  sign's marks in Saturn's own Ashtakavarga (70.43-44) and the
+                  aggregate (72.3-5), shown as the two pills. Neither text uses
+                  the names, and the houses each covers vary by region: Kerala
+                  usage calls the 4th and 10th Kandaka Shani (some add the 7th),
+                  Tamil usage calls the 4th Ardhashtama and the 7th Kandaka, and
+                  Hindi usage calls the 4th and 8th the two Dhaiya periods.
                 </p>
               </div>
             )}

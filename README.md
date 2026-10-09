@@ -10,7 +10,7 @@ A published snapshot runs at [astroengine.pplx.app](https://astroengine.pplx.app
 
 - **One system per tab.** Readings are never blended. A per-topic agreement panel sets the systems side by side, each with its provenance, instead of merging them into one verdict.
 - **Every rule names its source.** Rules are paraphrased and cited by chapter and verse or by page. Some rules aren't stated in any source, and some sources leave a choice open, such as a threshold, a weight or a house convention. The app marks those provisional in the tabs, the report and the PDFs.
-- **Plain and practitioner readings.** The plain reading rewords death, loss and disease in terms of risk and strain. The practitioner reading keeps the verse wording and shows sources, weights and working. The app never computes or displays a time of death.
+- **Plain and practitioner readings.** The plain reading rewords death, loss and disease in terms of risk and strain. The practitioner reading keeps the verse wording and shows sources, weights and working. The app never computes or displays a time of death, and the agreement panel shows the Jaimini life span only for a chart with a recorded date of passing, as a test of the method.
 - **Charts of minors.** Under 18, a topic-tagged gate withholds certain readings before anything is rendered: longevity, maraka, arishta, peril, and loss of a parent, spouse or child. The gate applies in the API, the tabs and the PDFs alike.
 - **Charts stay on the user's device.** The server writes nothing to disk and keeps no charts. Saved charts and their life events live in the browser's Cache Storage, and Export and Import move them as a JSON file.
 
@@ -25,7 +25,7 @@ A published snapshot runs at [astroengine.pplx.app](https://astroengine.pplx.app
 | KP | Krishnamurti Paddhati, Prof. K.S. Krishnamurti's stellar method: KP ayanamsa, Placidus cusps, star, sub and sub-sub lords, significators and Vimshottari timing. The cuspal sub lord decides each matter, and contrary rules stay visible as notes. |
 | Parashari | Brihat Parashara Hora Shastra: placements, aspects and yogas, along with Shadbala and bhava bala strength, divisional charts and Ashtakavarga. It also covers padas and karakas, and the dasa systems (Vimshottari, conditional dasas, Kalachakra, sign dasas and the Sudarshana chakra). Brihat Jataka, Sarvartha Chintamani and other classics are read as parallel witnesses. Houses are whole-sign by default, with Sripati and equal bhavas as provisional alternatives for house-based readings. |
 | Prasna Marga | The Kerala horary classic. A prasna cast for a question asked now is read from its Arudha lagna, and can be confirmed later against what happened. The same house rules are read against the birth chart, with transits from the birth Moon, marriage compatibility and the reference tables of the text. |
-| Panchanga | Vara, tithi, nakshatra, yoga and karana at sunrise, the fortnight's tara days for muhurta, and Moon-based gochara (Brihat Samhita 104, Phaladeepika 26, including the aspect rule 26.30 and the Ashtakavarga rule 26.41) with a transit calendar, Ashtakavarga marks and a separate, provisional strip of modern practitioner checks that never changes the verdicts. |
+| Panchanga | Vara, tithi, nakshatra, yoga and karana at sunrise, the fortnight's tara days for muhurta, and Moon-based gochara (Brihat Samhita 104, Phaladeepika 26, including the aspect rule 26.30 and the Ashtakavarga rule 26.41) with a transit calendar (Saturn's passages carry their regional names, such as sade sati, marked provisional), Ashtakavarga marks and a separate, provisional strip of modern practitioner checks that never changes the verdicts. |
 | Rectify | Scores candidate birth times around the recorded one. The methods are KP ruling planets, Moon lords, dated events, transits, Jaimini Chara dasha and marks on the body. Event-based methods are ranked against shuffled dates. |
 | Validate | Checks a chart's dated life events against each system's timing, one system at a time, and compares each score with shuffled-date baselines. |
 
@@ -106,7 +106,7 @@ POST endpoints take a JSON body. Every response is JSON except the two PDFs. No 
 | POST | `/api/compute` | Positions and every system's reading for a chart |
 | POST | `/api/summary` | Home-page card: natal signs, lagna, running dasa and today's slow transits |
 | POST | `/api/panchanga` | Panchanga for a date and place, with the planets at that sunrise |
-| POST | `/api/gochara-calendar` | Transit verdict stretches for each planet from the natal Moon over a span of years; optional `ownMarks` (the birth chart's own-Ashtakavarga marks) apply Phaladeepika 26.41 |
+| POST | `/api/gochara-calendar` | Transit verdict stretches for each planet from the natal Moon over a span of years; optional `ownMarks` (the birth chart's own-Ashtakavarga marks) apply Phaladeepika 26.41; `withhold: true` (the minor gate) drops the danger houses |
 | POST | `/api/kp/ruling` | KP ruling planets for a moment and place |
 | POST | `/api/kp/sun-path` | Daily Sun positions across a span, for the KP timing view |
 | POST | `/api/kp/rectify` | A birth-time rectification scan around the recorded time |

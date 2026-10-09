@@ -103,7 +103,7 @@ export const panchangaModule: ReportModule = {
             ? `vedha by ${r.vedhaBy.join(", ")}`
             : "";
         // The rules that changed the house verdict: 26.41 marks, dignity 26.31-32, aspect 26.30.
-        const notes = [r.avNote?.text, r.dignityNote?.text, r.aspectNote?.text]
+        const notes = [r.avNote?.text, r.dignityNote?.text, r.aspectNote?.text, r.practiceName ? `name in practice (provisional): ${r.practiceName.text}` : undefined]
           .filter((t): t is string => !!t)
           .map((t) => ctx.S(t));
         return [
@@ -134,7 +134,7 @@ export const panchangaModule: ReportModule = {
         head: ["Planet", "Position", "Verdict", "Effect"],
         rows,
       });
-      for (const c of GOCHARA_CAVEATS.slice(0, 2))
+      for (const c of GOCHARA_CAVEATS.slice(0, 3))
         paras.push({ kind: "note", text: c });
       // Practitioner checks: modern practice, provisional, never changing the verdicts above.
       const practice = gocharaPractice({

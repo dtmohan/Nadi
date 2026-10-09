@@ -451,6 +451,8 @@ export async function registerRoutes(
           jdEnd,
           { ayanamsa, nodeType },
           marks.data as OwnMarks | undefined,
+          // The age gate (shared/life-stage.ts), decided by the client from the chart: a minor's danger houses are withheld.
+          req.body?.withhold === true,
         ),
       );
     } catch (e: any) {

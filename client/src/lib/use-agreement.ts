@@ -40,6 +40,8 @@ export function useAgreement(result: ChartResult): TopicAgreement[] {
       ayur: result.jaimini.ayur,
       withheld,
       plain,
+      // The life span row is shown only against a recorded date of passing (shared/agreement.ts).
+      deceased: lifeAt !== asOf,
       inSeason: (area) => areaSeason(area, result.utc, lifeAt).inSeason,
     });
   }, [result, lifeAt, withheld, plain]);
