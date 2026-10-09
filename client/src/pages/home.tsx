@@ -403,7 +403,7 @@ export default function Home() {
             }}
           >
             <div className="grid gap-4 sm:grid-cols-[1fr_9rem]">
-              <div className="space-y-1.5">
+              <div className="field-stack">
                 <Label htmlFor="name">{t("Name")}</Label>
                 <Input
                   id="name"
@@ -413,7 +413,7 @@ export default function Home() {
                   data-testid="input-name"
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="field-stack">
                 <Label
                   htmlFor="gender"
                   title="Female charts are read with Venus as the native and Mars as the husband (Rao). Unspecified reads as male."
@@ -437,7 +437,7 @@ export default function Home() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
+              <div className="field-stack">
                 <Label htmlFor="date">{t("Date of birth")}</Label>
                 <Input
                   id="date"
@@ -448,7 +448,7 @@ export default function Home() {
                   data-testid="input-date"
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="field-stack">
                 <Label htmlFor="time">{t("Local time")}</Label>
                 <Input
                   id="time"
@@ -460,7 +460,7 @@ export default function Home() {
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
+            <div className="field-stack">
               <Label
                 htmlFor="death-date"
                 title="Optional. Fixes the age the readings use and lets the lifespan methods be checked against a life that has run its course. Never used to compute or show a forecast."
@@ -481,7 +481,7 @@ export default function Home() {
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="field-stack">
               <Label htmlFor="place">{t("Place of birth")}</Label>
               <PlaceSearch
                 value={form.place}
@@ -513,7 +513,7 @@ export default function Home() {
                 {t("Ayanamsa, nodes & time standard")}
               </summary>
               <div className="grid gap-4 border-t border-card-border p-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
+                <div className="field-stack">
                   <Label htmlFor="ayanamsa">{t("Ayanamsa")}</Label>
                   <Select
                     value={form.ayanamsa}
@@ -531,7 +531,7 @@ export default function Home() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1.5">
+                <div className="field-stack">
                   <Label htmlFor="node">{t("Rahu / Ketu")}</Label>
                   <Select
                     value={form.nodeType}
@@ -546,7 +546,7 @@ export default function Home() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1.5">
+                <div className="field-stack">
                   <Label htmlFor="sunrise">{t("Sunrise")}</Label>
                   <Select
                     value={form.sunriseDef}
@@ -568,7 +568,7 @@ export default function Home() {
                       ?.note ?? ""}
                   </p>
                 </div>
-                <div className="space-y-1.5">
+                <div className="field-stack">
                   <Label htmlFor="tz">{t("Time zone")}</Label>
                   <Input
                     id="tz"
@@ -578,7 +578,7 @@ export default function Home() {
                     data-testid="input-timezone"
                   />
                 </div>
-                <div className="space-y-1.5">
+                <div className="field-stack">
                   <Label htmlFor="tstd">{t("Time standard")}</Label>
                   <Select
                     value={standardMode}
@@ -646,7 +646,7 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1.5">
+                  <div className="field-stack">
                     <Label htmlFor="lat">{t("Latitude")}</Label>
                     <Input
                       id="lat"
@@ -658,7 +658,7 @@ export default function Home() {
                       data-testid="input-lat"
                     />
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="field-stack">
                     <Label htmlFor="lon">{t("Longitude")}</Label>
                     <Input
                       id="lon"

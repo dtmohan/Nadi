@@ -564,7 +564,8 @@ export function GocharaCalendarSection({
       chart.ayanamsa,
       chart.nodeType,
       JSON.stringify(ownMarks),
-      withheld,
+      result.utc,
+      chart.deathDate ?? null,
     ],
     enabled: validFrom,
     queryFn: async () =>
@@ -574,8 +575,10 @@ export function GocharaCalendarSection({
           from,
           years,
           ownMarks,
-          // The age gate: for a minor the server withholds the danger houses before anything is rendered.
-          withhold: withheld,
+          // The birth instant and any date of passing: the server decides the minor gate from them and withholds
+          // the danger houses before anything is rendered (it withholds them when no birth instant is sent).
+          birthUtc: result.utc,
+          deathDate: chart.deathDate ?? null,
           ayanamsa: chart.ayanamsa,
           nodeType: chart.nodeType === "true" ? "true" : "mean",
         })

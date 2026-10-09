@@ -48,7 +48,7 @@ import {
   type ReportTools,
 } from "@shared/report";
 import { RECTIFY_METHODS, type RectifyMethod } from "@shared/rectify-methods";
-import { gocharaCalendar } from "./gochara-calendar";
+import { gocharaCalendar, calendarWithhold } from "./gochara-calendar";
 import type { OwnMarks } from "@shared/gochara";
 import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
@@ -451,8 +451,8 @@ export async function registerRoutes(
           jdEnd,
           { ayanamsa, nodeType },
           marks.data as OwnMarks | undefined,
-          // The age gate (shared/life-stage.ts), decided by the client from the chart: a minor's danger houses are withheld.
-          req.body?.withhold === true,
+          // The age gate, decided here from the birth instant sent with the request; withheld when none is sent.
+          calendarWithhold(req.body ?? {}, new Date().toISOString()),
         ),
       );
     } catch (e: any) {

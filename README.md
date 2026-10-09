@@ -106,7 +106,7 @@ POST endpoints take a JSON body. Every response is JSON except the two PDFs. No 
 | POST | `/api/compute` | Positions and every system's reading for a chart |
 | POST | `/api/summary` | Home-page card: natal signs, lagna, running dasa and today's slow transits |
 | POST | `/api/panchanga` | Panchanga for a date and place, with the planets at that sunrise |
-| POST | `/api/gochara-calendar` | Transit verdict stretches for each planet from the natal Moon over a span of years; optional `ownMarks` (the birth chart's own-Ashtakavarga marks) apply Phaladeepika 26.41; `withhold: true` (the minor gate) drops the danger houses |
+| POST | `/api/gochara-calendar` | Transit verdict stretches for each planet from the natal Moon over a span of years; optional `ownMarks` (the birth chart's own-Ashtakavarga marks) apply Phaladeepika 26.41; `birthUtc` (the birth instant) and an optional `deathDate` let the server apply the minor gate, and without a birth instant the danger houses are withheld |
 | POST | `/api/kp/ruling` | KP ruling planets for a moment and place |
 | POST | `/api/kp/sun-path` | Daily Sun positions across a span, for the KP timing view |
 | POST | `/api/kp/rectify` | A birth-time rectification scan around the recorded time |
