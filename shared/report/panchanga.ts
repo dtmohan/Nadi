@@ -3,7 +3,8 @@ import { SUNRISE_DEFINITIONS } from "../schema";
 import { houseFrom, SIGNS } from "../astro";
 import { displayLocal } from "../time-basis";
 import { PANCHANGA_SOURCES } from "../panchanga";
-import { computeGochara, GOCHARA_CAVEATS } from "../gochara";
+import { computeGochara, GOCHARA_CAVEATS, natalOwnMarks } from "../gochara";
+import { gocharaPractice, GOCHARA_PRACTICE_NOTES } from "../gochara-practice";
 import {
   fmtDate,
   ORD,
@@ -91,6 +92,7 @@ export const panchangaModule: ReportModule = {
         now.positions,
         now.asOf,
         withheld,
+        { ownMarks: natalOwnMarks(result.positions, result.jaimini.lagna.lon) },
       );
       const rows = g.rows.map((r) => {
         const effects = [r.effect.bs?.text, r.effect.pd?.text]
@@ -100,11 +102,15 @@ export const panchangaModule: ReportModule = {
           r.favourable && r.vedhaBy.length
             ? `vedha by ${r.vedhaBy.join(", ")}`
             : "";
+        // The rules that changed the house verdict: 26.41 marks, dignity 26.31-32, aspect 26.30.
+        const notes = [r.avNote?.text, r.dignityNote?.text, r.aspectNote?.text]
+          .filter((t): t is string => !!t)
+          .map((t) => ctx.S(t));
         return [
           r.planet,
           `${SIGNS[r.signIndex]}, ${ORD(r.house)} from the Moon`,
           r.verdict,
-          [ctx.S(effects), vedha].filter(Boolean).join(" · ") || "—",
+          [ctx.S(effects), vedha, ...notes].filter(Boolean).join(" · ") || "—",
         ];
       });
       const srcs = new Set<number>();
@@ -115,6 +121,8 @@ export const panchangaModule: ReportModule = {
           srcs.add(cites.add(r.effect.bs.source.label, r.effect.bs.source.url));
         if (r.effect.pd)
           srcs.add(cites.add(r.effect.pd.source.label, r.effect.pd.source.url));
+        for (const n of [r.avNote, r.dignityNote, r.aspectNote])
+          for (const s of n?.sources ?? []) srcs.add(cites.add(s.label, s.url));
       }
       paras.push({
         kind: "p",
@@ -128,6 +136,44 @@ export const panchangaModule: ReportModule = {
       });
       for (const c of GOCHARA_CAVEATS.slice(0, 2))
         paras.push({ kind: "note", text: c });
+      // Practitioner checks: modern practice, provisional, never changing the verdicts above.
+      const practice = gocharaPractice({
+        natalMoonSign: moon.signIndex,
+        natalLagnaSign: Math.floor(
+          (((result.jaimini.lagna.lon % 360) + 360) % 360) / 30,
+        ),
+        birthStar: Math.floor(moon.lon / (360 / 27)),
+        positions: now.positions,
+        asOf: now.asOf,
+        marsStay: now.marsStay,
+        saturnPeriods: result.transits,
+        fmtDate,
+      });
+      if (practice.length) {
+        const pc = cites.add("Shivanshu Pande, Gochara Deep Dive (2026)");
+        paras.push({
+          kind: "p",
+          text: "Beside the classical verdicts, a few checks from modern practice, paraphrased by chapter from one practitioner's book. They are not in Brihat Samhita or Phaladeepika and do not change the verdicts above.",
+          cites: [pc],
+          provisional: true,
+        });
+        paras.push({
+          kind: "table",
+          head: ["Check", "Reading"],
+          rows: practice.map((c) => [
+            `${c.title} (ch. ${c.sources
+              .filter((s) => s.label.startsWith("Pande"))
+              .map((s) => s.label.replace(/^.*ch\. /, ""))
+              .join(", ")})`,
+            c.lines
+              .map((l) =>
+                ctx.S(l.conflict ? `${l.text} ${l.conflict.text}` : l.text),
+              )
+              .join(" "),
+          ]),
+        });
+        paras.push({ kind: "note", text: GOCHARA_PRACTICE_NOTES[5] });
+      }
       out.push({
         id: "now",
         title: "The sky today",

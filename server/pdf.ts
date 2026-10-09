@@ -26,7 +26,8 @@ import { TRANSIT_GRADE_LABEL, confirmTransits, summarizeTouches } from "@shared/
 import { computeAshtakavarga } from "@shared/ashtakavarga";
 import { GOCHARA_AV_NOTES, SOLAR_MONTH_NOTES, avMarkText, gocharaAvMark, solarMonthReading } from "@shared/gochara-av";
 import { PANCHANGA_CAVEATS, PANCHANGA_SOURCES, SURYA_SIDDHANTA_URL, type LimbSegment } from "@shared/panchanga";
-import { computeGochara, GOCHARA_CAVEATS, BS_URL, PD_URL } from "@shared/gochara";
+import { computeGochara, GOCHARA_CAVEATS, BS_URL, PD_URL, natalOwnMarks } from "@shared/gochara";
+import { gocharaPractice, GOCHARA_PRACTICE_NOTES } from "@shared/gochara-practice";
 import { gocharaCalendar } from "./gochara-calendar";
 import { nowJd } from "./ephemeris";
 
@@ -507,11 +508,13 @@ function panchangaSection(doc: Doc, result: ChartResult) {
 
   // gochara
   const moon = result.positions.find((p) => p.planet === "Moon")!;
-  const g = computeGochara(moon.signIndex, result.now.positions, result.now.asOf, WITHHELD);
+  // The birth chart's own-Ashtakavarga marks, for Phaladeepika 26.41.
+  const ownMarks = natalOwnMarks(result.positions, result.jaimini.lagna.lon);
+  const g = computeGochara(moon.signIndex, result.now.positions, result.now.asOf, WITHHELD, { ownMarks });
   ensureSpace(doc, 120);
   sectionTitle(doc, "Gochara from the natal Moon", `Brihat Samhita 104 · Phaladeepika 26 · planets as of ${DateTime.fromISO(result.now.asOf).setZone(zone).toFormat("d LLL yyyy HH:mm")}`);
   doc.font("Helvetica").fontSize(8.5).fillColor(INK).text(
-    `Natal Moon in ${SIGNS[moon.signIndex]}. Each planet's sign is counted as a house from it (Phaladeepika 26.1). Favourable houses per Brihat Samhita 104.4 and Phaladeepika 26.2; vedha per 26.3-8; dignity per 26.31-32 and Brihat Samhita 104.53, 55; danger houses per 26.33-34. Verdicts: favourable, obstructed (favourable house under vedha), unfavourable, neutral (dignity cancels the house). Not Parashari.`,
+    `Natal Moon in ${SIGNS[moon.signIndex]}. Each planet's sign is counted as a house from it (Phaladeepika 26.1). Favourable houses per Brihat Samhita 104.4 and Phaladeepika 26.2; own Ashtakavarga marks per 26.41; vedha per 26.3-8; dignity per 26.31-32 and Brihat Samhita 104.53, 55; aspects per 26.30 and Brihat Samhita 104.53; danger houses per 26.33-34. Verdicts: favourable, obstructed (favourable house under vedha), unfavourable, neutral (dignity or an aspect cancels the house). The order of the rules and the readings of 26.30 and 26.41 are provisional. Not Parashari.`,
     PAGE.m,
     doc.y,
     { width: CONTENT_W },
@@ -527,7 +530,9 @@ function panchangaSection(doc: Doc, result: ChartResult) {
       `felt in: ${r.portion.bs ? `BS ${r.portion.bs}; ` : ""}PD ${r.portion.pd}`,
     ].filter(Boolean).join(" · ");
     lines.push({ text: meta, muted: true });
+    if (r.avNote) lines.push({ text: `${r.avNote.text} (${r.avNote.sources.map((s) => s.label).join(", ")}, provisional)` });
     if (r.dignityNote) lines.push({ text: `${r.dignityNote.text} (${r.dignityNote.sources.map((s) => s.label).join(", ")})` });
+    if (r.aspectNote) lines.push({ text: `${r.aspectNote.text} (${r.aspectNote.sources.map((s) => s.label).join(", ")}, provisional)` });
     if (r.danger) lines.push({ text: `${r.danger.text} (${r.danger.source.label})` });
     doc.font("Helvetica").fontSize(8);
     const h = 14 + lines.reduce((a, l) => a + doc.heightOfString(l.text, { width: CONTENT_W - 12 }) + 2, 0) + 6;
@@ -554,9 +559,37 @@ function panchangaSection(doc: Doc, result: ChartResult) {
     doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(`• ${c}`, PAGE.m, doc.y + 1, { width: CONTENT_W });
   }
 
+  // Practitioner checks: modern practice, provisional, never changing the verdicts above.
+  const practice = gocharaPractice({
+    natalMoonSign: moon.signIndex,
+    natalLagnaSign: Math.floor((((result.jaimini.lagna.lon % 360) + 360) % 360) / 30),
+    birthStar: Math.floor(moon.lon / (360 / 27)),
+    positions: result.now.positions,
+    asOf: result.now.asOf,
+    marsStay: result.now.marsStay,
+    saturnPeriods: result.transits,
+    fmtDate: (iso) => DateTime.fromISO(iso).setZone(zone).toFormat("d LLL yyyy"),
+  });
+  if (practice.length) {
+    ensureSpace(doc, 60);
+    doc.y += 6;
+    doc.font("Helvetica-Bold").fontSize(8.5).fillColor(INK).text("Practitioner checks (modern practice, provisional; Pande, Gochara Deep Dive, 2026)", PAGE.m, doc.y, { width: CONTENT_W });
+    doc.font("Helvetica").fontSize(7).fillColor(MUTED).text("Not in Brihat Samhita or Phaladeepika; shown beside the verdicts above and never changing them. Paraphrased and cited by chapter.", PAGE.m, doc.y + 1, { width: CONTENT_W });
+    for (const c of practice) {
+      const chs = c.sources.filter((s) => s.label.startsWith("Pande")).map((s) => s.label.replace(/^.*ch\. /, "")).join(", ");
+      const body = c.lines.map((l) => (l.conflict ? `${l.text} ${l.conflict.text}` : l.text)).join(" ");
+      const text = `${c.title} (ch. ${chs}): ${body}`;
+      doc.font("Helvetica").fontSize(7.5);
+      ensureSpace(doc, doc.heightOfString(text, { width: CONTENT_W - 12 }) + 4);
+      doc.fillColor(INK).text(text, PAGE.m + 12, doc.y + 2, { width: CONTENT_W - 12 });
+    }
+    ensureSpace(doc, 20);
+    doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(`• ${GOCHARA_PRACTICE_NOTES[5]}`, PAGE.m, doc.y + 2, { width: CONTENT_W });
+  }
+
   // calendar: the slow movers over the next five years, plus Saturn's 12th-1st-2nd passage
   const jd0 = Math.floor(nowJd() - 0.5) + 0.5;
-  const cal = gocharaCalendar(moon.signIndex, jd0, jd0 + 5 * 365.25, { ayanamsa: result.chart.ayanamsa, nodeType: result.chart.nodeType === "true" ? "true" : "mean" });
+  const cal = gocharaCalendar(moon.signIndex, jd0, jd0 + 5 * 365.25, { ayanamsa: result.chart.ayanamsa, nodeType: result.chart.nodeType === "true" ? "true" : "mean" }, ownMarks);
   const d = (iso: string) => DateTime.fromISO(iso).setZone(zone).toFormat("d LLL yyyy");
   const av = computeAshtakavarga(result.positions, Math.floor((((result.jaimini.lagna.lon % 360) + 360) % 360) / 30));
   const avText = (planet: Planet, signIndex: number) => avMarkText(gocharaAvMark(av, planet, signIndex));
@@ -624,7 +657,7 @@ function panchangaSection(doc: Doc, result: ChartResult) {
     doc.y = hy + 10;
     doc.moveTo(PAGE.m, doc.y - 2).lineTo(PAGE.w - PAGE.m, doc.y - 2).lineWidth(0.4).strokeColor(RULE).stroke();
     for (const s of pc.segments) {
-      const why = [s.vedhaBy.length ? `vedha by ${s.vedhaBy.join(", ")}` : "", s.note ? s.note.replace(/ \((26\.3[12]|26\.32; BS 104\.53)\)\.?/g, "").replace(/\.\s*$/, "") : s.combust ? "combust for part of the stretch" : "", s.danger ? (s.danger === "33" ? "danger house, 26.33" : "worst house, 26.34") : ""].filter(Boolean).join(" · ");
+      const why = [s.vedhaBy.length ? `vedha by ${s.vedhaBy.join(", ")}` : "", s.note ? s.note.replace(/ \((26\.3[12]|26\.32; BS 104\.53)\)\.?/g, "").replace(/\.\s*$/, "") : s.combust ? "combust for part of the stretch" : "", s.aspectBy?.length ? `aspect of ${s.aspectBy.join(", ")} voids the ${s.aspectVoids ?? "good"} (26.30)` : "", s.danger ? (s.danger === "33" ? "danger house, 26.33" : "worst house, 26.34") : ""].filter(Boolean).join(" · ");
       doc.font("Helvetica").fontSize(7.5);
       const text = `${s.verdict}${why ? ` · ${why}` : ""}`;
       const h = Math.max(11, doc.heightOfString(text, { width: CONTENT_W - (ccols[5] - PAGE.m) }) + 3);

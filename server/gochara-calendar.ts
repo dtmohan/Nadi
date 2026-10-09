@@ -3,7 +3,7 @@
  * Moon stays the same, with the change instants narrowed to the hour. Rules are the day-view rules
  * in shared/gochara.ts (Brihat Samhita 104, Phaladeepika 26); this file only walks them over time.
  */
-import { computeGochara, DANGER_33, DANGER_34, type GocharaRow } from "@shared/gochara";
+import { computeGochara, type GocharaRow, type OwnMarks } from "@shared/gochara";
 import { CALENDAR_PLANETS, GOCHARA_CALENDAR_NOTES, type GocharaCalendar, type GocharaPlanetCalendar, type GocharaSegment, type SaturnPassage } from "@shared/gochara-calendar";
 import type { Planet, PlanetPosition } from "@shared/astro";
 import { positionsLite, jdToIso, type EphemerisOptions } from "./ephemeris";
@@ -13,14 +13,14 @@ interface State {
   key: string;
 }
 
-/** The Moon is left out as an obstructor here; see GOCHARA_CALENDAR_NOTES. */
-function rowsAt(jd: number, moonSign: number, opts: EphemerisOptions): Map<Planet, State> {
+/** The Moon is left out as an obstructor and as an aspecting planet here; see GOCHARA_CALENDAR_NOTES. */
+function rowsAt(jd: number, moonSign: number, opts: EphemerisOptions, ownMarks?: OwnMarks): Map<Planet, State> {
   const positions: PlanetPosition[] = positionsLite(jd, opts).filter((p) => p.planet !== "Moon");
-  const reading = computeGochara(moonSign, positions, jdToIso(jd));
+  const reading = computeGochara(moonSign, positions, jdToIso(jd), false, { ownMarks });
   const out = new Map<Planet, State>();
   for (const row of reading.rows) {
     if (!CALENDAR_PLANETS.includes(row.planet)) continue;
-    const key = `${row.signIndex}|${row.verdict}|${row.vedhaBy.join(",")}|${row.dignityNote?.text ?? ""}`;
+    const key = `${row.signIndex}|${row.verdict}|${row.vedhaBy.join(",")}|${row.dignityNote?.text ?? ""}|${row.aspectNote?.text ?? ""}|${row.avNote ? "av" : ""}`;
     out.set(row.planet, { row, key });
   }
   return out;
@@ -28,7 +28,15 @@ function rowsAt(jd: number, moonSign: number, opts: EphemerisOptions): Map<Plane
 
 function toSegment(row: GocharaRow, start: number, end: number, positions: PlanetPosition[]): GocharaSegment {
   const pos = positions.find((p) => p.planet === row.planet)!;
-  const danger = DANGER_33[row.planet]?.includes(row.house) ? "33" : DANGER_34[row.planet] === row.house ? "34" : undefined;
+  // The day-view rules decide whether the danger houses of 26.33-34 stand or are set aside (26.41, 26.31, 26.30).
+  const danger = !row.danger ? undefined : row.danger.source.label.endsWith("26.33") ? "33" : "34";
+  // Compact reasons for the calendar; the aspecting planets are pooled across merged stretches in `aspectBy`.
+  const note = [
+    row.avNote ? `${row.avMarks} of 8 own Ashtakavarga marks make the house good (26.41).` : undefined,
+    row.dignityNote && row.verdict === "neutral" ? row.dignityNote.text : undefined,
+  ]
+    .filter(Boolean)
+    .join(" ");
   return {
     start: jdToIso(start),
     end: jdToIso(end),
@@ -39,7 +47,11 @@ function toSegment(row: GocharaRow, start: number, end: number, positions: Plane
     dignity: pos.dignity,
     combust: pos.combust,
     ...(danger ? { danger } : {}),
-    ...(row.dignityNote && row.verdict === "neutral" ? { note: row.dignityNote.text } : {}),
+    ...(row.avNote ? { avGood: true } : {}),
+    ...(row.aspectNote
+      ? { aspectBy: [...row.aspectNote.by], aspectVoids: row.favourable || row.avNote ? ("good" as const) : ("ill" as const) }
+      : {}),
+    ...(note ? { note } : {}),
   };
 }
 
@@ -57,14 +69,20 @@ function mergeNotes(a: string | undefined, b: string): string {
   return a.includes(b) ? a : `${a} ${b}`;
 }
 
-export function gocharaCalendar(moonSign: number, jdStart: number, jdEnd: number, opts: EphemerisOptions): GocharaCalendar {
+export function gocharaCalendar(
+  moonSign: number,
+  jdStart: number,
+  jdEnd: number,
+  opts: EphemerisOptions,
+  ownMarks?: OwnMarks,
+): GocharaCalendar {
   const STEP = 1; // day
   const RESOLVE = 1 / 24; // hour
   const open = new Map<Planet, { state: State; start: number }>();
   const segments = new Map<Planet, GocharaSegment[]>(CALENDAR_PLANETS.map((p) => [p, []]));
 
   let prevJd = jdStart;
-  let prev = rowsAt(prevJd, moonSign, opts);
+  let prev = rowsAt(prevJd, moonSign, opts, ownMarks);
   for (const p of CALENDAR_PLANETS) open.set(p, { state: prev.get(p)!, start: jdStart });
 
   const close = (planet: Planet, at: number) => {
@@ -75,7 +93,7 @@ export function gocharaCalendar(moonSign: number, jdStart: number, jdEnd: number
 
   for (let jd = jdStart + STEP; jd < jdEnd + STEP; jd += STEP) {
     const t1 = Math.min(jd, jdEnd);
-    const cur = rowsAt(t1, moonSign, opts);
+    const cur = rowsAt(t1, moonSign, opts, ownMarks);
     for (const planet of CALENDAR_PLANETS) {
       const a = prev.get(planet)!;
       const b = cur.get(planet)!;
@@ -85,7 +103,7 @@ export function gocharaCalendar(moonSign: number, jdStart: number, jdEnd: number
       let hi = t1;
       while (hi - lo > RESOLVE) {
         const mid = (lo + hi) / 2;
-        const m = rowsAt(mid, moonSign, opts).get(planet)!;
+        const m = rowsAt(mid, moonSign, opts, ownMarks).get(planet)!;
         if (m.key === a.key) lo = mid;
         else hi = mid;
       }
@@ -108,6 +126,12 @@ export function gocharaCalendar(moonSign: number, jdStart: number, jdEnd: number
         last.end = s.end;
         for (const q of s.vedhaBy) if (!last.vedhaBy.includes(q)) last.vedhaBy.push(q);
         last.combust = last.combust || s.combust;
+        if (s.avGood) last.avGood = true;
+        if (s.aspectBy) {
+          const by = last.aspectBy ?? [];
+          for (const q of s.aspectBy) if (!by.includes(q)) by.push(q);
+          last.aspectBy = by;
+        }
         if (s.note) last.note = mergeNotes(last.note, s.note);
       } else merged.push({ ...s, vedhaBy: [...s.vedhaBy] });
     }
