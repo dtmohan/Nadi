@@ -33,7 +33,12 @@ function Cites({ ns }: { ns?: number[] }) {
     <sup className="ml-0.5 font-mono text-[0.65em] text-muted-foreground">
       {ns.map((n, i) => (
         <span key={n}>
-          {i > 0 && ","}
+          {/* A break opportunity after each comma: a long run of note numbers wraps instead of running off a phone screen. */}
+          {i > 0 && (
+            <>
+              ,<wbr />
+            </>
+          )}
           <a href={`#fn-${n}`} className="hover:text-foreground">
             {n}
           </a>
@@ -247,27 +252,30 @@ export default function ReportPage() {
         >
           <ArrowLeft className="h-4 w-4" /> Back to the chart
         </Link>
-        <div className="flex items-center gap-2">
+        {/* On a phone the export buttons wrap together under the reading-depth toggle. */}
+        <div className="flex flex-wrap items-center gap-2">
           <ReadingModeToggle />
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={exportPdf}
-            disabled={exporting}
-            data-testid="button-report-pdf"
-          >
-            <FileDown className="h-4 w-4" />
-            {exporting ? "Preparing PDF" : "Download PDF"}
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => window.print()}
-            data-testid="button-report-print"
-            title="Print this page from the browser"
-          >
-            <Printer className="h-4 w-4" /> Print
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={exportPdf}
+              disabled={exporting}
+              data-testid="button-report-pdf"
+            >
+              <FileDown className="h-4 w-4" />
+              {exporting ? "Preparing PDF" : "Download PDF"}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => window.print()}
+              data-testid="button-report-print"
+              title="Print this page from the browser"
+            >
+              <Printer className="h-4 w-4" /> Print
+            </Button>
+          </div>
         </div>
       </div>
 
