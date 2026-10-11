@@ -192,8 +192,9 @@ export const EXTRA_RULES: Rule[] = [
   { id: "auth-su-strong", area: "authority", when: { subject: "Sun", subjectDignity: ["Own sign", "Exalted"] }, text: "the Sun in his own strength: born to authority; command sits naturally on the native and others defer. (provisional)", weight: 2, source: "General Nadi principles (Rao, Naik)" },
 ];
 
-// Nakshatra-lord colouring for the three primary karakas.
-const STAR_TEXT: Record<Planet, string> = {
+// Nakshatra-lord colouring for the three primary karakas. Neutral by declaration (Rule.tone): the words name the
+// kind of matters the lord lends, not a direction.
+export const STAR_TEXT: Record<Planet, string> = {
   Sun: "authority, government and the father's line",
   Moon: "the public, mobility and the mother's line",
   Mars: "technical force, land and siblings",
@@ -216,12 +217,14 @@ for (const [subject, area, what] of [
       when: { subject, subjectNakshatraLord: [lord] },
       text: `${subject} in a nakshatra of ${lord}: ${what} is shaded by ${STAR_TEXT[lord]}.`,
       weight: 1,
+      tone: "neutral",
       source: NAIK,
     });
   }
 }
 
-// Sign-lord colouring for the nodes.
+// Sign-lord colouring for the nodes. Neutral by declaration, like the other colouring rules: the significations
+// say what the node expresses through, not whether it goes well.
 for (const lord of ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"] as Planet[]) {
   EXTRA_RULES.push({
     id: `ra-lord-${lord.toLowerCase().slice(0, 2)}`,
@@ -229,6 +232,7 @@ for (const lord of ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Satur
     when: { subject: "Rahu", subjectSignLord: [lord] },
     text: `Rahu in a sign of ${lord}: foreign or unconventional matters express through ${KARAKA[lord].significations.slice(0, 3).join(", ")}.`,
     weight: 1,
+    tone: "neutral",
     source: NAIK,
   });
   EXTRA_RULES.push({
@@ -237,6 +241,7 @@ for (const lord of ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Satur
     when: { subject: "Ketu", subjectSignLord: [lord] },
     text: `Ketu in a sign of ${lord}: detachment and past-life skill touch ${KARAKA[lord].significations.slice(0, 3).join(", ")}.`,
     weight: 1,
+    tone: "neutral",
     source: NAIK,
   });
 }

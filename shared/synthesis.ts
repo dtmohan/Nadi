@@ -89,6 +89,8 @@ const TONE_OVERRIDE: Record<string, Tone> = {
 };
 
 export function toneOf(f: Finding): Tone {
+  // A tone declared by the rule (the colouring rules) is never read from the words put into its text.
+  if (f.tone) return f.tone;
   const o = TONE_OVERRIDE[f.ruleId];
   if (o) return o;
   return toneOfText(f.text);
@@ -96,7 +98,7 @@ export function toneOf(f: Finding): Tone {
 
 /** True when a finding's tone is read from its wording rather than set for the rule (shared/kernel.ts tiers). */
 export function toneIsKeyword(f: Finding): boolean {
-  return !(f.ruleId in TONE_OVERRIDE);
+  return !f.tone && !(f.ruleId in TONE_OVERRIDE);
 }
 
 /** Keyword balance of a rule sentence, for texts that carry no explicit tone (ALP, KP cusp readings). */
@@ -188,11 +190,13 @@ function reconcile(
   karaka: Planet,
 ): string | undefined {
   if (!RECONCILE_AREAS.has(area)) return undefined;
-  const promise = all.filter(
+  // A rule with a declared tone (the colouring rules) is not read from its wording here either.
+  const worded = all.filter((f) => !f.tone);
+  const promise = worded.filter(
     (f) => PROMISE.test(f.text) && toneOf(f) !== "hard",
   );
-  const delay = all.filter((f) => DELAY.test(f.text));
-  const denial = all.filter((f) => DENIAL.test(f.text));
+  const delay = worded.filter((f) => DELAY.test(f.text));
+  const denial = worded.filter((f) => DENIAL.test(f.text));
   const agents = (fs: Finding[]) =>
     Array.from(
       new Set(
