@@ -136,7 +136,8 @@ export const FEMALE_RULES: Rule[] = [
   pair("f-ve-me-career", "career", "Venus", "Mercury", "Venus with Mercury: livelihood through communication, teaching, media, design or trade.", 1, ["conjunct", "trine"]),
 ];
 
-// Sign-lord and nakshatra-lord colouring for the Deha (Venus) and the husband.
+// Sign-lord and nakshatra-lord colouring for the Deha (Venus) and the husband. Neutral by declaration: the words
+// name the kind of matters the lord lends, and must not tip a verdict (Rule.tone).
 const LORDS: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 for (const [subject, area, prefix] of [
   ["Venus", "self", "The native's nature takes the colour of"],
@@ -151,13 +152,14 @@ for (const [subject, area, prefix] of [
         when: { subject, subjectSignLord: [lord] },
         text: `${subject} sits in a sign owned by ${lord}: ${prefix} ${lord}'s significations (${(lord === "Jupiter" ? ["wisdom", "children", "wealth"] : KARAKA[lord].significations.slice(0, 3)).join(", ")}).`,
         weight: 1,
+        tone: "neutral",
         source: NAIK,
       }),
     );
   }
 }
 
-const STAR_TEXT: Record<Planet, string> = {
+export const FEMALE_STAR_TEXT: Record<Planet, string> = {
   Sun: "authority, government and the father's line",
   Moon: "the public, care and movement",
   Mars: "technical force, land and courage",
@@ -172,14 +174,15 @@ for (const [subject, area, what] of [
   ["Venus", "self", "The native's inner nature"],
   ["Mars", "marriage", "The husband's character"],
 ] as const) {
-  for (const lord of Object.keys(STAR_TEXT) as Planet[]) {
+  for (const lord of Object.keys(FEMALE_STAR_TEXT) as Planet[]) {
     FEMALE_RULES.push(
       f({
         id: `f-${subject.toLowerCase().slice(0, 2)}-star-${lord.toLowerCase().slice(0, 2)}`,
         area,
         when: { subject, subjectNakshatraLord: [lord] },
-        text: `${subject} in a nakshatra of ${lord}: ${what} is shaded by ${STAR_TEXT[lord]}.`,
+        text: `${subject} in a nakshatra of ${lord}: ${what} is shaded by ${FEMALE_STAR_TEXT[lord]}.`,
         weight: 1,
+        tone: "neutral",
         source: NAIK,
       }),
     );

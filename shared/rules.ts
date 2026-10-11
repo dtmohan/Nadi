@@ -96,6 +96,13 @@ export interface Rule {
   text: string;
   weight: 1 | 2 | 3;
   source?: string;
+  /**
+   * The rule's direction, set for a rule whose text names a planet's significations or nature (the sign-lord and
+   * nakshatra-lord colouring rules), so the vocabulary put into the text cannot tip a verdict. These rules say what
+   * kind of matters a planet carries, not whether they go well. Unset: the direction is read from the wording
+   * (shared/synthesis.ts).
+   */
+  tone?: "good" | "hard" | "neutral";
   /** Which chart the rule is written for. Undefined: both. "male": Venus is the wife. "female": Venus is the native's own person (Deha) and Mars the husband. Jupiter is the Jeeva in both. */
   frame?: "male" | "female";
 }
@@ -154,6 +161,8 @@ export interface Finding {
   /** Whole-sign house of the object counted from the subject, for house rules. */
   house?: number;
   source?: string;
+  /** The rule's declared direction, copied from the rule (Rule.tone). Unset: read from the wording. */
+  tone?: "good" | "hard" | "neutral";
   /** The combination as written (rule weight, sign relation, retrogression, companions), before strength. */
   base?: number;
   /** Full, enhanced, reduced or cancelled, with each reason; `score` is the graded value. */
@@ -964,7 +973,8 @@ export const RULES: Rule[] = [
   ),
 ];
 
-// Sign-lord colouring for the three primary karakas.
+// Sign-lord colouring for the three primary karakas. The significations are the kind of matters the lord lends,
+// not a direction, so the rules are neutral by declaration: the words cannot tip a verdict.
 for (const [subject, area, prefix] of [
   ["Saturn", "career", "Livelihood takes the colour of"],
   ["Jupiter", "self", "The native's nature takes the colour of"],
@@ -987,6 +997,7 @@ for (const [subject, area, prefix] of [
       when: { subject, subjectSignLord: [lord] },
       text: `${subject} sits in a sign owned by ${lord}: ${prefix} ${lord}'s significations (${KARAKA[lord].significations.slice(0, 3).join(", ")}).`,
       weight: 1,
+      tone: "neutral",
       source: SRC_NAIK,
     });
   }
@@ -1342,6 +1353,7 @@ export function evaluate(
   const toGrade: GradeInput[] = [];
   // Strength is applied once every rule has fired (gradeFinding), so each reason is named once.
   const push = (f: Finding, g: Omit<GradeInput, "f">) => {
+    if (g.rule.tone) f.tone = g.rule.tone;
     findings.push(f);
     toGrade.push({ f, ...g });
   };
