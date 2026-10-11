@@ -148,6 +148,11 @@ import { Working } from "@/components/working";
 import { BjCrossSection, BjCross } from "@/components/bj-cross";
 import { BJ_CROSS_BY_KEY } from "@shared/bj-cross";
 import { Term } from "@/components/term";
+import { ParashariSignifications } from "@/components/parashari-significations";
+import {
+  MODERN_HOUSE_READINGS,
+  PHALADEEPIKA_CH2_URL,
+} from "@shared/parashari-significations";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
@@ -247,6 +252,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const withheld =
     result.sensitive?.withheld ??
     sensitiveGate(chart, result.utc, asOfIso).withheld;
+  // Local civil birth year, for the era rule of the significations table.
+  const birthYear = Number(chart.birthDate.slice(0, 4)) || undefined;
   const r = useMemo(
     () =>
       computeParashari(
@@ -1026,6 +1033,21 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                     </TableCell>
                     <TableCell className="py-1.5 align-top text-xs text-muted-foreground">
                       <Soft>{HOUSE_MATTERS[j.house - 1].matters}</Soft>
+                      {(() => {
+                        const m = MODERN_HOUSE_READINGS.find(
+                          (x) => x.house === j.house,
+                        );
+                        return m ? (
+                          <div
+                            className="mt-1 text-2xs"
+                            data-testid={`parashari-house-modern-${j.house}`}
+                          >
+                            Modern (Mehta {m.ref}): {m.reading}
+                            {m.note ? `, ${m.note}` : ""}
+                            {!plain && m.root ? ` (cf. ${m.root})` : ""}
+                          </div>
+                        ) : null;
+                      })()}
                       {j.chalitNote && (
                         <div
                           className="mt-1 text-2xs text-verdict-mixed"
@@ -1437,7 +1459,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       </Chapter>
 
       <Chapter id="padas">
-      <PadasSection p={r.padas} />
+      <PadasSection p={r.padas} birthYear={birthYear} withheld={withheld} />
       </Chapter>
       <Chapter id="trials">
       {r.marakas ? (
@@ -1848,7 +1870,15 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
   );
 }
 
-function PadasSection({ p }: { p: PadaResult }) {
+function PadasSection({
+  p,
+  birthYear,
+  withheld,
+}: {
+  p: PadaResult;
+  birthYear?: number;
+  withheld: boolean;
+}) {
   const plain = usePlain();
   const [caveats, setCaveats] = useState(false);
   const chapters: {
@@ -1984,6 +2014,23 @@ function PadasSection({ p }: { p: PadaResult }) {
               </li>
             ))}
           </ul>
+          {p.parentsByBirth ? (
+            <p
+              className="mt-2 text-xs text-muted-foreground"
+              data-testid="padas-parents-by-birth"
+            >
+              Phaladeepika 2.25 reads the parents by day or night instead:
+              father <PlanetName planet={p.parentsByBirth.father} />, mother{" "}
+              <PlanetName planet={p.parentsByBirth.mother} /> (
+              {p.parentsByBirth.daytime ? "a day birth" : "a night birth"}
+              {p.parentsByBirth.twilight ? ", close to sunrise or sunset" : ""}
+              ).{" "}
+              <SourceLink
+                source={{ label: "Phaladeepika 2.25", url: PHALADEEPIKA_CH2_URL }}
+                mark={false}
+              />
+            </p>
+          ) : null}
         </div>
         <div
           className="rounded-md border bg-card p-3"
@@ -2022,6 +2069,7 @@ function PadasSection({ p }: { p: PadaResult }) {
           )}
         </div>
       </div>
+      <ParashariSignifications birthYear={birthYear} withheld={withheld} />
       <SectionTitle
         as="h4"
         className="mt-5"

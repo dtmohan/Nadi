@@ -169,14 +169,16 @@ export function sensitiveGate(
   return { withheld: age < SENSITIVE_MIN_AGE, ageYears: age, minAge: SENSITIVE_MIN_AGE };
 }
 
-export const SENSITIVE_WITHHELD_NOTE = `Length-of-life, maraka and arishta statements, and those on the loss of a parent, spouse, child or sibling or on danger to life and limb, are not shown for a native under ${SENSITIVE_MIN_AGE}. The combinations remain in the chart and are read when the native comes of age (a policy of this app, provisional).`;
+export const SENSITIVE_WITHHELD_NOTE = `Length-of-life, maraka and arishta statements, those on the loss of a parent, spouse, child or sibling or on danger to life and limb, and the classical reading of potency are not shown for a native under ${SENSITIVE_MIN_AGE}. The combinations remain in the chart and are read when the native comes of age (a policy of this app, provisional).`;
 
 /**
  * Topics withheld for a minor. A statement is tagged by what it is about, not by the single word
  * "death": the length of life in either direction (a short or a long life is the same topic), the
  * planets and periods that can end it, danger to the infant, and the loss of a parent, spouse,
  * child or sibling. Peril covers the verse readings of danger to life and limb (hunting, fire,
- * weapons, poison, bites, falls and blows), which a child's reading does not need either.
+ * weapons, poison, bites, falls and blows), which a child's reading does not need either. Intimacy
+ * covers the classical potency signification (Venus's "semen (potency)", BPHS 3.12-13); it matches
+ * only those two words, so wider sexual wording elsewhere is not yet gated.
  */
 export type SensitiveTag =
   | "longevity"
@@ -186,7 +188,8 @@ export type SensitiveTag =
   | "spouse-loss"
   | "child-loss"
   | "sibling-loss"
-  | "peril";
+  | "peril"
+  | "intimacy";
 
 const KIN_PARENT = "(father|mother|parent|parents|elders?)";
 const KIN_SPOUSE = "(spouse|wife|husband|partner|the married partner|life partner)";
@@ -221,6 +224,7 @@ const TAG_RES: Array<[SensitiveTag, RegExp]> = [
     "peril",
     /\b(risk to life|threat to life|danger to life|danger of death|death|deaths|dies|dying|hunting|danger (of|from|through) (fire|weapons?|arms|poison|snakes?|water|drowning|the king|enemies|an enemy|thieves|animals|beasts|accidents?)|grave (danger|risk|peril)|mortal|drown(s|ing)?|poison(ed|ing)?|wounds? by|injury from a weapon|falls? from (vehicles|heights|a height)|assassin|murder|(serpent|snake|dog)[- ]?bites?|bitten by (a |the )?(dog|snake|serpent)|trouble from a serpent|head injury|injur(y|ed|ies) by (stone|sword|weapons?)|falls? in(to)? a (well|river|tank)|dead spirits?|souls of the dead)\b/i,
   ],
+  ["intimacy", /\b(potency|semen)\b/i],
 ];
 
 /** Every sensitive topic a statement touches; empty for an ordinary statement. */
@@ -247,7 +251,7 @@ const KEEP_KEYS = new Set([
 const HEAD_KEYS = ["text", "title", "topic", "headline", "summary", "blurb", "matters", "label", "effects"];
 
 /** Tags that name a topic (a house keyword such as "longevity") rather than an event befalling someone. */
-const KEYWORD_TAGS = new Set<SensitiveTag>(["longevity", "maraka", "arishta"]);
+const KEYWORD_TAGS = new Set<SensitiveTag>(["longevity", "maraka", "arishta", "intimacy"]);
 
 /**
  * A sentence that is a bare list of matters (three or more comma-separated items) loses only the
