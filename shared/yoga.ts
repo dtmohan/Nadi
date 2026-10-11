@@ -11,6 +11,7 @@ import {
 import { SC_RAJYOGAS, buildSarvarthaContext } from "./sarvartha";
 import { charaKarakas, navamsaOf, arudhaOf } from "./jaimini";
 import { rasiAspects } from "./jaimini-core";
+import { redactProse } from "./life-stage";
 
 export type YogaText =
   | "Brihat Jataka"
@@ -819,6 +820,19 @@ export const YOGAS: Yoga[] = [
 ];
 
 /** The yogas whose predicate fires for the chart, applying the Nabhasa precedence. */
+/**
+ * A minor's view of the fired yogas (shared/life-stage.ts): a result loses its withheld statements,
+ * and a yoga whose whole result is withheld is left out. The condition is kept as written.
+ */
+export function gateYogas(ys: Yoga[], withheld: boolean): Yoga[] {
+  if (!withheld) return ys;
+  return ys.flatMap((y) => {
+    const result = redactProse(y.result);
+    if (!result) return [];
+    return [{ ...y, result, note: y.note === undefined ? undefined : redactProse(y.note) || undefined }];
+  });
+}
+
 export function computeYogas(ctx: YogaContext): Yoga[] {
   const fired = YOGAS.filter((y) => y.test && y.test(ctx));
   const hasOtherNabhasa = fired.some(

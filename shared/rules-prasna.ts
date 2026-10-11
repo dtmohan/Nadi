@@ -351,7 +351,7 @@ export const PRASNA_BHAVA_SIGNIFICATIONS: PrasnaBhavaSignification[] = [
   {
     house: 7,
     stanza: "9",
-    text: "Marriage, sexual instincts, wife or husband, relations with others, beds and cots, the wife's birthplace, lost or hidden things and sex relations.",
+    text: "Marriage, sexual instincts, wife or husband, relations with others, beds and cots, the wife's birthplace, lost or hidden things, and sex relations.",
   },
   {
     house: 8,

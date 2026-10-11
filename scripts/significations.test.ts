@@ -63,7 +63,7 @@ test("significations: every entry has a tier, a source and a reference; every Me
 test("significations: declared tags agree with the shared age gate", () => {
   for (const s of PARASHARI_SIGNIFICATIONS) {
     const declared = [...(s.tags ?? [])].sort();
-    const found = [...new Set(sensitiveTags(s.word))].sort();
+    const found = Array.from(new Set(sensitiveTags(s.word))).sort();
     assert.deepEqual(declared, found, `${s.planet}: ${s.word}`);
   }
   for (const h of MODERN_HOUSE_READINGS) assert.deepEqual(sensitiveTags(h.reading), [], `house ${h.house}`);

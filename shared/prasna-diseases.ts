@@ -6,49 +6,62 @@
  * mapping, not a forecast of illness.
  */
 
+import { withholdText } from "./life-stage";
+
 export interface PrasnaDiseaseRemedy {
   disease: string;
-  cause: string;
+  /** The past-life acts named as cause, one per entry, so a minor's view can leave out whole acts. */
+  causes: string[];
   remedy: string;
   source: string;
 }
 
+/**
+ * The causes as one phrase, joined by semicolons when an act lists several parties. A native under
+ * the sensitive age (shared/life-stage.ts) gets the acts on its withheld topics left out (sexual
+ * matters, danger to life); the result is empty when every act is.
+ */
+export function diseaseCauses(d: PrasnaDiseaseRemedy, withheld = false): string {
+  const cs = withheld ? d.causes.filter((c) => !withholdText(c)) : d.causes;
+  return cs.join(cs.some((c) => c.includes(",")) ? "; " : ", ");
+}
+
 export const PRASNA_DISEASE_REMEDIES: PrasnaDiseaseRemedy[] = [
-  { disease: "Consumption", cause: "harm to Brahmins, hatred of preceptors and elders, intimacy at eclipses", remedy: "Sahasra Nama, Rudra and Aindragni Suktas with Homa, and gifts of clothes", source: "Prasna Marga 23.2" },
-  { disease: "Emaciation", cause: "stealing food", remedy: "gift an image of Siva", source: "Prasna Marga 23.3" },
-  { disease: "Leprosy", cause: "harming Brahmins, the preceptor's wife, selling medicines wrongly, attempting poison", remedy: "Rudra and Ayus Suktas, gift Sun and bull images of gold, Kushmanda Homa", source: "Prasna Marga 23.4" },
-  { disease: "White leprosy", cause: "as leprosy, plus taking cotton rolls, clothes and bronze vessels", remedy: "as for leprosy", source: "Prasna Marga 23.5" },
-  { disease: "Serpis", cause: "harm to serpents", remedy: "Nagadana — gift an image of a serpent", source: "Prasna Marga 23.6" },
-  { disease: "Leucoderma", cause: "taking the wealth of Deities and Brahmins, forbidden foods", remedy: "Kushmanda Homa and a gift of gold", source: "Prasna Marga 23.7" },
-  { disease: "Dysentery", cause: "destroying tanks and wells", remedy: "Rudra and Varuna Suktas", source: "Prasna Marga 23.8" },
-  { disease: "Disease of the face", cause: "harming lips, teeth and tongues, disparaging elders, false witness", remedy: "Kushmanda Homa, Gayatri Japa, gift of a gold elephant, grains and medicines", source: "Prasna Marga 23.9" },
-  { disease: "Piles", cause: "taking the wealth of the learned and the blind, stealing food, intimacy on prohibited days, harm to cows", remedy: "gift a gold figure of a cow", source: "Prasna Marga 23.10" },
-  { disease: "Eye disease", cause: "ingratitude, casting glances at other women, injuring eyes", remedy: "payasa, gold and ghee, a gift of Garuda, Homas, Netra-raksha mantra", source: "Prasna Marga 23.11" },
-  { disease: "Partial blindness", cause: "injuring a cow's eyes", remedy: "gift an image of Gopala", source: "Prasna Marga 23.12" },
-  { disease: "Ear disease", cause: "back-biting, harming ears, obstructing others' work", remedy: "gifts of land, gold, grains and wool, Surya mantra", source: "Prasna Marga 23.13" },
-  { disease: "Disease of the tongue", cause: "scolding preceptors and elders, falsehood, causing grief, harming tongues", remedy: "gifts of grains and medicines, Kushmanda Homa, Rahu mantra", source: "Prasna Marga 23.14" },
-  { disease: "Rheumatism", cause: "criticising the pious, hating parents and preceptors, stealing food", remedy: "gift a copper deer with clothes and food, Vayu Sukta", source: "Prasna Marga 23.15" },
-  { disease: "Colic", cause: "intimacy with virgins, animals, widows or servants, forbidden food, back-biting, poisoning or wounding", remedy: "thila dana and padma dana, gift a silver or gold trident", source: "Prasna Marga 23.16" },
-  { disease: "Disease of the spleen", cause: "enmity to the preceptor, envy, misusing another's food", remedy: "Aindragni Homa, Rudra and Vayu Suktas, Gayatri, gift of Ganapati", source: "Prasna Marga 23.17" },
-  { disease: "Prameha", cause: "intimacy with animals, virgins, the preceptor's wife or widows; hatred of teachers; stealing Brahmins' food", remedy: "Homas and gifts of gold, cow, water and food, Varuna mantra", source: "Prasna Marga 23.18-19" },
-  { disease: "Dropsy", cause: "intimacy with the preceptor's wife, causing abortion", remedy: "Rudra and Varuna Suktas, gift an image of a crocodile and water", source: "Prasna Marga 23.20" },
-  { disease: "Urinary disease", cause: "intimacy with virgins, animals or widows, ill-treating Brahmins", remedy: "gifts of gingelly seeds and lotus flowers", source: "Prasna Marga 23.21" },
-  { disease: "Fistula", cause: "disregarding elders and preceptors, intimacy with the preceptor's wife", remedy: "gifts of jewels, silver, gold and a gold elephant; Gayatri, Aditya and Rudra Suktas", source: "Prasna Marga 23.22" },
-  { disease: "Vidhradhi", cause: "stealing fruits", remedy: "amradana as the Smritis enjoin", source: "Prasna Marga 23.23" },
-  { disease: "Throat disease", cause: "stealing public property", remedy: "Grahasanti and gifts of gems", source: "Prasna Marga 23.24" },
-  { disease: "Headache", cause: "hatred of Brahmins", remedy: "repentance and a gift of the sacred thread", source: "Prasna Marga 23.25" },
-  { disease: "Asrugadhara", cause: "destroying sacred trees, injuring cows", remedy: "gift a red cow", source: "Prasna Marga 23.26" },
-  { disease: "Epilepsy", cause: "harming preceptors and masters", remedy: "Japa and Dana as the Smritis enjoin", source: "Prasna Marga 23.27" },
-  { disease: "Dumbness and insanity", cause: "ridiculing elders, pursuing pleasure, coveting others' wives, broken promises", remedy: "gift an image of an elephant", source: "Prasna Marga 23.28" },
-  { disease: "Fevers", cause: "intimidating others with a dog", remedy: "Abhisheka of Vishnu and Siva, Panchadurga mantra, Rudra Sukta", source: "Prasna Marga 23.29" },
-  { disease: "Extreme thirst", cause: "intimacy with the preceptor's wife", remedy: "give water to the thirsty", source: "Prasna Marga 23.30" },
-  { disease: "Ulcers", cause: "stealing vegetables, obstructing speech, maltreating others, destroying trees", remedy: "gift a gem, pearls or a precious ring", source: "Prasna Marga 23.31" },
-  { disease: "Ulcers of the hands and legs", cause: "causing abortion, intimacy with the preceptor's wife", remedy: "gift a gem to Brahmins", source: "Prasna Marga 23.32" },
-  { disease: "Childlessness", cause: "harming children, eating eggs, hating preceptors and children, causing discord between mother and child", remedy: "gift a gold image of a cow", source: "Prasna Marga 23.33" },
-  { disease: "Aruchi and Chardhi", cause: "charity given without devotion; betraying one who trusts you", remedy: "suitable remedies left to the learned", source: "Prasna Marga 23.34" },
-  { disease: "Muteness", cause: "plagiarism", remedy: "gift an image of Saraswati", source: "Prasna Marga 23.35" },
-  { disease: "Blindness", cause: "eating without washing the feet and hands", remedy: "gift an image of Garuda", source: "Prasna Marga 23.36" },
-  { disease: "Intestinal trouble", cause: "obstructing the performance of a Yagna", remedy: "gift an image of Vishnu", source: "Prasna Marga 23.37" },
+  { disease: "Consumption", causes: ["harm to Brahmins", "hatred of preceptors and elders", "intimacy at eclipses"], remedy: "Sahasra Nama, Rudra and Aindragni Suktas with Homa, and gifts of clothes", source: "Prasna Marga 23.2" },
+  { disease: "Emaciation", causes: ["stealing food"], remedy: "gift an image of Siva", source: "Prasna Marga 23.3" },
+  { disease: "Leprosy", causes: ["harming Brahmins", "intimacy with the preceptor's wife", "selling medicines wrongly", "attempting poison"], remedy: "Rudra and Ayus Suktas, gift Sun and bull images of gold, Kushmanda Homa", source: "Prasna Marga 23.4" },
+  { disease: "White leprosy", causes: ["as leprosy, plus taking cotton rolls, clothes and bronze vessels"], remedy: "as for leprosy", source: "Prasna Marga 23.5" },
+  { disease: "Serpis", causes: ["harm to serpents"], remedy: "Nagadana — gift an image of a serpent", source: "Prasna Marga 23.6" },
+  { disease: "Leucoderma", causes: ["taking the wealth of Deities and Brahmins", "forbidden foods"], remedy: "Kushmanda Homa and a gift of gold", source: "Prasna Marga 23.7" },
+  { disease: "Dysentery", causes: ["destroying tanks and wells"], remedy: "Rudra and Varuna Suktas", source: "Prasna Marga 23.8" },
+  { disease: "Disease of the face", causes: ["harming lips, teeth and tongues", "disparaging elders", "false witness"], remedy: "Kushmanda Homa, Gayatri Japa, gift of a gold elephant, grains and medicines", source: "Prasna Marga 23.9" },
+  { disease: "Piles", causes: ["taking the wealth of the learned and the blind", "stealing food", "intimacy on prohibited days", "harm to cows"], remedy: "gift a gold figure of a cow", source: "Prasna Marga 23.10" },
+  { disease: "Eye disease", causes: ["ingratitude", "casting glances at other women", "injuring eyes"], remedy: "payasa, gold and ghee, a gift of Garuda, Homas, Netra-raksha mantra", source: "Prasna Marga 23.11" },
+  { disease: "Partial blindness", causes: ["injuring a cow's eyes"], remedy: "gift an image of Gopala", source: "Prasna Marga 23.12" },
+  { disease: "Ear disease", causes: ["back-biting", "harming ears", "obstructing others' work"], remedy: "gifts of land, gold, grains and wool, Surya mantra", source: "Prasna Marga 23.13" },
+  { disease: "Disease of the tongue", causes: ["scolding preceptors and elders", "falsehood", "causing grief", "harming tongues"], remedy: "gifts of grains and medicines, Kushmanda Homa, Rahu mantra", source: "Prasna Marga 23.14" },
+  { disease: "Rheumatism", causes: ["criticising the pious", "hating parents and preceptors", "stealing food"], remedy: "gift a copper deer with clothes and food, Vayu Sukta", source: "Prasna Marga 23.15" },
+  { disease: "Colic", causes: ["intimacy with virgins, animals, widows or servants", "forbidden food", "back-biting", "poisoning or wounding"], remedy: "thila dana and padma dana, gift a silver or gold trident", source: "Prasna Marga 23.16" },
+  { disease: "Disease of the spleen", causes: ["enmity to the preceptor", "envy", "misusing another's food"], remedy: "Aindragni Homa, Rudra and Vayu Suktas, Gayatri, gift of Ganapati", source: "Prasna Marga 23.17" },
+  { disease: "Prameha", causes: ["intimacy with animals, virgins, the preceptor's wife or widows", "hatred of teachers", "stealing Brahmins' food"], remedy: "Homas and gifts of gold, cow, water and food, Varuna mantra", source: "Prasna Marga 23.18-19" },
+  { disease: "Dropsy", causes: ["intimacy with the preceptor's wife", "causing abortion"], remedy: "Rudra and Varuna Suktas, gift an image of a crocodile and water", source: "Prasna Marga 23.20" },
+  { disease: "Urinary disease", causes: ["intimacy with virgins, animals or widows", "ill-treating Brahmins"], remedy: "gifts of gingelly seeds and lotus flowers", source: "Prasna Marga 23.21" },
+  { disease: "Fistula", causes: ["disregarding elders and preceptors", "intimacy with the preceptor's wife"], remedy: "gifts of jewels, silver, gold and a gold elephant; Gayatri, Aditya and Rudra Suktas", source: "Prasna Marga 23.22" },
+  { disease: "Vidhradhi", causes: ["stealing fruits"], remedy: "amradana as the Smritis enjoin", source: "Prasna Marga 23.23" },
+  { disease: "Throat disease", causes: ["stealing public property"], remedy: "Grahasanti and gifts of gems", source: "Prasna Marga 23.24" },
+  { disease: "Headache", causes: ["hatred of Brahmins"], remedy: "repentance and a gift of the sacred thread", source: "Prasna Marga 23.25" },
+  { disease: "Asrugadhara", causes: ["destroying sacred trees", "injuring cows"], remedy: "gift a red cow", source: "Prasna Marga 23.26" },
+  { disease: "Epilepsy", causes: ["harming preceptors and masters"], remedy: "Japa and Dana as the Smritis enjoin", source: "Prasna Marga 23.27" },
+  { disease: "Dumbness and insanity", causes: ["ridiculing elders", "pursuing pleasure", "coveting others' wives", "broken promises"], remedy: "gift an image of an elephant", source: "Prasna Marga 23.28" },
+  { disease: "Fevers", causes: ["intimidating others with a dog"], remedy: "Abhisheka of Vishnu and Siva, Panchadurga mantra, Rudra Sukta", source: "Prasna Marga 23.29" },
+  { disease: "Extreme thirst", causes: ["intimacy with the preceptor's wife"], remedy: "give water to the thirsty", source: "Prasna Marga 23.30" },
+  { disease: "Ulcers", causes: ["stealing vegetables", "obstructing speech", "maltreating others", "destroying trees"], remedy: "gift a gem, pearls or a precious ring", source: "Prasna Marga 23.31" },
+  { disease: "Ulcers of the hands and legs", causes: ["causing abortion", "intimacy with the preceptor's wife"], remedy: "gift a gem to Brahmins", source: "Prasna Marga 23.32" },
+  { disease: "Childlessness", causes: ["harming children", "eating eggs", "hating preceptors and children", "causing discord between mother and child"], remedy: "gift a gold image of a cow", source: "Prasna Marga 23.33" },
+  { disease: "Aruchi and Chardhi", causes: ["charity given without devotion", "betraying one who trusts you"], remedy: "suitable remedies left to the learned", source: "Prasna Marga 23.34" },
+  { disease: "Muteness", causes: ["plagiarism"], remedy: "gift an image of Saraswati", source: "Prasna Marga 23.35" },
+  { disease: "Blindness", causes: ["eating without washing the feet and hands"], remedy: "gift an image of Garuda", source: "Prasna Marga 23.36" },
+  { disease: "Intestinal trouble", causes: ["obstructing the performance of a Yagna"], remedy: "gift an image of Vishnu", source: "Prasna Marga 23.37" },
 ];
 
 export const PRASNA_DISEASE_NOTES = [

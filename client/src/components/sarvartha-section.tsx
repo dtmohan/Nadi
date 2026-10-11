@@ -16,7 +16,7 @@ import {
   type SarvarthaResult,
 } from "@shared/sarvartha";
 import { PLANET_ABBR } from "@shared/astro";
-import { SENSITIVE_WITHHELD_NOTE } from "@shared/life-stage";
+import { SENSITIVE_WITHHELD_NOTE, withholdText } from "@shared/life-stage";
 import { SectionTitle, ModeText, usePlain } from "@/components/mode-text";
 import { Soft } from "@/lib/gentle";
 import { cn } from "@/lib/utils";
@@ -100,6 +100,8 @@ export function SarvarthaSection({
   const plain = usePlain();
   const leftOut = (topic: string, text: string) =>
     sarvarthaLeftOut(topic, text, plain, withheld);
+  // A minor's house significations lose their withheld items (longevity, sexual matters).
+  const shownSigs = (sigs: string[]) => (withheld ? sigs.filter((x) => !withholdText(x)) : sigs);
 
   const fired = new Set(sarvartha?.findings.map((f) => `${f.house}.${f.stanza}`));
   const findings = (sarvartha?.findings ?? []).filter(
@@ -169,7 +171,7 @@ export function SarvarthaSection({
                     {ORDINAL[h.house - 1]} house
                     {sig && (
                       <span className="ml-2 text-xs font-normal text-muted-foreground">
-                        {sig.significations.slice(0, 4).join(", ")}
+                        {shownSigs(sig.significations).slice(0, 4).join(", ")}
                       </span>
                     )}
                   </div>
@@ -237,7 +239,7 @@ export function SarvarthaSection({
                     </span>
                   </div>
                   <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
-                    {b.significations.join(", ")}.
+                    {shownSigs(b.significations).join(", ")}.
                   </p>
                   {b.karakaNote && (
                     <p className="mt-0.5 text-xs text-muted-foreground/80">

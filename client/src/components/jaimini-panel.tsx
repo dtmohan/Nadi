@@ -78,7 +78,7 @@ import { vimshottari, type KpPeriod } from "@shared/kp";
 import { INDU_SOURCE } from "@shared/indu-lagna";
 import { cn } from "@/lib/utils";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
-import { computeYogas, YOGAS } from "@shared/yoga";
+import { computeYogas, gateYogas, YOGAS } from "@shared/yoga";
 
 const PLAIN_KARAKA: Record<string, string> = {
   AK: "self",
@@ -437,14 +437,22 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
   const [focusSign, setFocusSign] = useState<number>(j.lagna.signIndex);
   const [showPrimer, setShowPrimer] = useState(false);
   const plain = usePlain();
+  // The sensitive-content gate, as in the verdict above: a minor's raja yoga results lose their
+  // withheld statements.
+  const withheld =
+    result.sensitive?.withheld ??
+    sensitiveGate(result.chart, result.utc, result.now.asOf).withheld;
   // Jaimini's own raja yogas (chara karakas, Karakamsa, Arudha lagna, sign aspects) from the yoga
   // database; the Parashari tab reads only the Parashari-lineage texts.
   const rajaYogas = useMemo(
     () =>
-      computeYogas({ positions, lagnaIdx: j.lagna.signIndex }).filter(
-        (y) => y.source.text === "Jaimini",
+      gateYogas(
+        computeYogas({ positions, lagnaIdx: j.lagna.signIndex }).filter(
+          (y) => y.source.text === "Jaimini",
+        ),
+        withheld,
       ),
-    [positions, j.lagna.signIndex],
+    [positions, j.lagna.signIndex, withheld],
   );
   const rajaYogaRules = YOGAS.filter((y) => y.source.text === "Jaimini").length;
   const chapterDefs: ChapterDef[] = [
