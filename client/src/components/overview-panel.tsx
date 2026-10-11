@@ -94,7 +94,7 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
       !sarvarthaLeftOut(f.topic, f.text, plain, result.sensitive?.withheld ?? false),
   );
   const crossSchool = agreement.filter(
-    (a) => a.verdict === "disagree" || a.verdict === "lean",
+    (a) => a.verdict === "disagree" || a.verdict === "lean" || a.verdict === "mixed",
   );
 
   const sun = positions.find((p) => p.planet === "Sun")!;

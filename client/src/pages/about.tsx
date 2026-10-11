@@ -607,14 +607,27 @@ export default function AboutPage() {
             <p>
               Above the tabs, "Where the systems agree or differ" sets Nadi,
               Parashari, Jaimini and KP side by side on marriage, children,
-              career, parents and, in the practitioner reading for an adult, the
-              span of life. Each stance is the verdict that system's own tab
-              shows, linked to it, and the line only says whether they agree,
-              lean one way or disagree. Nothing is blended and no system
-              corrects another; a disagreement is reported as the finding. The
-              same table closes the report when all four systems are in it. KP
-              stances rest on a cusp sub lord that changes every few minutes of
-              birth time, and are read with that in mind.
+              career, the father, the mother and, in the practitioner reading
+              of a life with a recorded date of passing, the span of life. The
+              Nadi, Jaimini and KP stances are the verdicts their own tabs
+              show. Parashari's is read from three books, BPHS, Phaladeepika
+              and Sarvartha Chintamani, each weighed on its own: a book
+              supports or strains when two-thirds of its rules that fire point
+              that way. The books, and then the systems, are combined by one
+              rule: which stances are present, never how many voices hold
+              them. Support beside strain is a dispute, one way beside a mixed
+              reading only leans, and two books of one school never count as
+              agreement between schools. Father and mother take only the rules
+              that name the parent; BPHS 11.5 gives the mother to the 4th house
+              and 11.11 the father to the 10th. Statements withheld for a minor
+              are removed before anything is weighed. A stance whose direction
+              is read from the wording of its rules, or that rests on the
+              app's own encoding, is marked provisional, as are the two-thirds
+              rule and the comparison itself. No system corrects another; a
+              disagreement is reported as the finding. The same table closes
+              the report when all four systems are in it. KP stances rest on a
+              cusp sub lord that changes every few minutes of birth time, and
+              are read with that in mind.
             </p>
             <h2>The report</h2>
             <p>

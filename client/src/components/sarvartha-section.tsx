@@ -8,7 +8,7 @@ import {
   SC_LONGEVITY,
   SC_METHOD_NOTE,
   SC_SOURCE,
-  SC_LIFESPAN_TOPICS,
+  sarvarthaLeftOut,
   FIDELITY_LABEL,
   FIDELITY_NOTE,
   ruleFidelity,
@@ -16,7 +16,7 @@ import {
   type SarvarthaResult,
 } from "@shared/sarvartha";
 import { PLANET_ABBR } from "@shared/astro";
-import { SENSITIVE_WITHHELD_NOTE, withholdText } from "@shared/life-stage";
+import { SENSITIVE_WITHHELD_NOTE } from "@shared/life-stage";
 import { SectionTitle, ModeText, usePlain } from "@/components/mode-text";
 import { Soft } from "@/lib/gentle";
 import { cn } from "@/lib/utils";
@@ -25,23 +25,8 @@ const ORDINAL = [
   "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th",
 ];
 
-/**
- * True when a Sarvartha statement is left out of this view. The rules on the length of life, on
- * bereavement and on bodily danger (the sensitive-content gate's topics) are read in the
- * practitioner view only, as written, and never for a native under the sensitive age. The gentle
- * rewording cannot be applied to this text phrase by phrase, so the plain reading leaves them out.
- */
-export function sarvarthaLeftOut(
-  topic: string,
-  text: string,
-  plain: boolean,
-  withheld: boolean,
-): boolean {
-  return (
-    (plain || withheld) &&
-    (SC_LIFESPAN_TOPICS.has(topic) || withholdText(`${topic}: ${text}`))
-  );
-}
+// The left-out rule lives in shared/sarvartha.ts, where the agreement reads it too.
+export { sarvarthaLeftOut };
 
 const SC_GENTLE =
   "Venkatesha's rules on the length of life, on bereavement and on bodily danger are shown here as written: checks of the text against the chart, never a forecast of an event or its date. The plain reading leaves them out.";
