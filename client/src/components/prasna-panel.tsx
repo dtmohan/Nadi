@@ -40,7 +40,7 @@ import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Soft } from "@/lib/gentle";
 import { redactProse } from "@shared/life-stage";
 import { computeKootas } from "@shared/prasna-kootas";
-import { PRASNA_DISEASE_REMEDIES, PRASNA_DISEASE_NOTES } from "@shared/prasna-diseases";
+import { PRASNA_DISEASE_REMEDIES, PRASNA_DISEASE_NOTES, diseaseCauses } from "@shared/prasna-diseases";
 import {
   PRASNA_DEITY_MAPPING,
   PRASNA_DEITY_REMEDIES,
@@ -158,11 +158,14 @@ function HouseWalk({
   fructification,
   dispositions,
   lagnaIdx,
+  withheld,
 }: {
   natal: PrasnaHouseReading[];
   fructification: PrasnaBhavaFructification[];
   dispositions: PrasnaDispositionReading[];
   lagnaIdx: number;
+  /** A native under the sensitive age: the significations lose their withheld items. */
+  withheld: boolean;
 }) {
   const byHouse = new Map(natal.map((r) => [r.house, r]));
   const fruct = new Map(fructification.map((f) => [f.house, f]));
@@ -192,7 +195,7 @@ function HouseWalk({
               </span>
             </div>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              {sig.text}
+              {withheld ? redactProse(sig.text) : sig.text}
             </p>
             {r ? (
               <>
@@ -731,6 +734,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             fructification={fructification}
             dispositions={dispositions}
             lagnaIdx={birthLagnaIdx}
+            withheld={withheld}
           />
         </div>
 
@@ -955,7 +959,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             <li key={b.house} className="text-xs leading-relaxed">
               <span className="font-medium">{ord(b.house)} house</span>{" "}
               <span className="text-muted-foreground">· 14.{b.stanza}</span> —{" "}
-              {b.text}
+              {withheld ? redactProse(b.text) : b.text}
             </li>
           ))}
         </ul>
@@ -971,18 +975,21 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
           diagnosis.
         </p>
         <ul className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
-          {PRASNA_DISEASE_REMEDIES.map((d) => (
+          {PRASNA_DISEASE_REMEDIES.map((d) => {
+            const causes = diseaseCauses(d, withheld);
+            return (
             <li
               key={d.disease}
               className="text-xs leading-relaxed"
               data-testid={`prasna-disease-${d.disease.toLowerCase().replace(/\s+/g, "-")}`}
             >
               <span className="font-medium">{d.disease}</span>{" "}
-              <span className="text-muted-foreground">— {d.cause}.</span>{" "}
+              {causes && <span className="text-muted-foreground">— {causes}.</span>}{" "}
               <Soft>{d.remedy}.</Soft>{" "}
               <span className="text-muted-foreground">({d.source})</span>
             </li>
-          ))}
+            );
+          })}
         </ul>
         <ul className="mt-2 space-y-0.5 text-2xs text-muted-foreground">
           {PRASNA_DISEASE_NOTES.map((n, i) => (

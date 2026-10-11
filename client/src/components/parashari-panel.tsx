@@ -121,7 +121,7 @@ import { PortionsSection } from "@/components/portions";
 import { SarvarthaSection, sarvarthaLeftOut } from "@/components/sarvartha-section";
 import { SC_SOURCE } from "@shared/sarvartha";
 import { computeCombinations, CONJUNCTIONS_NOTE } from "@shared/combinations";
-import { computeYogas, YOGA_CATEGORY_LABEL, YOGA_NOTE } from "@shared/yoga";
+import { computeYogas, gateYogas, YOGA_CATEGORY_LABEL, YOGA_NOTE } from "@shared/yoga";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
@@ -235,14 +235,6 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       ),
     [positions, result.jaimini.lagna.signIndex, result.shadbala],
   );
-  const firedYogas = useMemo(
-    () =>
-      computeYogas({
-        positions,
-        lagnaIdx: result.jaimini.lagna.signIndex,
-      }).filter((y) => y.source.text !== "Jaimini"),
-    [positions, result.jaimini.lagna.signIndex],
-  );
   // Everything "current" is read at the reading date, or at the recorded date of passing: after a
   // death date nothing here is a forecast, and the running dasa is the one that was running then.
   const asOfIso = lifeAsOf(chart, result.now.asOf);
@@ -252,6 +244,17 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const withheld =
     result.sensitive?.withheld ??
     sensitiveGate(chart, result.utc, asOfIso).withheld;
+  const firedYogas = useMemo(
+    () =>
+      gateYogas(
+        computeYogas({
+          positions,
+          lagnaIdx: result.jaimini.lagna.signIndex,
+        }).filter((y) => y.source.text !== "Jaimini"),
+        withheld,
+      ),
+    [positions, result.jaimini.lagna.signIndex, withheld],
+  );
   // Local civil birth year, for the era rule of the significations table.
   const birthYear = Number(chart.birthDate.slice(0, 4)) || undefined;
   const r = useMemo(
@@ -1454,7 +1457,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       </Chapter>
       <Chapter id="bj">
       <div className="mt-8" data-testid="parashari-bj-cross">
-        <BjCrossSection />
+        <BjCrossSection withheld={withheld} />
       </div>
       </Chapter>
 

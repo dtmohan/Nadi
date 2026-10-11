@@ -7,7 +7,7 @@
 // than recomputed. This module harvests the house significations (ch. 2-8) and karakas (ch. 17).
 import { SIGN_LORD, houseFrom, drishtiQuarters, naturalBenefic, type Dignity, type Planet, type PlanetPosition } from "./astro";
 import type { VargasResult } from "./vargas";
-import { withholdText } from "./life-stage";
+import { sensitiveTags, withholdText } from "./life-stage";
 
 /** Ch. 1.25-27: the good-varga count earns a named amsha. Mirrors the app's BPHS varga designation. */
 export const SC_AMSHA_TIERS: Array<{ good: number; name: string; bpbsName: string }> = [
@@ -637,10 +637,12 @@ export const SC_LIFESPAN_TOPICS: ReadonlySet<string> = new Set([
  * True when a Sarvartha statement is left out of a view. The rules on the length of life, on bereavement and on
  * bodily danger (the sensitive-content gate's topics) are read in the practitioner view only, as written, and
  * never for a native under the sensitive age. The gentle rewording cannot be applied to this text phrase by
- * phrase, so the plain reading leaves them out. Shared by the Parashari tab, the Overview and the agreement.
+ * phrase, so the plain reading leaves them out. Sexual matters are a minor's topic only: an adult's plain
+ * reading keeps those rules. Shared by the Parashari tab, the Overview and the agreement.
  */
 export function sarvarthaLeftOut(topic: string, text: string, plain: boolean, withheld: boolean): boolean {
-  return (plain || withheld) && (SC_LIFESPAN_TOPICS.has(topic) || withholdText(`${topic}: ${text}`));
+  if (withheld) return SC_LIFESPAN_TOPICS.has(topic) || withholdText(`${topic}: ${text}`);
+  return plain && (SC_LIFESPAN_TOPICS.has(topic) || sensitiveTags(`${topic}: ${text}`).some((t) => t !== "intimacy"));
 }
 
 export interface SarvarthaResult {

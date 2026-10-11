@@ -169,7 +169,7 @@ export function sensitiveGate(
   return { withheld: age < SENSITIVE_MIN_AGE, ageYears: age, minAge: SENSITIVE_MIN_AGE };
 }
 
-export const SENSITIVE_WITHHELD_NOTE = `Length-of-life, maraka and arishta statements, those on the loss of a parent, spouse, child or sibling or on danger to life and limb, and the classical reading of potency are not shown for a native under ${SENSITIVE_MIN_AGE}. The combinations remain in the chart and are read when the native comes of age (a policy of this app, provisional).`;
+export const SENSITIVE_WITHHELD_NOTE = `Length-of-life, maraka and arishta statements, those on the loss of a parent, spouse, child or sibling or on danger to life and limb, and those on sexual matters (the classical reading of potency among them) are not shown for a native under ${SENSITIVE_MIN_AGE}. The combinations remain in the chart and are read when the native comes of age (a policy of this app, provisional).`;
 
 /**
  * Topics withheld for a minor. A statement is tagged by what it is about, not by the single word
@@ -177,8 +177,12 @@ export const SENSITIVE_WITHHELD_NOTE = `Length-of-life, maraka and arishta state
  * planets and periods that can end it, danger to the infant, and the loss of a parent, spouse,
  * child or sibling. Peril covers the verse readings of danger to life and limb (hunting, fire,
  * weapons, poison, bites, falls and blows), which a child's reading does not need either. Intimacy
- * covers the classical potency signification (Venus's "semen (potency)", BPHS 3.12-13); it matches
- * only those two words, so wider sexual wording elsewhere is not yet gated.
+ * covers sexual matters: the classical potency signification (Venus's "semen (potency)", BPHS
+ * 3.12-13), and the verse readings of desire, the act, illicit relations and courtesans. It matches
+ * phrases, never the bare word "sex", which the texts also use for gender (the count and sex of
+ * children, the sex of co-born, a planet's or a sign's sex, yoni). Anatomy ("the sex organs"), the
+ * eunuch class of planets and signs, and milder marriage wording (several wives, a wife of bad
+ * character, passionate) are left as written.
  */
 export type SensitiveTag =
   | "longevity"
@@ -224,14 +228,34 @@ const TAG_RES: Array<[SensitiveTag, RegExp]> = [
     "peril",
     /\b(risk to life|threat to life|danger to life|danger of death|death|deaths|dies|dying|hunting|danger (of|from|through) (fire|weapons?|arms|poison|snakes?|water|drowning|the king|enemies|an enemy|thieves|animals|beasts|accidents?)|grave (danger|risk|peril)|mortal|drown(s|ing)?|poison(ed|ing)?|wounds? by|injury from a weapon|falls? from (vehicles|heights|a height)|assassin|murder|(serpent|snake|dog)[- ]?bites?|bitten by (a |the )?(dog|snake|serpent)|trouble from a serpent|head injury|injur(y|ed|ies) by (stone|sword|weapons?)|falls? in(to)? a (well|river|tank)|dead spirits?|souls of the dead)\b/i,
   ],
-  ["intimacy", /\b(potency|semen)\b/i],
+  ["intimacy", new RegExp(`\\b(${[
+    // The potency signification and its kin.
+    "potency", "semen", "viril(e|ity)", "impoten(ce|cy)", "libido",
+    // Desire and the act.
+    "sexual(ly|ity)?", "sex (relations?|instincts?|drive|life|acts?|urges?|desires?|appetite|pleasures?)",
+    "(urge|desire|appetite|craving|lust) for sex", "(given|addicted|overridden|obsessed|fond|devoted) (to|with|of) sex",
+    "^sex$", // a bare topic label
+    "intercourse", "coitus", "copulat(e|es|ed|ing|ion)", "carnal(ly)?", "lust(s|ful|fully|fulness|ing|y)?",
+    "lascivious(ness)?", "lecher(y|ous)?", "licentious(ness)?", "debauch(ery|ed|ee|ees)?", "wanton(ness)?",
+    "erotic(a|ism)?", "sensual(ity|ist|ists|ly)?", "sensuous(ness)?", "venereal", "intimacy",
+    // Illicit relations.
+    "adulter(y|ies|ous|er|ers|ess|esses)", "unchaste", "paramours?", "concubines?", "courte[sz]ans?", "harlots?",
+    "prostitut(e|es|ion)", "whores?", "womani[sz](er|ers|ing)", "philander(er|ers|ing)?",
+    "seduc(e|es|ed|ing|tion|er|ers)", "rape[sd]?", "molest\\w*",
+    "(others'|other's|another's|other men's|other people's) (wives|wife|husbands?|spouses?)",
+    "(affairs?|liaisons?) with (an?other |other |a bad |bad |many |several |low |base )?(wom[ae]n|men)",
+    "(attached|addicted|given) to (many |other )?women", "fond of (many |other )?women",
+    "(company|association) (of|with) (bad|many|other|low|base) women", "glances at other women",
+    "pleasures? with women", "pleasures? of (the )?bed", "bed (pleasures?|comforts? with)",
+  ].join("|")})\\b`, "i")],
 ];
 
 /** Every sensitive topic a statement touches; empty for an ordinary statement. */
 export function sensitiveTags(text: string): SensitiveTag[] {
   const out: SensitiveTag[] = [];
   for (const [tag, re] of TAG_RES) if (re.test(text)) out.push(tag);
-  if (!out.length && isSensitive(text)) out.push("peril");
+  // The gentle-policy words still count when a sexual phrase is the only other match.
+  if (!out.some((t) => t !== "intimacy") && isSensitive(text)) out.push("peril");
   return out;
 }
 
@@ -263,9 +287,12 @@ function stripSentence(p: string): string | null {
   const items = p.split(/,\s*/);
   if (items.length < 3) return null;
   const offending = items.filter((it) => withholdText(it));
-  const keywordOnly = offending.every(
-    (it) => it.trim().split(/\s+/).length <= 4 && sensitiveTags(it).every((t) => KEYWORD_TAGS.has(t)),
-  );
+  // A sexual item may run a little longer ("casting glances at other women"); it names no event.
+  const keywordOnly = offending.every((it) => {
+    const tags = sensitiveTags(it);
+    const limit = tags.every((t) => t === "intimacy") ? 6 : 4;
+    return it.trim().split(/\s+/).length <= limit && tags.every((t) => KEYWORD_TAGS.has(t));
+  });
   if (!keywordOnly) return null;
   const kept = items.filter((it) => !withholdText(it));
   if (kept.length < 2) return null;
@@ -285,7 +312,11 @@ function stripSentences(s: string): string {
   // otherwise leaves a dangling "44: …" fragment when the maraka half of the sentence is withheld.
   const parts = s.split(/(?<!ch\.)(?<=[.;!?])\s+/);
   const kept = parts.map(stripSentence).filter((p): p is string => p !== null);
-  return kept.join(" ").trim();
+  const out = kept.join(" ").trim();
+  // A clause dropped from the end leaves the previous one's semicolon or comma dangling.
+  if (!/[;,]$/.test(out)) return out;
+  const end = /[.!?]$/.test(s.trim()) ? s.trim().slice(-1) : "";
+  return out.slice(0, -1) + end;
 }
 
 /**

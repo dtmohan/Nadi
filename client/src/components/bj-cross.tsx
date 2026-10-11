@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { SourceLink, Cite } from "@/components/source-link";
 import { ModeText, SectionTitle } from "@/components/mode-text";
+import { redactProse } from "@shared/life-stage";
 import { cn } from "@/lib/utils";
 
 const IYER = "https://archive.org/details/brihatjatakavar00iyergoog";
@@ -53,8 +54,11 @@ export function BjCross({ c }: { c: CrossCitation }) {
   );
 }
 
-/** Cross-check of the elementary rules against Brihat Jataka chapters 1 and 2. */
-export function BjCrossSection() {
+/**
+ * Cross-check of the elementary rules against Brihat Jataka chapters 1 and 2. `withheld`: a native
+ * under the sensitive age, for whom a rule loses its withheld items (Venus's semen).
+ */
+export function BjCrossSection({ withheld = false }: { withheld?: boolean }) {
   const counts = BJ_CROSS.reduce(
     (a, c) => ({ ...a, [c.standing]: a[c.standing] + 1 }),
     { agrees: 0, partial: 0, differs: 0 } as Record<CrossStanding, number>,
@@ -111,7 +115,7 @@ export function BjCrossSection() {
             {BJ_CROSS.map((c) => (
               <TableRow key={c.key} data-testid={`bj-cross-row-${c.key}`}>
                 <TableCell className="py-1.5 text-xs">
-                  {c.rule}
+                  {withheld ? redactProse(c.rule) : c.rule}
                   <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-muted-foreground sm:hidden">
                     <SourceLink source={c.parashara} />
                     <SourceLink source={c.bj} />
