@@ -115,6 +115,12 @@ export interface PadaResult {
   grahaPadas: GrahaPada[];
   karakas: Karaka32[];
   constants: ConstantKaraka[];
+  /**
+   * Phaladeepika 2.25's parents by day or night birth (the Sun and Venus by day, Saturn and the
+   * Moon by night), set when Shadbala gives the day or night. A classical alternative to 32.18-21,
+   * shown beside it, never merged with it.
+   */
+  parentsByBirth?: { daytime: boolean; twilight: boolean; father: Planet; mother: Planet };
   yogaKarakas: YogaKaraka32[];
   karakamsa: { signIndex: number; ak: Planet; akDegNavamsa: number; lagnaNavamsa: number };
   /** Navamsa sign of every planet, used for the Karakamsa readings. */
@@ -208,6 +214,16 @@ export function computePadas(positions: PlanetPosition[], lagnaIdx: number, lagn
     { matter: "Sons; death", planet: "Saturn", house: 8 },
     { matter: "Spouse, parents, parents-in-law, maternal grandfather", planet: "Ketu" },
   ];
+
+  // Phaladeepika 2.25 reads the parents by day or night birth instead of by strength.
+  const parentsByBirth: PadaResult["parentsByBirth"] = shadbala
+    ? {
+        daytime: shadbala.daytime,
+        twilight: shadbala.twilight,
+        father: shadbala.daytime ? "Sun" : "Saturn",
+        mother: shadbala.daytime ? "Venus" : "Moon",
+      }
+    : undefined;
 
   // Yogakarakas, 32.25-30.
   const dignified = positions.filter((p) => ["Exalted", "Moolatrikona", "Own sign", "Friendly"].includes(p.dignity));
@@ -686,5 +702,5 @@ export function computePadas(positions: PlanetPosition[], lagnaIdx: number, lagn
     if (kaK || alK) push("pd-33-94", "Kemadruma from malefics", `Malefics in ${kaK ? "the Karakamsa and its 2nd and 8th (navamsa)" : ""}${kaK && alK ? " and in " : ""}${alK ? "the Arudha lagna and its 2nd and 8th" : ""}: Parashara's Kemadruma of this chapter, felt in the dasas of the signs and planets concerned${(kaK ? asp(navamsa, KA) : asp(rasiPts, AL)).includes("Moon") ? ", and heavier with the Moon's aspect" : ""}.`, "strain", [], 33, "94-99", true);
   }
 
-  return { padas, grahaPadas, karakas, constants, yogaKarakas, karakamsa: { signIndex: KA, ak: AK, akDegNavamsa: akNav.degInSign, lagnaNavamsa: lagnaNav }, navamsa, argalas, houseArgalas, findings: F, caveats: PADA_CAVEATS };
+  return { padas, grahaPadas, karakas, constants, parentsByBirth, yogaKarakas, karakamsa: { signIndex: KA, ak: AK, akDegNavamsa: akNav.degInSign, lagnaNavamsa: lagnaNav }, navamsa, argalas, houseArgalas, findings: F, caveats: PADA_CAVEATS };
 }
