@@ -2,11 +2,14 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import {
+  AGREEMENT_METHOD,
   AGREEMENT_NOTE,
+  AGREEMENT_PARENTS_NOTE,
   AGREEMENT_SYSTEM_LABEL,
   type AgreementSystem,
   type AgreementVerdict,
   type Stance,
+  type SystemStance,
 } from "@shared/agreement";
 import { useAgreement } from "@/lib/use-agreement";
 import { Soft } from "@/lib/gentle";
@@ -15,6 +18,7 @@ import { cn } from "@/lib/utils";
 const VERDICT_LABEL: Record<AgreementVerdict, string> = {
   agree: "agree",
   lean: "lean",
+  mixed: "mixed",
   disagree: "disagree",
   quiet: "quiet",
 };
@@ -22,6 +26,7 @@ const VERDICT_LABEL: Record<AgreementVerdict, string> = {
 const VERDICT_TEXT: Record<AgreementVerdict, string> = {
   agree: "text-verdict-good",
   lean: "text-verdict-mixed",
+  mixed: "text-verdict-mixed",
   disagree: "text-verdict-bad",
   quiet: "text-muted-foreground",
 };
@@ -29,17 +34,54 @@ const VERDICT_TEXT: Record<AgreementVerdict, string> = {
 const VERDICT_CLASS: Record<AgreementVerdict, string> = {
   agree: "border-verdict-good/40 text-verdict-good",
   lean: "border-verdict-mixed/40 text-verdict-mixed",
+  mixed: "border-verdict-mixed/40 text-verdict-mixed",
   disagree: "border-dashed border-verdict-bad/50 text-verdict-bad",
   quiet: "border-border text-muted-foreground",
 };
 
 const STANCE_DOT: Record<Stance, string> = {
   supports: "bg-verdict-good",
+  "leans-supports": "bg-verdict-good/50",
   strains: "bg-verdict-bad",
+  "leans-strains": "bg-verdict-bad/50",
   mixed: "bg-verdict-mixed",
   contested: "bg-verdict-mixed ring-1 ring-verdict-bad/60",
   silent: "bg-muted-foreground/40",
 };
+
+const SYSTEMS: AgreementSystem[] = ["bnn", "parashari", "jaimini", "kp"];
+
+/** "Provisional" beside a stance that rests on a convention or on tone read from wording, with the reason. */
+function Footing({ s, testId }: { s: { stance: Stance; tier: string; reason?: string }; testId: string }) {
+  if (s.stance === "silent" || s.tier === "sourced") return null;
+  return (
+    <span
+      className="ml-1 rounded border border-dashed px-1 text-2xs text-muted-foreground"
+      title={s.reason ? `Provisional: ${s.reason}` : "Provisional"}
+      data-testid={testId}
+    >
+      provisional
+    </span>
+  );
+}
+
+/** Parashari's three books, each with its own stance, so a dispute between them stays visible. */
+function Books({ s, topic }: { s: SystemStance; topic: string }) {
+  if (!s.texts?.length) return null;
+  return (
+    <span className="mt-0.5 block" data-testid={`agreement-books-${topic}`}>
+      {s.texts.map((b, i) => (
+        <span key={b.id} data-testid={`agreement-book-${topic}-${b.id}`} data-stance={b.stance}>
+          {i > 0 && " · "}
+          {b.label}{" "}
+          <span className={b.stance === "silent" ? "" : "text-foreground"}>
+            {b.stance === "silent" ? "silent" : b.word}
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+}
 
 const uc = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -167,11 +209,13 @@ export function AgreementPanel({
             {open && (
               <ul className="mt-1.5 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
                 {t.stances.map((s) => (
-                  <li key={s.system}>
+                  <li key={s.system} data-testid={`agreement-note-${t.topic}-${s.system}`}>
                     <span className="font-medium text-foreground">
                       {AGREEMENT_SYSTEM_LABEL[s.system]}
                     </span>{" "}
                     <Soft>{uc(s.note)}</Soft>
+                    <Footing s={s} testId={`agreement-footing-${t.topic}-${s.system}`} />
+                    <Books s={s} topic={t.topic} />
                   </li>
                 ))}
               </ul>
@@ -181,12 +225,25 @@ export function AgreementPanel({
       </ul>
       )}
       {open && (
-        <p
-          className="border-t px-3 py-2 text-2xs text-muted-foreground"
+        <div
+          className="space-y-1.5 border-t px-3 py-2 text-2xs text-muted-foreground"
           data-testid="agreement-note"
         >
-          {AGREEMENT_NOTE}
-        </p>
+          <ul className="space-y-0.5" data-testid="agreement-method">
+            {SYSTEMS.map((s) => (
+              <li key={s}>
+                <span className="font-medium text-foreground">
+                  {AGREEMENT_SYSTEM_LABEL[s]}
+                </span>
+                : {AGREEMENT_METHOD[s]}
+              </li>
+            ))}
+          </ul>
+          {topics.some((t) => t.topic === "father" || t.topic === "mother") && (
+            <p>{AGREEMENT_PARENTS_NOTE}</p>
+          )}
+          <p>{AGREEMENT_NOTE}</p>
+        </div>
       )}
     </section>
   );

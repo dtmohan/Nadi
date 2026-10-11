@@ -94,6 +94,11 @@ export function toneOf(f: Finding): Tone {
   return toneOfText(f.text);
 }
 
+/** True when a finding's tone is read from its wording rather than set for the rule (shared/kernel.ts tiers). */
+export function toneIsKeyword(f: Finding): boolean {
+  return !(f.ruleId in TONE_OVERRIDE);
+}
+
 /** Keyword balance of a rule sentence, for texts that carry no explicit tone (ALP, KP cusp readings). */
 export function toneOfText(text: string): Tone {
   const t = text.replace(/^[^:]*:\s*/, ""); // judge the gist, not the label

@@ -14,7 +14,6 @@ import {
 } from "../life-stage";
 import { soften } from "../gentle";
 import type { ChartResult } from "../schema";
-import { normaliseParashariHouseMethod } from "../schema";
 import {
   Cites,
   cap,
@@ -35,15 +34,14 @@ import { kpModule } from "./kp";
 import { alpModule } from "./alp";
 import { rectifyModule } from "./rectify";
 import { validateModule } from "./validate";
-import { synthesize } from "../synthesis";
-import { readAreas } from "../jaimini-areas";
-import { computeParashari, DEFAULT_ASPECT_FLOOR } from "../parashari";
-import { computeKp } from "../kp";
 import {
+  AGREEMENT_METHOD,
   AGREEMENT_NOTE,
+  AGREEMENT_PARENTS_NOTE,
   AGREEMENT_SYSTEM_LABEL,
-  computeAgreement,
+  agreementFor,
   type AgreementSystem,
+  type SystemStance,
 } from "../agreement";
 
 const AGREEMENT_SYSTEMS: AgreementSystem[] = [
@@ -52,6 +50,15 @@ const AGREEMENT_SYSTEMS: AgreementSystem[] = [
   "jaimini",
   "kp",
 ];
+
+/** A table cell: the stance word and its evidence, the books behind Parashari's, and any provisional footing. */
+function stanceCell(s: SystemStance, S: (t: string) => string): string {
+  const books = s.texts?.length
+    ? ` (${s.texts.map((b) => `${b.label} ${b.stance === "silent" ? "silent" : b.word}`).join("; ")})`
+    : "";
+  const footing = s.stance !== "silent" && s.tier !== "sourced" && s.reason ? ` Provisional: ${s.reason}.` : "";
+  return `${cap(s.word)}: ${S(s.note)}${books}.${footing}`.replace(/\.\./g, ".");
+}
 
 export * from "./types";
 
@@ -167,28 +174,9 @@ function agreementSection(
   const ids = new Set(modules.map((m) => m.id));
   if (!["bnn", "parashari", "jaimini", "kp"].every((id) => ids.has(id)))
     return undefined;
-  const { result, plain, withheld, lifeAt, inSeason, S, deceased } = ctx;
-  const topics = computeAgreement({
-    bnn: synthesize(result.reading, result.reading.roles.gender),
-    jaimini: readAreas(result.jaimini, result.positions, withheld),
-    parashari: computeParashari(
-      result.positions,
-      result.jaimini.lagna.lon,
-      result.utc,
-      lifeAt,
-      result.shadbala,
-      result.dasaStarts,
-      DEFAULT_ASPECT_FLOOR,
-      withheld,
-      normaliseParashariHouseMethod(result.chart.parashariHouseMethod),
-    ),
-    kp: computeKp(result.kp, result.utc, lifeAt, false, withheld),
-    ayur: result.jaimini.ayur,
-    withheld,
-    plain,
-    deceased,
-    inSeason,
-  });
+  const { result, plain, S } = ctx;
+  // The same builder as the Agreement panel, with Sarvartha Chintamani among Parashari's three books.
+  const topics = agreementFor(result, plain);
   if (!topics.length) return undefined;
   return {
     id: "agreement",
@@ -197,7 +185,7 @@ function agreementSection(
     paras: [
       {
         kind: "p",
-        text: "Each system above reads the same life on its own terms. This table sets their verdicts side by side on the questions a reader asks first; nothing is blended, and where they disagree the disagreement is the finding.",
+        text: "Each system above reads the same life on its own terms. This table sets their stances side by side on the questions a reader asks first. No reading is merged into another: Parashari's three books are weighed one by one, and where books or systems disagree the disagreement is the finding.",
       },
       ...topics.map((t): ReportPara => ({
         kind: "p",
@@ -215,11 +203,15 @@ function agreementSection(
           "Topic",
           ...AGREEMENT_SYSTEMS.map((s) => AGREEMENT_SYSTEM_LABEL[s]),
         ],
-        rows: topics.map((t) => [
-          t.label,
-          ...t.stances.map((s) => `${cap(s.word)}: ${S(s.note)}`),
-        ]),
+        rows: topics.map((t) => [t.label, ...t.stances.map((s) => stanceCell(s, S))]),
       },
+      {
+        kind: "note",
+        text: AGREEMENT_SYSTEMS.map((s) => `${AGREEMENT_SYSTEM_LABEL[s]}: ${AGREEMENT_METHOD[s]}`).join(" "),
+      },
+      ...(topics.some((t) => t.topic === "father" || t.topic === "mother")
+        ? [{ kind: "note" as const, text: AGREEMENT_PARENTS_NOTE, provisional: true }]
+        : []),
       { kind: "note", text: AGREEMENT_NOTE, provisional: true },
     ],
   };
