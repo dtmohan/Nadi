@@ -4,9 +4,9 @@ import { SIGNS } from "@shared/astro";
 import { BPHS_URL } from "@shared/parashari-data";
 import type { DashaGloss, ParashariFinding } from "@shared/parashari";
 import type {
+  DasaCombinations,
   NowTone,
   NowTransit,
-  RunningCombination,
   TimingChange,
   TimingNow,
 } from "@shared/timing-now";
@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { PlanetName } from "@/components/planet-name";
 import { SectionTitle, useNowLabel, usePlain } from "@/components/mode-text";
 import { SourceLink } from "@/components/source-link";
+import { DasaCombinationsBody } from "@/components/dasa-combinations";
 import { cn } from "@/lib/utils";
 
 const fmtM = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
@@ -253,17 +254,17 @@ const CHANGE_TARGET: Record<TimingChange["kind"], string> = {
  */
 export function TimingNowPanel({
   now,
-  combos,
+  dasaCombos,
   deceased,
 }: {
   now: TimingNow;
-  combos: RunningCombination[];
+  /** The running dasa's combinations and how its sub-periods carry them. */
+  dasaCombos: DasaCombinations | null;
   deceased: boolean;
 }) {
   const plain = usePlain();
   const nowLabel = useNowLabel();
   const { dasa, antar, pratyantar, year, saturn, jupiter } = now;
-  const lordsTied = combos.some((c) => c.sourced);
   return (
     <section
       className="mt-4 scroll-mt-24 rounded-md border bg-card px-4 py-3"
@@ -341,48 +342,13 @@ export function TimingNowPanel({
             <Details to="parashari-timing-transits" id="jupiter" />
           </Row>
         )}
-        {combos.length > 0 && (
+        {dasaCombos && (
           <Row label={plain ? "Combinations" : "Yogas"} id="combinations">
-            <span className="text-muted-foreground">
-              {plain
-                ? "Combinations in this chart that the running planets take part in:"
-                : "Yogas of the running dasa and antar lords:"}
-            </span>
-            <ul className="mt-1 space-y-1">
-              {combos.map((c) => (
-                <li
-                  key={c.finding.id}
-                  className="flex flex-wrap items-center gap-x-1.5 gap-y-1"
-                  data-testid={`timing-now-combination-${c.finding.id}`}
-                >
-                  <span className="font-medium">{c.finding.title}</span>
-                  {plain && c.finding.gist && (
-                    <span data-testid={`timing-now-combination-gist-${c.finding.id}`}>
-                      ({c.finding.gist})
-                    </span>
-                  )}
-                  <Pill tone={FINDING_TONE[c.finding.tone]} />
-                  <span className="text-xs text-muted-foreground">
-                    through {c.lords.join(" and ")}
-                  </span>
-                  {c.sourced ? (
-                    <span className="text-xs text-muted-foreground">
-                      tied to these periods by{" "}
-                      <SourceLink source={c.finding.source} mark={false} />
-                    </span>
-                  ) : (
-                    <Badge variant="outline" className="text-2xs">
-                      provisional link
-                    </Badge>
-                  )}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {lordsTied
-                ? "Parashara says the 5th and 9th lords give wealth in their own periods (41.16-17). For the other combinations the text does not say they come due in their planets' periods, so those links are provisional."
-                : "Parashara ties only the wealth of the 5th and 9th lords to their periods (41.16-17), and that rule does not involve the running planets here. For these combinations the text does not say they come due in their planets' periods, so the links are provisional."}
-            </p>
+            <DasaCombinationsBody
+              dc={dasaCombos}
+              plain={plain}
+              deceased={deceased}
+            />
           </Row>
         )}
       </dl>

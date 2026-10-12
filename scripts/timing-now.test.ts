@@ -14,7 +14,15 @@ import { isSensitive } from "@shared/gentle";
 import type { DasaReading } from "@shared/parashari-dasa";
 import type { AvTimeline, AvTransitRow } from "@shared/av-transit";
 import type { SudarshanaResult } from "@shared/sudarshana";
-import { PERIOD_TIED_FINDINGS, levelName, runningCombinations, timingNow } from "@shared/timing-now";
+import {
+  PERIOD_TIED_FINDINGS,
+  dasaCombinations,
+  levelName,
+  lpYoga,
+  runningCombinations,
+  timingNow,
+} from "@shared/timing-now";
+import type { PlanetTie } from "@shared/parashari";
 import { computeChart } from "../server/routes";
 
 const SYNTHETIC: Chart = {
@@ -195,4 +203,72 @@ test("timing-now: a real chart carries the plain gloss, the rising kind, and a c
   assert.equal(t.antar?.lord, cur.antars.find((a) => a.current)?.lord);
   assert.ok(t.pratyantar, "the running sub-period carries its spells");
   for (const c of t.next) if (c.kind === "period") assert.equal(c.gloss?.lord, c.lord);
+});
+
+test("timing-now: Laghu Parashari 2.18 ties the angle and trine yogas to their planets' periods", () => {
+  const f = (id: string, planets: string[]): ParashariFinding =>
+    ({ id, kind: "yoga", title: id, text: "", tone: "support", planets, source: { label: "Parashara 34.11-15", url: "" } }) as unknown as ParashariFinding;
+  const c = runningCombinations([f("pa-yoga-gajakesari", ["Jupiter", "Moon"]), f("pa-yoga-kt-Jupiter-Saturn", ["Saturn", "Jupiter"])], ["Jupiter"]);
+  assert.deepEqual(c.map((x) => x.finding.id), ["pa-yoga-kt-Jupiter-Saturn", "pa-yoga-gajakesari"]);
+  assert.deepEqual(c[0].tiedBy.map((t) => t.label), ["Laghu Parashari 2.18", "Mehta, ch. XV"]);
+  assert.deepEqual(c[1].tiedBy, []);
+  assert.ok(lpYoga("pa-yoga-node-Rahu") && !lpYoga("pa-raja-39-19") && !lpYoga("pa-wealth-5-9"));
+});
+
+test("timing-now: each sub-period of a dasa by Laghu Parashari 4.29-31, with its share by length", () => {
+  const f = (id: string, planets: string[]): ParashariFinding =>
+    ({ id, kind: "yoga", title: id, text: "", tone: "support", planets, source: { label: "Parashara 34.11-15", url: "" } }) as unknown as ParashariFinding;
+  const findings = [
+    f("pa-yoga-kt-Jupiter-Saturn", ["Saturn", "Jupiter"]),
+    f("pa-yoga-gajakesari", ["Jupiter", "Moon"]),
+    f("pa-yoga-mp-Mars", ["Mars"]),
+    f("pa-nabhasa-x", ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]),
+  ];
+  const order = ["Jupiter", "Saturn", "Mercury", "Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu"];
+  const antars = order.map((lord, i) => ({ lord, start: iso(`2020-0${(i % 9) + 1}-01`), end: iso(`2020-0${(i % 9) + 1}-02`), current: lord === "Saturn", past: false }));
+  const ties: PlanetTie[] = [
+    { a: "Jupiter", b: "Mercury", how: "mutual aspect" },
+    { a: "Saturn", b: "Jupiter", how: "conjoined" },
+    { a: "Sun", b: "Moon", how: "exchange" },
+  ];
+  const role = { Jupiter: "auspicious", Venus: "yogaPair", Sun: "malefic", Mars: "malefic", Moon: "neutral", Saturn: "auspicious", Mercury: "maraka", Rahu: "neutral", Ketu: "neutral" };
+  const natures = Object.entries(role).map(([planet, functional]) => ({ planet, functional })) as never;
+  const dc = dasaCombinations(findings, { lord: "Jupiter", start: iso("2015-01-01"), end: iso("2031-01-01"), antars } as never, ties, natures);
+  const by = Object.fromEntries(dc.antars.map((a) => [a.lord, a]));
+  assert.deepEqual(dc.combos.map((c) => c.finding.id), ["pa-yoga-kt-Jupiter-Saturn", "pa-yoga-gajakesari"]);
+  assert.deepEqual(
+    order.map((p) => by[p].link),
+    ["own", "partner", "related", "apart", "alike", "apart", "partner", "apart", "apart"],
+  );
+  assert.equal(by.Saturn.tie, "conjoined");
+  assert.ok(by.Saturn.sourced && by.Saturn.cites[0].label === "Laghu Parashari 2.18");
+  assert.ok(!by.Moon.sourced && by.Moon.cites.length === 0, "a shared combination outside 2.18 with no tie is provisional");
+  assert.ok(by.Mercury.sourced && by.Mercury.cites[0].label === "Laghu Parashari 4.30");
+  assert.equal(by.Venus.kind, "favourable");
+  assert.ok(!by.Venus.sourced, "like nature is a provisional reading");
+  assert.equal(by.Jupiter.cites[0].label, "Laghu Parashari 4.29");
+  assert.equal(by.Sun.cites[0].label, "Laghu Parashari 4.31");
+  assert.deepEqual(by.Mars.adds.map((c) => c.finding.id), ["pa-yoga-mp-Mars"]);
+  assert.ok(Math.abs(dc.antars.reduce((t, a) => t + a.share, 0) - 1) < 1e-9, "the shares fill the dasa");
+  assert.ok(Math.abs(dc.linked - (19 + 17) / 120) < 1e-9);
+  assert.ok(Math.abs(dc.provisional - (20 + 10) / 120) < 1e-9);
+});
+
+test("timing-now: a real chart's ties are single, unordered pairs, and the nodes tie only by sign", () => {
+  const result = computeChart(SYNTHETIC);
+  const r = computeParashari(result.positions, result.jaimini.lagna.lon, result.utc, AS_OF, result.shadbala, result.dasaStarts);
+  const keys = r.ties.map((t) => [t.a, t.b].sort().join("-"));
+  assert.equal(new Set(keys).size, keys.length);
+  for (const t of r.ties) {
+    assert.notEqual(t.a, t.b);
+    if (t.a === "Rahu" || t.a === "Ketu" || t.b === "Rahu" || t.b === "Ketu") assert.equal(t.how, "conjoined");
+  }
+  // Every angle-trine yoga is a tie between its two lords.
+  for (const f of r.findings.filter((x) => x.id.startsWith("pa-yoga-kt-")))
+    assert.ok(keys.includes([...f.planets].sort().join("-")), f.id);
+  const cur = r.dasaReadings.find((d) => d.current)!;
+  const dc = dasaCombinations(r.findings, cur, r.ties, r.natures);
+  assert.equal(dc.antars.length, 9);
+  assert.equal(dc.antars.filter((a) => a.link === "own").length, 1);
+  assert.ok(dc.linked + dc.provisional <= 1 + 1e-9);
 });
