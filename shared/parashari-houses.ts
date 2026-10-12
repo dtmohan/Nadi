@@ -37,6 +37,26 @@ export const HOUSE_MATTERS: { house: number; verse: string; matters: string }[] 
 ];
 export const HOUSE_MATTERS_SOURCE = S(11, "2-13");
 
+/**
+ * A short plain label per house for the period table, picked from the 11.2-13 matters above. The
+ * picks leave out the matters the gentle reading softens (death, disease, loss); the full list stays
+ * with HOUSE_MATTERS.
+ */
+export const HOUSE_AREAS_PLAIN: Record<number, string> = {
+  1: "body and nature",
+  2: "wealth and family",
+  3: "courage and siblings",
+  4: "mother, home and comforts",
+  5: "learning and children",
+  6: "enemies and maternal relatives",
+  7: "spouse, travel and trade",
+  8: "inheritance and conflict",
+  9: "fortune and religion",
+  10: "work, honour and authority",
+  11: "income and prosperity",
+  12: "expenses",
+};
+
 export interface BhavaJudgement {
   house: number;
   signIndex: number;

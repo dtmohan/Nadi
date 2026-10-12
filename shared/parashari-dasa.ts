@@ -99,6 +99,8 @@ export interface DasaReading {
     reversed: boolean;
     text: string;
     source: DasaSource;
+    /** 50.88: the lord's sign rises by the head (results at the commencement), the hind part (towards the end) or both. */
+    rising: "head" | "hind" | "both";
   };
   notes: DasaNote[];
   antars: AntarReading[];
@@ -1100,7 +1102,7 @@ function conditionNotes(c: Ctx, p: Planet): DasaNote[] {
   note(
     "88",
     "88",
-    `${SIGNS[pp.signIndex]}, the lord's sign, rises ${r === "head" ? "by the head (Sirshodaya), so the results come at the commencement of the dasa" : r === "hind" ? "by the hind part (Prishthodaya), so the results come towards the end of the dasa" : "by both (Ubhayodaya), so the results come in the middle of the dasa"} (50.88); the drekkana timing of 47.3-4 is shown separately above.`,
+    `${SIGNS[pp.signIndex]}, the lord's sign, rises ${r === "head" ? "by the head (Sirshodaya), so the results come at the commencement of the dasa" : r === "hind" ? "by the hind part (Prishthodaya), so the results come towards the end of the dasa" : "by both (Ubhayodaya), so the results come in the middle of the dasa"} (50.88); the drekkana timing of 47.3-4 is read separately.`,
     "mixed",
   );
   // 50.29-32 an inimical sign.
@@ -1417,6 +1419,7 @@ export function computeDasaReadings(
       reversed,
       text: `${p} at ${pp.degInSign.toFixed(1)} deg of ${SIGNS[pp.signIndex]} is in the ${ord(third)} drekkana${reversed ? ", retrograde, so the order reverses" : ""}: its results are felt mainly at the ${when} of the dasa.`,
       source: S(47, "3-4"),
+      rising: RISING_50[pp.signIndex],
     };
 
     // Antars.
