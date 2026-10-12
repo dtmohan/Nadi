@@ -33,6 +33,11 @@ import {
   timeRestText,
   type LagnaWindows,
 } from "@shared/time-windows";
+import {
+  VargaHouses,
+  VargaMeaningBox,
+  VargaOverview,
+} from "@/components/varga-meanings";
 
 const BAND_PILL: Record<SchemeScore["band"], string> = {
   "wholly favourable": "bg-verdict-good/15 text-verdict-good",
@@ -182,6 +187,7 @@ export function VargasSection({
   name,
   windows,
   band = 0,
+  withheld = false,
 }: {
   v: VargasResult;
   name: string;
@@ -189,6 +195,8 @@ export function VargasSection({
   windows?: LagnaWindows;
   /** The chart's stated birth-time uncertainty, minutes either way. */
   band?: number;
+  /** The age gate: a minor's chart hides the lines it flags. */
+  withheld?: boolean;
 }) {
   const [varga, setVarga] = useState<VargaKey>("D9");
   const [scheme, setScheme] = useState<SchemeKey>("shodasa");
@@ -248,6 +256,7 @@ export function VargasSection({
           </Pill>
         ))}
       </div>
+      <VargaOverview current={varga} onPick={setVarga} withheld={withheld} />
       <div className="mt-3 grid grid-cols-1 gap-5 lg:grid-cols-[21rem_minmax(0,1fr)]">
         <div>
           <SouthIndianChart
@@ -288,6 +297,7 @@ export function VargasSection({
                 : "."}
             </p>
           )}
+          <VargaMeaningBox varga={varga} withheld={withheld} />
         </div>
         <div>
           <div
@@ -345,6 +355,7 @@ export function VargasSection({
           </div>
         </div>
       </div>
+      <VargaHouses varga={varga} chart={chart} withheld={withheld} />
       <div
         className="mt-4 rounded-md border bg-card p-3 text-xs"
         data-testid="varga-spouse"
