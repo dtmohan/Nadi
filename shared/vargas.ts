@@ -212,6 +212,23 @@ const COMBUST_ORB: Partial<Record<Seven, [number, number]>> = {
   Moon: [12, 12], Mars: [17, 8], Mercury: [14, 12], Jupiter: [11, 11], Venus: [10, 8], Saturn: [16, 16],
 };
 
+/** The Parashari combustion orb for `p` in degrees (direct or retrograde); undefined for the Sun and the nodes. */
+export function parashariCombustOrb(p: PlanetPosition): number | undefined {
+  const o = (SEVEN as readonly string[]).includes(p.planet) ? COMBUST_ORB[p.planet as Seven] : undefined;
+  return o ? o[p.retrograde ? 1 : 0] : undefined;
+}
+
+/**
+ * Combust by the Surya Siddhanta orbs of the translator's note under 7.28-29. This is the Parashari
+ * rule; the `combust` flag on a position is the Nadi rule of 3°20' (astro.ts) and is not used here.
+ */
+export function parashariCombust(p: PlanetPosition, sunLon: number): boolean {
+  const orb = parashariCombustOrb(p);
+  if (orb === undefined) return false;
+  const d = Math.abs((((p.lon - sunLon) % 360) + 540) % 360 - 180);
+  return d <= orb;
+}
+
 function band(total: number): SchemeScore["band"] {
   if (total < 5) return "below five";
   if (total < 10) return "some good";
@@ -239,11 +256,7 @@ export function computeVargas(positions: PlanetPosition[], lagnaLon: number, exc
     .map((p) => {
       const signs = Object.fromEntries(VARGAS.map((v) => [v.key, v.signOf(p.signIndex, p.degInSign)])) as Record<VargaKey, number>;
       const vargottama = signs.D1 === signs.D9;
-      let combust = false;
-      if (isSeven(p.planet) && COMBUST_ORB[p.planet]) {
-        const d = Math.abs((((p.lon - sunLon) % 360) + 540) % 360 - 180);
-        combust = d <= COMBUST_ORB[p.planet]![p.retrograde ? 1 : 0];
-      }
+      const combust = parashariCombust(p, sunLon);
       if (!isSeven(p.planet)) return { planet: p.planet, signs, vargottama, combust };
       const me = p.planet;
       const vimsopaka: SchemeScore[] = SCHEMES.map((sch) => {

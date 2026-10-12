@@ -72,7 +72,11 @@ import {
 import { KC_CH64, KC_CH65, VERSES_65 } from "@shared/kalachakra-effects";
 import { PADA_CH, type PadaResult } from "@shared/parashari-padas";
 import { MARAKA_CH, type MarakaResult } from "@shared/parashari-marakas";
-import { AVASTHA_CH, type AvasthaResult } from "@shared/parashari-avasthas";
+import {
+  AVASTHA_CH,
+  type AvasthaResult,
+  type StateLine,
+} from "@shared/parashari-avasthas";
 import {
   RASI_DASA_CH,
   KARAKA_NAME,
@@ -1326,6 +1330,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               now={timing}
               dasaCombos={dasaCombos}
               deceased={deceased}
+              states={r.avasthas.lines}
             />
             <div
               className="mt-8 scroll-mt-24"
@@ -1469,6 +1474,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             {selDasa && (
               <DasaEffects
                 d={selDasa}
+                states={r.avasthas.lines.find((l) => l.planet === selDasa.lord) ?? null}
                 open={antarOpen}
                 setOpen={setAntarOpen}
                 birthIso={result.utc}
@@ -2856,14 +2862,20 @@ function AvasthasSection({ a }: { a: AvasthaResult }) {
             The twelve-fold state is not a verdict drawn from the other columns:
             it comes from its own arithmetic, and the text says how much of its
             effect to expect from the planet's age, the sign it holds and its
-            strength, which is shown under each reading.
+            strength, which is shown under each reading. A planet can be in
+            several moods at once, some good and some harsh; Parashara has its
+            strength decide which side shows, so each planet's moods are read
+            together below.
           </>
         }
         practitioner={
           <>
             Baladi 45.3-4, Jagradadi 45.5-6, Deeptadi 45.7-10, Lajjitadi
-            45.11-29 and Sayanadi 45.30-155. Relations by 3.55-58; aspect is
-            graha drishti; ghatis from the computed sunrise. The Sayanadi state
+            45.11-29 and Sayanadi 45.30-155. Relations by 3.55-58; aspects
+            follow the aspect setting; ghatis from the computed sunrise.
+            Lajjitadi follows the Sanskrit for 45.15-17 and 45.20-21 and is read
+            per planet, with strength deciding between good and harsh states
+            (45.19-20). The Sayanadi state
             is arithmetic on the star, navamsa and moment, not a summary of the
             other four columns; 45.38-39 grade its stated effects by the
             sub-state and by the planet's strength, so each reading carries the
@@ -3003,6 +3015,87 @@ function AvasthasSection({ a }: { a: AvasthaResult }) {
         details.{" "}
         <SourceLink source={{ label: "Parashara 45.3-39", url: AVASTHA_CH }} />
       </p>
+      {a.lines.length > 0 && (
+        <div className="mt-4" data-testid="avasthas-lines">
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {plain ? "The moods, planet by planet" : "Lajjitadi by planet (45.11-20)"}
+          </h4>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {plain
+              ? "Each planet's moods read together. Where good and harsh moods meet, Parashara calls the result mixed and lets the planet's strength decide (45.19-20)."
+              : "The states qualify the planet; 45.19 has the result judged by strength, and 45.20 reads delight joined with a harsh state as mixed, loss when weak and great results when strong. Strength is Shadbala at its requirement, a combust or war-defeated planet counting without it (6.53, 79.4-5). Not counted in any verdict."}
+          </p>
+          <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+            {a.lines.map((l) => (
+              <li
+                key={l.planet}
+                className={cn(
+                  "rounded-md border border-l-4 bg-card px-3 py-2",
+                  TONE_CLASS[l.tone],
+                )}
+                data-testid={`avasthas-line-${l.planet}`}
+              >
+                <span className="flex flex-wrap items-center gap-1">
+                  <PlanetName planet={l.planet} />
+                  {l.names.map((n) => (
+                    <Badge
+                      key={n}
+                      variant="outline"
+                      className={cn("text-2xs", LAJ_CLASS[n])}
+                    >
+                      {plain ? LAJ_PLAIN[n] : n}
+                    </Badge>
+                  ))}
+                  {l.source.provisional && (
+                    <Badge variant="outline" className="text-2xs">
+                      provisional
+                    </Badge>
+                  )}
+                </span>
+                <span className="mt-1 block text-sm text-muted-foreground">
+                  <Soft>{plain ? l.plain : l.text}</Soft>{" "}
+                  <SourceLink source={l.source} mark={false} />
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {a.effects.length > 0 && (
+        <div className="mt-4" data-testid="avasthas-effects">
+          <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {plain ? "What each mood brings" : "Effects of the states (45.24-29)"}
+          </h4>
+          <ul className="mt-1 space-y-1.5">
+            {a.effects.map((e) => (
+              <li
+                key={e.name}
+                className="text-sm"
+                data-testid={`avasthas-effect-${e.name}`}
+              >
+                <Badge
+                  variant="outline"
+                  className={cn("mr-1.5 text-2xs", LAJ_CLASS[e.name])}
+                >
+                  {plain ? LAJ_PLAIN[e.name] : e.name}
+                </Badge>
+                <span className="text-muted-foreground">
+                  <Soft>{plain ? e.plain : e.text}</Soft>
+                </span>{" "}
+                <span className="text-xs text-muted-foreground">
+                  ({e.planets.join(", ")})
+                </span>{" "}
+                <SourceLink source={e.source} mark={false} />
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {plain
+              ? "The text gives these effects for the planet's state, not for a period; how much shows depends on the planet's strength, as read above."
+              : "The text gives these effects without a dasa; strength grades them (45.19-20)."}
+          </p>
+        </div>
+      )}
       {a.findings.length ? (
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {a.findings.map((f) => (
@@ -4447,6 +4540,7 @@ function Note({ n }: { n: DasaNote }) {
 
 function DasaEffects({
   d,
+  states,
   open,
   setOpen,
   birthIso,
@@ -4454,6 +4548,8 @@ function DasaEffects({
   withheld,
 }: {
   d: DasaReading;
+  /** The lord's Lajjitadi states (45.19-20), null when it holds none; placed with the period provisionally (Mehta, ch. XV). */
+  states?: StateLine | null;
   open: string | null;
   setOpen: (k: string | null) => void;
   birthIso: string;
@@ -4546,6 +4642,38 @@ function DasaEffects({
           </>
         }
       />
+      {states !== undefined && (
+        <p
+          className="mt-2 text-sm"
+          data-testid="parashari-dasa-states"
+        >
+          <span className="font-medium">
+            {plainDE ? `${d.lord}'s moods: ` : `Lajjitadi of ${d.lord}: `}
+          </span>
+          <span className="text-muted-foreground">
+            {states ? (
+              <Soft>{plainDE ? states.briefPlain : states.brief}</Soft>
+            ) : plainDE ? (
+              "none of the six moods."
+            ) : (
+              "none of the six states (45.11-17)."
+            )}
+          </span>{" "}
+          {states && (
+            <>
+              <Badge variant="outline" className="text-2xs">
+                provisional
+              </Badge>
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                {plainDE
+                  ? "Chapter 45 gives these moods no timing; reading them with the period follows Mehta. The Planets chapter has the full reading."
+                  : "Placement provisional: ch. 45 gives the states no timing; Mehta reads a lord's state before judging its dasa (ch. XV). The full line is in the Planets chapter."}{" "}
+                <SourceLink source={states.source} mark={false} />
+              </span>
+            </>
+          )}
+        </p>
+      )}
       {running && runningKey && (
         <div
           className="mt-3 rounded-md border bg-primary/5 px-3 py-2"
