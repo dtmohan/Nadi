@@ -273,7 +273,7 @@ export interface PlanetSignPeriod extends SignPeriod {
 }
 
 export interface NakshatraPeriod {
-  planet: "Jupiter" | "Saturn";
+  planet: "Jupiter" | "Saturn" | "Rahu" | "Ketu" | "Mars";
   nakshatraIndex: number; // 0 = Ashwini
   start: string; // ISO instant
   end: string; // ISO instant

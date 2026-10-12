@@ -103,9 +103,11 @@ import {
 } from "@shared/bhava-phala";
 import { NAKSHATRAS } from "@shared/astro";
 import { computeAvTimeline } from "@shared/av-transit";
+import { specialStars } from "@shared/special-stars";
 import { VerdictCard, type VerdictSignature } from "@/components/verdict-card";
 import { gist, firstClause } from "@shared/synthesis";
 import { AvTimelineSection } from "@/components/av-timeline";
+import { SpecialStarsSection } from "@/components/special-stars";
 import { readFatherArishta } from "@shared/father-arishta";
 import { readMotherPoint } from "@shared/mother-point";
 import { readKinTransits } from "@shared/kin-transits";
@@ -357,6 +359,17 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
     () => (withheld ? redactSensitive(avTimeline) : avTimeline),
     [avTimeline, withheld],
   );
+  // Special stars from the birth star: the gate drops the tagged readings inside specialStars, and
+  // redactSensitive catches anything the tags miss.
+  const stars = useMemo(() => {
+    const s = specialStars({
+      passages: result.specialStars,
+      moonLon: positions.find((p) => p.planet === "Moon")!.lon,
+      asOfIso,
+      withheld,
+    });
+    return withheld ? redactSensitive(s) : s;
+  }, [result.specialStars, positions, asOfIso, withheld]);
   const vargas = useMemo(
     () => computeVargas(positions, result.jaimini.lagna.lon),
     [positions, result.jaimini.lagna.lon],
@@ -1423,6 +1436,16 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               >
                 <KinTransitsSection k={kinTransits} />
               </Working>
+            </div>
+            <div
+              className="mt-8 scroll-mt-24"
+              data-testid="parashari-timing-stars"
+            >
+              <SpecialStarsSection
+                s={stars}
+                asOfIso={asOfIso}
+                birthIso={result.utc}
+              />
             </div>
             <div
               className="mt-8 scroll-mt-24"
