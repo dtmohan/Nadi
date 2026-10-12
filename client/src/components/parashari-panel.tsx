@@ -207,6 +207,7 @@ const ROLE_NAME: Record<string, string> = {
 };
 
 function Finding({ f }: { f: ParashariFinding }) {
+  const plain = usePlain();
   return (
     <div
       className={cn(
@@ -218,7 +219,7 @@ function Finding({ f }: { f: ParashariFinding }) {
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium">{f.title}</span>
         <span className="flex flex-wrap gap-1">
-          {f.planets.map((p) => (
+          {Array.from(new Set(f.planets)).map((p) => (
             <PlanetName key={p} planet={p} abbr tone className="text-xs" />
           ))}
         </span>
@@ -228,9 +229,24 @@ function Finding({ f }: { f: ParashariFinding }) {
           </Badge>
         )}
       </div>
-      <p className="mt-1 text-sm text-muted-foreground">
-        <Soft>{f.text}</Soft>
-      </p>
+      {plain && f.plain ? (
+        <>
+          <p
+            className="mt-1 text-sm"
+            data-testid={`parashari-finding-plain-${f.id}`}
+          >
+            <Soft>{f.plain}</Soft>
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            <span className="font-medium">How it forms: </span>
+            <Soft>{f.text}</Soft>
+          </p>
+        </>
+      ) : (
+        <p className="mt-1 text-sm text-muted-foreground">
+          <Soft>{f.text}</Soft>
+        </p>
+      )}
       <p className="mt-1 text-xs text-muted-foreground">
         <SourceLink source={f.source} mark={false} />
       </p>

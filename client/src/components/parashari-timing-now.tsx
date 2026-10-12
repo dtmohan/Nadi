@@ -356,6 +356,11 @@ export function TimingNowPanel({
                   data-testid={`timing-now-combination-${c.finding.id}`}
                 >
                   <span className="font-medium">{c.finding.title}</span>
+                  {plain && c.finding.gist && (
+                    <span data-testid={`timing-now-combination-gist-${c.finding.id}`}>
+                      ({c.finding.gist})
+                    </span>
+                  )}
                   <Pill tone={FINDING_TONE[c.finding.tone]} />
                   <span className="text-xs text-muted-foreground">
                     through {c.lords.join(" and ")}
