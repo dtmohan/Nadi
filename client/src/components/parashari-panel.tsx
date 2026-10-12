@@ -11,7 +11,7 @@ import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 import { createContext, useContext, useMemo, useState } from "react";
 import {
   levelName,
-  runningCombinations,
+  dasaCombinations,
   timingNow,
   type TimingNow,
 } from "@shared/timing-now";
@@ -565,10 +565,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       }),
     [r.dasaReadings, r.dashas, sudarshana, avTimelineShown, asOfIso, deceased],
   );
-  const runningCombos = runningCombinations(
-    yogas,
-    [timing.dasa?.lord, timing.antar?.lord].filter((p): p is Planet => !!p),
-  );
+  const runningDasa = r.dasaReadings.find((d) => d.current);
+  const dasaCombos = runningDasa
+    ? dasaCombinations(yogas, runningDasa, r.ties, r.natures)
+    : null;
   const nowWord = deceased ? "at passing" : "running now";
   const condApplying = r.conditionalDasas.systems.filter((s) => s.applies);
   const condLabel = condApplying.length
@@ -1324,7 +1324,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             <TimingContents />
             <TimingNowPanel
               now={timing}
-              combos={runningCombos}
+              dasaCombos={dasaCombos}
               deceased={deceased}
             />
             <div

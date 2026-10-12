@@ -145,6 +145,16 @@ export interface DashaGloss {
   plain: string;
 }
 
+/**
+ * A tie between two planets: in one sign, in mutual aspect, or in exchange of signs, the three ties that
+ * 34.11-13 names between angle and trine lords. Laghu Parashari 4.30's "related" planets are read from them.
+ */
+export interface PlanetTie {
+  a: Planet;
+  b: Planet;
+  how: "conjoined" | "mutual aspect" | "exchange";
+}
+
 export interface ParashariResult {
   /** The 6.53 exclusions applied to the divisional designations (Shadbala weakness, defeat in war, Sayana). */
   vargaExclusions?: VargaExclusions;
@@ -152,6 +162,8 @@ export interface ParashariResult {
   bhavas: Bhava[];
   natures: PlanetNature[];
   findings: ParashariFinding[];
+  /** Ties between any two of the nine planets (34.11-13), for the Timing chapter's sub-period links. */
+  ties: PlanetTie[];
   /** Parashari house method used for the house, node and house-effects readings. */
   houseMethod: ParashariHouseMethod;
   /** Set when the selected chalit construction could not be computed, or needs a stated approximation. */
@@ -1173,6 +1185,29 @@ export function computeParashari(
     const m = plainMeaning(f);
     if (m) Object.assign(f, m);
   }
+  // Ties between any two of the nine by the three ties of 34.11-13 used for the angle and trine lords
+  // above. Rahu and Ketu cast no aspect here, so they are tied only by sharing a sign.
+  const NINE: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"];
+  const ties: PlanetTie[] = [];
+  for (let i = 0; i < NINE.length; i++) {
+    for (let j = i + 1; j < NINE.length; j++) {
+      const a = NINE[i],
+        b = NINE[j];
+      const pa = positions.find((x) => x.planet === a),
+        pb = positions.find((x) => x.planet === b);
+      if (!pa || !pb) continue;
+      const how: PlanetTie["how"] | null =
+        pa.signIndex === pb.signIndex
+          ? "conjoined"
+          : SIGN_LORD[pa.signIndex] === b && SIGN_LORD[pb.signIndex] === a
+            ? "exchange"
+            : asp(a, pa.signIndex, pb.signIndex) > 0 &&
+                asp(b, pb.signIndex, pa.signIndex) > 0
+              ? "mutual aspect"
+              : null;
+      if (how) ties.push({ a, b, how });
+    }
+  }
   const out: ParashariResult = {
     ...(vargaExcl ? { vargaExclusions: vargaExcl } : {}),
     aspectFloor,
@@ -1183,6 +1218,7 @@ export function computeParashari(
     bhavas,
     natures,
     findings,
+    ties,
     neechaBhanga: neecha,
     bhavaJudgement,
     vimshottari: vim,
