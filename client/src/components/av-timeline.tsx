@@ -22,7 +22,12 @@ import type {
 import { SignName, PlanetName, planetColor } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { cn } from "@/lib/utils";
-import { ModeText, SectionTitle, NowWord } from "@/components/mode-text";
+import {
+  ModeText,
+  SectionTitle,
+  NowWord,
+  usePlain,
+} from "@/components/mode-text";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
@@ -444,6 +449,11 @@ function Row({
   open: boolean;
   toggle: () => void;
 }) {
+  // The chapter-70 point tags and their notes are practitioner detail: they sit beside the
+  // verdict without changing it, and the father and mother sections read them for the plain reader.
+  const plain = usePlain();
+  const hits = plain ? [] : r.hits;
+  const notes = plain ? r.notes.filter((n) => !n.point) : r.notes;
   return (
     <li
       className={cn(
@@ -488,7 +498,7 @@ function Row({
           >
             {r.sarva} · {r.band}
           </span>
-          {r.hits.map((h) => (
+          {hits.map((h) => (
             <span
               key={h.matter + h.kind}
               className={cn(
@@ -521,7 +531,7 @@ function Row({
             Enters {fmtD(r.start)} at age {r.age.toFixed(1)}, leaves{" "}
             {fmtD(r.end)}.
           </li>
-          {r.notes.map((n, i) => (
+          {notes.map((n, i) => (
             <li key={i}>
               <Soft>{n.text}</Soft> <SourceLink source={n.source} />
             </li>
@@ -592,6 +602,7 @@ export function AvTimelineSection({
   mother?: MotherPointReading | null;
   withheld?: boolean;
 }) {
+  const plain = usePlain();
   const [planet, setPlanet] = useState<"Saturn" | "Jupiter">("Saturn");
   const [range, setRange] = useState<Range>("around");
   const [open, setOpen] = useState<string | null>(null);
@@ -635,10 +646,9 @@ export function AvTimelineSection({
           <>
             Saturn spends about two and a half years in a sign and Jupiter about
             one. Each passage is read by the points the sign holds: a
-            well-marked sign is easy ground, a poorly marked one hard. Saturn's
-            passages are also checked against the sensitive points the text
-            derives for father, mother and other matters; filled red tags mark
-            an exact point, outlined ones a sign in trine to it.
+            well-marked sign is easy ground, a poorly marked one hard. Where
+            Saturn's passage touches the points the text derives for the father
+            and the mother, the sections below read it.
           </>
         }
         practitioner={
@@ -727,45 +737,50 @@ export function AvTimelineSection({
 
       {planet === "Saturn" && (
         <>
-          <SectionTitle
-            as="h4"
-            className="mt-6"
-            plain="Lunar mansions Saturn touches"
-            technical="Nakshatra points struck by Saturn"
-          />
-          <ModeText
-            plain={
-              <>
-                The sky is also divided into 27 lunar mansions. The text names
-                one for each matter; Saturn passing through it, or through the
-                two mansions in trine to it, is listed here. Only passages that
-                touch a named point appear.
-              </>
-            }
-            practitioner={
-              <>
-                Saturn's passages through the nakshatras named by the products
-                of chapter 70, or their trines (the 10th and 19th from each).
-                Only passages that touch a point are listed.
-              </>
-            }
-          />
-          {tl.hasNakshatras ? (
-            <ul className="mt-2 space-y-1.5" data-testid="av-timeline-naks">
-              {naks.map((r) => (
-                <NakRow key={r.start} r={r} />
-              ))}
-              {naks.length === 0 && (
-                <li className="rounded-md border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">
-                  No nakshatra point is struck in this range.
-                </li>
+          {/* The nakshatra list is the chapter-70 point list: practitioner reading only. */}
+          {!plain && (
+            <>
+              <SectionTitle
+                as="h4"
+                className="mt-6"
+                plain="Lunar mansions Saturn touches"
+                technical="Nakshatra points struck by Saturn"
+              />
+              <ModeText
+                plain={
+                  <>
+                    The sky is also divided into 27 lunar mansions. The text names
+                    one for each matter; Saturn passing through it, or through the
+                    two mansions in trine to it, is listed here. Only passages that
+                    touch a named point appear.
+                  </>
+                }
+                practitioner={
+                  <>
+                    Saturn's passages through the nakshatras named by the products
+                    of chapter 70, or their trines (the 10th and 19th from each).
+                    Only passages that touch a point are listed.
+                  </>
+                }
+              />
+              {tl.hasNakshatras ? (
+                <ul className="mt-2 space-y-1.5" data-testid="av-timeline-naks">
+                  {naks.map((r) => (
+                    <NakRow key={r.start} r={r} />
+                  ))}
+                  {naks.length === 0 && (
+                    <li className="rounded-md border border-dashed px-3 py-4 text-center text-xs text-muted-foreground">
+                      No nakshatra point is struck in this range.
+                    </li>
+                  )}
+                </ul>
+              ) : (
+                <p className="mt-2 rounded-md border border-dashed px-3 py-3 text-xs text-muted-foreground">
+                  Saturn's nakshatra ingresses are computed when a chart is cast;
+                  reopen this chart to see them.
+                </p>
               )}
-            </ul>
-          ) : (
-            <p className="mt-2 rounded-md border border-dashed px-3 py-3 text-xs text-muted-foreground">
-              Saturn's nakshatra ingresses are computed when a chart is cast;
-              reopen this chart to see them.
-            </p>
+            </>
           )}
 
           <SectionTitle
