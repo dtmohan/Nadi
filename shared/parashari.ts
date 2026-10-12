@@ -51,6 +51,7 @@ import {
 } from "./parashari-houses";
 import { nodeFindings } from "./parashari-nodes";
 import { yogaFindings } from "./parashari-yogas";
+import { plainMeaning } from "./finding-plain";
 import { royalFindings } from "./parashari-royal";
 import { fatherFindings, fatherDasaLord } from "./parashari-father";
 import { computeChalit, bhavaAnnotation, bhavaHouseAnnotation } from "./chalit";
@@ -122,6 +123,10 @@ export interface ParashariFinding {
   tone: "support" | "strain" | "mixed";
   planets: Planet[];
   source: ParashariSource;
+  /** What the combination is read to bring, in plain words (shared/finding-plain.ts). */
+  plain?: string;
+  /** The same in a few words, for lists. */
+  gist?: string;
 }
 
 export interface DashaGloss {
@@ -178,6 +183,20 @@ export interface ParashariResult {
   bhavaPhala?: BhavaPhala[];
   vargaPhala?: VargaPhala[];
 }
+
+/** A dignity as it reads after "is": "exalted", "in its own sign", "in an enemy's sign". */
+const inDignity = (d: string): string =>
+  d === "Exalted"
+    ? "exalted"
+    : d === "Debilitated"
+      ? "debilitated"
+      : d === "Own sign"
+        ? "in its own sign"
+        : d === "Moolatrikona"
+          ? "in moolatrikona"
+          : d === "Inimical"
+            ? "in an enemy's sign"
+            : `in a ${d.toLowerCase()} sign`;
 
 const S = (
   ch: number,
@@ -592,9 +611,9 @@ export function computeParashari(
         id: "pa-yoga-sankha",
         kind: "yoga",
         title: "Sankha yoga",
-        text: `${l5} (5th lord) and ${l6} (6th lord) are in mutual angles while ${l1}, the lagna lord, is in ${pos(l1).dignity.toLowerCase()}. Parashara gives wealth, family, kindness and long life.`,
+        text: `${l5} (5th lord) and ${l6} (6th lord) are in mutual angles while ${l1}, the lagna lord, is ${inDignity(pos(l1).dignity)}. Parashara gives wealth, family, kindness and long life.`,
         tone: "support",
-        planets: [l5, l6, l1],
+        planets: Array.from(new Set([l5, l6, l1])),
         source: S(36, "13-14"),
       });
     }
@@ -613,7 +632,7 @@ export function computeParashari(
         id: "pa-yoga-lakshmi",
         kind: "yoga",
         title: "Lakshmi yoga",
-        text: `${l9}, the 9th lord, is in the ${ord(houseOf(l9))}, an angle, in ${pos(l9).dignity.toLowerCase()}, and ${l1}, the lagna lord, is strong. Parashara gives charm, high standing, children and abundant wealth.`,
+        text: `${l9}, the 9th lord, is in the ${ord(houseOf(l9))}, an angle, ${inDignity(pos(l9).dignity)}, and ${l1}, the lagna lord, is strong. Parashara gives charm, high standing, children and abundant wealth.`,
         tone: "support",
         planets: [l9, l1],
         source: S(36, "27-28"),
@@ -953,7 +972,7 @@ export function computeParashari(
         id: "pa-penury-42-5",
         kind: "strain",
         title: "Penury combination",
-        text: `${l1}, the lagna lord, is in the ${ord(houseOf(l1))} with a malefic while ${l2}, the 2nd lord, is ${p2.dignity.toLowerCase()}.`,
+        text: `${l1}, the lagna lord, is in the ${ord(houseOf(l1))} with a malefic while ${l2}, the 2nd lord, is ${inDignity(p2.dignity)}.`,
         tone: "strain",
         planets: [l1, l2],
         source: S(42, "5"),
@@ -1140,6 +1159,12 @@ export function computeParashari(
     chalit,
     asp,
   );
+  // Plain meanings for the combinations, attached before the gate so it strips them with the rest.
+  for (const f of findings) {
+    if (f.plain) continue;
+    const m = plainMeaning(f);
+    if (m) Object.assign(f, m);
+  }
   const out: ParashariResult = {
     aspectFloor,
     withheld: withhold,
