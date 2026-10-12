@@ -45,7 +45,8 @@ export interface AvTransitRow {
   sunRekhas?: number;
   hits: AvHit[];
   tone: AvTone;
-  notes: { text: string; source: BalaSource }[];
+  /** `point` marks a chapter-70 point note, shown in the practitioner reading only. */
+  notes: { text: string; source: BalaSource; point?: boolean }[];
 }
 
 export interface AvNakshatraRow {
@@ -174,7 +175,7 @@ export function computeAvTimeline(
             source: AV_TRANSIT_SOURCES.sunYear,
           });
         }
-        for (const h of hits) notes.push({ text: `${capital(h.matter)}: ${h.kind === "sign" ? "the sign" : "a trine of the sign"} marked for distress in this matter.`, source: h.source });
+        for (const h of hits) notes.push({ text: `${capital(h.matter)}: ${h.kind === "sign" ? "the sign" : "a trine of the sign"} marked for distress in this matter.`, source: h.source, point: true });
         return {
           planet,
           signIndex: s,
