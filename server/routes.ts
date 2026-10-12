@@ -56,6 +56,7 @@ import { validateEvents } from "./validate";
 import { z } from "zod";
 import { createHash } from "node:crypto";
 import { sensitiveGate, redactSensitive, withholdText } from "@shared/life-stage";
+import { starPassages, janmaIndexOf, isNamedNakshatra } from "@shared/special-stars";
 
 // Computed readings kept briefly so repeat requests are quick. An entry holds no name, notes,
 // life events or birth inputs (the request supplies those again on a hit), is looked up by a
@@ -179,6 +180,10 @@ export function computeChart(chart: Chart): ChartResult {
   }
   const asc = ascendantAt(jd, chart.latitude, chart.longitude, opts);
   const jaimini = computeJaimini(positions, asc, utc.toISO()!, special);
+  // Saturn's nakshatra periods serve both the chapter-70 points and the special stars counted
+  // from the birth star (Phaladeepika 26.27-28, Sutton ch. 9).
+  const saturnNaks = nakshatraPeriods("Saturn", jd, endJd, opts);
+  const janma = janmaIndexOf(positions.find((p) => p.planet === "Moon")!.lon);
   const result: ChartResult = {
     chart,
     utc: utc.toISO()!,
@@ -206,7 +211,16 @@ export function computeChart(chart: Chart): ChartResult {
       utc.toISO()!,
       opts,
     ),
-    saturnNakshatras: nakshatraPeriods("Saturn", jd, endJd, opts),
+    saturnNakshatras: saturnNaks,
+    specialStars: [
+      ...starPassages(saturnNaks, janma),
+      ...(["Jupiter", "Rahu", "Ketu", "Mars"] as const).flatMap((p) =>
+        starPassages(
+          nakshatraPeriods(p, jd, endJd, opts, 1e-3, (n) => isNamedNakshatra(janma, n)),
+          janma,
+        ),
+      ),
+    ],
     fatherArishta: fatherArishtaWindows(
       positions,
       Math.floor((asc % 360) / 30),

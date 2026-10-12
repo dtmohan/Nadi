@@ -144,6 +144,8 @@ export interface ChartResult {
   dasaStarts?: DasaStartTransit[];
   /** Saturn's nakshatra ingresses from birth to 100 years, for the Ashtakavarga transit points of BPHS ch. 70. */
   saturnNakshatras?: NakshatraPeriod[];
+  /** Passages of Saturn, Jupiter, Rahu, Ketu and a lingering Mars through the special stars counted from the birth star, birth to 100 years (Phaladeepika 26.27-28, Sutton ch. 9). */
+  specialStars?: import("./special-stars").StarPassage[];
   /** Saturn passages over the father's Ashtakavarga point with Rahu, Saturn or Mars in the 4th from the Sun, BPHS 70.12-14. */
   fatherArishta?: FatherArishtaWindow[];
   /** The sensitive-content gate for this native: when `withheld`, length-of-life, maraka, arishta, kin-loss and peril statements have been stripped server-side and every computing module strips its own. */

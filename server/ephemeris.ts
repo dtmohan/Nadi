@@ -350,17 +350,30 @@ export function signPeriodsOf(
 export const isoToJd = (iso: string) =>
   julianDay(DateTime.fromISO(iso, { zone: "utc" }));
 
-/** Nakshatra-ingress periods for a slow planet between two Julian days (27 equal divisions of 13°20'). */
+/** Nakshatra-ingress periods between two Julian days (27 equal divisions of 13°20'), for the slow
+ * planets and for Mars (step chosen by speed; Ketu is Rahu plus six signs). */
 export function nakshatraPeriods(
-  planet: "Jupiter" | "Saturn",
+  planet: NakshatraPeriod["planet"],
   jdStart: number,
   jdEnd: number,
   opts: EphemerisOptions,
+  /** Bisection tolerance in days; the special stars need minutes, not seconds. */
+  tolerance = 1e-4,
+  /** When given, only crossings into or out of a star it accepts are timed exactly; the others
+   * are placed mid-step (their periods are not read, only the gaps between returns). */
+  refine?: (nakshatraIndex: number) => boolean,
 ): NakshatraPeriod[] {
   const body = BODY[planet];
-  const step = planet === "Jupiter" ? 1 : 3;
-  const nakAt = (jd: number) =>
-    Math.floor(norm360(siderealLon(jd, body, opts).lon) / (360 / 27)) % 27;
+  // Steps stay well under the time a planet needs to cross a star, so no star is skipped; a dip
+  // shorter than the step near a station can be missed, which only shortens a passage. Saturn
+  // keeps its 3-day step for the chapter-70 points; the special stars use the coarser ones.
+  const step =
+    planet === "Saturn" ? 3 : planet === "Jupiter" ? 6 : planet === "Mars" ? 6 : 10;
+  const nakAt = (jd: number) => {
+    let lon = siderealLon(jd, body, opts).lon;
+    if (planet === "Ketu") lon = lon + 180;
+    return Math.floor(norm360(lon) / (360 / 27)) % 27;
+  };
   const periods: NakshatraPeriod[] = [];
   let t0 = jdStart;
   let n0 = nakAt(t0);
@@ -371,11 +384,13 @@ export function nakshatraPeriods(
     if (n1 !== n0) {
       let lo = t0;
       let hi = t1;
-      while (hi - lo > 1e-4) {
-        const mid = (lo + hi) / 2;
-        if (nakAt(mid) === n0) lo = mid;
-        else hi = mid;
-      }
+      if (refine && !refine(n0) && !refine(n1)) hi = (t0 + t1) / 2;
+      else
+        while (hi - lo > tolerance) {
+          const mid = (lo + hi) / 2;
+          if (nakAt(mid) === n0) lo = mid;
+          else hi = mid;
+        }
       periods.push({
         planet,
         nakshatraIndex: n0,

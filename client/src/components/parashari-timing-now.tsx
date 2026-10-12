@@ -74,6 +74,12 @@ const SECTIONS = [
     technical: "Ashtakavarga transits",
   },
   {
+    id: "stars",
+    target: "parashari-timing-stars",
+    plain: "Special stars",
+    technical: "Special nakshatras",
+  },
+  {
     id: "year",
     target: "parashari-timing-year",
     plain: "Year by year",
