@@ -9,6 +9,16 @@ import {
 import { GentleNote, Soft } from "@/lib/gentle";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 import { useMemo, useState } from "react";
+import {
+  runningCombinations,
+  timingNow,
+  type TimingNow,
+} from "@shared/timing-now";
+import {
+  TimingContents,
+  TimingNowPanel,
+  jumpTo,
+} from "@/components/parashari-timing-now";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, SIGNS, SIGN_LORD, type Planet } from "@shared/astro";
@@ -142,6 +152,7 @@ import {
   SectionTitle,
   usePlain,
   NowWord,
+  useDeceased,
   useNowLabel,
 } from "@/components/mode-text";
 import { Working } from "@/components/working";
@@ -471,6 +482,44 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
     : lords;
   const focusBhava = focusHouse ? r.bhavas[focusHouse - 1] : null;
   const cur = r.dashas.find((d) => d.current);
+  const timing = useMemo(
+    () =>
+      timingNow({
+        dasaReadings: r.dasaReadings,
+        dashas: r.dashas,
+        sudarshana,
+        av: avTimelineShown,
+        asOfIso,
+        past: deceased,
+      }),
+    [r.dasaReadings, r.dashas, sudarshana, avTimelineShown, asOfIso, deceased],
+  );
+  const runningCombos = runningCombinations(
+    yogas,
+    [timing.dasa?.lord, timing.antar?.lord].filter((p): p is Planet => !!p),
+  );
+  const nowWord = deceased ? "at passing" : "running now";
+  const condApplying = r.conditionalDasas.systems.filter((s) => s.applies);
+  const condLabel = condApplying.length
+    ? `Conditional periods · ${nowWord}: ${condApplying
+        .map((s) => {
+          const p = s.periods.find((x) => x.current);
+          const who = p
+            ? p.yogini
+              ? `${p.yogini} (${p.lord})`
+              : p.lord
+            : "none";
+          return `${s.name.replace(/ \(.*\)$/, "")} ${who}`;
+        })
+        .join("; ")}`
+    : "Conditional periods · none applies to this chart";
+  const charaNow = r.rasiDasas.systems
+    .find((s) => s.id === "chara")
+    ?.periods.find((p) => p.current);
+  const rasiLabel = `Sign-based periods${charaNow ? ` · ${nowWord}: Chara ${SIGNS[charaNow.sign]}, to ${fmt(charaNow.end)}` : ""}`;
+  const kcNow = r.kalachakra.periods.find((p) => p.current);
+  const kcLabel = `Kalachakra periods${kcNow ? ` · ${nowWord}: ${SIGNS[kcNow.sign]}, to ${fmt(kcNow.end)}` : ""}`;
+  const bjLabel = `Varahamihira's planetary years${bjDasa?.current ? ` · ${nowWord}: ${bjDasa.current.lord}` : ""}`;
   const selDasa: DasaReading | undefined =
     r.dasaReadings.find((d) => d.lord === dasaPick) ??
     r.dasaReadings.find((d) => d.current) ??
@@ -628,7 +677,13 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         </div>
       </div>
 
-      <ParashariVerdict r={r} cur={cur} yogas={yogas} spouse={vargas.spouse} />
+      <ParashariVerdict
+        r={r}
+        cur={cur}
+        yogas={yogas}
+        spouse={vargas.spouse}
+        timing={timing}
+      />
       </Chapter>
 
       <Chapter id="houses">
@@ -1191,13 +1246,19 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           <div data-testid="parashari-timing">
             <p className="mt-3 text-xs text-muted-foreground">
               {plain
-                ? "Parashara's clocks for this chart, all read from the same birth positions: the three-ring wheel turning year by year, the life periods and their sub-periods, the sign-based and Kalachakra periods, Varahamihira's planetary years, and the transits scored against the points tables."
-                : "The Parashari timing methods, read from the same natal positions: Sudarshana chakra (ch. 74), Vimshottari with antar dasas (ch. 46-60), the conditional and rasi dasas, Kalachakra (ch. 46, 50), Brihat Jataka 8, and the Ashtakavarga transits (ch. 66-72). Gochara from the Moon stays in the Panchanga tab, being Brihat Samhita and Phaladeepika, not Parashara."}
+                ? "Parashara's clocks for this chart, all read from the same birth positions. Where things stand now comes first; then the life periods and their sub-periods, the transits scored against the points tables, the three-ring wheel turning year by year, and the other period systems, folded."
+                : "The Parashari timing methods, read from the same natal positions: the running levels first, then Vimshottari with antar dasas (ch. 46-60), the Ashtakavarga transits (ch. 66-72), the Sudarshana chakra (ch. 74), and the conditional and rasi dasas, Kalachakra (ch. 46, 50) and Brihat Jataka 8. Gochara from the Moon stays in the Panchanga tab, being Brihat Samhita and Phaladeepika, not Parashara."}
             </p>
-            <div className="mt-3" data-testid="parashari-sudarshana">
-              <SudarshanaSection s={sudarshana} events={sudarshanaEvents} />
-            </div>
-            <div className="mt-8">
+            <TimingContents />
+            <TimingNowPanel
+              now={timing}
+              combos={runningCombos}
+              deceased={deceased}
+            />
+            <div
+              className="mt-8 scroll-mt-24"
+              data-testid="parashari-timing-periods"
+            >
               <SectionTitle
                 plain="Life periods"
                 technical="Vimshottari dasa, read by lordship"
@@ -1291,9 +1352,30 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                             ROLE_CLASS[d.functional],
                           )}
                         >
-                          {roleLabel(d.functional, r.withheld)}
+                          {plain
+                            ? r.withheld && d.functional === "maraka"
+                              ? "lord of the 2nd or 7th"
+                              : (PLAIN_ROLE[d.functional] ?? d.functional)
+                            : roleLabel(d.functional, r.withheld)}
                         </span>
-                        {d.summary}
+                        {plain ? d.plain : d.summary}
+                        {plain &&
+                          (() => {
+                            const v = r.dasaReadings.find(
+                              (x) => x.lord === d.lord && x.start === d.start,
+                            )?.verdict;
+                            return v ? (
+                              <span
+                                className={cn(
+                                  "ml-1 whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium",
+                                  VERDICT_CLASS[v],
+                                )}
+                                data-testid={`parashari-dasa-row-verdict-${d.lord}`}
+                              >
+                                {VERDICT_LABEL[v]}
+                              </span>
+                            ) : null;
+                          })()}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -1322,39 +1404,90 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 withheld={withheld}
               />
             )}
-            <ConditionalDasasSection cd={r.conditionalDasas} />
-            <RasiDasasSection d={r.rasiDasas} />
-
-            <KalachakraSection k={r.kalachakra} />
-            {!withheld && (
+            <div
+              className="scroll-mt-24"
+              data-testid="parashari-timing-transits"
+            >
+              <AvTimelineSection
+                tl={avTimelineShown}
+                asOfIso={asOfIso}
+                arishta={fatherArishta}
+                mother={motherPoint}
+                withheld={withheld}
+              />
               <Working
-                id="parashari-bj-dasa"
-                label="Show the planetary-year dasas (Brihat Jataka 8)"
+                id="parashari-kin"
+                label="Show Mars, Mercury and Venus through their own point tables"
                 className="mt-8"
               >
-                <BjDasaSection
-                  d={bjDasa}
-                  ageYears={ageYears}
-                  deceased={deceased}
-                  scheme={dasaScheme}
-                  onScheme={setDasaScheme}
-                />
+                <KinTransitsSection k={kinTransits} />
               </Working>
-            )}
-            <AvTimelineSection
-              tl={avTimelineShown}
-              asOfIso={asOfIso}
-              arishta={fatherArishta}
-              mother={motherPoint}
-              withheld={withheld}
-            />
-            <Working
-              id="parashari-kin"
-              label="Show Mars, Mercury and Venus through their own point tables"
-              className="mt-8"
+            </div>
+            <div
+              className="mt-8 scroll-mt-24"
+              data-testid="parashari-timing-year"
             >
-              <KinTransitsSection k={kinTransits} />
-            </Working>
+              <SudarshanaSection s={sudarshana} events={sudarshanaEvents} />
+            </div>
+            <div
+              className="mt-10 scroll-mt-24"
+              data-testid="parashari-other-clocks"
+            >
+              <SectionTitle
+                plain="Other clocks"
+                technical="Conditional, rasi, Kalachakra and Brihat Jataka dasas"
+              />
+              <ModeText
+                plain={
+                  <>
+                    Parashara gives other ways of dividing a life into periods,
+                    some only for particular charts; the last here is
+                    Varahamihira's. Each is folded with what it has running
+                    now. Open one for its table and readings.
+                  </>
+                }
+                practitioner={
+                  <>
+                    The conditional nakshatra dasas of ch. 46 with their
+                    adoption tests, the rasi dasas of ch. 46 and 51, Kalachakra
+                    (ch. 46, 49-50) and the planetary-year dasas of Brihat
+                    Jataka 8.
+                  </>
+                }
+              />
+              <Working
+                id="parashari-conditional"
+                label={condLabel}
+                className="mt-3"
+              >
+                <ConditionalDasasSection cd={r.conditionalDasas} />
+              </Working>
+              <Working id="parashari-rasi" label={rasiLabel} className="mt-2">
+                <RasiDasasSection d={r.rasiDasas} />
+              </Working>
+              <Working
+                id="parashari-kalachakra"
+                label={kcLabel}
+                className="mt-2"
+              >
+                <KalachakraSection k={r.kalachakra} />
+              </Working>
+              {!withheld && (
+                <Working
+                  id="parashari-bj-dasa"
+                  label={bjLabel}
+                  className="mt-2"
+                >
+                  <BjDasaSection
+                    d={bjDasa}
+                    ageYears={ageYears}
+                    deceased={deceased}
+                    scheme={dasaScheme}
+                    onScheme={setDasaScheme}
+                  />
+                </Working>
+              )}
+            </div>
           </div>
         )}
       </Chapter>
@@ -3352,11 +3485,13 @@ function ParashariVerdict({
   cur,
   yogas,
   spouse,
+  timing,
 }: {
   r: ReturnType<typeof computeParashari>;
   cur: DashaGloss | undefined;
   yogas: ParashariFinding[];
   spouse: SpouseReading;
+  timing: TimingNow;
 }) {
   const nowLabel = useNowLabel();
   const helpers = r.natures
@@ -3374,6 +3509,10 @@ function ParashariVerdict({
   const strong = sb?.filter((p) => p.strong).map((p) => p.planet) ?? [];
   const weak = sb?.filter((p) => !p.strong).map((p) => p.planet) ?? [];
   const curReading = r.dasaReadings.find((d) => d.current);
+  const deceased = useDeceased();
+  const nextChange = timing.next.find(
+    (c) => c.kind === "period" || c.kind === "sub-period",
+  );
   const good = yogas.filter((f) => f.tone === "support").length;
   const bad = yogas.filter((f) => f.tone === "strain").length;
   const mixed = yogas.filter((f) => f.tone === "mixed").length;
@@ -3451,8 +3590,13 @@ function ParashariVerdict({
                 when: "present",
                 text: (
                   <>
-                    {cur.lord} period, {fmt(cur.start)} to {fmt(cur.end)}; for
-                    this rising sign {cur.lord} is{" "}
+                    {cur.lord} period, {fmt(cur.start)} to {fmt(cur.end)}
+                    {timing.antar
+                      ? deceased
+                        ? `, then in its ${timing.antar.lord} sub-period to ${fmt(timing.antar.end)}`
+                        : `, with its ${timing.antar.lord} sub-period running to ${fmt(timing.antar.end)}`
+                      : ""}
+                    ; for this rising sign {cur.lord} is{" "}
                     {PLAIN_ROLE[cur.functional] ?? cur.functional}
                     {curReading ? (
                       <>
@@ -3463,6 +3607,35 @@ function ParashariVerdict({
                   </>
                 ),
               },
+              ...(nextChange && nextChange.lord
+                ? [
+                    {
+                      label: "Next",
+                      when: "future" as const,
+                      text: (
+                        <>
+                          {nextChange.lord}{" "}
+                          {nextChange.kind === "period"
+                            ? "period"
+                            : "sub-period"}{" "}
+                          from {fmtD(nextChange.date)}
+                          {nextChange.kind === "period" && nextChange.gloss
+                            ? `, ${nextChange.years} years; for this rising sign ${nextChange.lord} is ${
+                                r.withheld &&
+                                nextChange.gloss.functional === "maraka"
+                                  ? "lord of the 2nd or 7th"
+                                  : (PLAIN_ROLE[nextChange.gloss.functional] ??
+                                    nextChange.gloss.functional)
+                              }`
+                            : ""}
+                          {nextChange.tone
+                            ? `, and the text's lines for it come out ${nextChange.tone} on balance`
+                            : ""}
+                        </>
+                      ),
+                    },
+                  ]
+                : []),
             ]
           : []
       }
@@ -4192,6 +4365,27 @@ function DasaEffects({
     "condition",
   ];
   const running = d.antars.find((a) => a.current);
+  const spell = running?.pratyantars?.find((p) => p.current);
+  const runningKey = running ? `${d.lord}-${running.lord}` : null;
+  const ordered = layers.flatMap((l) => d.notes.filter((n) => n.layer === l));
+  const count = (t: DasaNote["tone"]) =>
+    d.notes.filter((n) => n.tone === t).length;
+  // 47.3-4 places the results by the lord's drekkana; 50.88 by how its sign rises.
+  const w47 =
+    d.timing.third === 1 ? "start" : d.timing.third === 2 ? "middle" : "end";
+  const w50 =
+    d.timing.rising === "head"
+      ? "start"
+      : d.timing.rising === "hind"
+        ? "end"
+        : "middle";
+  const note88 = d.notes.find((n) => n.id === `${d.lord}-50-88`);
+  const GROUPS: { tone: DasaNote["tone"]; plain: string; technical: string }[] =
+    [
+      { tone: "support", plain: "In its favour", technical: "Favourable" },
+      { tone: "strain", plain: "Against it", technical: "Unfavourable" },
+      { tone: "mixed", plain: "Mixed", technical: "Mixed" },
+    ];
   return (
     <div className="mt-8" data-testid="parashari-dasa-effects">
       <div className="flex flex-wrap items-center gap-2">
@@ -4218,11 +4412,11 @@ function DasaEffects({
         plain={
           <>
             What Parashara says a {d.lord} period brings for someone with{" "}
-            {d.lord} placed as it is here, judged by the house it stands in, its
-            strength, its leaning towards good or ill, and where it was moving
-            when the period began. Every matching line is listed, favourable and
-            unfavourable alike, so you can see where they pull against each
-            other.
+            {d.lord} placed as it is here:{" "}
+            {running ? "the sub-period running now first, then " : ""}the
+            balance of the text's lines and when in the period they are felt.
+            The lines themselves follow, grouped by whether they help or
+            hinder, favourable and unfavourable alike.
           </>
         }
         practitioner={
@@ -4245,19 +4439,133 @@ function DasaEffects({
           </>
         }
       />
-      <p
-        className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground"
+      {running && runningKey && (
+        <div
+          className="mt-3 rounded-md border bg-primary/5 px-3 py-2"
+          data-testid="parashari-dasa-running"
+        >
+          <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm">
+            <span className="font-medium">
+              <NowWord cap />:
+            </span>
+            <span>
+              <PlanetName planet={running.lord} />{" "}
+              {plainDE ? "sub-period" : "antar"}, {fmtD(running.start)} to{" "}
+              {fmtD(running.end)}
+            </span>
+            <span
+              className={cn(
+                "rounded px-1.5 py-0.5 text-xs font-medium",
+                VERDICT_CLASS[running.verdict],
+              )}
+            >
+              {VERDICT_LABEL[running.verdict]}
+            </span>
+            {spell && (
+              <span className="text-muted-foreground">
+                · <PlanetName planet={spell.lord} />{" "}
+                {plainDE ? "spell" : "pratyantar"}, {fmtD(spell.start)} to{" "}
+                {fmtD(spell.end)}
+              </span>
+            )}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {plainDE
+              ? "What the text weighs for this sub-period: "
+              : "Placements matched: "}
+            <Facts a={running} /> <SourceLink source={running.source} />
+          </p>
+          {/* The spell's general effects stay in the spell list for the plain reading: 61.2 cancels the ill ones for a well-placed lord, a test not applied here. */}
+          {!plainDE && spell?.text && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Pratyantar: {spell.text} <SourceLink source={spell.source} />{" "}
+              (general effects; 61.2 withholds the ill ones when the pratyantar
+              lord is well placed)
+            </p>
+          )}
+          <button
+            type="button"
+            className="mt-1 text-xs font-medium text-primary underline underline-offset-2"
+            onClick={() => {
+              setOpen(runningKey);
+              requestAnimationFrame(() =>
+                jumpTo(`parashari-antar-${runningKey}`),
+              );
+            }}
+            data-testid="parashari-dasa-running-open"
+          >
+            {plainDE
+              ? "Read the text for this sub-period"
+              : "Open the antar's verses"}
+          </button>
+        </div>
+      )}
+      <p className="mt-3 text-sm" data-testid="parashari-dasa-synthesis">
+        {plainDE
+          ? `Of the ${d.notes.length} lines the text gives for this period, ${count("support")} favour it, ${count("strain")} go against it and ${count("mixed")} are mixed, so on balance it reads ${VERDICT_LABEL[d.verdict]}.`
+          : `${d.notes.length} matched lines: ${count("support")} favourable, ${count("strain")} unfavourable, ${count("mixed")} mixed; on balance ${VERDICT_LABEL[d.verdict]}.`}
+      </p>
+      <div
+        className="mt-2 grid gap-2 sm:grid-cols-2"
         data-testid="parashari-dasa-timing"
       >
-        <Soft>{d.timing.text}</Soft> <SourceLink source={d.timing.source} />
-      </p>
-      <ul className="mt-3 space-y-2">
-        {layers
-          .flatMap((l) => d.notes.filter((n) => n.layer === l))
-          .map((n) => (
-            <Note key={n.id} n={n} />
-          ))}
-      </ul>
+        <div className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          <p className="font-medium text-foreground">
+            {plainDE
+              ? `By the planet's degree: mainly at the ${w47}`
+              : `Drekkana (47.3-4): ${w47}`}
+          </p>
+          <p className="mt-0.5">
+            <Soft>{d.timing.text}</Soft> <SourceLink source={d.timing.source} />
+          </p>
+        </div>
+        {note88 && (
+          <div className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+            <p className="font-medium text-foreground">
+              {plainDE
+                ? `By how its sign rises: ${w50 === "middle" ? "in the middle" : `towards the ${w50}`}`
+                : `Rising of the sign (50.88): ${w50}`}
+            </p>
+            <p className="mt-0.5">
+              <Soft>{note88.text}</Soft> <SourceLink source={note88.source} />
+            </p>
+          </div>
+        )}
+      </div>
+      {note88 && (
+        <p
+          className="mt-1 text-xs text-muted-foreground"
+          data-testid="parashari-dasa-timing-agreement"
+        >
+          {w47 === w50
+            ? `The two timing rules agree: the results come mainly at the ${w47} of the period.`
+            : "The two timing rules point to different parts of the period, so both are shown."}
+        </p>
+      )}
+      <Working
+        id="parashari-dasa-notes"
+        label={`Show the ${d.notes.length} lines this rests on`}
+        className="mt-3"
+      >
+        <div className="space-y-3" data-testid="parashari-dasa-notes">
+          {GROUPS.map((g) => {
+            const ns = ordered.filter((n) => n.tone === g.tone);
+            if (!ns.length) return null;
+            return (
+              <div key={g.tone}>
+                <p className="text-xs font-semibold text-muted-foreground">
+                  {plainDE ? g.plain : g.technical} ({ns.length})
+                </p>
+                <ul className="mt-1.5 space-y-2">
+                  {ns.map((n) => (
+                    <Note key={n.id} n={n} />
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      </Working>
 
       <SectionTitle
         as="h4"
@@ -4487,7 +4795,12 @@ function FineLevels({
         ))}
       </ul>
 
-      <div data-testid="parashari-sookshmas-heading">
+      <Working
+        id="parashari-fine-spells"
+        label="Show the shorter spells, days and hours long"
+        className="mt-4"
+      >
+        <div data-testid="parashari-sookshmas-heading">
         <SectionTitle
           as="h4"
           className="mt-6"
@@ -4589,6 +4902,7 @@ function FineLevels({
           </ul>
         </>
       )}
+      </Working>
     </>
   );
 }
@@ -4633,7 +4947,7 @@ function AntarRows({
     <>
       <TableRow
         className={cn(
-          "cursor-pointer",
+          "cursor-pointer scroll-mt-24",
           a.current && "bg-primary/5",
           a.past && !a.current && "text-muted-foreground/80",
         )}

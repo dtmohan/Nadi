@@ -44,6 +44,7 @@ import {
   type NeechaBhanga,
 } from "./neechabhanga";
 import {
+  HOUSE_AREAS_PLAIN,
   houseFindings,
   judgeBhavas,
   type BhavaJudgement,
@@ -134,6 +135,8 @@ export interface DashaGloss {
   house: number;
   functional: FunctionalRole;
   summary: string;
+  /** The same reading in plain words: the houses ruled with their main matters (11.2-13) and the house held. */
+  plain: string;
 }
 
 export interface ParashariResult {
@@ -1056,6 +1059,10 @@ export function computeParashari(
         ? " The father enjoys happiness in this dasa (70.16)."
         : "";
     const sandhi = bhavaNote(d.lord);
+    const plainText =
+      n.lordship === "node"
+        ? `In the ${ord(n.house)}, giving the results of its sign lord ${SIGN_LORD[pos(d.lord).signIndex]} and of the planets with it.`
+        : `Rules the ${n.owns.map((h) => `${ord(h)} (${HOUSE_AREAS_PLAIN[h]})`).join(" and ")} and stands in the ${ord(n.house)}.`;
     return {
       lord: d.lord,
       start: d.start,
@@ -1067,6 +1074,7 @@ export function computeParashari(
       house: n.house,
       functional: n.functional,
       summary: roleText + "." + eff + father + (sandhi ? ` ${sandhi}` : ""),
+      plain: plainText + father,
     };
   });
 
