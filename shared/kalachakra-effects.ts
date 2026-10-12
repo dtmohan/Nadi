@@ -6,6 +6,7 @@
 import { SIGNS, SIGN_LORD, FRIENDS, ENEMIES, houseFrom, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
 import { argalaOn } from "./jaimini";
+import { parashariCombust } from "./vargas";
 
 const CH50 = BPHS_URL(50);
 const CH64 = BPHS_URL(64);
@@ -99,6 +100,9 @@ export function rasiDasaReadings(D: number, deps: RasiDasaDeps): RasiReading[] {
   const out: RasiReading[] = [];
   const S = (verse: string, provisional?: boolean) => ({ label: `Parashara 50.${verse}`, url: CH50, provisional });
   const inH = (h: number) => positions.filter((p) => houseFrom(D, p.signIndex) === h);
+  // Combust by the Surya Siddhanta orbs quoted under BPHS 7.28-29 (vargas.ts), not the Nadi 3°20'.
+  const sunLon = positions.find((p) => p.planet === "Sun")?.lon;
+  const burnt = (p: PlanetPosition) => sunLon !== undefined && parashariCombust(p, sunLon);
   const occ = inH(1);
   const isMal = (p: PlanetPosition) => !benefic(p);
   const mal = (ps: PlanetPosition[]) => ps.filter(isMal);
@@ -179,7 +183,7 @@ export function rasiDasaReadings(D: number, deps: RasiDasaDeps): RasiReading[] {
   // 50.60-63.
   const nodesTri = tri.filter((p) => p.planet === "Rahu" || p.planet === "Ketu");
   if (nodesTri.length) bad.push(`${names(nodesTri)} in a trine from the sign: distress to children, life abroad and continual disturbance (50.60)`);
-  const bad6 = inH(6).filter((p) => isMal(p) || fallen(p) || p.combust), bad8 = inH(8).filter((p) => isMal(p) || fallen(p) || p.combust);
+  const bad6 = inH(6).filter((p) => isMal(p) || fallen(p) || burnt(p)), bad8 = inH(8).filter((p) => isMal(p) || fallen(p) || burnt(p));
   if (bad6.length && bad8.length) bad.push(`${names(bad6)} in the 6th and ${names(bad8)} in the 8th from the sign, malefic, debilitated or combust: danger from enemies, from those in power, and disease (50.61)`);
   const bad4 = inH(4).filter((p) => isMal(p) || fallen(p));
   if (bad4.length) {

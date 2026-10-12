@@ -145,7 +145,7 @@ function ComboItem({
       data-testid={testId}
     >
       <span className="font-medium">{c.finding.title}</span>
-      {plain && c.finding.gist && <span>({c.finding.gist})</span>}
+      {c.finding.gist && <span>({c.finding.gist})</span>}
       <Pill tone={c.finding.tone} />
       {(others.length > 0 || c.finding.planets.length === 1) && (
         <span className="text-xs text-muted-foreground">
@@ -219,7 +219,7 @@ function AntarRow({
           {a.adds
             .map((c) => {
               const others = partners(c, a.lord);
-              return `${c.finding.title}${others.length ? ` with ${andList(others.map(nm))}` : ""}${plain && c.finding.gist ? ` (${c.finding.gist})` : ""}`;
+              return `${c.finding.title}${others.length ? ` with ${andList(others.map(nm))}` : ""}${c.finding.gist ? ` (${c.finding.gist})` : ""}`;
             })
             .join("; ")}
         </p>

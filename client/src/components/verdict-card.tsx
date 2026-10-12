@@ -1,18 +1,12 @@
 import { Soft } from "@/lib/gentle";
-import { useEffect, useState, type ReactNode } from "react";
-import { ChevronDown } from "lucide-react";
+import { type ReactNode } from "react";
 import type { Planet } from "@shared/astro";
 import {
   PlanetDot,
   TimePill,
   type TimeGroupKey,
 } from "@/components/planet-name";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { useReadingMode } from "@/lib/reading-mode";
+import { Expander, HOW_FOUND } from "@/components/working";
 import { cn } from "@/lib/utils";
 
 export type VerdictTone = "good" | "mixed" | "bad" | "neutral";
@@ -79,9 +73,6 @@ export function VerdictCard({
   testid: string;
   className?: string;
 }) {
-  const { mode } = useReadingMode();
-  const [more, setMore] = useState(mode === "practitioner");
-  useEffect(() => setMore(mode === "practitioner"), [mode]);
   const sigs = (signatures ?? []).slice(0, 3);
   return (
     <section
@@ -156,40 +147,23 @@ export function VerdictCard({
       )}
 
       {lines && lines.length > 0 && (
-        <Collapsible
-          open={more}
-          onOpenChange={setMore}
+        <Expander
+          testId={`${testid}-more`}
+          label={HOW_FOUND}
           className="mt-4 border-t pt-3"
+          contentClassName=""
         >
-          <CollapsibleTrigger asChild>
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
-              data-testid={`${testid}-more`}
-              aria-expanded={more}
-            >
-              <ChevronDown
-                className={cn(
-                  "h-3.5 w-3.5 transition-transform",
-                  more && "rotate-180",
-                )}
-              />
-              {more ? "Less" : "How this was read"}
-            </button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <dl className="mt-3 grid gap-x-4 gap-y-2 text-sm sm:grid-cols-[minmax(7rem,max-content)_1fr]">
-              {lines.map((l, i) => (
-                <div key={i} className="contents">
-                  <dt className="text-muted-foreground">{l.label}</dt>
-                  <dd className="max-w-[68ch] leading-relaxed">
-                    <Soft>{l.text}</Soft>
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </CollapsibleContent>
-        </Collapsible>
+          <dl className="mt-3 grid gap-x-4 gap-y-2 text-sm sm:grid-cols-[minmax(7rem,max-content)_1fr]">
+            {lines.map((l, i) => (
+              <div key={i} className="contents">
+                <dt className="text-muted-foreground">{l.label}</dt>
+                <dd className="max-w-[68ch] leading-relaxed">
+                  <Soft>{l.text}</Soft>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Expander>
       )}
       {caveat && (
         <p className="mt-3 text-2xs text-muted-foreground">{caveat}</p>

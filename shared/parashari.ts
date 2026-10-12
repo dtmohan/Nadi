@@ -11,6 +11,7 @@ import {
   type PlanetPosition,
   type Sign,
 } from "./astro";
+import { allPlanetChecks, type PlanetCheck } from "./parashari-checks";
 import { vimshottari, type Vimshottari } from "./kp";
 import {
   conditionalDasas,
@@ -62,7 +63,7 @@ import { computePadas, type PadaResult } from "./parashari-padas";
 import { computeMarakas, type MarakaResult } from "./parashari-marakas";
 import { redactSensitive } from "./life-stage";
 import { computeAvasthas, type AvasthaResult } from "./parashari-avasthas";
-import { computeVargas, vargaExclusions, type VargaExclusions } from "./vargas";
+import { computeVargas, vargaExclusions, parashariCombust, type VargaExclusions } from "./vargas";
 
 export const SEVEN: Planet[] = [
   "Sun",
@@ -189,6 +190,8 @@ export interface ParashariResult {
   neechaBhanga: NeechaBhanga[];
   /** Minimum aspect strength counted by the rules above. */
   aspectFloor: AspectFloor;
+  /** The standard checks per planet behind the cards' "How this was found" panel (shared/parashari-checks.ts). */
+  checks: Partial<Record<Planet, PlanetCheck[]>>;
   /** 11.14-16 prosperity and failure signs for each house. */
   bhavaJudgement: BhavaJudgement[];
   /** Six-fold strength of the seven planets, BPHS ch. 27; absent when the server sent no ephemeris facts. */
@@ -794,8 +797,10 @@ export function computeParashari(
     const evil = Array.from(new Set([lordOf(6), lordOf(8), lordOf(12)])).filter(
       (x) => x !== l1,
     );
+    // 39.20 names fall, inimical signs and combustion; combustion by the Surya Siddhanta orbs quoted under 7.28-29.
+    const evilCombust = (x: Planet) => parashariCombust(pos(x), pos("Sun").lon);
     const weakEvil = evil.filter(
-      (x) => pos(x).dignity === "Debilitated" || pos(x).dignity === "Inimical",
+      (x) => pos(x).dignity === "Debilitated" || pos(x).dignity === "Inimical" || evilCombust(x),
     );
     if (l1Strong && weakEvil.length) {
       findings.push({
@@ -810,11 +815,11 @@ export function computeParashari(
                 .map(ord)
                 .join(
                   " and ",
-                )}) is ${pos(x).dignity.toLowerCase() === "inimical" ? "in an inimical sign" : "debilitated"}`,
+                )}) is ${pos(x).dignity === "Debilitated" ? "debilitated" : pos(x).dignity === "Inimical" ? "in an inimical sign" : "combust"}`,
           )
           .join(
             ", ",
-          )}. Parashara counts the 6th, 8th and 12th lords in fall, inimical signs or combustion under such a lagna lord as a Raja yoga (39.20). Combustion is not assessed here; he speaks of all three lords, this pass accepts any.`,
+          )}. Parashara counts the 6th, 8th and 12th lords in fall, inimical signs or combustion under such a lagna lord as a Raja yoga (39.20). Combustion is by the Surya Siddhanta orbs quoted under 7.28-29; he speaks of all three lords, this pass accepts any.`,
         tone: "support",
         planets: [l1, ...weakEvil],
         source: S(39, "20", undefined, true),
@@ -1211,6 +1216,7 @@ export function computeParashari(
   const out: ParashariResult = {
     ...(vargaExcl ? { vargaExclusions: vargaExcl } : {}),
     aspectFloor,
+    checks: allPlanetChecks({ positions, houseView, aspectFloor, shadbala }),
     withheld: withhold,
     houseMethod,
     ...(houseMethodNote ? { houseMethodNote } : {}),

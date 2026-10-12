@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Cite } from "@/components/source-link";
+import { Expander } from "@/components/working";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +17,6 @@ export function SutraLibrary({ initialRef }: { initialRef?: string }) {
   const [q, setQ] = useState("");
   const [pada, setPada] = useState<string>("all");
   const [ref, setRef] = useState<string | undefined>(initialRef);
-  const [open, setOpen] = useState<Set<string>>(new Set());
   const firstHit = useRef<HTMLLIElement | null>(null);
 
   useEffect(() => {
@@ -49,14 +49,6 @@ export function SutraLibrary({ initialRef }: { initialRef?: string }) {
     if (ref && firstHit.current)
       firstHit.current.scrollIntoView({ block: "start", behavior: "smooth" });
   }, [ref, filtered.length]);
-
-  const toggle = (r: string) =>
-    setOpen((prev) => {
-      const next = new Set(prev);
-      if (next.has(r)) next.delete(r);
-      else next.add(r);
-      return next;
-    });
 
   return (
     <div data-testid="sutra-library">
@@ -151,21 +143,17 @@ export function SutraLibrary({ initialRef }: { initialRef?: string }) {
               )}
               <div className="mt-0.5 text-sm">{s.text}</div>
               {s.notes && (
-                <div className="mt-1">
-                  <button
-                    type="button"
-                    onClick={() => toggle(s.ref)}
-                    className="text-xs text-muted-foreground underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground"
-                    data-testid={`button-sutra-notes-${s.ref}`}
-                  >
-                    {open.has(s.ref) ? "Hide Rao's notes" : "Rao's notes"}
-                  </button>
-                  {open.has(s.ref) && (
-                    <p className="mt-1 whitespace-pre-line text-xs leading-relaxed text-muted-foreground">
-                      {s.notes}
-                    </p>
-                  )}
-                </div>
+                <Expander
+                  testId={`button-sutra-notes-${s.ref}`}
+                  label="Rao's notes"
+                  openLabel="Hide Rao's notes"
+                  className="mt-1"
+                  contentClassName=""
+                >
+                  <p className="mt-1 whitespace-pre-line text-xs leading-relaxed text-muted-foreground">
+                    {s.notes}
+                  </p>
+                </Expander>
               )}
             </div>
           </li>

@@ -231,7 +231,11 @@ export function Chapters({
   );
 
   return (
-    <div className={className} data-testid={`chapters-${tab}`}>
+    <div
+      className={className}
+      data-testid={`chapters-${tab}`}
+      data-active-chapter={active}
+    >
       <div ref={anchorRef} aria-hidden />
       <nav
         aria-label="Chapters in this tab"

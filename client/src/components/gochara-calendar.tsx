@@ -2,6 +2,7 @@ import { sensitiveGate } from "@shared/life-stage";
 import { Fragment, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
+import { ChevronDown } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import type { Planet } from "@shared/astro";
 import { SIGNS } from "@shared/astro";
@@ -436,7 +437,13 @@ function SegmentList({
             {segments.length} stretches
           </span>
         </span>
-        <span className="text-muted-foreground">{open ? "Hide" : "Show"}</span>
+        <ChevronDown
+          className={cn(
+            "h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform",
+            open && "rotate-180",
+          )}
+          aria-hidden="true"
+        />
       </button>
       {open && (
         <div className="overflow-x-auto border-t">

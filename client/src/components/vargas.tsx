@@ -38,6 +38,7 @@ import {
   VargaMeaningBox,
   VargaOverview,
 } from "@/components/varga-meanings";
+import { Expander, HOW_COMPUTED } from "@/components/working";
 
 const BAND_PILL: Record<SchemeScore["band"], string> = {
   "wholly favourable": "bg-verdict-good/15 text-verdict-good",
@@ -201,7 +202,6 @@ export function VargasSection({
   const [varga, setVarga] = useState<VargaKey>("D9");
   const [scheme, setScheme] = useState<SchemeKey>("shodasa");
   const [open, setOpen] = useState<Planet | null>(null);
-  const [caveats, setCaveats] = useState(false);
   const def = VARGA_BY_KEY[varga];
   const chart = v.charts[varga];
   const sch = SCHEMES.find((s) => s.key === scheme)!;
@@ -490,21 +490,19 @@ export function VargasSection({
           </div>
         </div>
       )}
-      <button
-        className="mt-2 text-xs text-muted-foreground underline underline-offset-2"
-        onClick={() => setCaveats((x) => !x)}
-        data-testid="varga-caveats"
+      <Expander
+        testId="varga-caveats"
+        label={HOW_COMPUTED}
+        count={v.caveats.length}
+        className="mt-2"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how chapters 6 and 7 were applied (
-        {v.caveats.length} notes)
-      </button>
-      {caveats && (
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           {v.caveats.map((c, i) => (
             <li key={i}>{c}</li>
           ))}
         </ul>
-      )}
+      </Expander>
     </div>
   );
 }

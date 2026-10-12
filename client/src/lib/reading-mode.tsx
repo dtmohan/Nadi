@@ -2,8 +2,10 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 
 /**
  * Two ways of reading the same chart.
- *  - "plain": one verdict per life area, the two or three signatures that carry it, the working folded away.
- *  - "practitioner": every rule that fired, degree order, weights, sources, sutra text.
+ *  - "plain": one verdict per life area, the two or three signatures that carry it.
+ *  - "practitioner": the same structure and order, plus every rule that fired, degree order, weights,
+ *    sources, sutra text and the verse wording the plain reading softens.
+ * The working and the method notes stay folded in both (components/working.tsx).
  * The choice is kept in this browser's Cache Storage, like the saved charts.
  */
 export type ReadingMode = "plain" | "practitioner";
