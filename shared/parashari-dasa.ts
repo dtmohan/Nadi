@@ -33,6 +33,7 @@ import {
   type DasaStartTransit,
 } from "./shadbala";
 import { PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechabhanga";
+import type { VargasResult, SchemeScore } from "./vargas";
 import { bhavaAnnotation, CHALIT_SOURCES, type ChalitResult } from "./chalit";
 import type { AshtakavargaResult } from "./ashtakavarga";
 
@@ -57,6 +58,8 @@ export interface DasaNote {
     | "relation"
     | "condition";
   text: string;
+  /** Shown in the practitioner reading only, after the text. */
+  detail?: string;
   tone: Tone;
   source: DasaSource;
 }
@@ -879,10 +882,53 @@ function tally(tones: Tone[]): Tone {
 }
 
 // ---------- antar dasas, ch. 52-60 ----------
+// ---------- 7.26-27 and 7.30-32: the period lord's twenty-point (Vimsopaka) strength ----------
+
+const SCHEME_CHARTS: Record<SchemeScore["scheme"], string> = {
+  shodasa: "sixteen",
+  dasa: "ten",
+  sapta: "seven",
+  shad: "six",
+};
+/** The bands of 7.26-27 in gentle words. With the viswa of 7.24-25 the total cannot fall below 5. */
+const BAND_SAYS: Record<SchemeScore["band"], string> = {
+  "below five": "falls short of the strength to give its good results",
+  "some good": "can give some good results",
+  middling: "gives middling results",
+  "wholly favourable": "can give its results in full",
+};
+const vimsopakaOf = (vargas: VargasResult | undefined, p: Planet) =>
+  vargas?.planets.find((x) => x.planet === p)?.vimsopaka;
+/** The sixteen-chart scheme is the app's choice; the verses do not name one. */
+const v16Of = (vp?: SchemeScore[]) => vp?.find((x) => x.scheme === "shodasa");
+
+function vimsopakaNote(p: Planet, vp: SchemeScore[]): DasaNote | undefined {
+  const v16 = v16Of(vp);
+  if (!v16) return undefined;
+  const others = (["dasa", "sapta", "shad"] as const)
+    .map((k) => vp.find((x) => x.scheme === k))
+    .filter((x): x is SchemeScore => !!x)
+    .map((x) => `${SCHEME_CHARTS[x.scheme]} charts ${x.total.toFixed(1)} (${x.band})`);
+  return {
+    id: `${p}-7-vimsopaka`,
+    layer: "strength",
+    tone:
+      v16.band === "wholly favourable"
+        ? "support"
+        : v16.band === "below five"
+          ? "strain"
+          : "mixed",
+    text: `Twenty-point strength ${v16.total.toFixed(1)} of 20 over the sixteen divisional charts: ${p} ${BAND_SAYS[v16.band]}. Parashara has the period's results declared by this strength (7.30-32), in the bands of 7.26-27.`,
+    detail: `Other schemes: ${others.join(", ")}. The verses do not say which scheme to use; the sixteen-chart scheme is the app's choice.`,
+    source: S(7, "26-27, 30-32", true),
+  };
+}
+
 function antarFacts(
   c: Ctx,
   dasaLord: Planet,
   b: Planet,
+  vp?: SchemeScore[],
 ): AntarReading["facts"] {
   const fav: string[] = [],
     adv: string[] = [];
@@ -959,6 +1005,16 @@ function antarFacts(
     : inMk
       ? `occupies the ${ord(h)} (maraka house)`
       : null;
+  // 7.30-32: the twenty-point strength decides the period only at the ends of the bands of 7.26-27.
+  const v16 = v16Of(vp);
+  if (v16?.band === "wholly favourable")
+    fav.push(
+      `twenty-point strength ${v16.total.toFixed(1)} of 20, enough to give its results in full (7.26-27)`,
+    );
+  else if (v16?.band === "below five")
+    adv.push(
+      `twenty-point strength ${v16.total.toFixed(1)} of 20, short of the strength to give its good results (7.26-27)`,
+    );
   return { favourable: fav, adverse: adv, maraka };
 }
 
@@ -1210,6 +1266,7 @@ export function computeDasaReadings(
     fromSign: number,
     toSign: number,
   ) => number = drishti,
+  vargas?: VargasResult,
 ): DasaReading[] {
   const c = makeCtx(
     positions,
@@ -1327,6 +1384,12 @@ export function computeDasaReadings(
         source: S(27, "32-33", true),
       });
     }
+    // 7.30-32: the period judged by the lord's twenty-point strength (seven planets only).
+    {
+      const vp = vimsopakaOf(vargas, p);
+      const vn = vp && vimsopakaNote(p, vp);
+      if (vn) notes.push(vn);
+    }
     // 48.8: the lord's transit house when the dasa begins.
     const tr = c.transitAtStart(p);
     if (tr) {
@@ -1427,7 +1490,7 @@ export function computeDasaReadings(
     const antars: AntarReading[] = bhuktis.map((b) => {
       const bl = b.bhuktiLord ?? b.lord;
       const entry = ANTAR_DASA[p]?.[bl];
-      const facts = antarFacts(c, p, bl);
+      const facts = antarFacts(c, p, bl, vimsopakaOf(vargas, bl));
       const reading: AntarReading = {
         lord: bl,
         start: b.start,
@@ -1532,7 +1595,7 @@ export function finePeriodsOf(
 export const LAYER_LABEL: Record<DasaNote["layer"], string> = {
   general: "General rule (47.5-6)",
   dignity: "Cancelled debility (Phaladeepika 7)",
-  strength: "Shadbala (ch. 27)",
+  strength: "Strength (ch. 7, 27-28)",
   ashtakavarga: "Ashtakavarga (ch. 66-72)",
   planet: "Placement (ch. 47)",
   lordship: "House lordship (48.2-8)",

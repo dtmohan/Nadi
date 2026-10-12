@@ -235,7 +235,7 @@ function timingSection(
     for (const n of notes)
       ps.push({
         kind: "p",
-        text: S(endStop(n.text)),
+        text: S(endStop(n.detail ? `${n.text} ${n.detail}` : n.text)),
         cites: [cites.add(n.source.label, n.source.url)],
         provisional: n.source.provisional,
         tone: n.tone,
@@ -363,7 +363,7 @@ function tablesSection(
   }
 
   // The sixteen divisions, ch. 6-7.
-  const vg = computeVargas(result.positions, result.jaimini.lagna.lon);
+  const vg = computeVargas(result.positions, result.jaimini.lagna.lon, par.vargaExclusions);
   {
     const keys = VARGAS.map((v) => v.key);
     const ps: ReportPara[] = [

@@ -174,7 +174,9 @@ export function ChartSettings({
             >
               How sure the birth time is. The Nadi reading marks each line whose
               direction or bond changes inside the band; the Moon moves about
-              half a degree an hour. The reading at the stated time stands.
+              half a degree an hour. The Parashari readings mark those that rest
+              on a lagna the band could change, and the finer charts show how
+              long each lagna holds. The reading at the stated time stands.
             </div>
           </dd>
           <dt className="text-muted-foreground">Time zone</dt>

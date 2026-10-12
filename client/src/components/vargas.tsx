@@ -26,6 +26,13 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
+import {
+  crossedBy,
+  fmtMin,
+  restOn,
+  timeRestText,
+  type LagnaWindows,
+} from "@shared/time-windows";
 
 const BAND_PILL: Record<SchemeScore["band"], string> = {
   "wholly favourable": "bg-verdict-good/15 text-verdict-good",
@@ -134,11 +141,15 @@ function VargaRow({
                   : des.good < 2
                     ? ", no designation"
                     : ""}
-                {p.combust && (
-                  <span className="text-muted-foreground">
+                {p.excluded && p.excluded.length > 0 && (
+                  <span
+                    className="text-muted-foreground"
+                    data-testid={`varga-excluded-${p.planet}`}
+                  >
                     {" "}
-                    · combust by the Surya Siddhanta orbs under 7.28-29, so 6.53
-                    withholds the designation
+                    · {p.excluded.join(", ")}
+                    {p.combust ? " (Surya Siddhanta orbs under 7.28-29)" : ""},
+                    so 6.53 withholds the designation
                   </span>
                 )}
               </p>
@@ -166,7 +177,19 @@ function VargaRow({
   );
 }
 
-export function VargasSection({ v, name }: { v: VargasResult; name: string }) {
+export function VargasSection({
+  v,
+  name,
+  windows,
+  band = 0,
+}: {
+  v: VargasResult;
+  name: string;
+  /** Minutes either side of the recorded birth time over which each lagna keeps its sign. */
+  windows?: LagnaWindows;
+  /** The chart's stated birth-time uncertainty, minutes either way. */
+  band?: number;
+}) {
   const [varga, setVarga] = useState<VargaKey>("D9");
   const [scheme, setScheme] = useState<SchemeKey>("shodasa");
   const [open, setOpen] = useState<Planet | null>(null);
@@ -176,6 +199,8 @@ export function VargasSection({ v, name }: { v: VargasResult; name: string }) {
   const sch = SCHEMES.find((s) => s.key === scheme)!;
   const sp = v.spouse;
   const plain = usePlain();
+  const win = windows?.[varga];
+  const d9Rest = restOn("D9", "the navamsa lagna", windows, band);
   return (
     <div className="mt-8" data-testid="parashari-vargas">
       <SectionTitle
@@ -245,6 +270,24 @@ export function VargasSection({ v, name }: { v: VargasResult; name: string }) {
             )}
             {def.note && <> · {def.note}</>}
           </p>
+          {win && (
+            <p
+              className={cn(
+                "mt-1 text-xs",
+                crossedBy(win, band)
+                  ? "text-verdict-mixed"
+                  : "text-muted-foreground",
+              )}
+              data-testid="varga-lagna-window"
+            >
+              {plain ? "This chart's rising sign" : `The ${def.key} lagna`}{" "}
+              holds from {fmtMin(win.before, win.beforeCapped)} before to{" "}
+              {fmtMin(win.after, win.afterCapped)} after the recorded birth time
+              {crossedBy(win, band)
+                ? `, so the stated ±${band}-minute band could change it.`
+                : "."}
+            </p>
+          )}
         </div>
         <div>
           <div
@@ -337,7 +380,105 @@ export function VargasSection({ v, name }: { v: VargasResult; name: string }) {
           bhava; it gives no further weighing, so this is a placement report
           rather than a verdict.
         </p>
+        {d9Rest && (
+          <p
+            className={cn(
+              "mt-1",
+              d9Rest.sensitive ? "text-verdict-mixed" : "text-muted-foreground",
+            )}
+            data-testid="varga-spouse-time"
+          >
+            {timeRestText(d9Rest, band)}
+          </p>
+        )}
       </div>
+      {windows && (
+        <div
+          className="mt-4 rounded-md border bg-card p-3 text-xs"
+          data-testid="varga-time-windows"
+        >
+          <SectionTitle
+            as="h4"
+            plain="How much the birth time matters"
+            technical="Lagna windows around the birth time"
+            term="varga"
+          />
+          <p className="mt-1 text-muted-foreground">
+            {plain ? (
+              <>
+                The rising sign of a finer chart changes faster than the birth
+                chart's: the ninth-cut chart's about nine times as fast. These
+                are the minutes before and after the recorded time during which
+                each chart keeps its rising sign.
+              </>
+            ) : (
+              <>
+                In the D-n chart the lagna moves n times as fast as in the rasi.
+                These are the minutes either side of the recorded time over
+                which each divisional lagna keeps its sign, from the ephemeris.
+                Readings of a chart's houses rest on its window; a planet's own
+                divisional placement moves far more slowly.
+              </>
+            )}{" "}
+            {band > 0
+              ? `Rows marked "in band" change inside the stated ±${band}-minute band.`
+              : "No time uncertainty is recorded for this chart; set one in the chart settings to mark the charts it could change."}
+          </p>
+          <div className="min-w-0 overflow-x-auto">
+            <Table className="mt-2">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="px-2 sm:px-4">Chart</TableHead>
+                  <TableHead className="whitespace-nowrap px-2 text-right sm:px-4">
+                    Before, min
+                  </TableHead>
+                  <TableHead className="whitespace-nowrap px-2 text-right sm:px-4">
+                    After, min
+                  </TableHead>
+                  <TableHead className="hidden px-2 sm:table-cell sm:px-4">
+                    {plain ? "Rising sign" : "Lagna"}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {VARGAS.map((d) => {
+                  const w = windows[d.key];
+                  if (!w) return null;
+                  const hit = crossedBy(w, band);
+                  return (
+                    <TableRow
+                      key={d.key}
+                      className={cn(hit && "bg-verdict-mixed/10")}
+                      data-testid={`varga-window-${d.key}`}
+                    >
+                      <TableCell className="px-2 py-1 sm:px-4">
+                        <span className="font-medium">{d.key}</span>{" "}
+                        <span className="hidden text-muted-foreground sm:inline">
+                          {d.name}
+                        </span>
+                        {hit && (
+                          <span className="ml-1 whitespace-nowrap text-verdict-mixed">
+                            in band
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap px-2 py-1 text-right tabular-nums sm:px-4">
+                        {w.beforeCapped ? `> ${Math.round(w.before)}` : w.before >= 100 ? Math.round(w.before) : w.before.toFixed(1)}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap px-2 py-1 text-right tabular-nums sm:px-4">
+                        {w.afterCapped ? `> ${Math.round(w.after)}` : w.after >= 100 ? Math.round(w.after) : w.after.toFixed(1)}
+                      </TableCell>
+                      <TableCell className="hidden px-2 py-1 sm:table-cell sm:px-4">
+                        {SIGNS[v.lagna[d.key]]}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
       <button
         className="mt-2 text-xs text-muted-foreground underline underline-offset-2"
         onClick={() => setCaveats((x) => !x)}

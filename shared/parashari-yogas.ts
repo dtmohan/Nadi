@@ -8,6 +8,7 @@ import { BPHS_URL } from "./parashari-data";
 import type { ShadbalaResult } from "./shadbala";
 import type { ParashariFinding, ParashariSource } from "./parashari";
 import type { HouseDeps } from "./parashari-houses";
+import type { VargasResult } from "./vargas";
 
 const S = (ch: number, verse: string, provisional?: boolean): ParashariSource => ({ label: `Parashara ${ch}.${verse}`, url: BPHS_URL(ch), provisional });
 const SEVEN: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
@@ -32,11 +33,11 @@ const OWN_OR_EXALTED = ["Exalted", "Moolatrikona", "Own sign"];
 
 export const YOGA_CAVEATS: string[] = [
   "Nabhasa yogas (chapter 35) are judged from the seven planets, Rahu and Ketu excluded, as 35.13 speaks of all seven. Where the text says the planets occupy a set of houses, every house in the set must hold a planet. A Sankhya yoga is shown only when no other Nabhasa yoga holds (35.17), and 35.50 says the results of these yogas are felt through every dasa. Ardhachandra is named in 35.3-6 and given effects in 35.40 but not defined in this text; the usual reading (seven continuous houses starting from a house that is not an angle) is used and marked provisional.",
-  "Strength in chapter 36 is Shadbala against the 27.32-33 requirement, so Kahala, the second Sankha, Bheri, Mridanga and Sarada cards that need it are withheld when Shadbala is absent. Verses 36.38-39 (Parijatamsa and the other divisional dignities of the lagna lord) are not applied.",
+  "Strength in chapter 36 is Shadbala against the 27.32-33 requirement, so Kahala, the second Sankha, Bheri, Mridanga and Sarada cards that need it are withheld when Shadbala is absent. Verses 36.38-39 read the lagna lord's grade over the ten charts of 6.42-53, counted after the exclusions of 6.53. The verse's \"Vargothama\" stands where 6.42-53 has Uttama, and its \"Iravatamsa\" is read as Sakravahana; both readings are provisional. Brahmaloka and Sridhama get no result there.",
   "In chapters 37 and 38 a planet means one of the seven; Rahu and Ketu are not counted. The 37.6 clause for a single benefic in an upachaya from the Moon (negligible wealth) is not shown. In 37.2-4 the contrary case is read as a Moon in a neutral navamsa, since the Moon has no natural enemies by 3.55; that reading is provisional. The Kemadruma of 37.11-13 is formed by Parashara's own test, but where the Moon is aspected (Saravali ch. 13 v. 2 requires an un-aspected Moon for the yoga to form) or planets stand in a kendra from the Moon (Phaladeepika 6.5, reported as the view of some), the finding is shown as cancelled rather than as Parashara's strain.",
 ];
 
-export function yogaFindings(positions: PlanetPosition[], lagnaIdx: number, lagnaLon: number, deps: HouseDeps, shadbala?: ShadbalaResult): ParashariFinding[] {
+export function yogaFindings(positions: PlanetPosition[], lagnaIdx: number, lagnaLon: number, deps: HouseDeps, shadbala?: ShadbalaResult, vargas?: VargasResult): ParashariFinding[] {
   const F: ParashariFinding[] = [];
   const pos = (pl: Planet) => positions.find((p) => p.planet === pl)!;
   const houseOf = (pl: Planet) => houseFrom(lagnaIdx, pos(pl).signIndex);
@@ -247,6 +248,33 @@ export function yogaFindings(positions: PlanetPosition[], lagnaIdx: number, lagn
     const malAspect = positions.some((p) => !deps.benefic(p, positions) && (deps.aspect(p.planet, p.signIndex, signOfHouse(7)) > 0 || deps.aspect(p.planet, p.signIndex, signOfHouse(8)) > 0));
     if (allBen(b7) && allBen(b8) && !malAspect) {
       push("pa-yoga-lagnadhi", "Lagnadhi yoga", `Benefics occupy the 7th (${list(b7.map((p) => p.planet))}) and the 8th (${list(b8.map((p) => p.planet))}) with no malefic joining or aspecting them. Parashara gives greatness, learning in the sastras and happiness.`, "support", [...b7, ...b8].map((p) => p.planet), S(36, "37"));
+    }
+  }
+
+  // The lagna lord's grade, 36.38-39: the ten-chart grades of 6.42-53, after the exclusions of 6.53.
+  {
+    const v1 = vargas?.planets.find((v) => v.planet === l1);
+    const g = v1?.designation?.dasa;
+    // The verse's words for each grade it names; Brahmaloka and Sridhama get none.
+    const SAYS: Record<string, { words: string; reading?: string }> = {
+      Parijata: { words: "in Parijathamsa will make one happy" },
+      Uttama: { words: "in Vargothama immune to diseases", reading: "The verse's list has \"Vargothama\" where 6.42-53 has Uttama, the grade of three; it is read here as Uttamamsa." },
+      Gopura: { words: "in Gopuramsa rich with wealth and grains" },
+      Simhasana: { words: "in Simhasanamsa a king" },
+      Paravata: { words: "in Paravathamsa a scholar" },
+      Devaloka: { words: "in Devalokamsa opulent and endowed with conveyances" },
+      Sakravahana: { words: "in Iravatamsa famous and honored by kings", reading: "The verse's \"Iravatamsa\" is read as Sakravahana, the grade of nine (Indra's vehicle, the elephant Airavata)." },
+    };
+    const say = g?.name ? SAYS[g.name] : undefined;
+    if (g?.name && say) {
+      push(
+        `pa-yoga-36-38-${g.name.toLowerCase()}`,
+        `Lagna lord in the ${g.name} grade`,
+        `${l1}, the lagna lord, is in a good division in ${g.good} of the ten charts (exaltation, moolatrikona, own sign, or a sign of an angle lord from the arudha lagna), which 6.42-53 grades as ${g.name}. Parashara: the ascendant lord \"${say.words}\".${say.reading ? ` ${say.reading}` : ""}`,
+        "support",
+        [l1],
+        S(36, "38-39", !!say.reading),
+      );
     }
   }
 
