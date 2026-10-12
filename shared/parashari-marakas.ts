@@ -9,6 +9,7 @@ import { VIMSHOTTARI_ORDER, type Vimshottari } from "./kp";
 import type { ShadbalaResult } from "./shadbala";
 import type { ParashariFinding, ParashariSource } from "./parashari";
 import type { HouseDeps } from "./parashari-houses";
+import { parashariCombust } from "./vargas";
 
 const S = (verse: string, provisional?: boolean): ParashariSource => ({ label: `Parashara 44.${verse}`, url: BPHS_URL(44), provisional });
 const ord = (n: number) => (n === 1 ? "1st" : n === 2 ? "2nd" : n === 3 ? "3rd" : `${n}th`);
@@ -147,9 +148,10 @@ export function computeMarakas(positions: PlanetPosition[], lagnaIdx: number, la
   {
     const sa = pos("Saturn");
     const h = houseOf("Saturn");
-    const ill = [6, 8, 12].includes(h) || ["Debilitated", "Inimical"].includes(sa.dignity) || sa.combust;
+    const saCombust = parashariCombust(sa, pos("Sun").lon);
+    const ill = [6, 8, 12].includes(h) || ["Debilitated", "Inimical"].includes(sa.dignity) || saCombust;
     const rel = marakaLords.filter((m) => m !== "Saturn" && related("Saturn", m));
-    if (ill && rel.length) saturnFirst = `Saturn is ill-disposed (${[6, 8, 12].includes(h) ? `in the ${ord(h)}` : sa.combust ? "combust" : sa.dignity.toLowerCase()}) and related to the maraka ${list(rel)}: Parashara gives it the first claim among the marakas (44.9).`;
+    if (ill && rel.length) saturnFirst = `Saturn is ill-disposed (${[6, 8, 12].includes(h) ? `in the ${ord(h)}` : saCombust ? "combust" : sa.dignity.toLowerCase()}) and related to the maraka ${list(rel)}: Parashara gives it the first claim among the marakas (44.9).`;
   }
 
   const entries = Array.from(map.values()).sort((a, b) => a.tier - b.tier || b.reasons.length - a.reasons.length);

@@ -6,7 +6,7 @@
 // under BPHS 6.42-53 (vargas.ts); only three of the names differ, so they are aliased here rather
 // than recomputed. This module harvests the house significations (ch. 2-8) and karakas (ch. 17).
 import { SIGN_LORD, houseFrom, drishtiQuarters, naturalBenefic, type Dignity, type Planet, type PlanetPosition } from "./astro";
-import type { VargasResult } from "./vargas";
+import { parashariCombust, type VargasResult } from "./vargas";
 import { sensitiveTags, withholdText } from "./life-stage";
 
 /** Ch. 1.25-27: the good-varga count earns a named amsha. Mirrors the app's BPHS varga designation. */
@@ -765,11 +765,9 @@ export function buildSarvarthaContext(positions: PlanetPosition[], lagnaLon: num
   const isKendra = (h: number) => [1, 4, 7, 10].includes(h);
   const isTrine = (h: number) => [1, 5, 9].includes(h);
   const isBad = (h: number) => [6, 8, 12].includes(h);
-  const combust = (p: Planet): boolean => {
-    const sun = pos("Sun");
-    const pp = pos(p);
-    return Math.abs(pp.lon - sun.lon) < 7;
-  };
+  // The text gives no orbs of its own; the Parashari tab's rule applies, the Surya Siddhanta orbs
+  // quoted under BPHS 7.28-29 (vargas.ts).
+  const combust = (p: Planet): boolean => parashariCombust(pos(p), pos("Sun").lon);
   const strong = (p: Planet): boolean => {
     const pp = pos(p);
     return ["Exalted", "Own sign", "Moolatrikona", "Friendly"].includes(pp.dignity) && !combust(p);

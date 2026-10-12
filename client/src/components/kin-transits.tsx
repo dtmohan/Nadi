@@ -13,6 +13,7 @@ import { SourceLink } from "@/components/source-link";
 import { RekhaMarks } from "@/components/av-timeline";
 import { cn } from "@/lib/utils";
 import { ModeText, SectionTitle, NowWord } from "@/components/mode-text";
+import { Expander, HOW_COMPUTED } from "@/components/working";
 
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 
@@ -106,7 +107,6 @@ function Row({
 export function KinTransitsSection({ k }: { k: KinTransitsReading }) {
   const [planet, setPlanet] = useState<KinPlanet>("Mars");
   const [open, setOpen] = useState<string | null>(null);
-  const [caveats, setCaveats] = useState(false);
   const rows = useMemo(() => k.rows[planet], [k, planet]);
   const source =
     planet === "Mars"
@@ -216,21 +216,19 @@ export function KinTransitsSection({ k }: { k: KinTransitsReading }) {
         </p>
       )}
 
-      <button
-        className="mt-2 text-xs text-muted-foreground underline underline-offset-2"
-        onClick={() => setCaveats((v) => !v)}
-        data-testid="kin-caveats"
+      <Expander
+        testId="kin-caveats"
+        label={HOW_COMPUTED}
+        count={k.caveats.length}
+        className="mt-2"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how 70.24-36 was applied ({k.caveats.length}{" "}
-        notes)
-      </button>
-      {caveats && (
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           {k.caveats.map((c, i) => (
             <li key={i}>{c}</li>
           ))}
         </ul>
-      )}
+      </Expander>
     </div>
   );
 }

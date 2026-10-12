@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { ModeText, SectionTitle } from "@/components/mode-text";
+import { Expander, HOW_COMPUTED } from "@/components/working";
 
 const ord = (n: number) =>
   `${n}${["th", "st", "nd", "rd"][n % 10 > 3 || Math.floor(n / 10) === 1 ? 0 : n % 10]}`;
@@ -87,7 +88,6 @@ function HoraCell({
 }
 
 export function PortionsSection({ r }: { r: PortionsResult }) {
-  const [caveats, setCaveats] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   return (
     <div className="mt-8" data-testid="parashari-portions">
@@ -287,20 +287,19 @@ export function PortionsSection({ r }: { r: PortionsResult }) {
           </TableBody>
         </Table>
       </div>
-      <button
-        className="mt-2 text-xs text-muted-foreground underline underline-offset-2"
-        onClick={() => setCaveats((x) => !x)}
-        data-testid="portions-caveats"
+      <Expander
+        testId="portions-caveats"
+        label={HOW_COMPUTED}
+        count={r.caveats.length}
+        className="mt-2"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} reading notes ({r.caveats.length})
-      </button>
-      {caveats && (
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           {r.caveats.map((x, i) => (
             <li key={i}>{x}</li>
           ))}
         </ul>
-      )}
+      </Expander>
     </div>
   );
 }

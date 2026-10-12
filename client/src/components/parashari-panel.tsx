@@ -7,7 +7,15 @@ import {
   SENSITIVE_WITHHELD_NOTE,
 } from "@shared/life-stage";
 import { GentleNote, Soft } from "@/lib/gentle";
-import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
+import {
+  ALL_CHAPTERS,
+  Chapter,
+  Chapters,
+  useChapterNav,
+  type ChapterDef,
+} from "@/components/chapters";
+import { ArrowLeft } from "lucide-react";
+import type { PlanetCheck } from "@shared/parashari-checks";
 import { createContext, useContext, useMemo, useState } from "react";
 import {
   levelName,
@@ -168,7 +176,13 @@ import {
   useDeceased,
   useNowLabel,
 } from "@/components/mode-text";
-import { Working } from "@/components/working";
+import {
+  Expander,
+  HOW_COMPUTED,
+  HOW_FOUND,
+  openExpander,
+  Working,
+} from "@/components/working";
 import { BjCrossSection, BjCross } from "@/components/bj-cross";
 import { BJ_CROSS_BY_KEY } from "@shared/bj-cross";
 import { Term } from "@/components/term";
@@ -221,8 +235,99 @@ const TimeRestCtx = createContext<{ windows?: LagnaWindows; band: number }>({
   band: 0,
 });
 
-function Finding({ f }: { f: ParashariFinding }) {
+/** Where "Back to the card" returns: the card, its chapter, and its panel to reopen. */
+interface CardRef {
+  testId: string;
+  title: string;
+  panelId: string;
+}
+
+/** The cards' "How this was found" panel: the standard checks per planet, and the way to the strength table. */
+const FoundCtx = createContext<{
+  checks: Partial<Record<Planet, PlanetCheck[]>>;
+  showStrength: (planet: Planet, from: HTMLElement, card: CardRef) => void;
+} | null>(null);
+
+/** Run `fn` on the element once it is on the page, e.g. after a chapter switch or a section opening. */
+function whenPresent(
+  selector: string,
+  fn: (el: HTMLElement) => void,
+  tries = 40,
+) {
+  const el = document.querySelector<HTMLElement>(selector);
+  if (el) return fn(el);
+  if (tries > 0) setTimeout(() => whenPresent(selector, fn, tries - 1), 50);
+}
+
+/**
+ * "How this was found" on a card: the standard checks for each planet the card names (house,
+ * dignity, strength, combustion, war, aspects received, company), folded in both readings. Plain
+ * words in the plain reading; figures and verses for practitioners.
+ */
+function FoundPanel({ f }: { f: ParashariFinding }) {
+  const ctx = useContext(FoundCtx);
   const plain = usePlain();
+  if (!ctx) return null;
+  const planets = Array.from(new Set(f.planets)).filter(
+    (p) => ctx.checks[p]?.length,
+  );
+  if (!planets.length) return null;
+  const card: CardRef = {
+    testId: `parashari-finding-${f.id}`,
+    title: f.title,
+    panelId: `found-${f.id}`,
+  };
+  return (
+    <Expander
+      id={card.panelId}
+      testId={`parashari-found-toggle-${f.id}`}
+      label={HOW_FOUND}
+      className="mt-2"
+    >
+      <div
+        className="space-y-2 text-xs"
+        data-testid={`parashari-found-${f.id}`}
+      >
+        <p className="text-muted-foreground">
+          {plain
+            ? "The standard checks for the planets on this card. What the verse itself asks for is under How it forms."
+            : "The standard checks for each planet the card names. The verse's own conditions are under How it forms; the rule's path through them is not recorded."}
+        </p>
+        {planets.map((p) => (
+          <div key={p} data-testid={`parashari-found-${f.id}-${p}`}>
+            <p className="font-medium">
+              <PlanetName planet={p} />
+            </p>
+            <ul className="mt-0.5 list-disc space-y-0.5 pl-5 text-muted-foreground">
+              {ctx.checks[p]!.map((c) => (
+                <li key={c.kind}>
+                  {plain ? c.plain : c.text}
+                  {c.table === "shadbala" && (
+                    <>
+                      {" "}
+                      <button
+                        type="button"
+                        className="underline underline-offset-2 hover:text-foreground"
+                        onClick={(e) =>
+                          ctx.showStrength(p, e.currentTarget, card)
+                        }
+                        data-testid={`parashari-found-strength-${f.id}-${p}`}
+                      >
+                        Full strength table
+                      </button>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </Expander>
+  );
+}
+
+function Finding({ f }: { f: ParashariFinding }) {
   const tr = useContext(TimeRestCtx);
   const rest = timeRest(f.id, f.text, tr.windows, tr.band);
   return (
@@ -255,7 +360,7 @@ function Finding({ f }: { f: ParashariFinding }) {
           </Badge>
         )}
       </div>
-      {plain && f.plain ? (
+      {f.plain ? (
         <>
           <p
             className="mt-1 text-sm"
@@ -287,6 +392,7 @@ function Finding({ f }: { f: ParashariFinding }) {
       <p className="mt-1 text-xs text-muted-foreground">
         <SourceLink source={f.source} mark={false} />
       </p>
+      <FoundPanel f={f} />
     </div>
   );
 }
@@ -531,6 +637,13 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   );
   const plain = usePlain();
   const [balaOpen, setBalaOpen] = useState<string | null>(null);
+  // A card's "Full strength table" link opens the strength section at the planet's row; the
+  // section then offers the way back to the card, in its own chapter.
+  const [shadbalaOpen, setShadbalaOpen] = useState(false);
+  const [strengthBack, setStrengthBack] = useState<
+    (CardRef & { chapter?: string }) | null
+  >(null);
+  const navChapter = useChapterNav("parashari");
   const [focusHouse, setFocusHouse] = useState<number | null>(null);
   const [section, setSection] = useState<
     "lords" | "yogas" | "houses" | "evils" | "timing"
@@ -706,8 +819,41 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
     },
   ];
 
+  const foundCtx = {
+    checks: r.checks,
+    showStrength: (planet: Planet, from: HTMLElement, card: CardRef) => {
+      const chapter =
+        from
+          .closest("[data-active-chapter]")
+          ?.getAttribute("data-active-chapter") ?? undefined;
+      setStrengthBack({ ...card, chapter });
+      setShadbalaOpen(true);
+      setBalaOpen(planet);
+      if (chapter !== ALL_CHAPTERS && chapter !== "planets")
+        navChapter("planets");
+      whenPresent('[data-testid="parashari-shadbala-back"]', (el) =>
+        el.scrollIntoView({ behavior: "smooth", block: "center" }),
+      );
+    },
+  };
+  const backToCard = () => {
+    const b = strengthBack;
+    if (!b) return;
+    setStrengthBack(null);
+    if (b.chapter && b.chapter !== ALL_CHAPTERS && b.chapter !== "planets")
+      navChapter(b.chapter);
+    whenPresent(`[data-testid="${b.testId}"]`, (el) => {
+      openExpander(b.panelId);
+      setTimeout(
+        () => el.scrollIntoView({ behavior: "smooth", block: "center" }),
+        60,
+      );
+    });
+  };
+
   return (
     <TimeRestCtx.Provider value={timeCtx}>
+    <FoundCtx.Provider value={foundCtx}>
     <div data-testid="parashari-panel">
       <Chapters tab="parashari" chapters={chapterDefs}>
       <Chapter id="brief">
@@ -1586,6 +1732,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           id="parashari-shadbala"
           label="Show how strong each planet is (Shadbala)"
           className="mt-8"
+          open={shadbalaOpen}
+          onOpenChange={setShadbalaOpen}
         >
           <ShadbalaSection
             sb={r.shadbala}
@@ -1593,6 +1741,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
             setOpen={setBalaOpen}
             phala={r.bhavaPhala}
             varga={r.vargaPhala}
+            back={strengthBack}
+            onBack={backToCard}
           />
         </Working>
       )}
@@ -1825,6 +1975,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       </Chapter>
       </Chapters>
     </div>
+    </FoundCtx.Provider>
     </TimeRestCtx.Provider>
   );
 }
@@ -1833,7 +1984,6 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
   const plain = usePlain();
   const curIdx = k.periods.findIndex((p) => p.current);
   const [pick, setPick] = useState<number>(curIdx >= 0 ? curIdx : 0);
-  const [caveats, setCaveats] = useState(false);
   const sel: KcPeriod | undefined = k.periods[pick];
   const readings = sel ? k.readingsFor(sel) : [];
   const subs = sel ? k.subPeriods(sel) : [];
@@ -2084,19 +2234,16 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
           </p>
         </div>
       )}
-      <button
-        type="button"
-        onClick={() => setCaveats((v) => !v)}
-        className="mt-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2"
-        data-testid="kalachakra-caveats-toggle"
+      <Expander
+        testId="kalachakra-caveats-toggle"
+        label={HOW_COMPUTED}
+        className="mt-3"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how this is computed
-      </button>
-      {caveats && (
         <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           {k.caveats.join(" ")}
         </p>
-      )}
+      </Expander>
     </div>
   );
 }
@@ -2111,7 +2258,6 @@ function PadasSection({
   withheld: boolean;
 }) {
   const plain = usePlain();
-  const [caveats, setCaveats] = useState(false);
   const chapters: {
     ch: 29 | 30 | 31 | 32 | 33;
     title: string;
@@ -2527,21 +2673,18 @@ function PadasSection({
           <Finding key={f.id} f={f} />
         ))}
       </div>
-      <button
-        type="button"
-        onClick={() => setCaveats((v) => !v)}
-        className="mt-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2"
-        data-testid="padas-caveats-toggle"
+      <Expander
+        testId="padas-caveats-toggle"
+        label={HOW_COMPUTED}
+        className="mt-3"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how this is computed
-      </button>
-      {caveats && (
         <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           {p.caveats.map((c, i) => (
             <p key={i}>{c}</p>
           ))}
         </div>
-      )}
+      </Expander>
     </div>
   );
 }
@@ -2560,8 +2703,6 @@ function MarakasSection({
   deceased?: boolean;
 }) {
   const plain = usePlain();
-  const [caveats, setCaveats] = useState(false);
-  const [written, setWritten] = useState(false);
   return (
     <div className="mt-8" data-testid="parashari-marakas">
       <SectionTitle
@@ -2773,16 +2914,13 @@ function MarakasSection({
       </div>
       {m.asWritten.length ? (
         <>
-          <button
-            type="button"
-            onClick={() => setWritten((v) => !v)}
-            className="mt-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2"
-            data-testid="marakas-written-toggle"
+          <Expander
+            testId="marakas-written-toggle"
+            label="Show the 3rd and 8th house verses on the manner of the end (44.25-37), shown as written"
+            openLabel="Hide the 3rd and 8th house verses on the manner of the end (44.25-37)"
+            className="mt-3"
+            contentClassName=""
           >
-            {written ? "Hide" : "Show"} the 3rd and 8th house verses on the
-            manner of the end (44.25-37), shown as written
-          </button>
-          {written && (
             <div
               className="mt-2 grid gap-2 sm:grid-cols-2"
               data-testid="marakas-written"
@@ -2791,24 +2929,21 @@ function MarakasSection({
                 <Finding key={f.id} f={f} />
               ))}
             </div>
-          )}
+          </Expander>
         </>
       ) : null}
-      <button
-        type="button"
-        onClick={() => setCaveats((v) => !v)}
-        className="mt-3 block text-xs text-muted-foreground underline decoration-dotted underline-offset-2"
-        data-testid="marakas-caveats-toggle"
+      <Expander
+        testId="marakas-caveats-toggle"
+        label={HOW_COMPUTED}
+        className="mt-3"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how this is computed
-      </button>
-      {caveats && (
         <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           {m.caveats.map((c, i) => (
             <p key={i}>{c}</p>
           ))}
         </div>
-      )}
+      </Expander>
     </div>
   );
 }
@@ -2842,7 +2977,6 @@ const LAJ_PLAIN: Record<string, string> = {
 
 function AvasthasSection({ a }: { a: AvasthaResult }) {
   const plain = usePlain();
-  const [caveats, setCaveats] = useState(false);
   const [openLaj, setOpenLaj] = useState<Planet | null>(null);
   return (
     <div className="mt-8" data-testid="parashari-avasthas">
@@ -3103,21 +3237,18 @@ function AvasthasSection({ a }: { a: AvasthaResult }) {
           ))}
         </div>
       ) : null}
-      <button
-        type="button"
-        onClick={() => setCaveats((v) => !v)}
-        className="mt-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2"
-        data-testid="avasthas-caveats-toggle"
+      <Expander
+        testId="avasthas-caveats-toggle"
+        label={HOW_COMPUTED}
+        className="mt-3"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how this is computed
-      </button>
-      {caveats && (
         <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           {a.caveats.map((c, i) => (
             <p key={i}>{c}</p>
           ))}
         </div>
-      )}
+      </Expander>
     </div>
   );
 }
@@ -3126,8 +3257,6 @@ function RasiDasasSection({ d }: { d: RasiDasasResult }) {
   const plain = usePlain();
   const [pick, setPick] = useState<string>("chara");
   const [openPeriod, setOpenPeriod] = useState<number | null>(null);
-  const [showYears, setShowYears] = useState(false);
-  const [caveats, setCaveats] = useState(false);
   const sel: RasiDasa = d.systems.find((s) => s.id === pick) ?? d.systems[0];
   const curIdx = sel.periods.findIndex((p) => p.current);
   const open = openPeriod ?? (curIdx >= 0 ? curIdx : null);
@@ -3277,26 +3406,13 @@ function RasiDasasSection({ d }: { d: RasiDasasResult }) {
           <RasiPeriodDetail p={shown[open]} sel={sel} />
         ) : null}
       </div>
-      <div className="mt-3 flex flex-wrap gap-x-4 text-xs text-muted-foreground">
-        <button
-          type="button"
-          onClick={() => setShowYears((v) => !v)}
-          className="underline decoration-dotted underline-offset-2"
-          data-testid="rasi-dasa-years-toggle"
-        >
-          {showYears ? "Hide" : "Show"} the Chara years of each sign and the
-          Brahma planet
-        </button>
-        <button
-          type="button"
-          onClick={() => setCaveats((v) => !v)}
-          className="underline decoration-dotted underline-offset-2"
-          data-testid="rasi-dasa-caveats-toggle"
-        >
-          {caveats ? "Hide" : "Show"} how these are computed
-        </button>
-      </div>
-      {showYears && (
+      <Expander
+        testId="rasi-dasa-years-toggle"
+        label="Show the Chara years of each sign and the Brahma planet"
+        openLabel="Hide the Chara years of each sign and the Brahma planet"
+        className="mt-3"
+        contentClassName=""
+      >
         <div className="mt-2" data-testid="rasi-dasa-years">
           <p className="text-xs text-muted-foreground">
             Brahma planet:{" "}
@@ -3356,13 +3472,18 @@ function RasiDasasSection({ d }: { d: RasiDasasResult }) {
             </TableBody>
           </Table>
         </div>
-      )}
-      {caveats && (
+      </Expander>
+      <Expander
+        testId="rasi-dasa-caveats-toggle"
+        label={HOW_COMPUTED}
+        className="mt-2"
+        contentClassName=""
+      >
         <div className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           <p>{d.caveats.join(" ")}</p>
           <p className="mt-1">{d.notComputed.join(" ")}</p>
         </div>
-      )}
+      </Expander>
     </div>
   );
 }
@@ -3487,8 +3608,6 @@ function ConditionalDasasSection({ cd }: { cd: ConditionalDasasResult }) {
   const applying = cd.systems.filter((s) => s.applies);
   const rest = cd.systems.filter((s) => !s.applies);
   const [pick, setPick] = useState<string>(applying[0]?.id ?? "");
-  const [showRest, setShowRest] = useState(false);
-  const [caveats, setCaveats] = useState(false);
   const sel: ConditionalDasa | undefined =
     cd.systems.find((s) => s.id === pick) ?? applying[0];
   const ageTxt = (p: { ageStart: number; ageEnd: number }) =>
@@ -3615,16 +3734,12 @@ function ConditionalDasasSection({ cd }: { cd: ConditionalDasasResult }) {
       )}
       {rest.length > 0 && (
         <div className="mt-3 text-xs text-muted-foreground">
-          <button
-            type="button"
-            onClick={() => setShowRest((v) => !v)}
-            className="underline decoration-dotted underline-offset-2"
-            data-testid="conditional-dasa-rest-toggle"
+          <Expander
+            testId="conditional-dasa-rest-toggle"
+            label={`Show the ${rest.length} systems whose condition does not hold`}
+            openLabel={`Hide the ${rest.length} systems whose condition does not hold`}
+            contentClassName=""
           >
-            {showRest ? "Hide" : "Show"} the {rest.length} systems whose
-            condition does not hold
-          </button>
-          {showRest && (
             <ul className="mt-2 space-y-1">
               {rest.map((s) => (
                 <li key={s.id} data-testid={`conditional-dasa-rest-${s.id}`}>
@@ -3632,22 +3747,19 @@ function ConditionalDasasSection({ cd }: { cd: ConditionalDasasResult }) {
                 </li>
               ))}
             </ul>
-          )}
+          </Expander>
         </div>
       )}
-      <button
-        type="button"
-        onClick={() => setCaveats((v) => !v)}
-        className="mt-3 text-xs text-muted-foreground underline decoration-dotted underline-offset-2"
-        data-testid="conditional-dasa-caveats-toggle"
+      <Expander
+        testId="conditional-dasa-caveats-toggle"
+        label={HOW_COMPUTED}
+        className="mt-3"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how these are computed
-      </button>
-      {caveats && (
         <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           {cd.caveats.join(" ")}
         </p>
-      )}
+      </Expander>
     </div>
   );
 }
@@ -3901,14 +4013,18 @@ function ShadbalaSection({
   setOpen,
   phala,
   varga,
+  back,
+  onBack,
 }: {
   sb: ShadbalaResult;
   open: string | null;
   setOpen: (k: string | null) => void;
   phala?: BhavaPhala[];
   varga?: VargaPhala[];
+  /** Set when a card's "Full strength table" link led here. */
+  back?: { title: string } | null;
+  onBack?: () => void;
 }) {
-  const [caveats, setCaveats] = useState(false);
   const [phalaOpen, setPhalaOpen] = useState<number | null>(null);
   const allCaveats = phala
     ? [...sb.caveats, ...BHAVA_PHALA_CAVEATS]
@@ -3964,6 +4080,17 @@ function ShadbalaSection({
           </>
         }
       />
+      {back && onBack && (
+        <button
+          type="button"
+          onClick={onBack}
+          className="mt-2 inline-flex items-center gap-1 text-left text-xs font-medium text-primary hover:underline"
+          data-testid="parashari-shadbala-back"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          Back to the card: {back.title}
+        </button>
+      )}
       <Table className="mt-2" data-testid="parashari-shadbala-table">
         <TableHeader>
           <TableRow>
@@ -4179,15 +4306,13 @@ function ShadbalaSection({
           </Table>
         </>
       )}
-      <button
-        className="mt-2 text-xs text-muted-foreground underline underline-offset-2"
-        onClick={() => setCaveats((v) => !v)}
-        data-testid="parashari-shadbala-caveats"
+      <Expander
+        testId="parashari-shadbala-caveats"
+        label={HOW_COMPUTED}
+        count={allCaveats.length}
+        className="mt-2"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how the chapters were applied (
-        {allCaveats.length} notes)
-      </button>
-      {caveats && (
         <ul
           className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground"
           data-testid="parashari-shadbala-caveat-list"
@@ -4196,7 +4321,7 @@ function ShadbalaSection({
             <li key={i}>{c}</li>
           ))}
         </ul>
-      )}
+      </Expander>
     </div>
   );
 }
@@ -5313,7 +5438,6 @@ function AshtakavargaSection({
   withheld: boolean;
 }) {
   const [pick, setPick] = useState<Bhinnashtaka["owner"] | null>(null);
-  const [caveats, setCaveats] = useState(false);
   const chart = pick ? av.charts.find((c) => c.owner === pick) : undefined;
   const src = av.sources;
   const prasnaAv = computePrasnaAvReadings(av);
@@ -5773,15 +5897,13 @@ function AshtakavargaSection({
         </p>
       </div>
 
-      <button
-        className="mt-2 text-xs text-muted-foreground underline underline-offset-2"
-        onClick={() => setCaveats((v) => !v)}
-        data-testid="parashari-av-caveats"
+      <Expander
+        testId="parashari-av-caveats"
+        label={HOW_COMPUTED}
+        count={av.caveats.length}
+        className="mt-2"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how the chapters were applied (
-        {av.caveats.length} notes)
-      </button>
-      {caveats && (
         <ul
           className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground"
           data-testid="parashari-av-caveat-list"
@@ -5790,7 +5912,7 @@ function AshtakavargaSection({
             <li key={i}>{c}</li>
           ))}
         </ul>
-      )}
+      </Expander>
     </div>
   );
 }

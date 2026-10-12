@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { SIGN_LORD } from "@shared/astro";
 import {
   VARGAS,
@@ -25,6 +24,7 @@ import { SourceLink } from "@/components/source-link";
 import { SectionTitle, usePlain } from "@/components/mode-text";
 import { cn } from "@/lib/utils";
 import { useSoften } from "@/lib/gentle";
+import { Expander } from "@/components/working";
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -242,20 +242,15 @@ export function VargaOverview({
   onPick: (k: VargaKey) => void;
   withheld: boolean;
 }) {
-  const [open, setOpen] = useState(false);
   const soft = useSoften();
   return (
     <div className="mt-3">
-      <button
-        type="button"
-        className="text-xs font-medium text-primary underline-offset-2 hover:underline"
-        aria-expanded={open}
-        onClick={() => setOpen(!open)}
-        data-testid="toggle-varga-overview"
+      <Expander
+        testId="toggle-varga-overview"
+        label="Show what each of the sixteen charts is for"
+        openLabel="Hide what each of the sixteen charts is for"
+        contentClassName=""
       >
-        {open ? "Hide" : "Show"} what each of the sixteen charts is for
-      </button>
-      {open && (
         <div
           className="mt-2 rounded-md border bg-card p-3 text-xs"
           data-testid="varga-overview"
@@ -303,7 +298,7 @@ export function VargaOverview({
             <SourceLink source={VARGA_SOURCES.uses} mark={false} />
           </p>
         </div>
-      )}
+      </Expander>
     </div>
   );
 }

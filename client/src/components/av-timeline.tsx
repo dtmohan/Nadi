@@ -28,6 +28,7 @@ import {
   NowWord,
   usePlain,
 } from "@/components/mode-text";
+import { Expander, HOW_COMPUTED } from "@/components/working";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
@@ -166,7 +167,6 @@ function MotherSection({
   withheld?: boolean;
 }) {
   const [open, setOpen] = useState<string | null>(null);
-  const [caveats, setCaveats] = useState(false);
   const rows = m.rows.filter((r) => inRange(r.start, r.end));
   const CAL_PILL: Record<"avoid" | "fit" | "even", string> = {
     avoid: TONE_PILL.strain,
@@ -310,21 +310,19 @@ function MotherSection({
           to see it.
         </p>
       )}
-      <button
-        className="mt-2 text-xs text-muted-foreground underline underline-offset-2"
-        onClick={() => setCaveats((v) => !v)}
-        data-testid="av-timeline-mother-caveats"
+      <Expander
+        testId="av-timeline-mother-caveats"
+        label={HOW_COMPUTED}
+        count={m.caveats.length}
+        className="mt-2"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how 70.21-23 was applied ({m.caveats.length}{" "}
-        notes)
-      </button>
-      {caveats && (
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           {m.caveats.map((c, i) => (
             <li key={i}>{c}</li>
           ))}
         </ul>
-      )}
+      </Expander>
     </div>
   );
 }
@@ -606,7 +604,6 @@ export function AvTimelineSection({
   const [planet, setPlanet] = useState<"Saturn" | "Jupiter">("Saturn");
   const [range, setRange] = useState<Range>("around");
   const [open, setOpen] = useState<string | null>(null);
-  const [caveats, setCaveats] = useState(false);
 
   const now = DateTime.fromISO(asOfIso);
   const inRange = (start: string, end: string) => {
@@ -631,7 +628,6 @@ export function AvTimelineSection({
     [range, arishta, asOfIso, planet],
   );
   const [openArishta, setOpenArishta] = useState<string | null>(null);
-  const [arishtaCaveats, setArishtaCaveats] = useState(false);
   const src = tl.sources;
 
   return (
@@ -834,21 +830,19 @@ export function AvTimelineSection({
               to see them.
             </p>
           )}
-          <button
-            className="mt-2 text-xs text-muted-foreground underline underline-offset-2"
-            onClick={() => setArishtaCaveats((v) => !v)}
-            data-testid="av-timeline-arishta-caveats"
+          <Expander
+            testId="av-timeline-arishta-caveats"
+            label={HOW_COMPUTED}
+            count={FATHER_ARISHTA_CAVEATS.length}
+            className="mt-2"
+            contentClassName=""
           >
-            {arishtaCaveats ? "Hide" : "Show"} how 70.12-14 was applied (
-            {FATHER_ARISHTA_CAVEATS.length} notes)
-          </button>
-          {arishtaCaveats && (
             <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
               {FATHER_ARISHTA_CAVEATS.map((c, i) => (
                 <li key={i}>{c}</li>
               ))}
             </ul>
-          )}
+          </Expander>
 
           {mother && (
             <MotherSection m={mother} inRange={inRange} withheld={withheld} />
@@ -874,21 +868,19 @@ export function AvTimelineSection({
         </>
       )}
 
-      <button
-        className="mt-3 text-xs text-muted-foreground underline underline-offset-2"
-        onClick={() => setCaveats((v) => !v)}
-        data-testid="av-timeline-caveats"
+      <Expander
+        testId="av-timeline-caveats"
+        label={HOW_COMPUTED}
+        count={tl.caveats.length}
+        className="mt-3"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how the chapters were applied (
-        {tl.caveats.length} notes)
-      </button>
-      {caveats && (
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           {tl.caveats.map((c, i) => (
             <li key={i}>{c}</li>
           ))}
         </ul>
-      )}
+      </Expander>
     </div>
   );
 }

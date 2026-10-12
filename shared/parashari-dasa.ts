@@ -33,7 +33,7 @@ import {
   type DasaStartTransit,
 } from "./shadbala";
 import { PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechabhanga";
-import type { VargasResult, SchemeScore } from "./vargas";
+import { parashariCombust, type VargasResult, type SchemeScore } from "./vargas";
 import { bhavaAnnotation, CHALIT_SOURCES, type ChalitResult } from "./chalit";
 import type { AshtakavargaResult } from "./ashtakavarga";
 
@@ -163,6 +163,8 @@ interface Ctx {
   dignity: (p: Planet) => string;
   strong: (p: Planet) => boolean; // exalted / MT / own
   weak: (p: Planet) => boolean; // debilitated / inimical / combust
+  /** Combust by the Surya Siddhanta orbs quoted under 7.28-29 (vargas.ts), not the Nadi 3°20'. */
+  combust: (p: Planet) => boolean;
   withPlanet: (a: Planet, b: Planet) => boolean; // same sign, a != b
   withAny: (a: Planet, list: Planet[]) => Planet[];
   withMalefic: (a: Planet) => Planet[];
@@ -249,7 +251,9 @@ function makeCtx(
     strong: (pl) =>
       ["Exalted", "Moolatrikona", "Own sign"].includes(dignity(pl)),
     weak: (pl) =>
-      ["Debilitated", "Inimical"].includes(dignity(pl)) || pos(pl).combust,
+      ["Debilitated", "Inimical"].includes(dignity(pl)) ||
+      parashariCombust(pos(pl), pos("Sun").lon),
+    combust: (pl) => parashariCombust(pos(pl), pos("Sun").lon),
     withPlanet: (a, b) => a !== b && pos(a).signIndex === pos(b).signIndex,
     withAny,
     withMalefic: (a) => withAny(a, all).filter((b) => !isBenefic(b)),
@@ -465,11 +469,11 @@ const PLANET_RULES: Record<Planet, Rule[]> = {
       tone: "mixed",
       when: (c, p) =>
         c.dignity(p) === "Debilitated" ||
-        c.pos(p).combust ||
+        c.combust(p) ||
         c.withMalefic(p).length > 0 ||
         [6, 8].includes(c.houseOf(p)),
       text: (c, p) =>
-        `Jupiter ${c.dignity(p) === "Debilitated" ? "debilitated" : c.pos(p).combust ? "combust" : [6, 8].includes(c.houseOf(p)) ? `in the ${ord(c.houseOf(p))}` : `with ${c.withMalefic(p).join(", ")}`}: loss of residence, anxiety, trouble to children, pilgrimage. Parashara limits the bad results to the opening part; the later part brings gains and recognition.`,
+        `Jupiter ${c.dignity(p) === "Debilitated" ? "debilitated" : c.combust(p) ? "combust" : [6, 8].includes(c.houseOf(p)) ? `in the ${ord(c.houseOf(p))}` : `with ${c.withMalefic(p).join(", ")}`}: loss of residence, anxiety, trouble to children, pilgrimage. Parashara limits the bad results to the opening part; the later part brings gains and recognition.`,
     },
   ],
   Saturn: [
@@ -492,9 +496,9 @@ const PLANET_RULES: Record<Planet, Rule[]> = {
       when: (c, p) =>
         DUSTHANA.includes(c.houseOf(p)) ||
         c.dignity(p) === "Debilitated" ||
-        c.pos(p).combust,
+        c.combust(p),
       text: (c, p) =>
-        `Saturn ${c.dignity(p) === "Debilitated" ? "debilitated" : c.pos(p).combust ? "combust" : `in the ${ord(c.houseOf(p))}`}: illness, injury, separation from the father, trouble to spouse and children, displeasure of authority.`,
+        `Saturn ${c.dignity(p) === "Debilitated" ? "debilitated" : c.combust(p) ? "combust" : `in the ${ord(c.houseOf(p))}`}: illness, injury, separation from the father, trouble to spouse and children, displeasure of authority.`,
     },
     {
       verse: "59-60",
@@ -979,7 +983,7 @@ function antarFacts(
     adv.push(`${ord(fromD)} from the dasa lord ${dasaLord}`);
   if (dig === "Debilitated") adv.push("debilitated");
   else if (dig === "Inimical") adv.push("in an inimical sign");
-  if (c.pos(b).combust) adv.push("combust");
+  if (c.combust(b)) adv.push("combust");
   if (b === "Moon" && c.waning) adv.push("waning");
   if (b !== dasaLord && SEVEN_50.includes(b) && SEVEN_50.includes(dasaLord)) {
     const rel = compoundRelation(

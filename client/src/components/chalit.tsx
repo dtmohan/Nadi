@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { ModeText, SectionTitle } from "@/components/mode-text";
+import { Expander, HOW_COMPUTED } from "@/components/working";
 
 const ord = (n: number) =>
   `${n}${["th", "st", "nd", "rd"][n % 10 > 3 || Math.floor(n / 10) === 1 ? 0 : n % 10]}`;
@@ -156,7 +157,6 @@ export function ChalitSection({
   /** The chart's Parashari house method, when it is a chalit construction; opens the picker on it. */
   defaultMethod?: ChalitMethod;
 }) {
-  const [caveats, setCaveats] = useState(false);
   const [method, setMethod] = useState<ChalitMethod>(defaultMethod ?? "sripati");
   const k = c[method];
   const moved = c.comparison.filter((x) => !x.unchanged);
@@ -350,21 +350,19 @@ export function ChalitSection({
       </p>
       <HouseTable k={k} />
 
-      <button
-        className="mt-2 text-xs text-muted-foreground underline underline-offset-2"
-        onClick={() => setCaveats((x) => !x)}
-        data-testid="chalit-caveats"
+      <Expander
+        testId="chalit-caveats"
+        label={HOW_COMPUTED}
+        count={c.caveats.length}
+        className="mt-2"
+        contentClassName=""
       >
-        {caveats ? "Hide" : "Show"} how the chalit was built ({c.caveats.length}{" "}
-        notes)
-      </button>
-      {caveats && (
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           {c.caveats.map((x, i) => (
             <li key={i}>{x}</li>
           ))}
         </ul>
-      )}
+      </Expander>
     </div>
   );
 }

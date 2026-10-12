@@ -10,7 +10,7 @@ import {
   useNowLabel,
   usePlain,
 } from "@/components/mode-text";
-import { Working } from "@/components/working";
+import { Expander, HOW_COMPUTED, Working } from "@/components/working";
 import { cn } from "@/lib/utils";
 import { areaSeason } from "@shared/life-stage";
 import {
@@ -277,7 +277,6 @@ export function SpecialStarsSection({
 }) {
   const plain = usePlain();
   const deceased = useDeceased();
-  const [caveats, setCaveats] = useState(false);
   return (
     <section data-testid="special-stars">
       <SectionTitle
@@ -341,16 +340,12 @@ export function SpecialStarsSection({
       )}
       {!plain && (
         <>
-          <button
-            type="button"
-            className="mt-3 text-xs text-muted-foreground underline-offset-2 hover:underline"
-            onClick={() => setCaveats((v) => !v)}
-            aria-expanded={caveats}
-            data-testid="special-stars-caveats-toggle"
+          <Expander
+            testId="special-stars-caveats-toggle"
+            label={HOW_COMPUTED}
+            className="mt-3"
+            contentClassName=""
           >
-            {caveats ? "Hide" : "Show"} what this does not do
-          </button>
-          {caveats && (
             <ul
               className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground"
               data-testid="special-stars-caveats"
@@ -395,7 +390,7 @@ export function SpecialStarsSection({
                 Panchanga tab.
               </li>
             </ul>
-          )}
+          </Expander>
         </>
       )}
     </section>
