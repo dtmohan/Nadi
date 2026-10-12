@@ -1,4 +1,5 @@
-// BPHS chapter 45 (avasthas of the planets), read from http://jyotishvidya.com/ch45.htm.
+// BPHS chapter 45 (avasthas of the planets), read from http://jyotishvidya.com/ch45.htm, with the
+// Lajjitadi verses (45.11-29) checked against the Sanskrit at sanskritdocuments.org.
 // Five schemes: Baladi by degree (45.3-4), Jagradadi by dignity (45.5-6), Deeptadi by
 // dignity and company (45.7-10), Lajjitadi by house, company and aspect (45.11-29) and
 // Sayanadi by the arithmetic of 45.30-39 with the effects of 45.40-155.
@@ -7,12 +8,16 @@ import { BPHS_URL } from "./parashari-data";
 import { compoundRelation, inMoolatrikona, SEVEN, type Seven, type ShadbalaBase, type ShadbalaResult } from "./shadbala";
 import type { ParashariFinding, ParashariSource } from "./parashari";
 import type { HouseDeps } from "./parashari-houses";
+import { parashariCombust, parashariCombustOrb } from "./vargas";
 
 const S = (verse: string, provisional?: boolean): ParashariSource => ({ label: `Parashara 45.${verse}`, url: BPHS_URL(45), provisional });
 const ord = (n: number) => (n === 1 ? "1st" : n === 2 ? "2nd" : n === 3 ? "3rd" : `${n}th`);
 const list = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 const cap = (s: string) => s.replace(/^./, (c) => c.toUpperCase());
 export const AVASTHA_CH = BPHS_URL(45);
+/** The Sanskrit of ch. 45, for the verses where the translation departs from it (45.15-17, 45.20-21). */
+export const AVASTHA_SANSKRIT = "https://sanskritdocuments.org/doc_z_misc_sociology_astrology/par4145.html";
+const SK = (verse: string, provisional?: boolean): ParashariSource => ({ label: `Parashara 45.${verse}, Sanskrit`, url: AVASTHA_SANSKRIT, provisional });
 
 export type Tone = ParashariFinding["tone"];
 export const BALADI = ["Bala", "Kumara", "Yuva", "Vriddha", "Mrita"] as const;
@@ -41,19 +46,78 @@ export interface PlanetAvasthas {
   };
 }
 
+/**
+ * One planet's Lajjitadi states read together. A planet can hold good and harsh states at once; the
+ * text has strength decide (45.19), and reads delight joined with a harsh state as mixed: loss when
+ * weak, great results when strong (45.20).
+ */
+export interface StateLine {
+  planet: Planet;
+  house: number;
+  /** The states held, in the order of 45.11. */
+  names: string[];
+  /** A good state (Garvita, Mudita) held with a harsh one. */
+  mixed: boolean;
+  /**
+   * What strength makes of the states: "good" (with strength, great or greater results), "loss" (delight
+   * with a harsh state, without strength), "reduced" (good states without strength). Absent when only
+   * harsh states are held or strength cannot be measured (the nodes).
+   */
+  lean?: "good" | "loss" | "reduced";
+  tone: Tone;
+  /** Shadbala against its requirement (27.32-33); absent for the nodes. */
+  shadbala?: { total: number; required: number; strong: boolean };
+  /** Combust by the Parashari orbs (7.28-29 note), counted without strength (6.53, 79.4-5). */
+  combust: boolean;
+  /** Defeated in planetary war, counted without strength (6.53). */
+  defeated: boolean;
+  /** Age and wakefulness both at their lowest (45.4, 45.6): little of either side comes through. */
+  little: boolean;
+  text: string;
+  plain: string;
+  /** The same in a line, for the period readings. */
+  brief: string;
+  briefPlain: string;
+  source: ParashariSource;
+}
+
+/** The stated effect of one of the six states (45.24-29), with the planets holding it. */
+export interface StateEffect {
+  name: string;
+  verse: string;
+  text: string;
+  plain: string;
+  planets: Planet[];
+  source: ParashariSource;
+}
+
 export interface AvasthaResult {
   planets: PlanetAvasthas[];
   ghatis?: number;
   findings: ParashariFinding[];
+  /** Lajjitadi per planet, with strength deciding the side (45.19-20). */
+  lines: StateLine[];
+  /** The effects of the states held in this chart (45.24-29). */
+  effects: StateEffect[];
   caveats: string[];
 }
 
 export const AVASTHA_CAVEATS: string[] = [
-  "Baladi (45.3-4) runs infant, youthful, adolescent, old and dead through the five 6-degree bands of the sign, ascending in odd signs and reversed in even ones, with results a quarter, a half, full, negligible and nil. Jagradadi (45.5-6): awake in own or exaltation sign (full), dreaming in a friend's or neutral sign (medium), asleep in an enemy's or debilitation sign (nil). Deeptadi (45.7-10): Deepta exalted, Swastha own, Pramudita great friend, Santa friend, Deena neutral, Vikala with a malefic, Khala enemy's sign, Kopa combust; the translation counts nine but names eight.",
-  "Lajjitadi (45.11-18): Lajjita in the 5th with a node, the Sun, Saturn or Mars; Garvita exalted or in moolatrikona; Kshudhita in an enemy's sign, with or aspected by an enemy, or with Saturn; Trushita in a watery sign aspected by a malefic and no benefic; Mudita in a friend's sign, with or aspected by a benefic, or with Jupiter; Kshobhita with the Sun and with or aspected by a malefic or aspected by an enemy. The house held by a Kshudhita or Kshobhita planet is spoiled (45.18); the effects of 45.19-29 follow.",
+  "Baladi (45.3-4) runs infant, youthful, adolescent, old and dead through the five 6-degree bands of the sign, ascending in odd signs and reversed in even ones, with results a quarter, a half, full, negligible and nil. Jagradadi (45.5-6): awake in own or exaltation sign (full), dreaming in a friend's or neutral sign (medium), asleep in an enemy's or debilitation sign (nil). Deeptadi (45.7-10): Deepta exalted, Swastha own, Pramudita great friend, Santa friend, Deena neutral, Vikala with a malefic, Khala enemy's sign, Kopa combust; the translation counts nine but names eight. Combustion uses the Surya Siddhanta orbs quoted under 7.28-29 (the Moon 12°, Mars 17° or 8° retrograde, Mercury 14° or 12°, Jupiter 11°, Venus 10° or 8°, Saturn 16°), as in the varga and house readings, not the Nadi 3°20'.",
+  "Lajjitadi (45.11-17), read from the Sanskrit: Lajjita in the 5th with a node, the Sun, Saturn or Mars; Garvita exalted or in moolatrikona; Kshudhita in an enemy's sign, with or aspected by an enemy, or with Saturn; Trushita in a watery sign aspected by an enemy and by no benefic; Mudita in a friend's sign, with or aspected by a friend, or with Jupiter; Kshobhita with the Sun and aspected by a malefic or by an enemy. For Trushita, Mudita and Kshobhita the translation reads a malefic, a benefic, and a malefic with or aspecting the planet; the Sanskrit has शत्रुणा (by an enemy), मित्र (friend) and पापा पश्यन्ति (malefics aspect), and P.V.R. Narasimha Rao reads them the same way (Vedic Astrology: An Integrated Approach, p. 191). Each condition is read as enough on its own, as the translations read them. The house held by a Kshudhita or Kshobhita planet is spoiled (45.18), to be weighed by strength (45.19); 45.20 reads delight joined with them as mixed, loss when weak and great results when strong, a clause the translation leaves out; 45.21-23 give the 10th, 5th and 7th house rules, the Sanskrit listing Trushita in the 10th where the translation does not; 45.24-29 give the effects of the six states, with no mention of a dasa.",
   "Sayanadi (45.30-39): the planet's star number times its number (Sun 1 to Ketu 9) times its navamsa number, plus the birth star number, the ghatis elapsed from sunrise and the count of the lagna sign from Aries; the remainder on division by twelve names one of Sayana, Upavesana, Netrapani, Prakasa, Gamana, Agamana, Sabha, Agama, Bhojana, Nrityalipsa, Kautuka and Nidra. Effects from 45.40-146 by planet and 45.147-155 in general.",
-  "Provisional readings: Jagradadi names three classes, friend, neutral and enemy, and uses the natural relations of 3.55; Deeptadi names a thick friend as well, so it uses the compound relations of 3.55-58 for the seven planets, and the basis shows how the compound relation arose. Chapter 3 gives no relationships for Rahu and Ketu; their rows follow the Nadi convention (Rahu as Saturn, Ketu as Mars, both hostile to the luminaries) and every reading that rests on them is provisional. The two columns can therefore differ, as when a planet stands in a natural neutral's sign whose lord is a temporal enemy; Lajjitadi uses the natural relations of 3.55 alone; moolatrikona is counted with own sign for Jagradadi; aspect is graha drishti of any strength; the ghatis of birth are whole ghatis from the computed sunrise and the lagna count takes Aries as 1. The sub-states Drishti, Cheshta and Vicheshta (45.36-39) need the numeral value of the first syllable of the native's name in the Sanskrit scheme and are not computed. Where the translation gives no effect for a planet in a state, the cell says so.",
+  "Provisional readings: Jagradadi names three classes, friend, neutral and enemy, and uses the natural relations of 3.55; Deeptadi names a thick friend as well, so it uses the compound relations of 3.55-58 for the seven planets, and the basis shows how the compound relation arose. Chapter 3 gives no relationships for Rahu and Ketu; their rows follow the Nadi convention (Rahu as Saturn, Ketu as Mars, both hostile to the luminaries) and every reading that rests on them is provisional. The two columns can therefore differ, as when a planet stands in a natural neutral's sign whose lord is a temporal enemy; Lajjitadi uses the natural relations of 3.55 alone; moolatrikona is counted with own sign for Jagradadi; aspects follow the chapter's aspect setting (full aspects only by default); strength for 45.19-20 is Shadbala at its requirement (27.32-33), with a combust planet or one defeated in planetary war counted without strength (6.53, 79.4-5), and the nodes, which have no Shadbala, are left undecided; 45.20 is read as applying to a planet that holds delight with a harsh state, where the translations render it as mutually joyful planets giving mixed results; the states are shown as description and are not counted in any verdict, since they restate dignity, company and aspect, which the other readings already weigh; the ghatis of birth are whole ghatis from the computed sunrise and the lagna count takes Aries as 1. The sub-states Drishti, Cheshta and Vicheshta (45.36-39) need the numeral value of the first syllable of the native's name in the Sanskrit scheme and are not computed. Where the translation gives no effect for a planet in a state, the cell says so.",
 ];
+
+/** 45.24-29: the effects of the six states, in the Sanskrit order, from the translation. None names a dasa. */
+export const LAJJITADI_EFFECTS: Record<string, { verse: string; text: string; plain: string }> = {
+  Garvita: { verse: "24", text: "New houses and gardens, royal favour, skill in the arts, gains at all times and growth in business.", plain: "A settled home, recognition, skill and steady gains." },
+  Mudita: { verse: "25", text: "Fine residences, clothes and ornaments, happiness from land and spouse and among one's own people, life in great houses, enemies overcome, and growth in wisdom and learning.", plain: "Comfort at home, good company, the upper hand over rivals and growth in learning." },
+  Lajjita: { verse: "26", text: "Aversion to God, loss of judgement, futile journeys, a taste for quarrelsome talk and none for good things. The Sanskrit adds illness coming to the children, where the translation has loss of a child.", plain: "A mind less given to devotion and good judgement, wasted journeys and quarrels, and worries around children." },
+  Kshobhita: { verse: "27", text: "Acute want, a perverse mind, hardship, loss of wealth, trouble in the feet, and income blocked by the displeasure of those in power.", plain: "Money pressure, poor judgement, hardship, trouble with the feet and friction with those in authority." },
+  Kshudhita: { verse: "28", text: "A fall through grief and infatuation, distress through relatives, wasting of the body, trouble from enemies, money troubles, loss of strength and a mind clouded by sorrow.", plain: "Grief and worry, strain through relatives, low energy, opposition and money troubles." },
+  Trushita: { verse: "29", text: "Illness through intimacy with women, charge of base work, loss of wealth through the blame of one's own people, weakness, trouble from the wicked and loss of honour.", plain: "Health strain, loss through one's own people, weakness and a dent in standing." },
+};
 
 // 45.40-146: effect per planet per Sayanadi state. `null` where the translation gives none.
 type Eff = [string, Tone] | null;
@@ -242,10 +306,14 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
   const moola = (p: PlanetPosition) => (seven(p.planet) ? inMoolatrikona(p.planet, p.signIndex, p.degInSign) : MOOLATRIKONA[p.planet] === p.signIndex);
   const ghatis = base ? Math.max(0, Math.floor((base.jd - base.sunriseJd) * 60)) : undefined;
   const birthStar = pos("Moon").nakshatraIndex + 1;
+  // Combustion by the Parashari orbs (7.28-29 note), not the Nadi flag on the position.
+  const sunLon = pos("Sun").lon;
+  const combustP = (p: PlanetPosition) => parashariCombust(p, sunLon);
+  const combustTxt = (p: PlanetPosition) => `combust, ${(Math.abs((((p.lon - sunLon) % 360) + 540) % 360 - 180)).toFixed(1)}° from the Sun within the ${parashariCombustOrb(p)}° orb`;
 
   const F: ParashariFinding[] = [];
-  const push = (id: string, title: string, text: string, tone: Tone, planets: Planet[], verse: string, provisional?: boolean) =>
-    F.push({ id: `av-${id}`, kind: "yoga", title: cap(title), text: cap(text), tone, planets, source: S(verse, provisional) });
+  const push = (id: string, title: string, text: string, tone: Tone, planets: Planet[], verse: string, provisional?: boolean, plain?: string) =>
+    F.push({ id: `av-${id}`, kind: "yoga", title: cap(title), text: cap(text), tone, planets, source: S(verse, provisional), ...(plain ? { plain: cap(plain) } : {}) });
 
   const planets: PlanetAvasthas[] = positions.map((p) => {
     const pl = p.planet;
@@ -276,7 +344,7 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
     }
     const malWith = with_(pl).filter((q) => !isBen(q));
     if (malWith.length) { names.push("Vikala"); basis.push(`with ${list(malWith.map((q) => q.planet))}`); }
-    if (p.combust) { names.push("Kopa"); basis.push("combust"); }
+    if (combustP(p)) { names.push("Kopa"); basis.push(combustTxt(p)); }
     const deeptadi = { names, basis: basis.join("; ") };
     // Lajjitadi 45.11-17
     const laj: { name: string; why: string }[] = [];
@@ -296,25 +364,30 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
       if (pl !== "Saturn" && co.some((q) => q.planet === "Saturn") && !en.includes("Saturn")) why.push("with Saturn");
       if (why.length) laj.push({ name: "Kshudhita", why: list(why) });
     }
+    // 45.15: in a watery sign, aspected by an enemy (शत्रुणा), and by no benefic.
     if (WATERY.includes(p.signIndex)) {
-      const malA = asp.filter((q) => !isBen(q)).map((q) => q.planet);
+      const enA = asp.filter((q) => enemyOf(pl, q.planet)).map((q) => q.planet);
       const benA = asp.filter((q) => isBen(q));
-      if (malA.length && !benA.length) laj.push({ name: "Trushita", why: `in watery ${SIGNS[p.signIndex]} aspected by ${list(malA)} and no benefic` });
+      if (enA.length && !benA.length) laj.push({ name: "Trushita", why: `in watery ${SIGNS[p.signIndex]}, aspected by the enemy ${list(enA)} and by no benefic` });
     }
+    // 45.16: in a friend's sign, with a friend, aspected by a friend (मित्र), or with Jupiter.
     {
+      const isFriend = (q: PlanetPosition) => rel(pl, q.planet) === "friend";
       const why: string[] = [];
       if (natLord(pl) === "friend") why.push("in a friend's sign");
-      const bc = co.filter((q) => isBen(q)).map((q) => q.planet);
-      if (bc.length) why.push(`with the benefic ${list(bc)}`);
-      const ba = asp.filter((q) => isBen(q)).map((q) => q.planet);
-      if (ba.length) why.push(`aspected by the benefic ${list(ba)}`);
-      if (pl !== "Jupiter" && co.some((q) => q.planet === "Jupiter") && !bc.includes("Jupiter")) why.push("with Jupiter");
+      const fc = co.filter(isFriend).map((q) => q.planet);
+      if (fc.length) why.push(`with the friend ${list(fc)}`);
+      const fa = asp.filter(isFriend).map((q) => q.planet);
+      if (fa.length) why.push(`aspected by the friend ${list(fa)}`);
+      if (pl !== "Jupiter" && co.some((q) => q.planet === "Jupiter") && !fc.includes("Jupiter")) why.push("with Jupiter");
       if (why.length) laj.push({ name: "Mudita", why: list(why) });
     }
+    // 45.17: with the Sun, and aspected by malefics (पापा पश्यन्ति) or by an enemy.
     if (pl !== "Sun" && co.some((q) => q.planet === "Sun")) {
-      const malAny = [...co, ...asp].filter((q) => q.planet !== "Sun" && !isBen(q)).map((q) => q.planet);
-      const ea = asp.filter((q) => enemyOf(pl, q.planet)).map((q) => q.planet);
-      if (malAny.length || ea.length) laj.push({ name: "Kshobhita", why: `with the Sun and ${malAny.length ? `with or aspected by the malefic ${list(malAny)}` : `aspected by the enemy ${list(ea)}`}` });
+      const malA = asp.filter((q) => !isBen(q)).map((q) => q.planet);
+      const ea = asp.filter((q) => enemyOf(pl, q.planet) && !malA.includes(q.planet)).map((q) => q.planet);
+      const by = [malA.length ? `the malefic ${list(malA)}` : "", ea.length ? `the enemy ${list(ea)}` : ""].filter(Boolean);
+      if (by.length) laj.push({ name: "Kshobhita", why: `with the Sun and aspected by ${by.join(" and by ")}` });
     }
     // Sayanadi 45.30-39
     let sayanadi: PlanetAvasthas["sayanadi"];
@@ -335,34 +408,135 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
     return { planet: pl, baladi, jagradadi: jag, deeptadi, lajjitadi: laj, sayanadi };
   });
 
-  // Findings 45.18-29
+  // 45.18-23: the house rules. 45.19 has every one of them weighed by strength.
   const byName = (name: string) => planets.filter((a) => a.lajjitadi.some((l) => l.name === name));
+  const HARSH = ["Lajjita", "Kshudhita", "Trushita", "Kshobhita"];
+  const defeated = new Set<Planet>((shadbala?.wars ?? []).map((w) => w.loser));
+  const sbOf = (pl: Planet) => shadbala?.planets.find((s) => s.planet === pl);
+  /** Strength for 45.19-20: Shadbala at its requirement, not combust and not defeated in war (6.53, 79.4-5). Undefined without Shadbala (the nodes). */
+  const strongOf = (pl: Planet): boolean | undefined => {
+    const sb = sbOf(pl);
+    if (!sb) return undefined;
+    return sb.strong && !combustP(pos(pl)) && !defeated.has(pl);
+  };
+  const weigh = (xs: Planet[]) => {
+    const w = xs.filter((pl) => strongOf(pl) === true);
+    const wo = xs.filter((pl) => strongOf(pl) === false);
+    const parts = [w.length ? `with strength, ${list(w)}` : "", wo.length ? `without strength, ${list(wo)}` : ""].filter(Boolean);
+    return parts.length ? ` 45.19 has this weighed by strength: ${parts.join("; ")}.` : "";
+  };
   const spoiled = planets.filter((a) => a.lajjitadi.some((l) => l.name === "Kshudhita" || l.name === "Kshobhita"));
-  if (spoiled.length) push("spoiled", "Houses held by hungry or agitated planets", `${list(spoiled.map((a) => `${a.planet} (${a.lajjitadi.filter((l) => l.name === "Kshudhita" || l.name === "Kshobhita").map((l) => l.name).join(", ")}) in the ${ord(houseOf(a.planet))}`))}: Parashara says the house a Kshudhita or Kshobhita planet occupies is destroyed (45.18); read as the affairs of that house being strained.`, "strain", spoiled.map((a) => a.planet), "18");
+  if (spoiled.length) push("spoiled", "Houses held by hungry or agitated planets", `${list(spoiled.map((a) => `${a.planet} (${a.lajjitadi.filter((l) => l.name === "Kshudhita" || l.name === "Kshobhita").map((l) => l.name).join(", ")}) in the ${ord(houseOf(a.planet))}`))}: Parashara says the house a Kshudhita or Kshobhita planet occupies is destroyed (45.18); read as the affairs of that house being strained.${weigh(spoiled.map((a) => a.planet))}`, "strain", spoiled.map((a) => a.planet), "18-19", undefined, `the affairs of the ${list(Array.from(new Set(spoiled.map((a) => houseOf(a.planet)))).sort((x, y) => x - y).map(ord))} ${new Set(spoiled.map((a) => houseOf(a.planet))).size > 1 ? "houses" : "house"} come under strain from ${list(spoiled.map((a) => a.planet))} (45.18); Parashara has this weighed by each planet's strength (45.19).`);
   {
-    const tenth = planets.filter((a) => houseOf(a.planet) === 10 && a.lajjitadi.some((l) => ["Lajjita", "Kshudhita", "Kshobhita"].includes(l.name)));
-    if (tenth.length) push("tenth", "Lajjita, Kshudhita or Kshobhita planet in the 10th", `${list(tenth.map((a) => a.planet))} in the 10th in such a state: miseries in the field of work and standing (45.19).`, "strain", tenth.map((a) => a.planet), "19");
+    const tenth = planets.filter((a) => houseOf(a.planet) === 10 && a.lajjitadi.some((l) => HARSH.includes(l.name)));
+    if (tenth.length) F.push({ id: "av-tenth", kind: "yoga", title: "Lajjita, Trushita, Kshudhita or Kshobhita planet in the 10th", text: `${list(tenth.map((a) => a.planet))} in the 10th in such a state: the text says the native meets sorrow; read as strain in work and standing (45.21). The translation leaves out Trushita, which the Sanskrit lists.${weigh(tenth.map((a) => a.planet))}`, tone: "strain", planets: tenth.map((a) => a.planet), source: SK("21"), plain: `${list(tenth.map((a) => a.planet))} in the 10th in a harsh mood: strain in work and standing (45.21).` });
     const fifth = byName("Lajjita").filter((a) => houseOf(a.planet) === 5);
-    if (fifth.length) push("fifth", "Lajjita planet in the 5th", `${list(fifth.map((a) => a.planet))} ashamed in the 5th: the text says destruction of progeny, shown as written; read as strain on children (45.20).`, "strain", fifth.map((a) => a.planet), "20");
+    if (fifth.length) push("fifth", "Lajjita planet in the 5th", `${list(fifth.map((a) => a.planet))} ashamed in the 5th: the text says loss of children, with one always surviving, shown as written; read as strain around children (45.22).${weigh(fifth.map((a) => a.planet))}`, "strain", fifth.map((a) => a.planet), "22", undefined, `${list(fifth.map((a) => a.planet))} ashamed in the 5th: care is needed around children (45.22).`);
     const seventh = planets.filter((a) => houseOf(a.planet) === 7 && a.lajjitadi.some((l) => l.name === "Kshobhita" || l.name === "Trushita"));
-    if (seventh.length) push("seventh", "Kshobhita or Trushita planet in the 7th", `${list(seventh.map((a) => a.planet))} in the 7th agitated or thirsty: the text speaks of the spouse's end, shown as written; read as strain on the marriage (45.21).`, "strain", seventh.map((a) => a.planet), "21");
-    const twoBad = planets.filter((a) => a.lajjitadi.filter((l) => ["Lajjita", "Kshudhita", "Kshobhita", "Trushita"].includes(l.name)).length >= 2);
-    if (twoBad.length) push("two", "Two of the harsh states together", `${list(twoBad.map((a) => `${a.planet} (${a.lajjitadi.filter((l) => ["Lajjita", "Kshudhita", "Kshobhita", "Trushita"].includes(l.name)).map((l) => l.name).join(", ")})`))}: the house held loses its good (45.22-23).`, "strain", twoBad.map((a) => a.planet), "22-23");
+    if (seventh.length) push("seventh", "Kshobhita or Trushita planet in the 7th", `${list(seventh.map((a) => a.planet))} in the 7th agitated or thirsty: the text speaks of the spouse's end, shown as written; read as strain on the marriage (45.23).${weigh(seventh.map((a) => a.planet))}`, "strain", seventh.map((a) => a.planet), "23", undefined, `${list(seventh.map((a) => a.planet))} agitated or thirsty in the 7th: strain on the marriage (45.23).`);
   }
-  {
-    const g = byName("Garvita");
-    if (g.length) push("garvita", "Proud planets", `${list(g.map((a) => a.planet))} Garvita: happiness in all undertakings, wealth, comforts and standing in the dasa of the planet (45.24).`, "support", g.map((a) => a.planet), "24");
-    const m = byName("Mudita");
-    if (m.length) push("mudita", "Delighted planets", `${list(m.map((a) => a.planet))} Mudita: houses, clothes, ornaments, wealth and lands, happiness through spouse, children and friends, favour of those in power (45.25-26).`, "support", m.map((a) => a.planet), "25-26");
-    const k = byName("Kshudhita");
-    if (k.length) push("kshudhita", "Hungry planets", `${list(k.map((a) => a.planet))} Kshudhita: grief, ailments, troubles from relatives and enemies, loss of wealth and standing in the planet's dasa (45.27-28).`, "strain", k.map((a) => a.planet), "27-28");
-    const kb = byName("Kshobhita");
-    if (kb.length) push("kshobhita", "Agitated planets", `${list(kb.map((a) => a.planet))} Kshobhita: poverty, evil ways, distress, troubles from the powerful and in the family (45.29).`, "strain", kb.map((a) => a.planet), "29");
-    const l = byName("Lajjita");
-    if (l.length) push("lajjita", "Ashamed planets", `${list(l.map((a) => a.planet))} Lajjita: the text's general effects for shame, given with the house effects of 45.19-20.`, "strain", l.map((a) => a.planet), "19-20");
-    const t = byName("Trushita");
-    if (t.length) push("trushita", "Thirsty planets", `${list(t.map((a) => a.planet))} Trushita: the text gives its effect only with the 7th house rule of 45.21.`, "mixed", t.map((a) => a.planet), "21");
-  }
+
+  // 45.19-20 per planet: the states qualify the planet and its strength decides which side shows.
+  const PLAIN_NAME: Record<string, string> = { Lajjita: "ashamed", Garvita: "proud", Kshudhita: "hungry", Trushita: "thirsty", Mudita: "delighted", Kshobhita: "agitated" };
+  const pn = (xs: string[]) => list(xs.map((n) => PLAIN_NAME[n] ?? n));
+  const lines: StateLine[] = planets
+    .filter((a) => a.lajjitadi.length)
+    .map((a) => {
+      const pl = a.planet;
+      const p = pos(pl);
+      const h = houseOf(pl);
+      const names = a.lajjitadi.map((l) => l.name);
+      const good = names.filter((n) => n === "Garvita" || n === "Mudita");
+      const harsh = names.filter((n) => HARSH.includes(n));
+      const mixed = good.length > 0 && harsh.length > 0;
+      const sb = sbOf(pl);
+      const combust = combustP(p);
+      const lostWar = defeated.has(pl);
+      const strong = strongOf(pl);
+      const little = (a.baladi.result === "nil" || a.baladi.result === "negligible") && a.jagradadi.result === "nil";
+      // 45.20 names delight (मुदा) joined with the harsh states; a proud planet with a harsh state falls under 45.19.
+      const v20 = mixed && names.includes("Mudita");
+      const lean: StateLine["lean"] = strong === undefined || !good.length ? undefined : strong ? "good" : v20 ? "loss" : "reduced";
+      const tone: Tone = lean === "good" ? "support" : lean === "loss" || (!good.length && harsh.length) ? "strain" : "mixed";
+      // Practitioner.
+      const lostTxt = [combust ? combustTxt(p) : "", lostWar ? "defeated in planetary war" : ""].filter(Boolean).join(", and ");
+      const sbTxt = sb
+        ? `Shadbala ${Math.round(sb.total)} of ${Math.round(sb.required)} virupas, ${sb.strong ? "at the requirement" : "short of it"} (27.32-33)${lostTxt ? `; ${lostTxt}, ${sb.strong ? "so counted without strength" : "which also takes strength away"} (6.53, 79.4-5)` : ""}`
+        : seven(pl)
+          ? "Shadbala not available"
+          : "no Shadbala for the nodes (ch. 27 covers the seven planets), so strength does not decide";
+      let judge = "";
+      if (strong !== undefined) {
+        if (mixed) judge = v20 ? (strong ? "Mixed; with strength, great results (45.20)." : "Mixed; without strength, loss (45.20).") : strong ? "Mixed; with strength, greater effects (45.19)." : "Mixed; without strength, the good is reduced (45.19).";
+        else if (good.length) judge = strong ? "With strength, greater effects (45.19)." : "Without strength, its good effects are reduced (45.19).";
+        else judge = "To be weighed by strength (45.19).";
+      } else if (mixed) judge = "Mixed (45.20).";
+      const spoils = names.includes("Kshudhita") || names.includes("Kshobhita") ? ` Hungry or agitated, it strains the house it holds (45.18).` : "";
+      const grades = `Age ${a.baladi.result}, wakefulness ${a.jagradadi.result} (45.4, 45.6)${little ? ": little comes through either way" : ""}.`;
+      const text = `${pl} in the ${ord(h)}: ${names.join(", ")}.${spoils} ${cap(sbTxt)}. ${judge} ${grades}`.replace(/\s+/g, " ").trim();
+      // Plain.
+      const head = mixed ? `${pl} (${ord(h)} house) is ${pn(good)}, but also ${pn(harsh)}.` : `${pl} (${ord(h)} house) is ${pn(names)}.`;
+      const sPlain = !sb
+        ? ""
+        : strong
+          ? "It is strong"
+          : sb.strong
+            ? combust
+              ? "It is strong, but so close to the Sun that it loses strength"
+              : "It is strong, but loses a planetary war, which takes strength away"
+            : combust
+              ? "It is short of strength and close to the Sun"
+              : "It is short of strength";
+      let jPlain: string;
+      if (!sb) jPlain = seven(pl) ? "" : mixed ? "Parashara calls this mixed; he gives no strength measure for the nodes, so which side shows stays open." : "Parashara gives no strength measure for the nodes, so how much shows stays open.";
+      else if (mixed) jPlain = `Parashara calls this mixed and lets strength decide. ${sPlain}, so ${strong ? "the good side may weigh more" : "the strain may weigh more"}.`;
+      else if (good.length) jPlain = `${sPlain}, so ${strong ? "its good can show fully" : "its good is reduced"}.`;
+      else jPlain = `${sPlain}; Parashara asks that this be weighed by strength.`;
+      const littlePlain = little ? " Its age and wakefulness say little comes through either way." : "";
+      const plain = `${head} ${jPlain}${littlePlain}`.replace(/\s+/g, " ").trim();
+      // One line for the period readings.
+      const briefJudge = mixed
+        ? strong === undefined
+          ? "mixed (45.20), strength not measured"
+          : v20
+            ? strong ? "mixed; with strength, great results (45.20)" : "mixed; without strength, loss (45.20)"
+            : strong ? "mixed; with strength, greater effects (45.19)" : "mixed; without strength, the good is reduced (45.19)"
+        : good.length
+          ? strong === undefined ? "" : strong ? "with strength, greater effects (45.19)" : "without strength, good effects reduced (45.19)"
+          : "to be weighed by strength (45.19)";
+      const brief = `${names.join(", ")}${briefJudge ? `: ${briefJudge}` : ""}${lostTxt ? `; ${lostTxt}` : ""}${little ? "; age and wakefulness give little" : ""}`;
+      const plainJudgeShort = !sb
+        ? ""
+        : mixed
+          ? strong ? "strong, so the good side may weigh more" : `${combust && sb.strong ? "close to the Sun" : "short of strength"}, so the strain may weigh more`
+          : good.length
+            ? strong ? "strong, so its good can show" : `${combust && sb.strong ? "close to the Sun" : "short of strength"}, so its good is reduced`
+            : "";
+      const briefPlain = `${mixed ? `${pn(good)}, but also ${pn(harsh)}` : pn(names)}${plainJudgeShort ? `; ${plainJudgeShort}` : ""}${little ? "; little comes through either way" : ""}`;
+      const provisional = mixed || Boolean(lostTxt) || !seven(pl);
+      return {
+        planet: pl,
+        house: h,
+        names,
+        mixed,
+        ...(lean ? { lean } : {}),
+        tone,
+        ...(sb ? { shadbala: { total: sb.total, required: sb.required, strong: sb.strong } } : {}),
+        combust,
+        defeated: lostWar,
+        little,
+        text,
+        plain,
+        brief,
+        briefPlain,
+        source: v20 ? SK("19-20", provisional) : S(mixed || good.length ? "19" : "18-19", provisional),
+      };
+    });
+
+  const effects: StateEffect[] = ["Garvita", "Mudita", "Lajjita", "Kshobhita", "Kshudhita", "Trushita"]
+    .map((n) => ({ n, holders: byName(n).map((a) => a.planet) }))
+    .filter((x) => x.holders.length)
+    .map(({ n, holders }) => ({ name: n, verse: LAJJITADI_EFFECTS[n].verse, text: LAJJITADI_EFFECTS[n].text, plain: LAJJITADI_EFFECTS[n].plain, planets: holders, source: S(LAJJITADI_EFFECTS[n].verse) }));
   // General Sayanadi 45.147-155
   for (const a of planets) {
     if (!a.sayanadi) continue;
@@ -382,5 +556,5 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
     if (a.planet === "Moon" && h === 10 && (n === "Kautuka" || n === "Prakasa")) push("gen-moon", `Moon in the 10th, ${a.sayanadi.plain}`, `The Moon in Kautuka or Prakasa in the 10th: a raja yoga, standing among those in power (45.154).`, "support", ["Moon"], "154");
   }
 
-  return { planets, ghatis, findings: F, caveats: AVASTHA_CAVEATS };
+  return { planets, ghatis, findings: F, lines, effects, caveats: AVASTHA_CAVEATS };
 }

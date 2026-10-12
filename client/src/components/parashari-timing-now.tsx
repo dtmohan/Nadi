@@ -11,12 +11,14 @@ import type {
   TimingNow,
 } from "@shared/timing-now";
 import { levelName } from "@shared/timing-now";
+import type { StateLine } from "@shared/parashari-avasthas";
 import { Badge } from "@/components/ui/badge";
 import { PlanetName } from "@/components/planet-name";
 import { SectionTitle, useNowLabel, usePlain } from "@/components/mode-text";
 import { SourceLink } from "@/components/source-link";
 import { DasaCombinationsBody } from "@/components/dasa-combinations";
 import { cn } from "@/lib/utils";
+import { Soft } from "@/lib/gentle";
 
 const fmtM = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
@@ -256,15 +258,27 @@ export function TimingNowPanel({
   now,
   dasaCombos,
   deceased,
+  states,
 }: {
   now: TimingNow;
   /** The running dasa's combinations and how its sub-periods carry them. */
   dasaCombos: DasaCombinations | null;
   deceased: boolean;
+  /** Lajjitadi per planet (45.19-20); the running dasa and antar lords' lines are shown. */
+  states?: StateLine[];
 }) {
   const plain = usePlain();
   const nowLabel = useNowLabel();
   const { dasa, antar, pratyantar, year, saturn, jupiter } = now;
+  // The period lords' states. Ch. 45 gives them no timing; reading them with the period follows Mehta, ch. XV (provisional).
+  const stateRows = (
+    [
+      ["dasa", dasa?.lord],
+      ["antar", antar?.lord],
+    ] as const
+  )
+    .filter(([, lord], i, arr) => lord && arr.findIndex(([, l]) => l === lord) === i)
+    .map(([level, lord]) => ({ level, lord: lord!, line: states?.find((l) => l.planet === lord) }));
   return (
     <section
       className="mt-4 scroll-mt-24 rounded-md border bg-card px-4 py-3"
@@ -308,6 +322,38 @@ export function TimingNowPanel({
                 <Details to="parashari-timing-periods" id="periods" />
               </span>
             )}
+          </Row>
+        )}
+        {states && stateRows.some((x) => x.line) && (
+          <Row label={plain ? "Moods" : "Lajjitadi"} id="states">
+            {stateRows.map(({ level, lord, line }) => (
+              <span
+                key={level}
+                className="block"
+                data-testid={`timing-now-states-${level}`}
+              >
+                <PlanetName planet={lord} />{" "}
+                <span className="text-muted-foreground">
+                  ({levelName(level, plain)}):
+                </span>{" "}
+                {line ? (
+                  <Soft>{plain ? line.briefPlain : line.brief}</Soft>
+                ) : (
+                  <span className="text-muted-foreground">
+                    {plain ? "none of the six moods" : "none of the six states"}
+                  </span>
+                )}
+              </span>
+            ))}
+            <span className="mt-0.5 block text-xs text-muted-foreground">
+              {plain
+                ? "Provisional: chapter 45 gives these moods no timing; reading them with the period follows Mehta."
+                : "Provisional placement: ch. 45 gives the states no timing; Mehta reads a lord's state before its dasa (ch. XV)."}{" "}
+              <SourceLink
+                source={{ label: "Parashara 45.19-20", url: BPHS_URL(45), provisional: true }}
+                mark={false}
+              />
+            </span>
           </Row>
         )}
         {year && (
