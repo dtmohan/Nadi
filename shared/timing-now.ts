@@ -52,6 +52,22 @@ export interface NowTransit {
 
 export type ChangeKind = "spell" | "sub-period" | "period" | "year" | "transit";
 
+/** The five Vimshottari levels, named as the Parashari tab names them (Santhanam's spellings). */
+export type DasaLevel = "dasa" | "antar" | "pratyantar" | "sookshma" | "prana";
+
+export const LEVEL_GLOSS: Record<DasaLevel, string> = {
+  dasa: "main period",
+  antar: "sub-period",
+  pratyantar: "third-level period",
+  sookshma: "fourth-level period",
+  prana: "fifth-level period",
+};
+
+/** "Mars antar" in the practitioner reading, "Mars antar (sub-period)" in the plain one: the level is always named. */
+export function levelName(level: DasaLevel, plain: boolean): string {
+  return plain ? `${level} (${LEVEL_GLOSS[level]})` : level;
+}
+
 export interface TimingChange {
   kind: ChangeKind;
   /** ISO instant the change takes effect. */
@@ -60,6 +76,8 @@ export interface TimingChange {
   tone?: NowTone;
   /** Spell, sub-period and period: the incoming lord. */
   lord?: Planet;
+  /** Spell: the running antar's lord. Sub-period: the running dasa's lord. */
+  parent?: Planet;
   /** Period: its length in whole years. */
   years?: number;
   /** Period: the incoming lord's lordship gloss. */
@@ -133,11 +151,11 @@ export function timingNow(o: {
   const next: TimingChange[] = [];
   // The spell after the running one, inside the running sub-period; a sub-period change covers the rest.
   const np = a?.pratyantars && pi >= 0 ? a.pratyantars[pi + 1] : undefined;
-  if (np && within(np.start)) next.push({ kind: "spell", date: np.start, end: np.end, lord: np.lord });
+  if (np && within(np.start)) next.push({ kind: "spell", date: np.start, end: np.end, lord: np.lord, parent: a?.lord });
   // The next sub-period in the running period; the first of the next period comes with the period change.
   const na = d && ai >= 0 ? d.antars[ai + 1] : undefined;
   if (na && within(na.start))
-    next.push({ kind: "sub-period", date: na.start, end: na.end, lord: na.lord, tone: fromTone(na.verdict) });
+    next.push({ kind: "sub-period", date: na.start, end: na.end, lord: na.lord, parent: d?.lord, tone: fromTone(na.verdict) });
   const nd = di >= 0 ? o.dasaReadings[di + 1] : undefined;
   if (nd && within(nd.start))
     next.push({

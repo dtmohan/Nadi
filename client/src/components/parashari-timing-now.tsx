@@ -10,6 +10,7 @@ import type {
   TimingChange,
   TimingNow,
 } from "@shared/timing-now";
+import { levelName } from "@shared/timing-now";
 import { Badge } from "@/components/ui/badge";
 import { PlanetName } from "@/components/planet-name";
 import { SectionTitle, useNowLabel, usePlain } from "@/components/mode-text";
@@ -167,30 +168,39 @@ function glossLine(g: DashaGloss | undefined, plain: boolean): string {
 }
 
 function ChangeLine({ c, plain }: { c: TimingChange; plain: boolean }) {
-  const W = {
-    spell: plain ? "spell" : "pratyantar",
-    sub: plain ? "sub-period" : "antar",
-    period: plain ? "period" : "dasa",
-  };
   switch (c.kind) {
     case "spell":
       return (
         <>
-          <PlanetName planet={c.lord!} /> {W.spell} begins, to {fmtD(c.end!)}
+          <PlanetName planet={c.lord!} /> {levelName("pratyantar", plain)}{" "}
+          begins
+          {c.parent ? (
+            <>
+              {" "}
+              within the <PlanetName planet={c.parent} /> antar
+            </>
+          ) : null}
+          , to {fmtD(c.end!)}
         </>
       );
     case "sub-period":
       return (
         <>
-          <PlanetName planet={c.lord!} /> {W.sub} begins, to {fmtM(c.end!)}{" "}
-          <Pill tone={c.tone} />
+          <PlanetName planet={c.lord!} /> {levelName("antar", plain)} begins
+          {c.parent ? (
+            <>
+              {" "}
+              within the <PlanetName planet={c.parent} /> dasa
+            </>
+          ) : null}
+          , to {fmtM(c.end!)} <Pill tone={c.tone} />
         </>
       );
     case "period":
       return (
         <>
-          <PlanetName planet={c.lord!} /> {W.period} begins, {c.years} years{" "}
-          <Pill tone={c.tone} />{" "}
+          <PlanetName planet={c.lord!} /> {levelName("dasa", plain)} begins,{" "}
+          {c.years} years <Pill tone={c.tone} />{" "}
           <span className="text-muted-foreground">
             {glossLine(c.gloss, plain)}
           </span>
@@ -246,11 +256,6 @@ export function TimingNowPanel({
 }) {
   const plain = usePlain();
   const nowLabel = useNowLabel();
-  const W = {
-    period: plain ? "period" : "dasa",
-    sub: plain ? "sub-period" : "antar",
-    spell: plain ? "spell" : "pratyantar",
-  };
   const { dasa, antar, pratyantar, year, saturn, jupiter } = now;
   const lordsTied = combos.some((c) => c.sourced);
   return (
@@ -275,20 +280,23 @@ export function TimingNowPanel({
         {dasa && (
           <Row label={nowLabel} id="periods">
             <span className="block">
-              <PlanetName planet={dasa.lord} /> {W.period}, {fmtM(dasa.start)}{" "}
+              <PlanetName planet={dasa.lord} /> {levelName("dasa", plain)},{" "}
+              {fmtM(dasa.start)}{" "}
               to {fmtM(dasa.end)} <Pill tone={dasa.tone} />
             </span>
             {antar && (
               <span className="mt-0.5 block">
                 <span className="text-muted-foreground">within it, </span>
-                <PlanetName planet={antar.lord} /> {W.sub}, {fmtM(antar.start)}{" "}
+                <PlanetName planet={antar.lord} /> {levelName("antar", plain)},{" "}
+                {fmtM(antar.start)}{" "}
                 to {fmtM(antar.end)} <Pill tone={antar.tone} />
               </span>
             )}
             {pratyantar && (
               <span className="mt-0.5 block">
                 <span className="text-muted-foreground">and the </span>
-                <PlanetName planet={pratyantar.lord} /> {W.spell},{" "}
+                <PlanetName planet={pratyantar.lord} />{" "}
+                {levelName("pratyantar", plain)},{" "}
                 {fmtD(pratyantar.start)} to {fmtD(pratyantar.end)}
                 <Details to="parashari-timing-periods" id="periods" />
               </span>

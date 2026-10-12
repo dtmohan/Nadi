@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { redactProse, sensitiveTags, withholdText } from "../shared/life-stage";
+import { redactProse, redactSensitive, sensitiveTags, withholdText } from "../shared/life-stage";
 import { sarvarthaLeftOut } from "../shared/sarvartha";
 import { PRASNA_DISEASE_REMEDIES, diseaseCauses } from "../shared/prasna-diseases";
 import { YOGAS, gateYogas } from "../shared/yoga";
@@ -131,3 +131,21 @@ test("fired yogas: a minor's result loses its sexual items", () => {
   assert.equal(gateYogas([y], false)[0].result, y.result);
   assert.deepEqual(gateYogas([{ ...y, result: "adultery" }], true), []);
 });
+
+// The chapter-70 Saturn points and the transit hits made from them are headed by "matter": for a
+// minor the longevity point is dropped whole, not left behind as an empty tag.
+test("a withheld chapter-70 point is dropped from a minor's list, not shown as an empty tag", () => {
+  const source = { label: "Parashara 70.7-42", url: "" };
+  const out = redactSensitive({
+    hits: [
+      { matter: "father", kind: "trine", source },
+      { matter: "longevity and death", kind: "sign", source },
+      { matter: "mother, house and village", kind: "trine", source },
+    ],
+  });
+  assert.deepEqual(
+    out.hits.map((h) => h.matter),
+    ["father", "mother, house and village"],
+  );
+});
+
