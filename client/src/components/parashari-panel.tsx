@@ -10,6 +10,7 @@ import { GentleNote, Soft } from "@/lib/gentle";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 import { useMemo, useState } from "react";
 import {
+  levelName,
   runningCombinations,
   timingNow,
   type TimingNow,
@@ -3510,6 +3511,7 @@ function ParashariVerdict({
   const weak = sb?.filter((p) => !p.strong).map((p) => p.planet) ?? [];
   const curReading = r.dasaReadings.find((d) => d.current);
   const deceased = useDeceased();
+  const plainV = usePlain();
   const nextChange = timing.next.find(
     (c) => c.kind === "period" || c.kind === "sub-period",
   );
@@ -3590,11 +3592,12 @@ function ParashariVerdict({
                 when: "present",
                 text: (
                   <>
-                    {cur.lord} period, {fmt(cur.start)} to {fmt(cur.end)}
+                    {cur.lord} {levelName("dasa", plainV)}, {fmt(cur.start)}{" "}
+                    to {fmt(cur.end)}
                     {timing.antar
                       ? deceased
-                        ? `, then in its ${timing.antar.lord} sub-period to ${fmt(timing.antar.end)}`
-                        : `, with its ${timing.antar.lord} sub-period running to ${fmt(timing.antar.end)}`
+                        ? `, then in its ${timing.antar.lord} ${levelName("antar", plainV)} to ${fmt(timing.antar.end)}`
+                        : `, with its ${timing.antar.lord} ${levelName("antar", plainV)} running to ${fmt(timing.antar.end)}`
                       : ""}
                     ; for this rising sign {cur.lord} is{" "}
                     {PLAIN_ROLE[cur.functional] ?? cur.functional}
@@ -3615,9 +3618,10 @@ function ParashariVerdict({
                       text: (
                         <>
                           {nextChange.lord}{" "}
-                          {nextChange.kind === "period"
-                            ? "period"
-                            : "sub-period"}{" "}
+                          {levelName(
+                            nextChange.kind === "period" ? "dasa" : "antar",
+                            plainV,
+                          )}{" "}
                           from {fmtD(nextChange.date)}
                           {nextChange.kind === "period" && nextChange.gloss
                             ? `, ${nextChange.years} years; for this rising sign ${nextChange.lord} is ${
@@ -4390,7 +4394,7 @@ function DasaEffects({
     <div className="mt-8" data-testid="parashari-dasa-effects">
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="text-sm font-semibold">
-          <PlanetName planet={d.lord} /> {plainDE ? "period" : "dasa"},{" "}
+          <PlanetName planet={d.lord} /> {levelName("dasa", plainDE)},{" "}
           {fmt(d.start)} to {fmt(d.end)}
         </h3>
         <span
@@ -4450,7 +4454,7 @@ function DasaEffects({
             </span>
             <span>
               <PlanetName planet={running.lord} />{" "}
-              {plainDE ? "sub-period" : "antar"}, {fmtD(running.start)} to{" "}
+              {levelName("antar", plainDE)}, {fmtD(running.start)} to{" "}
               {fmtD(running.end)}
             </span>
             <span
@@ -4464,18 +4468,18 @@ function DasaEffects({
             {spell && (
               <span className="text-muted-foreground">
                 · <PlanetName planet={spell.lord} />{" "}
-                {plainDE ? "spell" : "pratyantar"}, {fmtD(spell.start)} to{" "}
+                {levelName("pratyantar", plainDE)}, {fmtD(spell.start)} to{" "}
                 {fmtD(spell.end)}
               </span>
             )}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             {plainDE
-              ? "What the text weighs for this sub-period: "
+              ? "What the text weighs for this antar: "
               : "Placements matched: "}
             <Facts a={running} /> <SourceLink source={running.source} />
           </p>
-          {/* The spell's general effects stay in the spell list for the plain reading: 61.2 cancels the ill ones for a well-placed lord, a test not applied here. */}
+          {/* The pratyantar's general effects stay in its list for the plain reading: 61.2 cancels the ill ones for a well-placed lord, a test not applied here. */}
           {!plainDE && spell?.text && (
             <p className="mt-1 text-xs text-muted-foreground">
               Pratyantar: {spell.text} <SourceLink source={spell.source} />{" "}
@@ -4631,10 +4635,11 @@ function DasaEffects({
           <ModeText
             plain={
               <>
-                Each sub-period divides again into nine shorter spells, weeks to
-                months long. The text gives only general effects for these, and
-                adds that the ill ones do not follow when the spell's planet is
-                well placed. Select one to divide it further.
+                Each antar divides again into nine pratyantars (third-level
+                periods), weeks to months long. The text gives only general
+                effects for these, and adds that the ill ones do not follow when
+                the pratyantar's planet is well placed. Select one to divide it
+                further.
               </>
             }
             practitioner={
@@ -4797,22 +4802,23 @@ function FineLevels({
 
       <Working
         id="parashari-fine-spells"
-        label="Show the shorter spells, days and hours long"
+        label="Show the sookshma and prana levels, days and hours long"
         className="mt-4"
       >
         <div data-testid="parashari-sookshmas-heading">
         <SectionTitle
           as="h4"
           className="mt-6"
-          plain={`Fourth-level spells within ${dasaLord}–${antarLord}–${pratyantar.lord}`}
+          plain={`Fourth-level periods within ${dasaLord}–${antarLord}–${pratyantar.lord}`}
           technical={`Sookshma dasas in the ${dasaLord}–${antarLord}–${pratyantar.lord} pratyantar`}
         />
       </div>
       <ModeText
         plain={
           <>
-            Days-long spells, each planet's share in proportion to its period
-            length. General effects only. Select one to divide it into hours.
+            Sookshmas, days long, each planet's share in proportion to its
+            period length. General effects only. Select one to divide it into
+            pranas, hours long.
           </>
         }
         practitioner={
@@ -4853,7 +4859,7 @@ function FineLevels({
             <SectionTitle
               as="h4"
               className="mt-6"
-              plain={`Hours-long spells within the ${sookshma.lord} spell, ${fmtD(sookshma.start)} to ${fmtD(sookshma.end)}`}
+              plain={`Fifth-level periods within ${dasaLord}–${antarLord}–${pratyantar.lord}–${sookshma.lord}, ${fmtD(sookshma.start)} to ${fmtD(sookshma.end)}`}
               technical={`Prana dasas in the ${sookshma.lord} sookshma, ${fmtD(sookshma.start)} to ${fmtD(sookshma.end)}`}
             />
           </div>

@@ -14,7 +14,7 @@ import { isSensitive } from "@shared/gentle";
 import type { DasaReading } from "@shared/parashari-dasa";
 import type { AvTimeline, AvTransitRow } from "@shared/av-transit";
 import type { SudarshanaResult } from "@shared/sudarshana";
-import { PERIOD_TIED_FINDINGS, runningCombinations, timingNow } from "@shared/timing-now";
+import { PERIOD_TIED_FINDINGS, levelName, runningCombinations, timingNow } from "@shared/timing-now";
 import { computeChart } from "../server/routes";
 
 const SYNTHETIC: Chart = {
@@ -116,6 +116,18 @@ test("timing-now: changes within eighteen months, earliest first, one sign chang
   const period = t.next.find((c) => c.kind === "period")!;
   assert.equal(period.years, 16);
   assert.equal(period.tone, "unfavourable");
+  // A pratyantar change names the antar it falls within.
+  const spell = t.next.find((c) => c.kind === "spell")!;
+  assert.equal(spell.parent, t.antar?.lord);
+});
+
+test("timing-now: every level is named, with a plain gloss in the plain reading", () => {
+  assert.equal(levelName("dasa", false), "dasa");
+  assert.equal(levelName("antar", false), "antar");
+  assert.equal(levelName("pratyantar", false), "pratyantar");
+  assert.equal(levelName("dasa", true), "dasa (main period)");
+  assert.equal(levelName("antar", true), "antar (sub-period)");
+  assert.equal(levelName("pratyantar", true), "pratyantar (third-level period)");
 });
 
 test("timing-now: a shorter horizon drops the later changes", () => {

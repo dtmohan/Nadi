@@ -271,8 +271,10 @@ const KEEP_KEYS = new Set([
   "key", "subLord", "starLord", "source", "when", "area", "role", "level", "standing", "status",
   "mode", "type", "house", "cusp", "verse", "verses", "ch", "label", "short", "name", "nakshatra",
 ]);
-/** Keys whose object is dropped from a list when its own text is withheld. */
-const HEAD_KEYS = ["text", "title", "topic", "headline", "summary", "blurb", "matters", "label", "effects"];
+/** Keys whose object is dropped from a list when its own text is withheld. "matter" heads the
+ * chapter-70 Saturn points and the transit hits made from them: a withheld point is dropped, not
+ * shown as an empty tag. */
+const HEAD_KEYS = ["text", "title", "topic", "headline", "summary", "blurb", "matters", "matter", "label", "effects"];
 
 /** Tags that name a topic (a house keyword such as "longevity") rather than an event befalling someone. */
 const KEYWORD_TAGS = new Set<SensitiveTag>(["longevity", "maraka", "arishta", "intimacy"]);
