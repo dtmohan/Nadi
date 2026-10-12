@@ -35,6 +35,7 @@ import {
 import { computeJaimini } from "@shared/jaimini";
 import { computeSarvartha, SC_LIFESPAN_TOPICS } from "@shared/sarvartha";
 import { computeVargas } from "@shared/vargas";
+import { lagnaWindows } from "./lagna-windows";
 import { vimshottari } from "@shared/kp";
 import type { DasaStartTransit } from "@shared/shadbala";
 import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
@@ -242,6 +243,7 @@ export function computeChart(chart: Chart): ChartResult {
     ),
     nakshatraWealth: assessNakshatraWealth(positions, asc),
     sarvartha: computeSarvartha(positions, asc, computeVargas(positions, asc)),
+    lagnaWindows: lagnaWindows(jd, chart.latitude, chart.longitude, opts),
   };
   // One gate for every route: a native under the sensitive-content age gets the server-side
   // material stripped here; the client-side modules read `sensitive.withheld` and strip their own.

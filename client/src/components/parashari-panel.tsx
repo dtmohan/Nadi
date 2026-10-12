@@ -8,7 +8,7 @@ import {
 } from "@shared/life-stage";
 import { GentleNote, Soft } from "@/lib/gentle";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
-import { useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import {
   levelName,
   runningCombinations,
@@ -114,6 +114,12 @@ import { readKinTransits } from "@shared/kin-transits";
 import { KinTransitsSection } from "@/components/kin-transits";
 import { computeVargas, type SpouseReading } from "@shared/vargas";
 import { VargasSection } from "@/components/vargas";
+import {
+  restOn,
+  timeRest,
+  timeRestText,
+  type LagnaWindows,
+} from "@shared/time-windows";
 import { computeChalit } from "@shared/chalit";
 import { ChalitSection } from "@/components/chalit";
 import { computeSudarshana } from "@shared/sudarshana";
@@ -206,8 +212,15 @@ const ROLE_NAME: Record<string, string> = {
   neutral: "neutral",
 };
 
+/** Birth-time windows and the chart's stated uncertainty, for readings that rest on a lagna. */
+const TimeRestCtx = createContext<{ windows?: LagnaWindows; band: number }>({
+  band: 0,
+});
+
 function Finding({ f }: { f: ParashariFinding }) {
   const plain = usePlain();
+  const tr = useContext(TimeRestCtx);
+  const rest = timeRest(f.id, f.text, tr.windows, tr.band);
   return (
     <div
       className={cn(
@@ -228,6 +241,15 @@ function Finding({ f }: { f: ParashariFinding }) {
             provisional
           </Badge>
         )}
+        {rest?.sensitive && (
+          <Badge
+            variant="outline"
+            className="border-verdict-mixed/60 text-2xs text-verdict-mixed"
+            data-testid={`parashari-finding-time-sensitive-${f.id}`}
+          >
+            time-sensitive
+          </Badge>
+        )}
       </div>
       {plain && f.plain ? (
         <>
@@ -245,6 +267,17 @@ function Finding({ f }: { f: ParashariFinding }) {
       ) : (
         <p className="mt-1 text-sm text-muted-foreground">
           <Soft>{f.text}</Soft>
+        </p>
+      )}
+      {rest && (
+        <p
+          className={cn(
+            "mt-1 text-xs",
+            rest.sensitive ? "text-verdict-mixed" : "text-muted-foreground",
+          )}
+          data-testid={`parashari-finding-time-${f.id}`}
+        >
+          {timeRestText(rest, tr.band)}
         </p>
       )}
       <p className="mt-1 text-xs text-muted-foreground">
@@ -387,8 +420,16 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
     return withheld ? redactSensitive(s) : s;
   }, [result.specialStars, positions, asOfIso, withheld]);
   const vargas = useMemo(
-    () => computeVargas(positions, result.jaimini.lagna.lon),
-    [positions, result.jaimini.lagna.lon],
+    () =>
+      computeVargas(positions, result.jaimini.lagna.lon, r.vargaExclusions),
+    [positions, result.jaimini.lagna.lon, r.vargaExclusions],
+  );
+  const timeCtx = useMemo(
+    () => ({
+      windows: result.lagnaWindows,
+      band: Math.max(0, chart.timeUncertaintyMin ?? 0),
+    }),
+    [result.lagnaWindows, chart.timeUncertaintyMin],
   );
   const chalit = useMemo(
     () =>
@@ -662,6 +703,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   ];
 
   return (
+    <TimeRestCtx.Provider value={timeCtx}>
     <div data-testid="parashari-panel">
       <Chapters tab="parashari" chapters={chapterDefs}>
       <Chapter id="brief">
@@ -1550,7 +1592,12 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       )}
       </Chapter>
       <Chapter id="vargas">
-      <VargasSection v={vargas} name={chart.name} />
+      <VargasSection
+        v={vargas}
+        name={chart.name}
+        windows={result.lagnaWindows}
+        band={timeCtx.band}
+      />
       </Chapter>
       <Chapter id="planets">
       <Working
@@ -1771,6 +1818,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       </Chapter>
       </Chapters>
     </div>
+    </TimeRestCtx.Provider>
   );
 }
 
@@ -3534,6 +3582,8 @@ function ParashariVerdict({
   timing: TimingNow;
 }) {
   const nowLabel = useNowLabel();
+  const tr = useContext(TimeRestCtx);
+  const d9Rest = restOn("D9", "the navamsa lagna", tr.windows, tr.band);
   const helpers = r.natures
     .filter(
       (n) =>
@@ -3723,6 +3773,12 @@ function ParashariVerdict({
               ; its ruler {spouse.seventhLord} stands in{" "}
               {SIGNS[spouse.lordSign]}. Parashara gives no verdict on this
               placement, so it is reported, not judged.
+              {d9Rest?.sensitive ? (
+                <span data-testid="parashari-verdict-d9-time">
+                  {" "}
+                  {timeRestText(d9Rest, tr.band)}
+                </span>
+              ) : null}
             </>
           ),
         },
@@ -4363,6 +4419,7 @@ function BalaRows({
 }
 
 function Note({ n }: { n: DasaNote }) {
+  const plainN = usePlain();
   return (
     <li
       className={cn(
@@ -4373,6 +4430,12 @@ function Note({ n }: { n: DasaNote }) {
     >
       <p className="text-sm text-muted-foreground">
         <Soft>{n.text}</Soft>
+        {!plainN && n.detail ? (
+          <span data-testid={`parashari-dasa-note-detail-${n.id}`}>
+            {" "}
+            {n.detail}
+          </span>
+        ) : null}
       </p>
       <p className="mt-0.5 text-xs text-muted-foreground">
         {LAYER_LABEL[n.layer]} · <SourceLink source={n.source} />

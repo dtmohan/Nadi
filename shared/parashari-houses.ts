@@ -5,7 +5,7 @@
  */
 import { SIGNS, SIGN_LORD, houseFrom, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
-import { computeVargas } from "./vargas";
+import { computeVargas, type VargasResult } from "./vargas";
 import type { ShadbalaResult } from "./shadbala";
 import type { HouseView } from "./house-view";
 import type { ParashariFinding, ParashariSource } from "./parashari";
@@ -116,7 +116,7 @@ const QUADRUPED = new Set([0, 1, 4, 9]); // Aries, Taurus, Leo, Capricorn (whole
 const navamsaSign = (p: PlanetPosition) => (p.signIndex * 9 + Math.floor(p.degInSign / (30 / 9))) % 12;
 
 /** Findings for the 1st (ch. 12) and 2nd (ch. 13) houses. */
-export function houseFindings(positions: PlanetPosition[], view: HouseView, lagnaLon: number, lagnaIdx: number, deps: HouseDeps, shadbala?: ShadbalaResult): ParashariFinding[] {
+export function houseFindings(positions: PlanetPosition[], view: HouseView, lagnaLon: number, lagnaIdx: number, deps: HouseDeps, shadbala?: ShadbalaResult, vargasIn?: VargasResult): ParashariFinding[] {
   const F: ParashariFinding[] = [];
   const pos = (pl: Planet) => positions.find((p) => p.planet === pl)!;
   const houseOf = (pl: Planet) => view.houseOf(pos(pl));
@@ -130,7 +130,7 @@ export function houseFindings(positions: PlanetPosition[], view: HouseView, lagn
   const beneficsWith = (pl: Planet) => withPl(pl).filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
   const aspectingSign = (si: number, want: "benefic" | "malefic") => positions.filter((p) => p.signIndex !== si && deps.aspect(p.planet, p.signIndex, si) > 0 && deps.benefic(p, positions) === (want === "benefic")).map((p) => p.planet);
   const aspectingPlanet = (pl: Planet, want: "benefic" | "malefic") => aspectingSign(pos(pl).signIndex, want);
-  const vargas = computeVargas(positions, lagnaLon);
+  const vargas = vargasIn ?? computeVargas(positions, lagnaLon);
   const combust = (pl: Planet) => vargas.planets.find((v) => v.planet === pl)?.combust ?? false;
   const strong = (pl: Planet) => shadbala?.planets.find((s) => s.planet === pl)?.strong;
   const inKT = (h: number) => KENDRA.includes(h) || TRIKONA.includes(h);
@@ -259,8 +259,10 @@ export function houseFindings(positions: PlanetPosition[], view: HouseView, lagn
     push("pa-h2-13-10", 2, "Fame through the 2nd lord", `${l2}, lord of the 2nd, is ${pos(l2).dignity === "Exalted" ? "exalted" : "in its own sign"} in ${SIGNS[pos(l2).signIndex]}. Parashara says the native looks after his people, helps others and becomes famous.${pos(l2).dignity === "Moolatrikona" ? " Moolatrikona is taken as own sign." : ""}`, "support", [l2], S(13, "10", pos(l2).dignity === "Moolatrikona"));
   }
   // 13.11: 2nd lord with a benefic and in a good division such as Paravatamsa.
-  const desig = vargas.planets.find((v) => v.planet === l2)?.designation?.dasa;
-  if (beneficsWith(l2).length && desig && desig.good >= 6) {
+  // 6.53: the divisions of a combust, defeated or weak planet, or one in Sayana, are not counted.
+  const v2 = vargas.planets.find((v) => v.planet === l2);
+  const desig = v2?.designation?.dasa;
+  if (beneficsWith(l2).length && desig && !v2?.excluded?.length && desig.good >= 6) {
     push("pa-h2-13-11", 2, "Effortless family wealth", `${l2}, lord of the 2nd, is joined by ${list(beneficsWith(l2))} and holds ${desig.name ?? "a high designation"} in the dasavarga (${desig.good} good vargas). Parashara says wealth of all kinds comes to the family without effort. "A good division like Paravatamsa" is read as Paravata or higher in the ten-varga scheme of 6.42-53.`, "support", [l2, ...beneficsWith(l2)], S(13, "11", true));
   }
   // 13.12: eyes.

@@ -112,8 +112,13 @@ test("every id in the table is one the code produces", () => {
   assert.ok(ids.length > 80);
   for (const id of ids) {
     const nabhasa = /^pa-nabhasa-(.+)$/.exec(id)?.[1];
+    // 36.38-39 builds its id from the grade name in its table of the verse's words.
+    const grade = /^pa-yoga-36-38-([a-z]+)$/.exec(id)?.[1];
     const found =
       src.includes(`"${id}"`) ||
+      (grade !== undefined &&
+        src.includes("`pa-yoga-36-38-${g.name.toLowerCase()}`") &&
+        src.includes(`${grade[0].toUpperCase()}${grade.slice(1)}: { words:`)) ||
       (nabhasa !== undefined && src.includes(`akriti("${nabhasa}"`)) ||
       (/^pa-yoga-(hari|hara|brahma)$/.test(id) &&
         src.includes(`tri("${id.slice(8)}"`));

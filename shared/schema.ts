@@ -158,6 +158,8 @@ export interface ChartResult {
   nakshatraWealth?: import("./nakshatra-wealth").NakshatraWealthReading;
   /** Sarvartha Chintamani (Venkatesha) bhava-phala rules that fire for this chart, computed server-side. */
   sarvartha?: import("./sarvartha").SarvarthaResult;
+  /** Minutes either side of the recorded birth time over which each divisional lagna keeps its sign. */
+  lagnaWindows?: import("./time-windows").LagnaWindows;
 }
 
 export interface GeoHit {

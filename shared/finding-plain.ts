@@ -307,6 +307,35 @@ const EXACT: Record<string, PlainMeaning | Make> = {
     "Benefics hold the 4th, 10th and 11th counted from the ruler of the rising sign. Parashara promises happiness, learning, wealth and children.",
     "happiness, learning and wealth",
   ),
+  // 36.38-39, the lagna lord's grade over the ten finer charts.
+  "pa-yoga-36-38-parijata": E(
+    "The ruler of the rising sign is well placed in two of the ten finer charts, the grade called Parijata. Parashara reads this as happiness.",
+    "happiness",
+  ),
+  "pa-yoga-36-38-uttama": E(
+    "The ruler of the rising sign is well placed in three of the ten finer charts, the grade called Uttama. Parashara reads this as freedom from illness; the grade's name in the verse is uncertain.",
+    "good health",
+  ),
+  "pa-yoga-36-38-gopura": E(
+    "The ruler of the rising sign is well placed in four of the ten finer charts, the grade called Gopura. Parashara reads this as wealth and plentiful provisions.",
+    "wealth and provisions",
+  ),
+  "pa-yoga-36-38-simhasana": E(
+    "The ruler of the rising sign is well placed in five of the ten finer charts, the grade called Simhasana, 'the throne'. Parashara reads this as high standing.",
+    "high standing",
+  ),
+  "pa-yoga-36-38-paravata": E(
+    "The ruler of the rising sign is well placed in six of the ten finer charts, the grade called Paravata. Parashara reads this as learning and scholarship.",
+    "scholarship",
+  ),
+  "pa-yoga-36-38-devaloka": E(
+    "The ruler of the rising sign is well placed in seven of the ten finer charts, the grade called Devaloka. Parashara reads this as plenty and vehicles.",
+    "plenty and vehicles",
+  ),
+  "pa-yoga-36-38-sakravahana": E(
+    "The ruler of the rising sign is well placed in nine of the ten finer charts, the grade called Sakravahana. Parashara reads this as fame and honour from those in authority; the grade's name in the verse is uncertain.",
+    "fame and honour",
+  ),
   "pa-yoga-lagnadhi": E(
     "Benefics hold the 7th and 8th, untouched by malefics. Parashara promises greatness, learning and happiness.",
     "greatness and learning",

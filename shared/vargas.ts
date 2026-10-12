@@ -3,7 +3,7 @@
 // sign mapping is the commentators' (D27 by element, D30 sign assignment, D60 counted from the
 // occupied sign), the definition carries a note and the source is marked provisional.
 import { SIGNS, SIGN_LORD, EXALTATION, OWN_SIGNS, PLANETS, type Planet, type PlanetPosition } from "./astro";
-import { compoundRelation, inMoolatrikona, SEVEN, type Seven, type Compound } from "./shadbala";
+import { compoundRelation, inMoolatrikona, SEVEN, type Seven, type Compound, type ShadbalaResult } from "./shadbala";
 import { BPHS_URL } from "./parashari-data";
 import { allArudhas } from "./jaimini";
 
@@ -132,6 +132,34 @@ export interface PlanetVargas {
   designation?: Record<SchemeKey, { good: number; name: string | null }>;
   /** Combust by the translator's Surya Siddhanta table under 7.28-29; 6.53 says such a planet's good vargas are not to be counted. */
   combust: boolean;
+  /** 6.53: why this planet's divisions are ignored (combust, defeated, weak, in Sayana); empty when they count. */
+  excluded?: string[];
+}
+
+/**
+ * 6.53: "The divisions of a combust planet, defeated planet, weak planet, and a planet in bad Avasthas like
+ * Sayana be all ignored to be auspicious." Combustion is found in computeVargas; the other three come from
+ * Shadbala (ch. 27) and the Sayanadi avasthas (ch. 45), which the caller supplies.
+ */
+export interface VargaExclusions {
+  /** Short of the Shadbala requirement of 27.32-33, read as the verse's "weak" (provisional). */
+  weak: Planet[];
+  /** The loser of a planetary war, 27.20. */
+  defeated: Planet[];
+  /** In Sayana, the bad avastha the verse names (45.30-39). */
+  sayana: Planet[];
+}
+
+export function vargaExclusions(
+  shadbala?: ShadbalaResult,
+  avasthas?: { planets: { planet: Planet; sayanadi?: { name: string } }[] },
+): VargaExclusions | undefined {
+  if (!shadbala && !avasthas) return undefined;
+  return {
+    weak: (shadbala?.planets ?? []).filter((s) => !s.strong).map((s) => s.planet),
+    defeated: Array.from(new Set((shadbala?.wars ?? []).map((w) => w.loser))),
+    sayana: (avasthas?.planets ?? []).filter((a) => a.sayanadi?.name === "Sayana").map((a) => a.planet),
+  };
 }
 
 export interface VargaChart {
@@ -146,6 +174,8 @@ export interface VargasResult {
   charts: Record<VargaKey, VargaChart>;
   /** The spouse reading of 7.1-8 from the navamsa: the 7th from the navamsa lagna and its lord. */
   spouse: SpouseReading;
+  /** The 6.53 exclusions beyond combustion that were applied, when Shadbala and the avasthas were available. */
+  exclusions?: VargaExclusions;
   sources: typeof VARGA_SOURCES;
   caveats: string[];
 }
@@ -191,7 +221,7 @@ function band(total: number): SchemeScore["band"] {
 
 const isSeven = (p: Planet): p is Seven => (SEVEN as readonly string[]).includes(p);
 
-export function computeVargas(positions: PlanetPosition[], lagnaLon: number): VargasResult {
+export function computeVargas(positions: PlanetPosition[], lagnaLon: number, exclusions?: VargaExclusions): VargasResult {
   const lagnaSign = Math.floor(lagnaLon / 30) % 12;
   const lagnaDeg = lagnaLon - lagnaSign * 30;
   const lagna = Object.fromEntries(VARGAS.map((v) => [v.key, v.signOf(lagnaSign, lagnaDeg)])) as Record<VargaKey, number>;
@@ -232,6 +262,11 @@ export function computeVargas(positions: PlanetPosition[], lagnaLon: number): Va
         const total = cells.reduce((a, c) => a + c.score, 0);
         return { scheme: sch.key, total, band: band(total), cells };
       });
+      const excluded: string[] = [];
+      if (combust) excluded.push("combust");
+      if (exclusions?.defeated.includes(me)) excluded.push("defeated in a planetary war");
+      if (exclusions?.weak.includes(me)) excluded.push("short of its Shadbala requirement");
+      if (exclusions?.sayana.includes(me)) excluded.push("in Sayana");
       const designation = Object.fromEntries(
         SCHEMES.map((sch) => {
           const good = (Object.keys(sch.weights) as VargaKey[]).filter((k) => {
@@ -240,10 +275,10 @@ export function computeVargas(positions: PlanetPosition[], lagnaLon: number): Va
             return EXALTATION[me]!.sign === s || inMoolatrikona(me, s, deg) || (OWN_SIGNS[me] ?? []).includes(s) || alKendraSigns.has(s);
           }).length;
           const names = DESIGNATIONS[sch.key];
-          return [sch.key, { good, name: combust ? null : names[good] || null }];
+          return [sch.key, { good, name: excluded.length ? null : names[good] || null }];
         }),
       ) as PlanetVargas["designation"];
-      return { planet: me, signs, vargottama, vimsopaka, designation, combust };
+      return { planet: me, signs, vargottama, vimsopaka, designation, combust, excluded };
     });
 
   const charts = Object.fromEntries(
@@ -286,13 +321,13 @@ export function computeVargas(positions: PlanetPosition[], lagnaLon: number): Va
     venusRelation,
   };
 
-  return { planets, lagna, charts, spouse, sources: VARGA_SOURCES, caveats: VARGA_CAVEATS };
+  return { planets, lagna, charts, spouse, exclusions, sources: VARGA_SOURCES, caveats: VARGA_CAVEATS };
 }
 
 export const VARGA_CAVEATS = [
   "The divisions follow 6.5-41 as translated. Three mappings are the commentators' rather than the verse's and are marked provisional: the Bhamsa starting sign by element (6.26), the Trimsamsa signs for the lords named in 6.27-28, and the Shashtiamsa counted from the occupied sign (6.33).",
   "Vimsopaka takes the four schemes and weights of 7.17-25 and the varga viswa of 7.24-25 (own 20, great friend 18, friend 15, neutral 10, enemy 7, great enemy 5). Relationships are the compound ones of 3.55-58, the temporary part taken from the rasi positions. The verse keeps the full twenty for the planet's own sign only; exaltation is not given the same standing here, though some readers grant it. Bands are 7.26-27; the eight classes of 7.30-32 (Poorna to Atiswalpa) are named without thresholds and are not applied.",
-  "The designations of 6.42-53 count good vargas: exaltation, moolatrikona, own sign, and the signs of the lords of angles from the arudha lagna (the arudha by the Jaimini rule already in use). 6.53 excludes combust, defeated and weak planets and those in bad avasthas; only combustion is applied here, by the Surya Siddhanta orbs in the translator's note under 7.28-29, and the exclusion is provisional.",
+  "The designations of 6.42-53 count good vargas: exaltation, moolatrikona, own sign, and the signs of the lords of angles from the arudha lagna (the arudha by the Jaimini rule already in use). 6.53 ignores the divisions of a combust, defeated or weak planet and one \"in bad Avasthas like Sayana\". Combustion is taken by the Surya Siddhanta orbs in the translator's note under 7.28-29; defeat as the loser of a planetary war (27.20); weakness as falling short of the Shadbala requirement of 27.32-33; and of the avasthas only Sayana, the one the verse names. The orbs and the reading of \"weak\" are provisional. Without Shadbala only combustion can be applied.",
   "Vargottama (the same sign in rasi and navamsa) is not a term of ch. 6-7; it is Brihat Jataka 1.14 (the first navamsa of a movable sign, the middle of a fixed, the last of a dual, called auspicious there) and is shown as Varahamihira defines it, without a reading.",
   "The spouse reading follows 7.1-8, which assigns the navamsa to the spouse, and the chapter's closing remark that the lord of a bhava is as important as the bhava; how to weigh the 7th of the navamsa is not spelt out, so the panel reports positions and leaves the judgement.",
 ];

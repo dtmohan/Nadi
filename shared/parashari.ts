@@ -62,6 +62,7 @@ import { computePadas, type PadaResult } from "./parashari-padas";
 import { computeMarakas, type MarakaResult } from "./parashari-marakas";
 import { redactSensitive } from "./life-stage";
 import { computeAvasthas, type AvasthaResult } from "./parashari-avasthas";
+import { computeVargas, vargaExclusions, type VargaExclusions } from "./vargas";
 
 export const SEVEN: Planet[] = [
   "Sun",
@@ -145,6 +146,8 @@ export interface DashaGloss {
 }
 
 export interface ParashariResult {
+  /** The 6.53 exclusions applied to the divisional designations (Shadbala weakness, defeat in war, Sayana). */
+  vargaExclusions?: VargaExclusions;
   lagna: { signIndex: number; sign: Sign };
   bhavas: Bhava[];
   natures: PlanetNature[];
@@ -1099,7 +1102,18 @@ export function computeParashari(
 
   // Chapters 11-13: house judgement and the stated effects of the 1st and 2nd houses.
   const houseDeps = { aspect: asp, benefic: naturalBenefic };
-  const houseReading = houseFindings(positions, houseView, lagnaLon, lagnaIdx, houseDeps, shadbala);
+  // The avasthas come first: Sayana is one of the 6.53 exclusions, which with combustion, defeat in
+  // war and Shadbala weakness decide which divisions count for 13.11, 36.38-39 and the dasa notes.
+  const avasthas = computeAvasthas(
+    positions,
+    lagnaIdx,
+    houseDeps,
+    shadbala,
+    shadbalaBase,
+  );
+  const vargaExcl = vargaExclusions(shadbala, avasthas);
+  const vargas = computeVargas(positions, lagnaLon, vargaExcl);
+  const houseReading = houseFindings(positions, houseView, lagnaLon, lagnaIdx, houseDeps, shadbala, vargas);
   if (houseMethod !== "rashi" && !fellBack)
     for (const f of houseReading) {
       f.source = { ...f.source, label: `${f.source.label}, bhava-chalit placement`, provisional: true };
@@ -1109,7 +1123,7 @@ export function computeParashari(
   findings.push(...nodeFindings(positions, houseView, lagnaIdx));
   // Chapters 35-38: Nabhasa, remaining ch. 36, lunar and solar yogas.
   findings.push(
-    ...yogaFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
+    ...yogaFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala, vargas),
   );
   findings.push(
     ...royalFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
@@ -1137,13 +1151,6 @@ export function computeParashari(
   const marakas = withhold
     ? null
     : computeMarakas(positions, lagnaIdx, lagnaLon, houseDeps, vim, shadbala);
-  const avasthas = computeAvasthas(
-    positions,
-    lagnaIdx,
-    houseDeps,
-    shadbala,
-    shadbalaBase,
-  );
 
   const dasaReadings = computeDasaReadings(
     positions,
@@ -1158,6 +1165,7 @@ export function computeParashari(
     neecha,
     chalit,
     asp,
+    vargas,
   );
   // Plain meanings for the combinations, attached before the gate so it strips them with the rest.
   for (const f of findings) {
@@ -1166,6 +1174,7 @@ export function computeParashari(
     if (m) Object.assign(f, m);
   }
   const out: ParashariResult = {
+    ...(vargaExcl ? { vargaExclusions: vargaExcl } : {}),
     aspectFloor,
     withheld: withhold,
     houseMethod,
