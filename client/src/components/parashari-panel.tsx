@@ -1597,6 +1597,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
         name={chart.name}
         windows={result.lagnaWindows}
         band={timeCtx.band}
+        withheld={withheld}
       />
       </Chapter>
       <Chapter id="planets">
