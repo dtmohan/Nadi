@@ -51,6 +51,11 @@ export interface PracticeInput {
   saturnPeriods?: TransitPeriod[];
   /** Formats an ISO instant as a calendar date for the reader. */
   fmtDate: (iso: string) => string;
+  /**
+   * The classical verdicts from the Moon (computeGochara). When given, the lens check counts the Moon's house as those
+   * verdicts leave it, after 26.30-32 and 26.41, rather than by the house alone, so the two never contradict.
+   */
+  classical?: { planet: Planet; verdict: "favourable" | "obstructed" | "neutral" | "unfavourable" }[];
 }
 
 const ordinal = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
@@ -128,21 +133,32 @@ export function gocharaPractice(input: PracticeInput): PracticeCheck[] {
     if (!p) continue;
     const hM = houseFrom(moon, p.signIndex);
     const hL = houseFrom(lagna, p.signIndex);
-    const fM = FAVOURABLE[planet].includes(hM);
+    const byHouse = FAVOURABLE[planet].includes(hM);
     const fL = FAVOURABLE[planet].includes(hL);
     const word = (f: boolean) => (f ? "favourable" : "not favourable");
+    // The Moon's house as the classical rules leave it: favourable, unfavourable, or set aside (neutral).
+    const cv = input.classical?.find((c) => c.planet === planet)?.verdict;
+    const fM: boolean | null = !cv ? byHouse : cv === "neutral" ? null : cv !== "unfavourable";
+    const moonWord =
+      fM === byHouse
+        ? word(byHouse)
+        : fM === null
+          ? `${word(byHouse)} by house, set aside by the classical rules`
+          : `${word(byHouse)} by house, ${word(fM)} under the classical rules`;
     const reading =
-      fM && fL
-        ? "both lenses agree on support, so it counts for more"
-        : !fM && !fL
-          ? "both lenses agree on strain, so it weighs more"
-          : !fM && fL
-            ? "it may feel heavier inwardly while outward life holds"
-            : "outward life may strain while the mind stays steady";
+      fM === null
+        ? `the Moon's lens is set aside, so the lagna's alone speaks, and it is ${word(fL)}`
+        : fM && fL
+          ? "both lenses agree on support, so it counts for more"
+          : !fM && !fL
+            ? "both lenses agree on strain, so it weighs more"
+            : !fM && fL
+              ? "it may feel heavier inwardly while outward life holds"
+              : "outward life may strain while the mind stays steady";
     lens.push({
       planet,
-      text: `${planet}: ${ordinal(hM)} from the Moon (${word(fM)}), ${ordinal(hL)} from the lagna (${word(fL)}); ${reading}.`,
-      tone: fM && fL ? "support" : !fM && !fL ? "strain" : "mixed",
+      text: `${planet}: ${ordinal(hM)} from the Moon (${moonWord}), ${ordinal(hL)} from the lagna (${word(fL)}); ${reading}.`,
+      tone: fM === null ? "mixed" : fM && fL ? "support" : !fM && !fL ? "strain" : "mixed",
     });
   }
   if (lens.length)

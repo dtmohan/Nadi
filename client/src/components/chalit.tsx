@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Soft } from "@/lib/gentle";
 import {
   CHALIT_METHODS,
   CHALIT_METHOD_LABEL,
@@ -359,7 +360,7 @@ export function ChalitSection({
       >
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           {c.caveats.map((x, i) => (
-            <li key={i}>{x}</li>
+            <li key={i}><Soft>{x}</Soft></li>
           ))}
         </ul>
       </Expander>

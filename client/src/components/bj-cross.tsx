@@ -1,3 +1,4 @@
+import { Soft } from "@/lib/gentle";
 import {
   BJ_CROSS,
   BJ_CROSS_CAVEATS,
@@ -153,7 +154,7 @@ export function BjCrossSection({ withheld = false }: { withheld?: boolean }) {
         data-testid="bj-cross-caveats"
       >
         {BJ_CROSS_CAVEATS.map((c, i) => (
-          <li key={i}>{c}</li>
+          <li key={i}><Soft>{c}</Soft></li>
         ))}
       </ul>
     </div>

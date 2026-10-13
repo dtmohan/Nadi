@@ -21,6 +21,7 @@ import {
   BS_URL,
   PD,
   PD_URL,
+  gocharaPlainEffect,
   type GocharaRow,
   type GocharaVerdict,
 } from "@shared/gochara";
@@ -30,7 +31,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useJudgePlace } from "@/lib/judge-place";
 import { SourceLink, Cite } from "@/components/source-link";
 import { PlanetName, SignName } from "@/components/planet-name";
-import { ModeText, SectionTitle } from "@/components/mode-text";
+import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 import { GocharaCalendarSection } from "@/components/gochara-calendar";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -262,6 +263,7 @@ const ORD = (h: number) =>
   `${h}${h === 1 ? "st" : h === 2 ? "nd" : h === 3 ? "rd" : "th"}`;
 
 function GocharaRowView({ r }: { r: GocharaRow }) {
+  const plain = usePlain();
   return (
     <li
       className={cn(
@@ -306,24 +308,34 @@ function GocharaRowView({ r }: { r: GocharaRow }) {
           </span>
         </span>
       </div>
-      <dl className="mt-2 grid gap-x-4 gap-y-1 sm:grid-cols-2">
-        {r.effect.bs && (
-          <div>
-            <dt className="text-2xs text-muted-foreground">
-              <SourceLink source={r.effect.bs.source} />
-            </dt>
-            <dd>{r.effect.bs.text}</dd>
-          </div>
-        )}
-        {r.effect.pd && (
-          <div>
-            <dt className="text-2xs text-muted-foreground">
-              <SourceLink source={r.effect.pd.source} />
-            </dt>
-            <dd>{r.effect.pd.text}</dd>
-          </div>
-        )}
-      </dl>
+      {plain && r.voided ? (
+        <p className="mt-2" data-testid={`gochara-voided-${r.planet}`}>
+          {gocharaPlainEffect(r)}
+        </p>
+      ) : (
+        <dl className="mt-2 grid gap-x-4 gap-y-1 sm:grid-cols-2">
+          {r.effect.bs && (
+            <div>
+              <dt className="text-2xs text-muted-foreground">
+                <SourceLink source={r.effect.bs.source} />
+              </dt>
+              <dd>
+                <Soft>{r.effect.bs.text}</Soft>
+              </dd>
+            </div>
+          )}
+          {r.effect.pd && (
+            <div>
+              <dt className="text-2xs text-muted-foreground">
+                <SourceLink source={r.effect.pd.source} />
+              </dt>
+              <dd>
+                <Soft>{r.effect.pd.text}</Soft>
+              </dd>
+            </div>
+          )}
+        </dl>
+      )}
       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-2xs text-muted-foreground">
         <span>
           {r.favourable ? "favourable" : "not favourable"} house ·{" "}
@@ -545,6 +557,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         saturnPeriods: result.transits,
         fmtDate: (iso) =>
           DateTime.fromISO(iso).setZone(place.timezone).toFormat("d LLL yyyy"),
+        classical: gochara.rows,
       }),
     [
       dayQuery.data,
@@ -554,6 +567,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
       result.now,
       result.transits,
       place.timezone,
+      gochara.rows,
     ],
   );
   const gocharaAt = dayQuery.data
@@ -689,7 +703,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         </div>
         <ul className="mt-3 list-disc space-y-1 pl-5 text-2xs text-muted-foreground">
           {PANCHANGA_CAVEATS.map((c) => (
-            <li key={c}>{c}</li>
+            <li key={c}><Soft>{c}</Soft></li>
           ))}
         </ul>
       </section>
@@ -811,7 +825,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
           data-testid="gochara-caveats"
         >
           {GOCHARA_CAVEATS.map((c) => (
-            <li key={c}>{c}</li>
+            <li key={c}><Soft>{c}</Soft></li>
           ))}
         </ul>
         <GocharaPracticeCard checks={practice} />

@@ -18,7 +18,7 @@ import {
 import { PLANET_ABBR } from "@shared/astro";
 import { SENSITIVE_WITHHELD_NOTE, withholdText } from "@shared/life-stage";
 import { SectionTitle, ModeText, usePlain } from "@/components/mode-text";
-import { Soft } from "@/lib/gentle";
+import { Soft, useSoften } from "@/lib/gentle";
 import { cn } from "@/lib/utils";
 
 const ORDINAL = [
@@ -101,7 +101,9 @@ export function SarvarthaSection({
   const leftOut = (topic: string, text: string) =>
     sarvarthaLeftOut(topic, text, plain, withheld);
   // A minor's house significations lose their withheld items (longevity, sexual matters).
-  const shownSigs = (sigs: string[]) => (withheld ? sigs.filter((x) => !withholdText(x)) : sigs);
+  const soft = useSoften();
+  const shownSigs = (sigs: string[]) =>
+    (withheld ? sigs.filter((x) => !withholdText(x)) : sigs).map(soft);
 
   const fired = new Set(sarvartha?.findings.map((f) => `${f.house}.${f.stanza}`));
   const findings = (sarvartha?.findings ?? []).filter(
@@ -178,7 +180,9 @@ export function SarvarthaSection({
                   <ul className="mt-2 space-y-1.5 text-xs leading-5">
                     {h.found.map((f) => (
                       <li key={f.stanza}>
-                        <span className="font-medium">{f.topic}:</span>{" "}
+                        <span className="font-medium">
+                          <Soft>{f.topic}</Soft>:
+                        </span>{" "}
                         <Soft>{f.text}</Soft>
                         <span className="ml-1 text-muted-foreground/70">
                           ({h.chapter}.{f.stanza})
@@ -284,7 +288,9 @@ export function SarvarthaSection({
                           )}
                         </span>
                         <span>
-                          <span className="font-medium text-foreground">{r.topic}:</span>{" "}
+                          <span className="font-medium text-foreground">
+                            <Soft>{r.topic}</Soft>:
+                          </span>{" "}
                           <Soft>{`${r.when} — ${r.then}`}</Soft>
                           <span className="ml-1 text-muted-foreground/70">
                             ({h.chapter}.{r.stanza})

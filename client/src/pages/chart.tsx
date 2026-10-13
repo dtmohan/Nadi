@@ -384,12 +384,14 @@ function MarriageCard({
           >
             {PROMISE_LABEL[m.promised]}
           </Badge>
-          {m.headline}
+          <Soft>{m.headline}</Soft>
         </p>
         {m.notes.length > 0 && (
           <ul className="mt-2 space-y-1 text-sm leading-relaxed text-muted-foreground">
             {m.notes.map((n) => (
-              <li key={n}>{n}</li>
+              <li key={n}>
+                <Soft>{n}</Soft>
+              </li>
             ))}
           </ul>
         )}
@@ -461,7 +463,7 @@ function ChildrenCard({
           >
             {CHILD_PROMISE_LABEL[c.promised]}
           </Badge>
-          {c.headline}
+          <Soft>{c.headline}</Soft>
         </p>
         {counted > 0 && (
           <p
@@ -486,7 +488,9 @@ function ChildrenCard({
         {c.notes.length > 0 && (
           <ul className="mt-2 space-y-1 text-sm leading-relaxed text-muted-foreground">
             {c.notes.map((n) => (
-              <li key={n}>{n}</li>
+              <li key={n}>
+                <Soft>{n}</Soft>
+              </li>
             ))}
           </ul>
         )}
@@ -566,7 +570,7 @@ function LakshmiCard({
           >
             {l.forms.length} of 8 forms
           </Badge>
-          {l.headline}
+          <Soft>{l.headline}</Soft>
         </p>
         {l.forms.length > 0 && (
           <ul
@@ -598,7 +602,9 @@ function LakshmiCard({
         {l.notes.length > 0 && (
           <ul className="mt-2 space-y-1 text-xs leading-relaxed text-muted-foreground">
             {l.notes.map((n) => (
-              <li key={n}>{n}</li>
+              <li key={n}>
+                <Soft>{n}</Soft>
+              </li>
             ))}
           </ul>
         )}
@@ -635,7 +641,7 @@ function NakshatraWealthCard({ nw }: { nw: NakshatraWealthReading }) {
           >
             {nw.hits.length} rule{nw.hits.length === 1 ? "" : "s"}
           </Badge>
-          {nw.headline}
+          <Soft>{nw.headline}</Soft>
         </p>
         {nw.hits.length > 0 && (
           <ul
@@ -659,7 +665,9 @@ function NakshatraWealthCard({ nw }: { nw: NakshatraWealthReading }) {
         {nw.notes.length > 0 && (
           <ul className="mt-2 space-y-1 text-xs leading-relaxed text-muted-foreground">
             {nw.notes.map((n) => (
-              <li key={n}>{n}</li>
+              <li key={n}>
+                <Soft>{n}</Soft>
+              </li>
             ))}
           </ul>
         )}
@@ -853,7 +861,7 @@ function FindingItem({
             data-testid={`direction-${f.ruleId}`}
           >
             <span className="text-muted-foreground">Direction: </span>
-            <Soft>{directionClause(f.flow, female)}.</Soft>
+            <Soft>{`${directionClause(f.flow, female)}.`}</Soft>
             {full && (
               <span className="text-muted-foreground">
                 {" "}

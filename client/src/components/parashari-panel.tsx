@@ -7,6 +7,7 @@ import {
   SENSITIVE_WITHHELD_NOTE,
 } from "@shared/life-stage";
 import { GentleNote, Soft } from "@/lib/gentle";
+import { formationOnly } from "@shared/gentle";
 import {
   ALL_CHAPTERS,
   Chapter,
@@ -57,6 +58,7 @@ import {
   HOUSE_MATTERS_SOURCE,
   BHAVA_JUDGEMENT_SOURCE,
   BHAVA_JUDGEMENT_CAVEATS,
+  houseBothWays,
   HOUSE_CAVEATS,
 } from "@shared/parashari-houses";
 import { YOGA_CAVEATS } from "@shared/parashari-yogas";
@@ -329,17 +331,20 @@ function FoundPanel({ f }: { f: ParashariFinding }) {
 
 function Finding({ f }: { f: ParashariFinding }) {
   const tr = useContext(TimeRestCtx);
+  const plain = usePlain();
   const rest = timeRest(f.id, f.text, tr.windows, tr.band);
   return (
     <div
       className={cn(
         "rounded-md border border-l-4 bg-card p-3",
-        TONE_CLASS[f.tone],
+        f.nullified ? "border-l-border" : TONE_CLASS[f.tone],
       )}
       data-testid={`parashari-finding-${f.id}`}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium">{f.title}</span>
+        <span className="text-sm font-medium">
+          <Soft>{f.title}</Soft>
+        </span>
         <span className="flex flex-wrap gap-1">
           {Array.from(new Set(f.planets)).map((p) => (
             <PlanetName key={p} planet={p} abbr tone className="text-xs" />
@@ -348,6 +353,15 @@ function Finding({ f }: { f: ParashariFinding }) {
         {f.source.provisional && (
           <Badge variant="outline" className="text-2xs">
             provisional
+          </Badge>
+        )}
+        {f.nullified && (
+          <Badge
+            variant="outline"
+            className="text-2xs"
+            data-testid={`parashari-finding-nullified-${f.id}`}
+          >
+            set aside
           </Badge>
         )}
         {rest?.sensitive && (
@@ -360,7 +374,23 @@ function Finding({ f }: { f: ParashariFinding }) {
           </Badge>
         )}
       </div>
-      {f.plain ? (
+      {f.nullified ? (
+        <>
+          {!plain && (
+            <p className="mt-1 text-sm text-muted-foreground">{f.text}</p>
+          )}
+          <p
+            className="mt-1 text-sm"
+            data-testid={`parashari-finding-nullified-text-${f.id}`}
+          >
+            {f.nullified.text}{" "}
+            <SourceLink
+              source={f.nullified.source}
+              className="text-2xs text-muted-foreground"
+            />
+          </p>
+        </>
+      ) : f.plain ? (
         <>
           <p
             className="mt-1 text-sm"
@@ -370,7 +400,7 @@ function Finding({ f }: { f: ParashariFinding }) {
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
             <span className="font-medium">How it forms: </span>
-            <Soft>{f.text}</Soft>
+            <Soft>{plain ? formationOnly(f.text) : f.text}</Soft>
           </p>
         </>
       ) : (
@@ -669,6 +699,18 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       )
     : lords;
   const focusBhava = focusHouse ? r.bhavas[focusHouse - 1] : null;
+  // A focused house whose live readings (after 24.145-148) still point both ways gets one line on how they combine.
+  const focusLive = focusHouse
+    ? r.findings.filter(
+        (f) =>
+          !f.nullified &&
+          ((f.kind === "house" && f.house === focusHouse) ||
+            (f.kind === "lord" && f.id.startsWith(`pa-lord-${focusHouse}-`))),
+      )
+    : [];
+  const focusBothWays =
+    focusLive.some((f) => f.tone === "support") &&
+    focusLive.some((f) => f.tone === "strain" || (focusHouse === 8 && f.tone === "mixed"));
   const cur = r.dashas.find((d) => d.current);
   const timing = useMemo(
     () =>
@@ -1234,8 +1276,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               <Finding key={f.id} f={f} />
             ))}
             <p className="text-xs text-muted-foreground md:col-span-2">
-              {YOGA_CAVEATS.join(" ")} {ROYAL_CAVEATS.join(" ")}{" "}
-              {FATHER_YOGA_CAVEATS.join(" ")} Kendra-trikona and node
+              <Soft>{YOGA_CAVEATS.join(" ")}</Soft> <Soft>{ROYAL_CAVEATS.join(" ")}</Soft>{" "}
+              <Soft>{FATHER_YOGA_CAVEATS.join(" ")}</Soft> Kendra-trikona and node
               yogakarakas are from chapter 34, Neechabhanga from Phaladeepika 7,
               the raja yogas from debility from chapter 39 and the wealth and
               penury verses from chapters 41-42.
@@ -1390,7 +1432,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               prosperity and failure{" "}
               <SourceLink source={BHAVA_JUDGEMENT_SOURCE} mark={false} />. The
               Sarvartha Chintamani column is{" "}
-              {SC_SOURCE.label}. {BHAVA_JUDGEMENT_CAVEATS.join(" ")}
+              {SC_SOURCE.label}. <Soft>{BHAVA_JUDGEMENT_CAVEATS.join(" ")}</Soft>
             </p>
             <SectionTitle
               as="h4"
@@ -1417,12 +1459,29 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                     : "None of the stated combinations of chapters 12-23 hold in this chart."}
                 </p>
               )}
+              {focusHouse && focusBothWays && (
+                <p
+                  className="rounded border border-border/60 bg-muted/30 px-3 py-1.5 text-xs md:col-span-2"
+                  data-testid="parashari-house-both-ways"
+                >
+                  {focusHouse === 8
+                    ? "Parashara's length-of-life verses may read both ways on one chart; 19.7 leaves the decision to planetary strength, so the readings here are views of the text, not a contradiction."
+                    : houseBothWays(
+                        r.bhavaJudgement.find((x) => x.house === focusHouse)
+                          ?.tone,
+                      )}{" "}
+                  <SourceLink
+                    source={
+                      focusHouse === 8
+                        ? { label: "Parashara 19.7", url: BPHS_URL(19) }
+                        : BHAVA_JUDGEMENT_SOURCE
+                    }
+                    mark={false}
+                  />
+                </p>
+              )}
               <p className="text-xs text-muted-foreground md:col-span-2">
-                {HOUSE_CAVEATS.join(" ")} Verses on the loss of children,
-                co-born, spouse or father are shown in Parashara's sense but
-                worded plainly; weigh them against the supporting verses and the
-                strength pass before reading them as outcomes.{" "}
-                {NODES_CAVEATS.join(" ")}
+                <Soft>{`${HOUSE_CAVEATS.join(" ")} Verses on the loss of children, co-born, spouse or father are shown in Parashara's sense but worded plainly; weigh them against the supporting verses and the strength pass before reading them as outcomes. ${NODES_CAVEATS.join(" ")}`}</Soft>
               </p>
               {r.houseMethod !== "rashi" && (
                 <p
@@ -2241,7 +2300,7 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
         contentClassName=""
       >
         <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          {k.caveats.join(" ")}
+          <Soft>{k.caveats.join(" ")}</Soft>
         </p>
       </Expander>
     </div>
@@ -2681,7 +2740,7 @@ function PadasSection({
       >
         <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           {p.caveats.map((c, i) => (
-            <p key={i}>{c}</p>
+            <p key={i}><Soft>{c}</Soft></p>
           ))}
         </div>
       </Expander>
@@ -2843,9 +2902,11 @@ function MarakasSection({
               <li key={s.name}>
                 <span>
                   {s.name}: {s.star}, lord <PlanetName planet={s.lord} abbr />{" "}
-                  <span className="text-muted-foreground">
-                    (paired with a {s.span} life)
-                  </span>
+                  {!plain && (
+                    <span className="text-muted-foreground">
+                      (paired with a {s.span} life)
+                    </span>
+                  )}
                 </span>
               </li>
             ))}
@@ -2916,8 +2977,16 @@ function MarakasSection({
         <>
           <Expander
             testId="marakas-written-toggle"
-            label="Show the 3rd and 8th house verses on the manner of the end (44.25-37), shown as written"
-            openLabel="Hide the 3rd and 8th house verses on the manner of the end (44.25-37)"
+            label={
+              plain
+                ? "Show the 3rd and 8th house verses on health (44.25-37)"
+                : "Show the 3rd and 8th house verses on the manner of the end (44.25-37), shown as written"
+            }
+            openLabel={
+              plain
+                ? "Hide the 3rd and 8th house verses on health (44.25-37)"
+                : "Hide the 3rd and 8th house verses on the manner of the end (44.25-37)"
+            }
             className="mt-3"
             contentClassName=""
           >
@@ -2940,7 +3009,7 @@ function MarakasSection({
       >
         <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           {m.caveats.map((c, i) => (
-            <p key={i}>{c}</p>
+            <p key={i}><Soft>{c}</Soft></p>
           ))}
         </div>
       </Expander>
@@ -3108,7 +3177,7 @@ function AvasthasSection({ a }: { a: AvasthaResult }) {
                       {plain ? x.sayanadi.plain : x.sayanadi.name}
                     </span>
                     <span className="mt-0.5 block text-xs text-muted-foreground">
-                      {x.sayanadi.effect}{" "}
+                      <Soft>{x.sayanadi.effect}</Soft>{" "}
                       <SourceLink
                         source={{
                           label: `45.${x.sayanadi.verse}`,
@@ -3245,7 +3314,7 @@ function AvasthasSection({ a }: { a: AvasthaResult }) {
       >
         <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
           {a.caveats.map((c, i) => (
-            <p key={i}>{c}</p>
+            <p key={i}><Soft>{c}</Soft></p>
           ))}
         </div>
       </Expander>
@@ -3480,8 +3549,8 @@ function RasiDasasSection({ d }: { d: RasiDasasResult }) {
         contentClassName=""
       >
         <div className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          <p>{d.caveats.join(" ")}</p>
-          <p className="mt-1">{d.notComputed.join(" ")}</p>
+          <p><Soft>{d.caveats.join(" ")}</Soft></p>
+          <p className="mt-1"><Soft>{d.notComputed.join(" ")}</Soft></p>
         </div>
       </Expander>
     </div>
@@ -3757,7 +3826,7 @@ function ConditionalDasasSection({ cd }: { cd: ConditionalDasasResult }) {
         contentClassName=""
       >
         <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          {cd.caveats.join(" ")}
+          <Soft>{cd.caveats.join(" ")}</Soft>
         </p>
       </Expander>
     </div>
@@ -4318,7 +4387,7 @@ function ShadbalaSection({
           data-testid="parashari-shadbala-caveat-list"
         >
           {allCaveats.map((c, i) => (
-            <li key={i}>{c}</li>
+            <li key={i}><Soft>{c}</Soft></li>
           ))}
         </ul>
       </Expander>
@@ -5909,7 +5978,7 @@ function AshtakavargaSection({
           data-testid="parashari-av-caveat-list"
         >
           {av.caveats.map((c, i) => (
-            <li key={i}>{c}</li>
+            <li key={i}><Soft>{c}</Soft></li>
           ))}
         </ul>
       </Expander>

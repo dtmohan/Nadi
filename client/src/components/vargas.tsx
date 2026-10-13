@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Soft } from "@/lib/gentle";
 import { SIGNS, type Planet } from "@shared/astro";
 import {
   VARGAS,
@@ -499,7 +500,7 @@ export function VargasSection({
       >
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           {v.caveats.map((c, i) => (
-            <li key={i}>{c}</li>
+            <li key={i}><Soft>{c}</Soft></li>
           ))}
         </ul>
       </Expander>

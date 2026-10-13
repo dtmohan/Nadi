@@ -1,4 +1,4 @@
-import { Soft } from "@/lib/gentle";
+import { Soft, useSoften } from "@/lib/gentle";
 import { Fragment, useMemo, useState } from "react";
 import { Cite } from "@/components/source-link";
 import { useQuery } from "@tanstack/react-query";
@@ -692,8 +692,9 @@ export function KpPanel({ result }: { result: ChartResult }) {
       .filter((p) => (sig.get(p.planet) ?? []).some((h) => houses.includes(h)))
       .map((p) => p.planet);
   // Under the sensitive-content gate the cusp themes lose their longevity and maraka items and the maraka tag is not shown.
+  const soft = useSoften();
   const cuspTheme = (h: number) =>
-    kp.withheld ? redactProse(KP_CUSP_THEMES[h]) : KP_CUSP_THEMES[h];
+    soft(kp.withheld ? redactProse(KP_CUSP_THEMES[h]) : KP_CUSP_THEMES[h]);
   const houseLabel = (h: number) =>
     h === kp.badhaka
       ? `${h} (badhaka)`

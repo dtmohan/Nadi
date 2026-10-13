@@ -129,6 +129,12 @@ export interface ParashariFinding {
   plain?: string;
   /** The same in a few words, for lists. */
   gist?: string;
+  /**
+   * 24.145-148: a planet owning two houses gives both lordships' results for one placement, and contrary results are
+   * nullified. Set on each finding of such a pair: the plain reading gives this line in place of the reading, the
+   * practitioner reading gives both, and the card carries no tone of its own.
+   */
+  nullified?: { text: string; with: string; source: ParashariSource };
 }
 
 export interface DashaGloss {
@@ -381,6 +387,31 @@ export function computeParashari(
       planets: [b.lord],
       source: S(24, String(e.verse)),
     });
+  }
+
+  // 24.145-148: "In the case of a planet owning two bhavas, the results are to be deduced based on its two lordships (for
+  // the same placement). If contrary results are thus indicated, the results will be nullified, while results of varied
+  // nature will come to pass." Contrary is read here as one supporting and one straining reading of the same planet from
+  // the same house; the verse gives no test for it, so the reading is provisional.
+  for (const pl of SEVEN) {
+    const two = bhavas
+      .filter((b) => b.lord === pl)
+      .map((b) => ({ b, f: findings.find((f) => f.id === `pa-lord-${b.house}-${b.lordIn}`) }))
+      .filter((t): t is { b: (typeof bhavas)[number]; f: ParashariFinding } => !!t.f);
+    if (two.length !== 2) continue;
+    const [x, y] = two;
+    const contrary =
+      (x.f.tone === "support" && y.f.tone === "strain") || (x.f.tone === "strain" && y.f.tone === "support");
+    if (!contrary) continue;
+    for (const [me, other] of [
+      [x, y],
+      [y, x],
+    ] as const)
+      me.f.nullified = {
+        with: other.f.id,
+        text: `${pl} also rules the ${ord(other.b.house)}, and its reading for that lordship from the same house runs the other way. Parashara says contrary results of one planet's two lordships cancel (24.145-148), so both are set aside here.`,
+        source: S(24, "145-148", undefined, true),
+      };
   }
 
   // Strength qualifier, 24.145-146: full, half or quarter effect by the lord's strength; dual lordship with contrary results cancels.

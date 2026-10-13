@@ -11,7 +11,12 @@ import {
   type AreaSynthesis,
   type AreaTone,
 } from "@shared/synthesis";
-import { computeGochara, natalOwnMarks, type GocharaVerdict } from "@shared/gochara";
+import {
+  computeGochara,
+  gocharaPlainEffect,
+  natalOwnMarks,
+  type GocharaVerdict,
+} from "@shared/gochara";
 import { adverseTara } from "@shared/tara";
 import { Soft } from "@/lib/gentle";
 import { usePlain } from "@/components/mode-text";
@@ -474,10 +479,24 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
                     {r!.verdict}
                   </span>
                 </div>
-                {r!.effect.pd && (
-                  <p className="mt-1.5 leading-relaxed text-foreground/90">
-                    <Soft>{r!.effect.pd.text}</Soft>
+                {plain && r!.voided ? (
+                  <p
+                    className="mt-1.5 leading-relaxed text-foreground/90"
+                    data-testid={`overview-weather-voided-${r!.planet}`}
+                  >
+                    {gocharaPlainEffect(r!)}
                   </p>
+                ) : (
+                  r!.effect.pd && (
+                    <p className="mt-1.5 leading-relaxed text-foreground/90">
+                      <Soft>{r!.effect.pd.text}</Soft>
+                      {r!.voided && (
+                        <span className="block text-muted-foreground">
+                          {gocharaPlainEffect(r!)}
+                        </span>
+                      )}
+                    </p>
+                  )
                 )}
               </li>
             ))}

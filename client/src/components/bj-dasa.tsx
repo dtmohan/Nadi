@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import { Soft } from "@/lib/gentle";
 import type {
   BjDasaResult,
   DasaEntry,
@@ -399,7 +400,7 @@ export function BjDasaSection({
         data-testid="bj-dasa-caveats"
       >
         {d.caveats.map((c, i) => (
-          <li key={i}>{c}</li>
+          <li key={i}><Soft>{c}</Soft></li>
         ))}
       </ul>
     </div>

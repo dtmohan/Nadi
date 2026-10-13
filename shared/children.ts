@@ -83,6 +83,17 @@ function nodeGrip(
   return null;
 }
 
+/**
+ * Rahu holding the Sun, the one cancellation the sources name: the indication of a son gives way. Shared with the
+ * Jupiter-Sun line of the reading, so the line and this card do not disagree.
+ */
+export function rahuHoldsSun(positions: PlanetPosition[]): { via: "degree" | "star" } | null {
+  const ra = positions.find((p) => p.planet === "Rahu");
+  const su = positions.find((p) => p.planet === "Sun");
+  const g = ra && su ? nodeGrip(ra, su) : null;
+  return g ? { via: g.via } : null;
+}
+
 export function assessChildren(positions: PlanetPosition[], gender: Gender): ChildrenReading {
   const by = Object.fromEntries(positions.map((p) => [p.planet, p])) as Record<Planet, PlanetPosition>;
   const ju = by.Jupiter;

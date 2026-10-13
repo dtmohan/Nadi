@@ -581,14 +581,17 @@ export const JAIMINI_RULES: JaiminiRule[] = [
     id: "ju-2nd-afflicted",
     group: "upapada",
     chart: "rasi",
-    when: "a planet in the 2nd from the Upapada debilitated or joined by a malefic",
-    text: "Afflicted 2nd from the Upapada: strain in the marriage, separation or loss of the spouse, unless a benefic also touches it.",
+    when: "a planet in the 2nd from the Upapada debilitated or joined by a malefic, with no benefic in or aspecting that sign (the relief of 30.22)",
+    text: "Afflicted 2nd from the Upapada, and no benefic touches it: strain in the marriage, separation or loss of the spouse.",
     weight: 3,
     source: BPHS30("30.7-12"),
     test: (ctx) => {
       const ul = UL(ctx);
       const occ = ctx.positions.filter((p) => p.signIndex === (ul + 1) % 12);
       if (!occ.length) return null;
+      // The rule's own exception (30.22): a benefic in or aspecting the sign relieves it, and the line does not fire.
+      const b = benefics(ctx);
+      if (rasiHouse(ctx, ul, 2, true).some((p) => b.has(p))) return null;
       const m = malefics(ctx);
       const hit = occ.filter((p) => p.dignity === "Debilitated" || m.has(p.planet)).map((p) => p.planet);
       return hit.length ? hit : null;

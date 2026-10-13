@@ -21,7 +21,8 @@ const SK = (verse: string, provisional?: boolean): ParashariSource => ({ label: 
 
 export type Tone = ParashariFinding["tone"];
 export const BALADI = ["Bala", "Kumara", "Yuva", "Vriddha", "Mrita"] as const;
-export const BALADI_PLAIN = ["infant", "youthful", "adolescent", "old", "dead"] as const;
+// Plain names; the fifth, Mrita, gives no result, and the plain reading calls it spent rather than dead.
+export const BALADI_PLAIN = ["infant", "youthful", "adolescent", "old", "spent"] as const;
 export const BALADI_RESULT = ["a quarter", "a half", "full", "negligible", "nil"] as const;
 export const SAYANADI = ["Sayana", "Upavesana", "Netrapani", "Prakasa", "Gamana", "Agamana", "Sabha", "Agama", "Bhojana", "Nrityalipsa", "Kautuka", "Nidra"] as const;
 export const SAYANADI_PLAIN = ["lying down", "sitting", "hand on the eye", "shining", "going", "returning", "in the assembly", "arriving", "eating", "wishing to dance", "delight", "sleep"] as const;
