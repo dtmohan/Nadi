@@ -319,7 +319,7 @@ function MotherSection({
       >
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           {m.caveats.map((c, i) => (
-            <li key={i}>{c}</li>
+            <li key={i}><Soft>{c}</Soft></li>
           ))}
         </ul>
       </Expander>
@@ -839,7 +839,7 @@ export function AvTimelineSection({
           >
             <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
               {FATHER_ARISHTA_CAVEATS.map((c, i) => (
-                <li key={i}>{c}</li>
+                <li key={i}><Soft>{c}</Soft></li>
               ))}
             </ul>
           </Expander>
@@ -877,7 +877,7 @@ export function AvTimelineSection({
       >
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           {tl.caveats.map((c, i) => (
-            <li key={i}>{c}</li>
+            <li key={i}><Soft>{c}</Soft></li>
           ))}
         </ul>
       </Expander>

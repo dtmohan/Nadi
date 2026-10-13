@@ -288,7 +288,7 @@ export function MarksDetail({
         <div className="font-medium">Readings marked provisional</div>
         <ul className="mt-1 list-disc space-y-0.5 pl-4">
           {r.caveats.map((c, i) => (
-            <li key={i}>{c}</li>
+            <li key={i}><Soft>{c}</Soft></li>
           ))}
         </ul>
         <p className="mt-1">

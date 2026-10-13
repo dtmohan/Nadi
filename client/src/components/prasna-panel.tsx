@@ -195,7 +195,7 @@ function HouseWalk({
               </span>
             </div>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              {withheld ? redactProse(sig.text) : sig.text}
+              <Soft>{withheld ? redactProse(sig.text) : sig.text}</Soft>
             </p>
             {r ? (
               <>
@@ -931,7 +931,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                   >
                     {k.grade}
                   </span>{" "}
-                  — {k.text}
+                  — <Soft>{k.text}</Soft>
                 </li>
               ))}
             </ul>
@@ -959,7 +959,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             <li key={b.house} className="text-xs leading-relaxed">
               <span className="font-medium">{ord(b.house)} house</span>{" "}
               <span className="text-muted-foreground">· 14.{b.stanza}</span> —{" "}
-              {withheld ? redactProse(b.text) : b.text}
+              <Soft>{withheld ? redactProse(b.text) : b.text}</Soft>
             </li>
           ))}
         </ul>
@@ -983,9 +983,15 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               className="text-xs leading-relaxed"
               data-testid={`prasna-disease-${d.disease.toLowerCase().replace(/\s+/g, "-")}`}
             >
-              <span className="font-medium">{d.disease}</span>{" "}
-              {causes && <span className="text-muted-foreground">— {causes}.</span>}{" "}
-              <Soft>{d.remedy}.</Soft>{" "}
+              <span className="font-medium">
+                <Soft>{d.disease}</Soft>
+              </span>{" "}
+              {causes && (
+                <span className="text-muted-foreground">
+                  — <Soft>{causes}</Soft>.
+                </span>
+              )}{" "}
+              <Soft>{`${d.remedy}.`}</Soft>{" "}
               <span className="text-muted-foreground">({d.source})</span>
             </li>
             );
@@ -993,7 +999,9 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         </ul>
         <ul className="mt-2 space-y-0.5 text-2xs text-muted-foreground">
           {PRASNA_DISEASE_NOTES.map((n, i) => (
-            <li key={i}>{n}</li>
+            <li key={i}>
+              <Soft>{n}</Soft>
+            </li>
           ))}
         </ul>
       </details>
@@ -1035,7 +1043,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         <ul className="mt-2 space-y-1.5">
           {PRASNA_KARAKAS.map((k) => (
             <li key={k.planet} className="text-xs leading-relaxed">
-              <PlanetName planet={k.planet} /> — {k.text}{" "}
+              <PlanetName planet={k.planet} /> — <Soft>{k.text}</Soft>{" "}
               <span className="text-muted-foreground">· 14.{k.stanza}</span>
             </li>
           ))}
@@ -1136,10 +1144,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             .join(" · ")}
         </p>
         <p className="mt-2 text-xs leading-relaxed text-foreground/90">
-          {timing.lagnaNavamsa.text}
+          <Soft>{timing.lagnaNavamsa.text}</Soft>
         </p>
         <p className="mt-1 text-xs leading-relaxed text-foreground/90">
-          {timing.sorrow.text}
+          <Soft>{timing.sorrow.text}</Soft>
         </p>
         <ul className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
           {timing.houses.map((h) => (
@@ -1149,7 +1157,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               data-testid={`prasna-timing-house-${h.house}`}
             >
               <span className="font-medium">{ord(h.house)}</span>{" "}
-              <span className="text-muted-foreground">—</span> {h.text}
+              <span className="text-muted-foreground">—</span> <Soft>{h.text}</Soft>
             </li>
           ))}
         </ul>
@@ -1163,10 +1171,12 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
       <ul className="mt-4 space-y-1 text-2xs text-muted-foreground">
         {PRASNA_CAVEATS.map((c, i) => (
           <li key={i} data-testid={`prasna-caveat-${i}`}>
-            {c}
+            <Soft>{c}</Soft>
           </li>
         ))}
-        <li>{PRASNA_NODE_NOTE}</li>
+        <li>
+          <Soft>{PRASNA_NODE_NOTE}</Soft>
+        </li>
       </ul>
       </Chapter>
       </Chapters>

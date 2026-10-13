@@ -72,6 +72,22 @@ export interface BhavaJudgement {
   chalitNote?: string;
 }
 export const BHAVA_JUDGEMENT_SOURCE = S(11, "14-16", true);
+
+/**
+ * One line for a house whose verses read both ways. The verses give no order between them; the house test of 11.14-16,
+ * the text's own way of judging a house, is read as the lean between them, which is this app's reading (provisional).
+ */
+export function houseBothWays(tone?: string): string {
+  const lean =
+    tone === "support"
+      ? "leans to the house prospering"
+      : tone === "strain"
+        ? "leans against the house"
+        : tone === "mixed"
+          ? "finds signs on both sides"
+          : "finds no sign either way";
+  return `Parashara gives this house readings both ways and does not rank them. His test for judging a house (11.14-16) ${lean}; read the verses as views to weigh, not a sum.`;
+}
 export const BHAVA_JUDGEMENT_CAVEATS = [
   "11.14-15 also count the lord in Yuva, Prabuddha or Kaumara avastha as prosperity and 11.16 the Vriddha, Mrita and Supta avasthas as failure; avasthas (ch. 45) are not yet computed, so those clauses are not applied.",
   "A lord standing in its own house is not counted as failing to aspect it; the text does not settle the case, so that reading is provisional.",

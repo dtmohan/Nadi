@@ -142,13 +142,13 @@ export const AV_GOOD_MARKS = 5;
 const ordinal = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
 const aspectText = (a: GocharaAspect) => `${a.by} (${a.nature}${a.enemy ? ", its enemy" : ""}, ${ordinal(a.aspect)} aspect)`;
 
-interface HouseText {
+export interface HouseText {
   bs?: { verse: string; text: string };
   pd?: { verse: string; text: string };
 }
 
-/** Paraphrased house results, indexed 1..12 from the natal Moon. */
-const HOUSE_TEXT: Record<Planet, Record<number, HouseText>> = {
+/** Paraphrased house results, indexed 1..12 from the natal Moon. Exported for the plain-reading test. */
+export const HOUSE_TEXT: Record<Planet, Record<number, HouseText>> = {
   Sun: {
     1: { bs: { verse: "5", text: "fatigue, loss of wealth, chest pain, travel on foot" }, pd: { verse: "9", text: "fatigue, loss of wealth, irritability, illness, a wearisome journey" } },
     2: { bs: { verse: "5", text: "loss of wealth, discomfort, eye trouble, deceit" }, pd: { verse: "9", text: "loss of wealth, unhappiness, being duped" } },
@@ -307,6 +307,12 @@ export interface GocharaRow {
   avMarks?: number;
   /** PD 26.41 applied: enough marks in the planet's own Ashtakavarga make an unfavourable house good. */
   avNote?: { text: string; sources: GocharaSource[] };
+  /**
+   * Set when a rule voids the house's own result, so its effect text no longer applies: the ill by 26.41, 26.31 or
+   * 26.30, the good by 26.32 or 26.30. The plain reading then gives the rule (gocharaPlainEffect); the practitioner
+   * reading shows both.
+   */
+  voided?: "ill" | "good";
   /** Saturn only: the name practice gives this passage from the Moon (see saturnPracticeName); provisional, never a verdict. */
   practiceName?: { text: string; source: GocharaSource };
   danger?: { text: string; source: GocharaSource };
@@ -395,6 +401,7 @@ export function computeGochara(
     // says so. For a minor the danger houses are withheld altogether, so the note does not mention them either.
     const SET_ASIDE = wouldDanger && !withhold ? " The danger reading of 26.33-34 is set aside here." : "";
     let illVoid = avGood;
+    let goodVoid = false;
     const avNote: GocharaRow["avNote"] = avGood
       ? {
           text: `${avMarks} of 8 marks in ${p.planet}'s own Ashtakavarga: good even in this house (26.41).${SET_ASIDE}`,
@@ -415,6 +422,7 @@ export function computeGochara(
       if (good) {
         dignityNote = { text: `${why} in transit: the good of this house is void (26.32; BS 104.53).`, sources: [PD("32"), BS("53")] };
         verdict = "neutral";
+        goodVoid = true;
       } else {
         dignityNote = { text: `${why} in transit: the ill of this house is aggravated (26.32).`, sources: [PD("32")] };
       }
@@ -426,13 +434,14 @@ export function computeGochara(
     const aspects = aspectsOn(p, transits);
     let aspectNote: GocharaRow["aspectNote"];
     if (!dignityNote && (verdict === "favourable" || verdict === "unfavourable")) {
-      const goodVoid = verdict === "favourable";
-      const hits = aspects.filter((a) => a.enemy || a.nature === (goodVoid ? "malefic" : "benefic"));
+      const onGood = verdict === "favourable";
+      const hits = aspects.filter((a) => a.enemy || a.nature === (onGood ? "malefic" : "benefic"));
       if (hits.length) {
-        if (!goodVoid) illVoid = true;
+        if (onGood) goodVoid = true;
+        else illVoid = true;
         aspectNote = {
-          text: `Aspected by ${hits.map(aspectText).join(", ")}: the ${goodVoid ? "good" : "ill"} of this house is void (26.30).${goodVoid ? "" : SET_ASIDE}`,
-          sources: [PD("30", true), ...(goodVoid && hits.some((a) => a.enemy) ? [BS("53")] : [])],
+          text: `Aspected by ${hits.map(aspectText).join(", ")}: the ${onGood ? "good" : "ill"} of this house is void (26.30).${onGood ? "" : SET_ASIDE}`,
+          sources: [PD("30", true), ...(onGood && hits.some((a) => a.enemy) ? [BS("53")] : [])],
           by: hits.map((a) => a.by),
         };
         verdict = "neutral";
@@ -461,6 +470,7 @@ export function computeGochara(
       aspectNote,
       avMarks,
       avNote,
+      voided: illVoid ? "ill" : goodVoid ? "good" : undefined,
       practiceName:
         p.planet === "Saturn" && saturnPracticeName(house)
           ? { text: saturnPracticeName(house)!, source: SATURN_NAMES_SOURCE }
@@ -485,6 +495,37 @@ export function computeGochara(
     if (row.danger && !row.danger.text) row.danger = undefined;
   }
   return r;
+}
+
+const andList = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+
+/**
+ * The effect a row gives in the plain reading. Where a rule voids the house's own result, the plain reading names the
+ * rule instead of a text that no longer applies (the ill of the 12th beside a "favourable" verdict); otherwise it is the
+ * house's own text. The practitioner reading keeps the text and the rule side by side.
+ */
+export function gocharaPlainEffect(r: GocharaRow): string {
+  const own = [r.effect.bs?.text, r.effect.pd?.text].filter(Boolean).join("; ");
+  if (!r.voided) return own;
+  const state = r.dignityNote?.text.match(/^(.+?) in transit/)?.[1]?.toLowerCase();
+  const by = r.aspectNote ? andList(r.aspectNote.by) : "";
+  const many = (r.aspectNote?.by.length ?? 0) > 1;
+  if (r.voided === "ill") {
+    const why = r.avNote
+      ? `${r.avMarks} of 8 marks in ${r.planet}'s own Ashtakavarga turn this house good (26.41)`
+      : r.dignityNote && state
+        ? `${r.planet} is ${state} in transit, so the house does no harm (26.31)`
+        : by
+          ? `the ${many ? "aspects" : "aspect"} of ${by} ${many ? "cancel" : "cancels"} it (26.30)`
+          : "";
+    return `The usual difficulty of this house does not apply${why ? `: ${why}` : ""}.`;
+  }
+  const why = r.dignityNote && state
+    ? `${r.planet} is ${state} in transit (26.32)`
+    : by
+      ? `the ${many ? "aspects" : "aspect"} of ${by} ${many ? "hold" : "holds"} it back (26.30)`
+      : "";
+  return `The usual good of this house is held back${why ? `: ${why}` : ""}.`;
 }
 
 export const GOCHARA_CAVEATS: string[] = [

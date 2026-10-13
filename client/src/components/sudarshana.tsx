@@ -640,10 +640,10 @@ export function SudarshanaSection({
           <div className="font-medium">Conventions marked provisional</div>
           <ul className="mt-1 list-disc space-y-0.5 pl-4">
             {s.caveats.map((c, i) => (
-              <li key={i}>{c}</li>
+              <li key={i}><Soft>{c}</Soft></li>
             ))}
             {events?.caveats.map((c, i) => (
-              <li key={`e${i}`}>{c}</li>
+              <li key={`e${i}`}><Soft>{c}</Soft></li>
             ))}
           </ul>
           <p className="mt-1">

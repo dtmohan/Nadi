@@ -10,6 +10,7 @@ import {
 import { PlanetName, SignName } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { ModeText, SectionTitle } from "@/components/mode-text";
+import { Soft } from "@/lib/gentle";
 import { cn } from "@/lib/utils";
 
 /** Livelihood, Brihat Jataka adhyaya 10. */
@@ -61,7 +62,8 @@ export function KarmajivaSection({ k }: { k: KarmajivaResult }) {
             >
               <PlanetName planet={t.planet} />
               <span className="text-muted-foreground">
-                10th from {t.from.join(" and ")}: wealth through {t.wealthFrom}
+                10th from {t.from.join(" and ")}: wealth through{" "}
+                <Soft>{t.wealthFrom}</Soft>
                 {t.gloss ? (
                   <>
                     {" "}
@@ -130,7 +132,7 @@ export function KarmajivaSection({ k }: { k: KarmajivaResult }) {
                   <PlanetName planet={r.navamsaLord} />
                 </TableCell>
                 <TableCell className="text-muted-foreground">
-                  {r.calling}
+                  <Soft>{r.calling}</Soft>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {r.relationNote}
@@ -179,7 +181,7 @@ export function KarmajivaSection({ k }: { k: KarmajivaResult }) {
         <div className="font-medium">Readings marked provisional</div>
         <ul className="mt-1 list-disc space-y-0.5 pl-4">
           {k.caveats.map((c, i) => (
-            <li key={i}>{c}</li>
+            <li key={i}><Soft>{c}</Soft></li>
           ))}
         </ul>
       </div>

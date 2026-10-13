@@ -452,7 +452,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
           data-testid="validate-empty"
         >
           Add at least one dated event to check the chart. Marriage, a child, a
-          job change or a parent's death are the surest anchors, as the date is
+          job change or the passing of a parent are the surest anchors, as the date is
           rarely misremembered.
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Soft } from "@/lib/gentle";
 import {
   STAGE_EFFECT,
   type PlanetPortions,
@@ -296,7 +297,7 @@ export function PortionsSection({ r }: { r: PortionsResult }) {
       >
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           {r.caveats.map((x, i) => (
-            <li key={i}>{x}</li>
+            <li key={i}><Soft>{x}</Soft></li>
           ))}
         </ul>
       </Expander>

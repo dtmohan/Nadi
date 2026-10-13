@@ -19,7 +19,7 @@ import { EXTRA_RULES } from "./rules-bnn";
 import { FEMALE_RULES, MALE_FRAME_IDS } from "./rules-female";
 import { CHILDREN_RULES } from "./rules-children";
 import { HOUSE_RULES } from "./rules-houses";
-import { assessChildren, type ChildrenReading } from "./children";
+import { assessChildren, rahuHoldsSun, type ChildrenReading } from "./children";
 import { assessLakshmi, type LakshmiReading } from "./lakshmi";
 import { assessStrength, type PlanetStrength } from "./strength";
 import {
@@ -1565,6 +1565,15 @@ export function evaluate(
     }
   }
   for (const g of toGrade) gradeFinding(g, strengthOf);
+  // Rahu holding the Sun cancels the indication of a son (the children reading, shared/children.ts); the Jupiter-Sun
+  // line says so rather than promising the son the same reading sets aside, and no longer counts toward the area.
+  const held = rahuHoldsSun(positions);
+  if (held)
+    for (const f of findings)
+      if (f.ruleId === "ch-ju-su") {
+        f.text = `Jupiter with or in trine to the Sun would indicate a son, but Rahu holds the Sun (${held.via === "degree" ? "at the same degree" : "the Sun stands in his star, a provisional extension"}): the indication of a son gives way.`;
+        f.tone = "neutral";
+      }
   findings.sort((a, b) => b.score - a.score);
 
   const summarise = (p: PlanetPosition, role: string): Reading["jeeva"] => {

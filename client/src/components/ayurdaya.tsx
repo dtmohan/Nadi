@@ -1,4 +1,4 @@
-import { GentleNote } from "@/lib/gentle";
+import { GentleNote, Soft } from "@/lib/gentle";
 import {
   formatYears,
   REDUCTION_LABEL,
@@ -426,7 +426,7 @@ export function AyurdayaSection({
         <div className="font-medium">Readings marked provisional</div>
         <ul className="mt-1 list-disc space-y-0.5 pl-4">
           {a.caveats.map((c, i) => (
-            <li key={i}>{c}</li>
+            <li key={i}><Soft>{c}</Soft></li>
           ))}
         </ul>
       </div>

@@ -7,7 +7,7 @@ import {
   type ParashariFinding,
   type ParashariResult,
 } from "../parashari";
-import { HOUSE_MATTERS, HOUSE_MATTERS_SOURCE } from "../parashari-houses";
+import { HOUSE_MATTERS, HOUSE_MATTERS_SOURCE, houseBothWays } from "../parashari-houses";
 import { LAGNA_NATURE, BPHS_URL } from "../parashari-data";
 import { computeVargas, VARGAS, SCHEMES } from "../vargas";
 import { normaliseParashariHouseMethod } from "../schema";
@@ -39,6 +39,21 @@ function computeFor(ctx: ReportContext): ParashariResult {
     withheld,
     normaliseParashariHouseMethod(result.chart.parashariHouseMethod),
   );
+}
+
+/** Supporting and straining dasa rules, counted for the table (the verdict itself is the tally of 47-48). */
+function toneCounts(d: { notes: { tone?: string }[] }) {
+  return {
+    s: d.notes.filter((x) => x.tone === "support").length,
+    n: d.notes.filter((x) => x.tone === "strain").length,
+  };
+}
+
+function dasaTone(d: { verdict: string; notes: { tone?: string }[] }): string {
+  if (d.verdict === "support") return "favourable";
+  if (d.verdict === "strain") return "trying";
+  const { s, n } = toneCounts(d);
+  return s && n ? `mixed (${s} favourable, ${n} trying)` : "no clear lean";
 }
 
 function housesSection(
@@ -103,6 +118,18 @@ function housesSection(
     );
     for (const f of fs) {
       const c = cite(f);
+      // 24.145-148: a lord's two contrary readings from one house are set aside; the plain reading says so in place
+      // of the reading, the practitioner reading keeps both.
+      if (f.nullified) {
+        const n = cite(f.nullified);
+        ps.push({
+          kind: "p",
+          text: ctx.plain ? f.nullified.text : `${endStop(f.text)} ${f.nullified.text}`,
+          cites: [c.n, n.n],
+          provisional: true,
+        });
+        continue;
+      }
       ps.push({
         kind: "p",
         text: S(endStop(f.text)),
@@ -111,12 +138,14 @@ function housesSection(
         tone: f.tone,
       });
     }
+    const live = fs.filter((f) => !f.nullified);
+    const j = par.bhavaJudgement.find((x) => x.house === b.house);
     // Length of life is read by several verses (19.1-15) that can point both ways on one chart;
     // say so once, so "long life" beside "20 to 32 years" is read as the text's views, not a sum.
     if (
       b.house === 8 &&
-      fs.some((f) => f.tone === "support") &&
-      fs.some((f) => f.tone === "strain" || f.tone === "mixed")
+      live.some((f) => f.tone === "support") &&
+      live.some((f) => f.tone === "strain" || f.tone === "mixed")
     ) {
       ps.push({
         kind: "note",
@@ -124,8 +153,19 @@ function housesSection(
           "Parashara's length-of-life verses may read both ways on one chart; 19.7 leaves the decision to planetary strength, so the readings above are views of the text, not a contradiction.",
         ),
       });
+    } else if (
+      live.some((f) => f.tone === "support") &&
+      live.some((f) => f.tone === "strain")
+    ) {
+      // Elsewhere the verses give no order between them; the house test of 11.14-16 is the text's own way of
+      // judging a house, and the app reads it as the lean between them (provisional).
+      ps.push({
+        kind: "note",
+        text: houseBothWays(j?.tone),
+        cites: j ? [cite(j).n] : [],
+        provisional: true,
+      });
     }
-    const j = par.bhavaJudgement.find((x) => x.house === b.house);
     if (j && j.tone !== "none") {
       const c = cite(j);
       ps.push({
@@ -153,7 +193,7 @@ function housesSection(
         const c = cite(f);
         return {
           kind: "p" as const,
-          text: S(`${f.title}: ${endStop(f.text)}`),
+          text: S(`${f.title}: ${endStop(ctx.plain && f.plain ? f.plain : f.text)}`),
           cites: [c.n],
           provisional: c.prov,
           tone: f.tone,
@@ -173,7 +213,7 @@ function housesSection(
           const c = cite(f);
           return {
             kind: "p" as const,
-            text: S(`${f.title}: ${endStop(f.text)}`),
+            text: S(`${f.title}: ${endStop(ctx.plain && f.plain ? f.plain : f.text)}`),
             cites: [c.n],
             provisional: c.prov,
             tone: f.tone,
@@ -213,14 +253,16 @@ function timingSection(
           fmtDate(d.start),
           fmtDate(d.end),
           `${Math.floor(d.ageStart)}–${Math.floor(d.ageEnd)}`,
-          d.verdict === "support"
-            ? "favourable"
-            : d.verdict === "strain"
-              ? "trying"
-              : "mixed",
+          dasaTone(d),
         ]),
     },
   ];
+  if (par.dasaReadings.some((d) => d.verdict === "mixed" && toneCounts(d).s && toneCounts(d).n))
+    paras.push({
+      kind: "note",
+      text: "Where a dasa is mixed, the rules of chapters 47 and 48 point both ways for that period and the text does not rank them; the counts are of the rules, not their weight.",
+      cites: [cites.add("Parashara 47-48", BPHS_URL(47))],
+    });
   const sub: ReportSection[] = [];
   const shown = par.dasaReadings.filter(
     (d) => d.ageStart < (deceased ? age + 0.01 : 100),

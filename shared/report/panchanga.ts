@@ -3,7 +3,7 @@ import { SUNRISE_DEFINITIONS } from "../schema";
 import { houseFrom, SIGNS } from "../astro";
 import { displayLocal } from "../time-basis";
 import { PANCHANGA_SOURCES } from "../panchanga";
-import { computeGochara, GOCHARA_CAVEATS, natalOwnMarks } from "../gochara";
+import { computeGochara, gocharaPlainEffect, GOCHARA_CAVEATS, natalOwnMarks } from "../gochara";
 import { gocharaPractice, GOCHARA_PRACTICE_NOTES } from "../gochara-practice";
 import {
   fmtDate,
@@ -95,15 +95,17 @@ export const panchangaModule: ReportModule = {
         { ownMarks: natalOwnMarks(result.positions, result.jaimini.lagna.lon) },
       );
       const rows = g.rows.map((r) => {
-        const effects = [r.effect.bs?.text, r.effect.pd?.text]
-          .filter(Boolean)
-          .join("; ");
+        // Where a rule voids the house's own result, the plain reading names the rule, not the voided text.
+        const plainVoid = ctx.plain && !!r.voided;
+        const effects = plainVoid
+          ? gocharaPlainEffect(r)
+          : [r.effect.bs?.text, r.effect.pd?.text].filter(Boolean).join("; ");
         const vedha =
           r.favourable && r.vedhaBy.length
             ? `vedha by ${r.vedhaBy.join(", ")}`
             : "";
         // The rules that changed the house verdict: 26.41 marks, dignity 26.31-32, aspect 26.30.
-        const notes = [r.avNote?.text, r.dignityNote?.text, r.aspectNote?.text, r.practiceName ? `name in practice (provisional): ${r.practiceName.text}` : undefined]
+        const notes = [...(plainVoid ? [] : [r.avNote?.text, r.dignityNote?.text, r.aspectNote?.text]), r.practiceName ? `name in practice (provisional): ${r.practiceName.text}` : undefined]
           .filter((t): t is string => !!t)
           .map((t) => ctx.S(t));
         return [
@@ -148,6 +150,7 @@ export const panchangaModule: ReportModule = {
         marsStay: now.marsStay,
         saturnPeriods: result.transits,
         fmtDate,
+        classical: g.rows,
       });
       if (practice.length) {
         const pc = cites.add("Shivanshu Pande, Gochara Deep Dive (2026)");
