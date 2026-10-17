@@ -1,4 +1,4 @@
-import { sensitiveGate } from "@shared/life-stage";
+import { lifeAsOf, sensitiveGate } from "@shared/life-stage";
 import { displayLocal } from "@shared/time-basis";
 import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
@@ -37,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
+import { BirthStarSection } from "@/components/birth-star";
 
 const fmtT = (iso: string, zone: string) =>
   DateTime.fromISO(iso).setZone(zone).toFormat("HH:mm");
@@ -521,6 +522,8 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
   const withheld =
     result.sensitive?.withheld ??
     sensitiveGate(chart, result.utc, result.now.asOf).withheld;
+  // The reading date, or the recorded date of passing, for the age gates of the birth-star reading.
+  const lifeAt = lifeAsOf(chart, result.now.asOf);
   // The birth chart's own-Ashtakavarga marks, for Phaladeepika 26.41.
   const lagnaLon = result.jaimini.lagna.lon;
   const ownMarks = useMemo(
@@ -579,6 +582,12 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
   const chapterDefs: ChapterDef[] = [
     { id: "birth", plain: "Birth day", technical: "Janma panchanga" },
     {
+      id: "star",
+      plain: "Birth star",
+      technical: "Janma nakshatra",
+      blurb: "A modern reading of the star the Moon was in at birth, from Komilla Sutton's The Nakshatras (2014), kept apart from the classical texts.",
+    },
+    {
       id: "day",
       plain: "Any day",
       technical: "Dina panchanga",
@@ -606,8 +615,9 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
           plain={
             <>
               The five limbs of the Hindu day for the birth and for any date,
-              then the planets' transits counted from the birth Moon with the
-              readings of two classical texts.
+              a modern reading of the birth star, then the planets' transits
+              counted from the birth Moon with the readings of two classical
+              texts.
             </>
           }
           practitioner={
@@ -618,7 +628,8 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
               <Cite href={BS_URL}>Brihat Samhita 104</Cite> and{" "}
               <Cite href={PD_URL}>Phaladeepika 26</Cite>, including vedha,
               dignity and danger houses. Not Parashari: BPHS treats transit only
-              through Ashtakavarga.
+              through Ashtakavarga. The birth star is read separately from
+              Sutton, The Nakshatras (2014), a modern source.
             </>
           }
         />
@@ -649,6 +660,15 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         </section>
         </Chapter>
       )}
+
+      <Chapter id="star">
+        <BirthStarSection
+          moonLon={natalMoon.lon}
+          birthIso={result.utc}
+          asOfIso={lifeAt}
+          withheld={withheld}
+        />
+      </Chapter>
 
       <Chapter id="day">
       <section>
