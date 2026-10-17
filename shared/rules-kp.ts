@@ -8,6 +8,7 @@
 
 import { SIGNS, type Planet } from "./astro";
 import type { KpResult, SignificatorLevel } from "./kp";
+import { houseGloss, listJoin, ordH, thePlanet, withGloss, withGlossList } from "./house-gloss";
 
 export type KpPolarity = "good" | "bad" | "neutral";
 
@@ -127,6 +128,12 @@ export interface KpFinding {
   source: string;
   /** What was seen: the sub lord and the houses that satisfied the rule. */
   evidence: string;
+  /** The houses the sub lord signifies that satisfied the rule (empty when the rule reads no house). */
+  used: number[];
+  /** The house the sub lord occupies, when the rule reads it. */
+  inHouse?: number;
+  /** The other facts the rule read, in plain words ("in the star of the Moon", "in a dual sign"). */
+  facts?: string[];
   sourceUrl?: string;
   subLord: Planet;
   /**
@@ -970,11 +977,27 @@ export function evaluateKp(r: Partial, six = false): KpFinding[] {
     const slPlanet = r.planets.find((p) => p.planet === sl)!;
     const parts: string[] = [`${sl} is the sub lord of cusp ${rule.cusp}`];
     if (m.used.length) parts.push(`signifies ${m.used.join(", ")}`);
-    if (rule.when.starLordOccupies || rule.when.starLordSignifies || rule.when.starLordIs || rule.when.starLordBadhakaMaraka !== undefined) parts.push(`in the star of ${slPlanet.starLord}`);
-    if (rule.when.subLordSubIs) parts.push(`in the sub of ${slPlanet.subLord}`);
-    if (rule.when.subLordSignQuality) parts.push(`in a ${(["movable", "fixed", "dual"] as const)[slPlanet.signIndex % 3]} sign`);
-    if (rule.when.subLordInHouse) parts.push(`posited in the ${slPlanet.house}th`);
-    out.push({ ruleId: rule.id, cusp: rule.cusp, topic: rule.topic, text: rule.text, polarity: rule.polarity, timing: rule.timing, source: rule.source, sourceUrl: rule.sourceUrl, evidence: parts.join("; "), subLord: sl });
+    const facts: string[] = [];
+    if (rule.when.starLordOccupies || rule.when.starLordSignifies || rule.when.starLordIs || rule.when.starLordBadhakaMaraka !== undefined) {
+      parts.push(`in the star of ${slPlanet.starLord}`);
+      facts.push(`in the star of ${thePlanet(slPlanet.starLord)}`);
+    }
+    if (rule.when.subLordSubIs) {
+      parts.push(`in the sub of ${slPlanet.subLord}`);
+      facts.push(`in the sub of ${thePlanet(slPlanet.subLord)}`);
+    }
+    if (rule.when.subLordSignQuality) {
+      const q = (["movable", "fixed", "dual"] as const)[slPlanet.signIndex % 3];
+      parts.push(`in a ${q} sign`);
+      facts.push(`in a ${q} sign`);
+    }
+    if (rule.when.subLordInHouse) parts.push(`posited in the ${ordH(slPlanet.house)}`);
+    out.push({
+      ruleId: rule.id, cusp: rule.cusp, topic: rule.topic, text: rule.text, polarity: rule.polarity, timing: rule.timing,
+      source: rule.source, sourceUrl: rule.sourceUrl, evidence: parts.join("; "), subLord: sl, used: m.used,
+      ...(rule.when.subLordInHouse ? { inHouse: slPlanet.house } : {}),
+      ...(facts.length ? { facts } : {}),
+    });
   }
   return out;
 }
@@ -1038,3 +1061,34 @@ export const KP_TYPE_LEVEL_LABEL: Record<SignificatorLevel, string> = {
   E: "Sub lord occupies",
   F: "Sub lord owns",
 };
+
+/**
+ * The plain "Here" line under a KP finding: the cusp's sub lord and the houses it speaks for that
+ * satisfied the rule, each with its short meaning from Astro Secrets & KP Part 1 ch. 16 (house-gloss.ts).
+ */
+export function kpHerePlain(f: Pick<KpFinding, "cusp" | "subLord" | "used" | "inHouse" | "facts">): string {
+  const said = [
+    ...(f.facts ?? []),
+    ...(f.inHouse ? [`sits in the ${withGloss("kp", f.inHouse)}`] : []),
+    ...(f.used?.length ? [`speaks for the ${withGlossList("kp", f.used, { the: true })}`] : []),
+  ];
+  const who = `Here the ${ordH(f.cusp)} house's deciding planet is ${thePlanet(f.subLord)}`;
+  return said.length ? `${who}, which ${listJoin(said).replace(/^in /, "stands in ")}.` : `${who}.`;
+}
+
+/**
+ * The plain timing line: the periods of planets that speak for any of the houses, by name. When
+ * every planet does, the line says so, since then no period is singled out.
+ */
+export function kpTimingPlain(timing: number[], planets: Planet[], all: number): string {
+  const hs = timing.map(ordH);
+  const houses = hs.length > 1 ? `${hs.slice(0, -1).join(", ")} or ${hs[hs.length - 1]}` : hs[0];
+  if (planets.length >= all) return `Timing: periods of planets that speak for the ${houses}. On this chart every planet does, so no period is singled out.`;
+  if (!planets.length) return `Timing: periods of planets that speak for the ${houses}; on this chart none does.`;
+  return `Timing: periods of planets that speak for the ${houses}: here ${listJoin(planets.map(thePlanet))}.`;
+}
+
+/** The practitioner gloss after the evidence: "1st: health, appearance and temperament; 3rd: ...". */
+export function kpUsedGloss(used: number[]): string {
+  return used.map((h) => `${ordH(h)}: ${houseGloss("kp", h)}`).join("; ");
+}

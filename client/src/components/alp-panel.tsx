@@ -1505,6 +1505,14 @@ export function AlpPanel({ result }: { result: ChartResult }) {
                   ) : (
                     <Cite>{f.source}</Cite>
                   )}
+                  {f.here?.length ? (
+                    <span
+                      className="mt-0.5 block text-xs text-muted-foreground"
+                      data-testid={`alp-here-${f.ruleId}`}
+                    >
+                      Here: {f.here.join("; ")}.
+                    </span>
+                  ) : null}
                 </span>
               </li>
             ))}

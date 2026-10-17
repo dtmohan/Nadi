@@ -621,6 +621,11 @@ export interface SarvarthaFinding {
   topic: string;
   text: string;
   fidelity: FidelityTier;
+  /** The book's condition for the rule (ScRule.when; named apart from "when", which the age gate keeps verbatim). */
+  condition?: string;
+  /** The chart facts the rule stood on here: practitioner clauses and plain ones (scTrace). */
+  here?: string[];
+  herePlain?: string[];
 }
 
 /**
@@ -720,6 +725,16 @@ export interface SarvarthaContext {
   moonWeak: boolean;
   /** The named Amsha tier (ch. 1.25-27) a planet's ten-fold good-varga count earns, or null. */
   amsa(p: Planet): string | null;
+  /** The planets behind lordWith, lordAspected and houseHas, for saying which chart facts a rule used. */
+  detail?: ScDetail;
+}
+
+type ScKind = "benefic" | "malefic" | Planet;
+
+export interface ScDetail {
+  lordWith(h: number, kind: ScKind): Planet[];
+  lordAspectedBy(h: number, kind: ScKind): Planet[];
+  inHouse(h: number, kind: ScKind): Planet[];
 }
 
 const MALEFICS: Planet[] = ["Sun", "Mars", "Saturn", "Rahu", "Ketu"];
@@ -744,24 +759,25 @@ export function buildSarvarthaContext(positions: PlanetPosition[], lagnaLon: num
     positions.filter((p) => houseOf(p.planet) === h).map((p) => p.planet);
   const matches = (p: PlanetPosition, kind: "benefic" | "malefic" | Planet): boolean =>
     kind === "benefic" ? isBenefic(p) : kind === "malefic" ? isMalefic(p) : p.planet === kind;
-  const lordWith = (h: number, kind: "benefic" | "malefic" | Planet): boolean => {
+  const withList = (h: number, kind: ScKind): Planet[] => {
     const lp = lordPos(h);
-    return positions.some(
-      (p) => p.planet !== lp.planet && p.signIndex === lp.signIndex && matches(p, kind),
-    );
+    return positions
+      .filter((p) => p.planet !== lp.planet && p.signIndex === lp.signIndex && matches(p, kind))
+      .map((p) => p.planet);
   };
-  const lordAspected = (h: number, kind: "benefic" | "malefic" | Planet): boolean => {
+  const aspList = (h: number, kind: ScKind): Planet[] => {
     const lp = lordPos(h);
-    return positions.some(
-      (p) => p.signIndex !== lp.signIndex && drishtiQuarters(p.planet, p.signIndex, lp.signIndex) >= 1 && matches(p, kind),
-    );
+    return positions
+      .filter((p) => p.signIndex !== lp.signIndex && drishtiQuarters(p.planet, p.signIndex, lp.signIndex) >= 1 && matches(p, kind))
+      .map((p) => p.planet);
   };
-  const houseHas = (h: number, kind: "benefic" | "malefic" | Planet): boolean => {
+  const inList = (h: number, kind: ScKind): Planet[] => {
     const s = (lagnaSign + h - 1) % 12;
-    if (kind === "benefic" || kind === "malefic")
-      return positions.some((p) => p.signIndex === s && (kind === "benefic" ? isBenefic(p) : isMalefic(p)));
-    return positions.some((p) => p.signIndex === s && p.planet === kind);
+    return positions.filter((p) => p.signIndex === s && matches(p, kind)).map((p) => p.planet);
   };
+  const lordWith = (h: number, kind: ScKind): boolean => withList(h, kind).length > 0;
+  const lordAspected = (h: number, kind: ScKind): boolean => aspList(h, kind).length > 0;
+  const houseHas = (h: number, kind: ScKind): boolean => inList(h, kind).length > 0;
   const isKendra = (h: number) => [1, 4, 7, 10].includes(h);
   const isTrine = (h: number) => [1, 5, 9].includes(h);
   const isBad = (h: number) => [6, 8, 12].includes(h);
@@ -779,7 +795,171 @@ export function buildSarvarthaContext(positions: PlanetPosition[], lagnaLon: num
     positions, lagnaSign, houseOf, lordOf, lordHouse, lordNature: (h) => isBenefic(lordPos(h)),
     lordDignity: (h) => lordPos(h).dignity, lordWith, lordAspected, houseHas, isKendra, isTrine, isBad,
     strong, combust, moonStrong, moonWeak, amsa,
+    detail: { lordWith: withList, lordAspectedBy: aspList, inHouse: inList },
   };
+}
+
+// ── Which chart facts a passing rule used ──────────────────────────────────
+//
+// The rule tests return only true or false. To say why a rule holds, the test is run once more on a
+// context that records every chart fact it reads. A true check, a position or a dignity is a fact the
+// rule stood on; a false check counts only where the rule needs it false (a negated condition), which
+// shows when flipping that one answer makes the rule fail.
+
+interface ScCall {
+  key: string;
+  method: string;
+  args: Array<number | string>;
+  result: unknown;
+}
+
+function tracedContext(ctx: SarvarthaContext, flip?: string): { t: SarvarthaContext; calls: ScCall[] } {
+  const calls: ScCall[] = [];
+  const rec = (method: string, args: Array<number | string>, value: unknown) => {
+    const key = `${method}(${args.join(",")})`;
+    const result = key === flip && typeof value === "boolean" ? !value : value;
+    calls.push({ key, method, args, result });
+    return result;
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const wrap = <F extends (...a: any[]) => any>(method: string, fn: F): F =>
+    ((...a: Array<number | string>) => rec(method, a, fn(...a))) as F;
+  const t: SarvarthaContext = {
+    ...ctx,
+    houseOf: wrap("houseOf", ctx.houseOf),
+    lordHouse: wrap("lordHouse", ctx.lordHouse),
+    lordDignity: wrap("lordDignity", ctx.lordDignity),
+    lordNature: wrap("lordNature", ctx.lordNature),
+    lordWith: wrap("lordWith", ctx.lordWith),
+    lordAspected: wrap("lordAspected", ctx.lordAspected),
+    houseHas: wrap("houseHas", ctx.houseHas),
+    strong: wrap("strong", ctx.strong),
+    combust: wrap("combust", ctx.combust),
+    amsa: wrap("amsa", ctx.amsa),
+    get moonStrong() {
+      return rec("moonStrong", [], ctx.moonStrong) as boolean;
+    },
+    get moonWeak() {
+      return rec("moonWeak", [], ctx.moonWeak) as boolean;
+    },
+  };
+  return { t, calls };
+}
+
+const ordS = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th"}`;
+const theP = (p: string) => (p === "Sun" || p === "Moon" ? `the ${p}` : p);
+const joinS = (xs: string[]) => (xs.length <= 1 ? (xs[0] ?? "") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
+
+const DIGNITY_TECH: Record<string, string> = {
+  Exalted: "exalted", Moolatrikona: "in moolatrikona", "Own sign": "in own sign", Friendly: "in a friend's sign",
+  Neutral: "in a neutral sign", Inimical: "in an enemy's sign", Debilitated: "debilitated",
+};
+const DIGNITY_PLAIN: Record<string, string> = {
+  Exalted: "exalted", Moolatrikona: "in its moolatrikona sign", "Own sign": "in its own sign", Friendly: "in a friend's sign",
+  Neutral: "in a neutral sign", Inimical: "in an enemy's sign", Debilitated: "in its sign of fall",
+};
+
+function kindTech(list: Planet[], kind: ScKind): string {
+  return kind === "benefic" || kind === "malefic" ? `${kind}${list.length > 1 ? "s" : ""} ${joinS(list)}` : kind;
+}
+function kindPlain(list: Planet[], kind: ScKind): string {
+  const names = joinS(list.map(theP));
+  if (kind === "malefic") return `${names}, ${list.length > 1 ? "harsher planets" : "a harsher planet"}`;
+  if (kind === "benefic") return `${names}, ${list.length > 1 ? "benefics" : "a benefic"}`;
+  return theP(kind);
+}
+const kindNone = (kind: ScKind, plain: boolean) =>
+  kind === "malefic" ? (plain ? "harsher planet" : "malefic") : kind === "benefic" ? "benefic" : theP(kind);
+
+/** One clause per chart fact, practitioner and plain. */
+function describeCall(c: ScCall, ctx: SarvarthaContext): { tech: string; plain: string } | null {
+  const [a, b] = c.args;
+  const h = typeof a === "number" ? a : 0;
+  const L = h ? ctx.lordOf(h) : ("" as Planet);
+  const lordT = `lord of the ${ordS(h)} (${L})`;
+  const lordP = `the ${ordS(h)}'s ruler, ${theP(L)},`;
+  const d = ctx.detail;
+  switch (c.method) {
+    case "houseOf":
+      return { tech: `${a} in the ${ordS(c.result as number)}`, plain: `${theP(String(a))} stands in the ${ordS(c.result as number)}` };
+    case "lordHouse": {
+      const n = c.result as number;
+      return n === h
+        ? { tech: `${lordT} in its own house`, plain: `${lordP} stands in its own house` }
+        : { tech: `${lordT} in the ${ordS(n)}`, plain: `${lordP} stands in the ${ordS(n)}` };
+    }
+    case "lordDignity": {
+      const g = String(c.result);
+      if (!DIGNITY_TECH[g]) return null;
+      return { tech: `${lordT} ${DIGNITY_TECH[g]}`, plain: `${lordP} is ${DIGNITY_PLAIN[g]}` };
+    }
+    case "lordNature":
+      return c.result
+        ? { tech: `${lordT} benefic`, plain: `${lordP} is a benefic` }
+        : { tech: `${lordT} not benefic`, plain: `${lordP} is not a benefic` };
+    case "lordWith": {
+      const kind = b as ScKind;
+      if (!c.result) return { tech: `${lordT} not with a ${kindNone(kind, false)}`, plain: `${lordP} shares its sign with no ${kindNone(kind, true)}` };
+      const list = d?.lordWith(h, kind) ?? [];
+      return { tech: `${lordT} with ${kindTech(list, kind)}`, plain: `${lordP} shares a sign with ${kindPlain(list, kind)}` };
+    }
+    case "lordAspected": {
+      const kind = b as ScKind;
+      if (!c.result) return { tech: `${lordT} unaspected by a ${kindNone(kind, false)}`, plain: `no ${kindNone(kind, true)} looks at ${lordP.replace(/,$/, "")}` };
+      const list = d?.lordAspectedBy(h, kind) ?? [];
+      return { tech: `${lordT} aspected by ${kindTech(list, kind)}`, plain: `${lordP} is looked at by ${kindPlain(list, kind)}` };
+    }
+    case "houseHas": {
+      const kind = b as ScKind;
+      if (!c.result) return { tech: `no ${kindNone(kind, false)} in the ${ordS(h)}`, plain: `no ${kindNone(kind, true)} stands in the ${ordS(h)}` };
+      const list = d?.inHouse(h, kind) ?? [];
+      const many = list.length > 1;
+      const comma = kind === "benefic" || kind === "malefic" ? "," : "";
+      return { tech: `${kindTech(list, kind)} in the ${ordS(h)}`, plain: `${kindPlain(list, kind)}${comma} ${many ? "stand" : "stands"} in the ${ordS(h)}` };
+    }
+    case "strong":
+      return c.result
+        ? { tech: `${a} strong (dignity, not combust)`, plain: `${theP(String(a))} is strong by sign` }
+        : { tech: `${a} not strong`, plain: `${theP(String(a))} is not strong by sign` };
+    case "combust":
+      return c.result
+        ? { tech: `${a} combust`, plain: `${theP(String(a))} is too close to the Sun` }
+        : { tech: `${a} not combust`, plain: `${theP(String(a))} is clear of the Sun` };
+    case "moonWeak":
+      return c.result ? { tech: "Moon weak (within 72° of the Sun)", plain: "the Moon is weak, within 72° of the Sun" } : null;
+    case "moonStrong":
+      return c.result ? { tech: "Moon strong (beyond 72° of the Sun)", plain: "the Moon is strong, more than 72° from the Sun" } : null;
+    case "amsa":
+      if (!c.result) return null;
+      {
+        const amsha = `${String(c.result).replace(/a$/, "")}amsha`;
+        return { tech: `${a} in ${amsha} (1.25-27)`, plain: `${theP(String(a))} holds ${amsha}, a rank of good divisions (1.25-27)` };
+      }
+  }
+  return null;
+}
+
+/**
+ * The chart facts a passing rule stood on, as clauses: `tech` for the practitioner view ("malefic
+ * Saturn in the 5th"), `plain` for the plain one ("Saturn, a harsher planet, stands in the 5th").
+ * Empty when the test does not hold or reads only facts the trace does not record.
+ */
+export function scTrace(test: ScTest, ctx: SarvarthaContext): { tech: string[]; plain: string[] } {
+  const { t, calls } = tracedContext(ctx);
+  if (!test(t)) return { tech: [], plain: [] };
+  const seen = new Set<string>();
+  const tech: string[] = [];
+  const plain: string[] = [];
+  for (const c of calls) {
+    if (seen.has(c.key)) continue;
+    seen.add(c.key);
+    if (c.result === false && test(tracedContext(ctx, c.key).t)) continue;
+    const dsc = describeCall(c, ctx);
+    if (!dsc) continue;
+    tech.push(dsc.tech);
+    plain.push(dsc.plain);
+  }
+  return { tech, plain };
 }
 
 type ScTest = (c: SarvarthaContext) => boolean;
@@ -985,14 +1165,18 @@ export function computeSarvartha(positions: PlanetPosition[], lagnaLon: number, 
       const test = SC_RULE_TESTS[`${h.house}.${r.stanza}`];
       if (!test) continue;
       computable++;
-      if (test(ctx))
+      if (test(ctx)) {
+        const tr = scTrace(test, ctx);
         findings.push({
           house: h.house,
           stanza: r.stanza,
           topic: r.topic,
           text: r.then,
           fidelity: SC_RULE_FIDELITY[`${h.house}.${r.stanza}`] ?? "cited",
+          condition: r.when,
+          ...(tr.tech.length ? { here: tr.tech, herePlain: tr.plain } : {}),
         });
+      }
     }
   }
   const rajyogas = SC_RAJYOGAS.filter((r) => r.test && r.test(ctx)).map((r) => ({ stanza: r.stanza, text: r.then }));

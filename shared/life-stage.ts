@@ -361,6 +361,8 @@ export function redactSensitive<T>(value: T, key?: string): T {
     const o = value as Record<string, unknown>;
     const out: Record<string, unknown> = {};
     for (const k of Object.keys(o)) out[k] = KEEP_KEYS.has(k) && typeof o[k] !== "object" ? o[k] : redactSensitive(o[k], k);
+    // A plain rewording of a withheld maraka statement goes with it (parashari-dasa.ts AntarReading.facts).
+    if ("marakaPlain" in o && o.maraka != null && out.maraka == null) out.marakaPlain = null;
     return out as T;
   }
   return value;

@@ -2,13 +2,15 @@
 // citing its own text, chapter and stanza. Yogas are never blended across texts; the compute step
 // only evaluates each entry's own predicate against the chart.
 import {
+  SIGNS,
   SIGN_LORD,
   SIGN_QUALITY,
   houseFrom,
   naturalBenefic,
   type PlanetPosition,
 } from "./astro";
-import { SC_RAJYOGAS, buildSarvarthaContext } from "./sarvartha";
+import { SC_RAJYOGAS, buildSarvarthaContext, scTrace } from "./sarvartha";
+import { listJoin, ordH, thePlanet } from "./house-gloss";
 import { charaKarakas, navamsaOf, arudhaOf } from "./jaimini";
 import { rasiAspects } from "./jaimini-core";
 import { redactProse } from "./life-stage";
@@ -68,7 +70,18 @@ export interface Yoga {
   note?: string;
   /** Predicate over the chart; omitted for reference-only entries. */
   test?: (ctx: YogaContext) => boolean;
+  /** The clause that holds on the chart, when the entry has its own (else WHY or the category's). */
+  why?: (ctx: YogaContext) => string | YogaWhy;
 }
+
+/** What formed a yoga on the chart; `herePlain` only where the plain reading words it differently. */
+export interface YogaWhy {
+  here: string;
+  herePlain?: string;
+}
+
+/** A yoga that holds on the chart, with what formed it ("Mercury stands in the ascendant"). */
+export type FiredYoga = Yoga & Partial<YogaWhy>;
 
 export interface YogaContext {
   positions: PlanetPosition[];
@@ -495,6 +508,10 @@ const dvi = (a: string, b: string, stanza: number, result: string): Yoga => ({
   condition: `${a} and ${b} in the same sign`,
   result,
   test: (ctx) => sameSign(ctx, a, b),
+  why: (ctx) => {
+    const pa = ctx.positions.find((p) => p.planet === a)!;
+    return `${thePlanet(a)} and ${thePlanet(b)} share ${SIGNS[pa.signIndex]}, the ${ordH(house(ctx, pa))}`;
+  },
 });
 
 const DVI_GRAHA: Yoga[] = [
@@ -689,6 +706,14 @@ const SARVARTHA_RAJA: Yoga[] = SC_RAJYOGAS.map((r) => ({
         hasAll9(ctx.positions) &&
         r.test!(buildSarvarthaContext(ctx.positions, ctx.lagnaIdx * 30))
     : undefined,
+  why: r.test
+    ? (ctx): YogaWhy => {
+        const tr = scTrace(r.test!, buildSarvarthaContext(ctx.positions, ctx.lagnaIdx * 30));
+        if (tr.tech.length) return { here: tr.tech.join("; "), herePlain: tr.plain.join("; ") };
+        const d = dignityList(ctx, r.when);
+        return { here: d, herePlain: d };
+      }
+    : undefined,
 }));
 
 // ── Jaimini guide ch. 16: the raja-yoga rules (modern prose, no stanza) ──
@@ -824,7 +849,7 @@ export const YOGAS: Yoga[] = [
  * A minor's view of the fired yogas (shared/life-stage.ts): a result loses its withheld statements,
  * and a yoga whose whole result is withheld is left out. The condition is kept as written.
  */
-export function gateYogas(ys: Yoga[], withheld: boolean): Yoga[] {
+export function gateYogas<Y extends Yoga>(ys: Y[], withheld: boolean): Y[] {
   if (!withheld) return ys;
   return ys.flatMap((y) => {
     const result = redactProse(y.result);
@@ -833,12 +858,239 @@ export function gateYogas(ys: Yoga[], withheld: boolean): Yoga[] {
   });
 }
 
-export function computeYogas(ctx: YogaContext): Yoga[] {
+export function computeYogas(ctx: YogaContext): FiredYoga[] {
   const fired = YOGAS.filter((y) => y.test && y.test(ctx));
   const hasOtherNabhasa = fired.some(
     (y) => y.category.startsWith("nabhasa") && y.category !== "nabhasa-sankhya",
   );
-  return fired.filter(
-    (y) => y.category !== "nabhasa-sankhya" || !hasOtherNabhasa,
-  );
+  return fired
+    .filter((y) => y.category !== "nabhasa-sankhya" || !hasOtherNabhasa)
+    .map((y) => {
+      const w = (y.why ?? WHY[y.id] ?? CATEGORY_WHY[y.category])?.(ctx);
+      if (!w) return y;
+      const why = typeof w === "string" ? { here: w } : w;
+      if (!why.here) return y;
+      // The plain reading says "harsher planet" where the text says malefic (gentle-results policy).
+      const plain = why.herePlain ?? harsherWords(why.here);
+      return { ...y, ...why, ...(plain !== why.here ? { herePlain: plain } : {}) };
+    });
 }
+
+// ── Here: the clause of each yoga that holds on the chart ──
+
+/** "malefics" -> "harsher planets", "a malefic" -> "a harsher planet", "malefic" -> "harsher". */
+function harsherWords(s: string): string {
+  return s
+    .replace(/\bmalefics\b/g, "harsher planets")
+    .replace(/\ba malefic\b(?! planet)/g, "a harsher planet")
+    .replace(/\bmalefic\b/g, "harsher");
+}
+
+const nm = (p: PlanetPosition) => thePlanet(p.planet);
+const at = (ctx: YogaContext, planet: string) => ctx.positions.find((p) => p.planet === planet);
+const stand = (names: string[]) => `${listJoin(names)} ${names.length > 1 ? "stand" : "stands"}`;
+const NUM = ["no", "one", "two", "three", "four", "five", "six", "seven"];
+
+/** Planets grouped by a key: "the Sun and Mercury in the 1st; Saturn in the 5th". */
+function grouped<K extends number | string>(
+  ps: PlanetPosition[],
+  key: (p: PlanetPosition) => K,
+  phrase: (k: K) => string,
+  order: (a: K, b: K) => number = () => 0,
+): string {
+  const m = new Map<K, string[]>();
+  for (const p of ps) m.set(key(p), [...(m.get(key(p)) ?? []), nm(p)]);
+  return Array.from(m.entries())
+    .sort((a, b) => order(a[0], b[0]))
+    .map(([k, names]) => `${listJoin(names)} in ${phrase(k)}`)
+    .join("; ");
+}
+
+/** The seven planets by house from the ascendant. */
+const byHouse = (ctx: YogaContext) =>
+  grouped(seven(ctx.positions), (p) => house(ctx, p), (h) => `the ${ordH(h)}`, (a, b) => a - b);
+
+/** The seven planets by sign, in house order. */
+const bySign = (ctx: YogaContext) =>
+  grouped(
+    seven(ctx.positions),
+    (p) => p.signIndex,
+    (si) => `${SIGNS[si]} (the ${ordH(houseFrom(ctx.lagnaIdx, si))})`,
+    (a, b) => houseFrom(ctx.lagnaIdx, a) - houseFrom(ctx.lagnaIdx, b),
+  );
+
+/** The benefics and malefics among the seven, for the yogas that turn on them. */
+const natures = (ctx: YogaContext, ps: PlanetPosition[]) => {
+  const b = ps.filter((p) => ben(ctx, p)).map(nm);
+  const m = ps.filter((p) => !ben(ctx, p)).map(nm);
+  return [b.length ? `benefics ${listJoin(b)}` : "", m.length ? `malefics ${listJoin(m)}` : ""].filter(Boolean).join("; ");
+};
+
+/** Mars to Saturn in the 2nd and the 12th from the Moon. */
+const flank = (ctx: YogaContext) => ({
+  second: ctx.positions.filter((p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 2).map(nm),
+  twelfth: ctx.positions.filter((p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 12).map(nm),
+});
+
+/** For the dignity-counting Sarvartha yogas the trace has nothing to show: list the dignities the rule names. */
+function dignityList(ctx: YogaContext, when: string): string {
+  const wanted: [RegExp, string[], string][] = [
+    [/exalt/i, ["Exalted"], "exalted"],
+    [/moolatrikona/i, ["Moolatrikona"], "in moolatrikona"],
+    [/own sign/i, ["Own sign", "Moolatrikona", "Exalted"], "in own, moolatrikona or exaltation signs"],
+    [/debilitat|inimical/i, ["Debilitated", "Inimical"], "debilitated or in inimical signs"],
+  ];
+  const out: string[] = [];
+  for (const [re, ds, word] of wanted) {
+    if (!re.test(when)) continue;
+    const ps = ctx.positions.filter((p) => ds.includes(p.dignity));
+    if (ps.length) out.push(`${listJoin(ps.map(nm))} ${word}`);
+  }
+  return out.join("; ");
+}
+
+const CATEGORY_WHY: Partial<Record<YogaCategory, (ctx: YogaContext) => string>> = {
+  "nabhasa-asraya": (ctx) => {
+    const q = quality(seven(ctx.positions)[0]).toLowerCase();
+    return `all seven stand in ${q === "dual" ? "common (dual)" : q} signs: ${bySign(ctx)}`;
+  },
+  "nabhasa-dala": (ctx) => {
+    const k = seven(ctx.positions).filter((p) => KENDRA.includes(house(ctx, p)));
+    const kind = k.every((p) => ben(ctx, p)) ? "benefics" : "malefics";
+    const count = k.length === 1 ? `it counts as one of the ${kind}` : `${k.length === 2 ? "both" : "all"} count as ${kind}`;
+    return `the kendras hold ${grouped(k, (p) => house(ctx, p), (h) => `the ${ordH(h)}`, (a, b) => a - b)}; ${count}`;
+  },
+  "nabhasa-akriti": (ctx) => byHouse(ctx),
+  "nabhasa-sankhya": (ctx) => `the seven occupy ${NUM[distinctSigns(ctx)]} signs: ${bySign(ctx)}`,
+};
+
+const WHY: Record<string, (ctx: YogaContext) => string> = {
+  vajra: (ctx) => `${byHouse(ctx)} (${natures(ctx, seven(ctx.positions))})`,
+  yava: (ctx) => `${byHouse(ctx)} (${natures(ctx, seven(ctx.positions))})`,
+  adhi: (ctx) =>
+    listJoin(
+      BENEFICS.map((b) => at(ctx, b))
+        .filter((p): p is PlanetPosition => !!p && [6, 7, 8].includes(fromMoon(ctx, p)))
+        .map((p) => `${nm(p)} in the ${ordH(fromMoon(ctx, p))} from the Moon`),
+    ),
+  sunapha: (ctx) => `${stand(flank(ctx).second)} in the 2nd from the Moon, and no planet (the Sun and the nodes aside) in the 12th from it`,
+  anapha: (ctx) => `${stand(flank(ctx).twelfth)} in the 12th from the Moon, and no planet (the Sun and the nodes aside) in the 2nd from it`,
+  durudhura: (ctx) => {
+    const f = flank(ctx);
+    return `${stand(f.second)} in the 2nd from the Moon and ${listJoin(f.twelfth)} in the 12th`;
+  },
+  kemadruma: (ctx) => `no planet (the Sun and the nodes aside) stands in the 2nd or the 12th from the Moon (in ${SIGNS[moonSign(ctx)]})`,
+  "upachaya-dhana": (ctx) => {
+    const out: string[] = [];
+    for (const b of BENEFICS) {
+      const p = at(ctx, b);
+      if (!p) continue;
+      const fromL = houseFrom(ctx.lagnaIdx, p.signIndex);
+      const fromM = fromMoon(ctx, p);
+      const where = [
+        UPACHAYA.includes(fromL) ? `the ${ordH(fromL)} from the ascendant` : "",
+        UPACHAYA.includes(fromM) ? `the ${ordH(fromM)} from the Moon` : "",
+      ].filter(Boolean);
+      if (where.length) out.push(`${nm(p)} in ${where.join(" and ")}`);
+    }
+    return out.join("; ");
+  },
+  sanyasa: (ctx) => {
+    const count = new Map<number, PlanetPosition[]>();
+    for (const p of seven(ctx.positions)) count.set(p.signIndex, [...(count.get(p.signIndex) ?? []), p]);
+    const [si, ps] = Array.from(count.entries()).sort((a, b) => b[1].length - a[1].length)[0];
+    return `${listJoin(ps.map(nm))} share ${SIGNS[si]}, the ${ordH(houseFrom(ctx.lagnaIdx, si))}`;
+  },
+  "uccha-raja": (ctx) => `${stand(ctx.positions.filter((p) => p.dignity === "Exalted").map(nm))} in their exaltation signs`,
+  "uccha-moola-raja": (ctx) =>
+    listJoin(
+      ctx.positions
+        .filter((p) => p.dignity === "Exalted" || p.dignity === "Moolatrikona")
+        .map((p) => `${nm(p)} ${p.dignity === "Exalted" ? "exalted" : "in moolatrikona"}`),
+    ),
+  "sukha-raja": (ctx) => {
+    const h = (p: PlanetPosition) => houseFrom(ctx.lagnaIdx, p.signIndex);
+    const lagna = ctx.positions.filter((p) => ["Jupiter", "Venus", "Mercury"].includes(p.planet) && h(p) === 1).map(nm);
+    const out: string[] = [];
+    if (lagna.length) out.push(`${stand(lagna)} in the ascendant`);
+    if (ctx.positions.some((p) => p.planet === "Saturn" && h(p) === 7)) out.push("Saturn stands in the 7th");
+    if (ctx.positions.some((p) => p.planet === "Sun" && h(p) === 10)) out.push("the Sun stands in the 10th");
+    return out.join("; ");
+  },
+  "kendra-sukha": (ctx) => {
+    const out: string[] = [];
+    for (const p of ctx.positions) {
+      const hh = houseFrom(ctx.lagnaIdx, p.signIndex);
+      if (!KENDRA.includes(hh)) continue;
+      const roles = [
+        p.planet === SIGN_LORD[ctx.lagnaIdx] ? "lord of the ascendant" : "",
+        p.planet === SIGN_LORD[moonSign(ctx)] ? "lord of the Moon's sign" : "",
+      ].filter(Boolean);
+      if (p.planet !== "Jupiter" && !roles.length) continue;
+      out.push(`${nm(p)}${roles.length ? `, ${listJoin(roles)},` : ""} stands in the ${ordH(hh)}`);
+    }
+    return out.join("; ");
+  },
+  "putra-kalatra": (ctx) => {
+    const out = new Set<string>();
+    const bens = ["Jupiter", "Venus", "Mercury"];
+    const bases: [number, string][] = [[ctx.lagnaIdx, "the ascendant"], [moonSign(ctx), "the Moon"]];
+    for (const [base, label] of bases)
+      for (const p of ctx.positions) {
+        const hh = houseFrom(base, p.signIndex);
+        if (hh !== 5 && hh !== 7) continue;
+        const isLord = p.planet === SIGN_LORD[(base + hh - 1) % 12];
+        if (!bens.includes(p.planet) && !isLord) continue;
+        out.add(`${nm(p)}${isLord ? `, lord of the ${ordH(hh)} from ${label},` : ""} stands in the ${ordH(hh)} from ${label}`);
+      }
+    return Array.from(out).join("; ");
+  },
+  "chandra-shani-kalatra": (ctx) => `the Moon and Saturn share the 7th (${SIGNS[(ctx.lagnaIdx + 6) % 12]})`,
+  "jaimini-ak-amk": (ctx) => {
+    const kk = charaKarakas(ctx.positions);
+    const ak = at(ctx, kk[0].planet)!;
+    const amk = at(ctx, kk[1].planet)!;
+    const how: string[] = [];
+    if (ak.signIndex === amk.signIndex) how.push(`share ${SIGNS[ak.signIndex]}`);
+    else if (rasiAspects(ak.signIndex, amk.signIndex) && rasiAspects(amk.signIndex, ak.signIndex))
+      how.push(`aspect each other by sign (${SIGNS[ak.signIndex]} and ${SIGNS[amk.signIndex]})`);
+    const n = houseFrom(ak.signIndex, amk.signIndex);
+    if (ak.signIndex !== amk.signIndex && [1, 4, 5, 7, 9, 10].includes(n)) how.push(`stand ${ordH(n)} from each other`);
+    else if (ak.signIndex !== amk.signIndex && [1, 4, 5, 7, 9, 10].includes(houseFrom(amk.signIndex, ak.signIndex)))
+      how.push(`stand ${ordH(houseFrom(amk.signIndex, ak.signIndex))} from each other`);
+    return `the Atmakaraka, ${nm(ak)}, and the Amatyakaraka, ${nm(amk)}, ${listJoin(how)}`;
+  },
+  "jaimini-lagna-trikona": (ctx) => {
+    const ll = at(ctx, SIGN_LORD[ctx.lagnaIdx])!;
+    const out: string[] = [];
+    for (const h of [5, 9]) {
+      const l = at(ctx, SIGN_LORD[(ctx.lagnaIdx + h - 1) % 12])!;
+      const who = `${nm(ll)}, lord of the lagna, and ${nm(l)}, lord of the ${ordH(h)},`;
+      if (ll.signIndex === l.signIndex) out.push(`${who} share ${SIGNS[ll.signIndex]}`);
+      else if (rasiAspects(ll.signIndex, l.signIndex) && rasiAspects(l.signIndex, ll.signIndex))
+        out.push(`${who} aspect each other by sign (${SIGNS[ll.signIndex]} and ${SIGNS[l.signIndex]})`);
+    }
+    return out.join("; ");
+  },
+  "jaimini-dasama": (ctx) => {
+    const in10 = ctx.positions.filter((p) => ["Jupiter", "Venus"].includes(p.planet) && houseFrom(ctx.lagnaIdx, p.signIndex) === 10).map(nm);
+    const tl = at(ctx, SIGN_LORD[(ctx.lagnaIdx + 9) % 12])!;
+    return `${stand(in10)} in the 10th; ${nm(tl)}, lord of the 10th, stands in the ${ordH(houseFrom(ctx.lagnaIdx, tl.signIndex))}`;
+  },
+  "jaimini-karakamsa": (ctx) => {
+    const kk = charaKarakas(ctx.positions);
+    const ak = at(ctx, kk[0].planet)!;
+    const ka = navamsaOf(ak.lon).signIndex;
+    const ps = ctx.positions.filter(
+      (p) => ["Jupiter", "Venus"].includes(p.planet) && [1, 4, 5, 7, 9, 10].includes(houseFrom(ka, p.signIndex)),
+    );
+    const where = grouped(ps, (p) => houseFrom(ka, p.signIndex), (h) => `the ${ordH(h)} from it`, (a, b) => a - b);
+    return `the Atmakaraka, ${nm(ak)}, has its navamsa in ${SIGNS[ka]} (the Karakamsha); ${where}`;
+  },
+  "jaimini-arudha": (ctx) => {
+    const al = arudhaOf(1, ctx.lagnaIdx, ctx.positions).signIndex;
+    const j = at(ctx, "Jupiter")!;
+    const v = at(ctx, "Venus")!;
+    return `the Arudha Lagna is ${SIGNS[al]}; Jupiter from ${SIGNS[j.signIndex]} and Venus from ${SIGNS[v.signIndex]} aspect it by sign`;
+  },
+};

@@ -9,6 +9,7 @@ import { compoundRelation, inMoolatrikona, SEVEN, type Seven, type ShadbalaBase,
 import type { ParashariFinding, ParashariSource } from "./parashari";
 import type { HouseDeps } from "./parashari-houses";
 import { parashariCombust, parashariCombustOrb } from "./vargas";
+import { houseGloss, thePlanet, withGloss } from "./house-gloss";
 
 const S = (verse: string, provisional?: boolean): ParashariSource => ({ label: `Parashara 45.${verse}`, url: BPHS_URL(45), provisional });
 const ord = (n: number) => (n === 1 ? "1st" : n === 2 ? "2nd" : n === 3 ? "3rd" : `${n}th`);
@@ -427,7 +428,15 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
     return parts.length ? ` 45.19 has this weighed by strength: ${parts.join("; ")}.` : "";
   };
   const spoiled = planets.filter((a) => a.lajjitadi.some((l) => l.name === "Kshudhita" || l.name === "Kshobhita"));
-  if (spoiled.length) push("spoiled", "Houses held by hungry or agitated planets", `${list(spoiled.map((a) => `${a.planet} (${a.lajjitadi.filter((l) => l.name === "Kshudhita" || l.name === "Kshobhita").map((l) => l.name).join(", ")}) in the ${ord(houseOf(a.planet))}`))}: Parashara says the house a Kshudhita or Kshobhita planet occupies is destroyed (45.18); read as the affairs of that house being strained.${weigh(spoiled.map((a) => a.planet))}`, "strain", spoiled.map((a) => a.planet), "18-19", undefined, `the affairs of the ${list(Array.from(new Set(spoiled.map((a) => houseOf(a.planet)))).sort((x, y) => x - y).map(ord))} ${new Set(spoiled.map((a) => houseOf(a.planet))).size > 1 ? "houses" : "house"} come under strain from ${list(spoiled.map((a) => a.planet))} (45.18); Parashara has this weighed by each planet's strength (45.19).`);
+  const spoiledPlain = () => {
+    const byH = new Map<number, Planet[]>();
+    for (const a of spoiled) byH.set(houseOf(a.planet), [...(byH.get(houseOf(a.planet)) ?? []), a.planet]);
+    const parts = Array.from(byH.entries())
+      .sort((x, y) => x[0] - y[0])
+      .map(([h, ps]) => `the ${withGloss("parashari", h)} from ${list(ps.map(thePlanet))}`);
+    return `Under strain (45.18): ${parts.join("; ")}. Parashara has each weighed by the planet's strength (45.19).`;
+  };
+  if (spoiled.length) push("spoiled", "Houses held by hungry or agitated planets", `${list(spoiled.map((a) => `${a.planet} (${a.lajjitadi.filter((l) => l.name === "Kshudhita" || l.name === "Kshobhita").map((l) => l.name).join(", ")}) in the ${withGloss("parashari", houseOf(a.planet))}`))}: Parashara says the house a Kshudhita or Kshobhita planet occupies is destroyed (45.18); read as the affairs of that house being strained.${weigh(spoiled.map((a) => a.planet))}`, "strain", spoiled.map((a) => a.planet), "18-19", undefined, spoiledPlain());
   {
     const tenth = planets.filter((a) => houseOf(a.planet) === 10 && a.lajjitadi.some((l) => HARSH.includes(l.name)));
     if (tenth.length) F.push({ id: "av-tenth", kind: "yoga", title: "Lajjita, Trushita, Kshudhita or Kshobhita planet in the 10th", text: `${list(tenth.map((a) => a.planet))} in the 10th in such a state: the text says the native meets sorrow; read as strain in work and standing (45.21). The translation leaves out Trushita, which the Sanskrit lists.${weigh(tenth.map((a) => a.planet))}`, tone: "strain", planets: tenth.map((a) => a.planet), source: SK("21"), plain: `${list(tenth.map((a) => a.planet))} in the 10th in a harsh mood: strain in work and standing (45.21).` });
@@ -472,7 +481,10 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
         else if (good.length) judge = strong ? "With strength, greater effects (45.19)." : "Without strength, its good effects are reduced (45.19).";
         else judge = "To be weighed by strength (45.19).";
       } else if (mixed) judge = "Mixed (45.20).";
-      const spoils = names.includes("Kshudhita") || names.includes("Kshobhita") ? ` Hungry or agitated, it strains the house it holds (45.18).` : "";
+      const hungry = names.includes("Kshudhita");
+      const agitated = names.includes("Kshobhita");
+      const spoils = hungry || agitated ? ` Hungry or agitated, it strains the house it holds (45.18): the ${ord(h)}, which covers ${houseGloss("parashari", h)}.` : "";
+      const spoilsPlain = spoils ? ` ${hungry && agitated ? "Hunger and agitation put" : hungry ? "Hunger puts" : "Agitation puts"} the house it holds under strain (45.18): the ${ord(h)}, which covers ${houseGloss("parashari", h)}.` : "";
       const grades = `Age ${a.baladi.result}, wakefulness ${a.jagradadi.result} (45.4, 45.6)${little ? ": little comes through either way" : ""}.`;
       const text = `${pl} in the ${ord(h)}: ${names.join(", ")}.${spoils} ${cap(sbTxt)}. ${judge} ${grades}`.replace(/\s+/g, " ").trim();
       // Plain.
@@ -494,7 +506,7 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
       else if (good.length) jPlain = `${sPlain}, so ${strong ? "its good can show fully" : "its good is reduced"}.`;
       else jPlain = `${sPlain}; Parashara asks that this be weighed by strength.`;
       const littlePlain = little ? " Its age and wakefulness say little comes through either way." : "";
-      const plain = `${head} ${jPlain}${littlePlain}`.replace(/\s+/g, " ").trim();
+      const plain = `${head}${spoilsPlain} ${jPlain}${littlePlain}`.replace(/\s+/g, " ").trim();
       // One line for the period readings.
       const briefJudge = mixed
         ? strong === undefined
@@ -543,7 +555,7 @@ export function computeAvasthas(positions: PlanetPosition[], lagnaIdx: number, d
     if (!a.sayanadi) continue;
     const p = pos(a.planet), h = houseOf(a.planet), mal = !isBen(p), n = a.sayanadi.name;
     if (!mal && n === "Sayana") push(`gen-${a.planet}`, `benefic ${a.planet} lying down`, `A benefic in Sayana gives good results (45.147).`, "support", [a.planet], "147");
-    if (mal && n === "Bhojana") push(`gen-${a.planet}`, `malefic ${a.planet} eating`, `A malefic in Bhojana spoils the house it holds, the ${ord(h)} (45.148).`, "strain", [a.planet], "148");
+    if (mal && n === "Bhojana") push(`gen-${a.planet}`, `malefic ${a.planet} eating`, `A malefic in Bhojana spoils the house it holds (45.148): the ${ord(h)}, which covers ${houseGloss("parashari", h)}.`, "strain", [a.planet], "148", undefined, `${thePlanet(a.planet)}, a harsher planet, is in the eating state (Bhojana), which puts the house it holds under strain (45.148): the ${ord(h)}, which covers ${houseGloss("parashari", h)}.`);
     if (mal && h === 7 && n === "Nidra") {
       const otherMal = positions.some((q) => q.planet !== a.planet && !isBen(q) && q.signIndex !== p.signIndex && deps.aspect(q.planet, q.signIndex, p.signIndex) > 0);
       push(`gen-${a.planet}`, `malefic ${a.planet} asleep in the 7th`, otherMal ? `A malefic in Nidra in the 7th is auspicious only without another malefic's aspect, and here one aspects (45.149).` : `A malefic in Nidra in the 7th with no other malefic aspecting: auspicious (45.149).`, otherMal ? "mixed" : "support", [a.planet], "149");

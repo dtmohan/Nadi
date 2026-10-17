@@ -82,7 +82,7 @@ export const alpModule: ReportModule = {
       for (const f of fs)
         paras.push({
           kind: "p",
-          text: S(endStop(f.text)),
+          text: S(`${endStop(f.text)}${f.here?.length ? ` Here: ${f.here.join("; ")}.` : ""}`),
           cites: [cites.add(f.source, f.sourceUrl)],
           aside: f.planets.length ? list(f.planets) : undefined,
           provisional: /notes|example|magazine/i.test(f.source),

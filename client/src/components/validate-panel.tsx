@@ -14,6 +14,11 @@ import type {
   ValidationResult,
   CuspFilter,
 } from "@shared/validate-types";
+import {
+  agreeWord,
+  KP_MARKED_KEY,
+  markedHousesText,
+} from "@shared/validate-types";
 import type { TransitCheck } from "@shared/rectify-types";
 import type { EventOutcome } from "@shared/events";
 import { RAO_SOURCE } from "@shared/jaimini-areas";
@@ -565,11 +570,13 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             )}
             <span
               className="text-muted-foreground"
-              title="By the houses each planet signifies, then by what the sub lords of those cusps let it deliver."
+              data-testid="validate-summary-planets"
             >
-              Planets: {v.summary.agree} as expected, {v.summary.conflict}{" "}
-              against, by houses; {v.summary.agreeByCusp} and{" "}
-              {v.summary.conflictByCusp} through the cusps
+              Planets: read by the houses each signifies,{" "}
+              {v.summary.agree} ran as KP expects and {v.summary.conflict}{" "}
+              against; read through the sub lords of those cusps,{" "}
+              {v.summary.agreeByCusp} as expected and{" "}
+              {v.summary.conflictByCusp} against
               {v.summary.diverted > 0
                 ? `; ${v.summary.diverted} period-lord ${v.summary.diverted === 1 ? "hit" : "hits"} diverted`
                 : ""}
@@ -1012,12 +1019,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                     Tally
                   </TableHead>
                   <TableHead className="whitespace-nowrap">Observed</TableHead>
-                  <TableHead
-                    className="whitespace-nowrap"
-                    title="Left mark: by houses. Right mark: through the cusps."
-                  >
-                    Agree
-                  </TableHead>
+                  <TableHead className="whitespace-nowrap">Agree</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1027,6 +1029,15 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
               </TableBody>
             </Table>
           </div>
+          <p
+            className="mt-2 max-w-3xl text-xs text-muted-foreground"
+            data-testid="validate-house-key"
+          >
+            The marked houses. {KP_MARKED_KEY} Short meanings from Astro
+            Secrets & KP Part 1 ch. 16. A planet that ran against the cusp
+            reading hints that the birth time, or the outcome recorded, wants
+            another look.
+          </p>
 
           <p
             className="mt-4 max-w-3xl text-xs text-muted-foreground"
@@ -1112,27 +1123,25 @@ function PlanetRow({
           </span>
         ))}
       </TableCell>
-      <TableCell>
+      <TableCell className="min-w-[7rem]">
         <NatureBadge nature={t.expected} />
-      </TableCell>
-      <TableCell
-        className="whitespace-nowrap"
-        title={`Delivers ${[...t.goodKept, ...t.evilKept].sort((a, b) => a - b).join(", ") || "none of the marked houses"} through the sub lords of its cusps`}
-      >
-        <span className="inline-flex items-center gap-1.5">
-          <NatureBadge nature={t.expectedByCusp} />
-          <span className="tabular text-muted-foreground">
-            {t.goodKept.length > 0 && (
-              <span className="text-verdict-good">{t.goodKept.join(",")}</span>
-            )}
-            {t.goodKept.length > 0 && t.evilKept.length > 0 && " "}
-            {t.evilKept.length > 0 && (
-              <span className="text-primary">{t.evilKept.join(",")}</span>
-            )}
-          </span>
+        <span
+          className="mt-0.5 block text-muted-foreground"
+          data-testid={`validate-expect-${t.planet}`}
+        >
+          {markedHousesText(t.good, t.evil)}
         </span>
       </TableCell>
-      <TableCell className="min-w-[13rem] max-w-[19rem] whitespace-normal leading-5">
+      <TableCell className="min-w-[7rem]">
+        <NatureBadge nature={t.expectedByCusp} />
+        <span
+          className="mt-0.5 block text-muted-foreground"
+          data-testid={`validate-expect-cusp-${t.planet}`}
+        >
+          delivers {markedHousesText(t.goodKept, t.evilKept)}
+        </span>
+      </TableCell>
+      <TableCell className="min-w-[8rem] max-w-[19rem] whitespace-normal leading-5">
         {t.ran.length === 0 && (
           <span className="text-muted-foreground">
             no saved event in its periods
@@ -1161,31 +1170,24 @@ function PlanetRow({
         <NatureBadge nature={t.observed} />
       </TableCell>
       <TableCell className="whitespace-nowrap">
-        <span className="inline-flex items-center gap-2">
-          {t.agrees === null ? (
-            <span className="text-muted-foreground">—</span>
-          ) : (
-            <Mark
-              on={t.agrees}
-              title={
-                t.agrees
-                  ? "Behaved as its houses lead KP to expect"
-                  : "Behaved against the house expectation"
-              }
-            />
-          )}
-          {t.agreesByCusp === null ? (
-            <span className="text-muted-foreground">—</span>
-          ) : (
-            <Mark
-              on={t.agreesByCusp}
-              title={
-                t.agreesByCusp
-                  ? "Behaved as the cusp sub lords lead KP to expect"
-                  : "Behaved against the cusp expectation: a hint that the birth time, or the outcome recorded, wants another look"
-              }
-            />
-          )}
+        <span
+          className="inline-flex flex-col gap-0.5"
+          data-testid={`validate-agree-${t.planet}`}
+        >
+          <span className="inline-flex items-center gap-1.5">
+            {t.agrees !== null && <Mark on={t.agrees} />}
+            <span className={cn(t.agrees !== true && "text-muted-foreground")}>
+              houses: {agreeWord(t.agrees)}
+            </span>
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            {t.agreesByCusp !== null && <Mark on={t.agreesByCusp} />}
+            <span
+              className={cn(t.agreesByCusp !== true && "text-muted-foreground")}
+            >
+              cusps: {agreeWord(t.agreesByCusp)}
+            </span>
+          </span>
         </span>
       </TableCell>
     </TableRow>

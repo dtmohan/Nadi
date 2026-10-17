@@ -3,7 +3,8 @@
  * and the stated effects of the 1st (ch. 12) and 2nd (ch. 13) houses.
  * Text: Santhanam's translation at jyotishvidya.com. Rules the text does not state as applied are marked provisional.
  */
-import { SIGNS, SIGN_LORD, houseFrom, type Planet, type PlanetPosition } from "./astro";
+import { SIGNS, SIGN_LORD, houseFrom, moonWaxing, type Planet, type PlanetPosition } from "./astro";
+import { listJoin, thePlanet, withGloss } from "./house-gloss";
 import { BPHS_URL } from "./parashari-data";
 import { computeVargas, type VargasResult } from "./vargas";
 import type { ShadbalaResult } from "./shadbala";
@@ -38,24 +39,12 @@ export const HOUSE_MATTERS: { house: number; verse: string; matters: string }[] 
 export const HOUSE_MATTERS_SOURCE = S(11, "2-13");
 
 /**
- * A short plain label per house for the period table, picked from the 11.2-13 matters above. The
- * picks leave out the matters the gentle reading softens (death, disease, loss); the full list stays
- * with HOUSE_MATTERS.
+ * A short plain label per house, picked from the 11.2-13 matters above, for the period table and every
+ * sentence that names a house. The picks leave out the matters the gentle reading softens (death,
+ * disease, loss); the full list stays with HOUSE_MATTERS. Defined in house-gloss.ts with the other
+ * systems' lists.
  */
-export const HOUSE_AREAS_PLAIN: Record<number, string> = {
-  1: "body and nature",
-  2: "wealth and family",
-  3: "courage and siblings",
-  4: "mother, home and comforts",
-  5: "learning and children",
-  6: "enemies and maternal relatives",
-  7: "spouse, travel and trade",
-  8: "inheritance and conflict",
-  9: "fortune and religion",
-  10: "work, honour and authority",
-  11: "income and prosperity",
-  12: "expenses",
-};
+export { HOUSE_AREAS_PLAIN } from "./house-gloss";
 
 export interface BhavaJudgement {
   house: number;
@@ -66,6 +55,9 @@ export interface BhavaJudgement {
   support: string[];
   /** 11.16 signs of annihilation that hold. */
   strain: string[];
+  /** The same points in plain words, item for item with `support` and `strain`. */
+  supportPlain: string[];
+  strainPlain: string[];
   tone: "support" | "strain" | "mixed" | "none";
   source: ParashariSource;
   /** Bhava chalit colour: planets that leave or enter this house under either construction. Annotation only. */
@@ -99,6 +91,37 @@ export interface HouseDeps {
   benefic: (p: PlanetPosition, all: PlanetPosition[]) => boolean;
 }
 
+const MALEFIC_CORE = ["Sun", "Mars", "Saturn", "Rahu", "Ketu"];
+
+/**
+ * Why a planet counts as a malefic beside a house lord, by naturalBenefic (3.11): the Moon while
+ * waning, Mercury when a malefic shares its sign, the rest by nature. `tech` for the practitioner
+ * item, `plain` for the plain one.
+ */
+function maleficWhy(p: PlanetPosition, all: PlanetPosition[]): { tech: string; plain: string } {
+  if (p.planet === "Moon") return { tech: "the Moon (waning, 3.11)", plain: "the waning Moon, which counts as a harsher planet (3.11)" };
+  if (p.planet === "Mercury") {
+    const moonWanes = !moonWaxing(all);
+    const by = all
+      .filter((x) => x.signIndex === p.signIndex && x.planet !== "Mercury" && (MALEFIC_CORE.includes(x.planet) || (x.planet === "Moon" && moonWanes)))
+      .map((x) => (x.planet === "Moon" ? "the waning Moon" : thePlanet(x.planet)));
+    return {
+      tech: `Mercury (joined by ${listJoin(by)}, 3.11)`,
+      plain: `Mercury, which counts as a harsher planet beside ${listJoin(by)} (3.11)`,
+    };
+  }
+  return { tech: p.planet, plain: "" };
+}
+
+/** "Saturn and Rahu, harsher planets" plus the Mercury and Moon cases, each with its reason. */
+function maleficsPlain(ps: PlanetPosition[], all: PlanetPosition[]): string {
+  const natural = ps.filter((p) => p.planet !== "Mercury" && p.planet !== "Moon");
+  const parts: string[] = [];
+  if (natural.length) parts.push(`${listJoin(natural.map((p) => thePlanet(p.planet)))}, ${natural.length > 1 ? "harsher planets" : "a harsher planet"}`);
+  for (const p of ps.filter((x) => x.planet === "Mercury" || x.planet === "Moon")) parts.push(maleficWhy(p, all).plain);
+  return listJoin(parts);
+}
+
 export function judgeBhavas(positions: PlanetPosition[], view: HouseView, deps: HouseDeps, shadbala?: ShadbalaResult): BhavaJudgement[] {
   const losers = new Set<Planet>((shadbala?.wars ?? []).map((w) => w.loser));
   const out: BhavaJudgement[] = [];
@@ -110,20 +133,48 @@ export function judgeBhavas(positions: PlanetPosition[], view: HouseView, deps: 
     const occupants = view.occupantsOf(h);
     const support: string[] = [];
     const strain: string[] = [];
+    const supportPlain: string[] = [];
+    const strainPlain: string[] = [];
+    const ruler = `its ruler, ${thePlanet(lord)},`;
     const benIn = occupants.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
-    if (benIn.length) support.push(`${list(benIn)} in the house`);
+    if (benIn.length) {
+      support.push(`${list(benIn)} in the house`);
+      supportPlain.push(`${listJoin(benIn.map(thePlanet))}, ${benIn.length > 1 ? "benefics, stand" : "a benefic, stands"} in it`);
+    }
     const benAsp = positions.filter((p) => p.signIndex !== si && deps.benefic(p, positions) && deps.aspect(p.planet, p.signIndex, si) > 0).map((p) => p.planet);
-    if (benAsp.length) support.push(`aspected by ${list(benAsp)}`);
-    if (lordHouse === 10) support.push(`lord ${lord} in the 10th`);
-    if (lp.signIndex !== si && deps.aspect(lord, lp.signIndex, si) === 0) strain.push(`lord ${lord} does not aspect the house`);
-    const withMal = positions.filter((p) => p.signIndex === lp.signIndex && p.planet !== lord && !deps.benefic(p, positions)).map((p) => p.planet);
-    if (withMal.length) strain.push(`lord with ${list(withMal)}`);
+    if (benAsp.length) {
+      support.push(`aspected by ${list(benAsp)}`);
+      supportPlain.push(`${listJoin(benAsp.map(thePlanet))}, ${benAsp.length > 1 ? "benefics, look" : "a benefic, looks"} at it`);
+    }
+    if (lordHouse === 10) {
+      support.push(`lord ${lord} in the 10th`);
+      supportPlain.push(h === 10 ? `${ruler} stands in it` : `${ruler} stands in the ${withGloss("parashari", 10)}`);
+    }
+    if (lp.signIndex !== si && deps.aspect(lord, lp.signIndex, si) === 0) {
+      strain.push(`lord ${lord} in the ${ord(lordHouse)} does not aspect the house`);
+      strainPlain.push(`${ruler} sits in the ${ord(lordHouse)} and does not look back at it`);
+    }
+    const withMalP = positions.filter((p) => p.signIndex === lp.signIndex && p.planet !== lord && !deps.benefic(p, positions));
+    const withMal = withMalP.map((p) => p.planet);
+    if (withMal.length) {
+      strain.push(`lord ${lord} with the malefic${withMal.length > 1 ? "s" : ""} ${list(withMalP.map((p) => maleficWhy(p, positions).tech))}`);
+      strainPlain.push(`${ruler} shares a sign with ${maleficsPlain(withMalP, positions)}`);
+    }
     const evilLords = EVIL_LORDS.map((e) => view.lordOf(e)).filter((e) => e !== lord);
-    const withEvil = positions.filter((p) => p.signIndex === lp.signIndex && p.planet !== lord && evilLords.includes(p.planet) && !withMal.includes(p.planet)).map((p) => `${p.planet} (lord of the ${list(EVIL_LORDS.filter((e) => view.lordOf(e) === p.planet).map(ord))})`);
-    if (withEvil.length) strain.push(`lord with ${list(withEvil)}`);
-    if (losers.has(lord)) strain.push(`lord ${lord} defeated in planetary war`);
+    const evilP = positions.filter((p) => p.signIndex === lp.signIndex && p.planet !== lord && evilLords.includes(p.planet) && !withMal.includes(p.planet));
+    const withEvil = evilP.map((p) => `${p.planet} (lord of the ${list(EVIL_LORDS.filter((e) => view.lordOf(e) === p.planet).map(ord))})`);
+    if (withEvil.length) {
+      strain.push(`lord ${lord} with ${list(withEvil)}`);
+      strainPlain.push(
+        `${ruler} shares a sign with ${listJoin(evilP.map((p) => `${thePlanet(p.planet)}, ruler of the ${listJoin(EVIL_LORDS.filter((e) => view.lordOf(e) === p.planet).map((e) => withGloss("parashari", e)))}`))}`,
+      );
+    }
+    if (losers.has(lord)) {
+      strain.push(`lord ${lord} defeated in planetary war`);
+      strainPlain.push(`${ruler} loses a planetary war, which takes strength away`);
+    }
     const tone = support.length && strain.length ? "mixed" : support.length ? "support" : strain.length ? "strain" : "none";
-    out.push({ house: h, signIndex: si, lord, lordHouse, support, strain, tone, source: BHAVA_JUDGEMENT_SOURCE });
+    out.push({ house: h, signIndex: si, lord, lordHouse, support, strain, supportPlain, strainPlain, tone, source: BHAVA_JUDGEMENT_SOURCE });
   }
   return out;
 }

@@ -9,6 +9,7 @@ import {
   KP_PRECEDENCE,
 } from "../kp";
 import { HOUSE_AREA } from "../life-stage";
+import { kpHerePlain, kpUsedGloss } from "../rules-kp";
 import {
   endStop,
   list,
@@ -136,7 +137,7 @@ export const kpModule: ReportModule = {
             text: S(
               f.standing === "note"
                 ? `${f.topic}, as a note: ${endStop(f.text)} Overruled by the ${ORD(KP_PRECEDENCE.find((p) => p.topics.includes(f.topic))?.cusp ?? cusp)} cusp sub lord, the deciding factor for this matter; not counted.`
-                : `${f.topic}: ${endStop(f.text)}`,
+                : `${f.topic}: ${endStop(f.text)}${ctx.plain ? ` ${kpHerePlain(f)}` : ""}`,
             ),
             cites: [
               cites.add(f.source, f.sourceUrl),
@@ -144,7 +145,9 @@ export const kpModule: ReportModule = {
                 ? [cites.add("Astro Secrets & KP, Part 3 p. 12 (uploaded PDF)")]
                 : []),
             ],
-            aside: f.evidence,
+            aside: ctx.plain
+              ? undefined
+              : `${f.evidence}${f.used?.length ? ` (${kpUsedGloss(f.used)})` : ""}`,
             tone:
               f.standing === "note"
                 ? ("mixed" as const)

@@ -1617,7 +1617,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
                 <span className="font-medium">{y.name}</span>{" "}
                 <span className="text-muted-foreground">— {y.condition}.</span>{" "}
                 <span>
-                  <Soft>{y.result}</Soft>.
+                  <Soft>{y.result.charAt(0).toUpperCase() + y.result.slice(1)}</Soft>.
                 </span>{" "}
                 <SourceLink
                   source={{
@@ -1626,6 +1626,14 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
                     provisional: true,
                   }}
                 />
+                {y.here ? (
+                  <span
+                    className="mt-1 block text-muted-foreground"
+                    data-testid={`jaimini-yoga-here-${y.id}`}
+                  >
+                    Here: {plain && y.herePlain ? y.herePlain : y.here}.
+                  </span>
+                ) : null}
               </li>
             ))}
           </ul>

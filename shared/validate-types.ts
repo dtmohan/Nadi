@@ -4,6 +4,7 @@ import type { DashaFit } from "./jaimini-areas";
 import type { EventOutcome } from "./events";
 import type { TransitCheck } from "./rectify-types";
 import type { WindowVerdict } from "./kp-windows";
+import { listJoin, ordH, withGlossList } from "./house-gloss";
 
 export type KpVerdict = "confirmed" | "partial" | "missed";
 
@@ -310,4 +311,22 @@ export interface ValidationResult {
     /** Period-lord hits that the cusp filter diverts: the lord signifies the matter but the cusp sub lord takes it elsewhere. */
     diverted: number;
   };
+}
+
+/** The houses the KP expectation marks: favourable 2, 3, 10, 11 and harmful 6, 8, 12 (server/validate.ts). */
+export const KP_GOOD_HOUSES = [2, 3, 10, 11];
+export const KP_HARM_HOUSES = [6, 8, 12];
+
+/** "2nd and 11th favourable; 8th harmful", or "none of the marked houses". */
+export function markedHousesText(good: number[], evil: number[]): string {
+  const part = (hs: number[], word: string) => (hs.length ? `${listJoin(hs.map(ordH))} ${word}` : "");
+  return [part(good, "favourable"), part(evil, "harmful")].filter(Boolean).join("; ") || "none of the marked houses";
+}
+
+/** The key under the planet table: what each marked house covers, from Astro Secrets & KP Part 1 ch. 16. */
+export const KP_MARKED_KEY = `Favourable: the ${withGlossList("kp", KP_GOOD_HOUSES, { the: true })}. Harmful: the ${withGlossList("kp", KP_HARM_HOUSES, { the: true })}.`;
+
+/** The visible word beside an agreement mark. */
+export function agreeWord(a: boolean | null): string {
+  return a === null ? "no reading" : a ? "agrees" : "against";
 }

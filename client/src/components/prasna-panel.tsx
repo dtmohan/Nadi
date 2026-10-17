@@ -46,7 +46,8 @@ import {
   PRASNA_DEITY_REMEDIES,
   PRASNA_DEITY_NOTE,
 } from "@shared/prasna-deities";
-import { ModeText, SectionTitle } from "@/components/mode-text";
+import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
+import { houseGloss } from "@shared/house-gloss";
 import { Button } from "@/components/ui/button";
 import {
   prasnaStore,
@@ -167,6 +168,7 @@ function HouseWalk({
   /** A native under the sensitive age: the significations lose their withheld items. */
   withheld: boolean;
 }) {
+  const plain = usePlain();
   const byHouse = new Map(natal.map((r) => [r.house, r]));
   const fruct = new Map(fructification.map((f) => [f.house, f]));
   const disp = new Map(dispositions.map((d) => [d.planet, d]));
@@ -224,9 +226,14 @@ function HouseWalk({
             {f && (
               <p className="mt-1.5 text-xs leading-relaxed text-foreground/90">
                 <span className="font-medium">
-                  {FRUCT_LABEL[f.verdict]}.
+                  {plain && f.verdict === "negative"
+                    ? "Harder going"
+                    : FRUCT_LABEL[f.verdict]}
+                  .
                 </span>{" "}
-                {f.note}
+                <span data-testid={`prasna-fruct-note-${house}`}>
+                  {plain ? f.notePlain : f.note}
+                </span>
               </p>
             )}
             {d && (
@@ -1157,7 +1164,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               data-testid={`prasna-timing-house-${h.house}`}
             >
               <span className="font-medium">{ord(h.house)}</span>{" "}
-              <span className="text-muted-foreground">—</span> <Soft>{h.text}</Soft>
+              <span className="text-muted-foreground">
+                ({houseGloss("prasna", h.house)}):
+              </span>{" "}
+              <Soft>{h.text}</Soft>
             </li>
           ))}
         </ul>

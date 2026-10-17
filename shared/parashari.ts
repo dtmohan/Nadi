@@ -51,6 +51,7 @@ import {
   type BhavaJudgement,
 } from "./parashari-houses";
 import { nodeFindings } from "./parashari-nodes";
+import { withGloss, withGlossList } from "./house-gloss";
 import { yogaFindings } from "./parashari-yogas";
 import { plainMeaning } from "./finding-plain";
 import { royalFindings } from "./parashari-royal";
@@ -125,6 +126,9 @@ export interface ParashariFinding {
   tone: "support" | "strain" | "mixed";
   planets: Planet[];
   source: ParashariSource;
+  /** The title and body in plain words, for cards that carry no `plain` meaning (the lord-in-house cards). */
+  titlePlain?: string;
+  textPlain?: string;
   /** What the combination is read to bring, in plain words (shared/finding-plain.ts). */
   plain?: string;
   /** The same in a few words, for lists. */
@@ -150,6 +154,28 @@ export interface DashaGloss {
   summary: string;
   /** The same reading in plain words: the houses ruled with their main matters (11.2-13) and the house held. */
   plain: string;
+}
+
+const PLANET_FIRST = /^(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu)\b/;
+/** First letter down unless the clause opens with a planet's name. */
+const lcFirst = (t: string) => (PLANET_FIRST.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1));
+
+/**
+ * The "Running now" line under the period table. Plain: "Venus dasa. Venus rules the 4th (mother,
+ * home and comforts) and the 9th (fortune and religion), and stands in the 2nd (wealth and family)."
+ * Practitioner: the same facts with the lord-in-house verses, 24.(12 x (house - 1) + placement).
+ */
+export function runningNowText(d: Pick<DashaGloss, "lord" | "owns" | "house">, plain: boolean): string {
+  const who = d.lord === "Sun" || d.lord === "Moon" ? `The ${d.lord}` : d.lord;
+  const at = withGloss("parashari", d.house);
+  if (!d.owns.length)
+    return plain
+      ? `Running now: ${d.lord} dasa. ${who}, a node, stands in the ${at}.`
+      : `Running now: ${d.lord} dasa; a node in the ${at}.`;
+  const verses = d.owns.map((h) => `24.${LORD_IN_HOUSE[h - 1][d.house - 1].verse}`).join(", ");
+  return plain
+    ? `Running now: ${d.lord} dasa. ${who} rules the ${withGlossList("parashari", d.owns, { the: true })}, and stands in the ${at}.`
+    : `Running now: ${d.lord} dasa; lord of the ${withGlossList("parashari", d.owns)}, in the ${at} (${verses}).`;
 }
 
 /**
@@ -378,11 +404,24 @@ export function computeParashari(
     const qualifier = sb
       ? ` Strength qualifier (24.145): ${b.lord} has ${sb.total.toFixed(0)} of the ${sb.required} virupas Parashara asks for (27.32-33), so expect ${sb.effect === "full" ? "the full" : sb.effect === "half" ? "about half the" : "about a quarter of the"} effect.`
       : "";
+    const qualifierPlain = sb
+      ? sb.effect === "full"
+        ? ` ${b.lord} is strong enough by Parashara's measure to give this in full (24.145).`
+        : sb.effect === "half"
+          ? ` ${b.lord} has about half the strength Parashara asks for, so expect about half of this (24.145).`
+          : ` ${b.lord} is well short of the strength Parashara asks for, so expect only a little of this (24.145).`
+      : "";
+    const lordSign = SIGNS[signOfHouse(b.lordIn)];
+    const reads = /^(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu)\b/.test(e.text) ? e.text : e.text.charAt(0).toLowerCase() + e.text.slice(1);
+    const note = bhavaNote(b.lord);
     findings.push({
       id: `pa-lord-${b.house}-${b.lordIn}`,
       kind: "lord",
-      title: `Lord of the ${ord(b.house)} in the ${ord(b.lordIn)}`,
-      text: `${b.lord}, lord of the ${ord(b.house)} (${b.sign}), stands in the ${ord(b.lordIn)} (${SIGNS[signOfHouse(b.lordIn)]}). ${e.text}${qualifier}${bhavaNote(b.lord) ? ` ${bhavaNote(b.lord)}` : ""}`,
+      // The first ordinal stays the house the card is about (the report files the card by it).
+      title: `Lord of the ${ord(b.house)} in the ${ord(b.lordIn)}: ${b.lord}`,
+      titlePlain: `${b.lord}, ruler of the ${ord(b.house)}, in the ${ord(b.lordIn)}`,
+      text: `${b.lord}, lord of the ${ord(b.house)} (${b.sign}: ${HOUSE_AREAS_PLAIN[b.house]}), stands in the ${b.lordIn === b.house ? `${ord(b.lordIn)}, its own house` : `${ord(b.lordIn)} (${lordSign}: ${HOUSE_AREAS_PLAIN[b.lordIn]})`}. ${e.text}${qualifier}${note ? ` ${note}` : ""}`,
+      textPlain: `${b.lord === "Sun" || b.lord === "Moon" ? `The ${b.lord}` : b.lord} rules the ${withGloss("parashari", b.house)} and stands ${b.lordIn === b.house ? "in it" : `in the ${withGloss("parashari", b.lordIn)}`}, in ${lordSign}. Parashara reads: ${reads}${qualifierPlain}${note ? ` ${note}` : ""}`,
       tone: e.tone,
       planets: [b.lord],
       source: S(24, String(e.verse)),
@@ -1119,10 +1158,13 @@ export function computeParashari(
     const lordEff = n.owns.map((h) => LORD_IN_HOUSE[h - 1][n.house - 1]);
     const roleText =
       n.lordship === "node"
-        ? `${d.lord} in the ${ord(n.house)}; it gives the results of its sign lord ${SIGN_LORD[pos(d.lord).signIndex]} and of planets in its company`
-        : `${d.lord} owns the ${listH(n.owns)} and stands in the ${ord(n.house)}`;
+        ? `${d.lord} in the ${withGloss("parashari", n.house)}; it gives the results of its sign lord ${SIGN_LORD[pos(d.lord).signIndex]} and of planets in its company`
+        : `${d.lord} owns the ${withGlossList("parashari", n.owns)} and stands in the ${withGloss("parashari", n.house)}`;
+    // Each verse with what it is and the first clause of its reading (24.38: 4th lord in the 2nd: ...).
     const eff = lordEff.length
-      ? ` Lord-in-house verses: ${lordEff.map((e) => `24.${e.verse}`).join(", ")}.`
+      ? ` Lord-in-house verses: ${lordEff
+          .map((e, i) => `24.${e.verse} (${ord(n.owns[i])} lord in the ${ord(n.house)}: ${lcFirst(e.text.split(/[;.]/)[0].trim())})`)
+          .join("; ")}.`
       : "";
     const father =
       d.lord === fatherDasaLord(lagnaIdx).lord
@@ -1131,8 +1173,8 @@ export function computeParashari(
     const sandhi = bhavaNote(d.lord);
     const plainText =
       n.lordship === "node"
-        ? `In the ${ord(n.house)}, giving the results of its sign lord ${SIGN_LORD[pos(d.lord).signIndex]} and of the planets with it.`
-        : `Rules the ${n.owns.map((h) => `${ord(h)} (${HOUSE_AREAS_PLAIN[h]})`).join(" and ")} and stands in the ${ord(n.house)}.`;
+        ? `In the ${withGloss("parashari", n.house)}, giving the results of its sign lord ${SIGN_LORD[pos(d.lord).signIndex]} and of the planets with it.`
+        : `Rules the ${withGlossList("parashari", n.owns)} and stands in the ${withGloss("parashari", n.house)}.`;
     return {
       lord: d.lord,
       start: d.start,

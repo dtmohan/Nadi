@@ -24,6 +24,7 @@ import {
   type AntarEntry,
 } from "./parashari-dasa-data";
 import { redactProse } from "./life-stage";
+import { withGloss, withGlossList } from "./house-gloss";
 import {
   compoundRelation,
   type Seven,
@@ -74,7 +75,13 @@ export interface AntarReading {
   past: boolean;
   entry: AntarEntry;
   /** Placement facts of the antar lord that the chapter's conditions turn on. */
-  facts: { favourable: string[]; adverse: string[]; maraka: string | null };
+  facts: {
+    favourable: string[];
+    adverse: string[];
+    maraka: string | null;
+    /** The plain wording of `maraka`; withheld with it under the sensitive-content gate (life-stage.ts). */
+    marakaPlain?: string | null;
+  };
   verdict: Tone;
   source: DasaSource;
   /** Only for the running antar: pratyantar general effects, ch. 61. */
@@ -694,11 +701,12 @@ function relationNotes(c: Ctx, p: Planet): DasaNote[] {
     l9 = c.lordOf(9),
     l10 = c.lordOf(10);
   const isNode = p === "Rahu" || p === "Ketu";
-  const push = (id: string, verse: string, text: string, tone: Tone) =>
+  const push = (id: string, verse: string, text: string, tone: Tone, detail?: string) =>
     out.push({
       id: `${p}-${id}`,
       layer: "relation",
       text,
+      ...(detail ? { detail } : {}),
       tone,
       source: S(48, verse),
     });
@@ -863,8 +871,9 @@ function relationNotes(c: Ctx, p: Planet): DasaNote[] {
     push(
       "48-19",
       "19",
-      `${p} is joined with the maraka lord ${marakaCo.join(", ")} in the ${ord(h)}: an unfavourable dasa.`,
+      `${p} is joined with ${marakaCo.join(", ")}, ${marakaCo.length > 1 ? "rulers" : "ruler"} of the ${listH(Array.from(new Set(marakaCo.flatMap((q) => c.owns(q).filter((x) => x === 2 || x === 7)))).sort((a, b) => a - b))}, in the ${withGloss("parashari", h)}: an unfavourable dasa.`,
       "strain",
+      "The lords of the 2nd and 7th are the maraka lords (ch. 44).",
     );
   if (h === 8)
     push(
@@ -1009,6 +1018,11 @@ function antarFacts(
     : inMk
       ? `occupies the ${ord(h)} (maraka house)`
       : null;
+  const marakaPlain = mk.length
+    ? `rules the ${withGlossList("parashari", mk, { the: true })}, ${mk.length > 1 ? "the two houses" : "one of the two houses"} ch. 44 reads for strain on health`
+    : inMk
+      ? `stands in the ${withGloss("parashari", h)}, one of the two houses ch. 44 reads for strain on health`
+      : null;
   // 7.30-32: the twenty-point strength decides the period only at the ends of the bands of 7.26-27.
   const v16 = v16Of(vp);
   if (v16?.band === "wholly favourable")
@@ -1019,7 +1033,7 @@ function antarFacts(
     adv.push(
       `twenty-point strength ${v16.total.toFixed(1)} of 20, short of the strength to give its good results (7.26-27)`,
     );
-  return { favourable: fav, adverse: adv, maraka };
+  return { favourable: fav, adverse: adv, maraka, marakaPlain };
 }
 
 function antarVerdict(f: AntarReading["facts"]): Tone {
@@ -1072,11 +1086,13 @@ function conditionNotes(c: Ctx, p: Planet): DasaNote[] {
     text: string,
     tone: Tone,
     provisional?: boolean,
+    detail?: string,
   ) =>
     out.push({
       id: `${p}-50-${id}`,
       layer: "condition",
       text,
+      ...(detail ? { detail } : {}),
       tone,
       source: S(50, verse, provisional),
     });
@@ -1221,8 +1237,10 @@ function conditionNotes(c: Ctx, p: Planet): DasaNote[] {
     note(
       "43",
       "43-44",
-      `${p} stands in the ${ord(h)}, a maraka house of ch. 44: where the dasa is otherwise favourable the text still warns of displeasure of those in power and loss of wealth (50.43-44).`,
+      `${p} stands in the ${withGloss("parashari", h)}: where the dasa is otherwise favourable the text still warns of displeasure of those in power and loss of wealth (50.43-44).`,
       "strain",
+      false,
+      "The 2nd and 7th are the maraka houses of ch. 44.",
     );
   // 50.46-47 the end of Rahu's dasa.
   if (p === "Rahu") {

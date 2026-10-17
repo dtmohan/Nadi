@@ -179,7 +179,7 @@ export function SarvarthaSection({
                   </div>
                   <ul className="mt-2 space-y-1.5 text-xs leading-5">
                     {h.found.map((f) => (
-                      <li key={f.stanza}>
+                      <li key={f.stanza} data-testid={`sarvartha-rule-${h.house}-${f.stanza}`}>
                         <span className="font-medium">
                           <Soft>{f.topic}</Soft>:
                         </span>{" "}
@@ -188,6 +188,21 @@ export function SarvarthaSection({
                           ({h.chapter}.{f.stanza})
                         </span>
                         <FidelityDot tier={f.fidelity} />
+                        {(plain ? f.herePlain : f.here)?.length || (!plain && f.condition) ? (
+                          <span
+                            className="block text-muted-foreground"
+                            data-testid={`sarvartha-here-${h.house}-${f.stanza}`}
+                          >
+                            {!plain && f.condition ? `When ${f.condition}` : ""}
+                            {!plain && f.condition && f.here?.length ? "; here " : ""}
+                            {plain && f.herePlain?.length
+                              ? `Here: ${f.herePlain.join("; ")}`
+                              : !plain && f.here?.length
+                                ? f.here.join("; ")
+                                : ""}
+                            .
+                          </span>
+                        ) : null}
                       </li>
                     ))}
                   </ul>

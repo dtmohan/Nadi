@@ -132,7 +132,7 @@ function housesSection(
       }
       ps.push({
         kind: "p",
-        text: S(endStop(f.text)),
+        text: S(endStop(ctx.plain && f.textPlain ? f.textPlain : f.text)),
         cites: [c.n],
         provisional: c.prov,
         tone: f.tone,
@@ -171,7 +171,9 @@ function housesSection(
       ps.push({
         kind: "p",
         text: S(
-          `${j.support.length ? `Signs of the house prospering: ${list(j.support)}.` : ""} ${j.strain.length ? `Signs against it: ${list(j.strain)}.` : ""}`.trim(),
+          ctx.plain
+            ? `${j.support.length ? `In the house's favour (11.14-15): ${j.supportPlain.join("; ")}.` : ""} ${j.strain.length ? `Against it (11.16): ${j.strainPlain.join("; ")}.` : ""}`.trim()
+            : `${j.support.length ? `Signs of the house prospering: ${list(j.support)}.` : ""} ${j.strain.length ? `Signs against it: ${list(j.strain)}.` : ""}`.trim(),
         ),
         cites: [c.n],
         provisional: c.prov,
@@ -272,12 +274,12 @@ function timingSection(
     const gloss = par.dashas.find(
       (g) => g.lord === d.lord && g.start === d.start,
     );
-    if (gloss) ps.push({ kind: "p", text: S(endStop(gloss.summary)) });
+    if (gloss) ps.push({ kind: "p", text: S(endStop(ctx.plain ? gloss.plain : gloss.summary)) });
     const notes = d.notes.filter((n) => n.layer !== "condition").slice(0, 6);
     for (const n of notes)
       ps.push({
         kind: "p",
-        text: S(endStop(n.detail ? `${n.text} ${n.detail}` : n.text)),
+        text: S(endStop(n.detail && !ctx.plain ? `${n.text} ${n.detail}` : n.text)),
         cites: [cites.add(n.source.label, n.source.url)],
         provisional: n.source.provisional,
         tone: n.tone,

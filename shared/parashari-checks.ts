@@ -2,6 +2,7 @@ import { SIGNS, drishtiQuarters, type Planet, type PlanetPosition } from "./astr
 import { PARASHARI_HOUSE_METHOD_LABEL, type HouseView } from "./house-view";
 import type { ShadbalaResult } from "./shadbala";
 import { parashariCombust, parashariCombustOrb } from "./vargas";
+import { houseGloss, withGlossList } from "./house-gloss";
 
 /**
  * The shared checks behind the Parashari cards, read for one planet: house and lordship, dignity,
@@ -87,16 +88,15 @@ function placeCheck(p: PlanetPosition, inp: ChecksInput): PlanetCheck {
   const byMethod =
     houseView.method === "rashi"
       ? ""
-      : ` (${PARASHARI_HOUSE_METHOD_LABEL[houseView.method]})`;
-  const lords = owns.length ? `; lord of the ${list(owns.map(ord))}` : "";
+      : `; ${PARASHARI_HOUSE_METHOD_LABEL[houseView.method]}`;
+  const gloss = houseGloss("parashari", h);
+  const lords = owns.length ? `; lord of the ${withGlossList("parashari", owns, { the: true })}` : "";
   const retro = p.retrograde ? "; retrograde" : "";
   return {
     kind: "place",
-    text: `${ord(h)} house${byMethod}, ${sign} ${p.degInSign.toFixed(1)}°${lords}${retro}.`,
-    plain: `In the ${ord(h)} house, in ${sign}${
-      owns.length
-        ? `; it rules the ${list(owns.map(ord))} house${owns.length > 1 ? "s" : ""}`
-        : ""
+    text: `${ord(h)} house (${gloss}${byMethod}), ${sign} ${p.degInSign.toFixed(1)}°${lords}${retro}.`,
+    plain: `In the ${ord(h)} house (${gloss}), in ${sign}${
+      owns.length ? `; it rules the ${withGlossList("parashari", owns, { the: true })}` : ""
     }${p.retrograde ? "; moving backward (retrograde)" : ""}.`,
   };
 }

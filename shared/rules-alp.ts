@@ -6,7 +6,8 @@
 // and which house the current pada's navamsa sign "activates". Keep rules declarative so they
 // print in the rule book as written.
 
-import type { Planet, PlanetPosition } from "./astro";
+import { SIGNS, type Planet, type PlanetPosition } from "./astro";
+import { houseGloss, listJoin, ordH, thePlanet, withGloss, withGlossList } from "./house-gloss";
 import type { AlpHouse, AlpPlacement, AlpPoint, ArpResult } from "./alp";
 
 export interface AlpChapter {
@@ -132,7 +133,21 @@ export interface AlpFinding {
   source: string;
   sourceUrl?: string;
   planets: Planet[];
+  /**
+   * What the rule found on this chart, one clause per matched condition ("the Sun, lord of the ALP
+   * lagna, stands in the 7th from the ALP lagna (marriage, spouse and partnership)"). Houses counted
+   * from the ALP lagna carry the Book 1 themes (house-gloss.ts); houses counted from other points do not.
+   */
+  here: string[];
 }
+
+/** How a placement's role reads inside a sentence. */
+const ROLE_WORDS: Record<AlpRole, string> = {
+  "alp-lord": "lord of the ALP lagna",
+  "janma-lord": "lord of the janma lagna",
+  "nakshatra-lord": "lord of the ALP nakshatra",
+  "navamsa-lord": "lord of the activated navamsa sign",
+};
 
 const ROLE_LABEL: Record<AlpRole, string> = {
   "alp-lord": "ALP lagna lord",
@@ -1124,62 +1139,95 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
   const byRole = (role: AlpRole) => ctx.placements.find((p) => p.role === ROLE_LABEL[role]);
   const alpHouseFromJanma = ((ctx.alp - ctx.janma + 12) % 12) + 1;
 
+  const fromAlp = (h: number) => `the ${ordH(h)} from the ALP lagna (${houseGloss("alp", h)})`;
   for (const r of ALP_RULES) {
     const w = r.when;
     const planets: Planet[] = [];
-    if (w.alpHouseFromJanma && !w.alpHouseFromJanma.includes(alpHouseFromJanma)) continue;
-    if (w.activatedHouse && !w.activatedHouse.includes(activated)) continue;
-    if (w.nakshatraLord && !w.nakshatraLord.includes(ctx.point.nakshatraLord)) continue;
-    if (w.activatedFromJanma && !w.activatedFromJanma.includes(((ctx.point.navamsaSign - ctx.janma + 12) % 12) + 1)) continue;
+    const here: string[] = [];
+    if (w.alpHouseFromJanma) {
+      if (!w.alpHouseFromJanma.includes(alpHouseFromJanma)) continue;
+      here.push(`the ALP lagna, ${SIGNS[ctx.alp]}, is the ${ordH(alpHouseFromJanma)} from the janma lagna`);
+    }
+    if (w.activatedHouse) {
+      if (!w.activatedHouse.includes(activated)) continue;
+      here.push(`the activated navamsa sign, ${SIGNS[ctx.point.navamsaSign]}, is ${fromAlp(activated)}`);
+    }
+    if (w.nakshatraLord) {
+      if (!w.nakshatraLord.includes(ctx.point.nakshatraLord)) continue;
+      const nl = ctx.positions.find((p) => p.planet === ctx.point.nakshatraLord);
+      here.push(
+        `the ALP nakshatra, ${ctx.point.nakshatra}, is ruled by ${thePlanet(ctx.point.nakshatraLord)}${nl ? `, which stands in ${fromAlp(houseOfSign(nl.signIndex))}` : ""}`,
+      );
+    }
+    if (w.activatedFromJanma) {
+      const n = ((ctx.point.navamsaSign - ctx.janma + 12) % 12) + 1;
+      if (!w.activatedFromJanma.includes(n)) continue;
+      here.push(`the activated navamsa sign, ${SIGNS[ctx.point.navamsaSign]}, is the ${ordH(n)} from the janma lagna`);
+    }
     if (w.activatedTouches !== undefined) {
       const nav = ctx.point.navamsaSign;
       const touches = [ctx.alp, (ctx.alp + 6) % 12, ctx.janma, (ctx.janma + 6) % 12].includes(nav);
       if (touches !== w.activatedTouches) continue;
+      here.push(`the activated navamsa sign, ${SIGNS[nav]}, is ${fromAlp(houseOfSign(nav))} and the ${ordH(((nav - ctx.janma + 12) % 12) + 1)} from the janma lagna`);
     }
     if (w.activatedNakLordShashtashtaka !== undefined) {
       const nl = ctx.positions.find((p) => p.planet === ctx.point.nakshatraLord);
       const d = nl ? ((nl.signIndex - ctx.point.navamsaSign + 12) % 12) + 1 : 0;
       const is68 = d === 6 || d === 8;
       if (is68 !== w.activatedNakLordShashtashtaka) continue;
-      if (nl) planets.push(nl.planet);
+      if (nl) {
+        planets.push(nl.planet);
+        here.push(`${thePlanet(nl.planet)}, lord of the ALP nakshatra, is the ${ordH(d)} from the activated navamsa sign`);
+      }
     }
     if (w.nakshatraStraddlesAhead !== undefined && ctx.nakStraddlesAhead !== w.nakshatraStraddlesAhead) continue;
-    if (w.arpHouseFromAlp && !w.arpHouseFromAlp.includes(ctx.arp.houseFromAlp)) continue;
+    if (w.arpHouseFromAlp) {
+      if (!w.arpHouseFromAlp.includes(ctx.arp.houseFromAlp)) continue;
+      here.push(`the Akshaya rasi, ${SIGNS[ctx.arp.point.signIndex]}, is ${fromAlp(ctx.arp.houseFromAlp)}`);
+    }
     if (w.arpLordFromAlpLord) {
       if (!w.arpLordFromAlpLord.includes(ctx.arp.arpLord.houseFromAlpLord)) continue;
       planets.push(ctx.point.lord, ctx.arp.point.lord);
+      here.push(`${thePlanet(ctx.arp.point.lord)}, lord of the Akshaya rasi, is the ${ordH(ctx.arp.arpLord.houseFromAlpLord)} from ${thePlanet(ctx.point.lord)}, lord of the ALP lagna`);
     }
     if (w.arpNakLordFromAlpNakLord) {
       if (!w.arpNakLordFromAlpNakLord.includes(ctx.arp.nakLordsMutual)) continue;
       planets.push(ctx.point.nakshatraLord, ctx.arp.dasaLord.planet);
+      here.push(`${thePlanet(ctx.arp.dasaLord.planet)}, lord of the Akshaya nakshatra, is the ${ordH(ctx.arp.nakLordsMutual)} from ${thePlanet(ctx.point.nakshatraLord)}, lord of the ALP nakshatra`);
     }
     if (w.bhuktiFromDasa) {
       if (!w.bhuktiFromDasa.includes(ctx.arp.bhuktiLord.houseFromDasaLord)) continue;
       planets.push(ctx.arp.dasaLord.planet, ctx.arp.bhuktiLord.planet);
+      here.push(`the bhukti lord, ${thePlanet(ctx.arp.bhuktiLord.planet)}, is the ${ordH(ctx.arp.bhuktiLord.houseFromDasaLord)} from the dasa lord, ${thePlanet(ctx.arp.dasaLord.planet)}`);
     }
     if (w.arpNakshatra && ctx.arp.point.nakshatra !== w.arpNakshatra) continue;
     if (w.arpPada && !w.arpPada.includes(ctx.arp.point.pada ?? 0)) continue;
     if (w.arpLordFromArp) {
       if (!w.arpLordFromArp.includes(ctx.arp.arpLord.houseFromArp)) continue;
       planets.push(ctx.arp.arpLord.planet);
+      here.push(`${thePlanet(ctx.arp.arpLord.planet)}, lord of the Akshaya rasi, stands in the ${ordH(ctx.arp.arpLord.houseFromArp)} from it`);
     }
     if (w.dasaLordFromArp) {
       if (!w.dasaLordFromArp.includes(ctx.arp.dasaLord.houseFromArp)) continue;
       planets.push(ctx.arp.dasaLord.planet);
+      here.push(`the dasa lord, ${thePlanet(ctx.arp.dasaLord.planet)}, stands in the ${ordH(ctx.arp.dasaLord.houseFromArp)} from the Akshaya rasi`);
     }
     if (w.dasaLordFromAlp) {
       if (!w.dasaLordFromAlp.includes(ctx.arp.dasaLord.houseFromAlp)) continue;
       planets.push(ctx.arp.dasaLord.planet);
+      here.push(`the dasa lord, ${thePlanet(ctx.arp.dasaLord.planet)}, stands in ${fromAlp(ctx.arp.dasaLord.houseFromAlp)}`);
     }
     if (w.bhuktiLordFromAlp) {
       if (!w.bhuktiLordFromAlp.includes(ctx.arp.bhuktiLord.houseFromAlp)) continue;
       planets.push(ctx.arp.bhuktiLord.planet);
+      here.push(`the bhukti lord, ${thePlanet(ctx.arp.bhuktiLord.planet)}, stands in ${fromAlp(ctx.arp.bhuktiLord.houseFromAlp)}`);
     }
     if (w.threeWays) {
       const tw = threeWaysFor(ctx.natalLagna, ctx.natalLagna.signIndex, ctx.positions);
       const c = threeWaysCount(tw);
       if (c.present !== w.threeWays.present || c.past !== w.threeWays.past || c.future !== w.threeWays.future) continue;
       planets.push(ctx.natalLagna.nakshatraLord, ctx.natalLagna.lord);
+      here.push(...tw.map((t) => `${t.label.charAt(0).toLowerCase()}${t.label.slice(1)}, ${t.detail} (${t.group})`));
     }
     if (w.nakLordFromAlpLord) {
       const l1 = ctx.point.lord;
@@ -1188,8 +1236,10 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
       const p1 = ctx.positions.find((x) => x.planet === l1);
       const p2 = ctx.positions.find((x) => x.planet === l2);
       if (!p1 || !p2) continue;
-      if (!w.nakLordFromAlpLord.includes(((p2.signIndex - p1.signIndex + 12) % 12) + 1)) continue;
+      const n = ((p2.signIndex - p1.signIndex + 12) % 12) + 1;
+      if (!w.nakLordFromAlpLord.includes(n)) continue;
       planets.push(l1, l2);
+      here.push(`${thePlanet(l2)}, lord of the ALP nakshatra, is the ${ordH(n)} from ${thePlanet(l1)}, lord of the ALP lagna`);
     }
     if (w.alpArpLordsTogetherFromJanma) {
       const l1 = ctx.point.lord;
@@ -1198,14 +1248,18 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
       const p1 = ctx.positions.find((x) => x.planet === l1);
       const p2 = ctx.positions.find((x) => x.planet === l2);
       if (!p1 || !p2 || p1.signIndex !== p2.signIndex) continue;
-      if (!w.alpArpLordsTogetherFromJanma.includes(((p1.signIndex - ctx.janma + 12) % 12) + 1)) continue;
+      const n = ((p1.signIndex - ctx.janma + 12) % 12) + 1;
+      if (!w.alpArpLordsTogetherFromJanma.includes(n)) continue;
       planets.push(l1, l2);
+      here.push(`${thePlanet(l1)} and ${thePlanet(l2)}, lords of the ALP lagna and the Akshaya rasi, share ${SIGNS[p1.signIndex]}, the ${ordH(n)} from the janma lagna`);
     }
     if (w.alpHouseFromPlanet) {
       const p = ctx.positions.find((x) => x.planet === w.alpHouseFromPlanet!.planet);
       if (!p) continue;
-      if (!w.alpHouseFromPlanet.houses.includes(((ctx.alp - p.signIndex + 12) % 12) + 1)) continue;
+      const n = ((ctx.alp - p.signIndex + 12) % 12) + 1;
+      if (!w.alpHouseFromPlanet.houses.includes(n)) continue;
       planets.push(p.planet);
+      here.push(`the ALP lagna, ${SIGNS[ctx.alp]}, is the ${ordH(n)} from ${thePlanet(p.planet)}`);
     }
     if (w.lordsTogether) {
       const [h1, h2] = w.lordsTogether;
@@ -1216,24 +1270,41 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
       const p2 = ctx.positions.find((x) => x.planet === l2);
       if (!p1 || !p2 || p1.signIndex !== p2.signIndex) continue;
       planets.push(l1, l2);
+      here.push(`${thePlanet(l1)}, lord of the ${ordH(h1)}, and ${thePlanet(l2)}, lord of the ${ordH(h2)}, share a sign, in ${fromAlp(houseOfSign(p1.signIndex))}`);
     }
     if (w.lordOf) {
       const lord = ctx.houses[w.lordOf - 1].lord;
       const p = ctx.positions.find((x) => x.planet === lord);
       if (!p) continue;
-      if (w.lordOfInHouse && !w.lordOfInHouse.includes(houseOfSign(p.signIndex))) continue;
+      const lh = houseOfSign(p.signIndex);
+      if (w.lordOfInHouse && !w.lordOfInHouse.includes(lh)) continue;
       planets.push(lord);
+      here.push(`${thePlanet(lord)}, lord of the ${ordH(w.lordOf)} from the ALP lagna, stands in the ${withGloss("alp", lh)}`);
     }
     if (w.role) {
       const pl = byRole(w.role);
       if (!pl) continue;
-      if (w.roleInHouse && !w.roleInHouse.includes(pl.houseFromAlp)) continue;
-      if (w.roleInHouseFromJanma && !w.roleInHouseFromJanma.includes(pl.houseFromJanma)) continue;
-      if (w.roleOwnsHouse && !ctx.houses.some((h) => w.roleOwnsHouse!.includes(h.house) && h.lord === pl.planet && pl.planet !== "Rahu" && pl.planet !== "Ketu")) continue;
+      const who = `${thePlanet(pl.planet)}, ${ROLE_WORDS[w.role]},`;
+      if (w.roleInHouse) {
+        if (!w.roleInHouse.includes(pl.houseFromAlp)) continue;
+        here.push(`${who} stands in ${fromAlp(pl.houseFromAlp)}`);
+      }
+      if (w.roleInHouseFromJanma) {
+        if (!w.roleInHouseFromJanma.includes(pl.houseFromJanma)) continue;
+        here.push(`${who} stands in the ${ordH(pl.houseFromJanma)} from the janma lagna`);
+      }
+      if (w.roleOwnsHouse) {
+        const owned = ctx.houses
+          .filter((h) => w.roleOwnsHouse!.includes(h.house) && h.lord === pl.planet && pl.planet !== "Rahu" && pl.planet !== "Ketu")
+          .map((h) => h.house);
+        if (!owned.length) continue;
+        here.push(`${who} rules the ${withGlossList("alp", owned)} from the ALP lagna`);
+      }
       if (w.roleWith) {
         const mates = ctx.positions.filter((p) => p.signIndex === pl.signIndex && p.planet !== pl.planet && w.roleWith!.includes(p.planet));
         if (!mates.length) continue;
         planets.push(...mates.map((m) => m.planet));
+        here.push(`${who} shares a sign with ${listJoin(mates.map((m) => thePlanet(m.planet)))}`);
       }
       planets.unshift(pl.planet);
     }
@@ -1243,8 +1314,9 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
       const h = houseOfSign(p.signIndex);
       if (w.planetInHouse && !w.planetInHouse.includes(h)) continue;
       planets.push(w.planet);
+      if (w.planetInHouse) here.push(`${thePlanet(w.planet)} stands in ${fromAlp(h)}`);
     }
-    out.push({ ruleId: r.id, chapter: r.chapter, text: r.text, weight: r.weight, source: r.source, sourceUrl: r.sourceUrl, planets: Array.from(new Set(planets)) });
+    out.push({ ruleId: r.id, chapter: r.chapter, text: r.text, weight: r.weight, source: r.source, sourceUrl: r.sourceUrl, planets: Array.from(new Set(planets)), here });
   }
   return out.sort((a, b) => b.weight - a.weight);
 }

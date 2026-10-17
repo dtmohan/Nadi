@@ -33,6 +33,7 @@ import {
   type ParashariResult,
 } from "./parashari";
 import { BPHS_URL } from "./parashari-data";
+import { houseGloss } from "./house-gloss";
 import { computeKp, isConditional, nearestChangeText, type KpResult } from "./kp";
 import type { KpFinding } from "./rules-kp";
 import type { AyurResult } from "./jaimini-ayur";
@@ -395,7 +396,7 @@ function inPool(topic: AgreementTopic, f: ParashariFinding): boolean {
 
 const CHALIT_REASON = "read in the bhava-chalit construction the chart is set to";
 
-function bphsVoice(topic: AgreementTopic, par: ParashariResult, gate: Gate): Voice {
+function bphsVoice(topic: AgreementTopic, par: ParashariResult, gate: Gate, plain: boolean): Voice {
   const ev: Evidence[] = [];
   const chalit = par.houseMethod !== "rashi";
   for (const { house, verse } of PAR_JUDGED[topic]) {
@@ -410,16 +411,21 @@ function bphsVoice(topic: AgreementTopic, par: ParashariResult, gate: Gate): Voi
       : bj.source.provisional
         ? "the house judgement leaves out the avastha clauses of 11.14-16 and settles a case the text leaves open"
         : undefined;
-    for (const s of bj.support)
-      ev.push({ tone: "support", text: `${ordinal(house)} house: ${s}`, cite, tier, reason });
-    for (const s of bj.strain)
-      ev.push({ tone: "strain", text: `${ordinal(house)} house: ${s}`, cite, tier, reason });
+    // "7th house (spouse, travel and trade): ..." names the house and what it covers; the plain
+    // items say each point in words (house-gloss.ts, parashari-houses.ts judgeBhavas).
+    const head = `${ordinal(house)} house (${houseGloss("parashari", house)})`;
+    bj.support.forEach((s, i) =>
+      ev.push({ tone: "support", text: `${head}: ${plain ? (bj.supportPlain[i] ?? s) : s}`, cite, tier, reason }),
+    );
+    bj.strain.forEach((s, i) =>
+      ev.push({ tone: "strain", text: `${head}: ${plain ? (bj.strainPlain[i] ?? s) : s}`, cite, tier, reason }),
+    );
   }
   for (const f of par.findings) {
     if (f.kind !== "house" || bookOf(f) !== "bphs" || !inPool(topic, f)) continue;
     ev.push({
       tone: toneOfFinding(f.tone),
-      text: f.text,
+      text: plain && f.plain ? f.plain : f.text,
       cite: { label: f.source.label, url: f.source.url },
       tier: f.source.provisional ? "provisional" : "sourced",
       reason: f.source.provisional ? "the text does not state the rule as applied" : undefined,
@@ -430,10 +436,14 @@ function bphsVoice(topic: AgreementTopic, par: ParashariResult, gate: Gate): Voi
     note: (stance, xs) => {
       const lead = leadOf(stance, xs);
       if (!lead) return "No house rule fires.";
-      const m = lead.text.match(/^(\d+(?:st|nd|rd|th)) house: (.*)$/);
-      return m
-        ? `${m[1]} house judged by 11.14-16: ${m[2]}`
-        : firstSentence(lead.text);
+      const m = lead.text.match(/^(\d+(?:st|nd|rd|th) house \([^)]*\)): (.*)$/);
+      if (!m) return firstSentence(lead.text);
+      const side = lead.tone === "support" ? "in its favour" : "against the house";
+      return plain
+        ? /\bwhich\b/.test(m[2])
+          ? `${m[1]}: ${m[2]}; Parashara counts this ${side} (11.14-16)`
+          : `${m[1]}: ${m[2]}, which Parashara counts ${side} (11.14-16)`
+        : `${m[1]}, judged by 11.14-16: ${m[2]}`;
     },
   });
 }
@@ -497,7 +507,16 @@ function sarvarthaVoice(
       const shown = xs.filter((e, i) => !sarvarthaLeftOut(pool[i].topic, pool[i].text, plain, withheld));
       const lead = leadOf(stance, shown);
       if (!lead) return xs.length ? "rests on stanzas the plain reading leaves out" : "No stanza fires here.";
-      return `${lead.cite.label.replace("Sarvartha Chintamani ", "")}: ${lead.text.replace(/^[^:]*:\s*/, "")}`;
+      const f = pool[xs.indexOf(lead)];
+      const at = lead.cite.label.replace("Sarvartha Chintamani ", "");
+      const result = lead.text.replace(/^[^:]*:\s*/, "");
+      // Which chart facts the stanza stood on (sarvartha.ts scTrace), so the note says why it holds.
+      if (plain) {
+        const how = lead.tone === "support" ? "kindly" : lead.tone === "strain" ? "less kindly" : "both ways";
+        const here = f?.herePlain?.length ? `; here ${f.herePlain.join("; ")}` : "";
+        return `reads the ${ordinal(f?.house ?? 0)} ${how} (${at}: ${result}${here})`;
+      }
+      return `${at}: ${result}${f?.here?.length ? ` (here ${f.here.join("; ")})` : ""}`;
     },
   });
 }
@@ -515,7 +534,7 @@ function parashariVoice(topic: AgreementTopic, input: AgreementInput, gate: Gate
       cites: [],
     });
   const books = [
-    bphsVoice(topic, input.parashari, gate),
+    bphsVoice(topic, input.parashari, gate, input.plain),
     phaladeepikaVoice(topic, input.parashari, gate),
     sarvarthaVoice(topic, input.sarvartha, gate, input.plain, input.withheld),
   ];
@@ -531,10 +550,13 @@ function parashariVoice(topic: AgreementTopic, input: AgreementInput, gate: Gate
       }
       const up = spoken.find((v) => v.stance === "supports" || v.stance === "leans-supports");
       const down = spoken.find((v) => v.stance === "strains" || v.stance === "leans-strains");
+      // A note that is a sentence of its own ("reads the 10th less kindly ...") follows the book's name directly.
+      const said = (v: Voice, lower = false) =>
+        /^(reads |\d+\.\d+:)/.test(v.note) ? `${label(v)} ${v.note}` : `${label(v)}: ${lower ? lc(v.note) : v.note}`;
       if (stance === "contested" && up && down)
-        return clip(`${label(up)}: ${up.note}; yet ${label(down)}: ${lc(down.note)}`, 160);
+        return clip(`${said(up)}; yet ${said(down, true)}`, 280);
       const lead = (stance === "supports" || stance === "leans-supports" ? up : down) ?? spoken[0];
-      return clip(`${label(lead)}: ${lead.note}`, 160);
+      return clip(said(lead), 280);
     },
   });
 }

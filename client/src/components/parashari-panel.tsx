@@ -36,6 +36,7 @@ import {
   computeParashari,
   ord,
   listH,
+  runningNowText,
   roleLabel,
   LORDSHIP_LABEL,
   KENDRA,
@@ -194,6 +195,9 @@ import {
   PHALADEEPIKA_CH2_URL,
 } from "@shared/parashari-significations";
 
+/** First letter up, for plain items that read as clauses. */
+const capFirst = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
 const fmtD = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 
@@ -343,7 +347,7 @@ function Finding({ f }: { f: ParashariFinding }) {
     >
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm font-medium">
-          <Soft>{f.title}</Soft>
+          <Soft>{plain && f.titlePlain ? f.titlePlain : f.title}</Soft>
         </span>
         <span className="flex flex-wrap gap-1">
           {Array.from(new Set(f.planets)).map((p) => (
@@ -405,7 +409,7 @@ function Finding({ f }: { f: ParashariFinding }) {
         </>
       ) : (
         <p className="mt-1 text-sm text-muted-foreground">
-          <Soft>{f.text}</Soft>
+          <Soft>{plain && f.textPlain ? f.textPlain : f.text}</Soft>
         </p>
       )}
       {rest && (
@@ -1381,14 +1385,14 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                     </TableCell>
                     <TableCell className="py-1.5 align-top text-xs">
                       {j.support.length ? (
-                        j.support.join("; ")
+                        capFirst((plain ? j.supportPlain : j.support).join("; "))
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
                     </TableCell>
                     <TableCell className="py-1.5 align-top text-xs">
                       {j.strain.length ? (
-                        j.strain.join("; ")
+                        capFirst((plain ? j.strainPlain : j.strain).join("; "))
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}
@@ -1668,11 +1672,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                   className="mt-2 text-xs text-muted-foreground"
                   data-testid="parashari-current"
                 >
-                  Running now: {cur.lord} dasa,{" "}
-                  {cur.owns.length
-                    ? `lord of the ${listH(cur.owns)}`
-                    : "a node"}{" "}
-                  in the {ord(cur.house)}.
+                  {runningNowText(cur, plain)}
                 </p>
               )}
             </div>
@@ -2017,7 +2017,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                   · {YOGA_CATEGORY_LABEL[y.category]} · {y.source.text} — {y.condition}.
                 </span>{" "}
                 <span>
-                  <Soft>{y.result}</Soft>.
+                  <Soft>{capFirst(y.result)}</Soft>.
                 </span>{" "}
                 <SourceLink
                   source={{
@@ -2026,6 +2026,14 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                   }}
                   mark={false}
                 />
+                {y.here ? (
+                  <span
+                    className="mt-1 block text-muted-foreground"
+                    data-testid={`yoga-here-${y.id}`}
+                  >
+                    Here: {plain && y.herePlain ? y.herePlain : y.here}.
+                  </span>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -5339,6 +5347,8 @@ function FineLevels({
 }
 
 function Facts({ a }: { a: AntarReading }) {
+  const plain = usePlain();
+  const maraka = plain && a.facts.marakaPlain ? a.facts.marakaPlain : a.facts.maraka;
   return (
     <>
       {a.facts.favourable.length > 0 && (
@@ -5353,7 +5363,7 @@ function Facts({ a }: { a: AntarReading }) {
       )}
       {a.facts.adverse.length > 0 && a.facts.maraka && <span> · </span>}
       {a.facts.maraka && (
-        <span className="text-verdict-bad">{a.facts.maraka}</span>
+        <span className="text-verdict-bad">{maraka}</span>
       )}
       {!a.facts.favourable.length &&
         !a.facts.adverse.length &&

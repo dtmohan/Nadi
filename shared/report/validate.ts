@@ -2,6 +2,7 @@
 // A tool rather than a reading; it is exported from its own tab and never joins the Report page picker.
 import { RAO_SOURCE } from "../jaimini-areas";
 import type { BaselineStat } from "../validate-types";
+import { agreeWord, KP_MARKED_KEY, markedHousesText } from "../validate-types";
 import {
   type ReportModule,
   type ReportPara,
@@ -249,7 +250,7 @@ export const validateModule: ReportModule = {
         paras: [
           {
             kind: "p",
-            text: `For each planet, the houses it signifies give an expected nature (favourable through 2, 3, 10 and 11; harmful through 6, 8 and 12), read once directly and once through the sub lords of the cusps it signifies; the events that fell in its dasa, bhukti or antara give the observed nature. ${s.agree} agree and ${s.conflict} conflict read directly; ${s.agreeByCusp} and ${s.conflictByCusp} read through the cusps.`,
+            text: `For each planet, the houses it signifies give an expected nature (favourable through 2, 3, 10 and 11; harmful through 6, 8 and 12), read once directly and once through the sub lords of the cusps it signifies; the events that fell in its dasa, bhukti or antara give the observed nature. Read by the houses each signifies, ${s.agree} ran as KP expects and ${s.conflict} against; read through the sub lords of those cusps, ${s.agreeByCusp} as expected and ${s.conflictByCusp} against. The marked houses: ${KP_MARKED_KEY} (short meanings from Astro Secrets & KP Part 1 ch. 16).`,
             cites: [filterSrc],
             provisional: true,
           },
@@ -268,14 +269,14 @@ export const validateModule: ReportModule = {
             rows: v.planets.map((p) => [
               p.planet,
               p.signifies.join(", ") || "—",
-              nat(p.expected),
-              nat(p.expectedByCusp),
+              `${nat(p.expected)} (${markedHousesText(p.good, p.evil)})`,
+              `${nat(p.expectedByCusp)} (delivers ${markedHousesText(p.goodKept, p.evilKept)})`,
               p.ran.length
                 ? `${p.ran.length} (${p.favourable} fav., ${p.unfavourable} unfav., ${p.mixed} mixed)`
                 : "—",
               nat(p.observed),
-              p.agrees === null ? "—" : yn(p.agrees),
-              p.agreesByCusp === null ? "—" : yn(p.agreesByCusp),
+              p.agrees === null ? "—" : agreeWord(p.agrees),
+              p.agreesByCusp === null ? "—" : agreeWord(p.agreesByCusp),
             ]),
           },
         ],

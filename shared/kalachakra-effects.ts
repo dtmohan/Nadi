@@ -7,6 +7,7 @@ import { SIGNS, SIGN_LORD, FRIENDS, ENEMIES, houseFrom, type Planet, type Planet
 import { BPHS_URL } from "./parashari-data";
 import { argalaOn } from "./jaimini";
 import { parashariCombust } from "./vargas";
+import { listJoin, thePlanet, withGlossList } from "./house-gloss";
 
 const CH50 = BPHS_URL(50);
 const CH64 = BPHS_URL(64);
@@ -123,12 +124,22 @@ export function rasiDasaReadings(D: number, deps: RasiDasaDeps): RasiReading[] {
   if (st) out.push({ label: "Strength of the lord", text: `${lord}, lord of ${SIGNS[D]}, has ${st === "full" ? "full" : st === "half" ? "middling" : "little"} Shadbala, so the text expects the sign's results ${st === "full" ? "in full" : st === "half" ? "in moderate measure" : "only in small measure"}.`, source: S("1-3"), tone: st === "full" ? "support" : st === "half" ? "mixed" : "strain" });
 
   // 50.4-10 planets around the sign and the owner-occupant pairing.
+  // "Rahu in the 5th from Cancer, and the Sun and Mercury in the 8th from it": each planet with its own house.
+  const fromSign = (ps: PlanetPosition[]) => {
+    const m = new Map<number, PlanetPosition[]>();
+    for (const p of ps) m.set(houseFrom(D, p.signIndex), [...(m.get(houseFrom(D, p.signIndex)) ?? []), p]);
+    const gs = Array.from(m.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([h, qs]) => `${listJoin(qs.map((q) => thePlanet(q.planet)))} in the ${ord(h)}`);
+    return gs.length === 1 ? `${gs[0]} from ${SIGNS[D]}` : `${gs[0]} from ${SIGNS[D]}, and ${listJoin(gs.slice(1))} from it`;
+  };
+  const kind = (ps: PlanetPosition[], word: string) => (ps.length === 1 ? `a ${word}` : `${ps.length === 2 ? "both" : "all"} ${word}s here`);
   const m589 = [...mal(inH(5)), ...mal(inH(8)), ...mal(inH(9))];
-  if (m589.length) bad.push(`${names(m589)} malefic in the 5th, 8th or 9th from ${SIGNS[D]} ${vb(m589, "makes", "make")} the dasa distressful (50.4)`);
+  if (m589.length) bad.push(`${fromSign(m589)}, ${kind(m589, "malefic")}, ${vb(m589, "makes", "make")} the dasa distressful (50.4)`);
   const m36 = [...mal(inH(3)), ...mal(inH(6))];
-  if (m36.length) good.push(`${names(m36)} malefic in the 3rd or 6th from the sign ${vb(m36, "gives", "give")} victory over enemies and happiness (50.4-5)`);
+  if (m36.length) good.push(`${fromSign(m36)}, ${kind(m36, "malefic")}, ${vb(m36, "gives", "give")} victory over enemies and happiness (50.4-5)`);
   const b36 = [...ben(inH(3)), ...ben(inH(6))];
-  if (b36.length) bad.push(`${names(b36)} benefic in the 3rd or 6th from the sign ${vb(b36, "gives", "give")} defeat (50.5)`);
+  if (b36.length) bad.push(`${fromSign(b36)}, ${kind(b36, "benefic")}, ${vb(b36, "gives", "give")} defeat (50.5)`);
   if (inH(11).length) good.push(`${names(inH(11))} in the 11th from the sign ${vb(inH(11), "gives", "give")} conquests and happiness (50.6)`);
   const bIn = ben(occ), mIn = mal(occ);
   let pairTone: "support" | "strain" | "mixed" | undefined;
@@ -145,7 +156,7 @@ export function rasiDasaReadings(D: number, deps: RasiDasaDeps): RasiReading[] {
   if (movable) {
     const badhaka = mal(inH(11));
     const withLord = mal(positions.filter((p) => p.signIndex === lordPos.signIndex && p.planet !== lord));
-    if (badhaka.length || withLord.length) bad.push(`${SIGNS[D]} is movable, so its 11th, ${SIGNS[(D + 10) % 12]}, is its Badhaka sign: ${[badhaka.length ? `${names(badhaka)} there` : "", withLord.length ? `${names(withLord)} with the sign's lord ${lord}` : ""].filter(Boolean).join(" and ")} bring great sorrow, confinement and disease (50.20-21)`);
+    if (badhaka.length || withLord.length) bad.push(`${SIGNS[D]} is movable, so its 11th, ${SIGNS[(D + 10) % 12]}, is its Badhaka sign: ${[badhaka.length ? `${names(badhaka)} there` : "", withLord.length ? `${names(withLord)} with the sign's lord ${lord}` : ""].filter(Boolean).join(" and ")} ${badhaka.length + withLord.length === 1 ? "brings" : "bring"} great sorrow, confinement and disease (50.20-21)`);
   }
   const rahu = positions.find((p) => p.planet === "Rahu")!;
   const rh = houseFrom(D, rahu.signIndex);
@@ -160,7 +171,7 @@ export function rasiDasaReadings(D: number, deps: RasiDasaDeps): RasiReading[] {
   if (evilOcc.length) bad.push(`${names(evilOcc)} occupying the sign (the Sun, Mars, Saturn, or the lords of the 8th and 12th): evil effects, loss through the displeasure of those in power (50.24, 50.59)`);
   if (occ.some((p) => p.planet === "Rahu")) bad.push(`Rahu in the sign: loss through the displeasure of those in power (50.24)`);
   const growth = occ.filter((p) => [1, 4, 5, 9, 10, 11].some((h) => lordOf(h) === p.planet));
-  if (growth.length) good.push(`${growth.map((p) => `${p.planet}, lord of the ${[1, 4, 5, 9, 10, 11].filter((h) => lordOf(h) === p.planet).map(ord).join(" and ")}`).join("; ")} in the sign: growth of those houses in proportion to their strength (50.66); with Jupiter, Venus or a trine lord there, well-being, opulence and devotion (50.67), and with the lords of the 1st, 9th or 10th, an exalted planet or benefics, success in all ventures (50.72)`);
+  if (growth.length) good.push(`${growth.map((p) => `${thePlanet(p.planet)}, lord of the ${withGlossList("parashari", [1, 4, 5, 9, 10, 11].filter((h) => lordOf(h) === p.planet), { the: true })}`).join("; ")}, in the sign: growth of ${growth.length === 1 && [1, 4, 5, 9, 10, 11].filter((h) => lordOf(h) === growth[0].planet).length === 1 ? "that house in proportion to its" : "those houses in proportion to their"} strength (50.66); with Jupiter, Venus or a trine lord there, well-being, opulence and devotion (50.67), and with the lords of the 1st, 9th or 10th, an exalted planet or benefics, success in all ventures (50.72)`);
   else if (occ.some((p) => ["Jupiter", "Venus"].includes(p.planet))) good.push(`${names(occ.filter((p) => ["Jupiter", "Venus"].includes(p.planet)))} in the sign: well-being, opulence, glory and devotion (50.67), success in ventures (50.72)`);
 
   // 50.25-28, 50.40-41 trines from the sign.

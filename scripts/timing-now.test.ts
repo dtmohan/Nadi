@@ -188,7 +188,7 @@ test("timing-now: a real chart carries the plain gloss, the rising kind, and a c
   for (const d of r.dashas) {
     assert.ok(d.plain.length > 0, d.lord);
     if (d.owns.length) assert.match(d.plain, /^Rules the /, d.lord);
-    else assert.match(d.plain, /^In the \d+(st|nd|rd|th), giving the results of its sign lord /, d.lord);
+    else assert.match(d.plain, /^In the \d+(st|nd|rd|th) \([a-z ,]+\), giving the results of its sign lord /, d.lord);
   }
   for (const d of r.dasaReadings) {
     assert.ok(["head", "hind", "both"].includes(d.timing.rising), d.lord);

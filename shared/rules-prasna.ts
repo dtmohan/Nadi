@@ -16,6 +16,7 @@ import { drishtiQuarters, naturalBenefic } from "./parashari";
 import { toneOfText } from "./synthesis";
 import { redactProse } from "./life-stage";
 import type { PlanetStrength } from "./strength";
+import { ordH, thePlanet, withGloss } from "./house-gloss";
 
 export interface PrasnaHouseRule {
   house: number; // 1..12 from the ascendant
@@ -453,7 +454,10 @@ export interface PrasnaBhavaFructification {
   lordFavourable: boolean | null;
   karakaFavourable: boolean | null;
   verdict: PrasnaBhavaVerdict;
+  /** The lord and karaka, where they stand and how they fare, then what 14.39-41 makes of it. */
   note: string;
+  /** The same, with a gentler ending for the weakest verdict. */
+  notePlain: string;
   source: string;
 }
 
@@ -775,6 +779,30 @@ const FRUCTIFICATION_NOTE: Record<PrasnaBhavaVerdict, string> = {
     "Lord and karaka both weak, in unfavourable places: the house's results turn negative.",
 };
 
+/** The plain ending for the weakest verdict: the gentle register, not the text's "turn negative". */
+const FRUCTIFICATION_PLAIN_NEGATIVE = "this side of life is likely to ask for more effort and patience";
+
+/** "Its lord, Saturn in the 5th, and its karaka, Jupiter in the 2nd, are both weak and badly placed". */
+function fructificationFacts(
+  lord: Planet,
+  karaka: Planet,
+  lordHouse: number,
+  karakaHouse: number,
+  lordStrong: boolean | null,
+  karakaStrong: boolean | null,
+  lordFav: boolean | null,
+  karakaFav: boolean | null,
+): string {
+  const st = (x: boolean | null) => (x === null ? "of unknown strength" : x ? "strong" : "weak");
+  const pl = (x: boolean | null) => (x === null ? "neither well nor badly placed" : x ? "well placed" : "badly placed");
+  if (lord === karaka)
+    return `Its lord and karaka, ${thePlanet(lord)} in the ${ordH(lordHouse)}, is ${st(lordStrong)} and ${pl(lordFav)}`;
+  const who = `Its lord, ${thePlanet(lord)} in the ${ordH(lordHouse)}, and its karaka, ${thePlanet(karaka)} in the ${ordH(karakaHouse)}`;
+  if (lordStrong === karakaStrong && lordFav === karakaFav) return `${who}, are both ${st(lordStrong)} and ${pl(lordFav)}`;
+  if (lordStrong === karakaStrong) return `${who}, are both ${st(lordStrong)}; the lord is ${pl(lordFav)}, the karaka ${pl(karakaFav)}`;
+  return `Its lord, ${thePlanet(lord)} in the ${ordH(lordHouse)}, is ${st(lordStrong)} and ${pl(lordFav)}; its karaka, ${thePlanet(karaka)} in the ${ordH(karakaHouse)}, is ${st(karakaStrong)} and ${pl(karakaFav)}`;
+}
+
 /** Read "Fructification of Bhavas" for a chart: one verdict per house, from its lord and karaka. */
 export function computePrasnaFructification(
   positions: PlanetPosition[],
@@ -794,10 +822,10 @@ export function computePrasnaFructification(
     const lordStrong = ls ? !PRASNA_WEAK.has(ls.effectiveDignity) : null;
     const karakaStrong = ks ? !PRASNA_WEAK.has(ks.effectiveDignity) : null;
 
-    const lordFavourable = posClass(houseFrom(lagnaIdx, posOf(lord).signIndex));
-    const karakaFavourable = posClass(
-      houseFrom(lagnaIdx, posOf(karaka).signIndex),
-    );
+    const lordHouse = houseFrom(lagnaIdx, posOf(lord).signIndex);
+    const karakaHouse = houseFrom(lagnaIdx, posOf(karaka).signIndex);
+    const lordFavourable = posClass(lordHouse);
+    const karakaFavourable = posClass(karakaHouse);
 
     let verdict: PrasnaBhavaVerdict;
     if (lordStrong === true && karakaStrong === true) {
@@ -823,7 +851,15 @@ export function computePrasnaFructification(
       lordFavourable,
       karakaFavourable,
       verdict,
-      note: FRUCTIFICATION_NOTE[verdict],
+      ...(() => {
+        const facts = fructificationFacts(lord, karaka, lordHouse, karakaHouse, lordStrong, karakaStrong, lordFavourable, karakaFavourable);
+        const result = FRUCTIFICATION_NOTE[verdict].replace(/^[^:]*:\s*/, "");
+        const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+        return {
+          note: `${facts}. ${cap(result)}`,
+          notePlain: `${facts}. ${cap(verdict === "negative" ? `${FRUCTIFICATION_PLAIN_NEGATIVE}.` : result)}`,
+        };
+      })(),
       source: "Prasna Marga 14.39-41",
     });
   }
@@ -1336,14 +1372,14 @@ export function computeFructificationTiming(
     const lordHouse = houseFrom(lagnaIdx, lordSign);
     const visible = lordHouse >= 7 && lordHouse <= 12;
     const signs = houseFrom(houseSign, lordSign);
-    const unit = visible ? "days" : "months";
+    const unit = `${visible ? "day" : "month"}${signs === 1 ? "" : "s"}`;
     return {
       house,
       lord,
       lordHouse,
       visible,
       signs,
-      text: `${lord} in the ${ord(lordHouse)} (the ${visible ? "visible" : "invisible"} half): ${signs} ${unit} (14.85).`,
+      text: `its lord ${thePlanet(lord)} is in the ${ord(lordHouse)}, the ${visible ? "visible" : "invisible"} half: ${signs} ${unit} (14.85).`,
     };
   });
 

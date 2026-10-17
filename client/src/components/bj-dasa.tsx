@@ -7,6 +7,7 @@ import type {
   DasaScheme,
 } from "@shared/bj-dasa";
 import { BJ_DASA_READING, DASA_EFFECTS, BJ8_URL } from "@shared/bj-dasa";
+import { SIGNS, SIGN_LORD } from "@shared/astro";
 import { formatYears, type Seven } from "@shared/ayurdaya";
 import {
   Table,
@@ -70,6 +71,7 @@ export function BjDasaSection({
   );
   const src = d.sources;
   const cur = d.current;
+  const lagnaEntry = d.order.find((e) => e.lord === "Lagna");
   return (
     <div data-testid="parashari-bj-dasa">
       <SectionTitle
@@ -206,8 +208,13 @@ export function BjDasaSection({
             </p>
           )}
           {cur.lord === "Lagna" && (
-            <p className="mt-1 text-muted-foreground">
-              The lagna dasa takes the results of its lord's dasa, 8.19.
+            <p
+              className="mt-1 text-muted-foreground"
+              data-testid="bj-dasa-lagna-lord"
+            >
+              The lagna dasa takes the results of its lord's dasa, 8.19. Here
+              the lagna is {SIGNS[cur.signIndex]}, so this dasa reads as{" "}
+              {SIGN_LORD[cur.signIndex]}'s.
             </p>
           )}
           {d.naisargikaCurrent && (
@@ -391,6 +398,9 @@ export function BjDasaSection({
               8.{r.verse}
             </a>{" "}
             {r.rule}
+            {r.verse === "19" && lagnaEntry
+              ? ` Here the lagna is ${SIGNS[lagnaEntry.signIndex]}, so its dasa reads as ${SIGN_LORD[lagnaEntry.signIndex]}'s.`
+              : ""}
           </li>
         ))}
       </ul>

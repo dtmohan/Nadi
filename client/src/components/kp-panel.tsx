@@ -57,6 +57,9 @@ import {
   KP_CUSP_THEMES,
   KP_SOURCES,
   KP_TYPE_LEVEL_LABEL,
+  kpHerePlain,
+  kpTimingPlain,
+  kpUsedGloss,
   type KpFinding,
 } from "@shared/rules-kp";
 import { Working } from "@/components/working";
@@ -1609,15 +1612,11 @@ export function KpPanel({ result }: { result: ChartResult }) {
                               data-testid={`kp-finding-timing-${f.ruleId}`}
                             >
                               {plain ? (
-                                <>
-                                  Timing: when the running periods belong to
-                                  planets speaking for houses{" "}
-                                  {f.timing.join(", ")} (
-                                  {planetsFor(f.timing)
-                                    .map((p) => PLANET_ABBR[p])
-                                    .join(" ")}
-                                  ).
-                                </>
+                                kpTimingPlain(
+                                  f.timing,
+                                  planetsFor(f.timing),
+                                  kp.planets.length,
+                                )
                               ) : (
                                 <>
                                   Timing: joint periods of {f.timing.join("-")}{" "}
@@ -1630,9 +1629,18 @@ export function KpPanel({ result }: { result: ChartResult }) {
                               )}
                             </span>
                           )}
+                          {plain && (
+                            <span
+                              className="mt-0.5 block text-xs text-muted-foreground"
+                              data-testid={`kp-here-${f.ruleId}`}
+                            >
+                              {kpHerePlain(f)}
+                            </span>
+                          )}
                           {mode === "practitioner" && (
                             <span className="ml-1.5 text-xs text-muted-foreground">
-                              {f.evidence}.{" "}
+                              {f.evidence}
+                              {f.used?.length ? ` (${kpUsedGloss(f.used)})` : ""}.{" "}
                               {f.sourceUrl ? (
                                 <Cite href={f.sourceUrl}>{f.source}</Cite>
                               ) : (
