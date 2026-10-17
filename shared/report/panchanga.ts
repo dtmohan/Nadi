@@ -1,11 +1,20 @@
 // The day of birth (Surya Siddhanta), the sky at the reading date, and the gochara from the natal Moon.
 import { SUNRISE_DEFINITIONS } from "../schema";
-import { houseFrom, SIGNS } from "../astro";
+import { fmtDeg, fmtDegShort, houseFrom, SIGNS } from "../astro";
+import {
+  BIRTH_STAR_CAVEATS,
+  birthStarReading,
+  birthStarSource,
+  shownBirthStarItems,
+  type BirthStarSource,
+} from "../birth-star";
 import { displayLocal } from "../time-basis";
 import { PANCHANGA_SOURCES } from "../panchanga";
 import { computeGochara, gocharaPlainEffect, GOCHARA_CAVEATS, natalOwnMarks } from "../gochara";
 import { gocharaPractice, GOCHARA_PRACTICE_NOTES } from "../gochara-practice";
 import {
+  cap,
+  endStop,
   fmtDate,
   ORD,
   type ReportModule,
@@ -61,6 +70,64 @@ export const panchangaModule: ReportModule = {
             text: "These are the five limbs of the day as the Surya Siddhanta defines them. The texts this report cites do not read character or fortune from the weekday, tithi, yoga or karana of birth, so no such reading is given here.",
           },
         ],
+      });
+    }
+
+    // The birth star, a separate modern layer (Sutton, The Nakshatras, 2014). It reads the natal Moon
+    // only and feeds no verdict; the selection and the adult-topic gate are the screen's own.
+    const star = birthStarReading(pos("Moon").lon, { withhold: withheld });
+    if (star) {
+      const { plain, S } = ctx;
+      const bc = (c: BirthStarSource) => cites.add(c.label, c.url);
+      const QUARTER = ["first", "second", "third", "fourth"];
+      const paras: ReportPara[] = [
+        {
+          kind: "p",
+          text: plain
+            ? `The Moon was in ${star.name} at birth, in its ${QUARTER[star.pada - 1]} quarter (${fmtDegShort(star.moonLon)} ${SIGNS[star.signIndex]}). What follows paraphrases Komilla Sutton's modern reading of this star. It is kept apart from the classical texts and shapes no verdict in this report.`
+            : `Janma nakshatra ${star.name}${star.suttonName !== star.name ? ` (Sutton: ${star.suttonName})` : ""}, pada ${star.pada}: Moon ${fmtDeg(star.moonLon)} ${SIGNS[star.signIndex]}, navamsa ${SIGNS[star.navamsaSign]}. Paraphrased from Sutton's chapter on the star, with her pada qualifications (ch. 3) and the 48' gandanta limit (ch. 7). A modern single-author layer: it feeds no verdict, agreement, validation or rectification score.`,
+          cites: [bc(birthStarSource(4, `${star.chapterPages[0]}–${star.chapterPages[1]}`))],
+        },
+      ];
+      const facts = star.facts.filter((f) => !plain || !f.practitionerOnly);
+      if (plain)
+        paras.push({
+          kind: "p",
+          text: S(facts.map((f) => endStop(`${f.label}: ${f.plain}`)).join(" ")),
+          cites: Array.from(new Set(facts.map((f) => bc(f.cite)))),
+        });
+      else
+        paras.push({
+          kind: "table",
+          head: ["Fact", "Sutton", "Where"],
+          rows: facts.map((f) => [
+            f.technical ?? f.label,
+            cap(f.text),
+            f.cite.label.replace(/^Sutton 2014, /, "").replace("e-book ", ""),
+          ]),
+        });
+      if (!plain)
+        for (const n of star.notes)
+          paras.push({ kind: "note", text: n.text, cites: [bc(n.cite)] });
+      paras.push({ kind: "note", text: BIRTH_STAR_CAVEATS[0] });
+      // Each reading under its own heading, as on the screen.
+      const sub: ReportSection[] = shownBirthStarItems(star, plain, ctx.inSeason("marriage")).map((i) => ({
+        id: `birth-star-${i.id}`,
+        title: plain ? i.title : (i.technical ?? i.title),
+        paras: [
+          {
+            kind: "p",
+            text: S(endStop(plain ? i.plain : i.text)) + (i.early && !plain ? " (for the adult years)" : ""),
+            cites: [bc(i.cite)],
+          },
+        ],
+      }));
+      out.push({
+        id: "birth-star",
+        title: "The birth star",
+        kicker: "A modern reading · Sutton, The Nakshatras (2014)",
+        paras,
+        sub,
       });
     }
 
