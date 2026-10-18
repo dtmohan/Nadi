@@ -724,8 +724,11 @@ test("Yoga database: Brihat Jataka 14 lunar yogas", () => {
   assert.ok(names(place(3, 0, 11, 4, 5, 6, 7), 0).includes("Anapha"));
   // Mars in 2nd, Saturn in 12th → Durudhura.
   assert.ok(names(place(3, 0, 1, 4, 5, 6, 11), 0).includes("Durudhura"));
-  // No planet in the 2nd or 12th → Kemadruma.
-  assert.ok(names(place(3, 0, 4, 5, 6, 7, 8), 0).includes("Kemadruma"));
+  // No planet in the 2nd or 12th → Kemadruma (Moon not in a kendra from the lagna,
+  // not accompanied, no planet in a kendra from the Moon).
+  assert.ok(names(place(2, 0, 4, 5, 7, 8, 10), 1).includes("Kemadruma"));
+  // Moon in the 1st (a kendra from lagna 0) cancels Kemadruma.
+  assert.ok(!names(place(3, 0, 4, 5, 6, 7, 8), 0).includes("Kemadruma"));
   // Mercury in the 6th (Virgo), Jupiter 7th (Libra), Venus 8th (Scorpio) → Adhi.
   assert.ok(names(place(3, 0, 2, 5, 6, 7, 9), 0).includes("Adhi"));
 });
@@ -757,27 +760,33 @@ test("Yoga database: Brihat Jataka 15 two-planet yogas", () => {
 
 test("Yoga database: Brihat Jataka 16 ascetic (Sanyasa) yoga", () => {
   const SIGNS = ["Aries","Taurus","Gemini","Cancer","Leo","Virgo","Libra","Scorpio","Sagittarius","Capricorn","Aquarius","Pisces"];
-  const at = (planet: string, signIndex: number) => ({
-    planet, lon: signIndex * 30, signIndex, sign: SIGNS[signIndex],
-    degInSign: 0, speed: 0, retrograde: false, nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity: "—", combust: false, signLord: "Mars",
+  const at = (planet: string, signIndex: number, deg = 0) => ({
+    planet, lon: signIndex * 30 + deg, signIndex, sign: SIGNS[signIndex],
+    degInSign: deg, speed: 0, retrograde: false, nakshatraIndex: 0, nakshatra: "Ashwini", nakshatraLord: "Ketu", pada: 1, dignity: "—", combust: false, signLord: "Mars",
   }) as any;
   const names = (positions: any[], lagnaIdx: number) =>
     computeYogas({ positions, lagnaIdx }).map((y) => y.name);
-  // Four planets (Sun, Moon, Mars, Mercury) in Aries → Sanyasa (no benefic aspects the group).
+  // Four planets in Aries; the strongest (Jupiter, 20°, 17° from the Sun) is outside
+  // the Surya Siddhanta orb, and no benefic aspects the group → Sanyasa.
   const four = [
-    at("Sun", 0), at("Moon", 0), at("Mars", 0), at("Mercury", 0), at("Jupiter", 5), at("Venus", 7), at("Saturn", 9),
+    at("Sun", 0, 3), at("Moon", 0, 6), at("Mars", 0, 9), at("Jupiter", 0, 20), at("Mercury", 5), at("Venus", 7), at("Saturn", 9),
   ];
   assert.ok(names(four, 0).includes("Sanyasa (Pravrajya)"));
   // Three planets in one sign, none elsewhere → no Sanyasa.
   const three = [
-    at("Sun", 0), at("Moon", 0), at("Mars", 0), at("Mercury", 3), at("Jupiter", 5), at("Venus", 7), at("Saturn", 9),
+    at("Sun", 0, 3), at("Moon", 0, 6), at("Mars", 0, 9), at("Mercury", 3), at("Jupiter", 5), at("Venus", 7), at("Saturn", 9),
   ];
   assert.ok(!names(three, 0).includes("Sanyasa (Pravrajya)"));
-  // A benefic (Jupiter in Leo, its 9th) casting a full aspect on the group cancels it.
+  // A benefic (Venus in Libra, its 7th) casting a full aspect on the group cancels it.
   const cancelled = [
-    at("Sun", 0), at("Moon", 0), at("Mars", 0), at("Mercury", 0), at("Jupiter", 4), at("Venus", 7), at("Saturn", 9),
+    at("Sun", 0, 3), at("Moon", 0, 6), at("Mars", 0, 9), at("Jupiter", 0, 20), at("Mercury", 5), at("Venus", 6), at("Saturn", 9),
   ];
   assert.ok(!names(cancelled, 0).includes("Sanyasa (Pravrajya)"));
+  // The strongest (Mars 9°, 6° from the Sun) inside the Surya Siddhanta orb → no Sanyasa.
+  const burnt = [
+    at("Sun", 0, 3), at("Moon", 0, 6), at("Mars", 0, 9), at("Mercury", 0, 4), at("Jupiter", 5), at("Venus", 7), at("Saturn", 9),
+  ];
+  assert.ok(!names(burnt, 0).includes("Sanyasa (Pravrajya)"));
 });
 
 test("Yoga database: Brihat Jataka 11 raja yogas", () => {

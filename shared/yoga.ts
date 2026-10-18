@@ -11,6 +11,7 @@ import {
   type PlanetPosition,
 } from "./astro";
 import { SC_RAJYOGAS, buildSarvarthaContext, scTrace } from "./sarvartha";
+import { parashariCombust } from "./vargas";
 import { listJoin, ordH, thePlanet } from "./house-gloss";
 import { charaKarakas, navamsaOf, arudhaOf } from "./jaimini";
 import { rasiAspects } from "./jaimini-core";
@@ -463,7 +464,7 @@ const LUNAR: Yoga[] = [
     category: "lunar",
     condition: "no planet from Mars to Saturn in the 2nd or 12th house from the Moon",
     result: "dirty, afflicted with grief, deeds unsuited to rank, poor, serves others, wicked",
-    note: "Cancelled (14.3 note) when the Moon is in a kendra from the ascendant or accompanied by a planet.",
+    note: "Cancelled (14.3 note) when the Moon is in a kendra from the ascendant or accompanied by a planet; Phaladeepika 7 adds a planet in a kendra from the Moon.",
     test: (ctx) => {
       const second = ctx.positions.some(
         (p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 2,
@@ -471,7 +472,19 @@ const LUNAR: Yoga[] = [
       const twelfth = ctx.positions.some(
         (p) => FIVE.includes(p.planet) && fromMoon(ctx, p) === 12,
       );
-      return !second && !twelfth;
+      if (second || twelfth) return false;
+      const moon = ctx.positions.find((p) => p.planet === "Moon")!;
+      const kendra = [1, 4, 7, 10];
+      const moonInKendraFromLagna = kendra.includes(
+        houseFrom(ctx.lagnaIdx, moon.signIndex),
+      );
+      const accompanied = ctx.positions.some(
+        (p) => p.planet !== "Moon" && p.signIndex === moon.signIndex,
+      );
+      const planetInKendraFromMoon = ctx.positions.some(
+        (p) => p.planet !== "Moon" && kendra.includes(fromMoon(ctx, p)),
+      );
+      return !(moonInKendraFromLagna || accompanied || planetInKendraFromMoon);
     },
   },
   {
@@ -569,11 +582,13 @@ const ASCETIC: Yoga[] = [
         }
       }
       if (!group.length) return false;
-      // The strongest (ahead by degree) must not be combust.
+      // The strongest (ahead by degree) must not be combust, by the Parashari
+      // (Surya Siddhanta) orbs quoted under 7.28-29, not the Nadi 3°20' field.
       const strongest = group.reduce((a, b) =>
         a.degInSign >= b.degInSign ? a : b,
       );
-      if (strongest.combust) return false;
+      const sun = ctx.positions.find((p) => p.planet === "Sun")!;
+      if (parashariCombust(strongest, sun.lon)) return false;
       // The lagna lord or a strong benefic casting a full aspect cancels it.
       const aspects = (p: PlanetPosition) =>
         drishtiQuarters(p.planet, p.signIndex, groupSign) >= 4;
