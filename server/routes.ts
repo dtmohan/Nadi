@@ -42,6 +42,7 @@ import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
 import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
 import { DateTime } from "luxon";
 import { buildChartPdf } from "./pdf";
+import { renderPlanetFragments } from "../shared/prose-engine";
 import { renderReportPdf } from "./report-pdf";
 import {
   buildReport,
@@ -242,6 +243,7 @@ export function computeChart(chart: Chart): ChartResult {
       })),
     ),
     nakshatraWealth: assessNakshatraWealth(positions, asc),
+    prose: renderPlanetFragments(positions, Math.floor((asc % 360) / 30)),
     sarvartha: computeSarvartha(positions, asc, computeVargas(positions, asc)),
     lagnaWindows: lagnaWindows(jd, chart.latitude, chart.longitude, opts),
   };

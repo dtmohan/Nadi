@@ -3,6 +3,7 @@ import type { SensitiveGate } from "./life-stage";
 import { z } from "zod";
 import type { PlanetPosition, TransitPeriod, NakshatraPeriod, SignPeriod, PlanetSignPeriod } from "./astro";
 import type { FatherArishtaWindow } from "./father-arishta";
+import type { ProseFragment } from "./prose-engine";
 import type { Reading } from "./rules";
 import type { JaiminiResult } from "./jaimini";
 import type { KpBase } from "./kp";
@@ -119,6 +120,8 @@ export interface ChartResult {
   ayanamsaValue: number;
   positions: PlanetPosition[];
   reading: Reading;
+  /** Thesaurus prose fragments (Internal Ear harvest) — deterministic, source-noted. */
+  prose: ProseFragment[];
   transits: TransitPeriod[];
   now: {
     positions: PlanetPosition[];
