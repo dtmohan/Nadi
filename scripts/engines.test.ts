@@ -763,16 +763,21 @@ test("Yoga database: Brihat Jataka 16 ascetic (Sanyasa) yoga", () => {
   }) as any;
   const names = (positions: any[], lagnaIdx: number) =>
     computeYogas({ positions, lagnaIdx }).map((y) => y.name);
-  // Four planets (Sun, Moon, Mars, Mercury) in Aries → Sanyasa.
+  // Four planets (Sun, Moon, Mars, Mercury) in Aries → Sanyasa (no benefic aspects the group).
   const four = [
-    at("Sun", 0), at("Moon", 0), at("Mars", 0), at("Mercury", 0), at("Jupiter", 4), at("Venus", 6), at("Saturn", 9),
+    at("Sun", 0), at("Moon", 0), at("Mars", 0), at("Mercury", 0), at("Jupiter", 5), at("Venus", 7), at("Saturn", 9),
   ];
   assert.ok(names(four, 0).includes("Sanyasa (Pravrajya)"));
   // Three planets in one sign, none elsewhere → no Sanyasa.
   const three = [
-    at("Sun", 0), at("Moon", 0), at("Mars", 0), at("Mercury", 3), at("Jupiter", 4), at("Venus", 6), at("Saturn", 9),
+    at("Sun", 0), at("Moon", 0), at("Mars", 0), at("Mercury", 3), at("Jupiter", 5), at("Venus", 7), at("Saturn", 9),
   ];
   assert.ok(!names(three, 0).includes("Sanyasa (Pravrajya)"));
+  // A benefic (Jupiter in Leo, its 9th) casting a full aspect on the group cancels it.
+  const cancelled = [
+    at("Sun", 0), at("Moon", 0), at("Mars", 0), at("Mercury", 0), at("Jupiter", 4), at("Venus", 7), at("Saturn", 9),
+  ];
+  assert.ok(!names(cancelled, 0).includes("Sanyasa (Pravrajya)"));
 });
 
 test("Yoga database: Brihat Jataka 11 raja yogas", () => {

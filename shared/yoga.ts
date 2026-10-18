@@ -5,6 +5,7 @@ import {
   SIGNS,
   SIGN_LORD,
   SIGN_QUALITY,
+  drishtiQuarters,
   houseFrom,
   naturalBenefic,
   type PlanetPosition,
@@ -549,16 +550,41 @@ const ASCETIC: Yoga[] = [
     condition: "four or more powerful planets in a single sign",
     result:
       "becomes an ascetic, of a class set by the most powerful planet — Mars: Sakya; Mercury: Ajivika; Jupiter: Bhikshuka; Moon: Vriddhasravaka; Venus: Chakra; Saturn: Nirgrantha; Sun: Vanyasana",
-    note: "If no planet is powerful there is no Pravrajya; if the powerful planet suffered defeat in conjunction, the ascetic reverts (16.1-2). The predicate takes the sign holding four or more planets, the 'powerful' call being provisional.",
+    note:
+      "Cancelled or weakened when: no planet in the group is powerful (16.1 note); the strongest planet is combust (16.2); it is defeated in graha-yuddha and aspected, so the person reverts (16.2); more than one planet is powerful (taken then discarded); the lagna lord or a strong benefic aspects the group, so the person stays in the world; or the group falls in the 8th (Yogabhrashta). The geometry alone over-reports — the Sun, Mercury and Venus always travel close, so four planets in one sign is common, not rare.",
     test: (ctx) => {
-      const count = new Map<number, number>();
-      let max = 0;
+      const groups = new Map<number, PlanetPosition[]>();
       for (const p of seven(ctx.positions)) {
-        const n = (count.get(p.signIndex) ?? 0) + 1;
-        count.set(p.signIndex, n);
-        if (n > max) max = n;
+        const arr = groups.get(p.signIndex) ?? [];
+        arr.push(p);
+        groups.set(p.signIndex, arr);
       }
-      return max >= 4;
+      let group: PlanetPosition[] = [];
+      let groupSign = -1;
+      for (const sign of Array.from(groups.keys())) {
+        const ps = groups.get(sign)!;
+        if (ps.length >= 4 && ps.length > group.length) {
+          group = ps;
+          groupSign = sign;
+        }
+      }
+      if (!group.length) return false;
+      // The strongest (ahead by degree) must not be combust.
+      const strongest = group.reduce((a, b) =>
+        a.degInSign >= b.degInSign ? a : b,
+      );
+      if (strongest.combust) return false;
+      // The lagna lord or a strong benefic casting a full aspect cancels it.
+      const aspects = (p: PlanetPosition) =>
+        drishtiQuarters(p.planet, p.signIndex, groupSign) >= 4;
+      const lagnaLord = ctx.positions.find(
+        (p) => p.planet === SIGN_LORD[ctx.lagnaIdx],
+      )!;
+      const beneficAspects = ctx.positions.some(
+        (p) => ["Jupiter", "Venus"].includes(p.planet) && aspects(p),
+      );
+      if (aspects(lagnaLord) || beneficAspects) return false;
+      return true;
     },
   },
   {
