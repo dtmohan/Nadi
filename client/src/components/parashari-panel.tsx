@@ -1967,42 +1967,6 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       </Chapter>
 
       <Chapter id="planets">
-      <section className="mt-8" data-testid="prose-thesaurus-section">
-        <SectionTitle plain="The texts on each planet" technical="Thesaurus prose" />
-        <ModeText
-          plain={
-            <>
-              The classic texts on where each planet stands — the house, the
-              star, the dignity, and the burn — in the tradition's own words,
-              with the source named for each line.
-            </>
-          }
-          practitioner={
-            <>
-              Deterministic fragments from the Internal Ear thesaurus: the
-              graha-in-bhava readings (Phaladeepika ch. 8), the nakshatra
-              core, the dignity effect, and the combustion note. Rendered by
-              rule; softened for the plain reading; each line carries its
-              source note.
-            </>
-          }
-        />
-        <ul className="mt-3 space-y-2">
-          {result.prose.map((f, i) => (
-            <li key={i} className="rounded-md border bg-card p-3 text-xs">
-              <span className="font-medium">{f.planet}</span>{" "}
-              <span className="text-muted-foreground">· {f.kind}</span>
-              <p className="mt-1">{f.text}</p>
-              <p className="mt-1 text-[10px] text-muted-foreground truncate" title={f.source}>
-                {f.source}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </section>
-      </Chapter>
-
-      <Chapter id="planets">
       <section className="mt-8" data-testid="conjunctions-section">
         <SectionTitle plain="Planets gathered together" technical="Conjunctions" />
         <ModeText
