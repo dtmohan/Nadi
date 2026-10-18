@@ -94,8 +94,8 @@ export function readFatherArishta(
     if (runningDasa) {
       parts.push(
         averted
-          ? `The ${runningDasa.lord} dasa reads as favourable, so the death does not take place; only trouble is indicated.`
-          : `The ${runningDasa.lord} dasa reads as ${runningDasa.verdict === "strain" ? "adverse" : "mixed"}, so no favourable dasa averts it.`,
+          ? `The ${runningDasa.lord} dasa leans favourable on balance, so the death does not take place; only trouble is indicated.`
+          : `The ${runningDasa.lord} dasa ${runningDasa.verdict === "strain" ? "leans adverse" : "is evenly balanced"}, so no favourable dasa averts it.`,
       );
     }
     const sources = [SRC.rule];

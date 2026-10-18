@@ -133,10 +133,10 @@ export function readMotherPoint(
     if (r.runningDasa) {
       r.text +=
         r.runningDasa.verdict === "support"
-          ? ` The ${r.runningDasa.lord} dasa reads as favourable, which by analogy with 70.11 and 70.14 would limit this to adverse effects.`
+          ? ` The ${r.runningDasa.lord} dasa leans favourable on balance, which by analogy with 70.11 and 70.14 would limit this to adverse effects.`
           : r.runningDasa.verdict === "strain"
-            ? ` The ${r.runningDasa.lord} dasa reads as adverse, which by analogy with 70.11 gives no such relief.`
-            : ` The ${r.runningDasa.lord} dasa reads as mixed.`;
+            ? ` The ${r.runningDasa.lord} dasa leans adverse, which by analogy with 70.11 gives no such relief.`
+            : ` The ${r.runningDasa.lord} dasa is evenly balanced, so the analogy gives no relief either way.`;
     }
   }
   const shown = withhold ? rows.filter((r) => r.severity === "distress") : rows;

@@ -32,7 +32,11 @@ import {
   type BhavaPhala,
   type VargaPhala,
 } from "./bhava-phala";
-import { computeDasaReadings, type DasaReading } from "./parashari-dasa";
+import {
+  computeDasaReadings,
+  rejudgeAfterGate,
+  type DasaReading,
+} from "./parashari-dasa";
 import {
   LORD_IN_HOUSE,
   LAGNA_NATURE,
@@ -1316,7 +1320,10 @@ export function computeParashari(
   };
   // The gate: every prose statement on length of life, maraka periods, arishta or the loss of a
   // parent is stripped from the whole result before it reaches any view (shared/life-stage.ts).
-  return withhold ? redactSensitive(out) : out;
+  // The dasa leans and antar verdicts are then recounted from the lines that remain.
+  if (!withhold) return out;
+  const gated = redactSensitive(out);
+  return { ...gated, dasaReadings: rejudgeAfterGate(gated.dasaReadings) };
 }
 
 export function ord(n: number): string {

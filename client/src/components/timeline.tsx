@@ -1,5 +1,5 @@
-import { Soft } from "@/lib/gentle";
-import { NowWord } from "@/components/mode-text";
+import { Soft, useSoften } from "@/lib/gentle";
+import { NowWord, usePlain } from "@/components/mode-text";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import {
@@ -9,14 +9,22 @@ import {
   type Planet,
 } from "@shared/astro";
 import { LIFE_AREAS, type Finding, type Roles } from "@shared/rules";
-import { readTransits, type TransitReading } from "@shared/timing";
+import {
+  readTransits,
+  LINE_AREAS,
+  type TransitReading,
+} from "@shared/timing";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
-import { eventMarks, transitBand } from "@/lib/timeline-data";
+import {
+  bnnAreaRows,
+  bnnPassageBand,
+  eventMarks,
+} from "@/lib/timeline-data";
 import type { ChartEvent } from "@shared/events";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
@@ -368,13 +376,20 @@ export function BnnLifeTimeline({
     () => readTransits(transits, positions, findings, birthIso, roles),
     [transits, positions, findings, birthIso, roles],
   );
-  // Shared timeline: both karakas' passages, with Jupiter's passages over or in trine to the Jeeva (and the Deha in a female chart) as the Nadi clock.
+  const plain = usePlain();
+  const soften = useSoften();
+  // Shared timeline: both karakas' passages shaded by how much of the chart each wakes, Jupiter's passages
+  // over or in trine to the Jeeva (and the Deha in a female chart) as the Nadi clock, and the matter rows.
   const tlBands = useMemo(
     () => [
-      transitBand(transits, "Jupiter", asOfIso),
-      transitBand(transits, "Saturn", asOfIso),
+      bnnPassageBand(readings, "Jupiter", asOfIso, soften),
+      bnnPassageBand(readings, "Saturn", asOfIso, soften),
     ],
-    [transits, asOfIso],
+    [readings, asOfIso, soften],
+  );
+  const tlRows = useMemo(
+    () => bnnAreaRows(readings, LINE_AREAS, birthIso, plain, soften),
+    [readings, birthIso, plain, soften],
   );
   const tlWindows = useMemo<TlWindow[]>(() => {
     const out: TlWindow[] = [];
@@ -420,6 +435,14 @@ export function BnnLifeTimeline({
           (full) or in trine to it (faint); events above.
         </p>
       </div>
+      <p
+        className="mt-1 text-xs text-muted-foreground"
+        data-testid="text-bnn-timeline-key"
+      >
+        {plain
+          ? "Each passage is shaded by how much of your birth chart it wakes: faint when it passes no birth planet, full over one, deepest over a group of them or when Jupiter and Saturn press the same planets together. The four rows light when a passage brings that part of life forward, Jupiter on the upper line and Saturn on the lower; both at once is the double transit. Career and wealth begin at 16."
+          : "Passages shaded by the Timing list's weight: 0 no natal planet, 1 one trine or the 7th, 2 over a natal planet or two trines, 3 over a cluster or a double transit. Matter rows: a passage lights a row when the Timing list names that area among the lines it activates; over full, trine about three-quarter, 7th about half strength (app convention, provisional). Upper lane Jupiter, lower Saturn; both together is the double transit, read as stronger by the app, with no BNN source found (provisional). Career and wealth rows open at the onset age of 16 (life-stage)."}
+      </p>
       <LifeTimeline
         className="mt-3"
         testid="bnn-timeline"
@@ -429,6 +452,7 @@ export function BnnLifeTimeline({
         bands={tlBands}
         windows={tlWindows}
         windowsLabel="Jeeva"
+        rows={tlRows}
         marks={tlMarks}
       />
     </section>

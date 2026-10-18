@@ -98,7 +98,12 @@ import {
 import { LAGNA_NATURE, BPHS_URL } from "@shared/parashari-data";
 import {
   LAYER_LABEL,
+  LEAN_CLAUSE,
+  LEAN_LABEL,
+  LEAN_PILL,
   finePeriodsOf,
+  leanWithCounts,
+  type LeanStep,
   type DasaReading,
   type AntarReading,
   type DasaNote,
@@ -159,7 +164,11 @@ import { computeYogas, gateYogas, YOGA_CATEGORY_LABEL, YOGA_NOTE } from "@shared
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
 import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
-import { eventMarks, transitBand, vimshottariBands } from "@/lib/timeline-data";
+import {
+  avTransitBand,
+  eventMarks,
+  vimshottariBands,
+} from "@/lib/timeline-data";
 import { SourceLink, Cite } from "@/components/source-link";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -210,6 +219,14 @@ const VERDICT_LABEL: Record<ParashariFinding["tone"], string> = {
   support: "favourable",
   strain: "unfavourable",
   mixed: "mixed",
+};
+/** "the text's lines for the period ..." for each step of a dasa's lean (parashari-dasa.ts leanOf). */
+const LINES_LEAN: Record<LeanStep, string> = {
+  favourable: "come out favourable on balance",
+  "leans-favourable": "lean favourable on balance",
+  balanced: "are evenly balanced",
+  "leans-trying": "lean trying on balance",
+  trying: "come out trying on balance",
 };
 
 const TONE_CLASS: Record<ParashariFinding["tone"], string> = {
@@ -759,29 +776,59 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
     r.dasaReadings.find((d) => d.current) ??
     r.dasaReadings[0];
 
-  // Shared timeline: the dasas and bhuktis with Saturn's passages, each dasa's verdict from ch. 47-48 as a tinted row, and the recorded events.
-  const tlBands = useMemo(
-    () => [
-      ...vimshottariBands(r.vimshottari),
-      transitBand(result.transits, "Saturn", asOfIso),
-    ],
-    [r.vimshottari, result.transits, asOfIso],
-  );
+  // Shared timeline: the dasas, the bhuktis tinted by their antar verdicts, Saturn's and Jupiter's passages
+  // by their Ashtakavarga tone, each dasa's lean as a tinted row, and the recorded events.
+  const tlBands = useMemo(() => {
+    const antarOf = new Map<string, AntarReading>();
+    for (const d of r.dasaReadings)
+      for (const a of d.antars) antarOf.set(`${d.lord}|${a.lord}|${a.start}`, a);
+    return [
+      ...vimshottariBands(r.vimshottari, {
+        plain,
+        bhuktiVerdict: (b) => {
+          const a = antarOf.get(
+            `${b.dasaLord}|${b.bhuktiLord ?? b.lord}|${b.start}`,
+          );
+          return a ? { verdict: a.verdict, source: a.source.label } : undefined;
+        },
+      }),
+      avTransitBand(avTimelineShown.saturn, "Saturn", plain),
+      avTransitBand(avTimelineShown.jupiter, "Jupiter", plain),
+    ];
+  }, [r.vimshottari, r.dasaReadings, avTimelineShown, plain]);
   const tlWindows = useMemo<TlWindow[]>(
     () =>
-      r.dasaReadings.map((d) => ({
-        start: d.start,
-        end: d.end,
-        label: `${d.lord} dasa: ${d.verdict === "support" ? "favourable" : d.verdict === "strain" ? "trying" : "mixed"} (BPHS ch. 47-48)`,
-        tone:
+      r.dasaReadings.map((d) => {
+        const step = d.lean.step;
+        const clear = step === "favourable" || step === "trying";
+        const tone =
           d.verdict === "support"
             ? "good"
             : d.verdict === "strain"
               ? "bad"
-              : "mixed",
-        strength: 0.8,
-      })),
-    [r.dasaReadings],
+              : "mixed";
+        // Deeper for a clear lean than a leaning one; the trying end lighter in the plain reading (gentle-results policy).
+        const strength =
+          tone === "mixed"
+            ? 0.45
+            : tone === "bad" && plain
+              ? clear
+                ? 0.5
+                : 0.2
+              : clear
+                ? 1
+                : 0.45;
+        return {
+          start: d.start,
+          end: d.end,
+          label: plain
+            ? `${d.lord} period: ${LEAN_LABEL[step]} (${d.lean.favour} of the text's lines for it, ${d.lean.against} against)`
+            : `${d.lord} dasa: ${leanWithCounts(d.lean)}, BPHS ch. 47-50`,
+          tone,
+          strength,
+        };
+      }),
+    [r.dasaReadings, plain],
   );
   const tlMarks = useMemo(
     () => eventMarks(chart.events, chart.timezone),
@@ -1587,8 +1634,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               />
               <p className="mt-1 text-xs text-muted-foreground">
                 {plain
-                  ? "The Verdict row tints each period by what the text says of its planet for this chart: green favourable, amber mixed, red trying. Saturn's passages are drawn for comparison only."
-                  : "The Verdict row carries each dasa's balance of support and strain from BPHS ch. 47-48; Saturn's sign passages are shown for reference and are not part of the dasa judgement."}
+                  ? "The Verdict row tints each period by how the text's lines for its planet weigh up in this chart: deep green when the favourable lines outnumber the trying ones three to one or more, lighter green when they lead three to two, amber when neither side leads, and the same in red the other way. Counting the lines is the app's own way of reading which side is stronger, so it is provisional. The Bhukti row of sub-periods is tinted by what the text says of each one, and the Saturn and Jupiter rows by the points each sign carries for them (Ashtakavarga). The transit rows are drawn for comparison and do not change the period's tone."
+                  : "Verdict row: each dasa's lean from the tones of its lines (ch. 47-50 with the strength and Ashtakavarga lines): favourable or trying at three to one or more, leaning at three to two or more, balanced in between; fewer than three decisive lines can lean but not decide (28.1, 28.11-12; counting rule an app convention, provisional). Bhukti row: the antar verdict from ch. 52-60. Saturn and Jupiter rows: the joint tone of each sign passage by the planet's own Ashtakavarga and the aggregate (66.70-72, 72.3-5), as in the Transits section; the chapter-70 points are not drawn. The transit rows do not feed the dasa verdict."}
               </p>
               <Table className="mt-3" data-testid="parashari-dashas" cards>
                 <TableHeader>
@@ -1647,18 +1694,18 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                         {plain ? d.plain : d.summary}
                         {plain &&
                           (() => {
-                            const v = r.dasaReadings.find(
+                            const dr = r.dasaReadings.find(
                               (x) => x.lord === d.lord && x.start === d.start,
-                            )?.verdict;
-                            return v ? (
+                            );
+                            return dr ? (
                               <span
                                 className={cn(
                                   "ml-1 whitespace-nowrap rounded px-1.5 py-0.5 text-xs font-medium",
-                                  VERDICT_CLASS[v],
+                                  VERDICT_CLASS[dr.verdict],
                                 )}
                                 data-testid={`parashari-dasa-row-verdict-${d.lord}`}
                               >
-                                {VERDICT_LABEL[v]}
+                                {LEAN_LABEL[dr.lean.step]}
                               </span>
                             ) : null;
                           })()}
@@ -3975,8 +4022,8 @@ function ParashariVerdict({
                     {PLAIN_ROLE[cur.functional] ?? cur.functional}
                     {curReading ? (
                       <>
-                        , and the text's lines for the period come out{" "}
-                        {VERDICT_LABEL[curReading.verdict]} on balance
+                        , and the text's lines for the period{" "}
+                        {LINES_LEAN[curReading.lean.step]}
                       </>
                     ) : null}
                   </>
@@ -4004,9 +4051,21 @@ function ParashariVerdict({
                                     nextChange.gloss.functional)
                               }`
                             : ""}
-                          {nextChange.tone
-                            ? `, and the text's lines for it come out ${nextChange.tone} on balance`
-                            : ""}
+                          {(() => {
+                            const nd =
+                              nextChange.kind === "period"
+                                ? r.dasaReadings.find(
+                                    (x) =>
+                                      x.lord === nextChange.lord &&
+                                      x.start === nextChange.date,
+                                  )
+                                : undefined;
+                            return nd
+                              ? `, and the text's lines for it ${LINES_LEAN[nd.lean.step]}`
+                              : nextChange.tone
+                                ? `, and the text's lines for it come out ${nextChange.tone} on balance`
+                                : "";
+                          })()}
                         </>
                       ),
                     },
@@ -4805,7 +4864,7 @@ function DasaEffects({
           )}
           data-testid="parashari-dasa-verdict"
         >
-          {VERDICT_LABEL[d.verdict]} on balance
+          {LEAN_PILL[d.lean.step]}
         </span>
         {d.current && (
           <span className="rounded bg-primary px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-wide text-primary-foreground">
@@ -4939,8 +4998,8 @@ function DasaEffects({
       )}
       <p className="mt-3 text-sm" data-testid="parashari-dasa-synthesis">
         {plainDE
-          ? `Of the ${d.notes.length} lines the text gives for this period, ${count("support")} favour it, ${count("strain")} go against it and ${count("mixed")} are mixed, so on balance it reads ${VERDICT_LABEL[d.verdict]}.`
-          : `${d.notes.length} matched lines: ${count("support")} favourable, ${count("strain")} unfavourable, ${count("mixed")} mixed; on balance ${VERDICT_LABEL[d.verdict]}.`}
+          ? `Of the ${d.notes.length} lines the text gives for this period, ${count("support")} favour it, ${count("strain")} go against it and ${count("mixed")} are mixed, so on balance it ${LEAN_CLAUSE[d.lean.step]}. Weighing the lines by counting them is the app's own reading, and provisional.`
+          : `${d.notes.length} matched lines: ${count("support")} favourable, ${count("strain")} unfavourable, ${count("mixed")} mixed; lean: ${LEAN_LABEL[d.lean.step]} (favourable or trying at three to one or more, leaning at three to two or more; app convention, provisional).`}
       </p>
       <div
         className="mt-2 grid gap-2 sm:grid-cols-2"

@@ -232,3 +232,59 @@ export function readTransits(transits: TransitPeriod[], positions: PlanetPositio
   return transits.map((t) => readTransit(t, positions, findings, transits, birthIso, roles));
 }
 
+
+/** The matters drawn as rows under the BNN life line. */
+export const LINE_AREAS = ["career", "wealth", "health", "family"] as const;
+export type LineArea = (typeof LINE_AREAS)[number];
+
+/** How directly a passage touches one area among the lines it brings to life. */
+export interface AreaTouch {
+  area: LifeArea;
+  /** The most direct contact with a natal planet of the area's lines: over it, in trine, or from the 7th. */
+  contact: "over" | "trine" | "7th";
+  /** The app's activation fractions for the three contacts, as in readTransit: 1, three-quarters, a half (provisional). */
+  strength: 1 | 0.75 | 0.5;
+  /** Natal planets of those lines touched at that contact. */
+  planets: Planet[];
+  /** The area's lines among those the passage brings to life, the most direct contact first. */
+  findings: Finding[];
+}
+
+const CONTACT_RANK = { over: 3, trine: 2, "7th": 1 } as const;
+const CONTACT_STRENGTH = { over: 1, trine: 0.75, "7th": 0.5 } as const;
+
+/**
+ * The listed areas among the lines a passage brings to life (`activated`, the same ranking the Timing list
+ * names), with how directly each is touched. A row of the life line lights only where the Timing list would
+ * name that area for the passage. Cancelled lines and lines without strength are left out.
+ */
+export function areaTouches(
+  r: Pick<TransitReading, "conjunct" | "trine" | "opposite" | "activated">,
+  areas: readonly LifeArea[],
+): AreaTouch[] {
+  const contactOf = (p: Planet): AreaTouch["contact"] | null =>
+    r.conjunct.includes(p) ? "over" : r.trine.includes(p) ? "trine" : r.opposite.includes(p) ? "7th" : null;
+  const out: AreaTouch[] = [];
+  for (const area of areas) {
+    const touched: { f: Finding; c: AreaTouch["contact"] }[] = [];
+    for (const f of r.activated) {
+      if (f.area !== area || !(f.score > 0) || f.grade?.level === "cancelled") continue;
+      let best: AreaTouch["contact"] | null = null;
+      for (const p of f.planets) {
+        const c = contactOf(p);
+        if (c && (!best || CONTACT_RANK[c] > CONTACT_RANK[best])) best = c;
+      }
+      if (best) touched.push({ f, c: best });
+    }
+    if (!touched.length) continue;
+    touched.sort((a, b) => CONTACT_RANK[b.c] - CONTACT_RANK[a.c]);
+    const contact = touched[0].c;
+    const planets: Planet[] = [];
+    for (const { f, c } of touched) {
+      if (c !== contact) continue;
+      for (const p of f.planets) if (contactOf(p) === contact && !planets.includes(p)) planets.push(p);
+    }
+    out.push({ area, contact, strength: CONTACT_STRENGTH[contact], planets, findings: touched.map((x) => x.f) });
+  }
+  return out;
+}

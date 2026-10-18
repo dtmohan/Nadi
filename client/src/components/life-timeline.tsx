@@ -21,6 +21,10 @@ export interface TlSegment {
   color: string;
   title?: string;
   current?: boolean;
+  /** What the readout under the chart says for this period; the label when absent. */
+  readout?: string;
+  /** "fg" writes the label in the text colour, for pale (translucent) fills where white or black would not read. */
+  ink?: "fg";
 }
 
 /** A horizontal band of consecutive periods. */
@@ -51,6 +55,19 @@ export interface TlWindow {
   strength?: number;
   /** Optional lane (0-based) so windows of different kinds stack as thin stripes instead of overlapping. */
   lane?: number;
+  /** Fill instead of the tone's colour, for rows that are coloured by planet rather than by verdict. */
+  color?: string;
+  /** Shorter text for the readout under the chart; the label when absent. */
+  short?: string;
+}
+
+/** A labelled row of windows under the bands, in lanes (a matter row of the BNN line, lane per karaka). */
+export interface TlRow {
+  id: string;
+  label: string;
+  windows: TlWindow[];
+  /** Lanes to reserve; at least one more than the highest lane used. */
+  lanes?: number;
 }
 
 export type TlRange = "life" | "decade" | "near";
@@ -72,9 +89,25 @@ const toneFill: Record<VerdictTone, string> = {
   neutral: "hsl(var(--muted-foreground))",
 };
 
+/** A background-coloured outline so text-coloured labels read on any fill. */
+const FG_HALO = {
+  paintOrder: "stroke",
+  stroke: "hsl(var(--background))",
+  strokeWidth: 2.5,
+  strokeLinejoin: "round",
+} as const;
+
 const ms = (iso: string) => DateTime.fromISO(iso).toMillis();
 const fmtDay = (t: number) => DateTime.fromMillis(t).toFormat("d LLL yyyy");
 const fmtMonth = (t: number) => DateTime.fromMillis(t).toFormat("LLL yyyy");
+
+/** Lanes a row needs: as many as it asks for, and at least one more than its highest lane. */
+function rowLanes(r: TlRow): number {
+  return Math.max(
+    r.lanes ?? 1,
+    r.windows.reduce((n, w) => Math.max(n, (w.lane ?? 0) + 1), 1),
+  );
+}
 
 /** Tick spacing in years that gives roughly 60-120 px between ticks. */
 function tickStep(spanYears: number, px: number) {
@@ -95,6 +128,7 @@ export function LifeTimeline({
   bands,
   marks = [],
   windows = [],
+  rows: extraRows = [],
   windowsLabel = "Windows",
   marksLabel = "Events",
   defaultRange = "life",
@@ -110,6 +144,8 @@ export function LifeTimeline({
   bands: TlBand[];
   marks?: TlMark[];
   windows?: TlWindow[];
+  /** Labelled rows of windows drawn under the bands. */
+  rows?: TlRow[];
   windowsLabel?: string;
   marksLabel?: string;
   defaultRange?: TlRange;
@@ -202,9 +238,14 @@ export function LifeTimeline({
       y += (b.thin ? THIN_H : BAND_H) + GAP;
       return top;
     });
+    const rowY = extraRows.map((r) => {
+      const top = y;
+      y += rowLanes(r) * (LANE_H + 1) - 1 + GAP;
+      return top;
+    });
     const axisY = y + 2;
-    return { markY, windowY, bandY, axisY, height: axisY + AXIS_H };
-  }, [bands, hasMarks, hasWindows, windowRowH]);
+    return { markY, windowY, bandY, rowY, axisY, height: axisY + AXIS_H };
+  }, [bands, extraRows, hasMarks, hasWindows, windowRowH]);
 
   // Hover and drag.
   const [hoverT, setHoverT] = useState<number | null>(null);
@@ -271,8 +312,16 @@ export function LifeTimeline({
     const windowsHere = windows.filter(
       (w) => readT >= ms(w.start) && readT < ms(w.end),
     );
-    return { age, lines, marksHere, windowsHere };
-  }, [bands, birth, hasMarks, hoverT, marks, readT, span, windows]);
+    const rowsHere = extraRows
+      .map((r) => ({
+        row: r,
+        here: r.windows
+          .filter((w) => readT >= ms(w.start) && readT < ms(w.end))
+          .sort((a, b) => (a.lane ?? 0) - (b.lane ?? 0)),
+      }))
+      .filter((x) => x.here.length > 0);
+    return { age, lines, marksHere, windowsHere, rowsHere };
+  }, [bands, birth, extraRows, hasMarks, hoverT, marks, readT, span, windows]);
 
   // Axis ticks.
   const ticks = useMemo(() => {
@@ -438,6 +487,20 @@ export function LifeTimeline({
                 {b.label.toUpperCase()}
               </text>
             ))}
+            {extraRows.map((r, i) => (
+              <text
+                key={r.id}
+                x={GUTTER - 8}
+                y={rows.rowY[i] + (rowLanes(r) * (LANE_H + 1) - 1) / 2 + 3}
+                textAnchor="end"
+                className="fill-muted-foreground"
+                fontSize={9}
+                fontWeight={600}
+                letterSpacing={0.6}
+              >
+                {r.label.toUpperCase()}
+              </text>
+            ))}
 
             <g clipPath={`url(#${clipId})`}>
               {/* Past shading */}
@@ -472,7 +535,7 @@ export function LifeTimeline({
                       width={Math.max(1.5, x1 - x0)}
                       height={lh}
                       rx={lanes > 1 ? 1 : 2}
-                      fill={toneFill[w.tone]}
+                      fill={w.color ?? toneFill[w.tone]}
                       opacity={0.35 + 0.55 * (w.strength ?? 0.7)}
                       data-testid={`${testid}-window`}
                     >
@@ -541,12 +604,21 @@ export function LifeTimeline({
                               textAnchor="middle"
                               fontSize={10}
                               fontWeight={600}
-                              className="pointer-events-none fill-white dark:fill-black/80"
-                              style={{
-                                paintOrder: "stroke",
-                                stroke: "rgba(0,0,0,0.35)",
-                                strokeWidth: 0.6,
-                              }}
+                              className={cn(
+                                "pointer-events-none",
+                                s.ink === "fg"
+                                  ? "fill-foreground"
+                                  : "fill-white dark:fill-black/80",
+                              )}
+                              style={
+                                s.ink === "fg"
+                                  ? FG_HALO
+                                  : {
+                                      paintOrder: "stroke",
+                                      stroke: "rgba(0,0,0,0.35)",
+                                      strokeWidth: 0.6,
+                                    }
+                              }
                             >
                               {label}
                             </text>
@@ -558,7 +630,13 @@ export function LifeTimeline({
                               textAnchor="middle"
                               fontSize={8}
                               fontWeight={600}
-                              className="pointer-events-none fill-white dark:fill-black/80"
+                              className={cn(
+                                "pointer-events-none",
+                                s.ink === "fg"
+                                  ? "fill-foreground"
+                                  : "fill-white dark:fill-black/80",
+                              )}
+                              style={s.ink === "fg" ? FG_HALO : undefined}
                             >
                               {label}
                             </text>
@@ -569,6 +647,36 @@ export function LifeTimeline({
                   </g>
                 );
               })}
+
+              {/* Rows of windows under the bands */}
+              {extraRows.map((r, i) => (
+                <g key={r.id} data-testid={`${testid}-row-${r.id}`}>
+                  {r.windows.map((w, j) => {
+                    const s = ms(w.start);
+                    const e = ms(w.end);
+                    if (!visible(s, e)) return null;
+                    const x0 = x(Math.max(s, t0));
+                    const x1 = x(Math.min(e, t1));
+                    return (
+                      <rect
+                        key={j}
+                        x={x0}
+                        y={rows.rowY[i] + (w.lane ?? 0) * (LANE_H + 1)}
+                        width={Math.max(1.5, x1 - x0)}
+                        height={LANE_H}
+                        rx={1}
+                        fill={w.color ?? toneFill[w.tone]}
+                        opacity={0.35 + 0.55 * (w.strength ?? 0.7)}
+                        data-testid={`${testid}-row-window`}
+                      >
+                        <title>
+                          {w.label} · {fmtDay(s)} to {fmtDay(e)}
+                        </title>
+                      </rect>
+                    );
+                  })}
+                </g>
+              ))}
 
               {/* Marks */}
               {hasMarks &&
@@ -731,7 +839,7 @@ export function LifeTimeline({
               />
             ) : null}
             <span className="text-muted-foreground">{band.label}</span>{" "}
-            {seg ? seg.label : "—"}
+            {seg ? (seg.readout ?? seg.label) : "—"}
           </span>
         ))}
         {readout.windowsHere.slice(0, 4).map((w, i) => (
@@ -742,9 +850,19 @@ export function LifeTimeline({
             <span
               aria-hidden
               className="inline-block h-2 w-2 rounded-sm"
-              style={{ backgroundColor: toneFill[w.tone] }}
+              style={{ backgroundColor: w.color ?? toneFill[w.tone] }}
             />
-            {w.label}
+            {w.short ?? w.label}
+          </span>
+        ))}
+        {readout.rowsHere.map(({ row, here }) => (
+          <span
+            key={row.id}
+            className="inline-flex items-center gap-1.5 whitespace-nowrap"
+            data-testid={`${testid}-readout-row-${row.id}`}
+          >
+            <span className="text-muted-foreground">{row.label}</span>
+            {here.map((w) => w.short ?? w.label).join("; ")}
           </span>
         ))}
         {(hoverMark

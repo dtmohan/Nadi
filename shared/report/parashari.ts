@@ -9,6 +9,7 @@ import {
 } from "../parashari";
 import { HOUSE_MATTERS, HOUSE_MATTERS_SOURCE, houseBothWays } from "../parashari-houses";
 import { LAGNA_NATURE, BPHS_URL } from "../parashari-data";
+import { leanWithCounts, type DasaLean } from "../parashari-dasa";
 import { computeVargas, VARGAS, SCHEMES } from "../vargas";
 import { normaliseParashariHouseMethod } from "../schema";
 import { AREA_ONSET, HOUSE_AREA } from "../life-stage";
@@ -41,19 +42,9 @@ function computeFor(ctx: ReportContext): ParashariResult {
   );
 }
 
-/** Supporting and straining dasa rules, counted for the table (the verdict itself is the tally of 47-48). */
-function toneCounts(d: { notes: { tone?: string }[] }) {
-  return {
-    s: d.notes.filter((x) => x.tone === "support").length,
-    n: d.notes.filter((x) => x.tone === "strain").length,
-  };
-}
-
-function dasaTone(d: { verdict: string; notes: { tone?: string }[] }): string {
-  if (d.verdict === "support") return "favourable";
-  if (d.verdict === "strain") return "trying";
-  const { s, n } = toneCounts(d);
-  return s && n ? `mixed (${s} favourable, ${n} trying)` : "no clear lean";
+/** The period's lean with the counts of its favourable and trying lines (parashari-dasa.ts leanOf). */
+function dasaTone(d: { lean: DasaLean }): string {
+  return leanWithCounts(d.lean);
 }
 
 function housesSection(
@@ -259,12 +250,17 @@ function timingSection(
         ]),
     },
   ];
-  if (par.dasaReadings.some((d) => d.verdict === "mixed" && toneCounts(d).s && toneCounts(d).n))
-    paras.push({
-      kind: "note",
-      text: "Where a dasa is mixed, the rules of chapters 47 and 48 point both ways for that period and the text does not rank them; the counts are of the rules, not their weight.",
-      cites: [cites.add("Parashara 47-48", BPHS_URL(47))],
-    });
+  paras.push({
+    kind: "note",
+    text: ctx.plain
+      ? "Each period's tone weighs the text's lines that favour it against those that go against it. It reads favourable or trying when one side outnumbers the other three to one or more, leans that way at three to two or more, and is balanced in between. This counting is the app's own way of reading which side is stronger, and is provisional; the counts are of the lines, not their weight."
+      : "Tone: the lean of the period's lines from chapters 47 to 50 with the strength and Ashtakavarga lines (ch. 7, 27-28, 66.70-72, 72.3-6). Parashara judges a period by which side predominates (28.1, 28.11-12). Favourable or trying at three to one or more, leaning at three to two or more, balanced in between; fewer than three decisive lines can lean but not decide. Counting lines rather than weighing them, and both ratios, are app conventions (provisional).",
+    cites: [
+      cites.add("Parashara 28.1, 28.11-12", BPHS_URL(28)),
+      cites.add("Parashara 47-48", BPHS_URL(47)),
+    ],
+    provisional: true,
+  });
   const sub: ReportSection[] = [];
   const shown = par.dasaReadings.filter(
     (d) => d.ageStart < (deceased ? age + 0.01 : 100),

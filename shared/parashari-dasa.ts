@@ -40,6 +40,103 @@ import type { AshtakavargaResult } from "./ashtakavarga";
 
 export type Tone = "support" | "strain" | "mixed";
 
+/**
+ * How a dasa leans, from the tones of its lines. Parashara judges a period by which side predominates
+ * (BPHS 28.1 and 28.11-12), not by every line agreeing. The app counts the lines: favourable when the
+ * favourable lines outnumber the trying ones three to one or more, leaning favourable at three to two or
+ * more, balanced in between, and the same the other way. Mixed lines count for neither side. Fewer than
+ * three decisive lines can lean but not decide. Counting lines rather than weighing them, and both ratios,
+ * are the app's convention (provisional).
+ */
+export type LeanStep =
+  | "favourable"
+  | "leans-favourable"
+  | "balanced"
+  | "leans-trying"
+  | "trying";
+export interface DasaLean {
+  step: LeanStep;
+  /** Lines that favour the period. */
+  favour: number;
+  /** Lines that go against it. */
+  against: number;
+}
+
+export function leanOf(tones: readonly Tone[]): DasaLean {
+  const favour = tones.filter((t) => t === "support").length,
+    against = tones.filter((t) => t === "strain").length;
+  const decided = favour + against >= 3;
+  // Integer forms of (favour - against) / (favour + against) >= 1/2 and >= 1/5.
+  const step: LeanStep =
+    favour + against === 0
+      ? "balanced"
+      : decided && favour >= 3 * against
+        ? "favourable"
+        : 2 * favour >= 3 * against
+          ? "leans-favourable"
+          : decided && against >= 3 * favour
+            ? "trying"
+            : 2 * against >= 3 * favour
+              ? "leans-trying"
+              : "balanced";
+  return { step, favour, against };
+}
+
+/** The three-way verdict the rest of the app reads: either favourable step is "support", either trying step "strain". */
+export function verdictOfLean(l: DasaLean): Tone {
+  return l.step === "favourable" || l.step === "leans-favourable"
+    ? "support"
+    : l.step === "trying" || l.step === "leans-trying"
+      ? "strain"
+      : "mixed";
+}
+
+/** Short label, for pills and table cells. */
+export const LEAN_LABEL: Record<LeanStep, string> = {
+  favourable: "favourable",
+  "leans-favourable": "leans favourable",
+  balanced: "balanced",
+  "leans-trying": "leans trying",
+  trying: "trying",
+};
+/** Pill text beside a period heading. */
+export const LEAN_PILL: Record<LeanStep, string> = {
+  favourable: "favourable on balance",
+  "leans-favourable": "leans favourable",
+  balanced: "balanced",
+  "leans-trying": "leans trying",
+  trying: "trying on balance",
+};
+/** Verb phrase after "it" or a period's name: "so on balance it leans favourable". */
+export const LEAN_CLAUSE: Record<LeanStep, string> = {
+  favourable: "reads favourable",
+  "leans-favourable": "leans favourable",
+  balanced: "is evenly balanced",
+  "leans-trying": "leans trying",
+  trying: "reads trying",
+};
+/** The lean with its counts: "leans favourable (5 favourable, 2 trying)", or "no clear lean" when no line takes a side. */
+export function leanWithCounts(l: DasaLean): string {
+  if (!l.favour && !l.against) return "no clear lean";
+  return `${LEAN_LABEL[l.step]} (${l.favour} favourable, ${l.against} trying)`;
+}
+
+/**
+ * After the minors' gate has dropped withheld lines (life-stage.ts), the lean and the antar verdicts are
+ * recounted from what remains, so a withheld line cannot show through a tint or a pill.
+ */
+export function rejudgeAfterGate(readings: DasaReading[]): DasaReading[] {
+  return readings.map((d) => {
+    const lean = leanOf(d.notes.map((n) => n.tone));
+    return {
+      ...d,
+      lean,
+      verdict: verdictOfLean(lean),
+      antars: d.antars.map((a) => ({ ...a, verdict: antarVerdict(a.facts) })),
+    };
+  });
+}
+
 export interface DasaSource {
   label: string;
   url: string;
@@ -102,6 +199,9 @@ export interface DasaReading {
   ageStart: number;
   ageEnd: number;
   current: boolean;
+  /** The five-step lean from the lines' tones (see leanOf). */
+  lean: DasaLean;
+  /** The lean as a three-way verdict (verdictOfLean). */
   verdict: Tone;
   /** Drekkana timing of the lord's results within the dasa, 47.3-4. */
   timing: {
@@ -885,15 +985,6 @@ function relationNotes(c: Ctx, p: Planet): DasaNote[] {
   return out;
 }
 
-function tally(tones: Tone[]): Tone {
-  const s = tones.filter((t) => t === "support").length,
-    n = tones.filter((t) => t === "strain").length;
-  if (!s && !n) return "mixed";
-  if (s && !n) return "support";
-  if (n && !s) return "strain";
-  return "mixed";
-}
-
 // ---------- antar dasas, ch. 52-60 ----------
 // ---------- 7.26-27 and 7.30-32: the period lord's twenty-point (Vimsopaka) strength ----------
 
@@ -1431,16 +1522,20 @@ export function computeDasaReadings(
         const rk = own.rekhas[tr.signIndex],
           sv = c.av.sarva[tr.signIndex],
           band = c.av.band[tr.signIndex];
+        // Five or more of eight favourable, four even, three or fewer adverse: the same count as the
+        // Transits section (av-transit.ts) and the Panchanga pills (gochara-av.ts).
         notes.push({
           id: `${p}-66-transit`,
           layer: "ashtakavarga",
           tone:
-            rk >= 4 && band !== "adverse"
+            rk >= 5 && band !== "adverse"
               ? "support"
-              : rk <= 2 || band === "adverse"
+              : rk <= 3 || band === "adverse"
                 ? "strain"
                 : "mixed",
-          text: `${SIGNS[tr.signIndex]} carries ${rk} of 8 rekhas in ${p}'s own Ashtakavarga (${rk >= 4 ? "a favourable transit sign" : rk <= 2 ? "a sign where its transit yields unfavourable results" : "a middling sign"}, 66.70-72) and ${sv} in the aggregate, ${band === "favourable" ? "above 30 and favourable" : band === "medium" ? "between 25 and 30, medium" : "below 25 and adverse"} (72.3-5).`,
+          text: `${SIGNS[tr.signIndex]} carries ${rk} of 8 rekhas in ${p}'s own Ashtakavarga (${rk >= 5 ? "a favourable transit sign" : rk <= 3 ? "a sign where its transit yields unfavourable results" : "an even sign, four rekhas against four dots"}, 66.70-72) and ${sv} in the aggregate, ${band === "favourable" ? "above 30 and favourable" : band === "medium" ? "between 25 and 30, medium" : "below 25 and adverse"} (72.3-5).`,
+          detail:
+            "The verses give the rule mark by mark; reading five or more of the eight as favourable, four as even and three or fewer as adverse is the app's count, as in the Transits section.",
           source: S(66, "70-72", true),
         });
       }
@@ -1507,6 +1602,8 @@ export function computeDasaReadings(
       rising: RISING_50[pp.signIndex],
     };
 
+    const lean = leanOf(notes.map((n) => n.tone));
+
     // Antars.
     const bhuktis = vim.bhuktis.filter((b) => b.dasaLord === p);
     const antars: AntarReading[] = bhuktis.map((b) => {
@@ -1549,7 +1646,8 @@ export function computeDasaReadings(
       ageStart: d.ageStart,
       ageEnd: d.ageEnd,
       current: d.current,
-      verdict: tally(notes.map((n) => n.tone)),
+      lean,
+      verdict: verdictOfLean(lean),
       timing,
       notes,
       antars,
