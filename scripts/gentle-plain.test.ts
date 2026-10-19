@@ -296,7 +296,7 @@ test("one planet's contrary lordship readings from one house are set aside (BPHS
     assert.notEqual(f.tone, by.get(f.nullified!.with)!.tone);
   // The plain report prints the setting-aside, not the two readings.
   const plain = texts(buildReport(resultOf(BOSTON), { plain: true })).join("\n");
-  assert.match(plain, /so both are set aside here/);
+  assert.match(plain, /sets such contrary readings aside, so neither is counted here/);
   for (const [house, lordIn] of [
     [3, 3],
     [8, 3],

@@ -4,10 +4,11 @@ import { SIGNS, SIGN_ABBR, PLANET_ABBR } from "../astro";
 import {
   computeParashari,
   DEFAULT_ASPECT_FLOOR,
-  type ParashariFinding,
   type ParashariResult,
 } from "../parashari";
-import { HOUSE_MATTERS, HOUSE_MATTERS_SOURCE, houseBothWays } from "../parashari-houses";
+import { HOUSE_MATTERS } from "../parashari-houses";
+import { HOUSE_PROSE_NOTE, HOUSE_PROSE_NOTE_PLAIN } from "../parashari-house-prose";
+import { HOUSE_AREAS_PLAIN } from "../house-gloss";
 import { LAGNA_NATURE, BPHS_URL } from "../parashari-data";
 import { leanWithCounts, type DasaLean } from "../parashari-dasa";
 import { computeVargas, VARGAS, SCHEMES } from "../vargas";
@@ -67,115 +68,42 @@ function housesSection(
       cites: [cites.add(`Parashara ${nature.verses}`, BPHS_URL(34))],
     },
   ];
-  const houseNo = (f: ParashariFinding): number | undefined => {
-    if (f.house) return f.house;
-    const m = f.title.match(/(\d+)(?:st|nd|rd|th)/);
-    return m ? Number(m[1]) : undefined;
-  };
+  // The house-by-house reading (shared/parashari-house-prose.ts): the same parts, in the same order, as
+  // the Houses chapter on screen. The plain parts are already in the second person and softened.
+  paras.push({ kind: "note", text: ctx.plain ? HOUSE_PROSE_NOTE_PLAIN : HOUSE_PROSE_NOTE });
   const sub: ReportSection[] = [];
-  for (const b of par.bhavas) {
-    const area = HOUSE_AREA[b.house];
+  for (const hp of par.houseProse ?? []) {
+    const h = hp.house;
+    const title = ctx.plain ? `Your ${ORD(h)} house` : `The ${ORD(h)} house`;
+    const area = HOUSE_AREA[h];
     if (area && !inSeason(area)) {
       sub.push({
-        id: `house-${b.house}`,
-        title: `The ${ORD(b.house)} house`,
+        id: `house-${h}`,
+        title,
         paras: [
           {
             kind: "note",
             text: S(
-              `${cap(HOUSE_MATTERS[b.house - 1].matters)}. Held for later: read from age ${AREA_ONSET[area]}.`,
+              ctx.plain
+                ? `Your ${ORD(h)} house covers ${HOUSE_AREAS_PLAIN[h]}. Held for later: read from age ${AREA_ONSET[area]}.`
+                : `${cap(HOUSE_MATTERS[h - 1].matters)}. Held for later: read from age ${AREA_ONSET[area]}.`,
             ),
           },
         ],
       });
       continue;
     }
-    const ps: ReportPara[] = [];
-    const hm = HOUSE_MATTERS[b.house - 1];
-    const occ = b.occupants.length
-      ? `${list(b.occupants)} ${b.occupants.length === 1 ? "stands" : "stand"} in it`
-      : "no planet stands in it";
-    const asp = b.aspects.filter((a) => a.quarters >= 3).map((a) => a.planet);
-    ps.push({
-      kind: "p",
-      text: S(
-        `${cap(hm.matters)}. The ${ORD(b.house)} is ${b.sign}, ruled by ${b.lord}, which stands in the ${ORD(b.lordIn)}; ${occ}${asp.length ? `, and ${list(asp)} ${asp.length === 1 ? "aspects" : "aspect"} it` : ""}.`,
-      ),
-      cites: [cites.add(`Parashara ${hm.verse}`, HOUSE_MATTERS_SOURCE.url)],
+    const ps: ReportPara[] = hp.parts.map((part) => {
+      const prov = part.sources.some((x) => x.provisional);
+      return {
+        kind: part.key === "both" ? ("note" as const) : ("p" as const),
+        text: S(endStop(ctx.plain ? part.textPlain : part.text)),
+        cites: part.sources.map((x) => cites.add(x.label, x.url)),
+        ...(prov ? { provisional: true } : {}),
+        ...(part.tone ? { tone: part.tone } : {}),
+      };
     });
-    const fs = par.findings.filter(
-      (f) =>
-        (f.kind === "lord" || f.kind === "house") && houseNo(f) === b.house,
-    );
-    for (const f of fs) {
-      const c = cite(f);
-      // 24.145-148: a lord's two contrary readings from one house are set aside; the plain reading says so in place
-      // of the reading, the practitioner reading keeps both.
-      if (f.nullified) {
-        const n = cite(f.nullified);
-        ps.push({
-          kind: "p",
-          text: ctx.plain ? f.nullified.text : `${endStop(f.text)} ${f.nullified.text}`,
-          cites: [c.n, n.n],
-          provisional: true,
-        });
-        continue;
-      }
-      ps.push({
-        kind: "p",
-        text: S(endStop(ctx.plain && f.textPlain ? f.textPlain : f.text)),
-        cites: [c.n],
-        provisional: c.prov,
-        tone: f.tone,
-      });
-    }
-    const live = fs.filter((f) => !f.nullified);
-    const j = par.bhavaJudgement.find((x) => x.house === b.house);
-    // Length of life is read by several verses (19.1-15) that can point both ways on one chart;
-    // say so once, so "long life" beside "20 to 32 years" is read as the text's views, not a sum.
-    if (
-      b.house === 8 &&
-      live.some((f) => f.tone === "support") &&
-      live.some((f) => f.tone === "strain" || f.tone === "mixed")
-    ) {
-      ps.push({
-        kind: "note",
-        text: S(
-          "Parashara's length-of-life verses may read both ways on one chart; 19.7 leaves the decision to planetary strength, so the readings above are views of the text, not a contradiction.",
-        ),
-      });
-    } else if (
-      live.some((f) => f.tone === "support") &&
-      live.some((f) => f.tone === "strain")
-    ) {
-      // Elsewhere the verses give no order between them; the house test of 11.14-16 is the text's own way of
-      // judging a house, and the app reads it as the lean between them (provisional).
-      ps.push({
-        kind: "note",
-        text: houseBothWays(j?.tone),
-        cites: j ? [cite(j).n] : [],
-        provisional: true,
-      });
-    }
-    if (j && j.tone !== "none") {
-      const c = cite(j);
-      ps.push({
-        kind: "p",
-        text: S(
-          ctx.plain
-            ? `${j.support.length ? `In the house's favour (11.14-15): ${j.supportPlain.join("; ")}.` : ""} ${j.strain.length ? `Against it (11.16): ${j.strainPlain.join("; ")}.` : ""}`.trim()
-            : `${j.support.length ? `Signs of the house prospering: ${list(j.support)}.` : ""} ${j.strain.length ? `Signs against it: ${list(j.strain)}.` : ""}`.trim(),
-        ),
-        cites: [c.n],
-        provisional: c.prov,
-        tone: j.tone,
-      });
-    }
-    sub.push({
-      id: `house-${b.house}`,
-      title: `The ${ORD(b.house)} house`,
-      paras: ps,
-    });
+    sub.push({ id: `house-${h}`, title, paras: ps });
   }
   const yogas = par.findings.filter((f) => f.kind === "yoga");
   if (yogas.length)

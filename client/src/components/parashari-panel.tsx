@@ -15,7 +15,12 @@ import {
   useChapterNav,
   type ChapterDef,
 } from "@/components/chapters";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
+import {
+  HOUSE_PROSE_NOTE,
+  HOUSE_PROSE_NOTE_PLAIN,
+  type HouseProse,
+} from "@shared/parashari-house-prose";
 import type { PlanetCheck } from "@shared/parashari-checks";
 import { createContext, useContext, useMemo, useState } from "react";
 import {
@@ -446,6 +451,107 @@ function Finding({ f }: { f: ParashariFinding }) {
       </p>
       <FoundPanel f={f} />
     </div>
+  );
+}
+
+/**
+ * The house-by-house reading: one folded row per house, opened inline. The open row follows the house in
+ * focus, so a click on the chart, the table or a row opens the same house everywhere. The plain view reads
+ * in the second person with no verse tags; the practitioner view keeps the verse wording and cites each part.
+ */
+function HouseByHouse({
+  prose,
+  focusHouse,
+  onToggle,
+}: {
+  prose: HouseProse[];
+  focusHouse: number | null;
+  onToggle: (house: number) => void;
+}) {
+  const plain = usePlain();
+  if (!prose.length) return null;
+  return (
+    <section className="mt-8" data-testid="parashari-house-prose">
+      <SectionTitle plain="Your houses, one by one" technical="House by house" />
+      <p
+        className="mt-1 text-xs text-muted-foreground"
+        data-testid="text-house-prose-note"
+      >
+        {plain ? HOUSE_PROSE_NOTE_PLAIN : HOUSE_PROSE_NOTE}
+      </p>
+      <div className="mt-3 divide-y rounded-md border">
+        {prose.map((hp) => {
+          const open = focusHouse === hp.house;
+          return (
+            <div key={hp.house} data-testid={`house-prose-${hp.house}`}>
+              <button
+                type="button"
+                onClick={() => onToggle(hp.house)}
+                aria-expanded={open}
+                className={cn(
+                  "flex w-full items-start gap-2 px-3 py-2 text-left hover:bg-muted/40",
+                  open && "bg-primary/5",
+                )}
+                data-testid={`button-house-prose-${hp.house}`}
+              >
+                <ChevronRight
+                  className={cn(
+                    "mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                    open && "rotate-90",
+                  )}
+                  aria-hidden
+                />
+                <span className="min-w-0">
+                  <span className="text-sm font-medium">
+                    {plain ? hp.titlePlain : hp.title}
+                  </span>
+                  <span
+                    className="block text-xs text-muted-foreground"
+                    data-testid={`text-house-prose-summary-${hp.house}`}
+                  >
+                    <Soft>{plain ? hp.summaryPlain : hp.summary}</Soft>
+                  </span>
+                </span>
+              </button>
+              {open && (
+                <div
+                  className="space-y-2 px-3 pb-3 pl-9 text-sm leading-relaxed"
+                  data-testid={`house-prose-body-${hp.house}`}
+                >
+                  {/* The plain row already says what the house covers; the practitioner line adds 11.N's full list. */}
+                  {hp.parts.filter((part) => !(plain && part.key === "covers")).map((part, i) => (
+                    <p
+                      key={`${part.key}-${i}`}
+                      className={cn(
+                        part.key === "covers" && "font-medium",
+                        (part.key === "both" ||
+                          part.key === "empty" ||
+                          part.key === "aspects") &&
+                          "text-muted-foreground",
+                        part.tone && "border-l-2 pl-2",
+                        part.tone && TONE_CLASS[part.tone],
+                      )}
+                      data-testid={`house-prose-${hp.house}-${part.key}${part.planet ? `-${part.planet.toLowerCase()}` : ""}${part.key === "chapter" ? `-${i}` : ""}`}
+                    >
+                      <Soft>{plain ? part.textPlain : part.text}</Soft>
+                      {!plain &&
+                        part.sources.map((src) => (
+                          <span
+                            key={src.label}
+                            className="ml-1 text-2xs text-muted-foreground"
+                          >
+                            <SourceLink source={src} />
+                          </span>
+                        ))}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
@@ -1144,6 +1250,11 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               shows every quarter.
             </span>
           </div>
+          <HouseByHouse
+            prose={r.houseProse ?? []}
+            focusHouse={focusHouse}
+            onToggle={(h) => setFocusHouse((cur) => (cur === h ? null : h))}
+          />
         </div>
       </div>
 

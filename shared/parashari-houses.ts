@@ -4,7 +4,7 @@
  * Text: Santhanam's translation at jyotishvidya.com. Rules the text does not state as applied are marked provisional.
  */
 import { SIGNS, SIGN_LORD, houseFrom, moonWaxing, type Planet, type PlanetPosition } from "./astro";
-import { listJoin, thePlanet, withGloss } from "./house-gloss";
+import { listJoin, ordH, thePlanet, withGloss } from "./house-gloss";
 import { BPHS_URL } from "./parashari-data";
 import { computeVargas, type VargasResult } from "./vargas";
 import type { ShadbalaResult } from "./shadbala";
@@ -17,7 +17,8 @@ const KENDRA = [1, 4, 7, 10];
 const TRIKONA = [1, 5, 9];
 const DUSTHANA = [6, 8, 12];
 const EVIL_LORDS = [3, 6, 8, 11, 12];
-const ord = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
+// Years as well as houses: 21st, 42nd, 33rd.
+const ord = ordH;
 const v = (xs: unknown[], sing: string, plur: string) => (xs.length === 1 ? sing : plur);
 const list = (xs: string[]) => (xs.length === 0 ? "none" : xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`);
 
@@ -383,7 +384,7 @@ export function houseFindings(positions: PlanetPosition[], view: HouseView, lagn
     if (malIn.length) mal.push(`${list(malIn)} in the 3rd`);
     if (s3 % 2 === 0) mal.push(`${SIGNS[s3]} is a male sign`); else fem.push(`${SIGNS[s3]} is a female sign`);
     if (fem.length || mal.length) {
-      push("pa-h3-14-4", 3, "Sisters or brothers", `${fem.length ? `Towards younger sisters: ${fem.join("; ")}.` : ""}${fem.length && mal.length ? " " : ""}${mal.length ? `Towards younger brothers: ${mal.join("; ")}.` : ""}${fem.length && mal.length ? " Parashara says a mixed picture gives co-born of both sexes, to be settled by strength." : ""} Planet sex from 3.19, sign sex from 4.5.`, "mixed", [l3, ...femIn, ...malIn], S(14, "4"));
+      push("pa-h3-14-4", 3, "Sisters or brothers", `${fem.length ? `Towards younger sisters: ${fem.join("; ")}.` : ""}${fem.length && mal.length ? " " : ""}${mal.length ? `Towards younger brothers: ${mal.join("; ")}.` : ""}${fem.length && mal.length ? " Parashara says a mixed picture gives co-born of both sexes, to be settled by strength." : fem.length ? " Parashara reads younger sisters." : " Parashara reads younger brothers."} Planet sex from 3.19, sign sex from 4.5.`, "mixed", [l3, ...femIn, ...malIn], S(14, "4"));
     }
   }
   // 14.6: Mars or the 3rd lord in an angle or trine, or exalted or in a friendly sign.

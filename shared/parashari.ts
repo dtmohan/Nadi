@@ -54,6 +54,7 @@ import {
   judgeBhavas,
   type BhavaJudgement,
 } from "./parashari-houses";
+import { composeHouseProse, type HouseProse } from "./parashari-house-prose";
 import { placementFindings, type PlacementReading } from "./phaladeepika-houses";
 import { withGloss, withGlossList } from "./house-gloss";
 import { yogaFindings } from "./parashari-yogas";
@@ -238,6 +239,8 @@ export interface ParashariResult {
   /** 28.15-20 house effects and 28.13-14 varga effects; need the Shadbala base. */
   bhavaPhala?: BhavaPhala[];
   vargaPhala?: VargaPhala[];
+  /** The house-by-house reading, composed after the gate (shared/parashari-house-prose.ts). */
+  houseProse?: HouseProse[];
 }
 
 /** A dignity as it reads after "is": "exalted", "in its own sign", "in an enemy's sign". */
@@ -1323,9 +1326,12 @@ export function computeParashari(
   // The gate: every prose statement on length of life, maraka periods, arishta or the loss of a
   // parent is stripped from the whole result before it reaches any view (shared/life-stage.ts).
   // The dasa leans and antar verdicts are then recounted from the lines that remain.
-  if (!withhold) return out;
+  // The house-by-house reading is composed from the result as it will be shown, so it is built after
+  // the gate from the gated findings (shared/parashari-house-prose.ts).
+  if (!withhold) return { ...out, houseProse: composeHouseProse(out) };
   const gated = redactSensitive(out);
-  return { ...gated, dasaReadings: rejudgeAfterGate(gated.dasaReadings) };
+  const shown = { ...gated, dasaReadings: rejudgeAfterGate(gated.dasaReadings) };
+  return { ...shown, houseProse: composeHouseProse(shown) };
 }
 
 export function ord(n: number): string {
