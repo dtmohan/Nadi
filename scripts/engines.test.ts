@@ -534,12 +534,18 @@ test("Sarvartha Chintamani 2-3 bhava phala rules", () => {
   assert.ok(h12.find((r) => r.stanza === 15)?.then.includes("limb"));
 });
 
+// A made-up birth moment, not any real person: 29 Jul 2003, 06:40 IST at 20°N 78°E (Cancer lagna, Venus rising).
+const SYNTH_DATE = "2003-07-29";
+const SYNTH_TIME = "06:40";
+const SYNTH_LAT = 20;
+const SYNTH_LON = 78;
+
 test("Sarvartha Chintamani computeSarvartha evaluates rules against a chart", () => {
   const opts = { ayanamsa: "lahiri", nodeType: "mean" } as const;
-  const { utc } = birthInstant({ birthDate: "2003-07-29", birthTime: "06:40", timezone: "Asia/Kolkata" } as never);
+  const { utc } = birthInstant({ birthDate: SYNTH_DATE, birthTime: SYNTH_TIME, timezone: "Asia/Kolkata" } as never);
   const jd = julianDay(utc);
   const positions = positionsAt(jd, opts as never);
-  const asc = ascendantAt(jd, 20, 78, opts as never);
+  const asc = ascendantAt(jd, SYNTH_LAT, SYNTH_LON, opts as never);
   const res = computeSarvartha(positions, asc);
   const total = SC_BHAVA_RULES.reduce((n, h) => n + h.rules.length, 0);
   assert.equal(res.total, total);
@@ -564,7 +570,7 @@ test("Sarvartha Chintamani computeSarvartha evaluates rules against a chart", ()
 
 test("Jaimini sthira dasha: seven years per sign from the Atmakaraka's sign", () => {
   const opts = { ayanamsa: "lahiri", nodeType: "mean" } as const;
-  const { utc } = birthInstant({ birthDate: "2003-07-29", birthTime: "06:40", timezone: "Asia/Kolkata" } as never);
+  const { utc } = birthInstant({ birthDate: SYNTH_DATE, birthTime: SYNTH_TIME, timezone: "Asia/Kolkata" } as never);
   const jd = julianDay(utc);
   const positions = positionsAt(jd, opts as never);
   const ak = charaKarakas(positions)[0];
@@ -585,7 +591,7 @@ test("Jaimini sthira dasha: seven years per sign from the Atmakaraka's sign", ()
 
 test("Jaimini Manduka and Brahma dashas (Kerala tradition)", () => {
   const opts = { ayanamsa: "lahiri", nodeType: "mean" } as const;
-  const { utc } = birthInstant({ birthDate: "2003-07-29", birthTime: "06:40", timezone: "Asia/Kolkata" } as never);
+  const { utc } = birthInstant({ birthDate: SYNTH_DATE, birthTime: SYNTH_TIME, timezone: "Asia/Kolkata" } as never);
   const jd = julianDay(utc);
   const positions = positionsAt(jd, opts as never);
   const lagnaSign = 6; // Libra
