@@ -33,6 +33,8 @@ import { computeGochara, gocharaPlainEffect, natalOwnMarks, HOUSE_TEXT } from "@
 import { computeParashari, DEFAULT_ASPECT_FLOOR } from "@shared/parashari";
 import { rahuHoldsSun } from "@shared/children";
 import { sarvarthaLeftOut } from "@shared/sarvartha";
+import { PLACEMENT_TABLE, placementEntry } from "@shared/phaladeepika-houses";
+import type { Planet, PlanetPosition } from "@shared/astro";
 import { computeChart } from "../server/routes";
 import { julianDay, positionsAt } from "../server/ephemeris";
 
@@ -129,6 +131,20 @@ test("every static rule text reads within the deny-list once softened", () => {
   assert.deepEqual(hits, []);
 });
 
+// Phaladeepika ch. 8 results the plain reading leaves to the practitioner view (an `h` topic), each verse condition
+// taken both ways: every sign for the Sun and Saturn in the 1st, a waxing and a waning Moon.
+const PLACEMENT_HARD = new Set<string>();
+for (const planet of Object.keys(PLACEMENT_TABLE) as Planet[])
+  for (let h = 1; h <= 12; h++)
+    for (let sign = 0; sign < 12; sign++)
+      for (const elong of [90, 270]) {
+        const at = (pl: Planet, lon: number) => ({ planet: pl, lon, signIndex: Math.floor(lon / 30) % 12 }) as PlanetPosition;
+        const sun = at("Sun", sign * 30 + 15);
+        const moon = at("Moon", (sign * 30 + 15 + elong) % 360);
+        const p = planet === "Sun" ? sun : planet === "Moon" ? moon : at(planet, sign * 30 + 15);
+        for (const s of placementEntry(planet, h, p, [sun, moon, p]).said) if (s[2]?.h) PLACEMENT_HARD.add(s[1]);
+      }
+
 // Literals the sweep below leaves alone, each for a stated reason. Anything else in shared/ that the plain reading
 // would print with a deny-listed phrase fails the test until the filter rewrites it.
 const SWEEP_EXEMPT: { file: string; test: (t: string) => boolean; why: string }[] = [
@@ -146,6 +162,11 @@ const SWEEP_EXEMPT: { file: string; test: (t: string) => boolean; why: string }[
     test: (t) => /short life/.test(t),
     why: "the longevity rules, left out of the plain reading whole (sarvarthaLeftOut, and the chapter 10-11 list)",
   },
+  ...["phaladeepika-houses.ts", "parashari-nodes.ts"].map((file) => ({
+    file,
+    test: (t: string) => PLACEMENT_HARD.has(t),
+    why: "a placement result the plain reading names only by its topic; the plain sentences are checked in phaladeepika-houses.test.ts",
+  })),
   {
     file: "prose-thesaurus.ts",
     test: (t) => plainViolations(soften(t)).length > 0,

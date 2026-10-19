@@ -54,7 +54,7 @@ import {
   judgeBhavas,
   type BhavaJudgement,
 } from "./parashari-houses";
-import { nodeFindings } from "./parashari-nodes";
+import { placementFindings, type PlacementReading } from "./phaladeepika-houses";
 import { withGloss, withGlossList } from "./house-gloss";
 import { yogaFindings } from "./parashari-yogas";
 import { plainMeaning } from "./finding-plain";
@@ -143,6 +143,8 @@ export interface ParashariFinding {
    * practitioner reading gives both, and the card carries no tone of its own.
    */
   nullified?: { text: string; with: string; source: ParashariSource };
+  /** Phaladeepika ch. 8 placement findings: the verse's results after the gate, for the house-by-house prose. */
+  placement?: PlacementReading;
 }
 
 export interface DashaGloss {
@@ -1213,8 +1215,8 @@ export function computeParashari(
       f.source = { ...f.source, label: `${f.source.label}, bhava-chalit placement`, provisional: true };
     }
   findings.push(...houseReading);
-  // Phaladeepika 8.25-33: the nodes by house placement.
-  findings.push(...nodeFindings(positions, houseView, lagnaIdx));
+  // Phaladeepika 8.1-33: the nine planets by house placement, gated for a minor result by result.
+  findings.push(...placementFindings(positions, houseView, lagnaIdx, withhold));
   // Chapters 35-38: Nabhasa, remaining ch. 36, lunar and solar yogas.
   findings.push(
     ...yogaFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala, vargas),

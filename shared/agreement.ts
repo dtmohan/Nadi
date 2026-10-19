@@ -33,7 +33,8 @@ import {
   type ParashariResult,
 } from "./parashari";
 import { BPHS_URL } from "./parashari-data";
-import { houseGloss } from "./house-gloss";
+import { houseGloss, listJoin, ordH, thePlanet } from "./house-gloss";
+import type { PlacementTopic } from "./phaladeepika-houses";
 import { computeKp, isConditional, nearestChangeText, type KpResult } from "./kp";
 import type { KpFinding } from "./rules-kp";
 import type { AyurResult } from "./jaimini-ayur";
@@ -448,21 +449,56 @@ function bphsVoice(topic: AgreementTopic, par: ParashariResult, gate: Gate, plai
   });
 }
 
-function phaladeepikaVoice(topic: AgreementTopic, par: ParashariResult, gate: Gate): Voice {
-  const ev: Evidence[] = par.findings
-    .filter((f) => f.kind === "house" && bookOf(f) === "phaladeepika" && inPool(topic, f))
-    .map((f) => ({
-      tone: toneOfFinding(f.tone),
-      text: f.text,
+/**
+ * The topic of Phaladeepika ch. 8's results that speaks to each agreement topic. A placement reading speaks to a topic
+ * through the results its verse gives on it, from whichever house the planet holds; the span of life is read on its
+ * own tab, so the placement readings of life-length are not weighed here.
+ */
+const PD8_TOPIC: Record<AgreementTopic, PlacementTopic | null> = {
+  marriage: "spouse",
+  children: "children",
+  career: "status",
+  father: "father",
+  mother: "mother",
+  lifespan: null,
+};
+const PD8_TONE = { "+": "support", "-": "strain", "±": "both" } as const;
+
+function phaladeepikaVoice(topic: AgreementTopic, par: ParashariResult, gate: Gate, plain: boolean): Voice {
+  const tag = PD8_TOPIC[topic];
+  const pool = par.findings.filter((f) => {
+    if (f.kind !== "house" || bookOf(f) !== "phaladeepika") return false;
+    if (f.placement) return tag !== null && f.placement.topics[tag] !== undefined;
+    return inPool(topic, f);
+  });
+  const ev: Evidence[] = pool.map((f) => {
+    const on = f.placement && tag ? f.placement.topics[tag] : undefined;
+    return {
+      tone: on ? PD8_TONE[on] : toneOfFinding(f.tone),
+      text: plain ? (f.textPlain ?? f.text) : f.text,
       cite: { label: f.source.label, url: f.source.url },
       tier: f.source.provisional ? ("provisional" as Tier) : ("sourced" as Tier),
       reason: f.source.provisional ? CHALIT_REASON : undefined,
-    }));
+    };
+  });
   return K.weigh("phaladeepika", ev, {
     gate,
     note: (stance, xs) => {
       const lead = leadOf(stance, xs);
-      if (!lead) return "No node rule falls here.";
+      if (!lead) return "No placement reading speaks to this.";
+      const r = pool[xs.indexOf(lead)]?.placement;
+      if (r && tag) {
+        // The results the verse gives on this topic; the plain note names a result it leaves to the practitioner
+        // reading by its topic only.
+        const said = r.said.filter((s) => s.on.includes(tag));
+        const who = thePlanet(r.planet);
+        if (!plain) return `${r.verse}: ${who} in the ${ordH(r.house)} gives ${listJoin(said.map((s) => s.t))}`;
+        const shown = said.flatMap((s) => (s.p === null ? [] : [s.p]));
+        const harder = said.some((s) => s.p === null);
+        const how = lead.tone === "support" ? "kindly" : lead.tone === "strain" ? "less kindly" : "both ways";
+        const what = shown.length ? listJoin(shown) : "a harder line, given in full in the practitioner view";
+        return `reads ${who} in your ${ordH(r.house)} house ${how} here (${what}${shown.length && harder ? ", with a harder line given in full in the practitioner view" : ""})`;
+      }
       const where = firstSentence(lead.text).replace(/,.*$/, "");
       const reads = lead.text.match(/Mantreswara reads ([^.;]+)/);
       return reads ? `${where}: ${reads[1]}` : firstSentence(lead.text);
@@ -535,7 +571,7 @@ function parashariVoice(topic: AgreementTopic, input: AgreementInput, gate: Gate
     });
   const books = [
     bphsVoice(topic, input.parashari, gate, input.plain),
-    phaladeepikaVoice(topic, input.parashari, gate),
+    phaladeepikaVoice(topic, input.parashari, gate, input.plain),
     sarvarthaVoice(topic, input.sarvartha, gate, input.plain, input.withheld),
   ];
   return K.combineTexts("parashari", books, {

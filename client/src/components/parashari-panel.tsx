@@ -66,6 +66,7 @@ import { YOGA_CAVEATS } from "@shared/parashari-yogas";
 import { ROYAL_CAVEATS } from "@shared/parashari-royal";
 import { FATHER_YOGA_CAVEATS } from "@shared/parashari-father";
 import { NODES_CAVEATS, PHALADEEPIKA_CH8_URL } from "@shared/parashari-nodes";
+import { PLACEMENT_CAVEATS } from "@shared/phaladeepika-houses";
 import { normaliseParashariHouseMethod } from "@shared/schema";
 import { HOUSE_METHOD_CAVEAT } from "@shared/house-view";
 import { EVIL_CAVEATS } from "@shared/parashari-evils";
@@ -977,10 +978,10 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 from chapter 83, yogas from chapters 34 to 42, 75 and 79 of{" "}
                 <Cite href={BPHS_URL(24)}>Brihat Parashara Hora Sastra</Cite>{" "}
                 (Santhanam translation). Nodes have no aspect in chapter 26 and
-                own no house; they are read through their sign lord, and their
-                house placements follow{" "}
-                <Cite href={PHALADEEPIKA_CH8_URL}>Phaladeepika 8.25-33</Cite>,{" "}
-                the one classical table of Rahu and Ketu in each house.
+                own no house; they are read through their sign lord. The nine
+                planets' house placements, the nodes among them, follow{" "}
+                <Cite href={PHALADEEPIKA_CH8_URL}>Phaladeepika 8.1-33</Cite>,{" "}
+                Mantreswara's table of each planet in each house.
                 Cancellation of debilitation follows{" "}
                 <Cite href={PHALADEEPIKA_CH7_URL}>Phaladeepika 7.26-30</Cite>{" "}
                 (Subrahmanya Sastri translation), since Parashara's verses do
@@ -1532,7 +1533,7 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 </p>
               )}
               <p className="text-xs text-muted-foreground md:col-span-2">
-                <Soft>{`${HOUSE_CAVEATS.join(" ")} Verses on the loss of children, co-born, spouse or father are shown in Parashara's sense but worded plainly; weigh them against the supporting verses and the strength pass before reading them as outcomes. ${NODES_CAVEATS.join(" ")}`}</Soft>
+                <Soft>{`${HOUSE_CAVEATS.join(" ")} Verses on the loss of children, co-born, spouse or father are shown in Parashara's sense but worded plainly; weigh them against the supporting verses and the strength pass before reading them as outcomes. ${PLACEMENT_CAVEATS.join(" ")} ${NODES_CAVEATS.join(" ")}`}</Soft>
               </p>
               {r.houseMethod !== "rashi" && (
                 <p
