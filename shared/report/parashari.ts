@@ -8,6 +8,7 @@ import {
 } from "../parashari";
 import { HOUSE_MATTERS } from "../parashari-houses";
 import { HOUSE_PROSE_NOTE, HOUSE_PROSE_NOTE_PLAIN } from "../parashari-house-prose";
+import { TOPIC_PERIODS_NOTE, TOPIC_PERIODS_NOTE_PLAIN, topicPeriods } from "../parashari-topic-periods";
 import { HOUSE_AREAS_PLAIN } from "../house-gloss";
 import { LAGNA_NATURE, BPHS_URL } from "../parashari-data";
 import { leanWithCounts, type DasaLean } from "../parashari-dasa";
@@ -189,7 +190,38 @@ function timingSection(
     ],
     provisional: true,
   });
-  const sub: ReportSection[] = [];
+  // Periods by topic (shared/parashari-topic-periods.ts): first, as the question a reader asks; then the
+  // periods in date order.
+  const topics = topicPeriods(par, { birthIso: ctx.result.utc, asOfIso: ctx.lifeAt, deceased });
+  const sub: ReportSection[] = [
+    {
+      id: "periods-by-topic",
+      title: ctx.plain ? "Good periods by topic" : "Periods by topic",
+      paras: [
+        {
+          kind: "note",
+          text: ctx.plain ? TOPIC_PERIODS_NOTE_PLAIN : TOPIC_PERIODS_NOTE,
+          cites: [cites.add("Parashara 48.1-8", BPHS_URL(48))],
+          provisional: true,
+        },
+      ],
+      sub: topics.map((t) => ({
+        id: `topic-${t.topic}`,
+        title: ctx.plain ? t.labelPlain : t.label,
+        paras: t.periods.length
+          ? t.periods.map(
+              (p): ReportPara => ({
+                kind: "p",
+                text: S(ctx.plain ? p.textPlain : p.text),
+                cites: p.sources.map((x) => cites.add(x.label, x.url)),
+                provisional: true,
+                tone: p.tone,
+              }),
+            )
+          : [{ kind: "note" as const, text: S(ctx.plain ? t.summaryPlain : t.summary) }],
+      })),
+    },
+  ];
   const shown = par.dasaReadings.filter(
     (d) => d.ageStart < (deceased ? age + 0.01 : 100),
   );
@@ -454,6 +486,7 @@ function tablesSection(
   return {
     id: "parashari-tables",
     title: "Parashara's tables",
+    appendix: true,
     kicker: "Strength, divisions and points · Parashara ch. 6-7, 27, 66-72",
     paras: [
       {

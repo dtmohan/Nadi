@@ -44,6 +44,7 @@ export const alpModule: ReportModule = {
       },
       {
         kind: "table",
+        appendix: true,
         head: ["House from ALP", "Sign", "Lord", "Planets", "House from janma"],
         rows: alp.houses.map((h) => [
           ORD(h.house),
@@ -55,6 +56,7 @@ export const alpModule: ReportModule = {
       },
       {
         kind: "table",
+        appendix: true,
         head: ["ALP sign", "From", "To", "Ages"],
         rows: alp.signPeriods
           .filter((s) => !deceased || s.start <= lifeAt)
@@ -69,6 +71,7 @@ export const alpModule: ReportModule = {
     if (!deceased && alp.nakshatraPeriods.length)
       paras.push({
         kind: "table",
+        appendix: true,
         head: ["Nakshatra in this sign", "Lord", "From", "To"],
         rows: alp.nakshatraPeriods.map((n) => [
           `${n.nakshatra ?? ""}${n.current ? " (running)" : ""}`,

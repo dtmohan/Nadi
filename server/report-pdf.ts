@@ -59,12 +59,13 @@ function heading(doc: Doc, sec: ReportSection, level: number) {
   } else {
     ensureSpace(doc, 48);
     doc.moveDown(0.7);
+    // A section's own parts (level 2 and below) a step smaller than the parts of a chapter.
     doc
       .font("Times-Bold")
-      .fontSize(11.5)
+      .fontSize(level >= 2 ? 10.5 : 11.5)
       .fillColor(INK)
       .text(sec.title, PAGE.m);
-    doc.y += 3;
+    doc.y += level >= 2 ? 2 : 3;
   }
   doc.x = PAGE.m;
 }

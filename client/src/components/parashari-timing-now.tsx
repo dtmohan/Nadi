@@ -65,6 +65,12 @@ const SECTIONS = [
     technical: "Now and next",
   },
   {
+    id: "topics",
+    target: "parashari-timing-topics",
+    plain: "By topic",
+    technical: "By topic",
+  },
+  {
     id: "periods",
     target: "parashari-timing-periods",
     plain: "Life periods",

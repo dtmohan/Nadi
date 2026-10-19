@@ -32,6 +32,8 @@ export interface ReportPara {
   aside?: string;
   head?: string[];
   rows?: string[][];
+  /** A data table: moved to the practitioner appendix, left out of the plain report (index.ts). */
+  appendix?: boolean;
 }
 
 export interface ReportSection {
@@ -41,6 +43,8 @@ export interface ReportSection {
   kicker?: string;
   paras: ReportPara[];
   sub?: ReportSection[];
+  /** A section of data tables: moved whole to the practitioner appendix, left out of the plain report. */
+  appendix?: boolean;
 }
 
 export interface ReportDoc {

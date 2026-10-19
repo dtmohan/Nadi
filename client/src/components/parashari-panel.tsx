@@ -21,6 +21,12 @@ import {
   HOUSE_PROSE_NOTE_PLAIN,
   type HouseProse,
 } from "@shared/parashari-house-prose";
+import {
+  TOPIC_PERIODS_NOTE,
+  TOPIC_PERIODS_NOTE_PLAIN,
+  topicPeriods,
+  type TopicPeriods,
+} from "@shared/parashari-topic-periods";
 import type { PlanetCheck } from "@shared/parashari-checks";
 import { createContext, useContext, useMemo, useState } from "react";
 import {
@@ -552,6 +558,92 @@ function HouseByHouse({
         })}
       </div>
     </section>
+  );
+}
+
+/**
+ * Periods by topic (provisional): one folded row per topic with the periods whose lords 48.2-8 speaks of
+ * for it, each set beside the period's own lean. Plain rows carry no verse tags; the practitioner rows cite.
+ */
+function TopicPeriodsBlock({ topics }: { topics: TopicPeriods[] }) {
+  const plain = usePlain();
+  const [open, setOpen] = useState<string | null>(null);
+  if (!topics.length) return null;
+  return (
+    <div className="mt-8 scroll-mt-24" data-testid="parashari-timing-topics">
+      <SectionTitle plain="Good periods by topic" technical="Periods by topic (48.2-8)" />
+      <p className="mt-1 text-xs text-muted-foreground" data-testid="text-topic-periods-note">
+        {plain ? TOPIC_PERIODS_NOTE_PLAIN : TOPIC_PERIODS_NOTE}
+        {!plain && (
+          <span className="ml-1 rounded border px-1 text-2xs uppercase tracking-wide">provisional</span>
+        )}
+      </p>
+      <div className="mt-3 divide-y rounded-md border">
+        {topics.map((t) => {
+          const isOpen = open === t.topic && !t.held && t.periods.length > 0;
+          const canOpen = !t.held && t.periods.length > 0;
+          return (
+            <div key={t.topic} data-testid={`topic-periods-${t.topic}`}>
+              <button
+                type="button"
+                onClick={() => canOpen && setOpen((cur) => (cur === t.topic ? null : t.topic))}
+                aria-expanded={canOpen ? isOpen : undefined}
+                disabled={!canOpen}
+                className={cn(
+                  "flex w-full items-start gap-2 px-3 py-2 text-left",
+                  canOpen && "hover:bg-muted/40",
+                  isOpen && "bg-primary/5",
+                )}
+                data-testid={`button-topic-periods-${t.topic}`}
+              >
+                <ChevronRight
+                  className={cn(
+                    "mt-0.5 h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                    isOpen && "rotate-90",
+                    !canOpen && "opacity-0",
+                  )}
+                  aria-hidden
+                />
+                <span className="min-w-0">
+                  <span className="text-sm font-medium">{plain ? t.labelPlain : t.label}</span>
+                  <span
+                    className="block text-xs text-muted-foreground"
+                    data-testid={`text-topic-periods-summary-${t.topic}`}
+                  >
+                    <Soft>{plain ? t.summaryPlain : t.summary}</Soft>
+                  </span>
+                </span>
+              </button>
+              {isOpen && (
+                <div
+                  className="space-y-2 px-3 pb-3 pl-9 text-sm leading-relaxed"
+                  data-testid={`topic-periods-body-${t.topic}`}
+                >
+                  {t.periods.map((p) => (
+                    <p
+                      key={`${p.lord}-${p.start}`}
+                      className={cn("border-l-2 pl-2", TONE_CLASS[p.tone])}
+                      data-testid={`topic-period-${t.topic}-${p.lord.toLowerCase()}`}
+                    >
+                      <Soft>{plain ? p.textPlain : p.text}</Soft>
+                      {!plain &&
+                        p.sources.map((src) => (
+                          <span
+                            key={src.label}
+                            className="ml-1 text-2xs text-muted-foreground"
+                          >
+                            <SourceLink source={src} />
+                          </span>
+                        ))}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -1699,6 +1791,13 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
               dasaCombos={dasaCombos}
               deceased={deceased}
               states={r.avasthas.lines}
+            />
+            <TopicPeriodsBlock
+              topics={topicPeriods(r, {
+                birthIso: result.utc,
+                asOfIso,
+                deceased,
+              })}
             />
             <div
               className="mt-8 scroll-mt-24"

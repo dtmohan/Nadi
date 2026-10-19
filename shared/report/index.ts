@@ -24,6 +24,7 @@ import {
   type ReportPara,
   type ReportSection,
   type ReportTools,
+  type ReportCite,
 } from "./types";
 import { chartModule } from "./chart";
 import { panchangaModule } from "./panchanga";
@@ -129,20 +130,44 @@ export function buildReport(
   );
   const modules = REPORT_MODULES.filter((m) => wanted.has(m.id));
 
-  // Each module returns its sections; the sky-today section from Panchanga is moved to the end
-  // so the document keeps its reading order: chart, day, readings, transits, how to read.
-  const sections: ReportSection[] = [];
-  let skyToday: ReportSection | undefined;
-  for (const m of modules) {
-    for (const s of m.build(ctx)) {
-      if (s.id === "now") skyToday = s;
-      else sections.push(s);
-    }
-  }
-  if (skyToday) sections.push(skyToday);
+  // Reading order: the chart; how to read the report; the systems side by side at a glance; the day of
+  // birth (Panchanga, then the birth star); each system in its own part; the sky today; and, in the
+  // practitioner report only, an appendix of the data tables the readings rest on.
+  const built: ReportSection[] = [];
+  for (const m of modules) built.push(...m.build(ctx));
+  const { body, tables } = splitAppendix(built);
+  const DAY = ["day", "birth-star"];
+  const chartSec = body.find((s) => s.id === "chart");
+  const skyToday = body.find((s) => s.id === "now");
   const agreement = agreementSection(ctx, modules);
-  if (agreement) sections.push(agreement);
-  sections.push(closing(ctx, modules));
+  const ordered: ReportSection[] = [
+    ...(chartSec ? [chartSec] : []),
+    closing(ctx, modules),
+    ...(agreement ? [agreement] : []),
+    ...DAY.flatMap((id) => body.filter((s) => s.id === id)),
+    ...body.filter((s) => s !== chartSec && s !== skyToday && !DAY.includes(s.id)),
+    ...(skyToday ? [skyToday] : []),
+    ...(!ctx.plain && tables.length
+      ? [
+          {
+            id: "appendix",
+            title: "Appendix: the tables",
+            kicker: "For practitioners",
+            paras: [
+              {
+                kind: "note" as const,
+                text: "The data the readings above rest on, system by system: strengths, divisions and points for Parashara, the karakas, padas and Chara dasha periods for Jaimini, the cusps and significators for KP, and the progressed lagna's houses and periods for ALP. The plain report leaves them out.",
+              },
+            ],
+            sub: tables,
+          },
+        ]
+      : []),
+  ];
+  // The sensitive-content gate: for a native under 18 every statement on length of life, marakas, arishta or the loss of a parent is removed, in either reading mode.
+  const gated = ctx.withheld ? withholdSections(ordered) : ordered;
+  // Notes are numbered by first appearance in the final order; a note no paragraph cites is dropped.
+  const { sections, cites } = renumberCites(gated, ctx.cites.list);
 
   const { chart } = result;
   return {
@@ -157,10 +182,70 @@ export function buildReport(
     generated: fmtDate(ctx.asOf),
     plain: opts.plain,
     modules: modules.map((m) => m.id),
-    // The sensitive-content gate: for a native under 18 every statement on length of life, marakas, arishta or the loss of a parent is removed, in either reading mode.
-    sections: ctx.withheld ? withholdSections(sections) : sections,
-    cites: ctx.cites.list,
+    sections,
+    cites,
   };
+}
+
+/**
+ * Data tables leave the reading: a section marked as tables moves whole, and a table marked within a
+ * reading moves under its section's title, so the appendix keeps each system's tables together.
+ */
+function splitAppendix(sections: ReportSection[]): {
+  body: ReportSection[];
+  tables: ReportSection[];
+} {
+  const body: ReportSection[] = [];
+  const tables: ReportSection[] = [];
+  for (const s of sections) {
+    if (s.appendix) {
+      tables.push(s);
+      continue;
+    }
+    const pulled: ReportPara[] = [];
+    const strip = (x: ReportSection): ReportSection => ({
+      ...x,
+      paras: x.paras.filter((p) => {
+        if (!p.appendix) return true;
+        pulled.push(p);
+        return false;
+      }),
+      ...(x.sub ? { sub: x.sub.map(strip) } : {}),
+    });
+    body.push(strip(s));
+    if (pulled.length)
+      tables.push({
+        id: `${s.id}-tables`,
+        title: s.title,
+        ...(s.kicker ? { kicker: s.kicker } : {}),
+        paras: pulled,
+      });
+  }
+  return { body, tables };
+}
+
+function renumberCites(
+  sections: ReportSection[],
+  list: ReportCite[],
+): { sections: ReportSection[]; cites: ReportCite[] } {
+  const byN = new Map(list.map((c) => [c.n, c]));
+  const next = new Map<number, number>();
+  const cites: ReportCite[] = [];
+  const num = (n: number) => {
+    if (!next.has(n)) {
+      const c = byN.get(n);
+      if (!c) return n;
+      next.set(n, cites.length + 1);
+      cites.push({ ...c, n: cites.length + 1 });
+    }
+    return next.get(n)!;
+  };
+  const sec = (s: ReportSection): ReportSection => ({
+    ...s,
+    paras: s.paras.map((p) => (p.cites ? { ...p, cites: p.cites.map(num) } : p)),
+    ...(s.sub ? { sub: s.sub.map(sec) } : {}),
+  });
+  return { sections: sections.map(sec), cites };
 }
 
 /**
@@ -180,12 +265,12 @@ function agreementSection(
   if (!topics.length) return undefined;
   return {
     id: "agreement",
-    title: "Where the systems agree or differ",
+    title: "At a glance: where the systems agree or differ",
     kicker: "Across the readings",
     paras: [
       {
         kind: "p",
-        text: "Each system above reads the same life on its own terms. This table sets their stances side by side on the questions a reader asks first. No reading is merged into another: Parashari's three books are weighed one by one, and where books or systems disagree the disagreement is the finding.",
+        text: "Each system's part below reads the same life on its own terms. Here their stances are set side by side on the questions a reader asks first. No reading is merged into another: Parashari's three books are weighed one by one, and where books or systems disagree the disagreement is the finding.",
       },
       ...topics.map((t): ReportPara => ({
         kind: "p",
@@ -231,7 +316,7 @@ function closing(ctx: ReportContext, modules: ReportModule[]): ReportSection {
         kind: "p",
         text:
           systems.length > 1
-            ? "Each system above is read on its own terms and none is used to correct another: the Nadi reading has no houses, Parashara and Krishnamurti read from the rising sign in different ways, Jaimini ranks the planets by degree, and ALP moves the lagna itself. Where they agree, the agreement is worth noting; where they differ, the difference is real and is left standing."
+            ? "Each system below is read on its own terms and none is used to correct another: the Nadi reading has no houses, Parashara and Krishnamurti read from the rising sign in different ways, Jaimini ranks the planets by degree, and ALP moves the lagna itself. Where they agree, the agreement is worth noting; where they differ, the difference is real and is left standing."
             : systems.length === 1
               ? "This report carries one system's reading on its own terms; the full report in the app sets it beside the others without using any one to correct another."
               : "This export carries a tool's output rather than a reading: it checks the chart against dated events or scans the minutes around the recorded time; the full report in the app carries the readings themselves.",
@@ -248,7 +333,7 @@ function closing(ctx: ReportContext, modules: ReportModule[]): ReportSection {
       },
       {
         kind: "p",
-        text: `Matters not yet in season at the native's age (marriage and children from ${AREA_ONSET.marriage}, work and wealth from ${AREA_ONSET.career}) are held back rather than read. The classical length-of-life and infancy checks, the maraka planets and the remedies and mantras of the period chapters are not part of this report${tools.length ? "" : "; nor are rectification and validation, which are tools rather than readings"}.${deceased && !plain && !withheld ? " The one exception: for a life that has run its course, the agreement table sets the Jaimini span beside the recorded life, as a test of the method." : ""}${withheld ? ` ${SENSITIVE_WITHHELD_NOTE}` : ""}`,
+        text: `Matters not yet in season at ${plain ? "your" : "the native's"} age (marriage and children from ${AREA_ONSET.marriage}, work and wealth from ${AREA_ONSET.career}) are held back rather than read. The classical length-of-life and infancy checks, the maraka planets and the remedies and mantras of the period chapters are not part of this report${tools.length ? "" : "; nor are rectification and validation, which are tools rather than readings"}.${deceased && !plain && !withheld ? " The one exception: for a life that has run its course, the agreement table sets the Jaimini span beside the recorded life, as a test of the method." : ""}${withheld ? ` ${SENSITIVE_WITHHELD_NOTE}` : ""}`,
       },
       {
         kind: "p",

@@ -39,6 +39,7 @@ export const kpModule: ReportModule = {
       },
       {
         kind: "table",
+        appendix: true,
         head: [
           "Cusp",
           "Sign and degree",
@@ -79,6 +80,7 @@ export const kpModule: ReportModule = {
         : []),
       {
         kind: "table",
+        appendix: true,
         head: [
           "Planet",
           "Sign and degree",

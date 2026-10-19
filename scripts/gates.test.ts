@@ -46,8 +46,9 @@ function lifeSpanRows(doc: ReportDoc): string[][] {
   );
 }
 
+// "How to read this report" now opens the report, after the chart.
 const closingText = (doc: ReportDoc) =>
-  JSON.stringify(doc.sections[doc.sections.length - 1]);
+  JSON.stringify(doc.sections.find((s) => s.id === "reading"));
 
 test("agreement: no life span row for the living, in either reading", () => {
   const result = computeChart(ADULT);

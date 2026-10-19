@@ -736,7 +736,8 @@ const PLANET_RULES: Record<Planet, Rule[]> = {
 };
 
 // ---------- ch. 48.2-8: dasas of house lords ----------
-const HOUSE_LORD_DASA: { text: string; tone: Tone; verse: string }[] = [
+/** 48.2-8: the period of each house's lord, house by house. */
+export const HOUSE_LORD_DASA: { text: string; tone: Tone; verse: string }[] = [
   { verse: "2", tone: "support", text: "lord of the 1st: physical well-being" },
   {
     verse: "2",

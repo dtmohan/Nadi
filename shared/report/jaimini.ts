@@ -39,6 +39,7 @@ export const jaiminiModule: ReportModule = {
       },
       {
         kind: "table",
+        appendix: true,
         head: ["Karaka", "Planet", "Sign", "Degree"],
         rows: j.karakas.map((k) => [
           CHARA_KARAKA_INFO[k.karaka].name,
@@ -49,6 +50,7 @@ export const jaiminiModule: ReportModule = {
       },
       {
         kind: "table",
+        appendix: true,
         head: ["Pada", "Of the", "House sign", "Lord", "Falls in", "Matters"],
         rows: j.arudhas.map((a) => [
           a.label,
@@ -79,6 +81,7 @@ export const jaiminiModule: ReportModule = {
     }
     paras.push({
       kind: "table",
+        appendix: true,
       head: ["Chara dasha", "From", "To", "Years"],
       rows: j.charaDasha.periods
         .filter((p) => p.start <= lifeAt || !deceased)
