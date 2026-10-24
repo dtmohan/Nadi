@@ -191,6 +191,26 @@ export const LORD_DISTANCE: Sense[] = [
 
 export const LORD_DISTANCE_SOURCE = { label: "Shweta, Decoding the Bhavas vol. 2, §2.3", url: "", provisional: true };
 
+/** The house as many places from `base` as `base` is from the lagna (the house 2N-1): the book's resonant
+ *  pair for that house (§2.2), read as the first house's ripening. */
+export const pairHouse = (base: number) => ((2 * base - 2) % 12) + 1;
+
+export interface HousePair {
+  base: number;
+  house: number;
+  /** The book's reading of the pair, paraphrased: practitioner and plain. */
+  text: string;
+  plain: string;
+}
+
+/** The two §2.2 pairs that touch a topic of the periods by topic; the classical texts read here give neither. */
+export const BOOK_PAIRS: HousePair[] = [
+  { base: 5, house: 9, text: "grandchildren, and the 5th's intellect grown into wisdom", plain: "grandchildren, and learning that grows into wisdom" },
+  { base: 10, house: 7, text: "business and trade, weighed against the employment of the 10th", plain: "business and trade of your own, set beside the job your 10th house shows" },
+];
+
+export const PAIR_SOURCE = { label: "Shweta, Decoding the Bhavas vol. 2, §2.2", url: "", provisional: true };
+
 export interface LordDistance {
   house: number;
   lord: Planet;
@@ -217,10 +237,10 @@ export function lordDistance(par: Pick<FromHouseInput, "bhavas">, house: number,
 }
 
 export const BHAVAT_NOTE =
-  "Counted from the house itself (15.20): in their periods, 15.7 has the 8th lord from a house, the lord of its 22nd drekkana and weak planets in its 6th, 8th and 7th harm it, and strong malefics in its 3rd, 6th and 11th, strong benefics in its kendras and trikonas and strong friends of its lord build it. Work is counted from the 10th, money from the 2nd and 11th, health from the 1st, family from the 5th and 7th. Strength is Shadbala against the required strength (ch. 27), benefics by 3.11, friends by natural friendship; Rahu and Ketu have no Shadbala and are not counted. The 22nd drekkana takes the lagna's drekkana into the 8th sign from the house; \"weak\" is read with the 6th, 8th and 7th only, as the translation has it, though the Sanskrit compound could carry it to the two lords. A period named on both sides is shown as both, and none of it is netted against 48.2-8. Beside each 48.2-8 period, a modern book (Shweta, Decoding the Bhavas vol. 2, §2.3) reads how the house delivers from the place of its lord counted from the house; the book gives no timing, so carrying it into the period is the app's step, and §2.4 keeps it a supplement that never moves a verdict. The houses chosen and these readings are the app's (provisional).";
+  "Counted from the house itself (15.20): in their periods, 15.7 has the 8th lord from a house, the lord of its 22nd drekkana and weak planets in its 6th, 8th and 7th harm it, and strong malefics in its 3rd, 6th and 11th, strong benefics in its kendras and trikonas and strong friends of its lord build it. Work is counted from the 10th, money from the 2nd and 11th, health from the 1st, family from the 5th and 7th. Strength is Shadbala against the required strength (ch. 27), benefics by 3.11, friends by natural friendship; Rahu and Ketu have no Shadbala and are not counted. The 22nd drekkana takes the lagna's drekkana into the 8th sign from the house; \"weak\" is read with the 6th, 8th and 7th only, as the translation has it, though the Sanskrit compound could carry it to the two lords. A period named on both sides is shown as both, and none of it is netted against 48.2-8. Beside each 48.2-8 period, a modern book (Shweta, Decoding the Bhavas vol. 2, §2.3) reads how the house delivers from the place of its lord counted from the house; the book gives no timing, so carrying it into the period is the app's step, and §2.4 keeps it a supplement that never moves a verdict. Two of the book's pairs (§2.2) sit under their topics as lines without tone, each in the period of the second house's lord: the 7th, the 10th from the 10th, for business and trade beside employment, under work; the 9th, the 5th from the 5th, for grandchildren, under family. The classical texts read here give neither pair. The houses chosen and these readings are the app's (provisional).";
 
 export const BHAVAT_NOTE_PLAIN =
-  "Phaladeepika also judges a house by counting from the house itself, as if it were the rising sign, and names the periods that help it and those that ask for care with it. Work is counted from your 10th house, money from the 2nd and 11th, health from the 1st, family from the 5th and 7th. A period can be named on both sides, and then both are shown. Under each of Parashara's periods, a modern author, Shweta, adds how the house tends to deliver, from where its ruler sits counted from the house; she gives this for the birth chart, so using it for the period is the app's step. Treat both as provisional.";
+  "Phaladeepika also judges a house by counting from the house itself, as if it were the rising sign, and names the periods that help it and those that ask for care with it. Work is counted from your 10th house, money from the 2nd and 11th, health from the 1st, family from the 5th and 7th. A period can be named on both sides, and then both are shown. Under each of Parashara's periods, a modern author, Shweta, adds how the house tends to deliver, from where its ruler sits counted from the house; she gives this for the birth chart, so using it for the period is the app's step. Two more lines come from her pairs of houses, each in the period of that house's ruler: under work, your 7th house, the 10th counted from your 10th, which she reads as business and trade; under family, your 9th house, the 5th counted from your 5th, which she reads as grandchildren. Treat all of these as provisional.";
 
 /** The words for a period's place in 15.7. */
 export const FROM_HOUSE_WORD: Record<FromHouseRole | "both", string> = { builds: "builds", harms: "strains", both: "both" };

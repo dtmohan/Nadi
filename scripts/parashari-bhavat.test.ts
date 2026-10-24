@@ -2,7 +2,8 @@
 // the periods that build or strain a house counted from that house, and a modern book's count from a house
 // to its lord sits under each 48.2-8 period. Every clause is re-derived here from the chart; nodes are never
 // counted; the wording keeps the plain view's rules; the minors' gate holds the adult topics back as before;
-// the maraka notes carry the 8th from the 8th. Synthetic charts only.
+// the maraka notes carry the 8th from the 8th; the book's two pairs (§2.2) add lines without tone in the
+// period of the second house's lord. Synthetic charts only.
 //
 // Run from the repository root: `npm test` (the ephemeris wrapper finds ./ephe by cwd).
 
@@ -16,11 +17,14 @@ import { MARAKA_CAVEATS } from "@shared/parashari-marakas";
 import {
   BHAVAT_NOTE,
   BHAVAT_NOTE_PLAIN,
+  BOOK_PAIRS,
   FROM_HOUSE_SOURCE,
   LORD_DISTANCE,
   LORD_DISTANCE_SOURCE,
+  PAIR_SOURCE,
   fromHouse,
   lordDistance,
+  pairHouse,
   placesFrom,
 } from "@shared/parashari-bhavat";
 import { PHALADEEPIKA_CH15_URL } from "@shared/chalit";
@@ -201,8 +205,9 @@ test("the wording: plain lines soft, second person, untagged; nothing withheld f
     t.summaryPlain,
     ...(t.fromHouse ? [t.fromHouse.labelPlain, t.fromHouse.summaryPlain, ...t.fromHouse.periods.map((p) => p.textPlain)] : []),
     ...t.periods.map((p) => p.delivery?.textPlain ?? ""),
+    ...(t.pair ? [t.pair.labelPlain, ...t.pair.periods.map((p) => p.textPlain)] : []),
   ];
-  for (const x of [BHAVAT_NOTE_PLAIN, ...LORD_DISTANCE.map((s) => s.plain), ...RUNS.flatMap((r) => r.topics.flatMap(plainTexts))]) {
+  for (const x of [BHAVAT_NOTE_PLAIN, ...LORD_DISTANCE.map((s) => s.plain), ...BOOK_PAIRS.map((s) => s.plain), ...RUNS.flatMap((r) => r.topics.flatMap(plainTexts))]) {
     if (!x) continue;
     assert.ok(!/\b\d+\.\d+\b|\bdasa\b|\blord of\b|\bnative\b|§/.test(x), `"${x}"`);
     assert.deepEqual(plainViolations(x), [], `"${x}"`);
@@ -219,13 +224,52 @@ test("the wording: plain lines soft, second person, untagged; nothing withheld f
   for (const { label, minor, topics } of RUNS) {
     if (!minor) continue;
     for (const t of topics)
-      for (const x of [t.summary, t.summaryPlain, ...t.periods.flatMap((p) => [p.delivery?.text ?? "", p.delivery?.textPlain ?? ""]), ...(t.fromHouse?.periods.flatMap((p) => [p.text, p.textPlain]) ?? [])])
+      for (const x of [t.summary, t.summaryPlain, ...t.periods.flatMap((p) => [p.delivery?.text ?? "", p.delivery?.textPlain ?? ""]), ...(t.fromHouse?.periods.flatMap((p) => [p.text, p.textPlain]) ?? []), ...(t.pair?.periods.flatMap((p) => [p.text, p.textPlain]) ?? [])])
         assert.ok(!withholdText(x), `${label} ${t.topic}: "${x}"`);
   }
   assert.ok(RUNS.some((r) => r.minor), "a minor is among the charts");
   // The practitioner note names both readings as the app's and keeps 15.7 apart from 48.2-8.
   assert.match(BHAVAT_NOTE, /not netted|none of it is netted/);
   assert.match(BHAVAT_NOTE, /provisional/);
+});
+
+test("the book's pairs (§2.2): the 7th under work and the 9th under family, in the period of that house's lord, without tone", () => {
+  // The book's eight pairs and the two used: the house 2N-1, as far beyond a house as the house is beyond the lagna.
+  assert.deepEqual([3, 4, 5, 6, 8, 9, 10, 12].map(pairHouse), [5, 7, 9, 11, 3, 5, 7, 11]);
+  assert.deepEqual(BOOK_PAIRS.map((x) => [x.base, x.house]), [[5, 9], [10, 7]]);
+  for (const x of BOOK_PAIRS) assert.equal(x.house, pairHouse(x.base));
+  for (const { label, par, topics, asOf, deceased } of RUNS) {
+    const i = par.dasaReadings.findIndex((d) => d.end > asOf);
+    const window = deceased ? par.dasaReadings.filter((d) => d.start < asOf) : par.dasaReadings.slice(i, i + 4).filter((d) => d.ageStart < 90);
+    for (const t of topics) {
+      const def = BOOK_PAIRS.find((x) => x.base === (t.topic === "career" ? 10 : t.topic === "family" ? 5 : -1));
+      if (t.held || !def) {
+        assert.equal(t.pair, undefined, `${label} ${t.topic}: no pair`);
+        continue;
+      }
+      assert.ok(t.pair, `${label} ${t.topic}`);
+      assert.deepEqual([t.pair!.base, t.pair!.house], [def.base, def.house]);
+      const lord = par.bhavas.find((b) => b.house === def.house)!.lord;
+      assert.deepEqual(
+        t.pair!.periods.map((p) => p.start),
+        window.filter((d) => d.lord === lord).map((d) => d.start),
+        `${label} ${t.topic}: every period of the ${def.house}th lord in the window, and no other`,
+      );
+      for (const p of t.pair!.periods) {
+        assert.equal(p.lord, lord);
+        assert.ok(!("tone" in p), "a line without tone");
+        assert.deepEqual(p.sources, [PAIR_SOURCE]);
+        assert.ok(p.text.includes(def.text) && /§2\.2/.test(p.text), p.text);
+        assert.ok(p.textPlain.includes(def.plain), p.textPlain);
+      }
+    }
+  }
+  // The synthetic Libra chart: Mercury rules the 9th, the 5th from the 5th, and its period is read; Mars rules
+  // the 7th and has no period in the years read.
+  const fam = PUNE.topics.find((t) => t.topic === "family")!;
+  assert.deepEqual(fam.pair!.periods.map((p) => p.lord), ["Mercury"]);
+  assert.match(fam.pair!.periods[0].textPlain, /^Mercury's period, October 2041 to October 2058 .*rules your 9th house, the 5th counted from your 5th, which Shweta, a modern author, reads as grandchildren/);
+  assert.deepEqual(PUNE.topics.find((t) => t.topic === "career")!.pair!.periods, []);
 });
 
 test("the maraka notes carry the 8th from the 8th, with 44.2", () => {
@@ -255,7 +299,7 @@ test("the report: the note cites both readings, the book's count rides under its
     assert.equal(note.kind, "note");
     assert.equal(note.text, plain ? BHAVAT_NOTE_PLAIN : BHAVAT_NOTE);
     const labels = (note.cites ?? []).map((n) => doc.cites.find((c) => c.n === n)!.label);
-    assert.deepEqual(labels, [FROM_HOUSE_SOURCE.label, LORD_DISTANCE_SOURCE.label]);
+    assert.deepEqual(labels, [FROM_HOUSE_SOURCE.label, LORD_DISTANCE_SOURCE.label, PAIR_SOURCE.label]);
     const wealth = topicsSec!.sub!.find((s) => s.id === "topic-wealth")!;
     const asides = wealth.paras.filter((p) => p.kind === "p" && p.aside);
     assert.ok(asides.length > 0 && asides.every((p) => /Shweta/.test(p.aside!)), "the book's count under the 48.2-8 periods");
@@ -263,5 +307,11 @@ test("the report: the note cites both readings, the book's count rides under its
     const toned = career.paras.filter((p) => p.kind === "p" && p.tone);
     assert.ok(toned.length > 0, "15.7 periods for work even with no 48.2-8 period in the window");
     assert.ok(career.paras.some((p) => p.kind === "note" && /Phaladeepika|house itself/.test(p.text ?? "")));
+    const family = topicsSec!.sub!.find((s) => s.id === "topic-family")!;
+    const at = family.paras.findIndex((p) => p.kind === "note" && /5th (counted )?from (the|your) 5th/.test(p.text ?? ""));
+    assert.ok(at > 0, "the pair's label");
+    const line = family.paras[at + 1];
+    assert.ok(line.kind === "p" && !line.tone && /grandchildren/.test(line.text ?? ""), "the pair's line, without tone");
+    assert.deepEqual((line.cites ?? []).map((n) => doc.cites.find((c) => c.n === n)!.label), [PAIR_SOURCE.label]);
   }
 });

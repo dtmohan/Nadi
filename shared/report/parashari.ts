@@ -9,7 +9,7 @@ import {
 import { HOUSE_MATTERS } from "../parashari-houses";
 import { HOUSE_PROSE_NOTE, HOUSE_PROSE_NOTE_PLAIN } from "../parashari-house-prose";
 import { TOPIC_PERIODS_NOTE, TOPIC_PERIODS_NOTE_PLAIN, topicPeriods } from "../parashari-topic-periods";
-import { BHAVAT_NOTE, BHAVAT_NOTE_PLAIN, FROM_HOUSE_SOURCE, LORD_DISTANCE_SOURCE } from "../parashari-bhavat";
+import { BHAVAT_NOTE, BHAVAT_NOTE_PLAIN, FROM_HOUSE_SOURCE, LORD_DISTANCE_SOURCE, PAIR_SOURCE } from "../parashari-bhavat";
 import { HOUSE_AREAS_PLAIN } from "../house-gloss";
 import { LAGNA_NATURE, BPHS_URL } from "../parashari-data";
 import { leanWithCounts, type DasaLean } from "../parashari-dasa";
@@ -213,6 +213,7 @@ function timingSection(
           cites: [
             cites.add(FROM_HOUSE_SOURCE.label, FROM_HOUSE_SOURCE.url),
             cites.add(LORD_DISTANCE_SOURCE.label, LORD_DISTANCE_SOURCE.url),
+            cites.add(PAIR_SOURCE.label, PAIR_SOURCE.url),
           ],
           provisional: true,
         },
@@ -243,6 +244,20 @@ function timingSection(
                     cites: p.sources.map((x) => cites.add(x.label, x.url)),
                     provisional: true,
                     tone: p.tone,
+                  }),
+                ),
+              ]
+            : []),
+          // The book's pair (§2.2): lines without tone.
+          ...(t.pair && t.pair.periods.length
+            ? [
+                { kind: "note" as const, text: S(ctx.plain ? t.pair.labelPlain : t.pair.label) },
+                ...t.pair.periods.map(
+                  (p): ReportPara => ({
+                    kind: "p",
+                    text: S(ctx.plain ? p.textPlain : p.text),
+                    cites: p.sources.map((x) => cites.add(x.label, x.url)),
+                    provisional: true,
                   }),
                 ),
               ]

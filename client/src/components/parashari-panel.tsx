@@ -587,7 +587,7 @@ function TopicPeriodsBlock({ topics }: { topics: TopicPeriods[] }) {
       </p>
       <div className="mt-3 divide-y rounded-md border">
         {topics.map((t) => {
-          const named = t.periods.length + (t.fromHouse?.periods.length ?? 0);
+          const named = t.periods.length + (t.fromHouse?.periods.length ?? 0) + (t.pair?.periods.length ?? 0);
           const isOpen = open === t.topic && !t.held && named > 0;
           const canOpen = !t.held && named > 0;
           return (
@@ -670,6 +670,31 @@ function TopicPeriodsBlock({ topics }: { topics: TopicPeriods[] }) {
                           key={`fh-${p.lord}-${p.start}`}
                           className={cn("border-l-2 pl-2", TONE_CLASS[p.tone])}
                           data-testid={`topic-fromhouse-${t.topic}-${p.lord.toLowerCase()}`}
+                        >
+                          <Soft>{plain ? p.textPlain : p.text}</Soft>
+                          {!plain &&
+                            p.sources.map((src) => (
+                              <span
+                                key={src.label}
+                                className="ml-1 text-2xs text-muted-foreground"
+                              >
+                                <SourceLink source={src} />
+                              </span>
+                            ))}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  {t.pair && t.pair.periods.length > 0 && (
+                    <div className="space-y-2 pt-1" data-testid={`topic-pair-${t.topic}`}>
+                      <p className="text-xs font-medium text-muted-foreground">
+                        {plain ? t.pair.labelPlain : t.pair.label}
+                      </p>
+                      {t.pair.periods.map((p) => (
+                        <p
+                          key={`pair-${p.lord}-${p.start}`}
+                          className="border-l-2 border-l-border pl-2"
+                          data-testid={`topic-pair-${t.topic}-${p.lord.toLowerCase()}`}
                         >
                           <Soft>{plain ? p.textPlain : p.text}</Soft>
                           {!plain &&

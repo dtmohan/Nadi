@@ -16,7 +16,9 @@
 // Two further voices sit beside 48.2-8 without being netted against it (parashari-bhavat.ts): Phaladeepika
 // 15.7, which names the periods that build or strain a house counted from that house, and, under each 48.2-8
 // period, a modern book's count from the house to the place of its lord (Shweta, Decoding the Bhavas vol. 2,
-// §2.3), which says how the house delivers. Neither changes a period's tone.
+// §2.3), which says how the house delivers. Neither changes a period's tone. Two of the book's pairs (§2.2)
+// add a line without tone in the period of the second house's lord: the 7th, the 10th from the 10th, under
+// work; the 9th, the 5th from the 5th, under family.
 
 import { DateTime } from "luxon";
 import type { Planet } from "./astro";
@@ -26,9 +28,11 @@ import { AREA_ONSET, areaSeason } from "./life-stage";
 import { listJoin, ordH, thePlanet } from "./house-gloss";
 import type { ShadbalaResult } from "./shadbala";
 import {
+  BOOK_PAIRS,
   FROM_HOUSE_SOURCE,
   FROM_HOUSE_WORD,
   LORD_DISTANCE_SOURCE,
+  PAIR_SOURCE,
   fromHouse,
   lordDistance,
   plainReasons,
@@ -58,6 +62,8 @@ interface TopicDef {
   statements: Statement[];
   /** The houses Phaladeepika 15.7 counts from for this topic (the app's choice, after BPHS ch. 11). */
   fromHouse: number[];
+  /** The house whose §2.2 pair the book reads for this topic (BOOK_PAIRS): 10 for work, 5 for family. */
+  pair?: number;
 }
 
 export const PERIOD_TOPICS: TopicDef[] = [
@@ -70,6 +76,7 @@ export const PERIOD_TOPICS: TopicDef[] = [
       { house: 10, tone: "support", said: "recognition from and awards by the government", saidPlain: "recognition and honours from those in authority" },
     ],
     fromHouse: [10],
+    pair: 10,
   },
   {
     topic: "wealth",
@@ -106,6 +113,7 @@ export const PERIOD_TOPICS: TopicDef[] = [
       { house: 7, tone: "strain", said: "distress to the spouse", saidPlain: "a need for care with your spouse's well-being" },
     ],
     fromHouse: [5, 7],
+    pair: 5,
   },
 ];
 
@@ -154,6 +162,19 @@ export interface FromHousePeriod {
   sources: DasaSource[];
 }
 
+/** A period of the lord of a topic's §2.2 pair house: a line without tone, never a verdict. */
+export interface PairPeriod {
+  lord: Planet;
+  start: string;
+  end: string;
+  ageStart: number;
+  ageEnd: number;
+  current: boolean;
+  text: string;
+  textPlain: string;
+  sources: DasaSource[];
+}
+
 export interface TopicPeriods {
   topic: PeriodTopic;
   label: string;
@@ -163,6 +184,8 @@ export interface TopicPeriods {
   periods: TopicPeriod[];
   /** Phaladeepika 15.7 over the same periods; absent when the result lacks positions or the topic is held. */
   fromHouse?: { houses: number[]; label: string; labelPlain: string; periods: FromHousePeriod[]; summary: string; summaryPlain: string };
+  /** The book's pair for the topic (§2.2) over the same periods; absent for a topic without one or held. */
+  pair?: { base: number; house: number; label: string; labelPlain: string; periods: PairPeriod[] };
   summary: string;
   summaryPlain: string;
 }
@@ -330,6 +353,28 @@ export function topicPeriods(par: TopicPeriodsInput, o: TopicPeriodsOptions): To
           : "Counting from the house itself, Phaladeepika names none of the periods read here.",
       };
     }
+    // The book's pair (§2.2): the period of the second house's lord, with the book's reading of that house.
+    let pairVoice: TopicPeriods["pair"];
+    const pairDef = BOOK_PAIRS.find((x) => x.base === t.pair);
+    if (pairDef) {
+      const { base, house } = pairDef;
+      const lord = par.bhavas.find((b) => b.house === house)!.lord;
+      const pp: PairPeriod[] = dasas
+        .filter((d) => d.lord === lord)
+        .map((d) => {
+          const running = d.current && !o.deceased;
+          const text = `${d.lord} dasa, ${DateTime.fromISO(d.start).toUTC().toFormat("LLL yyyy")} to ${DateTime.fromISO(d.end).toUTC().toFormat("LLL yyyy")} (ages ${Math.floor(d.ageStart)}-${Math.floor(d.ageEnd)})${running ? ", running" : ""}: lord of the ${ordH(house)}, the ${ordH(base)} from the ${ordH(base)}; Shweta reads the ${ordH(house)} as ${pairDef.text} (§2.2).`;
+          const textPlain = `${cap(thePlanet(d.lord))}'s period, ${DateTime.fromISO(d.start).toUTC().toFormat("LLLL yyyy")} to ${DateTime.fromISO(d.end).toUTC().toFormat("LLLL yyyy")} (ages ${Math.floor(d.ageStart)} to ${Math.floor(d.ageEnd)})${running ? ", running now" : ""}: ${thePlanet(d.lord)} rules your ${ordH(house)} house, the ${ordH(base)} counted from your ${ordH(base)}, which Shweta, a modern author, reads as ${pairDef.plain}.`;
+          return { lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: running, text, textPlain, sources: [PAIR_SOURCE] };
+        });
+      pairVoice = {
+        base,
+        house,
+        label: `The ${ordH(base)} from the ${ordH(base)}: the ${ordH(house)} (Shweta, §2.2)`,
+        labelPlain: `Your ${ordH(house)} house, the ${ordH(base)} counted from your ${ordH(base)}`,
+        periods: pp,
+      };
+    }
     const span = (p: TopicPeriod) => `${yearOf(p.start)}-${yearOf(p.end)}`;
     const spanPlain = (p: TopicPeriod) => `${yearOf(p.start)} to ${yearOf(p.end)}`;
     // None in range: name the rulers whose favourable statements the topic waits on, and when their periods fall.
@@ -363,6 +408,7 @@ export function topicPeriods(par: TopicPeriodsInput, o: TopicPeriodsOptions): To
       labelPlain: t.labelPlain,
       periods,
       ...(fromHouseVoice ? { fromHouse: fromHouseVoice } : {}),
+      ...(pairVoice ? { pair: pairVoice } : {}),
       summary: fromHouseVoice ? `${base.replace(/\.$/, "")}. ${fromHouseVoice.summary}.` : base,
       summaryPlain: fromHouseVoice ? `${basePlain} ${fromHouseVoice.summaryPlain}` : basePlain,
     };
