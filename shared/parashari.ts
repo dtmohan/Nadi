@@ -198,7 +198,8 @@ export interface PlanetTie {
 export interface ParashariResult {
   /** The 6.53 exclusions applied to the divisional designations (Shadbala weakness, defeat in war, Sayana). */
   vargaExclusions?: VargaExclusions;
-  lagna: { signIndex: number; sign: Sign };
+  /** The lagna's sign, and its degree within the sign (0-30) for the drekkana counts. */
+  lagna: { signIndex: number; sign: Sign; degree?: number };
   bhavas: Bhava[];
   natures: PlanetNature[];
   findings: ParashariFinding[];
@@ -1302,7 +1303,7 @@ export function computeParashari(
     withheld: withhold,
     houseMethod,
     ...(houseMethodNote ? { houseMethodNote } : {}),
-    lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx] },
+    lagna: { signIndex: lagnaIdx, sign: SIGNS[lagnaIdx], degree: (((lagnaLon % 360) + 360) % 360) - lagnaIdx * 30 },
     bhavas,
     natures,
     findings,

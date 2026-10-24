@@ -12,6 +12,11 @@
 // favourable and the period's lines lean favourable are the app's conventions, so the section is provisional.
 // The 2nd and 3rd lords' statements (distress, unfavourable effects) name no topic and are not filed; Rahu
 // and Ketu rule no house, so 48.2-8 does not reach their periods.
+//
+// Two further voices sit beside 48.2-8 without being netted against it (parashari-bhavat.ts): Phaladeepika
+// 15.7, which names the periods that build or strain a house counted from that house, and, under each 48.2-8
+// period, a modern book's count from the house to the place of its lord (Shweta, Decoding the Bhavas vol. 2,
+// §2.3), which says how the house delivers. Neither changes a period's tone.
 
 import { DateTime } from "luxon";
 import type { Planet } from "./astro";
@@ -19,6 +24,19 @@ import { BPHS_URL } from "./parashari-data";
 import { HOUSE_LORD_DASA, LEAN_CLAUSE, verdictOfLean, type DasaLean, type DasaSource, type Tone } from "./parashari-dasa";
 import { AREA_ONSET, areaSeason } from "./life-stage";
 import { listJoin, ordH, thePlanet } from "./house-gloss";
+import type { ShadbalaResult } from "./shadbala";
+import {
+  FROM_HOUSE_SOURCE,
+  FROM_HOUSE_WORD,
+  LORD_DISTANCE_SOURCE,
+  fromHouse,
+  lordDistance,
+  plainReasons,
+  roleOf,
+  type FromHouseInput,
+  type FromHouseReason,
+  type FromHouseRole,
+} from "./parashari-bhavat";
 
 export type PeriodTopic = "career" | "wealth" | "health" | "family";
 
@@ -38,6 +56,8 @@ interface TopicDef {
   /** The life area whose onset age holds the topic back for a minor (life-stage.ts); none for health. */
   area?: string;
   statements: Statement[];
+  /** The houses Phaladeepika 15.7 counts from for this topic (the app's choice, after BPHS ch. 11). */
+  fromHouse: number[];
 }
 
 export const PERIOD_TOPICS: TopicDef[] = [
@@ -49,6 +69,7 @@ export const PERIOD_TOPICS: TopicDef[] = [
     statements: [
       { house: 10, tone: "support", said: "recognition from and awards by the government", saidPlain: "recognition and honours from those in authority" },
     ],
+    fromHouse: [10],
   },
   {
     topic: "wealth",
@@ -61,6 +82,7 @@ export const PERIOD_TOPICS: TopicDef[] = [
       { house: 11, tone: "strain", said: "obstacles in gains of wealth", saidPlain: "gains that come more slowly" },
       { house: 8, tone: "strain", said: "financial losses", saidPlain: "a need for care with money" },
     ],
+    fromHouse: [2, 11],
   },
   {
     topic: "health",
@@ -72,6 +94,7 @@ export const PERIOD_TOPICS: TopicDef[] = [
       { house: 11, tone: "strain", said: "the possibility of diseases", saidPlain: "a need to look after your health" },
       { house: 12, tone: "strain", said: "distress and danger from diseases", saidPlain: "a need to look after your health" },
     ],
+    fromHouse: [1],
   },
   {
     topic: "family",
@@ -82,6 +105,7 @@ export const PERIOD_TOPICS: TopicDef[] = [
       { house: 5, tone: "support", said: "progress in education and happiness from the children", saidPlain: "happiness through children and progress in learning" },
       { house: 7, tone: "strain", said: "distress to the spouse", saidPlain: "a need for care with your spouse's well-being" },
     ],
+    fromHouse: [5, 7],
   },
 ];
 
@@ -108,6 +132,26 @@ export interface TopicPeriod {
   text: string;
   textPlain: string;
   sources: DasaSource[];
+  /** How the lord's houses deliver, counted from each house to the lord (the book, §2.3); never a verdict. */
+  delivery?: { text: string; textPlain: string; sources: DasaSource[] };
+}
+
+/** A period Phaladeepika 15.7 names for the topic's houses, counted from each house. */
+export interface FromHousePeriod {
+  lord: Planet;
+  start: string;
+  end: string;
+  ageStart: number;
+  ageEnd: number;
+  current: boolean;
+  /** Per house counted from: what 15.7 says of this lord, and why. */
+  houses: { house: number; role: FromHouseRole | "both"; reasons: FromHouseReason[] }[];
+  role: FromHouseRole | "both";
+  /** builds as support, harms as strain, both as mixed. */
+  tone: Tone;
+  text: string;
+  textPlain: string;
+  sources: DasaSource[];
 }
 
 export interface TopicPeriods {
@@ -117,6 +161,8 @@ export interface TopicPeriods {
   /** Set for a minor while the topic is out of season: the topic is held back, not read. */
   held?: string;
   periods: TopicPeriod[];
+  /** Phaladeepika 15.7 over the same periods; absent when the result lacks positions or the topic is held. */
+  fromHouse?: { houses: number[]; label: string; labelPlain: string; periods: FromHousePeriod[]; summary: string; summaryPlain: string };
   summary: string;
   summaryPlain: string;
 }
@@ -132,8 +178,12 @@ interface DasaLike {
 }
 
 export interface TopicPeriodsInput {
-  bhavas: { house: number; lord: Planet }[];
+  bhavas: { house: number; signIndex: number; lord: Planet; lordIn: number }[];
   dasaReadings: DasaLike[];
+  /** For Phaladeepika 15.7: the lagna (with its degree), the planets' houses and natures, and Shadbala. */
+  lagna?: { signIndex: number; degree?: number };
+  natures?: { planet: Planet; house: number; naturalBenefic: boolean }[];
+  shadbala?: ShadbalaResult;
 }
 
 export interface TopicPeriodsOptions {
@@ -159,6 +209,25 @@ function periodsToRead(dasas: DasaLike[], o: TopicPeriodsOptions): DasaLike[] {
   const i = dasas.findIndex((d) => d.end > o.asOfIso);
   if (i < 0) return [];
   return dasas.slice(i, i + 1 + (o.ahead ?? 3)).filter((d) => d.ageStart < 90);
+}
+
+/** The plain gist of the 15.7 periods, grouped by side: "the periods of Venus and the Sun help; Saturn's period asks for care". */
+function groupPlain(fp: FromHousePeriod[]): string {
+  const of = (role: FromHouseRole | "both") => fp.filter((p) => p.role === role).map((p) => thePlanet(p.lord));
+  const subject = (names: string[]) => (names.length === 1 ? `${names[0]}'s period` : `the periods of ${listJoin(names)}`);
+  const parts: { at: number; text: string }[] = [];
+  const at = (role: FromHouseRole | "both") => fp.findIndex((p) => p.role === role);
+  const help = of("builds");
+  const both = of("both");
+  const care = of("harms");
+  if (help.length) parts.push({ at: at("builds"), text: `${subject(help)} ${help.length === 1 ? "helps" : "help"}` });
+  if (both.length) parts.push({ at: at("both"), text: `${subject(both)} ${both.length === 1 ? "both helps and asks" : "both help and ask"} for care` });
+  if (care.length) parts.push({ at: at("harms"), text: `${subject(care)} ${care.length === 1 ? "asks" : "ask"} for care` });
+  // In the order the periods come: the side named first for the earliest period leads.
+  return parts
+    .sort((x, y) => x.at - y.at)
+    .map((x) => x.text)
+    .join("; ");
 }
 
 export function topicPeriods(par: TopicPeriodsInput, o: TopicPeriodsOptions): TopicPeriods[] {
@@ -205,7 +274,61 @@ export function topicPeriods(par: TopicPeriodsInput, o: TopicPeriodsOptions): To
             : "On balance the period is evenly weighted.";
       const textPlain = `${Pc}'s period, ${DateTime.fromISO(d.start).toUTC().toFormat("LLLL yyyy")} to ${DateTime.fromISO(d.end).toUTC().toFormat("LLLL yyyy")} (ages ${Math.floor(d.ageStart)} to ${Math.floor(d.ageEnd)})${running ? ", running now" : ""}: ${P} rules your ${listJoin(houses.map(ordH))} house${houses.length > 1 ? "s" : ""}, and ${reads}. ${balance}`;
       const sources: DasaSource[] = Array.from(new Set(st.map((s) => verse(s.house)))).map((v) => ({ label: `Parashara 48.${v}`, url: BPHS_URL(48), provisional: true }));
-      periods.push({ lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: running, houses, statementTone, lean: d.lean, tone, text, textPlain, sources });
+      // The book's count from each house to its lord, beside the period: how the house delivers, not a verdict.
+      const counts = houses.map((h, i) => lordDistance(par, h, i > 0));
+      const delivery = {
+        text: counts.map((x) => x.text).join(" "),
+        textPlain: counts.map((x) => x.textPlain).join(" "),
+        sources: [LORD_DISTANCE_SOURCE],
+      };
+      periods.push({ lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: running, houses, statementTone, lean: d.lean, tone, text, textPlain, sources, delivery });
+    }
+    // Phaladeepika 15.7 over the same periods, counted from the topic's own houses (parashari-bhavat.ts).
+    let fromHouseVoice: TopicPeriods["fromHouse"];
+    if (par.lagna && par.natures) {
+      const input: FromHouseInput = { lagna: par.lagna, bhavas: par.bhavas, natures: par.natures, shadbala: par.shadbala };
+      const rows = t.fromHouse.map((h) => fromHouse(input, h));
+      const fp: FromHousePeriod[] = [];
+      for (const d of dasas) {
+        const hs = rows.flatMap((row) => {
+          const reasons = row.named.find((x) => x.planet === d.lord)?.reasons ?? [];
+          return reasons.length ? [{ house: row.house, role: roleOf(reasons), reasons }] : [];
+        });
+        if (!hs.length) continue;
+        const role = roleOf(hs.flatMap((x) => x.reasons));
+        const tone: Tone = role === "builds" ? "support" : role === "harms" ? "strain" : "mixed";
+        const running = d.current && !o.deceased;
+        const verb = (r: FromHouseRole | "both") =>
+          r === "builds"
+            ? "so 15.7 counts it among the periods that build the house"
+            : r === "harms"
+              ? "so 15.7 counts it among the periods that strain the house"
+              : "so 15.7 names it both among the periods that build the house and among those that strain it";
+        const text = `${d.lord} dasa, ${DateTime.fromISO(d.start).toUTC().toFormat("LLL yyyy")} to ${DateTime.fromISO(d.end).toUTC().toFormat("LLL yyyy")} (ages ${Math.floor(d.ageStart)}-${Math.floor(d.ageEnd)})${running ? ", running" : ""}: ${hs.map((x) => `from the ${ordH(x.house)}, ${listJoin(x.reasons.map((r) => r.text))}, ${verb(x.role)}`).join("; ")}.`;
+        const plainOf = (x: (typeof hs)[number]) => {
+          const lead = `counting from your ${ordH(x.house)} house, Phaladeepika says this period`;
+          const b = x.reasons.filter((r) => r.role === "builds");
+          const h = x.reasons.filter((r) => r.role === "harms");
+          if (x.role === "builds") return `${lead} helps it, as ${plainReasons(b)}`;
+          if (x.role === "harms") return `${lead} asks for care with it, as ${plainReasons(h)}`;
+          return `${lead} both helps it, as ${plainReasons(b)}, and asks for care with it, as ${plainReasons(h)}`;
+        };
+        const textPlain = `${cap(thePlanet(d.lord))}'s period, ${DateTime.fromISO(d.start).toUTC().toFormat("LLLL yyyy")} to ${DateTime.fromISO(d.end).toUTC().toFormat("LLLL yyyy")} (ages ${Math.floor(d.ageStart)} to ${Math.floor(d.ageEnd)})${running ? ", running now" : ""}: ${hs.map(plainOf).join("; ")}.`;
+        fp.push({ lord: d.lord, start: d.start, end: d.end, ageStart: d.ageStart, ageEnd: d.ageEnd, current: running, houses: hs, role, tone, text, textPlain, sources: [FROM_HOUSE_SOURCE] });
+      }
+      const from = listJoin(t.fromHouse.map(ordH));
+      fromHouseVoice = {
+        houses: t.fromHouse,
+        label: `Counted from the ${from} (Phaladeepika 15.7)`,
+        labelPlain: "Counting from the house itself",
+        periods: fp,
+        summary: fp.length
+          ? `15.7, counted from the ${from}: ${fp.map((p) => `${p.lord} ${yearOf(p.start)}-${yearOf(p.end)} ${FROM_HOUSE_WORD[p.role]}`).join("; ")}`
+          : `15.7, counted from the ${from}: none of the periods read here`,
+        summaryPlain: fp.length
+          ? `Counting from the house itself, Phaladeepika says ${groupPlain(fp)}.`
+          : "Counting from the house itself, Phaladeepika names none of the periods read here.",
+      };
     }
     const span = (p: TopicPeriod) => `${yearOf(p.start)}-${yearOf(p.end)}`;
     const spanPlain = (p: TopicPeriod) => `${yearOf(p.start)} to ${yearOf(p.end)}`;
@@ -230,15 +353,18 @@ export function topicPeriods(par: TopicPeriodsInput, o: TopicPeriodsOptions): To
     const nonePlain = o.deceased || !elsewhere.length
       ? none
       : `Parashara's good word for this belongs to the period of ${listJoin(elsewhere.map((x) => `${thePlanet(x.lord)}, ruler of your ${ordH(x.house)} house (${yearOf(x.d.start)} to ${yearOf(x.d.end)})`))}, outside the years read here.`;
+    const base = periods.length ? periods.map((p) => `${p.lord} ${span(p)}: ${WORD[p.tone]}`).join("; ") : cap(none);
+    const basePlain = periods.length
+      ? cap(`${periods.map((p) => `${thePlanet(p.lord)}'s period, ${spanPlain(p)}: ${WORD_PLAIN[p.tone]}`).join("; ")}.`)
+      : nonePlain;
     return {
       topic: t.topic,
       label: t.label,
       labelPlain: t.labelPlain,
       periods,
-      summary: periods.length ? periods.map((p) => `${p.lord} ${span(p)}: ${WORD[p.tone]}`).join("; ") : cap(none),
-      summaryPlain: periods.length
-        ? cap(`${periods.map((p) => `${thePlanet(p.lord)}'s period, ${spanPlain(p)}: ${WORD_PLAIN[p.tone]}`).join("; ")}.`)
-        : nonePlain,
+      ...(fromHouseVoice ? { fromHouse: fromHouseVoice } : {}),
+      summary: fromHouseVoice ? `${base.replace(/\.$/, "")}. ${fromHouseVoice.summary}.` : base,
+      summaryPlain: fromHouseVoice ? `${basePlain} ${fromHouseVoice.summaryPlain}` : basePlain,
     };
   });
 }

@@ -27,6 +27,7 @@ import {
   topicPeriods,
   type TopicPeriods,
 } from "@shared/parashari-topic-periods";
+import { BHAVAT_NOTE, BHAVAT_NOTE_PLAIN } from "@shared/parashari-bhavat";
 import type { PlanetCheck } from "@shared/parashari-checks";
 import { createContext, useContext, useMemo, useState } from "react";
 import {
@@ -578,10 +579,17 @@ function TopicPeriodsBlock({ topics }: { topics: TopicPeriods[] }) {
           <span className="ml-1 rounded border px-1 text-2xs uppercase tracking-wide">provisional</span>
         )}
       </p>
+      <p className="mt-1 text-xs text-muted-foreground" data-testid="text-topic-bhavat-note">
+        {plain ? BHAVAT_NOTE_PLAIN : BHAVAT_NOTE}
+        {!plain && (
+          <span className="ml-1 rounded border px-1 text-2xs uppercase tracking-wide">provisional</span>
+        )}
+      </p>
       <div className="mt-3 divide-y rounded-md border">
         {topics.map((t) => {
-          const isOpen = open === t.topic && !t.held && t.periods.length > 0;
-          const canOpen = !t.held && t.periods.length > 0;
+          const named = t.periods.length + (t.fromHouse?.periods.length ?? 0);
+          const isOpen = open === t.topic && !t.held && named > 0;
+          const canOpen = !t.held && named > 0;
           return (
             <div key={t.topic} data-testid={`topic-periods-${t.topic}`}>
               <button
@@ -620,23 +628,63 @@ function TopicPeriodsBlock({ topics }: { topics: TopicPeriods[] }) {
                   data-testid={`topic-periods-body-${t.topic}`}
                 >
                   {t.periods.map((p) => (
-                    <p
-                      key={`${p.lord}-${p.start}`}
-                      className={cn("border-l-2 pl-2", TONE_CLASS[p.tone])}
-                      data-testid={`topic-period-${t.topic}-${p.lord.toLowerCase()}`}
-                    >
-                      <Soft>{plain ? p.textPlain : p.text}</Soft>
-                      {!plain &&
-                        p.sources.map((src) => (
-                          <span
-                            key={src.label}
-                            className="ml-1 text-2xs text-muted-foreground"
-                          >
-                            <SourceLink source={src} />
-                          </span>
-                        ))}
-                    </p>
+                    <div key={`${p.lord}-${p.start}`} className="space-y-1">
+                      <p
+                        className={cn("border-l-2 pl-2", TONE_CLASS[p.tone])}
+                        data-testid={`topic-period-${t.topic}-${p.lord.toLowerCase()}`}
+                      >
+                        <Soft>{plain ? p.textPlain : p.text}</Soft>
+                        {!plain &&
+                          p.sources.map((src) => (
+                            <span
+                              key={src.label}
+                              className="ml-1 text-2xs text-muted-foreground"
+                            >
+                              <SourceLink source={src} />
+                            </span>
+                          ))}
+                      </p>
+                      {p.delivery && (
+                        <p
+                          className="pl-2.5 text-xs text-muted-foreground"
+                          data-testid={`text-topic-delivery-${t.topic}-${p.lord.toLowerCase()}`}
+                        >
+                          <Soft>{plain ? p.delivery.textPlain : p.delivery.text}</Soft>
+                          {!plain &&
+                            p.delivery.sources.map((src) => (
+                              <span key={src.label} className="ml-1 text-2xs">
+                                <SourceLink source={src} />
+                              </span>
+                            ))}
+                        </p>
+                      )}
+                    </div>
                   ))}
+                  {t.fromHouse && t.fromHouse.periods.length > 0 && (
+                    <div className="space-y-2 pt-1" data-testid={`topic-fromhouse-${t.topic}`}>
+                      <p className="text-xs font-medium text-muted-foreground">
+                        {plain ? t.fromHouse.labelPlain : t.fromHouse.label}
+                      </p>
+                      {t.fromHouse.periods.map((p) => (
+                        <p
+                          key={`fh-${p.lord}-${p.start}`}
+                          className={cn("border-l-2 pl-2", TONE_CLASS[p.tone])}
+                          data-testid={`topic-fromhouse-${t.topic}-${p.lord.toLowerCase()}`}
+                        >
+                          <Soft>{plain ? p.textPlain : p.text}</Soft>
+                          {!plain &&
+                            p.sources.map((src) => (
+                              <span
+                                key={src.label}
+                                className="ml-1 text-2xs text-muted-foreground"
+                              >
+                                <SourceLink source={src} />
+                              </span>
+                            ))}
+                        </p>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
