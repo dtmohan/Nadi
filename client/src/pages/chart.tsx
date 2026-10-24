@@ -2399,7 +2399,13 @@ export default function ChartPage() {
 
         {mode === "overview" && (
           <div className="mt-8 animate-in fade-in-0 duration-300">
-            <OverviewPanel result={data} />
+            <OverviewPanel
+              result={data}
+              onOpenTab={(t) => {
+                setMode(t);
+                document.querySelector("main")?.scrollTo({ top: 0 });
+              }}
+            />
           </div>
         )}
 
@@ -2423,7 +2429,19 @@ export default function ChartPage() {
 
         {mode === "parashari" && (
           <div className="mt-8 animate-in fade-in-0 duration-300">
-            <ParashariPanel result={data} />
+            <ParashariPanel
+              result={data}
+              onOpenOverview={() => {
+                setMode("overview");
+                window.setTimeout(
+                  () =>
+                    document
+                      .querySelector('[data-testid="brief-now"]')
+                      ?.scrollIntoView({ block: "start" }),
+                  150,
+                );
+              }}
+            />
           </div>
         )}
 

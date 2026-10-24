@@ -68,6 +68,12 @@ export function useChapterNav(tab: string): (id: string) => void {
   return useCallback((id: string) => ctx?.remember(tab, id), [ctx, tab]);
 }
 
+/** Open a chapter of any tab, for links that cross tabs (the Overview's briefing). */
+export function useRememberChapter(): (tab: string, id: string) => void {
+  const ctx = useContext(MemoryContext);
+  return useCallback((tab: string, id: string) => ctx?.remember(tab, id), [ctx]);
+}
+
 /** One part of a chapter. Outside <Chapters> it renders its content unchanged. */
 export function Chapter({ children }: { id: string; children?: ReactNode }) {
   return <>{children}</>;

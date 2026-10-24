@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { vimshottari } from "@shared/kp";
 import { ageYears, lifeAsOf, areaSeason } from "@shared/life-stage";
@@ -22,7 +21,9 @@ import { Soft } from "@/lib/gentle";
 import { usePlain } from "@/components/mode-text";
 import { sarvarthaLeftOut } from "@/components/sarvartha-section";
 import { useT } from "@/lib/i18n";
-import { useAgreement } from "@/lib/use-agreement";
+import { useAgreement, useAgreementInput } from "@/lib/use-agreement";
+import { briefingFor, type BriefLink } from "@shared/briefing";
+import { BriefingBefore, BriefingNow, BriefingPlanets, useOpenLink } from "@/components/briefing";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { cn } from "@/lib/utils";
 
@@ -62,7 +63,14 @@ function glanceSentence(areas: AreaSynthesis[]): string {
  * the life areas as a set of plain cards, and the period and slow planets running now. Everything
  * else on the page is the working behind these lines.
  */
-export function OverviewPanel({ result }: { result: ChartResult }) {
+export function OverviewPanel({
+  result,
+  onOpenTab,
+}: {
+  result: ChartResult;
+  /** Switch the reading tab; the briefing's links open a tab at the line they summarise. */
+  onOpenTab?: (tab: BriefLink["tab"]) => void;
+}) {
   const t = useT();
   const { reading, chart, now, positions } = result;
   const gender = chart.gender as Gender;
@@ -72,7 +80,10 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
   const lifeAt = lifeAsOf(chart, now.asOf);
   const age = ageYears(result.utc, lifeAt);
   const deceased = lifeAt !== now.asOf;
-  const agreement = useAgreement(result);
+  const agreementIn = useAgreementInput(result);
+  const agreement = useAgreement(result, agreementIn);
+  const brief = useMemo(() => briefingFor(result, agreementIn), [result, agreementIn]);
+  const openLink = useOpenLink(onOpenTab);
   const plain = usePlain();
   // Sarvartha's own length-of-life rules stay in the practitioner reading, and the gate's topics stay out for a minor.
   const scShown = (result.sarvartha?.findings ?? []).filter(
@@ -138,11 +149,6 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
   const vim = vimshottari(moon.lon, result.utc, lifeAt);
   const adverse = adverseTara(Math.floor(moon.lon / (360 / 27)));
   const adverseNow = adverse.find((a) => a.lord === vim.current.dasa.lord);
-  const dasaIdx = vim.dasas.findIndex((d) => d.current);
-  const nextDasa =
-    dasaIdx >= 0 && dasaIdx < vim.dasas.length - 1
-      ? vim.dasas[dasaIdx + 1]
-      : undefined;
   // A chart read after its 120-year Vimshottari sequence has ended (no date of death recorded).
   const pastEnd =
     !deceased && lifeAt >= vim.dasas[vim.dasas.length - 1].end;
@@ -168,18 +174,6 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
   );
   const jupRow = gochara.rows.find((r) => r.planet === "Jupiter");
   const satRow = gochara.rows.find((r) => r.planet === "Saturn");
-
-  // The next slow-planet sign change after today: the next "weather" turn.
-  const nextIngress = useMemo(() => {
-    const up = result.transits
-      .filter(
-        (t) =>
-          (t.planet === "Jupiter" || t.planet === "Saturn") &&
-          t.start > now.asOf,
-      )
-      .sort((a, b) => a.start.localeCompare(b.start));
-    return up[0];
-  }, [result.transits, now.asOf]);
 
   return (
     <section
@@ -274,12 +268,107 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
         )}
       </div>
 
+      <BriefingBefore notes={brief.before} onOpen={openLink} />
+
+      {/* Now and next: each system's clock side by side, built in shared/briefing.ts */}
+      <BriefingNow
+        brief={brief}
+        plain={plain}
+        onOpen={openLink}
+        heading={deceased ? t("At passing") : pastEnd ? t("Past the periods") : t("Now and next")}
+      >
+        <div className="mt-4 border-t pt-3" data-testid="overview-from-moon">
+          <p className="text-xs font-medium text-muted-foreground">{t("From the Moon")}</p>
+          {/* The adverse tara: the 3rd, 5th and 7th stars from the birth star, and the dasa lords they name. */}
+          <p
+            className="mt-3 text-xs text-muted-foreground"
+            data-testid="overview-tara"
+          >
+            {adverse.map((a) => (
+              <span key={a.tara} className="mr-1">
+                {a.name} {a.nakshatraName} ({a.lord})
+              </span>
+            ))}
+            {adverseNow ? (
+              <span className="text-verdict-mixed">
+                — the current {vim.current.dasa.lord} dasa is the{" "}
+                {adverseNow.name}-tara lord.
+              </span>
+            ) : (
+              <span>
+                — the three stars that work against the birth star; none rules
+                the current dasa.
+              </span>
+            )}
+          </p>
+
+          {/* Transit weather: the slow planets read against the natal Moon (today's sky; the deceased are read at passing, not against it). */}
+          {!deceased && (jupRow || satRow) && (
+            <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+              {[jupRow, satRow].filter(Boolean).map((r) => (
+                <li
+                  key={r!.planet}
+                  className="rounded-md border bg-card p-3 text-xs"
+                  data-testid={`overview-weather-${r!.planet}`}
+                  data-verdict={r!.verdict}
+                >
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <span className="text-sm font-medium">
+                      <PlanetName planet={r!.planet} />
+                    </span>
+                    <span className="text-muted-foreground">
+                      <SignName signIndex={r!.signIndex} /> · your {ord(r!.house)}{" "}
+                      from the Moon
+                    </span>
+                    <span
+                      className={cn(
+                        "ml-auto rounded px-1.5 py-0.5 text-xs font-medium",
+                        VERDICT_PILL[r!.verdict],
+                      )}
+                    >
+                      {r!.verdict}
+                    </span>
+                  </div>
+                  {plain && r!.voided ? (
+                    <p
+                      className="mt-1.5 leading-relaxed text-foreground/90"
+                      data-testid={`overview-weather-voided-${r!.planet}`}
+                    >
+                      {gocharaPlainEffect(r!)}
+                    </p>
+                  ) : (
+                    r!.effect.pd && (
+                      <p className="mt-1.5 leading-relaxed text-foreground/90">
+                        <Soft>{r!.effect.pd.text}</Soft>
+                        {r!.voided && (
+                          <span className="block text-muted-foreground">
+                            {gocharaPlainEffect(r!)}
+                          </span>
+                        )}
+                      </p>
+                    )
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+          {!deceased && (
+            <p className="mt-3 text-2xs text-muted-foreground">
+              Counted from the natal Moon (Phaladeepika 26.1); the full gochara,
+              with vedha, is on the Panchanga tab.
+            </p>
+          )}
+        </div>
+      </BriefingNow>
+
+      <BriefingPlanets planets={brief.planets} />
+
       {/* The life areas as plain cards */}
       <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {areas.map((a) => (
           <li
             key={a.area}
-            className="rounded-md border bg-card p-3"
+            className="scroll-mt-4 rounded-md border bg-card p-3"
             data-testid={`overview-area-${a.area}`}
             data-tone={a.tone}
           >
@@ -368,128 +457,6 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
         </div>
       )}
 
-      {/* What is running now */}
-      <div className="mt-4 rounded-lg border bg-card p-5 sm:p-6">
-        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          {deceased ? t("At passing") : pastEnd ? t("Past the periods") : t("Right now")}
-        </p>
-        <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-          <div className="flex items-baseline gap-2">
-            <dt className="shrink-0 text-muted-foreground">{t("Period")}</dt>
-            <dd className="text-sm">
-              {pastEnd ? (
-                <span className="text-muted-foreground">
-                  the 120-year Vimshottari sequence has run its course
-                </span>
-              ) : (
-                <>
-                  <span className="flex flex-wrap items-baseline gap-x-1.5">
-                    <PlanetName planet={vim.current.dasa.lord} />
-                    <span className="text-muted-foreground">{t("dasa")} ·</span>
-                    <PlanetName planet={vim.current.bhukti.lord} />
-                    <span className="text-muted-foreground">{t("bhukti")}</span>
-                  </span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground tabular">
-                    {t("bhukti")} to{" "}
-                    {DateTime.fromISO(vim.current.bhukti.end).toFormat("LLL yyyy")} ·
-                    {t("dasa")} to {DateTime.fromISO(vim.current.dasa.end).toFormat("LLL yyyy")}
-                    {nextDasa ? ` · then ${nextDasa.lord} dasa` : ""}
-                  </span>
-                </>
-              )}
-            </dd>
-          </div>
-          {!deceased && nextIngress && (
-            <div className="flex items-baseline gap-2">
-              <dt className="shrink-0 text-muted-foreground">{t("Next")}</dt>
-              <dd className="text-foreground">
-                {nextIngress.planet} enters {nextIngress.sign} in{" "}
-                {DateTime.fromISO(nextIngress.start).toFormat("LLL yyyy")}
-              </dd>
-            </div>
-          )}
-        </dl>
-
-        {/* The adverse tara: the 3rd, 5th and 7th stars from the birth star, and the dasa lords they name. */}
-        <p
-          className="mt-3 text-xs text-muted-foreground"
-          data-testid="overview-tara"
-        >
-          {adverse.map((a) => (
-            <span key={a.tara} className="mr-1">
-              {a.name} {a.nakshatraName} ({a.lord})
-            </span>
-          ))}
-          {adverseNow ? (
-            <span className="text-verdict-mixed">
-              — the current {vim.current.dasa.lord} dasa is the{" "}
-              {adverseNow.name}-tara lord.
-            </span>
-          ) : (
-            <span>
-              — the three stars that work against the birth star; none rules
-              the current dasa.
-            </span>
-          )}
-        </p>
-
-        {/* Transit weather: the slow planets read against the natal Moon (today's sky; the deceased are read at passing, not against it). */}
-        {!deceased && (jupRow || satRow) && (
-          <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-            {[jupRow, satRow].filter(Boolean).map((r) => (
-              <li
-                key={r!.planet}
-                className="rounded-md border bg-card p-3 text-xs"
-                data-testid={`overview-weather-${r!.planet}`}
-                data-verdict={r!.verdict}
-              >
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                  <span className="text-sm font-medium">
-                    <PlanetName planet={r!.planet} />
-                  </span>
-                  <span className="text-muted-foreground">
-                    <SignName signIndex={r!.signIndex} /> · your {ord(r!.house)}{" "}
-                    from the Moon
-                  </span>
-                  <span
-                    className={cn(
-                      "ml-auto rounded px-1.5 py-0.5 text-xs font-medium",
-                      VERDICT_PILL[r!.verdict],
-                    )}
-                  >
-                    {r!.verdict}
-                  </span>
-                </div>
-                {plain && r!.voided ? (
-                  <p
-                    className="mt-1.5 leading-relaxed text-foreground/90"
-                    data-testid={`overview-weather-voided-${r!.planet}`}
-                  >
-                    {gocharaPlainEffect(r!)}
-                  </p>
-                ) : (
-                  r!.effect.pd && (
-                    <p className="mt-1.5 leading-relaxed text-foreground/90">
-                      <Soft>{r!.effect.pd.text}</Soft>
-                      {r!.voided && (
-                        <span className="block text-muted-foreground">
-                          {gocharaPlainEffect(r!)}
-                        </span>
-                      )}
-                    </p>
-                  )
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-        {!deceased && (
-          <p className="mt-3 text-2xs text-muted-foreground">
-            Counted from the natal Moon (Phaladeepika 26.1); the full gochara,
-            with vedha, is on the Panchanga tab.
-          </p>
-        )}
-      </div>
     </section>
   );
 }

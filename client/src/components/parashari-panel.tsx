@@ -32,13 +32,11 @@ import type { PlanetCheck } from "@shared/parashari-checks";
 import { createContext, useContext, useMemo, useState } from "react";
 import {
   levelName,
-  dasaCombinations,
   timingNow,
   type TimingNow,
 } from "@shared/timing-now";
 import {
   TimingContents,
-  TimingNowPanel,
   jumpTo,
 } from "@/components/parashari-timing-now";
 import { DateTime } from "luxon";
@@ -720,7 +718,14 @@ function TopicPeriodsBlock({ topics }: { topics: TopicPeriods[] }) {
   );
 }
 
-export function ParashariPanel({ result }: { result: ChartResult }) {
+export function ParashariPanel({
+  result,
+  onOpenOverview,
+}: {
+  result: ChartResult;
+  /** Now and next lives on the Overview; the Timing chapter points there. */
+  onOpenOverview?: () => void;
+}) {
   const { positions, chart } = result;
   const combinations = useMemo(
     () =>
@@ -1021,10 +1026,6 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       }),
     [r.dasaReadings, r.dashas, sudarshana, avTimelineShown, asOfIso, deceased],
   );
-  const runningDasa = r.dasaReadings.find((d) => d.current);
-  const dasaCombos = runningDasa
-    ? dasaCombinations(yogas, runningDasa, r.ties, r.natures)
-    : null;
   const nowWord = deceased ? "at passing" : "running now";
   const condApplying = r.conditionalDasas.systems.filter((s) => s.applies);
   const condLabel = condApplying.length
@@ -1866,16 +1867,28 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
           <div data-testid="parashari-timing">
             <p className="mt-3 text-xs text-muted-foreground">
               {plain
-                ? "Parashara's clocks for this chart, all read from the same birth positions. Where things stand now comes first; then the life periods and their sub-periods, the transits scored against the points tables, the three-ring wheel turning year by year, and the other period systems, folded."
-                : "The Parashari timing methods, read from the same natal positions: the running levels first, then Vimshottari with antar dasas (ch. 46-60), the Ashtakavarga transits (ch. 66-72), the Sudarshana chakra (ch. 74), and the conditional and rasi dasas, Kalachakra (ch. 46, 50) and Brihat Jataka 8. Gochara from the Moon stays in the Panchanga tab, being Brihat Samhita and Phaladeepika, not Parashara."}
+                ? "Parashara's clocks for this chart, all read from the same birth positions. Where things stand now is on the Overview; here come the life periods and their sub-periods, the transits scored against the points tables, the three-ring wheel turning year by year, and the other period systems, folded."
+                : "The Parashari timing methods, read from the same natal positions (the running levels are on the Overview): Vimshottari with antar dasas (ch. 46-60), the Ashtakavarga transits (ch. 66-72), the Sudarshana chakra (ch. 74), and the conditional and rasi dasas, Kalachakra (ch. 46, 50) and Brihat Jataka 8. Gochara from the Moon stays in the Panchanga tab, being Brihat Samhita and Phaladeepika, not Parashara."}
             </p>
             <TimingContents />
-            <TimingNowPanel
-              now={timing}
-              dasaCombos={dasaCombos}
-              deceased={deceased}
-              states={r.avasthas.lines}
-            />
+            <p
+              className="mt-4 scroll-mt-24 text-sm text-muted-foreground"
+              data-testid="parashari-timing-now-pointer"
+            >
+              {plain
+                ? "Where things stand now, with the running periods, Saturn and Jupiter, and the changes due within eighteen months, is on the Overview, beside the other systems' clocks."
+                : "Now and next is on the Overview: the running Vimshottari levels, the Sudarshana year, the Ashtakavarga transits and the changes within eighteen months, beside the other systems' clocks."}{" "}
+              {onOpenOverview && (
+                <button
+                  type="button"
+                  onClick={onOpenOverview}
+                  className="font-medium text-primary underline-offset-2 hover:underline"
+                  data-testid="parashari-open-overview"
+                >
+                  Open the Overview
+                </button>
+              )}
+            </p>
             <TopicPeriodsBlock
               topics={topicPeriods(r, {
                 birthIso: result.utc,

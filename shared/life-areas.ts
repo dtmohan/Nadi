@@ -37,3 +37,46 @@ export function nadiAreasClauses(areas: AreaSynthesis[]): string | null {
   if (mixedN) parts.push(parts.length ? "the rest is mixed" : "the picture is mixed");
   return parts.length ? parts.join("; ") : null;
 }
+
+// ---- Area tags for the briefing (provisional) ----------------------------------------------------
+// The briefing tags a running period or a transit with the life areas it touches. The rule is an app
+// convention with no text behind it, so every tag carries the clause that placed it (shared/briefing.ts).
+
+/** The fixed order of the areas wherever they are listed: Nadi's eleven, as shared/rules.ts gives them. */
+export const AREA_ORDER = Object.keys(LIFE_AREAS) as LifeArea[];
+
+/**
+ * The houses that speak for each area when a period lord rules one or a transit stands in one
+ * (provisional: the app's mapping). Parents and family take the 9th for the father and the 4th for the
+ * mother. Standing has no house of its own, so that matters of the 10th are not tagged twice.
+ */
+export const AREA_HOUSES: Record<LifeArea, number[]> = {
+  self: [1],
+  career: [10],
+  authority: [],
+  marriage: [7],
+  children: [5],
+  wealth: [2, 11],
+  education: [4, 5],
+  family: [9, 4],
+  health: [6],
+  spirituality: [9, 12],
+  travel: [9, 12],
+};
+
+/**
+ * Signature karakas: a period lord that signifies an area in its own right (provisional). Venus for
+ * marriage, the Sun for the father, the Moon for the mother and Jupiter for children. Used only by the
+ * tagging rule; Nadi's own area karaka stays in shared/rules.ts.
+ */
+export const AREA_TAG_KARAKA: Partial<Record<string, { area: LifeArea; as: string; plain: string }>> = {
+  Venus: { area: "marriage", as: "the karaka of marriage", plain: "stands for marriage" },
+  Sun: { area: "family", as: "the karaka of the father", plain: "stands for the father" },
+  Moon: { area: "family", as: "the karaka of the mother", plain: "stands for the mother" },
+  Jupiter: { area: "children", as: "the karaka of children", plain: "stands for children" },
+};
+
+/** The areas a house speaks for, in the fixed order. */
+export function houseAreas(house: number): LifeArea[] {
+  return AREA_ORDER.filter((a) => AREA_HOUSES[a].includes(house));
+}

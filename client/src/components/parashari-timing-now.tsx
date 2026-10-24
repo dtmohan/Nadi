@@ -60,7 +60,7 @@ export function jumpTo(testId: string) {
 const SECTIONS = [
   {
     id: "now",
-    target: "parashari-timing-now",
+    target: "parashari-timing-now-pointer",
     plain: "Now and next",
     technical: "Now and next",
   },
