@@ -75,6 +75,8 @@ const PORTLAND = chart("Synthetic female, Portland", "female", "1994-07-12", "08
 const CHENNAI = chart("Synthetic adult", "male", "1975-03-14", "06:10", "Asia/Kolkata", "Chennai, India", 13.0827, 80.2707);
 const BOSTON = chart("Synthetic female, Boston", "female", "1969-05-30", "14:20", "America/New_York", "Boston, USA", 42.3601, -71.0589);
 const LAGOS = chart("Synthetic male, Lagos", "male", "1992-12-16", "11:45", "Africa/Lagos", "Lagos, Nigeria", 6.5244, 3.3792);
+// CURSED fires a chapter 83 yoga (the curse of a Brahmin, 83.71), which the plain reading leaves to the practitioner view.
+const CURSED = chart("Synthetic male, Chennai", "male", "1988-02-01", "02:00", "Asia/Kolkata", "Chennai, India", 13.0827, 80.2707);
 
 const results = new Map<Chart, ChartResult>();
 const resultOf = (c: Chart) => {
@@ -156,6 +158,11 @@ const SWEEP_EXEMPT: { file: string; test: (t: string) => boolean; why: string }[
     file: "parashari-houses.ts",
     test: (t) => t.includes("Parashara's phrase is that the native goes to hell"),
     why: "a template whose mark sits in a substitution; its full text is checked in the next test",
+  },
+  {
+    file: "parashari-curses.ts",
+    test: (t) => /\bcurse of (?:a|the)\b/i.test(t),
+    why: "chapter 83, left out of the plain reading whole (the trials chapter and the report's strains); checked below",
   },
   {
     file: "sarvartha.ts",
@@ -314,4 +321,40 @@ test("Rahu holding the Sun withdraws the son line (Nadi children reading)", () =
   assert.equal(f!.tone, "neutral");
   assert.match(f!.text, /the indication of a son gives way/);
   assert.match(r.reading.children.notes.join(" "), /gives way/);
+});
+
+test("chapter 83's curses stay in the practitioner reading (BPHS 83)", () => {
+  const r = resultOf(CURSED);
+  const curses = parashariOf(r).findings.filter((f) => f.id.startsWith("pa-curse-"));
+  assert.ok(curses.length, "a chapter 83 yoga fires");
+  const plain = texts(buildReport(r, { plain: true })).join("\n");
+  const prac = texts(buildReport(r, { plain: false })).join("\n");
+  for (const f of curses) {
+    assert.ok(!plain.includes(f.title), `the plain report leaves out ${f.title}`);
+    assert.ok(prac.includes(f.title), `the practitioner report keeps ${f.title}`);
+  }
+  assert.match(plain, /chapter 83, on debts carried from a previous birth/);
+  assert.deepEqual(plainViolations(plain), []);
+});
+
+test("soften words penury, the son line, the mother and the Sun's 7th-house transit gently", () => {
+  assert.equal(soften("Penury from birth"), "Money tight from early life");
+  assert.match(
+    soften("Saturn, lord of the 2nd, is combust. Parashara speaks of penury from birth when both lords are combust or with malefics."),
+    /Parashara reads money as tight from early life when both lords/,
+  );
+  assert.equal(
+    soften("Jupiter with or in trine to the Sun would indicate a son, but Rahu holds the Sun (at the same degree): the indication of a son gives way."),
+    "Jupiter with or in trine to the Sun would point to a son, but Rahu holds the Sun (at the same degree), so this line leaves the question open.",
+  );
+  assert.equal(
+    soften("Moon with Ketu: separation from the mother or a mother of spiritual bent; emotional detachment."),
+    "Moon with Ketu: distance from the mother or a mother of spiritual bent; emotional detachment.",
+  );
+  assert.equal(
+    soften("Separation from the mother; no house, land or comfort; false to friends."),
+    "Distance from the mother; no house, land or comfort; false to friends.",
+  );
+  assert.equal(soften("fatigue of travel, chest pain, humiliation, wasting"), "tiring travel, care with health, a knock to standing, low energy");
+  assert.equal(soften("disease; funeral rites"), "illness, and a heavy time in the family");
 });

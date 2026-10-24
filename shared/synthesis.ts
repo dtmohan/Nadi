@@ -238,16 +238,25 @@ function headlineFor(
   key: Finding[],
   reading: Reading,
   reconciled: boolean,
+  pair: { good: Finding; hard: Finding } | null = null,
 ): string {
-  if (area === "marriage" && reading.marriage.headline)
-    return reading.marriage.headline;
-  if (area === "children" && reading.children.headline) {
-    // When Saturn or Rahu delay the promise, let the reconciliation speak about timing.
-    return reconciled
-      ? reading.children.headline.replace(/,? and come without much delay/, "")
-      : reading.children.headline;
+  // A mixed area shows one line from each side, so the headline never reads one way while the verdict reads both.
+  if (pair) return `A mixed picture. ${uc(clauseOf(pair.good))}; yet ${clauseOf(pair.hard)}.`;
+  // The marriage and children readings have their own headline; it speaks for the area only where the verdict agrees
+  // with it (well supported, or lightly marked). An area that asks for care leads with its key findings instead.
+  if (tone === "supportive" || tone === "quiet" || tone === "mixed") {
+    if (area === "marriage" && reading.marriage.headline) return reading.marriage.headline;
+    if (area === "children" && reading.children.headline)
+      // When Saturn or Rahu delay the promise, let the reconciliation speak about timing.
+      return reconciled
+        ? reading.children.headline.replace(/,? and come without much delay/, "")
+        : reading.children.headline;
   }
-  const gists = key.slice(0, 2).map((f) => lc(firstClause(gist(f.text))));
+  // A supportive area leads with its supportive lines and one that asks for care with its hard ones, so the two
+  // gists never pull against the lead word.
+  const side = tone === "supportive" ? "good" : tone === "care" ? "hard" : null;
+  const ranked = side ? [...key.filter((f) => toneOf(f) === side), ...key.filter((f) => toneOf(f) !== side)] : key;
+  const gists = ranked.slice(0, 2).map((f) => lc(firstClause(gist(f.text))));
   if (!gists.length)
     return "Few Nadi signatures fall here; the chart says little about this area on its own.";
   const lead: Record<AreaTone, string> = {
@@ -260,13 +269,14 @@ function headlineFor(
   return `${lead[tone]} ${uc(gists[0])}${gists[1] ? `; ${gists[1]}` : ""}.`;
 }
 
+/** A finding's reading in one clause, lower-cased, with any parenthesis the clause cut open dropped. */
+function clauseOf(f: Finding): string {
+  return lc(firstClause(gist(f.text)).replace(/\s*\([^)]*$/, ""));
+}
+
 /** Headline for a contested area: both sides named, the supportive one first. */
 function contestedHeadline(c: AreaContest): string {
-  // Drop a parenthesis the clause cut open, e.g. "... path (provisional wording".
-  const clean = (t: string) => t.replace(/\s*\([^)]*$/, "");
-  const g = lc(clean(firstClause(gist(c.good.text))));
-  const h = lc(clean(firstClause(gist(c.hard.text))));
-  return `The strong rules disagree. ${uc(g)}; yet ${h}. Read both before deciding.`;
+  return `The strong rules disagree. ${uc(clauseOf(c.good))}; yet ${clauseOf(c.hard)}. Read both before deciding.`;
 }
 
 /**
@@ -351,13 +361,14 @@ export function synthesizeArea(
   const tone = contest
     ? "contested"
     : areaTone(balance, keep.length, hardCount, goodCount);
-  // In a contested area the two opposed rules lead the key findings, whatever their rank.
-  const key = contest
-    ? [
-        contest.good,
-        contest.hard,
-        ...keep.filter((f) => f !== contest.good && f !== contest.hard),
-      ].slice(0, 3)
+  // A mixed area's strongest line on each side, named together in its headline.
+  const good = keep.find((f) => toneOf(f) === "good");
+  const hard = keep.find((f) => toneOf(f) === "hard");
+  const pair = !contest && tone === "mixed" && good && hard ? { good, hard } : null;
+  // In a contested area the two opposed rules lead the key findings, whatever their rank; in a mixed one, the pair.
+  const lead = contest ?? pair;
+  const key = lead
+    ? [lead.good, lead.hard, ...keep.filter((f) => f !== lead.good && f !== lead.hard)].slice(0, 3)
     : keep.slice(0, 3);
   const rest = [...keep.filter((f) => !key.includes(f)), ...demoted];
   const karaka = areaKaraka(area, gender);
@@ -367,7 +378,7 @@ export function synthesizeArea(
     tone,
     headline: contest
       ? contestedHeadline(contest)
-      : headlineFor(area, tone, key, reading, Boolean(reconciliation)),
+      : headlineFor(area, tone, key, reading, Boolean(reconciliation), pair),
     key,
     rest,
     coveredBy,

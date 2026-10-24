@@ -691,7 +691,10 @@ const KP_CUSPS: Record<Exclude<AgreementTopic, Parent>, { cusps: number[]; topic
   lifespan: { cusps: [1, 8, 11], topics: ["Longevity"] },
 };
 
-function kpVoice(topic: AgreementTopic, kp: KpResult, gate: Gate): Voice {
+/** The word for a system whose rules fire on a topic without any of them promising or denying it. */
+const NO_VERDICT = "no verdict";
+
+function kpVoice(topic: AgreementTopic, kp: KpResult, gate: Gate): Voice & { word?: string } {
   const w = WORDS[topic];
   // Notes overruled by the principal cusp's sub lord (Part 3 p. 12) do not take a stance.
   const fs: KpFinding[] = kp.findings.filter((f) =>
@@ -703,15 +706,41 @@ function kpVoice(topic: AgreementTopic, kp: KpResult, gate: Gate): Voice {
   );
   const good = fs.filter((f) => f.polarity === "good");
   const bad = fs.filter((f) => f.polarity === "bad");
-  if (!good.length && !bad.length)
+  if (!good.length && !bad.length) {
+    const where = isParent(topic)
+      ? `on the ${topic}`
+      : `for the ${KP_CUSPS[topic].cusps.map((c) => `${ordinal(c)} cusp`).join(" or ")}`;
+    // Rules that only describe (the kind of work, the source of money) fire, but none promises or denies: KP has
+    // no verdict here, which is not the same as reading nothing.
+    const neutral = fs.filter((f) => f.polarity === "neutral");
+    if (neutral.length) {
+      const cites: Cite[] = [];
+      for (const f of neutral)
+        if (!cites.some((c) => c.label === f.source)) cites.push({ label: f.source, url: f.sourceUrl });
+      const gist = lc(firstSentence(neutral[0].text.replace(/^[^:]*:\s*/, "")))
+        .replace(/\s*\([^)]*\)?/g, "")
+        .replace(/\.$/, "");
+      return {
+        ...K.schoolVoice(
+          "kp",
+          {
+            stance: "silent",
+            tier: "sourced",
+            note: clip(`No promise or denial rule fires ${where}; the KP rules that do fire describe it: ${gist}.`, 160),
+            cites,
+          },
+          { gate, texts: neutral.map((f) => f.text) },
+        ),
+        word: NO_VERDICT,
+      };
+    }
     return K.schoolVoice("kp", {
       stance: "silent",
       tier: "sourced",
-      note: isParent(topic)
-        ? `No KP rule on the ${topic} fires.`
-        : `No rule fires for the ${KP_CUSPS[topic].cusps.map((c) => `${ordinal(c)} cusp`).join(" or ")}.`,
+      note: isParent(topic) ? `No KP rule on the ${topic} fires.` : `No rule fires ${where}.`,
       cites: [],
     });
+  }
   const denied = bad.find((f) => /denied/.test(f.ruleId));
   const lead = denied ?? bad[0] ?? good[0];
   const cuspNo = isParent(topic) ? lead.cusp : KP_CUSPS[topic].cusps[0];
@@ -788,9 +817,15 @@ function sentenceFor(
           : `the readings are disputed within ${joinList(torn)}`,
     quiet: "too little is read to compare",
   };
-  const unread = silent.length
-    ? ` ${joinList(silent.map((s) => AGREEMENT_SYSTEM_LABEL[s.system]))} ${silent.length === 1 ? "does" : "do"} not read it.`
-    : "";
+  const quiet = silent.filter((s) => s.word !== NO_VERDICT);
+  const describing = silent.filter((s) => s.word === NO_VERDICT);
+  const unread =
+    (quiet.length
+      ? ` ${joinList(quiet.map((s) => AGREEMENT_SYSTEM_LABEL[s.system]))} ${quiet.length === 1 ? "does" : "do"} not read it.`
+      : "") +
+    (describing.length
+      ? ` ${joinList(describing.map((s) => AGREEMENT_SYSTEM_LABEL[s.system]))} ${describing.length === 1 ? "has" : "have"} no verdict here, only rules that describe it.`
+      : "");
   if (!spoken.length) return `${label}: no system reads it strongly.`;
   return `${label}: ${body}: ${tail[verdict]}.${unread}`;
 }

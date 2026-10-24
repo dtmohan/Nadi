@@ -59,6 +59,7 @@ const ML: Record<string, string> = {
   "Birth star": "ജന്മനക്ഷത്രം",
   "Firm ground": "ഉറച്ച അടിത്തറ",
   "Asks for care": "ശ്രദ്ധ വേണ്ടത്",
+  Nadi: "നാഡി",
   "Right now": "ഇപ്പോൾ",
   "At passing": "വിയോഗ സമയത്ത്",
   "Past the periods": "ദശാകാലം കഴിഞ്ഞു",

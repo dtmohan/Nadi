@@ -24,6 +24,8 @@ import {
   type ShadbalaBase,
   type ShadbalaResult,
   type DasaStartTransit,
+  strengthQualifier,
+  strengthQualifierPlain,
 } from "./shadbala";
 import { computeAshtakavarga, type AshtakavargaResult } from "./ashtakavarga";
 import {
@@ -411,16 +413,8 @@ export function computeParashari(
   for (const b of bhavas) {
     const e = LORD_IN_HOUSE[b.house - 1][b.lordIn - 1];
     const sb = shadbala?.planets.find((x) => x.planet === b.lord);
-    const qualifier = sb
-      ? ` Strength qualifier (24.145): ${b.lord} has ${sb.total.toFixed(0)} of the ${sb.required} virupas Parashara asks for (27.32-33), so expect ${sb.effect === "full" ? "the full" : sb.effect === "half" ? "about half the" : "about a quarter of the"} effect.`
-      : "";
-    const qualifierPlain = sb
-      ? sb.effect === "full"
-        ? ` ${b.lord} is strong enough by Parashara's measure to give this in full (24.145).`
-        : sb.effect === "half"
-          ? ` ${b.lord} has about half the strength Parashara asks for, so expect about half of this (24.145).`
-          : ` ${b.lord} is well short of the strength Parashara asks for, so expect only a little of this (24.145).`
-      : "";
+    const qualifier = sb ? strengthQualifier(b.lord, sb) : "";
+    const qualifierPlain = sb ? ` ${strengthQualifierPlain(b.lord, sb)} (24.145).` : "";
     const lordSign = SIGNS[signOfHouse(b.lordIn)];
     const reads = /^(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu)\b/.test(e.text) ? e.text : e.text.charAt(0).toLowerCase() + e.text.slice(1);
     const note = bhavaNote(b.lord);

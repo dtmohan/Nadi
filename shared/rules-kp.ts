@@ -116,6 +116,12 @@ export interface KpRule {
   timing?: number[];
   source: string;
   sourceUrl?: string;
+  /**
+   * Rules this one sums up: a class note's reading of two of its own lines together (the 2nd sub lord's gaining and
+   * losing houses read as one middling financial life, KP class 4.1). When it fires, those findings are shown as its
+   * parts, under it.
+   */
+  sums?: string[];
 }
 
 export interface KpFinding {
@@ -146,6 +152,11 @@ export interface KpFinding {
   standing?: "decides" | "note";
   /** For a note: the rule that decided against it. */
   decidedBy?: string;
+  /**
+   * The summary rule this finding is a part of (KpRule.sums). Display only: the finding keeps its standing and its
+   * place in the tally, and is shown under the summary as one of its parts.
+   */
+  partOf?: string;
 }
 
 /**
@@ -202,6 +213,29 @@ export function applyKpPrecedence(findings: KpFinding[]): KpFinding[] {
       }
     }
   }
+  // A summary rule's parts (KpRule.sums) are shown under it when both fire on the same cusp.
+  for (const f of out) {
+    const parts = byId.get(f.ruleId)?.sums;
+    if (!parts) continue;
+    for (const g of out) if (parts.includes(g.ruleId) && g.cusp === f.cusp && !g.partOf) g.partOf = f.ruleId;
+  }
+  return out;
+}
+
+/**
+ * The order to show one cusp's findings in: the readings as the rules give them, each summary followed by its parts,
+ * and the notes a principal cusp overruled last.
+ */
+export function kpDisplayOrder<T extends Pick<KpFinding, "ruleId" | "standing" | "partOf">>(fs: T[]): T[] {
+  const ids = new Set(fs.map((f) => f.ruleId));
+  const isPart = (f: T) => !!f.partOf && ids.has(f.partOf);
+  const out: T[] = [];
+  for (const f of fs.filter((x) => x.standing !== "note" && !isPart(x))) {
+    out.push(f);
+    for (const g of fs) if (isPart(g) && g.partOf === f.ruleId && g.standing !== "note") out.push(g);
+  }
+  // Parts whose summary was itself overruled, and every overruled note, close the list.
+  for (const f of fs) if (!out.includes(f)) out.push(f);
   return out;
 }
 
@@ -253,7 +287,7 @@ export const KP_RULES: KpRule[] = [
   // ---------------- Cusp II ----------------
   { id: "kp2-wealth-high", cusp: 2, topic: "Finance", when: { cusp: 2, minOf: { houses: [6, 10, 11], count: 2 }, none: [5, 8, 12] }, text: "The 2nd sub lord signifies 6, 10 and 11 and none of 5, 8, 12: substantial wealth, gathered in the conjoined periods of the 2-6-10-11 significators.", polarity: "good", timing: [2, 6, 10, 11], source: C41 },
   { id: "kp2-wealth-low", cusp: 2, topic: "Finance", when: { cusp: 2, minOf: { houses: [5, 8, 12], count: 2 }, none: [6, 10, 11] }, text: "The 2nd sub lord signifies 5, 8 and 12 and none of 6, 10, 11: money stays modest and leaks through the houses of loss.", polarity: "bad", source: C41 },
-  { id: "kp2-wealth-mixed", cusp: 2, topic: "Finance", when: { cusp: 2, any: [6, 10, 11], minOf: { houses: [5, 8, 12], count: 1 } }, text: "The 2nd sub lord signifies both the gaining houses (6, 10, 11) and the losing ones (5, 8, 12): a middling, up-and-down financial life.", polarity: "neutral", source: C41 },
+  { id: "kp2-wealth-mixed", cusp: 2, topic: "Finance", when: { cusp: 2, any: [6, 10, 11], minOf: { houses: [5, 8, 12], count: 1 } }, text: "The 2nd sub lord signifies both the gaining houses (6, 10, 11) and the losing ones (5, 8, 12): a middling, up-and-down financial life.", polarity: "neutral", source: C41, sums: ["kp2-gain", "kp2-loss"] },
   { id: "kp2-fin-verygood", cusp: 2, topic: "Finance", when: { cusp: 2, starLordSignifies: [6, 11] }, text: "The 2nd sub lord is in the star of a planet signifying 6 and 11: very good finances.", polarity: "good", source: P3("41") },
   { id: "kp2-fin-moderate", cusp: 2, topic: "Finance", when: { cusp: 2, starLordSignifies: [2, 10] }, text: "The 2nd sub lord is in the star of a planet signifying 2 and 10: moderate but steady finances.", polarity: "neutral", source: P3("41") },
   { id: "kp2-improving", cusp: 2, topic: "Finance", when: { cusp: 2, minOf: { houses: IMPROVING, count: 3 } }, text: "The 2nd sub lord is tied to the improving houses (1, 2, 3, 6, 10, 11): the financial position keeps improving.", polarity: "good", source: P3("42") },
@@ -418,7 +452,7 @@ export const KP_RULES: KpRule[] = [
   { id: "kp5-love-failure", cusp: 5, topic: "Love", when: { cusp: 5, all: [5], minOf: { houses: [6, 10, 12], count: 2 } }, text: "The 5th sub lord ties the 5th to 6, 10 and 12: love affairs fail.", polarity: "bad", source: P1("152") },
   { id: "kp5-gambling", cusp: 5, topic: "Speculation", when: { cusp: 5, all: [5, 11], minOf: { houses: [2, 6, 8, 10], count: 2 } }, text: "The 5th sub lord signifies 5 and 11 with 2, 6, 8 and 10: gains from betting, cards and the races.", polarity: "good", timing: [5, 6, 11], source: P1("152") },
   { id: "kp5-mantra-learn", cusp: 5, topic: "Practice", when: { cusp: 5, all: [5], minOf: { houses: [3, 4, 11], count: 2 } }, text: "The 5th sub lord ties the 5th to 3, 4 and 11: mantras are learnt and their practice bears fruit.", polarity: "good", source: P1("152") },
-  { id: "kp5-actor", cusp: 5, topic: "Arts", when: { cusp: 5, all: [5, 10], minOf: { houses: [7, 11], count: 1 } }, text: "The 5th sub lord signifies 5 and 10 with 7 or 11: acting in cinema or on the stage as a career.", polarity: "good", source: P1("152") },
+  { id: "kp5-actor", cusp: 5, topic: "Arts", when: { cusp: 5, all: [5, 7, 10, 11] }, text: "The 5th sub lord signifies 5, 7, 10 and 11: acting in cinema or on the stage as a career.", polarity: "good", source: P1("152") },
   { id: "kp5-wealth-jupiter", cusp: 5, topic: "Finance", when: { cusp: 5, subLordIs: ["Jupiter"], all: [5, 11], minOf: { houses: [2, 3, 6], count: 2 }, none: [8, 12] }, text: "Jupiter as 5th sub lord signifying 5 and 11 with 2, 6 and 3, clear of 8 and 12: enormous wealth.", polarity: "good", timing: [2, 5, 11], source: P1("152") },
   { id: "kp5-astrologer", cusp: 5, topic: "Public life", when: { cusp: 5, subLordIs: ["Saturn", "Mercury", "Jupiter"], all: [5], minOf: { houses: [2, 7, 9, 10, 11], count: 3 } }, text: "Saturn, Mercury or Jupiter as 5th sub lord tying the 5th to 9, 10, 11, 2 and 7: a popular astrologer.", polarity: "good", source: P1("152") },
   { id: "kp5-children-denied-full", cusp: 5, topic: "Children", when: { cusp: 5, strongMinOf: { houses: [4, 6, 10, 12], count: 3 }, none: [2, 5, 11] }, text: "The 5th sub lord strongly signifies 4, 12, 10 and 6 with none of 2, 5 and 11: children are denied — the book's own example is a sub lord strongly signifying the 4th, by being in the star of a planet connected to it.", polarity: "bad", source: P1("147-149, 152") },

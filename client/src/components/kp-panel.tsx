@@ -60,6 +60,7 @@ import {
   kpHerePlain,
   kpTimingPlain,
   kpUsedGloss,
+  kpDisplayOrder,
   type KpFinding,
 } from "@shared/rules-kp";
 import { Working } from "@/components/working";
@@ -1529,13 +1530,13 @@ export function KpPanel({ result }: { result: ChartResult }) {
             const fs = findingsByCusp.get(c.house) ?? [];
             const sl = kp.planets.find((p) => p.planet === c.subLord)!;
             const houses = sig.get(c.subLord) ?? [];
-            const main = fs
-              .filter((f) => f.topic !== "Sources of income")
-              .sort(
-                (a, b) =>
-                  Number(a.standing === "note") - Number(b.standing === "note"),
-              );
+            const main = kpDisplayOrder(
+              fs.filter((f) => f.topic !== "Sources of income"),
+            );
             const income = fs.filter((f) => f.topic === "Sources of income");
+            // A summary's part (KpRule.sums), shown under the summary it belongs to.
+            const isPartShown = (f: KpFinding) =>
+              !!f.partOf && main.some((x) => x.ruleId === f.partOf);
             return (
               <article
                 key={c.house}
@@ -1574,7 +1575,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
                     {main.map((f) => (
                       <li
                         key={f.ruleId}
-                        className="flex gap-3 text-sm"
+                        className={cn("flex gap-3 text-sm", isPartShown(f) && "pl-5")}
                         data-testid={`kp-finding-${f.ruleId}`}
                       >
                         <span
@@ -1590,12 +1591,21 @@ export function KpPanel({ result }: { result: ChartResult }) {
                         />
                         <span
                           className={cn(
-                            f.standing === "note" && "text-muted-foreground",
+                            (f.standing === "note" || isPartShown(f)) && "text-muted-foreground",
                           )}
                         >
                           <span className="mr-1.5 text-xs font-medium text-muted-foreground">
                             {f.topic}.
                           </span>
+                          {isPartShown(f) && f.standing !== "note" && (
+                            <span
+                              className="mr-1.5 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground"
+                              title="Part of the mixed reading above: the class note reads the gaining and losing houses together (KP class 4.1)."
+                              data-testid={`kp-part-${f.ruleId}`}
+                            >
+                              part
+                            </span>
+                          )}
                           {f.standing === "note" && (
                             <span
                               className="mr-1.5 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground"

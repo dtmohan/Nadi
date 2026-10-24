@@ -979,7 +979,11 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
   const yogas = r.findings.filter(
     (f) => f.kind !== "lord" && f.kind !== "house" && f.kind !== "evil",
   );
-  const evils = r.findings.filter((f) => f.kind === "evil");
+  // Chapter 83 (curses carried from a previous birth) stays in the practitioner view; the plain view points to it.
+  const evilsAll = r.findings.filter((f) => f.kind === "evil");
+  const isCurse = (f: { id: string }) => f.id.startsWith("pa-curse-");
+  const evils = plain ? evilsAll.filter((f) => !isCurse(f)) : evilsAll;
+  const cursesHeld = plain ? evilsAll.filter(isCurse).length : 0;
   const houseFinds = r.findings.filter((f) => f.kind === "house");
   const shownHouses = focusHouse
     ? houseFinds.filter((f) => f.house === focusHouse)
@@ -1615,8 +1619,8 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
       </Chapter>
       <Chapter id="trials">
         <SectionTitle
-          plain="Early trials, remedies and past-life debts"
-          technical="Evils, antidotes and curses (ch. 9-10, 83)"
+          plain="Early trials and their remedies"
+          technical={plain ? "Evils and antidotes (ch. 9-10)" : "Evils, antidotes and curses (ch. 9-10, 83)"}
           className="mt-8"
         />
         {(
@@ -1632,8 +1636,15 @@ export function ParashariPanel({ result }: { result: ChartResult }) {
                 antidotes, holds in this chart.
               </p>
             )}
+            {cursesHeld > 0 && (
+              <p className="text-sm text-muted-foreground md:col-span-2" data-testid="curses-held-note">
+                Parashara's chapter 83, on debts carried from a previous birth,
+                has {cursesHeld === 1 ? "a line" : `${cursesHeld} lines`} on this chart. The
+                plain view leaves {cursesHeld === 1 ? "it" : "them"} to the practitioner view.
+              </p>
+            )}
             <p className="text-xs text-muted-foreground md:col-span-2">
-              <Soft>{[...EVIL_CAVEATS, ...CURSE_CAVEATS].join(" ")}</Soft>
+              <Soft>{(plain ? EVIL_CAVEATS : [...EVIL_CAVEATS, ...CURSE_CAVEATS]).join(" ")}</Soft>
             </p>
           </div>
         )}

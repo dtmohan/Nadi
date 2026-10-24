@@ -3,7 +3,7 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { vimshottari } from "@shared/kp";
 import { ageYears, lifeAsOf, areaSeason } from "@shared/life-stage";
-import { LIFE_AREAS, type LifeArea } from "@shared/rules";
+import { areaNoun, nadiAreasClauses } from "@shared/life-areas";
 import type { Gender } from "@shared/marriage";
 import {
   synthesize,
@@ -49,31 +49,12 @@ const joinList = (xs: string[]) =>
     ? xs.join("")
     : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
 
-/** The life area as a plain noun: "Career", "Marriage", "Children", "Wealth", "Health". */
-const areaNoun = (area: LifeArea) =>
-  LIFE_AREAS[area].label.split(" &")[0];
-
-/** One sentence that says what the chart settles, what it asks care for, and what stays mixed. */
+/** The Nadi verdict across the areas, named as Nadi's: the other systems are weighed under Across the systems. */
 function glanceSentence(areas: AreaSynthesis[]): string {
-  const firm = areas.filter((a) => a.tone === "supportive").map((a) => areaNoun(a.area).toLowerCase());
-  const care = areas.filter((a) => a.tone === "care").map((a) => areaNoun(a.area).toLowerCase());
-  const contested = areas
-    .filter((a) => a.tone === "contested")
-    .map((a) => areaNoun(a.area).toLowerCase());
-  const parts: string[] = [];
-  if (firm.length)
-    parts.push(`${joinList(firm)} ${firm.length === 1 ? "rests" : "rest"} on firm ground`);
-  if (care.length)
-    parts.push(`${joinList(care)} ${care.length === 1 ? "needs" : "need"} care`);
-  if (contested.length)
-    parts.push(
-      `${joinList(contested)} ${contested.length === 1 ? "is" : "are"} in dispute, with strong signs both ways`,
-    );
-  const mixedN = areas.filter((a) => a.tone === "mixed").length;
-  if (mixedN) parts.push(parts.length ? "the rest is mixed" : "the picture is mixed");
-  if (!parts.length)
-    return "Nothing in this chart stands out strongly one way or the other; it is a quiet chart.";
-  return `In this chart ${parts.join("; ")}.`;
+  const clauses = nadiAreasClauses(areas);
+  return clauses
+    ? `In the Nadi reading, ${clauses}.`
+    : "The Nadi rules mark nothing in this chart strongly one way or the other; it is a quiet chart.";
 }
 
 /**
@@ -269,7 +250,7 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
                 data-testid="overview-firm"
               >
                 <p className="text-2xs font-semibold uppercase tracking-wide text-verdict-good">
-                  {t("Firm ground")}
+                  {t("Firm ground")} · {t("Nadi")}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed">
                   {joinList(firm.map((a) => t(areaNoun(a.area))))}
@@ -282,7 +263,7 @@ export function OverviewPanel({ result }: { result: ChartResult }) {
                 data-testid="overview-watch"
               >
                 <p className="text-2xs font-semibold uppercase tracking-wide text-verdict-bad">
-                  {t("Asks for care")}
+                  {t("Asks for care")} · {t("Nadi")}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed">
                   {joinList(watch.map((a) => t(areaNoun(a.area))))}

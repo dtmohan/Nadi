@@ -123,10 +123,22 @@ function housesSection(
         };
       }),
     });
-  const strains = par.findings.filter(
+  // Chapter 83 (curses carried from a previous birth) is left to the practitioner report.
+  const strainsAll = par.findings.filter(
     (f) => f.kind === "strain" || f.kind === "evil",
   );
-  if (strains.length)
+  const isCurse = (f: { id: string }) => f.id.startsWith("pa-curse-");
+  const strains = ctx.plain ? strainsAll.filter((f) => !isCurse(f)) : strainsAll;
+  const cursesHeld = ctx.plain ? strainsAll.filter(isCurse).length : 0;
+  const heldNote = cursesHeld
+    ? [
+        {
+          kind: "note" as const,
+          text: `Parashara's chapter 83, on debts carried from a previous birth, has ${cursesHeld === 1 ? "a line" : `${cursesHeld} lines`} on this chart; the plain report leaves ${cursesHeld === 1 ? "it" : "them"} to the practitioner report.`,
+        },
+      ]
+    : [];
+  if (strains.length || heldNote.length)
     sub.push({
       id: "strains",
       title: "Strains and their remedies in the chart",
@@ -142,6 +154,7 @@ function housesSection(
             tone: f.tone,
           };
         }),
+        ...heldNote,
       ],
     });
   return {

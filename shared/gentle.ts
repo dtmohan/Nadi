@@ -108,6 +108,9 @@ const PHRASES: [RegExp, string][] = [
   [/previously widowed/gi, "who has lost a partner before"],
   [/was widowed before/gi, "has lost a partner before"],
   [/\bwidowed\b/gi, "who has lost a partner"],
+  // The mother (Nadi Moon with Ketu, BPHS 24)
+  [/\bSeparation from the mother\b/g, "Distance from the mother"],
+  [/\bseparation from the mother\b/g, "distance from the mother"],
   // Disease and confinement
   [/\bleprosy\b/gi, "serious skin disease"],
   [/\bimprisonment\b/gi, "confinement"],
@@ -188,11 +191,12 @@ const STATEMENTS: [RegExp, string][] = [
   // Nadi children (Rao, Naik).
   [
     /the indication of a son gives way entirely — difficulty for a male child read at its strictest/g,
-    "the indication of a son gives way in this reading",
+    "this line leaves the question of a son open",
   ],
   [/difficulty for a male child, or a son of delicate health/g, "a son may need extra care, especially with health"],
   [/difficulty for a male child/g, "extra care for a son"],
   [/the heaviest progeny signature/g, "the strongest signature of delay for children"],
+  [/\bThe heaviest progeny signature/g, "The strongest signature of delay for children"],
   // Jaimini, the Upapada (BPHS 30).
   [/strain in the marriage, separation or loss of the spouse/g, "strain in the marriage that asks for care"],
   // Prasna Marga, the houses.
@@ -205,6 +209,13 @@ const STATEMENTS: [RegExp, string][] = [
   [/loss of wealth and children/g, "strain on wealth and on children"],
   [/\bloss of children\b/g, "worry over children"],
   [/loss of spouse, relations and wealth/g, "strain on the marriage, on relations and on wealth"],
+  [/fatigue of travel, chest pain, humiliation, wasting/g, "tiring travel, care with health, a knock to standing, low energy"],
+  [/\bchest pain\b/g, "care with health"],
+  [/humiliation through loss/g, "a knock to standing through losses"],
+  [/\bhumiliation\b/g, "a knock to standing"],
+  [/disease; funeral rites/g, "illness, and a heavy time in the family"],
+  [/death of an elder/g, "worry over an elder"],
+  [/poison and fire, exile from kin/g, "care around poison and fire, distance from kin"],
   // Notes, caveats and signification lists shown in the plain reading.
   [/Verses on the loss of children, co-born, spouse or father/g, "Verses on hard times for children, co-born, spouse or father"],
   [/which concern death at or soon after birth/g, "which concern the first days of life"],
@@ -244,6 +255,19 @@ const STATEMENTS: [RegExp, string][] = [
   [/loss of the spouse through slander or bereavement/g, "strain on the marriage through gossip or grief"],
   [/\bShort life, chronic complaints/g, "Health that needs guarding, chronic complaints"],
   [/death from poison, weapon or fire/g, "a need for care around poisons, weapons and fire"],
+  // The 2nd house (BPHS 13.7): the verse's word, read as money that is tight from early on.
+  [/\bPenury from birth\b/g, "Money tight from early life"],
+  [/\bspeaks of penury from birth\b/g, "reads money as tight from early life"],
+  // Rahu holding the Sun (the Nadi children reading): the cancellation withdraws one line; it denies nothing.
+  [
+    /would indicate a son, but Rahu holds the Sun \(([^)]*)\): the indication of a son gives way/g,
+    "would point to a son, but Rahu holds the Sun ($1), so this line leaves the question open",
+  ],
+  [
+    /would indicate a son, but Rahu holds the Sun: the son indication gives way/g,
+    "would point to a son, but Rahu holds the Sun, so this line leaves the question open",
+  ],
+  [/the (?:indication of a son|son indication) gives way/g, "the question of a son is left open"],
 ];
 
 // Layer 2: hard verses. The modules mark a verse kept in its own hard wording; the plain reading
@@ -394,6 +418,13 @@ export const PLAIN_DENY: RegExp[] = [
   /danger to life/i,
   /life (?:under threat|at risk)/i,
   /\bspan curtailed\b/i,
+  /penury from birth/i,
+  /\bcurse of (?:a|the)\b/i,
+  /indication of a son gives way|son indication gives way/i,
+  /separation from the mother/i,
+  /chest pain/i,
+  /\bhumiliation\b/i,
+  /\bfuneral\b/i,
 ];
 
 /** The deny-list phrases a text contains, each with a little context. */

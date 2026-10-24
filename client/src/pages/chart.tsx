@@ -97,6 +97,7 @@ import {
   type AreaSynthesis,
   type AreaTone,
 } from "@shared/synthesis";
+import { areaWord, nadiAreasClauses } from "@shared/life-areas";
 import {
   VerdictCard,
   type VerdictSignature,
@@ -1038,20 +1039,6 @@ function AreaSection({
   );
 }
 
-const AREA_SHORT: Record<LifeArea, string> = {
-  self: "temperament",
-  career: "career",
-  authority: "standing",
-  marriage: "marriage",
-  children: "children",
-  wealth: "wealth",
-  education: "learning",
-  family: "family",
-  health: "health",
-  spirituality: "the inner life",
-  travel: "travel",
-};
-
 const joinList = (xs: string[]) =>
   xs.length <= 1
     ? xs.join("")
@@ -1079,45 +1066,15 @@ function BnnVerdict({ result }: { result: ChartResult }) {
   // Areas not yet in season are held back from the verdict; a child is not told about marriage.
   const areas = allAreas.filter((a) => !deferred.includes(a.area));
 
-  // Lead with the three firmest areas and every area that needs care; the rest is "mixed" in one word.
-  const firmAll = areas
-    .filter((a) => a.tone === "supportive")
-    .sort((x, y) => y.balance - x.balance);
-  const firm = firmAll.slice(0, 3).map((a) => AREA_SHORT[a.area]);
-  const careAll = areas
-    .filter((a) => a.tone === "care")
-    .sort((x, y) => x.balance - y.balance)
-    .map((a) => AREA_SHORT[a.area]);
-  const care = careAll.slice(0, 3);
-  const careMore = careAll.length - care.length;
-  // Contested areas are named, never folded into "firm" or "mixed": their strong rules disagree.
-  const contested = areas
-    .filter((a) => a.tone === "contested")
-    .map((a) => AREA_SHORT[a.area]);
-  const mixedN =
-    areas.filter((a) => a.tone === "mixed").length +
-    Math.max(0, firmAll.length - 3);
-  const parts: string[] = [];
-  if (firm.length)
-    parts.push(
-      `${joinList(firm)} ${firm.length === 1 ? "rests" : "rest"} on firm ground`,
-    );
-  if (care.length)
-    parts.push(
-      `${joinList(careMore > 0 ? [...care, `${careMore} more`] : care)} ${care.length === 1 ? "needs" : "need"} care`,
-    );
-  if (contested.length)
-    parts.push(
-      `${joinList(contested)} ${contested.length === 1 ? "is" : "are"} contested, with strong rules on both sides`,
-    );
-  if (mixedN)
-    parts.push(parts.length ? "the rest is mixed" : "every area is mixed");
+  // The same sentence as the Overview's glance (shared/life-areas.ts): every firm area, every area that needs care,
+  // every area in dispute, and the rest as mixed.
+  const clauses = nadiAreasClauses(areas);
   const stageNote =
     deferred.length > 0
-      ? ` At age ${Math.floor(age)} (${STAGE_LABEL[stage]}) ${joinList(deferred.map((a) => AREA_SHORT[a]))} ${deferred.length === 1 ? "is" : "are"} not yet in season and ${deferred.length === 1 ? "is" : "are"} held for later.${stage === "child" ? " Parashara's order for a child's chart is the evils at birth and their antidotes first (BPHS 9.1), read under Parashari." : ""}`
+      ? ` At age ${Math.floor(age)} (${STAGE_LABEL[stage]}) ${joinList(deferred.map((a) => areaWord(a)))} ${deferred.length === 1 ? "is" : "are"} not yet in season and ${deferred.length === 1 ? "is" : "are"} held for later.${stage === "child" ? " Parashara's order for a child's chart is the evils at birth and their antidotes first (BPHS 9.1), read under Parashari." : ""}`
       : "";
-  const headline = parts.length
-    ? parts.join("; ").replace(/^./, (c) => c.toUpperCase()) + "."
+  const headline = clauses
+    ? clauses.replace(/^./, (c) => c.toUpperCase()) + "."
     : "The Nadi rules mark no area strongly in this chart.";
   const jeevaP = result.positions.find(
     (p) => p.planet === reading.roles.native,
@@ -1271,7 +1228,7 @@ function BnnVerdict({ result }: { result: ChartResult }) {
     },
     {
       label: "Rules",
-      text: `${reading.findings.length} Nadi rules fire on this chart across ${allAreas.filter((a) => a.total > 0).length} life areas; each area below opens with its balance, then the signatures that carry it.${deferred.length ? ` Onset ages (${deferred.map((a) => `${AREA_SHORT[a]} ${areaSeason(a, result.utc, now.asOf).from}`).join(", ")}) are practical conventions, provisional; BPHS has no chapter assigning ages to planets or matters.` : ""}`,
+      text: `${reading.findings.length} Nadi rules fire on this chart across ${allAreas.filter((a) => a.total > 0).length} life areas; each area below opens with its balance, then the signatures that carry it.${deferred.length ? ` Onset ages (${deferred.map((a) => `${areaWord(a)} ${areaSeason(a, result.utc, now.asOf).from}`).join(", ")}) are practical conventions, provisional; BPHS has no chapter assigning ages to planets or matters.` : ""}`,
     },
   ];
 

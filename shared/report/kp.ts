@@ -9,7 +9,7 @@ import {
   KP_PRECEDENCE,
 } from "../kp";
 import { HOUSE_AREA } from "../life-stage";
-import { kpHerePlain, kpUsedGloss } from "../rules-kp";
+import { kpDisplayOrder, kpHerePlain, kpUsedGloss } from "../rules-kp";
 import {
   endStop,
   list,
@@ -128,18 +128,15 @@ export const kpModule: ReportModule = {
       sub.push({
         id: `kp-${cusp}`,
         title: `The ${ORD(cusp)} cusp`,
-        paras: fs
-          .slice()
-          .sort(
-            (a, b) =>
-              Number(a.standing === "note") - Number(b.standing === "note"),
-          )
+        paras: kpDisplayOrder(fs)
           .map((f) => ({
             kind: "p" as const,
             text: S(
               f.standing === "note"
                 ? `${f.topic}, as a note: ${endStop(f.text)} Overruled by the ${ORD(KP_PRECEDENCE.find((p) => p.topics.includes(f.topic))?.cusp ?? cusp)} cusp sub lord, the deciding factor for this matter; not counted.`
-                : `${f.topic}: ${endStop(f.text)}${ctx.plain ? ` ${kpHerePlain(f)}` : ""}`,
+                : f.partOf && fs.some((x) => x.ruleId === f.partOf)
+                  ? `${f.topic}, part of the mixed reading above: ${endStop(f.text)}`
+                  : `${f.topic}: ${endStop(f.text)}${ctx.plain ? ` ${kpHerePlain(f)}` : ""}`,
             ),
             cites: [
               cites.add(f.source, f.sourceUrl),

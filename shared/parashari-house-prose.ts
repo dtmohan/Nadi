@@ -26,6 +26,7 @@ import { readsPlain } from "./phaladeepika-houses";
 import { soften } from "./gentle";
 import { redactProse } from "./life-stage";
 import type { AspectFloor, ParashariResult, ParashariSource } from "./parashari";
+import { strengthQualifierPlain } from "./shadbala";
 
 type Tone = "support" | "strain" | "mixed";
 
@@ -252,13 +253,7 @@ export function composeHouseProse(par: Omit<ParashariResult, "houseProse">): Hou
         sources: lordSources,
       });
     } else {
-      const qualifierPlain = !sb
-        ? ""
-        : sb.effect === "full"
-          ? ` ${Lord} is strong enough by Parashara's measure to give this in full.`
-          : sb.effect === "half"
-            ? ` ${Lord} has about half the strength Parashara asks for, so expect about half of this.`
-            : ` ${Lord} is well short of the strength Parashara asks for, so expect only a little of this.`;
+      const qualifierPlain = !sb ? "" : ` ${strengthQualifierPlain(Lord, sb)}.`;
       if (sb) lordSources.push({ label: "Parashara 24.145", url: BPHS_URL(24) });
       parts.push({
         key: "lord",

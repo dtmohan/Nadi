@@ -606,3 +606,27 @@ export function computeShadbala(positions: PlanetPosition[], lagnaIdx: number, b
 export function shadbalaOf(sb: ShadbalaResult | undefined, p: Planet): PlanetShadbala | undefined {
   return sb?.planets.find((x) => x.planet === p);
 }
+
+/** Percent of the required Shadbala (27.32-33), for the strength qualifier of 24.145. */
+const strengthPct = (sb: { total: number; required: number }) => Math.round((sb.total / sb.required) * 100);
+
+/**
+ * The strength qualifier of 24.145-148: full, medium or negligible strength gives the full effect, half or a quarter.
+ * The verse gives no figures; the app counts the full requirement as full strength, 75-99% of it as medium and less
+ * as negligible (shared/shadbala.ts, provisional), and says so wherever the qualifier is not "full".
+ */
+export function strengthQualifier(lord: string, sb: { total: number; required: number; effect: "full" | "half" | "quarter" }): string {
+  const head = ` Strength qualifier (24.145): ${lord} has ${sb.total.toFixed(0)} of the ${sb.required} virupas Parashara asks for (27.32-33), ${strengthPct(sb)}%, so expect`;
+  if (sb.effect === "full") return `${head} the full effect.`;
+  return sb.effect === "half"
+    ? `${head} about half the effect: medium strength, which the app takes as 75-99% of the requirement, since the verse gives no figures (provisional).`
+    : `${head} about a quarter of the effect: negligible strength, which the app takes as under 75% of the requirement, since the verse gives no figures (provisional).`;
+}
+
+/** The plain wording of the same qualifier, with the real percentage; the caller adds the verse tag if it uses one. */
+export function strengthQualifierPlain(lord: string, sb: { total: number; required: number; effect: "full" | "half" | "quarter" }): string {
+  if (sb.effect === "full") return `${lord} is strong enough by Parashara's measure to give this in full`;
+  return sb.effect === "half"
+    ? `${lord} has ${strengthPct(sb)}% of the strength Parashara asks for; short of full strength, expect about half of this`
+    : `${lord} has ${strengthPct(sb)}% of the strength Parashara asks for, well short of it, so expect only a little of this`;
+}
