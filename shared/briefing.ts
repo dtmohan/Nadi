@@ -13,7 +13,7 @@ import { SIGNS, type Planet, type PlanetPosition } from "./astro";
 import type { ChartResult } from "./schema";
 import type { LifeArea } from "./rules";
 import type { AgreementInput } from "./agreement";
-import { areaSeason, lifeAsOf, redactSensitive } from "./life-stage";
+import { heldAreasAt, lifeAsOf, redactSensitive } from "./life-stage";
 import { DEFAULT_ASPECT_FLOOR } from "./parashari";
 import { dasaCombinations, timingNow, levelName, type DasaCombinations, type TimingChange, type TimingNow } from "./timing-now";
 import { computeSudarshana } from "./sudarshana";
@@ -460,7 +460,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
   const past = lifeAt !== asOf;
   const withheld = input.withheld;
   const lagnaSign = par.lagna.signIndex;
-  const held = (a: LifeArea) => !areaSeason(a, result.utc, lifeAt).inSeason;
+  const held: (a: LifeArea) => boolean = heldAreasAt(result.utc, lifeAt);
   const horizonEnd = DateTime.fromISO(lifeAt).plus({ months: horizonMonths }).toISO()!;
   const moonSign = positions.find((p) => p.planet === "Moon")?.signIndex ?? 0;
   const yk = (p: Planet) => par.natures.some((n) => n.planet === p && n.functional === "yogakaraka");
@@ -686,11 +686,10 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
 
   // Nadi windows: Jupiter's and Saturn's passages that wake natal planets (weight 2 or more), running now
   // or beginning within the horizon; only the first coming passage of each planet, as for the transits.
-  // For a minor the passage is read from the in-season findings only, so its line names no held-back
-  // area; a passage left with none is not shown (its generic fallback names marriage, work and health).
+  // The shared reader names no held-back area for a minor (as on the Nadi tab and in the PDF); a passage
+  // left with no in-season area is not shown here.
   const anyHeld = AREA_ORDER.some(held);
-  const nadiFindings = anyHeld ? result.reading.findings.filter((f) => !held(f.area)) : result.reading.findings;
-  const nadi: TransitReading[] = readTransits(result.transits, positions, nadiFindings, result.utc, result.reading.roles);
+  const nadi: TransitReading[] = readTransits(result.transits, positions, result.reading.findings, result.utc, result.reading.roles, held);
   const shown = (x: TransitReading | undefined): x is TransitReading =>
     !!x && x.weight >= NADI_WINDOW_WEIGHT && (!anyHeld || x.areas.length > 0);
   for (const planet of ["Jupiter", "Saturn"] as const) {

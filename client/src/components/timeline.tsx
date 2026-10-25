@@ -26,6 +26,7 @@ import {
   eventMarks,
 } from "@/lib/timeline-data";
 import type { ChartEvent } from "@shared/events";
+import { AREA_ONSET, heldAreasAt, lifeAsOf } from "@shared/life-stage";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 
@@ -117,9 +118,14 @@ export function Timeline({
   const now = asOfIso ? DateTime.fromISO(asOfIso) : DateTime.utc();
   const birth = DateTime.fromISO(birthIso);
 
+  // A minor's held-back areas are named nowhere in the list (life-stage.ts heldAreasAt).
+  const held = useMemo(
+    () => heldAreasAt(birthIso, asOfIso ?? new Date().toISOString()),
+    [birthIso, asOfIso],
+  );
   const readings = useMemo(
-    () => readTransits(transits, positions, findings, birthIso, roles),
-    [transits, positions, findings, birthIso, roles],
+    () => readTransits(transits, positions, findings, birthIso, roles, held),
+    [transits, positions, findings, birthIso, roles, held],
   );
 
   const current = useMemo(() => {
@@ -372,10 +378,17 @@ export function BnnLifeTimeline({
   zone: string;
   className?: string;
 }) {
-  const readings = useMemo(
-    () => readTransits(transits, positions, findings, birthIso, roles),
-    [transits, positions, findings, birthIso, roles],
+  // Read at the date of passing when one is recorded; a minor's held-back areas get no row and no line.
+  const held = useMemo(
+    () => heldAreasAt(birthIso, lifeAsOf({ deathDate: deathIso }, asOfIso)),
+    [birthIso, asOfIso, deathIso],
   );
+  const readings = useMemo(
+    () => readTransits(transits, positions, findings, birthIso, roles, held),
+    [transits, positions, findings, birthIso, roles, held],
+  );
+  const lineAreas = useMemo(() => LINE_AREAS.filter((a) => !held(a)), [held]);
+  const heldRows = LINE_AREAS.filter((a) => held(a));
   const plain = usePlain();
   const soften = useSoften();
   // Shared timeline: both karakas' passages shaded by how much of the chart each wakes, Jupiter's passages
@@ -388,8 +401,8 @@ export function BnnLifeTimeline({
     [readings, asOfIso, soften],
   );
   const tlRows = useMemo(
-    () => bnnAreaRows(readings, LINE_AREAS, birthIso, plain, soften),
-    [readings, birthIso, plain, soften],
+    () => bnnAreaRows(readings, lineAreas, birthIso, plain, soften),
+    [readings, lineAreas, birthIso, plain, soften],
   );
   const tlWindows = useMemo<TlWindow[]>(() => {
     const out: TlWindow[] = [];
@@ -440,8 +453,8 @@ export function BnnLifeTimeline({
         data-testid="text-bnn-timeline-key"
       >
         {plain
-          ? "Each passage is shaded by how much of your birth chart it wakes: faint when it passes no birth planet, full over one, deepest over a group of them or when Jupiter and Saturn press the same planets together. The four rows light when a passage brings that part of life forward, Jupiter on the upper line and Saturn on the lower; both at once is the double transit. Career and wealth begin at 16."
-          : "Passages shaded by the Timing list's weight: 0 no natal planet, 1 one trine or the 7th, 2 over a natal planet or two trines, 3 over a cluster or a double transit. Matter rows: a passage lights a row when the Timing list names that area among the lines it activates; over full, trine about three-quarter, 7th about half strength (app convention, provisional). Upper lane Jupiter, lower Saturn; both together is the double transit, read as stronger by the app, with no BNN source found (provisional). Career and wealth rows open at the onset age of 16 (life-stage)."}
+          ? `Each passage is shaded by how much of your birth chart it wakes: faint when it passes no birth planet, full over one, deepest over a group of them or when Jupiter and Saturn press the same planets together. The ${heldRows.length ? "rows" : "four rows"} light when a passage brings that part of life forward, Jupiter on the upper line and Saturn on the lower; both at once is the double transit. ${heldRows.length ? `Career and wealth are held back until ${AREA_ONSET.career}, so their rows are left out for now.` : "Career and wealth begin at 16."}`
+          : `Passages shaded by the Timing list's weight: 0 no natal planet, 1 one trine or the 7th, 2 over a natal planet or two trines, 3 over a cluster or a double transit. Matter rows: a passage lights a row when the Timing list names that area among the lines it activates; over full, trine about three-quarter, 7th about half strength (app convention, provisional). Upper lane Jupiter, lower Saturn; both together is the double transit, read as stronger by the app, with no BNN source found (provisional). ${heldRows.length ? `Career and wealth are held back until the onset age of ${AREA_ONSET.career} (life-stage), so their rows are left out; the passages name no held-back area.` : "Career and wealth rows open at the onset age of 16 (life-stage)."}`}
       </p>
       <LifeTimeline
         className="mt-3"

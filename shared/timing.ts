@@ -1,5 +1,6 @@
 import { houseFrom, type Planet, type PlanetPosition, type TransitPeriod } from "./astro";
 import { TRANSIT_ACTIVATION, type Finding, type LifeArea, type Roles } from "./rules";
+import { AREA_ONSET } from "./life-stage";
 
 /**
  * Personalised Nadi timing.
@@ -62,6 +63,24 @@ const FROM_KARMA: Record<number, string> = {
   11: "11th from the Karma: gains from past effort consolidate",
   12: "12th from the Karma: loss or release in work; foreign work; rest before renewal",
 };
+
+/**
+ * The held-back areas each progression line speaks of (life-stage.ts AREA_ONSET), so a minor's reading can
+ * leave it out. Saturn is the karaka of work in the Nadi reading, so every line from the Karma is about work.
+ */
+const FROM_JEEVA_AREAS: Record<number, LifeArea[]> = {
+  2: ["wealth"],
+  4: ["wealth"],
+  5: ["children"],
+  6: ["career", "wealth"],
+  7: ["marriage"],
+  8: ["wealth"],
+  10: ["career"],
+  11: ["wealth"],
+  12: ["wealth"],
+};
+const fromKarmaAreas = (h: number): LifeArea[] =>
+  h === 2 ? ["career", "wealth"] : h === 5 ? ["career", "children"] : h === 7 ? ["career", "marriage"] : h === 11 ? ["career", "wealth"] : ["career"];
 
 const AREA_SHORT: Record<LifeArea, string> = {
   self: "self",
@@ -127,6 +146,8 @@ export function readTransit(
   allTransits: TransitPeriod[],
   birthIso: string,
   roles?: Roles,
+  /** Areas held back for a minor (life-stage.ts heldAreasAt); none by default. */
+  held: (area: LifeArea) => boolean = () => false,
 ): TransitReading {
   const jeevaPlanet: Planet = roles?.native ?? "Jupiter";
   const female = roles?.gender === "female";
@@ -143,7 +164,17 @@ export function readTransit(
   const strong = new Set(conjunct);
   const mid = new Set(trine);
   const weak = new Set(opposite);
-  const activated = activatedFindings(findings, strong, mid, weak, conjunct.length ? 4 : trine.length ? 3 : 2);
+  const limit = conjunct.length ? 4 : trine.length ? 3 : 2;
+  // A minor's held-back areas are read from the in-season lines only, and no sentence below names them:
+  // the same gate as the Parashari topic periods and the Overview briefing.
+  const anyHeld = (Object.keys(AREA_ONSET) as LifeArea[]).some((a) => held(a));
+  const activatedAll = activatedFindings(findings, strong, mid, weak, limit);
+  const activated = anyHeld
+    ? activatedFindings(findings.filter((f) => !held(f.area)), strong, mid, weak, limit)
+    : activatedAll;
+  // The passage wakes lines of held-back areas only: it says so, rather than fall back on the generic
+  // activation wording, which names marriage, work and money.
+  const heldOnly = anyHeld && activatedAll.some((f) => held(f.area));
   const areas: LifeArea[] = [];
   for (const f of activated) if (!areas.includes(f.area)) areas.push(f.area);
 
@@ -152,33 +183,51 @@ export function readTransit(
 
   // Returns and karaka crossings.
   if (t.planet === "Jupiter" && conjunct.includes("Jupiter") && age > 1) {
-    notes.push(`Jupiter return around age ${Math.round(age)}: a twelve-year chapter closes and a new one opens for the native${age >= 18 ? "; in Nadi this is the classic window for a child" : ""}.`);
+    notes.push(`Jupiter return around age ${Math.round(age)}: a twelve-year chapter closes and a new one opens for the native${age >= 18 && !held("children") ? "; in Nadi this is the classic window for a child" : ""}.`);
   }
   if (t.planet === "Saturn" && conjunct.includes("Saturn") && age > 1) {
-    notes.push(`Saturn return around age ${Math.round(age)}: the profession and duties are restructured; what was built is tested.`);
+    notes.push(
+      held("career")
+        ? `Saturn return around age ${Math.round(age)}: duties are restructured; what was built is tested.`
+        : `Saturn return around age ${Math.round(age)}: the profession and duties are restructured; what was built is tested.`,
+    );
   }
   if (t.planet === "Saturn" && conjunct.includes(jeevaPlanet)) {
     notes.push("Saturn over the Jeeva: responsibility, slower pace and care for health; maturity is forced rather than chosen.");
   }
   if (female && t.planet === "Jupiter" && conjunct.includes("Venus")) {
-    notes.push("Jupiter over the Deha (Venus, the native herself): a fresh chapter in her own life; marriage, children or a move are favoured.");
+    notes.push(
+      held("marriage") || held("children")
+        ? "Jupiter over the Deha (Venus, the native herself): a fresh chapter in her own life; a move is favoured."
+        : "Jupiter over the Deha (Venus, the native herself): a fresh chapter in her own life; marriage, children or a move are favoured.",
+    );
   }
   if (female && t.planet === "Saturn" && conjunct.includes("Venus")) {
-    notes.push("Saturn over the Deha (Venus): duties weigh on her personally; health and comforts need care, and a marriage matter is settled slowly.");
+    notes.push(
+      held("marriage")
+        ? "Saturn over the Deha (Venus): duties weigh on her personally; health and comforts need care."
+        : "Saturn over the Deha (Venus): duties weigh on her personally; health and comforts need care, and a marriage matter is settled slowly.",
+    );
   }
-  if (female && t.planet === "Jupiter" && conjunct.includes("Mars")) {
+  if (female && t.planet === "Jupiter" && conjunct.includes("Mars") && !held("marriage")) {
     notes.push("Jupiter over the husband's karaka (Mars): marriage, or a turn in the husband's fortunes and position.");
   }
-  if (female && t.planet === "Saturn" && conjunct.includes("Mars")) {
+  if (female && t.planet === "Saturn" && conjunct.includes("Mars") && !held("marriage")) {
     notes.push("Saturn over the husband's karaka (Mars): a delayed marriage may now be released; the husband's work grows heavier.");
   }
-  if (t.planet === "Jupiter" && conjunct.includes("Saturn")) {
+  if (t.planet === "Jupiter" && conjunct.includes("Saturn") && !held("career")) {
     notes.push("Jupiter over the Karma: the profession is blessed; promotion, a new role or a long-awaited outcome at work.");
   }
 
-  // Progression from the karakas (folded into the headline when the sign is empty).
-  const progression = t.planet === "Jupiter" ? FROM_JEEVA[fromJeeva] : FROM_KARMA[fromKarma];
-  if (conjunct.length || trine.length || opposite.length) notes.push(progression);
+  // Progression from the karakas (folded into the headline when the sign is empty); left out when it speaks
+  // of a held-back area.
+  const progAreas = t.planet === "Jupiter" ? (FROM_JEEVA_AREAS[fromJeeva] ?? []) : fromKarmaAreas(fromKarma);
+  const progression = progAreas.some((a) => held(a))
+    ? undefined
+    : t.planet === "Jupiter"
+      ? FROM_JEEVA[fromJeeva]
+      : FROM_KARMA[fromKarma];
+  if (progression && (conjunct.length || trine.length || opposite.length)) notes.push(progression);
 
   // Double transit: the other karaka touching the same natal planets in an overlapping window.
   const other = t.planet === "Jupiter" ? "Saturn" : "Jupiter";
@@ -204,32 +253,53 @@ export function readTransit(
   // Headline.
   let headline: string;
   let weight: TransitReading["weight"];
+  // With nothing in season to name, a minor's passage says what it wakes is held, or names "their matters".
+  const HELD_LINE = "what it wakes is held for later at this age";
+  const generic = (p: Planet) => (anyHeld ? "their matters" : TRANSIT_ACTIVATION[t.planet][p]);
   if (conjunct.length) {
-    const what = areas.length ? list(areas.slice(0, 3).map((a) => AREA_SHORT[a])) : TRANSIT_ACTIVATION[t.planet][conjunct[0]];
+    const what = areas.length ? list(areas.slice(0, 3).map((a) => AREA_SHORT[a])) : generic(conjunct[0]);
+    const lead =
+      conjunct.length >= 3 ? `${t.planet} enters the natal ${t.sign} cluster of ${list(conjunct)}` : `${t.planet} over natal ${list(conjunct)}`;
     headline =
-      conjunct.length >= 3
-        ? `${t.planet} enters the natal ${t.sign} cluster of ${list(conjunct)}: ${what} all come due at once.`
-        : `${t.planet} over natal ${list(conjunct)}: ${what} come to the fore.`;
+      !areas.length && heldOnly
+        ? `${lead}; ${HELD_LINE}.`
+        : conjunct.length >= 3
+          ? `${lead}: ${what} all come due at once.`
+          : `${lead}: ${what} come to the fore.`;
     weight = conjunct.length >= 2 || double ? 3 : 2;
   } else if (trine.length) {
-    const what = areas.length ? list(areas.slice(0, 3).map((a) => AREA_SHORT[a])) : TRANSIT_ACTIVATION[t.planet][trine[0]];
+    const what = areas.length ? list(areas.slice(0, 3).map((a) => AREA_SHORT[a])) : generic(trine[0]);
     const extra = opposite.length ? `, and faces ${list(opposite)}` : "";
-    headline = `${t.planet} in trine to natal ${list(trine)}${extra}: same direction, so ${what} ripen at about three-quarter strength.`;
+    headline =
+      !areas.length && heldOnly
+        ? `${t.planet} in trine to natal ${list(trine)}${extra}; ${HELD_LINE}.`
+        : `${t.planet} in trine to natal ${list(trine)}${extra}: same direction, so ${what} ripen at about three-quarter strength.`;
     weight = trine.length >= 2 ? 2 : 1;
   } else if (opposite.length) {
     const what = areas.length ? list(areas.slice(0, 2).map((a) => AREA_SHORT[a])) : "their matters";
-    headline = `${t.planet} faces natal ${list(opposite)} from the 7th: ${what} stir, at about half strength.`;
+    headline =
+      !areas.length && heldOnly
+        ? `${t.planet} faces natal ${list(opposite)} from the 7th; ${HELD_LINE}.`
+        : `${t.planet} faces natal ${list(opposite)} from the 7th: ${what} stir, at about half strength.`;
     weight = 1;
   } else {
-    headline = `No natal planet in ${t.sign}; a quieter passage. ${progression}.`;
+    headline = `No natal planet in ${t.sign}; a quieter passage.${progression ? ` ${progression}.` : ""}`;
     weight = 0;
   }
 
   return { period: t, conjunct, trine, opposite, fromJeeva, fromKarma, headline, areas, activated, notes, weight };
 }
 
-export function readTransits(transits: TransitPeriod[], positions: PlanetPosition[], findings: Finding[], birthIso: string, roles?: Roles): TransitReading[] {
-  return transits.map((t) => readTransit(t, positions, findings, transits, birthIso, roles));
+/** Every passage read; pass `held` (life-stage.ts heldAreasAt) so a minor's reading names no held-back area. */
+export function readTransits(
+  transits: TransitPeriod[],
+  positions: PlanetPosition[],
+  findings: Finding[],
+  birthIso: string,
+  roles?: Roles,
+  held?: (area: LifeArea) => boolean,
+): TransitReading[] {
+  return transits.map((t) => readTransit(t, positions, findings, transits, birthIso, roles, held));
 }
 
 

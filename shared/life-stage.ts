@@ -130,6 +130,15 @@ export function areaSeason(
   };
 }
 
+/**
+ * The areas held back at `asOfIso` (AREA_ONSET), as a test: for a minor, marriage and children before 18,
+ * career and wealth before 16; nothing for an adult. Pass the reading instant (lifeAsOf), so a native who
+ * died young is read at the date of passing.
+ */
+export function heldAreasAt(birthIso: string, asOfIso: string): (area: string) => boolean {
+  return (area) => !areaSeason(area, birthIso, asOfIso).inSeason;
+}
+
 /** Earliest date from which a timed window for the area should be searched: today, or the onset if that is later. */
 export function seasonStart(
   area: string,

@@ -20,7 +20,7 @@ import { nextChildWindow } from "@shared/children";
 import { CHARA_KARAKA_INFO, SAVYA, influencesOn, type CharaDashaPeriod } from "@shared/jaimini";
 import { JAIMINI_GROUP_LABEL } from "@shared/rules-jaimini";
 import { AYUR_TERM_LABEL } from "@shared/jaimini-ayur";
-import { SENSITIVE_WITHHELD_NOTE, sensitiveGate } from "@shared/life-stage";
+import { SENSITIVE_WITHHELD_NOTE, heldAreasAt, lifeAsOf, sensitiveGate } from "@shared/life-stage";
 import { JAIMINI_AREAS, RAO_SOURCE, currentFor, isHot, readAreas, type TransitTarget } from "@shared/jaimini-areas";
 import { TRANSIT_GRADE_LABEL, confirmTransits, summarizeTouches } from "@shared/jaimini-transit";
 import { computeAshtakavarga } from "@shared/ashtakavarga";
@@ -945,7 +945,9 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   // ── Timing ──
   const birth = DateTime.fromISO(result.utc);
   const nowDt = DateTime.fromISO(now.asOf);
-  const timing = readTransits(transits, positions, reading.findings, result.utc, reading.roles);
+  // A minor's held-back areas are named nowhere in the passages (life-stage.ts heldAreasAt, read at the date
+  // of passing when one is recorded), as on the Nadi tab.
+  const timing = readTransits(transits, positions, reading.findings, result.utc, reading.roles, heldAreasAt(result.utc, lifeAsOf(chart, now.asOf)));
 
   // Current passages first.
   const currentReadings = (["Jupiter", "Saturn"] as const)
