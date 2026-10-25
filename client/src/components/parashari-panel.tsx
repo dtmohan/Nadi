@@ -5087,7 +5087,7 @@ function Note({ n }: { n: DasaNote }) {
     <li
       className={cn(
         "rounded-md border border-l-4 bg-card px-3 py-2",
-        TONE_CLASS[n.tone],
+        n.notCounted ? "border-l-muted-foreground/40" : TONE_CLASS[n.tone],
       )}
       data-testid={`parashari-dasa-note-${n.id}`}
     >
@@ -5100,6 +5100,14 @@ function Note({ n }: { n: DasaNote }) {
           </span>
         ) : null}
       </p>
+      {n.notCounted ? (
+        <p
+          className="mt-0.5 text-xs text-muted-foreground"
+          data-testid={`parashari-dasa-note-uncounted-${n.id}`}
+        >
+          {n.notCounted}
+        </p>
+      ) : null}
       <p className="mt-0.5 text-xs text-muted-foreground">
         {LAYER_LABEL[n.layer]} · <SourceLink source={n.source} />
       </p>
@@ -5135,13 +5143,17 @@ function DasaEffects({
     "lordship",
     "relation",
     "condition",
+    "mantreswara",
   ];
   const running = d.antars.find((a) => a.current);
   const spell = running?.pratyantars?.find((p) => p.current);
   const runningKey = running ? `${d.lord}-${running.lord}` : null;
   const ordered = layers.flatMap((l) => d.notes.filter((n) => n.layer === l));
   const count = (t: DasaNote["tone"]) =>
-    d.notes.filter((n) => n.tone === t).length;
+    d.notes.filter((n) => n.tone === t && !n.notCounted).length;
+  const uncounted = ordered.filter((n) => n.notCounted);
+  // Phaladeepika 20.57: a combust lord in an auspicious sign or navamsa gives its good in the second half.
+  const note2057 = d.notes.find((n) => n.id === `${d.lord}-pd-20-57`);
   // 47.3-4 places the results by the lord's drekkana; 50.88 by how its sign rises.
   const w47 =
     d.timing.third === 1 ? "start" : d.timing.third === 2 ? "middle" : "end";
@@ -5306,8 +5318,8 @@ function DasaEffects({
       )}
       <p className="mt-3 text-sm" data-testid="parashari-dasa-synthesis">
         {plainDE
-          ? `Of the ${d.notes.length} lines the text gives for this period, ${count("support")} favour it, ${count("strain")} go against it and ${count("mixed")} are mixed, so on balance it ${LEAN_CLAUSE[d.lean.step]}. Weighing the lines by counting them is the app's own reading, and provisional.`
-          : `${d.notes.length} matched lines: ${count("support")} favourable, ${count("strain")} unfavourable, ${count("mixed")} mixed; lean: ${LEAN_LABEL[d.lean.step]} (favourable or trying at three to one or more, leaning at three to two or more; app convention, provisional).`}
+          ? `Of the ${d.notes.length} lines ${d.notes.some((n) => n.layer === "mantreswara") ? "the texts give" : "the text gives"} for this period, ${count("support")} favour it, ${count("strain")} go against it${uncounted.length ? `, ${count("mixed")} ${count("mixed") === 1 ? "is" : "are"} mixed and ${uncounted.length} ${uncounted.length === 1 ? "is" : "are"} shown but not counted` : ` and ${count("mixed")} are mixed`}, so on balance it ${LEAN_CLAUSE[d.lean.step]}. Weighing the lines by counting them is the app's own reading, and provisional.`
+          : `${d.notes.length} matched lines: ${count("support")} favourable, ${count("strain")} unfavourable, ${count("mixed")} mixed${uncounted.length ? `, ${uncounted.length} not counted` : ""}; lean: ${LEAN_LABEL[d.lean.step]} (favourable or trying at three to one or more, leaning at three to two or more; app convention, provisional).`}
       </p>
       <div
         className="mt-2 grid gap-2 sm:grid-cols-2"
@@ -5335,6 +5347,21 @@ function DasaEffects({
             </p>
           </div>
         )}
+        {note2057 && (
+          <div
+            className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground"
+            data-testid="parashari-dasa-timing-2057"
+          >
+            <p className="font-medium text-foreground">
+              {plainDE
+                ? "By Mantreswara: the good results in the second half"
+                : "Phaladeepika 20.57: good in the second half"}
+            </p>
+            <p className="mt-0.5">
+              <Soft>{note2057.text}</Soft> <SourceLink source={note2057.source} />
+            </p>
+          </div>
+        )}
       </div>
       {note88 && (
         <p
@@ -5346,6 +5373,16 @@ function DasaEffects({
             : "The two timing rules point to different parts of the period, so both are shown."}
         </p>
       )}
+      {note2057 && (
+        <p
+          className="mt-1 text-xs text-muted-foreground"
+          data-testid="parashari-dasa-timing-2057-note"
+        >
+          Mantreswara speaks only of the good results, which he places in the
+          second half; his rule is shown beside the others, not combined with
+          them.
+        </p>
+      )}
       <Working
         id="parashari-dasa-notes"
         label={`Show the ${d.notes.length} lines this rests on`}
@@ -5353,7 +5390,9 @@ function DasaEffects({
       >
         <div className="space-y-3" data-testid="parashari-dasa-notes">
           {GROUPS.map((g) => {
-            const ns = ordered.filter((n) => n.tone === g.tone);
+            const ns = ordered.filter(
+              (n) => n.tone === g.tone && !n.notCounted,
+            );
             if (!ns.length) return null;
             return (
               <div key={g.tone}>
@@ -5368,6 +5407,18 @@ function DasaEffects({
               </div>
             );
           })}
+          {uncounted.length > 0 && (
+            <div data-testid="parashari-dasa-notes-uncounted">
+              <p className="text-xs font-semibold text-muted-foreground">
+                {plainDE ? "Shown, not counted" : "Not counted"} ({uncounted.length})
+              </p>
+              <ul className="mt-1.5 space-y-2">
+                {uncounted.map((n) => (
+                  <Note key={n.id} n={n} />
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </Working>
 

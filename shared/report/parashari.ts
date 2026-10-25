@@ -12,7 +12,13 @@ import { TOPIC_PERIODS_NOTE, TOPIC_PERIODS_NOTE_PLAIN, topicPeriods } from "../p
 import { BHAVAT_NOTE, BHAVAT_NOTE_PLAIN, FROM_HOUSE_SOURCE, LORD_DISTANCE_SOURCE, PAIR_SOURCE } from "../parashari-bhavat";
 import { HOUSE_AREAS_PLAIN } from "../house-gloss";
 import { LAGNA_NATURE, BPHS_URL } from "../parashari-data";
-import { leanWithCounts, type DasaLean } from "../parashari-dasa";
+import {
+  leanWithCounts,
+  PHALADEEPIKA_CH20_URL,
+  type DasaLean,
+  type DasaNote,
+  type DasaReading,
+} from "../parashari-dasa";
 import { computeVargas, VARGAS, SCHEMES } from "../vargas";
 import { normaliseParashariHouseMethod } from "../schema";
 import { AREA_ONSET, HOUSE_AREA } from "../life-stage";
@@ -28,6 +34,18 @@ import {
   type ReportPara,
   type ReportSection,
 } from "./types";
+
+/**
+ * The period lines the report prints: the first six outside ch. 50, plus Mantreswara's combustion line when one of
+ * those six is shown but not counted, since that line is the one it points to.
+ */
+export function reportPeriodLines(d: DasaReading): DasaNote[] {
+  const lines = d.notes.filter((n) => n.layer !== "condition");
+  const notes = lines.slice(0, 6);
+  const pd = lines.find((n) => n.id === `${d.lord}-pd-20-30` || n.id === `${d.lord}-pd-20-57`);
+  if (pd && notes.some((n) => n.notCounted) && !notes.includes(pd)) notes.push(pd);
+  return notes;
+}
 
 function computeFor(ctx: ReportContext): ParashariResult {
   const { result, lifeAt, withheld } = ctx;
@@ -196,11 +214,12 @@ function timingSection(
   paras.push({
     kind: "note",
     text: ctx.plain
-      ? "Each period's tone weighs the text's lines that favour it against those that go against it. It reads favourable or trying when one side outnumbers the other three to one or more, leans that way at three to two or more, and is balanced in between. This counting is the app's own way of reading which side is stronger, and is provisional; the counts are of the lines, not their weight."
-      : "Tone: the lean of the period's lines from chapters 47 to 50 with the strength and Ashtakavarga lines (ch. 7, 27-28, 66.70-72, 72.3-6). Parashara judges a period by which side predominates (28.1, 28.11-12). Favourable or trying at three to one or more, leaning at three to two or more, balanced in between; fewer than three decisive lines can lean but not decide. Counting lines rather than weighing them, and both ratios, are app conventions (provisional).",
+      ? "Each period's tone weighs the text's lines that favour it against those that go against it. It reads favourable or trying when one side outnumbers the other three to one or more, leans that way at three to two or more, and is balanced in between. This counting is the app's own way of reading which side is stronger, and is provisional; the counts are of the lines, not their weight. A planet close to the Sun is counted once, by Mantreswara's rule, which grades it by its sign and navamsa."
+      : "Tone: the lean of the period's lines from chapters 47 to 50 with the strength and Ashtakavarga lines (ch. 7, 27-28, 66.70-72, 72.3-6). Parashara judges a period by which side predominates (28.1, 28.11-12). Favourable or trying at three to one or more, leaning at three to two or more, balanced in between; fewer than three decisive lines can lean but not decide. Counting lines rather than weighing them, and both ratios, are app conventions (provisional). Mantreswara's vargottama and combustion lines (Phaladeepika 20.22, 20.30, 20.57) count with them; combustion is counted once, there, and a ch. 47 line that fires on combustion alone is shown but not counted (provisional).",
     cites: [
       cites.add("Parashara 28.1, 28.11-12", BPHS_URL(28)),
       cites.add("Parashara 47-48", BPHS_URL(47)),
+      cites.add("Phaladeepika 20.22, 20.30, 20.57", PHALADEEPIKA_CH20_URL),
     ],
     provisional: true,
   });
@@ -288,14 +307,19 @@ function timingSection(
       (g) => g.lord === d.lord && g.start === d.start,
     );
     if (gloss) ps.push({ kind: "p", text: S(endStop(ctx.plain ? gloss.plain : gloss.summary)) });
-    const notes = d.notes.filter((n) => n.layer !== "condition").slice(0, 6);
+    const notes = reportPeriodLines(d);
     for (const n of notes)
       ps.push({
         kind: "p",
-        text: S(endStop(n.detail && !ctx.plain ? `${n.text} ${n.detail}` : n.text)),
+        text: S(
+          endStop(
+            `${n.detail && !ctx.plain ? `${n.text} ${n.detail}` : n.text}${n.notCounted ? ` Shown, not counted: ${n.notCounted.charAt(0).toLowerCase()}${n.notCounted.slice(1)}` : ""}`,
+          ),
+        ),
         cites: [cites.add(n.source.label, n.source.url)],
         provisional: n.source.provisional,
-        tone: n.tone,
+        // A line shown but not counted carries no tone, so it does not read as a vote.
+        tone: n.notCounted ? undefined : n.tone,
       });
     ps.push({
       kind: "p",

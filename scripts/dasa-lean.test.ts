@@ -12,6 +12,7 @@ import type { Chart } from "@shared/schema";
 import type { Finding } from "@shared/rules";
 import { computeParashari } from "@shared/parashari";
 import {
+  countedTones,
   leanOf,
   verdictOfLean,
   leanWithCounts,
@@ -92,7 +93,7 @@ test("dasa readings carry the lean of their own lines", () => {
   const par = run(false);
   assert.ok(par.dasaReadings.length >= 9);
   for (const d of par.dasaReadings) {
-    const l = leanOf(d.notes.map((n) => n.tone));
+    const l = leanOf(countedTones(d.notes));
     assert.deepEqual(d.lean, l, d.lord);
     assert.equal(d.verdict, verdictOfLean(l), d.lord);
   }
@@ -103,7 +104,7 @@ test("dasa readings carry the lean of their own lines", () => {
 test("after the minors' gate the lean and the antar verdicts are recounted from what remains", () => {
   const gated = run(true);
   for (const d of gated.dasaReadings) {
-    const l = leanOf(d.notes.map((n) => n.tone));
+    const l = leanOf(countedTones(d.notes));
     assert.deepEqual(d.lean, l, d.lord);
     assert.equal(d.verdict, verdictOfLean(l), d.lord);
     for (const a of d.antars) {

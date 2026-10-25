@@ -4,6 +4,7 @@
 // or "weak" are matched on dignity; the Shadbala of ch. 27, when supplied, is added as its own note against the
 // requirement of 27.32-33 so the two measures stay visible side by side.
 import {
+  dignityOf,
   houseFrom,
   norm360,
   EXALTATION,
@@ -34,7 +35,7 @@ import {
   type DasaStartTransit,
 } from "./shadbala";
 import { PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechabhanga";
-import { parashariCombust, type VargasResult, type SchemeScore } from "./vargas";
+import { parashariCombust, parashariCombustOrb, type VargasResult, type SchemeScore } from "./vargas";
 import { bhavaAnnotation, CHALIT_SOURCES, type ChalitResult } from "./chalit";
 import type { AshtakavargaResult } from "./ashtakavarga";
 
@@ -127,7 +128,7 @@ export function leanWithCounts(l: DasaLean): string {
  */
 export function rejudgeAfterGate(readings: DasaReading[]): DasaReading[] {
   return readings.map((d) => {
-    const lean = leanOf(d.notes.map((n) => n.tone));
+    const lean = leanOf(countedTones(d.notes));
     return {
       ...d,
       lean,
@@ -154,12 +155,18 @@ export interface DasaNote {
     | "planet"
     | "lordship"
     | "relation"
-    | "condition";
+    | "condition"
+    | "mantreswara";
   text: string;
   /** Shown in the practitioner reading only, after the text. */
   detail?: string;
   tone: Tone;
   source: DasaSource;
+  /**
+   * Set when the line is shown but left out of the lean, with the reason. Used for the BPHS 47 lines that fire on
+   * combustion alone: combustion is counted once, by Phaladeepika 20.30 and 20.57 (provisional).
+   */
+  notCounted?: string;
 }
 
 export interface AntarReading {
@@ -398,6 +405,8 @@ interface Rule {
   when: (c: Ctx, p: Planet) => boolean;
   text: (c: Ctx, p: Planet) => string;
   tone: Tone;
+  /** True when combustion is the only condition of `when` that holds; the line is then shown but not counted. */
+  onlyCombust?: (c: Ctx, p: Planet) => boolean;
 }
 
 const PLANET_RULES: Record<Planet, Rule[]> = {
@@ -517,8 +526,14 @@ const PLANET_RULES: Record<Planet, Rule[]> = {
         DUSTHANA.includes(c.houseOf(p)) ||
         c.withMalefic(p).length > 0 ||
         c.aspectedByMalefic(p).length > 0,
+      onlyCombust: (c, p) =>
+        c.combust(p) &&
+        !["Debilitated", "Inimical"].includes(c.dignity(p)) &&
+        !DUSTHANA.includes(c.houseOf(p)) &&
+        c.withMalefic(p).length === 0 &&
+        c.aspectedByMalefic(p).length === 0,
       text: (c, p) =>
-        `Mars ${c.dignity(p) === "Debilitated" ? "debilitated" : c.weak(p) ? c.dignity(p).toLowerCase() : DUSTHANA.includes(c.houseOf(p)) ? `in the ${ord(c.houseOf(p))}` : c.withMalefic(p).length ? `with ${c.withMalefic(p).join(", ")}` : `aspected by ${c.aspectedByMalefic(p).join(", ")}`}: loss of wealth and distress are indicated.`,
+        `Mars ${c.dignity(p) === "Debilitated" ? "debilitated" : c.weak(p) ? (c.dignity(p) === "Inimical" ? "inimical" : "combust") : DUSTHANA.includes(c.houseOf(p)) ? `in the ${ord(c.houseOf(p))}` : c.withMalefic(p).length ? `with ${c.withMalefic(p).join(", ")}` : `aspected by ${c.aspectedByMalefic(p).join(", ")}`}: loss of wealth and distress are indicated.`,
     },
   ],
   Rahu: [
@@ -604,6 +619,10 @@ const PLANET_RULES: Record<Planet, Rule[]> = {
         DUSTHANA.includes(c.houseOf(p)) ||
         c.dignity(p) === "Debilitated" ||
         c.combust(p),
+      onlyCombust: (c, p) =>
+        c.combust(p) &&
+        !DUSTHANA.includes(c.houseOf(p)) &&
+        c.dignity(p) !== "Debilitated",
       text: (c, p) =>
         `Saturn ${c.dignity(p) === "Debilitated" ? "debilitated" : c.combust(p) ? "combust" : `in the ${ord(c.houseOf(p))}`}: illness, injury, separation from the father, trouble to spouse and children, displeasure of authority.`,
     },
@@ -1163,6 +1182,109 @@ const SEVEN_50: Planet[] = [
   "Saturn",
 ];
 
+// ── Mantreswara's period rules: Phaladeepika ch. 20 (provisional) ──
+// 20.22, first half: a vargottama planet's dasa is favourable; mixed when the planet is combust or debilitated.
+// 20.30: a dasa gives all, three-quarters, half, a quarter, little or none of its good as the lord is exalted, in
+// moolatrikona, own, friendly, inimical or debilitation signs, ill results the other way; a combust (mudha) planet
+// gives as a debilitated one. 20.57: even debilitated, in an enemy's sign or combust, a planet in an auspicious sign or
+// navamsa gives a mixed dasa whose good comes in its second half. Only the combustion clause of 20.30 makes a line;
+// its scale is practitioner detail. "Auspicious" is read by dignity. Main periods only; the second half of 20.22 is
+// left out. Combustion is counted once, here: a BPHS 47 line that fires on combustion alone is shown, not counted.
+export const PHALADEEPIKA_CH20_URL =
+  "https://www.wisdomlib.org/hinduism/book/phaladeepika-by-mantreswara-text-and-translation/d/doc1621592.html";
+const PD20 = (label: string): DasaSource => ({
+  label: `Phaladeepika ${label}`,
+  url: PHALADEEPIKA_CH20_URL,
+  provisional: true,
+});
+/** Why a BPHS 47 line that fires on combustion alone is shown but left out of the lean. */
+export const COMBUST_COUNTED_ONCE =
+  "Combustion is counted once, by Mantreswara's lines (Phaladeepika 20.30 and 20.57), which grade it by sign and navamsa.";
+/** The tones the lean counts: every line except those shown but not counted. */
+export function countedTones(notes: DasaNote[]): Tone[] {
+  return notes.filter((n) => !n.notCounted).map((n) => n.tone);
+}
+const SCALE_20_30: Record<string, string> = {
+  Exalted: "all of its good",
+  Moolatrikona: "three-quarters of its good",
+  "Own sign": "half of its good",
+  Friendly: "a quarter of its good",
+  Inimical: "little of its good",
+  Debilitated: "none of its good",
+};
+const IN_SIGN: Record<string, string> = {
+  Exalted: "in its exaltation sign",
+  Moolatrikona: "in its moolatrikona",
+  "Own sign": "in its own sign",
+  Friendly: "in a friend's sign",
+  Neutral: "in a neutral sign",
+  Inimical: "in an enemy's sign",
+  Debilitated: "in its debilitation sign",
+};
+/** 20.57's auspicious sign or navamsa, read by dignity (provisional). */
+const AUSPICIOUS_20_57 = ["Exalted", "Moolatrikona", "Own sign", "Friendly"];
+const NAV_SEAT: Record<string, string> = {
+  Exalted: "its exaltation sign",
+  Moolatrikona: "its own sign",
+  "Own sign": "its own sign",
+  Friendly: "a friend's sign",
+};
+
+function mantreswaraNotes(c: Ctx, p: Planet): DasaNote[] {
+  const out: DasaNote[] = [];
+  const pp = c.pos(p);
+  const dig = c.dignity(p);
+  const nav = c.navamsaSign(p);
+  const combust = c.combust(p);
+  if (nav === pp.signIndex) {
+    const bad = combust ? "combust" : dig === "Debilitated" ? "debilitated" : null;
+    out.push({
+      id: `${p}-pd-20-22`,
+      layer: "mantreswara",
+      tone: bad ? "mixed" : "support",
+      text: bad
+        ? `${p} is vargottama, in ${SIGNS[pp.signIndex]} in both the birth chart and the navamsa, which Mantreswara reads as favourable; but it is ${bad}, so he reads the period as mixed.`
+        : `${p} is vargottama, in ${SIGNS[pp.signIndex]} in both the birth chart and the navamsa: Mantreswara reads the period as favourable.`,
+      source: PD20("20.22"),
+    });
+  }
+  if (combust) {
+    const sun = c.pos("Sun");
+    const dist = Math.abs(((((pp.lon - sun.lon) % 360) + 540) % 360) - 180);
+    const test = `Combust by the Surya Siddhanta distances quoted under BPHS 7.28-29: ${dist.toFixed(1)}° from the Sun, within ${parashariCombustOrb(pp)}°${pp.retrograde ? " for a retrograde planet" : ""}. The verses give no distances.`;
+    const scale = SCALE_20_30[dig]
+      ? `On the scale of 20.30, ${p} ${IN_SIGN[dig]} would give ${SCALE_20_30[dig]}; combust, it is read at the debilitation step, with none.`
+      : `The scale of 20.30 gives no step for a neutral sign; combust, ${p} is read at the debilitation step, with none.`;
+    const reversal =
+      "Ill results run the other way, as the Sanskrit reads (śubham and aśubham agree with phalam, the result); the translation reverses the scale for malefics and lords of bad houses instead.";
+    const navDig = dignityOf(p, nav, 15);
+    const seat = AUSPICIOUS_20_57.includes(dig)
+      ? `${IN_SIGN[dig]} (${SIGNS[pp.signIndex]})`
+      : AUSPICIOUS_20_57.includes(navDig)
+        ? `in the navamsa of ${NAV_SEAT[navDig]} (${SIGNS[nav]})`
+        : null;
+    if (seat)
+      out.push({
+        id: `${p}-pd-20-57`,
+        layer: "mantreswara",
+        tone: "mixed",
+        text: `${p} is combust, which Mantreswara counts like debilitation, but it stands ${seat}: he reads the period as mixed, with its good results in the second half.`,
+        detail: `${scale} ${reversal} "Auspicious" in 20.57 is read by dignity: its own, exaltation, moolatrikona or a friend's sign, in the birth chart or the navamsa; reading it as a benefic's sign is the alternative. ${test}`,
+        source: PD20("20.30, 20.57"),
+      });
+    else
+      out.push({
+        id: `${p}-pd-20-30`,
+        layer: "mantreswara",
+        tone: "strain",
+        text: `${p} is combust: Mantreswara counts the period as he counts a debilitated planet's, which holds back its good results.`,
+        detail: `${scale} ${reversal} Neither its sign nor its navamsa (${SIGNS[nav]}) is auspicious by dignity, so 20.57 does not soften it. ${test}`,
+        source: PD20("20.30"),
+      });
+  }
+  return out;
+}
+
 /**
  * Ch. 50 read on the lord of a Vimshottari dasa: the eighteen conditions and the named dasas of 50.73-83, the
  * measure by angle, panaphara or apoklima (50.87), the Dharma lord and Jupiter (50.84), retrogression (50.85), the
@@ -1568,6 +1690,9 @@ export function computeDasaReadings(
           tone: r.tone,
           text: r.text(c, p),
           source: S(47, r.verse),
+          ...(r.tone !== "mixed" && r.onlyCombust?.(c, p)
+            ? { notCounted: COMBUST_COUNTED_ONCE }
+            : {}),
         });
     // 48.2-8 lordship.
     for (const hh of c.owns(p)) {
@@ -1590,6 +1715,7 @@ export function computeDasaReadings(
       });
     notes.push(...relationNotes(c, p));
     notes.push(...conditionNotes(c, p));
+    notes.push(...mantreswaraNotes(c, p));
     // 47.3-4 drekkana timing.
     const third = (Math.floor(pp.degInSign / 10) + 1) as 1 | 2 | 3;
     const reversed = pp.retrograde;
@@ -1603,7 +1729,7 @@ export function computeDasaReadings(
       rising: RISING_50[pp.signIndex],
     };
 
-    const lean = leanOf(notes.map((n) => n.tone));
+    const lean = leanOf(countedTones(notes));
 
     // Antars.
     const bhuktis = vim.bhuktis.filter((b) => b.dasaLord === p);
@@ -1722,4 +1848,5 @@ export const LAYER_LABEL: Record<DasaNote["layer"], string> = {
   lordship: "House lordship (48.2-8)",
   relation: "Relationships (48.9-20)",
   condition: "Condition of the lord (ch. 50)",
+  mantreswara: "Mantreswara (Phaladeepika 20)",
 };
