@@ -137,7 +137,7 @@ test("node aspects, public figures: the mean nodes agree with Meeus and the Lahi
     const om = meeusMeanNode(jd);
     // The tropical node: the ephemeris's mean node against Meeus's polynomial.
     assert.ok(Math.abs(diff(rahu.lon + r.ayanamsaValue, om)) < 0.001, `${c.name}: tropical Rahu ${rahu.lon + r.ayanamsaValue} vs Meeus ${om}`);
-    // The ayanamsa: Swiss Ephemeris's Lahiri sits 0.0047° (16.8") below the 1956 definition, a fixed offset.
+    // The ayanamsa: Swiss Ephemeris's Lahiri sits 0.0046° (about 17") below the 1956 definition, a fixed offset.
     const ayan = lahiriByDefinition(jd);
     assert.ok(Math.abs(r.ayanamsaValue - ayan) < 0.01, `${c.name}: ayanamsa ${r.ayanamsaValue} vs ${ayan}`);
     // The sidereal node, independently: within 0.01°, and no node so near a sign's edge that this matters.
