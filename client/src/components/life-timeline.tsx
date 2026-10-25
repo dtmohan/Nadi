@@ -25,6 +25,8 @@ export interface TlSegment {
   readout?: string;
   /** "fg" writes the label in the text colour, for pale (translucent) fills where white or black would not read. */
   ink?: "fg";
+  /** The period's matters, written under the readout when the read date falls in it (Parashari); changes no colour. */
+  matters?: string;
 }
 
 /** A horizontal band of consecutive periods. */
@@ -136,6 +138,7 @@ export function LifeTimeline({
   deathIso,
   testid,
   className,
+  mattersNote,
 }: {
   birthIso: string;
   asOfIso: string;
@@ -152,6 +155,8 @@ export function LifeTimeline({
   horizonYears?: number;
   testid: string;
   className?: string;
+  /** A closing line under the periods' matters, e.g. that they are shown and not counted. */
+  mattersNote?: string;
 }) {
   const birth = useMemo(() => ms(birthIso), [birthIso]);
   const now = useMemo(() => ms(asOfIso), [asOfIso]);
@@ -887,6 +892,22 @@ export function LifeTimeline({
             </span>
           ))}
       </div>
+      {/* The periods' matters at the read date: wrapped under the readout, outside the live region. */}
+      {readout.lines.some(({ seg }) => seg?.matters) && (
+        <div
+          className="mt-1 space-y-0.5 text-xs text-muted-foreground"
+          data-testid={`${testid}-readout-matters`}
+        >
+          {readout.lines.map(({ band, seg }) =>
+            seg?.matters ? (
+              <p key={band.id} data-testid={`${testid}-readout-matters-${band.id}`}>
+                {seg.matters}
+              </p>
+            ) : null,
+          )}
+          {mattersNote && <p className="opacity-80">{mattersNote}</p>}
+        </div>
+      )}
     </div>
   );
 }

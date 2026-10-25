@@ -42,7 +42,9 @@ function verdictFill(t: Verdict3, plain?: boolean): string {
 
 /**
  * Vimshottari dasas and, as a thin band beneath, their bhuktis. With `bhuktiVerdict` (Parashari only) each
- * bhukti is tinted by its antar verdict instead of its lord's colour.
+ * bhukti is tinted by its antar verdict instead of its lord's colour. With `dasaMatters` and `bhuktiMatters`
+ * (Parashari only) each period's hover title and readout carry its matters, as the Timing chapter gives them; they
+ * change no colour.
  */
 export function vimshottariBands(
   vim: Vimshottari,
@@ -50,6 +52,8 @@ export function vimshottariBands(
     label?: string;
     bhuktis?: boolean;
     bhuktiVerdict?: (b: KpPeriod) => { verdict: Verdict3; source?: string } | undefined;
+    dasaMatters?: (d: KpPeriod) => string | undefined;
+    bhuktiMatters?: (b: KpPeriod) => string | undefined;
     plain?: boolean;
   } = {},
 ): TlBand[] {
@@ -57,7 +61,11 @@ export function vimshottariBands(
     {
       id: "dasa",
       label: opts.label ?? "Dasa",
-      segments: vim.dasas.map((d) => ({ start: d.start, end: d.end, label: d.lord, short: PLANET_ABBR[d.lord], color: planetColor(d.lord), current: d.current, title: `${d.lord} dasa · ${fmt(d.start)} to ${fmt(d.end)}` })),
+      segments: vim.dasas.map((d) => {
+        const matters = opts.dasaMatters?.(d);
+        const title = `${d.lord} ${opts.plain ? "period" : "dasa"} · ${fmt(d.start)} to ${fmt(d.end)}`;
+        return { start: d.start, end: d.end, label: d.lord, short: PLANET_ABBR[d.lord], color: planetColor(d.lord), current: d.current, title: matters ? `${title}\n${matters}` : title, matters };
+      }),
     },
   ];
   if (opts.bhuktis !== false) {
@@ -67,7 +75,11 @@ export function vimshottariBands(
       thin: true,
       segments: vim.bhuktis.map((b) => {
         const v = opts.bhuktiVerdict?.(b);
+        const matters = opts.bhuktiMatters?.(b);
         const word = opts.plain ? "sub-period" : "bhukti";
+        const title = v
+          ? `${b.dasaLord}–${b.lord} ${word} · ${fmt(b.start)} to ${fmt(b.end)} · ${VERDICT_WORD[v.verdict]}${v.source && !opts.plain ? ` (${v.source})` : ""}`
+          : `${b.dasaLord}–${b.lord} bhukti · ${fmt(b.start)} to ${fmt(b.end)}`;
         return {
           start: b.start,
           end: b.end,
@@ -76,9 +88,8 @@ export function vimshottariBands(
           ink: v && v.verdict === "strain" && opts.plain ? ("fg" as const) : undefined,
           current: b.current,
           readout: v ? `${PLANET_ABBR[b.lord]}, ${VERDICT_WORD[v.verdict]}` : undefined,
-          title: v
-            ? `${b.dasaLord}–${b.lord} ${word} · ${fmt(b.start)} to ${fmt(b.end)} · ${VERDICT_WORD[v.verdict]}${v.source && !opts.plain ? ` (${v.source})` : ""}`
-            : `${b.dasaLord}–${b.lord} bhukti · ${fmt(b.start)} to ${fmt(b.end)}`,
+          title: matters ? `${title}\n${matters}` : title,
+          matters,
         };
       }),
     });

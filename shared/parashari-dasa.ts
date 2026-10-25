@@ -1258,7 +1258,14 @@ function mantreswaraNotes(c: Ctx, p: Planet): DasaNote[] {
   if (combust) {
     const sun = c.pos("Sun");
     const dist = Math.abs(((((pp.lon - sun.lon) % 360) + 540) % 360) - 180);
-    const test = `Combust by the Surya Siddhanta distances (9.6-9): ${dist.toFixed(1)}° from the Sun, within ${parashariCombustOrb(pp)}°${pp.retrograde ? " for a retrograde planet" : ""}. The verses give no distances.${p === "Saturn" ? ` ${SS_NOTE_DIFFERENCE}` : ""}`;
+    const test = `Combust by the Surya Siddhanta distances (9.6-9): ${dist.toFixed(1)}° from the Sun, within ${parashariCombustOrb(pp)}°${pp.retrograde ? " for a retrograde planet" : ""}. The verses give no distances.${p === "Saturn" ? ` ${SS_NOTE_DIFFERENCE}` : ""} The Siddhanta reckons these as time-degrees at the horizon; the app applies them as degrees of longitude.`;
+    // Practitioner detail only, not counted (combustion is counted once, by chapter 20).
+    const harsher =
+      "Mantreswara's chapter 9 words a combust planet's period more harshly (Phaladeepika 9.19); the app counts combustion once, by chapter 20.";
+    const longevityOnly =
+      p === "Venus" || p === "Saturn"
+        ? ` In the longevity reckoning only, Saravali 40.10 and Brihat Jataka 7.2 exempt Venus and Saturn from combustion's loss; the exemption does not reach the periods.`
+        : "";
     const scale = SCALE_20_30[dig]
       ? `On the scale of 20.30, ${p} ${IN_SIGN[dig]} would give ${SCALE_20_30[dig]}; combust, it is read at the debilitation step, with none.`
       : `The scale of 20.30 gives no step for a neutral sign; combust, ${p} is read at the debilitation step, with none.`;
@@ -1276,7 +1283,7 @@ function mantreswaraNotes(c: Ctx, p: Planet): DasaNote[] {
         layer: "mantreswara",
         tone: "mixed",
         text: `${p} is combust, which Mantreswara counts like debilitation, but it stands ${seat}: he reads the period as mixed, with its good results in the second half.`,
-        detail: `${scale} ${reversal} "Auspicious" in 20.57 is read by dignity: its own, exaltation, moolatrikona or a friend's sign, in the birth chart or the navamsa; reading it as a benefic's sign is the alternative. ${test}`,
+        detail: `${scale} ${reversal} "Auspicious" in 20.57 is read by dignity: its own, exaltation, moolatrikona or a friend's sign, in the birth chart or the navamsa; reading it as a benefic's sign is the alternative. ${harsher}${longevityOnly} ${test}`,
         source: PD20("20.30, 20.57"),
       });
     else
@@ -1285,7 +1292,7 @@ function mantreswaraNotes(c: Ctx, p: Planet): DasaNote[] {
         layer: "mantreswara",
         tone: "strain",
         text: `${p} is combust: Mantreswara counts the period as he counts a debilitated planet's, which holds back its good results.`,
-        detail: `${scale} ${reversal} Neither its sign nor its navamsa (${SIGNS[nav]}) is auspicious by dignity, so 20.57 does not soften it. ${test}`,
+        detail: `${scale} ${reversal} Neither its sign nor its navamsa (${SIGNS[nav]}) is auspicious by dignity, so 20.57 does not soften it. ${harsher}${longevityOnly} ${test}`,
         source: PD20("20.30"),
       });
   }

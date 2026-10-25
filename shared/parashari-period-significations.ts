@@ -58,6 +58,14 @@ export interface PeriodSignifications {
   why: string;
   /** Plain reason, gentle. */
   whyPlain: string;
+  /** Practitioner view: the condition in a few words with its verse, e.g. "supported: exalted (47.3-4)". */
+  tag: string;
+  /**
+   * The life-periods graphic's line (hover title and readout): plain words in the plain view; the verse tags and the
+   * condition tag in the practitioner view. The minor's holds are the same as in `text` and `textPlain`.
+   */
+  timeline: string;
+  timelinePlain: string;
   /** Areas held back for a minor (AREA_ONSET), with the age each opens; empty for an adult. */
   held: Array<{ area: string; from: number }>;
   /** Entries withheld under the sensitive gate (potency, longevity) for a minor. */
@@ -156,6 +164,8 @@ interface Condition {
   condition: PeriodCondition;
   why: string;
   whyPlain: string;
+  /** The condition in a few words with its verse, for the practitioner's timeline line. */
+  tag: string;
 }
 
 const DIGNITY_PHRASE: Record<string, string> = {
@@ -179,6 +189,7 @@ export function dasaCondition(d: DasaReading, positions: PlanetPosition[]): Cond
       condition: "ungraded",
       why: `${p} has no sign dignity in this reading, so the measure of strength in 47.3-4 gives no grade; the period's own lines carry its condition.`,
       whyPlain: `${p} has no strength by sign of its own, so how these go rests on the period's other lines.`,
+      tag: "not graded (47.3-4)",
     };
   const pos = positions.find((x) => x.planet === p);
   const sun = positions.find((x) => x.planet === "Sun");
@@ -189,29 +200,34 @@ export function dasaCondition(d: DasaReading, positions: PlanetPosition[]): Cond
       condition: "mixed",
       why: `${Name(p)} is combust, but stands in an auspicious sign or navamsa: Mantreswara reads it as mixed, the good results coming in the second half (Phaladeepika 20.57).`,
       whyPlain: `${Name(p)} is close to the Sun (combust) but well placed by sign, so these come with mixed results, the better ones later in the period.`,
+      tag: "mixed: combust, relieved by sign or navamsa (Phaladeepika 20.57)",
     };
   if (ids.has(`${p}-pd-20-30`) || (pos && sun && parashariCombust(pos, sun.lon)))
     return {
       condition: "strained",
       why: `${Name(p)} is combust, which Mantreswara counts like debilitation (Phaladeepika 20.30), and neither its sign nor its navamsa relieves it.`,
       whyPlain: `${Name(p)} is close to the Sun (combust) here, so these matters may ask for more care in this period.`,
+      tag: "under strain: combust (Phaladeepika 20.30)",
     };
   if (dig === "Debilitated" || dig === "Inimical")
     return {
       condition: "strained",
       why: `${Name(p)} is ${DIGNITY_PHRASE[dig]}: by 47.3-4 the effects follow the planet's strength.`,
       whyPlain: `${Name(p)} is weak by sign here, so these matters may ask for more care in this period.`,
+      tag: `under strain: ${DIGNITY_PHRASE[dig]} (47.3-4)`,
     };
   if (dig === "Exalted" || dig === "Moolatrikona" || dig === "Own sign")
     return {
       condition: "supported",
       why: `${Name(p)} is ${DIGNITY_PHRASE[dig]}: by 47.3-4 a strong lord gives its effects in full.`,
       whyPlain: `${Name(p)} is strong by sign here, so these matters are favoured.`,
+      tag: `supported: ${DIGNITY_PHRASE[dig]} (47.3-4)`,
     };
   return {
     condition: "moderate",
     why: `${Name(p)} is ${DIGNITY_PHRASE[dig] ?? "in a neutral sign"}, neither strong nor weak by the measure of 47.3-4; the period's own lines carry its condition.`,
     whyPlain: `${Name(p)} is neither strong nor weak by sign here, so how these go rests on the period's other lines.`,
+    tag: `moderate: ${DIGNITY_PHRASE[dig] ?? "in a neutral sign"} (47.3-4)`,
   };
 }
 
@@ -232,6 +248,7 @@ export function antarCondition(dasaLord: Planet, a: AntarReading): Condition {
     condition,
     why: `The sub-period's own reading in the ${dasaLord} dasa chapter (Parashara ch. ${ch}), from its placement from the lagna and from ${thePlanet(dasaLord)}, its dignity and any maraka lordship, is ${word}.`,
     whyPlain: `The sub-period's placements read ${word}, ${plainTail}.`,
+    tag: `${word} (Parashara ch. ${ch})`,
   };
 }
 
@@ -280,6 +297,17 @@ function build(
       : `The classical lists give ${thePlanet(lord)} few matters of its own to show here. `) +
     cond.whyPlain +
     heldNote(held, true);
+  // The life-periods graphic carries the same matters, shorter: the words alone in the plain view; the verse tags and
+  // the condition tag in the practitioner view. The minor's holds are the same as above.
+  const timelinePlain =
+    `${lord} ${level === "dasa" ? "period" : "sub-period"}: ` +
+    (plainList || "few matters of its own to show") +
+    "." +
+    heldNote(held, true);
+  const timeline =
+    `${level === "dasa" ? `${lord} dasa (Parashara 47.2; Phaladeepika 21.1)` : `${dasaLord}–${lord} bhukti`}: ` +
+    `${refs || "none left to show"}; condition ${cond.tag}.` +
+    heldNote(held, false);
   return {
     level,
     lord,
@@ -289,6 +317,9 @@ function build(
     condition: cond.condition,
     why: cond.why,
     whyPlain: cond.whyPlain,
+    tag: cond.tag,
+    timeline,
+    timelinePlain,
     held,
     withheldCount,
     text,

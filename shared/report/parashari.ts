@@ -24,6 +24,11 @@ import { normaliseParashariHouseMethod } from "../schema";
 import { AREA_ONSET, HOUSE_AREA } from "../life-stage";
 import { GENTLE_NOTE } from "../gentle";
 import { antarSignifications, dasaSignifications } from "../parashari-period-significations";
+import {
+  MODERN_COMBUST_NOT_COUNTED,
+  MODERN_COMBUST_NOT_COUNTED_PLAIN,
+  periodModernNotes,
+} from "../combustion-modern";
 import { modernNodeAspects, nodeAspectSentence, NODE_ASPECT_LABEL, NODE_ASPECT_SOURCES } from "../parashari-node-aspects";
 import {
   cap,
@@ -341,6 +346,20 @@ function timingSection(
       cites: kw.sources.map((x) => cites.add(x.label, x.url)),
       provisional: true,
     });
+    // Modern readings of combustion beside the verses (combustion-modern.ts): display only, so no tone. The plain
+    // report keeps the notes with plain wording; the practitioner report keeps all, with distances and pages.
+    const modern = periodModernNotes(d.lord, ctx.result.positions).filter((n) => !ctx.plain || n.plain);
+    if (modern.length)
+      ps.push({
+        kind: "p",
+        text: S(
+          endStop(
+            `${modern.map((n) => (ctx.plain ? (n.plain ?? "") : n.text)).join(" ")} ${ctx.plain ? MODERN_COMBUST_NOT_COUNTED_PLAIN : MODERN_COMBUST_NOT_COUNTED}`,
+          ),
+        ),
+        cites: modern.flatMap((n) => n.sources.map((x) => cites.add(x.label, x.url))),
+        provisional: true,
+      });
     if (d.current && !deceased && d.antars.length) {
       ps.push({
         kind: "table",

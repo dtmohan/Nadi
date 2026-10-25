@@ -215,8 +215,16 @@ import {
   PHALADEEPIKA_CH2_URL,
 } from "@shared/parashari-significations";
 import {
+  combustQualifiers,
+  MODERN_COMBUST_NOT_COUNTED,
+  MODERN_COMBUST_NOT_COUNTED_PLAIN,
+  periodModernNotes,
+  type ModernCombustNote,
+} from "@shared/combustion-modern";
+import {
   antarSignifications,
   dasaSignifications,
+  PERIOD_SIGNIFICATIONS_NOT_COUNTED,
   type PeriodSignificationOptions,
   type PeriodSignifications,
 } from "@shared/parashari-period-significations";
@@ -1070,8 +1078,14 @@ export function ParashariPanel({
   // by their Ashtakavarga tone, each dasa's lean as a tinted row, and the recorded events.
   const tlBands = useMemo(() => {
     const antarOf = new Map<string, AntarReading>();
-    for (const d of r.dasaReadings)
+    const dasaOf = new Map<string, DasaReading>();
+    for (const d of r.dasaReadings) {
+      dasaOf.set(`${d.lord}|${d.start}`, d);
       for (const a of d.antars) antarOf.set(`${d.lord}|${a.lord}|${a.start}`, a);
+    }
+    // Each period's matters, as the Timing chapter's line gives them (47.2; Phaladeepika 21.1), with the same holds for
+    // a minor: display only, so they change no colour.
+    const kwOpts: PeriodSignificationOptions = { birthIso: result.utc, asOfIso, withheld };
     return [
       ...vimshottariBands(r.vimshottari, {
         plain,
@@ -1081,11 +1095,25 @@ export function ParashariPanel({
           );
           return a ? { verdict: a.verdict, source: a.source.label } : undefined;
         },
+        dasaMatters: (v) => {
+          const d = dasaOf.get(`${v.lord}|${v.start}`);
+          if (!d) return undefined;
+          const k = dasaSignifications(d, result.positions, kwOpts);
+          return plain ? k.timelinePlain : k.timeline;
+        },
+        bhuktiMatters: (b) => {
+          const a = antarOf.get(
+            `${b.dasaLord}|${b.bhuktiLord ?? b.lord}|${b.start}`,
+          );
+          if (!a) return undefined;
+          const k = antarSignifications(b.dasaLord, a, kwOpts);
+          return plain ? k.timelinePlain : k.timeline;
+        },
       }),
       avTransitBand(avTimelineShown.saturn, "Saturn", plain),
       avTransitBand(avTimelineShown.jupiter, "Jupiter", plain),
     ];
-  }, [r.vimshottari, r.dasaReadings, avTimelineShown, plain]);
+  }, [r.vimshottari, r.dasaReadings, avTimelineShown, plain, result.utc, result.positions, asOfIso, withheld]);
   const tlWindows = useMemo<TlWindow[]>(
     () =>
       r.dasaReadings.map((d) => {
@@ -1958,6 +1986,11 @@ export function ParashariPanel({
                 windows={tlWindows}
                 windowsLabel="Verdict"
                 marks={tlMarks}
+                mattersNote={
+                  plain
+                    ? "These matters are shown for context, not counted, and change no colour."
+                    : `Significations shown, not counted: ${PERIOD_SIGNIFICATIONS_NOT_COUNTED.charAt(0).toLowerCase()}${PERIOD_SIGNIFICATIONS_NOT_COUNTED.slice(1)} They change no colour.`
+                }
               />
               <p className="mt-1 text-xs text-muted-foreground">
                 {plain
@@ -2288,7 +2321,7 @@ export function ParashariPanel({
       )}
       </Chapter>
       <Chapter id="planets">
-      <AvasthasSection a={r.avasthas} />
+      <AvasthasSection a={r.avasthas} positions={result.positions} />
       </Chapter>
       <Chapter id="sarvartha">
       <SarvarthaSection sarvartha={result.sarvartha} withheld={withheld} />
@@ -3427,7 +3460,14 @@ const LAJ_PLAIN: Record<string, string> = {
   Kshobhita: "agitated",
 };
 
-function AvasthasSection({ a }: { a: AvasthaResult }) {
+function AvasthasSection({
+  a,
+  positions,
+}: {
+  a: AvasthaResult;
+  /** Natal positions, for the modern qualifiers beside a combust planet's line (shared/combustion-modern.ts). */
+  positions: PlanetPosition[];
+}) {
   const plain = usePlain();
   const [openLaj, setOpenLaj] = useState<Planet | null>(null);
   return (
@@ -3642,6 +3682,14 @@ function AvasthasSection({ a }: { a: AvasthaResult }) {
                   <Soft>{plain ? l.plain : l.text}</Soft>{" "}
                   <SourceLink source={l.source} mark={false} />
                 </span>
+                {l.combust &&
+                  (plain ? l.plain.includes("close to the Sun") : l.text.includes("combust")) && (
+                    <ModernCombustNotes
+                      notes={combustQualifiers(l.planet, positions)}
+                      testid={`avasthas-line-${l.planet}-modern`}
+                      className="mt-2"
+                    />
+                  )}
               </li>
             ))}
           </ul>
@@ -5165,6 +5213,11 @@ function DasaEffects({
     () => dasaSignifications(d, positions, kwOpts),
     [d, positions, kwOpts],
   );
+  // Modern readings of combustion beside the verses (display only, never counted): shared/combustion-modern.ts.
+  const modernNotes = useMemo(
+    () => periodModernNotes(d.lord, positions),
+    [d.lord, positions],
+  );
   const layers: DasaNote["layer"][] = [
     "general",
     "dignity",
@@ -5417,6 +5470,11 @@ function DasaEffects({
       <PeriodSignificationLine
         k={kw}
         testid="parashari-dasa-kw"
+        className="mt-3"
+      />
+      <ModernCombustNotes
+        notes={modernNotes}
+        testid="parashari-dasa-modern"
         className="mt-3"
       />
       <Working
@@ -5959,6 +6017,56 @@ function AntarRows({
         </TableRow>
       )}
     </>
+  );
+}
+
+/**
+ * Modern readings of combustion beside the verses (shared/combustion-modern.ts): display only, never counted. The
+ * plain view shows the notes that have plain wording; the practitioner view shows all, with distances and pages.
+ */
+function ModernCombustNotes({
+  notes,
+  testid,
+  className,
+}: {
+  notes: ModernCombustNote[];
+  testid: string;
+  className?: string;
+}) {
+  const plain = usePlain();
+  const shown = plain ? notes.filter((n) => n.plain) : notes;
+  if (!shown.length) return null;
+  return (
+    <div
+      className={cn("rounded-md border border-dashed px-3 py-2", className)}
+      data-testid={testid}
+    >
+      <p className="text-xs font-semibold text-muted-foreground">
+        {plain
+          ? shown.length > 1
+            ? "Modern readings, beside the texts"
+            : "A modern reading, beside the texts"
+          : "Modern readings of combustion (not counted)"}
+      </p>
+      <ul className="mt-1 space-y-1 text-sm text-muted-foreground">
+        {shown.map((n) => (
+          <li key={n.id} data-testid={`${testid}-${n.id}`}>
+            <Soft>{plain ? (n.plain ?? "") : n.text}</Soft>{" "}
+            <span className="text-xs">
+              {n.sources.map((x, i) => (
+                <span key={x.label}>
+                  {i > 0 && "; "}
+                  <SourceLink source={x} mark={false} />
+                </span>
+              ))}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {plain ? MODERN_COMBUST_NOT_COUNTED_PLAIN : MODERN_COMBUST_NOT_COUNTED}
+      </p>
+    </div>
   );
 }
 
