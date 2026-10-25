@@ -106,6 +106,8 @@ test("significations: display only, imported by display code alone", () => {
   const allowed = new Set([
     "client/src/components/parashari-significations.tsx",
     "client/src/components/parashari-panel.tsx",
+    // The karakatwa line beside the periods: display only, guarded in period-significations.test.ts.
+    "shared/parashari-period-significations.ts",
   ]);
   const root = process.cwd();
   const importers: string[] = [];

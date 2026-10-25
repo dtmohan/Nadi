@@ -1,0 +1,436 @@
+{
+ "about": "Public figures with published birth data and day-documented public events, from the Nadi validation suite. Birth-time quality and sources are in each chart's notes.",
+ "charts": [
+  {
+   "name": "Jawaharlal Nehru",
+   "gender": "male",
+   "birthDate": "1889-11-14",
+   "birthTime": "23:30",
+   "timezone": "Asia/Kolkata",
+   "timeStandard": "auto",
+   "place": "Allahabad, India",
+   "latitude": 25.45,
+   "longitude": 81.85,
+   "ayanamsa": "lahiri",
+   "nodeType": "mean",
+   "deathDate": "1964-05-27",
+   "notes": "Birth time Rodden A (biography; 23:30 Madras mean time, as the IANA zone gives for 1889). Events day-documented: married Kamala Kaul 8 Feb 1916; Indira born 19 Nov 1917; father Motilal died 6 Feb 1931; wife Kamala died 28 Feb 1936 (Lausanne); mother Swarup Rani died 10 Jan 1938; sworn in as first Prime Minister 15 Aug 1947.",
+   "events": [
+    {
+     "id": "e1",
+     "matter": "marriage",
+     "date": "1916-02-08"
+    },
+    {
+     "id": "e2",
+     "matter": "child",
+     "date": "1917-11-19"
+    },
+    {
+     "id": "e3",
+     "matter": "father",
+     "date": "1931-02-06"
+    },
+    {
+     "id": "e4",
+     "matter": "spouse",
+     "date": "1936-02-28"
+    },
+    {
+     "id": "e5",
+     "matter": "mother",
+     "date": "1938-01-10"
+    },
+    {
+     "id": "e6",
+     "matter": "job",
+     "date": "1947-08-15"
+    }
+   ]
+  },
+  {
+   "name": "Indira Gandhi",
+   "gender": "female",
+   "birthDate": "1917-11-19",
+   "birthTime": "23:11",
+   "timezone": "Asia/Kolkata",
+   "timeStandard": "auto",
+   "place": "Allahabad, India",
+   "latitude": 25.45,
+   "longitude": 81.85,
+   "ayanamsa": "lahiri",
+   "nodeType": "mean",
+   "deathDate": "1984-10-31",
+   "notes": "Birth time Rodden A: her private secretary's record, 41 ghatis 52 palas 23 vipalas from sunrise = 23:11:14 IST (astro-databank; 23:39 and 15:40 also circulate). Events day-documented: mother Kamala died 28 Feb 1936; married Feroze 26 Mar 1942 (Anand Bhawan); Rajiv born 20 Aug 1944; Sanjay born 14 Dec 1946; Feroze died 8 Sep 1960; father Nehru died 27 May 1964; Prime Minister 24 Jan 1966 and again 14 Jan 1980.",
+   "events": [
+    {
+     "id": "e1",
+     "matter": "mother",
+     "date": "1936-02-28"
+    },
+    {
+     "id": "e2",
+     "matter": "marriage",
+     "date": "1942-03-26"
+    },
+    {
+     "id": "e3",
+     "matter": "child",
+     "date": "1944-08-20"
+    },
+    {
+     "id": "e4",
+     "matter": "child",
+     "date": "1946-12-14"
+    },
+    {
+     "id": "e5",
+     "matter": "spouse",
+     "date": "1960-09-08"
+    },
+    {
+     "id": "e6",
+     "matter": "father",
+     "date": "1964-05-27"
+    },
+    {
+     "id": "e7",
+     "matter": "job",
+     "date": "1966-01-24"
+    },
+    {
+     "id": "e8",
+     "matter": "job",
+     "date": "1980-01-14"
+    }
+   ]
+  },
+  {
+   "name": "Sachin Tendulkar",
+   "gender": "male",
+   "birthDate": "1973-04-24",
+   "birthTime": "13:00",
+   "timezone": "Asia/Kolkata",
+   "timeStandard": "auto",
+   "place": "Mumbai, India",
+   "latitude": 18.967,
+   "longitude": 72.833,
+   "ayanamsa": "lahiri",
+   "nodeType": "mean",
+   "deathDate": null,
+   "notes": "Birth time Rodden A (hospital registry entry, the time itself not visible in the published photo; 16:20 and 17:23 circulate without source). Events day-documented: Test debut 15 Nov 1989 (Karachi); married Anjali 24 May 1995; Sara born 12 Oct 1997; Arjun born 24 Sep 1999; father Ramesh died 19 May 1999; World Cup won 2 Apr 2011.",
+   "events": [
+    {
+     "id": "e1",
+     "matter": "job",
+     "date": "1989-11-15"
+    },
+    {
+     "id": "e2",
+     "matter": "marriage",
+     "date": "1995-05-24"
+    },
+    {
+     "id": "e3",
+     "matter": "child",
+     "date": "1997-10-12"
+    },
+    {
+     "id": "e4",
+     "matter": "child",
+     "date": "1999-09-24"
+    },
+    {
+     "id": "e5",
+     "matter": "father",
+     "date": "1999-05-19"
+    },
+    {
+     "id": "e6",
+     "matter": "job",
+     "date": "2011-04-02"
+    }
+   ]
+  },
+  {
+   "name": "Albert Einstein",
+   "gender": "male",
+   "birthDate": "1879-03-14",
+   "birthTime": "11:30",
+   "timezone": "Europe/Berlin",
+   "timeStandard": "lmt",
+   "place": "Ulm, Germany",
+   "latitude": 48.4011,
+   "longitude": 9.9876,
+   "ayanamsa": "lahiri",
+   "nodeType": "mean",
+   "deathDate": "1955-04-18",
+   "notes": "Birth time from the birth record (Astro-Databank AA; 11:30 LMT). Events day-documented: marriage to Mileva Maric 6 Jan 1903 (Bern registry); PhD granted 15 Jan 1906 (University of Zurich); Hans Albert born 14 May 1904; Eduard born 28 Jul 1910; marriage to Elsa 2 Jun 1919; mother Pauline died 20 Feb 1920; Nobel Prize announced 9 Nov 1922; arrived Princeton for good 17 Oct 1933. Longitude is Ulm's 9.9876 E (the validation suite had 11.9746, which is not Ulm).",
+   "events": [
+    {
+     "id": "e1",
+     "matter": "marriage",
+     "date": "1903-01-06"
+    },
+    {
+     "id": "e2",
+     "matter": "child",
+     "date": "1904-05-14"
+    },
+    {
+     "id": "e3",
+     "matter": "education",
+     "date": "1906-01-15"
+    },
+    {
+     "id": "e4",
+     "matter": "child",
+     "date": "1910-07-28"
+    },
+    {
+     "id": "e5",
+     "matter": "marriage",
+     "date": "1919-06-02"
+    },
+    {
+     "id": "e6",
+     "matter": "mother",
+     "date": "1920-02-20"
+    },
+    {
+     "id": "e7",
+     "matter": "job",
+     "date": "1922-11-09"
+    },
+    {
+     "id": "e8",
+     "matter": "abroad",
+     "date": "1933-10-17"
+    }
+   ]
+  },
+  {
+   "name": "Mohandas Gandhi",
+   "gender": "male",
+   "birthDate": "1869-10-02",
+   "birthTime": "07:11",
+   "timezone": "Asia/Kolkata",
+   "timeStandard": "lmt",
+   "place": "Porbandar, India",
+   "latitude": 21.6417,
+   "longitude": 69.6293,
+   "ayanamsa": "lahiri",
+   "nodeType": "mean",
+   "deathDate": "1948-01-30",
+   "notes": "Birth time debated: Rodden C, rectified (07:08-07:33 LMT cited); 07:11 used here. Events day-documented: father Karamchand died 16 Nov 1885; sailed to London 4 Sep 1888; Harilal born 23 Aug 1888, Manilal 28 Oct 1892, Ramdas 2 Jan 1897, Devdas 22 May 1900; Kasturba died 22 Feb 1944. Marriage (May 1883) left out: the day is not agreed between sources.",
+   "events": [
+    {
+     "id": "e1",
+     "matter": "father",
+     "date": "1885-11-16"
+    },
+    {
+     "id": "e2",
+     "matter": "child",
+     "date": "1888-08-23"
+    },
+    {
+     "id": "e3",
+     "matter": "abroad",
+     "date": "1888-09-04"
+    },
+    {
+     "id": "e4",
+     "matter": "child",
+     "date": "1892-10-28"
+    },
+    {
+     "id": "e5",
+     "matter": "child",
+     "date": "1897-01-02"
+    },
+    {
+     "id": "e6",
+     "matter": "child",
+     "date": "1900-05-22"
+    },
+    {
+     "id": "e7",
+     "matter": "spouse",
+     "date": "1944-02-22"
+    }
+   ]
+  },
+  {
+   "name": "Elizabeth II",
+   "gender": "female",
+   "birthDate": "1926-04-21",
+   "birthTime": "02:40",
+   "timezone": "Europe/London",
+   "timeStandard": "auto",
+   "place": "Mayfair, London, UK",
+   "latitude": 51.5074,
+   "longitude": -0.1278,
+   "ayanamsa": "lahiri",
+   "nodeType": "mean",
+   "deathDate": "2022-09-08",
+   "notes": "Birth time from the birth announcement (Astro-Databank AA; 02:40 British Summer Time, UT 01:40). Events day-documented: married Philip 20 Nov 1947; Charles born 14 Nov 1948; Anne 15 Aug 1950; George VI died and she acceded 6 Feb 1952; Andrew born 19 Feb 1960; Edward 10 Mar 1964; Queen Mother died 30 Mar 2002; Philip died 9 Apr 2021.",
+   "events": [
+    {
+     "id": "e1",
+     "matter": "marriage",
+     "date": "1947-11-20"
+    },
+    {
+     "id": "e2",
+     "matter": "child",
+     "date": "1948-11-14"
+    },
+    {
+     "id": "e3",
+     "matter": "child",
+     "date": "1950-08-15"
+    },
+    {
+     "id": "e4",
+     "matter": "father",
+     "date": "1952-02-06"
+    },
+    {
+     "id": "e5",
+     "matter": "job",
+     "date": "1952-02-06"
+    },
+    {
+     "id": "e6",
+     "matter": "child",
+     "date": "1960-02-19"
+    },
+    {
+     "id": "e7",
+     "matter": "child",
+     "date": "1964-03-10"
+    },
+    {
+     "id": "e8",
+     "matter": "mother",
+     "date": "2002-03-30"
+    },
+    {
+     "id": "e9",
+     "matter": "spouse",
+     "date": "2021-04-09"
+    }
+   ]
+  },
+  {
+   "name": "Steve Jobs",
+   "gender": "male",
+   "birthDate": "1955-02-24",
+   "birthTime": "19:15",
+   "timezone": "America/Los_Angeles",
+   "timeStandard": "auto",
+   "place": "San Francisco, CA, USA",
+   "latitude": 37.7749,
+   "longitude": -122.4194,
+   "ayanamsa": "lahiri",
+   "nodeType": "mean",
+   "deathDate": "2011-10-05",
+   "notes": "Birth time from the birth certificate (Rodden A; 7:15 pm PST). Events day-documented: Lisa Brennan-Jobs born 17 May 1978; Apple partnership 1 Apr 1976; resigned from Apple 16 Sep 1985; NeXT acquisition announced and he returned to Apple 20 Dec 1996; married Laurene Powell 18 Mar 1991; Reed born 22 Sep 1991; Erin 19 Aug 1995; Eve 9 Jul 1998; Whipple surgery 31 Jul 2004.",
+   "events": [
+    {
+     "id": "e1",
+     "matter": "business",
+     "date": "1976-04-01"
+    },
+    {
+     "id": "e2",
+     "matter": "child",
+     "date": "1978-05-17"
+    },
+    {
+     "id": "e3",
+     "matter": "job-loss",
+     "date": "1985-09-16"
+    },
+    {
+     "id": "e4",
+     "matter": "marriage",
+     "date": "1991-03-18"
+    },
+    {
+     "id": "e5",
+     "matter": "child",
+     "date": "1991-09-22"
+    },
+    {
+     "id": "e6",
+     "matter": "child",
+     "date": "1995-08-19"
+    },
+    {
+     "id": "e7",
+     "matter": "child",
+     "date": "1998-07-09"
+    },
+    {
+     "id": "e8",
+     "matter": "job",
+     "date": "1996-12-20"
+    },
+    {
+     "id": "e9",
+     "matter": "illness",
+     "date": "2004-07-31"
+    }
+   ]
+  },
+  {
+   "name": "Barack Obama",
+   "gender": "male",
+   "birthDate": "1961-08-04",
+   "birthTime": "19:24",
+   "timezone": "Pacific/Honolulu",
+   "timeStandard": "auto",
+   "place": "Honolulu, HI, USA",
+   "latitude": 21.3069,
+   "longitude": -157.8583,
+   "ayanamsa": "lahiri",
+   "nodeType": "mean",
+   "deathDate": null,
+   "notes": "",
+   "events": [
+    {
+     "id": "ev1",
+     "matter": "education",
+     "date": "1988-09-01"
+    },
+    {
+     "id": "ev2",
+     "matter": "marriage",
+     "date": "1992-10-03"
+    },
+    {
+     "id": "ev3",
+     "matter": "child",
+     "date": "1998-07-04"
+    },
+    {
+     "id": "ev4",
+     "matter": "child",
+     "date": "2001-06-10"
+    },
+    {
+     "id": "ev5",
+     "matter": "job",
+     "date": "2004-11-02"
+    },
+    {
+     "id": "ev6",
+     "matter": "job",
+     "date": "2008-11-04"
+    }
+   ]
+  }
+ ]
+}

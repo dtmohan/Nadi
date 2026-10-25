@@ -23,6 +23,8 @@ import { computeVargas, VARGAS, SCHEMES } from "../vargas";
 import { normaliseParashariHouseMethod } from "../schema";
 import { AREA_ONSET, HOUSE_AREA } from "../life-stage";
 import { GENTLE_NOTE } from "../gentle";
+import { antarSignifications, dasaSignifications } from "../parashari-period-significations";
+import { modernNodeAspects, nodeAspectSentence, NODE_ASPECT_LABEL, NODE_ASPECT_SOURCES } from "../parashari-node-aspects";
 import {
   cap,
   endStop,
@@ -327,6 +329,18 @@ function timingSection(
       cites: [cites.add(d.timing.source.label, d.timing.source.url)],
       provisional: d.timing.source.provisional,
     });
+    // The lord's own significations (Parashara 47.2; Phaladeepika 21.1): shown, not counted, so no tone.
+    const kwOpts = { birthIso: ctx.result.utc, asOfIso: ctx.lifeAt, withheld: ctx.withheld };
+    const kw = dasaSignifications(d, ctx.result.positions, kwOpts);
+    const kwTail = ctx.plain
+      ? "Shown for context, not counted."
+      : `Shown, not counted: ${kw.notCounted.charAt(0).toLowerCase()}${kw.notCounted.slice(1)}`;
+    ps.push({
+      kind: "p",
+      text: S(endStop(`${ctx.plain ? kw.textPlain : kw.text} ${kwTail}`)),
+      cites: kw.sources.map((x) => cites.add(x.label, x.url)),
+      provisional: true,
+    });
     if (d.current && !deceased && d.antars.length) {
       ps.push({
         kind: "table",
@@ -349,6 +363,23 @@ function timingSection(
           ),
         ],
       });
+      const runA = d.antars.find((a) => a.current);
+      if (runA) {
+        const ka = antarSignifications(d.lord, runA, kwOpts);
+        const body = ka.textPlain.replace(/^Within it, /, "").replace(/^The /, "the ");
+        ps.push({
+          kind: "p",
+          text: S(
+            endStop(
+              ctx.plain
+                ? `In the running ${runA.lord} sub-period, ${body} ${kwTail}`
+                : `Running ${runA.lord} bhukti. ${ka.text} ${kwTail}`,
+            ),
+          ),
+          cites: ka.sources.map((x) => cites.add(x.label, x.url)),
+          provisional: true,
+        });
+      }
     }
     sub.push({
       id: `dasa-${d.lord}-${d.ageStart}`,
@@ -562,6 +593,31 @@ function tablesSection(
       title: "The points tables (Ashtakavarga)",
       paras: ps,
     });
+  }
+
+  // Modern node aspects: practitioner only, labelled, never counted (Parashara 26 gives the nodes none).
+  if (!ctx.plain) {
+    const na = modernNodeAspects(result.positions, lagnaIdx);
+    if (na.length)
+      sub.push({
+        id: "node-aspects",
+        title: "Modern node aspects (not counted)",
+        paras: [
+          {
+            kind: "p",
+            text: S(
+              `${NODE_ASPECT_LABEL}. Modern authors give Rahu and Ketu the 5th, 7th and 9th aspects, as Jupiter has: Choudhry for both nodes, Shweta for Rahu, calling Ketu's disputed. Parashara 26 gives the nodes none, so nothing here is counted. Taken by whole sign from the node; degrees apart are within the signs, and Choudhry calls an aspect exact within 1° and close within 5°.`,
+            ),
+            cites: [
+              cites.add(NODE_ASPECT_SOURCES.choudhry.label, NODE_ASPECT_SOURCES.choudhry.url),
+              cites.add(NODE_ASPECT_SOURCES.shweta.label, NODE_ASPECT_SOURCES.shweta.url),
+              cites.add(NODE_ASPECT_SOURCES.bphs.label, NODE_ASPECT_SOURCES.bphs.url),
+            ],
+            provisional: true,
+          },
+          ...na.map((a) => ({ kind: "p" as const, text: S(nodeAspectSentence(a)), provisional: true })),
+        ],
+      });
   }
 
   return {

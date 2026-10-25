@@ -41,7 +41,7 @@ import {
 } from "@/components/parashari-timing-now";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
-import { PLANET_ABBR, SIGNS, SIGN_LORD, type Planet } from "@shared/astro";
+import { PLANET_ABBR, SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "@shared/astro";
 import {
   computeParashari,
   ord,
@@ -214,6 +214,19 @@ import {
   MODERN_HOUSE_READINGS,
   PHALADEEPIKA_CH2_URL,
 } from "@shared/parashari-significations";
+import {
+  antarSignifications,
+  dasaSignifications,
+  type PeriodSignificationOptions,
+  type PeriodSignifications,
+} from "@shared/parashari-period-significations";
+import {
+  modernNodeAspects,
+  NODE_ASPECT_CLOSE_DEG,
+  NODE_ASPECT_EXACT_DEG,
+  NODE_ASPECT_LABEL,
+  NODE_ASPECT_SOURCES,
+} from "@shared/parashari-node-aspects";
 
 /** First letter up, for plain items that read as clauses. */
 const capFirst = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
@@ -1420,6 +1433,12 @@ export function ParashariPanel({
               shows every quarter.
             </span>
           </div>
+          {!plain && (
+            <NodeAspectsNote
+              positions={result.positions}
+              lagnaIdx={r.lagna.signIndex}
+            />
+          )}
           <HouseByHouse
             prose={r.houseProse ?? []}
             focusHouse={focusHouse}
@@ -2040,6 +2059,7 @@ export function ParashariPanel({
                 birthIso={result.utc}
                 asOfIso={asOfIso}
                 withheld={withheld}
+                positions={result.positions}
               />
             )}
             <div
@@ -5123,6 +5143,7 @@ function DasaEffects({
   birthIso,
   asOfIso,
   withheld,
+  positions,
 }: {
   d: DasaReading;
   /** The lord's Lajjitadi states (45.19-20), null when it holds none; placed with the period provisionally (Mehta, ch. XV). */
@@ -5132,8 +5153,18 @@ function DasaEffects({
   birthIso: string;
   asOfIso: string;
   withheld: boolean;
+  /** Natal positions, for the lord's condition in the karakatwa line. */
+  positions: PlanetPosition[];
 }) {
   const plainDE = usePlain();
+  const kwOpts: PeriodSignificationOptions = useMemo(
+    () => ({ birthIso, asOfIso, withheld }),
+    [birthIso, asOfIso, withheld],
+  );
+  const kw = useMemo(
+    () => dasaSignifications(d, positions, kwOpts),
+    [d, positions, kwOpts],
+  );
   const layers: DasaNote["layer"][] = [
     "general",
     "dignity",
@@ -5383,6 +5414,11 @@ function DasaEffects({
           them.
         </p>
       )}
+      <PeriodSignificationLine
+        k={kw}
+        testid="parashari-dasa-kw"
+        className="mt-3"
+      />
       <Working
         id="parashari-dasa-notes"
         label={`Show the ${d.notes.length} lines this rests on`}
@@ -5469,6 +5505,7 @@ function DasaEffects({
                 isOpen={isOpen}
                 toggle={() => setOpen(isOpen ? null : key)}
                 dasaLord={d.lord}
+                kwOpts={kwOpts}
               />
             );
           })}
@@ -5795,11 +5832,13 @@ function AntarRows({
   isOpen,
   toggle,
   dasaLord,
+  kwOpts,
 }: {
   a: AntarReading;
   isOpen: boolean;
   toggle: () => void;
   dasaLord: string;
+  kwOpts: PeriodSignificationOptions;
 }) {
   const e = a.entry;
   return (
@@ -5906,6 +5945,12 @@ function AntarRows({
                 </>
               )}
             </dl>
+            <PeriodSignificationLine
+              k={antarSignifications(dasaLord as Planet, a, kwOpts)}
+              testid={`parashari-antar-kw-${dasaLord}-${a.lord}`}
+              small
+              className="mt-3"
+            />
             <p className="mt-2 text-xs text-muted-foreground">
               <SourceLink source={a.source} /> · paraphrased from the Santhanam
               translation
@@ -5914,6 +5959,147 @@ function AntarRows({
         </TableRow>
       )}
     </>
+  );
+}
+
+/**
+ * A period lord's own significations beside its period (Parashara 47.2; Phaladeepika 21.1): display
+ * only, shown and never counted. Plain view: the lord's unconditional lists, gently worded; practitioner
+ * view: every classical entry with its verse, and the reason for the condition.
+ */
+function PeriodSignificationLine({
+  k,
+  testid,
+  className,
+  small,
+}: {
+  k: PeriodSignifications;
+  testid: string;
+  className?: string;
+  small?: boolean;
+}) {
+  const plain = usePlain();
+  return (
+    <p className={cn(small ? "text-xs" : "text-sm", className)} data-testid={testid}>
+      <span className="text-muted-foreground">
+        <Soft>{plain ? k.textPlain : k.text}</Soft>
+      </span>{" "}
+      <Badge variant="outline" className="text-2xs">
+        provisional
+      </Badge>
+      <span
+        className="mt-0.5 block text-xs text-muted-foreground"
+        data-testid={`${testid}-note`}
+      >
+        {plain
+          ? "Shown for context, not counted: the period's own lines already cover these matters."
+          : `Shown, not counted: ${k.notCounted.charAt(0).toLowerCase()}${k.notCounted.slice(1)}`}{" "}
+        {k.sources.map((s, i) => (
+          <span key={s.label}>
+            {i > 0 && "; "}
+            <SourceLink source={s} mark={false} />
+          </span>
+        ))}
+        {!plain && (
+          <>
+            ; word lists from{" "}
+            <SourceLink
+              source={{ label: "Parashara ch. 3 and 32", url: BPHS_URL(3) }}
+              mark={false}
+            />{" "}
+            and{" "}
+            <SourceLink
+              source={{ label: "Phaladeepika ch. 2", url: PHALADEEPIKA_CH2_URL }}
+              mark={false}
+            />
+          </>
+        )}
+        .
+      </span>
+    </p>
+  );
+}
+
+const ordN = (n: number) =>
+  `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
+
+/**
+ * Modern node aspects (Choudhry ch. 3; Shweta §17.4): practitioner view only, labelled, never counted.
+ * Parashara 26 gives the nodes no aspects, and no reading in this tab uses these.
+ */
+function NodeAspectsNote({
+  positions,
+  lagnaIdx,
+}: {
+  positions: PlanetPosition[];
+  lagnaIdx: number;
+}) {
+  const rows = useMemo(
+    () => modernNodeAspects(positions, lagnaIdx),
+    [positions, lagnaIdx],
+  );
+  if (!rows.length) return null;
+  return (
+    <div
+      className="mt-3 rounded-md border border-dashed px-3 py-2 text-xs text-muted-foreground"
+      data-testid="parashari-node-aspects"
+    >
+      <p>
+        <span className="font-medium text-foreground">{NODE_ASPECT_LABEL}.</span>{" "}
+        <Badge variant="outline" className="text-2xs">
+          provisional
+        </Badge>{" "}
+        Modern authors give Rahu and Ketu the 5th, 7th and 9th aspects, as
+        Jupiter has: Choudhry for both nodes, Shweta for Rahu, calling Ketu's
+        disputed. Parashara gives the nodes none, so nothing here is counted.
+        Taken by whole sign from the node; degrees apart are within the signs,
+        and Choudhry calls an aspect exact within {NODE_ASPECT_EXACT_DEG}° and
+        close within {NODE_ASPECT_CLOSE_DEG}°.
+      </p>
+      <ul className="mt-1.5 space-y-1">
+        {rows.map((a) => (
+          <li key={a.node} data-testid={`parashari-node-aspects-${a.node}`}>
+            <span className="font-medium text-foreground">{a.node}</span> in{" "}
+            {a.sign} ({ordN(a.house)} house)
+            {a.disputed && (
+              <>
+                {" "}
+                <Badge variant="outline" className="text-2xs">
+                  disputed
+                </Badge>
+              </>
+            )}
+            :{" "}
+            {a.targets.map((t, i) => (
+              <span
+                key={t.nth}
+                data-testid={`parashari-node-aspect-${a.node}-${t.nth}`}
+              >
+                {i > 0 && "; "}
+                {ordN(t.nth)} on {t.sign} ({ordN(t.house)} house):{" "}
+                {t.planets.length
+                  ? t.planets
+                      .map(
+                        (h) =>
+                          `${h.planet} ${h.apart.toFixed(1)}° apart${h.exact ? " (exact)" : h.close ? " (close)" : ""}`,
+                      )
+                      .join(", ")
+                  : "no planet"}
+              </span>
+            ))}
+          </li>
+        ))}
+      </ul>
+      <div
+        className="mt-1.5 flex flex-wrap items-center gap-1"
+        data-testid="parashari-node-aspects-sources"
+      >
+        <span>Sources:</span>
+        <SourceLink source={NODE_ASPECT_SOURCES.choudhry} mark={false} />
+        <SourceLink source={NODE_ASPECT_SOURCES.shweta} mark={false} />
+        <SourceLink source={NODE_ASPECT_SOURCES.bphs} mark={false} />
+      </div>
+    </div>
   );
 }
 
