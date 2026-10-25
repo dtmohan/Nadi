@@ -49,7 +49,8 @@ import {
   type ReportTools,
 } from "@shared/report";
 import { RECTIFY_METHODS, type RectifyMethod } from "@shared/rectify-methods";
-import { gocharaCalendar, calendarWithhold } from "./gochara-calendar";
+import { gocharaCalendar, calendarWithhold, exactPasses } from "./gochara-calendar";
+import type { Planet } from "@shared/astro";
 import type { OwnMarks } from "@shared/gochara";
 import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
@@ -456,20 +457,37 @@ export async function registerRoutes(
       .safeParse(req.body?.ownMarks);
     if (!marks.success)
       return res.status(400).json({ message: "ownMarks must give twelve marks of 0-8 per planet" });
+    // The natal positions, for the exact-aspect marker only; optional and not stored.
+    const natal = z
+      .array(
+        z.object({
+          planet: z.enum(["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"]),
+          lon: z.number().min(0).max(360),
+        }),
+      )
+      .max(9)
+      .optional()
+      .safeParse(req.body?.natal);
+    if (!natal.success)
+      return res.status(400).json({ message: "natal must list up to nine planets with longitudes of 0-360" });
     try {
       const start = DateTime.fromISO(from, { zone: "utc" });
       const jdStart = julianDay(start);
       const jdEnd = julianDay(start.plus({ years: span }));
+      const cal = gocharaCalendar(
+        Math.floor(moonSignIndex),
+        jdStart,
+        jdEnd,
+        { ayanamsa, nodeType },
+        marks.data as OwnMarks | undefined,
+        // The age gate, decided here from the birth instant sent with the request; withheld when none is sent.
+        calendarWithhold(req.body ?? {}, new Date().toISOString()),
+      );
+      // The modern exact-aspect marker (shared/gochara-exact.ts), when the natal positions are sent.
       res.json(
-        gocharaCalendar(
-          Math.floor(moonSignIndex),
-          jdStart,
-          jdEnd,
-          { ayanamsa, nodeType },
-          marks.data as OwnMarks | undefined,
-          // The age gate, decided here from the birth instant sent with the request; withheld when none is sent.
-          calendarWithhold(req.body ?? {}, new Date().toISOString()),
-        ),
+        natal.data
+          ? { ...cal, exactPasses: exactPasses(natal.data as Array<{ planet: Planet; lon: number }>, jdStart, jdEnd, { ayanamsa, nodeType }) }
+          : cal,
       );
     } catch (e: any) {
       res.status(400).json({ message: e.message });

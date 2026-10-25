@@ -1,5 +1,6 @@
 import type { Planet } from "./astro";
 import type { GocharaVerdict } from "./gochara";
+import type { ExactPass } from "./gochara-exact";
 
 /** One stretch during which a planet's sign, verdict and obstructors stay the same. */
 export interface GocharaSegment {
@@ -48,6 +49,11 @@ export interface GocharaCalendar {
   planets: GocharaPlanetCalendar[];
   saturnPassages: SaturnPassage[];
   notes: string[];
+  /**
+   * Jupiter, Saturn, Rahu and Ketu within 1° of an exact conjunction or aspect to a natal planet (shared/gochara-exact.ts):
+   * a modern marker for the practitioner view, set when the request sends the natal positions. Never colours anything.
+   */
+  exactPasses?: ExactPass[];
 }
 
 export const CALENDAR_PLANETS: Planet[] = ["Sun", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"];

@@ -8,6 +8,7 @@ import { CALENDAR_PLANETS, GOCHARA_CALENDAR_NOTES, SATURN_NAMED_HOUSES, type Goc
 import type { Planet, PlanetPosition } from "@shared/astro";
 import { sensitiveGate } from "@shared/life-stage";
 import { positionsLite, jdToIso, type EphemerisOptions } from "./ephemeris";
+import { EXACT_TRANSIT_PLANETS, exactHits, groupExactPasses, type ExactHit, type ExactPass } from "@shared/gochara-exact";
 
 interface State {
   row: GocharaRow;
@@ -172,4 +173,24 @@ export function gocharaCalendar(
     ? GOCHARA_CALENDAR_NOTES.map((n) => n.replace(", aspects (26.30) and the danger houses (26.33-34).", " and aspects (26.30)."))
     : GOCHARA_CALENDAR_NOTES;
   return { moonSignIndex: moonSign, from: jdToIso(jdStart), to: jdToIso(jdEnd), planets, saturnPassages, notes };
+}
+
+/**
+ * Exact transit aspects (shared/gochara-exact.ts): Jupiter, Saturn, Rahu and Ketu within 1° of an exact conjunction
+ * or aspect to a natal planet, sampled once a day at 12:00 UTC. A modern marker for the practitioner view; it never
+ * changes a verdict or a colour. The natal positions come with the request and are not stored.
+ */
+export function exactPasses(
+  natal: ReadonlyArray<{ planet: Planet; lon: number }>,
+  jdStart: number,
+  jdEnd: number,
+  opts: EphemerisOptions,
+): ExactPass[] {
+  const samples: Array<{ iso: string; hits: ExactHit[] }> = [];
+  const slow = EXACT_TRANSIT_PLANETS as readonly string[];
+  for (let jd = Math.floor(jdStart - 0.5) + 1; jd <= jdEnd; jd += 1) {
+    const pos = positionsLite(jd, opts).filter((p) => slow.includes(p.planet));
+    samples.push({ iso: jdToIso(jd), hits: exactHits(pos, natal) });
+  }
+  return groupExactPasses(samples);
 }

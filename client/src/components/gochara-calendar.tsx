@@ -31,7 +31,15 @@ import {
 import { ownMarksFrom, saturnShortName } from "@shared/gochara";
 import { apiRequest } from "@/lib/queryClient";
 import { PlanetName, SignName } from "@/components/planet-name";
-import { ModeText, SectionTitle } from "@/components/mode-text";
+import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
+import { Working } from "@/components/working";
+import { SourceLink } from "@/components/source-link";
+import {
+  EXACT_LABEL,
+  EXACT_SOURCES,
+  exactPassLabel,
+  type ExactPass,
+} from "@shared/gochara-exact";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -272,6 +280,12 @@ function segmentTitle(
   return parts.join(" · ");
 }
 
+/** One exact pass, for the tick's hover title and the list. */
+function exactTitle(p: ExactPass, zone: string): string {
+  const d = (iso: string) => DateTime.fromISO(iso).setZone(zone).toFormat("d LLL yyyy");
+  return `${exactPassLabel(p)}: within 1° from ${d(p.start)} to ${d(p.end)}, closest ${p.apart.toFixed(2)}° on ${d(p.peak)}. Modern (Choudhry, Impact of Rahu & Ketu, pp. 41-42); it never colours or counts.`;
+}
+
 function Timeline({
   cal,
   zone,
@@ -281,6 +295,9 @@ function Timeline({
   zone: string;
   av: AshtakavargaResult;
 }) {
+  // The modern exact-aspect marker, practitioner view only (shared/gochara-exact.ts).
+  const plain = usePlain();
+  const exact = plain ? [] : (cal.exactPasses ?? []);
   const t0 = DateTime.fromISO(cal.from).toMillis();
   const t1 = DateTime.fromISO(cal.to).toMillis();
   const span = t1 - t0;
@@ -375,6 +392,40 @@ function Timeline({
             </div>
           </Fragment>
         ))}
+        {exact.length > 0 && (
+          <>
+            <div
+              className="flex h-5 items-center text-2xs font-medium text-muted-foreground"
+              title={EXACT_LABEL}
+            >
+              Exact
+            </div>
+            <div
+              className="relative h-5 overflow-hidden rounded-sm bg-muted/20"
+              data-testid="gochara-calendar-exact-row"
+            >
+              {exact.map((p, i) => {
+                const left = x(p.start);
+                const width = Math.max(0.4, x(p.end) - left);
+                return (
+                  <span
+                    key={i}
+                    className="absolute top-1.5 bottom-1.5 rounded-[1px] bg-foreground/55"
+                    style={{ left: `${left}%`, width: `${width}%` }}
+                    title={exactTitle(p, zone)}
+                    data-testid={`gochara-calendar-exact-${i}`}
+                  />
+                );
+              })}
+              {nowX !== null && (
+                <span
+                  className="absolute inset-y-0 w-px bg-foreground/70"
+                  style={{ left: `${nowX}%` }}
+                />
+              )}
+            </div>
+          </>
+        )}
       </div>
       <div className="mt-3 flex flex-wrap gap-3 text-2xs text-muted-foreground">
         {(Object.keys(BAR) as GocharaVerdict[]).map((v) => (
@@ -397,6 +448,13 @@ function Timeline({
           <span className="inline-block h-[2px] w-4 bg-verdict-bad" /> lower
           strip: own Ashtakavarga (Rahu and Ketu: aggregate)
         </span>
+        {exact.length > 0 && (
+          <span className="flex items-center gap-1">
+            <span className="inline-block h-2 w-4 rounded-[1px] bg-foreground/55" />{" "}
+            exact: a slow planet within 1° of an exact conjunction or aspect to
+            a natal planet (modern, Choudhry; never colours)
+          </span>
+        )}
         {nowX !== null && (
           <span className="flex items-center gap-1">
             <span className="inline-block h-2.5 w-px bg-foreground/70" /> today
@@ -533,6 +591,43 @@ function SegmentList({
   );
 }
 
+/** The exact passes as a folded list, for touch screens (practitioner view only). */
+function ExactPassList({ passes, zone }: { passes: ExactPass[]; zone: string }) {
+  const d = (iso: string) => DateTime.fromISO(iso).setZone(zone).toFormat("d LLL yyyy");
+  return (
+    <Working
+      id="gochara-calendar-exact"
+      label={`Show the ${passes.length} exact passes (modern)`}
+      className="mt-2"
+    >
+      <div className="text-xs" data-testid="gochara-calendar-exact-list">
+        <p className="text-muted-foreground">
+          Jupiter, Saturn, Rahu and Ketu within 1° of an exact conjunction or
+          aspect to a natal planet, where the effect is held to be greatest.
+          A modern marker: it never colours a stretch and is not counted. A
+          node's 7th falls on the other node, so it is shown once, as the axis.{" "}
+          {[EXACT_SOURCES.orb, EXACT_SOURCES.aspects, EXACT_SOURCES.rahu].map((x, i) => (
+            <span key={x.label}>
+              {i > 0 && "; "}
+              <SourceLink source={x} mark={false} />
+            </span>
+          ))}
+        </p>
+        <ul className="mt-2 space-y-1">
+          {passes.map((p, i) => (
+            <li key={i} className="tabular" data-testid={`gochara-calendar-exact-item-${i}`}>
+              <span className="text-muted-foreground">
+                {d(p.start)} to {d(p.end)}
+              </span>{" "}
+              {exactPassLabel(p)}, closest {p.apart.toFixed(2)}° on {d(p.peak)}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Working>
+  );
+}
+
 export function GocharaCalendarSection({
   result,
   zone,
@@ -541,6 +636,7 @@ export function GocharaCalendarSection({
   zone: string;
 }) {
   const chart = result.chart;
+  const plain = usePlain();
   const withheld =
     result.sensitive?.withheld ??
     sensitiveGate(chart, result.utc, result.now.asOf).withheld;
@@ -586,6 +682,8 @@ export function GocharaCalendarSection({
           // the danger houses before anything is rendered (it withholds them when no birth instant is sent).
           birthUtc: result.utc,
           deathDate: chart.deathDate ?? null,
+          // The natal positions, for the practitioner's exact-aspect marker only; not stored.
+          natal: result.positions.map((p) => ({ planet: p.planet, lon: p.lon })),
           ayanamsa: chart.ayanamsa,
           nodeType: chart.nodeType === "true" ? "true" : "mean",
         })
@@ -688,6 +786,9 @@ export function GocharaCalendarSection({
         {cal && (
           <>
             <Timeline cal={cal} zone={zone} av={av} />
+            {!plain && (cal.exactPasses?.length ?? 0) > 0 && (
+              <ExactPassList passes={cal.exactPasses!} zone={zone} />
+            )}
 
             {cal.saturnPassages.length > 0 && (
               <div
