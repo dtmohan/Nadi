@@ -1104,7 +1104,12 @@ function antarFacts(
     adv.push(`${ord(fromD)} from the dasa lord ${dasaLord}`);
   if (dig === "Debilitated") adv.push("debilitated");
   else if (dig === "Inimical") adv.push("in an inimical sign");
-  if (c.combust(b)) adv.push("combust");
+  // Combustion is counted once, as in the period lean: when the antar lord is combust and the Sun shares its sign, the
+  // Sun's company is part of that one mark rather than a second. Other malefic companions still count. The ten entries
+  // of chs. 53-60 that name combustion list it beside malefic company; the counting below is the app's own.
+  const combustB = c.combust(b);
+  const sunInMark = combustB && c.withMalefic(b).includes("Sun");
+  if (combustB) adv.push(sunInMark ? "combust, with the Sun" : "combust");
   if (b === "Moon" && c.waning) adv.push("waning");
   if (b !== dasaLord && SEVEN_50.includes(b) && SEVEN_50.includes(dasaLord)) {
     const rel = compoundRelation(
@@ -1122,7 +1127,8 @@ function antarFacts(
         `${rel === "enemy" ? "an enemy" : "a great enemy"} of the dasa lord by natural and temporal relation (50.89)`,
       );
   }
-  if (c.withMalefic(b).length) adv.push(`with ${c.withMalefic(b).join(", ")}`);
+  const maleficCompany = c.withMalefic(b).filter((x) => !(sunInMark && x === "Sun"));
+  if (maleficCompany.length) adv.push(`with ${maleficCompany.join(", ")}`);
   const mk = c.owns(b).filter((x) => x === 2 || x === 7);
   const inMk = (b === "Rahu" || b === "Ketu") && (h === 2 || h === 7);
   const maraka = mk.length

@@ -14,6 +14,10 @@ import { parashariCombust, parashariCombustOrb } from "@shared/vargas";
 import { computeGochara, GOCHARA_CAVEATS } from "@shared/gochara";
 import { gocharaCalendar } from "../server/gochara-calendar";
 import { julianDay, positionsAt } from "../server/ephemeris";
+import { readFileSync } from "node:fs";
+import type { Chart } from "@shared/schema";
+import { computeParashari, DEFAULT_ASPECT_FLOOR } from "@shared/parashari";
+import { computeChart } from "../server/routes";
 
 function P(planet: Planet, lon: number, opts: { retrograde?: boolean; dignity?: Dignity } = {}): PlanetPosition {
   const l = ((lon % 360) + 360) % 360;
@@ -139,4 +143,35 @@ test("T1: the calendar's combust flag follows the transit rule, not the Nadi fla
   const segs = gocharaCalendar(0, jd0, jd1, opts).planets.find((p) => p.planet === "Jupiter")!.segments;
   assert.ok(segs.length > 0);
   assert.ok(segs.every((s) => s.combust));
+});
+
+const FIXTURES: Array<Record<string, unknown> & { name: string }> = JSON.parse(
+  readFileSync("scripts/fixtures/public-figures.json", "utf8"),
+).charts;
+function antarsOf(name: string) {
+  const c0 = FIXTURES.find((c) => c.name === name)!;
+  const r = computeChart({ id: 0, sunriseDef: "edge", parashariHouseMethod: "rashi", timeUncertaintyMin: 0, ...c0 } as unknown as Chart);
+  const par = computeParashari(r.positions, r.jaimini.lagna.lon, r.utc, "2026-10-25T00:00:00Z", r.shadbala, r.dasaStarts, DEFAULT_ASPECT_FLOOR, false, "rashi");
+  return par.dasaReadings.flatMap((d) => d.antars.map((a) => ({ key: `${d.lord}/${a.lord}`, ...a })));
+}
+
+test("C2: in sub-periods, combustion and the Sun's company are one adverse mark", () => {
+  // Indira Gandhi: Mercury is combust and in the Sun's sign. Before, "combust" and "with Sun" were two marks and
+  // capped the Mars/Mercury antar at mixed; as one mark, its four favourable facts carry it.
+  const ig = antarsOf("Indira Gandhi").find((a) => a.key === "Mars/Mercury")!;
+  assert.deepEqual(ig.facts.adverse, ["combust, with the Sun"]);
+  assert.equal(ig.verdict, "support");
+  // Einstein: Saturn combust with the Sun and Mercury; Mercury's malefic company still counts as its own mark.
+  const ae = antarsOf("Albert Einstein").find((a) => a.key === "Mercury/Saturn")!;
+  assert.ok(ae.facts.adverse.includes("combust, with the Sun"));
+  assert.ok(ae.facts.adverse.includes("with Mercury"));
+  assert.equal(ae.verdict, "mixed");
+  // No antar in the public set counts the Sun twice.
+  for (const c of FIXTURES) {
+    for (const a of antarsOf(c.name)) {
+      const combustWithSun = a.facts.adverse.includes("combust, with the Sun");
+      const sunAgain = a.facts.adverse.some((x) => x.startsWith("with ") && x.slice(5).split(", ").includes("Sun"));
+      assert.ok(!(combustWithSun && sunAgain), `${a.key}`);
+    }
+  }
 });
