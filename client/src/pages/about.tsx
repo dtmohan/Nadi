@@ -1650,7 +1650,7 @@ function ParashariMethod() {
           relationships from 3.55-58, and the bands of 7.26-27, while the
           good-varga designations of 6.42-53 count exaltation, moolatrikona, own
           sign and the arudha-lagna angle lords' signs, withheld for a planet
-          combust by the Surya Siddhanta orbs quoted under 7.28-29
+          combust by the Surya Siddhanta orbs (9.6-9)
           (provisional). The spouse is reported from the 7th of the navamsa and
           its lord as 7.1-8 directs, without a verdict the chapter does not
           give. Under the vargas, 7.13-16 is applied per planet: the hora in

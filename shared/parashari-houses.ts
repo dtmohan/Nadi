@@ -311,7 +311,7 @@ export function houseFindings(positions: PlanetPosition[], view: HouseView, lagn
   const l2Aff = combust(l2) ? "combust" : maleficsWith(l2).length ? `with ${list(maleficsWith(l2))}` : null;
   const l11Aff = combust(l11) ? "combust" : maleficsWith(l11).length ? `with ${list(maleficsWith(l11))}` : null;
   if (l2Aff && l11Aff && l2 !== l11) {
-    push("pa-h2-13-7", 2, "Penury from birth", `${l2}, lord of the 2nd, is ${l2Aff} and ${l11}, lord of the 11th, is ${l11Aff}. Parashara speaks of penury from birth when both lords are combust or with malefics. Combustion follows the Surya Siddhanta orbs quoted under 7.28-29.`, "strain", [l2, l11, ...maleficsWith(l2), ...maleficsWith(l11)], S(13, "7"));
+    push("pa-h2-13-7", 2, "Penury from birth", `${l2}, lord of the 2nd, is ${l2Aff} and ${l11}, lord of the 11th, is ${l11Aff}. Parashara speaks of penury from birth when both lords are combust or with malefics. Combustion follows the Surya Siddhanta orbs (9.6-9).`, "strain", [l2, l11, ...maleficsWith(l2), ...maleficsWith(l11)], S(13, "7"));
   }
   // 13.8: loss through the king.
   if (l2Evil && l11Evil && houseOf("Mars") === 11 && houseOf("Rahu") === 2) {

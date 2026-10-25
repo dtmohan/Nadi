@@ -871,7 +871,7 @@ export function computeParashari(
     const evil = Array.from(new Set([lordOf(6), lordOf(8), lordOf(12)])).filter(
       (x) => x !== l1,
     );
-    // 39.20 names fall, inimical signs and combustion; combustion by the Surya Siddhanta orbs quoted under 7.28-29.
+    // 39.20 names fall, inimical signs and combustion; combustion by the Surya Siddhanta orbs (9.6-9).
     const evilCombust = (x: Planet) => parashariCombust(pos(x), pos("Sun").lon);
     const weakEvil = evil.filter(
       (x) => pos(x).dignity === "Debilitated" || pos(x).dignity === "Inimical" || evilCombust(x),
@@ -893,7 +893,7 @@ export function computeParashari(
           )
           .join(
             ", ",
-          )}. Parashara counts the 6th, 8th and 12th lords in fall, inimical signs or combustion under such a lagna lord as a Raja yoga (39.20). Combustion is by the Surya Siddhanta orbs quoted under 7.28-29; he speaks of all three lords, this pass accepts any.`,
+          )}. Parashara counts the 6th, 8th and 12th lords in fall, inimical signs or combustion under such a lagna lord as a Raja yoga (39.20). Combustion is by the Surya Siddhanta orbs (9.6-9); he speaks of all three lords, this pass accepts any.`,
         tone: "support",
         planets: [l1, ...weakEvil],
         source: S(39, "20", undefined, true),

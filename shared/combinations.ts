@@ -8,7 +8,7 @@ import type { ShadbalaBase } from "./shadbala";
 import { parashariCombust } from "./vargas";
 
 export const CONJUNCTIONS_NOTE =
-  "Planetary war (BPHS 27.20): two of Mars to Saturn within one degree; the more northern one wins (Surya Siddhanta convention). The Sun, Moon and nodes do not fight — the Sun combusts, the Moon conjoins (Surya Siddhanta 7.1). Two planets close to the Sun can still be at war: neither 27.20 nor the Surya Siddhanta exempts combust planets. Combustion is by the Surya Siddhanta orbs quoted under BPHS 7.28-29. The lead planet is the one ahead by degree (the Nadi degree-order reading).";
+  "Planetary war (BPHS 27.20): two of Mars to Saturn within one degree; the more northern one wins (Surya Siddhanta convention). The Sun, Moon and nodes do not fight — the Sun combusts, the Moon conjoins (Surya Siddhanta 7.1). Two planets close to the Sun can still be at war: neither 27.20 nor the Surya Siddhanta exempts combust planets. Combustion is by the Surya Siddhanta orbs (9.6-9). The lead planet is the one ahead by degree (the Nadi degree-order reading).";
 
 /** The five tara grahas that wage war; the luminaries and nodes never do. */
 export const FIGHTERS = ["Mars", "Mercury", "Jupiter", "Venus", "Saturn"] as const;
@@ -94,7 +94,7 @@ export function computeCombinations(
       wars: wars.filter(
         (w) => positions.find((p) => p.planet === w.victor)?.signIndex === signIndex,
       ),
-      // Combust by the Surya Siddhanta orbs quoted under BPHS 7.28-29, the Parashari rule (vargas.ts).
+      // Combust by the Surya Siddhanta orbs (9.6-9, combustion.ts), the Parashari rule (vargas.ts).
       combust: ps.filter((p) => sun !== undefined && parashariCombust(p, sun.lon)),
     });
   }

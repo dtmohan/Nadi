@@ -101,7 +101,7 @@ export function rasiDasaReadings(D: number, deps: RasiDasaDeps): RasiReading[] {
   const out: RasiReading[] = [];
   const S = (verse: string, provisional?: boolean) => ({ label: `Parashara 50.${verse}`, url: CH50, provisional });
   const inH = (h: number) => positions.filter((p) => houseFrom(D, p.signIndex) === h);
-  // Combust by the Surya Siddhanta orbs quoted under BPHS 7.28-29 (vargas.ts), not the Nadi 3°20'.
+  // Combust by the Surya Siddhanta orbs (9.6-9, combustion.ts), not the Nadi 3°20'.
   const sunLon = positions.find((p) => p.planet === "Sun")?.lon;
   const burnt = (p: PlanetPosition) => sunLon !== undefined && parashariCombust(p, sunLon);
   const occ = inH(1);

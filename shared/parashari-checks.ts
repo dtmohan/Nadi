@@ -6,8 +6,8 @@ import { houseGloss, withGlossList } from "./house-gloss";
 
 /**
  * The shared checks behind the Parashari cards, read for one planet: house and lordship, dignity,
- * strength against the requirement (27.32-33), combustion by the Surya Siddhanta orbs quoted under
- * 7.28-29, planetary war (27.20), aspects received (26.2-5) and planets in the same sign.
+ * strength against the requirement (27.32-33), combustion by the Surya Siddhanta orbs of
+ * 9.6-9, planetary war (27.20), aspects received (26.2-5) and planets in the same sign.
  *
  * They feed the folded "How this was found" panel on each card. A card's rule is a local check in
  * its own module and its branch-by-branch path is not recorded, so the panel shows these standard
@@ -183,7 +183,7 @@ function combustCheck(p: PlanetPosition, inp: ChecksInput): PlanetCheck | undefi
   return combust
     ? {
         kind: "combust",
-        text: `Combust: ${d.toFixed(1)}° from the Sun, inside the ${orb}° orb${retroOrb} (Surya Siddhanta orbs, quoted under 7.28-29).`,
+        text: `Combust: ${d.toFixed(1)}° from the Sun, inside the ${orb}° orb${retroOrb} (Surya Siddhanta orbs, 9.6-9).`,
         plain: `Combust: ${Math.round(d)} degrees from the Sun, close enough to be overpowered by it.`,
         against: true,
       }

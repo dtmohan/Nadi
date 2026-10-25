@@ -583,7 +583,7 @@ const ASCETIC: Yoga[] = [
       }
       if (!group.length) return false;
       // The strongest (ahead by degree) must not be combust, by the Parashari
-      // (Surya Siddhanta) orbs quoted under 7.28-29, not the Nadi 3°20' field.
+      // (Surya Siddhanta 9.6-9) orbs, not the Nadi 3°20' field.
       const strongest = group.reduce((a, b) =>
         a.degInSign >= b.degInSign ? a : b,
       );

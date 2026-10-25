@@ -63,7 +63,7 @@ function toSegment(row: GocharaRow, start: number, end: number, positions: Plane
     verdict: row.verdict,
     vedhaBy: row.vedhaBy,
     dignity: pos.dignity,
-    combust: pos.combust,
+    combust: row.combust,
     ...(danger ? { danger } : {}),
     ...(row.avNote ? { avGood: true } : {}),
     ...(row.aspectNote

@@ -6,6 +6,7 @@ import { SIGNS, SIGN_LORD, EXALTATION, OWN_SIGNS, PLANETS, type Planet, type Pla
 import { compoundRelation, inMoolatrikona, SEVEN, type Seven, type Compound, type ShadbalaResult } from "./shadbala";
 import { BPHS_URL } from "./parashari-data";
 import { allArudhas } from "./jaimini";
+import { ssCombust, ssCombustOrb } from "./combustion";
 
 export interface VargaSource {
   label: string;
@@ -130,7 +131,7 @@ export interface PlanetVargas {
   vimsopaka?: SchemeScore[];
   /** 6.42-53 classification: good vargas counted over each scheme and the designation earned. */
   designation?: Record<SchemeKey, { good: number; name: string | null }>;
-  /** Combust by the translator's Surya Siddhanta table under 7.28-29; 6.53 says such a planet's good vargas are not to be counted. */
+  /** Combust by the Surya Siddhanta distances (9.6-9, combustion.ts); 6.53 says such a planet's good vargas are not to be counted. */
   combust: boolean;
   /** 6.53: why this planet's divisions are ignored (combust, defeated, weak, in Sayana); empty when they count. */
   excluded?: string[];
@@ -207,26 +208,20 @@ const DESIGNATIONS: Record<SchemeKey, string[]> = {
   shodasa: ["", "", "Bhedaka", "Kusuma", "Nagapushpa", "Kanduka", "Kerala", "Kalpavriksha", "Chandana Vana", "Poornachandra", "Uchchaisrava", "Dhanvantari", "Suryakanta", "Vidruma", "Sakrasimhasana", "Goloka", "Sri Vallabha"],
 };
 
-/** Surya Siddhanta combustion orbs quoted in the translator's note under 7.28-29 (direct, retrograde). */
-const COMBUST_ORB: Partial<Record<Seven, [number, number]>> = {
-  Moon: [12, 12], Mars: [17, 8], Mercury: [14, 12], Jupiter: [11, 11], Venus: [10, 8], Saturn: [16, 16],
-};
-
-/** The Parashari combustion orb for `p` in degrees (direct or retrograde); undefined for the Sun and the nodes. */
+/**
+ * The Parashari combustion orb for `p` in degrees (direct or retrograde): the Surya Siddhanta distances of
+ * combustion.ts. Undefined for the Sun and the nodes.
+ */
 export function parashariCombustOrb(p: PlanetPosition): number | undefined {
-  const o = (SEVEN as readonly string[]).includes(p.planet) ? COMBUST_ORB[p.planet as Seven] : undefined;
-  return o ? o[p.retrograde ? 1 : 0] : undefined;
+  return ssCombustOrb(p);
 }
 
 /**
- * Combust by the Surya Siddhanta orbs of the translator's note under 7.28-29. This is the Parashari
- * rule; the `combust` flag on a position is the Nadi rule of 3°20' (astro.ts) and is not used here.
+ * Combust by the Surya Siddhanta distances (9.6-9, combustion.ts). This is the Parashari rule; the `combust` flag on
+ * a position is the Nadi rule of 3°20' (astro.ts) and is not used here.
  */
 export function parashariCombust(p: PlanetPosition, sunLon: number): boolean {
-  const orb = parashariCombustOrb(p);
-  if (orb === undefined) return false;
-  const d = Math.abs((((p.lon - sunLon) % 360) + 540) % 360 - 180);
-  return d <= orb;
+  return ssCombust(p, sunLon);
 }
 
 function band(total: number): SchemeScore["band"] {
@@ -340,7 +335,7 @@ export function computeVargas(positions: PlanetPosition[], lagnaLon: number, exc
 export const VARGA_CAVEATS = [
   "The divisions follow 6.5-41 as translated. Three mappings are the commentators' rather than the verse's and are marked provisional: the Bhamsa starting sign by element (6.26), the Trimsamsa signs for the lords named in 6.27-28, and the Shashtiamsa counted from the occupied sign (6.33).",
   "Vimsopaka takes the four schemes and weights of 7.17-25 and the varga viswa of 7.24-25 (own 20, great friend 18, friend 15, neutral 10, enemy 7, great enemy 5). Relationships are the compound ones of 3.55-58, the temporary part taken from the rasi positions. The verse keeps the full twenty for the planet's own sign only; exaltation is not given the same standing here, though some readers grant it. Bands are 7.26-27; the eight classes of 7.30-32 (Poorna to Atiswalpa) are named without thresholds and are not applied.",
-  "The designations of 6.42-53 count good vargas: exaltation, moolatrikona, own sign, and the signs of the lords of angles from the arudha lagna (the arudha by the Jaimini rule already in use). 6.53 ignores the divisions of a combust, defeated or weak planet and one \"in bad Avasthas like Sayana\". Combustion is taken by the Surya Siddhanta orbs in the translator's note under 7.28-29; defeat as the loser of a planetary war (27.20); weakness as falling short of the Shadbala requirement of 27.32-33; and of the avasthas only Sayana, the one the verse names. The orbs and the reading of \"weak\" are provisional. Without Shadbala only combustion can be applied.",
+  "The designations of 6.42-53 count good vargas: exaltation, moolatrikona, own sign, and the signs of the lords of angles from the arudha lagna (the arudha by the Jaimini rule already in use). 6.53 ignores the divisions of a combust, defeated or weak planet and one \"in bad Avasthas like Sayana\". Combustion is taken by the Surya Siddhanta distances (9.6-9; the Moon by 10.1), the table the translator's note under 7.28-29 quotes, with Saturn at the Siddhanta's 15° where the note has 16°; defeat as the loser of a planetary war (27.20); weakness as falling short of the Shadbala requirement of 27.32-33; and of the avasthas only Sayana, the one the verse names. The orbs and the reading of \"weak\" are provisional. Without Shadbala only combustion can be applied.",
   "Vargottama (the same sign in rasi and navamsa) is not a term of ch. 6-7; it is Brihat Jataka 1.14 (the first navamsa of a movable sign, the middle of a fixed, the last of a dual, called auspicious there) and is shown as Varahamihira defines it, without a reading.",
   "The spouse reading follows 7.1-8, which assigns the navamsa to the spouse, and the chapter's closing remark that the lord of a bhava is as important as the bhava; how to weigh the 7th of the navamsa is not spelt out, so the panel reports positions and leaves the judgement.",
 ];

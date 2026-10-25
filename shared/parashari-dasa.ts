@@ -36,6 +36,7 @@ import {
 } from "./shadbala";
 import { PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechabhanga";
 import { parashariCombust, parashariCombustOrb, type VargasResult, type SchemeScore } from "./vargas";
+import { SS_NOTE_DIFFERENCE } from "./combustion";
 import { bhavaAnnotation, CHALIT_SOURCES, type ChalitResult } from "./chalit";
 import type { AshtakavargaResult } from "./ashtakavarga";
 
@@ -277,7 +278,7 @@ interface Ctx {
   dignity: (p: Planet) => string;
   strong: (p: Planet) => boolean; // exalted / MT / own
   weak: (p: Planet) => boolean; // debilitated / inimical / combust
-  /** Combust by the Surya Siddhanta orbs quoted under 7.28-29 (vargas.ts), not the Nadi 3°20'. */
+  /** Combust by the Surya Siddhanta orbs (9.6-9, combustion.ts), not the Nadi 3°20'. */
   combust: (p: Planet) => boolean;
   withPlanet: (a: Planet, b: Planet) => boolean; // same sign, a != b
   withAny: (a: Planet, list: Planet[]) => Planet[];
@@ -1251,7 +1252,7 @@ function mantreswaraNotes(c: Ctx, p: Planet): DasaNote[] {
   if (combust) {
     const sun = c.pos("Sun");
     const dist = Math.abs(((((pp.lon - sun.lon) % 360) + 540) % 360) - 180);
-    const test = `Combust by the Surya Siddhanta distances quoted under BPHS 7.28-29: ${dist.toFixed(1)}° from the Sun, within ${parashariCombustOrb(pp)}°${pp.retrograde ? " for a retrograde planet" : ""}. The verses give no distances.`;
+    const test = `Combust by the Surya Siddhanta distances (9.6-9): ${dist.toFixed(1)}° from the Sun, within ${parashariCombustOrb(pp)}°${pp.retrograde ? " for a retrograde planet" : ""}. The verses give no distances.${p === "Saturn" ? ` ${SS_NOTE_DIFFERENCE}` : ""}`;
     const scale = SCALE_20_30[dig]
       ? `On the scale of 20.30, ${p} ${IN_SIGN[dig]} would give ${SCALE_20_30[dig]}; combust, it is read at the debilitation step, with none.`
       : `The scale of 20.30 gives no step for a neutral sign; combust, ${p} is read at the debilitation step, with none.`;

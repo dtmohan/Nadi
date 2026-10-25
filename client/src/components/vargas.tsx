@@ -155,7 +155,7 @@ function VargaRow({
                   >
                     {" "}
                     · {p.excluded.join(", ")}
-                    {p.combust ? " (Surya Siddhanta orbs under 7.28-29)" : ""},
+                    {p.combust ? " (Surya Siddhanta orbs, 9.6-9)" : ""},
                     so 6.53 withholds the designation
                   </span>
                 )}

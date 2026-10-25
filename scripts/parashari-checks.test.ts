@@ -1,7 +1,7 @@
 /**
  * The standard per-planet checks behind the Parashari cards' "How this was found" panel
  * (shared/parashari-checks.ts), and the Parashari tab's combustion rule: the Surya Siddhanta orbs
- * quoted under BPHS 7.28-29 in the stellium list and the Sarvartha context, with the Nadi 3°20'
+ * of 9.6-9 in the stellium list and the Sarvartha context, with the Nadi 3°20'
  * flag on each position left for the Nadi systems.
  */
 import test from "node:test";

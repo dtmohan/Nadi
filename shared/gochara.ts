@@ -9,6 +9,7 @@
 import { redactSensitive } from "./life-stage";
 import { ENEMIES, houseFrom, type Planet, type PlanetPosition } from "./astro";
 import { computeAshtakavarga, type AshtakavargaResult } from "./ashtakavarga";
+import { ssCombust, SS_ORB_TEXT } from "./combustion";
 
 export const BS_URL = "https://www.wisdomlib.org/hinduism/book/brihat-samhita/d/doc229368.html";
 export const PD_URL = "https://www.wisdomlib.org/hinduism/book/phaladeepika-by-mantreswara-text-and-translation/d/doc1621598.html";
@@ -297,6 +298,11 @@ export interface GocharaRow {
   vedhaBy: Planet[];
   vedhaPoint?: number;
   verdict: GocharaVerdict;
+  /**
+   * Combust in transit: within the Surya Siddhanta distance of the transiting Sun (combustion.ts). Chapter 26 gives no
+   * distances, so these are the app's choice and provisional (GOCHARA_CAVEATS). Never set for the Sun or the nodes.
+   */
+  combust: boolean;
   /** Dignity modifier from PD 26.31-32 / BS 104.53, 55. */
   dignityNote?: { text: string; sources: GocharaSource[] };
   /** Full aspects on this planet from the other transiting planets (see FULL_ASPECTS). */
@@ -383,6 +389,7 @@ export function computeGochara(
   opts: GocharaOptions = {},
 ): GocharaReading {
   const bySign = (h: number) => transits.filter((p) => houseFrom(natalMoonSign, p.signIndex) === h).map((p) => p.planet);
+  const sunLon = transits.find((p) => p.planet === "Sun")?.lon;
   const rows: GocharaRow[] = transits.map((p) => {
     const house = houseFrom(natalMoonSign, p.signIndex);
     const favourable = FAVOURABLE[p.planet].includes(house);
@@ -411,14 +418,16 @@ export function computeGochara(
 
     let dignityNote: GocharaRow["dignityNote"];
     const isNode = p.planet === "Rahu" || p.planet === "Ketu";
+    // 26.32's eclipse by the Surya Siddhanta distances from the transiting Sun, not the Nadi flag on the position.
+    const combust = !isNode && sunLon !== undefined && ssCombust(p, sunLon);
     if (!isNode && STRONG.has(p.dignity) && !good) {
       dignityNote = { text: `${p.dignity} in transit: an unfavourable house does no harm (26.31).${SET_ASIDE}`, sources: [PD("31")] };
       verdict = "neutral";
       illVoid = true;
     } else if (!isNode && STRONG.has(p.dignity) && good && !vedhaBy.length) {
       dignityNote = { text: `${p.dignity} in a favourable house: full results (26.31).`, sources: [PD("31")] };
-    } else if (!isNode && (WEAK.has(p.dignity) || p.combust)) {
-      const why = p.combust ? "combust" : p.dignity.toLowerCase();
+    } else if (!isNode && (WEAK.has(p.dignity) || combust)) {
+      const why = combust ? "combust" : p.dignity.toLowerCase();
       if (good) {
         dignityNote = { text: `${why} in transit: the good of this house is void (26.32; BS 104.53).`, sources: [PD("32"), BS("53")] };
         verdict = "neutral";
@@ -426,7 +435,7 @@ export function computeGochara(
       } else {
         dignityNote = { text: `${why} in transit: the ill of this house is aggravated (26.32).`, sources: [PD("32")] };
       }
-      if (p.planet === "Saturn" && p.combust) dignityNote = { text: "Saturn combust does not trouble the righteous (BS 104.55), though 26.32 voids his good results.", sources: [BS("55"), PD("32")] };
+      if (p.planet === "Saturn" && combust) dignityNote = { text: "Saturn combust does not trouble the righteous (BS 104.55), though 26.32 voids his good results.", sources: [BS("55"), PD("32")] };
     }
 
     // PD 26.30: a benefic's aspect voids an ill result, a malefic's voids a good one, and an enemy's voids either; BS 104.53
@@ -465,6 +474,7 @@ export function computeGochara(
       vedhaBy,
       vedhaPoint,
       verdict,
+      combust,
       dignityNote,
       aspects,
       aspectNote,
@@ -535,7 +545,7 @@ export const GOCHARA_CAVEATS: string[] = [
   "Vedha follows Phaladeepika 26.3-8: Saturn does not obstruct the Sun, Mercury does not obstruct the Moon, the Sun does not obstruct Saturn. The nodes are not named as obstructors and their own vedha points are borrowed from the Sun, which is provisional.",
   "Prasna Marga 22.46-51 gives a different Vedha table (the Moon's 3rd/10th and Mercury's 4th pair differently, Venus and the nodes diverge, and the nodes take Saturn's points); the Prasna Marga tab shows that table, and the two are kept apart rather than reconciled.",
   "Rahu and Ketu are absent from Brihat Samhita 104; Phaladeepika 26.2 treats them like the Sun and 26.24 gives Rahu's house results. Ketu's row repeats Rahu's and is provisional.",
-  "Dignity here is the sidereal sign dignity and the Nadi combustion orb (3°20'); Phaladeepika 26.32 speaks of depression, inimical houses and eclipse without giving an orb.",
+  `Dignity here is the sidereal sign dignity. Combustion, the eclipse (maudhya) of 26.32, is measured by the Surya Siddhanta distances (9.6-9, and 10.1 for the Moon): ${SS_ORB_TEXT} from the transiting Sun. Chapter 26 gives no distances, so these are the app's choice and provisional; they are the distances the period rules use (Phaladeepika 20.30, 20.57), while BNN keeps its own 3°20'. The relief of 20.57 stays a period rule: no verse extends it to transits.`,
   "Effective portions of the sign (Brihat Samhita 104.49-51; Phaladeepika 26.25) differ between the two texts and are shown, not applied to the verdict.",
   "Aspects follow Phaladeepika 26.30: a planet giving ill results that is aspected by a benefic, or one giving good results that is aspected by a malefic, gives neither, and the same holds when the aspect comes from the planet's enemy; Brihat Samhita 104.53 agrees that an enemy's aspect spoils the good. The verse does not say which planets aspect or how, so these choices are provisional: the aspecting planets are the other planets in transit (as with vedha), only full aspects count (the 7th for all; Mars also the 4th and 8th, Jupiter the 5th and 9th, Saturn the 3rd and 10th), sign to sign, and the nodes cast none. Benefic and malefic follow Phaladeepika's own list in its Sarvatobhadra notes (ch. 26); enemies follow the natural friendships of the seven planets, so for Rahu and Ketu as the aspected planet only the benefic and malefic part applies (the node rows of the friendship table follow the Nadi convention). Brihat Samhita 104.52 on a benefic and a malefic together in one sign is not applied.",
   "The order of the rules is a reading, not stated in either text: the house from the Moon, then the Ashtakavarga rule (26.41), vedha, dignity (26.31-32) and last the aspect. Where dignity has already decided the house, the aspect is not applied. Where a rule voids the ill of a house (26.31, 26.30 or 26.41), the danger reading of 26.33-34 is set aside with it; that too is a reading.",

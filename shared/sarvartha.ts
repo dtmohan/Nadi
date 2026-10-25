@@ -782,7 +782,7 @@ export function buildSarvarthaContext(positions: PlanetPosition[], lagnaLon: num
   const isTrine = (h: number) => [1, 5, 9].includes(h);
   const isBad = (h: number) => [6, 8, 12].includes(h);
   // The text gives no orbs of its own; the Parashari tab's rule applies, the Surya Siddhanta orbs
-  // quoted under BPHS 7.28-29 (vargas.ts).
+  // of 9.6-9 (combustion.ts).
   const combust = (p: Planet): boolean => parashariCombust(pos(p), pos("Sun").lon);
   const strong = (p: Planet): boolean => {
     const pp = pos(p);
