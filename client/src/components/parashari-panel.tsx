@@ -118,6 +118,7 @@ import {
   LEAN_PILL,
   finePeriodsOf,
   leanWithCounts,
+  PHALADEEPIKA_CH20_URL,
   type LeanStep,
   type DasaReading,
   type AntarReading,
@@ -178,12 +179,26 @@ import { computeCombinations, CONJUNCTIONS_NOTE } from "@shared/combinations";
 import { computeYogas, gateYogas, YOGA_CATEGORY_LABEL, YOGA_NOTE } from "@shared/yoga";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { PlanetName, SignName, planetColor } from "@/components/planet-name";
-import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
+import { LifeTimeline, type TlBand, type TlWindow } from "@/components/life-timeline";
 import {
   avTransitBand,
   eventMarks,
+  periodLordBand,
   vimshottariBands,
 } from "@/lib/timeline-data";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import {
+  dasaLordStrip,
+  decodePeriodTransits,
+  periodLordSpans,
+  subLordStrip,
+  PERIOD_LORD_STRIPS_NOTE,
+  PERIOD_LORD_STRIPS_NOTE_PLAIN,
+  PHALADIPIKA_CH20_VEDICPUPIL_URL,
+  type NatalCondition,
+  type PeriodTransitsWire,
+} from "@shared/period-lord-transits";
 import { SourceLink, Cite } from "@/components/source-link";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -227,6 +242,7 @@ import {
 } from "@shared/combustion-modern";
 import {
   antarSignifications,
+  dasaCondition,
   dasaSignifications,
   PERIOD_SIGNIFICATIONS_NOT_COUNTED,
   type PeriodSignificationOptions,
@@ -1124,6 +1140,38 @@ export function ParashariPanel({
 
   // Shared timeline: the dasas, the bhuktis tinted by their antar verdicts, Saturn's and Jupiter's passages
   // by their Ashtakavarga tone, each dasa's lean as a tinted row, and the recorded events.
+  // Period lords in transit (Phaladeepika 20.34-38, 20.59): the server walks each period's lord over its period and
+  // the rules are read here, beside the period's tone; nothing is stored and no verdict changes.
+  const lordSpans = useMemo(
+    () => periodLordSpans(r.vimshottari, result.utc),
+    [r.vimshottari, result.utc],
+  );
+  const lordTransits = useQuery({
+    queryKey: [
+      "period-transits",
+      chart.ayanamsa,
+      chart.nodeType,
+      result.utc,
+      lordSpans.map((s) => `${s.planet}${s.start}`).join("|"),
+    ],
+    enabled: lordSpans.length > 0,
+    staleTime: 30 * 60 * 1000,
+    queryFn: async () =>
+      decodePeriodTransits(
+        (await (
+          await apiRequest("POST", "/api/period-transits", {
+            spans: lordSpans.map((s) => ({
+              planet: s.planet,
+              start: s.start,
+              end: s.end,
+            })),
+            sun: true,
+            ayanamsa: chart.ayanamsa,
+            nodeType: chart.nodeType === "true" ? "true" : "mean",
+          })
+        ).json()) as PeriodTransitsWire,
+      ),
+  });
   const tlBands = useMemo(() => {
     const antarOf = new Map<string, AntarReading>();
     const dasaOf = new Map<string, DasaReading>();
@@ -1134,8 +1182,60 @@ export function ParashariPanel({
     // Each period's matters, as the Timing chapter's line gives them (47.2; Phaladeepika 21.1), with the same holds for
     // a minor: display only, so they change no colour.
     const kwOpts: PeriodSignificationOptions = { birthIso: result.utc, asOfIso, withheld };
+    // The period lords' own transits, as thin strips under the Dasa and Bhukti bands once the server has walked them.
+    const strips = new Map<string, TlBand>();
+    const pt = lordTransits.data;
+    if (pt) {
+      const natalOf = (lord: Planet): NatalCondition | undefined => {
+        const d = r.dasaReadings.find((x) => x.lord === lord);
+        return d ? dasaCondition(d, result.positions).condition : undefined;
+      };
+      strips.set(
+        "dasa",
+        periodLordBand(
+          dasaLordStrip(lordSpans, pt, {
+            dasas: r.vimshottari.dasas,
+            lagnaSign: r.lagna.signIndex,
+            natalOf,
+            birthIso: result.utc,
+            asOfIso,
+            plain,
+          }),
+          {
+            id: "dasa-transit",
+            label: "Transit",
+            readoutLabel: plain ? "Main-period planet in the sky" : "Dasa lord in transit",
+            plain,
+          },
+        ),
+      );
+      strips.set(
+        "bhukti",
+        periodLordBand(
+          subLordStrip(lordSpans, pt, {
+            bhuktis: r.vimshottari.bhuktis,
+            verdictOf: (b) => antarOf.get(`${b.dasaLord}|${b.lord}|${b.start}`)?.verdict,
+            jupiter: result.transits.filter((t) => t.planet === "Jupiter"),
+            birthIso: result.utc,
+            asOfIso,
+            plain,
+          }),
+          {
+            id: "bhukti-transit",
+            label: "Transit",
+            readoutLabel: plain ? "Sub-period planet in the sky" : "Bhukti lord in transit",
+            plain,
+          },
+        ),
+      );
+    }
+    const withStrips = (bands: TlBand[]) =>
+      bands.flatMap((b) => {
+        const st = strips.get(b.id);
+        return st ? [b, st] : [b];
+      });
     return [
-      ...vimshottariBands(r.vimshottari, {
+      ...withStrips(vimshottariBands(r.vimshottari, {
         plain,
         bhuktiVerdict: (b) => {
           const a = antarOf.get(
@@ -1157,11 +1257,11 @@ export function ParashariPanel({
           const k = antarSignifications(b.dasaLord, a, kwOpts);
           return plain ? k.timelinePlain : k.timeline;
         },
-      }),
+      })),
       avTransitBand(avTimelineShown.saturn, "Saturn", plain),
       avTransitBand(avTimelineShown.jupiter, "Jupiter", plain),
     ];
-  }, [r.vimshottari, r.dasaReadings, avTimelineShown, plain, result.utc, result.positions, asOfIso, withheld]);
+  }, [r.vimshottari, r.dasaReadings, r.lagna.signIndex, avTimelineShown, plain, result.utc, result.positions, result.transits, asOfIso, withheld, lordSpans, lordTransits.data]);
   const tlWindows = useMemo<TlWindow[]>(
     () =>
       r.dasaReadings.map((d) => {
@@ -2042,8 +2142,8 @@ export function ParashariPanel({
                 marks={tlMarks}
                 mattersNote={
                   plain
-                    ? "These matters are shown for context, not counted, and change no colour."
-                    : `Significations shown, not counted: ${PERIOD_SIGNIFICATIONS_NOT_COUNTED.charAt(0).toLowerCase()}${PERIOD_SIGNIFICATIONS_NOT_COUNTED.slice(1)} They change no colour.`
+                    ? "These lines are shown for context and are not counted. They leave each period's own colour as it is."
+                    : `Significations shown, not counted: ${PERIOD_SIGNIFICATIONS_NOT_COUNTED.charAt(0).toLowerCase()}${PERIOD_SIGNIFICATIONS_NOT_COUNTED.slice(1)} They change no colour. Transit-row lines colour their own row only and are not counted.`
                 }
               />
               <p className="mt-1 text-xs text-muted-foreground">
@@ -2051,6 +2151,39 @@ export function ParashariPanel({
                   ? "The Verdict row tints each period by how the text's lines for its planet weigh up in this chart: deep green when the favourable lines outnumber the trying ones three to one or more, lighter green when they lead three to two, amber when neither side leads, and the same in red the other way. Counting the lines is the app's own way of reading which side is stronger, so it is provisional. The Bhukti row of sub-periods is tinted by what the text says of each one, and the Saturn and Jupiter rows by the points each sign carries for them (Ashtakavarga). The transit rows are drawn for comparison and do not change the period's tone."
                   : "Verdict row: each dasa's lean from the tones of its lines (ch. 47-50 with the strength and Ashtakavarga lines): favourable or trying at three to one or more, leaning at three to two or more, balanced in between; fewer than three decisive lines can lean but not decide (28.1, 28.11-12; counting rule an app convention, provisional). Bhukti row: the antar verdict from ch. 52-60. Saturn and Jupiter rows: the joint tone of each sign passage by the planet's own Ashtakavarga and the aggregate (66.70-72, 72.3-5), as in the Transits section; the chapter-70 points are not drawn. The transit rows do not feed the dasa verdict."}
               </p>
+              {lordTransits.data && (
+                <p
+                  className="mt-1 text-xs text-muted-foreground"
+                  data-testid="parashari-timeline-transit-note"
+                >
+                  {plain ? PERIOD_LORD_STRIPS_NOTE_PLAIN : PERIOD_LORD_STRIPS_NOTE}
+                  {!plain && (
+                    <>
+                      {" "}Editions compared:{" "}
+                      <SourceLink
+                        source={{ label: "wisdomlib", url: PHALADEEPIKA_CH20_URL }}
+                        mark={false}
+                      />
+                      {" and "}
+                      <SourceLink
+                        source={{ label: "vedicpupil", url: PHALADIPIKA_CH20_VEDICPUPIL_URL }}
+                        mark={false}
+                      />
+                      .
+                    </>
+                  )}
+                </p>
+              )}
+              {lordTransits.isError && (
+                <p
+                  className="mt-1 text-xs text-muted-foreground"
+                  data-testid="parashari-timeline-transit-error"
+                >
+                  {plain
+                    ? "The rows that follow each period's planet through the sky could not be drawn just now."
+                    : "The period-lord transit rows (Phaladeepika 20.34-38, 20.59) could not be drawn: the ephemeris request failed."}
+                </p>
+              )}
               <Table className="mt-3" data-testid="parashari-dashas" cards>
                 <TableHeader>
                   <TableRow>

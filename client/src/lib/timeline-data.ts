@@ -7,6 +7,7 @@ import type { AvTransitRow } from "@shared/av-transit";
 import { LIFE_AREAS, type LifeArea } from "@shared/rules";
 import { areaTouches, type AreaTouch, type TransitReading } from "@shared/timing";
 import { AREA_ONSET, dateAtAge } from "@shared/life-stage";
+import type { Strip, StripState } from "@shared/period-lord-transits";
 import { elementColor, planetColor } from "@/components/planet-name";
 import { markTone, type TlBand, type TlMark, type TlRow, type TlWindow } from "@/components/life-timeline";
 
@@ -95,6 +96,40 @@ export function vimshottariBands(
     });
   }
   return out;
+}
+
+/** Blank stretches of a period-lord strip: a faint neutral, so the readout can still say what is there. */
+const STRIP_NONE = "hsl(var(--muted-foreground) / 0.18)";
+const STRIP_FILL: Record<Exclude<StripState, "none">, Verdict3> = { good: "support", mixed: "mixed", hard: "strain" };
+
+/**
+ * A period lord's own transit as a thin strip under its period band (Phaladeepika 20.34-38, 20.59; shared/
+ * period-lord-transits.ts): good, mixed and hard in the verdict colours (hard drawn pale in the plain reading),
+ * blank stretches faint, and the neutral marks along the lower edge. Shown beside the period's tone; changes none.
+ */
+export function periodLordBand(
+  strip: Strip,
+  opts: { id: string; label: string; readoutLabel: string; plain?: boolean },
+): TlBand {
+  return {
+    id: opts.id,
+    label: opts.label,
+    readoutLabel: opts.readoutLabel,
+    thin: true,
+    segments: strip.pieces.map((p) => ({
+      start: p.start,
+      end: p.end,
+      label: p.label,
+      short: p.short,
+      color: p.state === "none" ? STRIP_NONE : verdictFill(STRIP_FILL[p.state], opts.plain),
+      ink: p.state === "none" || (p.state === "hard" && opts.plain) ? ("fg" as const) : undefined,
+      current: p.current,
+      readout: p.readout,
+      title: `${p.title} · ${fmt(p.start)} to ${fmt(p.end)}`,
+      matters: p.matters,
+    })),
+    ticks: strip.marks.map((m) => ({ start: m.start, end: m.end, readout: m.readout, title: m.title })),
+  };
 }
 
 /** Chara mahadashas and, as a thin band beneath, their antardashas; coloured by the sign's element. */

@@ -156,6 +156,16 @@ function siderealLon(
   return { lon: norm360(r.data[0]), speed: r.data[3] };
 }
 
+/** A planet's sidereal longitude and daily speed at a Julian day; Ketu is Rahu plus six signs. */
+export function planetLonAt(
+  planet: Planet,
+  jd: number,
+  opts: EphemerisOptions,
+): { lon: number; speed: number } {
+  const r = siderealLon(jd, BODY[planet], opts);
+  return planet === "Ketu" ? { lon: norm360(r.lon + 180), speed: r.speed } : r;
+}
+
 /** Sidereal Sun at each day (12:00 UT) from jdStart to jdEnd inclusive. */
 export function sunPath(
   jdStart: number,

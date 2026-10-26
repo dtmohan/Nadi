@@ -16,6 +16,7 @@ import type { AgreementInput } from "./agreement";
 import { heldAreasAt, lifeAsOf, redactSensitive } from "./life-stage";
 import { DEFAULT_ASPECT_FLOOR } from "./parashari";
 import { dasaCombinations, timingNow, levelName, type DasaCombinations, type TimingChange, type TimingNow } from "./timing-now";
+import { moonFromDasaLord } from "./period-lord-transits";
 import { computeSudarshana } from "./sudarshana";
 import { computeAvTimeline, type AvTimeline, type AvTransitRow } from "./av-transit";
 import { topicPeriods, type PeriodTopic } from "./parashari-topic-periods";
@@ -517,6 +518,24 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
       tags: tagsFor({ lord: p.lord }, lagnaSign, held),
       link: periodLink,
     });
+  }
+  // Phaladeepika 20.36 with 20.60-61: the Moon today, counted from the dasa lord's own transit position. Display
+  // only, and read at the reading instant, so there is no such line for a recorded passing.
+  if (tn.dasa && !past) {
+    const t = moonFromDasaLord(tn.dasa.lord, result.now.positions, positions, plain);
+    if (t)
+      now.push({
+        id: "pa-moon-today",
+        group: "now",
+        start: asOf,
+        when: day(asOf, zone),
+        system: "Parashari",
+        what: t.what,
+        line: t.line,
+        detail: plain ? undefined : t.detail,
+        tags: [],
+        link: periodLink,
+      });
   }
   if (tn.year) {
     const y = tn.year;

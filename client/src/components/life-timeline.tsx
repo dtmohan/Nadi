@@ -29,6 +29,16 @@ export interface TlSegment {
   matters?: string;
 }
 
+/** A neutral mark along a band's lower edge: a stretch the band's own rule singles out, shown and not counted. */
+export interface TlTick {
+  start: string;
+  end: string;
+  /** Short, appended to the band's readout when the read date falls in it. */
+  readout: string;
+  /** Longer, written with the band's matters under the readout. */
+  title?: string;
+}
+
 /** A horizontal band of consecutive periods. */
 export interface TlBand {
   id: string;
@@ -36,6 +46,10 @@ export interface TlBand {
   segments: TlSegment[];
   /** Half height, for sub-periods under a main band. */
   thin?: boolean;
+  /** The name in the readout under the chart, when the gutter label is too short to say it. */
+  readoutLabel?: string;
+  /** Neutral marks drawn along the band's lower edge. */
+  ticks?: TlTick[];
 }
 
 /** A dated life event, drawn as a dot above the bands. */
@@ -308,7 +322,10 @@ export function LifeTimeline({
       const seg = b.segments.find(
         (s) => readT >= ms(s.start) && readT < ms(s.end),
       );
-      return { band: b, seg };
+      const ticksHere = (b.ticks ?? []).filter(
+        (k) => readT >= ms(k.start) && readT < ms(k.end),
+      );
+      return { band: b, seg, ticksHere };
     });
     const marksHere =
       hasMarks && hoverT !== null
@@ -649,6 +666,25 @@ export function LifeTimeline({
                         </g>
                       );
                     })}
+                    {b.ticks?.map((k, j) => {
+                      const a = ms(k.start);
+                      const e = ms(k.end);
+                      if (!visible(a, e)) return null;
+                      const x0 = x(Math.max(a, t0));
+                      const x1 = x(Math.min(e, t1));
+                      return (
+                        <rect
+                          key={`tick-${j}`}
+                          x={x0}
+                          y={top + h - 3}
+                          width={Math.max(1.5, x1 - x0)}
+                          height={3}
+                          fill="hsl(var(--foreground) / 0.6)"
+                          className="pointer-events-none"
+                          data-testid={`${testid}-tick-${b.id}`}
+                        />
+                      );
+                    })}
                   </g>
                 );
               })}
@@ -831,10 +867,11 @@ export function LifeTimeline({
               : `· age ${Math.floor(readout.age)}`}
           </span>
         </span>
-        {readout.lines.map(({ band, seg }) => (
+        {readout.lines.map(({ band, seg, ticksHere }) => (
           <span
             key={band.id}
             className="inline-flex items-center gap-1.5 whitespace-nowrap"
+            data-testid={`${testid}-readout-band-${band.id}`}
           >
             {seg ? (
               <span
@@ -843,8 +880,12 @@ export function LifeTimeline({
                 style={{ backgroundColor: seg.color }}
               />
             ) : null}
-            <span className="text-muted-foreground">{band.label}</span>{" "}
+            <span className="text-muted-foreground">
+              {band.readoutLabel ?? band.label}
+            </span>{" "}
             {seg ? (seg.readout ?? seg.label) : "—"}
+            {ticksHere.length > 0 &&
+              ` · ${ticksHere.map((k) => k.readout).join(" · ")}`}
           </span>
         ))}
         {readout.windowsHere.slice(0, 4).map((w, i) => (
@@ -893,18 +934,24 @@ export function LifeTimeline({
           ))}
       </div>
       {/* The periods' matters at the read date: wrapped under the readout, outside the live region. */}
-      {readout.lines.some(({ seg }) => seg?.matters) && (
+      {readout.lines.some(
+        ({ seg, ticksHere }) =>
+          seg?.matters || ticksHere.some((k) => k.title),
+      ) && (
         <div
           className="mt-1 space-y-0.5 text-xs text-muted-foreground"
           data-testid={`${testid}-readout-matters`}
         >
-          {readout.lines.map(({ band, seg }) =>
-            seg?.matters ? (
+          {readout.lines.map(({ band, seg, ticksHere }) => {
+            const text = [seg?.matters, ...ticksHere.map((k) => k.title)]
+              .filter(Boolean)
+              .join(" ");
+            return text ? (
               <p key={band.id} data-testid={`${testid}-readout-matters-${band.id}`}>
-                {seg.matters}
+                {text}
               </p>
-            ) : null,
-          )}
+            ) : null;
+          })}
           {mattersNote && <p className="opacity-80">{mattersNote}</p>}
         </div>
       )}

@@ -50,6 +50,7 @@ import {
 } from "@shared/report";
 import { RECTIFY_METHODS, type RectifyMethod } from "@shared/rectify-methods";
 import { gocharaCalendar, calendarWithhold, exactPasses } from "./gochara-calendar";
+import { periodTransits, periodTransitsSchema } from "./period-transits";
 import type { Planet } from "@shared/astro";
 import type { OwnMarks } from "@shared/gochara";
 import { fatherArishtaWindows } from "./arishta";
@@ -489,6 +490,19 @@ export async function registerRoutes(
           ? { ...cal, exactPasses: exactPasses(natal.data as Array<{ planet: Planet; lon: number }>, jdStart, jdEnd, { ayanamsa, nodeType }) }
           : cal,
       );
+    } catch (e: any) {
+      res.status(400).json({ message: e.message });
+    }
+  });
+
+  // Period lords in transit (Phaladeepika 20.34-38, 20.59): the lord's sign, retrograde motion and combustion over
+  // each period the client sends, and the Sun's sign stretches. The rules are read in the client; nothing is stored.
+  app.post("/api/period-transits", (req, res) => {
+    const parsed = periodTransitsSchema.safeParse(req.body ?? {});
+    if (!parsed.success)
+      return res.status(400).json({ message: "spans must list up to 240 periods, each a planet with ISO start and end instants" });
+    try {
+      res.json(periodTransits(parsed.data));
     } catch (e: any) {
       res.status(400).json({ message: e.message });
     }
