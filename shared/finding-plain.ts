@@ -588,11 +588,11 @@ const PREFIX: [string, Make][] = [
       const pl = suffix(f.id);
       return /not cancelled/.test(f.title)
         ? E(
-            `${pl} is in its sign of fall, and none of the reliefs Mantreswara names applies, so the weakness stands.`,
+            `${pl} is in its sign of fall, and none of the reliefs the classical texts name applies, so the weakness stands.`,
             "the weakness stands",
           )
         : E(
-            `${pl} is in its sign of fall, but a relief Mantreswara names applies, and he promises standing and means instead.`,
+            `${pl} is in its sign of fall, but a relief the classical texts name applies, and they promise standing and means instead.`,
             "standing despite a fall",
           );
     },

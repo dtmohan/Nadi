@@ -8,6 +8,7 @@ import { BPHS_URL } from "./parashari-data";
 import { argalaOn } from "./jaimini";
 import { parashariCombust } from "./vargas";
 import { listJoin, thePlanet, withGlossList } from "./house-gloss";
+import type { DebilityCancelled } from "./neechabhanga";
 
 const CH50 = BPHS_URL(50);
 const CH64 = BPHS_URL(64);
@@ -20,6 +21,8 @@ export interface RasiReading {
   text: string;
   source: { label: string; url: string; provisional?: boolean };
   tone: "support" | "strain" | "mixed";
+  /** The reading states a debility that a classical rule cancels (shown beside it, not counted). */
+  debilityCancelled?: DebilityCancelled;
 }
 
 /**
@@ -88,6 +91,8 @@ export interface RasiDasaDeps {
   brightMoon?: boolean;
   /** Sarvashtakavarga rekhas by sign, for the sub-period rule of 50.93-94. */
   sarva?: number[];
+  /** The cancellation linked to a line that states a cancelled debility (shared/neechabhanga.ts), display only. */
+  debilityLink?: (text: string) => DebilityCancelled | undefined;
 }
 
 const ord = (n: number) => `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
@@ -254,6 +259,11 @@ export function rasiDasaReadings(D: number, deps: RasiDasaDeps): RasiReading[] {
 
   // 50.88 when in the dasa the results come, by how the sign rises.
   const r = RISING[D];
+  if (deps.debilityLink)
+    for (const rd of out) {
+      const c = rd.tone !== "support" ? deps.debilityLink(rd.text) : undefined;
+      if (c) rd.debilityCancelled = c;
+    }
   out.push({ label: "When within the dasa", text: `${SIGNS[D]} rises ${r === "head" ? "by the head (Sirshodaya)" : r === "hind" ? "by the hind part (Prishthodaya)" : "by both (Ubhayodaya)"} in Parashara's description of the signs (ch. 4), so by 50.88 its results come ${r === "head" ? "early in the dasa" : r === "hind" ? "towards its end" : "in its middle"}. The verse speaks of planets in such signs; applying it to the dasa sign itself is a reading${D === 7 ? ", and Scorpio's rising is inferred from its day strength, the translation not stating it" : D === 8 ? "; the translation gives Sagittarius as rising by the head, against the usual lists" : ""}.`, source: S("88", true), tone: "mixed" });
   return out;
 }
@@ -262,6 +272,8 @@ export interface RasiAntarNote {
   text: string;
   tone: "support" | "strain" | "mixed";
   source: { label: string; url: string; provisional?: boolean };
+  /** The note states a debility that a classical rule cancels (shown beside it, not counted). */
+  debilityCancelled?: DebilityCancelled;
 }
 
 /**
@@ -292,7 +304,8 @@ export function rasiAntarNote(D: number, sub: number, deps: RasiDasaDeps): RasiA
   if (!fav.length && !adv.length) return undefined;
   const tone = fav.length && !adv.length ? "support" : adv.length && !fav.length ? "strain" : "mixed";
   const text = `${SIGNS[sub]} sub-period. ${fav.length ? `For it: ${fav.join("; ")}.` : ""}${fav.length && adv.length ? " " : ""}${adv.length ? `Against it: ${adv.join("; ")}.` : ""}`;
-  return { text, tone, source: { label: "Parashara 50.90-96", url: CH50, provisional: true } };
+  const c = tone !== "support" ? deps.debilityLink?.(text) : undefined;
+  return { text, tone, source: { label: "Parashara 50.90-96", url: CH50, provisional: true }, ...(c ? { debilityCancelled: c } : {}) };
 }
 
 export const RASI_DASA_CAVEATS: string[] = [

@@ -3,6 +3,7 @@ import { PARASHARI_HOUSE_METHOD_LABEL, type HouseView } from "./house-view";
 import type { ShadbalaResult } from "./shadbala";
 import { parashariCombust, parashariCombustOrb } from "./vargas";
 import { houseGloss, withGlossList } from "./house-gloss";
+import { cancellationNote, type NeechaBhanga } from "./neechabhanga";
 
 /**
  * The shared checks behind the Parashari cards, read for one planet: house and lordship, dignity,
@@ -41,6 +42,8 @@ export interface ChecksInput {
   /** Minimum aspect counted by the rules: 4 full only, 2 half or more, 1 any. */
   aspectFloor: 1 | 2 | 4;
   shadbala?: ShadbalaResult;
+  /** Neechabhanga results: a cancelled debility is named beside the dignity check (display only). */
+  neecha?: NeechaBhanga[];
 }
 
 const ORDER: Planet[] = [
@@ -122,9 +125,12 @@ const DIGNITY_TEXT: Record<string, { text: string; plain: string; against?: bool
   },
 };
 
-function dignityCheck(p: PlanetPosition): PlanetCheck | undefined {
+function dignityCheck(p: PlanetPosition, inp: ChecksInput): PlanetCheck | undefined {
   const d = DIGNITY_TEXT[p.dignity];
   if (!d) return undefined;
+  // A debility cancelled by Phaladeepika 7.26-29 or Jataka Parijata 7.13-14, 7.20: named, still counted against.
+  const c = p.dignity === "Debilitated" ? cancellationNote((inp.neecha ?? []).filter((nb) => nb.planet === p.planet)) : undefined;
+  if (c) return { kind: "dignity", text: `Debilitated (${c.tag}).`, plain: `${d.plain} ${c.plain}`, against: d.against };
   return { kind: "dignity", text: d.text, plain: d.plain, against: d.against };
 }
 
@@ -266,7 +272,7 @@ export function planetChecks(planet: Planet, inp: ChecksInput): PlanetCheck[] {
   if (!p) return [];
   return [
     placeCheck(p, inp),
-    dignityCheck(p),
+    dignityCheck(p, inp),
     strengthCheck(p, inp),
     combustCheck(p, inp),
     warCheck(p, inp),

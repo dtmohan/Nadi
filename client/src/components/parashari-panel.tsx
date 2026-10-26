@@ -63,7 +63,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PHALADEEPIKA_CH7_URL } from "@shared/neechabhanga";
+import {
+  JATAKA_PARIJATA_CH7_URL,
+  PHALADEEPIKA_CH7_URL,
+  type DebilityCancelled,
+} from "@shared/neechabhanga";
 import {
   HOUSE_MATTERS,
   HOUSE_MATTERS_SOURCE,
@@ -382,6 +386,30 @@ function FoundPanel({ f }: { f: ParashariFinding }) {
   );
 }
 
+/**
+ * N1: beside a line that states a debility a classical rule cancels (Phaladeepika 7.26-29, Jataka Parijata
+ * 7.13-14, 7.20). Both views; the line keeps its wording and the counts are unchanged.
+ */
+function DebilityCancelledNote({
+  c,
+  testid,
+  className,
+}: {
+  c: DebilityCancelled;
+  testid: string;
+  className?: string;
+}) {
+  const plain = usePlain();
+  return (
+    <span
+      className={cn("mt-1 block text-xs text-muted-foreground", className)}
+      data-testid={testid}
+    >
+      <Soft>{plain ? c.plain : c.text}</Soft>
+    </span>
+  );
+}
+
 function Finding({ f }: { f: ParashariFinding }) {
   const tr = useContext(TimeRestCtx);
   const plain = usePlain();
@@ -461,6 +489,20 @@ function Finding({ f }: { f: ParashariFinding }) {
           <Soft>{plain && f.textPlain ? f.textPlain : f.text}</Soft>
         </p>
       )}
+      {!f.nullified && !plain && f.detail && (
+        <p
+          className="mt-1 text-xs text-muted-foreground"
+          data-testid={`parashari-finding-detail-${f.id}`}
+        >
+          {f.detail}
+        </p>
+      )}
+      {!f.nullified && f.debilityCancelled && (
+        <DebilityCancelledNote
+          c={f.debilityCancelled}
+          testid={`parashari-finding-debility-cancelled-${f.id}`}
+        />
+      )}
       {rest && (
         <p
           className={cn(
@@ -474,6 +516,12 @@ function Finding({ f }: { f: ParashariFinding }) {
       )}
       <p className="mt-1 text-xs text-muted-foreground">
         <SourceLink source={f.source} mark={false} />
+        {f.sourceAlso && (
+          <>
+            {"; "}
+            <SourceLink source={f.sourceAlso} mark={false} />
+          </>
+        )}
       </p>
       <FoundPanel f={f} />
     </div>
@@ -1301,9 +1349,15 @@ export function ParashariPanel({
                 Mantreswara's table of each planet in each house.
                 Cancellation of debilitation follows{" "}
                 <Cite href={PHALADEEPIKA_CH7_URL}>Phaladeepika 7.26-30</Cite>{" "}
-                (Subrahmanya Sastri translation), since Parashara's verses do
-                not state it; later-practice conditions are shown provisional
-                and not applied. First pass.
+                (Subrahmanya Sastri translation) and{" "}
+                <Cite href={JATAKA_PARIJATA_CH7_URL}>
+                  Jataka Parijata 7.13, 7.14 and 7.20
+                </Cite>{" "}
+                (vedicpupil edition), with Vaidyanatha's 7.55 applied to his own
+                conditions only, since Parashara's verses do not state it. A
+                line that states a cancelled debility names the cancellation
+                beside it; the counts are unchanged. Later-practice conditions
+                are shown provisional and not applied. First pass.
               </>
             }
           />
@@ -2093,6 +2147,7 @@ export function ParashariPanel({
                 asOfIso={asOfIso}
                 withheld={withheld}
                 positions={result.positions}
+                sunCancelled={r.neechaBhanga.find((n) => n.planet === "Sun" && n.cancelled)?.verses}
               />
             )}
             <div
@@ -2321,7 +2376,11 @@ export function ParashariPanel({
       )}
       </Chapter>
       <Chapter id="planets">
-      <AvasthasSection a={r.avasthas} positions={result.positions} />
+      <AvasthasSection
+        a={r.avasthas}
+        positions={result.positions}
+        sunCancelled={r.neechaBhanga.find((n) => n.planet === "Sun" && n.cancelled)?.verses}
+      />
       </Chapter>
       <Chapter id="sarvartha">
       <SarvarthaSection sarvartha={result.sarvartha} withheld={withheld} />
@@ -2603,6 +2662,12 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
                 />
                 <span className="font-medium">{rd.label}.</span>{" "}
                 <Soft>{rd.text}</Soft> <SourceLink source={rd.source} />
+                {rd.debilityCancelled && (
+                  <DebilityCancelledNote
+                    c={rd.debilityCancelled}
+                    testid={`kalachakra-reading-debility-cancelled-${i}`}
+                  />
+                )}
               </li>
             ))}
           </ul>
@@ -3463,10 +3528,13 @@ const LAJ_PLAIN: Record<string, string> = {
 function AvasthasSection({
   a,
   positions,
+  sunCancelled,
 }: {
   a: AvasthaResult;
   /** Natal positions, for the modern qualifiers beside a combust planet's line (shared/combustion-modern.ts). */
   positions: PlanetPosition[];
+  /** The verses that cancel the Sun's debility, when they do, for the caveat on PVR's p. 84 note. */
+  sunCancelled?: string;
 }) {
   const plain = usePlain();
   const [openLaj, setOpenLaj] = useState<Planet | null>(null);
@@ -3685,7 +3753,7 @@ function AvasthasSection({
                 {l.combust &&
                   (plain ? l.plain.includes("close to the Sun") : l.text.includes("combust")) && (
                     <ModernCombustNotes
-                      notes={combustQualifiers(l.planet, positions)}
+                      notes={combustQualifiers(l.planet, positions, { sunCancelled })}
                       testid={`avasthas-line-${l.planet}-modern`}
                       className="mt-2"
                     />
@@ -4021,6 +4089,12 @@ function RasiPeriodDetail({ p, sel }: { p: RasiPeriod; sel: RasiDasa }) {
               />
               <span className="font-medium">{rd.label}.</span>{" "}
               <Soft>{rd.text}</Soft> <SourceLink source={rd.source} />
+              {rd.debilityCancelled && (
+                <DebilityCancelledNote
+                  c={rd.debilityCancelled}
+                  testid={`rasi-dasa-reading-debility-cancelled-${i}`}
+                />
+              )}
             </li>
           ))}
         </ul>
@@ -4061,7 +4135,7 @@ function RasiPeriodDetail({ p, sel }: { p: RasiPeriod; sel: RasiDasa }) {
                     "border-l-2 border-l-emerald-500",
                   a.note?.tone === "strain" && "border-l-2 border-l-rose-500",
                 )}
-                title={`${fmtD(a.start)} to ${fmtD(a.end)}${a.note ? `. ${a.note.text}` : ""}`}
+                title={`${fmtD(a.start)} to ${fmtD(a.end)}${a.note ? `. ${a.note.text}` : ""}${a.note?.debilityCancelled ? ` ${plain ? a.note.debilityCancelled.plain : a.note.debilityCancelled.text}` : ""}`}
               >
                 <SignName signIndex={a.sign} abbr />{" "}
                 <span className="text-muted-foreground">{fmt(a.start)}</span>
@@ -4090,6 +4164,12 @@ function RasiPeriodDetail({ p, sel }: { p: RasiPeriod; sel: RasiDasa }) {
                   />{" "}
                   Running now: <Soft>{n.text}</Soft>{" "}
                   <SourceLink source={n.source} />
+                  {n.debilityCancelled && (
+                    <DebilityCancelledNote
+                      c={n.debilityCancelled}
+                      testid="rasi-dasa-antar-note-debility-cancelled"
+                    />
+                  )}
                 </p>
               );
             })()}
@@ -5168,6 +5248,13 @@ function Note({ n }: { n: DasaNote }) {
           </span>
         ) : null}
       </p>
+      {n.debilityCancelled ? (
+        <DebilityCancelledNote
+          c={n.debilityCancelled}
+          testid={`parashari-dasa-note-debility-cancelled-${n.id}`}
+          className="mt-0.5"
+        />
+      ) : null}
       {n.notCounted ? (
         <p
           className="mt-0.5 text-xs text-muted-foreground"
@@ -5178,6 +5265,12 @@ function Note({ n }: { n: DasaNote }) {
       ) : null}
       <p className="mt-0.5 text-xs text-muted-foreground">
         {LAYER_LABEL[n.layer]} · <SourceLink source={n.source} />
+        {n.sourceAlso ? (
+          <>
+            {"; "}
+            <SourceLink source={n.sourceAlso} />
+          </>
+        ) : null}
       </p>
     </li>
   );
@@ -5192,6 +5285,7 @@ function DasaEffects({
   asOfIso,
   withheld,
   positions,
+  sunCancelled,
 }: {
   d: DasaReading;
   /** The lord's Lajjitadi states (45.19-20), null when it holds none; placed with the period provisionally (Mehta, ch. XV). */
@@ -5203,6 +5297,8 @@ function DasaEffects({
   withheld: boolean;
   /** Natal positions, for the lord's condition in the karakatwa line. */
   positions: PlanetPosition[];
+  /** The verses that cancel the Sun's debility, when they do, for the caveat on PVR's p. 84 note. */
+  sunCancelled?: string;
 }) {
   const plainDE = usePlain();
   const kwOpts: PeriodSignificationOptions = useMemo(
@@ -5215,8 +5311,8 @@ function DasaEffects({
   );
   // Modern readings of combustion beside the verses (display only, never counted): shared/combustion-modern.ts.
   const modernNotes = useMemo(
-    () => periodModernNotes(d.lord, positions),
-    [d.lord, positions],
+    () => periodModernNotes(d.lord, positions, { sunCancelled }),
+    [d.lord, positions, sunCancelled],
   );
   const layers: DasaNote["layer"][] = [
     "general",
@@ -5873,6 +5969,12 @@ function Facts({ a }: { a: AntarReading }) {
         (a.facts.adverse.length > 0 || a.facts.maraka) && <span> · </span>}
       {a.facts.adverse.length > 0 && (
         <span className="text-verdict-bad">{a.facts.adverse.join("; ")}</span>
+      )}
+      {a.debilityCancelled && (
+        <span>
+          {" "}
+          ({plain ? a.debilityCancelled.tagPlain : a.debilityCancelled.tag})
+        </span>
       )}
       {a.facts.adverse.length > 0 && a.facts.maraka && <span> · </span>}
       {a.facts.maraka && (

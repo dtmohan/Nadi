@@ -87,6 +87,13 @@ function housesSection(
   const cite = (f: {
     source: { label: string; url: string; provisional?: boolean };
   }) => bp(f.source.label, f.source.url, f.source.provisional);
+  // A finding as the panel shows it: the practitioner-only detail (N5), the cancellation named beside a line that
+  // states a cancelled debility (N1), and a second book cited where one is given.
+  type Finding = ParashariResult["findings"][number];
+  const findingText = (f: Finding) =>
+    `${f.title}: ${endStop(ctx.plain && f.plain ? f.plain : f.text)}${!ctx.plain && f.detail ? ` ${endStop(f.detail)}` : ""}${f.debilityCancelled ? ` ${ctx.plain ? f.debilityCancelled.plain : f.debilityCancelled.text}` : ""}`;
+  const findingCites = (f: Finding, n: number) =>
+    f.sourceAlso ? [n, cites.add(f.sourceAlso.label, f.sourceAlso.url)] : [n];
   const nature = LAGNA_NATURE[lagnaIdx];
   const paras: ReportPara[] = [
     {
@@ -141,8 +148,8 @@ function housesSection(
         const c = cite(f);
         return {
           kind: "p" as const,
-          text: S(`${f.title}: ${endStop(ctx.plain && f.plain ? f.plain : f.text)}`),
-          cites: [c.n],
+          text: S(findingText(f)),
+          cites: findingCites(f, c.n),
           provisional: c.prov,
           tone: f.tone,
         };
@@ -173,8 +180,8 @@ function housesSection(
           const c = cite(f);
           return {
             kind: "p" as const,
-            text: S(`${f.title}: ${endStop(ctx.plain && f.plain ? f.plain : f.text)}`),
-            cites: [c.n],
+            text: S(findingText(f)),
+            cites: findingCites(f, c.n),
             provisional: c.prov,
             tone: f.tone,
           };
@@ -320,10 +327,13 @@ function timingSection(
         kind: "p",
         text: S(
           endStop(
-            `${n.detail && !ctx.plain ? `${n.text} ${n.detail}` : n.text}${n.notCounted ? ` Shown, not counted: ${n.notCounted.charAt(0).toLowerCase()}${n.notCounted.slice(1)}` : ""}`,
+            `${n.detail && !ctx.plain ? `${n.text} ${n.detail}` : n.text}${n.debilityCancelled ? ` ${ctx.plain ? n.debilityCancelled.plain : n.debilityCancelled.text}` : ""}${n.notCounted ? ` Shown, not counted: ${n.notCounted.charAt(0).toLowerCase()}${n.notCounted.slice(1)}` : ""}`,
           ),
         ),
-        cites: [cites.add(n.source.label, n.source.url)],
+        cites: [
+          cites.add(n.source.label, n.source.url),
+          ...(n.sourceAlso ? [cites.add(n.sourceAlso.label, n.sourceAlso.url)] : []),
+        ],
         provisional: n.source.provisional,
         // A line shown but not counted carries no tone, so it does not read as a vote.
         tone: n.notCounted ? undefined : n.tone,
@@ -348,7 +358,8 @@ function timingSection(
     });
     // Modern readings of combustion beside the verses (combustion-modern.ts): display only, so no tone. The plain
     // report keeps the notes with plain wording; the practitioner report keeps all, with distances and pages.
-    const modern = periodModernNotes(d.lord, ctx.result.positions).filter((n) => !ctx.plain || n.plain);
+    const sunCancelled = par.neechaBhanga.find((x) => x.planet === "Sun" && x.cancelled)?.verses;
+    const modern = periodModernNotes(d.lord, ctx.result.positions, { sunCancelled }).filter((n) => !ctx.plain || n.plain);
     if (modern.length)
       ps.push({
         kind: "p",

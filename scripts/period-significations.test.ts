@@ -131,6 +131,12 @@ test("period significations: the main period's condition is the lord's strength 
         assert.ok(relieved || ids.has(`${d.lord}-pd-20-30`), `${where}: a Mantreswara combustion line`);
         assert.equal(k.condition, relieved ? "mixed" : "strained", where);
         assert.match(k.why, relieved ? /Phaladeepika 20\.57/ : /Phaladeepika 20\.30/, where);
+      } else if (dig === "Debilitated" && d.debilityCancelled) {
+        // N2: a debility cancelled by Phaladeepika 7.26-29 or Jataka Parijata 7.13-14, 7.20 reads mixed here; the
+        // period's strain lines stay counted in its lean.
+        assert.equal(k.condition, "mixed", where);
+        assert.equal(k.tag, `mixed: debilitated, cancelled (${d.debilityCancelled.verses})`, where);
+        assert.match(k.why, /strain lines stay counted/, where);
       } else if (dig === "Debilitated" || dig === "Inimical") {
         assert.equal(k.condition, "strained", where);
         assert.match(k.why, /47\.3-4/);

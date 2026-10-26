@@ -46,8 +46,14 @@ import {
   type FunctionalRole,
 } from "./parashari-data";
 import {
+  authorOf,
+  cancellationSources,
+  classicalConditions,
+  debilityLink,
+  JATAKA_PARIJATA_CH7_URL,
   neechaBhanga,
   PHALADEEPIKA_CH7_URL,
+  type DebilityCancelled,
   type NeechaBhanga,
 } from "./neechabhanga";
 import {
@@ -148,6 +154,12 @@ export interface ParashariFinding {
   nullified?: { text: string; with: string; source: ParashariSource };
   /** Phaladeepika ch. 8 placement findings: the verse's results after the gate, for the house-by-house prose. */
   placement?: PlacementReading;
+  /** Practitioner-only detail beside the text (the plain view leaves it out). */
+  detail?: string;
+  /** A second book cited for the same finding (Jataka Parijata beside Phaladeepika). */
+  sourceAlso?: ParashariSource;
+  /** N1: the line states a debility that a classical rule cancels; shown beside it in both views, not counted. */
+  debilityCancelled?: DebilityCancelled;
 }
 
 export interface DashaGloss {
@@ -942,52 +954,57 @@ export function computeParashari(
     }
   }
 
-  // Neechabhanga, Phaladeepika 7.26-30: cancellation of debilitation. Not a Parashara verse, so cited to Mantreswara.
+  // Neechabhanga: cancellation of debilitation, Phaladeepika 7.26-30 and Jataka Parijata 7.13, 7.14 and 7.20, with
+  // Vaidyanatha's 7.55 on his own conditions. Not a Parashara verse, so cited to Mantreswara and Vaidyanatha.
   const neecha: NeechaBhanga[] = SEVEN.map((pl) =>
     neechaBhanga(pl, positions, lagnaIdx, asp),
   ).filter((x): x is NeechaBhanga => x !== null);
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
   for (const nb of neecha) {
     const met = nb.conditions.filter((c) => c.met);
-    const canon = met.filter((c) => !c.provisional);
+    const canon = classicalConditions(nb);
     const later = met.filter((c) => c.provisional);
-    const PH = (verse: string, provisional?: boolean): ParashariSource => ({
-      label: `Phaladeepika 7.${verse}`,
-      url: PHALADEEPIKA_CH7_URL,
-      provisional,
-    });
+    // Vaidyanatha's own conditions that hold but are withheld by his 7.55.
+    const withheldJp = nb.jp755
+      ? met.filter((c) => !c.provisional && !c.pd?.length && c.jp?.length)
+      : [];
     if (nb.cancelled) {
+      const src = cancellationSources(nb);
+      const both = nb.pdVerses.length > 0 && nb.jpVerses.length > 0;
+      const who = both
+        ? "Mantreswara and Vaidyanatha cancel the debility and promise"
+        : nb.pdVerses.length
+          ? "Mantreswara cancels the debility and promises"
+          : "Vaidyanatha cancels the debility and promises";
       findings.push({
         id: `pa-neecha-${nb.planet}`,
         kind: "yoga",
         title: `Neechabhanga: ${nb.planet}`,
-        text: `${nb.planet} is debilitated in ${nb.sign} (${ord(nb.house)}), but ${canon.map((c) => c.text).join("; ")}. Mantreswara cancels the debility and promises standing and means${nb.inDusthana ? `, with the reservation that ${nb.planet} sits in the ${ord(nb.house)}, where 7.28 expects less` : ""}.${later.length ? ` Later practice adds: ${later.map((c) => c.text).join("; ")} (provisional).` : ""} Parashara's own dasa verses do not state this cancellation; the strain they read for ${nb.planet} is softened, not removed.`,
+        text: `${nb.planet} is debilitated in ${nb.sign} (${ord(nb.house)}), but ${canon.map((c) => c.text).join("; ")} (${nb.verses}). ${who} standing and means${nb.inDusthana ? `, with the reservation that ${nb.planet} sits in the ${ord(nb.house)}, where Phaladeepika 7.28 expects less` : ""}.${nb.jp755 ? ` ${cap(nb.jp755.text)}; Mantreswara's verses are not touched.` : ""}${later.length ? ` Later practice adds: ${later.map((c) => c.text).join("; ")} (provisional).` : ""} Parashara's own dasa verses do not state this cancellation; the strain they read for ${nb.planet} is softened, not removed, and each line that states the debility names the cancellation beside it.`,
+        detail: `Modern authors read a cancellation as a lift, not by itself a royal yoga (Pande, Kundali Deep Dive, ch. 1; Shweta, Decoding the Bhavas vol. 2, §28.4). ${both ? "The verses promise" : nb.pdVerses.length ? "Mantreswara's verse promises" : "Vaidyanatha's verse promises"} the yoga.`,
         tone: nb.inDusthana ? "mixed" : "support",
         planets: Array.from(
           new Set([nb.planet, nb.dispositor, nb.exaltationLord]),
         ),
-        source: PH(
-          Array.from(
-            new Set(
-              canon.flatMap((c) =>
-                Array.from(c.source.matchAll(/7\.(\d+)/g)).map((m) =>
-                  Number(m[1]),
-                ),
-              ),
-            ),
-          )
-            .sort((x, y) => x - y)
-            .join(", 7."),
-        ),
+        source: src.source,
+        ...(src.also ? { sourceAlso: src.also } : {}),
       });
     } else {
+      const navLord = nb.conditions.find((c) => c.id === "jp-navamsa-lord");
+      const vaidyanatha = withheldJp.length
+        ? ` Vaidyanatha's would hold (${withheldJp.map((c) => c.text).join("; ")}), but ${nb.jp755!.text}.`
+        : navLord && !navLord.met
+          ? ` Nor do Vaidyanatha's in Jataka Parijata 7.13-14 and 7.20: ${navLord.text}.`
+          : "";
       findings.push({
         id: `pa-neecha-${nb.planet}`,
         kind: "strain",
         title: `${nb.planet} debilitated, not cancelled`,
-        text: `${nb.planet} is debilitated in ${nb.sign} (${ord(nb.house)}). ${nb.dispositor} and ${nb.exaltationLord} are in no angle from the lagna or the Moon, not in mutual angles, and ${nb.dispositor} casts no aspect of half or more on it, so Mantreswara's cancellations do not apply.${later.length ? ` Later practice would count: ${later.map((c) => c.text).join("; ")} (provisional, not applied).` : ""}`,
+        text: `${nb.planet} is debilitated in ${nb.sign} (${ord(nb.house)}). ${nb.dispositor} and ${nb.exaltationLord} are in no angle from the lagna or the Moon, not in mutual angles, and ${nb.dispositor} casts no aspect of half or more on it, so Mantreswara's cancellations do not apply.${vaidyanatha}${later.length ? ` Later practice would count: ${later.map((c) => c.text).join("; ")} (provisional, not applied).` : ""}`,
         tone: "strain",
         planets: [nb.planet],
-        source: PH("26-28"),
+        source: { label: "Phaladeepika 7.26-29", url: PHALADEEPIKA_CH7_URL },
+        sourceAlso: { label: "Jataka Parijata 7.13-14, 7.20, 7.55", url: JATAKA_PARIJATA_CH7_URL },
       });
     }
   }
@@ -1135,6 +1152,8 @@ export function computeParashari(
       return (mo.lon - su.lon + 360) % 360 < 180;
     })(),
     sarva: ashtakavarga.sarva,
+    // N1: a sign-dasa line that states a cancelled debility names the cancellation beside it (display only).
+    debilityLink: (text: string) => debilityLink(neecha, text, SEVEN),
   };
   const kalachakra = computeKalachakra(
     positions,
@@ -1290,10 +1309,18 @@ export function computeParashari(
       if (how) ties.push({ a, b, how });
     }
   }
+  // N1: a finding that states a debility a classical rule cancels names the cancellation beside it, in both
+  // views. Display only: counts and tones are unchanged. The neechabhanga findings themselves, supports and
+  // nullified lines are left as they are.
+  for (const f of findings) {
+    if (f.id.startsWith("pa-neecha-") || f.tone === "support" || f.nullified) continue;
+    const c = debilityLink(neecha, f.text, SEVEN, { author: authorOf(f.source.label) });
+    if (c) f.debilityCancelled = c;
+  }
   const out: ParashariResult = {
     ...(vargaExcl ? { vargaExclusions: vargaExcl } : {}),
     aspectFloor,
-    checks: allPlanetChecks({ positions, houseView, aspectFloor, shadbala }),
+    checks: allPlanetChecks({ positions, houseView, aspectFloor, shadbala, neecha }),
     withheld: withhold,
     houseMethod,
     ...(houseMethodNote ? { houseMethodNote } : {}),

@@ -209,6 +209,17 @@ export function dasaCondition(d: DasaReading, positions: PlanetPosition[]): Cond
       whyPlain: `${Name(p)} is close to the Sun (combust) here, so these matters may ask for more care in this period.`,
       tag: "under strain: combust (Phaladeepika 20.30)",
     };
+  // N2: a debility cancelled by Phaladeepika 7.26-29 or Jataka Parijata 7.13-14, 7.20 reads mixed here. Display only:
+  // Parashara does not state the cancellation, and the period's strain lines stay counted in its lean.
+  if (dig === "Debilitated" && d.debilityCancelled) {
+    const c = d.debilityCancelled;
+    return {
+      condition: "mixed",
+      why: `${Name(p)} is debilitated, but the debility is cancelled in ${c.verses}${c.less ?? ""}, so the condition reads mixed. Parashara does not state the cancellation, and the period's strain lines stay counted in its lean.`,
+      whyPlain: `${Name(p)} is weak by sign, but another rule cancels that${c.less ? " in part" : ""}, so these matters may take effort before they settle.`,
+      tag: `mixed: debilitated, cancelled (${c.verses})`,
+    };
+  }
   if (dig === "Debilitated" || dig === "Inimical")
     return {
       condition: "strained",

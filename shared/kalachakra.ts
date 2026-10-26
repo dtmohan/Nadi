@@ -11,7 +11,7 @@
 // nine that lands in, and the order then continues and repeats as in the worked example (46.95).
 import { NAKSHATRAS, SIGNS, SIGN_LORD, houseFrom, norm360, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
-import { rasiDasaReadings, lordEffect64, VARIANT_65, RASI_DASA_CAVEATS, type LordEffect } from "./kalachakra-effects";
+import { rasiDasaReadings, lordEffect64, VARIANT_65, RASI_DASA_CAVEATS, type LordEffect, type RasiDasaDeps, type RasiReading } from "./kalachakra-effects";
 import { DateTime } from "luxon";
 
 const NAK_ARC = 360 / 27;
@@ -81,6 +81,8 @@ export interface KcReading {
   text: string;
   source: { label: string; url: string; provisional?: boolean };
   tone: "support" | "strain" | "mixed";
+  /** The reading states a debility that a classical rule cancels (shown beside it, not counted). */
+  debilityCancelled?: RasiReading["debilityCancelled"];
 }
 
 export interface KalachakraResult {
@@ -191,6 +193,8 @@ export interface KalachakraOpts {
   /** Moon in the bright half, for 50.70. */
   brightMoon?: boolean;
   maxAge?: number;
+  /** The cancellation linked to a reading that states a cancelled debility (shared/neechabhanga.ts), display only. */
+  debilityLink?: RasiDasaDeps["debilityLink"];
 }
 
 export function computeKalachakra(positions: PlanetPosition[], lagnaLon: number, birthIso: string, asOfIso: string, benefic: (p: PlanetPosition) => boolean, opts: KalachakraOpts = {}): KalachakraResult {
@@ -286,7 +290,7 @@ export function computeKalachakra(positions: PlanetPosition[], lagnaLon: number,
       out.push({ label: `${p.gati} gati`, text: `The order moves from ${SIGNS[p.gatiFrom]} to ${SIGNS[p.sign]}, a ${p.gati} movement${savya ? "" : " in the Apsavya chakra"}: ${GATI_EFFECT[savya ? "Savya" : "Apsavya"][p.gati]}${pair ? `; for this pair the text adds ${pair}` : ""}.`, source: { label: "Parashara 46.96-111", url: CH46 }, tone: "strain" });
     }
     // Ch. 50, the rules for the dasas of signs, read on the dasa sign.
-    out.push(...rasiDasaReadings(p.sign, { positions, lagnaIdx, benefic, strength: opts.strength, brightMoon: opts.brightMoon }));
+    out.push(...rasiDasaReadings(p.sign, { positions, lagnaIdx, benefic, strength: opts.strength, brightMoon: opts.brightMoon, debilityLink: opts.debilityLink }));
     return out;
   };
 

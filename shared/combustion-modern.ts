@@ -68,8 +68,14 @@ export function combustPlanets(positions: PlanetPosition[]): Array<{ planet: Pla
     .map((p) => ({ planet: p.planet, distance: sunDistance(p, sun.lon) }));
 }
 
+/** Options for the modern notes. */
+export interface ModernCombustOptions {
+  /** The verses that cancel the Sun's debility, when they do (shared/neechabhanga.ts), for the p. 84 note's caveat. */
+  sunCancelled?: string;
+}
+
 /** PVR's qualifiers for a combust planet (C4), for the period card and the Planetary states line. */
-export function combustQualifiers(planet: Planet, positions: PlanetPosition[]): ModernCombustNote[] {
+export function combustQualifiers(planet: Planet, positions: PlanetPosition[], opts: ModernCombustOptions = {}): ModernCombustNote[] {
   const sun = sunOf(positions);
   const p = positions.find((x) => x.planet === planet);
   if (!sun || !p || !NAMED.includes(planet) || !ssCombust(p, sun.lon)) return [];
@@ -78,7 +84,9 @@ export function combustQualifiers(planet: Planet, positions: PlanetPosition[]): 
     out.push({
       id: `${planet}-modern-sun-debilitated`,
       plain: "A modern view holds that being close to the Sun weighs less when the Sun is itself weak by sign, as it is here.",
-      text: `Modern (PVR Narasimha Rao): combustion is not as bad when the Sun is debilitated in Libra, as it is here (Lessons vol. I, p. 84).`,
+      text:
+        `Modern (PVR Narasimha Rao): combustion is not as bad when the Sun is debilitated in Libra, as it is here (Lessons vol. I, p. 84).` +
+        (opts.sunCancelled ? ` PVR does not say whether a cancelled debility changes this; here the Sun's debility is cancelled (${opts.sunCancelled}).` : ""),
       sources: [PVR("p. 84")],
     });
   if (planet === "Jupiter" || planet === "Mars")
@@ -104,7 +112,7 @@ export function combustQualifiers(planet: Planet, positions: PlanetPosition[]): 
  * Sun, then PVR's qualifiers. For the Sun: the combust companions whose matters its period may carry, pointing to
  * the classical lines on the Sun's companions (BPHS 47.7-11, 48.15, 50.84).
  */
-export function periodModernNotes(lord: Planet, positions: PlanetPosition[]): ModernCombustNote[] {
+export function periodModernNotes(lord: Planet, positions: PlanetPosition[], opts: ModernCombustOptions = {}): ModernCombustNote[] {
   const combust = combustPlanets(positions);
   if (lord === "Sun") {
     if (!combust.length) return [];
@@ -136,6 +144,6 @@ export function periodModernNotes(lord: Planet, positions: PlanetPosition[]): Mo
         "The nearest classical parallel is narrow: in Parashara's renunciation (pravrajya) verses, weak planets combust by a strong Sun give a renunciation of the Sun's order (verse 5, as Larsen gives it, p. 17).",
       sources: [PVR("pp. 6, 201-202"), LARSEN("pp. 17-18")],
     },
-    ...combustQualifiers(lord, positions),
+    ...combustQualifiers(lord, positions, opts),
   ];
 }

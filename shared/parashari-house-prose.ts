@@ -223,6 +223,11 @@ export function composeHouseProse(par: Omit<ParashariResult, "houseProse">): Hou
   const withhold = par.withheld;
   const G = (s: string) => (withhold ? redactProse(s) : s);
   const out: HouseProse[] = [];
+  // N1: a line that states a cancelled debility carries the cancellation beside it, in both views.
+  const withCancel = (text: string, textPlain: string, f?: { debilityCancelled?: { text: string; plain: string } }) =>
+    f?.debilityCancelled
+      ? { text: `${text} ${f.debilityCancelled.text}`, textPlain: `${textPlain} ${f.debilityCancelled.plain}` }
+      : { text, textPlain };
   for (const b of par.bhavas) {
     const h = b.house;
     const parts: HouseProsePart[] = [];
@@ -257,10 +262,13 @@ export function composeHouseProse(par: Omit<ParashariResult, "houseProse">): Hou
       if (sb) lordSources.push({ label: "Parashara 24.145", url: BPHS_URL(24) });
       parts.push({
         key: "lord",
-        text: lordCard?.text ?? `${b.lord}, lord of the ${ordH(h)}, stands in the ${ordH(b.lordIn)}.`,
-        textPlain: effect
-          ? `Since ${thePlanet(b.lord)}, ruler of your ${ordH(h)} house, sits ${where}, Parashara reads: ${lcFirst(toYou(soften(effect)))}${qualifierPlain}`
-          : `${Lord}, ruler of your ${ordH(h)} house, sits ${where}.`,
+        ...withCancel(
+          lordCard?.text ?? `${b.lord}, lord of the ${ordH(h)}, stands in the ${ordH(b.lordIn)}.`,
+          effect
+            ? `Since ${thePlanet(b.lord)}, ruler of your ${ordH(h)} house, sits ${where}, Parashara reads: ${lcFirst(toYou(soften(effect)))}${qualifierPlain}`
+            : `${Lord}, ruler of your ${ordH(h)} house, sits ${where}.`,
+          lordCard,
+        ),
         tone: effect ? e.tone : undefined,
         sources: lordSources,
       });
@@ -278,18 +286,21 @@ export function composeHouseProse(par: Omit<ParashariResult, "houseProse">): Hou
       parts.push({
         key: "planet",
         planet: p,
-        text: f.text,
-        textPlain: [
-          `Since ${thePlanet(p)} is in your ${ordH(h)} house${sign ? `, in ${sign}` : ""}, ${readsPlain(r)}`,
-          r.cond?.[1] ?? "",
-          r.note?.[1] ?? "",
-          moved
-            ? `This uses the ${methodName} house division; by whole sign ${thePlanet(p)} is in your ${ordH(rashiHouse)}, and Mantreswara counts by sign, so this reading is provisional.`
-            : "",
-        ]
-          .filter(Boolean)
-          .map((x) => soften(x))
-          .join(" "),
+        ...withCancel(
+          f.text,
+          [
+            `Since ${thePlanet(p)} is in your ${ordH(h)} house${sign ? `, in ${sign}` : ""}, ${readsPlain(r)}`,
+            r.cond?.[1] ?? "",
+            r.note?.[1] ?? "",
+            moved
+              ? `This uses the ${methodName} house division; by whole sign ${thePlanet(p)} is in your ${ordH(rashiHouse)}, and Mantreswara counts by sign, so this reading is provisional.`
+              : "",
+          ]
+            .filter(Boolean)
+            .map((x) => soften(x))
+            .join(" "),
+          f,
+        ),
         tone: f.tone,
         sources: [f.source],
       });
@@ -323,7 +334,7 @@ export function composeHouseProse(par: Omit<ParashariResult, "houseProse">): Hou
     for (const f of chapter) {
       const plain = plainChapter(f.text);
       if (!plain.replace(/[.\s]/g, "")) continue;
-      parts.push({ key: "chapter", text: f.text, textPlain: plain, tone: f.tone, sources: [f.source] });
+      parts.push({ key: "chapter", ...withCancel(f.text, plain, f), tone: f.tone, sources: [f.source] });
     }
 
     // The readings above both ways: say so once, before the weighing.

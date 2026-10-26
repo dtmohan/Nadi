@@ -34,7 +34,16 @@ import {
   type IshtaKashta,
   type DasaStartTransit,
 } from "./shadbala";
-import { PHALADEEPIKA_CH7_URL, type NeechaBhanga } from "./neechabhanga";
+import {
+  authorOf,
+  cancellationNote,
+  cancellationSources,
+  classicalConditions,
+  debilityLink,
+  PHALADEEPIKA_CH7_URL,
+  type DebilityCancelled,
+  type NeechaBhanga,
+} from "./neechabhanga";
 import { parashariCombust, parashariCombustOrb, type VargasResult, type SchemeScore } from "./vargas";
 import { SS_NOTE_DIFFERENCE } from "./combustion";
 import { bhavaAnnotation, CHALIT_SOURCES, type ChalitResult } from "./chalit";
@@ -168,6 +177,10 @@ export interface DasaNote {
    * combustion alone: combustion is counted once, by Phaladeepika 20.30 and 20.57 (provisional).
    */
   notCounted?: string;
+  /** A second book cited for the same note (Jataka Parijata beside Phaladeepika). */
+  sourceAlso?: DasaSource;
+  /** N1: the line states a debility that a classical rule cancels; shown beside it in both views, not counted. */
+  debilityCancelled?: DebilityCancelled;
 }
 
 export interface AntarReading {
@@ -189,6 +202,8 @@ export interface AntarReading {
   };
   verdict: Tone;
   source: DasaSource;
+  /** The antar lord is debilitated and the debility is cancelled: named beside the facts, not counted. */
+  debilityCancelled?: DebilityCancelled;
   /** Only for the running antar: pratyantar general effects, ch. 61. */
   pratyantars?: {
     lord: Planet;
@@ -222,6 +237,8 @@ export interface DasaReading {
   };
   notes: DasaNote[];
   antars: AntarReading[];
+  /** The dasa lord is debilitated and the debility is cancelled (display only; the lean is unchanged). */
+  debilityCancelled?: DebilityCancelled;
 }
 
 const S = (ch: number, verse: string, provisional?: boolean): DasaSource => ({
@@ -1555,41 +1572,28 @@ export function computeDasaReadings(
         text: `${p} is ${DUSTHANA.includes(h) ? `in the ${ord(h)}` : c.dignity(p).toLowerCase()}${DUSTHANA.includes(h) && ["Debilitated", "Inimical"].includes(c.dignity(p)) ? ` and ${c.dignity(p).toLowerCase()}` : ""}: the general rule reads the dasa as unfavourable.`,
         source: S(47, "5-6"),
       });
-    // Neechabhanga (Phaladeepika 7.26-28): a debilitated lord whose debility is cancelled. Parashara's verses do not state it, so the note softens rather than removes the strain.
+    // Neechabhanga (Phaladeepika 7.26-29; Jataka Parijata 7.13-14 and 7.20, with 7.55 on its own conditions): a
+    // debilitated lord whose debility is cancelled. Parashara's verses do not state it, so the note softens rather
+    // than removes the strain, and cites the verses whose conditions hold.
     const nb = neecha.find((x) => x.planet === p);
     if (nb && (nb.cancelled || nb.provisionalOnly)) {
       const met = nb.conditions.filter((x) => x.met);
+      const src = nb.cancelled ? cancellationSources(nb) : undefined;
+      const withheldJp = !nb.cancelled && nb.jp755 && met.some((x) => !x.provisional);
       notes.push({
         id: `${p}-neecha`,
         layer: "dignity",
         tone: nb.cancelled ? "mixed" : "strain",
         text: nb.cancelled
-          ? `${p}'s debilitation is cancelled: ${met
-              .filter((x) => !x.provisional)
+          ? `${p}'s debilitation is cancelled: ${classicalConditions(nb)
               .map((x) => x.text)
-              .join(
-                "; ",
-              )} (Phaladeepika 7.26-28). Read the debilitation results of this dasa as softened, not removed; Parashara's dasa verses do not state the cancellation.`
-          : `${p} is debilitated; only later-practice cancellations apply (${met.map((x) => x.text).join("; ")}), which the classical verses do not state. Shown for information, not applied.`,
-        source: {
-          label: nb.cancelled
-            ? `Phaladeepika 7.${Array.from(
-                new Set(
-                  met
-                    .filter((x) => !x.provisional)
-                    .flatMap((x) =>
-                      Array.from(x.source.matchAll(/7\.(\d+)/g)).map((m) =>
-                        Number(m[1]),
-                      ),
-                    ),
-                ),
-              )
-                .sort((a, b) => a - b)
-                .join(", 7.")}`
-            : "Later practice",
-          url: PHALADEEPIKA_CH7_URL,
-          provisional: !nb.cancelled,
-        },
+              .join("; ")} (${nb.verses}). Read the debilitation results of this dasa as softened, not removed; Parashara's dasa verses do not state the cancellation.`
+          : `${p} is debilitated; only later-practice cancellations apply (${met
+              .filter((x) => x.provisional)
+              .map((x) => x.text)
+              .join("; ")}), which the classical verses do not state.${withheldJp ? ` Vaidyanatha's own would hold, but ${nb.jp755!.text}.` : ""} Shown for information, not applied.`,
+        source: src ? src.source : { label: "Later practice", url: PHALADEEPIKA_CH7_URL, provisional: true },
+        ...(src?.also ? { sourceAlso: src.also } : {}),
       });
     }
     // Bhava chalit colour on the lord's placement: annotation only, the 47.5-6 reading above stays whole-sign.
@@ -1743,6 +1747,14 @@ export function computeDasaReadings(
       rising: RISING_50[pp.signIndex],
     };
 
+    // N1: a line that states a debility a classical rule cancels names the cancellation beside it (display only).
+    for (const n of notes) {
+      if (n.id === `${p}-neecha` || n.tone === "support") continue;
+      const dc = debilityLink(neecha, n.text, SEVEN_50, { own: p, author: authorOf(n.source.label) });
+      if (dc) n.debilityCancelled = dc;
+    }
+    const lordNb = neecha.find((x) => x.planet === p && x.cancelled);
+
     const lean = leanOf(countedTones(notes));
 
     // Antars.
@@ -1764,6 +1776,8 @@ export function computeDasaReadings(
         verdict: antarVerdict(facts),
         source: S(entry?.ch ?? 52, entry?.verses ?? ""),
       };
+      const subNb = facts.adverse.includes("debilitated") ? neecha.find((x) => x.planet === bl && x.cancelled) : undefined;
+      if (subNb) reading.debilityCancelled = cancellationNote([subNb]);
       if (b.current) {
         reading.pratyantars = antarasOf(b, birth, asOf).map((a) => {
           const e = PRATYANTAR[bl]?.[a.lord];
@@ -1792,6 +1806,7 @@ export function computeDasaReadings(
       timing,
       notes,
       antars,
+      ...(lordNb ? { debilityCancelled: cancellationNote([lordNb]) } : {}),
     };
   });
 }
