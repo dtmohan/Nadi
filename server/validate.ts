@@ -902,7 +902,7 @@ function chanceBaseline(
   let parashariExample: ChanceBaseline["parashariExample"];
   const observe = (v: EventValidation): ParashariObservation => ({
     v1: v.parashariPromise?.score, v2: v.parashariSpecific?.score, v3: v.parashariDivisional?.score,
-    staged: stagedObservation(v.manley), hierarchy: v.parashariHierarchy?.passes,
+    staged: stagedObservation(v.manley), hierarchy: v.parashariHierarchy?.passes, crossTiming: v.parashariHierarchy?.crossChart?.timing,
   });
   const parashariTrials: ParashariObservation[][] = [];
   const actualStages = auroraV2StageCounts(real.map((v) => v.kp.auroraV2));

@@ -1,0 +1,1452 @@
+{
+  "protocol": "docs/parashari-cross-chart-protocol.md",
+  "hashes": {
+    "docs/parashari-cross-chart-protocol.md": "14f33d244090e24d680e101c1bc08e0a3782063aaaa67eb5236eef7c366ffbed",
+    "scripts/fixtures/parashari-cross-chart-fresh.json": "5e8b786f7cf3bf55e5f0fb23d897db781c32d7078018c7b97fb3413f32925254",
+    "shared/astro.ts": "e672e930ae6d6cda1cd600a677ab2a4d709e14784373ca3a70358734bc7dc49d",
+    "shared/vargas.ts": "c6944edd0e2843efce2f562c0177892ff6d1290bec6f751b6fafa76dd6930e49",
+    "shared/house-view.ts": "1dbed4872e0a23f734d84634879a861cb7d776c9fb038b043c2e2a54130969d9",
+    "shared/parashari-houses.ts": "6a90e6bf50e6bfdb585cec0e85e5063f6c26e48be9ee2f9afcb4527ea98f60a0",
+    "shared/parashari-varga-evidence.ts": "04fa6a5b92f948faf4b6698c119a8b7c7db9ad83302ddedc0bde196e04b93648",
+    "shared/manley-evidence.ts": "e8b88e896d3ac3f512666a629655b49ea5d6d81899b3b85b938b605ab0c08ca7",
+    "shared/parashari-hierarchy.ts": "7fd82c35a845e90766357f9ee21479e7d0f809274059dc3072a8f1fa531adc43",
+    "shared/parashari-comparison.ts": "c1fe9fc6d056ec179813073ce60ba2428bb9c75a0800d34081d8001d151a5741",
+    "shared/kp.ts": "2313131aba58084e491c8eb3caadeb16c31df189c7b0370afe2ba1549257b11f",
+    "server/ephemeris.ts": "e43cf09f92bf3c75f61c6ecc033c06ea77322dae8e9a62520994c9e927d0e7a6",
+    "server/event-time.ts": "698e9ec675bc80c5d6e4564cda20d63cf4bfa8304a8d81066e8226bbe7911f48",
+    "server/parashari-event.ts": "c7a206f939b654e34368ca9fd1b77abb5732a912a7f6dd9c32bc181ed0ca4971",
+    "server/validate.ts": "4fda9064db3231d83e4ec00443efc4ce2b1594da0be967b1ddc23b12afd2ab5c",
+    "scripts/eval-parashari-cross-chart.ts": "0e2560145f7b09bcc559ec71a7231bdbedc5d595955d7e27c8d6c0ba9fb9bdff"
+  },
+  "caveat": "Three public cases and descriptive comparison dates; uncertain birth/event times; no candidate ranking or evidence of predictive accuracy.",
+  "results": [
+    {
+      "name": "Jimmy Carter",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_10_01.htm?nhor=1btyp%3Dacc&pa=nmo",
+      "birthQuality": "AA, reported birth record, rounded 07:00; source uses UTC−06:00",
+      "reportedTime": "07:00",
+      "input": [
+        {
+          "date": "1946-07-07",
+          "time": "12:00 assumed",
+          "timezone": "America/New_York",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Mars",
+            "roles": [
+              "D1 house lord",
+              "divisional house lord"
+            ],
+            "d1": {
+              "sign": 10,
+              "house": 5,
+              "dignity": "other",
+              "signLord": "Saturn",
+              "relation": "neutral"
+            },
+            "division": {
+              "sign": 6,
+              "house": 1,
+              "dignity": "other",
+              "signLord": "Venus",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Saturn",
+            "Venus",
+            "Venus"
+          ],
+          "timingClues": {
+            "first": false,
+            "third": false
+          },
+          "oldStrictFirst": false,
+          "sources": [
+            "https://www.whitehousehistory.org/bios/rosalynn-carter",
+            "https://www.history.com/this-day-in-history/july-7/future-president-jimmy-carter-marries"
+          ]
+        },
+        {
+          "date": "1977-01-20",
+          "time": "12:00",
+          "timezone": "America/New_York",
+          "d1House": "mixed",
+          "divisionHouse": "mixed",
+          "d1Lord": {
+            "planet": "Moon",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 6,
+              "house": 1,
+              "dignity": "other",
+              "signLord": "Venus",
+              "relation": "neutral"
+            },
+            "division": {
+              "sign": 0,
+              "house": 6,
+              "dignity": "other",
+              "signLord": "Mars",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Ketu",
+            "Venus",
+            "Mercury"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false,
+          "sources": [
+            "https://www.inaugural.senate.gov/48th-inaugural-ceremonies/",
+            "https://www.aoc.gov/what-we-do/programs-ceremonies/inauguration"
+          ]
+        }
+      ],
+      "trials": 200,
+      "crossTimingComparison": {
+        "eligibleEvents": 2,
+        "first": {
+          "actual": 1,
+          "mean": 1,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "qualifyingDraws": [
+          200
+        ],
+        "third": {
+          "actual": 1,
+          "mean": 1,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        }
+      },
+      "oldStrictComparison": {
+        "eligibleEvents": 2,
+        "d1": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "division": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "major": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "sub": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "qualifyingDraws": []
+      },
+      "heldout": {
+        "date": "1947-07-03",
+        "time": "12:00 assumed",
+        "timezone": "America/New_York",
+        "d1House": "mixed",
+        "divisionHouse": "supported",
+        "d1Lord": {
+          "planet": "Saturn",
+          "roles": [
+            "D1 house lord",
+            "divisional house lord"
+          ],
+          "d1": {
+            "sign": 6,
+            "house": 1,
+            "dignity": "exaltation sign",
+            "signLord": "Venus",
+            "relation": "friend"
+          },
+          "division": {
+            "sign": 8,
+            "house": 3,
+            "dignity": "other",
+            "signLord": "Jupiter",
+            "relation": "neutral"
+          }
+        },
+        "periodLords": [
+          "Saturn",
+          "Venus",
+          "Rahu"
+        ],
+        "timingClues": {
+          "first": true,
+          "third": false
+        },
+        "oldStrictFirst": false,
+        "sources": [
+          "https://www.govinfo.gov/content/pkg/CDIR-1978-03-01/pdf/CDIR-1978-03-01.pdf",
+          "https://www.nps.gov/people/rosalynn-carter.htm"
+        ]
+      },
+      "controls": [
+        {
+          "date": "1947-01-04",
+          "time": "12:00 assumed",
+          "timezone": "America/New_York",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord",
+              "divisional house lord"
+            ],
+            "d1": {
+              "sign": 6,
+              "house": 1,
+              "dignity": "exaltation sign",
+              "signLord": "Venus",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 8,
+              "house": 3,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Saturn",
+            "Venus",
+            "Sun"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": false
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "1947-03-05",
+          "time": "12:00 assumed",
+          "timezone": "America/New_York",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord",
+              "divisional house lord"
+            ],
+            "d1": {
+              "sign": 6,
+              "house": 1,
+              "dignity": "exaltation sign",
+              "signLord": "Venus",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 8,
+              "house": 3,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Saturn",
+            "Venus",
+            "Moon"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "1947-05-04",
+          "time": "12:00 assumed",
+          "timezone": "America/New_York",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord",
+              "divisional house lord"
+            ],
+            "d1": {
+              "sign": 6,
+              "house": 1,
+              "dignity": "exaltation sign",
+              "signLord": "Venus",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 8,
+              "house": 3,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Saturn",
+            "Venus",
+            "Mars"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "1947-09-01",
+          "time": "12:00 assumed",
+          "timezone": "America/New_York",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord",
+              "divisional house lord"
+            ],
+            "d1": {
+              "sign": 6,
+              "house": 1,
+              "dignity": "exaltation sign",
+              "signLord": "Venus",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 8,
+              "house": 3,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Saturn",
+            "Venus",
+            "Rahu"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": false
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "1947-10-31",
+          "time": "12:00 assumed",
+          "timezone": "America/New_York",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord",
+              "divisional house lord"
+            ],
+            "d1": {
+              "sign": 6,
+              "house": 1,
+              "dignity": "exaltation sign",
+              "signLord": "Venus",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 8,
+              "house": 3,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Saturn",
+            "Venus",
+            "Rahu"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": false
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "1947-12-30",
+          "time": "12:00 assumed",
+          "timezone": "America/New_York",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord",
+              "divisional house lord"
+            ],
+            "d1": {
+              "sign": 6,
+              "house": 1,
+              "dignity": "exaltation sign",
+              "signLord": "Venus",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 8,
+              "house": 3,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Saturn",
+            "Venus",
+            "Jupiter"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        }
+      ],
+      "sensitivity": []
+    },
+    {
+      "name": "Angelina Jolie",
+      "birthSource": "https://www.astro.com/astro-databank/Jolie%2C_Angelina",
+      "birthQuality": "AA, quoted birth record",
+      "reportedTime": "09:09",
+      "input": [
+        {
+          "date": "2008-07-12",
+          "time": "18:27",
+          "timezone": "Europe/Paris",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Mars",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 11,
+              "house": 9,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 9,
+              "house": 12,
+              "dignity": "exaltation sign",
+              "signLord": "Saturn",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Rahu"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false,
+          "sources": [
+            "https://www.cbsnews.com/news/french-paper-gets-brangelina-birth-scoop/",
+            "https://www.jta.org/2008/07/16/default/jewish-ob-gyn-delivers-jolie-pitt-twins"
+          ]
+        },
+        {
+          "date": "2014-08-23",
+          "time": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord",
+              "divisional house lord"
+            ],
+            "d1": {
+              "sign": 2,
+              "house": 12,
+              "dignity": "other",
+              "signLord": "Mercury",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 1,
+              "house": 10,
+              "dignity": "other",
+              "signLord": "Venus",
+              "relation": "friend"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Ketu",
+            "Venus"
+          ],
+          "timingClues": {
+            "first": false,
+            "third": false
+          },
+          "oldStrictFirst": false,
+          "sources": [
+            "https://www.ap.org/the-definitive-source/behind-the-news/brad-and-angelina-costar-in-wedding-ap-reports-first/",
+            "https://gazette.com/2014/08/28/angelina-jolie-brad-pitt-wed-privately-at-chateau-in-france-9c4cbd9b-4061-5b84-9619-65cf8f02bfd2/"
+          ]
+        }
+      ],
+      "trials": 200,
+      "crossTimingComparison": {
+        "eligibleEvents": 2,
+        "first": {
+          "actual": 1,
+          "mean": 1.5,
+          "sd": 0.5,
+          "percentile": 27,
+          "verdict": "chance"
+        },
+        "qualifyingDraws": [
+          198
+        ],
+        "third": {
+          "actual": 1,
+          "mean": 0.9,
+          "sd": 0.3,
+          "percentile": 55,
+          "verdict": "chance"
+        }
+      },
+      "oldStrictComparison": {
+        "eligibleEvents": 2,
+        "d1": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "division": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "major": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "sub": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "qualifyingDraws": []
+      },
+      "heldout": {
+        "date": "2006-05-27",
+        "time": "12:00 assumed",
+        "timezone": "Africa/Windhoek",
+        "d1House": "mixed",
+        "divisionHouse": "supported",
+        "d1Lord": {
+          "planet": "Mars",
+          "roles": [
+            "D1 house lord"
+          ],
+          "d1": {
+            "sign": 11,
+            "house": 9,
+            "dignity": "other",
+            "signLord": "Jupiter",
+            "relation": "friend"
+          },
+          "division": {
+            "sign": 9,
+            "house": 12,
+            "dignity": "exaltation sign",
+            "signLord": "Saturn",
+            "relation": "neutral"
+          }
+        },
+        "periodLords": [
+          "Venus",
+          "Jupiter",
+          "Saturn"
+        ],
+        "timingClues": {
+          "first": true,
+          "third": true
+        },
+        "oldStrictFirst": false,
+        "sources": [
+          "https://mg.co.za/news/south-africa/2006-05-28-jolie-gives-birth-to-pitt-s-baby-girl-in-namibia/",
+          "https://www.namibian.com.na/angelina-brad-and-baby-daughter-depart/"
+        ]
+      },
+      "controls": [
+        {
+          "date": "2005-11-28",
+          "time": "12:00 assumed",
+          "timezone": "Africa/Windhoek",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Mars",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 11,
+              "house": 9,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 9,
+              "house": 12,
+              "dignity": "exaltation sign",
+              "signLord": "Saturn",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Jupiter"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "2006-01-27",
+          "time": "12:00 assumed",
+          "timezone": "Africa/Windhoek",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Mars",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 11,
+              "house": 9,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 9,
+              "house": 12,
+              "dignity": "exaltation sign",
+              "signLord": "Saturn",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Jupiter"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "2006-03-28",
+          "time": "12:00 assumed",
+          "timezone": "Africa/Windhoek",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Mars",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 11,
+              "house": 9,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 9,
+              "house": 12,
+              "dignity": "exaltation sign",
+              "signLord": "Saturn",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Jupiter"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "2006-07-26",
+          "time": "12:00 assumed",
+          "timezone": "Africa/Windhoek",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Mars",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 11,
+              "house": 9,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 9,
+              "house": 12,
+              "dignity": "exaltation sign",
+              "signLord": "Saturn",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Saturn"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "2006-09-24",
+          "time": "12:00 assumed",
+          "timezone": "Africa/Windhoek",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Mars",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 11,
+              "house": 9,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 9,
+              "house": 12,
+              "dignity": "exaltation sign",
+              "signLord": "Saturn",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Mercury"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "2006-11-23",
+          "time": "12:00 assumed",
+          "timezone": "Africa/Windhoek",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Mars",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 11,
+              "house": 9,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 9,
+              "house": 12,
+              "dignity": "exaltation sign",
+              "signLord": "Saturn",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Mercury"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        }
+      ],
+      "sensitivity": [
+        {
+          "date": "2006-05-27",
+          "time": "20:00",
+          "timezone": "Africa/Windhoek",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Mars",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 11,
+              "house": 9,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 9,
+              "house": 12,
+              "dignity": "exaltation sign",
+              "signLord": "Saturn",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Saturn"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "2006-05-28",
+          "time": "01:00",
+          "timezone": "Africa/Windhoek",
+          "d1House": "mixed",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Mars",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 11,
+              "house": 9,
+              "dignity": "other",
+              "signLord": "Jupiter",
+              "relation": "friend"
+            },
+            "division": {
+              "sign": 9,
+              "house": 12,
+              "dignity": "exaltation sign",
+              "signLord": "Saturn",
+              "relation": "neutral"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Saturn"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        }
+      ]
+    },
+    {
+      "name": "Jacques Cousteau",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_06_11.htm?lang=r&nho2=427770&nhor=427770",
+      "birthQuality": "AA, quoted birth record; display 13:06 and source note 13:15 Paris time conflict",
+      "reportedTime": "13:06",
+      "input": [
+        {
+          "date": "1937-07-12",
+          "time": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "d1House": "supported",
+          "divisionHouse": "unresolved",
+          "d1Lord": {
+            "planet": "Jupiter",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 5,
+              "house": 1,
+              "dignity": "other",
+              "signLord": "Mercury",
+              "relation": "enemy"
+            },
+            "division": {
+              "sign": 0,
+              "house": 2,
+              "dignity": "other",
+              "signLord": "Mars",
+              "relation": "friend"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Rahu",
+            "Rahu"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false,
+          "sources": [
+            "https://files.eric.ed.gov/fulltext/ED363546.pdf",
+            "https://www.imdb.com/name/nm1370412/bio/"
+          ]
+        },
+        {
+          "date": "1940-12-30",
+          "time": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "d1House": "supported",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 0,
+              "house": 8,
+              "dignity": "debilitation sign",
+              "signLord": "Mars",
+              "relation": "enemy"
+            },
+            "division": {
+              "sign": 2,
+              "house": 2,
+              "dignity": "other",
+              "signLord": "Mercury",
+              "relation": "friend"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Saturn"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false,
+          "sources": [
+            "https://www.oceanfutures.org/about/cousteau-family/simone-melchior-cousteau",
+            "https://www.astro.com/astro-databank/Cousteau%2C_Philippe_Pierre"
+          ]
+        }
+      ],
+      "trials": 200,
+      "crossTimingComparison": {
+        "eligibleEvents": 2,
+        "first": {
+          "actual": 2,
+          "mean": 2,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "qualifyingDraws": [
+          200,
+          200
+        ],
+        "third": {
+          "actual": 2,
+          "mean": 1.8,
+          "sd": 0.4,
+          "percentile": 60,
+          "verdict": "chance"
+        }
+      },
+      "oldStrictComparison": {
+        "eligibleEvents": 2,
+        "d1": {
+          "actual": 2,
+          "mean": 2,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "division": {
+          "actual": 1,
+          "mean": 1,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "major": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "sub": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "qualifyingDraws": []
+      },
+      "heldout": {
+        "date": "1938-05-06",
+        "time": "12:00 assumed",
+        "timezone": "Europe/Paris",
+        "d1House": "supported",
+        "divisionHouse": "supported",
+        "d1Lord": {
+          "planet": "Saturn",
+          "roles": [
+            "D1 house lord"
+          ],
+          "d1": {
+            "sign": 0,
+            "house": 8,
+            "dignity": "debilitation sign",
+            "signLord": "Mars",
+            "relation": "enemy"
+          },
+          "division": {
+            "sign": 2,
+            "house": 2,
+            "dignity": "other",
+            "signLord": "Mercury",
+            "relation": "friend"
+          }
+        },
+        "periodLords": [
+          "Venus",
+          "Rahu",
+          "Saturn"
+        ],
+        "timingClues": {
+          "first": true,
+          "third": true
+        },
+        "oldStrictFirst": false,
+        "sources": [
+          "https://www.oceanfutures.org/about/cousteau-family/simone-melchior-cousteau",
+          "https://en.wikipedia.org/wiki/Jean-Michel_Cousteau"
+        ]
+      },
+      "controls": [
+        {
+          "date": "1937-11-07",
+          "time": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "d1House": "supported",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 0,
+              "house": 8,
+              "dignity": "debilitation sign",
+              "signLord": "Mars",
+              "relation": "enemy"
+            },
+            "division": {
+              "sign": 2,
+              "house": 2,
+              "dignity": "other",
+              "signLord": "Mercury",
+              "relation": "friend"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Rahu",
+            "Rahu"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "1938-01-06",
+          "time": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "d1House": "supported",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 0,
+              "house": 8,
+              "dignity": "debilitation sign",
+              "signLord": "Mars",
+              "relation": "enemy"
+            },
+            "division": {
+              "sign": 2,
+              "house": 2,
+              "dignity": "other",
+              "signLord": "Mercury",
+              "relation": "friend"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Rahu",
+            "Jupiter"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "1938-03-07",
+          "time": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "d1House": "supported",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 0,
+              "house": 8,
+              "dignity": "debilitation sign",
+              "signLord": "Mars",
+              "relation": "enemy"
+            },
+            "division": {
+              "sign": 2,
+              "house": 2,
+              "dignity": "other",
+              "signLord": "Mercury",
+              "relation": "friend"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Rahu",
+            "Jupiter"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "1938-07-05",
+          "time": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "d1House": "supported",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 0,
+              "house": 8,
+              "dignity": "debilitation sign",
+              "signLord": "Mars",
+              "relation": "enemy"
+            },
+            "division": {
+              "sign": 2,
+              "house": 2,
+              "dignity": "other",
+              "signLord": "Mercury",
+              "relation": "friend"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Rahu",
+            "Saturn"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "1938-09-03",
+          "time": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "d1House": "supported",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 0,
+              "house": 8,
+              "dignity": "debilitation sign",
+              "signLord": "Mars",
+              "relation": "enemy"
+            },
+            "division": {
+              "sign": 2,
+              "house": 2,
+              "dignity": "other",
+              "signLord": "Mercury",
+              "relation": "friend"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Rahu",
+            "Saturn"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        },
+        {
+          "date": "1938-11-02",
+          "time": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "d1House": "supported",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 0,
+              "house": 8,
+              "dignity": "debilitation sign",
+              "signLord": "Mars",
+              "relation": "enemy"
+            },
+            "division": {
+              "sign": 2,
+              "house": 2,
+              "dignity": "other",
+              "signLord": "Mercury",
+              "relation": "friend"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Rahu",
+            "Mercury"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        }
+      ],
+      "sensitivity": [],
+      "alternateBirth": {
+        "time": "13:15",
+        "inputs": [
+          {
+            "date": "1937-07-12",
+            "time": "12:00 assumed",
+            "timezone": "Europe/Paris",
+            "d1House": "supported",
+            "divisionHouse": "supported",
+            "d1Lord": {
+              "planet": "Jupiter",
+              "roles": [
+                "D1 house lord"
+              ],
+              "d1": {
+                "sign": 5,
+                "house": 1,
+                "dignity": "other",
+                "signLord": "Mercury",
+                "relation": "enemy"
+              },
+              "division": {
+                "sign": 0,
+                "house": 1,
+                "dignity": "other",
+                "signLord": "Mars",
+                "relation": "friend"
+              }
+            },
+            "periodLords": [
+              "Venus",
+              "Rahu",
+              "Rahu"
+            ],
+            "timingClues": {
+              "first": true,
+              "third": true
+            },
+            "oldStrictFirst": true
+          },
+          {
+            "date": "1940-12-30",
+            "time": "12:00 assumed",
+            "timezone": "Europe/Paris",
+            "d1House": "supported",
+            "divisionHouse": "supported",
+            "d1Lord": {
+              "planet": "Saturn",
+              "roles": [
+                "D1 house lord"
+              ],
+              "d1": {
+                "sign": 0,
+                "house": 8,
+                "dignity": "debilitation sign",
+                "signLord": "Mars",
+                "relation": "enemy"
+              },
+              "division": {
+                "sign": 2,
+                "house": 2,
+                "dignity": "other",
+                "signLord": "Mercury",
+                "relation": "friend"
+              }
+            },
+            "periodLords": [
+              "Venus",
+              "Jupiter",
+              "Saturn"
+            ],
+            "timingClues": {
+              "first": true,
+              "third": true
+            },
+            "oldStrictFirst": false
+          }
+        ],
+        "heldout": {
+          "date": "1938-05-06",
+          "time": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "d1House": "supported",
+          "divisionHouse": "supported",
+          "d1Lord": {
+            "planet": "Saturn",
+            "roles": [
+              "D1 house lord"
+            ],
+            "d1": {
+              "sign": 0,
+              "house": 8,
+              "dignity": "debilitation sign",
+              "signLord": "Mars",
+              "relation": "enemy"
+            },
+            "division": {
+              "sign": 2,
+              "house": 2,
+              "dignity": "other",
+              "signLord": "Mercury",
+              "relation": "friend"
+            }
+          },
+          "periodLords": [
+            "Venus",
+            "Rahu",
+            "Saturn"
+          ],
+          "timingClues": {
+            "first": true,
+            "third": true
+          },
+          "oldStrictFirst": false
+        }
+      }
+    }
+  ]
+}

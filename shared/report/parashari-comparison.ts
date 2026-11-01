@@ -20,12 +20,19 @@ export function parashariComparisonParas(comparison: ParashariComparison, trials
       ["Hierarchy: main period", h.major], ["Hierarchy: subperiod", h.sub], ["Hierarchy: third period, conditional", h.third]] as const)
       if (stat) rows.push([label, String(stat.actual), `${stat.mean} ± ${stat.sd}`, String(stat.percentile)]);
   }
+  if (comparison.crossTiming) {
+    const c = comparison.crossTiming;
+    rows.push(["Cross-chart timing: main and subperiod", `${c.first.actual}/${c.eligibleEvents}`, `${c.first.mean} ± ${c.first.sd}`, String(c.first.percentile)]);
+    if (c.third) rows.push(["Cross-chart timing: third, conditional", String(c.third.actual), `${c.third.mean} ± ${c.third.sd}`, String(c.third.percentile)]);
+  }
   const paras: ReportPara[] = [{ kind: "note", provisional: true,
     text: `Parashari comparisons use ${trials} sets of random dates, the same eligible events, outcomes and natal candidate, with the same event clock and time zone. Period lords and any transits required by the selected check are recalculated. The staged third level uses actual events that passed the first gate and each event's sampled dates that also passed it, recombined independently across events; this staged gate does not assess outcome or add a transit rule. The partial checks do not deny an event or establish a birth time, and their percentiles do not adjust for trying multiple birth times or related measures. Random dates need not preserve event ages or order and are not known non-events. These comparisons do not change the ranking.` }];
   if (comparison.staged) paras.push({ kind: "note", provisional: true,
     text: "The older staged primary links are in each event's divisional chart and do not require D1. They are retained for comparison with earlier research." });
   if (comparison.hierarchy) paras.push({ kind: "note", provisional: true,
-    text: `The experimental hierarchy requires D1 and the event's own division before period checks. Its third-period comparison uses only actual and sampled dates passing all earlier gates for each event. Natal D1 and divisional checks stay fixed when only the event date changes. Qualifying sampled-date counts: ${comparison.hierarchy.qualifyingDraws.join(", ") || "none"}. In four fresh public cases no candidate passed the D1 gate for both selected events in a reported-time ±30-minute scan; it is not fit to identify a birth time.` });
+    text: `The earlier strict hierarchy requires a partial D1 gate before considering the division. It can miss divisional strength and must not be used to exclude candidates. Its third-period comparison uses only actual and sampled dates passing all earlier gates for each event. Qualifying sampled-date counts: ${comparison.hierarchy.qualifyingDraws.join(", ") || "none"}. In four fresh public cases no candidate passed the D1 gate for both selected events in a reported-time ±30-minute scan.` });
+  if (comparison.crossTiming) paras.push({ kind: "note", provisional: true,
+    text: `Cross-chart timing clues include the divisional ascendant, D1 house lord and secondary house, as well as the primary house, its lord and significators. Each qualifying period has a listed link in both charts; third-level comparisons are conditional on the first two. Qualifying sampled-date counts: ${comparison.crossTiming.qualifyingDraws.join(", ") || "none"}. These describe timing clues, not a complete natal promise, a candidate filter or a validated forecast. In a small three-person check, all three held-out dates and all 18 nearby comparison dates had the main-and-subperiod clues; the comparison dates are not known non-events.` });
   if (rows.length) paras.push({ kind: "table", head: ["Measure", "Actual", "Comparison mean ± sd", "Percentile"], rows });
   if (comparison.staged && !comparison.staged.third) paras.push({ kind: "note", provisional: true,
     text: comparison.staged.first.actual === 0 ? "No actual event met the first-stage gate, so the third-stage comparison is unresolved."

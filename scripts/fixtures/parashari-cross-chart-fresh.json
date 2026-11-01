@@ -1,0 +1,45 @@
+{
+  "notes": [
+    "Three public figures not used in earlier Nadi fixtures or in the supplied Manley examples; first two events are used for random-date comparison, and the third is held out.",
+    "Birth-time ratings indicate the database's source description, not absolute accuracy; unknown event clocks use noon in the stated zone.",
+    "Carter: Astro-Databank lists 07:00 at UTC−06:00; we preserve that stated offset explicitly because current IANA rules for Georgia use a different offset. The source clock is rounded, and the basis deserves independent verification.",
+    "Jolie: the ceremony on 23 August 2014 is distinct from the reported legal marriage on 14 August. Contemporary reports conflict on whether the held-out 2006 birth was 27 or 28 May and on the local time; both dates are examined.",
+    "Cousteau: the database displays 13:06 with Paris mean time, but its source note says 13:15 Paris time. We examine both rather than silently equating them. Europe/Paris with the zone time standard preserves its historical +00:09:21 offset. Some older biographies conflict with family sources on the children's birth months and years; those uncertainties are noted rather than treated as settled."
+  ],
+  "cases": [
+    {
+      "name": "Jimmy Carter",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_10_01.htm?nhor=1btyp%3Dacc&pa=nmo",
+      "birthQuality": "AA, reported birth record, rounded 07:00; source uses UTC−06:00",
+      "chart": {"name":"Jimmy Carter","birthDate":"1924-10-01","birthTime":"07:00","timezone":"America/New_York","timeStandard":"-06:00","place":"Plains, Georgia","latitude":32.0333,"longitude":-84.4,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"wedding","matter":"marriage","date":"1946-07-07","timezone":"America/New_York","sources":["https://www.whitehousehistory.org/bios/rosalynn-carter","https://www.history.com/this-day-in-history/july-7/future-president-jimmy-carter-marries"]},
+        {"id":"presidency","matter":"job","date":"1977-01-20","time":"12:00","timezone":"America/New_York","sources":["https://www.inaugural.senate.gov/48th-inaugural-ceremonies/","https://www.aoc.gov/what-we-do/programs-ceremonies/inauguration"]},
+        {"id":"first_child_holdout","matter":"child","date":"1947-07-03","timezone":"America/New_York","sources":["https://www.govinfo.gov/content/pkg/CDIR-1978-03-01/pdf/CDIR-1978-03-01.pdf","https://www.nps.gov/people/rosalynn-carter.htm"]}
+      ]
+    },
+    {
+      "name": "Angelina Jolie",
+      "birthSource": "https://www.astro.com/astro-databank/Jolie%2C_Angelina",
+      "birthQuality": "AA, quoted birth record",
+      "chart": {"name":"Angelina Jolie","birthDate":"1975-06-04","birthTime":"09:09","timezone":"America/Los_Angeles","timeStandard":"auto","place":"Los Angeles, California","latitude":34.0961,"longitude":-118.2944,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"twins","matter":"child","date":"2008-07-12","time":"18:27","timezone":"Europe/Paris","sources":["https://www.cbsnews.com/news/french-paper-gets-brangelina-birth-scoop/","https://www.jta.org/2008/07/16/default/jewish-ob-gyn-delivers-jolie-pitt-twins"]},
+        {"id":"wedding_ceremony","matter":"marriage","date":"2014-08-23","timezone":"Europe/Paris","sources":["https://www.ap.org/the-definitive-source/behind-the-news/brad-and-angelina-costar-in-wedding-ap-reports-first/","https://gazette.com/2014/08/28/angelina-jolie-brad-pitt-wed-privately-at-chateau-in-france-9c4cbd9b-4061-5b84-9619-65cf8f02bfd2/"]},
+        {"id":"child_holdout","matter":"child","date":"2006-05-27","timezone":"Africa/Windhoek","sources":["https://mg.co.za/news/south-africa/2006-05-28-jolie-gives-birth-to-pitt-s-baby-girl-in-namibia/","https://www.namibian.com.na/angelina-brad-and-baby-daughter-depart/"]}
+      ]
+    },
+    {
+      "name": "Jacques Cousteau",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_06_11.htm?lang=r&nho2=427770&nhor=427770",
+      "birthQuality": "AA, quoted birth record; display 13:06 and source note 13:15 Paris time conflict",
+      "alternateBirthTime": "13:15",
+      "chart": {"name":"Jacques Cousteau","birthDate":"1910-06-11","birthTime":"13:06","timezone":"Europe/Paris","timeStandard":"zone","place":"Saint-André-de-Cubzac, France","latitude":44.9833,"longitude":-0.45,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"marriage","matter":"marriage","date":"1937-07-12","timezone":"Europe/Paris","sources":["https://files.eric.ed.gov/fulltext/ED363546.pdf","https://www.imdb.com/name/nm1370412/bio/"]},
+        {"id":"second_child","matter":"child","date":"1940-12-30","timezone":"Europe/Paris","sources":["https://www.oceanfutures.org/about/cousteau-family/simone-melchior-cousteau","https://www.astro.com/astro-databank/Cousteau%2C_Philippe_Pierre"]},
+        {"id":"first_child_holdout","matter":"child","date":"1938-05-06","timezone":"Europe/Paris","sources":["https://www.oceanfutures.org/about/cousteau-family/simone-melchior-cousteau","https://en.wikipedia.org/wiki/Jean-Michel_Cousteau"]}
+      ]
+    }
+  ]
+}

@@ -28,8 +28,10 @@ export interface ParashariComparison {
   staged?: StagedComparison;
   hierarchy?: { eligibleEvents: number; d1: ComparisonStat; division: ComparisonStat; major: ComparisonStat;
     sub: ComparisonStat; third?: ComparisonStat; qualifyingDraws: number[] };
+  /** Cross-chart period clues; natal indications remain qualitative and separate. */
+  crossTiming?: StagedComparison;
   /** A trial lost an event eligible in the actual set, so the measure cannot be compared fairly. */
-  unavailable?: Array<"v1" | "v2" | "v3" | "staged" | "hierarchy">;
+  unavailable?: Array<"v1" | "v2" | "v3" | "staged" | "hierarchy" | "crossTiming">;
 }
 export interface ParashariObservation {
   v1?: number;
@@ -38,6 +40,7 @@ export interface ParashariObservation {
   /** Two gated observations for one event, or undefined when the event cannot be assessed. */
   staged?: { first: boolean; third: boolean };
   hierarchy?: HierarchyEvent["passes"];
+  crossTiming?: { first: boolean; third: boolean };
 }
 /** One random-date event, for inspecting the very checks used in the trial. */
 export interface ParashariComparisonExample {
@@ -93,6 +96,15 @@ export function summarizeParashariComparisons(actual: ParashariObservation[], tr
     }
     const total = (set: ParashariObservation[]) => indices.reduce((sum, i) => sum + set[i][version]!, 0);
     result[version] = comparisonStat(trials.map(total), total(actual));
+  }
+  const crossIndices = actual.flatMap((a, i) => a.crossTiming ? [i] : []);
+  if (crossIndices.length) {
+    if (trials.some((trial) => crossIndices.some((i) => !trial[i].crossTiming))) {
+      (result.unavailable ??= []).push("crossTiming");
+    } else {
+      const project = (set: ParashariObservation[]): ParashariObservation[] => set.map((o) => ({ staged: o.crossTiming }));
+      result.crossTiming = summarizeParashariComparisons(project(actual), trials.map(project)).staged;
+    }
   }
   const hierarchyIndices = actual.flatMap((a, i) => a.hierarchy ? [i] : []);
   if (hierarchyIndices.length) {

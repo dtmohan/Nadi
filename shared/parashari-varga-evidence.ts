@@ -41,7 +41,7 @@ export function vargaSignAt(key: VargaKey, lon: number): number {
 
 export type PlacementDignity = "own sign" | "exaltation sign" | "debilitation sign" | "other";
 
-function signDignity(planet: Planet, sign: number): PlacementDignity {
+export function signDignity(planet: Planet, sign: number): PlacementDignity {
   if ((OWN_SIGNS[planet] ?? []).includes(sign)) return "own sign";
   const exaltation = EXALTATION[planet];
   if (exaltation?.sign === sign) return "exaltation sign";

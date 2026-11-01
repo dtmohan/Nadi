@@ -1200,7 +1200,7 @@ export function RectifyPanel({
                 and a new job or promotion are scored; other or explicitly mixed or unfavourable events are omitted.
                 D1 and divisional indications are partial and can conflict. These scores are not probabilities
                 or proof of a birth time. The random-date comparison is exploratory and is not calibrated to select a birth time.
-                These older point totals do not require D1 to pass before awarding later points. Use the separate experimental event funnel above to inspect cumulative gates; it does not change this ranking.
+                These older point totals do not require D1 to pass before awarding later points. The older strict funnel above also has known gaps and cannot rule out a candidate. Inspect D1 and the relevant division together below; these clues do not change this ranking.
                 Adjacent slices are grouped only when their displayed Parashari evidence agrees; Inspect chooses
                 a midpoint near the recorded time in that group.
                 {sortByScore && parashariComparable ? " Ties are displayed nearest the recorded time first." : ""}

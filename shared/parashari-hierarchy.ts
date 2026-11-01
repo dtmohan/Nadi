@@ -4,18 +4,43 @@
  * division must each have support without a listed contrary indication before
  * the period links can advance. Missing or mixed indications are unresolved.
  */
-import { drishtiQuarters, EXALTATION, naturalBenefic, OWN_SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "./astro";
+import { drishtiQuarters, ENEMIES, EXALTATION, FRIENDS, houseFrom, naturalBenefic, OWN_SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "./astro";
 import { rashiHouseView } from "./house-view";
 import { judgeBhavas } from "./parashari-houses";
 import { manleyTopicFor, type ManleyDivision, type ManleyEvidence, type ManleyFrame } from "./manley-evidence";
-import { vargaSignAt } from "./parashari-varga-evidence";
+import { signDignity, vargaSignAt, type PlacementDignity } from "./parashari-varga-evidence";
 
 export type HierarchyStatus = "supported" | "mixed" | "unresolved";
+export const CROSS_CHART_SOURCE = {
+  label: "P.V.R. Narasimha Rao, Vedic Astrology: An Integrated Approach, §§6.5–6.6 and worked example 5",
+  url: "https://www.vedicastrologer.org/articles/vedic_astro_textbook.pdf#page=74",
+};
 export interface HierarchyNatalCheck {
   house: number;
   status: HierarchyStatus;
   support: string[];
   strain: string[];
+}
+export interface CrossChartPlanet {
+  planet: Planet;
+  roles: Array<"D1 house lord" | "divisional house lord" | "natural significator">;
+  d1: CrossChartPlacement;
+  division: CrossChartPlacement;
+}
+export interface CrossChartPlacement {
+  sign: number;
+  house: number;
+  dignity: PlacementDignity;
+  signLord: Planet;
+  /** Natural relation to the sign lord, not a combined strength judgment. */
+  relation: "own" | "friend" | "enemy" | "neutral";
+}
+export interface CrossChartEvidence {
+  /** One entry per planet; multiple roles do not become independent evidence. */
+  planets: CrossChartPlanet[];
+  periods: Array<{ level: "dasa" | "bhukti" | "antara"; planet: Planet; d1: string[]; division: string[]; linked: boolean }>;
+  /** Sequential timing clues only, not a natal promise or a candidate verdict. */
+  timing: { first: boolean; third: boolean };
 }
 export interface HierarchyEvent {
   label: string;
@@ -25,6 +50,8 @@ export interface HierarchyEvent {
   moment?: ManleyEvidence["moment"];
   d1: HierarchyNatalCheck;
   divisionCheck: HierarchyNatalCheck;
+  /** Source-informed cross-chart clues, even when the older strict gate stops. */
+  crossChart?: CrossChartEvidence;
   periods: Array<{ level: "dasa" | "bhukti" | "antara"; planet: Planet; d1: string[]; division: string[]; passes: boolean }>;
   /** Each flag includes every preceding event-level gate. */
   passes: { d1: boolean; division: boolean; major: boolean; sub: boolean; third: boolean };
@@ -41,7 +68,7 @@ export function createParashariHierarchyScorer(natal: PlanetPosition[], lagna: n
     aspect: (p, from, to) => drishtiQuarters(p, from, to) >= 4 ? 4 : 0,
     benefic: naturalBenefic,
   });
-  const cache = new Map<string, { d1: HierarchyNatalCheck; divisionCheck: HierarchyNatalCheck }>();
+  const cache = new Map<string, { d1: HierarchyNatalCheck; divisionCheck: HierarchyNatalCheck; planets: CrossChartPlanet[] }>();
   return (evidence: ManleyEvidence | undefined, outcome?: "favourable" | "unfavourable" | "mixed"): HierarchyEvent | undefined => {
     if (!evidence || (outcome && outcome !== "favourable")) return undefined;
     const topic = manleyTopicFor(evidence.matter);
@@ -70,11 +97,56 @@ export function createParashariHierarchyScorer(natal: PlanetPosition[], lagna: n
       const strain = EXALTATION[lord] && (EXALTATION[lord].sign + 6) % 12 === lordSign
         ? [`${lord}, the house lord, in its debilitation sign`] : [];
       const divisionCheck: HierarchyNatalCheck = { house: topic.house, status: status(support, strain), support, strain };
-      foundation = { d1, divisionCheck };
+      const divisionAsc = vargaSignAt(topic.division, lagna);
+      const natalLord = SIGN_LORD[(asc + topic.house - 1) % 12];
+      const roles = new Map<Planet, CrossChartPlanet["roles"]>();
+      const addRole = (planet: Planet, role: CrossChartPlanet["roles"][number]) => {
+        const existing = roles.get(planet) ?? [];
+        existing.push(role);
+        roles.set(planet, existing);
+      };
+      addRole(natalLord, "D1 house lord");
+      addRole(lord, "divisional house lord");
+      for (const karaka of topic.karakas) addRole(karaka, "natural significator");
+      const planets = Array.from(roles.entries()).map(([planet, planetRoles]) => {
+        const p = natal.find((x) => x.planet === planet);
+        if (!p) throw new Error(`Missing ${planet} in cross-chart evidence`);
+        const d1Sign = vargaSignAt("D1", p.lon), divisionSign = vargaSignAt(topic.division, p.lon);
+        const place = (sign: number, ascendant: number): CrossChartPlacement => {
+          const signLord = SIGN_LORD[sign];
+          const relation = signLord === planet ? "own" : FRIENDS[planet].includes(signLord) ? "friend"
+            : ENEMIES[planet].includes(signLord) ? "enemy" : "neutral";
+          return { sign, house: houseFrom(ascendant, sign), dignity: signDignity(planet, sign), signLord, relation };
+        };
+        return { planet, roles: planetRoles,
+          d1: place(d1Sign, asc), division: place(divisionSign, divisionAsc) };
+      });
+      foundation = { d1, divisionCheck, planets };
       cache.set(evidence.matter, foundation);
     }
-    return hierarchyEventFromFoundations(evidence, foundation);
+    const basic = hierarchyEventFromFoundations(evidence, foundation);
+    return { ...basic, crossChart: crossChartEvidence(evidence, foundation.planets) };
   };
+}
+
+/**
+ * Inspect Manley's six families of timing clues without claiming they prove
+ * the natal promise. In particular a natal house lord retains that role in
+ * the relevant division, even when it has no primary divisional-house link.
+ */
+export function crossChartEvidence(evidence: ManleyEvidence, planets: CrossChartPlanet[]): CrossChartEvidence {
+  if (!evidence.antara || evidence.periods.length !== 2) throw new Error("Cross-chart evidence requires three periods");
+  const periods = [...evidence.periods, evidence.antara].map((p) => {
+    const d1 = p.frames.find((f) => f.chart === "D1");
+    const division = p.frames.find((f) => f.chart === evidence.division);
+    const d1Links = d1 ? links(d1) : [];
+    const divisionLinks = division ? [...links(division), ...division.supporting.ascendant,
+      ...division.supporting.natalHouseLord, ...division.supporting.bhavat] : [];
+    return { level: p.level, planet: p.planet, d1: d1Links, division: divisionLinks,
+      linked: d1Links.length > 0 && divisionLinks.length > 0 };
+  });
+  const first = periods[0].linked && periods[1].linked;
+  return { planets, periods, timing: { first, third: first && periods[2].linked } };
 }
 
 /** Event-level gate, exported separately so predecessor behavior is testable. */
@@ -94,7 +166,7 @@ export function hierarchyEventFromFoundations(
     return { level: p.level, planet: p.planet, d1: d1Links, division: divisionLinks, passes: eligible };
   });
   return { label: evidence.label, date: evidence.date, matter: evidence.matter, division: evidence.division,
-    moment: evidence.moment, ...foundation, periods,
+    moment: evidence.moment, d1: foundation.d1, divisionCheck: foundation.divisionCheck, periods,
     passes: { d1, division, major: periods[0].passes, sub: periods[1].passes, third: periods[2].passes } };
 }
 

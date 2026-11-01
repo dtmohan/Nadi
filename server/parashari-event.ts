@@ -28,7 +28,7 @@ export interface ParashariEventResult {
 
 export function parashariObservation(result: ParashariEventResult): ParashariObservation {
   return { v1: result.promise?.score, v2: result.specific?.score, v3: result.divisional?.score,
-    staged: stagedObservation(result.manley), hierarchy: result.hierarchy?.passes };
+    staged: stagedObservation(result.manley), hierarchy: result.hierarchy?.passes, crossTiming: result.hierarchy?.crossChart?.timing };
 }
 
 /**

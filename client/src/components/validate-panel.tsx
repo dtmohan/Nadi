@@ -809,7 +809,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
               placements; this does not change the other systems' scores.
             </p>
           )}
-          {v.events.some((e) => e.parashariPromise) && <p className="mt-3 text-xs text-muted-foreground">The older v1–v3 point totals do not require D1 to pass before awarding later points. The separate experimental hierarchy below uses cumulative gates. Neither establishes that an event was promised. In a small eight-person public-case test, the v1 ranking missed the reported-time ±5-minute band in all eight cases.</p>}
+          {v.events.some((e) => e.parashariPromise) && <p className="mt-3 text-xs text-muted-foreground">The older v1–v3 point totals do not require D1 to pass before awarding later points. The older strict gate can stop before considering cross-chart clues. Inspect D1 and the relevant division together below; none of these checks establishes that an event was promised. In a small eight-person public-case test, the v1 ranking missed the reported-time ±5-minute band in all eight cases.</p>}
           {v.events.map((e) => e.parashariPromise && <ParashariPromisePanel key={`parashari-score-${e.id}`} check={e.parashariPromise} />)}
           {v.events.some((e) => e.parashariSpecific) && <p className="mt-4 text-xs text-muted-foreground">Version 2 uses event-specific period and transit checks; its six equal points are an app convention. In nine public cases, held-out event scores at the reported birth times were nearly the same on nearby dates. The results do not establish a birth time.</p>}
           {v.events.map((e) => e.parashariSpecific && <ParashariSpecificPanel key={`parashari-specific-${e.id}`} check={e.parashariSpecific} />)}

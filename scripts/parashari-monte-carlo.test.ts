@@ -53,7 +53,8 @@ function independent(event: ChartEvent, date: string) {
 }
 
 const observe = (r: ReturnType<typeof independent>): ParashariObservation => ({
-  v1: r.promise?.score, v2: r.specific?.score, v3: r.divisional?.score, staged: stagedObservation(r.manley), hierarchy: r.hierarchy?.passes,
+  v1: r.promise?.score, v2: r.specific?.score, v3: r.divisional?.score, staged: stagedObservation(r.manley),
+  hierarchy: r.hierarchy?.passes, crossTiming: r.hierarchy?.crossChart?.timing,
 });
 
 test("Parashari trials independently recompute period lords and transit rules with each event's clock, zone and outcome", () => {
@@ -114,6 +115,20 @@ test("Parashari trials independently recompute period lords and transit rules wi
     const expected = trials.reduce((sum, set) => sum + count(set), 0) / trials.length;
     assert.equal(comparison.hierarchy?.[stage].actual, count(actual));
     assert.equal(comparison.hierarchy?.[stage].mean, Math.round(expected * 10) / 10);
+  }
+  const crossEligible = actual.flatMap((o, i) => o.crossTiming ? [i] : []);
+  const crossFirst = (set: ParashariObservation[]) => crossEligible.filter((i) => set[i].crossTiming!.first).length;
+  assert.equal(comparison.crossTiming?.first.actual, crossFirst(actual));
+  assert.equal(comparison.crossTiming?.first.mean, Math.round(trials.reduce((sum, set) => sum + crossFirst(set), 0) / trials.length * 10) / 10);
+  const crossPassed = crossEligible.filter((i) => actual[i].crossTiming!.first);
+  assert.deepEqual(comparison.crossTiming?.qualifyingDraws,
+    crossPassed.map((i) => trials.filter((trial) => trial[i].crossTiming!.first).length));
+  const crossDraws = crossPassed.map((i) => trials.filter((trial) => trial[i].crossTiming!.first));
+  if (crossPassed.length && crossDraws.every((d) => d.length)) {
+    const expected = crossDraws.reduce((sum, draws, n) =>
+      sum + draws.filter((trial) => trial[crossPassed[n]].crossTiming!.third).length / draws.length, 0);
+    assert.equal(comparison.crossTiming?.third?.actual, crossPassed.filter((i) => actual[i].crossTiming!.third).length);
+    assert.equal(comparison.crossTiming?.third?.mean, Math.round(expected * 10) / 10);
   }
   assert.equal(actual[4].v1, undefined, "unfavourable event is omitted from favourable v1–v3");
   assert.ok(actual[4].staged, "the descriptive staged check still covers this matter");
