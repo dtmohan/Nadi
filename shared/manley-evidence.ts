@@ -49,6 +49,8 @@ export interface ManleyFrame {
   supporting: { ascendant: string[]; natalHouseLord: string[]; bhavat: string[]; nodes: string[] };
   /** Functional lordship of this period planet in this frame; partial and descriptive. */
   functional?: FunctionalFrame;
+  /** Distinct angle/trine rulers with a listed relation, not a complete yoga judgment. */
+  angleTrinePairs: Array<{ partner: Planet; owns: number[]; partnerOwns: number[]; links: string[] }>;
   /** One-hop dispositor clues are weaker, separate from direct primary links. */
   nodeDispositor?: { planet: Planet; sign: number; house: number; owns: number[]; links: string[] };
   /** Placement plus a second direct event indicator in the same frame. */
@@ -161,6 +163,24 @@ export function createManleyFrameScorer(natal: PlanetPosition[], lagnaLon: numbe
         if (aspect(p, a, b) && aspect(other, b, a)) result.push("mutual full aspect");
         return result;
       };
+      // A separate, deliberately narrow general 4/7/10–5/9 relationship.
+      // The conjunction is counted only in an angle or trine (BPHS 34.11–12).
+      // An exchange or mutual full aspect is checked independently. The 1st
+      // lord, other kinds of connection, strength and exceptions need further
+      // judgment. Never merge this observation into the named-pair score.
+      const ownsOf = (planet: Planet) => Array.from({ length: 12 }, (_, i) => i + 1)
+        .filter((h) => SIGN_LORD[(asc + h - 1) % 12] === planet);
+      const owns = isNode(p) ? [] : ownsOf(p);
+      const angle = (hs: number[]) => hs.some((h) => [4, 7, 10].includes(h));
+      const trine = (hs: number[]) => hs.some((h) => [5, 9].includes(h));
+      const angleTrinePairs = natal.flatMap(({ planet: other }) => {
+        if (other === p || isNode(other)) return [];
+        const partnerOwns = ownsOf(other);
+        if (!(angle(owns) && trine(partnerOwns) || trine(owns) && angle(partnerOwns))) return [];
+        const links = formation(other).filter((link) => link !== "same-sign conjunction"
+          || [1, 4, 5, 7, 9, 10].includes(((pSign - asc + 12) % 12) + 1));
+        return links.length ? [{ partner: other, owns, partnerOwns, links }] : [];
+      });
       let dispositor: ManleyFrame["nodeDispositor"];
       if (nodeDispositor) {
         const d = nodeDispositor, ds = signOf(d), links: string[] = [];
@@ -189,6 +209,7 @@ export function createManleyFrameScorer(natal: PlanetPosition[], lagnaLon: numbe
         primary,
         supporting: { ascendant, natalHouseLord, bhavat, nodes },
         functional: functionalFrame(p, asc, pSign, eventHouse, (other) => relates(p, other), formation),
+        angleTrinePairs,
         nodeDispositor: dispositor,
         eventCombination: { matched: combinations.length > 0,
           explanations: combinations.map((x) => `${p} occupies house ${eventHouse}; ${x}`) },

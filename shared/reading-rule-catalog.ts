@@ -15,7 +15,7 @@ export const KP_EVENT_FIELDS = {
 export const MANLEY_FRAME_FIELDS = {
   chart: "natal", ascendant: "natal", house: "natal", houseSign: "natal", houseLord: "natal",
   bhavatHouse: "natal", bhavatLord: "natal", primary: "natal", supporting: "natal", functional: "natal",
-  nodeDispositor: "natal", eventCombination: "natal",
+  angleTrinePairs: "natal", nodeDispositor: "natal", eventCombination: "natal",
 } as const satisfies Record<keyof ManleyFrame, FieldScope>;
 
 type ScopedMethod = Extract<RectifyMethod, `kp-${string}` | `parashari-${string}`>;

@@ -24,6 +24,7 @@ import { normaliseParashariHouseMethod } from "../schema";
 import { natalEventEvidence } from "../event-reading";
 import { parashariNatalConditions } from "../natal-reading-evidence";
 import { MANLEY_SOURCE } from "../manley-evidence";
+import { FUNCTIONAL_SOURCE } from "../parashari-functional";
 import { parashariNatalConditionsParas } from "./natal-reading-evidence";
 import { PARASHARI_VARGA_SOURCE } from "../parashari-varga-evidence";
 import { parashariEvidenceParas } from "./parashari-varga-evidence";
@@ -690,7 +691,7 @@ export const parashariModule: ReportModule = {
     const conditional = parashariNatalConditions(ctx.result);
     if (conditional.length) (houses.sub ??= []).push({ id: "parashari-natal-conditional-rules",
       title: "Natal yoga pairs, nodes and matter-house combinations",
-      paras: parashariNatalConditionsParas(conditional, ctx.cites.add(MANLEY_SOURCE.label)) });
+      paras: parashariNatalConditionsParas(conditional, ctx.cites.add(MANLEY_SOURCE.label), ctx.cites.add(FUNCTIONAL_SOURCE.label, FUNCTIONAL_SOURCE.url)) });
     return [
       houses,
       timingSection(ctx, par),

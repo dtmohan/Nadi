@@ -627,8 +627,8 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
               ephemeris. Gochara from the natal Moon per{" "}
               <Cite href={BS_URL}>Brihat Samhita 104</Cite> and{" "}
               <Cite href={PD_URL}>Phaladeepika 26</Cite>, including vedha,
-              dignity and danger houses. Not Parashari: BPHS treats transit only
-              through Ashtakavarga. The birth star is read separately from
+              dignity and danger houses. This Moon-based reading is distinct from
+              the sign-based Ashtakavarga transit timeline. The birth star is read separately from
               Sutton, The Nakshatras (2014), a modern source.
             </>
           }

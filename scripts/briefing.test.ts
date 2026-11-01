@@ -10,6 +10,8 @@ import { agreementInput } from "@shared/agreement";
 import { briefingFor, housesRuled, lagnaEdge, tagsFor, LAGNA_EDGE_MINUTES, TAG_CAP } from "@shared/briefing";
 import { AREA_ORDER, houseAreas } from "@shared/life-areas";
 import { plainViolations, soften } from "@shared/gentle";
+import { houseFrom } from "@shared/astro";
+import { ordH } from "@shared/house-gloss";
 
 const chart = (
   name: string,
@@ -151,7 +153,7 @@ test("a minor's briefing tags nothing the gate holds back, and every row names i
   const HELD = new Set(["marriage", "children", "career", "wealth"]);
   assert.ok(b.now.some((r) => r.id === "pa-dasa"));
   for (const r of [...b.now, ...b.next]) {
-    assert.ok(["Parashari", "Transit", "Jaimini", "ALP", "Nadi"].includes(r.system), r.id);
+    assert.ok(["Parashari", "Ashtakavarga transit", "Jaimini", "ALP", "Nadi"].includes(r.system), r.id);
     assert.ok(r.tags.length <= TAG_CAP, r.id);
     for (const t of r.tags) assert.ok(!HELD.has(t.area), `${r.id} tags ${t.area}`);
   }
@@ -178,6 +180,25 @@ test("the plain briefing holds the practitioner detail back, and the practitione
   // The planets in play are the running lords first.
   const dasa = plain.now.find((r) => r.id === "pa-dasa")!;
   assert.equal(plain.planets[0].planet, dasa.dasaLord);
+});
+
+test("briefing labels both transit reference houses and identifies the Ashtakavarga grade", () => {
+  const result = resultOf(LAGOS);
+  const moon = result.positions.find((p) => p.planet === "Moon")!;
+  const lagna = agreementInput(result, true).parashari.lagna.signIndex;
+  assert.notEqual(moon.signIndex, lagna, "the synthetic chart distinguishes the Moon and ascendant");
+  for (const plain of [true, false]) {
+    const b = briefingFor(result, agreementInput(result, plain));
+    const rows = [...b.now, ...b.next].filter((r) => r.system === "Ashtakavarga transit");
+    assert.ok(rows.length >= 2);
+    for (const r of rows) {
+      const transit = result.transits.find((t) => t.start === r.start && r.what.startsWith(t.planet));
+      assert.ok(transit, r.id);
+      assert.match(r.what, new RegExp(`${ordH(houseFrom(lagna, transit.signIndex))} from the ascendant`));
+      assert.match(r.what, new RegExp(`${ordH(houseFrom(moon.signIndex, transit.signIndex))} from the Moon`));
+      assert.match(r.line ?? "", /^Ashtakavarga:/);
+    }
+  }
 });
 
 test("the plain briefing prints none of the deny-listed phrasings (shared/gentle.ts)", () => {

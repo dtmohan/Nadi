@@ -187,10 +187,10 @@ export function avTransitBand(rows: AvTransitRow[], planet: "Jupiter" | "Saturn"
       color: verdictFill(r.tone, plain),
       ink: r.tone === "strain" && plain ? ("fg" as const) : undefined,
       current: r.current,
-      readout: `${SIGN_ABBR[r.signIndex]}, ${VERDICT_WORD[r.tone]}`,
+      readout: `${SIGN_ABBR[r.signIndex]}, Ashtakavarga ${VERDICT_WORD[r.tone]}`,
       title: plain
-        ? `${planet} in ${SIGNS[r.signIndex]} · ${fmt(r.start)} to ${fmt(r.end)} · ${AV_OWN_PLAIN[r.ownVerdict]}, in ${AV_BAND_PLAIN[r.band]}: ${VERDICT_WORD[r.tone]}`
-        : `${planet} in ${SIGNS[r.signIndex]} · ${fmt(r.start)} to ${fmt(r.end)} · ${r.ownRekhas} of 8 rekhas in its own chart (${r.ownVerdict}, 66.70-72), ${r.sarva} in the aggregate (${r.band}, 72.3-5): ${VERDICT_WORD[r.tone]}`,
+        ? `${planet} in ${SIGNS[r.signIndex]} · ${fmt(r.start)} to ${fmt(r.end)} · Ashtakavarga: ${AV_OWN_PLAIN[r.ownVerdict]}, in ${AV_BAND_PLAIN[r.band]}: ${VERDICT_WORD[r.tone]}`
+        : `${planet} in ${SIGNS[r.signIndex]} · ${fmt(r.start)} to ${fmt(r.end)} · Ashtakavarga: ${r.ownRekhas} of 8 rekhas in its own chart (${r.ownVerdict}, 66.70-72), ${r.sarva} in the aggregate (${r.band}, 72.3-5): ${VERDICT_WORD[r.tone]}`,
     })),
   };
 }

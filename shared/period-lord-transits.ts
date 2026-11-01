@@ -609,32 +609,32 @@ export function dasaLordStrip(
       let readout: string;
       let matters: string;
       if (isHeld) {
-        readout = opts.plain ? `${planet} in your ${ordH(h)}, held` : `${ab} ${ordH(h)}, held`;
-        matters = `${cap(thePlanet(planet))} in the ${ordH(h)} house: held for later, read from age ${AREA_ONSET[area]}.`;
+        readout = opts.plain ? `${planet} in your ${ordH(h)} from the ascendant, held` : `${ab} ${ordH(h)} from lagna, held`;
+        matters = `${cap(thePlanet(planet))} in the ${ordH(h)} house from the ascendant: held for later, read from age ${AREA_ONSET[area]}.`;
       } else if (opts.plain) {
         const who = `${cap(thePlanet(planet))}, the main-period planet,`;
         const whyP = listJoin(v.why.map((w) => WHY34_PLAIN[w]));
         readout =
           v.state === "good"
-            ? `${planet} in your ${ordH(h)}, builds it`
+            ? `${planet} in your ${ordH(h)} from the ascendant, builds it`
             : v.state === "hard"
-              ? `${planet} in your ${ordH(h)}, more care`
-              : `${planet} in your ${ordH(h)}`;
+              ? `${planet} in your ${ordH(h)} from the ascendant, more care`
+              : `${planet} in your ${ordH(h)} from the ascendant`;
         matters =
           v.state === "good"
-            ? `${who} strong at birth and ${whyP} in the sky here, builds up your ${ordH(h)} house (${areaText}) in this stretch (Phaladeepika 20.34).`
+            ? `${who} strong at birth and ${whyP} in the sky here, builds up your ${ordH(h)} house from the ascendant (${areaText}) in this stretch (Phaladeepika 20.34).`
             : v.state === "hard"
-              ? `${who} was under strain at birth and is ${whyP} in the sky here. Matters of your ${ordH(h)} house (${areaText}) may ask for more care in this stretch (Phaladeepika 20.35).`
-              : `${who} is passing your ${ordH(h)} house (${areaText}).`;
+              ? `${who} was under strain at birth and is ${whyP} in the sky here. Matters of your ${ordH(h)} house from the ascendant (${areaText}) may ask for more care in this stretch (Phaladeepika 20.35).`
+              : `${who} is passing your ${ordH(h)} house from the ascendant (${areaText}).`;
       } else {
         const short = v.why.map((w) => WHY34_SHORT[w]).join(", ");
         const long = listJoin(v.why.map((w) => why34Long(w, signIndex)));
         readout =
           v.state === "good"
-            ? `${ab} ${ordH(h)} (${SIGN_ABBR[signIndex]} ${short}): builds (20.34)`
+            ? `${ab} ${ordH(h)} from lagna (${SIGN_ABBR[signIndex]} ${short}): builds (20.34)`
             : v.state === "hard"
-              ? `${ab} ${ordH(h)} (${SIGN_ABBR[signIndex]} ${short}): loss (20.35)`
-              : `${ab} ${ordH(h)} (${SIGN_ABBR[signIndex]})`;
+              ? `${ab} ${ordH(h)} from lagna (${SIGN_ABBR[signIndex]} ${short}): loss (20.35)`
+              : `${ab} ${ordH(h)} from lagna (${SIGN_ABBR[signIndex]})`;
         const combust = v.why.includes("combust") ? combustRunText(planet, run) : "";
         matters =
           v.state === "good"
@@ -660,7 +660,7 @@ export function dasaLordStrip(
           end,
           readout: opts.plain ? "a helpful placement (20.59)" : "good for the dasa (20.59)",
           title: opts.plain
-            ? `A verse Mantreswara quotes from Sripati counts the ${ordH(h)} house as a helpful place for the main-period planet to pass (Phaladeepika 20.59).`
+            ? `A verse Mantreswara quotes from Sripati counts the ${ordH(h)} house from the ascendant as a helpful place for the main-period planet to pass (Phaladeepika 20.59).`
             : `20.59 (Sripati, quoted): the dasa is good while its lord transits the lagna or the 3rd, 6th, 10th or 11th from it; here the ${ordH(h)}.`,
         });
     }
@@ -777,7 +777,7 @@ export function moonFromDasaLord(dasaLord: Planet, now: PlanetPosition[], natal:
 // Notes under the life-periods graphic.
 
 export const PERIOD_LORD_STRIPS_NOTE_PLAIN =
-  "The thin Transit row under each period row follows that period's planet through the sky. Under the main period it names the house the planet is passing: green where the text says a planet strong at birth builds that house (Phaladeepika 20.34), pale red where a planet under strain at birth may ask for more care there (20.35), and a dark tick where a verse the text quotes calls the house a helpful place for the period (20.59). Under the sub-period, green is a lighter stretch and pale red a stretch to go gently (20.37); dark ticks mark the months the Sun, or Jupiter, brings out a good sub-period's good, or asks for a gentler pace in a trying one (20.38). These rows sit beside the period's own tone and change nothing in it. The Moon moves too fast to draw; its day reading is on the Overview.";
+  "The thin Transit row under each period row follows that period's planet through the sky. Under the main period it names the house from the birth ascendant that the planet is passing: green where the text says a planet strong at birth builds that house (Phaladeepika 20.34), pale red where a planet under strain at birth may ask for more care there (20.35), and a dark tick where a verse the text quotes calls the house a helpful place for the period (20.59). Under the sub-period, green is a lighter stretch and pale red a stretch to go gently (20.37); dark ticks mark the months the Sun, or Jupiter, brings out a good sub-period's good, or asks for a gentler pace in a trying one (20.38). These rows sit beside the period's own tone and change nothing in it. The Moon moves too fast to draw; its day reading is on the Overview.";
 
 export const PERIOD_LORD_STRIPS_NOTE =
   "Transit rows, Phaladeepika ch. 20, shown and not counted. Under the dasa: the dasa lord's sign by house from the lagna, good by 20.34 (supported at birth, and in its own, exaltation or a friend's sign in transit) and hard by 20.35 read narrowly (strained at birth, and combust, debilitated or in an enemy's sign in transit; wisdomlib's broader reading would mark every house a natally weak lord passes, for its whole dasa). Ticks: 20.59's first clause (Sripati, quoted: the lagna, 3rd, 6th, 10th or 11th; wisdomlib prints the heading that makes it a transit rule, vedicpupil reads birth placements; the saptavarga and friend-or-benefic clauses are left out). Under the bhukti: 20.37's state of the sub-lord (own sign, exaltation or retrograde: happiness; debilitation, an enemy's sign or combust: hardship; both at once: mixed, both named, not netted). Ticks: 20.38 in a favourable bhukti, the Sun or Jupiter in the sub-lord's own or exaltation sign (the Devanagari; wisdomlib's English has the exaltation only), and in a trying one, the Sun in its debilitation or an enemy's sign. Favourable and trying are the antar verdict (ch. 52-60); a mixed bhukti has no ticks. The sub-lord is kept in both halves of 20.38 as wisdomlib reads it; vedicpupil reads the dasa lord in the second. Natural relations BPHS 3.55; combustion by the Surya Siddhanta distances. The nodes are not graded (no sign tables; the mean nodes are always retrograde) and keep 20.59; the Moon is not drawn.";

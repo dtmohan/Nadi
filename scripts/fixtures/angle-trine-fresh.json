@@ -1,0 +1,42 @@
+{
+  "cases": [
+    {
+      "name": "Sania Mirza", "background": "Indian tennis player",
+      "birthSource": "https://www.astro.com/astro-databank/Mirza%2C_Sania", "birthQuality": "C: 14:30 reported indirectly through an astrology discussion; an earlier 11:28 report differs",
+      "alternateBirthTimes": ["11:28"],
+      "chart": { "name": "Sania Mirza", "gender": "female", "birthDate": "1986-11-15", "birthTime": "14:30", "timezone": "Asia/Kolkata", "timeStandard": "auto", "place": "Mumbai, India", "latitude": 18.9667, "longitude": 72.8333, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "sm-marriage", "matter": "marriage", "date": "2010-04-12", "time": "13:00", "timezone": "Asia/Kolkata", "sources": ["https://www.ndtv.com/india-news/finally-shoaib-and-sania-just-married-415124", "https://www.theguardian.com/world/2010/apr/12/sania-mirza-shoaib-malik-wedding"] },
+        { "id": "sm-child", "matter": "child", "date": "2018-10-30", "time": "08:00", "timezone": "Asia/Kolkata", "clockNote": "08:00 is illustrative; the source says early morning", "sources": ["https://www.newindianexpress.com/amp/story/sport/sports-news/2018/Oct/30/sania-mirza-shoaib-malik-blessed-with-baby-boy-1891921.html", "https://en.wikipedia.org/wiki/Sania_Mirza"] }
+      ]
+    },
+    {
+      "name": "Novak Djokovic", "background": "Serbian tennis player",
+      "birthSource": "https://www.astro.com/astro-databank/Djokovic%2C_Novak", "birthQuality": "AA: 23:25 quoted from a civil-register report; indirect citation of record",
+      "chart": { "name": "Novak Djokovic", "gender": "male", "birthDate": "1987-05-22", "birthTime": "23:25", "timezone": "Europe/Belgrade", "timeStandard": "auto", "place": "Belgrade, Serbia", "latitude": 44.8333, "longitude": 20.5, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "nd-marriage", "matter": "marriage", "date": "2014-07-10", "time": "18:00", "timezone": "Europe/Belgrade", "sources": ["https://www.si.com/tennis/2014/07/10/ap-ten-djokovic-wedding", "https://www.usmagazine.com/celebrity-news/news/novak-djokovic-marries-fiancee-jelena-ristic-wedding-details-2014107/"] },
+        { "id": "nd-child", "matter": "child", "date": "2014-10-21", "timezone": "Europe/Paris", "sources": ["https://www.astro.com/astro-databank/Djokovic%2C_Novak", "https://novakdjokovic.com/en/news/events/novak-and-jelena-became-a-parents/"] }
+      ]
+    },
+    {
+      "name": "Julia Roberts", "background": "American actor",
+      "birthSource": "https://www.astro.com/astro-databank/Roberts%2C_Julia", "birthQuality": "AA: 00:16 quoted from a birth record",
+      "chart": { "name": "Julia Roberts", "gender": "female", "birthDate": "1967-10-28", "birthTime": "00:16", "timezone": "America/New_York", "timeStandard": "auto", "place": "Atlanta, Georgia, USA", "latitude": 33.75, "longitude": -84.3833, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "jr-marriage", "matter": "marriage", "date": "2002-07-04", "time": "00:00", "timezone": "America/Denver", "clockNote": "Midnight approximate; source accounts describe a delayed ceremony", "sources": ["https://www.astro.com/astro-databank/Roberts%2C_Julia", "https://www.yahoo.com/entertainment/julia-roberts-danny-moder-pulled-150152252.html"] },
+        { "id": "jr-child", "matter": "child", "date": "2004-11-28", "time": "03:00", "timezone": "America/Los_Angeles", "alternateTimes": ["01:21"], "clockNote": "The databank gives about 03:00 and separately lists 01:21/01:22 for the twins", "sources": ["https://www.astro.com/astro-databank/Roberts%2C_Julia", "https://www.cbsnews.com/news/julia-roberts-twins-doing-fine/"] }
+      ]
+    },
+    {
+      "name": "Neil Armstrong", "background": "American aerospace engineer and astronaut",
+      "birthSource": "https://www.astro.com/astro-databank/Armstrong%2C_Neil", "birthQuality": "AA: 00:31 birth record and family letter; EST versus CST for birthplace remains disputed",
+      "alternateBirthStandards": ["-06:00"],
+      "chart": { "name": "Neil Armstrong", "gender": "male", "birthDate": "1930-08-05", "birthTime": "00:31", "timezone": "America/New_York", "timeStandard": "-05:00", "place": "Wapakoneta, Ohio, USA", "latitude": 40.5667, "longitude": -84.2, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "2012-08-25" },
+      "events": [
+        { "id": "na-marriage", "matter": "marriage", "date": "1956-01-28", "timezone": "America/Chicago", "sources": ["https://www.biography.com/scientists/neil-armstrong", "https://en.wikipedia.org/wiki/Neil_Armstrong"] },
+        { "id": "na-job", "matter": "job", "date": "1962-09-17", "timezone": "America/Chicago", "alternateDates": ["1962-09-16"], "clockNote": "Noon and Houston zone assumed; NASA says September 17, Astro-Databank says September 16", "sources": ["https://www.nasa.gov/history/65-years-ago-first-factory-rollout-of-the-x-15-hypersonic-rocket-plane/", "https://www.astro.com/astro-databank/Armstrong%2C_Neil"] }
+      ]
+    }
+  ]
+}

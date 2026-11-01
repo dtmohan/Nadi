@@ -43,6 +43,7 @@ export interface NowYear {
 export interface NowTransit {
   planet: "Saturn" | "Jupiter";
   signIndex: number;
+  /** Whole-sign house from the natal ascendant; tone comes from the sign's Ashtakavarga marks. */
   house: number;
   start: string;
   end: string;
@@ -84,7 +85,7 @@ export interface TimingChange {
   years?: number;
   /** Period: the incoming lord's lordship gloss. */
   gloss?: DashaGloss;
-  /** Year: the bhava that rules it. Transit: the whole-sign house entered. */
+  /** Year: the bhava that rules it. Transit: the whole-sign house from the natal ascendant. */
   house?: number;
   transit?: NowTransit;
 }

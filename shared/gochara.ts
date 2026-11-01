@@ -4,7 +4,7 @@
  * the reference (Phaladeepika 26.1), list the same favourable houses (BS 104.4, PD 26.2), and give house-by-house
  * results (BS 104.5-45, PD 26.9-24). Phaladeepika adds the vedha (obstruction) points (26.3-8), the aspect rule (26.30,
  * with BS 104.52-53), the dignity rule (26.31-32), the danger houses (26.33-34) and the Ashtakavarga rule (26.41). Nothing
- * here is Parashari: BPHS treats transit only through Ashtakavarga.
+ * here is the Moon-based gochara reading of those two texts; other transit techniques use their own references.
  */
 import { redactSensitive } from "./life-stage";
 import { ENEMIES, houseFrom, type Planet, type PlanetPosition } from "./astro";

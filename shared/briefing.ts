@@ -9,7 +9,7 @@
  * transit timeline is redacted for a minor before it is read.
  */
 import { DateTime } from "luxon";
-import { SIGNS, type Planet, type PlanetPosition } from "./astro";
+import { houseFrom, SIGNS, type Planet, type PlanetPosition } from "./astro";
 import type { ChartResult } from "./schema";
 import type { LifeArea } from "./rules";
 import type { AgreementInput } from "./agreement";
@@ -34,7 +34,7 @@ import { ALP_HOUSE_GLOSS, listJoin, ordH, thePlanet } from "./house-gloss";
 
 // ---- Shapes --------------------------------------------------------------------------------------
 
-export type BriefSystem = "Parashari" | "Transit" | "Jaimini" | "ALP" | "Nadi";
+export type BriefSystem = "Parashari" | "Ashtakavarga transit" | "Jaimini" | "ALP" | "Nadi";
 
 /** Where a line opens: a tab, optionally one of its chapters and an element to scroll to (a CSS selector). */
 export interface BriefLink {
@@ -434,7 +434,11 @@ function lordLine(
 
 function transitLine(row: AvTransitRow | undefined, points: number, plain: boolean): string {
   const own = row ? `${row.ownRekhas} of 8 marks in ${row.planet}'s own Ashtakavarga; ` : "";
-  return plain ? `${cap(own)}${points} points in all.` : `${cap(own)}${points} in the Sarvashtakavarga (BPHS ch. 66-72).`;
+  return plain ? `Ashtakavarga: ${own}${points} points in all.` : `Ashtakavarga: ${own}${points} in the Sarvashtakavarga (BPHS ch. 66-72).`;
+}
+
+function transitPlace(sign: number, ascHouse: number, moonSign?: number): string {
+  return `${ordH(ascHouse)} from the ascendant${moonSign === undefined ? "" : `, ${ordH(houseFrom(moonSign, sign))} from the Moon`}`;
 }
 
 function avRowFor(av: AvTimeline, planet: "Saturn" | "Jupiter", start: string): AvTransitRow | undefined {
@@ -463,7 +467,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
   const lagnaSign = par.lagna.signIndex;
   const held: (a: LifeArea) => boolean = heldAreasAt(result.utc, lifeAt);
   const horizonEnd = DateTime.fromISO(lifeAt).plus({ months: horizonMonths }).toISO()!;
-  const moonSign = positions.find((p) => p.planet === "Moon")?.signIndex ?? 0;
+  const moonSign = positions.find((p) => p.planet === "Moon")?.signIndex;
   const yk = (p: Planet) => par.natures.some((n) => n.planet === p && n.functional === "yogakaraka");
 
   const chalit = result.shadbala ? computeChalit(positions, result.shadbala.asc, result.shadbala.mc) : undefined;
@@ -556,15 +560,15 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
   for (const t of [tn.saturn, tn.jupiter]) {
     if (!t) continue;
     const row = avRowFor(av, t.planet, t.start);
-    const moonNote = t.planet === "Saturn" ? saturnFromMoon(t.signIndex, moonSign, plain) : plain ? undefined : `${ordH(((t.signIndex - moonSign + 12) % 12) + 1)} from the Moon.`;
+    const moonNote = t.planet === "Saturn" && moonSign !== undefined ? saturnFromMoon(t.signIndex, moonSign, plain) : undefined;
     now.push({
       id: `tr-${t.planet.toLowerCase()}`,
       group: "now",
       start: t.start,
       end: t.end,
       when: spanM(t.start, t.end, zone),
-      system: "Transit",
-      what: `${t.planet} in ${SIGNS[t.signIndex]}, your ${ordH(t.house)}`,
+      system: "Ashtakavarga transit",
+      what: `${t.planet} in ${SIGNS[t.signIndex]} · ${transitPlace(t.signIndex, t.house, moonSign)}`,
       lean: t.tone,
       line: plain ? [transitLine(row, t.points, true), moonNote].filter(Boolean).join(" ") : transitLine(row, t.points, false),
       detail: plain ? undefined : moonNote,
@@ -612,12 +616,12 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
       default: {
         const t = c.transit!;
         const row = avRowFor(av, t.planet, t.start);
-        const moonNote = t.planet === "Saturn" ? saturnFromMoon(t.signIndex, moonSign, plain) : undefined;
+        const moonNote = t.planet === "Saturn" && moonSign !== undefined ? saturnFromMoon(t.signIndex, moonSign, plain) : undefined;
         return {
           ...base,
           id: `next-${t.planet.toLowerCase()}`,
-          system: "Transit",
-          what: `${t.planet} enters ${SIGNS[t.signIndex]}, your ${ordH(t.house)}`,
+          system: "Ashtakavarga transit",
+          what: `${t.planet} enters ${SIGNS[t.signIndex]} · ${transitPlace(t.signIndex, t.house, moonSign)}`,
           line: plain ? [transitLine(row, t.points, true), moonNote].filter(Boolean).join(" ") : transitLine(row, t.points, false),
           detail: plain ? undefined : moonNote,
           tags: tagsFor({ house: t.house }, lagnaSign, held),
@@ -786,6 +790,7 @@ function planetsInPlay(
 ): PlanetBrief[] {
   const par = input.parashari;
   const lagnaSign = par.lagna.signIndex;
+  const moonSign = result.positions.find((p) => p.planet === "Moon")?.signIndex;
   const roles = new Map<Planet, string[]>();
   const add = (p: Planet | undefined, r: string) => {
     if (!p) return;
@@ -794,7 +799,7 @@ function planetsInPlay(
   if (tn.dasa) add(tn.dasa.lord, `${cap(levelName("dasa", plain))} lord, ${spanM(tn.dasa.start, tn.dasa.end, zone)}`);
   if (tn.antar) add(tn.antar.lord, `${cap(levelName("antar", plain))} lord, ${spanD(tn.antar.start, tn.antar.end, zone)}`);
   if (tn.pratyantar) add(tn.pratyantar.lord, `${cap(levelName("pratyantar", plain))} lord, ${spanD(tn.pratyantar.start, tn.pratyantar.end, zone)}`);
-  for (const t of [tn.saturn, tn.jupiter]) if (t) add(t.planet, `In transit through ${SIGNS[t.signIndex]}, your ${ordH(t.house)}`);
+  for (const t of [tn.saturn, tn.jupiter]) if (t) add(t.planet, `In transit through ${SIGNS[t.signIndex]} · ${transitPlace(t.signIndex, t.house, moonSign)}`);
   const nextPeriod = tn.next.find((c) => c.kind === "period");
   if (nextPeriod?.lord) add(nextPeriod.lord, `Next ${levelName("dasa", plain)} lord, from ${day(nextPeriod.date, zone)}`);
 

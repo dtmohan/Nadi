@@ -1,0 +1,21 @@
+# Angle–trine connections: fresh public-case review
+
+The [protocol](angle-trine-fresh-protocol.md) and [case fixture](../scripts/fixtures/angle-trine-fresh.json) were fixed before the evaluation. The [raw results](angle-trine-fresh-results.json) retain event instants, sources, alternatives, full connections, midpoint checks and implementation hashes. Reproduce with `node --import tsx scripts/eval-angle-trine.ts`.
+
+The source regression first reproduces Paul Manley's supplied capture, p. 66: in B.V. Raman's D7, Aries rises and Jupiter, the ninth and twelfth lord, joins Venus, the seventh and second lord, in the fifth. The generalized observation catches this relationship; the old named-pair filter did not. Both planets' additional lordships stay visible. [BPHS 34.11–15](https://vedic-astro.s3.amazonaws.com/books/bhrihat_parasara_hora_shastra.pdf) includes conditions and exceptions that this subset does not fully assess. This is a check of a worked example, not evidence that an event was predicted.
+
+| Descriptive flag | Actual events | Nearby dates with the flag | Nearby dates with the same flag as the event |
+| --- | ---: | ---: | ---: |
+| Main or subperiod lord in a D1 angle–trine connection | 1/8 | 6/48 | 48/48 |
+| Main or subperiod lord in the matter's D7, D9 or D10 connection | 0/8 | 1/48 | 47/48 |
+
+For each of the eight events, the natal frames matched the dated reading and Validate; one independently recomputed exact Rectify midpoint per person also matched the full event frame. Each event was compared with six dates at ±60, ±120 and ±180 days using the same assumed event time and zone. The nearby dates are not known non-events, so the table is not a false-positive rate. The pair need not itself signify the event house, and a repeated period lord is not independent evidence. These events and observations are correlated.
+
+| Person | Public examples and reported birth data | Sensitivity |
+| --- | --- | --- |
+| Sania Mirza, Indian tennis player | [Birth data, Rodden C](https://www.astro.com/astro-databank/Mirza%2C_Sania); [2010 wedding](https://www.ndtv.com/india-news/finally-shoaib-and-sania-just-married-415124); [2018 childbirth](https://www.newindianexpress.com/amp/story/sport/sports-news/2018/Oct/30/sania-mirza-shoaib-malik-blessed-with-baby-boy-1891921.html). | The alternative reported 11:28 birth time changes both D1 and divisional flags to present for both events. Neither birth clock is independently verified. |
+| Novak Djokovic, Serbian tennis player | [Birth data, AA](https://www.astro.com/astro-databank/Djokovic%2C_Novak); [2014 wedding](https://www.si.com/tennis/2014/07/10/ap-ten-djokovic-wedding); [childbirth](https://novakdjokovic.com/en/news/events/novak-and-jelena-became-a-parents/). | Birth time is an indirect citation of a registrar report. The child's clock is unknown and noon was assumed. |
+| Julia Roberts, American actor | [Birth data, AA](https://www.astro.com/astro-databank/Roberts%2C_Julia); [2002 wedding](https://www.yahoo.com/entertainment/julia-roberts-danny-moder-pulled-150152252.html); [2004 twins](https://www.cbsnews.com/news/julia-roberts-twins-doing-fine/). | The alternate child-birth clock did not change these flags. Her D1 Saturn–Mars connection appeared on the event and all six nearby dates, with both planets' other lordships retained. |
+| Neil Armstrong, American aerospace engineer and astronaut | [Birth data, AA](https://www.astro.com/astro-databank/Armstrong%2C_Neil); [1956 wedding](https://www.biography.com/scientists/neil-armstrong); [1962 NASA selection](https://www.nasa.gov/history/65-years-ago-first-factory-rollout-of-the-x-15-hypersonic-rocket-plane/). | Historical Eastern versus Central time at birth and NASA versus Astro-Databank's selection date were tested; these alternatives did not change the two flags. Event clocks are assumed. |
+
+This small convenience sample contains no event with the divisional flag at the reported birth times. The flags were mostly unchanged on nearby dates, and the disputed Sania Mirza birth times show sensitivity to input assumptions. The evidence supports showing the observations for inspection, with their limitations; it does not justify adding them to a score, rejecting an event when no connection appears, selecting a birth time, or claiming predictive accuracy.

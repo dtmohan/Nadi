@@ -85,6 +85,7 @@ export const AV_TRANSIT_SOURCES: Record<string, BalaSource> = {
 };
 
 export const AV_TRANSIT_CAVEATS = [
+  "The passage's house label is counted from the natal ascendant. The tone instead combines the planet's own and aggregate Ashtakavarga marks in its transiting sign; it is not a grade from the ascendant or a Moon-based gochara verdict. The birth ascendant remains one contributor to the natal marks.",
   "A sign carries eight marks, one from each of the seven planets and the lagna, so the own-chart reading of 66.70-72 is taken as favourable at five or more rekhas, adverse at three or fewer and even at four. The verse states the rule per contributor; the count is the stated reading of it.",
   "The overall tone joins the own-chart reading with the Sarvashtakavarga band: favourable on both counts reads supportive, adverse on both reads straining, and any other pair mixed. A chapter-70 point struck in the sign or nakshatra is shown beside the tone rather than folded into it.",
   "70.19-20 reads the year by the mean Jupiter's sign; the timeline uses the true Jupiter from the ephemeris, so the Sun-chart reading of Jupiter's years is marked provisional. Re-entries by retrograde motion are listed as separate periods.",
@@ -157,7 +158,7 @@ export function computeAvTimeline(
           source: ownSrc,
         });
         notes.push({
-          text: `The sign carries ${av.sarva[s]} rekhas in the aggregate (${band}), the ${ordinal(((s - lagnaIdx + 12) % 12) + 1)} house.`,
+          text: `The sign carries ${av.sarva[s]} rekhas in the aggregate (${band}), the ${ordinal(((s - lagnaIdx + 12) % 12) + 1)} house from the natal ascendant.`,
           source: AV_TRANSIT_SOURCES.sarva,
         });
         let sunRekhas: number | undefined;

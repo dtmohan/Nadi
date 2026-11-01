@@ -1,7 +1,9 @@
 import { describeEventMoment, matterOf } from "../events";
+import { EVENT_TRANSIT_SCOPE } from "../transit-context";
 import { stagedObservation } from "../parashari-comparison";
 import { PARASHARI_VARGA_SOURCE } from "../parashari-varga-evidence";
 import { MANLEY_SOURCE, RAO_EDUCATION_SOURCE } from "../manley-evidence";
+import { FUNCTIONAL_SOURCE } from "../parashari-functional";
 import { RAO_SOURCE } from "../jaimini-areas";
 import { KP_TRANSIT_EVIDENCE_SOURCE } from "../kp-transit-evidence";
 import { AURORA_SOURCE } from "../kp-aurora";
@@ -21,6 +23,7 @@ export function topicReadingSection(ctx: ReportContext, system: string): ReportS
   const { cites, S } = ctx;
   const paras: ReportPara[] = [{ kind: "note", provisional: true,
     text: `${e.label} · ${e.date} · ${describeEventMoment(e, ctx.result.chart.timezone)}. This chosen-date reading applies the same conditions as Validate. It does not claim that an event occurred or predict that it will occur.` }];
+  paras.push({ kind: "note", text: EVENT_TRANSIT_SCOPE });
   if (system === "parashari") {
     if (e.parashariVargas) {
       paras.push({ kind: "note", text: "The natal and divisional frames below use whole-sign houses and the chart's selected ayanamsa.",
@@ -45,7 +48,8 @@ export function topicReadingSection(ctx: ReportContext, system: string): ReportS
       text: `Earlier divisional-only staged experiment: earlier lords ${stage.first ? "both found" : "unresolved"}; third lord ${stage.first ? (stage.third ? "a link was found" : "unresolved") : "not counted because the earlier stage is unresolved"}. It does not require D1 or assess outcome or transits.` });
     if (e.parashariHierarchy) paras.push(...hierarchyParas(e.parashariHierarchy));
     if (e.manley) paras.push(...manleyEvidenceParas(e.manley, cites.add(MANLEY_SOURCE.label),
-      e.manley.educationFourth ? cites.add(RAO_EDUCATION_SOURCE.label, RAO_EDUCATION_SOURCE.url) : undefined));
+      e.manley.educationFourth ? cites.add(RAO_EDUCATION_SOURCE.label, RAO_EDUCATION_SOURCE.url) : undefined,
+      cites.add(FUNCTIONAL_SOURCE.label, FUNCTIONAL_SOURCE.url)));
   } else if (system === "kp") {
     const k = e.kp;
     paras.push({ kind: "p", text: `Matter houses ${e.houses.join(", ")}; cusp ${e.cusp} sub lord ${k.cuspSubLord} signifies ${k.cuspSignified.join(", ") || "none of them"}. ${(["dasa", "bhukti", "antara"] as const).map((level, i) => `${level} ${k[level]}: ${k.signified[i].join(", ") || "no selected house"}`).join("; ")}. Period-lord transit points: ${k.transit.score}/${k.transit.max}. This uses Validate's four-step event check; the broader sky is descriptive.`,

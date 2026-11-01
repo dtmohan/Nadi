@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
+import { EVENT_TRANSIT_SCOPE } from "@shared/transit-context";
 import type { ChartResult } from "@shared/schema";
 import { PLANET_ABBR, type Planet } from "@shared/astro";
 import type {
@@ -443,6 +444,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             it uses the birth zone ({chart.timezone}). A period or transit may
             change during the day. Random dates keep the same local time and zone.
           </p>
+          <p className="mt-2 text-xs text-muted-foreground" data-testid="validate-transit-scope">{EVENT_TRANSIT_SCOPE}</p>
         </div>
       </div>
 
@@ -542,7 +544,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
               </span>
             </span>
             <span className="inline-flex items-center gap-1.5">
-              Period-lord transits{" "}
+              KP period-lord transits{" "}
               <ScoreBar
                 score={v.summary.transitScore}
                 max={v.summary.transitMax}

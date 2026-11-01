@@ -1,7 +1,7 @@
 import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
-import { NAKSHATRAS, type Planet } from "@shared/astro";
+import { houseFrom, NAKSHATRAS, type Planet } from "@shared/astro";
 import { CONTRIBUTORS } from "@shared/ashtakavarga";
 import type {
   AvTimeline,
@@ -440,10 +440,12 @@ export function RekhaMarks({
 
 function Row({
   r,
+  natalMoonSign,
   open,
   toggle,
 }: {
   r: AvTransitRow;
+  natalMoonSign?: number;
   open: boolean;
   toggle: () => void;
 }) {
@@ -471,7 +473,9 @@ function Row({
         </span>
         <span className="flex items-center gap-2 text-sm">
           <SignName signIndex={r.signIndex} />
-          <span className="text-xs text-muted-foreground">{r.house}H</span>
+          <span className="text-xs text-muted-foreground">
+            {r.house} from ascendant{natalMoonSign === undefined ? "" : ` · ${houseFrom(natalMoonSign, r.signIndex)} from Moon`}
+          </span>
           {r.retrogradeEntry && (
             <span className="rounded border px-1 text-2xs text-muted-foreground">
               retrograde re-entry
@@ -590,12 +594,14 @@ function NakRow({ r }: { r: AvNakshatraRow }) {
 export function AvTimelineSection({
   tl,
   asOfIso,
+  natalMoonSign,
   arishta,
   mother,
   withheld,
 }: {
   tl: AvTimeline;
   asOfIso: string;
+  natalMoonSign?: number;
   arishta?: FatherArishtaReading[];
   mother?: MotherPointReading | null;
   withheld?: boolean;
@@ -664,6 +670,10 @@ export function AvTimelineSection({
           </>
         }
       />
+      <p className="mt-2 text-xs text-muted-foreground" data-testid="av-transit-reference-note">
+        Houses are shown from the birth ascendant and the birth Moon. The colours here combine the sign's
+        Ashtakavarga points; the Moon-based gochara verdict is a separate reading on the Panchanga tab.
+      </p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <div className="inline-flex rounded-md border p-0.5" role="tablist">
           {(["Saturn", "Jupiter"] as const).map((p) => (
@@ -720,6 +730,7 @@ export function AvTimelineSection({
           <Row
             key={r.start}
             r={r}
+            natalMoonSign={natalMoonSign}
             open={open === r.start}
             toggle={() => setOpen(open === r.start ? null : r.start)}
           />

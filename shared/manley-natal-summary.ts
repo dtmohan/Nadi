@@ -21,6 +21,14 @@ export function manleyNatalSummaries(e: ManleyNatalEvidence) {
       const direct = [...frame.primary.house, ...frame.primary.houseLord, ...frame.primary.karaka];
       return `${planet} in ${SIGNS[f.sign]} house ${f.house}; direct links: ${direct.join("; ") || "none listed"}; sign ruler ${n.planet} in ${SIGNS[n.sign]} house ${n.house}, owns ${n.owns.join(", ")}; indirect links: ${n.links.join("; ") || "none listed"}`;
     });
+    const generalPairs: string[] = [], seenPairs = new Set<string>();
+    for (const { planet, frame } of frames) for (const pair of frame.angleTrinePairs) {
+      const key = [planet, pair.partner].sort().join("/");
+      if (seenPairs.has(key)) continue;
+      seenPairs.add(key);
+      const f = frame.functional!, partner = frames.find((x) => x.planet === pair.partner)?.frame.functional;
+      generalPairs.push(`${planet} in ${SIGNS[f.sign]} house ${f.house} (owns ${pair.owns.join(", ")}) and ${pair.partner}${partner ? ` in ${SIGNS[partner.sign]} house ${partner.house}` : ""} (owns ${pair.partnerOwns.join(", ")}): ${pair.links.join(", ")}`);
+    }
     const combinations = frames.filter((x) => x.frame.eventCombination?.matched).map(({ frame }) =>
       `${frame.functional!.planet}: ${frame.eventCombination!.explanations.join("; ")}`);
     const planets = frames.map(({ planet, frame }) => {
@@ -30,6 +38,6 @@ export function manleyNatalSummaries(e: ManleyNatalEvidence) {
         ...frame.supporting.bhavat, ...frame.supporting.nodes];
       return `${planet}: ${SIGNS[f.sign]} house ${f.house}; owns ${f.owns.join(", ") || "none"}; ${f.classification}, ${f.dignity}; primary links: ${primary.join("; ") || "none listed"}; other links: ${supporting.join("; ") || "none listed"}`;
     });
-    return { chart, ascendant: frames[0].frame.ascendant, house: e.house, yoga, nodes, combinations, planets };
+    return { chart, ascendant: frames[0].frame.ascendant, house: e.house, yoga, generalPairs, nodes, combinations, planets };
   });
 }

@@ -4,9 +4,11 @@ import { RAO_SOURCE } from "../jaimini-areas";
 import { KP_TRANSIT_EVIDENCE_SOURCE } from "../kp-transit-evidence";
 import { transitEvidenceTable } from "./kp-transit-evidence";
 import { describeEventMoment } from "../events";
+import { EVENT_TRANSIT_SCOPE } from "../transit-context";
 import { PARASHARI_VARGA_SOURCE } from "../parashari-varga-evidence";
 import { parashariEvidenceParas } from "./parashari-varga-evidence";
 import { MANLEY_SOURCE, RAO_EDUCATION_SOURCE } from "../manley-evidence";
+import { FUNCTIONAL_SOURCE } from "../parashari-functional";
 import { manleyEvidenceParas } from "./manley-evidence";
 import { hierarchyParas } from "./parashari-hierarchy";
 import { parashariComparisonParas } from "./parashari-comparison";
@@ -69,6 +71,7 @@ export const validateModule: ReportModule = {
         text: `${s.events} dated event${s.events === 1 ? "" : "s"} read against the chart as it stands (birth time ${v.birthTime}, ${v.lagna.sign} rising at ${v.lagna.degree.toFixed(2)}°). Without an event time the app assumes noon; without an event time zone it assumes the birth zone (${result.chart.timezone}). Random dates keep each event's local time and zone. KP has ${s.confirmed} period/cusp matches, ${s.partial} partial and ${s.missed} missed, ${s.kpScore} of ${s.kpMax} points; the separate transit check scores ${s.transitScore} of ${s.transitMax}; K.N. Rao's chara dasha check scores ${s.jaiminiScore} of ${s.jaiminiMax} over ${s.jaiminiEvents} event${s.jaiminiEvents === 1 ? "" : "s"} with an area; Nadi scores ${s.bnnScore} of ${s.bnnMax}, strong at ${s.bnnStrong}.`,
         cites: [kpSrc, raoSrc, bnnSrc],
       },
+      { kind: "note", text: EVENT_TRANSIT_SCOPE },
       {
         kind: "table",
         head: [
@@ -149,9 +152,10 @@ export const validateModule: ReportModule = {
     for (const event of v.events) if (event.parashariHierarchy) paras.push(...hierarchyParas(event.parashariHierarchy));
     if (v.events.some((event) => event.manley)) {
       const source = cites.add(MANLEY_SOURCE.label);
-      paras.push({ kind: "note", text: "The following Manley-style D1 and divisional event clues are descriptive; the main and subperiod primary divisional links also contribute to v3. The third-period clues do not change that score. Repeated lords are not independent confirmations. Missing event times are evaluated at noon and missing event zones use the birth zone. Nodes receive but do not cast aspects in this subset. Indirect node-dispositor links, the full manual funnel and fourth/fifth period levels are omitted. Admission is not necessarily the first day of study.", cites: [source], provisional: true });
+      paras.push({ kind: "note", text: "The following Manley-style D1 and divisional event clues are descriptive; the main and subperiod primary divisional links also contribute to v3. The third-period clues do not change that score. Repeated lords are not independent confirmations. Missing event times are evaluated at noon and missing event zones use the birth zone. Nodes receive but do not cast aspects; one-hop sign-ruler links are shown separately. The full manual funnel and fourth/fifth period levels are not automated. Admission is not necessarily the first day of study.", cites: [source], provisional: true });
       for (const event of v.events) if (event.manley) paras.push(...manleyEvidenceParas(event.manley, source,
-        event.manley.educationFourth ? cites.add(RAO_EDUCATION_SOURCE.label, RAO_EDUCATION_SOURCE.url) : undefined));
+        event.manley.educationFourth ? cites.add(RAO_EDUCATION_SOURCE.label, RAO_EDUCATION_SOURCE.url) : undefined,
+        cites.add(FUNCTIONAL_SOURCE.label, FUNCTIONAL_SOURCE.url)));
     }
     for (const e of v.events) if (e.kp.aurora) paras.push(...auroraEvidenceParas(e.kp.aurora, `${S(e.label)} · ${e.date}`, cites.add(AURORA_SOURCE)));
     paras.push(...auroraV2StagesParas(v.events.map((e) => e.kp.auroraV2), v.baseline?.auroraV2Stages, v.baseline?.trials));

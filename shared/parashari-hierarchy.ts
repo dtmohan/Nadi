@@ -95,7 +95,7 @@ export function createParashariFoundationScorer(natal: PlanetPosition[], lagna: 
       }).map((p) => p.planet);
       const support: string[] = [];
       if (occupants.length) support.push(`${occupants.join(", ")} in ${topic.division} house ${topic.house}`);
-      if (aspects.length) support.push(`${aspects.join(", ")} fully aspect ${topic.division} house ${topic.house}`);
+      if (aspects.length) support.push(`${aspects.join(", ")} fully aspect${aspects.length === 1 ? "s" : ""} ${topic.division} house ${topic.house}`);
       if ((OWN_SIGNS[lord] ?? []).includes(lordSign)) support.push(`${lord}, the house lord, in its own sign`);
       else if (EXALTATION[lord]?.sign === lordSign) support.push(`${lord}, the house lord, in its exaltation sign`);
       const strain = EXALTATION[lord] && (EXALTATION[lord].sign + 6) % 12 === lordSign

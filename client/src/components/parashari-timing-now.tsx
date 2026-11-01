@@ -165,8 +165,8 @@ function Row({
 function TransitLine({ t, plain }: { t: NowTransit; plain: boolean }) {
   return (
     <>
-      In {SIGNS[t.signIndex]}, the {ord(t.house)}, from {fmtM(t.start)} to{" "}
-      {fmtM(t.end)} <Pill tone={t.tone} />{" "}
+      In {SIGNS[t.signIndex]}, the {ord(t.house)} from the ascendant, from {fmtM(t.start)} to{" "}
+      {fmtM(t.end)} <span className="text-muted-foreground">Ashtakavarga</span> <Pill tone={t.tone} />{" "}
       <span className="text-muted-foreground">
         {plain ? `${t.points} points` : `${t.points} in the Sarvashtakavarga`}
       </span>
@@ -235,7 +235,7 @@ function ChangeLine({ c, plain }: { c: TimingChange; plain: boolean }) {
       return (
         <>
           {t.planet} {t.retrogradeEntry ? "returns to" : "enters"}{" "}
-          {SIGNS[t.signIndex]}, the {ord(t.house)} <Pill tone={t.tone} />{" "}
+          {SIGNS[t.signIndex]}, the {ord(t.house)} from the ascendant · Ashtakavarga <Pill tone={t.tone} />{" "}
           <span className="text-muted-foreground">
             {plain
               ? `${t.points} points`

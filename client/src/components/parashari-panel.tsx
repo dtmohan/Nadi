@@ -2298,6 +2298,7 @@ export function ParashariPanel({
               <AvTimelineSection
                 tl={avTimelineShown}
                 asOfIso={asOfIso}
+                natalMoonSign={positions.find((p) => p.planet === "Moon")?.signIndex}
                 arishta={fatherArishta}
                 mother={motherPoint}
                 withheld={withheld}

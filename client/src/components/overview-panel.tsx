@@ -354,8 +354,8 @@ export function OverviewPanel({
           )}
           {!deceased && (
             <p className="mt-3 text-2xs text-muted-foreground">
-              Counted from the natal Moon (Phaladeepika 26.1); the full gochara,
-              with vedha, is on the Panchanga tab.
+              Moon-based gochara, counted from the natal Moon (Phaladeepika 26.1). Its verdict can differ
+              from the sign-based Ashtakavarga transit grade above; the full gochara, with vedha, is on the Panchanga tab.
             </p>
           )}
         </div>

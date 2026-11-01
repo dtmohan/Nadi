@@ -310,6 +310,14 @@ test("Minors: houses 5, 7 and 10 are drawn blank on the dasa strip and held for 
   }
 });
 
+test("the period-lord transit strip names its ascendant reference in both views", () => {
+  for (const plain of [true, false]) {
+    const pieces = stripsOf("Sachin Tendulkar", plain).dasa.pieces.filter((piece) => /^(?:[1-9]|1[0-2])$/.test(piece.short ?? ""));
+    assert.ok(pieces.length);
+    for (const piece of pieces) assert.match(piece.readout, plain ? /from the ascendant/ : /from lagna/);
+  }
+});
+
 test("The Overview's Running-now card: the Moon line for the living, none at a recorded passing", () => {
   const { r } = fig("Barack Obama");
   for (const plain of [true, false]) {

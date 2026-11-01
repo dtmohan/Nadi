@@ -4,6 +4,7 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { describeEventMoment, EVENT_MATTERS, matterOf, sanitiseEvents, type ChartEvent, type EventOutcome } from "@shared/events";
 import { eventReadingAllowed, natalEventEvidence } from "@shared/event-reading";
+import { EVENT_TRANSIT_SCOPE } from "@shared/transit-context";
 import { isDeceased } from "@shared/life-stage";
 import { stagedObservation } from "@shared/parashari-comparison";
 import { vargaTopicFor } from "@shared/parashari-varga-evidence";
@@ -88,6 +89,7 @@ export function TopicReadingPanel({ result, system, onSelected }: {
     <div>
       <h2 className="text-lg font-semibold">Explore a matter and date</h2>
       <p className="mt-1 text-sm text-muted-foreground">Choose a saved event or investigate a possible date. This uses the same event conditions as Validate; a match does not mean the event happened or will happen. The chosen date is not saved.</p>
+      <p className="mt-1 text-xs text-muted-foreground" data-testid="topic-transit-scope">{EVENT_TRANSIT_SCOPE}</p>
     </div>
     {system === "parashari" && natal.length > 0 && <details className="rounded-md border px-3 py-2 text-xs" data-testid="topic-reading-natal">
       <summary className="cursor-pointer font-medium">Natal foundations · D1 and the relevant divisional charts</summary>

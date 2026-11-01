@@ -1,0 +1,940 @@
+{
+  "protocol": "docs/angle-trine-fresh-protocol.md",
+  "hashes": {
+    "docs/angle-trine-fresh-protocol.md": "46be88c5e5729359a34cfdad91cc7c6a98d9d0a0a0285e2c08c56cda8af2208e",
+    "scripts/fixtures/angle-trine-fresh.json": "61bf486f1cae6a39d1ae40892a983daf602e514dee93c11c407771b02ddb6c07",
+    "scripts/eval-angle-trine.ts": "661ec0eb9ed078028d32e8a6f940f11310e5fa9c813df5edadfaf5c0d6e87bcd",
+    "shared/manley-evidence.ts": "948abe6b95a04c1c4ed0ed4846f3f20dc18d61d0671df6e780bccee73a645c0a",
+    "shared/parashari-functional.ts": "931ec807554483439ac43bdd43c7cbbe39a92cb2e687f6fd0690c051bf6d384a",
+    "shared/astro.ts": "e672e930ae6d6cda1cd600a677ab2a4d709e14784373ca3a70358734bc7dc49d",
+    "shared/vargas.ts": "c6944edd0e2843efce2f562c0177892ff6d1290bec6f751b6fafa76dd6930e49",
+    "shared/natal-reading-evidence.ts": "3ba7d13ce7d4202ff1f114318a0a9d3a54d20214174a05a4793b997f24d04f0e",
+    "shared/parashari-hierarchy.ts": "9abe7b8a43f2cf7e749abbb1599fabf81625fd07c764bc10e2873472b642102d",
+    "server/ephemeris.ts": "e43cf09f92bf3c75f61c6ecc033c06ea77322dae8e9a62520994c9e927d0e7a6",
+    "server/event-time.ts": "698e9ec675bc80c5d6e4564cda20d63cf4bfa8304a8d81066e8226bbe7911f48",
+    "server/parashari-event.ts": "b30b66b680a12956ef81bda335c371d62e8e8a0fb1b2d480296b031f91feb062",
+    "server/topic-reading.ts": "7d1103aa0abb28c8652bc095e8313018d7036426c0621dac9295cd98dd192a77",
+    "server/validate.ts": "f2e2172fe9ecc8666b5a550d85d0b2b88d96551bb33ded3774babee2c5736802",
+    "server/rectify.ts": "c5bf4a4530ffadb48635546c5e68afc08a73153253b983c3ca9a909c1295ad42"
+  },
+  "caveat": "A small convenience sample and date-sensitivity check, not a study of true non-events or birth-time accuracy.",
+  "results": [
+    {
+      "name": "Sania Mirza",
+      "background": "Indian tennis player",
+      "birthSource": "https://www.astro.com/astro-databank/Mirza%2C_Sania",
+      "birthQuality": "C: 14:30 reported indirectly through an astrology discussion; an earlier 11:28 report differs",
+      "birthInput": "1986-11-15 14:30 Asia/Kolkata (auto)",
+      "events": [
+        {
+          "id": "sm-marriage",
+          "matter": "marriage",
+          "date": "2010-04-12",
+          "localTime": "13:00",
+          "timezone": "Asia/Kolkata",
+          "sources": [
+            "https://www.ndtv.com/india-news/finally-shoaib-and-sania-just-married-415124",
+            "https://www.theguardian.com/world/2010/apr/12/sania-mirza-shoaib-malik-wedding"
+          ],
+          "natalAndDateEqual": true,
+          "dateAndValidationEqual": true,
+          "actual": {
+            "d1": false,
+            "division": false,
+            "pairs": []
+          },
+          "controls": [
+            {
+              "date": "2009-10-14",
+              "offsetDays": -180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2009-12-13",
+              "offsetDays": -120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2010-02-11",
+              "offsetDays": -60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2010-06-11",
+              "offsetDays": 60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2010-08-10",
+              "offsetDays": 120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2010-10-09",
+              "offsetDays": 180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            }
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "sm-child",
+          "matter": "child",
+          "date": "2018-10-30",
+          "localTime": "08:00",
+          "timezone": "Asia/Kolkata",
+          "clockNote": "08:00 is illustrative; the source says early morning",
+          "sources": [
+            "https://www.newindianexpress.com/amp/story/sport/sports-news/2018/Oct/30/sania-mirza-shoaib-malik-blessed-with-baby-boy-1891921.html",
+            "https://en.wikipedia.org/wiki/Sania_Mirza"
+          ],
+          "natalAndDateEqual": true,
+          "dateAndValidationEqual": true,
+          "actual": {
+            "d1": false,
+            "division": false,
+            "pairs": []
+          },
+          "controls": [
+            {
+              "date": "2018-05-03",
+              "offsetDays": -180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2018-07-02",
+              "offsetDays": -120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2018-08-31",
+              "offsetDays": -60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2018-12-29",
+              "offsetDays": 60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2019-02-27",
+              "offsetDays": 120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2019-04-28",
+              "offsetDays": 180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            }
+          ],
+          "alternatives": []
+        }
+      ],
+      "rectification": {
+        "time": "14:30:08",
+        "date": "1986-11-15",
+        "event": "sm-marriage",
+        "wholeManleyFrameEqual": true
+      },
+      "alternateBirths": [
+        {
+          "assumption": "time 11:28",
+          "events": [
+            {
+              "id": "sm-marriage",
+              "d1": true,
+              "division": true,
+              "pairs": [
+                {
+                  "level": "bhukti",
+                  "planet": "Venus",
+                  "chart": "D1",
+                  "partner": "Moon",
+                  "owns": [
+                    5,
+                    10
+                  ],
+                  "partnerOwns": [
+                    7
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Venus",
+                  "chart": "D1",
+                  "partner": "Mercury",
+                  "owns": [
+                    5,
+                    10
+                  ],
+                  "partnerOwns": [
+                    6,
+                    9
+                  ],
+                  "links": [
+                    "same-sign conjunction"
+                  ]
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Venus",
+                  "chart": "D9",
+                  "partner": "Moon",
+                  "owns": [
+                    5,
+                    10
+                  ],
+                  "partnerOwns": [
+                    7
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "sm-child",
+              "d1": true,
+              "division": true,
+              "pairs": [
+                {
+                  "level": "dasa",
+                  "planet": "Moon",
+                  "chart": "D1",
+                  "partner": "Mercury",
+                  "owns": [
+                    7
+                  ],
+                  "partnerOwns": [
+                    6,
+                    9
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                },
+                {
+                  "level": "dasa",
+                  "planet": "Moon",
+                  "chart": "D1",
+                  "partner": "Venus",
+                  "owns": [
+                    7
+                  ],
+                  "partnerOwns": [
+                    5,
+                    10
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Venus",
+                  "chart": "D1",
+                  "partner": "Moon",
+                  "owns": [
+                    5,
+                    10
+                  ],
+                  "partnerOwns": [
+                    7
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Venus",
+                  "chart": "D1",
+                  "partner": "Mercury",
+                  "owns": [
+                    5,
+                    10
+                  ],
+                  "partnerOwns": [
+                    6,
+                    9
+                  ],
+                  "links": [
+                    "same-sign conjunction"
+                  ]
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Venus",
+                  "chart": "D7",
+                  "partner": "Mars",
+                  "owns": [
+                    4,
+                    11
+                  ],
+                  "partnerOwns": [
+                    5,
+                    10
+                  ],
+                  "links": [
+                    "same-sign conjunction"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Novak Djokovic",
+      "background": "Serbian tennis player",
+      "birthSource": "https://www.astro.com/astro-databank/Djokovic%2C_Novak",
+      "birthQuality": "AA: 23:25 quoted from a civil-register report; indirect citation of record",
+      "birthInput": "1987-05-22 23:25 Europe/Belgrade (auto)",
+      "events": [
+        {
+          "id": "nd-marriage",
+          "matter": "marriage",
+          "date": "2014-07-10",
+          "localTime": "18:00",
+          "timezone": "Europe/Belgrade",
+          "sources": [
+            "https://www.si.com/tennis/2014/07/10/ap-ten-djokovic-wedding",
+            "https://www.usmagazine.com/celebrity-news/news/novak-djokovic-marries-fiancee-jelena-ristic-wedding-details-2014107/"
+          ],
+          "natalAndDateEqual": true,
+          "dateAndValidationEqual": true,
+          "actual": {
+            "d1": false,
+            "division": false,
+            "pairs": []
+          },
+          "controls": [
+            {
+              "date": "2014-01-11",
+              "offsetDays": -180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2014-03-12",
+              "offsetDays": -120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2014-05-11",
+              "offsetDays": -60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2014-09-08",
+              "offsetDays": 60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2014-11-07",
+              "offsetDays": 120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2015-01-06",
+              "offsetDays": 180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            }
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "nd-child",
+          "matter": "child",
+          "date": "2014-10-21",
+          "localTime": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "sources": [
+            "https://www.astro.com/astro-databank/Djokovic%2C_Novak",
+            "https://novakdjokovic.com/en/news/events/novak-and-jelena-became-a-parents/"
+          ],
+          "natalAndDateEqual": true,
+          "dateAndValidationEqual": true,
+          "actual": {
+            "d1": false,
+            "division": false,
+            "pairs": []
+          },
+          "controls": [
+            {
+              "date": "2014-04-24",
+              "offsetDays": -180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2014-06-23",
+              "offsetDays": -120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2014-08-22",
+              "offsetDays": -60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2014-12-20",
+              "offsetDays": 60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2015-02-18",
+              "offsetDays": 120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2015-04-19",
+              "offsetDays": 180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            }
+          ],
+          "alternatives": []
+        }
+      ],
+      "rectification": {
+        "time": "23:24:52",
+        "date": "1987-05-22",
+        "event": "nd-marriage",
+        "wholeManleyFrameEqual": true
+      },
+      "alternateBirths": []
+    },
+    {
+      "name": "Julia Roberts",
+      "background": "American actor",
+      "birthSource": "https://www.astro.com/astro-databank/Roberts%2C_Julia",
+      "birthQuality": "AA: 00:16 quoted from a birth record",
+      "birthInput": "1967-10-28 00:16 America/New_York (auto)",
+      "events": [
+        {
+          "id": "jr-marriage",
+          "matter": "marriage",
+          "date": "2002-07-04",
+          "localTime": "00:00",
+          "timezone": "America/Denver",
+          "clockNote": "Midnight approximate; source accounts describe a delayed ceremony",
+          "sources": [
+            "https://www.astro.com/astro-databank/Roberts%2C_Julia",
+            "https://www.yahoo.com/entertainment/julia-roberts-danny-moder-pulled-150152252.html"
+          ],
+          "natalAndDateEqual": true,
+          "dateAndValidationEqual": true,
+          "actual": {
+            "d1": false,
+            "division": false,
+            "pairs": []
+          },
+          "controls": [
+            {
+              "date": "2002-01-05",
+              "offsetDays": -180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2002-03-06",
+              "offsetDays": -120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2002-05-05",
+              "offsetDays": -60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2002-09-02",
+              "offsetDays": 60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2002-11-01",
+              "offsetDays": 120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "2002-12-31",
+              "offsetDays": 180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            }
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "jr-child",
+          "matter": "child",
+          "date": "2004-11-28",
+          "localTime": "03:00",
+          "timezone": "America/Los_Angeles",
+          "clockNote": "The databank gives about 03:00 and separately lists 01:21/01:22 for the twins",
+          "sources": [
+            "https://www.astro.com/astro-databank/Roberts%2C_Julia",
+            "https://www.cbsnews.com/news/julia-roberts-twins-doing-fine/"
+          ],
+          "natalAndDateEqual": true,
+          "dateAndValidationEqual": true,
+          "actual": {
+            "d1": true,
+            "division": false,
+            "pairs": [
+              {
+                "level": "bhukti",
+                "planet": "Saturn",
+                "chart": "D1",
+                "partner": "Mars",
+                "owns": [
+                  7,
+                  8
+                ],
+                "partnerOwns": [
+                  5,
+                  10
+                ],
+                "links": [
+                  "mutual full aspect"
+                ]
+              }
+            ]
+          },
+          "controls": [
+            {
+              "date": "2004-06-01",
+              "offsetDays": -180,
+              "d1": true,
+              "division": false,
+              "pairs": [
+                {
+                  "level": "bhukti",
+                  "planet": "Saturn",
+                  "chart": "D1",
+                  "partner": "Mars",
+                  "owns": [
+                    7,
+                    8
+                  ],
+                  "partnerOwns": [
+                    5,
+                    10
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                }
+              ]
+            },
+            {
+              "date": "2004-07-31",
+              "offsetDays": -120,
+              "d1": true,
+              "division": false,
+              "pairs": [
+                {
+                  "level": "bhukti",
+                  "planet": "Saturn",
+                  "chart": "D1",
+                  "partner": "Mars",
+                  "owns": [
+                    7,
+                    8
+                  ],
+                  "partnerOwns": [
+                    5,
+                    10
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                }
+              ]
+            },
+            {
+              "date": "2004-09-29",
+              "offsetDays": -60,
+              "d1": true,
+              "division": false,
+              "pairs": [
+                {
+                  "level": "bhukti",
+                  "planet": "Saturn",
+                  "chart": "D1",
+                  "partner": "Mars",
+                  "owns": [
+                    7,
+                    8
+                  ],
+                  "partnerOwns": [
+                    5,
+                    10
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                }
+              ]
+            },
+            {
+              "date": "2005-01-27",
+              "offsetDays": 60,
+              "d1": true,
+              "division": false,
+              "pairs": [
+                {
+                  "level": "bhukti",
+                  "planet": "Saturn",
+                  "chart": "D1",
+                  "partner": "Mars",
+                  "owns": [
+                    7,
+                    8
+                  ],
+                  "partnerOwns": [
+                    5,
+                    10
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                }
+              ]
+            },
+            {
+              "date": "2005-03-28",
+              "offsetDays": 120,
+              "d1": true,
+              "division": false,
+              "pairs": [
+                {
+                  "level": "bhukti",
+                  "planet": "Saturn",
+                  "chart": "D1",
+                  "partner": "Mars",
+                  "owns": [
+                    7,
+                    8
+                  ],
+                  "partnerOwns": [
+                    5,
+                    10
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                }
+              ]
+            },
+            {
+              "date": "2005-05-27",
+              "offsetDays": 180,
+              "d1": true,
+              "division": false,
+              "pairs": [
+                {
+                  "level": "bhukti",
+                  "planet": "Saturn",
+                  "chart": "D1",
+                  "partner": "Mars",
+                  "owns": [
+                    7,
+                    8
+                  ],
+                  "partnerOwns": [
+                    5,
+                    10
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                }
+              ]
+            }
+          ],
+          "alternatives": [
+            {
+              "assumption": "time 01:21",
+              "d1": true,
+              "division": false,
+              "pairs": [
+                {
+                  "level": "bhukti",
+                  "planet": "Saturn",
+                  "chart": "D1",
+                  "partner": "Mars",
+                  "owns": [
+                    7,
+                    8
+                  ],
+                  "partnerOwns": [
+                    5,
+                    10
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "rectification": {
+        "time": "00:16:03",
+        "date": "1967-10-28",
+        "event": "jr-marriage",
+        "wholeManleyFrameEqual": true
+      },
+      "alternateBirths": []
+    },
+    {
+      "name": "Neil Armstrong",
+      "background": "American aerospace engineer and astronaut",
+      "birthSource": "https://www.astro.com/astro-databank/Armstrong%2C_Neil",
+      "birthQuality": "AA: 00:31 birth record and family letter; EST versus CST for birthplace remains disputed",
+      "birthInput": "1930-08-05 00:31 America/New_York (-05:00)",
+      "events": [
+        {
+          "id": "na-marriage",
+          "matter": "marriage",
+          "date": "1956-01-28",
+          "localTime": "12:00 assumed",
+          "timezone": "America/Chicago",
+          "sources": [
+            "https://www.biography.com/scientists/neil-armstrong",
+            "https://en.wikipedia.org/wiki/Neil_Armstrong"
+          ],
+          "natalAndDateEqual": true,
+          "dateAndValidationEqual": true,
+          "actual": {
+            "d1": false,
+            "division": false,
+            "pairs": []
+          },
+          "controls": [
+            {
+              "date": "1955-08-01",
+              "offsetDays": -180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "1955-09-30",
+              "offsetDays": -120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "1955-11-29",
+              "offsetDays": -60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "1956-03-28",
+              "offsetDays": 60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "1956-05-27",
+              "offsetDays": 120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "1956-07-26",
+              "offsetDays": 180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            }
+          ],
+          "alternatives": []
+        },
+        {
+          "id": "na-job",
+          "matter": "job",
+          "date": "1962-09-17",
+          "localTime": "12:00 assumed",
+          "timezone": "America/Chicago",
+          "clockNote": "Noon and Houston zone assumed; NASA says September 17, Astro-Databank says September 16",
+          "sources": [
+            "https://www.nasa.gov/history/65-years-ago-first-factory-rollout-of-the-x-15-hypersonic-rocket-plane/",
+            "https://www.astro.com/astro-databank/Armstrong%2C_Neil"
+          ],
+          "natalAndDateEqual": true,
+          "dateAndValidationEqual": true,
+          "actual": {
+            "d1": false,
+            "division": false,
+            "pairs": []
+          },
+          "controls": [
+            {
+              "date": "1962-03-21",
+              "offsetDays": -180,
+              "d1": false,
+              "division": true,
+              "pairs": [
+                {
+                  "level": "bhukti",
+                  "planet": "Venus",
+                  "chart": "D10",
+                  "partner": "Jupiter",
+                  "owns": [
+                    2,
+                    7
+                  ],
+                  "partnerOwns": [
+                    9,
+                    12
+                  ],
+                  "links": [
+                    "mutual full aspect"
+                  ]
+                }
+              ]
+            },
+            {
+              "date": "1962-05-20",
+              "offsetDays": -120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "1962-07-19",
+              "offsetDays": -60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "1962-11-16",
+              "offsetDays": 60,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "1963-01-15",
+              "offsetDays": 120,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "date": "1963-03-16",
+              "offsetDays": 180,
+              "d1": false,
+              "division": false,
+              "pairs": []
+            }
+          ],
+          "alternatives": [
+            {
+              "assumption": "date 1962-09-16",
+              "d1": false,
+              "division": false,
+              "pairs": []
+            }
+          ]
+        }
+      ],
+      "rectification": {
+        "time": "00:30:54",
+        "date": "1930-08-05",
+        "event": "na-marriage",
+        "wholeManleyFrameEqual": true
+      },
+      "alternateBirths": [
+        {
+          "assumption": "birth offset -06:00",
+          "events": [
+            {
+              "id": "na-marriage",
+              "d1": false,
+              "division": false,
+              "pairs": []
+            },
+            {
+              "id": "na-job",
+              "d1": false,
+              "division": false,
+              "pairs": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -20,6 +20,7 @@ import { useParams } from "wouter";
 import { SourceLink, Cite } from "@/components/source-link";
 import { KP_TRANSIT_EVIDENCE_SOURCE } from "@shared/kp-transit-evidence";
 import { SutraLibrary } from "@/components/sutra-library";
+import { RuleQualificationList } from "@/components/rule-qualification-list";
 import {
   ALP_CHAPTERS,
   ALP_RULES,
@@ -190,6 +191,7 @@ function KpRules() {
         </code>
         .
       </p>
+      <RuleQualificationList system="KP" />
       <section className="mt-5 max-w-3xl rounded-md border px-3 py-3 text-sm" data-testid="kp-transit-rule-note">
         <h2 className="font-semibold">KP event timing and transit evidence</h2>
         <p className="mt-1 text-muted-foreground">
@@ -206,6 +208,7 @@ function KpRules() {
           planets; no such total is inferred here. Without an event time, noon
           is assumed; without an event time zone, the birth zone is assumed.
         </p>
+        <p className="mt-1 text-muted-foreground">The separate KP transit score uses links from transiting period lords to natal significators, not a general Moon-based gochara grade. The natal houses displayed in the transit table use KP cusps.</p>
       </section>
       <div className="mt-6 space-y-8">
         {Array.from({ length: 12 }, (_, i) => i + 1).map((cusp) => {
@@ -695,6 +698,11 @@ export default function RulesPage() {
           <section className="mt-4 max-w-3xl space-y-3 text-sm" data-testid="parashari-ranking-rules">
             <p className="text-muted-foreground">The chart's Matter and date chapter and the Validate and Rectify tools use the same implemented event checks. The Bhrigu Nandi Nadi rule array belongs to that separate system; these Parashari checks are implemented by their own shared evaluators. The natal house factors can be inspected without choosing a date.</p>
             <p className="text-muted-foreground">Natal chart foundations can be read without an event; periods and transits require a chosen date and its time zone. KP and Parashari retain their own conventions, and ruling-planet birth-time checks need a separate judgment moment. The shared engines keep compatible checks consistent across the chart, Validate, Rectify and comparison dates; each new rule still needs an explicit scope and a reading explanation.</p>
+            <RuleQualificationList system="Parashari" />
+            <h2 className="pt-4 font-semibold">Which reference is used for transits?</h2>
+            <p className="text-muted-foreground">The Panchanga gochara reads whole-sign houses from the natal Moon, as in <a className="underline" href="https://www.siva.sh/phaladeepika/26/1" target="_blank" rel="noreferrer">Phaladeepika 26.1–2</a>. It also applies the app's qualified readings of vedha, dignity, aspects and the <a className="underline" href="https://www.siva.sh/phaladeepika/26/41" target="_blank" rel="noreferrer">26.41 Ashtakavarga condition</a>. A chosen date in Panchanga uses the selected place's sunrise, not an arbitrary event time.</p>
+            <p className="text-muted-foreground">The Saturn and Jupiter Ashtakavarga timeline instead grades each passage using the planet's own marks and the aggregate marks in the occupied sign. Its house label is from the ascendant; the Moon-relative number is shown for orientation and does not set that grade. The birth ascendant contributes to the natal marks. The two readings can differ and the Moon-based calculation itself can use Ashtakavarga marks.</p>
+            <p className="text-muted-foreground">The event checks below use the specific period and transit relationships named for each method, including natal ascendant and matter targets where required. General Moon-based gochara is not currently included in their scores, their comparison-date scores, or the KP event scores.</p>
             <h2 className="font-semibold">Experimental birth-time event ranking · version 1</h2>
             <p className="text-muted-foreground">The app counts five matches per eligible event. The equal points and their combination are Nadi's experimental convention; they are not a published numerical formula. A difficult house can coexist with an event, and an absent match is not a denial.</p>
             <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
@@ -730,7 +738,9 @@ export default function RulesPage() {
             <p className="text-muted-foreground">A separate diagnostic counts distinct main/subperiod planets which both directly own the event house and are individually auspicious or yogakaraka in the same D1 or divisional chart. This narrow count is an app convention for favourable mapped events, not a complete promise, denial, event prediction, transit test or birth-time ranking. The same conditions apply to recorded and random dates; repeated lords count once and the third period is displayed but not counted.</p>
             <p className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">In five fresh public cases, four adjacent-sign comparisons tied and one favoured the published-sign side. Of 30 dates near held-out events, 29 had the same count as the event; those dates are not verified non-events. Published birth clocks are uncertain. This subset has not demonstrated that it can select a birth time.</p>
             <h2 className="pt-4 font-semibold">Conditional pairs, nodes and combinations · exploratory</h2>
-            <p className="text-muted-foreground">Named pairs from BPHS 34 count as formed in this subset only through same-sign conjunction, exchange, or mutual full planetary aspect; a one-way aspect is shown but is not sufficient. For an event-related pair, a main or subperiod planet must be a member and one of the two must own the event house in the same chart. The partner's other lordships remain visible. Formation and timing are partial clues, not an independently favourable label or a guaranteed event. Applying the natal table to divisional ascendants is provisional. Source: <a className="underline" href="https://vedic-astro.s3.amazonaws.com/books/bhrihat_parasara_hora_shastra.pdf" target="_blank" rel="noreferrer">BPHS 34.11–15</a>.</p>
+            <p className="text-muted-foreground">For named pairs in the BPHS 34 rising-sign table, the app's older relationship filter checks same-sign conjunction in any house, exchange, or mutual full planetary aspect; a one-way aspect is shown but does not pass. That filter does not assess all placement or adverse-lordship conditions in BPHS 34.11–15, so passing it is not a complete yoga judgment. The event diagnostic also requires a main/subperiod member and one partner to own the event house in the same chart. The other lordships remain visible. The divisional application is provisional. Source: <a className="underline" href="https://vedic-astro.s3.amazonaws.com/books/bhrihat_parasara_hora_shastra.pdf" target="_blank" rel="noreferrer">BPHS 34.11–15</a>.</p>
+            <p className="text-muted-foreground">A separate descriptive check considers distinct rulers of houses 4, 7 or 10 and houses 5 or 9 when they exchange signs, mutually aspect, or conjoin in an angle or trine. This can show relationships absent from the named-pair table, including Manley's example of the D7 9th lord Jupiter and 7th lord Venus in the 5th (supplied capture p. 66). Both planets' other lordships are shown: possible exceptions, strength and other relationships still need judgment. This subset excludes first-lord combinations and does not add points or confirm an event.</p>
+            <p className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">In four additional public cases, this broad relationship involved a main/subperiod lord in D1 for one of eight events and in the event's division for none. The flags were nearly unchanged on nearby dates, which are not verified non-events. This does not validate birth-time selection. <a className="underline" href="https://github.com/dtmohan/Nadi/blob/main/docs/angle-trine-fresh-review.md" target="_blank" rel="noreferrer">Full case review</a>.</p>
             <p className="text-muted-foreground">For Rahu and Ketu, the app also shows their sign ruler's placement, all its owned houses and its direct links to the event house, its lord or karaka in that chart. This is one indirect hop, kept distinct from the node's own direct links; it does not transfer a blanket benefic or malefic label. Manley gives examples involving a node ruler in the seventh house and one aspected by the seventh lord (capture pp. 69–72, 140–141, 165). Separately, a same-frame combination records a main/subperiod lord in the event house with a direct relation to the house lord or karaka (pp. 69–70, 127–131). These flags can overlap, use no transit condition, and never replace a full reading. Third-period clues are displayed, not added to these experimental counts.</p>
             <p className="text-muted-foreground">The chart's separate node-yoga condition uses conjunctions only. Translations of BPHS 34.17 differ on placements and aspects, and Nadi does not assess full strength for that condition. The one-hop node event flag above is a different check and does not assume a node yoga.</p>
             <p className="text-muted-foreground">The three comparisons count eligible favourable events separately, at most once per event. Their definitions are Nadi's research conventions, not a formula prescribed by the sources. The same checks are used for dated chart readings, rectification, validation and random dates; no candidate is eliminated or ranked by these flags. A missing clue is unresolved.</p>
@@ -756,17 +766,14 @@ export default function RulesPage() {
         </TabsContent>
         <TabsContent value="bnn">
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Every reading is produced by these declarative rules. A rule names a
+            Bhrigu Nandi Nadi chart interpretations use these declarative rules. A rule names a
             subject planet, an optional object planet with the sign relations
             that count, and conditions on retrogression, dignity, sign lord or
             element. Rules marked male or female belong to one frame: Jupiter is
             the Jeeva in both; in a male chart Venus is the wife, in a female
             chart Venus is the native's own person (Deha) and Mars the husband.
-            Add rules in{" "}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">
-              shared/rules.ts
-            </code>{" "}
-            and they apply to every chart.
+            Each method has its own rules and event-timing checks; adding a BNN rule
+            does not automatically add it to KP or Parashari readings.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-2">

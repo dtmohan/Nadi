@@ -23,6 +23,32 @@ test("Manley's Raman example: Ketu's Mercury dispositor is in the D1 seventh and
   assert.ok(d1.links.some((x) => x.includes("Mercury and Venus share")));
 });
 
+test("Manley's Raman D7 childbirth example retains the Jupiter–Venus angle/trine connection and both other lordships", () => {
+  // Birth Time Rectification, capture pp. 65–67: Aries D7; Jupiter (9,12)
+  // and Venus (2,7) are together in its fifth. The source calls this a yoga;
+  // the app reports the connection without resolving other lordship or strength.
+  const chart = { birthDate: "1912-08-08", birthTime: "19:42", timezone: "Asia/Kolkata", timeStandard: "auto",
+    latitude: 12.9833, longitude: 77.5833 } as Parameters<typeof birthInstant>[0];
+  const opts = { ayanamsa: "lahiri", nodeType: "mean" } as const, jd = julianDay(birthInstant(chart).utc);
+  const event = manleyEvidence({ label: "childbirth example", date: "1940-01-01", matter: "child" },
+    positionsAt(jd, opts), ascendantAt(jd, chart.latitude!, chart.longitude!, opts), ["Jupiter", "Moon", "Venus"])!;
+  const d7 = event.periods[0].frames[1];
+  assert.equal(d7.ascendant, 0);
+  assert.equal(d7.functional?.house, 5);
+  const pair = d7.angleTrinePairs.find((x) => x.partner === "Venus");
+  assert.deepEqual(pair, { partner: "Venus", owns: [9, 12], partnerOwns: [2, 7], links: ["same-sign conjunction"] });
+  assert.equal(d7.functional?.yogaPair, undefined, "this general connection is distinct from the named BPHS pair table");
+  assert.equal(conditionalObservations(event)?.yoga, false, "the older named-pair diagnostic must not change");
+});
+
+test("the general angle/trine subset requires an eligible relation and does not count any same-sign placement", () => {
+  const event = (jupiter: number, venus: number) => manleyEvidence({ label: "child", date: "2010-01-01", matter: "child" },
+    positions({ ...base, Jupiter: jupiter, Venus: venus }), 1, ["Jupiter", "Moon", "Sun"])!.periods[0].frames[0];
+  assert.ok(event(4, 4).angleTrinePairs.some((x) => x.partner === "Venus" && x.links.includes("same-sign conjunction")));
+  assert.ok(!event(5, 5).angleTrinePairs.some((x) => x.partner === "Venus"), "conjunction in house six alone is outside this BPHS subset");
+  assert.ok(event(6, 8).angleTrinePairs.some((x) => x.partner === "Venus" && x.links.includes("sign exchange")));
+});
+
 test("named pair requires a classical formation and one-way aspect alone remains descriptive", () => {
   // Pisces ascendant: Mars/Jupiter is the named 9th/10th pair. Mars aspects
   // Jupiter from Aries to Cancer, but Jupiter does not aspect Mars back.

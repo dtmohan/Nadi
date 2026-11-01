@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { DateTime } from "luxon";
+import { EVENT_TRANSIT_SCOPE } from "@shared/transit-context";
 import { ChevronDown } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import { NAKSHATRAS, PLANET_ABBR, fmtDegShort, type Planet } from "@shared/astro";
@@ -790,6 +791,7 @@ export function RectifyPanel({
       >
         {plain ? m.plainShort : m.short} <Cite>{m.source}</Cite>
       </p>
+      {m.needsEvents && <p className="mt-1 text-xs text-muted-foreground" data-testid="rectify-transit-scope">{EVENT_TRANSIT_SCOPE}</p>}
       {locale === "ml" && (
         <p className="mt-1 text-xs text-muted-foreground">
           പദങ്ങൾ: രാശ്യാധിപൻ (sign lord), ഭാവാധിപൻ (house lord), നക്ഷത്രാധിപൻ
