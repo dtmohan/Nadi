@@ -83,6 +83,8 @@ import { manleyTopicFor } from "@shared/manley-evidence";
 import { createParashariEventScorer } from "./parashari-event";
 import { functionalObservation } from "@shared/parashari-functional";
 import { conditionalObservations } from "@shared/parashari-conditional";
+import { natalOwnMarks } from "@shared/gochara";
+import { moonTransitContext } from "@shared/transit-context";
 import {
   birthInstant,
   julianDay,
@@ -165,6 +167,8 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   const lagnaJ = norm360(
     ascendantAt(jd0, chart.latitude, chart.longitude, optsJ),
   );
+  const natalMoonJ = positionsJ.find((p) => p.planet === "Moon")!;
+  const ownMarks = natalOwnMarks(positionsJ, lagnaJ);
   const scoreParashari = createParashariEventScorer(positionsJ, lagnaJ, birthIso, zone);
   const jaimini = computeJaimini(positionsJ, lagnaJ, birthIso);
   const natalJupiter = positionsJ.find((p) => p.planet === "Jupiter")!;
@@ -486,6 +490,8 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       outcome: effectiveOutcome(e),
       houses,
       cusp: m.cusp,
+      // Descriptive only, computed for the exact event instant and the first sampled comparison set.
+      moonTransit: includeEvidence ? moonTransitContext(natalMoonJ, Math.floor(lagnaJ / 30), dayJ, evIso, ownMarks) : undefined,
       parashariVargas: parashari.varga,
       manley: parashari.manley,
       parashariHierarchy: parashari.hierarchy,
@@ -812,7 +818,8 @@ function chanceBaseline(
       ),
     );
     if (t === 0) {
-      example = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone, evidence: v.kp.transit.evidence ?? [] }));
+      example = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone,
+        evidence: v.kp.transit.evidence ?? [], moonTransit: v.moonTransit }));
       auroraExample = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone, evidence: v.kp.aurora }));
       auroraV2Example = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone, evidence: v.kp.auroraV2 }));
       parashariExample = trial.flatMap((v, i) => {

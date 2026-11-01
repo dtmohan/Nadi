@@ -3,6 +3,7 @@
 import { RAO_SOURCE } from "../jaimini-areas";
 import { KP_TRANSIT_EVIDENCE_SOURCE } from "../kp-transit-evidence";
 import { transitEvidenceTable } from "./kp-transit-evidence";
+import { moonTransitParas } from "./moon-transit";
 import { describeEventMoment } from "../events";
 import { EVENT_TRANSIT_SCOPE } from "../transit-context";
 import { PARASHARI_VARGA_SOURCE } from "../parashari-varga-evidence";
@@ -174,6 +175,14 @@ export const validateModule: ReportModule = {
         paras.push({ kind: "p", text: `${S(e.label)} · ${e.date} · ${describeEventMoment(e, result.chart.timezone)}`, appendix: true });
         paras.push(transitEvidenceTable(e.label, e.kp.transit.evidence));
       }
+    }
+    const moonSource = cites.add("Phaladeepika 26.1–2", "https://www.siva.sh/phaladeepika/26/1");
+    for (const e of v.events) if (e.moonTransit) paras.push(...moonTransitParas(e.moonTransit, S(e.label), e.date,
+      describeEventMoment(e, result.chart.timezone), moonSource));
+    for (const e of v.baseline?.example ?? []) if (e.moonTransit) {
+      const comparison = moonTransitParas(e.moonTransit, `${S(e.label)} · comparison`, e.date,
+        describeEventMoment(e, result.chart.timezone), moonSource);
+      paras.push(...comparison.map((p) => ({ ...p, appendix: true })));
     }
     const sub: ReportSection[] = [];
     {

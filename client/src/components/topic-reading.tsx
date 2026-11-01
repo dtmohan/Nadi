@@ -23,6 +23,7 @@ import { ParashariPromisePanel } from "@/components/parashari-promise";
 import { ParashariSpecificPanel } from "@/components/parashari-specific";
 import { ManleyEvidencePanel } from "@/components/manley-evidence";
 import { ParashariHierarchyEvent } from "@/components/parashari-hierarchy";
+import { MoonTransitContextPanel } from "@/components/moon-transit-context";
 
 export type TopicReadingSystem = "kp" | "parashari" | "jaimini" | "bnn";
 
@@ -189,6 +190,8 @@ export function TopicReadingPanel({ result, system, onSelected }: {
           return finding ? <> · {finding.ruleId}{finding.source && <> · <Cite>{finding.source}</Cite></>}</> : null;
         })()}</p>}
       </>}
+      {shown.reading.moonTransit && <MoonTransitContextPanel context={shown.reading.moonTransit} label={shown.reading.label}
+        date={shown.reading.date} when={describeEventMoment(shown.event, chart.timezone)} />}
     </div>}
   </section>;
 }

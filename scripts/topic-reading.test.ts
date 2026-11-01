@@ -9,6 +9,10 @@ import { rectify } from "../server/rectify";
 import { computeChart, registerRoutes } from "../server/routes";
 import { topicReading } from "../server/topic-reading";
 import { validateEvents } from "../server/validate";
+import { ascendantAt, birthInstant, julianDay, positionsAt, positionsLite } from "../server/ephemeris";
+import { eventInstant } from "../server/event-time";
+import { computeGochara, natalOwnMarks } from "@shared/gochara";
+import { taraOf } from "@shared/tara";
 
 const chart = {
   name: "Synthetic chart", birthDate: "1990-01-01", birthTime: "12:00",
@@ -28,6 +32,7 @@ test("a chosen date uses the identical event conditions as Validate", () => {
   assert.ok(seen.manley?.antara);
   assert.equal(seen.kp.transit.evidence?.length, 9);
   assert.equal(seen.timezone, event.timezone);
+  assert.equal(seen.moonTransit?.asOf, "2013-03-11T15:15:00.000Z");
   const mixed = { ...event, outcome: "mixed" as const };
   const mixedReading = topicReading(chart, mixed, asOf);
   assert.deepEqual(mixedReading, validateEvents({ ...chart, events: [mixed] }).events[0]);
@@ -45,6 +50,35 @@ test("a chosen date uses the identical event conditions as Validate", () => {
   assert.deepEqual(segment.manley?.[0], midpoint.manley);
   assert.equal(segment.events[0].transit.score, midpoint.kp.transit.score);
   assert.equal(segment.events[0].jaimini?.score, midpoint.jaimini?.score);
+});
+
+test("event-time gochara matches the main gochara engine and changes the tara at a same-day crossing", () => {
+  const early = { ...event, time: "00:00" }, late = { ...event, time: "12:00" };
+  const a = topicReading(chart, early, asOf).moonTransit!, b = topicReading(chart, late, asOf).moonTransit!;
+  assert.notEqual(a.transitMoonStar, b.transitMoonStar);
+  assert.notEqual(a.tara.name, b.tara.name);
+  assert.deepEqual(b.tara, taraOf(b.birthStar, b.transitMoonStar));
+  const opts = { ayanamsa: "raman", nodeType: "true" as const }, birth = julianDay(birthInstant(chart).utc);
+  const natal = positionsAt(birth, opts), lagna = ascendantAt(birth, chart.latitude, chart.longitude, opts);
+  const moon = natal.find((p) => p.planet === "Moon")!;
+  const moment = eventInstant(late.date, late, chart.timezone).toUTC();
+  const sky = positionsLite(julianDay(moment), opts);
+  const direct = computeGochara(moon.signIndex, sky, moment.toISO()!, true, { ownMarks: natalOwnMarks(natal, lagna) });
+  assert.equal(b.asOf, moment.toISO());
+  assert.deepEqual(b.rows.map((r) => [r.planet, r.moonHouse, r.favourableByHouse, r.verdict, r.vedhaBy, r.avOverride, r.aspectBy]),
+    direct.rows.map((r) => [r.planet, r.house, r.favourable, r.verdict, r.vedhaBy, !!r.avNote, r.aspectNote?.by ?? []]));
+});
+
+test("the first random comparison set uses the same event-time context as a direct replay", () => {
+  const job = { id: "synthetic-job", matter: "job", date: "2016-09-07", time: "10:30", timezone: "America/Los_Angeles" };
+  const result = validateEvents({ ...chart, events: [event, job] });
+  assert.ok(result.baseline?.example?.length === 2);
+  for (const example of result.baseline!.example!) {
+    const original = [event, job].find((e) => matterOf(e.matter).label === example.label)!;
+    assert.ok(original);
+    const replay = topicReading(chart, { ...original, date: example.date }, asOf);
+    assert.deepEqual(example.moonTransit, replay.moonTransit);
+  }
 });
 
 test("the chart-reading API runs the shared check and rejects an invalid matter", async () => {
@@ -136,6 +170,9 @@ test("the chart report includes the selected system's exact dated checks and nat
     const section = report.sections.find((s) => s.id === `${system}-topic-reading`);
     assert.ok(section, system);
     assert.ok(section.paras.some((p) => p.text?.includes(event.date)), system);
+    assert.ok(section.paras.some((p) => p.text?.includes("Moon-based transit context")), system);
+    const jupiter = checked.moonTransit!.rows.find((row) => row.planet === "Jupiter")!;
+    assert.ok(section.paras.some((p) => p.text?.includes(`Jupiter: house ${jupiter.moonHouse} from the Moon, ${jupiter.verdict}`)), system);
   }
   const para = report.sections.find((s) => s.id === "parashari-topic-reading")!;
   assert.ok(para.paras.some((p) => p.text?.includes(checked.parashariSpecific!.factors[2].label)));

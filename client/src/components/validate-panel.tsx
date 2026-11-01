@@ -26,6 +26,7 @@ import { describeEventMoment } from "@shared/events";
 import { RAO_SOURCE } from "@shared/jaimini-areas";
 import { LifeEventsEditor } from "@/components/life-events";
 import { KpTransitEvidencePanel } from "@/components/kp-transit-evidence";
+import { MoonTransitContextPanel } from "@/components/moon-transit-context";
 import { ParashariVargaEvidencePanel } from "@/components/parashari-varga-evidence";
 import { ManleyEvidencePanel } from "@/components/manley-evidence";
 import { ParashariHierarchyEvent } from "@/components/parashari-hierarchy";
@@ -830,6 +831,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
           {v.events.map((e) => e.kp.transit.evidence && (
             <KpTransitEvidencePanel key={e.id} label={e.label} date={e.date} when={describeEventMoment(e, chart.timezone)} evidence={e.kp.transit.evidence} />
           ))}
+          {v.events.map((e) => e.moonTransit && <MoonTransitContextPanel key={`moon-transit-${e.id}`} context={e.moonTransit}
+            label={e.label} date={e.date} when={describeEventMoment(e, chart.timezone)} />)}
           {v.events.map((e) => e.kp.aurora && <AuroraEventPanel key={`aurora-${e.id}`} evidence={e.kp.aurora} label={`${e.label} · ${e.date}`} />)}
           <AuroraV2StagesPanel evidence={v.events.map((e) => e.kp.auroraV2)} comparison={v.baseline?.auroraV2Stages} trials={v.baseline?.trials} />
           {v.events.map((e) => e.kp.auroraV2 && <AuroraV2Panel key={`aurora-v2-${e.id}`} evidence={e.kp.auroraV2} label={`${e.label} · ${e.date}`} />)}
@@ -842,9 +845,10 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                 These are the first dates in the reproducible comparison. Each
                 sky is recalculated for its selected date against this same natal chart.
               </p>
-              {v.baseline.example.map((e, i) => (
-                <KpTransitEvidencePanel key={`${e.label}-${e.date}-${i}`} label={`${e.label} · comparison`} date={e.date} when={describeEventMoment(e, chart.timezone)} evidence={e.evidence} />
-              ))}
+              {v.baseline.example.map((e, i) => <div key={`${e.label}-${e.date}-${i}`}>
+                <KpTransitEvidencePanel label={`${e.label} · comparison`} date={e.date} when={describeEventMoment(e, chart.timezone)} evidence={e.evidence} />
+                {e.moonTransit && <MoonTransitContextPanel context={e.moonTransit} label={`${e.label} · comparison`} date={e.date} when={describeEventMoment(e, chart.timezone)} />}
+              </div>)}
             </details>
           )}
 

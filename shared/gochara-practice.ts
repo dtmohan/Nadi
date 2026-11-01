@@ -136,18 +136,22 @@ export function gocharaPractice(input: PracticeInput): PracticeCheck[] {
     const byHouse = FAVOURABLE[planet].includes(hM);
     const fL = FAVOURABLE[planet].includes(hL);
     const word = (f: boolean) => (f ? "favourable" : "not favourable");
-    // The Moon's house as the classical rules leave it: favourable, unfavourable, or set aside (neutral).
+    // Preserve all four verdicts. Vedha obstructing a favourable house is not an unqualified favourable result.
     const cv = input.classical?.find((c) => c.planet === planet)?.verdict;
-    const fM: boolean | null = !cv ? byHouse : cv === "neutral" ? null : cv !== "unfavourable";
+    const fM: boolean | null = !cv ? byHouse : cv === "neutral" || cv === "obstructed" ? null : cv === "favourable";
     const moonWord =
-      fM === byHouse
+      cv === "obstructed"
+        ? `${word(byHouse)} by house, obstructed in the Moon-based verdict`
+        : fM === byHouse
         ? word(byHouse)
         : fM === null
           ? `${word(byHouse)} by house, set aside by the classical rules`
           : `${word(byHouse)} by house, ${word(fM)} under the classical rules`;
     const reading =
-      fM === null
-        ? `the Moon's lens is set aside, so the lagna's alone speaks, and it is ${word(fL)}`
+      cv === "obstructed"
+        ? `the Moon-based result is obstructed; the lagna house is ${word(fL)}, which does not remove the obstruction`
+        : fM === null
+        ? `the Moon-based result is neutral after modifiers; the lagna house is ${word(fL)}, without deciding the outcome on its own`
         : fM && fL
           ? "both lenses agree on support, so it counts for more"
           : !fM && !fL

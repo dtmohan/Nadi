@@ -179,6 +179,17 @@ test("practice: Saturn's 3rd aspect on the Moon from the 11th is flagged as a di
   assert.ok(onMoon.sources.every((s) => s.provisional));
 });
 
+test("practice: the ascendant lens does not turn an obstructed Moon verdict into support", () => {
+  // Saturn in the third is a favourable house from both references, but the supplied classical verdict has vedha.
+  const lens = gocharaPractice({ natalMoonSign: ARIES, natalLagnaSign: ARIES, birthStar: 0,
+    positions: [P("Saturn", 2)], asOf: AS_OF, fmtDate,
+    classical: [{ planet: "Saturn", verdict: "obstructed" }] }).find((c) => c.id === "lagna")!.lines[0];
+  assert.equal(lens.tone, "mixed");
+  assert.match(lens.text, /obstructed in the Moon-based verdict/);
+  assert.match(lens.text, /does not remove the obstruction/);
+  assert.doesNotMatch(lens.text, /both lenses agree on support/);
+});
+
 test("practice: tara, node axis and Mars stay", () => {
   // Birth star Ashwini (0); the Moon in Uttara Phalguni (11) is the 12th star: Vipat.
   const moon = P("Moon", 5, 0, "Neutral", 11 * (360 / 27) + 1);

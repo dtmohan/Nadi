@@ -13,6 +13,7 @@ import { manleyEvidenceParas } from "./manley-evidence";
 import { hierarchyParas } from "./parashari-hierarchy";
 import { parashariEvidenceParas } from "./parashari-varga-evidence";
 import { transitEvidenceTable } from "./kp-transit-evidence";
+import { moonTransitParas } from "./moon-transit";
 import type { ReportContext, ReportPara, ReportSection } from "./types";
 
 /** The chart tab's chosen date, recomputed by the same one-event evaluator for the export. */
@@ -71,5 +72,7 @@ export function topicReadingSection(ctx: ReportContext, system: string): ReportS
     const finding = n.combination ? ctx.result.reading.findings.find((f) => f.text === n.combination) : undefined;
     paras.push({ kind: "p", text: `The app maps this matter to the Nadi ${matterOf(e.matter).bnn.area} area. Jupiter in ${n.jupiterSign}; Saturn in ${n.saturnSign}; matter significators ${n.karakas.join(", ")}. Jupiter contact: ${n.jupiter ? `${n.jupiter.contact} ${n.jupiter.planet}` : "none listed"}; Saturn contact: ${n.saturn ? `${n.saturn.contact} ${n.saturn.planet}` : "none listed"}; both contact the same significator: ${n.double ? "yes" : "no"}. Jupiter's count from natal Jeeva: ${n.fromJeeva}${n.fromDeha !== null ? `; from natal Deha: ${n.fromDeha}` : ""}; listed count match: ${n.progression ? "yes" : "no"}; partial timing points ${n.score}/${n.max}.${n.combination ? ` Related natal rule${finding ? ` ${finding.ruleId}` : ""}: ${S(n.combination)}` : ""} The mapping and combined count are app conventions, not a forecast.`, cites: [cites.add("R.G. Rao, Bhrigu Nandi Nadi"), cites.add("S. Naik, Prediction Secrets: Naadi Astrology"), ...(finding?.source ? [cites.add(finding.source)] : [])], provisional: true });
   }
+  if (e.moonTransit) paras.push(...moonTransitParas(e.moonTransit, e.label, e.date,
+    describeEventMoment(e, ctx.result.chart.timezone), cites.add("Phaladeepika 26.1–2", "https://www.siva.sh/phaladeepika/26/1")));
   return { id: `${system}-topic-reading`, title: `Matter and date · ${e.label}`, kicker: system.toUpperCase(), paras };
 }

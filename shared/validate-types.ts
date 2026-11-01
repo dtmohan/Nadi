@@ -13,6 +13,7 @@ import type { ParashariDivisionalCheck } from "./parashari-divisional";
 import type { ManleyEvidence } from "./manley-evidence";
 import type { HierarchyEvent } from "./parashari-hierarchy";
 import type { ParashariComparison, ParashariComparisonExample } from "./parashari-comparison";
+import type { MoonTransitContext } from "./transit-context";
 import type { WindowVerdict } from "./kp-windows";
 import { listJoin, ordH, withGlossList } from "./house-gloss";
 
@@ -31,6 +32,8 @@ export interface EventValidation {
   outcome: EventOutcome;
   houses: number[];
   cusp: number;
+  /** General Moon-based transit context for this instant; displayed separately and never scored. */
+  moonTransit?: MoonTransitContext;
   /** D1 and the subject's varga, separate from the other systems' scores. */
   parashariVargas?: ParashariVargaEvidence;
   parashariPromise?: ParashariPromiseCheck;
@@ -262,7 +265,7 @@ export interface ChanceBaseline {
   trials: number;
   span: [string, string];
   /** One reproducible set of dates, for inspecting the natal/transit evidence. */
-  example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence: KpTransitEvidence[] }>;
+  example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence: KpTransitEvidence[]; moonTransit?: MoonTransitContext }>;
   auroraExample?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence?: AuroraEventEvidence }>;
   auroraV2Example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence?: AuroraV2Evidence }>;
   /** Same Parashari checks run for real and random dates; descriptive only. */
