@@ -30,8 +30,10 @@ export interface ParashariComparison {
     sub: ComparisonStat; third?: ComparisonStat; qualifyingDraws: number[] };
   /** Cross-chart period clues; natal indications remain qualitative and separate. */
   crossTiming?: StagedComparison;
+  /** Narrow distinct favourable direct-lord subset, not a candidate ranking. */
+  functional?: { eligibleEvents: number; stat: ComparisonStat };
   /** A trial lost an event eligible in the actual set, so the measure cannot be compared fairly. */
-  unavailable?: Array<"v1" | "v2" | "v3" | "staged" | "hierarchy" | "crossTiming">;
+  unavailable?: Array<"v1" | "v2" | "v3" | "staged" | "hierarchy" | "crossTiming" | "functional">;
 }
 export interface ParashariObservation {
   v1?: number;
@@ -41,6 +43,7 @@ export interface ParashariObservation {
   staged?: { first: boolean; third: boolean };
   hierarchy?: HierarchyEvent["passes"];
   crossTiming?: { first: boolean; third: boolean };
+  functional?: number;
 }
 /** One random-date event, for inspecting the very checks used in the trial. */
 export interface ParashariComparisonExample {
@@ -96,6 +99,15 @@ export function summarizeParashariComparisons(actual: ParashariObservation[], tr
     }
     const total = (set: ParashariObservation[]) => indices.reduce((sum, i) => sum + set[i][version]!, 0);
     result[version] = comparisonStat(trials.map(total), total(actual));
+  }
+  const functionalIndices = actual.flatMap((a, i) => a.functional === undefined ? [] : [i]);
+  if (functionalIndices.length) {
+    if (trials.some((trial) => functionalIndices.some((i) => trial[i].functional === undefined))) {
+      (result.unavailable ??= []).push("functional");
+    } else {
+      const total = (set: ParashariObservation[]) => functionalIndices.reduce((sum, i) => sum + set[i].functional!, 0);
+      result.functional = { eligibleEvents: functionalIndices.length, stat: comparisonStat(trials.map(total), total(actual)) };
+    }
   }
   const crossIndices = actual.flatMap((a, i) => a.crossTiming ? [i] : []);
   if (crossIndices.length) {

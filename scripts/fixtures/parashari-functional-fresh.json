@@ -1,0 +1,70 @@
+{
+  "notes": [
+    "The five birth charts and the reference/held-out event assignments were selected before the rule was scored. All birth times are reported, not independently established.",
+    "Bill Gates' 22:00 is a reported recollection; a biography states shortly after 21:00. The alternate 21:00 is a scenario, not an exact claim.",
+    "Joe Biden's 08:30 is attributed to memory through an astrologer. A newspaper reports morning, and another source questions whether the precise time is verifiable; the clock is rounded.",
+    "Diana's 19:45 is attributed to her mother in a palace letter; an alternative report says 14:00. Her son William appeared in an earlier case fixture, so his birth is a shared event across studies.",
+    "Yuvraj Singh's reported noon is from a biography. The date of his son's birth is reported as January 25, 2022 by some sources but that is also the announcement date; January 24 is a sensitivity scenario, not a claim of an exact alternative date. His ODI debut was in Kenya, before the other two events.",
+    "Celine Dion has conflicting reported birth times, 12:15 and 00:30. Both are examined; neither is accepted as confirmed. The twins' clock is reported as 11:11, but an AP report calls it afternoon; a 15:00 scenario tests that uncertainty."
+  ],
+  "cases": [
+    {
+      "name": "Bill Gates", "category": "software and philanthropy, United States",
+      "birthSource": "https://www.astro.com/astro-databank/Gates%2C_Bill?nho2=40&nhor=1",
+      "birthQuality": "A, 22:00 attributed to personal recollection; biography says shortly after 21:00",
+      "alternateBirthTimes": ["21:00"],
+      "chart": {"name":"Bill Gates","gender":"male","birthDate":"1955-10-28","birthTime":"22:00","timezone":"America/Los_Angeles","timeStandard":"auto","place":"Seattle, Washington","latitude":47.6,"longitude":-122.3333,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"wedding","matter":"marriage","date":"1994-01-01","timezone":"Pacific/Honolulu","sources":["https://www.historylink.org/File/2295","https://www.govinfo.gov/content/pkg/BILLS-109hres638ih/pdf/BILLS-109hres638ih.pdf"]},
+        {"id":"first_child","matter":"child","date":"1996-04-26","time":"18:11","timezone":"America/Los_Angeles","sources":["https://time.com/7275478/melinda-french-gates-the-next-day-excerpt-parenting/","https://www.astro.com/astro-databank/Gates%2C_Jennifer"]},
+        {"id":"child_holdout","matter":"child","date":"1999-05-23","time":"14:40","timezone":"America/Los_Angeles","sources":["https://www.astro.com/astro-databank/Gates%2C_Rory","https://www.scmp.com/magazines/style/entertainment/article/3264264/meet-rory-gates-who-was-just-invited-white-house-mum-melinda-french-gates-bill-gates-25-year-old-son"]}
+      ]
+    },
+    {
+      "name": "Joe Biden", "category": "politician, United States",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_11_20.htm?lang=n&nho2=860477&nhor=1",
+      "birthQuality": "A in database, 08:30 attributed through an astrologer; a newspaper says morning and exact time is disputed",
+      "chart": {"name":"Joe Biden","gender":"male","birthDate":"1942-11-20","birthTime":"08:30","timezone":"America/New_York","timeStandard":"auto","place":"Scranton, Pennsylvania","latitude":41.4167,"longitude":-75.6667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"wedding","matter":"marriage","date":"1966-08-27","timezone":"America/New_York","sources":["https://prod.millercenter.org/president/biden","https://www.astro.com/astro-databank/Biden%2C_Joe?lang=j&nho2=648&nhor=750&pa=nmo"]},
+        {"id":"senate","matter":"job","date":"1973-01-05","timezone":"America/New_York","sources":["https://www.govinfo.gov/content/pkg/GPO-CRECB-1973-pt1/pdf/GPO-CRECB-1973-pt1-3.pdf","https://www.cbsnews.com/pictures/joseph-biden/"]},
+        {"id":"vice_president_holdout","matter":"job","date":"2009-01-20","time":"11:57","timezone":"America/New_York","sources":["https://www.inaugural.senate.gov/56th-inaugural-ceremonies/","https://www.astro.com/adbvip/adbvip_11_20.htm?lang=n&nho2=860477&nhor=1"]}
+      ]
+    },
+    {
+      "name": "Diana, Princess of Wales", "category": "public figure, England",
+      "birthSource": "https://www.astro.com/astro-databank/Diana%2C_Princess_of_Wales",
+      "birthQuality": "A, 19:45 attributed to mother through palace letter; an alternative source says 14:00",
+      "alternateBirthTimes": ["14:00"],
+      "chart": {"name":"Diana, Princess of Wales","gender":"female","birthDate":"1961-07-01","birthTime":"19:45","timezone":"Europe/London","timeStandard":"auto","place":"Sandringham, England","latitude":52.8333,"longitude":0.5,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"wedding","matter":"marriage","date":"1981-07-29","timezone":"Europe/London","sources":["https://www.royal.uk/diana-princess-wales","https://www.hrp.org.uk/kensington-palace/history-and-stories/a-history-of-royal-weddings/"]},
+        {"id":"first_child","matter":"child","date":"1982-06-21","time":"21:03","timezone":"Europe/London","sources":["https://www.royal.uk/diana-princess-wales","https://www.astro.com/adbvip/adbvip_06_21.htm?lang=r&nho2=33&pa=nmo"]},
+        {"id":"child_holdout","matter":"child","date":"1984-09-15","time":"16:20","timezone":"Europe/London","sources":["https://www.thegazette.co.uk/all-notices/content/100028","https://www.royal.uk/diana-princess-wales"]}
+      ]
+    },
+    {
+      "name": "Yuvraj Singh", "category": "cricketer, India",
+      "birthSource": "https://www.astro.com/astro-databank/Singh%2C_Yuvraj",
+      "birthQuality": "B, biography says noon; rounded",
+      "chart": {"name":"Yuvraj Singh","gender":"male","birthDate":"1981-12-12","birthTime":"12:00","timezone":"Asia/Kolkata","timeStandard":"auto","place":"Chandigarh, India","latitude":30.7333,"longitude":76.7833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"debut","matter":"job","date":"2000-10-03","timezone":"Africa/Nairobi","sources":["https://i.imgci.com/db/ARCHIVE/2000-01/OD_TOURNEYS/ICCKO/SCORECARDS/IND_KENYA_ICCKO_ODI-PQF1_03OCT2000.html","https://www.pcb.com.pk/player-detail.php?action=player_matches&ipp=5&match_type_id=2&new_page_limit=5&pg=1&player_id=17817"]},
+        {"id":"wedding","matter":"marriage","date":"2016-11-30","timezone":"Asia/Kolkata","sources":["https://www.tribuneindia.com/news/archive/yuvraj-singh-hazel-keech-tie-the-knot-330449","https://timesofindia.indiatimes.com/entertainment/hindi/bollywood/news/yuvraj-singh-begins-his-new-innings/articleshow/55706136.cms"]},
+        {"id":"child_holdout","matter":"child","date":"2022-01-25","alternateDates":["2022-01-24"],"timezone":"Asia/Kolkata","sources":["https://www.mid-day.com/sports/cricket/article/yuvraj-singh-hazel-keech-name-their-son-orion-23232310","https://indianexpress.com/article/lifestyle/life-style/yuvraj-singh-wife-hazel-keech-son-name-revealed-orion-meaning-significance-7979461/"]}
+      ]
+    },
+    {
+      "name": "Celine Dion", "category": "singer, Canada",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_03_30.htm?lang=n&nhor=101&pa=nmo",
+      "birthQuality": "A, 12:15 from memory; alternative biography reports 00:30",
+      "alternateBirthTimes": ["00:30"],
+      "chart": {"name":"Celine Dion","gender":"female","birthDate":"1968-03-30","birthTime":"12:15","timezone":"America/Toronto","timeStandard":"auto","place":"Charlemagne, Quebec","latitude":45.7167,"longitude":-73.4833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"wedding","matter":"marriage","date":"1994-12-17","timezone":"America/Toronto","sources":["https://www.celinedion.com/about/biography/","https://files.eric.ed.gov/fulltext/ED439031.pdf"]},
+        {"id":"first_child","matter":"child","date":"2001-01-25","time":"01:00","timezone":"America/New_York","sources":["https://www.celinedion.com/about/biography/","https://abcnews.com/Entertainment/story?id=110201&page=1"]},
+        {"id":"twins_holdout","matter":"child","date":"2010-10-23","time":"11:11","alternateTimes":["15:00"],"timezone":"America/New_York","sources":["https://www.usmagazine.com/celebrity-moms/news/celine-dion-welcomes-twin-boys-20102310/","https://www.cbsnews.com/losangeles/news/celine-dion-gives-birth-to-twin-boys/"]}
+      ]
+    }
+  ]
+}

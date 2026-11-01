@@ -5,6 +5,7 @@
  */
 import { drishtiQuarters, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
 import { vargaSignAt } from "./parashari-varga-evidence";
+import { functionalFrame, type FunctionalFrame } from "./parashari-functional";
 
 export type ManleyDivision = "D4" | "D7" | "D9" | "D10" | "D24";
 export const MANLEY_SOURCE = {
@@ -43,6 +44,8 @@ export interface ManleyFrame {
   bhavatLord: Planet;
   primary: { house: string[]; houseLord: string[]; karaka: string[] };
   supporting: { ascendant: string[]; natalHouseLord: string[]; bhavat: string[]; nodes: string[] };
+  /** Functional lordship of this period planet in this frame; partial and descriptive. */
+  functional?: FunctionalFrame;
 }
 
 export interface ManleyEvidence {
@@ -143,6 +146,7 @@ export function createManleyEvidenceScorer(natal: PlanetPosition[], lagnaLon: nu
           karaka: topic.karakas.flatMap((k) => targetLinks(k, `karaka ${k}`)),
         },
         supporting: { ascendant, natalHouseLord, bhavat, nodes },
+        functional: functionalFrame(p, asc, pSign, eventHouse, (other) => relates(p, other)),
       };
       frameCache.set(key, frame);
       return frame;

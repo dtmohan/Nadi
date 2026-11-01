@@ -1188,7 +1188,7 @@ export function RectifyPanel({
           )}
 
           {(isParashariMethod || EVENT_METHODS.includes(method)) && !!focus?.manley?.length && <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="rectify-manley-clues">
-            <summary className="cursor-pointer font-medium">Manley divisional event clues · candidate midpoint {focus.midDate} {focus.mid}</summary>
+            <summary className="cursor-pointer font-medium">Manley event clues and functional lordship · candidate midpoint {focus.midDate} {focus.mid}</summary>
             {(focus.manley ?? []).map((e, i) => <ManleyEvidencePanel key={`${e.matter}-${e.date}-${i}`} evidence={e} />)}
           </details>}
           {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.parashariHierarchy?.map((e, i) => e && <ParashariHierarchyEvent key={`hierarchy-${i}`} event={e} />)}

@@ -16,6 +16,7 @@ import { rectify } from "../server/rectify";
 import { comparisonSeed, seeded, validateEvents } from "../server/validate";
 import { createParashariEventScorer } from "../server/parashari-event";
 import { createParashariHierarchyScorer } from "@shared/parashari-hierarchy";
+import { functionalObservation } from "@shared/parashari-functional";
 
 const chart = {
   name: "Synthetic comparison chart", birthDate: "1990-01-01", birthTime: "12:00",
@@ -52,9 +53,10 @@ function independent(event: ChartEvent, date: string) {
   return { varga, manley, promise, specific, divisional, hierarchy };
 }
 
-const observe = (r: ReturnType<typeof independent>): ParashariObservation => ({
+const observe = (r: ReturnType<typeof independent>, outcome?: ChartEvent["outcome"]): ParashariObservation => ({
   v1: r.promise?.score, v2: r.specific?.score, v3: r.divisional?.score, staged: stagedObservation(r.manley),
   hierarchy: r.hierarchy?.passes, crossTiming: r.hierarchy?.crossChart?.timing,
+  functional: functionalObservation(r.manley, outcome),
 });
 
 test("Parashari trials independently recompute period lords and transit rules with each event's clock, zone and outcome", () => {
@@ -64,7 +66,7 @@ test("Parashari trials independently recompute period lords and transit rules wi
   const lo = DateTime.fromISO(events[0].date, { zone: "utc" }).toMillis();
   const hi = DateTime.fromISO(events.at(-1)!.date, { zone: "utc" }).toMillis();
   const random = seeded(comparisonSeed(events.map((e) => e.date)));
-  const actual = events.map((e) => observe(independent(e, e.date)));
+  const actual = events.map((e) => observe(independent(e, e.date), e.outcome));
   const trials: ParashariObservation[][] = [];
   const first: ReturnType<typeof independent>[] = [];
   const periodPatterns = new Set<string>();
@@ -79,7 +81,7 @@ test("Parashari trials independently recompute period lords and transit rules wi
         transitPatterns.add(checked.specific!.factors.filter((f) => f.id === "double-transit" || f.id === "vivah-saham")
           .map((f) => String(f.matched)).join("/"));
       }
-      return observe(checked);
+      return observe(checked, e.outcome);
     }));
   }
   assert.ok(periodPatterns.size > 1, "sample dates should cross period boundaries");
@@ -130,6 +132,13 @@ test("Parashari trials independently recompute period lords and transit rules wi
     assert.equal(comparison.crossTiming?.third?.actual, crossPassed.filter((i) => actual[i].crossTiming!.third).length);
     assert.equal(comparison.crossTiming?.third?.mean, Math.round(expected * 10) / 10);
   }
+  const functionalEligible = actual.flatMap((o, i) => o.functional === undefined ? [] : [i]);
+  const functionalTotal = (set: ParashariObservation[]) => functionalEligible.reduce((n, i) => n + set[i].functional!, 0);
+  assert.equal(comparison.functional?.eligibleEvents, functionalEligible.length);
+  assert.equal(comparison.functional?.stat.actual, functionalTotal(actual));
+  assert.equal(comparison.functional?.stat.mean,
+    Math.round(trials.reduce((sum, set) => sum + functionalTotal(set), 0) / trials.length * 10) / 10);
+  assert.equal(actual[4].functional, undefined, "unfavourable events are not given a favourable subset count");
   assert.equal(actual[4].v1, undefined, "unfavourable event is omitted from favourable v1–v3");
   assert.ok(actual[4].staged, "the descriptive staged check still covers this matter");
   assert.equal(baseline.parashariExample!.length, 5, "an unsupported matter is not displayed as a Parashari trial");

@@ -818,7 +818,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       };
       const stageSamples = { cusps: [] as number[], major: [] as number[], sub: [] as number[], third: [] as number[] };
       const actualStages = auroraV2StageCounts(events.map((e) => e.auroraV2));
-      const actualParashari = parashariByEvent.map(parashariObservation);
+      const actualParashari = parashariByEvent.map((p, i) => parashariObservation(p, req.events[i].outcome));
       const parashariTrials: ParashariObservation[][] = [];
       let parashariExample: ParashariComparisonExample[] | undefined;
       let auroraExample: RectifySegmentBaseline["auroraExample"];
@@ -848,7 +848,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
           if (sky && (actualParashari[ei].v1 !== undefined || actualParashari[ei].staged)) {
             const date = trialDates[t][ei];
             const p = scoreParashari(e, date, trialInstants[t][ei], sky);
-            trialParashari.push(parashariObservation(p));
+            trialParashari.push(parashariObservation(p, e.outcome));
             if (t === 0) parashariExample!.push({ label: e.label, date, time: e.time, timezone: e.timezone,
               promise: p.promise, specific: p.specific, divisional: p.divisional, manley: p.manley, hierarchy: p.hierarchy });
           } else trialParashari.push({});

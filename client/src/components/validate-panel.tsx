@@ -822,7 +822,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
           ))}
           {v.events.map((e) => e.parashariHierarchy && <ParashariHierarchyEvent key={`hierarchy-${e.id}`} event={e.parashariHierarchy} />)}
           {v.events.some((e) => e.manley) && <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="validate-manley-clues">
-            <summary className="cursor-pointer font-medium">Manley divisional event clues · recorded birth time</summary>
+            <summary className="cursor-pointer font-medium">Manley event clues and functional lordship · recorded birth time</summary>
             {v.events.map((e) => e.manley && <ManleyEvidencePanel key={`manley-${e.id}`} evidence={e.manley} />)}
           </details>}
           {v.events.map((e) => e.kp.transit.evidence && (
