@@ -11,6 +11,7 @@ import type { ParashariPromiseCheck } from "./parashari-promise";
 import type { ParashariSpecificCheck } from "./parashari-specific";
 import type { ParashariDivisionalCheck } from "./parashari-divisional";
 import type { ManleyEvidence } from "./manley-evidence";
+import type { HierarchyEvent } from "./parashari-hierarchy";
 import type { ParashariComparison, ParashariComparisonExample } from "./parashari-comparison";
 import type { WindowVerdict } from "./kp-windows";
 import { listJoin, ordH, withGlossList } from "./house-gloss";
@@ -36,6 +37,7 @@ export interface EventValidation {
   parashariSpecific?: ParashariSpecificCheck;
   parashariDivisional?: ParashariDivisionalCheck;
   manley?: ManleyEvidence;
+  parashariHierarchy?: HierarchyEvent;
   kp: {
     /** Separate experimental Aurora-style evidence, never included in KP's existing score. */
     aurora?: AuroraEventEvidence;

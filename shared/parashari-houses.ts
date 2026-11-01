@@ -82,7 +82,7 @@ export function houseBothWays(tone?: string): string {
   return `Parashara gives this house readings both ways and does not rank them. His test for judging a house (11.14-16) ${lean}; read the verses as views to weigh, not a sum.`;
 }
 export const BHAVA_JUDGEMENT_CAVEATS = [
-  "11.14-15 also count the lord in Yuva, Prabuddha or Kaumara avastha as prosperity and 11.16 the Vriddha, Mrita and Supta avasthas as failure; avasthas (ch. 45) are not yet computed, so those clauses are not applied.",
+  "11.14-15 also count the lord in Yuva, Prabuddha or Kaumara avastha as prosperity and 11.16 the Vriddha, Mrita and Supta avasthas as failure; although chapter 45 states are calculated elsewhere, those clauses are not yet applied in this house assessment.",
   "A lord standing in its own house is not counted as failing to aspect it; the text does not settle the case, so that reading is provisional.",
   "Defeat in planetary war is taken from the Shadbala pass (27.20) when the ephemeris facts are present.",
 ];

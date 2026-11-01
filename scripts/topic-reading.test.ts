@@ -139,7 +139,9 @@ test("the chart report includes the selected system's exact dated checks and nat
   }
   const para = report.sections.find((s) => s.id === "parashari-topic-reading")!;
   assert.ok(para.paras.some((p) => p.text?.includes(checked.parashariSpecific!.factors[2].label)));
-  assert.ok(para.paras.some((p) => p.text?.includes("Staged primary links")));
+  assert.ok(para.paras.some((p) => p.text?.includes("Earlier divisional-only staged experiment")));
+  assert.ok(para.paras.some((p) => p.text?.includes(`D1 → ${checked.parashariHierarchy!.division} gate`)));
+  assert.ok(para.paras.some((p) => p.text?.includes(`D1 house ${checked.parashariHierarchy!.d1.house}: ${checked.parashariHierarchy!.d1.status}`)));
   const foundations = report.sections.flatMap((s) => s.sub ?? []).find((s) => s.id === "parashari-natal-event-foundations");
   assert.ok(foundations);
   assert.ok(foundations.paras.some((p) => p.text?.includes("D9 for marriage")));

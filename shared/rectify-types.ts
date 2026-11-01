@@ -9,6 +9,7 @@ import type { ParashariSpecificCheck } from "./parashari-specific";
 import type { ParashariDivisionalCheck } from "./parashari-divisional";
 import type { NemaniRpMoonCheck } from "./kp-nemani-rp";
 import type { ManleyDivision, ManleyEvidence } from "./manley-evidence";
+import type { HierarchyEvent } from "./parashari-hierarchy";
 import type { ParashariComparison, ParashariComparisonExample } from "./parashari-comparison";
 import type { AuroraAscendantLinks, AuroraEventEvidence } from "./kp-aurora";
 import type { AuroraV2Evidence, AuroraV2StageComparison } from "./kp-aurora-v2";
@@ -282,6 +283,8 @@ export interface RectifySegment {
   parashariDivisional?: ParashariDivisionalCheck[];
   /** Descriptive Manley event clues, separate from every ranking. */
   manley?: ManleyEvidence[];
+  /** Aligned with selected events; null means this event was not assessed. */
+  parashariHierarchy?: Array<HierarchyEvent | null>;
   score: number;
   max: number;
   /** True when the recorded birth time falls in this interval. */
@@ -318,6 +321,8 @@ export interface RectifySegmentBaseline {
 }
 
 export interface RectifyResult {
+  /** Snapshot of the inputs the hierarchy examined, in event order. */
+  hierarchySelections?: RectifyEvent[];
   ruling: RulingPlanets;
   /** The place the ruling planets were taken for. */
   judgedAt: { label: string; timezone: string };

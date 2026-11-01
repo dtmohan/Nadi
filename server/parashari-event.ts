@@ -7,6 +7,7 @@ import { parashariPromiseCheck, type ParashariPromiseCheck } from "@shared/paras
 import { parashariSpecificCheck, type ParashariSpecificCheck } from "@shared/parashari-specific";
 import { parashariDivisionalCheck, type ParashariDivisionalCheck } from "@shared/parashari-divisional";
 import { stagedObservation, type ParashariObservation } from "@shared/parashari-comparison";
+import { createParashariHierarchyScorer, type HierarchyEvent } from "@shared/parashari-hierarchy";
 
 export interface ParashariEventInput {
   label: string;
@@ -22,11 +23,12 @@ export interface ParashariEventResult {
   promise?: ParashariPromiseCheck;
   specific?: ParashariSpecificCheck;
   divisional?: ParashariDivisionalCheck;
+  hierarchy?: HierarchyEvent;
 }
 
 export function parashariObservation(result: ParashariEventResult): ParashariObservation {
   return { v1: result.promise?.score, v2: result.specific?.score, v3: result.divisional?.score,
-    staged: stagedObservation(result.manley) };
+    staged: stagedObservation(result.manley), hierarchy: result.hierarchy?.passes };
 }
 
 /**
@@ -38,9 +40,11 @@ export function createParashariEventScorer(natal: PlanetPosition[], lagna: numbe
   if (!moon) throw new Error("Parashari event check requires the natal Moon");
   const birthMs = Date.parse(birthIso);
   const scoreManley = createManleyEvidenceScorer(natal, lagna);
+  const scoreHierarchy = createParashariHierarchyScorer(natal, lagna);
   const natalVargaCache = new Map<string, ParashariVargaEvidence>();
   const vargaCache = new Map<string, ParashariVargaEvidence>();
   const manleyCache = new Map<string, ManleyEvidence>();
+  const hierarchyCache = new Map<string, HierarchyEvent>();
   // These two source-adapted checks use sign-based transit positions. Their
   // natal frames, first two periods and relevant transit signs determine the
   // result; dates and labels are restored on each returned event below.
@@ -92,6 +96,13 @@ export function createParashariEventScorer(natal: PlanetPosition[], lagna: numbe
     }
     const promise = cached.promise ? { ...cached.promise, label: event.label, date } : undefined;
     const specific = cached.specific ? { ...cached.specific, label: event.label, date } : undefined;
-    return { varga, manley, promise, specific, divisional: parashariDivisionalCheck(specific, manley) };
+    const hierarchyKey = `${key}|${event.outcome ?? ""}`;
+    let hierarchy = hierarchyCache.get(hierarchyKey);
+    if (!hierarchy) {
+      hierarchy = scoreHierarchy(manley, event.outcome);
+      if (hierarchy) hierarchyCache.set(hierarchyKey, hierarchy);
+    }
+    if (hierarchy) hierarchy = { ...hierarchy, label: event.label, date, moment: manley?.moment };
+    return { varga, manley, promise, specific, divisional: parashariDivisionalCheck(specific, manley), hierarchy };
   };
 }

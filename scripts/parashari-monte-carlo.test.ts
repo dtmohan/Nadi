@@ -15,6 +15,7 @@ import { comparisonDate, eventInstant } from "../server/event-time";
 import { rectify } from "../server/rectify";
 import { comparisonSeed, seeded, validateEvents } from "../server/validate";
 import { createParashariEventScorer } from "../server/parashari-event";
+import { createParashariHierarchyScorer } from "@shared/parashari-hierarchy";
 
 const chart = {
   name: "Synthetic comparison chart", birthDate: "1990-01-01", birthTime: "12:00",
@@ -47,11 +48,12 @@ function independent(event: ChartEvent, date: string) {
   const promise = parashariPromiseCheck(varga, event.outcome, natal, sky);
   const specific = parashariSpecificCheck(varga, event.outcome, natal, sky);
   const divisional = parashariDivisionalCheck(specific, manley);
-  return { varga, manley, promise, specific, divisional };
+  const hierarchy = createParashariHierarchyScorer(natal, lagna)(manley, event.outcome);
+  return { varga, manley, promise, specific, divisional, hierarchy };
 }
 
 const observe = (r: ReturnType<typeof independent>): ParashariObservation => ({
-  v1: r.promise?.score, v2: r.specific?.score, v3: r.divisional?.score, staged: stagedObservation(r.manley),
+  v1: r.promise?.score, v2: r.specific?.score, v3: r.divisional?.score, staged: stagedObservation(r.manley), hierarchy: r.hierarchy?.passes,
 });
 
 test("Parashari trials independently recompute period lords and transit rules with each event's clock, zone and outcome", () => {
@@ -106,6 +108,13 @@ test("Parashari trials independently recompute period lords and transit rules wi
     assert.equal(comparison.staged?.third?.mean,
       Math.round(expected * 10) / 10);
   }
+  const hierarchyEligible = actual.flatMap((o, i) => o.hierarchy ? [i] : []);
+  for (const stage of ["d1", "division", "major", "sub"] as const) {
+    const count = (set: ParashariObservation[]) => hierarchyEligible.filter((i) => set[i].hierarchy![stage]).length;
+    const expected = trials.reduce((sum, set) => sum + count(set), 0) / trials.length;
+    assert.equal(comparison.hierarchy?.[stage].actual, count(actual));
+    assert.equal(comparison.hierarchy?.[stage].mean, Math.round(expected * 10) / 10);
+  }
   assert.equal(actual[4].v1, undefined, "unfavourable event is omitted from favourable v1–v3");
   assert.ok(actual[4].staged, "the descriptive staged check still covers this matter");
   assert.equal(baseline.parashariExample!.length, 5, "an unsupported matter is not displayed as a Parashari trial");
@@ -119,6 +128,7 @@ test("Parashari trials independently recompute period lords and transit rules wi
     assert.deepEqual(example.specific, first[i].specific);
     assert.deepEqual(example.divisional, first[i].divisional);
     assert.deepEqual(example.manley, first[i].manley);
+    assert.deepEqual(example.hierarchy, first[i].hierarchy);
   }
 });
 
@@ -133,6 +143,7 @@ test("both tabs return the same Parashari comparison for the same candidate", ()
   const validation = validateEvents({ ...chart, birthDate: candidate.midDate ?? chart.birthDate, birthTime: candidate.mid, events });
   assert.deepEqual(candidate.baseline?.parashari, validation.baseline?.parashari);
   assert.deepEqual(candidate.baseline?.parashariExample, validation.baseline?.parashariExample);
+  assert.deepEqual(candidate.parashariHierarchy, validation.events.map((e) => e.parashariHierarchy ?? null));
 });
 
 test("cached period frames retain the individual event's date, label, clock and zone", () => {

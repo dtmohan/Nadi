@@ -14,6 +14,8 @@ import { PARASHARI_VARGA_SOURCE } from "../parashari-varga-evidence";
 import { parashariEvidenceParas } from "./parashari-varga-evidence";
 import { MANLEY_SOURCE, RAO_EDUCATION_SOURCE } from "../manley-evidence";
 import { manleyEvidenceParas } from "./manley-evidence";
+import { hierarchyParas } from "./parashari-hierarchy";
+import { hierarchyWindowStages } from "../parashari-hierarchy";
 import { parashariComparisonParas } from "./parashari-comparison";
 import {
   RECTIFY_METHODS,
@@ -65,7 +67,8 @@ export const rectifyModule: ReportModule = {
     const m = RECTIFY_METHODS.find((x) => x.id === state.method)!;
     const withDate = (time: string, iso: string) =>
       iso.slice(0, 10) === result.chart.birthDate ? time : `${iso.slice(0, 10)} ${time}`;
-    const windowParas = (): ReportPara[] => scan.vargaWindows?.length ? [{
+    const windowParas = (): ReportPara[] => {
+      const paras: ReportPara[] = scan.vargaWindows?.length ? [{
       kind: "table",
       head: ["Division", "Recorded-time ascendant", "Recorded-time window", "Windows in scan"],
       rows: scan.vargaWindows.map((v) => {
@@ -78,7 +81,18 @@ export const rectifyModule: ReportModule = {
       kind: "note",
       text: "Divisional windows are sampled, rounded to seconds and clipped to the scan; D60 is especially sensitive. Planetary divisional positions and period lords can change within an ascendant window. The windows do not identify a correct birth time. Other windows are available in the Rectify tab.",
       provisional: true,
-    }] : [];
+      }] : [];
+      if (scan.hierarchySelections?.length) {
+        const funnel = hierarchyWindowStages(scan.hierarchySelections, scan.segments.map((s) => s.parashariHierarchy ?? []));
+        if (funnel.stages.length) {
+          paras.push({ kind: "note", provisional: true,
+            text: `Experimental event funnel: D1 is required for each assessed event; then each event's own division and first two period lords are intersected with earlier candidate checks, followed by the third period. Mixed or missing indications are unresolved. This partial screen does not establish a complete promise or a birth time. In four fresh public cases, no slice passed the D1 gate for both selected events. ${funnel.unassessed.length ? `Unassessed events: ${funnel.unassessed.map((i) => `${scan.hierarchySelections![i].label} ${scan.hierarchySelections![i].date}`).join("; ")}.` : ""}` });
+          paras.push({ kind: "table", head: ["Event-funnel stage", "Surviving midpoint slices"],
+            rows: funnel.stages.map((stage) => [stage.label, `${stage.indices.length} of ${scan.segments.length}`]), provisional: true });
+        }
+      }
+      return paras;
+    };
     if (state.method === "kunda-d81") {
       const windows = scan.kundaD81 ?? [];
       const shown = windows.filter((w) => w.check.trine || w.given);
@@ -126,7 +140,7 @@ export const rectifyModule: ReportModule = {
         id: "rectify", title: `Parashari · event rule matches · ${v3 ? "v3" : specific ? "v2" : "v1"}`, kicker,
         paras: [
           { kind: "lead", text: m.short, cites: [cites.add(m.source)] },
-          { kind: "note", text: `The ${v3 ? "eight" : specific ? "six" : "five"} equal points are an experimental Nadi synthesis. D1 and divisional support can coexist with difficult indications; neither proves an event was promised. Other or explicitly mixed or unfavourable events are omitted from these scores. The random-date comparison is exploratory and is not calibrated to select a birth time. ${v3 ? "In ten fresh public cases, v3's highest intervals touched the reported-time ±5-minute band in four and covered 29% of the scanned hour on average. Held-out event scores resembled nearby dates. Its added period-lord checks can overlap with the earlier factors and with each other." : specific ? "In nine new public cases, v2's top intervals touched the reported-time ±5-minute band in eight but covered 35% of the scanned hour on average. At the reported birth times, held-out event scores were nearly the same on nearby comparison dates." : "In an initial eight-person public-case test, the v1 highest scores missed the ±5-minute band around the reported birth time in all eight cases."} These samples are small and some times are uncertain. Do not use this ranking on its own to change a birth time.`, provisional: true },
+          { kind: "note", text: `The ${v3 ? "eight" : specific ? "six" : "five"} equal points are an experimental Nadi synthesis. These older point totals do not require D1 to pass before awarding later points; the separate experimental funnel uses cumulative gates and does not change this ranking. D1 and divisional support can coexist with difficult indications; neither proves an event was promised. Other or explicitly mixed or unfavourable events are omitted from these scores. The random-date comparison is exploratory and is not calibrated to select a birth time. ${v3 ? "In ten fresh public cases, v3's highest intervals touched the reported-time ±5-minute band in four and covered 29% of the scanned hour on average. Held-out event scores resembled nearby dates. Its added period-lord checks can overlap with the earlier factors and with each other." : specific ? "In nine new public cases, v2's top intervals touched the reported-time ±5-minute band in eight but covered 35% of the scanned hour on average. At the reported birth times, held-out event scores were nearly the same on nearby comparison dates." : "In an initial eight-person public-case test, the v1 highest scores missed the reported-time ±5-minute band around the reported birth time in all eight cases."} These samples are small and some times are uncertain. Do not use this ranking on its own to change a birth time.`, provisional: true },
           ...windowParas(),
           ...(!comparable ? [{ kind: "note" as const, text: anyScore
             ? "The eligible events differ across candidate times, so the totals cannot be ranked. Check event dates and times relative to birth."
@@ -134,6 +148,7 @@ export const rectifyModule: ReportModule = {
           ...(coverage ? [{ kind: "p" as const, text: `At sampled midpoints, the highest raw score ${coverage.top} covers approximately ${coverage.percent}% of the window. The recorded-time interval midpoint scores ${coverage.recorded ?? "—"}. Midpoint values can differ from other instants in the same interval.`, provisional: true }] : []),
           ...(focus?.baseline?.parashari && scan.baseline ? parashariComparisonParas(focus.baseline.parashari,
             scan.baseline.trials, focus.baseline.parashariExample, result.chart.timezone) : []),
+          ...(focus?.parashariHierarchy ?? []).flatMap((e) => e ? hierarchyParas(e) : []),
           ...(anyScore ? [{ kind: "table" as const, head: ["From", "To", "Rule matches", "Recorded"], rows: scored.map(({ s, score, max }) => [withDate(s.start, s.startIso), withDate(s.end, s.endIso), `${score}/${max}${comparable && score === top ? " · highest" : ""}`, s.given ? "yes" : ""]) }] : []),
           ...((focus?.manley?.length ?? 0) ? [
             { kind: "note" as const, text: `Manley-style event clues below use the recorded-time interval midpoint ${focus?.midDate} ${focus?.mid}. ${v3 ? "The main and subperiod primary divisional links contribute to v3; the third period is descriptive." : "They are descriptive and do not change this score."} A repeated lord is not independent confirmation. Missing event clocks use noon, missing zones use the birth zone. Nodes receive but do not cast aspects in this subset. It omits indirect node-dispositor links, the full manual funnel and fourth/fifth period levels. Admission is not necessarily the first day of study.`, provisional: true, cites: [cites.add(MANLEY_SOURCE.label)] },
@@ -308,6 +323,7 @@ export const rectifyModule: ReportModule = {
     if (focus) {
       const ps: ReportPara[] = [];
       const label = `${withDate(focus.start, focus.startIso)} to ${withDate(focus.end, focus.endIso)}, ${focus.sign} rising, sub lord ${focus.subLord}`;
+      if (eventMethod) for (const e of focus.parashariHierarchy ?? []) if (e) ps.push(...hierarchyParas(e));
       if (eventMethod && focus.manley?.length) {
         const source = cites.add(MANLEY_SOURCE.label);
         ps.push({ kind: "note", text: `Manley-style event clues use the interval midpoint ${focus.midDate} ${focus.mid}. They are descriptive and do not change this method's score or establish a birth time. Repeated lords are not independent confirmations. Missing event clocks use noon, and missing zones use the birth zone. Nodes receive but do not cast aspects in this subset. Indirect node-dispositor links, the full manual funnel and fourth/fifth period levels are not automated. Admission is not necessarily the first day of study.`, cites: [source], provisional: true });

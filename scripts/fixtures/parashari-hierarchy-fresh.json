@@ -1,0 +1,56 @@
+{
+  "notes": [
+    "Collected after fixing the hierarchy rules; these people were not in earlier Nadi public-case fixtures or the supplied Manley examples.",
+    "The first two dated events are used to filter the birth-time window. The third is held out and evaluated only at the reported birth time; a held-out result cannot validate a birth time.",
+    "An AA rating documents the database's birth-record source, not absolute accuracy. Missing event clocks are evaluated at local noon. Different reporting sources can repeat the same underlying report.",
+    "Jordan: contemporary reporting quotes his manager that the twins were born 9 February; some later sources say 11 February. The latter appears to be the announcement date, but the discrepancy is recorded.",
+    "Bellucci: a contemporary May 2010 report gives 21 May for Leonie, although a later article gives 20 May; assess the alternate date as uncertainty rather than treating either as certain. Reports disagree on the exact date of her 1999 marriage, which is excluded.",
+    "Khan: remembered birth time, not a birth certificate. A report places Suhana's birthday on 20 May but multiple sources say 22 May. The exact birth time in an astrology source conflicts with a morning report, so her clock is left unknown. His held-out child was born by surrogacy."
+  ],
+  "cases": [
+    {
+      "name": "Shah Rukh Khan",
+      "birthSource": "https://www.astro.com/astro-databank/Khan%2C_Shah_Rukh",
+      "birthQuality": "A, reported from memory; an older unverified time conflicts",
+      "chart": {"name":"Shah Rukh Khan","birthDate":"1965-11-02","birthTime":"06:25","timezone":"Asia/Kolkata","timeStandard":"auto","place":"Delhi, India","latitude":28.6667,"longitude":77.2167,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"marriage","matter":"marriage","date":"1991-10-25","timezone":"Asia/Kolkata","sources":["https://www.astro.com/astro-databank/Khan%2C_Shah_Rukh","https://indianexpress.com/article/entertainment/bollywood/when-shah-rukh-khan-was-advised-to-not-marry-gauri-as-it-would-ruin-his-bachelor-hero-image-mushkil-se-pata-liya-shaadi-karni-padegi-7589615/"]},
+        {"id":"daughter","matter":"child","date":"2000-05-22","timezone":"Asia/Kolkata","sources":["https://www.astro.com/astro-databank/Khan%2C_Shah_Rukh","https://indianexpress.com/about/suhana-khan/"]},
+        {"id":"surrogacy_holdout","matter":"child","date":"2013-05-27","time":"15:28","timezone":"Asia/Kolkata","sources":["https://www.astro.com/astro-databank/Khan%2C_AbRam","https://indianexpress.com/article/cities/mumbai/shah-rukh-announces-birth-of-son-abram/"]}
+      ]
+    },
+    {
+      "name": "Steven Spielberg",
+      "birthSource": "https://www.astro.com/astro-databank/Spielberg%2C_Steven",
+      "birthQuality": "AA, reported birth certificate",
+      "chart": {"name":"Steven Spielberg","birthDate":"1946-12-18","birthTime":"18:16","timezone":"America/New_York","timeStandard":"auto","place":"Cincinnati, Ohio","latitude":39.1667,"longitude":-84.45,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"first_child","matter":"child","date":"1985-06-13","time":"13:52","timezone":"America/Los_Angeles","sources":["https://www.astro.com/astro-databank/Spielberg%2C_Max","https://en.wikipedia.org/wiki/Steven_Spielberg"]},
+        {"id":"first_marriage","matter":"marriage","date":"1985-11-27","timezone":"America/Denver","sources":["https://www.upi.com/Archives/1985/12/03/Filmmaker-Steven-Spielberg-and-actress-Amy-Irving-were-married/2525502434000/","https://www.astro.com/astro-databank/Spielberg%2C_Steven"]},
+        {"id":"second_child_holdout","matter":"child","date":"1990-05-14","time":"05:15","timezone":"America/Los_Angeles","sources":["https://www.astro.com/astro-databank/Spielberg%2C_Sasha","https://www.latimes.com/archives/la-xpm-1990-05-15-ca-59-story.html"]}
+      ]
+    },
+    {
+      "name": "Michael Jordan",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_02_17.htm?lang=e&nho2=101&pa=nmo",
+      "birthQuality": "AA, reported birth certificate",
+      "chart": {"name":"Michael Jordan","birthDate":"1963-02-17","birthTime":"13:40","timezone":"America/New_York","timeStandard":"auto","place":"Brooklyn, New York","latitude":40.6333,"longitude":-73.9333,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"first_marriage","matter":"marriage","date":"1989-09-02","time":"03:30","timezone":"America/Los_Angeles","sources":["https://www.astro.com/adbvip/adbvip_02_17.htm?lang=s&nho2=101&pa=nmo","https://www.latimes.com/archives/la-xpm-1989-09-08-sp-1891-story.html"]},
+        {"id":"twins","matter":"child","date":"2014-02-09","timezone":"America/New_York","sources":["https://www.eonline.com/news/509970/michael-jordan-and-wife-yvette-welcome-twin-girls-mdash-find-out-their-names","https://www.imdb.com/name/nm5659835/bio/"]},
+        {"id":"second_marriage_holdout","matter":"marriage","date":"2013-04-27","timezone":"America/New_York","sources":["https://www.eonline.com/news/509970/michael-jordan-and-wife-yvette-welcome-twin-girls-mdash-find-out-their-names","https://kesq.com/news/national-world/cnn-national/2026/02/03/michael-jordan-fast-facts-6/"]}
+      ]
+    },
+    {
+      "name": "Monica Bellucci",
+      "birthSource": "https://www.astro.com/astro-databank/Bellucci%2C_Monica",
+      "birthQuality": "AA, quoted birth record; rounded to 14:30",
+      "chart": {"name":"Monica Bellucci","birthDate":"1964-09-30","birthTime":"14:30","timezone":"Europe/Rome","timeStandard":"auto","place":"Città di Castello, Italy","latitude":43.45,"longitude":12.2333,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events": [
+        {"id":"first_marriage","matter":"marriage","date":"1990-01-03","timezone":"Europe/Monaco","sources":["https://www.imdb.com/name/nm0000899/bio/","https://en.wikipedia.org/wiki/Monica_Bellucci"]},
+        {"id":"first_child","matter":"child","date":"2004-09-12","timezone":"Europe/Rome","sources":["https://www.tgcom24.mediaset.it/people/articoli/219560/fiocco-rosa-per-monica-bellucci.shtml","https://mediasetinfinity.mediaset.it/news/mediasetinfinity/verissimo/deva-cassel-mamma-monica-bellucci-vogue-italia_SE000000000023_tn24939"]},
+        {"id":"second_child_holdout","matter":"child","date":"2010-05-21","timezone":"Europe/Rome","sources":["https://www.premiere.fr/People/Monica-Bellucci-et-Vincent-Cassel-leur-deuxieme-fille-Leonie-est-nee","https://www.amica.it/2021/07/01/monica-bellucci-foto-leonie-sorellina-deva-cassel/"]}
+      ]
+    }
+  ]
+}

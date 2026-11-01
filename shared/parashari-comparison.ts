@@ -3,6 +3,7 @@ import type { ManleyEvidence } from "./manley-evidence";
 import type { ParashariPromiseCheck } from "./parashari-promise";
 import type { ParashariSpecificCheck } from "./parashari-specific";
 import type { ParashariDivisionalCheck } from "./parashari-divisional";
+import type { HierarchyEvent } from "./parashari-hierarchy";
 
 export interface ComparisonStat {
   actual: number;
@@ -25,8 +26,10 @@ export interface ParashariComparison {
   v2?: ComparisonStat;
   v3?: ComparisonStat;
   staged?: StagedComparison;
+  hierarchy?: { eligibleEvents: number; d1: ComparisonStat; division: ComparisonStat; major: ComparisonStat;
+    sub: ComparisonStat; third?: ComparisonStat; qualifyingDraws: number[] };
   /** A trial lost an event eligible in the actual set, so the measure cannot be compared fairly. */
-  unavailable?: Array<"v1" | "v2" | "v3" | "staged">;
+  unavailable?: Array<"v1" | "v2" | "v3" | "staged" | "hierarchy">;
 }
 export interface ParashariObservation {
   v1?: number;
@@ -34,6 +37,7 @@ export interface ParashariObservation {
   v3?: number;
   /** Two gated observations for one event, or undefined when the event cannot be assessed. */
   staged?: { first: boolean; third: boolean };
+  hierarchy?: HierarchyEvent["passes"];
 }
 /** One random-date event, for inspecting the very checks used in the trial. */
 export interface ParashariComparisonExample {
@@ -45,6 +49,7 @@ export interface ParashariComparisonExample {
   specific?: ParashariSpecificCheck;
   divisional?: ParashariDivisionalCheck;
   manley?: ManleyEvidence;
+  hierarchy?: HierarchyEvent;
 }
 
 /** The exact partial event-level primary-link gate used by the staged research. */
@@ -88,6 +93,25 @@ export function summarizeParashariComparisons(actual: ParashariObservation[], tr
     }
     const total = (set: ParashariObservation[]) => indices.reduce((sum, i) => sum + set[i][version]!, 0);
     result[version] = comparisonStat(trials.map(total), total(actual));
+  }
+  const hierarchyIndices = actual.flatMap((a, i) => a.hierarchy ? [i] : []);
+  if (hierarchyIndices.length) {
+    if (trials.some((trial) => hierarchyIndices.some((i) => !trial[i].hierarchy))) {
+      (result.unavailable ??= []).push("hierarchy");
+    } else {
+      const stat = (stage: "d1" | "division" | "major" | "sub") => {
+        const count = (set: ParashariObservation[]) => hierarchyIndices.filter((i) => set[i].hierarchy![stage]).length;
+        return comparisonStat(trials.map(count), count(actual));
+      };
+      // Reuse the conditional per-event third-level calculation. Each draw
+      // must pass the same natal and period predecessors as the real event.
+      const project = (set: ParashariObservation[]): ParashariObservation[] => set.map((o) => ({
+        staged: o.hierarchy ? { first: o.hierarchy.sub, third: o.hierarchy.third } : undefined,
+      }));
+      const conditional = summarizeParashariComparisons(project(actual), trials.map(project)).staged!;
+      result.hierarchy = { eligibleEvents: hierarchyIndices.length, d1: stat("d1"), division: stat("division"),
+        major: stat("major"), sub: stat("sub"), third: conditional.third, qualifyingDraws: conditional.qualifyingDraws };
+    }
   }
   const indices = actual.flatMap((a, i) => a.staged ? [i] : []);
   if (!indices.length) return result;

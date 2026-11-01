@@ -1,0 +1,865 @@
+{
+  "protocol": "docs/parashari-d1-divisional-hierarchy.md",
+  "hashes": {
+    "docs/parashari-d1-divisional-hierarchy.md": "2086ba2b0aa249250d8cdf97c27f9848d3b9ac9449ad8d79eb46ed701cb42e47",
+    "scripts/fixtures/parashari-hierarchy-fresh.json": "5357915330c77bcdfa98eaf11126d5306e3fbd65a21dd84fb47a8abcc086b189",
+    "shared/parashari-hierarchy.ts": "501a86eb63464dcd764718da5becf500e38425684d81d45e6e73fa5b6ee8c19c",
+    "shared/parashari-houses.ts": "6a90e6bf50e6bfdb585cec0e85e5063f6c26e48be9ee2f9afcb4527ea98f60a0",
+    "shared/house-view.ts": "1dbed4872e0a23f734d84634879a861cb7d776c9fb038b043c2e2a54130969d9",
+    "shared/astro.ts": "e672e930ae6d6cda1cd600a677ab2a4d709e14784373ca3a70358734bc7dc49d",
+    "shared/vargas.ts": "c6944edd0e2843efce2f562c0177892ff6d1290bec6f751b6fafa76dd6930e49",
+    "shared/kp.ts": "2313131aba58084e491c8eb3caadeb16c31df189c7b0370afe2ba1549257b11f",
+    "shared/manley-evidence.ts": "e8b88e896d3ac3f512666a629655b49ea5d6d81899b3b85b938b605ab0c08ca7",
+    "server/ephemeris.ts": "e43cf09f92bf3c75f61c6ecc033c06ea77322dae8e9a62520994c9e927d0e7a6",
+    "server/event-time.ts": "698e9ec675bc80c5d6e4564cda20d63cf4bfa8304a8d81066e8226bbe7911f48",
+    "server/parashari-event.ts": "50298899b363e2973cdbc02cf4dee82d3aef03d1fa2aeb4fd1914c77edeaa82f",
+    "server/rectify.ts": "e454f628ea7f1cbd090482a74fcf72077d7b8b886e50dd164e9749bd16d75822",
+    "server/validate.ts": "231a1fa9acc04d58bf67ea328efda31226914f1bca56ade349f1d778f9eeaf7e",
+    "scripts/eval-parashari-hierarchy.ts": "06178e947b582ab22ad62394ef59bd14693d9c8222043b8be9a30772d06450e1"
+  },
+  "caveat": "Convenience sample; reported times are uncertain. Only two events filter each scan. Control dates are not known non-events. No result establishes a birth time.",
+  "results": [
+    {
+      "name": "Shah Rukh Khan",
+      "birthSource": "https://www.astro.com/astro-databank/Khan%2C_Shah_Rukh",
+      "birthQuality": "A, reported from memory; an older unverified time conflicts",
+      "reportedTime": "06:25",
+      "input": [
+        {
+          "id": "marriage",
+          "date": "1991-10-25",
+          "sources": [
+            "https://www.astro.com/astro-databank/Khan%2C_Shah_Rukh",
+            "https://indianexpress.com/article/entertainment/bollywood/when-shah-rukh-khan-was-advised-to-not-marry-gauri-as-it-would-ruin-his-bachelor-hero-image-mushkil-se-pata-liya-shaadi-karni-padegi-7589615/"
+          ]
+        },
+        {
+          "id": "daughter",
+          "date": "2000-05-22",
+          "sources": [
+            "https://www.astro.com/astro-databank/Khan%2C_Shah_Rukh",
+            "https://indianexpress.com/about/suhana-khan/"
+          ]
+        }
+      ],
+      "baselineTrials": 200,
+      "segments": 132,
+      "stages": [
+        {
+          "label": "D1 · all assessed events",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "D7 · natal and first two periods",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "D9 · natal and first two periods",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "Third period · all assessed events",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        }
+      ],
+      "reportedSample": [
+        {
+          "d1": "unresolved",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          }
+        },
+        {
+          "d1": "supported",
+          "division": "unresolved",
+          "passes": {
+            "d1": true,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          }
+        }
+      ],
+      "heldout": {
+        "date": "2013-05-27",
+        "d1": "supported",
+        "division": "unresolved",
+        "passes": {
+          "d1": true,
+          "division": false,
+          "major": false,
+          "sub": false,
+          "third": false
+        },
+        "periodLords": [
+          "Saturn",
+          "Ketu",
+          "Saturn"
+        ],
+        "sources": [
+          "https://www.astro.com/astro-databank/Khan%2C_AbRam",
+          "https://indianexpress.com/article/cities/mumbai/shah-rukh-announces-birth-of-son-abram/"
+        ]
+      },
+      "heldoutControls": [
+        {
+          "date": "2012-11-28",
+          "d1": "supported",
+          "division": "unresolved",
+          "passes": {
+            "d1": true,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Saturn",
+            "Ketu",
+            "Mars"
+          ]
+        },
+        {
+          "date": "2013-01-27",
+          "d1": "supported",
+          "division": "unresolved",
+          "passes": {
+            "d1": true,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Saturn",
+            "Ketu",
+            "Rahu"
+          ]
+        },
+        {
+          "date": "2013-03-28",
+          "d1": "supported",
+          "division": "unresolved",
+          "passes": {
+            "d1": true,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Saturn",
+            "Ketu",
+            "Saturn"
+          ]
+        },
+        {
+          "date": "2013-07-26",
+          "d1": "supported",
+          "division": "unresolved",
+          "passes": {
+            "d1": true,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Saturn",
+            "Venus",
+            "Venus"
+          ]
+        },
+        {
+          "date": "2013-09-24",
+          "d1": "supported",
+          "division": "unresolved",
+          "passes": {
+            "d1": true,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Saturn",
+            "Venus",
+            "Venus"
+          ]
+        },
+        {
+          "date": "2013-11-23",
+          "d1": "supported",
+          "division": "unresolved",
+          "passes": {
+            "d1": true,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Saturn",
+            "Venus",
+            "Venus"
+          ]
+        }
+      ],
+      "sensitivity": []
+    },
+    {
+      "name": "Steven Spielberg",
+      "birthSource": "https://www.astro.com/astro-databank/Spielberg%2C_Steven",
+      "birthQuality": "AA, reported birth certificate",
+      "reportedTime": "18:16",
+      "input": [
+        {
+          "id": "first_child",
+          "date": "1985-06-13",
+          "sources": [
+            "https://www.astro.com/astro-databank/Spielberg%2C_Max",
+            "https://en.wikipedia.org/wiki/Steven_Spielberg"
+          ]
+        },
+        {
+          "id": "first_marriage",
+          "date": "1985-11-27",
+          "sources": [
+            "https://www.upi.com/Archives/1985/12/03/Filmmaker-Steven-Spielberg-and-actress-Amy-Irving-were-married/2525502434000/",
+            "https://www.astro.com/astro-databank/Spielberg%2C_Steven"
+          ]
+        }
+      ],
+      "baselineTrials": 0,
+      "segments": 130,
+      "stages": [
+        {
+          "label": "D1 · all assessed events",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "D7 · natal and first two periods",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "D9 · natal and first two periods",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "Third period · all assessed events",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        }
+      ],
+      "reportedSample": [
+        {
+          "d1": "mixed",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          }
+        },
+        {
+          "d1": "unresolved",
+          "division": "supported",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          }
+        }
+      ],
+      "heldout": {
+        "date": "1990-05-14",
+        "d1": "mixed",
+        "division": "unresolved",
+        "passes": {
+          "d1": false,
+          "division": false,
+          "major": false,
+          "sub": false,
+          "third": false
+        },
+        "periodLords": [
+          "Saturn",
+          "Jupiter",
+          "Rahu"
+        ],
+        "sources": [
+          "https://www.astro.com/astro-databank/Spielberg%2C_Sasha",
+          "https://www.latimes.com/archives/la-xpm-1990-05-15-ca-59-story.html"
+        ]
+      },
+      "heldoutControls": [
+        {
+          "date": "1989-11-15",
+          "d1": "mixed",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Saturn",
+            "Jupiter",
+            "Moon"
+          ]
+        },
+        {
+          "date": "1990-01-14",
+          "d1": "mixed",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Saturn",
+            "Jupiter",
+            "Mars"
+          ]
+        },
+        {
+          "date": "1990-03-15",
+          "d1": "mixed",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Saturn",
+            "Jupiter",
+            "Rahu"
+          ]
+        },
+        {
+          "date": "1990-07-13",
+          "d1": "mixed",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Mercury",
+            "Mercury",
+            "Mercury"
+          ]
+        },
+        {
+          "date": "1990-09-11",
+          "d1": "mixed",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Mercury",
+            "Mercury",
+            "Mercury"
+          ]
+        },
+        {
+          "date": "1990-11-10",
+          "d1": "mixed",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Mercury",
+            "Mercury",
+            "Ketu"
+          ]
+        }
+      ],
+      "sensitivity": []
+    },
+    {
+      "name": "Michael Jordan",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_02_17.htm?lang=e&nho2=101&pa=nmo",
+      "birthQuality": "AA, reported birth certificate",
+      "reportedTime": "13:40",
+      "input": [
+        {
+          "id": "first_marriage",
+          "date": "1989-09-02",
+          "sources": [
+            "https://www.astro.com/adbvip/adbvip_02_17.htm?lang=s&nho2=101&pa=nmo",
+            "https://www.latimes.com/archives/la-xpm-1989-09-08-sp-1891-story.html"
+          ]
+        },
+        {
+          "id": "twins",
+          "date": "2014-02-09",
+          "sources": [
+            "https://www.eonline.com/news/509970/michael-jordan-and-wife-yvette-welcome-twin-girls-mdash-find-out-their-names",
+            "https://www.imdb.com/name/nm5659835/bio/"
+          ]
+        }
+      ],
+      "baselineTrials": 200,
+      "segments": 148,
+      "stages": [
+        {
+          "label": "D1 · all assessed events",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "D7 · natal and first two periods",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "D9 · natal and first two periods",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "Third period · all assessed events",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        }
+      ],
+      "reportedSample": [
+        {
+          "d1": "mixed",
+          "division": "mixed",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          }
+        },
+        {
+          "d1": "mixed",
+          "division": "supported",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          }
+        }
+      ],
+      "heldout": {
+        "date": "2013-04-27",
+        "d1": "mixed",
+        "division": "mixed",
+        "passes": {
+          "d1": false,
+          "division": false,
+          "major": false,
+          "sub": false,
+          "third": false
+        },
+        "periodLords": [
+          "Moon",
+          "Moon",
+          "Rahu"
+        ],
+        "sources": [
+          "https://www.eonline.com/news/509970/michael-jordan-and-wife-yvette-welcome-twin-girls-mdash-find-out-their-names",
+          "https://kesq.com/news/national-world/cnn-national/2026/02/03/michael-jordan-fast-facts-6/"
+        ]
+      },
+      "heldoutControls": [
+        {
+          "date": "2012-10-29",
+          "d1": "mixed",
+          "division": "mixed",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Sun",
+            "Venus",
+            "Saturn"
+          ]
+        },
+        {
+          "date": "2012-12-28",
+          "d1": "mixed",
+          "division": "mixed",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Sun",
+            "Venus",
+            "Mercury"
+          ]
+        },
+        {
+          "date": "2013-02-26",
+          "d1": "mixed",
+          "division": "mixed",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Moon",
+            "Moon",
+            "Moon"
+          ]
+        },
+        {
+          "date": "2013-06-26",
+          "d1": "mixed",
+          "division": "mixed",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Moon",
+            "Moon",
+            "Saturn"
+          ]
+        },
+        {
+          "date": "2013-08-25",
+          "d1": "mixed",
+          "division": "mixed",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Moon",
+            "Moon",
+            "Mercury"
+          ]
+        },
+        {
+          "date": "2013-10-24",
+          "d1": "mixed",
+          "division": "mixed",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Moon",
+            "Moon",
+            "Venus"
+          ]
+        }
+      ],
+      "sensitivity": []
+    },
+    {
+      "name": "Monica Bellucci",
+      "birthSource": "https://www.astro.com/astro-databank/Bellucci%2C_Monica",
+      "birthQuality": "AA, quoted birth record; rounded to 14:30",
+      "reportedTime": "14:30",
+      "input": [
+        {
+          "id": "first_marriage",
+          "date": "1990-01-03",
+          "sources": [
+            "https://www.imdb.com/name/nm0000899/bio/",
+            "https://en.wikipedia.org/wiki/Monica_Bellucci"
+          ]
+        },
+        {
+          "id": "first_child",
+          "date": "2004-09-12",
+          "sources": [
+            "https://www.tgcom24.mediaset.it/people/articoli/219560/fiocco-rosa-per-monica-bellucci.shtml",
+            "https://mediasetinfinity.mediaset.it/news/mediasetinfinity/verissimo/deva-cassel-mamma-monica-bellucci-vogue-italia_SE000000000023_tn24939"
+          ]
+        }
+      ],
+      "baselineTrials": 200,
+      "segments": 154,
+      "stages": [
+        {
+          "label": "D1 · all assessed events",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "D7 · natal and first two periods",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "D9 · natal and first two periods",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        },
+        {
+          "label": "Third period · all assessed events",
+          "slices": 0,
+          "coveragePercent": 0,
+          "containsRecorded": false,
+          "touchesFiveMinutes": false
+        }
+      ],
+      "reportedSample": [
+        {
+          "d1": "mixed",
+          "division": "supported",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          }
+        },
+        {
+          "d1": "unresolved",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          }
+        }
+      ],
+      "heldout": {
+        "date": "2010-05-21",
+        "d1": "unresolved",
+        "division": "unresolved",
+        "passes": {
+          "d1": false,
+          "division": false,
+          "major": false,
+          "sub": false,
+          "third": false
+        },
+        "periodLords": [
+          "Venus",
+          "Jupiter",
+          "Mercury"
+        ],
+        "sources": [
+          "https://www.premiere.fr/People/Monica-Bellucci-et-Vincent-Cassel-leur-deuxieme-fille-Leonie-est-nee",
+          "https://www.amica.it/2021/07/01/monica-bellucci-foto-leonie-sorellina-deva-cassel/"
+        ]
+      },
+      "heldoutControls": [
+        {
+          "date": "2009-11-22",
+          "d1": "unresolved",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Saturn"
+          ]
+        },
+        {
+          "date": "2010-01-21",
+          "d1": "unresolved",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Saturn"
+          ]
+        },
+        {
+          "date": "2010-03-22",
+          "d1": "unresolved",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Mercury"
+          ]
+        },
+        {
+          "date": "2010-07-20",
+          "d1": "unresolved",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Ketu"
+          ]
+        },
+        {
+          "date": "2010-09-18",
+          "d1": "unresolved",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Venus"
+          ]
+        },
+        {
+          "date": "2010-11-17",
+          "d1": "unresolved",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Venus"
+          ]
+        }
+      ],
+      "sensitivity": [
+        {
+          "date": "2010-05-20",
+          "d1": "unresolved",
+          "division": "unresolved",
+          "passes": {
+            "d1": false,
+            "division": false,
+            "major": false,
+            "sub": false,
+            "third": false
+          },
+          "periodLords": [
+            "Venus",
+            "Jupiter",
+            "Mercury"
+          ]
+        }
+      ]
+    }
+  ]
+}

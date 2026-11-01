@@ -21,6 +21,7 @@ import { ParashariVargaEvidencePanel } from "@/components/parashari-varga-eviden
 import { ParashariPromisePanel } from "@/components/parashari-promise";
 import { ParashariSpecificPanel } from "@/components/parashari-specific";
 import { ManleyEvidencePanel } from "@/components/manley-evidence";
+import { ParashariHierarchyEvent } from "@/components/parashari-hierarchy";
 
 export type TopicReadingSystem = "kp" | "parashari" | "jaimini" | "bnn";
 
@@ -149,7 +150,8 @@ export function TopicReadingPanel({ result, system, onSelected }: {
         {shown.reading.parashariSpecific && <ParashariSpecificPanel check={shown.reading.parashariSpecific} />}
         {shown.reading.parashariDivisional && <ParashariSpecificPanel check={shown.reading.parashariDivisional} />}
         {shown.reading.parashariVargas && !shown.reading.parashariPromise && <p className="text-muted-foreground">The favourable-event score is not applied to this matter or recorded outcome. The displayed placements remain descriptive and do not decide the outcome.</p>}
-        {stage && <p data-testid="topic-reading-stage" className="rounded border px-2 py-2 text-muted-foreground">Earlier period links: {stage.first ? "both found" : "unresolved"}. Third period: {stage.first ? (stage.third ? "a primary link was found" : "unresolved") : "not evaluated as a match because the earlier stage is unresolved"}. These links do not themselves assess the outcome or transits.</p>}
+        {stage && <p data-testid="topic-reading-stage" className="rounded border px-2 py-2 text-muted-foreground">Earlier divisional-only experiment: {stage.first ? "both initial links found" : "unresolved"}. Third period: {stage.first ? (stage.third ? "a primary link was found" : "unresolved") : "blocked by the earlier stage"}. This older experiment does not require D1 and is retained for comparison with previous research.</p>}
+        {shown.reading.parashariHierarchy && <ParashariHierarchyEvent event={shown.reading.parashariHierarchy} />}
         {shown.reading.manley && <ManleyEvidencePanel evidence={shown.reading.manley} />}
         {!shown.reading.parashariVargas && !shown.reading.manley && <p>No Parashari rule in this subset covers the selected matter.</p>}
       </>}

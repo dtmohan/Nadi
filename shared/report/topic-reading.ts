@@ -8,6 +8,7 @@ import { AURORA_SOURCE } from "../kp-aurora";
 import { auroraEvidenceParas, auroraV2EvidenceParas } from "./kp-aurora";
 import { AURORA_V2_SOURCE } from "../kp-aurora-v2";
 import { manleyEvidenceParas } from "./manley-evidence";
+import { hierarchyParas } from "./parashari-hierarchy";
 import { parashariEvidenceParas } from "./parashari-varga-evidence";
 import { transitEvidenceTable } from "./kp-transit-evidence";
 import type { ReportContext, ReportPara, ReportSection } from "./types";
@@ -41,7 +42,8 @@ export function topicReadingSection(ctx: ReportContext, system: string): ReportS
     }
     const stage = stagedObservation(e.manley);
     if (stage) paras.push({ kind: "note", provisional: true,
-      text: `Staged primary links: earlier lords ${stage.first ? "both found" : "unresolved"}; third lord ${stage.first ? (stage.third ? "a link was found" : "unresolved") : "not counted because the earlier stage is unresolved"}. The partial gate does not assess outcome or transits.` });
+      text: `Earlier divisional-only staged experiment: earlier lords ${stage.first ? "both found" : "unresolved"}; third lord ${stage.first ? (stage.third ? "a link was found" : "unresolved") : "not counted because the earlier stage is unresolved"}. It does not require D1 or assess outcome or transits.` });
+    if (e.parashariHierarchy) paras.push(...hierarchyParas(e.parashariHierarchy));
     if (e.manley) paras.push(...manleyEvidenceParas(e.manley, cites.add(MANLEY_SOURCE.label),
       e.manley.educationFourth ? cites.add(RAO_EDUCATION_SOURCE.label, RAO_EDUCATION_SOURCE.url) : undefined));
   } else if (system === "kp") {

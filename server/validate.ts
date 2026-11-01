@@ -582,6 +582,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       cusp: m.cusp,
       parashariVargas: parashari.varga,
       manley: parashari.manley,
+      parashariHierarchy: parashari.hierarchy,
       parashariPromise: parashari.promise,
       parashariSpecific: parashari.specific,
       parashariDivisional: parashari.divisional,
@@ -901,7 +902,7 @@ function chanceBaseline(
   let parashariExample: ChanceBaseline["parashariExample"];
   const observe = (v: EventValidation): ParashariObservation => ({
     v1: v.parashariPromise?.score, v2: v.parashariSpecific?.score, v3: v.parashariDivisional?.score,
-    staged: stagedObservation(v.manley),
+    staged: stagedObservation(v.manley), hierarchy: v.parashariHierarchy?.passes,
   });
   const parashariTrials: ParashariObservation[][] = [];
   const actualStages = auroraV2StageCounts(real.map((v) => v.kp.auroraV2));
@@ -921,7 +922,8 @@ function chanceBaseline(
       parashariExample = trial.flatMap((v, i) => {
         const original = observe(real[i]);
         return original.v1 !== undefined || original.staged ? [{ label: v.label, date: v.date, time: v.time, timezone: v.timezone,
-          promise: v.parashariPromise, specific: v.parashariSpecific, divisional: v.parashariDivisional, manley: v.manley }] : [];
+          promise: v.parashariPromise, specific: v.parashariSpecific, divisional: v.parashariDivisional, manley: v.manley,
+          hierarchy: v.parashariHierarchy }] : [];
       });
     }
     parashariTrials.push(trial.map(observe));

@@ -660,6 +660,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const parashariSpecific = parashariByEvent.flatMap((p) => p.specific ? [p.specific] : []);
     const parashariDivisional = parashariByEvent.flatMap((p) => p.divisional ? [p.divisional] : []);
     const manley = parashariByEvent.flatMap((p) => p.manley ? [p.manley] : []);
+    const parashariHierarchy = parashariByEvent.map((p) => p.hierarchy ?? null);
     const jai = { j: computeJaimini(posJ, lagnaJ, birthIso), positions: posJ };
     // The result is constant within a Chara maha/antar period for this
     // candidate and area. Cache only inside this candidate so another birth
@@ -849,7 +850,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
             const p = scoreParashari(e, date, trialInstants[t][ei], sky);
             trialParashari.push(parashariObservation(p));
             if (t === 0) parashariExample!.push({ label: e.label, date, time: e.time, timezone: e.timezone,
-              promise: p.promise, specific: p.specific, divisional: p.divisional, manley: p.manley });
+              promise: p.promise, specific: p.specific, divisional: p.divisional, manley: p.manley, hierarchy: p.hierarchy });
           } else trialParashari.push({});
         });
         parashariTrials.push(trialParashari);
@@ -973,6 +974,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       parashariSpecific,
       parashariDivisional,
       manley,
+      parashariHierarchy,
       score: rpScore + evScore,
       max: 4 + evMax,
       given: jd0 >= a && jd0 < b,
@@ -985,6 +987,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     .map((s, i) => (s.score === top && top > 0 ? i : -1))
     .filter((i) => i >= 0);
   return {
+    hierarchySelections: req.events,
     ruling,
     judgedAt: {
       label:

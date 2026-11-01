@@ -4,6 +4,7 @@ import { describeEventMoment } from "@shared/events";
 import { ManleyEvidencePanel } from "@/components/manley-evidence";
 import { ParashariPromisePanel } from "@/components/parashari-promise";
 import { ParashariSpecificPanel } from "@/components/parashari-specific";
+import { ParashariHierarchyEvent } from "@/components/parashari-hierarchy";
 
 const show = (s: ComparisonStat) => `${s.actual} actual · ${s.mean} comparison mean · ${s.percentile}th percentile`;
 
@@ -26,8 +27,14 @@ export function ParashariComparisonPanel({ comparison, example, trials, birthZon
       <p>Each of {trials} comparison sets keeps the same eligible events, outcomes, natal candidate, event clock and time zone. Period lords and any transits required by that version are recalculated on each sampled date. Missing event clocks use noon; missing event zones use the birth zone. These comparisons do not change the ranking.</p>
       {versions.map(({ label, stat }) => <p key={label} data-testid={`parashari-comparison-${label.replace(" ", "-").toLowerCase()}`}><strong>{label}:</strong> {show(stat)}.</p>)}
       {!!comparison.unavailable?.length && <p data-testid="parashari-comparison-unavailable">Comparison unavailable for {comparison.unavailable.join(", ")}: at least one trial could not evaluate the same eligible events, so no zero score or percentile was substituted.</p>}
+      {comparison.hierarchy && <div className="rounded border px-2 py-2" data-testid="parashari-comparison-hierarchy">
+        <p><strong>D1 → division → periods:</strong> among {comparison.hierarchy.eligibleEvents} eligible events, the cumulative actual counts are D1 {comparison.hierarchy.d1.actual}, division {comparison.hierarchy.division.actual}, main period {comparison.hierarchy.major.actual}, subperiod {comparison.hierarchy.sub.actual}. The random-date mean after the subperiod gate is {comparison.hierarchy.sub.mean}.</p>
+        <p>Natal D1 and divisional conditions do not change when only the event date is sampled. The third period is compared only for events whose actual and sampled dates pass all earlier gates.
+          {comparison.hierarchy.third ? ` Third-period matches: ${show(comparison.hierarchy.third)}; qualifying draws per event: ${comparison.hierarchy.qualifyingDraws.join(", ")}.` : " No conditional third-period comparison is available."}</p>
+        <p>This partial screen uses the same event evaluator for recorded and comparison dates. The numbers do not establish a promise or birth time.</p>
+      </div>}
       {staged && <div className="rounded border px-2 py-2" data-testid="parashari-comparison-staged">
-        <p><strong>Staged divisional clues:</strong> both earlier lords have a primary link for {staged.first.actual} of {staged.eligibleEvents} eligible events. Comparison mean: {staged.first.mean}; {staged.first.percentile}th percentile. The links here are in each event's divisional chart; D1 is displayed separately and is not a mandatory predecessor in this partial check.</p>
+        <p><strong>Earlier divisional-only experiment:</strong> both earlier lords have a primary link for {staged.first.actual} of {staged.eligibleEvents} eligible events. Comparison mean: {staged.first.mean}; {staged.first.percentile}th percentile. This older experiment does not require D1; it is retained for comparison with prior research.</p>
         <p>The third lord is compared only for actual events that passed the earlier checks, using each event's own sampled dates that also passed those checks.
           {staged.third ? ` Third-level matches: ${show(staged.third)}. Each event had ${Math.min(...staged.qualifyingDraws)}–${Math.max(...staged.qualifyingDraws)} qualifying dates out of ${trials}.` : staged.first.actual === 0 ? " No actual event passed that first stage, so the third stage is unresolved." : " At least one such event had no qualifying sampled dates, so no third-stage percentile is available."}</p>
         <p>To form the third-level comparison, the qualifying draws are recombined independently across events. A small number of qualifying dates makes it less stable.</p>
@@ -42,6 +49,7 @@ export function ParashariComparisonPanel({ comparison, example, trials, birthZon
           {e.specific && <ParashariSpecificPanel check={e.specific} />}
           {e.divisional && <ParashariSpecificPanel check={e.divisional} />}
           {e.manley && <ManleyEvidencePanel evidence={e.manley} />}
+          {e.hierarchy && <ParashariHierarchyEvent event={e.hierarchy} />}
           {!e.promise && !e.manley && <p>No eligible Parashari check for this comparison event.</p>}
         </div>)}
       </details> : null}

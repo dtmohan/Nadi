@@ -20,6 +20,7 @@ import { ParashariVargaEvidencePanel } from "@/components/parashari-varga-eviden
 import { ParashariPromisePanel } from "@/components/parashari-promise";
 import { ParashariSpecificPanel } from "@/components/parashari-specific";
 import { ManleyEvidencePanel } from "@/components/manley-evidence";
+import { ParashariHierarchyEvent, ParashariHierarchyWindows } from "@/components/parashari-hierarchy";
 import { AuroraEventPanel, AuroraLinkDetail, AuroraV2Panel, AuroraV2StagesPanel } from "@/components/kp-aurora-evidence";
 import { ParashariComparisonPanel } from "@/components/parashari-comparison";
 import { VargaWindowsPanel } from "@/components/varga-windows";
@@ -916,6 +917,7 @@ export function RectifyPanel({
           data-testid="rectify-results"
         >
           {data.vargaWindows && <VargaWindowsPanel rows={data.vargaWindows} birthDate={chart.birthDate} />}
+          {data.hierarchySelections?.length && <ParashariHierarchyWindows selections={data.hierarchySelections} segments={data.segments} zone={chart.timezone} />}
           {method === "kp-rp" && (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
               <span>
@@ -1189,6 +1191,7 @@ export function RectifyPanel({
             <summary className="cursor-pointer font-medium">Manley divisional event clues · candidate midpoint {focus.midDate} {focus.mid}</summary>
             {(focus.manley ?? []).map((e, i) => <ManleyEvidencePanel key={`${e.matter}-${e.date}-${i}`} evidence={e} />)}
           </details>}
+          {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.parashariHierarchy?.map((e, i) => e && <ParashariHierarchyEvent key={`hierarchy-${i}`} event={e} />)}
 
           {isParashariMethod && (
             <div className="mt-3" data-testid="rectify-parashari-ranking">
@@ -1197,6 +1200,7 @@ export function RectifyPanel({
                 and a new job or promotion are scored; other or explicitly mixed or unfavourable events are omitted.
                 D1 and divisional indications are partial and can conflict. These scores are not probabilities
                 or proof of a birth time. The random-date comparison is exploratory and is not calibrated to select a birth time.
+                These older point totals do not require D1 to pass before awarding later points. Use the separate experimental event funnel above to inspect cumulative gates; it does not change this ranking.
                 Adjacent slices are grouped only when their displayed Parashari evidence agrees; Inspect chooses
                 a midpoint near the recorded time in that group.
                 {sortByScore && parashariComparable ? " Ties are displayed nearest the recorded time first." : ""}

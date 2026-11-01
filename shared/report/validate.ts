@@ -8,6 +8,7 @@ import { PARASHARI_VARGA_SOURCE } from "../parashari-varga-evidence";
 import { parashariEvidenceParas } from "./parashari-varga-evidence";
 import { MANLEY_SOURCE, RAO_EDUCATION_SOURCE } from "../manley-evidence";
 import { manleyEvidenceParas } from "./manley-evidence";
+import { hierarchyParas } from "./parashari-hierarchy";
 import { parashariComparisonParas } from "./parashari-comparison";
 import type { BaselineStat } from "../validate-types";
 import { AURORA_SOURCE } from "../kp-aurora";
@@ -145,6 +146,7 @@ export const validateModule: ReportModule = {
         paras.push({ kind: "p", text: `${p.label} · ${p.date}: ${p.score}/${p.max} v3 rule matches. ${p.factors.map((f) => `${f.label}: ${f.matched ? "match" : "no match"} (${f.details.join("; ") || "none found"})`).join(". ")}. D1 difficult: ${p.d1Strain.join("; ") || "none found"}; ${p.division} difficult: ${p.divisionStrain.join("; ") || "none found"}.`, cites: [source], provisional: true });
       }
     }
+    for (const event of v.events) if (event.parashariHierarchy) paras.push(...hierarchyParas(event.parashariHierarchy));
     if (v.events.some((event) => event.manley)) {
       const source = cites.add(MANLEY_SOURCE.label);
       paras.push({ kind: "note", text: "The following Manley-style D1 and divisional event clues are descriptive; the main and subperiod primary divisional links also contribute to v3. The third-period clues do not change that score. Repeated lords are not independent confirmations. Missing event times are evaluated at noon and missing event zones use the birth zone. Nodes receive but do not cast aspects in this subset. Indirect node-dispositor links, the full manual funnel and fourth/fifth period levels are omitted. Admission is not necessarily the first day of study.", cites: [source], provisional: true });
