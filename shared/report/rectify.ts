@@ -6,7 +6,7 @@ import { RAO_SOURCE } from "../jaimini-areas";
 import { scoreMarks } from "../body-marks";
 import { KP_TRANSIT_EVIDENCE_SOURCE, kpTransitEvidence } from "../kp-transit-evidence";
 import { AURORA_SOURCE } from "../kp-aurora";
-import { auroraEvidenceParas, auroraV2EvidenceParas } from "./kp-aurora";
+import { auroraEvidenceParas, auroraV2EvidenceParas, auroraV2StagesParas } from "./kp-aurora";
 import { AURORA_V2_SOURCE } from "../kp-aurora-v2";
 import { transitEvidenceTable } from "./kp-transit-evidence";
 import { describeEventMoment } from "../events";
@@ -355,6 +355,7 @@ export const rectifyModule: ReportModule = {
         });
       } else if (state.method === "kp-aurora-v2") {
         ps.push({ kind: "note", provisional: true, text: "Aurora mixed-script v2 is a source-inspired research adapter. A supportive sub can carry a mixed star with caution; a mixed sub remains unresolved. The screen does not establish a birth time.", cites: [cites.add(AURORA_V2_SOURCE)] });
+        ps.push(...auroraV2StagesParas(focus.events.map((e) => e.auroraV2), focus.baseline?.auroraV2Stages, scan.baseline?.trials));
         if (focus.baseline?.auroraV2 && focus.baseline.auroraV2.sd === 0 && focus.baseline.auroraV2.actual === focus.baseline.auroraV2.mean)
           ps.push({ kind: "note", provisional: true, text: "The comparison scores show no spread and match the events, so this comparison does not distinguish the dates. Random dates are not verified non-events." });
         for (const e of focus.events) if (e.auroraV2) ps.push(...auroraV2EvidenceParas(e.auroraV2, `${S(e.label)} · ${e.date}`, cites.add(AURORA_V2_SOURCE)));

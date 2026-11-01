@@ -16,6 +16,8 @@ export function parashariComparisonParas(comparison: ParashariComparison, trials
   }
   const paras: ReportPara[] = [{ kind: "note", provisional: true,
     text: `Parashari comparisons use ${trials} sets of random dates, the same eligible events, outcomes and natal candidate, with the same event clock and time zone. Period lords and any transits required by the selected check are recalculated. The staged third level uses actual events that passed the first gate and each event's sampled dates that also passed it, recombined independently across events; this staged gate does not assess outcome or add a transit rule. The partial checks do not deny an event or establish a birth time, and their percentiles do not adjust for trying multiple birth times or related measures. Random dates need not preserve event ages or order and are not known non-events. These comparisons do not change the ranking.` }];
+  if (comparison.staged) paras.push({ kind: "note", provisional: true,
+    text: "The staged primary links are in each event's divisional chart; D1 is displayed separately and is not a mandatory predecessor in this partial check." });
   if (rows.length) paras.push({ kind: "table", head: ["Measure", "Actual", "Comparison mean ± sd", "Percentile"], rows });
   if (comparison.staged && !comparison.staged.third) paras.push({ kind: "note", provisional: true,
     text: comparison.staged.first.actual === 0 ? "No actual event met the first-stage gate, so the third-stage comparison is unresolved."

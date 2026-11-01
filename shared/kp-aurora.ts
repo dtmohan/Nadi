@@ -121,8 +121,10 @@ interface AuroraContext {
   significators: KpSignificators[];
   byPlanet: Map<Planet, KpPlanet>;
   self: AuroraSelfSignificator[];
+  selfByPlanet: Map<Planet, AuroraSelfSignificator>;
   sig: Map<Planet, number[]>;
   byMatter: Map<string, Map<Planet, Coordinator>>;
+  layersByMatter: Map<string, Map<Planet, Omit<AuroraLayer, "role" | "eligible">>>;
 }
 // Validation and each rectification candidate reuse immutable natal arrays for
 // hundreds of comparison dates. Cache natal work, never a dated event or sky.
@@ -142,16 +144,19 @@ export function auroraEventEvidence(input: {
   if (!m) return undefined;
   let context = contexts.get(input.planets);
   if (!context || context.cusps !== input.cusps || context.significators !== input.significators) {
+    const self = auroraSelfSignificators(input.planets, input.cusps);
     context = { cusps: input.cusps, significators: input.significators,
       byPlanet: new Map(input.planets.map((p) => [p.planet, p])),
-      self: auroraSelfSignificators(input.planets, input.cusps),
-      sig: new Map(input.significators.map((s) => [s.planet, s.houses])), byMatter: new Map() };
+      self, selfByPlanet: new Map(self.map((s) => [s.planet, s])),
+      sig: new Map(input.significators.map((s) => [s.planet, s.houses])), byMatter: new Map(), layersByMatter: new Map() };
     contexts.set(input.planets, context);
   }
   const { byPlanet, self, sig } = context;
   let matterCache = context.byMatter.get(m.matter);
   if (!matterCache) { matterCache = new Map(); context.byMatter.set(m.matter, matterCache); }
-  const bySelf = new Map(self.map((s) => [s.planet, s]));
+  const bySelf = context.selfByPlanet;
+  let matterLayers = context.layersByMatter.get(m.matter);
+  if (!matterLayers) { matterLayers = new Map(); context.layersByMatter.set(m.matter, matterLayers); }
   const coordinators = (planet: Planet) => {
     const cached = matterCache.get(planet);
     if (cached) return cached;
@@ -165,19 +170,24 @@ export function auroraEventEvidence(input: {
   };
   let proceeding = true;
   const layer = (role: string, planet: Planet): AuroraLayer => {
-    const p = byPlanet.get(planet);
-    if (!p) throw new Error(`Missing KP planet ${planet}`);
-    const ownStar = p.starLord === planet;
-    const star = coordinators(ownStar ? p.subLord : p.starLord);
-    const sub = coordinators(ownStar ? p.subSubLord : p.subLord);
-    const positive = star.supporting.length > 0 && sub.supporting.length > 0;
-    const anyPositive = star.supporting.length > 0 || sub.supporting.length > 0;
-    const negative = star.adverse.length > 0 || sub.adverse.length > 0;
-    const status: AuroraStatus = anyPositive && negative ? "mixed" : positive ? "support"
-      : sub.adverse.length ? "adverse" : "silent";
+    let cached = matterLayers!.get(planet);
+    if (!cached) {
+      const p = byPlanet.get(planet);
+      if (!p) throw new Error(`Missing KP planet ${planet}`);
+      const ownStar = p.starLord === planet;
+      const star = coordinators(ownStar ? p.subLord : p.starLord);
+      const sub = coordinators(ownStar ? p.subSubLord : p.subLord);
+      const positive = star.supporting.length > 0 && sub.supporting.length > 0;
+      const anyPositive = star.supporting.length > 0 || sub.supporting.length > 0;
+      const negative = star.adverse.length > 0 || sub.adverse.length > 0;
+      const status: AuroraStatus = anyPositive && negative ? "mixed" : positive ? "support"
+        : sub.adverse.length ? "adverse" : "silent";
+      cached = { planet, ownStar, star, sub, status };
+      matterLayers!.set(planet, cached);
+    }
     const eligible = proceeding;
-    if (status !== "support") proceeding = false;
-    return { role, planet, ownStar, star, sub, status, eligible };
+    if (cached.status !== "support") proceeding = false;
+    return { role, ...cached, eligible };
   };
   const layers: AuroraLayer[] = [];
   for (const n of m.cusps) {

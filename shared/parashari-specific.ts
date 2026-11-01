@@ -4,7 +4,7 @@
  * numerical formula. See docs/parashari-specific-v2-protocol.md.
  */
 import { drishtiQuarters, EXALTATION, norm360, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
-import { parashariPromiseCheck } from "./parashari-promise";
+import { parashariPromiseCheck, type ParashariPromiseCheck } from "./parashari-promise";
 import { vargaSignAt, type ParashariVargaEvidence } from "./parashari-varga-evidence";
 import type { VargaKey } from "./vargas";
 
@@ -39,8 +39,9 @@ export function parashariSpecificCheck(
   outcome: "favourable" | "unfavourable" | "mixed" | undefined,
   natal: PlanetPosition[],
   sky: Array<Pick<PlanetPosition, "planet" | "signIndex">>,
+  precomputedBase?: ParashariPromiseCheck,
 ): ParashariSpecificCheck | undefined {
-  const base = parashariPromiseCheck(evidence, outcome, natal, sky);
+  const base = precomputedBase ?? parashariPromiseCheck(evidence, outcome, natal, sky);
   if (!base || !evidence) return undefined;
   const byPlanet = new Map(natal.map((p) => [p.planet, p]));
   const skyByPlanet = new Map(sky.map((p) => [p.planet, p]));

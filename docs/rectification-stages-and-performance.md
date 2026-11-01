@@ -1,0 +1,24 @@
+# Rectification stages and scan performance
+
+## What the stages measure
+
+There are two different subdivisions to keep separate:
+
+1. **Positions:** a planet or cusp has a nakshatra (star) lord, sub-lord, sub-sub-lord and finer positional divisions. `kpPoint` calculates these. In Leena Aurora's *The Ultimate Guide to KP Astrology Techniques* (2024), supplied capture pages 260–261, a planet in its own star is read with its sub and sub-sub in the star and sub slots. The book also discusses a repeated-star/sub cusp exception (capture endnote 64). Nadi's Aurora v2 implements the planet own-star case and a provisional extension for a planet whose star and sub are the same. It does **not** separately apply the book's repeated-star/sub cusp exception, nor does it make every positional sub-sub an additional mandatory gate.
+2. **Time periods:** Vimshottari divides a major period into a sub-period, then a third period (pratyantar), fourth (sukshma), fifth (prana), and further periods. Aurora describes this hierarchy on capture pages 264–268; [P. V. R. Narasimha Rao](https://www.vedicastrologer.org/articles/vedic_astro_textbook.pdf#page=221) describes the same nested sequence. KP Validate and Aurora v2 currently score only the first three period lords. `vimshottariPathAt` calculates up to six levels for research using the app's 365.25-day year; it does not by itself establish a finer timing rule.
+
+The existing KP four-step significators are another hierarchy: they concern how planets signify houses. They are not the same thing as adding a positional sub-sub or adding a fourth period. Event-day transit details remain descriptive in Aurora v2; they are not an Aurora v2 scoring gate.
+
+## Keeping the intermediate results
+
+Aurora v2 now reports the number of eligible events that pass all required cusp checks, then the major period, sub-period and third period. Each count is cumulative; the later stages cannot restore an event that stopped earlier. A supporting star/sub with a mixed star is counted with caution. A mixed sub remains unresolved under this conservative, experimental adapter, even though the book sometimes weighs mixed subs contextually. A stop is a mismatch with this adapter, not evidence that an observed event did not happen.
+
+The same stage counts are computed for each of the same 200 comparison-date sets used by the existing full-chain score, preserving event clocks and time zones. The report shows their mean, not a probability of a correct birth time. The natal cusp stage is constant when only the event date changes, so it cannot discriminate the actual date from those random dates. Random dates are not known non-events and can violate plausible event ages or order.
+
+The separate Parashari staged comparison counts primary links in each event's relevant divisional chart. It requires both earlier period lords before crediting the third. D1 is displayed separately; it is **not** a mandatory predecessor in that partial implementation. A D4 match for one event does not automatically validate D9 or D10 for a different event. More restrictive sequential layers can only maintain or reduce the number of passing events; shrinking a birth-time interval alone does not prove improved accuracy.
+
+## Performance
+
+The scan now avoids retrograde-entry walks for comparison skies and the KP-only candidate positions, whose consumers use longitude and retrograde state but not retrograde-entry history. Within each natal candidate it reuses static Aurora layers and repeated matter/period paths; Parashari trials reuse natal house assessments and equivalent sign-based transit interpretations. The same natal, period and transit rules are still applied, including all 200 trials and the replayable first comparison set. Per-candidate caches do not cross birth times. Rectification responses use gzip when accepted by the client, and remain ordinary JSON for clients requesting identity encoding.
+
+`node --import tsx scripts/benchmark-rectify.ts 10` (or `30` or `60`) runs a fixed synthetic three-event workload, with a fixed judgment time and event zones. In individual local runs, the previous and revised calculations took approximately 2.0 → 1.2 seconds for ±10 minutes, 5.5 → 3.3 seconds for ±30 minutes, and 9.5 → 6.3 seconds for ±60 minutes. These are machine-specific observations, not deployment guarantees. A ±30-minute result of about 12.4 MB was about 1.9 MB with fast gzip. Before the stage-count fields were added, the complete synthetic result was byte-identical to the previous implementation; after adding those fields, all pre-existing fields remained identical. Results, interval boundaries and sample counts were not deliberately reduced for speed.

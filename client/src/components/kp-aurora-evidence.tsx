@@ -1,7 +1,34 @@
 import * as React from "react";
 import { auroraAscendantLinks, auroraSelfSignificators, type AuroraAscendantLinks, type AuroraEventEvidence } from "@shared/kp-aurora";
 import type { KpCusp, KpPlanet } from "@shared/kp";
-import type { AuroraV2Evidence } from "@shared/kp-aurora-v2";
+import { auroraV2StageCounts, type AuroraV2Evidence, type AuroraV2StageComparison } from "@shared/kp-aurora-v2";
+
+/** Cumulative survival, with the same gates applied to the random-date sets. */
+export function AuroraV2StagesPanel({ evidence, comparison, trials }: {
+  evidence: Array<AuroraV2Evidence | undefined>;
+  comparison?: AuroraV2StageComparison<{ actual: number; mean: number }>;
+  trials?: number;
+}) {
+  const counts = auroraV2StageCounts(evidence);
+  if (!counts.eligibleEvents) return null;
+  const rows = [
+    { key: "cusps" as const, label: "All required cusps" },
+    { key: "major" as const, label: "Then major period" },
+    { key: "sub" as const, label: "Then sub-period" },
+    { key: "third" as const, label: "Then third period" },
+  ];
+  const comparable = comparison?.eligibleEvents === counts.eligibleEvents ? comparison : undefined;
+  return <div className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="aurora-v2-stage-counts">
+    <p className="font-medium">Where events stop in the staged check</p>
+    <p className="mt-1 text-muted-foreground">Counts are cumulative: an event reaches the next row only after all earlier rows pass. Supported-with-caution is included; a mixed sub or other unresolved stage stops that event.</p>
+    <p className="mt-1 text-muted-foreground">These rows are nested period lords, not the positional star, sub and sub-sub of a planet or cusp. V2 uses a planet's positional sub-sub in its own-star and repeated-star/sub conventions; it does not separately apply the book's repeated-star/sub cusp exception.</p>
+    <div className="mt-2 overflow-x-auto"><table className="w-full text-left"><thead><tr><th>Stage</th><th>Actual events</th>{comparable && <th>Random-date mean</th>}</tr></thead>
+      <tbody>{rows.map(({ key, label }) => <tr key={key}><td className="pr-2">{label}</td>
+        <td>{counts[key]} / {counts.eligibleEvents}</td>{comparable && <td>{comparable[key].mean} / {counts.eligibleEvents}</td>}
+      </tr>)}</tbody></table></div>
+    {comparable && <p className="mt-1 text-muted-foreground">The same gates were applied to {trials ?? 200} comparison sets. The natal cusp result is fixed for a candidate, so changing event dates does not test it. Random dates are not known non-events.</p>}
+  </div>;
+}
 
 const reason: Record<string, string> = {
   "unoccupied-star": "no natal planet in its stars",

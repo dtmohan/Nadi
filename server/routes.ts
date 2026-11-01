@@ -55,6 +55,7 @@ import type { Planet } from "@shared/astro";
 import type { OwnMarks } from "@shared/gochara";
 import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
+import { sendRectifyJson } from "./rectify-response";
 import { validateEvents } from "./validate";
 import { topicReading } from "./topic-reading";
 import { z } from "zod";
@@ -741,7 +742,7 @@ export async function registerRoutes(
         .status(400)
         .json({ message: "Invalid request", issues: parsed.error.issues });
     try {
-      res.json(rectify(parsed.data));
+      sendRectifyJson(req, res, rectify(parsed.data));
     } catch (e: any) {
       res.status(400).json({ message: e.message });
     }

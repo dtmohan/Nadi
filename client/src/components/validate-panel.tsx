@@ -27,7 +27,7 @@ import { LifeEventsEditor } from "@/components/life-events";
 import { KpTransitEvidencePanel } from "@/components/kp-transit-evidence";
 import { ParashariVargaEvidencePanel } from "@/components/parashari-varga-evidence";
 import { ManleyEvidencePanel } from "@/components/manley-evidence";
-import { AuroraEventPanel, AuroraV2Panel } from "@/components/kp-aurora-evidence";
+import { AuroraEventPanel, AuroraV2Panel, AuroraV2StagesPanel } from "@/components/kp-aurora-evidence";
 import { ParashariComparisonPanel } from "@/components/parashari-comparison";
 import { ParashariPromisePanel } from "@/components/parashari-promise";
 import { ParashariSpecificPanel } from "@/components/parashari-specific";
@@ -827,6 +827,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             <KpTransitEvidencePanel key={e.id} label={e.label} date={e.date} when={describeEventMoment(e, chart.timezone)} evidence={e.kp.transit.evidence} />
           ))}
           {v.events.map((e) => e.kp.aurora && <AuroraEventPanel key={`aurora-${e.id}`} evidence={e.kp.aurora} label={`${e.label} · ${e.date}`} />)}
+          <AuroraV2StagesPanel evidence={v.events.map((e) => e.kp.auroraV2)} comparison={v.baseline?.auroraV2Stages} trials={v.baseline?.trials} />
           {v.events.map((e) => e.kp.auroraV2 && <AuroraV2Panel key={`aurora-v2-${e.id}`} evidence={e.kp.auroraV2} label={`${e.label} · ${e.date}`} />)}
           {v.baseline?.aurora && <p className="mt-2 text-xs text-muted-foreground">Aurora full chains: {v.baseline.aurora.actual} on recorded dates; random-date mean {v.baseline.aurora.mean} across {v.baseline.trials} trials. Comparison dates are not known non-events.</p>}
           {v.baseline?.auroraV2 && <p className="mt-2 text-xs text-muted-foreground">Aurora v2 full chains: {v.baseline.auroraV2.actual} on recorded dates; random-date mean {v.baseline.auroraV2.mean} across {v.baseline.trials} trials. {v.baseline.auroraV2.sd === 0 && v.baseline.auroraV2.actual === v.baseline.auroraV2.mean ? "The comparison scores show no spread and match the events, so this comparison does not distinguish the dates. " : ""}Comparison dates are not known non-events.</p>}

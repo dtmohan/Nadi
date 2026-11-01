@@ -44,6 +44,11 @@ export interface AuroraV2Evidence {
   transit: Array<{ role: string; planet: Planet; signLord: Planet; starLord: Planet; subLord: Planet }>;
 }
 
+export const AURORA_V2_STAGES = ["cusps", "major", "sub", "third"] as const;
+export type AuroraV2Stage = (typeof AURORA_V2_STAGES)[number];
+export type AuroraV2StageCounts = Record<AuroraV2Stage, number> & { eligibleEvents: number };
+export type AuroraV2StageComparison<T> = Record<AuroraV2Stage, T> & { eligibleEvents: number };
+
 /** In v2 each ordinary planet contributes its occupied and owned houses only;
  * do not dereference its star a second time. Nodes represent their sign lord,
  * same-sign planets and planets casting a full sign aspect. The use of full
@@ -82,11 +87,36 @@ export function auroraV2Classify(
 }
 const passes = (status: AuroraV2Status) => status === "supported" || status === "supported-with-caution";
 
+/** Count cumulative survival through the same staged evaluator, without
+ * interpreting a stopped chain as evidence that the event could not occur. */
+export function auroraV2StageCounts(items: Array<AuroraV2Evidence | undefined>): AuroraV2StageCounts {
+  const counts: AuroraV2StageCounts = { eligibleEvents: 0, cusps: 0, major: 0, sub: 0, third: 0 };
+  for (const evidence of items) {
+    if (!evidence) continue;
+    const cusps = evidence.layers.filter((l) => l.role.startsWith("Cusp "));
+    const periods = ["Major period", "Sub-period", "Sub-sub-period"].map((role) => evidence.layers.find((l) => l.role === role));
+    if (!cusps.length || periods.some((l) => !l)) continue;
+    counts.eligibleEvents++;
+    const supported = (l: AuroraV2Layer) => l.eligible && passes(l.status);
+    if (!cusps.every(supported)) continue;
+    counts.cusps++;
+    if (!supported(periods[0]!)) continue;
+    counts.major++;
+    if (!supported(periods[1]!)) continue;
+    counts.sub++;
+    if (supported(periods[2]!)) counts.third++;
+  }
+  return counts;
+}
+
 interface Context {
   cusps: KpCusp[];
   byPlanet: Map<Planet, KpPlanet>;
   atoms: Map<Planet, ReturnType<typeof auroraV2AtomicCoordinates>>;
   self: ReturnType<typeof auroraSelfSignificators>;
+  selfByPlanet: Map<Planet, ReturnType<typeof auroraSelfSignificators>[number]>;
+  /** Static natal layers; eligibility is applied afresh in event order. */
+  layersByMatter: Map<string, Map<Planet, Omit<AuroraV2Layer, "role" | "eligible">>>;
 }
 const contexts = new WeakMap<KpPlanet[], Context>();
 
@@ -103,12 +133,14 @@ export function auroraV2Evidence(input: {
   if (!matter) return undefined;
   let context = contexts.get(input.planets);
   if (!context || context.cusps !== input.cusps) {
+    const self = auroraSelfSignificators(input.planets, input.cusps);
     context = { cusps: input.cusps, byPlanet: new Map(input.planets.map((p) => [p.planet, p])),
-      atoms: new Map(), self: auroraSelfSignificators(input.planets, input.cusps) };
+      atoms: new Map(), self, selfByPlanet: new Map(self.map((s) => [s.planet, s])), layersByMatter: new Map() };
     contexts.set(input.planets, context);
   }
   const current = context;
-  const self = new Map(current.self.map((s) => [s.planet, s]));
+  let matterLayers = current.layersByMatter.get(matter.matter);
+  if (!matterLayers) { matterLayers = new Map(); current.layersByMatter.set(matter.matter, matterLayers); }
   const atom = (planet: Planet) => {
     let a = current.atoms.get(planet);
     if (!a) { a = auroraV2AtomicCoordinates(input.planets, planet); current.atoms.set(planet, a); }
@@ -122,21 +154,25 @@ export function auroraV2Evidence(input: {
   };
   let proceeding = true;
   const layer = (role: string, planet: Planet): AuroraV2Layer => {
-    const p = current.byPlanet.get(planet);
-    if (!p) throw new Error(`Missing KP planet ${planet}`);
-    const ownStar = p.starLord === planet;
-    const repeatedStarSub = p.starLord === p.subLord;
-    const promoted = Array.from(new Set([planet, p.subLord])).flatMap((name) => {
-      const s = self.get(name);
-      if (!s) return [];
-      return [{ planet: name, houses: Array.from(new Set([...atom(name).houses, ...s.cuspStar, ...s.cuspSub])).sort((a, b) => a - b) }];
-    });
-    const star = coord(ownStar ? p.subLord : p.starLord, promoted);
-    const sub = coord(ownStar || repeatedStarSub ? p.subSubLord : p.subLord);
-    const status = auroraV2Classify(star, sub);
+    let cached = matterLayers!.get(planet);
+    if (!cached) {
+      const p = current.byPlanet.get(planet);
+      if (!p) throw new Error(`Missing KP planet ${planet}`);
+      const ownStar = p.starLord === planet;
+      const repeatedStarSub = p.starLord === p.subLord;
+      const promoted = Array.from(new Set([planet, p.subLord])).flatMap((name) => {
+        const s = current.selfByPlanet.get(name);
+        if (!s) return [];
+        return [{ planet: name, houses: Array.from(new Set([...atom(name).houses, ...s.cuspStar, ...s.cuspSub])).sort((a, b) => a - b) }];
+      });
+      const star = coord(ownStar ? p.subLord : p.starLord, promoted);
+      const sub = coord(ownStar || repeatedStarSub ? p.subSubLord : p.subLord);
+      cached = { planet, ownStar, repeatedStarSub, star, sub, status: auroraV2Classify(star, sub) };
+      matterLayers!.set(planet, cached);
+    }
     const eligible = proceeding;
-    if (!passes(status)) proceeding = false;
-    return { role, planet, ownStar, repeatedStarSub, star, sub, status, eligible };
+    if (!passes(cached.status)) proceeding = false;
+    return { role, ...cached, eligible };
   };
   const layers: AuroraV2Layer[] = [];
   for (const n of matter.cusps) {

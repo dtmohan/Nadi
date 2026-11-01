@@ -11,7 +11,7 @@ import { manleyEvidenceParas } from "./manley-evidence";
 import { parashariComparisonParas } from "./parashari-comparison";
 import type { BaselineStat } from "../validate-types";
 import { AURORA_SOURCE } from "../kp-aurora";
-import { auroraEvidenceParas, auroraV2EvidenceParas } from "./kp-aurora";
+import { auroraEvidenceParas, auroraV2EvidenceParas, auroraV2StagesParas } from "./kp-aurora";
 import { AURORA_V2_SOURCE } from "../kp-aurora-v2";
 import { agreeWord, KP_MARKED_KEY, markedHousesText } from "../validate-types";
 import {
@@ -152,6 +152,7 @@ export const validateModule: ReportModule = {
         event.manley.educationFourth ? cites.add(RAO_EDUCATION_SOURCE.label, RAO_EDUCATION_SOURCE.url) : undefined));
     }
     for (const e of v.events) if (e.kp.aurora) paras.push(...auroraEvidenceParas(e.kp.aurora, `${S(e.label)} · ${e.date}`, cites.add(AURORA_SOURCE)));
+    paras.push(...auroraV2StagesParas(v.events.map((e) => e.kp.auroraV2), v.baseline?.auroraV2Stages, v.baseline?.trials));
     for (const e of v.events) if (e.kp.auroraV2) paras.push(...auroraV2EvidenceParas(e.kp.auroraV2, `${S(e.label)} · ${e.date}`, cites.add(AURORA_V2_SOURCE)));
     if (v.baseline?.aurora) paras.push({ kind: "note", provisional: true, text: `Aurora full chains: ${v.baseline.aurora.actual} on recorded dates, comparison mean ${v.baseline.aurora.mean} across ${v.baseline.trials} random-date trials. Random dates are not verified non-events.` });
     if (v.baseline?.auroraV2) paras.push({ kind: "note", provisional: true, text: `Aurora v2 full chains: ${v.baseline.auroraV2.actual} on recorded dates, comparison mean ${v.baseline.auroraV2.mean} across ${v.baseline.trials} random-date trials. ${v.baseline.auroraV2.sd === 0 && v.baseline.auroraV2.actual === v.baseline.auroraV2.mean ? "The comparison scores show no spread and match the events, so this comparison does not distinguish the dates. " : ""}Random dates are not verified non-events.` });

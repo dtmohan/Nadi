@@ -1,5 +1,5 @@
 import type { AuroraEventEvidence } from "../kp-aurora";
-import type { AuroraV2Evidence } from "../kp-aurora-v2";
+import { auroraV2StageCounts, type AuroraV2Evidence, type AuroraV2StageComparison } from "../kp-aurora-v2";
 import type { ReportPara } from "./types";
 
 export function auroraEvidenceParas(e: AuroraEventEvidence, label: string, source: number): ReportPara[] {
@@ -23,4 +23,14 @@ export function auroraV2EvidenceParas(e: AuroraV2Evidence, label: string, source
     ]) },
     { kind: "p", provisional: true, text: `Event sky (descriptive): ${e.transit.map((t) => `${t.role} ${t.planet}: ${t.signLord}/${t.starLord}/${t.subLord}`).join("; ") || "unavailable"}. Later stages cannot rescue an unresolved predecessor.` },
   ];
+}
+
+export function auroraV2StagesParas(items: Array<AuroraV2Evidence | undefined>,
+  comparison?: AuroraV2StageComparison<{ actual: number; mean: number }>, trials?: number): ReportPara[] {
+  const c = auroraV2StageCounts(items);
+  if (!c.eligibleEvents) return [];
+  const comp = comparison?.eligibleEvents === c.eligibleEvents ? comparison : undefined;
+  const rows = [["Required cusps", "cusps"], ["Then major period", "major"], ["Then sub-period", "sub"],
+    ["Then third period", "third"]] as const;
+  return [{ kind: "note", provisional: true, text: `Cumulative Aurora v2 stages for ${c.eligibleEvents} eligible events: ${rows.map(([label, key]) => `${label} ${c[key]}${comp ? ` (random-date mean ${comp[key].mean})` : ""}`).join("; ")}. Each row requires all earlier rows to pass; supported-with-caution counts. These period lords are not positional star/sub/sub-sub lords. V2 uses a planet's positional sub-sub in special cases and does not separately apply the book's repeated-star/sub cusp exception. ${comp ? `The same gates were used for ${trials ?? 200} comparison sets. The natal cusp result is fixed at this candidate. Random dates are not known non-events.` : ""}` }];
 }

@@ -93,7 +93,7 @@ import { summarizeParashariComparisons, type ParashariComparisonExample, type Pa
 import { createParashariEventScorer, parashariObservation } from "./parashari-event";
 import { nemaniRpMoonCheck } from "@shared/kp-nemani-rp";
 import { auroraAscendantLinks, auroraEventEvidence, auroraMatter } from "@shared/kp-aurora";
-import { auroraV2Evidence } from "@shared/kp-aurora-v2";
+import { auroraV2Evidence, auroraV2StageCounts, AURORA_V2_STAGES, type AuroraV2Evidence } from "@shared/kp-aurora-v2";
 import {
   computeBodyMarks,
   limbTermsFor,
@@ -434,7 +434,9 @@ export function rectify(req: RectifyRequest): RectifyResult {
   // Both real and comparison dates use each event's supplied or assumed local time and zone.
   const eventUtc = req.events.map((e) => eventInstant(e.date, e, zone).toUTC());
   const eventInstants = eventUtc.map((instant) => instant.toISO()!);
-  const eventPositions = eventUtc.map((instant) => positionsAt(julianDay(instant), opts));
+  // The event sky is used only for transit longitudes; retrograde-entry walks
+  // belong to natal interpretation and do not change these longitudes.
+  const eventPositions = eventUtc.map((instant) => positionsLite(julianDay(instant), opts));
   const eventPositionsJ = eventUtc.map((instant) => positionsLite(julianDay(instant), optsJ));
 
   // Comparison trials: the same events at random dates within the span they cover, with the
@@ -457,7 +459,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const utc = dates.map((date, i) => eventInstant(date, req.events[i], zone).toUTC());
     trialDates.push(dates);
     trialInstants.push(utc.map((instant) => instant.toISO()!));
-    trialPositions.push(utc.map((instant) => positionsAt(julianDay(instant), opts)));
+    trialPositions.push(utc.map((instant) => positionsLite(julianDay(instant), opts)));
     // Parashari uses the chart's own ayanamsa, not the KP comparison sky.
     trialPositionsJ.push(utc.map((instant, i) =>
       vargaTopicFor(req.events[i].matter) || manleyTopicFor(req.events[i].matter)
@@ -617,7 +619,9 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const selectable = roundedMid >= a && roundedMid < b && keyAt(roundedMid) === keyAt(rawMid);
     // Calculate at the same whole-second time that can be displayed and saved.
     const mid = selectable ? roundedMid : rawMid;
-    const positions = positionsAt(mid, opts);
+    // KP candidate checks use position, speed and retrograde state, but not
+    // whether a retrograde planet entered this sign by backing into it.
+    const positions = positionsLite(mid, opts);
     const cuspLons = cuspsAt(mid, chart.latitude, chart.longitude, opts);
     const cusps: KpCusp[] = cuspLons.map((lon, k) => ({
       ...kpPoint(lon),
@@ -689,12 +693,18 @@ export function rectify(req: RectifyRequest): RectifyResult {
       now,
     );
     const nemani = nemaniRpMoonCheck(lagna, rpm, now.positions);
+    // At one natal candidate Aurora's scoring is determined by the matter
+    // and the three period lords. Transit details are display-only, so trial
+    // dates with the same path can share the same full staged eligibility.
+    const auroraTrials = new Map<string, ReturnType<typeof auroraEventEvidence>>();
+    const auroraV2Trials = new Map<string, ReturnType<typeof auroraV2Evidence>>();
 
     const checkEvent = (
       e: RectifyRequest["events"][number],
       dateIso: string,
       evPositions: ReturnType<typeof positionsAt> | null,
       evIso: string,
+      includeAuroraTransit = true,
     ): RectifyEventCheck => {
       const houses = e.houses.filter((h) => h >= 1 && h <= 12);
       const lords = vimshottariLordsAt(
@@ -751,15 +761,33 @@ export function rectify(req: RectifyRequest): RectifyResult {
         }
         jaimini = jaiFits.get(key) ?? null;
       }
+      const auroraKey = `${e.matter ?? ""}|${lords.join(":")}`;
+      let aurora: ReturnType<typeof auroraEventEvidence>;
+      let auroraV2: ReturnType<typeof auroraV2Evidence>;
+      if (e.matter) {
+        if (!includeAuroraTransit && auroraTrials.has(auroraKey)) {
+          aurora = auroraTrials.get(auroraKey);
+          auroraV2 = auroraV2Trials.get(auroraKey);
+        } else {
+          const transits = includeAuroraTransit ? evPositions ?? [] : [];
+          aurora = auroraEventEvidence({ matter: e.matter, planets, cusps, significators: sigs, lords, transits });
+          auroraV2 = auroraV2Evidence({ matter: e.matter, planets, cusps, lords, transits });
+          if (!includeAuroraTransit) {
+            auroraTrials.set(auroraKey, aurora);
+            auroraV2Trials.set(auroraKey, auroraV2);
+          }
+        }
+      }
       return {
         label: e.label,
         date: dateIso,
         time: e.time,
         timezone: e.timezone,
         houses,
-        aurora: e.matter ? auroraEventEvidence({ matter: e.matter, planets, cusps, significators: sigs,
-          lords, transits: evPositions ?? [] }) : undefined,
-        auroraV2: e.matter ? auroraV2Evidence({ matter: e.matter, planets, cusps, lords, transits: evPositions ?? [] }) : undefined,
+        // Actual events and the replayable first trial retain the sky display;
+        // the other trials use the identical natal/period eligibility checks.
+        aurora,
+        auroraV2,
         dasa: lords[0],
         bhukti: lords[1],
         antara: lords[2],
@@ -787,6 +815,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
         transit: [] as number[],
         jaimini: [] as number[],
       };
+      const stageSamples = { cusps: [] as number[], major: [] as number[], sub: [] as number[], third: [] as number[] };
+      const actualStages = auroraV2StageCounts(events.map((e) => e.auroraV2));
       const actualParashari = parashariByEvent.map(parashariObservation);
       const parashariTrials: ParashariObservation[][] = [];
       let parashariExample: ParashariComparisonExample[] | undefined;
@@ -797,11 +827,12 @@ export function rectify(req: RectifyRequest): RectifyResult {
           tr = 0,
           ja = 0;
         const trialParashari: ParashariObservation[] = [];
+        const trialAuroraV2: Array<AuroraV2Evidence | undefined> = [];
         if (t === 0) parashariExample = [];
         if (t === 0) auroraExample = [];
         if (t === 0) auroraV2Example = [];
         req.events.forEach((e, ei) => {
-          const c = checkEvent(e, trialDates[t][ei], trialPositions[t][ei], trialInstants[t][ei]);
+          const c = checkEvent(e, trialDates[t][ei], trialPositions[t][ei], trialInstants[t][ei], t === 0);
           if (t === 0) auroraExample!.push({ label: e.label, date: trialDates[t][ei], time: e.time,
             timezone: e.timezone, evidence: c.aurora });
           if (t === 0) auroraV2Example!.push({ label: e.label, date: trialDates[t][ei], time: e.time,
@@ -809,6 +840,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
           k += c.score;
           if (c.aurora?.allSupported) aurora++;
           if (c.auroraV2?.allSupported) auroraV2++;
+          trialAuroraV2.push(c.auroraV2);
           tr += c.transit.score;
           ja += c.jaimini?.score ?? 0;
           const sky = trialPositionsJ[t][ei];
@@ -824,6 +856,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
         sums.kpEvents.push(k);
         sums.aurora.push(aurora);
         sums.auroraV2.push(auroraV2);
+        const trialStages = auroraV2StageCounts(trialAuroraV2);
+        for (const stage of AURORA_V2_STAGES) stageSamples[stage].push(trialStages[stage]);
         sums.transit.push(tr);
         sums.jaimini.push(ja);
       }
@@ -837,6 +871,13 @@ export function rectify(req: RectifyRequest): RectifyResult {
           ? baselineStat(sums.aurora, events.filter((e) => e.aurora?.allSupported).length) : undefined,
         auroraV2: events.some((e) => e.auroraV2)
           ? baselineStat(sums.auroraV2, events.filter((e) => e.auroraV2?.allSupported).length) : undefined,
+        auroraV2Stages: actualStages.eligibleEvents ? {
+          eligibleEvents: actualStages.eligibleEvents,
+          cusps: baselineStat(stageSamples.cusps, actualStages.cusps),
+          major: baselineStat(stageSamples.major, actualStages.major),
+          sub: baselineStat(stageSamples.sub, actualStages.sub),
+          third: baselineStat(stageSamples.third, actualStages.third),
+        } : undefined,
         auroraExample,
         auroraV2Example,
         transit: baselineStat(

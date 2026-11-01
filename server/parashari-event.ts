@@ -1,8 +1,8 @@
 /** Shared real-event and comparison-date Parashari evaluation at one natal candidate. */
-import type { Planet, PlanetPosition } from "@shared/astro";
+import { SIGN_LORD, type Planet, type PlanetPosition } from "@shared/astro";
 import { vimshottariLordsAt } from "@shared/kp";
 import { manleyEvidence, manleyTopicFor, type ManleyEvidence } from "@shared/manley-evidence";
-import { parashariVargaEvidence, vargaTopicFor, type ParashariVargaEvidence } from "@shared/parashari-varga-evidence";
+import { parashariVargaEvidence, parashariVargaPeriods, vargaTopicFor, type ParashariVargaEvidence } from "@shared/parashari-varga-evidence";
 import { parashariPromiseCheck, type ParashariPromiseCheck } from "@shared/parashari-promise";
 import { parashariSpecificCheck, type ParashariSpecificCheck } from "@shared/parashari-specific";
 import { parashariDivisionalCheck, type ParashariDivisionalCheck } from "@shared/parashari-divisional";
@@ -37,8 +37,13 @@ export function createParashariEventScorer(natal: PlanetPosition[], lagna: numbe
   const moon = natal.find((p) => p.planet === "Moon");
   if (!moon) throw new Error("Parashari event check requires the natal Moon");
   const birthMs = Date.parse(birthIso);
+  const natalVargaCache = new Map<string, ParashariVargaEvidence>();
   const vargaCache = new Map<string, ParashariVargaEvidence>();
   const manleyCache = new Map<string, ManleyEvidence>();
+  // These two source-adapted checks use sign-based transit positions. Their
+  // natal frames, first two periods and relevant transit signs determine the
+  // result; dates and labels are restored on each returned event below.
+  const interpretationCache = new Map<string, { promise?: ParashariPromiseCheck; specific?: ParashariSpecificCheck }>();
   return (event: ParashariEventInput, date: string, eventIso: string, sky: PlanetPosition[]): ParashariEventResult => {
     const millis = Date.parse(eventIso);
     if (!Number.isFinite(millis) || !Number.isFinite(birthMs)) throw new Error("Invalid Parashari event instant");
@@ -49,8 +54,16 @@ export function createParashariEventScorer(natal: PlanetPosition[], lagna: numbe
     if (vargaTopicFor(event.matter)) {
       let template = vargaCache.get(key);
       if (!template) {
-        template = parashariVargaEvidence({ label: event.label, date, matter: event.matter }, natal, lagna, periods);
-        if (template) vargaCache.set(key, template);
+        const matter = event.matter!;
+        let base = natalVargaCache.get(matter);
+        if (!base) {
+          base = parashariVargaEvidence({ label: event.label, date, matter }, natal, lagna, null);
+          if (base) natalVargaCache.set(matter, base);
+        }
+        if (base) {
+          template = { ...base, label: event.label, date, periods: parashariVargaPeriods(base, natal, periods) };
+          vargaCache.set(key, template);
+        }
       }
       if (template) varga = { ...template, label: event.label, date };
     }
@@ -65,8 +78,19 @@ export function createParashariEventScorer(natal: PlanetPosition[], lagna: numbe
         moment: { time: event.time ?? "12:00", timeAssumed: !event.time,
           timezone: event.timezone ?? birthZone, timezoneAssumed: !event.timezone } };
     }
-    const promise = parashariPromiseCheck(varga, event.outcome, natal, sky);
-    const specific = parashariSpecificCheck(varga, event.outcome, natal, sky);
+    const relevantPlanets: Planet[] = ["Jupiter", "Saturn"];
+    if (event.matter === "child" && varga) relevantPlanets.push(SIGN_LORD[varga.rashi.lagnaSign], varga.rashi.houseLord);
+    const skyKey = relevantPlanets.map((p) => `${p}:${sky.find((position) => position.planet === p)?.signIndex ?? "missing"}`).join(":");
+    const interpretationKey = `${event.matter ?? ""}|${event.outcome ?? ""}|${periods?.slice(0, 2).join(":") ?? "before-birth"}|${skyKey}`;
+    let cached = interpretationCache.get(interpretationKey);
+    if (!cached) {
+      const promise = parashariPromiseCheck(varga, event.outcome, natal, sky);
+      const specific = parashariSpecificCheck(varga, event.outcome, natal, sky, promise);
+      cached = { promise, specific };
+      interpretationCache.set(interpretationKey, cached);
+    }
+    const promise = cached.promise ? { ...cached.promise, label: event.label, date } : undefined;
+    const specific = cached.specific ? { ...cached.specific, label: event.label, date } : undefined;
     return { varga, manley, promise, specific, divisional: parashariDivisionalCheck(specific, manley) };
   };
 }

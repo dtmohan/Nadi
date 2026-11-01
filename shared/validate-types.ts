@@ -5,7 +5,7 @@ import type { EventOutcome } from "./events";
 import type { TransitCheck } from "./rectify-types";
 import type { KpTransitEvidence } from "./kp-transit-evidence";
 import type { AuroraEventEvidence } from "./kp-aurora";
-import type { AuroraV2Evidence } from "./kp-aurora-v2";
+import type { AuroraV2Evidence, AuroraV2StageComparison } from "./kp-aurora-v2";
 import type { ParashariVargaEvidence } from "./parashari-varga-evidence";
 import type { ParashariPromiseCheck } from "./parashari-promise";
 import type { ParashariSpecificCheck } from "./parashari-specific";
@@ -293,6 +293,8 @@ export interface ChanceBaseline {
   /** Full experimental staged chains, calculated identically for actual and sampled dates. */
   aurora?: BaselineStat;
   auroraV2?: BaselineStat;
+  /** Cumulative v2 stages across the same real and comparison events. */
+  auroraV2Stages?: AuroraV2StageComparison<BaselineStat>;
   kp: BaselineStat;
   transit: BaselineStat;
   jaimini: BaselineStat;

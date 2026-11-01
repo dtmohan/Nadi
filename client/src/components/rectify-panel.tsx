@@ -20,7 +20,7 @@ import { ParashariVargaEvidencePanel } from "@/components/parashari-varga-eviden
 import { ParashariPromisePanel } from "@/components/parashari-promise";
 import { ParashariSpecificPanel } from "@/components/parashari-specific";
 import { ManleyEvidencePanel } from "@/components/manley-evidence";
-import { AuroraEventPanel, AuroraLinkDetail, AuroraV2Panel } from "@/components/kp-aurora-evidence";
+import { AuroraEventPanel, AuroraLinkDetail, AuroraV2Panel, AuroraV2StagesPanel } from "@/components/kp-aurora-evidence";
 import { ParashariComparisonPanel } from "@/components/parashari-comparison";
 import { VargaWindowsPanel } from "@/components/varga-windows";
 import { kpTransitEvidence } from "@shared/kp-transit-evidence";
@@ -1307,6 +1307,7 @@ export function RectifyPanel({
           </div>}
           {method === "kp-aurora-v2" && focus && <div className="mt-3" data-testid="rectify-aurora-v2-evidence">
             <p className="text-xs text-muted-foreground">Only complete v2 chains are counted. A supported mixed star retains its caution; a mixed sub remains unresolved. Ties do not identify a birth time.</p>
+            <AuroraV2StagesPanel evidence={focus.events.map((e) => e.auroraV2)} comparison={focus.baseline?.auroraV2Stages} trials={data.baseline?.trials} />
             {focus.auroraAscendant && <AuroraLinkDetail links={focus.auroraAscendant} />}
             {focus.events.map((e, i) => e.auroraV2 && <AuroraV2Panel key={`${e.label}-${e.date}-${i}`} evidence={e.auroraV2} label={`${e.label} · ${e.date}`} />)}
             {!focus.events.some((e) => e.auroraV2) && <p className="mt-2 text-xs text-muted-foreground">None of the selected events is supported by this research adapter.</p>}

@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { Planet } from "@shared/astro";
 import { houseOf, kpPoint, NODES_KP, vimshottariLordsAt, type KpCusp, type KpPlanet } from "@shared/kp";
-import { auroraV2AtomicCoordinates, auroraV2Classify, auroraV2Evidence } from "@shared/kp-aurora-v2";
+import { auroraV2AtomicCoordinates, auroraV2Classify, auroraV2Evidence, auroraV2StageCounts } from "@shared/kp-aurora-v2";
 import { DateTime } from "luxon";
 import { julianDay, positionsAt } from "../server/ephemeris";
 
@@ -65,6 +65,19 @@ test("the book's 2013 childbirth example carries a mixed star with a supportive 
   assert.deepEqual(evidence.layers[2].star.houses, [3,8,11]);
   assert.deepEqual(evidence.layers[2].sub.houses, [2,5,6]);
   assert.equal(evidence.allSupported, true);
+});
+
+test("stage counts retain earlier matches and never revive a stopped chain", () => {
+  const evidence = auroraV2Evidence({ matter: "child", ...sourceChart(), lords: ["Saturn", "Rahu", "Jupiter"], transits: [] })!;
+  const stoppedMajor = structuredClone(evidence);
+  stoppedMajor.layers[1].status = "mixed-sub";
+  stoppedMajor.layers[2].eligible = false;
+  stoppedMajor.layers[3].eligible = false;
+  const stoppedCusp = structuredClone(evidence);
+  stoppedCusp.layers[0].status = "opposed";
+  stoppedCusp.layers.slice(1).forEach((l) => { l.eligible = false; });
+  assert.deepEqual(auroraV2StageCounts([evidence, stoppedMajor, stoppedCusp, undefined]),
+    { eligibleEvents: 3, cusps: 2, major: 1, sub: 1, third: 1 });
 });
 
 test("the source's 2013 period boundary depends on its printed versus recalculated Moon", () => {

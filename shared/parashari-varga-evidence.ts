@@ -82,6 +82,28 @@ export interface ParashariVargaEvidence {
   periods: Array<{ level: "dasa" | "bhukti" | "antara"; planet: Planet; links: string[] }>;
 }
 
+/** Period links depend on the natal frames and lords, not on the event date.
+ * Shared by the ordinary evidence builder and the per-candidate trial cache. */
+export function parashariVargaPeriods(
+  evidence: Pick<ParashariVargaEvidence, "rashi" | "varga" | "division" | "vargaLagnaLord">,
+  positions: PlanetPosition[], periods: [Planet, Planet, Planet] | null,
+): ParashariVargaEvidence["periods"] {
+  const { rashi, varga, division } = evidence;
+  const levels = ["dasa", "bhukti", "antara"] as const;
+  return (periods ?? []).map((planet, i) => {
+    const pos = positions.find((p) => p.planet === planet);
+    const links: string[] = [];
+    if (planet === rashi.houseLord) links.push(`D1 house ${rashi.house} lord`);
+    if (pos && vargaSignAt("D1", pos.lon) === rashi.houseSign) links.push(`in D1 house ${rashi.house}`);
+    if (rashi.fullAspects.includes(planet)) links.push(`aspects D1 house ${rashi.house}`);
+    if (planet === varga.houseLord) links.push(`${division} house ${rashi.house} lord`);
+    if (planet === evidence.vargaLagnaLord.planet) links.push(`${division} ascendant lord`);
+    if (pos && vargaSignAt(division, pos.lon) === varga.houseSign) links.push(`in ${division} house ${rashi.house}`);
+    if (varga.fullAspects.includes(planet)) links.push(`aspects ${division} house ${rashi.house}`);
+    return { level: levels[i], planet, links };
+  });
+}
+
 export function parashariVargaEvidence(
   event: { label: string; date: string; matter?: string },
   positions: PlanetPosition[],
@@ -118,23 +140,14 @@ export function parashariVargaEvidence(
   const rashiLordSign = dv.get(rashi.houseLord)!;
   const lagnaLord = SIGN_LORD[varga.lagnaSign];
   const lagnaLordSign = dv.get(lagnaLord)!;
-  const levels = ["dasa", "bhukti", "antara"] as const;
-  return {
+  const evidence: ParashariVargaEvidence = {
     label: event.label, date: event.date, matter: event.matter, subject: topic.subject,
     division: topic.division, practitionerSource: topic.practitionerSource, rashi, varga,
     rashiAssessment: { tone: assessment.tone, support: assessment.support, strain: assessment.strain },
     rashiLordInVarga: { planet: rashi.houseLord, sign: rashiLordSign, house: houseFrom(varga.lagnaSign, rashiLordSign), dignity: signDignity(rashi.houseLord, rashiLordSign) },
     vargaLagnaLord: { planet: lagnaLord, sign: lagnaLordSign, house: houseFrom(varga.lagnaSign, lagnaLordSign), dignity: signDignity(lagnaLord, lagnaLordSign) },
-    periods: (periods ?? []).map((planet, i) => {
-      const links: string[] = [];
-      if (planet === rashi.houseLord) links.push(`D1 house ${topic.house} lord`);
-      if (d1.get(planet) === rashi.houseSign) links.push(`in D1 house ${topic.house}`);
-      if (rashi.fullAspects.includes(planet)) links.push(`aspects D1 house ${topic.house}`);
-      if (planet === varga.houseLord) links.push(`${topic.division} house ${topic.house} lord`);
-      if (planet === lagnaLord) links.push(`${topic.division} ascendant lord`);
-      if (dv.get(planet) === varga.houseSign) links.push(`in ${topic.division} house ${topic.house}`);
-      if (varga.fullAspects.includes(planet)) links.push(`aspects ${topic.division} house ${topic.house}`);
-      return { level: levels[i], planet, links };
-    }),
+    periods: [],
   };
+  evidence.periods = parashariVargaPeriods(evidence, positions, periods);
+  return evidence;
 }

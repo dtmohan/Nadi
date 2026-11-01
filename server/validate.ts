@@ -84,7 +84,7 @@ import { dashaFitAt } from "@shared/jaimini-areas";
 import { comparisonDate, eventInstant } from "./event-time";
 import { kpTransitEvidence } from "@shared/kp-transit-evidence";
 import { auroraEventEvidence } from "@shared/kp-aurora";
-import { auroraV2Evidence } from "@shared/kp-aurora-v2";
+import { auroraV2Evidence, auroraV2StageCounts, AURORA_V2_STAGES } from "@shared/kp-aurora-v2";
 import { vargaTopicFor } from "@shared/parashari-varga-evidence";
 import { manleyTopicFor } from "@shared/manley-evidence";
 import { createParashariEventScorer } from "./parashari-event";
@@ -904,6 +904,8 @@ function chanceBaseline(
     staged: stagedObservation(v.manley),
   });
   const parashariTrials: ParashariObservation[][] = [];
+  const actualStages = auroraV2StageCounts(real.map((v) => v.kp.auroraV2));
+  const stageSamples = { cusps: [] as number[], major: [] as number[], sub: [] as number[], third: [] as number[] };
   for (let t = 0; t < BASELINE_TRIALS; t++) {
     const trial = events.map((e) =>
       scoreEvent(
@@ -924,10 +926,10 @@ function chanceBaseline(
     }
     parashariTrials.push(trial.map(observe));
     for (const k of keys) samples[k].push(measures[k](trial));
+    const stages = auroraV2StageCounts(trial.map((v) => v.kp.auroraV2));
+    for (const stage of AURORA_V2_STAGES) stageSamples[stage].push(stages[stage]);
   }
-  const stat = (k: BaselineMeasure): BaselineStat => {
-    const xs = samples[k];
-    const actual = measures[k](real);
+  const summarize = (xs: number[], actual: number): BaselineStat => {
     const mean = xs.reduce((s, x) => s + x, 0) / xs.length;
     const sd = Math.sqrt(
       xs.reduce((s, x) => s + (x - mean) ** 2, 0) / xs.length,
@@ -945,6 +947,7 @@ function chanceBaseline(
         percentile >= 95 ? "above" : percentile <= 5 ? "below" : "chance",
     };
   };
+  const stat = (k: BaselineMeasure) => summarize(samples[k], measures[k](real));
   const parashari = summarizeParashariComparisons(real.map(observe), parashariTrials);
   return {
     trials: BASELINE_TRIALS,
@@ -960,6 +963,13 @@ function chanceBaseline(
     confirmed: stat("confirmed"),
     aurora: real.some((v) => v.kp.aurora) ? stat("aurora") : undefined,
     auroraV2: real.some((v) => v.kp.auroraV2) ? stat("auroraV2") : undefined,
+    auroraV2Stages: actualStages.eligibleEvents ? {
+      eligibleEvents: actualStages.eligibleEvents,
+      cusps: summarize(stageSamples.cusps, actualStages.cusps),
+      major: summarize(stageSamples.major, actualStages.major),
+      sub: summarize(stageSamples.sub, actualStages.sub),
+      third: summarize(stageSamples.third, actualStages.third),
+    } : undefined,
     kp: stat("kp"),
     transit: stat("transit"),
     jaimini: stat("jaimini"),

@@ -11,7 +11,7 @@ import type { NemaniRpMoonCheck } from "./kp-nemani-rp";
 import type { ManleyDivision, ManleyEvidence } from "./manley-evidence";
 import type { ParashariComparison, ParashariComparisonExample } from "./parashari-comparison";
 import type { AuroraAscendantLinks, AuroraEventEvidence } from "./kp-aurora";
-import type { AuroraV2Evidence } from "./kp-aurora-v2";
+import type { AuroraV2Evidence, AuroraV2StageComparison } from "./kp-aurora-v2";
 
 export interface RectifyEvent {
   label: string;
@@ -308,6 +308,8 @@ export interface RectifySegmentBaseline {
   jaimini: RectifyBaselineStat;
   aurora?: RectifyBaselineStat;
   auroraV2?: RectifyBaselineStat;
+  /** Cumulative v2 stages, real and independently drawn comparison dates. */
+  auroraV2Stages?: AuroraV2StageComparison<RectifyBaselineStat>;
   auroraExample?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence?: AuroraEventEvidence }>;
   auroraV2Example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence?: AuroraV2Evidence }>;
   /** Descriptive comparisons; these do not alter candidate ranking. */
