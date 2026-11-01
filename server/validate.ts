@@ -40,15 +40,10 @@ import {
   type PlanetPosition,
 } from "@shared/astro";
 import {
-  kpPoint,
-  houseOf,
-  computeSignificators,
+  kpNatalFrame,
   vimshottariLordsAt,
   vimshottari,
   jointPeriods,
-  NODES_KP,
-  type KpCusp,
-  type KpPlanet,
 } from "@shared/kp";
 import type { InsertChart } from "@shared/schema";
 import {
@@ -64,7 +59,6 @@ import type {
   BnnContact,
   BnnFit,
   ChanceBaseline,
-  CuspFilter,
   EventValidation,
   Nature,
   PlanetTally,
@@ -78,13 +72,12 @@ import type {
 import { scoreWindows } from "@shared/kp-windows";
 import { evaluate, rolesFor } from "@shared/rules";
 import type { Gender } from "@shared/marriage";
-import type { TransitCheck } from "@shared/rectify-types";
+import { createKpEventScorer } from "@shared/kp-event-evidence";
 import { computeJaimini } from "@shared/jaimini";
 import { dashaFitAt } from "@shared/jaimini-areas";
 import { comparisonDate, eventInstant } from "./event-time";
 import { kpTransitEvidence } from "@shared/kp-transit-evidence";
-import { auroraEventEvidence } from "@shared/kp-aurora";
-import { auroraV2Evidence, auroraV2StageCounts, AURORA_V2_STAGES } from "@shared/kp-aurora-v2";
+import { auroraV2StageCounts, AURORA_V2_STAGES } from "@shared/kp-aurora-v2";
 import { vargaTopicFor } from "@shared/parashari-varga-evidence";
 import { manleyTopicFor } from "@shared/manley-evidence";
 import { createParashariEventScorer } from "./parashari-event";
@@ -129,22 +122,9 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   // KP frame at the recorded time.
   const positions = positionsAt(jd0, opts);
   const cuspLons = cuspsAt(jd0, chart.latitude, chart.longitude, opts);
-  const cusps: KpCusp[] = cuspLons.map((lon, k) => ({
-    ...kpPoint(lon),
-    house: k + 1,
-  }));
-  const owners = cusps.map((c) => c.signLord);
-  const planets: KpPlanet[] = positions.map((p) => ({
-    ...kpPoint(p.lon),
-    planet: p.planet,
-    retrograde: p.retrograde,
-    house: houseOf(p.lon, cuspLons),
-    owns: NODES_KP.includes(p.planet)
-      ? []
-      : owners.map((o, k) => (o === p.planet ? k + 1 : 0)).filter(Boolean),
-  }));
-  const sigs = computeSignificators(planets);
+  const { cusps, planets, significators: sigs } = kpNatalFrame(positions, cuspLons);
   const sig = new Map(sigs.map((s) => [s.planet, s.houses]));
+  const scoreKp = createKpEventScorer(cusps, sigs, planets);
   // Strict significators, the ordered hierarchy of Astro Secrets Part 2 p. 151: planets in the
   // stars of a bhava's occupants are its strongest significators; the occupants count only when
   // no planet sits in their stars; then the planets in the stars of the owner; then the owner.
@@ -403,87 +383,11 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       held?.kpStrict.find((t) => t.startMs <= evMs && evMs < t.endMs) ?? null;
     const houses = m.houses;
     const lords = vimshottariLordsAt(moon.lon, birthIso, evIso);
-    const signified = lords.map((l) =>
-      (sig.get(l) ?? []).filter((h) => houses.includes(h)),
-    ) as [number[], number[], number[]];
-    const hits = signified.map((s) => s.length > 0) as [
-      boolean,
-      boolean,
-      boolean,
-    ];
-    const cuspSubLord = cusps[m.cusp - 1].subLord;
-    const cuspSignified = (sig.get(cuspSubLord) ?? []).filter((h) =>
-      houses.includes(h),
-    );
-    const promised = cuspSignified.length > 0;
-    // Cusp filter (Part 3 ch. 5 pp. 27-34; Part 2 ch. 7 pp. 52-54): a period lord moves, for each house it
-    // signifies, only what the sub lord of that house's cusp signifies. A hit house whose cusp sub lord
-    // signifies none of the matter's houses is diverted elsewhere; one whose cusp sub lord signifies the
-    // 12th from that house (and not the house) is denied. A lord counts as effective when at least one of
-    // its hit houses survives the filter.
-    const filterHouses = (hs: number[]) =>
-      hs.map((h) => {
-        const sl = cusps[h - 1].subLord;
-        const delivers = sig.get(sl) ?? [];
-        const twelfth = ((h + 10) % 12) + 1;
-        const kept = delivers.some((d) => houses.includes(d));
-        const denied =
-          !kept && delivers.includes(twelfth) && !delivers.includes(h);
-        return { house: h, cuspSubLord: sl, delivers, kept, denied };
-      });
-    const filtered = signified.map(filterHouses) as [
-      CuspFilter[],
-      CuspFilter[],
-      CuspFilter[],
-    ];
-    const effective = filtered.map((f) => f.some((x) => x.kept)) as [
-      boolean,
-      boolean,
-      boolean,
-    ];
-    const deniedAtCusp =
-      !promised &&
-      (sig.get(cuspSubLord) ?? []).includes(((m.cusp + 10) % 12) + 1);
     const dayPositions = positionsLite(julianDay(evDt.toUTC()), opts);
-    const transitOf = (planet: Planet): TransitCheck => {
-      const lon = dayPositions.find((p) => p.planet === planet)?.lon ?? 0;
-      const pt = kpPoint(lon);
-      const signifies = (p: Planet) =>
-        (sig.get(p) ?? []).some((h) => houses.includes(h));
-      return {
-        planet,
-        lon,
-        signLord: pt.signLord,
-        starLord: pt.starLord,
-        subLord: pt.subLord,
-        hits: [
-          signifies(pt.signLord),
-          signifies(pt.starLord),
-          signifies(pt.subLord),
-        ],
-      };
-    };
-    const tDasa = transitOf(lords[0]);
-    const tBhukti = transitOf(lords[1]);
-    const tScore = [...tDasa.hits, ...tBhukti.hits].filter(Boolean).length;
-    // The luminaries complete the timing (Part 2 p. 26): within the conjoined period, the event
-    // takes place when the luminaries transit the three sensitive positions. The book's sentence
-    // names the conjoined period and the luminaries together, so the positions are read here as the
-    // sign, star and sub of the dasa, bhukti and antara lords (provisional: the wording allows the
-    // significators too, a reading that holds on almost any day and so tells nothing).
-    const periodLords = [lords[0], lords[1], lords[2]];
-    const luminaryTrigger = (planet: Planet): boolean => {
-      const lon = dayPositions.find((p) => p.planet === planet)?.lon ?? 0;
-      const pt = kpPoint(lon);
-      return [pt.signLord, pt.starLord, pt.subLord].some((l) =>
-        periodLords.includes(l),
-      );
-    };
-    const luminary = {
-      sun: luminaryTrigger("Sun"),
-      moon: luminaryTrigger("Moon"),
-    };
-    const score = hits.filter(Boolean).length + (promised ? 1 : 0);
+    const checked = scoreKp(houses, m.cusp, lords, dayPositions, e.matter, includeEvidence);
+    const { hits, score } = checked;
+    const cuspSubLord = checked.cuspSubLord!;
+    const promised = checked.promised!;
     const verdict =
       promised && hits[0] && hits[1]
         ? "confirmed"
@@ -589,28 +493,16 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       parashariSpecific: parashari.specific,
       parashariDivisional: parashari.divisional,
       kp: {
-        aurora: auroraEventEvidence({ matter: e.matter, planets, cusps, significators: sigs, lords, transits: dayPositions }),
-        auroraV2: auroraV2Evidence({ matter: e.matter, planets, cusps, lords, transits: dayPositions }),
+        ...checked,
         dasa: lords[0],
         bhukti: lords[1],
         antara: lords[2],
-        hits,
-        signified,
         cuspSubLord,
         promised,
-        cuspSignified,
-        filtered,
-        effective,
-        deniedAtCusp,
         transit: {
-          dasa: tDasa,
-          bhukti: tBhukti,
-          score: tScore,
-          max: 6,
-          luminary,
+          ...checked.transit,
           evidence: includeEvidence ? kpTransitEvidence(dayPositions, planets, cuspLons, houses) : undefined,
         },
-        score,
         max: 4,
         verdict,
       },

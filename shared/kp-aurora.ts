@@ -80,13 +80,13 @@ interface AuroraMatter { matter: string; label: string; supporting: number[]; ad
 // These combinations are a frozen research interpretation of the named
 // chapters, not replacements for the existing KP event definitions. Job and
 // business ask separately for the 6th or 7th as well as the 10th cusp.
-const MATTERS: AuroraMatter[] = [
+export const AURORA_MATTERS: ReadonlyArray<AuroraMatter> = [
   { matter: "marriage", label: "Marriage", supporting: [2, 7, 11], adverse: [1, 6, 8, 10, 12], cusps: [7] },
   { matter: "child", label: "Childbirth", supporting: [2, 5, 11], adverse: [4, 8, 10, 12], cusps: [5] },
   { matter: "job", label: "Employment or promotion", supporting: [2, 6, 10, 11], adverse: [1, 3, 5, 8, 9, 12], cusps: [6, 10] },
   { matter: "business", label: "Business", supporting: [2, 7, 10, 11], adverse: [1, 3, 5, 8, 9, 12], cusps: [7, 10] },
 ];
-export const auroraMatter = (matter: string): AuroraMatter | undefined => MATTERS.find((m) => m.matter === matter);
+export const auroraMatter = (matter: string): AuroraMatter | undefined => AURORA_MATTERS.find((m) => m.matter === matter);
 
 export type AuroraStatus = "support" | "mixed" | "adverse" | "silent";
 export interface AuroraLayer {
@@ -114,6 +114,10 @@ export interface AuroraEventEvidence {
   /** Descriptive event sky only; no contact is awarded a point. */
   transit: Array<{ role: string; planet: Planet; signLord: Planet; starLord: Planet; subLord: Planet }>;
 }
+export type AuroraNatalEvidence = Pick<AuroraEventEvidence, "matter" | "label" | "supporting" | "adverse" | "selfSignificators" | "layers" | "firstUnresolved"> & {
+  /** Only the natal cusp stages; no dated period is implied. */
+  allCuspsSupported: boolean;
+};
 
 type Coordinator = AuroraLayer["star"];
 interface AuroraContext {
@@ -132,14 +136,15 @@ const contexts = new WeakMap<KpPlanet[], AuroraContext>();
 
 /** Shared by a chart topic, saved-event validation, rectification and random
  * date controls. Returns undefined for matters without a specified adapter. */
-export function auroraEventEvidence(input: {
+interface AuroraInput {
   matter: string;
   planets: KpPlanet[];
   cusps: KpCusp[];
   significators: KpSignificators[];
-  lords: [Planet, Planet, Planet];
+  lords: Planet[];
   transits: Array<Pick<PlanetPosition, "planet" | "lon">>;
-}): AuroraEventEvidence | undefined {
+}
+function auroraEvidence(input: AuroraInput): AuroraEventEvidence | undefined {
   const m = auroraMatter(input.matter);
   if (!m) return undefined;
   let context = contexts.get(input.planets);
@@ -199,6 +204,7 @@ export function auroraEventEvidence(input: {
   const transit = ([{ role: "Major period lord", planet: input.lords[0] },
     { role: "Sub-period lord", planet: input.lords[1] }, { role: "Sun", planet: "Sun" as Planet },
     { role: "Moon", planet: "Moon" as Planet }]).flatMap(({ role, planet }) => {
+      if (!planet) return [];
       const position = input.transits.find((p) => p.planet === planet);
       if (!position) return [];
       const p = kpPoint(position.lon);
@@ -208,4 +214,16 @@ export function auroraEventEvidence(input: {
   return { matter: m.matter, label: m.label, supporting: m.supporting, adverse: m.adverse,
     selfSignificators: self, layers, passed, firstUnresolved: layers.find((l) => l.eligible && l.status !== "support")?.role ?? null,
     allSupported: layers.every((l) => l.eligible && l.status === "support"), transit };
+}
+
+export function auroraEventEvidence(input: Omit<AuroraInput, "lords"> & { lords: [Planet, Planet, Planet] }): AuroraEventEvidence | undefined {
+  return auroraEvidence(input);
+}
+
+/** The identical cusp stages without inventing an event or period lords. */
+export function auroraNatalEvidence(input: Omit<AuroraInput, "lords" | "transits">): AuroraNatalEvidence | undefined {
+  const result = auroraEvidence({ ...input, lords: [], transits: [] });
+  return result && { matter: result.matter, label: result.label, supporting: result.supporting, adverse: result.adverse,
+    selfSignificators: result.selfSignificators, layers: result.layers, firstUnresolved: result.firstUnresolved,
+    allCuspsSupported: result.allSupported };
 }

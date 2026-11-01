@@ -31,6 +31,7 @@ export interface RectifyEvent {
 }
 
 import type { InsertChart } from "./schema";
+import type { KpEventRules } from "./kp-event-evidence";
 
 /** Where the astrologer is judging from; the birth place when absent. */
 export interface JudgePlaceInput {
@@ -49,36 +50,15 @@ export interface RectifyRequest {
   judgedAsOf?: string;
 }
 
-export interface RectifyEventCheck {
+export interface RectifyEventCheck extends KpEventRules {
   label: string;
   date: string;
   time?: string;
   timezone?: string;
   houses: number[];
-  aurora?: AuroraEventEvidence;
-  auroraV2?: AuroraV2Evidence;
   dasa: Planet;
   bhukti: Planet;
   antara: Planet;
-  /** Whether each of dasa, bhukti, antara signifies one of the houses (four-step). */
-  hits: [boolean, boolean, boolean];
-  /** Houses each lord signifies among the matter's houses. */
-  signified: [number[], number[], number[]];
-  /** Sub lord of the matter's cusp, and whether it signifies the matter. */
-  cuspSubLord?: Planet;
-  promised?: boolean;
-  score: number;
-  max: number;
-  /**
-   * Transit check (Part 2 p. 203): where the dasa and bhukti lords were transiting on the day of
-   * the event, and whether the lords of that sign, star and sub signify the matter in this candidate.
-   */
-  transit: {
-    dasa: TransitCheck;
-    bhukti: TransitCheck;
-    score: number;
-    max: number;
-  };
   /**
    * Jaimini check (K.N. Rao): the chara dasha and antardasha running at the event, for the lagna sign of this
    * interval, carry the matter's area. Null when the matter has no Jaimini area or the event precedes the birth.

@@ -158,10 +158,12 @@ export function TopicReadingPanel({ result, system, onSelected }: {
       {system === "kp" && <>
         <p className="text-muted-foreground">This is Validate's four-step event check, even if the timing window above uses the optional six-step view. The cusp and period matches are a limited check alongside the fuller cusp rules.</p>
         <p>Cusp {shown.reading.cusp} sub lord {shown.reading.kp.cuspSubLord} signifies {shown.reading.kp.cuspSignified.join(", ") || "none of the selected houses"}; matter houses {shown.reading.houses.join(", ")}.</p>
+        {shown.reading.kp.deniedAtCusp && <p className="text-muted-foreground">The app's twelfth-from-cusp condition is also present. This limited filter is not proof that an event cannot occur.</p>}
         <p>{(["dasa", "bhukti", "antara"] as const).map((level, i) => `${level} ${shown.reading.kp[level]}: ${shown.reading.kp.signified[i].join(", ") || "no selected house"}`).join(" · ")}.</p>
         <details className="rounded border px-2 py-2"><summary className="cursor-pointer font-medium">Cusp filters and the two period-lord transits</summary>
           {(["dasa", "bhukti", "antara"] as const).map((level, i) => <p key={level} className="mt-1">{level} {shown.reading.kp[level]}: {shown.reading.kp.filtered[i].length ? shown.reading.kp.filtered[i].map((f) => `house ${f.house} via cusp sub lord ${f.cuspSubLord}: ${f.denied ? "denied in this filter" : f.kept ? "kept" : "directed elsewhere"}`).join("; ") : "no selected house to filter"}.</p>)}
           {(["dasa", "bhukti"] as const).map((level) => { const t = shown.reading.kp.transit[level]; return <p key={level} className="mt-1">{level} {t.planet} in the sign, star and sub of {t.signLord}, {t.starLord}, {t.subLord}; matter-house links {t.hits.map((hit) => hit ? "yes" : "no").join(" / ")}.</p>; })}
+          <p className="mt-1">Sun / Moon linked to a running period lord on this date: {shown.reading.kp.transit.luminary.sun ? "yes" : "no"} / {shown.reading.kp.transit.luminary.moon ? "yes" : "no"}. This is descriptive, not an extra score.</p>
         </details>
         <p>Period-lord transit points: {shown.reading.kp.transit.score}/{shown.reading.kp.transit.max}. The broader sky below is descriptive and is not added to that total.</p>
         {shown.reading.kp.aurora && <AuroraEventPanel evidence={shown.reading.kp.aurora} label={shown.reading.label} />}

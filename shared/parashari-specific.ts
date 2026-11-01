@@ -34,6 +34,49 @@ const mutuallyConnected = (p: Planet, pSign: number, q: Planet, qSign: number) =
   p === q || pSign === qSign || drishtiQuarters(p, pSign, qSign) >= 4 || drishtiQuarters(q, qSign, pSign) >= 4;
 const inTrine = (from: number, target: number) => [0, 4, 8].includes((from - target + 12) % 12);
 
+export interface ParashariSpecificNatal {
+  matter: string;
+  vivahSaham?: number;
+  periodSet?: Array<{ planet: Planet; reasons: string[] }>;
+  fifthFromJupiter?: { planet: Planet; d1: number; d9: number };
+  careerLords?: SpecificFactor;
+}
+
+/** Date-independent targets and eligible-planet sets used by v2/v3. These
+ * describe the natal setup only; inclusion does not predict an event. */
+export function parashariSpecificNatal(evidence: ParashariVargaEvidence, natal: PlanetPosition[]): ParashariSpecificNatal {
+  const byPlanet = new Map(natal.map((p) => [p.planet, p]));
+  const natalOf = (p: Planet) => { const v = byPlanet.get(p); if (!v) throw new Error(`Missing natal ${p}`); return v; };
+  const signAt = (p: Planet, chart: VargaKey) => vargaSignAt(chart, natalOf(p).lon);
+  const asc = evidence.rashi.lagnaSign, ascLord = SIGN_LORD[asc], matterLord = evidence.rashi.houseLord;
+  const result: ParashariSpecificNatal = { matter: evidence.matter };
+  if (evidence.matter === "marriage") {
+    result.vivahSaham = Math.floor(norm360(natalOf(ascLord).lon + natalOf(matterLord).lon) / 30);
+  } else if (evidence.matter === "child" || evidence.matter === "job") {
+    const possible = new Map<Planet, string[]>();
+    const add = (p: Planet, why: string) => possible.set(p, [...(possible.get(p) ?? []), why]);
+    add(ascLord, "D1 ascendant lord");
+    if (evidence.matter === "child") {
+      add(SIGN_LORD[(asc + 6) % 12], "D1 seventh lord");
+      add(matterLord, "D1 fifth lord");
+      add("Jupiter", "Jupiter");
+      for (const p of evidence.rashi.occupants) add(p, "occupies D1 fifth");
+      for (const p of evidence.rashi.fullAspects) add(p, "aspects D1 fifth");
+      const planet = SIGN_LORD[(natalOf("Jupiter").signIndex + 4) % 12];
+      result.fifthFromJupiter = { planet, d1: signAt(planet, "D1"), d9: signAt(planet, "D9") };
+    } else {
+      add(matterLord, "D1 tenth lord");
+      for (const p of natal) if (EXALTATION[p.planet]?.sign === p.signIndex) add(p.planet, "exalted in D1");
+      const a = evidence.rashiLordInVarga, b = evidence.vargaLagnaLord;
+      result.careerLords = { id: "d10-lords", label: "D1 tenth lord connects with the D10 ascendant lord",
+        matched: mutuallyConnected(a.planet, a.sign, b.planet, b.sign),
+        details: [`${a.planet} in ${SIGNS[a.sign]}; ${b.planet} in ${SIGNS[b.sign]} (D10)`] };
+    }
+    result.periodSet = Array.from(possible, ([planet, reasons]) => ({ planet, reasons }));
+  }
+  return result;
+}
+
 export function parashariSpecificCheck(
   evidence: ParashariVargaEvidence | undefined,
   outcome: "favourable" | "unfavourable" | "mixed" | undefined,
@@ -60,6 +103,7 @@ export function parashariSpecificCheck(
   const house = evidence.rashi.house;
   const ascLord = SIGN_LORD[lagna];
   const matterLord = evidence.rashi.houseLord;
+  const natalFacts = parashariSpecificNatal(evidence, natal);
   const factors: SpecificFactor[] = [
     { id: "d1-support", label: "D1 partial house support", matched: base.factors[0], details: base.d1Support },
     { id: "division-support", label: `${evidence.division} partial house support`, matched: base.factors[1], details: base.divisionSupport },
@@ -94,26 +138,17 @@ export function parashariSpecificCheck(
     }
     const shared = sharedTargets([...ascTargets, ...matterTargets]);
     factors.push({ id: "double-transit", label: "Jupiter and Saturn share an ascendant or seventh target", matched: shared.length > 0, details: shared });
-    const saham = Math.floor(norm360(natalOf(ascLord).lon + natalOf(matterLord).lon) / 30);
+    const saham = natalFacts.vivahSaham!;
     const aspectsSaham = drishtiQuarters("Jupiter", jupiter.signIndex, saham) >= 4;
     factors.push({ id: "vivah-saham", label: "Jupiter aspects Vivah Saham sign", matched: aspectsSaham,
       details: [`Vivah Saham ${SIGNS[saham]}; transiting Jupiter ${SIGNS[jupiter.signIndex]}`] });
   } else if (base.matter === "child") {
-    const seventhLord = SIGN_LORD[(lagna + 6) % 12];
-    const possible = new Map<Planet, string[]>();
-    const add = (p: Planet, why: string) => possible.set(p, [...(possible.get(p) ?? []), why]);
-    add(ascLord, "D1 ascendant lord");
-    add(seventhLord, "D1 seventh lord");
-    add(matterLord, "D1 fifth lord");
-    add("Jupiter", "Jupiter");
-    for (const p of evidence.rashi.occupants) add(p, "occupies D1 fifth");
-    for (const p of evidence.rashi.fullAspects) add(p, "aspects D1 fifth");
+    const possible = new Map(natalFacts.periodSet!.map((v) => [v.planet, v.reasons]));
     for (const [level, planet] of [["dasa", dasa], ["bhukti", bhukti]] as const) {
       factors.push({ id: level, label: `${level} lord belongs to childbirth timing set`, matched: possible.has(planet),
         details: [`${planet}: ${(possible.get(planet) ?? ["no listed direct link"]).join(", ")}`] });
     }
-    const fifthFromJupiter = SIGN_LORD[(natalOf("Jupiter").signIndex + 4) % 12];
-    const rashiTarget = signAt(fifthFromJupiter, "D1"), navamsaTarget = signAt(fifthFromJupiter, "D9");
+    const { planet: fifthFromJupiter, d1: rashiTarget, d9: navamsaTarget } = natalFacts.fifthFromJupiter!;
     factors.push({ id: "jupiter-trine", label: "Jupiter in a trine to the fifth-from-Jupiter lord", matched: inTrine(jupiter.signIndex, rashiTarget) || inTrine(jupiter.signIndex, navamsaTarget),
       details: [`${fifthFromJupiter}: D1 ${SIGNS[rashiTarget]}, D9 ${SIGNS[navamsaTarget]}; transiting Jupiter ${SIGNS[jupiter.signIndex]}`] });
     const transitAsc = transitOf(ascLord).signIndex, transitFifth = transitOf(matterLord).signIndex;
@@ -125,11 +160,7 @@ export function parashariSpecificCheck(
     factors.push({ id: "asc-lord-transit", label: "Transiting ascendant lord reaches a childbirth target", matched: matches.length > 0,
       details: [`${ascLord} in ${SIGNS[transitAsc]}${matches.length ? `: ${matches.join(", ")}` : ": no listed target"}`] });
   } else {
-    const careerSet = new Map<Planet, string[]>();
-    const add = (p: Planet, why: string) => careerSet.set(p, [...(careerSet.get(p) ?? []), why]);
-    add(ascLord, "D1 ascendant lord");
-    add(matterLord, "D1 tenth lord");
-    for (const p of natal) if (EXALTATION[p.planet]?.sign === p.signIndex) add(p.planet, "exalted in D1");
+    const careerSet = new Map(natalFacts.periodSet!.map((v) => [v.planet, v.reasons]));
     for (const [level, planet] of [["dasa", dasa], ["bhukti", bhukti]] as const) {
       factors.push({ id: level, label: `${level} lord belongs to the career timing subset`, matched: careerSet.has(planet),
         details: [`${planet}: ${(careerSet.get(planet) ?? ["no listed direct link"]).join(", ")}`] });
@@ -137,9 +168,7 @@ export function parashariSpecificCheck(
     const asc = sharedTargets(ascTargets), career = sharedTargets(matterTargets);
     factors.push({ id: "double-transit", label: "Jupiter and Saturn share both ascendant and career targets", matched: asc.length > 0 && career.length > 0,
       details: [`Ascendant targets: ${asc.join(", ") || "none"}`, `Career targets: ${career.join(", ") || "none"}`] });
-    const a = evidence.rashiLordInVarga, b = evidence.vargaLagnaLord;
-    factors.push({ id: "d10-lords", label: "D1 tenth lord connects with the D10 ascendant lord", matched: mutuallyConnected(a.planet, a.sign, b.planet, b.sign),
-      details: [`${a.planet} in ${SIGNS[a.sign]}; ${b.planet} in ${SIGNS[b.sign]} (D10)`] });
+    factors.push(natalFacts.careerLords!);
   }
   return { version: 2, label: base.label, date: base.date, matter: base.matter, division: base.division,
     factors, score: factors.filter((f) => f.matched).length, max: 6,

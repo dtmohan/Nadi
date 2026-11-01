@@ -41,7 +41,7 @@ import { nashtaNakshatra } from "@shared/brihat-jataka";
 import {
   kpPoint,
   houseOf,
-  computeSignificators,
+  kpNatalFrame,
   vimshottariLordsAtMs,
   rulingPlanets,
   NODES_KP,
@@ -54,7 +54,6 @@ import type {
   RectifyEventCheck,
   RectifySegment,
   RectifyResult,
-  TransitCheck,
   MoonLordsCheck,
   DuttaRpMoonCheck,
   KundaCheck,
@@ -91,9 +90,10 @@ import { manleyTopicFor } from "@shared/manley-evidence";
 import { MANLEY_WINDOW_DIVISIONS, scanVargaWindows } from "./varga-windows";
 import { summarizeParashariComparisons, type ParashariComparisonExample, type ParashariObservation } from "@shared/parashari-comparison";
 import { createParashariEventScorer, parashariObservation } from "./parashari-event";
+import { createKpEventScorer } from "@shared/kp-event-evidence";
 import { nemaniRpMoonCheck } from "@shared/kp-nemani-rp";
-import { auroraAscendantLinks, auroraEventEvidence, auroraMatter } from "@shared/kp-aurora";
-import { auroraV2Evidence, auroraV2StageCounts, AURORA_V2_STAGES, type AuroraV2Evidence } from "@shared/kp-aurora-v2";
+import { auroraAscendantLinks, auroraMatter } from "@shared/kp-aurora";
+import { auroraV2StageCounts, AURORA_V2_STAGES, type AuroraV2Evidence } from "@shared/kp-aurora-v2";
 import {
   computeBodyMarks,
   limbTermsFor,
@@ -626,22 +626,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
     // whether a retrograde planet entered this sign by backing into it.
     const positions = positionsLite(mid, opts);
     const cuspLons = cuspsAt(mid, chart.latitude, chart.longitude, opts);
-    const cusps: KpCusp[] = cuspLons.map((lon, k) => ({
-      ...kpPoint(lon),
-      house: k + 1,
-    }));
-    const owners = cusps.map((c) => c.signLord);
-    const planets: KpPlanet[] = positions.map((p) => ({
-      ...kpPoint(p.lon),
-      planet: p.planet,
-      retrograde: p.retrograde,
-      house: houseOf(p.lon, cuspLons),
-      owns: NODES_KP.includes(p.planet)
-        ? []
-        : owners.map((o, k) => (o === p.planet ? k + 1 : 0)).filter(Boolean),
-    }));
-    const sigs = computeSignificators(planets);
-    const sig = new Map(sigs.map((s) => [s.planet, s.houses]));
+    const { cusps, planets, significators: sigs } = kpNatalFrame(positions, cuspLons);
+    const scoreKp = createKpEventScorer(cusps, sigs, planets);
     const lagna = cusps[0];
     const moon = planets.find((p) => p.planet === "Moon")!;
     const birthIso = utcAtJulianDay(mid).toUTC().toISO()!;
@@ -698,12 +684,6 @@ export function rectify(req: RectifyRequest): RectifyResult {
       now,
     );
     const nemani = nemaniRpMoonCheck(lagna, rpm, now.positions);
-    // At one natal candidate Aurora's scoring is determined by the matter
-    // and the three period lords. Transit details are display-only, so trial
-    // dates with the same path can share the same full staged eligibility.
-    const auroraTrials = new Map<string, ReturnType<typeof auroraEventEvidence>>();
-    const auroraV2Trials = new Map<string, ReturnType<typeof auroraV2Evidence>>();
-
     const checkEvent = (
       e: RectifyRequest["events"][number],
       dateIso: string,
@@ -714,44 +694,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     ): RectifyEventCheck => {
       const houses = e.houses.filter((h) => h >= 1 && h <= 12);
       const lords = vimshottariLordsAtMs(moon.lon, birthMs, evMs);
-      const signified = lords.map((l) =>
-        (sig.get(l) ?? []).filter((h) => houses.includes(h)),
-      ) as [number[], number[], number[]];
-      const hits = signified.map((s) => s.length > 0) as [
-        boolean,
-        boolean,
-        boolean,
-      ];
-      let cuspSubLord: Planet | undefined;
-      let promised: boolean | undefined;
-      if (e.cusp && e.cusp >= 1 && e.cusp <= 12) {
-        cuspSubLord = cusps[e.cusp - 1].subLord;
-        promised = (sig.get(cuspSubLord) ?? []).some((h) => houses.includes(h));
-      }
-      const score = hits.filter(Boolean).length + (promised ? 1 : 0);
-      const max = 3 + (e.cusp ? 1 : 0);
-      const transitOf = (planet: Planet): TransitCheck => {
-        const pos = evPositions?.find((p) => p.planet === planet);
-        const lon = pos?.lon ?? 0;
-        const pt = kpPoint(lon);
-        const signifies = (p: Planet) =>
-          (sig.get(p) ?? []).some((h) => houses.includes(h));
-        return {
-          planet,
-          lon,
-          signLord: pt.signLord,
-          starLord: pt.starLord,
-          subLord: pt.subLord,
-          hits: [
-            signifies(pt.signLord),
-            signifies(pt.starLord),
-            signifies(pt.subLord),
-          ],
-        };
-      };
-      const tDasa = transitOf(lords[0]);
-      const tBhukti = transitOf(lords[1]);
-      const tScore = [...tDasa.hits, ...tBhukti.hits].filter(Boolean).length;
+      const checked = scoreKp(houses, e.cusp, lords, evPositions ?? [], e.matter, includeAuroraTransit);
       let jaimini: RectifyEventCheck["jaimini"] = null;
       if (e.area) {
         const pi = jaiPeriods.findIndex((p) => p.start <= evMs && evMs < p.end);
@@ -762,43 +705,16 @@ export function rectify(req: RectifyRequest): RectifyResult {
         }
         jaimini = jaiFits.get(key) ?? null;
       }
-      const auroraKey = `${e.matter ?? ""}|${lords.join(":")}`;
-      let aurora: ReturnType<typeof auroraEventEvidence>;
-      let auroraV2: ReturnType<typeof auroraV2Evidence>;
-      if (e.matter) {
-        if (!includeAuroraTransit && auroraTrials.has(auroraKey)) {
-          aurora = auroraTrials.get(auroraKey);
-          auroraV2 = auroraV2Trials.get(auroraKey);
-        } else {
-          const transits = includeAuroraTransit ? evPositions ?? [] : [];
-          aurora = auroraEventEvidence({ matter: e.matter, planets, cusps, significators: sigs, lords, transits });
-          auroraV2 = auroraV2Evidence({ matter: e.matter, planets, cusps, lords, transits });
-          if (!includeAuroraTransit) {
-            auroraTrials.set(auroraKey, aurora);
-            auroraV2Trials.set(auroraKey, auroraV2);
-          }
-        }
-      }
       return {
+        ...checked,
         label: e.label,
         date: dateIso,
         time: e.time,
         timezone: e.timezone,
         houses,
-        // Actual events and the replayable first trial retain the sky display;
-        // the other trials use the identical natal/period eligibility checks.
-        aurora,
-        auroraV2,
         dasa: lords[0],
         bhukti: lords[1],
         antara: lords[2],
-        hits,
-        signified,
-        cuspSubLord,
-        promised,
-        score,
-        max,
-        transit: { dasa: tDasa, bhukti: tBhukti, score: tScore, max: 6 },
         jaimini,
       };
     };

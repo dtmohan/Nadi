@@ -10,6 +10,9 @@ import {
 } from "../kp";
 import { HOUSE_AREA } from "../life-stage";
 import { AURORA_SOURCE, auroraAscendantLinks, auroraSelfSignificators } from "../kp-aurora";
+import { kpNatalConditions } from "../natal-reading-evidence";
+import { sensitiveEventMatter } from "../events";
+import { kpNatalConditionsParas } from "./natal-reading-evidence";
 import { kpDisplayOrder, kpHerePlain, kpUsedGloss } from "../rules-kp";
 import {
   endStop,
@@ -162,6 +165,9 @@ export const kpModule: ReportModule = {
     const aurora = auroraSelfSignificators(kp.planets, kp.cusps);
     const links = auroraAscendantLinks(kp.planets, kp.cusps);
     paras.push({ kind: "note", provisional: true, cites: [cites.add(AURORA_SOURCE)], text: `Aurora self-significators: ${aurora.map((s) => `${s.planet} (${s.reasons.join(", ")})`).join("; ") || "none"}. First and ninth cusp sub lords ${links.firstSub} and ${links.ninthSub} occupy houses ${links.firstSubHouse} and ${links.ninthSubHouse}; shared script lords: ${links.sharedScriptLords.join(", ") || "none"}. These are descriptive source-specific links, not a genetic test or a verified birth time.` });
+    const natal = kpNatalConditions(result).filter((topic) => !ctx.plain || !sensitiveEventMatter(topic.matter));
+    if (natal.length) sub.push({ id: "kp-natal-event-conditions", title: "Natal event cusp scripts",
+      paras: kpNatalConditionsParas(natal, cites.add(AURORA_SOURCE)) });
     if (held.length)
       paras.push({
         kind: "note",

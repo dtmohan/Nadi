@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import { sutraHref } from "@/lib/sutras";
 
 /** Keeps a verse range such as 2.67-69 whole when a chip wraps: a word joiner follows the dash. */

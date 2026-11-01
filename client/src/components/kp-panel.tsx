@@ -98,6 +98,7 @@ import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 import { KP_TIMING_TOPICS } from "@shared/events";
 import type { ChartEvent } from "@shared/events";
 import { TopicReadingPanel } from "@/components/topic-reading";
+import { KpNatalRules } from "@/components/natal-rule-evidence";
 import { AuroraSelfPanel } from "@/components/kp-aurora-evidence";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
@@ -1040,6 +1041,8 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
         testid="kp-verdict"
         className="mt-4"
       />
+
+      <KpNatalRules result={result} plain={plain} />
 
       <ModeText
         className="mt-4 max-w-[76ch] text-sm"

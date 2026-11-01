@@ -43,6 +43,10 @@ export interface AuroraV2Evidence {
   cautions: number;
   transit: Array<{ role: string; planet: Planet; signLord: Planet; starLord: Planet; subLord: Planet }>;
 }
+export type AuroraV2NatalEvidence = Pick<AuroraV2Evidence, "matter" | "label" | "supporting" | "adverse" | "layers" | "firstUnresolved" | "cautions"> & {
+  /** Only the natal cusp stages; no event or period is implied. */
+  allCuspsSupported: boolean;
+};
 
 export const AURORA_V2_STAGES = ["cusps", "major", "sub", "third"] as const;
 export type AuroraV2Stage = (typeof AURORA_V2_STAGES)[number];
@@ -122,13 +126,14 @@ const contexts = new WeakMap<KpPlanet[], Context>();
 
 /** One evaluator for chart topics, saved-event validation, rectification and
  * each comparison date. Only four event types are specified by this adapter. */
-export function auroraV2Evidence(input: {
+interface AuroraV2Input {
   matter: string;
   planets: KpPlanet[];
   cusps: KpCusp[];
-  lords: [Planet, Planet, Planet];
+  lords: Planet[];
   transits: Array<Pick<PlanetPosition, "planet" | "lon">>;
-}): AuroraV2Evidence | undefined {
+}
+function auroraV2Core(input: AuroraV2Input): AuroraV2Evidence | undefined {
   const matter = auroraMatter(input.matter);
   if (!matter) return undefined;
   let context = contexts.get(input.planets);
@@ -184,6 +189,7 @@ export function auroraV2Evidence(input: {
   const transit = ([{ role: "Major period lord", planet: input.lords[0] },
     { role: "Sub-period lord", planet: input.lords[1] }, { role: "Sun", planet: "Sun" as Planet },
     { role: "Moon", planet: "Moon" as Planet }]).flatMap(({ role, planet }) => {
+      if (!planet) return [];
       const position = input.transits.find((p) => p.planet === planet);
       if (!position) return [];
       const p = kpPoint(position.lon);
@@ -193,4 +199,16 @@ export function auroraV2Evidence(input: {
     layers, firstUnresolved: layers.find((l) => l.eligible && !passes(l.status))?.role ?? null,
     allSupported: layers.every((l) => l.eligible && passes(l.status)),
     cautions: layers.filter((l) => l.eligible && l.status === "supported-with-caution").length, transit };
+}
+
+export function auroraV2Evidence(input: Omit<AuroraV2Input, "lords"> & { lords: [Planet, Planet, Planet] }): AuroraV2Evidence | undefined {
+  return auroraV2Core(input);
+}
+
+/** The identical cusp stages without inventing an event or period lords. */
+export function auroraV2NatalEvidence(input: Omit<AuroraV2Input, "lords" | "transits">): AuroraV2NatalEvidence | undefined {
+  const result = auroraV2Core({ ...input, lords: [], transits: [] });
+  return result && { matter: result.matter, label: result.label, supporting: result.supporting, adverse: result.adverse,
+    layers: result.layers, firstUnresolved: result.firstUnresolved, cautions: result.cautions,
+    allCuspsSupported: result.allSupported };
 }

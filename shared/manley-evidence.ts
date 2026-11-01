@@ -3,7 +3,7 @@
  * The book combines clue counts with qualitative judgment, not a universal
  * weighted score. This module reports a subset; it does not choose an ascendant.
  */
-import { drishtiQuarters, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
+import { drishtiQuarters, PLANETS, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
 import { vargaSignAt } from "./parashari-varga-evidence";
 import { functionalFrame, type FunctionalFrame } from "./parashari-functional";
 
@@ -24,14 +24,17 @@ export interface ManleyTopic {
   karakas: Planet[];
 }
 
+/** One topic registry feeds natal, dated, scan and comparison views. */
+export const MANLEY_TOPICS: Readonly<Record<string, ManleyTopic>> = {
+  move: { division: "D4", house: 4, subject: "change of residence", karakas: ["Moon"] },
+  child: { division: "D7", house: 5, subject: "childbirth", karakas: ["Jupiter"] },
+  marriage: { division: "D9", house: 7, subject: "marriage", karakas: ["Venus"] },
+  job: { division: "D10", house: 10, subject: "career", karakas: ["Sun", "Mercury", "Jupiter", "Saturn"] },
+  education: { division: "D24", house: 5, subject: "education", karakas: ["Jupiter", "Mercury"] },
+};
 /** The five mappings used in the book's introductory funnel; other matters are not inferred. */
 export function manleyTopicFor(matter?: string): ManleyTopic | undefined {
-  if (matter === "move") return { division: "D4", house: 4, subject: "change of residence", karakas: ["Moon"] };
-  if (matter === "child") return { division: "D7", house: 5, subject: "childbirth", karakas: ["Jupiter"] };
-  if (matter === "marriage") return { division: "D9", house: 7, subject: "marriage", karakas: ["Venus"] };
-  if (matter === "job") return { division: "D10", house: 10, subject: "career", karakas: ["Sun", "Mercury", "Jupiter", "Saturn"] };
-  if (matter === "education") return { division: "D24", house: 5, subject: "education", karakas: ["Jupiter", "Mercury"] };
-  return undefined;
+  return matter ? MANLEY_TOPICS[matter] : undefined;
 }
 
 export interface ManleyFrame {
@@ -79,19 +82,28 @@ export interface ManleyEvidence {
 export interface ManleyEventInput {
   label: string; date: string; matter?: string; time?: string; timezone?: string; birthTimezone?: string;
 }
+export interface ManleyNatalEvidence {
+  matter: string;
+  subject: string;
+  division: ManleyDivision;
+  house: number;
+  karakas: Planet[];
+  planets: Array<{ planet: Planet; frames: [ManleyFrame, ManleyFrame] }>;
+  educationFourth?: Array<{ planet: Planet; frame: ManleyFrame }>;
+}
 
 /** One natal candidate may be evaluated for hundreds of dates. The event
  * frames depend on the candidate, matter, chart and planet, not on the date
  * or the other period lords. Cache those immutable frames per candidate. */
-export function createManleyEvidenceScorer(natal: PlanetPosition[], lagnaLon: number) {
+export function createManleyFrameScorer(natal: PlanetPosition[], lagnaLon: number) {
   const frameCache = new Map<string, ManleyFrame>();
   const signCache = new Map<string, Map<Planet, number>>();
-  return (event: ManleyEventInput, periods: [Planet, Planet, Planet] | null): ManleyEvidence | undefined => {
-    const topic = manleyTopicFor(event.matter);
-    if (!topic || !event.matter || !periods) return undefined;
-    const isNode = (p: Planet) => p === "Rahu" || p === "Ketu";
-    const makeFrame = (chart: "D1" | ManleyDivision, p: Planet, eventHouse = topic.house): ManleyFrame => {
-      const key = `${event.matter}|${chart}|${p}|${eventHouse}`;
+  const isNode = (p: Planet) => p === "Rahu" || p === "Ketu";
+  return (matter: string, chart: "D1" | ManleyDivision, p: Planet, houseOverride?: number): ManleyFrame => {
+      const topic = manleyTopicFor(matter);
+      if (!topic) throw new Error(`No Manley topic for ${matter}`);
+      const eventHouse = houseOverride ?? topic.house;
+      const key = `${matter}|${chart}|${p}|${eventHouse}`;
       const cached = frameCache.get(key);
       if (cached) return cached;
       let signs = signCache.get(chart);
@@ -183,7 +195,25 @@ export function createManleyEvidenceScorer(natal: PlanetPosition[], lagnaLon: nu
       };
       frameCache.set(key, frame);
       return frame;
-    };
+  };
+}
+
+/** Natal clues use the same frames as dated checks; no period is invented. */
+export function manleyNatalEvidence(matter: string, natal: PlanetPosition[], lagnaLon: number,
+  frame = createManleyFrameScorer(natal, lagnaLon)): ManleyNatalEvidence | undefined {
+  const topic = manleyTopicFor(matter);
+  if (!topic) return undefined;
+  return { matter, subject: topic.subject, division: topic.division, house: topic.house, karakas: topic.karakas,
+    planets: PLANETS.map((planet) => ({ planet, frames: [frame(matter, "D1", planet), frame(matter, topic.division, planet)] })),
+    educationFourth: matter === "education" ? PLANETS.map((planet) => ({ planet, frame: frame(matter, "D24", planet, 4) })) : undefined };
+}
+
+export function createManleyEvidenceScorer(natal: PlanetPosition[], lagnaLon: number) {
+  const frame = createManleyFrameScorer(natal, lagnaLon);
+  return (event: ManleyEventInput, periods: [Planet, Planet, Planet] | null): ManleyEvidence | undefined => {
+    const topic = manleyTopicFor(event.matter);
+    if (!topic || !event.matter || !periods) return undefined;
+    const makeFrame = (chart: "D1" | ManleyDivision, p: Planet, house?: number) => frame(event.matter!, chart, p, house);
     return {
       label: event.label, date: event.date, matter: event.matter,
       moment: { time: event.time ?? "12:00", timeAssumed: !event.time,

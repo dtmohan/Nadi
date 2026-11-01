@@ -468,6 +468,11 @@ export const rectifyModule: ReportModule = {
             cites: [cites.add(RAO_SOURCE.label, RAO_SOURCE.url)],
           });
       }
+      if (state.method.startsWith("kp-") && focus.events.length) {
+        ps.push({ kind: "note", provisional: true, text: "The following cusp filters and event-day Sun/Moon links use the same four-step evaluator as the chart's dated reading and Validate. They are descriptive and do not change the existing event or transit score." });
+        for (const e of focus.events) ps.push({ kind: "p", provisional: true,
+          text: `${S(e.label)} · ${e.date}: cusp sub lord ${e.cuspSubLord ?? "not selected"}, matter houses ${e.cuspSignified.join(", ") || "none listed"}. ${(["dasa", "bhukti", "antara"] as const).map((level, i) => `${level}: ${e.filtered[i].map((f) => `house ${f.house} through ${f.cuspSubLord}: ${f.denied ? "denied in this filter" : f.kept ? "kept" : "directed elsewhere"}`).join("; ") || "no selected house"}`).join(". ")}. Sun/Moon period links ${e.transit.luminary.sun ? "yes" : "no"}/${e.transit.luminary.moon ? "yes" : "no"}.` });
+      }
       if (focus.parashariVargas?.length) {
         ps.push({
           kind: "note",

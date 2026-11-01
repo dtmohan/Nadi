@@ -694,6 +694,7 @@ export default function RulesPage() {
         <TabsContent value="parashari">
           <section className="mt-4 max-w-3xl space-y-3 text-sm" data-testid="parashari-ranking-rules">
             <p className="text-muted-foreground">The chart's Matter and date chapter and the Validate and Rectify tools use the same implemented event checks. The Bhrigu Nandi Nadi rule array belongs to that separate system; these Parashari checks are implemented by their own shared evaluators. The natal house factors can be inspected without choosing a date.</p>
+            <p className="text-muted-foreground">Natal chart foundations can be read without an event; periods and transits require a chosen date and its time zone. KP and Parashari retain their own conventions, and ruling-planet birth-time checks need a separate judgment moment. The shared engines keep compatible checks consistent across the chart, Validate, Rectify and comparison dates; each new rule still needs an explicit scope and a reading explanation.</p>
             <h2 className="font-semibold">Experimental birth-time event ranking · version 1</h2>
             <p className="text-muted-foreground">The app counts five matches per eligible event. The equal points and their combination are Nadi's experimental convention; they are not a published numerical formula. A difficult house can coexist with an event, and an absent match is not a denial.</p>
             <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">

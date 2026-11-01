@@ -1,0 +1,49 @@
+{
+  "cases": [
+    {
+      "name": "Hrithik Roshan", "category": "Indian actor and dancer",
+      "birthSource": "https://www.astro.com/astro-databank/Roshan%2C_Hrithik",
+      "birthQuality": "A, indirectly reported from an astrologer connected to family; not a birth certificate",
+      "chart": { "name": "Hrithik Roshan", "gender": "male", "birthDate": "1974-01-10", "birthTime": "03:25", "timezone": "Asia/Kolkata", "timeStandard": "auto", "place": "Mumbai, India", "latitude": 18.9667, "longitude": 72.8333, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "hr-marriage", "matter": "marriage", "date": "2000-12-20", "timezone": "Asia/Kolkata", "alternateTimes": ["18:00"], "sources": ["https://timesofindia.indiatimes.com/hrithik-suzanne-have-fairy-tale-wedding/articleshow/712387608.cms", "https://www.hindustantimes.com/entertainment/2001-a-10-year-love-story/story-0hzHowVZhIT7syVP20wfiP.html"] },
+        { "id": "hr-child1", "matter": "child", "date": "2006-03-28", "time": "15:08", "timezone": "Asia/Kolkata", "alternateTimes": ["15:30"], "sources": ["https://www.astro.com/astro-databank/Roshan%2C_Hrithik", "https://filmibeat.com/bollywood/features/2006/hrithik-roshan-290306.html", "https://www.bollywoodhungama.com/news/bollywood/hrithik-and-suzzanes-son-is-named-rehaan/"] },
+        { "id": "hr-child2", "matter": "child", "date": "2008-05-01", "time": "11:27", "timezone": "Asia/Kolkata", "sources": ["https://timesofindia.indiatimes.com/city/mumbai/hrithik-roshan-becomes-a-dad-again/articleshow/3001745.cms", "https://www.astro.com/astro-databank/Roshan%2C_Hrithik"] }
+      ]
+    },
+    {
+      "name": "David Cameron", "category": "British politician",
+      "birthSource": "https://www.astro.com/astro-databank/Cameron%2C_David_%281966%29",
+      "birthQuality": "A, reported from memory; 05:55 attributed indirectly to mother and 05:51 is a further adjusted estimate",
+      "alternateBirthTimes": ["05:55", "05:51"],
+      "chart": { "name": "David Cameron", "gender": "male", "birthDate": "1966-10-09", "birthTime": "06:00", "timezone": "Europe/London", "timeStandard": "auto", "place": "London, UK", "latitude": 51.5, "longitude": -0.1667, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "dc-marriage", "matter": "marriage", "date": "1996-06-01", "timezone": "Europe/London", "sources": ["https://www.astro.com/astro-databank/Cameron%2C_David_%281966%29", "https://en.wikipedia.org/wiki/Samantha_Cameron"] },
+        { "id": "dc-prime-minister", "matter": "job", "date": "2010-05-11", "timezone": "Europe/London", "alternateTimes": ["20:00"], "sources": ["https://www.gov.uk/government/history/past-prime-ministers/david-cameron", "https://www.govinfo.gov/app/details/PPP-2010-book1/PPP-2010-book1-doc-pg625/context"] },
+        { "id": "dc-child", "matter": "child", "date": "2010-08-24", "time": "12:00", "timezone": "Europe/London", "sources": ["https://www.astro.com/astro-databank/Cameron%2C_Florence", "https://www.astro.com/astro-databank/Cameron%2C_David_%281966%29"] }
+      ]
+    },
+    {
+      "name": "Salma Hayek", "category": "Mexican actor and producer",
+      "birthSource": "https://www.astro.com/astro-databank/Hayek%2C_Salma",
+      "birthQuality": "AA, birth certificate reported in Astro-Databank",
+      "chart": { "name": "Salma Hayek", "gender": "female", "birthDate": "1966-09-02", "birthTime": "06:40", "timezone": "America/Mexico_City", "timeStandard": "auto", "place": "Coatzacoalcos, Mexico", "latitude": 18.15, "longitude": -94.4167, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "sh-child", "matter": "child", "date": "2007-09-21", "timezone": "America/Los_Angeles", "sources": ["https://elpais.com/elpais/2007/11/27/actualidad/1196149734_850215.html", "https://en.wikipedia.org/wiki/Salma_Hayek"] },
+        { "id": "sh-marriage", "matter": "marriage", "date": "2009-02-14", "timezone": "Europe/Paris", "sources": ["https://www.abc.net.au/news/2009-02-16/salma-hayek-marries-french-tycoon/298124", "https://www.foxnews.com/entertainment/salma-hayek-and-husband-renew-their-wedding-vows"] }
+      ]
+    },
+    {
+      "name": "Nelson Mandela", "category": "South African anti-apartheid leader and president",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_07_18.htm?nhor=432788",
+      "birthQuality": "DD, 14:54 was astrologically rectified from an unverified afternoon account; not independent evidence of a precise birth time",
+      "alternateBirthTimes": ["13:00", "16:00"],
+      "chart": { "name": "Nelson Mandela", "gender": "male", "birthDate": "1918-07-18", "birthTime": "14:54", "timezone": "Africa/Johannesburg", "timeStandard": "auto", "place": "Mvezo, South Africa", "latitude": -31.95, "longitude": 28.5167, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "2013-12-05" },
+      "events": [
+        { "id": "nm-marriage-1958", "matter": "marriage", "date": "1958-06-14", "timezone": "Africa/Johannesburg", "sources": ["https://www.nelsonmandela.org/uploads/files/genealogy_%281%29.pdf", "https://www.gcis.gov.za/sites/www.gcis.gov.za/files/docs/resourcecentre/yearbook/2012/MANDELA.pdf"] },
+        { "id": "nm-inauguration", "matter": "job", "date": "1994-05-10", "timezone": "Africa/Johannesburg", "sources": ["https://www.gcis.gov.za/sites/www.gcis.gov.za/files/docs/resourcecentre/yearbook/2012/MANDELA.pdf", "https://www.nelsonmandela.org/uploads/files/timeline_3.pdf"] },
+        { "id": "nm-marriage-1998", "matter": "marriage", "date": "1998-07-18", "timezone": "Africa/Johannesburg", "sources": ["https://www.nelsonmandela.org/on-this-day/entry/nelson-mandela-turns-80-and-marries-his-third-wife-graca-machel", "https://sahistory.org.za/dated-event/nelson-mandela-marries-graca-machel-his-80th-birthday"] }
+      ]
+    }
+  ]
+}

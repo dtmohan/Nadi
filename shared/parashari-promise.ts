@@ -24,15 +24,9 @@ export interface ParashariPromiseCheck {
   doubleTransitTargets: string[];
 }
 
-export function parashariPromiseCheck(
-  evidence: ParashariVargaEvidence | undefined,
-  outcome: "favourable" | "unfavourable" | "mixed" | undefined,
-  natal: PlanetPosition[],
-  eventSky: Array<Pick<PlanetPosition, "planet" | "signIndex">>,
-): ParashariPromiseCheck | undefined {
-  if (!evidence || !["marriage", "child", "job"].includes(evidence.matter)
-    || (outcome && outcome !== "favourable") || evidence.periods.length < 2) return undefined;
-  const { rashi, varga } = evidence;
+/** The date-independent portion of v1/v2/v3; shared with the chart reading. */
+export function parashariPromiseNatal(evidence: ParashariVargaEvidence, natal: PlanetPosition[]) {
+  const varga = evidence.varga;
   const benefic = (p: Planet) => {
     const position = natal.find((x) => x.planet === p);
     return Boolean(position && naturalBenefic(position, natal));
@@ -45,8 +39,20 @@ export function parashariPromiseCheck(
   if (varga.lordDignity === "own sign" || varga.lordDignity === "exaltation sign")
     divisionSupport.push(`${varga.houseLord}, ${varga.chart} house ${varga.house} lord, in ${varga.lordDignity}`);
   const divisionStrain = varga.lordDignity === "debilitation sign"
-    ? [`${varga.houseLord}, ${varga.chart} house ${varga.house} lord, in debilitation sign`]
-    : [];
+    ? [`${varga.houseLord}, ${varga.chart} house ${varga.house} lord, in debilitation sign`] : [];
+  return { d1Support: evidence.rashiAssessment.support, d1Strain: evidence.rashiAssessment.strain, divisionSupport, divisionStrain };
+}
+
+export function parashariPromiseCheck(
+  evidence: ParashariVargaEvidence | undefined,
+  outcome: "favourable" | "unfavourable" | "mixed" | undefined,
+  natal: PlanetPosition[],
+  eventSky: Array<Pick<PlanetPosition, "planet" | "signIndex">>,
+): ParashariPromiseCheck | undefined {
+  if (!evidence || !["marriage", "child", "job"].includes(evidence.matter)
+    || (outcome && outcome !== "favourable") || evidence.periods.length < 2) return undefined;
+  const { rashi } = evidence;
+  const { divisionSupport, divisionStrain } = parashariPromiseNatal(evidence, natal);
   const periods = evidence.periods.slice(0, 2).map((p) => ({
     level: p.level as "dasa" | "bhukti", planet: p.planet,
     // Ascendant-lord links are displayed in the evidence, but this fixed,

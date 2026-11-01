@@ -2,7 +2,7 @@
 import type { Planet, Sign } from "./astro";
 import type { DashaFit } from "./jaimini-areas";
 import type { EventOutcome } from "./events";
-import type { TransitCheck } from "./rectify-types";
+import type { KpEventRules } from "./kp-event-evidence";
 import type { KpTransitEvidence } from "./kp-transit-evidence";
 import type { AuroraEventEvidence } from "./kp-aurora";
 import type { AuroraV2Evidence, AuroraV2StageComparison } from "./kp-aurora-v2";
@@ -38,40 +38,17 @@ export interface EventValidation {
   parashariDivisional?: ParashariDivisionalCheck;
   manley?: ManleyEvidence;
   parashariHierarchy?: HierarchyEvent;
-  kp: {
-    /** Separate experimental Aurora-style evidence, never included in KP's existing score. */
-    aurora?: AuroraEventEvidence;
-    auroraV2?: AuroraV2Evidence;
+  kp: Omit<KpEventRules, "cuspSubLord" | "promised" | "transit" | "max"> & {
     dasa: Planet;
     bhukti: Planet;
     antara: Planet;
-    /** Whether dasa, bhukti and antara lord each signify one of the matter's houses (four-step). */
-    hits: [boolean, boolean, boolean];
-    /** The matter's houses each lord signifies. */
-    signified: [number[], number[], number[]];
     cuspSubLord: Planet;
     /** The cusp sub lord signifies one of the matter's houses: the matter is promised. */
     promised: boolean;
-    /** Houses the cusp sub lord signifies, for the tooltip. */
-    cuspSignified: number[];
-    /** For each lord, its hit houses passed through the cusp filter (Part 3 ch. 5; Part 2 ch. 7). */
-    filtered: [CuspFilter[], CuspFilter[], CuspFilter[]];
-    /** Whether each lord keeps at least one hit house after the filter. */
-    effective: [boolean, boolean, boolean];
-    /** Not promised, and the matter's cusp sub lord signifies the 12th from that cusp: the book's denial. */
-    deniedAtCusp: boolean;
-    transit: {
-      dasa: TransitCheck;
-      bhukti: TransitCheck;
-      score: number;
-      max: number;
+    transit: KpEventRules["transit"] & {
       /** Broader event-day contacts against this natal frame; descriptive, not scored. */
       evidence?: KpTransitEvidence[];
-      /** Whether the transiting Sun and Moon stood in a sign, star or sub ruled by a period lord (provisional reading of Part 2 p. 26). */
-      luminary: { sun: boolean; moon: boolean };
     };
-    /** Period-lord hits plus the promise: 0..4. */
-    score: number;
     max: 4;
     /** confirmed: promised and both dasa and bhukti lords signify; partial: something links; missed: nothing does. */
     verdict: KpVerdict;

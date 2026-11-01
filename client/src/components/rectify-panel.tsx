@@ -1193,6 +1193,17 @@ export function RectifyPanel({
           </details>}
           {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.parashariHierarchy?.map((e, i) => e && <ParashariHierarchyEvent key={`hierarchy-${i}`} event={e} />)}
 
+          {method.startsWith("kp-") && focus && focus.events.length > 0 && <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="rectify-kp-event-evidence">
+            <summary className="cursor-pointer font-medium">KP event cusp filters and event-day luminaries · candidate midpoint</summary>
+            <p className="mt-2 text-muted-foreground">The same four-step event evidence appears in the chart's Matter and date reading and Validate. The cusp filters and luminary observations are descriptive; they do not change the existing event or transit score.</p>
+            {focus.events.map((e, i) => <div key={`${e.label}-${e.date}-${i}`} className="mt-2">
+              <p className="font-medium">{e.label} · {e.date} · {describeEventMoment(e, chart.timezone)}</p>
+              <p>Cusp sub lord {e.cuspSubLord ?? "not selected"}: matter houses {e.cuspSignified.join(", ") || "none listed"}.</p>
+              {(["dasa", "bhukti", "antara"] as const).map((level, n) => <p key={level}>{level}: {e.filtered[n].map((f) => `house ${f.house} through ${f.cuspSubLord}: ${f.denied ? "denied in this filter" : f.kept ? "kept" : "directed elsewhere"}`).join("; ") || "no selected house to filter"}.</p>)}
+              <p>Event-day Sun / Moon link to period lords: {e.transit.luminary.sun ? "yes" : "no"} / {e.transit.luminary.moon ? "yes" : "no"}. These links are not independent confirmation.</p>
+            </div>)}
+          </details>}
+
           {isParashariMethod && (
             <div className="mt-3" data-testid="rectify-parashari-ranking">
               <p className="text-xs text-muted-foreground">

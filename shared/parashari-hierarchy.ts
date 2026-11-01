@@ -56,24 +56,28 @@ export interface HierarchyEvent {
   /** Each flag includes every preceding event-level gate. */
   passes: { d1: boolean; division: boolean; major: boolean; sub: boolean; third: boolean };
 }
+export interface ParashariFoundations {
+  d1: HierarchyNatalCheck;
+  divisionCheck: HierarchyNatalCheck;
+  planets: CrossChartPlanet[];
+}
 
 const status = (support: string[], strain: string[]): HierarchyStatus =>
   support.length && strain.length ? "mixed" : support.length ? "supported" : "unresolved";
 const links = (frame: ManleyFrame) => [...frame.primary.house, ...frame.primary.houseLord, ...frame.primary.karaka];
 
-/** Cached natal foundations are shared by every actual and trial date for one candidate. */
-export function createParashariHierarchyScorer(natal: PlanetPosition[], lagna: number) {
+/** Shared natal foundations; no period or event date is required. */
+export function createParashariFoundationScorer(natal: PlanetPosition[], lagna: number) {
   const asc = vargaSignAt("D1", lagna);
   const judgements = judgeBhavas(natal, rashiHouseView(asc, natal), {
     aspect: (p, from, to) => drishtiQuarters(p, from, to) >= 4 ? 4 : 0,
     benefic: naturalBenefic,
   });
-  const cache = new Map<string, { d1: HierarchyNatalCheck; divisionCheck: HierarchyNatalCheck; planets: CrossChartPlanet[] }>();
-  return (evidence: ManleyEvidence | undefined, outcome?: "favourable" | "unfavourable" | "mixed"): HierarchyEvent | undefined => {
-    if (!evidence || (outcome && outcome !== "favourable")) return undefined;
-    const topic = manleyTopicFor(evidence.matter);
-    if (!topic || !evidence.antara || evidence.periods.length !== 2) return undefined;
-    let foundation = cache.get(evidence.matter);
+  const cache = new Map<string, ParashariFoundations>();
+  return (matter: string): ParashariFoundations | undefined => {
+    const topic = manleyTopicFor(matter);
+    if (!topic) return undefined;
+    let foundation = cache.get(matter);
     if (!foundation) {
       const judgement = judgements[topic.house - 1];
       const d1: HierarchyNatalCheck = { house: topic.house, status: status(judgement.support, judgement.strain),
@@ -122,8 +126,19 @@ export function createParashariHierarchyScorer(natal: PlanetPosition[], lagna: n
           d1: place(d1Sign, asc), division: place(divisionSign, divisionAsc) };
       });
       foundation = { d1, divisionCheck, planets };
-      cache.set(evidence.matter, foundation);
+      cache.set(matter, foundation);
     }
+    return foundation;
+  };
+}
+
+/** Cached natal foundations are shared by every actual and trial date. */
+export function createParashariHierarchyScorer(natal: PlanetPosition[], lagna: number) {
+  const foundationFor = createParashariFoundationScorer(natal, lagna);
+  return (evidence: ManleyEvidence | undefined, outcome?: "favourable" | "unfavourable" | "mixed"): HierarchyEvent | undefined => {
+    if (!evidence || (outcome && outcome !== "favourable") || !evidence.antara || evidence.periods.length !== 2) return undefined;
+    const foundation = foundationFor(evidence.matter);
+    if (!foundation) return undefined;
     const basic = hierarchyEventFromFoundations(evidence, foundation);
     return { ...basic, crossChart: crossChartEvidence(evidence, foundation.planets) };
   };

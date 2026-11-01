@@ -1,0 +1,1736 @@
+{
+  "protocol": "docs/reading-parity-fresh-protocol.md",
+  "hashes": {
+    "docs/reading-parity-fresh-protocol.md": "9b8c96e1bdd94542ac6528877cc8072eae6f071c8e8fc5332cbca6d1bafcf940",
+    "scripts/fixtures/reading-parity-fresh.json": "cacd04915e62296e2d41d94eadb3a04b4583d53136ce452cd4b211fc177e647d",
+    "scripts/eval-reading-parity.ts": "5966af25c6fb63395f3a96a252a7f91c14058ad6ec1696d287a7ea262991d807",
+    "shared/reading-rule-catalog.ts": "c5f078ce340159bafbc1f8446ece741af8bfe825ff457bba8ee0284a6468c3a7",
+    "shared/events.ts": "951515a6ad1c192154f3f12516ce69de9aa49394e0cceb050a1afd62eec3ca5c",
+    "shared/kp.ts": "c8a8b85136514ba536b6d3dfad81619de41b08f702573052a594ec0a328e572d",
+    "shared/kp-event-evidence.ts": "df7fcf29596397aa62b029702a88bf546a8ac1d9262c64a927122979f23bd9b4",
+    "shared/kp-aurora.ts": "98db2fcca6b7db97e9aa7ab8a499851dd054c460aaf79fca78ac89e2611f45b3",
+    "shared/kp-aurora-v2.ts": "bca05943ac3c56841952dc46cdf135613853f8e0d6ff0d87ad7808ce0441b07d",
+    "shared/natal-reading-evidence.ts": "3ba7d13ce7d4202ff1f114318a0a9d3a54d20214174a05a4793b997f24d04f0e",
+    "shared/manley-evidence.ts": "7fb404c8057c45611ec1c448b1cd89674b4a25083bd43020561ce224f1740a12",
+    "shared/parashari-promise.ts": "f3d8e8a99e9db890e089b8ca92a79a4850475f8dd247b32fcab7746a326a6f5a",
+    "shared/parashari-specific.ts": "dff240fbc073c9d06b299c19a37d8f677ea8859a4be4186be04a04a90aa22d8c",
+    "shared/parashari-divisional.ts": "6780e20d4c26dbc5f1f6fb7cda88f66d1a0289bfa52056ae6314e8c33270d313",
+    "shared/parashari-hierarchy.ts": "60791fe8a838fc9925395c1b5c62f0204ab9de9fed41de9802db4a3f97b32742",
+    "shared/parashari-functional.ts": "931ec807554483439ac43bdd43c7cbbe39a92cb2e687f6fd0690c051bf6d384a",
+    "shared/parashari-conditional.ts": "b6b7d4863cbb5e1cc4248fa62d0aa0362b28f773b78848c6d4d2b6960d5e02ce",
+    "server/topic-reading.ts": "7d1103aa0abb28c8652bc095e8313018d7036426c0621dac9295cd98dd192a77",
+    "server/validate.ts": "f2e2172fe9ecc8666b5a550d85d0b2b88d96551bb33ded3774babee2c5736802",
+    "server/rectify.ts": "c5bf4a4530ffadb48635546c5e68afc08a73153253b983c3ca9a909c1295ad42",
+    "server/parashari-event.ts": "b30b66b680a12956ef81bda335c371d62e8e8a0fb1b2d480296b031f91feb062",
+    "server/ephemeris.ts": "e43cf09f92bf3c75f61c6ecc033c06ea77322dae8e9a62520994c9e927d0e7a6",
+    "server/event-time.ts": "698e9ec675bc80c5d6e4564cda20d63cf4bfa8304a8d81066e8226bbe7911f48"
+  },
+  "caveat": "These are convenience cases, not an accuracy study. Birth and event clocks are uncertain; fixed-offset dates are not verified non-events.",
+  "results": [
+    {
+      "name": "Hrithik Roshan",
+      "category": "Indian actor and dancer",
+      "birthSource": "https://www.astro.com/astro-databank/Roshan%2C_Hrithik",
+      "birthQuality": "A, indirectly reported from an astrologer connected to family; not a birth certificate",
+      "reportedBirth": "1974-01-10 03:25 Asia/Kolkata",
+      "events": [
+        {
+          "id": "hr-marriage",
+          "matter": "marriage",
+          "date": "2000-12-20",
+          "localTime": "12:00 assumed",
+          "timezone": "Asia/Kolkata",
+          "sources": [
+            "https://timesofindia.indiatimes.com/hrithik-suzanne-have-fairy-tale-wedding/articleshow/712387608.cms",
+            "https://www.hindustantimes.com/entertainment/2001-a-10-year-love-story/story-0hzHowVZhIT7syVP20wfiP.html"
+          ],
+          "natalAndDatedEqual": true,
+          "datedAndValidateEqual": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 2,
+            "strict": false,
+            "mixed": false,
+            "v1": 5,
+            "v2": 4,
+            "v3": 6,
+            "conditional": {
+              "yoga": false,
+              "node": false,
+              "event": false
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2000-06-23",
+              "kp": 3,
+              "kpTransit": 4,
+              "strict": false,
+              "mixed": false,
+              "v1": 5,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -120,
+              "date": "2000-08-22",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 5,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2000-10-21",
+              "kp": 4,
+              "kpTransit": 4,
+              "strict": false,
+              "mixed": false,
+              "v1": 5,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2001-02-18",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 5,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 120,
+              "date": "2001-04-19",
+              "kp": 4,
+              "kpTransit": 4,
+              "strict": false,
+              "mixed": false,
+              "v1": 5,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2001-06-18",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 2,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ],
+          "alternateTimes": [
+            {
+              "time": "18:00",
+              "kp": 4,
+              "kpTransit": 2,
+              "strict": false,
+              "mixed": false,
+              "v1": 5,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "hr-child1",
+          "matter": "child",
+          "date": "2006-03-28",
+          "localTime": "15:08",
+          "timezone": "Asia/Kolkata",
+          "sources": [
+            "https://www.astro.com/astro-databank/Roshan%2C_Hrithik",
+            "https://filmibeat.com/bollywood/features/2006/hrithik-roshan-290306.html",
+            "https://www.bollywoodhungama.com/news/bollywood/hrithik-and-suzzanes-son-is-named-rehaan/"
+          ],
+          "natalAndDatedEqual": true,
+          "datedAndValidateEqual": true,
+          "actual": {
+            "kp": 3,
+            "kpTransit": 4,
+            "strict": false,
+            "mixed": false,
+            "v1": 2,
+            "v2": 4,
+            "v3": 5,
+            "conditional": {
+              "yoga": false,
+              "node": false,
+              "event": false
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2005-09-29",
+              "kp": 3,
+              "kpTransit": 5,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 4,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -120,
+              "date": "2005-11-28",
+              "kp": 3,
+              "kpTransit": 3,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 4,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2006-01-27",
+              "kp": 2,
+              "kpTransit": 3,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 4,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2006-05-27",
+              "kp": 2,
+              "kpTransit": 4,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 4,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 120,
+              "date": "2006-07-26",
+              "kp": 3,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 4,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2006-09-24",
+              "kp": 3,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 4,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ],
+          "alternateTimes": [
+            {
+              "time": "15:30",
+              "kp": 3,
+              "kpTransit": 4,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 4,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "hr-child2",
+          "matter": "child",
+          "date": "2008-05-01",
+          "localTime": "11:27",
+          "timezone": "Asia/Kolkata",
+          "sources": [
+            "https://timesofindia.indiatimes.com/city/mumbai/hrithik-roshan-becomes-a-dad-again/articleshow/3001745.cms",
+            "https://www.astro.com/astro-databank/Roshan%2C_Hrithik"
+          ],
+          "natalAndDatedEqual": true,
+          "datedAndValidateEqual": true,
+          "actual": {
+            "kp": 3,
+            "kpTransit": 5,
+            "strict": false,
+            "mixed": false,
+            "v1": 1,
+            "v2": 2,
+            "v3": 3,
+            "conditional": {
+              "yoga": false,
+              "node": true,
+              "event": false
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2007-11-03",
+              "kp": 2,
+              "kpTransit": 5,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 2,
+              "v3": 3,
+              "conditional": {
+                "yoga": false,
+                "node": true,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -120,
+              "date": "2008-01-02",
+              "kp": 2,
+              "kpTransit": 2,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 2,
+              "v3": 3,
+              "conditional": {
+                "yoga": false,
+                "node": true,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2008-03-02",
+              "kp": 3,
+              "kpTransit": 2,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 2,
+              "v3": 3,
+              "conditional": {
+                "yoga": false,
+                "node": true,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2008-06-30",
+              "kp": 3,
+              "kpTransit": 5,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 2,
+              "v3": 3,
+              "conditional": {
+                "yoga": false,
+                "node": true,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 120,
+              "date": "2008-08-29",
+              "kp": 2,
+              "kpTransit": 4,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 2,
+              "v3": 3,
+              "conditional": {
+                "yoga": false,
+                "node": true,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2008-10-28",
+              "kp": 2,
+              "kpTransit": 3,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 2,
+              "v3": 3,
+              "conditional": {
+                "yoga": false,
+                "node": true,
+                "event": false
+              }
+            }
+          ],
+          "alternateTimes": []
+        }
+      ],
+      "midpoint": {
+        "date": "1974-01-10",
+        "time": "03:24:52",
+        "event": "hr-marriage",
+        "allRegisteredKpFieldsEqual": true,
+        "completeParashariEvidenceEqual": true
+      },
+      "alternateBirths": []
+    },
+    {
+      "name": "David Cameron",
+      "category": "British politician",
+      "birthSource": "https://www.astro.com/astro-databank/Cameron%2C_David_%281966%29",
+      "birthQuality": "A, reported from memory; 05:55 attributed indirectly to mother and 05:51 is a further adjusted estimate",
+      "reportedBirth": "1966-10-09 06:00 Europe/London",
+      "events": [
+        {
+          "id": "dc-marriage",
+          "matter": "marriage",
+          "date": "1996-06-01",
+          "localTime": "12:00 assumed",
+          "timezone": "Europe/London",
+          "sources": [
+            "https://www.astro.com/astro-databank/Cameron%2C_David_%281966%29",
+            "https://en.wikipedia.org/wiki/Samantha_Cameron"
+          ],
+          "natalAndDatedEqual": true,
+          "datedAndValidateEqual": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 6,
+            "strict": false,
+            "mixed": false,
+            "v1": 4,
+            "v2": 4,
+            "v3": 6,
+            "conditional": {
+              "yoga": false,
+              "node": false,
+              "event": false
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "1995-12-04",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -120,
+              "date": "1996-02-02",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "1996-04-02",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "1996-07-31",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 120,
+              "date": "1996-09-29",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "1996-11-28",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ],
+          "alternateTimes": []
+        },
+        {
+          "id": "dc-prime-minister",
+          "matter": "job",
+          "date": "2010-05-11",
+          "localTime": "12:00 assumed",
+          "timezone": "Europe/London",
+          "sources": [
+            "https://www.gov.uk/government/history/past-prime-ministers/david-cameron",
+            "https://www.govinfo.gov/app/details/PPP-2010-book1/PPP-2010-book1-doc-pg625/context"
+          ],
+          "natalAndDatedEqual": true,
+          "datedAndValidateEqual": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 6,
+            "strict": false,
+            "mixed": false,
+            "v1": 0,
+            "v2": 1,
+            "v3": 3,
+            "conditional": {
+              "yoga": true,
+              "node": false,
+              "event": false
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2009-11-12",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 0,
+              "v2": 1,
+              "v3": 3,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -120,
+              "date": "2010-01-11",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 1,
+              "v3": 3,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2010-03-12",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 1,
+              "v3": 3,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2010-07-10",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 0,
+              "v2": 1,
+              "v3": 3,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 120,
+              "date": "2010-09-08",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 0,
+              "v2": 1,
+              "v3": 3,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2010-11-07",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 1,
+              "v3": 3,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            }
+          ],
+          "alternateTimes": [
+            {
+              "time": "20:00",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 0,
+              "v2": 1,
+              "v3": 3,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            }
+          ]
+        },
+        {
+          "id": "dc-child",
+          "matter": "child",
+          "date": "2010-08-24",
+          "localTime": "12:00",
+          "timezone": "Europe/London",
+          "sources": [
+            "https://www.astro.com/astro-databank/Cameron%2C_Florence",
+            "https://www.astro.com/astro-databank/Cameron%2C_David_%281966%29"
+          ],
+          "natalAndDatedEqual": true,
+          "datedAndValidateEqual": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 6,
+            "strict": false,
+            "mixed": false,
+            "v1": 4,
+            "v2": 3,
+            "v3": 4,
+            "conditional": {
+              "yoga": false,
+              "node": false,
+              "event": false
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2010-02-25",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 4,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -120,
+              "date": "2010-04-26",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 3,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2010-06-25",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2010-10-23",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 120,
+              "date": "2010-12-22",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2011-02-20",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ],
+          "alternateTimes": []
+        }
+      ],
+      "midpoint": {
+        "date": "1966-10-09",
+        "time": "06:00:23",
+        "event": "dc-marriage",
+        "allRegisteredKpFieldsEqual": true,
+        "completeParashariEvidenceEqual": true
+      },
+      "alternateBirths": [
+        {
+          "birthTime": "05:55",
+          "events": [
+            {
+              "id": "dc-marriage",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "id": "dc-prime-minister",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 0,
+              "v2": 1,
+              "v3": 3,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "id": "dc-child",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ]
+        },
+        {
+          "birthTime": "05:51",
+          "events": [
+            {
+              "id": "dc-marriage",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 1,
+              "v3": 3,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "id": "dc-prime-minister",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 0,
+              "v2": 1,
+              "v3": 3,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "id": "dc-child",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Salma Hayek",
+      "category": "Mexican actor and producer",
+      "birthSource": "https://www.astro.com/astro-databank/Hayek%2C_Salma",
+      "birthQuality": "AA, birth certificate reported in Astro-Databank",
+      "reportedBirth": "1966-09-02 06:40 America/Mexico_City",
+      "events": [
+        {
+          "id": "sh-child",
+          "matter": "child",
+          "date": "2007-09-21",
+          "localTime": "12:00 assumed",
+          "timezone": "America/Los_Angeles",
+          "sources": [
+            "https://elpais.com/elpais/2007/11/27/actualidad/1196149734_850215.html",
+            "https://en.wikipedia.org/wiki/Salma_Hayek"
+          ],
+          "natalAndDatedEqual": true,
+          "datedAndValidateEqual": true,
+          "actual": {
+            "kp": 2,
+            "kpTransit": 3,
+            "strict": false,
+            "mixed": false,
+            "v1": 3,
+            "v2": 3,
+            "v3": 5,
+            "conditional": {
+              "yoga": false,
+              "node": false,
+              "event": false
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2007-03-25",
+              "kp": 4,
+              "kpTransit": 4,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -120,
+              "date": "2007-05-24",
+              "kp": 3,
+              "kpTransit": 5,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2007-07-23",
+              "kp": 3,
+              "kpTransit": 4,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2007-11-20",
+              "kp": 2,
+              "kpTransit": 4,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 120,
+              "date": "2008-01-19",
+              "kp": 2,
+              "kpTransit": 5,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 2,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2008-03-19",
+              "kp": 3,
+              "kpTransit": 2,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 2,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ],
+          "alternateTimes": []
+        },
+        {
+          "id": "sh-marriage",
+          "matter": "marriage",
+          "date": "2009-02-14",
+          "localTime": "12:00 assumed",
+          "timezone": "Europe/Paris",
+          "sources": [
+            "https://www.abc.net.au/news/2009-02-16/salma-hayek-marries-french-tycoon/298124",
+            "https://www.foxnews.com/entertainment/salma-hayek-and-husband-renew-their-wedding-vows"
+          ],
+          "natalAndDatedEqual": true,
+          "datedAndValidateEqual": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 4,
+            "strict": false,
+            "mixed": false,
+            "v1": 3,
+            "v2": 3,
+            "v3": 5,
+            "conditional": {
+              "yoga": false,
+              "node": false,
+              "event": false
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2008-08-18",
+              "kp": 4,
+              "kpTransit": 3,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 3,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -120,
+              "date": "2008-10-17",
+              "kp": 4,
+              "kpTransit": 5,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 3,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2008-12-16",
+              "kp": 4,
+              "kpTransit": 4,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 3,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2009-04-15",
+              "kp": 4,
+              "kpTransit": 5,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 3,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 120,
+              "date": "2009-06-14",
+              "kp": 3,
+              "kpTransit": 5,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2009-08-13",
+              "kp": 4,
+              "kpTransit": 3,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 3,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ],
+          "alternateTimes": []
+        }
+      ],
+      "midpoint": {
+        "date": "1966-09-02",
+        "time": "06:40:25",
+        "event": "sh-child",
+        "allRegisteredKpFieldsEqual": true,
+        "completeParashariEvidenceEqual": true
+      },
+      "alternateBirths": []
+    },
+    {
+      "name": "Nelson Mandela",
+      "category": "South African anti-apartheid leader and president",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_07_18.htm?nhor=432788",
+      "birthQuality": "DD, 14:54 was astrologically rectified from an unverified afternoon account; not independent evidence of a precise birth time",
+      "reportedBirth": "1918-07-18 14:54 Africa/Johannesburg",
+      "events": [
+        {
+          "id": "nm-marriage-1958",
+          "matter": "marriage",
+          "date": "1958-06-14",
+          "localTime": "12:00 assumed",
+          "timezone": "Africa/Johannesburg",
+          "sources": [
+            "https://www.nelsonmandela.org/uploads/files/genealogy_%281%29.pdf",
+            "https://www.gcis.gov.za/sites/www.gcis.gov.za/files/docs/resourcecentre/yearbook/2012/MANDELA.pdf"
+          ],
+          "natalAndDatedEqual": true,
+          "datedAndValidateEqual": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 6,
+            "strict": false,
+            "mixed": false,
+            "v1": 3,
+            "v2": 2,
+            "v3": 2,
+            "conditional": {
+              "yoga": true,
+              "node": false,
+              "event": false
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "1957-12-16",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 2,
+              "v3": 2,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -120,
+              "date": "1958-02-14",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 3,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "1958-04-15",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 3,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "1958-08-13",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 2,
+              "v3": 2,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 120,
+              "date": "1958-10-12",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 2,
+              "v3": 2,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "1958-12-11",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 4,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            }
+          ],
+          "alternateTimes": []
+        },
+        {
+          "id": "nm-inauguration",
+          "matter": "job",
+          "date": "1994-05-10",
+          "localTime": "12:00 assumed",
+          "timezone": "Africa/Johannesburg",
+          "sources": [
+            "https://www.gcis.gov.za/sites/www.gcis.gov.za/files/docs/resourcecentre/yearbook/2012/MANDELA.pdf",
+            "https://www.nelsonmandela.org/uploads/files/timeline_3.pdf"
+          ],
+          "natalAndDatedEqual": true,
+          "datedAndValidateEqual": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 6,
+            "strict": false,
+            "mixed": false,
+            "v1": 1,
+            "v2": 0,
+            "v3": 2,
+            "conditional": {
+              "yoga": true,
+              "node": false,
+              "event": false
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "1993-11-11",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 0,
+              "v3": 2,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -120,
+              "date": "1994-01-10",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 0,
+              "v3": 2,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "1994-03-11",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 0,
+              "v3": 2,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "1994-07-09",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 0,
+              "v2": 0,
+              "v3": 2,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 120,
+              "date": "1994-09-07",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 0,
+              "v2": 0,
+              "v3": 2,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "1994-11-06",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 0,
+              "v2": 0,
+              "v3": 2,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ],
+          "alternateTimes": []
+        },
+        {
+          "id": "nm-marriage-1998",
+          "matter": "marriage",
+          "date": "1998-07-18",
+          "localTime": "12:00 assumed",
+          "timezone": "Africa/Johannesburg",
+          "sources": [
+            "https://www.nelsonmandela.org/on-this-day/entry/nelson-mandela-turns-80-and-marries-his-third-wife-graca-machel",
+            "https://sahistory.org.za/dated-event/nelson-mandela-marries-graca-machel-his-80th-birthday"
+          ],
+          "natalAndDatedEqual": true,
+          "datedAndValidateEqual": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 6,
+            "strict": false,
+            "mixed": false,
+            "v1": 2,
+            "v2": 3,
+            "v3": 3,
+            "conditional": {
+              "yoga": false,
+              "node": false,
+              "event": false
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "1998-01-19",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 4,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -120,
+              "date": "1998-03-20",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 4,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "1998-05-19",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 5,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "1998-09-16",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 5,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 120,
+              "date": "1998-11-15",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 5,
+              "v3": 6,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "1999-01-14",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 3,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ],
+          "alternateTimes": []
+        }
+      ],
+      "midpoint": {
+        "date": "1918-07-18",
+        "time": "14:53:55",
+        "event": "nm-marriage-1958",
+        "allRegisteredKpFieldsEqual": true,
+        "completeParashariEvidenceEqual": true
+      },
+      "alternateBirths": [
+        {
+          "birthTime": "13:00",
+          "events": [
+            {
+              "id": "nm-marriage-1958",
+              "kp": 2,
+              "kpTransit": 4,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 3,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": true
+              }
+            },
+            {
+              "id": "nm-inauguration",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 2,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": true,
+                "event": false
+              }
+            },
+            {
+              "id": "nm-marriage-1998",
+              "kp": 3,
+              "kpTransit": 3,
+              "strict": false,
+              "mixed": false,
+              "v1": 2,
+              "v2": 4,
+              "v3": 5,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ]
+        },
+        {
+          "birthTime": "16:00",
+          "events": [
+            {
+              "id": "nm-marriage-1958",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 4,
+              "v2": 4,
+              "v3": 6,
+              "conditional": {
+                "yoga": true,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "id": "nm-inauguration",
+              "kp": 4,
+              "kpTransit": 6,
+              "strict": false,
+              "mixed": false,
+              "v1": 1,
+              "v2": 2,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            },
+            {
+              "id": "nm-marriage-1998",
+              "kp": 4,
+              "kpTransit": 5,
+              "strict": false,
+              "mixed": false,
+              "v1": 3,
+              "v2": 3,
+              "v3": 4,
+              "conditional": {
+                "yoga": false,
+                "node": false,
+                "event": false
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -43,6 +43,7 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import type { ChartEvent } from "@shared/events";
 import { TopicReadingPanel } from "@/components/topic-reading";
+import { ParashariNatalRules } from "@/components/natal-rule-evidence";
 import { PLANET_ABBR, SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "@shared/astro";
 import {
   computeParashari,
@@ -1477,6 +1478,7 @@ export function ParashariPanel({
         spouse={vargas.spouse}
         timing={timing}
       />
+      <ParashariNatalRules result={result} />
       </Chapter>
 
       <Chapter id="houses">

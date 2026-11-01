@@ -780,6 +780,19 @@ export interface KpResult {
   ageYears: number;
 }
 
+/** The KP natal frame is shared by ordinary readings, validation and each
+ * rectification candidate. The caller chooses the KP ayanamsa and cusps. */
+export function kpNatalFrame(
+  positions: Array<Pick<PlanetPosition, "planet" | "lon" | "retrograde">>, cuspLons: number[],
+): { cusps: KpCusp[]; planets: KpPlanet[]; significators: KpSignificators[] } {
+  const cusps = cuspLons.map((lon, i) => ({ ...kpPoint(lon), house: i + 1 }));
+  const owners = cusps.map((c) => c.signLord);
+  const planets: KpPlanet[] = positions.map((p) => ({ ...kpPoint(p.lon), planet: p.planet,
+    retrograde: p.retrograde, house: houseOf(p.lon, cuspLons),
+    owns: NODES.includes(p.planet) ? [] : owners.flatMap((o, i) => o === p.planet ? [i + 1] : []) }));
+  return { cusps, planets, significators: computeSignificators(planets) };
+}
+
 export function computeKp(
   base: KpBase,
   birthIso: string,
@@ -787,21 +800,7 @@ export function computeKp(
   sixStep = false,
   withhold = false,
 ): KpResult {
-  const cusps: KpCusp[] = base.cusps.map((lon, i) => ({
-    ...kpPoint(lon),
-    house: i + 1,
-  }));
-  const owners = cusps.map((c) => c.signLord);
-  const planets: KpPlanet[] = base.positions.map((p) => ({
-    ...kpPoint(p.lon),
-    planet: p.planet,
-    retrograde: p.retrograde,
-    house: houseOf(p.lon, base.cusps),
-    owns: NODES.includes(p.planet)
-      ? []
-      : owners.map((o, i) => (o === p.planet ? i + 1 : 0)).filter(Boolean),
-  }));
-  const significators = computeSignificators(planets);
+  const { cusps, planets, significators } = kpNatalFrame(base.positions, base.cusps);
   const hs = houseSignificators(planets, cusps);
   const lagnaSign = cusps[0].signIndex;
   const moon = base.positions.find((p) => p.planet === "Moon")!;
