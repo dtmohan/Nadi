@@ -1,0 +1,59 @@
+{
+  "cases": [
+    {
+      "name": "Chelsea Clinton",
+      "category": "US public health and advocacy",
+      "birthSource": "https://www.astro.com/astro-databank/Clinton%2C_Chelsea",
+      "birthQuality": "AA; birth certificate in hand and published birth announcement as reported by Astro-Databank",
+      "chart": { "name": "Chelsea Clinton", "gender": "female", "birthDate": "1980-02-27", "birthTime": "23:24", "timezone": "America/Chicago", "timeStandard": "auto", "place": "Little Rock, Arkansas, US", "latitude": 34.75, "longitude": -92.2833, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "marriage", "matter": "marriage", "date": "2010-07-31", "time": "18:00", "timezone": "America/New_York", "clockQuality": "approximate planned start; vows not independently timed", "sources": ["https://www.cbsnews.com/news/chelsea-clinton-wedding-details-surface/", "https://www.washingtonpost.com/archive/national/2010/08/01/finally-chelseas-big-day-arrives/f32cbdd4-f6ce-4c51-8c80-8c86f33b82b5/"] },
+        { "id": "child1", "matter": "child", "date": "2014-09-26", "time": "19:03", "timezone": "America/New_York", "clockQuality": "reported by media via Astro-Databank", "sources": ["https://www.cbsnews.com/news/chelsea-clintons-baby-welcomed-by-grandparents-bill-hillary-clinton/", "https://www.astro.com/astro-databank/Clinton%2C_Chelsea"] },
+        { "id": "child2", "matter": "child", "date": "2016-06-18", "time": "07:41", "timezone": "America/New_York", "clockQuality": "reported by family", "sources": ["https://www.eonline.com/news/773921/chelsea-clinton-shares-first-photo-of-baby-aidan-while-celebrating-father-s-day-with-bill-and-hillary-clinton", "https://time.com/4374112/chelsea-clinton-son-birth-aidan-clinton-mezvinsky/"] }
+      ]
+    },
+    {
+      "name": "Andy Murray", "category": "Scottish tennis player", "birthSource": "https://www.astro.com/adbvip/adbvip_05_15.htm?lang=e&pa=sh1", "birthQuality": "AA; certificate quoted by Astro-Databank",
+      "chart": { "name": "Andy Murray", "gender": "male", "birthDate": "1987-05-15", "birthTime": "14:10", "timezone": "Europe/London", "timeStandard": "auto", "place": "Glasgow, Scotland", "latitude": 55.8833, "longitude": -4.25, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [{ "id": "marriage", "matter": "marriage", "date": "2015-04-11", "time": "16:00", "timezone": "Europe/London", "clockQuality": "approximate announced ceremony time", "sources": ["https://www.the-independent.com/news/people/andy-murray-to-wed-kim-sears-in-scottish-home-town-of-dunblane-10169323.html", "https://www.itv.com/news/update/2015-04-11/andy-murray-and-kim-sears-tie-the-knot/"] }]
+    },
+    {
+      "name": "Rafael Nadal", "category": "Spanish tennis player", "birthSource": "https://www.astro.com/adbvip/adbvip_06_03.htm?lang=j&nho2=432308&nhor=1&pa=nmo", "birthQuality": "AA; certificate quoted, with another reported 19:00 birth time",
+      "chart": { "name": "Rafael Nadal", "gender": "male", "birthDate": "1986-06-03", "birthTime": "18:20", "timezone": "Europe/Madrid", "timeStandard": "auto", "place": "Manacor, Mallorca, Spain", "latitude": 39.5667, "longitude": 3.2, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "alternateBirths": [{ "birthTime": "19:00" }],
+      "events": [{ "id": "marriage", "matter": "marriage", "date": "2019-10-19", "timezone": "Europe/Madrid", "clockQuality": "unknown; noon assumed", "sources": ["https://www.atptour.com/-/media/552c4caf3df94fb985ee11eaa60f6556.pdf", "https://www.atptour.com/en/news/rafael-nadal-wedding-2019"] }]
+    },
+    {
+      "name": "Mani Shankar Aiyar", "category": "Indian diplomat and politician born in Lahore", "birthSource": "https://www.astro.com/astro-databank/Aiyar%2C_Mani_Shankar", "birthQuality": "AA claimed; the birth date and wartime offset have reported alternatives; not independently resolved",
+      "chart": { "name": "Mani Shankar Aiyar", "gender": "male", "birthDate": "1941-04-09", "birthTime": "23:54", "timezone": "Asia/Karachi", "timeStandard": "+05:30", "place": "Lahore, now Pakistan", "latitude": 31.5833, "longitude": 74.3, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "alternateBirths": [{ "birthDate": "1941-04-10", "birthTime": "00:24", "timeStandard": "+05:30" }],
+      "events": [{ "id": "office", "matter": "job", "date": "2004-05-24", "timezone": "Asia/Kolkata", "clockQuality": "unknown; noon assumed", "alternateDates": ["2004-05-22", "2004-05-23"], "sources": ["https://commons.wikimedia.org/wiki/File:Shri_Mani_Shankar_Aiyar_assumes_the_charge_of_Union_Minister_for_Petroleum_and_Natural_Gas_in_New_Delhi_on_May_24%2C_2004.jpg", "https://cms.rajyasabha.nic.in/UploadedFiles/ElectronicPublications/Member_Biographical_Book.pdf", "https://www.rediff.com/news/report/mood/20040522.htm"] }]
+    },
+    {
+      "name": "Helen Hunt", "category": "US actor", "birthSource": "https://www.astro.com/adbvip/adbvip_06_15.htm?pa=nmobtyp%3Dxhztnho2%3D6lang%3Dt", "birthQuality": "AA; certificate quoted by Astro-Databank",
+      "chart": { "name": "Helen Hunt", "gender": "female", "birthDate": "1963-06-15", "birthTime": "12:55", "timezone": "America/Los_Angeles", "timeStandard": "auto", "place": "Culver City, California, US", "latitude": 34.0167, "longitude": -118.4, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "marriage", "matter": "marriage", "date": "1999-07-17", "timezone": "America/Los_Angeles", "clockQuality": "unknown; noon assumed", "sources": ["https://abcnews.com/Entertainment/story?id=116343&page=1", "https://www.cbsnews.com/news/helen-hunt-gets-hitched/"] },
+        { "id": "child", "matter": "child", "date": "2004-05-13", "timezone": "America/Los_Angeles", "clockQuality": "unknown; noon assumed", "sources": ["https://www.washingtonpost.com/archive/lifestyle/2004/05/22/names-38/fbab79a4-bf7a-4d24-92cb-269e1e41e883/", "https://www.astro.com/adbvip/adbvip_06_15.htm?pa=nmobtyp%3Dxhztnho2%3D6lang%3Dt"] }
+      ]
+    },
+    {
+      "name": "Gwyneth Paltrow", "category": "US actor", "birthSource": "https://www.astro.com/adbvip/adbvip_09_27.htm?lang=e&nho2=432618&pa=nmo", "birthQuality": "AA; birth certificate in hand as reported by Astro-Databank",
+      "chart": { "name": "Gwyneth Paltrow", "gender": "female", "birthDate": "1972-09-27", "birthTime": "17:25", "timezone": "America/Los_Angeles", "timeStandard": "auto", "place": "Los Angeles, California, US", "latitude": 34.05, "longitude": -118.25, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "child1", "matter": "child", "date": "2004-05-14", "time": "01:00", "timezone": "Europe/London", "clockQuality": "approximate report; clock not independently confirmed", "sources": ["https://www.cbsnews.com/news/gwyneth-paltrows-proof/", "https://www.astro.com/adbvip/adbvip_09_27.htm?lang=e&nho2=432618&pa=nmo"] },
+        { "id": "child2", "matter": "child", "date": "2006-04-08", "timezone": "America/New_York", "clockQuality": "unknown; noon assumed", "sources": ["https://www.yahoo.com/entertainment/gwyneth-paltrow-chris-martins-2-192151531.html", "https://www.cbsnews.com/news/no-more-fruit-gwyneth-has-baby-moses/"] }
+      ]
+    },
+    {
+      "name": "Katia Krafft", "category": "French volcanologist", "birthSource": "https://www.astro.com/astro-databank/Krafft%2C_Catherine", "birthQuality": "AA; certificate quoted; wartime UTC+02:00",
+      "chart": { "name": "Katia Krafft", "gender": "female", "birthDate": "1942-04-17", "birthTime": "20:40", "timezone": "Europe/Paris", "timeStandard": "+02:00", "place": "Guebwiller, France", "latitude": 47.9167, "longitude": 7.2, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "1991-06-03" },
+      "events": [{ "id": "marriage", "matter": "marriage", "date": "1970-08-18", "timezone": "Europe/Paris", "clockQuality": "unknown; noon assumed", "sources": ["https://www.astro.com/astro-databank/Krafft%2C_Catherine", "https://www.albertdemun.fr/wp-content/uploads/2024/06/NUMERO-25.pdf"] }]
+    },
+    {
+      "name": "Gabrielle Randoin", "category": "French biologist", "birthSource": "https://www.astro.com/astro-databank/Randoin%2C_Gabrielle", "birthQuality": "AA; certificate quoted; birthplace local mean time",
+      "chart": { "name": "Gabrielle Randoin", "gender": "female", "birthDate": "1885-05-11", "birthTime": "05:00", "timezone": "Europe/Paris", "timeStandard": "lmt", "place": "Boeurs-en-Othe, France", "latitude": 48.1389, "longitude": 3.7064, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "1960-09-13" },
+      "events": [{ "id": "marriage", "matter": "marriage", "date": "1914-07-28", "timezone": "Europe/Paris", "clockQuality": "unknown; noon assumed", "sources": ["https://prosopo.ephe.psl.eu/node/256", "https://www.bourgogne-savante.fr/wp-content/uploads/Genea-Yonne-n%C2%B0-189.pdf"] }]
+    }
+  ]
+}
