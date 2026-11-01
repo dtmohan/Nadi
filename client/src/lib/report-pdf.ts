@@ -2,13 +2,14 @@
 import { apiRequest } from "@/lib/queryClient";
 import type { Chart } from "@shared/schema";
 import type { RectifyExportState } from "@shared/rectify-methods";
+import type { ChartEvent } from "@shared/events";
 
 export interface ReportPdfOptions {
   plain: boolean;
   /** Module ids to include (shared/report REPORT_MODULE_IDS); the whole report when omitted. */
   modules?: string[];
   /** Inputs the tool modules need: the Rectify tab's current scan. Validate needs only the chart's events. */
-  tools?: { rectify?: RectifyExportState };
+  tools?: { rectify?: RectifyExportState; topicReadings?: Partial<Record<"kp" | "parashari" | "jaimini" | "bnn", ChartEvent>> };
 }
 
 export async function downloadReportPdf(chart: Chart, opts: ReportPdfOptions) {

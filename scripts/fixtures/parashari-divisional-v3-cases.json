@@ -1,0 +1,126 @@
+{
+  "description": "Fresh cases selected before any v3 scoring. Public convenience sample; dates and time quotations were not independently certified. User data are not included.",
+  "selectionNotes": [
+    "Pre-score exclusions: all earlier Nadi fixtures and Manley book examples; Bill Clinton because published times and time-standard reports conflict; Emily Deschanel's second child's date because a June 8 announcement does not establish the delivery date.",
+    "Childbirths within one family, multiple marriages and successive political appointments are correlated; public celebrity biographies are not a representative sample.",
+    "When an event time is missing, the evaluator uses noon in the event's stated local zone. Some event locations are approximations flagged below."
+  ],
+  "cases": [
+    {
+      "chart":{"name":"Dhanush","gender":"male","birthDate":"1983-07-28","birthTime":"10:30","timezone":"Asia/Kolkata","timeStandard":"auto","place":"Chennai, India","latitude":13.0833,"longitude":80.2833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Dhanush",
+      "birthQuality":"AA; Astro-Databank reports a birth certificate on file; original not independently inspected. 10:30 may be rounded.",
+      "category":"Film actor, writer and producer; India",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"2004-11-18","timezone":"Asia/Kolkata","source":"https://www.astro.com/astro-databank/Dhanush","description":"Marriage to Aishwarya Rajinikanth; local time unknown"},
+        {"id":"yatra","matter":"child","date":"2006-10-10","time":"17:10","timezone":"Asia/Kolkata","source":"https://www.astro.com/astro-databank/Dhanush","description":"Son Yatra; time and Chennai location attributed by Astro-Databank to an astrology source, not independently verified; date also https://www.sakshipost.com/news/entertainment/dhanush-and-aishwarya-rajinikanth-drop-divorce-plans-rajinikanth-s-mediation-may"},
+        {"id":"linga","matter":"child","date":"2010-06-21","time":"06:21","timezone":"Asia/Kolkata","source":"https://www.astro.com/astro-databank/Dhanush","description":"Son Linga; time and Chennai location attributed by Astro-Databank to astrology sources, not independently verified; date also https://www.sakshipost.com/news/entertainment/dhanush-and-aishwarya-rajinikanth-drop-divorce-plans-rajinikanth-s-mediation-may"}
+      ]
+    },
+    {
+      "chart":{"name":"Luciana Gimenez","gender":"female","birthDate":"1969-11-03","birthTime":"16:45","timezone":"America/Sao_Paulo","timeStandard":"auto","place":"São Paulo, Brazil","latitude":-23.5525,"longitude":-46.6247,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Gimenez%2C_Luciana",
+      "birthQuality":"AA; civil registry entry said to be on file, not independently inspected. Some published biographies give a different birth year; use 1969 per the quoted registry, subject to verification.",
+      "category":"Television presenter and model; Brazil",
+      "events":[
+        {"id":"lucas","matter":"child","date":"1999-05-18","timezone":"America/New_York","source":"https://www.astro.com/astro-databank/Gimenez%2C_Luciana","description":"Son Lucas, New York City; time unknown"},
+        {"id":"marriage","matter":"marriage","date":"2006-08-19","timezone":"America/Sao_Paulo","source":"https://www.astro.com/astro-databank/Gimenez%2C_Luciana","description":"Marriage to Marcelo de Carvalho, São Paulo time zone; time unknown"},
+        {"id":"lorenzo","matter":"child","date":"2011-02-24","timezone":"America/New_York","source":"https://tnonline.uol.com.br/noticias/entretenimento/13%2C76096%2C24%2C02%2Cnasce-o-segundo-filho-de-luciana-gimenez","description":"Son Lorenzo, New York City; time unknown"}
+      ]
+    },
+    {
+      "chart":{"name":"Queen Letizia","gender":"female","birthDate":"1972-09-15","birthTime":"18:30","timezone":"Europe/Madrid","timeStandard":"auto","place":"Oviedo, Spain","latitude":43.3667,"longitude":-5.8333,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Letizia%2C_Queen_of_Spain",
+      "birthQuality":"AA; Astro-Databank quotes a certificate reproduced in Hola, not independently inspected; an earlier 20:00 report conflicts. 18:30 may be rounded.",
+      "category":"Journalist and public figure; Spain",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"2004-05-22","timezone":"Europe/Madrid","source":"https://www.casareal.es/EN/familiareal/reinaletizia/paginas/biografia.aspx","description":"Marriage to Felipe in Madrid; time unknown"},
+        {"id":"leonor","matter":"child","date":"2005-10-31","time":"01:46","timezone":"Europe/Madrid","source":"https://www.astro.com/astro-databank/Letizia%2C_Queen_of_Spain","description":"Daughter Leonor, Madrid; time from Astro-Databank"},
+        {"id":"sofia","matter":"child","date":"2007-04-29","time":"16:50","timezone":"Europe/Madrid","source":"https://www.astro.com/astro-databank/Letizia%2C_Queen_of_Spain","description":"Daughter Sofía, Madrid; time from Astro-Databank"}
+      ]
+    },
+    {
+      "chart":{"name":"Emily Deschanel","gender":"female","birthDate":"1976-10-11","birthTime":"22:56","timezone":"America/Los_Angeles","timeStandard":"auto","place":"Los Angeles, California, USA","latitude":34.05,"longitude":-118.25,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Deschanel%2C_Emily",
+      "birthQuality":"AA; Astro-Databank quotes birth certificate in hand; original not independently inspected.",
+      "category":"Actor, director and animal-welfare advocate; United States",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"2010-09-25","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Deschanel%2C_Emily","description":"Marriage in Pacific Palisades, California; time unknown"},
+        {"id":"henry","matter":"child","date":"2011-09-21","timezone":"America/Los_Angeles","source":"https://www.cbsnews.com/news/emily-deschanel-welcomes-a-son/","description":"Son Henry; California time zone assumed, birth place and time not independently confirmed"}
+      ]
+    },
+    {
+      "chart":{"name":"Nicolas Sarkozy","gender":"male","birthDate":"1955-01-28","birthTime":"22:00","timezone":"Europe/Paris","timeStandard":"auto","place":"Paris, France","latitude":48.8566,"longitude":2.3522,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Sarkozy%2C_Nicolas",
+      "birthQuality":"AA; 22:00 quoted from birth act by Astro-Databank, not independently inspected; it also records an indirect, unverified account that his mother gave 18:00. Rounded hour.",
+      "category":"Lawyer and politician; France",
+      "events":[
+        {"id":"marriage1982","matter":"marriage","date":"1982-09-23","timezone":"Europe/Paris","source":"https://www.astro.com/astro-databank/Sarkozy%2C_Nicolas","description":"Marriage to Marie-Dominique Culioli; France zone assumed, time unknown"},
+        {"id":"jean","matter":"child","date":"1986-09-01","time":"09:20","timezone":"Europe/Paris","source":"https://www.astro.com/astro-databank/Sarkozy%2C_Nicolas","description":"Son Jean, Neuilly-sur-Seine; time from Astro-Databank"},
+        {"id":"marriage1996","matter":"marriage","date":"1996-10-23","timezone":"Europe/Paris","source":"https://www.astro.com/astro-databank/Attias%2C_C%C3%A9cilia","description":"Marriage to Cécilia, Neuilly-sur-Seine; time unknown"},
+        {"id":"louis","matter":"child","date":"1997-04-23","timezone":"Europe/Paris","source":"https://www.astro.com/astro-databank/Sarkozy%2C_Nicolas","description":"Son Louis; France zone assumed, time unknown"},
+        {"id":"minister","matter":"job","date":"2005-06-02","timezone":"Europe/Paris","source":"https://www.legifrance.gouv.fr/jo_pdf.do?id=JORFTEXT000000629661","description":"Appointed minister of the interior, Paris; time unknown"},
+        {"id":"president","matter":"job","date":"2007-05-16","time":"11:43","timezone":"Europe/Paris","source":"https://www.astro.com/astro-databank/Sarkozy%2C_Nicolas","description":"Became president, Paris; reported time from Astro-Databank; not election date"},
+        {"id":"marriage2008","matter":"marriage","date":"2008-02-02","time":"11:00","timezone":"Europe/Paris","source":"https://www.astro.com/adbvip/adbvip_12_23.htm?pa=nmonho2%3D433546btyp%3Dsynfbsel%3D1nhor%3D1act%3Dtext2lang%3Dn","description":"Marriage to Carla Bruni, Paris; reported time from Astro-Databank"},
+        {"id":"giulia","matter":"child","date":"2011-10-19","time":"19:30","timezone":"Europe/Paris","source":"https://www.astro.com/astro-databank/Sarkozy%2C_Nicolas","description":"Daughter Giulia, Paris; time from Astro-Databank"}
+      ]
+    },
+    {
+      "chart":{"name":"Jim Carrey","gender":"male","birthDate":"1962-01-17","birthTime":"02:30","timezone":"America/Toronto","timeStandard":"auto","place":"Newmarket, Ontario, Canada","latitude":44.05,"longitude":-79.47,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Carrey%2C_Jim?nhor=88",
+      "birthQuality":"A; Astro-Databank quotes him from interviews for 02:30, likely rounded; no original record inspected.",
+      "category":"Comedian and actor; Canada",
+      "events":[
+        {"id":"marriage1987","matter":"marriage","date":"1987-03-28","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Carrey%2C_Jim?nhor=88","description":"Marriage to Melissa Womer; Los Angeles zone assumed, location and time unverified"},
+        {"id":"jane","matter":"child","date":"1987-09-06","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Carrey%2C_Jim?nhor=88","description":"Daughter Jane; California zone assumed, location and time unverified; 12:11 AM/PM ambiguous"},
+        {"id":"marriage1996","matter":"marriage","date":"1996-09-23","timezone":"America/Los_Angeles","source":"https://lasvegassun.com/news/1996/sep/24/rubber-faced-comic-jim-carrey-marries/","description":"Marriage to Lauren Holly in Los Angeles; time unknown"}
+      ]
+    },
+    {
+      "chart":{"name":"David Beckham","gender":"male","birthDate":"1975-05-02","birthTime":"06:17","timezone":"Europe/London","timeStandard":"auto","place":"Leytonstone, London, England","latitude":51.5775,"longitude":-0.0082,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/adbvip/adbvip_05_02.htm?nhor=1nho2%3D867394btyp%3Dacx&pa=nmo",
+      "birthQuality":"B; time quoted by Astro-Databank from Ted Beckham's biography, which reproduces a birth certificate for date and place; we did not inspect the book or certificate.",
+      "category":"Footballer and entrepreneur; England",
+      "events":[
+        {"id":"brooklyn","matter":"child","date":"1999-03-04","timezone":"Europe/London","source":"https://www.vogue.com/article/a-brief-timeline-of-david-and-victoria-beckhams-relationship","description":"Son Brooklyn, London; time unknown"},
+        {"id":"marriage","matter":"marriage","date":"1999-07-04","timezone":"Europe/Dublin","source":"https://www.vogue.com/article/a-brief-timeline-of-david-and-victoria-beckhams-relationship","description":"Marriage to Victoria Adams near Dublin; time unknown"},
+        {"id":"romeo","matter":"child","date":"2002-09-01","timezone":"Europe/London","source":"https://www.astro.com/adbvip/adbvip_05_02.htm?nhor=1nho2%3D867394btyp%3Dacx&pa=nmo","description":"Son Romeo, London time zone; time unknown"},
+        {"id":"cruz","matter":"child","date":"2005-02-20","timezone":"Europe/Madrid","source":"https://www.astro.com/adbvip/adbvip_05_02.htm?nhor=1nho2%3D867394btyp%3Dacx&pa=nmo","description":"Son Cruz, Madrid time zone; time unknown"},
+        {"id":"harper","matter":"child","date":"2011-07-10","time":"07:55","timezone":"America/Los_Angeles","source":"https://www.cbsnews.com/news/david-beckham-and-victoria-beckham-welcome-a-daughter/","description":"Daughter Harper in Los Angeles; July 10 and 07:55 from announcement; his Astro-Databank page incorrectly says July 7, while her own page says July 10"}
+      ]
+    },
+    {
+      "chart":{"name":"Johan Cruyff","gender":"male","birthDate":"1947-04-25","birthTime":"13:10","timezone":"Europe/Amsterdam","timeStandard":"auto","place":"Amsterdam, Netherlands","latitude":52.3667,"longitude":4.9,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Cruyff%2C_Johan",
+      "birthQuality":"AA; Astro-Databank cites Gauquelin quoting a birth certificate; original not independently inspected.",
+      "category":"Footballer and manager; Netherlands",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"1968-12-02","timezone":"Europe/Amsterdam","source":"https://www.nationaalarchief.nl/onderzoeken/fotocollectie/35429da6-1915-a382-e063-6df0900a6686?tab=files","description":"Wedding to Danny Coster in Amsterdam; time unknown"},
+        {"id":"jordi","matter":"child","date":"1974-02-09","timezone":"Europe/Amsterdam","source":"https://www.independent.co.uk/sport/championship-league-focus-jordi-endures-pressure-of-father-s-fame-barcelona-boast-another-cruyff-capturing-the-imagination-of-supporters-david-winner-reports-1443853.html","description":"Son Jordi; Independent reports parents returned to Amsterdam for birth, time unknown; some accounts only state registration there"}
+      ]
+    },
+    {
+      "chart":{"name":"Tony Blair","gender":"male","birthDate":"1953-05-06","birthTime":"06:10","timezone":"Europe/London","timeStandard":"auto","place":"Edinburgh, Scotland","latitude":55.95,"longitude":-3.2167,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Blair%2C_Tony",
+      "birthQuality":"AA; Astro-Databank quotes a birth certificate; original not independently inspected.",
+      "category":"Politician; Scotland / United Kingdom",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"1980-03-29","timezone":"Europe/London","source":"https://www.independent.co.uk/life-style/marriage-for-the-millennium-power-of-the-union-in-downing-st-1144138.html","description":"Marriage to Cherie Booth, Oxford; time unknown"},
+        {"id":"euan","matter":"child","date":"1984-01-19","timezone":"Europe/London","source":"https://www.astro.com/astro-databank/Blair%2C_Tony","description":"Son Euan; UK time zone assumed, location and time unverified"},
+        {"id":"leader","matter":"job","date":"1994-07-21","timezone":"Europe/London","source":"https://www.astro.com/astro-databank/Blair%2C_Tony","description":"Became Labour Party leader; UK time zone, time unknown"},
+        {"id":"pm","matter":"job","date":"1997-05-02","timezone":"Europe/London","source":"https://www.gov.uk/government/history/past-prime-ministers/tony-blair","description":"Took office as UK prime minister, London; time unknown"},
+        {"id":"leo","matter":"child","date":"2000-05-20","timezone":"Europe/London","source":"https://www.astro.com/astro-databank/Blair%2C_Tony","description":"Son Leo; UK time zone, time unknown"}
+      ]
+    },
+    {
+      "chart":{"name":"Donald Trump","gender":"male","birthDate":"1946-06-14","birthTime":"10:54","timezone":"America/New_York","timeStandard":"auto","place":"Queens, New York, USA","latitude":40.7,"longitude":-73.8,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Trump%2C_Donald?nhor=515",
+      "birthQuality":"AA; Astro-Databank quotes a birth certificate posted online; original not independently inspected. Birth near a sign boundary makes geographic and clock precision important.",
+      "category":"Businessperson and politician; United States",
+      "events":[
+        {"id":"term2017","matter":"job","date":"2017-01-20","time":"12:00","timezone":"America/New_York","source":"https://www.aoc.gov/what-we-do/programs-ceremonies/inauguration","description":"First U.S. presidential term starts at noon, Washington, D.C."},
+        {"id":"term2025","matter":"job","date":"2025-01-20","time":"12:00","timezone":"America/New_York","source":"https://www.aoc.gov/what-we-do/programs-ceremonies/inauguration","description":"Second nonconsecutive presidential term starts at noon, Washington, D.C.; same role as 2017 and not independent"}
+      ]
+    }
+  ]
+}

@@ -79,6 +79,8 @@ export function LifeEventsEditor({
   const events = chart.events ?? [];
   // Rows being typed: a date input emits partial values while the user types, and those must not be saved.
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [timeDrafts, setTimeDrafts] = useState<Record<string, string>>({});
+  const [zoneDrafts, setZoneDrafts] = useState<Record<string, string>>({});
 
   const persist = async (
     change: (events: ChartEvent[]) => ChartEvent[],
@@ -245,6 +247,50 @@ export function LifeEventsEditor({
                 className="h-8 w-40 text-xs tabular"
                 data-testid={`input-event-date-${e.id}`}
               />
+              <details
+                className="rounded border px-2 py-1 text-muted-foreground"
+              >
+                <summary className="cursor-pointer">
+                  Time and zone (optional){e.time || e.timezone ? ` · ${e.time ?? "noon"}, ${e.timezone ?? chart.timezone}` : ""}
+                </summary>
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <label className="flex items-center gap-1 text-muted-foreground">
+                    Time
+                    <Input
+                      type="time"
+                      aria-label="Event local time (optional)"
+                      value={timeDrafts[e.id] ?? e.time ?? ""}
+                      onChange={(ev) => setTimeDrafts((d) => ({ ...d, [e.id]: ev.target.value }))}
+                      onBlur={(ev) => {
+                        void update(e.id, { time: ev.target.value || undefined });
+                        setTimeDrafts((d) => { const { [e.id]: _drop, ...rest } = d; return rest; });
+                      }}
+                      className="h-8 w-32 text-xs tabular"
+                      data-testid={`input-event-time-${e.id}`}
+                    />
+                  </label>
+                  <label className="flex items-center gap-1 text-muted-foreground">
+                    Time zone
+                    <Input
+                      aria-label="Event time zone (optional)"
+                      placeholder={chart.timezone}
+                      value={zoneDrafts[e.id] ?? e.timezone ?? ""}
+                      onChange={(ev) => setZoneDrafts((d) => ({ ...d, [e.id]: ev.target.value }))}
+                      onBlur={(ev) => {
+                        const zone = ev.target.value.trim();
+                        if (zone && !DateTime.now().setZone(zone).isValid) {
+                          toast({ title: "Unknown time zone", description: "Use an IANA name such as Asia/Kolkata, or a fixed offset such as UTC-04:00.", variant: "destructive" });
+                        } else {
+                          void update(e.id, { timezone: zone || undefined });
+                        }
+                        setZoneDrafts((d) => { const { [e.id]: _drop, ...rest } = d; return rest; });
+                      }}
+                      className="h-8 w-44 text-xs"
+                      data-testid={`input-event-timezone-${e.id}`}
+                    />
+                  </label>
+                </div>
+              </details>
               <Select
                 value={e.outcome ?? NONE}
                 onValueChange={(v) =>
@@ -309,7 +355,10 @@ export function LifeEventsEditor({
           <span className="text-muted-foreground">
             Saved as you type; a row is kept once it has a full date. "Outcome
             as usual" means the matter's own nature (marriage favourable,
-            illness unfavourable).
+            illness unfavourable). Rectify and Validate use the optional event
+            time and time zone: an empty time uses noon; an empty zone uses
+            {" "}{chart.timezone}. Other date-based tools may still use the date only.
+            Use an IANA zone such as Asia/Kolkata when the event was elsewhere.
           </span>
         )}
       </div>

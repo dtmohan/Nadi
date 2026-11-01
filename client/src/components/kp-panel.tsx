@@ -95,6 +95,10 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
+import { KP_TIMING_TOPICS } from "@shared/events";
+import type { ChartEvent } from "@shared/events";
+import { TopicReadingPanel } from "@/components/topic-reading";
+import { AuroraSelfPanel } from "@/components/kp-aurora-evidence";
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 const fmtMonth = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
@@ -115,47 +119,8 @@ const ROMAN = [
 const ordinal = (n: number) =>
   `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
 
-/** Event templates: the houses whose significators' conjoined periods KP times a matter by. */
-const EVENTS: Array<{
-  id: string;
-  label: string;
-  houses: number[];
-  cusp: number;
-}> = [
-  { id: "marriage", label: "Marriage", houses: [2, 7, 11], cusp: 7 },
-  { id: "children", label: "Childbirth", houses: [2, 5, 11], cusp: 5 },
-  {
-    id: "job",
-    label: "Employment, promotion",
-    houses: [2, 6, 10, 11],
-    cusp: 10,
-  },
-  { id: "business", label: "Business gains", houses: [2, 7, 10, 11], cusp: 10 },
-  { id: "property", label: "House, property", houses: [4, 11, 12], cusp: 4 },
-  { id: "vehicle", label: "Vehicle", houses: [3, 11, 12], cusp: 4 }, // Part 1 pp. 135-137: roadworthy vehicles need 3, 11, 12; the 4th alone is static
-  { id: "education", label: "Higher education", houses: [4, 9, 11], cusp: 4 },
-  { id: "foreign", label: "Foreign travel", houses: [3, 9, 12], cusp: 12 },
-  { id: "loan", label: "Loans, money received", houses: [2, 6, 11], cusp: 6 },
-  {
-    id: "litigation",
-    label: "Litigation success",
-    houses: [1, 6, 11],
-    cusp: 6,
-  },
-  {
-    id: "recovery",
-    label: "Recovery from illness",
-    houses: [1, 5, 9, 11],
-    cusp: 1,
-  },
-  {
-    id: "illness",
-    label: "Illness, hospitalisation",
-    houses: [6, 8, 12],
-    cusp: 6,
-  },
-  { id: "move", label: "Change of residence", houses: [3, 12], cusp: 4 },
-];
+/** Event definitions are shared with the saved-event and validation engines. */
+const EVENTS = KP_TIMING_TOPICS;
 
 const POLARITY_CLASS = {
   good: "bg-verdict-good",
@@ -473,7 +438,7 @@ function WindowDrill({
   );
 }
 
-export function KpPanel({ result }: { result: ChartResult }) {
+export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTopicSelected?: (event: ChartEvent | null) => void }) {
   const nowLabel = useNowLabel();
   const { chart } = result;
   const { mode } = useReadingMode();
@@ -716,18 +681,11 @@ export function KpPanel({ result }: { result: ChartResult }) {
   const badSet = new Set(
     tallied.filter((f) => f.polarity === "bad").map((f) => f.cusp),
   );
-  const byHouse = (a: Set<number>, b: Set<number>, both: boolean) =>
-    Array.from(a)
-      .filter((h) => b.has(h) === both)
-      .sort((x, y) => x - y);
   const age = ageYears(result.utc, lifeAsOf(result.chart, asOfIso));
   const heldHouses = Object.entries(HOUSE_AREA)
     .filter(([, area]) => !areaSeason(area, result.utc, asOfIso).inSeason)
     .map(([h]) => Number(h));
-  const inSeasonHouse = (h: number) => !heldHouses.includes(h);
-  const promisedCusps = byHouse(goodSet, badSet, false).filter(inSeasonHouse);
-  const deniedCusps = byHouse(badSet, goodSet, false).filter(inSeasonHouse);
-  const mixedCusps = byHouse(goodSet, badSet, true).filter(inSeasonHouse);
+  const activeReadings = tallied.filter((f) => f.polarity !== "neutral" && !heldHouses.includes(f.cusp));
   const heldWithVerdict = heldHouses
     .filter((h) => goodSet.has(h) || badSet.has(h))
     .sort((x, y) => x - y);
@@ -765,7 +723,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
       if (!f) continue;
       out.push({
         planets: [f.subLord],
-        label: `${ordinal(h)} house · ${cuspTheme(h).split(",")[0]}`,
+        label: `${ordinal(h)} house · ${f.topic}`,
         text: firstClause(gist(f.text)),
         tone: f.polarity === "good" ? "good" : "bad",
       });
@@ -774,17 +732,6 @@ export function KpPanel({ result }: { result: ChartResult }) {
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kp.findings, heldHouses.join(",")]);
-  const themeList = (hs: number[]) => {
-    const names = hs
-      .slice(0, 3)
-      .map((h) => cuspTheme(h).split(",")[0].toLowerCase());
-    const more = hs.length - names.length;
-    const base =
-      names.length <= 1
-        ? names.join("")
-        : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
-    return more > 0 ? `${base} (${more} more)` : base;
-  };
   const listHouses = (hs: number[]) =>
     hs
       .map((h) => `${ordinal(h)} (${cuspTheme(h).split(",")[0].toLowerCase()})`)
@@ -794,9 +741,9 @@ export function KpPanel({ result }: { result: ChartResult }) {
     { id: "brief", plain: "In brief", technical: "Summary" },
     {
       id: "houses",
-      plain: "House promises",
+      plain: "House readings",
       technical: "Cuspal sub lords",
-      blurb: "What each house promises, read from the sub lord of its cusp.",
+      blurb: "Specific matters read from the sub lord of each cusp.",
     },
     {
       id: "timing",
@@ -804,6 +751,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
       technical: "Timing",
       blurb: "When things happen: the periods from the Moon and the houses each one brings forward.",
     },
+    { id: "topic-check", plain: "Matter and date", technical: "Matter and date", blurb: "Check the cusp, period lords and event-day sky using Validate's rules." },
     {
       id: "significators",
       plain: "Significators",
@@ -966,32 +914,15 @@ export function KpPanel({ result }: { result: ChartResult }) {
       </div>
 
       <Chapters tab="kp" chapters={chapterDefs} className="mt-4">
+      <Chapter id="topic-check"><TopicReadingPanel result={result} system="kp" onSelected={onTopicSelected} /></Chapter>
       <Chapter id="brief">
       <VerdictCard
         system="Krishnamurti Paddhati"
         headline={
           <>
-            {promisedCusps.length ? (
-              <>The sub lords promise {themeList(promisedCusps)}</>
-            ) : (
-              <>No house is promised outright by the rules entered so far</>
-            )}
-            {deniedCusps.length ? (
-              <>
-                {promisedCusps.length ? " and" : "; the sub lords"} caution{" "}
-                {themeList(deniedCusps)}
-              </>
-            ) : null}
-            {mixedCusps.length ? (
-              <>
-                ;{" "}
-                {mixedCusps.length === 1
-                  ? "one house carries"
-                  : `${mixedCusps.length} houses carry`}{" "}
-                both a promise and a caution
-              </>
-            ) : null}
-            .
+            {activeReadings.length
+              ? `${activeReadings.length} specific KP rule interpretations are shown. Each applies to its named topic; a result about one topic does not decide everything associated with that house.`
+              : "No supportive or cautionary KP rule is in season for this chart."}
           </>
         }
         lead={
@@ -1061,15 +992,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
               },
         ]}
         lines={[
-          ...(promisedCusps.length
-            ? [{ label: "Promised", text: `The ${listHouses(promisedCusps)}.` }]
-            : []),
-          ...(deniedCusps.length
-            ? [{ label: "Cautioned", text: `The ${listHouses(deniedCusps)}.` }]
-            : []),
-          ...(mixedCusps.length
-            ? [{ label: "Both", text: `The ${listHouses(mixedCusps)}.` }]
-            : []),
+          { label: "Scope", text: "Each finding concerns the topic named with it. For example, reinstatement and tax scrutiny are separate from a general career verdict." },
           ...(heldWithVerdict.length
             ? [
                 {
@@ -1098,7 +1021,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
             : []),
           {
             label: "Method",
-            text: "The planet ruling the sub at which a house begins decides whether the house delivers; a matter happens when the period, sub-period and sub-sub-period planets all speak for its houses.",
+            text: "KP practitioners read a specific matter from the sub lord of the relevant cusp, then examine the period, sub-period and sub-sub-period planets for the associated houses.",
           },
           {
             label: "Precedence",
@@ -1106,7 +1029,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
           },
           {
             label: "Verdicts",
-            text: `${briefFindings.length} cuspal ${briefFindings.length === 1 ? "verdict" : "verdicts"} written out house by house in the next chapter; pick another matter under Timing.`,
+            text: `${briefFindings.length} specific cuspal ${briefFindings.length === 1 ? "reading is" : "readings are"} written out house by house in the next chapter; pick another matter under Timing.`,
           },
         ]}
         caveat={`${
@@ -1342,6 +1265,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
           term="kp-significator"
           className="text-base"
         />
+        <AuroraSelfPanel planets={kp.planets} cusps={kp.cusps} />
         <ModeText
           className="text-sm"
           plain={
@@ -1487,7 +1411,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
       <section className="mt-10" data-testid="section-kp-reading">
         <SectionTitle
           as="h2"
-          plain="What each house promises"
+          plain="What each rule says"
           technical="What the cuspal sub lords say"
           className="text-base"
         />
@@ -1497,7 +1421,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
             <>
               For each house, its deciding planet is matched against the{" "}
               {KP_RULES.length} rules entered from the KP books. Green:
-              promised. Red: denied or a caution. Grey: descriptive. Only houses
+              supportive interpretation. Red: caution. Grey: descriptive. Only houses
               with a verdict are shown unless you ask for every one.
             </>
           }
@@ -1508,7 +1432,7 @@ export function KpPanel({ result }: { result: ChartResult }) {
               Part 3 chapter 6, and the house-by-house chapter of Part 1 (the
               3rd to 12th houses entered) cross-checked against Dr. Andrew
               Dutta's free bhava rules. Each verdict names the sub lord and the
-              houses it signifies. Green: promised. Red: denied or a caution.
+              houses it signifies. Each finding is limited to its named topic. Green: supportive. Red: caution.
               Grey: descriptive.
             </>
           }

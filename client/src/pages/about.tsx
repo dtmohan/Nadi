@@ -685,7 +685,14 @@ export default function AboutPage() {
               matter's houses, whether the sub lord of the matter's cusp
               promised it, and whether the dasa and bhukti lords transited a
               significator's sign, star or sub that day (Astro Secrets &amp; KP
-              Part 1, pp. 167-172; Part 2, p. 203). The houses follow the same
+              Part 1, pp. 167-172; Part 2, p. 203). This is a limited
+              period-lord check: a separate event-sky table shows all planets'
+              positions and selected geometric contacts with the natal chart,
+              following the broader worked example in K.S. Krishnamurti,
+              <a href="https://www.scribd.com/document/1017596238/04-Jyotish-KP-Reader-4-Marriage-Married-Life-Children" target="_blank" rel="noreferrer"> KP Reader IV, pp. 113-114</a>.
+              Those contacts are descriptive and are not included in that
+              score. The event's time and time zone may be entered; otherwise
+              noon and the birth zone are assumed. The houses follow the same
               book: marriage 2, 7, 11; children 2, 5, 11; work 2, 6, 10, 11; and
               vehicles 3, 11, 12 rather than the 4th, which Part 1 calls a
               static house whose vehicles "though repaired cannot be put on the
@@ -718,20 +725,25 @@ export default function AboutPage() {
               elsewhere by those cusp sub lords, marks a denied cusp, and shows
               both expectations side by side so the events can say which the
               chart follows. The same two articles supply nineteen cusp rules to
-              the KP tab (the 12th sub lord on the improving houses blunting the
-              12th, the 8th sub lord on 1, 3, 10, 11 disarming the 8th, the 7th
-              sub lord on the 6th denying marriage, and their kin). Poor
-              agreement across several events is a hint about the birth time,
-              and the Rectify tab is the next step. Every score is also set
-              against chance: each matter is re-scored at 200 sets of shuffled
-              dates drawn from the span the events cover, and the percentile
-              says how many of those trials the real dates beat. Four or five
-              metrics are read together, so one of them clears the 95th
-              percentile by chance about one time in five; the tab therefore
-              treats a single metric as a signal only from the 99th percentile
-              (Bonferroni, 5% over the family) and says so on the line. One
-              chart, however well remembered, is one witness; it can embarrass a
-              birth time but cannot validate a method.
+              the KP tab. Rectify allows the practitioner to investigate the
+              birth time. When the events span at least a year, each matter is
+              also scored at 200 sets of independently selected comparison dates
+              in that span, recalculating the sky on each date against the natal
+              chart. The percentile counts ties halfway and is descriptive; it
+              does not adjust for choosing among related metrics or candidates.
+              Dates are sampled without enforcing plausible event ages or order.
+              The comparison does not establish that a birth time is correct.
+            </p>
+            <p>
+              Parashari v1–v3 and the staged divisional clues can also be compared
+              at those dates. The same event matter, outcome, local clock, zone
+              and natal candidate are used for the real and sampled checks;
+              the relevant period lords and transits are recalculated. The
+              staged third-level comparison uses each event's sampled dates only
+              when that event passed the earlier gate, and combines those draws
+              independently across events. These comparisons are descriptive
+              and do not change the ranking. Sampled dates are not known
+              non-events.
             </p>
             <h2>Sources</h2>
             <ul>
@@ -1183,8 +1195,11 @@ function KpMethod() {
         from the Moon's progress through it. An event promised by the cusp
         fructifies when the dasa, bhukti and antara lords are all significators
         of the houses concerned; the joint period finder lists every such window
-        in the next thirty years for a chosen matter. Transits are not yet
-        applied.
+        in the next thirty years for a chosen matter. The window finder also
+        shows days when the Sun crosses a zone associated with the period
+        lords. Event validation separately checks transits on the event date;
+        using Jupiter to select the year and the Moon to select the day within
+        the window finder remains unfinished.
       </p>
       <h2>Ruling planets</h2>
       <p>

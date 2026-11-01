@@ -11,12 +11,19 @@ import { scoreMarks, type BodyMarksResult } from "./body-marks";
 /** Rectification methods. One at a time, never blended; each cites its own source. */
 export type RectifyMethod =
   | "kp-rp"
+  | "kp-nemani-rp"
   | "kp-moon"
   | "kp-events"
   | "kp-transit"
+  | "kp-aurora"
+  | "kp-aurora-v2"
   | "jaimini-dasha"
+  | "parashari-events"
+  | "parashari-events-v2"
+  | "parashari-events-v3"
   | "bj-marks"
   | "kunda"
+  | "kunda-d81"
   | "bj-nashta";
 export const RECTIFY_METHODS: Array<{
   id: RectifyMethod;
@@ -30,14 +37,65 @@ export const RECTIFY_METHODS: Array<{
   needsEvents: boolean;
 }> = [
   {
+    id: "kp-aurora-v2", system: "KP", label: "Aurora mixed scripts · v2 research",
+    plainLabel: "Aurora mixed scripts · v2 research",
+    plainShort: "Compare house and period scripts in order. A mixed star can proceed when its sub supports the event; a mixed sub remains unresolved. In an initial published-case check no complete chains passed and every sampled training window tied, so this cannot yet rank birth times.",
+    short: "Direct occupied/owned houses, explicit node agents and self-significator promotions feed a staged screen. A supporting sub can carry a mixed star forward with caution; a mixed sub remains unresolved. In an initial published-case check no complete chains passed and every sampled training window tied. The node aspect, self-promotion and repeated-star/sub conventions are provisional. Transit evidence is descriptive.",
+    source: "Leena Aurora, The Ultimate Guide to KP Astrology Techniques (2024), supplied Kindle capture pp. 260–262, 360–365, 462–474 and 582–599.",
+    needsJudge: false, needsEvents: true,
+  },
+  {
+    id: "kp-aurora", system: "KP", label: "Aurora strict scripts · v1 research",
+    plainLabel: "Aurora staged scripts · research",
+    plainShort: "Compare the source's cusp and period scripts in order. This strict research interpretation leaves mixed or silent stages unresolved and counts only fully supported chains. In a small fresh-case check, no chains passed and all sampled birth times tied; it cannot establish a birth time.",
+    short: "The experimental adapter uses Nadi's four-step houses and Aurora's self-significator cusp links and own-star adjustment. A stage passes only when both script layers link to the matter without adverse houses; later stages cannot rescue an unresolved predecessor. These thresholds and house mappings are app conventions, not a complete transcription of Aurora's procedure.",
+    source: "Leena Aurora, The Ultimate Guide to KP Astrology Techniques (2024), supplied Kindle capture pp. 252–261, 266–268, 335–341, 438–439 and 571–572.",
+    needsJudge: false, needsEvents: true,
+  },
+  {
+    id: "parashari-events-v3", system: "Parashari", label: "Divisional period lords · v3",
+    plainLabel: "Divisional period lords · v3",
+    plainShort: "An experimental event comparison that adds the two main period planets' direct links to the relevant divisional house, lord or significator. It also retains v2's event-day transit checks. A match cannot establish a promise or birth time.",
+    short: "Eight app-defined checks per event: the unchanged six v2 factors plus one primary divisional-chart connection each for the dasa and bhukti lords. Equal weights, overlapping factors and this numerical synthesis are Nadi's choices, not a published formula.",
+    source: "Paul Manley, Birth Time Rectification: How to Find Your Exact Birth Time (2022), ch. 4 pp. 101, 118–122, plus the sources of Nadi's v2 factors; this partial eight-point combination is an app experiment.",
+    needsJudge: false, needsEvents: true,
+  },
+  {
+    id: "parashari-events-v2", system: "Parashari", label: "Event-specific rules · v2",
+    plainLabel: "Event-specific rules · v2",
+    plainShort: "An experimental comparison with different timing rules for marriage, childbirth and new jobs or promotions. It combines partial D1 and divisional support, period links and event-day transits; a match cannot establish a promise or a birth time.",
+    short: "Six app-defined event-specific checks: two partial D1/divisional support checks and four marriage-, childbirth- or career-specific timing/relationship checks. Equal weights and strict subsets are Nadi's experimental convention.",
+    source: "BPHS 7.1–8 and 11.14–16; K.N. Rao-guided Astrology and Timing of Marriage ch. 2; Astrological Assessment of Timing of Childbirth §§2.6–2.7 (citing Phaladeepika); Vishnu Bhaskar, Advanced Techniques of Predictive Astrology vol. 1 ch. 1 pp. 23–24. The six-point synthesis is Nadi's, not a published formula.",
+    needsJudge: false, needsEvents: true,
+  },
+  {
+    id: "parashari-events", system: "Parashari", label: "D1, varga and event timing · v1",
+    plainLabel: "Birth chart, division and events · v1",
+    plainShort: "A provisional comparison of D1 and D9, D7 or D10 house support, the event's two main periods and Jupiter–Saturn transits. It counts documented rule matches for marriage, childbirth and a new job or promotion; it cannot confirm that an event was promised or establish the birth time.",
+    short: "Five app-defined checks per supported event: partial D1 house support, D9/D7/D10 house support, dasa and bhukti links, and a narrow same-target Jupiter–Saturn double transit. Mixed indications are shown; equal weights are an experimental app convention.",
+    source: "BPHS 7.1–8, 11.14–16; M.S. Mehta, Analysing Horoscope Through Modern Techniques, ch. XVIII; K.N. Rao-guided Astrology and Timing of Marriage, ch. 2; Astrological Assessment of Timing of Childbirth; P.V.R. Narasimha Rao, Vedic Astrology: An Integrated Approach, §§6.3, 9.3 and 18.5. This score is Nadi's synthesis, not a published formula.",
+    needsJudge: false, needsEvents: true,
+  },
+  {
+    id: "kp-nemani-rp",
+    system: "KP",
+    label: "RP Moon · Nemani",
+    plainLabel: "Moon ruling now · Nemani",
+    plainShort: "Nemani's separate check compares the birth ascendant's three rulers with the Moon's rulers at the moment of judgment. The connections between both planets are read in the judgment chart. All three levels must link for a match; a match does not establish the birth time.",
+    short: "Nemani's three-level RP Moon check: compare the candidate lagna's sign, star and sub lords with the judgment Moon's corresponding lords. Equality or a direct or two-step star/sub chain in either direction, using judgment-chart positions, links a level. All three must link; no weighting or birth-time accuracy is inferred.",
+    source: "Dr. Nemani Venkata Raghunatha Rao, Birth Time Rectification Methods, vol. 1, ch. 4, Kindle locations 305–350; the supplied edition and worked examples. The two-step directional chain is the app's explicit interpretation of the examples.",
+    needsJudge: true,
+    needsEvents: false,
+  },
+  {
     id: "kp-rp",
     system: "KP",
     label: "Ruling planets",
     plainLabel: "Planets ruling now",
     plainShort:
-      "Krishnamurti holds that the planets ruling the sky at the moment you sit down to judge also rule the true rising degree: its sign ruler, star ruler and, most of all, its deciding planet should be among them. Rahu or Ketu can stand in for a planet whose sign or star they occupy; a planet moving backwards today is doubtful and its star ruler is admitted instead. Dutta's added test links the rising degree's sign, star and deciding planets, level by level, to the sign, star and deciding planets of the Moon ruling that same moment; all three levels linking is his mark of the correct time. Rerun on another day and trust the minutes that agree every time.",
+      "The rising degree's sign, star and deciding planets are compared with the planets ruling at judgment. The additional RP Moon check is Nadi's Dutta-inspired mixed-chart interpretation: it uses a natal position on one side and a judgment-time position on the other. It differs from Nemani's separately named judgment-chart procedure. These matches do not establish a birth time.",
     short:
-      "At the true birth time the lagna's sign lord, star lord and sub lord agree with the ruling planets of the moment you sit down to judge; the sub lord is the decisive agreement. A node in a ruling planet's sign or star acts for it; a retrograde ruling planet is doubtful and its star lord is admitted in its place. Dutta's first testing adds a level-to-level link between those same three lagna lords and the sign, star and sub lords of the RP Moon: same planet, or one in the other's sign, star or sub, or through a third planet that rules the other at its star or sub level; all three levels linking confirms the time.",
+      "Compare the lagna's sign, star and sub lords with the accepted ruling planets. The additional RP Moon links are an experimental mixed-chart interpretation inspired by Dutta: the lagna lord's natal position and the RP Moon lord's judgment-time position are compared. It is not Nemani's all-judgment-chart procedure, and the combined weights are app conventions.",
     source:
       "Astro Secrets & KP Part 3, ch. 30, pp. 160-163; Part 1, pp. 173-178; Andrew Dutta, Birth Time Rectification through KP Astrology (the RP-Moon three-level linkage, first testing)",
     needsJudge: true,
@@ -62,9 +120,9 @@ export const RECTIFY_METHODS: Array<{
     label: "Dated events",
     plainLabel: "Dated events",
     plainShort:
-      "For every event you remember with a date, the three planets whose periods were running that day should speak for the houses of that matter, and the house itself should be promised by its deciding planet. Minutes where the period planets fail an event are set aside.",
+      "For each dated event, check whether the three planets whose periods were running relate to the houses of that matter, and whether its cusp's deciding planet promises it. The score shows the app's tally; it cannot establish the birth time on its own.",
     short:
-      "At each remembered event the dasa, bhukti and antara lords running that day must be significators of the houses of that matter, and the cusp of the matter must promise it through its sub lord. Intervals where the period lords fail an event are rejected.",
+      "At each remembered event the dasa, bhukti and antara lords running that day are checked as significators of the matter's houses, and the matter's cusp is checked for a promise through its sub lord. The provisional tally does not establish the correct interval.",
     source: "Astro Secrets & KP Part 1, pp. 167-172; Part 2, p. 203",
     needsJudge: false,
     needsEvents: true,
@@ -72,14 +130,14 @@ export const RECTIFY_METHODS: Array<{
   {
     id: "kp-transit",
     system: "KP",
-    label: "Transits",
-    plainLabel: "Sky on the day",
+    label: "Period-lord transits",
+    plainLabel: "Period planets and the sky",
     plainShort:
-      "Two hints. The sub the Sun is passing through today points to the sub of the true rising degree (N. Nataraj). On the day of an event, the planets whose period and sub-period were running should be passing through the sign, star and sub of planets that speak for that matter; a candidate time whose planets fail this is doubtful.",
+      "The event-day check compares the transits of the period and sub-period planets with that candidate's natal significators. The Sun's current sub is shown separately as a judgment-day hint; it does not enter the event score or comparison.",
     short:
-      "Two hints. The sub the Sun transits on the day you work points to the lagna sub (N. Nataraj). On the day of an event the dasa and bhukti lords transit the sign, star and sub of significators of the matter, so a candidate whose significators they fail is doubtful.",
+      "On the event day the dasa and bhukti lords transit the sign, star and sub of significators of the matter. The Sun's judgment-day sub (N. Nataraj) is displayed separately and is not part of the event score or its random-date comparison.",
     source: "Astro Secrets & KP Part 2, p. 192 and p. 203",
-    needsJudge: false,
+    needsJudge: true,
     needsEvents: true,
   },
   {
@@ -88,9 +146,9 @@ export const RECTIFY_METHODS: Array<{
     label: "Chara dasha",
     plainLabel: "Sign periods",
     plainShort:
-      "K.N. Rao's check for a doubtful chart: run Jaimini's sign-based periods and ask whether the period and sub-period signs running on the day of an undisputed event carry that matter. The check is by rising sign, so every minute in one sign scores alike; widen the window to test the neighbouring signs.",
+      "K.N. Rao's check for a doubtful chart: run Jaimini's sign-based periods at each candidate time and ask whether the period and sub-period signs running on an event date carry that matter. Period boundaries can change even within one rising sign.",
     short:
-      "For a doubtful horoscope K.N. Rao runs the chara dasha and asks whether the mahadasha and antardasha signs running at indisputable events carry those matters: the area's karaka, pada or house counted from the dasha sign. The check is by rising sign, so every interval in one sign scores alike; widen the window to test the neighbouring signs.",
+      "For a doubtful horoscope K.N. Rao runs the chara dasha and asks whether the mahadasha and antardasha signs at events carry those matters: the area's karaka, pada or house counted from the dasha sign. Each candidate's birth time and natal positions determine its periods.",
     source:
       "K.N. Rao, Predicting through Jaimini's Chara Dasa, Vani Publications; the triggers are those of the Jaimini tab's timing",
     needsJudge: false,
@@ -113,14 +171,28 @@ export const RECTIFY_METHODS: Array<{
   {
     id: "kunda",
     system: "Prasna Marga",
-    label: "Kunda",
-    plainLabel: "Kunda check",
+    label: "Kunda · Raman example",
+    plainLabel: "Kunda · Raman example",
     plainShort:
-      "Prasna Marga's own check of the rising sign: the lagna in arc-minutes, times 81, with the multiples of 12 struck out, is read as a nakshatra from Aswini; when it is the birth star or its trines, the lagna reads accurate, otherwise it wants shifting.",
+      "Raman's worked example multiplies the rising longitude in arc-minutes by 81 and takes the remainder after division by 12. This provisional arithmetic changes faster than the scan's clock resolution, so the table samples midpoints only and cannot identify a birth-time interval.",
     short:
-      "The lagna in arc-minutes, times the Kunda (81), with multiples of 12 expunged, read as a nakshatra counted from Aswini; if it is the birth star or its trines the lagna is accurate, otherwise add or subtract ten minutes per asterism (5.8-9).",
+      "Raman's worked example multiplies lagna in arc-minutes by 81 and expunges multiples of 12. The remainder reaches only twelve stars and can change several times per second. The table samples the midpoint only; it is not a search of the full interval.",
     source:
-      "Prasna Marga 5.8-9 (B.V. Raman). The translation divides by 12, which reaches only the first twelve nakshatras; the classical division by 27 uses a different unit, so this is provisional.",
+      "Prasna Marga 5.8-9 (B.V. Raman), worked example. This arithmetic and its application to natal rectification are provisional; see the separately named D81 interpretation.",
+    needsJudge: false,
+    needsEvents: false,
+  },
+  {
+    id: "kunda-d81",
+    system: "Prasna Marga",
+    label: "Kunda · D81 / 27 stars",
+    plainLabel: "Kunda · 27 stars",
+    plainShort:
+      "Multiply the rising longitude by 81, reduce it to a full circle, and compare its star with the Moon's birth star and its two trines. This variant is scanned separately because its boundaries do not follow the KP intervals.",
+    short:
+      "Nava-navamsa Kunda: multiply the natal lagna longitude by 81, reduce modulo 360°, and compare its nakshatra with the Moon's natal nakshatra and its 10th and 19th. The natal application and alternative to Raman's worked arithmetic are labelled separately.",
+    source:
+      "Prasna Marga 5.8-9; C.S. Patel, Navamsa in Astrology, ch. 14; Dr. Nemani Venkata Raghunatha Rao, Birth Time Rectification Methods, vol. 1, ch. 1, Kindle locations 66–145 (D81 natal interpretation).",
     needsJudge: false,
     needsEvents: false,
   },
@@ -151,14 +223,34 @@ export function methodScore(
   m: RectifyMethod,
   marks?: { table: Record<number, BodyMarksResult>; confirmed: Set<string> },
 ): { score: number; max: number } {
+  if (m === "kp-aurora-v2")
+    return s.events.reduce((a, e) => e.auroraV2
+      ? { score: a.score + (e.auroraV2.allSupported ? 1 : 0), max: a.max + 1 } : a,
+      { score: 0, max: 0 });
+  if (m === "kp-aurora")
+    return s.events.reduce((a, e) => e.aurora
+      ? { score: a.score + (e.aurora.allSupported ? 1 : 0), max: a.max + 1 } : a,
+      { score: 0, max: 0 });
+  if (m === "kp-nemani-rp")
+    return s.nemani ? { score: s.nemani.all ? 1 : 0, max: 1 } : { score: 0, max: 0 };
+  if (m === "parashari-events-v3")
+    return (s.parashariDivisional ?? []).reduce((a, e) => ({ score: a.score + e.score, max: a.max + e.max }), { score: 0, max: 0 });
+  if (m === "parashari-events-v2")
+    return (s.parashariSpecific ?? []).reduce((a, e) => ({ score: a.score + e.score, max: a.max + e.max }), { score: 0, max: 0 });
+  if (m === "parashari-events")
+    return (s.parashariPromise ?? []).reduce((a, e) => ({ score: a.score + e.score, max: a.max + e.max }), { score: 0, max: 0 });
   if (m === "bj-marks") {
-    const r = marks?.table[s.drekkana];
+    const r = marks?.table[s.marksKey ?? s.drekkana];
     if (!r) return { score: 0, max: 0 };
     const sc = scoreMarks(r, marks!.confirmed);
     return { score: sc.score, max: sc.max };
   }
   if (m === "kunda") {
     const k = s.kunda;
+    return k ? { score: k.score, max: k.max } : { score: 0, max: 0 };
+  }
+  if (m === "kunda-d81") {
+    const k = s.kundaD81;
     return k ? { score: k.score, max: k.max } : { score: 0, max: 0 };
   }
   if (m === "bj-nashta") {
@@ -192,24 +284,81 @@ export function methodScore(
       score: acc.score + e.transit.score,
       max: acc.max + e.transit.max,
     }),
-    { score: s.sunHint.score, max: s.sunHint.max },
+    { score: 0, max: 0 },
   );
 }
 
-/** The shuffled-date baseline of one interval under an event method, if the server computed one. */
+/** The random-date comparison of one interval under an event method, if computed. */
 export function baselineFor(
   s: RectifySegment,
   m: RectifyMethod,
 ): RectifyBaselineStat | undefined {
+  if (m === "kp-aurora-v2") return s.baseline?.auroraV2;
+  if (m === "kp-aurora") return s.baseline?.aurora;
   if (m === "kp-events") return s.baseline?.kpEvents;
   if (m === "kp-transit") return s.baseline?.transit;
   if (m === "jaimini-dasha") return s.baseline?.jaimini;
   return undefined;
 }
 
+/** Coalesce adjacent samples only when every displayed Nemani input and link agrees. */
+export function groupNemaniSegments(segments: RectifySegment[]): Array<{
+  first: RectifySegment; last: RectifySegment; firstIndex: number; given: boolean;
+}> {
+  const groups: Array<{
+    first: RectifySegment; last: RectifySegment; firstIndex: number; given: boolean; signature: string;
+  }> = [];
+  segments.forEach((s, firstIndex) => {
+    const signature = JSON.stringify([s.midDate, s.sign, s.signLord, s.starLord, s.subLord, s.nemani]);
+    const prev = groups[groups.length - 1];
+    if (prev && prev.signature === signature && prev.last.endIso === s.startIso) {
+      prev.last = s;
+      prev.given ||= s.given;
+    } else groups.push({ first: s, last: s, firstIndex, given: s.given, signature });
+  });
+  return groups;
+}
+
+/**
+ * Fraction of the scanned duration represented by intervals whose midpoint has
+ * the highest raw score. Rounded display endpoints make this an approximation;
+ * it is not a claim that every instant within an interval has that score.
+ */
+export function rawScoreCoverage(
+  rows: Array<{ score: number; startIso: string; endIso: string; given: boolean }>,
+): { top: number; percent: number; recorded: number | undefined } | undefined {
+  const timed = rows.map((r) => ({ ...r, ms: Date.parse(r.endIso) - Date.parse(r.startIso) }))
+    .filter((r) => Number.isFinite(r.score) && Number.isFinite(r.ms) && r.ms > 0);
+  if (!timed.length) return undefined;
+  const top = Math.max(...timed.map((r) => r.score));
+  const total = timed.reduce((sum, r) => sum + r.ms, 0);
+  const topMs = timed.reduce((sum, r) => sum + (r.score === top ? r.ms : 0), 0);
+  return { top, percent: Math.round((topMs / total) * 1000) / 10, recorded: rows.find((r) => r.given)?.score };
+}
+
+/** Highlight the same exploratory candidates in the panel and its report. */
+export function highlightedCandidates(
+  rows: Array<{ score: number; b?: RectifyBaselineStat }>,
+): number[] {
+  const hasComparison = rows.some((r) => r.b !== undefined);
+  if (hasComparison) {
+    // Rank only candidates that actually meet the displayed cutoff. A larger
+    // raw excess with a wider comparison distribution may fail that cutoff.
+    const top = Math.max(...rows.map((r) => r.b?.verdict === "above" ? r.b.actual - r.b.mean : -Infinity));
+    return rows.flatMap((r, i) =>
+      r.b?.verdict === "above" && Math.abs(r.b.actual - r.b.mean - top) < 1e-9
+        ? [i] : [],
+    );
+  }
+  const top = Math.max(0, ...rows.map((r) => r.score));
+  return rows.flatMap((r, i) => top > 0 && r.score === top ? [i] : []);
+}
+
 export const EVENT_METHODS: RectifyMethod[] = [
   "kp-events",
   "kp-transit",
+  "kp-aurora",
+  "kp-aurora-v2",
   "jaimini-dasha",
 ];
 
@@ -219,6 +368,8 @@ export interface RectifyExportState {
   windowMinutes: number;
   events: RectifyEvent[];
   judge?: JudgePlaceInput;
+  /** The displayed scan's actual judgment instant, for reproducible export. */
+  judgedAsOf?: string;
   /** Limbs the person confirmed a mark on (Brihat Jataka 5.24-26), for the marks method. */
   confirmedMarks: string[];
 }

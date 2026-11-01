@@ -24,6 +24,8 @@ import {
   HelpCircle,
 } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
+import type { ChartEvent } from "@shared/events";
+import { TopicReadingPanel, type TopicReadingSystem } from "@/components/topic-reading";
 import {
   PLANETS,
   PLANET_ABBR,
@@ -415,11 +417,11 @@ function MarriageCard({
 }
 
 const CHILD_PROMISE_LABEL: Record<ChildrenReading["promised"], string> = {
-  strong: "Promised, strong",
-  moderate: "Promised, moderate",
-  weak: "Promised, lesser strength",
-  faint: "Faint signature",
-  unsigned: "No Venus signature",
+  strong: "Prominent Jupiter–Venus link",
+  moderate: "Jupiter–Venus opposition",
+  weak: "Less prominent link",
+  faint: "More distant link",
+  unsigned: "No link in this rule",
 };
 
 function ChildrenCard({
@@ -452,9 +454,10 @@ function ChildrenCard({
           </span>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          No 5th lord: children are read from Jupiter in both charts, promise
-          from his link with Venus, count and sex from the planets in and
-          aspecting the 5th from Jupiter ({ju.sign} → {c.fifthSign}).
+          This Nadi reading uses Jupiter, its link with Venus, and the fifth
+          sign from Jupiter ({ju.sign} → {c.fifthSign}). These are traditional
+          interpretations; they do not determine fertility, a child's sex or
+          the number of children.
         </p>
         <p className="mt-2 text-sm leading-relaxed">
           <Badge
@@ -471,19 +474,9 @@ function ChildrenCard({
             className="mt-2 text-sm leading-relaxed"
             data-testid="text-children-count"
           >
-            Count from the 5th: {counted} planet{counted === 1 ? "" : "s"} →{" "}
-            {c.sons} son{c.sons === 1 ? "" : "s"}, {c.daughters} daughter
-            {c.daughters === 1 ? "" : "s"}
-            {c.undecided.filter((p) => p === "Rahu" || p === "Ketu").length
-              ? `, ${c.undecided.filter((p) => p === "Rahu" || p === "Ketu").join(" and ")} left open`
-              : ""}
-            {c.undecided.filter((p) => p === "Mercury" || p === "Saturn").length
-              ? ` (${c.undecided.filter((p) => p === "Mercury" || p === "Saturn").join(", ")} by sign parity)`
-              : ""}
-            {c.cancelled.length
-              ? `; ${c.cancelled.join(", ")} cancelled — held by Rahu at the same degree or in his star`
-              : ""}
-            . Read as an upper bound, not a promise.
+            {counted} planet{counted === 1 ? " is" : "s are"} in or aspecting
+            the fifth from Jupiter. This count is a chart observation, not an
+            estimate of family size.
           </p>
         )}
         {c.notes.length > 0 && (
@@ -499,7 +492,7 @@ function ChildrenCard({
           className="mt-3 text-xs text-muted-foreground"
           data-testid="text-children-window"
         >
-          Triggers: Jupiter's return over {c.karakaSign}, or his passage over{" "}
+          Traditional windows (not event predictions): Jupiter's return over {c.karakaSign}, or his passage over{" "}
           {c.fifthSign} and its trine{" "}
           {c.triggerSigns
             .filter((x) => x !== c.karakaSign && x !== c.fifthSign)
@@ -963,7 +956,7 @@ function AreaSection({
             )}
             data-testid={`badge-tone-${area}`}
           >
-            {AREA_TONE_LABEL[s.tone]}
+            {area === "children" ? "Traditional interpretation" : AREA_TONE_LABEL[s.tone]}
           </Badge>
         </h3>
         <span className="text-xs text-muted-foreground">
@@ -1014,6 +1007,12 @@ function AreaSection({
           />
         ))}
       </ul>
+      {s.careerAlternative && (
+        <div className="mt-3" data-testid="career-alternative">
+          <p className="mb-1 text-xs text-muted-foreground">Another Jupiter or Saturn career interpretation; its selection threshold is the app's convention.</p>
+          <ul><FindingItem f={s.careerAlternative} relations={reading.relations} full={full} female={gender === "female"} /></ul>
+        </div>
+      )}
       {s.rest.length > 0 && (
         <Working
           id={area}
@@ -1177,7 +1176,7 @@ function BnnVerdict({ result }: { result: ChartResult }) {
     const lw = lastChildWindow(reading.children, transits, asOf, result.utc);
     if (lw)
       timing.push({
-        label: "Children · last",
+        label: "Children · traditional transit, last",
         when: "past",
         text: (
           <>
@@ -1196,7 +1195,7 @@ function BnnVerdict({ result }: { result: ChartResult }) {
       : nextChildWindow(reading.children, transits, asOf, result.utc);
     if (w)
       timing.push({
-        label: "Children",
+        label: "Children · traditional transit",
         when: w.period.start <= asOf ? "present" : "future",
         text: (
           <>
@@ -2031,6 +2030,11 @@ export default function ChartPage() {
   // reading mode. With no modules the whole report; with one, that tab's section alone.
   // The Rectify tab reports what it is looking at, so its export reruns the same scan on the server.
   const rectifyState = useRef<RectifyExportState | null>(null);
+  const topicState = useRef<Partial<Record<TopicReadingSystem, ChartEvent>>>({});
+  const rememberTopic = (system: TopicReadingSystem, event: ChartEvent | null) => {
+    if (event) topicState.current[system] = event;
+    else delete topicState.current[system];
+  };
   const exportPdf = async (modules?: string[]) => {
     if (!data) return;
     if (modules?.includes("rectify") && !rectifyState.current) {
@@ -2045,9 +2049,7 @@ export default function ChartPage() {
       await downloadReportPdf(data.chart, {
         plain: readingMode === "plain",
         modules,
-        tools: modules?.includes("rectify")
-          ? { rectify: rectifyState.current! }
-          : undefined,
+        tools: { ...(modules?.includes("rectify") ? { rectify: rectifyState.current! } : {}), topicReadings: topicState.current },
       });
     } catch (e: any) {
       toast({
@@ -2237,6 +2239,7 @@ export default function ChartPage() {
       technical: "Transits",
       blurb: "When the passages of Jupiter and Saturn over the birth planets bring each matter forward.",
     },
+    { id: "topic-check", plain: "Matter and date", technical: "Matter and date", blurb: "Check this matter's natal Nadi rules and the transiting timers on a chosen date." },
     {
       id: "relations",
       plain: "Relations",
@@ -2411,7 +2414,7 @@ export default function ChartPage() {
 
         {mode === "jaimini" && (
           <div className="mt-8 animate-in fade-in-0 duration-300">
-            <JaiminiPanel result={data} />
+            <JaiminiPanel result={data} onTopicSelected={(event) => rememberTopic("jaimini", event)} />
           </div>
         )}
 
@@ -2423,7 +2426,7 @@ export default function ChartPage() {
 
         {mode === "kp" && (
           <div className="mt-8 animate-in fade-in-0 duration-300">
-            <KpPanel result={data} />
+            <KpPanel result={data} onTopicSelected={(event) => rememberTopic("kp", event)} />
           </div>
         )}
 
@@ -2431,6 +2434,7 @@ export default function ChartPage() {
           <div className="mt-8 animate-in fade-in-0 duration-300">
             <ParashariPanel
               result={data}
+              onTopicSelected={(event) => rememberTopic("parashari", event)}
               onOpenOverview={() => {
                 setMode("overview");
                 window.setTimeout(
@@ -2477,6 +2481,7 @@ export default function ChartPage() {
         {mode === "bnn" && (
           <div className="mt-6 animate-in fade-in-0 duration-300">
             <Chapters tab="bnn" chapters={bnnChapters}>
+              <Chapter id="topic-check"><TopicReadingPanel result={data} system="bnn" onSelected={(event) => rememberTopic("bnn", event)} /></Chapter>
               <Chapter id="brief">
                 <BnnVerdict result={data} />
                 <BnnLifeTimeline
@@ -2558,7 +2563,7 @@ export default function ChartPage() {
               : mode === "parashari"
                 ? "Parashari text is paraphrased from Brihat Parashara Hora Sastra in R. Santhanam's translation (chapters 24, 26, 34, 36, 41, 42, 75), softened and with verse numbers kept for checking. Planetary strength (ch. 27-28), divisional charts (ch. 6-7), Ashtakavarga (ch. 66-72) and the dasa chapters (46 for the conditional systems and Kalachakra, 47-49 and 52-61 for effects) are applied mechanically; the Sripati chalit, portion stages and the effect amounts of 28.15-20 are provisional readings. A first pass, not a verdict."
                 : mode === "rectify" || mode === "validate"
-                  ? "Rectification and validation are checks, not readings. Each method scores by one system's rules at a time (KP sub lords and significators, or K.N. Rao's Chara dasha) and the systems are never blended; a high score narrows the birth time or confirms a rule, it does not prove either."
+                  ? "Rectification and validation are exploratory checks. Each method scores one system at a time. A high score can occur across a wide range of birth times and does not by itself establish the birth time or validate a rule."
                   : mode === "kp"
                     ? "Krishnamurti Paddhati is Prof. K.S. Krishnamurti's stellar method. The arithmetic (KP ayanamsa, Placidus cusps, subs, significators, Vimshottari) is complete; the cuspal readings are paraphrased from Astro Secrets & KP Part 3 and the Kalpurush class notes and are a first pass, not a verdict."
                     : mode === "overview"

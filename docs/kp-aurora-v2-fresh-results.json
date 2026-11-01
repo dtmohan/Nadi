@@ -1,0 +1,1229 @@
+{
+  "protocol": "docs/kp-aurora-v2-protocol.md",
+  "results": [
+    {
+      "name": "Meryl Streep",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_06_22.htm?lang=s&nho2=186&nhor=1&pa=nmo",
+      "birthQuality": "AA according to Astro-Databank (birth certificate/record reported); the underlying record has not been independently examined here.",
+      "events": [
+        {
+          "id": "wedding",
+          "source": "https://www.imdb.com/name/nm3149786/bio/",
+          "description": "First wedding; Connecticut family home reported separately. Time unknown, local noon assumed."
+        },
+        {
+          "id": "henry",
+          "source": "https://www.harpersbazaar.com/celebrity/latest/a71043908/who-are-meryl-streep-kids-henry-mamie-grace-louisa-gummer-details/",
+          "description": "Henry born in New York. Time unknown."
+        },
+        {
+          "id": "mamie",
+          "source": "https://www.harpersbazaar.com/celebrity/latest/a71043908/who-are-meryl-streep-kids-henry-mamie-grace-louisa-gummer-details/",
+          "description": "Mamie born in New York. Time unknown."
+        },
+        {
+          "id": "grace",
+          "source": "https://www.imdb.com/name/nm3501146/",
+          "description": "Grace born in New York City. Time unknown."
+        },
+        {
+          "id": "louisa",
+          "source": "https://www.imdb.com/name/nm10861517/bio/",
+          "description": "Louisa born in Los Angeles. Time unknown."
+        }
+      ],
+      "windows": [
+        {
+          "anchor": "08:05",
+          "trainDates": [
+            "1978-09-30",
+            "1983-08-03",
+            "1991-06-12"
+          ],
+          "heldOutDates": [
+            "1979-11-13",
+            "1986-05-09"
+          ],
+          "sampleCount": 31,
+          "topSampleCount": 31,
+          "topScore": 0,
+          "anchorScore": 0,
+          "varies": false,
+          "selectedOffsetMinutes": null,
+          "heldOutAtAnchor": 0,
+          "heldOutAtSelected": null,
+          "baseline": {
+            "actual": 0,
+            "mean": 0,
+            "trials": 200,
+            "minimum": 0,
+            "maximum": 0
+          },
+          "reported": [
+            {
+              "date": "1978-09-30",
+              "time": "12:00 assumed",
+              "timezone": "America/New_York",
+              "matter": "marriage",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 7 sub lord",
+                  "planet": "Venus",
+                  "status": "mixed-sub",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Mars",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Venus",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Mars",
+                  "status": "mixed-sub",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "1979-11-13",
+              "time": "12:00 assumed",
+              "timezone": "America/New_York",
+              "matter": "child",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Mars",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Sun",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Venus",
+                  "status": "mixed-sub",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "1983-08-03",
+              "time": "12:00 assumed",
+              "timezone": "America/New_York",
+              "matter": "child",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Jupiter",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Saturn",
+                  "status": "opposed",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "1986-05-09",
+              "time": "12:00 assumed",
+              "timezone": "America/New_York",
+              "matter": "child",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Saturn",
+                  "status": "opposed",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Mercury",
+                  "status": "mixed-sub",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "1991-06-12",
+              "time": "12:00 assumed",
+              "timezone": "America/Los_Angeles",
+              "matter": "child",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Ketu",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": false
+                }
+              ]
+            }
+          ],
+          "timeSensitivity": [
+            {
+              "date": "1978-09-30",
+              "matter": "marriage",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            },
+            {
+              "date": "1979-11-13",
+              "matter": "child",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            },
+            {
+              "date": "1983-08-03",
+              "matter": "child",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            },
+            {
+              "date": "1986-05-09",
+              "matter": "child",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            },
+            {
+              "date": "1991-06-12",
+              "matter": "child",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            }
+          ],
+          "alternatives": [],
+          "sensitivity": [
+            {
+              "label": "KP true nodes",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            },
+            {
+              "label": "Lahiri mean nodes (alternative ayanamsa)",
+              "fullChains": 0,
+              "stageSignaturesChanged": 4
+            },
+            {
+              "label": "latitude and longitude +0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            },
+            {
+              "label": "latitude and longitude -0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Amitabh Bachchan",
+      "birthSource": "https://www.astro.com/astro-databank/Bachchan%2C_Amitabh",
+      "birthQuality": "DD: the subject has reportedly stated 15:00; a 2002 biography says between 03:00 and 04:00. Father described early afternoon. The published 16:00 is also disputed. The IANA historical time zone applies UTC+06:30 on this date.",
+      "events": [
+        {
+          "id": "wedding",
+          "source": "https://www.imdb.com/name/nm0000821/bio/",
+          "description": "First wedding to Jaya; time not established."
+        },
+        {
+          "id": "shweta",
+          "source": "https://www.tuliresearchcentre.org/amitabh-bachchan/introduction/teaching",
+          "description": "Daughter Shweta; time not established."
+        },
+        {
+          "id": "abhishek",
+          "source": "https://www.indiatoday.in/movies/celebrities/story/amitabh-bachchan-unseen-birth-picture-abhishek-bachchan-birthday-2675154-2025-02-05",
+          "description": "Son Abhishek; time not established."
+        }
+      ],
+      "windows": [
+        {
+          "anchor": "15:00",
+          "trainDates": [
+            "1973-06-03",
+            "1976-02-05"
+          ],
+          "heldOutDates": [
+            "1974-03-17"
+          ],
+          "sampleCount": 31,
+          "topSampleCount": 31,
+          "topScore": 0,
+          "anchorScore": 0,
+          "varies": false,
+          "selectedOffsetMinutes": null,
+          "heldOutAtAnchor": 0,
+          "heldOutAtSelected": null,
+          "baseline": {
+            "actual": 0,
+            "mean": 0,
+            "trials": 200,
+            "minimum": 0,
+            "maximum": 0
+          },
+          "reported": [
+            {
+              "date": "1973-06-03",
+              "time": "12:00 assumed",
+              "timezone": "Asia/Kolkata",
+              "matter": "marriage",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 7 sub lord",
+                  "planet": "Rahu",
+                  "status": "opposed",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Saturn",
+                  "status": "opposed",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Saturn",
+                  "status": "opposed",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Ketu",
+                  "status": "opposed",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "1974-03-17",
+              "time": "12:00 assumed",
+              "timezone": "Asia/Kolkata",
+              "matter": "child",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Sun",
+                  "status": "opposed",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Saturn",
+                  "status": "opposed",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Saturn",
+                  "status": "opposed",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Sun",
+                  "status": "opposed",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "1976-02-05",
+              "time": "12:00 assumed",
+              "timezone": "Asia/Kolkata",
+              "matter": "child",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Sun",
+                  "status": "opposed",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Saturn",
+                  "status": "opposed",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Mercury",
+                  "status": "opposed",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Venus",
+                  "status": "opposed",
+                  "eligible": false
+                }
+              ]
+            }
+          ],
+          "timeSensitivity": [
+            {
+              "date": "1973-06-03",
+              "matter": "marriage",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            },
+            {
+              "date": "1974-03-17",
+              "matter": "child",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            },
+            {
+              "date": "1976-02-05",
+              "matter": "child",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            }
+          ],
+          "alternatives": [
+            {
+              "time": "16:00",
+              "training": 0,
+              "heldOut": 0
+            }
+          ],
+          "sensitivity": [
+            {
+              "label": "KP true nodes",
+              "fullChains": 0,
+              "stageSignaturesChanged": 1
+            },
+            {
+              "label": "Lahiri mean nodes (alternative ayanamsa)",
+              "fullChains": 0,
+              "stageSignaturesChanged": 3
+            },
+            {
+              "label": "latitude and longitude +0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            },
+            {
+              "label": "latitude and longitude -0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            }
+          ]
+        },
+        {
+          "anchor": "03:30",
+          "trainDates": [
+            "1973-06-03",
+            "1976-02-05"
+          ],
+          "heldOutDates": [
+            "1974-03-17"
+          ],
+          "sampleCount": 31,
+          "topSampleCount": 31,
+          "topScore": 0,
+          "anchorScore": 0,
+          "varies": false,
+          "selectedOffsetMinutes": null,
+          "heldOutAtAnchor": 0,
+          "heldOutAtSelected": null,
+          "baseline": {
+            "actual": 0,
+            "mean": 0,
+            "trials": 200,
+            "minimum": 0,
+            "maximum": 0
+          },
+          "reported": [
+            {
+              "date": "1973-06-03",
+              "time": "12:00 assumed",
+              "timezone": "Asia/Kolkata",
+              "matter": "marriage",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 7 sub lord",
+                  "planet": "Moon",
+                  "status": "mixed-sub",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Jupiter",
+                  "status": "supported-with-caution",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Sun",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "1974-03-17",
+              "time": "12:00 assumed",
+              "timezone": "Asia/Kolkata",
+              "matter": "child",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Jupiter",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Moon",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "1976-02-05",
+              "time": "12:00 assumed",
+              "timezone": "Asia/Kolkata",
+              "matter": "child",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Jupiter",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Mars",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Venus",
+                  "status": "mixed-sub",
+                  "eligible": false
+                }
+              ]
+            }
+          ],
+          "timeSensitivity": [
+            {
+              "date": "1973-06-03",
+              "matter": "marriage",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            },
+            {
+              "date": "1974-03-17",
+              "matter": "child",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            },
+            {
+              "date": "1976-02-05",
+              "matter": "child",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            }
+          ],
+          "alternatives": [
+            {
+              "time": "16:00",
+              "training": 0,
+              "heldOut": 0
+            }
+          ],
+          "sensitivity": [
+            {
+              "label": "KP true nodes",
+              "fullChains": 0,
+              "stageSignaturesChanged": 2
+            },
+            {
+              "label": "Lahiri mean nodes (alternative ayanamsa)",
+              "fullChains": 0,
+              "stageSignaturesChanged": 2
+            },
+            {
+              "label": "latitude and longitude +0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            },
+            {
+              "label": "latitude and longitude -0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Rihanna",
+      "birthSource": "https://www.astro.com/astro-databank/Rihanna",
+      "birthQuality": "C: Astro-Databank says the original source of 08:50 is unknown. A forum mentions an unsourced noon report; neither should be treated as verified.",
+      "events": [
+        {
+          "id": "rza",
+          "source": "https://www.astro.com/astro-databank/Mayers%2C_RZA",
+          "description": "First son RZA, Los Angeles; reported birth certificate. Date also reported by Los Angeles Times: https://www.latimes.com/entertainment-arts/music/story/2023-05-12/rihannas-babys-name-revealed-rza-wu-tang-clan"
+        },
+        {
+          "id": "riot",
+          "source": "https://www.etonline.com/rihanna-and-aap-rockys-second-childs-name-revealed-210387",
+          "description": "Second son Riot, Los Angeles; reported birth certificate; clock time also reported at https://hollywoodlife.com/2023/09/08/rihanna-second-baby-name-revealed-meet-riot-rose/"
+        }
+      ],
+      "windows": [
+        {
+          "anchor": "08:50",
+          "trainDates": [
+            "2022-05-13"
+          ],
+          "heldOutDates": [
+            "2023-08-01"
+          ],
+          "sampleCount": 31,
+          "topSampleCount": 31,
+          "topScore": 0,
+          "anchorScore": 0,
+          "varies": false,
+          "selectedOffsetMinutes": null,
+          "heldOutAtAnchor": 0,
+          "heldOutAtSelected": null,
+          "baseline": {
+            "actual": 0,
+            "mean": 0,
+            "trials": 200,
+            "minimum": 0,
+            "maximum": 0
+          },
+          "reported": [
+            {
+              "date": "2022-05-13",
+              "time": "10:58",
+              "timezone": "America/Los_Angeles",
+              "matter": "child",
+              "supported": false,
+              "passed": 1,
+              "cautions": 1,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Jupiter",
+                  "status": "supported-with-caution",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Venus",
+                  "status": "opposed",
+                  "eligible": true
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Jupiter",
+                  "status": "supported-with-caution",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Mercury",
+                  "status": "mixed-sub",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "2023-08-01",
+              "time": "07:41",
+              "timezone": "America/Los_Angeles",
+              "matter": "child",
+              "supported": false,
+              "passed": 1,
+              "cautions": 1,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Jupiter",
+                  "status": "supported-with-caution",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Venus",
+                  "status": "opposed",
+                  "eligible": true
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Jupiter",
+                  "status": "supported-with-caution",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Rahu",
+                  "status": "supported-with-caution",
+                  "eligible": false
+                }
+              ]
+            }
+          ],
+          "timeSensitivity": [],
+          "alternatives": [],
+          "sensitivity": [
+            {
+              "label": "KP true nodes",
+              "fullChains": 0,
+              "stageSignaturesChanged": 1
+            },
+            {
+              "label": "Lahiri mean nodes (alternative ayanamsa)",
+              "fullChains": 0,
+              "stageSignaturesChanged": 2
+            },
+            {
+              "label": "latitude and longitude +0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            },
+            {
+              "label": "latitude and longitude -0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            }
+          ]
+        },
+        {
+          "anchor": "12:00",
+          "trainDates": [
+            "2022-05-13"
+          ],
+          "heldOutDates": [
+            "2023-08-01"
+          ],
+          "sampleCount": 31,
+          "topSampleCount": 31,
+          "topScore": 0,
+          "anchorScore": 0,
+          "varies": false,
+          "selectedOffsetMinutes": null,
+          "heldOutAtAnchor": 0,
+          "heldOutAtSelected": null,
+          "baseline": {
+            "actual": 0,
+            "mean": 0,
+            "trials": 200,
+            "minimum": 0,
+            "maximum": 0
+          },
+          "reported": [
+            {
+              "date": "2022-05-13",
+              "time": "10:58",
+              "timezone": "America/Los_Angeles",
+              "matter": "child",
+              "supported": false,
+              "passed": 2,
+              "cautions": 1,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Mercury",
+                  "status": "supported",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Venus",
+                  "status": "supported-with-caution",
+                  "eligible": true
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Saturn",
+                  "status": "mixed-sub",
+                  "eligible": true
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Mercury",
+                  "status": "supported",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "2023-08-01",
+              "time": "07:41",
+              "timezone": "America/Los_Angeles",
+              "matter": "child",
+              "supported": false,
+              "passed": 2,
+              "cautions": 1,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Mercury",
+                  "status": "supported",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Venus",
+                  "status": "supported-with-caution",
+                  "eligible": true
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Saturn",
+                  "status": "mixed-sub",
+                  "eligible": true
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Mars",
+                  "status": "opposed",
+                  "eligible": false
+                }
+              ]
+            }
+          ],
+          "timeSensitivity": [],
+          "alternatives": [],
+          "sensitivity": [
+            {
+              "label": "KP true nodes",
+              "fullChains": 0,
+              "stageSignaturesChanged": 2
+            },
+            {
+              "label": "Lahiri mean nodes (alternative ayanamsa)",
+              "fullChains": 0,
+              "stageSignaturesChanged": 1
+            },
+            {
+              "label": "latitude and longitude +0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            },
+            {
+              "label": "latitude and longitude -0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Richard Branson",
+      "birthSource": "https://www.astro.com/astro-databank/Branson%2C_Richard",
+      "birthQuality": "A: 07:00 reported via his assistant from his mother; rounded, not a record inspected here. Another unsourced report says 12:30.",
+      "events": [
+        {
+          "id": "wedding",
+          "source": "https://www.imdb.com/name/nm0105232/bio/",
+          "description": "First marriage to Kristen Tomassi; time and place not established, London time assumed. Astro-Databank independently lists the date, but the underlying sources may overlap."
+        },
+        {
+          "id": "holly",
+          "source": "https://www.tv.nu/medverkande/holly-branson",
+          "description": "Daughter Holly; date also appears at https://www.dicytrends.com/holly-branson-everything-about-richard-bransons-daughter/. These secondary listings may share a source; birth place and time not established, London time assumed."
+        }
+      ],
+      "excluded": "Virgin Atlantic's first flight on 22 June 1984 was considered, but the frozen fresh-case protocol covers first marriages and children's births, not a business-launch proxy.",
+      "windows": [
+        {
+          "anchor": "07:00",
+          "trainDates": [
+            "1972-07-22"
+          ],
+          "heldOutDates": [
+            "1981-11-21"
+          ],
+          "sampleCount": 31,
+          "topSampleCount": 31,
+          "topScore": 0,
+          "anchorScore": 0,
+          "varies": false,
+          "selectedOffsetMinutes": null,
+          "heldOutAtAnchor": 0,
+          "heldOutAtSelected": null,
+          "baseline": {
+            "actual": 0,
+            "mean": 0,
+            "trials": 200,
+            "minimum": 0,
+            "maximum": 0
+          },
+          "reported": [
+            {
+              "date": "1972-07-22",
+              "time": "12:00 assumed",
+              "timezone": "Europe/London",
+              "matter": "marriage",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 7 sub lord",
+                  "planet": "Venus",
+                  "status": "opposed",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Venus",
+                  "status": "opposed",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Ketu",
+                  "status": "supported-with-caution",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Jupiter",
+                  "status": "opposed",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "1981-11-21",
+              "time": "12:00 assumed",
+              "timezone": "Europe/London",
+              "matter": "child",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Moon",
+                  "status": "opposed",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Rahu",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Mars",
+                  "status": "mixed-sub",
+                  "eligible": false
+                }
+              ]
+            }
+          ],
+          "timeSensitivity": [
+            {
+              "date": "1972-07-22",
+              "matter": "marriage",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            },
+            {
+              "date": "1981-11-21",
+              "matter": "child",
+              "stagesChangeAcrossDay": true,
+              "fullChainChangesAcrossDay": false
+            }
+          ],
+          "alternatives": [],
+          "sensitivity": [
+            {
+              "label": "KP true nodes",
+              "fullChains": 0,
+              "stageSignaturesChanged": 2
+            },
+            {
+              "label": "Lahiri mean nodes (alternative ayanamsa)",
+              "fullChains": 0,
+              "stageSignaturesChanged": 2
+            },
+            {
+              "label": "latitude and longitude +0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            },
+            {
+              "label": "latitude and longitude -0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            }
+          ]
+        },
+        {
+          "anchor": "12:30",
+          "trainDates": [
+            "1972-07-22"
+          ],
+          "heldOutDates": [
+            "1981-11-21"
+          ],
+          "sampleCount": 31,
+          "topSampleCount": 31,
+          "topScore": 0,
+          "anchorScore": 0,
+          "varies": false,
+          "selectedOffsetMinutes": null,
+          "heldOutAtAnchor": 0,
+          "heldOutAtSelected": null,
+          "baseline": {
+            "actual": 0,
+            "mean": 0,
+            "trials": 200,
+            "minimum": 0,
+            "maximum": 0
+          },
+          "reported": [
+            {
+              "date": "1972-07-22",
+              "time": "12:00 assumed",
+              "timezone": "Europe/London",
+              "matter": "marriage",
+              "supported": false,
+              "passed": 0,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 7 sub lord",
+                  "planet": "Venus",
+                  "status": "opposed",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Sun",
+                  "status": "mixed-sub",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Mars",
+                  "status": "opposed",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Venus",
+                  "status": "opposed",
+                  "eligible": false
+                }
+              ]
+            },
+            {
+              "date": "1981-11-21",
+              "time": "12:00 assumed",
+              "timezone": "Europe/London",
+              "matter": "child",
+              "supported": false,
+              "passed": 1,
+              "cautions": 0,
+              "stages": [
+                {
+                  "role": "Cusp 5 sub lord",
+                  "planet": "Saturn",
+                  "status": "supported",
+                  "eligible": true
+                },
+                {
+                  "role": "Major period",
+                  "planet": "Moon",
+                  "status": "opposed",
+                  "eligible": true
+                },
+                {
+                  "role": "Sub-period",
+                  "planet": "Saturn",
+                  "status": "supported",
+                  "eligible": false
+                },
+                {
+                  "role": "Sub-sub-period",
+                  "planet": "Saturn",
+                  "status": "supported",
+                  "eligible": false
+                }
+              ]
+            }
+          ],
+          "timeSensitivity": [
+            {
+              "date": "1972-07-22",
+              "matter": "marriage",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            },
+            {
+              "date": "1981-11-21",
+              "matter": "child",
+              "stagesChangeAcrossDay": false,
+              "fullChainChangesAcrossDay": false
+            }
+          ],
+          "alternatives": [],
+          "sensitivity": [
+            {
+              "label": "KP true nodes",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            },
+            {
+              "label": "Lahiri mean nodes (alternative ayanamsa)",
+              "fullChains": 0,
+              "stageSignaturesChanged": 1
+            },
+            {
+              "label": "latitude and longitude +0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            },
+            {
+              "label": "latitude and longitude -0.05 degrees at fixed birth instant",
+              "fullChains": 0,
+              "stageSignaturesChanged": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

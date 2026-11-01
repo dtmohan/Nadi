@@ -18,7 +18,7 @@
  *
  * 4. Jaimini chara dasha (K.N. Rao, Predicting through Jaimini's Chara Dasa): the chara dasha and
  *    antardasha running at each event, for the lagna sign of the interval, must carry the matter's
- *    life area. This is sign-level: every interval in one rising sign scores alike.
+ *    life area, using that candidate's birth instant and natal positions.
  * 5. Moon lords (M.P. Shanmugham, Part 2 pp. 80-82, "Birth time verification"): the lagna cusp sub
  *    lord at the true time tells the birth star, either being its lord, or through its own star lord,
  *    its sub, sub-sub or sookshma lord, or the chain of the planet it is in the sub of; failing the
@@ -29,7 +29,7 @@
  * Nothing here is stored; the caller sends the chart and the events with each request.
  */
 import { displayLocal } from "@shared/time-basis";
-import { seeded } from "./validate";
+import { comparisonSeed, seeded } from "./validate";
 import type {
   RectifyBaselineStat,
   RectifySegmentBaseline,
@@ -71,15 +71,29 @@ export type {
 import {
   birthInstant,
   julianDay,
+  utcAtJulianDay,
   positionsAt,
+  positionsLite,
+  planetLonAt,
   ascendantAt,
   cuspsAt,
   judgementNow,
   type EphemerisOptions,
 } from "./ephemeris";
 import { SIGNS, SIGN_LORD } from "@shared/astro";
-import { computeJaimini, type JaiminiResult } from "@shared/jaimini";
+import { computeJaimini } from "@shared/jaimini";
 import { dashaFitAt } from "@shared/jaimini-areas";
+import { comparisonDate, eventInstant } from "./event-time";
+import { kundaD81Check, scanKundaD81 } from "./kunda";
+import { vargaSignAt, vargaTopicFor } from "@shared/parashari-varga-evidence";
+import type { VargaKey } from "@shared/vargas";
+import { manleyTopicFor } from "@shared/manley-evidence";
+import { MANLEY_WINDOW_DIVISIONS, scanVargaWindows } from "./varga-windows";
+import { summarizeParashariComparisons, type ParashariComparisonExample, type ParashariObservation } from "@shared/parashari-comparison";
+import { createParashariEventScorer, parashariObservation } from "./parashari-event";
+import { nemaniRpMoonCheck } from "@shared/kp-nemani-rp";
+import { auroraAscendantLinks, auroraEventEvidence, auroraMatter } from "@shared/kp-aurora";
+import { auroraV2Evidence } from "@shared/kp-aurora-v2";
 import {
   computeBodyMarks,
   limbTermsFor,
@@ -89,7 +103,7 @@ import {
 const MAX_WINDOW = 720;
 
 /**
- * Dutta's linkage test ("Birth Time Rectification through KP Astrology", the first testing): does
+ * Nadi's Dutta-inspired mixed-chart linkage: does
  * the lagna's lord X at the candidate time link to the RP Moon's lord Z at the moment of judgement?
  * Linkage is any of his five conditions: the same planet; X in the sub of Z or the reverse; X in the
  * star of Z or the reverse; X in the sign of Z or the reverse; or X in the star or sub of a third
@@ -134,7 +148,7 @@ function duttaLink(
   return { linked: false, via: "no linkage at any of the five conditions" };
 }
 
-/** The whole first testing for one candidate interval; the RP Moon's lords are fixed for the scan. */
+/** Mixed-chart interpretation for one candidate interval; the RP Moon's lords are fixed. */
 function duttaRpMoonCheck(
   lagna: KpCusp,
   planets: KpPlanet[],
@@ -330,8 +344,8 @@ export function kundaCheck(lagnaLon: number, moonLon: number): KundaCheck {
     birthStar,
     trine,
     via: trine
-      ? `${NAKSHATRAS[kundaNakshatra]} is the birth star ${NAKSHATRAS[birthStar]} or its trine — the lagna reads accurate (5.8)`
-      : `${NAKSHATRAS[kundaNakshatra]} is not the birth star ${NAKSHATRAS[birthStar]} nor its trines — the lagna wants shifting (5.8-9)`,
+      ? `${NAKSHATRAS[kundaNakshatra]} matches the birth star ${NAKSHATRAS[birthStar]} or its trine at this sampled time`
+      : `${NAKSHATRAS[kundaNakshatra]} does not match the birth star ${NAKSHATRAS[birthStar]} or its trines at this sampled time`,
     score: trine ? 1 : 0,
     max: 1,
   };
@@ -367,6 +381,7 @@ function bjNashtaCheck(
 }
 
 export function rectify(req: RectifyRequest): RectifyResult {
+  req = { ...req, events: [...req.events].sort((a, b) => a.date.localeCompare(b.date)) };
   const { chart } = req;
   const windowMinutes = Math.min(
     MAX_WINDOW,
@@ -383,15 +398,11 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const zone = chart.timezone;
   const limbTerms = limbTermsFor(chart.gender);
   const birth = birthInstant(chart);
-  // Jaimini is whole-sign: one computation per rising sign serves every interval in it.
-  const jaiminiBySign = new Map<
-    number,
-    { j: JaiminiResult; positions: ReturnType<typeof positionsAt> }
-  >();
-  // The marks check is whole-drekkana: one computation per rising drekkana (0-35).
-  const marksByDrekkana = new Map<number, BodyMarksResult>();
-  // Jaimini dasha fit depends only on the rising sign, the area and the date; memoised across intervals and trials.
-  const jaiminiFitCache = new Map<string, RectifyEventCheck["jaimini"]>();
+  // A whole-sign lagna does not make every candidate in that sign identical:
+  // the candidate birth instant can move a dasha boundary. Compute each
+  // candidate separately and share only identical body-mark results.
+  const marksByKey = new Map<number, BodyMarksResult>();
+  const marksByContent = new Map<string, number>();
   const utc0 = birth.utc;
   const jd0 = julianDay(utc0);
   const w = windowMinutes / 1440;
@@ -406,6 +417,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     judge.longitude,
     judge.timezone,
     opts.nodeType,
+    req.judgedAsOf,
   );
   const ruling = rulingPlanets(now);
   const accepted = acceptedRuling(ruling, now);
@@ -419,19 +431,13 @@ export function rectify(req: RectifyRequest): RectifyResult {
     subLord: sunNowPt.subLord,
   };
 
-  // Planetary positions at noon (birth zone) of each event day, for the transit check.
-  const eventPositions = req.events.map((e) => {
-    const d = DateTime.fromISO(e.date, { zone });
-    if (!d.isValid) return null;
-    return positionsAt(
-      julianDay(
-        d.set({ hour: 12, minute: 0, second: 0, millisecond: 0 }).toUTC(),
-      ),
-      opts,
-    );
-  });
+  // Both real and comparison dates use each event's supplied or assumed local time and zone.
+  const eventUtc = req.events.map((e) => eventInstant(e.date, e, zone).toUTC());
+  const eventInstants = eventUtc.map((instant) => instant.toISO()!);
+  const eventPositions = eventUtc.map((instant) => positionsAt(julianDay(instant), opts));
+  const eventPositionsJ = eventUtc.map((instant) => positionsLite(julianDay(instant), optsJ));
 
-  // Shuffled-date trials for the baseline: the same events at random dates within the span they cover, with the
+  // Comparison trials: the same events at random dates within the span they cover, with the
   // planetary positions of each trial date computed once and shared by every interval.
   const evMillis = req.events
     .map((e) => DateTime.fromISO(e.date, { zone: "utc" }).toMillis())
@@ -441,77 +447,176 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const baselineOn =
     req.events.length >= 2 && spanHi - spanLo >= 365 * 86400000;
   const trials = baselineOn ? BASELINE_TRIALS : 0;
-  const rnd = seeded(
-    req.events.reduce(
-      (acc, e) => acc + e.date.length * 31 + e.label.length,
-      req.events.length,
-    ),
-  );
+  const rnd = seeded(comparisonSeed(req.events.map((e) => e.date)));
   const trialDates: string[][] = [];
+  const trialInstants: string[][] = [];
   const trialPositions: (ReturnType<typeof positionsAt> | null)[][] = [];
+  const trialPositionsJ: (ReturnType<typeof positionsLite> | null)[][] = [];
   for (let t = 0; t < trials; t++) {
-    const dates = req.events.map(() =>
-      DateTime.fromMillis(spanLo + Math.floor(rnd() * (spanHi - spanLo)), {
-        zone: "utc",
-      }).toISODate()!,
-    );
+    const dates = req.events.map((e) => comparisonDate(rnd, spanLo, spanHi, e, zone));
+    const utc = dates.map((date, i) => eventInstant(date, req.events[i], zone).toUTC());
     trialDates.push(dates);
-    trialPositions.push(
-      dates.map((d) => {
-        const dt = DateTime.fromISO(d, { zone });
-        return dt.isValid
-          ? positionsAt(julianDay(dt.set({ hour: 12 }).toUTC()), opts)
-          : null;
-      }),
-    );
+    trialInstants.push(utc.map((instant) => instant.toISO()!));
+    trialPositions.push(utc.map((instant) => positionsAt(julianDay(instant), opts)));
+    // Parashari uses the chart's own ayanamsa, not the KP comparison sky.
+    trialPositionsJ.push(utc.map((instant, i) =>
+      vargaTopicFor(req.events[i].matter) || manleyTopicFor(req.events[i].matter)
+        ? positionsLite(julianDay(instant), optsJ) : null,
+    ));
   }
 
-  // Scan the window and locate every change of the lagna's sign, star or sub lord to the second, and every change of
-  // the rising drekkana in the chart's own ayanamsa (the Brihat Jataka marks check reads by drekkana).
+  // Split at changes that affect the event checks, not just the rising sub lord.
+  // In particular, the matter cusp can change while the lagna sub stays the same.
+  // Scores are still samples at the midpoint: finer planetary divisions and
+  // comparison-date period boundaries can change between sampled instants.
   const step = 10 / 86400;
   const asc = (jd: number) =>
     ascendantAt(jd, chart.latitude, chart.longitude, opts);
   const ascJ = (jd: number) =>
     norm360(ascendantAt(jd, chart.latitude, chart.longitude, optsJ));
-  const keyAt = (jd: number) =>
-    `${lagnaKey(asc(jd))}|${Math.floor(ascJ(jd) / 10)}`;
+  const matterCusps = Array.from(
+    new Set(
+      req.events
+        .flatMap((e) => [e.cusp, ...(e.matter ? auroraMatter(e.matter)?.cusps ?? [] : [])])
+        .filter((c): c is number => !!c && c >= 1 && c <= 12),
+    ),
+  ).sort((a, b) => a - b);
+  const hasAuroraEvents = req.events.some((e) => e.matter && auroraMatter(e.matter));
+  const vargaEvents = req.events.map((event, i) => ({ event, i })).filter(({ event }) => vargaTopicFor(event.matter));
+  const manleyEvents = req.events.map((event, i) => ({ event, i })).filter(({ event }) => manleyTopicFor(event.matter));
+  const vargaKeys: VargaKey[] = Array.from(new Set([
+    ...vargaEvents.map(({ event }) => vargaTopicFor(event.matter)!.division),
+    ...manleyEvents.map(({ event }) => manleyTopicFor(event.matter)!.division),
+    // V2 childbirth additionally checks the D9 sign of the fifth lord from Jupiter.
+    ...(vargaEvents.some(({ event }) => event.matter === "child") ? ["D9" as const] : []),
+  ]));
+  const keyAt = (jd: number) => {
+    const cusps = cuspsAt(jd, chart.latitude, chart.longitude, opts);
+    const positions = positionsLite(jd, opts);
+    const moon = positions.find((p) => p.planet === "Moon")!;
+    const instant = utcAtJulianDay(jd).toISO()!;
+    const planetFrame = positions.map((p) => {
+      const point = kpPoint(p.lon);
+      return `${point.signIndex}:${point.starLord}:${hasAuroraEvents ? `${point.subLord}:${point.subSubLord}:` : ""}${houseOf(p.lon, cusps)}`;
+    });
+    // A Parashari cross-check is evaluated at each candidate midpoint. Split at
+    // the relevant divisional sign and period changes so a KP interval does not
+    // silently span different D1/D7/D9/D10 evidence.
+    const chartAsc = ascJ(jd);
+    const chartPositions = vargaKeys.length ? positionsLite(jd, optsJ) : [];
+    const chartMoon = chartPositions.find((p) => p.planet === "Moon");
+    const chartSun = chartPositions.find((p) => p.planet === "Sun");
+    const vargaFrame = vargaKeys.flatMap((key) => [
+      vargaSignAt(key, chartAsc),
+      ...chartPositions.map((p) => vargaSignAt(key, p.lon)),
+    ]);
+    const chartLagna = Math.floor(chartAsc / 30);
+    const marriageSaham = vargaEvents.some(({ event }) => event.matter === "marriage")
+      ? Math.floor(norm360(
+          chartPositions.find((p) => p.planet === SIGN_LORD[chartLagna])!.lon +
+          chartPositions.find((p) => p.planet === SIGN_LORD[(chartLagna + 6) % 12])!.lon,
+        ) / 30)
+      : -1;
+    return [
+      lagnaKey(cusps[0]),
+      Math.floor(chartAsc / 10),
+      ...cusps.map((lon) => kpPoint(lon).signLord),
+      ...(hasAuroraEvents ? cusps.map((lon) => {
+        const p = kpPoint(lon);
+        return `${p.starLord}:${p.subLord}`;
+      }) : []),
+      ...matterCusps.map((c) => kpPoint(cusps[c - 1]).subLord),
+      ...planetFrame,
+      ...eventInstants.map((event) =>
+        vimshottariLordsAt(moon.lon, instant, event).join(":"),
+      ),
+      ...chartPositions.map((p) => vargaSignAt("D1", p.lon)),
+      ...(chartMoon && chartSun ? [norm360(chartMoon.lon - chartSun.lon) < 180 ? "waxing" : "waning"] : []),
+      ...vargaFrame,
+      marriageSaham,
+      ...(chartMoon ? vargaEvents.map(({ i }) => vimshottariLordsAt(chartMoon.lon, instant, eventInstants[i]).join(":")) : []),
+      ...(chartMoon ? manleyEvents.map(({ i }) => vimshottariLordsAt(chartMoon.lon, instant, eventInstants[i]).join(":")) : []),
+    ].join("|");
+  };
   const boundaries: number[] = [];
+  // More than one input can change inside the same ten-second sampling step.
+  // Find each distinguishable transition rather than keeping only the first.
+  const findTransitions = (lo: number, hi: number, left: string, right: string) => {
+    if (left === right) return;
+    if (hi - lo <= 0.2 / 86400) {
+      boundaries.push(hi);
+      return;
+    }
+    const mid = (lo + hi) / 2;
+    const middle = keyAt(mid);
+    findTransitions(lo, mid, left, middle);
+    findTransitions(mid, hi, middle, right);
+  };
   let prevJd = jd0 - w;
   let prevKey = keyAt(prevJd);
-  for (let jd = prevJd + step; jd <= jd0 + w + 1e-9; jd += step) {
+  while (prevJd < jd0 + w) {
+    const jd = Math.min(prevJd + step, jd0 + w);
     const key = keyAt(jd);
-    if (key !== prevKey) {
-      let lo = prevJd;
-      let hi = jd;
-      for (let i = 0; i < 12; i++) {
-        const m = (lo + hi) / 2;
-        if (keyAt(m) === prevKey) lo = m;
-        else hi = m;
-      }
-      boundaries.push(hi);
-      prevKey = key;
-    }
+    findTransitions(prevJd, jd, prevKey, key);
+    prevKey = key;
     prevJd = jd;
   }
   const edges = [jd0 - w, ...boundaries, jd0 + w];
 
+  const roundedUtc = (jd: number) => utcAtJulianDay(jd).plus({ milliseconds: 500 }).startOf("second");
+  const roundedJd = (jd: number) => julianDay(roundedUtc(jd));
   const local = (jd: number) =>
     displayLocal(
-      DateTime.fromMillis(
-        Math.round(((jd - 2440587.5) * 86400000) / 1000) * 1000,
-        { zone: "utc" },
-      ),
+      roundedUtc(jd),
       birth.basis,
       birth.basis.displayZone,
     );
   const fmtT = (jd: number) => local(jd).toFormat("HH:mm:ss");
 
+  // D81's boundaries move independently of KP's cusps. Scan it separately
+  // in the chart's own ayanamsa rather than treating a KP midpoint as an
+  // entire Kunda interval.
+  const kundaD81 = scanKundaD81(
+    jd0 - w,
+    jd0 + w,
+    ascJ,
+    (jd) => planetLonAt("Moon", jd, optsJ).lon,
+  ).map((s) => ({
+    start: fmtT(s.start),
+    end: fmtT(s.end),
+    mid: fmtT(s.mid),
+    midDate: local(s.mid).toISODate()!,
+    startIso: local(s.start).toISO()!,
+    endIso: local(s.end).toISO()!,
+    check: s.check,
+    given: jd0 >= s.start && jd0 < s.end,
+    selectable: (() => {
+      const rounded = roundedJd(s.mid);
+      if (rounded < s.start || rounded >= s.end) return false;
+      const atRounded = kundaD81Check(ascJ(rounded), planetLonAt("Moon", rounded, optsJ).lon);
+      return atRounded.kundaNakshatra === s.check.kundaNakshatra && atRounded.birthStar === s.check.birthStar;
+    })(),
+  }));
+  const mappedWindows = scanVargaWindows(jd0 - w, jd0 + w, ascJ);
+  const vargaWindows = MANLEY_WINDOW_DIVISIONS.map((division) => ({
+    division,
+    windows: mappedWindows[division].map((s) => ({
+      start: fmtT(s.start), end: fmtT(s.end),
+      startIso: local(s.start).toISO()!, endIso: local(s.end).toISO()!,
+      sign: s.sign, given: jd0 >= s.start && jd0 < s.end,
+    })),
+  }));
+
   const segments: RectifySegment[] = [];
   for (let i = 0; i + 1 < edges.length; i++) {
     const a = edges[i];
     const b = edges[i + 1];
-    if (b - a < 0.5 / 86400) continue;
-    const mid = (a + b) / 2;
+    if (b <= a) continue;
+    const rawMid = (a + b) / 2;
+    const roundedMid = roundedJd(rawMid);
+    const selectable = roundedMid >= a && roundedMid < b && keyAt(roundedMid) === keyAt(rawMid);
+    // Calculate at the same whole-second time that can be displayed and saved.
+    const mid = selectable ? roundedMid : rawMid;
     const positions = positionsAt(mid, opts);
     const cuspLons = cuspsAt(mid, chart.latitude, chart.longitude, opts);
     const cusps: KpCusp[] = cuspLons.map((lon, k) => ({
@@ -528,31 +633,43 @@ export function rectify(req: RectifyRequest): RectifyResult {
         ? []
         : owners.map((o, k) => (o === p.planet ? k + 1 : 0)).filter(Boolean),
     }));
-    const sig = new Map(
-      computeSignificators(planets).map((s) => [s.planet, s.houses]),
-    );
+    const sigs = computeSignificators(planets);
+    const sig = new Map(sigs.map((s) => [s.planet, s.houses]));
     const lagna = cusps[0];
     const moon = planets.find((p) => p.planet === "Moon")!;
-    const birthIso = local(mid).toUTC().toISO()!;
+    const birthIso = utcAtJulianDay(mid).toUTC().toISO()!;
 
     const lagnaJ = norm360(
       ascendantAt(mid, chart.latitude, chart.longitude, optsJ),
     );
+    const moonJ = planetLonAt("Moon", mid, optsJ).lon;
     const jSign = Math.floor(lagnaJ / 30);
-    if (!jaiminiBySign.has(jSign)) {
-      const posJ = positionsAt(mid, optsJ);
-      jaiminiBySign.set(jSign, {
-        j: computeJaimini(posJ, lagnaJ, birthIso),
-        positions: posJ,
-      });
-    }
-    const jai = jaiminiBySign.get(jSign)!;
+    const posJ = positionsAt(mid, optsJ);
+    const scoreParashari = createParashariEventScorer(posJ, lagnaJ, birthIso, zone);
+    const parashariByEvent = req.events.map((e, ei) => scoreParashari(e, e.date, eventInstants[ei], eventPositionsJ[ei]));
+    const parashariVargas = parashariByEvent.flatMap((p) => p.varga ? [p.varga] : []);
+    const parashariPromise = parashariByEvent.flatMap((p) => p.promise ? [p.promise] : []);
+    const parashariSpecific = parashariByEvent.flatMap((p) => p.specific ? [p.specific] : []);
+    const parashariDivisional = parashariByEvent.flatMap((p) => p.divisional ? [p.divisional] : []);
+    const manley = parashariByEvent.flatMap((p) => p.manley ? [p.manley] : []);
+    const jai = { j: computeJaimini(posJ, lagnaJ, birthIso), positions: posJ };
+    // The result is constant within a Chara maha/antar period for this
+    // candidate and area. Cache only inside this candidate so another birth
+    // time can never inherit its period boundaries or natal positions.
+    const jaiPeriods = jai.j.charaDasha.periods.map((p) => ({
+      start: Date.parse(p.start), end: Date.parse(p.end),
+      antars: p.antardashas.map((a) => ({ start: Date.parse(a.start), end: Date.parse(a.end) })),
+    }));
+    const jaiFits = new Map<string, RectifyEventCheck["jaimini"]>();
     const dIdx = Math.floor(lagnaJ / 10);
-    if (!marksByDrekkana.has(dIdx))
-      marksByDrekkana.set(
-        dIdx,
-        computeBodyMarks(jai.positions, lagnaJ, undefined, limbTerms),
-      );
+    const markResult = computeBodyMarks(posJ, lagnaJ, undefined, limbTerms);
+    const markSignature = JSON.stringify(markResult);
+    let marksKey = marksByContent.get(markSignature);
+    if (marksKey === undefined) {
+      marksKey = marksByKey.size;
+      marksByContent.set(markSignature, marksKey);
+      marksByKey.set(marksKey, markResult);
+    }
 
     const rpVia: RectifySegment["rp"]["via"] = {};
     const weightOf = (p: Planet, k: "sign" | "star" | "sub") => {
@@ -571,18 +688,19 @@ export function rectify(req: RectifyRequest): RectifyResult {
       { signLord: rpm.signLord, starLord: rpm.starLord, subLord: rpm.subLord },
       now,
     );
+    const nemani = nemaniRpMoonCheck(lagna, rpm, now.positions);
 
     const checkEvent = (
       e: RectifyRequest["events"][number],
       dateIso: string,
       evPositions: ReturnType<typeof positionsAt> | null,
+      evIso: string,
     ): RectifyEventCheck => {
-      const evDt = DateTime.fromISO(dateIso, { zone });
       const houses = e.houses.filter((h) => h >= 1 && h <= 12);
       const lords = vimshottariLordsAt(
         moon.lon,
         birthIso,
-        evDt.isValid ? evDt.toUTC().toISO()! : birthIso,
+        evIso,
       );
       const signified = lords.map((l) =>
         (sig.get(l) ?? []).filter((h) => houses.includes(h)),
@@ -623,24 +741,25 @@ export function rectify(req: RectifyRequest): RectifyResult {
       const tBhukti = transitOf(lords[1]);
       const tScore = [...tDasa.hits, ...tBhukti.hits].filter(Boolean).length;
       let jaimini: RectifyEventCheck["jaimini"] = null;
-      if (e.area && evDt.isValid) {
-        const key = `${jSign}|${e.area}|${dateIso}`;
-        if (!jaiminiFitCache.has(key))
-          jaiminiFitCache.set(
-            key,
-            dashaFitAt(
-              jai.j,
-              jai.positions,
-              e.area,
-              evDt.set({ hour: 12 }).toUTC().toISO()!,
-            ),
-          );
-        jaimini = jaiminiFitCache.get(key)!;
+      if (e.area) {
+        const millis = Date.parse(evIso);
+        const pi = jaiPeriods.findIndex((p) => p.start <= millis && millis < p.end);
+        const ai = pi < 0 ? -1 : jaiPeriods[pi].antars.findIndex((a) => a.start <= millis && millis < a.end);
+        const key = `${e.area}:${pi}:${ai}`;
+        if (!jaiFits.has(key)) {
+          jaiFits.set(key, dashaFitAt(jai.j, jai.positions, e.area, evIso));
+        }
+        jaimini = jaiFits.get(key) ?? null;
       }
       return {
         label: e.label,
         date: dateIso,
+        time: e.time,
+        timezone: e.timezone,
         houses,
+        aurora: e.matter ? auroraEventEvidence({ matter: e.matter, planets, cusps, significators: sigs,
+          lords, transits: evPositions ?? [] }) : undefined,
+        auroraV2: e.matter ? auroraV2Evidence({ matter: e.matter, planets, cusps, lords, transits: evPositions ?? [] }) : undefined,
         dasa: lords[0],
         bhukti: lords[1],
         antara: lords[2],
@@ -655,36 +774,71 @@ export function rectify(req: RectifyRequest): RectifyResult {
       };
     };
     const events: RectifyEventCheck[] = req.events.map((e, ei) =>
-      checkEvent(e, e.date, eventPositions[ei]),
+      checkEvent(e, e.date, eventPositions[ei], eventInstants[ei]),
     );
 
-    // Baseline: the same interval scored at the shuffled dates.
+    // Baseline: the same interval scored at the selected random dates.
     let baseline: RectifySegmentBaseline | undefined;
     if (trials > 0) {
       const sums = {
         kpEvents: [] as number[],
+        aurora: [] as number[],
+        auroraV2: [] as number[],
         transit: [] as number[],
         jaimini: [] as number[],
       };
+      const actualParashari = parashariByEvent.map(parashariObservation);
+      const parashariTrials: ParashariObservation[][] = [];
+      let parashariExample: ParashariComparisonExample[] | undefined;
+      let auroraExample: RectifySegmentBaseline["auroraExample"];
+      let auroraV2Example: RectifySegmentBaseline["auroraV2Example"];
       for (let t = 0; t < trials; t++) {
-        let k = 0,
+        let k = 0, aurora = 0, auroraV2 = 0,
           tr = 0,
           ja = 0;
+        const trialParashari: ParashariObservation[] = [];
+        if (t === 0) parashariExample = [];
+        if (t === 0) auroraExample = [];
+        if (t === 0) auroraV2Example = [];
         req.events.forEach((e, ei) => {
-          const c = checkEvent(e, trialDates[t][ei], trialPositions[t][ei]);
+          const c = checkEvent(e, trialDates[t][ei], trialPositions[t][ei], trialInstants[t][ei]);
+          if (t === 0) auroraExample!.push({ label: e.label, date: trialDates[t][ei], time: e.time,
+            timezone: e.timezone, evidence: c.aurora });
+          if (t === 0) auroraV2Example!.push({ label: e.label, date: trialDates[t][ei], time: e.time,
+            timezone: e.timezone, evidence: c.auroraV2 });
           k += c.score;
+          if (c.aurora?.allSupported) aurora++;
+          if (c.auroraV2?.allSupported) auroraV2++;
           tr += c.transit.score;
           ja += c.jaimini?.score ?? 0;
+          const sky = trialPositionsJ[t][ei];
+          if (sky && (actualParashari[ei].v1 !== undefined || actualParashari[ei].staged)) {
+            const date = trialDates[t][ei];
+            const p = scoreParashari(e, date, trialInstants[t][ei], sky);
+            trialParashari.push(parashariObservation(p));
+            if (t === 0) parashariExample!.push({ label: e.label, date, time: e.time, timezone: e.timezone,
+              promise: p.promise, specific: p.specific, divisional: p.divisional, manley: p.manley });
+          } else trialParashari.push({});
         });
+        parashariTrials.push(trialParashari);
         sums.kpEvents.push(k);
+        sums.aurora.push(aurora);
+        sums.auroraV2.push(auroraV2);
         sums.transit.push(tr);
         sums.jaimini.push(ja);
       }
+      const parashari = summarizeParashariComparisons(actualParashari, parashariTrials);
       baseline = {
         kpEvents: baselineStat(
           sums.kpEvents,
           events.reduce((a, e) => a + e.score, 0),
         ),
+        aurora: events.some((e) => e.aurora)
+          ? baselineStat(sums.aurora, events.filter((e) => e.aurora?.allSupported).length) : undefined,
+        auroraV2: events.some((e) => e.auroraV2)
+          ? baselineStat(sums.auroraV2, events.filter((e) => e.auroraV2?.allSupported).length) : undefined,
+        auroraExample,
+        auroraV2Example,
         transit: baselineStat(
           sums.transit,
           events.reduce((a, e) => a + e.transit.score, 0),
@@ -693,13 +847,15 @@ export function rectify(req: RectifyRequest): RectifyResult {
           sums.jaimini,
           events.reduce((a, e) => a + (e.jaimini?.score ?? 0), 0),
         ),
+        parashari: Object.keys(parashari).length ? parashari : undefined,
+        parashariExample: Object.keys(parashari).length ? parashariExample : undefined,
       };
     }
 
     const evScore = events.reduce((s, e) => s + e.score, 0);
     const evMax = events.reduce((s, e) => s + e.max, 0);
     // Firmness of the twelve cusp sub lords across the interval: the same at both ends and the middle.
-    const EPS = 0.2 / 86400;
+    const EPS = Math.min(0.2 / 86400, (b - a) / 4);
     const subsAt = (t: number) =>
       cuspsAt(t, chart.latitude, chart.longitude, opts).map(
         (lon) => kpPoint(lon).subLord,
@@ -711,13 +867,6 @@ export function rectify(req: RectifyRequest): RectifyResult {
         subsA[k] === c.subLord && subsB[k] === c.subLord ? 0 : k + 1,
       )
       .filter(Boolean);
-    const matterCusps = Array.from(
-      new Set(
-        req.events
-          .map((e) => e.cusp)
-          .filter((c): c is number => !!c && c >= 1 && c <= 12),
-      ),
-    ).sort((x, y) => x - y);
     const stability: RectifySegmentStability = {
       firm: 12 - changing.length,
       changing,
@@ -732,10 +881,12 @@ export function rectify(req: RectifyRequest): RectifyResult {
       start: fmtT(a),
       end: fmtT(b),
       mid: fmtT(mid),
+      midDate: local(mid).toISODate()!,
       startIso: local(a).toISO()!,
       endIso: local(b).toISO()!,
-      lagnaFrom: norm360(asc(a + 0.2 / 86400)),
-      lagnaTo: norm360(asc(b - 0.2 / 86400)),
+      selectable,
+      lagnaFrom: norm360(asc(a + EPS)),
+      lagnaTo: norm360(asc(b - EPS)),
       sign: lagna.sign,
       signLord: lagna.signLord,
       starLord: lagna.starLord,
@@ -751,15 +902,21 @@ export function rectify(req: RectifyRequest): RectifyResult {
       cuspSubLords: cusps.map((c) => c.subLord),
       moon: { starLord: moon.starLord, subLord: moon.subLord },
       moonLords: moonLordsCheck(lagna, moon, planets),
-      kunda: kundaCheck(lagna.lon, moon.lon),
-      bjNashta: bjNashtaCheck(lagna.lon, moon.lon, planets),
+      // These are Prasna Marga and Brihat Jataka methods, not KP: use the
+      // chart's selected ayanamsa for their lagna and Moon.
+      kunda: selectable ? kundaCheck(lagnaJ, moonJ) : undefined,
+      kundaD81: kundaD81Check(lagnaJ, moonJ),
+      bjNashta: bjNashtaCheck(lagnaJ, moonJ, positionsLite(mid, optsJ)),
       dutta,
+      nemani,
       jaiminiSign: {
         index: jSign,
         name: SIGNS[jSign],
         direction: jai.j.charaDasha.direction,
       },
+      candidate: selectable ? { birthUtc: birthIso, kpMoonLon: moon.lon, positions: posJ, kpPlanets: planets.map(({ planet, lon }) => ({ planet, lon })), kpCusps: cuspLons } : undefined,
       drekkana: dIdx,
+      marksKey,
       sunHint: {
         star: lagna.starLord === sunNow.subLord,
         sub: lagna.subLord === sunNow.subLord,
@@ -769,6 +926,12 @@ export function rectify(req: RectifyRequest): RectifyResult {
         max: 3,
       },
       events,
+      auroraAscendant: auroraAscendantLinks(planets, cusps),
+      parashariVargas,
+      parashariPromise,
+      parashariSpecific,
+      parashariDivisional,
+      manley,
       score: rpScore + evScore,
       max: 4 + evMax,
       given: jd0 >= a && jd0 < b,
@@ -791,9 +954,21 @@ export function rectify(req: RectifyRequest): RectifyResult {
     sunNow,
     accepted,
     windowMinutes,
-    marks: Object.fromEntries(marksByDrekkana),
+    marks: Object.fromEntries(marksByKey),
     given: { time: local(jd0).toFormat("HH:mm:ss"), lagna: norm360(asc(jd0)) },
     segments,
+    eventTransits: req.events.map((event, i) => ({
+      date: event.date,
+      positions: eventPositions[i].map(({ planet, lon }) => ({ planet, lon })),
+      example: trials > 0 && trialPositions[0][i] ? {
+        date: trialDates[0][i],
+        time: event.time,
+        timezone: event.timezone,
+        positions: trialPositions[0][i]!.map(({ planet, lon }) => ({ planet, lon })),
+      } : undefined,
+    })),
+    kundaD81,
+    vargaWindows,
     best,
     baseline: baselineOn
       ? {
@@ -809,7 +984,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
 
 const BASELINE_TRIALS = 200;
 
-/** Mid-rank percentile of the real score among the shuffled trials, ties counted half. */
+/** Mid-rank percentile of the real score among the random trials, ties counted half. */
 function baselineStat(xs: number[], actual: number): RectifyBaselineStat {
   const mean = xs.reduce((s, x) => s + x, 0) / xs.length;
   const sd = Math.sqrt(xs.reduce((s, x) => s + (x - mean) ** 2, 0) / xs.length);

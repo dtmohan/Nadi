@@ -1,0 +1,49 @@
+{
+  "description": "Fresh public chart and biography cases for the KP/BNN reading presentation audit; no private charts.",
+  "cases": [
+    {
+      "chart": {"name":"Margaret Hamilton","gender":"female","birthDate":"1936-08-17","birthTime":"10:00","timezone":"America/Indiana/Indianapolis","timeStandard":"-06:00","place":"Paoli, Indiana, USA","latitude":38.55,"longitude":-86.4667,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"2026-09-30"},
+      "birthSource":"https://www.astro.com/astro-databank/Hamilton%2C_Margaret",
+      "birthQuality":"AA; birth certificate reported in hand. 10:00 may be rounded. Fixed CST matches the published chart; exact birthplace coordinates are approximate.",
+      "profession":"technical", "professionSource":"https://science.nasa.gov/people/margaret-hamilton/",
+      "knownChild":"A daughter is documented; this does not establish details of conception or the full history.", "childSource":"https://news.mit.edu/2026/margaret-hamilton-computing-pioneer-dies-1007"
+    },
+    {
+      "chart": {"name":"Steve Wozniak","gender":"male","birthDate":"1950-08-11","birthTime":"09:45","timezone":"America/Los_Angeles","timeStandard":"auto","place":"San Jose, California, USA","latitude":37.3333,"longitude":-121.9,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Wozniak%2C_Steve",
+      "birthQuality":"AA in Astro-Databank; source notes cite an announcement in a magazine. 09:45 may be rounded.",
+      "profession":"technical", "professionSource":"https://computerhistory.org/profile/steve-wozniak/"
+    },
+    {
+      "chart": {"name":"Alan Turing","gender":"male","birthDate":"1912-06-23","birthTime":"02:15","timezone":"Europe/London","timeStandard":"auto","place":"London, England","latitude":51.5,"longitude":-0.1667,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"1954-06-07"},
+      "birthSource":"https://www.astro.com/astro-databank/Turing%2C_Alan",
+      "birthQuality":"A; mother reportedly recalled the time. 02:15 may be rounded.",
+      "profession":"technical", "professionSource":"https://www.turing.ac.uk/about-us"
+    },
+    {
+      "chart": {"name":"Maya Angelou","gender":"female","birthDate":"1928-04-04","birthTime":"14:10","timezone":"America/Chicago","timeStandard":"auto","place":"St Louis, Missouri, USA","latitude":38.6333,"longitude":-90.2,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"2014-05-28"},
+      "birthSource":"https://www.astro.com/astro-databank/Angelou%2C_Maya",
+      "birthQuality":"AA; birth record quoted via Contemporary American Horoscopes.",
+      "profession":"writing", "professionSource":"https://www.poetryfoundation.org/poets/maya-angelou",
+      "knownChild":"A son is documented; this is not a complete reproductive history.", "childSource":"https://www.poetryfoundation.org/poets/maya-angelou"
+    },
+    {
+      "chart": {"name":"Edith Piaf","gender":"female","birthDate":"1915-12-19","birthTime":"05:00","timezone":"Europe/Paris","timeStandard":"auto","place":"Paris, France","latitude":48.8667,"longitude":2.3333,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"1963-10-10"},
+      "birthSource":"https://www.astro.com/astro-databank/Piaf%2C_%C3%89dith",
+      "birthQuality":"AA; birth record reportedly in hand. 05:00 may be rounded.",
+      "profession":"music", "professionSource":"https://www.universalmusic.fr/artistes/20000091849"
+    },
+    {
+      "chart": {"name":"A. R. Rahman","gender":"male","birthDate":"1967-01-06","birthTime":"05:50","timezone":"Asia/Kolkata","timeStandard":"auto","place":"Chennai, India","latitude":13.0833,"longitude":80.2833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Rahman%2C_A._R.",
+      "birthQuality":"A; Astro-Databank reports the time as from memory. 05:50 may be rounded.",
+      "profession":"music", "professionSource":"https://www.grammy.com/artists/ar-rahman/6529"
+    },
+    {
+      "chart": {"name":"Garry Kasparov","gender":"male","birthDate":"1963-04-13","birthTime":"23:45","timezone":"Asia/Baku","timeStandard":"+04:00","place":"Baku, Azerbaijan","latitude":40.3833,"longitude":49.85,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Kasparov%2C_Garry",
+      "birthQuality":"A; time reportedly from memory and may be rounded. Fixed UTC+04 matches the published source.",
+      "profession":"sport", "professionSource":"https://www.chess.com/article/view/world-chess-champions"
+    }
+  ]
+}

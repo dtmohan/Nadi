@@ -1,0 +1,62 @@
+{
+  "description": "Event-only retrospective illustration. The search inputs contain no recorded birth clock. This person and some events were previously studied by this project; this is not a blind or fresh validation case.",
+  "person": {
+    "name": "Prince William",
+    "birthDate": "1982-06-21",
+    "place": "St Mary's Hospital, Paddington, London, England",
+    "timezone": "Europe/London",
+    "latitude": 51.5175,
+    "longitude": -0.1735,
+    "ayanamsa": "lahiri",
+    "nodeType": "mean"
+  },
+  "events": [
+    {
+      "id": "marriage", "matter": "marriage", "date": "2011-04-29", "timezone": "Europe/London",
+      "startTime": "11:00", "endTime": "12:15", "role": "input",
+      "description": "Westminster Abbey ceremony; the entire published ceremony range is treated as possible timing, not as the exact instant of vows.",
+      "sources": [
+        "https://www.westminster-abbey.org/history/explore-our-history/the-wedding-of-william-and-kate",
+        "https://www.royal.uk/wedding-prince-william-and-miss-catherine-middleton?page=4"
+      ]
+    },
+    {
+      "id": "george", "matter": "child", "date": "2013-07-22", "timezone": "Europe/London",
+      "startTime": "16:19", "endTime": "16:29", "role": "input",
+      "description": "Prince George born at 16:24. The +/-5-minute range is an explicit sensitivity assumption, not a verified error bound.",
+      "sources": [
+        "https://www.royal.uk/prince-george",
+        "https://www.itv.com/news/2013-12-27/july-2013-an-heir-is-born"
+      ]
+    },
+    {
+      "id": "ambulance", "matter": "job", "date": "2015-07-13", "timezone": "Europe/London",
+      "startTime": "06:30", "endTime": "07:30", "role": "input",
+      "description": "First operational shift with East Anglian Air Ambulance at Cambridge Airport. One contemporary report gives 07:00; +/-30 minutes is a sensitivity assumption, not a verified error bound.",
+      "sources": [
+        "https://www.itv.com/news/anglia/update/2015-07-13/full-interview-with-prince-william-on-his-new-job-as-air-ambulance-pilot/",
+        "https://www.airmedandrescue.com/latest/news/prince-william-begins-role-hems-pilot",
+        "https://www.standard.co.uk/news/uk/nervous-prince-william-begins-new-job-as-air-ambulance-pilot-10384795.html"
+      ]
+    },
+    {
+      "id": "charlotte", "matter": "child", "date": "2015-05-02", "timezone": "Europe/London",
+      "startTime": "08:29", "endTime": "08:39", "role": "heldout",
+      "description": "Princess Charlotte born at 08:34. +/-5 minutes is a sensitivity assumption, not a verified error bound.",
+      "sources": [
+        "https://www.royal.uk/princess-charlotte",
+        "https://www.thegazette.co.uk/all-notices/content/100028",
+        "https://time.com/3835850/royal-baby-girl-princess-kate/"
+      ]
+    },
+    {
+      "id": "louis", "matter": "child", "date": "2018-04-23", "timezone": "Europe/London",
+      "startTime": "10:56", "endTime": "11:06", "role": "heldout",
+      "description": "Prince Louis born at 11:01. +/-5 minutes is a sensitivity assumption, not a verified error bound.",
+      "sources": [
+        "https://www.royal.uk/prince-louis",
+        "https://news.sky.com/story/prince-louis-birth-certificate-released-11354753"
+      ]
+    }
+  ]
+}

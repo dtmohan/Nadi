@@ -1,0 +1,3094 @@
+{
+  "sourceResult": "docs/royal-event-only-results.json",
+  "sourceResultSha256": "2a3d841edaccbf09f3e5e21efa35bdfc2aac2135f999ac8b2de60fd8e10153f0",
+  "referenceSource": "https://www.thegazette.co.uk/London/issue/49027/page/8215/data.pdf",
+  "referenceLocal": "1982-06-21T21:03:00.000+01:00",
+  "comparisons": {
+    "stage2": {
+      "containsReference": false,
+      "touchesPlusMinusFiveMinutes": false,
+      "nearestGapSeconds": 1229.06,
+      "nearestInterval": {
+        "startLocal": "1982-06-21T21:23:29.062+01:00",
+        "endLocalExclusive": "1982-06-21T22:27:54.062+01:00"
+      }
+    },
+    "stage3": {
+      "containsReference": false,
+      "touchesPlusMinusFiveMinutes": false,
+      "nearestGapSeconds": 1229.06,
+      "nearestInterval": {
+        "startLocal": "1982-06-21T21:23:29.062+01:00",
+        "endLocalExclusive": "1982-06-21T21:29:19.062+01:00"
+      }
+    }
+  },
+  "referenceFacts": {
+    "candidateLocal": "1982-06-21T21:03:00.000+01:00",
+    "natalAscendant": "Sagittarius",
+    "moonNakshatra": "Ardra",
+    "inputFirst": 2,
+    "inputThird": 2,
+    "facts": [
+      {
+        "id": "marriage",
+        "role": "input",
+        "allFirst": true,
+        "anyFirst": true,
+        "allThird": true,
+        "anyThird": true,
+        "paths": [
+          {
+            "lords": [
+              "Saturn",
+              "Saturn",
+              "Venus"
+            ],
+            "primaryD1": [
+              true,
+              true,
+              true
+            ],
+            "primaryDivision": [
+              true,
+              true,
+              true
+            ],
+            "details": [
+              {
+                "planet": "Saturn",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 7,
+                  "houseSign": 2,
+                  "houseLord": "Mercury",
+                  "bhavatHouse": 1,
+                  "bhavatLord": "Jupiter",
+                  "primary": {
+                    "house": [
+                      "Saturn fully aspects house 7"
+                    ],
+                    "houseLord": [],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D9",
+                  "ascendant": 1,
+                  "house": 7,
+                  "houseSign": 7,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 1,
+                  "bhavatLord": "Venus",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": [
+                      "karaka Venus: Saturn fully aspects Venus",
+                      "karaka Venus: Venus fully aspects Saturn"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "house 1 lord Venus: Saturn fully aspects Venus",
+                      "house 1 lord Venus: Venus fully aspects Saturn"
+                    ],
+                    "nodes": []
+                  }
+                }
+              },
+              {
+                "planet": "Saturn",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 7,
+                  "houseSign": 2,
+                  "houseLord": "Mercury",
+                  "bhavatHouse": 1,
+                  "bhavatLord": "Jupiter",
+                  "primary": {
+                    "house": [
+                      "Saturn fully aspects house 7"
+                    ],
+                    "houseLord": [],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D9",
+                  "ascendant": 1,
+                  "house": 7,
+                  "houseSign": 7,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 1,
+                  "bhavatLord": "Venus",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": [
+                      "karaka Venus: Saturn fully aspects Venus",
+                      "karaka Venus: Venus fully aspects Saturn"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "house 1 lord Venus: Saturn fully aspects Venus",
+                      "house 1 lord Venus: Venus fully aspects Saturn"
+                    ],
+                    "nodes": []
+                  }
+                }
+              },
+              {
+                "planet": "Venus",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 7,
+                  "houseSign": 2,
+                  "houseLord": "Mercury",
+                  "bhavatHouse": 1,
+                  "bhavatLord": "Jupiter",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [
+                      "house 7 lord Mercury: Venus and Mercury share Taurus"
+                    ],
+                    "karaka": [
+                      "Venus is the karaka"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D9",
+                  "ascendant": 1,
+                  "house": 7,
+                  "houseSign": 7,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 1,
+                  "bhavatLord": "Venus",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": [
+                      "Venus is the karaka"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "Venus is the house 1 lord"
+                    ],
+                    "nodes": []
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "george",
+        "role": "input",
+        "allFirst": false,
+        "anyFirst": false,
+        "allThird": false,
+        "anyThird": false,
+        "paths": [
+          {
+            "lords": [
+              "Saturn",
+              "Mercury",
+              "Ketu"
+            ],
+            "primaryD1": [
+              true,
+              false,
+              true
+            ],
+            "primaryDivision": [
+              false,
+              false,
+              true
+            ],
+            "details": [
+              {
+                "planet": "Saturn",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [
+                      "house 5 lord Mars: Saturn and Mars share Virgo"
+                    ],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "house 9 lord Sun: Saturn fully aspects Sun"
+                    ],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D7",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "Saturn is in house 9 (house 5 from itself)"
+                    ],
+                    "nodes": []
+                  }
+                }
+              },
+              {
+                "planet": "Mercury",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D7",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "Mercury fully aspects house 9"
+                    ],
+                    "nodes": []
+                  }
+                }
+              },
+              {
+                "planet": "Ketu",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [
+                      "house 5 lord Mars: Mars fully aspects Ketu"
+                    ],
+                    "karaka": [
+                      "karaka Jupiter: Ketu is in Jupiter's sign"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "house 9 lord Sun: Sun fully aspects Ketu"
+                    ],
+                    "nodes": [
+                      "Ketu is in Sagittarius, ruled by Jupiter",
+                      "Ketu receives a full aspect from Sun",
+                      "Ketu receives a full aspect from Moon",
+                      "Ketu receives a full aspect from Mars"
+                    ]
+                  }
+                },
+                "division": {
+                  "chart": "D7",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [
+                      "Ketu is in house 5"
+                    ],
+                    "houseLord": [
+                      "house 5 lord Mars: Ketu is in Mars's sign"
+                    ],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [
+                      "D1 house 5 lord Mars: Ketu is in Mars's sign"
+                    ],
+                    "bhavat": [],
+                    "nodes": [
+                      "Ketu is in Aries, ruled by Mars"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ambulance",
+        "role": "input",
+        "allFirst": true,
+        "anyFirst": true,
+        "allThird": true,
+        "anyThird": true,
+        "paths": [
+          {
+            "lords": [
+              "Saturn",
+              "Mercury",
+              "Saturn"
+            ],
+            "primaryD1": [
+              true,
+              true,
+              true
+            ],
+            "primaryDivision": [
+              true,
+              true,
+              true
+            ],
+            "details": [
+              {
+                "planet": "Saturn",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 10,
+                  "houseSign": 5,
+                  "houseLord": "Mercury",
+                  "bhavatHouse": 7,
+                  "bhavatLord": "Mercury",
+                  "primary": {
+                    "house": [
+                      "Saturn is in house 10"
+                    ],
+                    "houseLord": [],
+                    "karaka": [
+                      "karaka Sun: Saturn fully aspects Sun",
+                      "Saturn is the karaka"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "Saturn fully aspects house 7"
+                    ],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D10",
+                  "ascendant": 9,
+                  "house": 10,
+                  "houseSign": 6,
+                  "houseLord": "Venus",
+                  "bhavatHouse": 7,
+                  "bhavatLord": "Moon",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": [
+                      "karaka Mercury: Saturn fully aspects Mercury",
+                      "karaka Mercury: Mercury fully aspects Saturn",
+                      "karaka Jupiter: Saturn and Jupiter share Sagittarius",
+                      "Saturn is the karaka"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [
+                      "D1 house 10 lord Mercury: Saturn fully aspects Mercury",
+                      "D1 house 10 lord Mercury: Mercury fully aspects Saturn"
+                    ],
+                    "bhavat": [
+                      "house 7 lord Moon: Saturn fully aspects Moon"
+                    ],
+                    "nodes": []
+                  }
+                }
+              },
+              {
+                "planet": "Mercury",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 10,
+                  "houseSign": 5,
+                  "houseLord": "Mercury",
+                  "bhavatHouse": 7,
+                  "bhavatLord": "Mercury",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [
+                      "Mercury is the house 10 lord"
+                    ],
+                    "karaka": [
+                      "Mercury is the karaka"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "Mercury is the house 7 lord"
+                    ],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D10",
+                  "ascendant": 9,
+                  "house": 10,
+                  "houseSign": 6,
+                  "houseLord": "Venus",
+                  "bhavatHouse": 7,
+                  "bhavatLord": "Moon",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": [
+                      "Mercury is the karaka",
+                      "karaka Jupiter: Mercury fully aspects Jupiter",
+                      "karaka Jupiter: Jupiter fully aspects Mercury",
+                      "karaka Saturn: Mercury fully aspects Saturn",
+                      "karaka Saturn: Saturn fully aspects Mercury"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [
+                      "Mercury is the D1 house 10 lord"
+                    ],
+                    "bhavat": [],
+                    "nodes": []
+                  }
+                }
+              },
+              {
+                "planet": "Saturn",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 10,
+                  "houseSign": 5,
+                  "houseLord": "Mercury",
+                  "bhavatHouse": 7,
+                  "bhavatLord": "Mercury",
+                  "primary": {
+                    "house": [
+                      "Saturn is in house 10"
+                    ],
+                    "houseLord": [],
+                    "karaka": [
+                      "karaka Sun: Saturn fully aspects Sun",
+                      "Saturn is the karaka"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "Saturn fully aspects house 7"
+                    ],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D10",
+                  "ascendant": 9,
+                  "house": 10,
+                  "houseSign": 6,
+                  "houseLord": "Venus",
+                  "bhavatHouse": 7,
+                  "bhavatLord": "Moon",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": [
+                      "karaka Mercury: Saturn fully aspects Mercury",
+                      "karaka Mercury: Mercury fully aspects Saturn",
+                      "karaka Jupiter: Saturn and Jupiter share Sagittarius",
+                      "Saturn is the karaka"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [
+                      "D1 house 10 lord Mercury: Saturn fully aspects Mercury",
+                      "D1 house 10 lord Mercury: Mercury fully aspects Saturn"
+                    ],
+                    "bhavat": [
+                      "house 7 lord Moon: Saturn fully aspects Moon"
+                    ],
+                    "nodes": []
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "charlotte",
+        "role": "heldout",
+        "allFirst": false,
+        "anyFirst": false,
+        "allThird": false,
+        "anyThird": false,
+        "paths": [
+          {
+            "lords": [
+              "Saturn",
+              "Mercury",
+              "Jupiter"
+            ],
+            "primaryD1": [
+              true,
+              false,
+              true
+            ],
+            "primaryDivision": [
+              false,
+              false,
+              true
+            ],
+            "details": [
+              {
+                "planet": "Saturn",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [
+                      "house 5 lord Mars: Saturn and Mars share Virgo"
+                    ],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "house 9 lord Sun: Saturn fully aspects Sun"
+                    ],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D7",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "Saturn is in house 9 (house 5 from itself)"
+                    ],
+                    "nodes": []
+                  }
+                }
+              },
+              {
+                "planet": "Mercury",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D7",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "Mercury fully aspects house 9"
+                    ],
+                    "nodes": []
+                  }
+                }
+              },
+              {
+                "planet": "Jupiter",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [
+                      "Jupiter fully aspects house 5"
+                    ],
+                    "houseLord": [],
+                    "karaka": [
+                      "Jupiter is the karaka"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "house 9 lord Sun: Jupiter fully aspects Sun"
+                    ],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D7",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": [
+                      "Jupiter is the karaka"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "house 9 lord Sun: Jupiter fully aspects Sun"
+                    ],
+                    "nodes": []
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "louis",
+        "role": "heldout",
+        "allFirst": false,
+        "anyFirst": false,
+        "allThird": false,
+        "anyThird": false,
+        "paths": [
+          {
+            "lords": [
+              "Saturn",
+              "Venus",
+              "Rahu"
+            ],
+            "primaryD1": [
+              true,
+              false,
+              true
+            ],
+            "primaryDivision": [
+              false,
+              true,
+              false
+            ],
+            "details": [
+              {
+                "planet": "Saturn",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [
+                      "house 5 lord Mars: Saturn and Mars share Virgo"
+                    ],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "house 9 lord Sun: Saturn fully aspects Sun"
+                    ],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D7",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "Saturn is in house 9 (house 5 from itself)"
+                    ],
+                    "nodes": []
+                  }
+                }
+              },
+              {
+                "planet": "Venus",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [],
+                    "nodes": []
+                  }
+                },
+                "division": {
+                  "chart": "D7",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": [
+                      "karaka Jupiter: Venus and Jupiter share Scorpio"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [],
+                    "nodes": []
+                  }
+                }
+              },
+              {
+                "planet": "Rahu",
+                "d1": {
+                  "chart": "D1",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": [
+                      "karaka Jupiter: Jupiter fully aspects Rahu"
+                    ]
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [
+                      "house 9 lord Sun: Rahu and Sun share Gemini"
+                    ],
+                    "nodes": [
+                      "Rahu is in Gemini, ruled by Mercury",
+                      "Rahu receives a full aspect from Jupiter",
+                      "Rahu receives a full aspect from Saturn"
+                    ]
+                  }
+                },
+                "division": {
+                  "chart": "D7",
+                  "ascendant": 8,
+                  "house": 5,
+                  "houseSign": 0,
+                  "houseLord": "Mars",
+                  "bhavatHouse": 9,
+                  "bhavatLord": "Sun",
+                  "primary": {
+                    "house": [],
+                    "houseLord": [],
+                    "karaka": []
+                  },
+                  "supporting": {
+                    "ascendant": [],
+                    "natalHouseLord": [],
+                    "bhavat": [],
+                    "nodes": [
+                      "Rahu is in Libra, ruled by Venus",
+                      "Rahu receives a full aspect from Saturn"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "controls": [
+      {
+        "event": "charlotte",
+        "shifts": [
+          {
+            "days": -180,
+            "date": "2014-11-03",
+            "allFirst": false,
+            "allThird": false
+          },
+          {
+            "days": -120,
+            "date": "2015-01-02",
+            "allFirst": false,
+            "allThird": false
+          },
+          {
+            "days": -60,
+            "date": "2015-03-03",
+            "allFirst": false,
+            "allThird": false
+          },
+          {
+            "days": 60,
+            "date": "2015-07-01",
+            "allFirst": false,
+            "allThird": false
+          },
+          {
+            "days": 120,
+            "date": "2015-08-30",
+            "allFirst": false,
+            "allThird": false
+          },
+          {
+            "days": 180,
+            "date": "2015-10-29",
+            "allFirst": false,
+            "allThird": false
+          }
+        ]
+      },
+      {
+        "event": "louis",
+        "shifts": [
+          {
+            "days": -180,
+            "date": "2017-10-25",
+            "allFirst": false,
+            "allThird": false
+          },
+          {
+            "days": -120,
+            "date": "2017-12-24",
+            "allFirst": false,
+            "allThird": false
+          },
+          {
+            "days": -60,
+            "date": "2018-02-22",
+            "allFirst": false,
+            "allThird": false
+          },
+          {
+            "days": 60,
+            "date": "2018-06-22",
+            "allFirst": false,
+            "allThird": false
+          },
+          {
+            "days": 120,
+            "date": "2018-08-21",
+            "allFirst": false,
+            "allThird": false
+          },
+          {
+            "days": 180,
+            "date": "2018-10-20",
+            "allFirst": false,
+            "allThird": false
+          }
+        ]
+      }
+    ]
+  },
+  "examples": {
+    "earliestTopIntervalMidpoint": {
+      "candidateLocal": "1982-06-21T00:03:38.203+01:00",
+      "natalAscendant": "Aquarius",
+      "moonNakshatra": "Mrigashira",
+      "inputFirst": 3,
+      "inputThird": 3,
+      "facts": [
+        {
+          "id": "marriage",
+          "role": "input",
+          "allFirst": true,
+          "anyFirst": true,
+          "allThird": true,
+          "anyThird": true,
+          "paths": [
+            {
+              "lords": [
+                "Jupiter",
+                "Mercury",
+                "Jupiter"
+              ],
+              "primaryD1": [
+                true,
+                true,
+                true
+              ],
+              "primaryDivision": [
+                true,
+                true,
+                true
+              ],
+              "details": [
+                {
+                  "planet": "Jupiter",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 7,
+                    "houseSign": 4,
+                    "houseLord": "Sun",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Saturn",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 7 lord Sun: Jupiter fully aspects Sun"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Jupiter fully aspects house 1"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D9",
+                    "ascendant": 6,
+                    "house": 7,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [
+                        "Jupiter fully aspects house 7"
+                      ],
+                      "houseLord": [
+                        "house 7 lord Mars: Mars fully aspects Jupiter"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Mercury",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 7,
+                    "houseSign": 4,
+                    "houseLord": "Sun",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Saturn",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Venus: Mercury and Venus share Taurus"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D9",
+                    "ascendant": 6,
+                    "house": 7,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 7 lord Mars: Mercury and Mars share Taurus"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [
+                        "D1 house 7 lord Sun: Mercury fully aspects Sun",
+                        "D1 house 7 lord Sun: Sun fully aspects Mercury"
+                      ],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Jupiter",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 7,
+                    "houseSign": 4,
+                    "houseLord": "Sun",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Saturn",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 7 lord Sun: Jupiter fully aspects Sun"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Jupiter fully aspects house 1"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D9",
+                    "ascendant": 6,
+                    "house": 7,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [
+                        "Jupiter fully aspects house 7"
+                      ],
+                      "houseLord": [
+                        "house 7 lord Mars: Mars fully aspects Jupiter"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "george",
+          "role": "input",
+          "allFirst": true,
+          "anyFirst": true,
+          "allThird": true,
+          "anyThird": true,
+          "paths": [
+            {
+              "lords": [
+                "Jupiter",
+                "Venus",
+                "Moon"
+              ],
+              "primaryD1": [
+                true,
+                true,
+                true
+              ],
+              "primaryDivision": [
+                true,
+                true,
+                true
+              ],
+              "details": [
+                {
+                  "planet": "Jupiter",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [
+                        "Jupiter fully aspects house 5"
+                      ],
+                      "houseLord": [],
+                      "karaka": [
+                        "Jupiter is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Jupiter is in house 9 (house 5 from itself)"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "Jupiter is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Venus: Jupiter and Venus share Scorpio"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Venus",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mercury: Venus and Mercury share Taurus"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Venus is the house 9 lord"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Jupiter: Venus and Jupiter share Scorpio"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Venus is the house 9 lord"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Moon",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mercury: Moon and Mercury share Taurus"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Venus: Moon and Venus share Taurus"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Jupiter: Moon fully aspects Jupiter",
+                        "karaka Jupiter: Jupiter fully aspects Moon"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Venus: Moon fully aspects Venus",
+                        "house 9 lord Venus: Venus fully aspects Moon"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ambulance",
+          "role": "input",
+          "allFirst": true,
+          "anyFirst": true,
+          "allThird": true,
+          "anyThird": true,
+          "paths": [
+            {
+              "lords": [
+                "Jupiter",
+                "Sun",
+                "Sun"
+              ],
+              "primaryD1": [
+                true,
+                true,
+                true
+              ],
+              "primaryDivision": [
+                true,
+                true,
+                true
+              ],
+              "details": [
+                {
+                  "planet": "Jupiter",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 10,
+                    "houseSign": 7,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Sun: Jupiter fully aspects Sun",
+                        "Jupiter is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 7 lord Sun: Jupiter fully aspects Sun"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D10",
+                    "ascendant": 10,
+                    "house": 10,
+                    "houseSign": 7,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "Jupiter is the karaka",
+                        "karaka Saturn: Jupiter and Saturn share Sagittarius"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Jupiter fully aspects house 7"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Sun",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 10,
+                    "houseSign": 7,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "Sun is the karaka",
+                        "karaka Jupiter: Jupiter fully aspects Sun",
+                        "karaka Saturn: Saturn fully aspects Sun"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Sun is the house 7 lord"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D10",
+                    "ascendant": 10,
+                    "house": 10,
+                    "houseSign": 7,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "Sun is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Sun is the house 7 lord"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Sun",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 10,
+                    "houseSign": 7,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "Sun is the karaka",
+                        "karaka Jupiter: Jupiter fully aspects Sun",
+                        "karaka Saturn: Saturn fully aspects Sun"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Sun is the house 7 lord"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D10",
+                    "ascendant": 10,
+                    "house": 10,
+                    "houseSign": 7,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "Sun is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Sun is the house 7 lord"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "charlotte",
+          "role": "heldout",
+          "allFirst": true,
+          "anyFirst": true,
+          "allThird": true,
+          "anyThird": true,
+          "paths": [
+            {
+              "lords": [
+                "Jupiter",
+                "Venus",
+                "Mercury"
+              ],
+              "primaryD1": [
+                true,
+                true,
+                true
+              ],
+              "primaryDivision": [
+                true,
+                true,
+                true
+              ],
+              "details": [
+                {
+                  "planet": "Jupiter",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [
+                        "Jupiter fully aspects house 5"
+                      ],
+                      "houseLord": [],
+                      "karaka": [
+                        "Jupiter is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Jupiter is in house 9 (house 5 from itself)"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "Jupiter is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Venus: Jupiter and Venus share Scorpio"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Venus",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mercury: Venus and Mercury share Taurus"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Venus is the house 9 lord"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Jupiter: Venus and Jupiter share Scorpio"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Venus is the house 9 lord"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Mercury",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "Mercury is the house 5 lord"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Venus: Mercury and Venus share Taurus"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "Mercury is the house 5 lord"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [
+                        "Mercury is in the divisional ascendant"
+                      ],
+                      "natalHouseLord": [
+                        "Mercury is the D1 house 5 lord"
+                      ],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "louis",
+          "role": "heldout",
+          "allFirst": true,
+          "anyFirst": true,
+          "allThird": true,
+          "anyThird": true,
+          "paths": [
+            {
+              "lords": [
+                "Jupiter",
+                "Mars",
+                "Venus"
+              ],
+              "primaryD1": [
+                true,
+                false,
+                true
+              ],
+              "primaryDivision": [
+                true,
+                true,
+                true
+              ],
+              "details": [
+                {
+                  "planet": "Jupiter",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [
+                        "Jupiter fully aspects house 5"
+                      ],
+                      "houseLord": [],
+                      "karaka": [
+                        "Jupiter is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Jupiter is in house 9 (house 5 from itself)"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "Jupiter is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Venus: Jupiter and Venus share Scorpio"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Mars",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [
+                        "Mars is in house 5"
+                      ],
+                      "houseLord": [],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Venus",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mercury: Venus and Mercury share Taurus"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Venus is the house 9 lord"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Jupiter: Venus and Jupiter share Scorpio"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Venus is the house 9 lord"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "controls": [
+        {
+          "event": "charlotte",
+          "shifts": [
+            {
+              "days": -180,
+              "date": "2014-11-03",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": -120,
+              "date": "2015-01-02",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": -60,
+              "date": "2015-03-03",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": 60,
+              "date": "2015-07-01",
+              "allFirst": true,
+              "allThird": false
+            },
+            {
+              "days": 120,
+              "date": "2015-08-30",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": 180,
+              "date": "2015-10-29",
+              "allFirst": true,
+              "allThird": true
+            }
+          ]
+        },
+        {
+          "event": "louis",
+          "shifts": [
+            {
+              "days": -180,
+              "date": "2017-10-25",
+              "allFirst": true,
+              "allThird": false
+            },
+            {
+              "days": -120,
+              "date": "2017-12-24",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": -60,
+              "date": "2018-02-22",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": 60,
+              "date": "2018-06-22",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": 120,
+              "date": "2018-08-21",
+              "allFirst": false,
+              "allThird": false
+            },
+            {
+              "days": 180,
+              "date": "2018-10-20",
+              "allFirst": false,
+              "allThird": false
+            }
+          ]
+        }
+      ]
+    },
+    "nearestTopIntervalMidpointChosenAfterReference": {
+      "candidateLocal": "1982-06-21T21:26:24.062+01:00",
+      "natalAscendant": "Sagittarius",
+      "moonNakshatra": "Ardra",
+      "inputFirst": 3,
+      "inputThird": 3,
+      "facts": [
+        {
+          "id": "marriage",
+          "role": "input",
+          "allFirst": true,
+          "anyFirst": true,
+          "allThird": true,
+          "anyThird": true,
+          "paths": [
+            {
+              "lords": [
+                "Saturn",
+                "Saturn",
+                "Venus"
+              ],
+              "primaryD1": [
+                true,
+                true,
+                true
+              ],
+              "primaryDivision": [
+                true,
+                true,
+                true
+              ],
+              "details": [
+                {
+                  "planet": "Saturn",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 7,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Jupiter",
+                    "primary": {
+                      "house": [
+                        "Saturn fully aspects house 7"
+                      ],
+                      "houseLord": [],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D9",
+                    "ascendant": 2,
+                    "house": 7,
+                    "houseSign": 8,
+                    "houseLord": "Jupiter",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Mercury",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Venus: Saturn fully aspects Venus",
+                        "karaka Venus: Venus fully aspects Saturn"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Saturn",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 7,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Jupiter",
+                    "primary": {
+                      "house": [
+                        "Saturn fully aspects house 7"
+                      ],
+                      "houseLord": [],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D9",
+                    "ascendant": 2,
+                    "house": 7,
+                    "houseSign": 8,
+                    "houseLord": "Jupiter",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Mercury",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Venus: Saturn fully aspects Venus",
+                        "karaka Venus: Venus fully aspects Saturn"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Venus",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 7,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Jupiter",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 7 lord Mercury: Venus and Mercury share Taurus"
+                      ],
+                      "karaka": [
+                        "Venus is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D9",
+                    "ascendant": 2,
+                    "house": 7,
+                    "houseSign": 8,
+                    "houseLord": "Jupiter",
+                    "bhavatHouse": 1,
+                    "bhavatLord": "Mercury",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "Venus is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "george",
+          "role": "input",
+          "allFirst": true,
+          "anyFirst": true,
+          "allThird": true,
+          "anyThird": true,
+          "paths": [
+            {
+              "lords": [
+                "Saturn",
+                "Mercury",
+                "Venus"
+              ],
+              "primaryD1": [
+                true,
+                false,
+                false
+              ],
+              "primaryDivision": [
+                true,
+                true,
+                true
+              ],
+              "details": [
+                {
+                  "planet": "Saturn",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 5,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mars: Saturn and Mars share Virgo"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Sun: Saturn fully aspects Sun"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mercury: Saturn fully aspects Mercury",
+                        "house 5 lord Mercury: Mercury fully aspects Saturn"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Saturn fully aspects house 9"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Mercury",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 5,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "Mercury is the house 5 lord"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [
+                        "Mercury is in the divisional ascendant"
+                      ],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Venus",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 5,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Jupiter: Venus and Jupiter share Scorpio"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Venus is the house 9 lord"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ambulance",
+          "role": "input",
+          "allFirst": true,
+          "anyFirst": true,
+          "allThird": true,
+          "anyThird": true,
+          "paths": [
+            {
+              "lords": [
+                "Saturn",
+                "Ketu",
+                "Ketu"
+              ],
+              "primaryD1": [
+                true,
+                true,
+                true
+              ],
+              "primaryDivision": [
+                true,
+                true,
+                true
+              ],
+              "details": [
+                {
+                  "planet": "Saturn",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 10,
+                    "houseSign": 5,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Mercury",
+                    "primary": {
+                      "house": [
+                        "Saturn is in house 10"
+                      ],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Sun: Saturn fully aspects Sun",
+                        "Saturn is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Saturn fully aspects house 7"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D10",
+                    "ascendant": 11,
+                    "house": 10,
+                    "houseSign": 8,
+                    "houseLord": "Jupiter",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Mercury",
+                    "primary": {
+                      "house": [
+                        "Saturn is in house 10"
+                      ],
+                      "houseLord": [
+                        "house 10 lord Jupiter: Saturn and Jupiter share Sagittarius"
+                      ],
+                      "karaka": [
+                        "karaka Mercury: Saturn fully aspects Mercury",
+                        "karaka Mercury: Mercury fully aspects Saturn",
+                        "karaka Jupiter: Saturn and Jupiter share Sagittarius",
+                        "Saturn is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [
+                        "D1 house 10 lord Mercury: Saturn fully aspects Mercury",
+                        "D1 house 10 lord Mercury: Mercury fully aspects Saturn"
+                      ],
+                      "bhavat": [
+                        "Saturn fully aspects house 7",
+                        "house 7 lord Mercury: Saturn fully aspects Mercury",
+                        "house 7 lord Mercury: Mercury fully aspects Saturn"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Ketu",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 10,
+                    "houseSign": 5,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Mercury",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Sun: Sun fully aspects Ketu",
+                        "karaka Jupiter: Ketu is in Jupiter's sign"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": [
+                        "Ketu is in Sagittarius, ruled by Jupiter",
+                        "Ketu receives a full aspect from Sun",
+                        "Ketu receives a full aspect from Moon",
+                        "Ketu receives a full aspect from Mars"
+                      ]
+                    }
+                  },
+                  "division": {
+                    "chart": "D10",
+                    "ascendant": 11,
+                    "house": 10,
+                    "houseSign": 8,
+                    "houseLord": "Jupiter",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Mercury",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 10 lord Jupiter: Jupiter fully aspects Ketu"
+                      ],
+                      "karaka": [
+                        "karaka Mercury: Ketu and Mercury share Gemini",
+                        "karaka Mercury: Ketu is in Mercury's sign",
+                        "karaka Jupiter: Jupiter fully aspects Ketu",
+                        "karaka Saturn: Saturn fully aspects Ketu"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [
+                        "D1 house 10 lord Mercury: Ketu and Mercury share Gemini",
+                        "D1 house 10 lord Mercury: Ketu is in Mercury's sign"
+                      ],
+                      "bhavat": [
+                        "house 7 lord Mercury: Ketu and Mercury share Gemini",
+                        "house 7 lord Mercury: Ketu is in Mercury's sign"
+                      ],
+                      "nodes": [
+                        "Ketu is in Gemini, ruled by Mercury",
+                        "Ketu receives a full aspect from Jupiter",
+                        "Ketu receives a full aspect from Saturn"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "planet": "Ketu",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 10,
+                    "houseSign": 5,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Mercury",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Sun: Sun fully aspects Ketu",
+                        "karaka Jupiter: Ketu is in Jupiter's sign"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": [
+                        "Ketu is in Sagittarius, ruled by Jupiter",
+                        "Ketu receives a full aspect from Sun",
+                        "Ketu receives a full aspect from Moon",
+                        "Ketu receives a full aspect from Mars"
+                      ]
+                    }
+                  },
+                  "division": {
+                    "chart": "D10",
+                    "ascendant": 11,
+                    "house": 10,
+                    "houseSign": 8,
+                    "houseLord": "Jupiter",
+                    "bhavatHouse": 7,
+                    "bhavatLord": "Mercury",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 10 lord Jupiter: Jupiter fully aspects Ketu"
+                      ],
+                      "karaka": [
+                        "karaka Mercury: Ketu and Mercury share Gemini",
+                        "karaka Mercury: Ketu is in Mercury's sign",
+                        "karaka Jupiter: Jupiter fully aspects Ketu",
+                        "karaka Saturn: Saturn fully aspects Ketu"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [
+                        "D1 house 10 lord Mercury: Ketu and Mercury share Gemini",
+                        "D1 house 10 lord Mercury: Ketu is in Mercury's sign"
+                      ],
+                      "bhavat": [
+                        "house 7 lord Mercury: Ketu and Mercury share Gemini",
+                        "house 7 lord Mercury: Ketu is in Mercury's sign"
+                      ],
+                      "nodes": [
+                        "Ketu is in Gemini, ruled by Mercury",
+                        "Ketu receives a full aspect from Jupiter",
+                        "Ketu receives a full aspect from Saturn"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "charlotte",
+          "role": "heldout",
+          "allFirst": true,
+          "anyFirst": true,
+          "allThird": true,
+          "anyThird": true,
+          "paths": [
+            {
+              "lords": [
+                "Saturn",
+                "Mercury",
+                "Saturn"
+              ],
+              "primaryD1": [
+                true,
+                false,
+                true
+              ],
+              "primaryDivision": [
+                true,
+                true,
+                true
+              ],
+              "details": [
+                {
+                  "planet": "Saturn",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 5,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mars: Saturn and Mars share Virgo"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Sun: Saturn fully aspects Sun"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mercury: Saturn fully aspects Mercury",
+                        "house 5 lord Mercury: Mercury fully aspects Saturn"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Saturn fully aspects house 9"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Mercury",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 5,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "Mercury is the house 5 lord"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [
+                        "Mercury is in the divisional ascendant"
+                      ],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Saturn",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 5,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mars: Saturn and Mars share Virgo"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Sun: Saturn fully aspects Sun"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mercury: Saturn fully aspects Mercury",
+                        "house 5 lord Mercury: Mercury fully aspects Saturn"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Saturn fully aspects house 9"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "louis",
+          "role": "heldout",
+          "allFirst": true,
+          "anyFirst": true,
+          "allThird": true,
+          "anyThird": true,
+          "paths": [
+            {
+              "lords": [
+                "Saturn",
+                "Venus",
+                "Jupiter"
+              ],
+              "primaryD1": [
+                true,
+                false,
+                true
+              ],
+              "primaryDivision": [
+                true,
+                true,
+                true
+              ],
+              "details": [
+                {
+                  "planet": "Saturn",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 5,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mars: Saturn and Mars share Virgo"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Sun: Saturn fully aspects Sun"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [
+                        "house 5 lord Mercury: Saturn fully aspects Mercury",
+                        "house 5 lord Mercury: Mercury fully aspects Saturn"
+                      ],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Saturn fully aspects house 9"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Venus",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 5,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": []
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "karaka Jupiter: Venus and Jupiter share Scorpio"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "Venus is the house 9 lord"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                },
+                {
+                  "planet": "Jupiter",
+                  "d1": {
+                    "chart": "D1",
+                    "ascendant": 8,
+                    "house": 5,
+                    "houseSign": 0,
+                    "houseLord": "Mars",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Sun",
+                    "primary": {
+                      "house": [
+                        "Jupiter fully aspects house 5"
+                      ],
+                      "houseLord": [],
+                      "karaka": [
+                        "Jupiter is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Sun: Jupiter fully aspects Sun"
+                      ],
+                      "nodes": []
+                    }
+                  },
+                  "division": {
+                    "chart": "D7",
+                    "ascendant": 10,
+                    "house": 5,
+                    "houseSign": 2,
+                    "houseLord": "Mercury",
+                    "bhavatHouse": 9,
+                    "bhavatLord": "Venus",
+                    "primary": {
+                      "house": [],
+                      "houseLord": [],
+                      "karaka": [
+                        "Jupiter is the karaka"
+                      ]
+                    },
+                    "supporting": {
+                      "ascendant": [],
+                      "natalHouseLord": [],
+                      "bhavat": [
+                        "house 9 lord Venus: Jupiter and Venus share Scorpio"
+                      ],
+                      "nodes": []
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "controls": [
+        {
+          "event": "charlotte",
+          "shifts": [
+            {
+              "days": -180,
+              "date": "2014-11-03",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": -120,
+              "date": "2015-01-02",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": -60,
+              "date": "2015-03-03",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": 60,
+              "date": "2015-07-01",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": 120,
+              "date": "2015-08-30",
+              "allFirst": false,
+              "allThird": false
+            },
+            {
+              "days": 180,
+              "date": "2015-10-29",
+              "allFirst": false,
+              "allThird": false
+            }
+          ]
+        },
+        {
+          "event": "louis",
+          "shifts": [
+            {
+              "days": -180,
+              "date": "2017-10-25",
+              "allFirst": true,
+              "allThird": false
+            },
+            {
+              "days": -120,
+              "date": "2017-12-24",
+              "allFirst": true,
+              "allThird": false
+            },
+            {
+              "days": -60,
+              "date": "2018-02-22",
+              "allFirst": true,
+              "allThird": false
+            },
+            {
+              "days": 60,
+              "date": "2018-06-22",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": 120,
+              "date": "2018-08-21",
+              "allFirst": true,
+              "allThird": true
+            },
+            {
+              "days": 180,
+              "date": "2018-10-20",
+              "allFirst": true,
+              "allThird": true
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "caution": "Retrospective, non-blind, one-person comparison. Shifted dates are not verified non-events. The nearest example was selected after inspecting the published time. First/third links use an incomplete model."
+}

@@ -313,14 +313,14 @@ test("one planet's contrary lordship readings from one house are set aside (BPHS
   assert.ok(prac.includes(LORD_IN_HOUSE[7][2].text), "the practitioner report keeps both readings");
 });
 
-test("Rahu holding the Sun withdraws the son line (Nadi children reading)", () => {
+test("Rahu holding the Sun is explained without predicting a child's sex", () => {
   const r = resultOf(PORTLAND);
   assert.ok(rahuHoldsSun(r.positions));
   const f = r.reading.findings.find((x) => x.ruleId === "ch-ju-su");
   assert.ok(f, "the Jupiter-Sun line fires");
   assert.equal(f!.tone, "neutral");
-  assert.match(f!.text, /the indication of a son gives way/);
-  assert.match(r.reading.children.notes.join(" "), /gives way/);
+  assert.match(f!.text, /cannot determine a child's sex/);
+  assert.match(r.reading.children.notes.join(" "), /cannot determine a child's sex/);
 });
 
 test("chapter 83's curses stay in the practitioner reading (BPHS 83)", () => {

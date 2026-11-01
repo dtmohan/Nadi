@@ -21,8 +21,7 @@
  *    KP, the conjoined period of the matter's significators at the dasa-bhukti level, the level the books'
  *    worked marriages are dated by (Part 3 pp. 25, 65), with the antara carried as a refinement and counted
  *    separately as the full three-level match. The report lists which past windows caught a recorded event,
- *    and the chance baseline carries the same measures, so a window real events fall in no more often than
- *    random dates is reported as chance, not as a hit.
+ *    and the comparison baseline carries the same measures so common windows remain visible.
  *
  * The planet tally then turns the events round: for each planet, the houses it signifies decide what KP
  * expects of it (Part 1 pp. 17-19: a planet tied to 6, 8, 12 turns harmful in its periods, one tied to
@@ -32,6 +31,7 @@
  * Nothing here is stored; the caller sends the chart, with its events, on each request.
  */
 import { DateTime } from "luxon";
+import { stagedObservation, summarizeParashariComparisons, type ParashariObservation } from "@shared/parashari-comparison";
 import {
   norm360,
   PLANETS,
@@ -81,6 +81,13 @@ import type { Gender } from "@shared/marriage";
 import type { TransitCheck } from "@shared/rectify-types";
 import { computeJaimini } from "@shared/jaimini";
 import { dashaFitAt } from "@shared/jaimini-areas";
+import { comparisonDate, eventInstant } from "./event-time";
+import { kpTransitEvidence } from "@shared/kp-transit-evidence";
+import { auroraEventEvidence } from "@shared/kp-aurora";
+import { auroraV2Evidence } from "@shared/kp-aurora-v2";
+import { vargaTopicFor } from "@shared/parashari-varga-evidence";
+import { manleyTopicFor } from "@shared/manley-evidence";
+import { createParashariEventScorer } from "./parashari-event";
 import {
   birthInstant,
   julianDay,
@@ -176,6 +183,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   const lagnaJ = norm360(
     ascendantAt(jd0, chart.latitude, chart.longitude, optsJ),
   );
+  const scoreParashari = createParashariEventScorer(positionsJ, lagnaJ, birthIso, zone);
   const jaimini = computeJaimini(positionsJ, lagnaJ, birthIso);
   const natalJupiter = positionsJ.find((p) => p.planet === "Jupiter")!;
   const gender = (chart.gender as Gender) ?? "unspecified";
@@ -379,14 +387,9 @@ export function validateEvents(chart: InsertChart): ValidationResult {
     windowsByMatter.set(m.id, { bnn, kp, kpStrict });
   }
 
-  const scoreEvent = (e: ChartEvent, date: string): EventValidation => {
+  const scoreEvent = (e: ChartEvent, date: string, includeEvidence = false): EventValidation => {
     const m = matterOf(e.matter);
-    const evDt = DateTime.fromISO(date, { zone }).set({
-      hour: 12,
-      minute: 0,
-      second: 0,
-      millisecond: 0,
-    });
+    const evDt = eventInstant(date, e, zone);
     const evIso = evDt.toUTC().toISO()!;
     const evMs = evDt.toUTC().toMillis();
     const held = windowsByMatter.get(m.id);
@@ -561,16 +564,30 @@ export function validateEvents(chart: InsertChart): ValidationResult {
         }
       : null;
 
+    // The same scorer receives the actual or sampled event instant and its own
+    // transit sky. Descriptive KP evidence remains separately controlled.
+    const parashari = vargaTopicFor(m.id) || manleyTopicFor(m.id)
+      ? scoreParashari({ label: m.label, matter: m.id, outcome: e.outcome, time: e.time, timezone: e.timezone }, date, evIso, dayJ)
+      : {};
     return {
       id: e.id,
       matter: m.id,
       label: m.label,
       date,
+      time: e.time,
+      timezone: e.timezone,
       age: Math.round(evDt.diff(utc0, "years").years * 10) / 10,
       outcome: effectiveOutcome(e),
       houses,
       cusp: m.cusp,
+      parashariVargas: parashari.varga,
+      manley: parashari.manley,
+      parashariPromise: parashari.promise,
+      parashariSpecific: parashari.specific,
+      parashariDivisional: parashari.divisional,
       kp: {
+        aurora: auroraEventEvidence({ matter: e.matter, planets, cusps, significators: sigs, lords, transits: dayPositions }),
+        auroraV2: auroraV2Evidence({ matter: e.matter, planets, cusps, lords, transits: dayPositions }),
         dasa: lords[0],
         bhukti: lords[1],
         antara: lords[2],
@@ -588,6 +605,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
           score: tScore,
           max: 6,
           luminary,
+          evidence: includeEvidence ? kpTransitEvidence(dayPositions, planets, cuspLons, houses) : undefined,
         },
         score,
         max: 4,
@@ -604,19 +622,14 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       windows: { bnn: bnnHit, kp: kpHit, kpStrict: ksHit },
     };
   };
-  const out: EventValidation[] = events.map((e) => scoreEvent(e, e.date));
+  const out: EventValidation[] = events.map((e) => scoreEvent(e, e.date, true));
 
   // The report the panel lists: past windows of the recorded matters, and the events that fell inside.
-  // The event instant is noon in the birth zone, as the day-level checks take it.
+  // Use the same supplied or assumed instant as the event-level checks.
   const eventMs = new Map(
     out.map((e) => [
       e.id,
-      Date.parse(
-        DateTime.fromISO(e.date, { zone })
-          .set({ hour: 12, minute: 0, second: 0, millisecond: 0 })
-          .toUTC()
-          .toISO()!,
-      ),
+      eventInstant(e.date, e, zone).toMillis(),
     ]),
   );
   const bnnRows: BnnWindowRow[] = [];
@@ -705,7 +718,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
 
   // Chance baseline: the same matters scored at random dates drawn from the span the real events cover.
   // A score that random dates reach as often as the real ones did is not evidence for the birth time.
-  const baseline = chanceBaseline(events, out, scoreEvent);
+  const baseline = chanceBaseline(events, out, scoreEvent, zone);
 
   // Planet tally: what KP expects of each planet, against how its periods went.
   const weights = { dasa: 2, bhukti: 2, antara: 1 } as const;
@@ -821,12 +834,23 @@ export function seeded(seed: number): () => number {
   };
 }
 
+/** Shared date-only seed so Rectify and Validate compare the same ordered events. */
+export function comparisonSeed(dates: string[]): number {
+  let value = 2166136261;
+  for (const date of dates) {
+    for (const ch of date) value = Math.imul(value ^ ch.charCodeAt(0), 16777619);
+    value = Math.imul(value ^ 124, 16777619);
+  }
+  return value >>> 0;
+}
+
 const BASELINE_TRIALS = 200;
 
 function chanceBaseline(
   events: ChartEvent[],
   real: EventValidation[],
-  scoreEvent: (e: ChartEvent, date: string) => EventValidation,
+  scoreEvent: (e: ChartEvent, date: string, includeEvidence?: boolean) => EventValidation,
+  birthZone: string,
 ): ChanceBaseline | null {
   if (events.length < 2) return null;
   const days = events.map((e) =>
@@ -835,14 +859,11 @@ function chanceBaseline(
   const lo = Math.min(...days);
   const hi = Math.max(...days);
   if (hi - lo < 365 * 86400000) return null; // too short a span to draw meaningful alternatives
-  const rnd = seeded(
-    events.reduce(
-      (s, e) => s + e.date.length * 31 + e.matter.length,
-      events.length,
-    ),
-  );
+  const rnd = seeded(comparisonSeed(events.map((e) => e.date)));
   const measures: Record<BaselineMeasure, (vs: EventValidation[]) => number> = {
     confirmed: (vs) => vs.filter((v) => v.kp.verdict === "confirmed").length,
+    aurora: (vs) => vs.filter((v) => v.kp.aurora?.allSupported).length,
+    auroraV2: (vs) => vs.filter((v) => v.kp.auroraV2?.allSupported).length,
     kp: (vs) => vs.reduce((s, v) => s + v.kp.score, 0),
     transit: (vs) => vs.reduce((s, v) => s + v.kp.transit.score, 0),
     jaimini: (vs) => vs.reduce((s, v) => s + (v.jaimini?.score ?? 0), 0),
@@ -861,6 +882,8 @@ function chanceBaseline(
   const keys = Object.keys(measures) as BaselineMeasure[];
   const samples: Record<BaselineMeasure, number[]> = {
     confirmed: [],
+    aurora: [],
+    auroraV2: [],
     kp: [],
     transit: [],
     jaimini: [],
@@ -872,15 +895,34 @@ function chanceBaseline(
     kpStrictFullWindow: [],
     luminary: [],
   };
+  let example: ChanceBaseline["example"];
+  let auroraExample: ChanceBaseline["auroraExample"];
+  let auroraV2Example: ChanceBaseline["auroraV2Example"];
+  let parashariExample: ChanceBaseline["parashariExample"];
+  const observe = (v: EventValidation): ParashariObservation => ({
+    v1: v.parashariPromise?.score, v2: v.parashariSpecific?.score, v3: v.parashariDivisional?.score,
+    staged: stagedObservation(v.manley),
+  });
+  const parashariTrials: ParashariObservation[][] = [];
   for (let t = 0; t < BASELINE_TRIALS; t++) {
     const trial = events.map((e) =>
       scoreEvent(
         e,
-        DateTime.fromMillis(lo + Math.floor(rnd() * (hi - lo)), {
-          zone: "utc",
-        }).toISODate()!,
+        comparisonDate(rnd, lo, hi, e, birthZone),
+        t === 0,
       ),
     );
+    if (t === 0) {
+      example = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone, evidence: v.kp.transit.evidence ?? [] }));
+      auroraExample = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone, evidence: v.kp.aurora }));
+      auroraV2Example = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone, evidence: v.kp.auroraV2 }));
+      parashariExample = trial.flatMap((v, i) => {
+        const original = observe(real[i]);
+        return original.v1 !== undefined || original.staged ? [{ label: v.label, date: v.date, time: v.time, timezone: v.timezone,
+          promise: v.parashariPromise, specific: v.parashariSpecific, divisional: v.parashariDivisional, manley: v.manley }] : [];
+      });
+    }
+    parashariTrials.push(trial.map(observe));
     for (const k of keys) samples[k].push(measures[k](trial));
   }
   const stat = (k: BaselineMeasure): BaselineStat => {
@@ -903,13 +945,21 @@ function chanceBaseline(
         percentile >= 95 ? "above" : percentile <= 5 ? "below" : "chance",
     };
   };
+  const parashari = summarizeParashariComparisons(real.map(observe), parashariTrials);
   return {
     trials: BASELINE_TRIALS,
+    example,
+    auroraExample,
+    auroraV2Example,
+    parashari: Object.keys(parashari).length ? parashari : undefined,
+    parashariExample: Object.keys(parashari).length ? parashariExample : undefined,
     span: [
       DateTime.fromMillis(lo, { zone: "utc" }).toISODate()!,
       DateTime.fromMillis(hi, { zone: "utc" }).toISODate()!,
     ],
     confirmed: stat("confirmed"),
+    aurora: real.some((v) => v.kp.aurora) ? stat("aurora") : undefined,
+    auroraV2: real.some((v) => v.kp.auroraV2) ? stat("auroraV2") : undefined,
     kp: stat("kp"),
     transit: stat("transit"),
     jaimini: stat("jaimini"),

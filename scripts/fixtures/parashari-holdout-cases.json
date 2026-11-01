@@ -1,0 +1,91 @@
+{
+  "description": "New public cases, selected before running the Parashari scoring experiment. This is a convenience sample, with birth-time uncertainty and selectively documented events.",
+  "cases": [
+    {
+      "chart": {"name":"Marie Curie","gender":"female","birthDate":"1867-11-07","birthTime":"12:00","timezone":"Europe/Warsaw","timeStandard":"lmt","place":"Warsaw, Poland","latitude":52.25,"longitude":21.0,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Curie%2C_Marie",
+      "birthQuality":"AA, baptism record quoted; noon is rounded and an alternate family account says soon after sunrise. Warsaw local mean time, UTC+01:24.",
+      "category":"Physicist and chemist; born in Poland",
+      "events": [
+        {"id":"marriage","matter":"marriage","date":"1895-07-26","timezone":"Europe/Paris","source":"https://www.astro.com/astro-databank/Curie%2C_Marie","description":"Civil marriage to Pierre Curie at Sceaux"},
+        {"id":"irene","matter":"child","date":"1897-09-12","timezone":"Europe/Paris","source":"https://curie-joliotcurie.fr/en/about-us/joliot-curie-family-timeline/","description":"Daughter Irène born in Paris"},
+        {"id":"eve","matter":"child","date":"1904-12-06","timezone":"Europe/Paris","source":"https://curie-joliotcurie.fr/en/about-us/biographies/eve-curie-labouisse/","description":"Daughter Ève born in Paris"}
+      ]
+    },
+    {
+      "chart":{"name":"Yoko Ono","gender":"female","birthDate":"1933-02-18","birthTime":"20:30","timezone":"Asia/Tokyo","timeStandard":"auto","place":"Tokyo, Japan","latitude":35.7,"longitude":139.7667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Ono%2C_Yoko",
+      "birthQuality":"A, reported from memory; 20:30 may be rounded. A daughter's 1963 birth date differs between published sources and is excluded.",
+      "category":"Artist and musician; born in Japan",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"1969-03-20","timezone":"Europe/Gibraltar","source":"https://www.astro.com/astro-databank/Ono%2C_Yoko","description":"Married John Lennon in Gibraltar"},
+        {"id":"sean","matter":"child","date":"1975-10-09","timezone":"America/New_York","source":"https://www.pbs.org/wnet/americanmasters/lennonyc-timeline-of-major-events/1708/","description":"Son Sean born in New York"}
+      ]
+    },
+    {
+      "chart":{"name":"Shakira","gender":"female","birthDate":"1977-02-02","birthTime":"09:30","timezone":"America/Bogota","timeStandard":"auto","place":"Barranquilla, Colombia","latitude":10.9833,"longitude":-74.8,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/adbvip/adbvip_02_02.htm?lang=p&nho2=432639&nhor=1&pa=nmo",
+      "birthQuality":"B, time quoted from a biography; apparently rounded to the half hour, with a different unsourced time also circulating.",
+      "category":"Musician; born in Colombia",
+      "events":[
+        {"id":"milan","matter":"child","date":"2013-01-22","time":"21:36","timezone":"Europe/Madrid","source":"https://www.astro.com/adbvip/adbvip_02_02.htm?lang=r&nho2=427770&nhor=427770","description":"Son Milan born in Barcelona, reported 21:36"},
+        {"id":"sasha","matter":"child","date":"2015-01-29","time":"21:54","timezone":"Europe/Madrid","source":"https://www.astro.com/adbvip/adbvip_02_02.htm?lang=r&nho2=427770&nhor=427770","description":"Son Sasha born in Barcelona, reported 21:54"}
+      ]
+    },
+    {
+      "chart":{"name":"Aamir Khan","gender":"male","birthDate":"1965-03-14","birthTime":"10:05","timezone":"Asia/Kolkata","timeStandard":"auto","place":"Mumbai, India","latitude":18.9667,"longitude":72.8333,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Khan%2C_Aamir",
+      "birthQuality":"A, astrologer reports time from mother; another source gives 06:15 and an astrologer rectified a third time, so the time is disputed.",
+      "category":"Actor and filmmaker; born in India",
+      "events":[
+        {"id":"reena","matter":"marriage","date":"1986-04-18","timezone":"Asia/Kolkata","source":"https://www.imdb.com/name/nm0451148/bio/","description":"Marriage to Reena Dutta"},
+        {"id":"kiran","matter":"marriage","date":"2005-12-28","timezone":"Asia/Kolkata","source":"https://www.imdb.com/name/nm0451148/bio/","description":"Marriage to Kiran Rao"},
+        {"id":"azad","matter":"child","date":"2011-12-01","timezone":"Asia/Kolkata","source":"https://indianexpress.com/article/entertainment/bollywood/i-want-azad-to-have-a-normal-life-aamir-khans-wife/","description":"Son Azad born; announcement was 5 December"},
+        {"id":"gauri","matter":"marriage","date":"2026-07-05","timezone":"Asia/Kolkata","source":"https://theprint.in/feature/aamir-khan-marries-longtime-partner-gauri-spratt-in-intimate-ceremony/2978049/","description":"Marriage to Gauri Spratt in Mumbai"}
+      ]
+    },
+    {
+      "chart":{"name":"Elon Musk","gender":"male","birthDate":"1971-06-28","birthTime":"07:30","timezone":"Africa/Johannesburg","timeStandard":"auto","place":"Pretoria, South Africa","latitude":-25.75,"longitude":28.1667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Musk%2C_Elon?nhor=804",
+      "birthQuality":"B, time quoted from Isaacson biography; 07:30 may be rounded.",
+      "category":"Technology entrepreneur; born in South Africa",
+      "events":[
+        {"id":"nevada","matter":"child","date":"2002-05-18","timezone":"America/Los_Angeles","source":"https://www.vanityfair.com/style/story/all-elon-musk-children-and-mothers","description":"Son Nevada born in California"},
+        {"id":"x","matter":"child","date":"2020-05-04","time":"15:06","timezone":"America/Los_Angeles","source":"https://theblast.com/36568/elon-musk-grimes-son-brith-certificate-baby-x-name-change-roman-numerals-symbols-spacex-launch/","description":"Son X born in Los Angeles; 15:06 reported from certificate, another report says 15:08"}
+      ]
+    },
+    {
+      "chart":{"name":"Marilyn Monroe","gender":"female","birthDate":"1926-06-01","birthTime":"09:30","timezone":"America/Los_Angeles","timeStandard":"auto","place":"Los Angeles, California, USA","latitude":34.05,"longitude":-118.25,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Monroe%2C_Marilyn?lang=j&nho2=261&nhor=1",
+      "birthQuality":"AA, birth certificate reportedly in hand; 09:30 may be rounded.",
+      "category":"Actor and model; born in the United States",
+      "events":[
+        {"id":"dougherty","matter":"marriage","date":"1942-06-19","timezone":"America/Los_Angeles","source":"https://planning.lacity.gov/plndoc/Staff_Reports/2024/01-18-2024/CHC_2023_6134_HCM_Marilyn_Monroe_Residence_Final.pdf","description":"Marriage to James Dougherty, Los Angeles"},
+        {"id":"dimaggio","matter":"marriage","date":"1954-01-14","timezone":"America/Los_Angeles","source":"https://www.history.com/articles/marilyn-monroe-joe-dimaggio-marriage-icons","description":"Marriage to Joe DiMaggio, San Francisco"},
+        {"id":"miller","matter":"marriage","date":"1956-06-29","timezone":"America/New_York","source":"https://www.history.com/this-day-in-history/june-29/marilyn-monroe-weds-arthur-miller","description":"Civil marriage to Arthur Miller, New York"}
+      ]
+    },
+    {
+      "chart":{"name":"Bruce Lee","gender":"male","birthDate":"1940-11-27","birthTime":"07:12","timezone":"America/Los_Angeles","timeStandard":"auto","place":"San Francisco, California, USA","latitude":37.7833,"longitude":-122.4167,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Lee%2C_Bruce",
+      "birthQuality":"AA, birth certificate reportedly in hand.",
+      "category":"Martial artist and actor; Chinese-American, born in the United States",
+      "events":[
+        {"id":"linda","matter":"marriage","date":"1964-08-17","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Lee%2C_Bruce","description":"Marriage to Linda Emery in Seattle"},
+        {"id":"brandon","matter":"child","date":"1965-02-01","time":"05:48","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Lee%2C_Brandon_%281965%29","description":"Son Brandon born in Oakland, time from quoted birth certificate"},
+        {"id":"shannon","matter":"child","date":"1969-04-19","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Lee%2C_Bruce","description":"Daughter Shannon born in Santa Monica"}
+      ]
+    },
+    {
+      "chart":{"name":"Kamala Harris","gender":"female","birthDate":"1964-10-20","birthTime":"21:28","timezone":"America/Los_Angeles","timeStandard":"auto","place":"Oakland, California, USA","latitude":37.8,"longitude":-122.2667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Harris%2C_Kamala",
+      "birthQuality":"AA, birth certificate reportedly in hand.",
+      "category":"Attorney and public official; born in the United States",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"2014-08-22","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Harris%2C_Kamala","description":"Marriage to Douglas Emhoff"},
+        {"id":"senate","matter":"job","date":"2017-01-03","timezone":"America/New_York","source":"https://www.senate.gov/states/CA/timeline.htm","description":"Began service in the U.S. Senate"},
+        {"id":"vice-president","matter":"job","date":"2021-01-20","timezone":"America/New_York","source":"https://www.senate.gov/art-artifacts/thematic-collections/historic-events/inauguration/2021.htm","description":"Became U.S. vice president"}
+      ]
+    }
+  ]
+}

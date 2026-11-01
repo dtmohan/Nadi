@@ -1,7 +1,18 @@
-// Validate: the chart's dated events read back at their dates, with the shuffled-date baseline.
+// Validate: the chart's dated events read back at their dates, with a random-date comparison.
 // A tool rather than a reading; it is exported from its own tab and never joins the Report page picker.
 import { RAO_SOURCE } from "../jaimini-areas";
+import { KP_TRANSIT_EVIDENCE_SOURCE } from "../kp-transit-evidence";
+import { transitEvidenceTable } from "./kp-transit-evidence";
+import { describeEventMoment } from "../events";
+import { PARASHARI_VARGA_SOURCE } from "../parashari-varga-evidence";
+import { parashariEvidenceParas } from "./parashari-varga-evidence";
+import { MANLEY_SOURCE, RAO_EDUCATION_SOURCE } from "../manley-evidence";
+import { manleyEvidenceParas } from "./manley-evidence";
+import { parashariComparisonParas } from "./parashari-comparison";
 import type { BaselineStat } from "../validate-types";
+import { AURORA_SOURCE } from "../kp-aurora";
+import { auroraEvidenceParas, auroraV2EvidenceParas } from "./kp-aurora";
+import { AURORA_V2_SOURCE } from "../kp-aurora-v2";
 import { agreeWord, KP_MARKED_KEY, markedHousesText } from "../validate-types";
 import {
   type ReportModule,
@@ -54,7 +65,7 @@ export const validateModule: ReportModule = {
     const paras: ReportPara[] = [
       {
         kind: "lead",
-        text: `${s.events} dated event${s.events === 1 ? "" : "s"} read back at ${s.events === 1 ? "its" : "their"} date${s.events === 1 ? "" : "s"} against the chart as it stands (birth time ${v.birthTime}, ${v.lagna.sign} rising at ${v.lagna.degree.toFixed(2)}°). By Krishnamurti's period lords and cusp promise ${s.confirmed} ${s.confirmed === 1 ? "is" : "are"} confirmed, ${s.partial} partial and ${s.missed} missed, ${s.kpScore} of ${s.kpMax} points in all; the transit hint scores ${s.transitScore} of ${s.transitMax}; K.N. Rao's chara dasha check carries the matter in ${s.jaiminiScore} of ${s.jaiminiMax} points over ${s.jaiminiEvents} event${s.jaiminiEvents === 1 ? "" : "s"} with an area; the Nadi timers score ${s.bnnScore} of ${s.bnnMax}, strong at ${s.bnnStrong}.`,
+        text: `${s.events} dated event${s.events === 1 ? "" : "s"} read against the chart as it stands (birth time ${v.birthTime}, ${v.lagna.sign} rising at ${v.lagna.degree.toFixed(2)}°). Without an event time the app assumes noon; without an event time zone it assumes the birth zone (${result.chart.timezone}). Random dates keep each event's local time and zone. KP has ${s.confirmed} period/cusp matches, ${s.partial} partial and ${s.missed} missed, ${s.kpScore} of ${s.kpMax} points; the separate transit check scores ${s.transitScore} of ${s.transitMax}; K.N. Rao's chara dasha check scores ${s.jaiminiScore} of ${s.jaiminiMax} over ${s.jaiminiEvents} event${s.jaiminiEvents === 1 ? "" : "s"} with an area; Nadi scores ${s.bnnScore} of ${s.bnnMax}, strong at ${s.bnnStrong}.`,
         cites: [kpSrc, raoSrc, bnnSrc],
       },
       {
@@ -80,7 +91,7 @@ export const validateModule: ReportModule = {
           `${e.kp.dasa} / ${e.kp.bhukti} / ${e.kp.antara}`,
           hitMarks(e.kp.hits),
           `${yn(e.kp.promised)} (${e.kp.cuspSubLord})`,
-          `${e.kp.verdict} ${e.kp.score}/${e.kp.max}`,
+          `${e.kp.verdict === "confirmed" ? "period/cusp match" : e.kp.verdict} ${e.kp.score}/${e.kp.max}`,
           e.jaimini
             ? `${e.jaimini.mdSignName} / ${e.jaimini.adSignName} ${e.jaimini.score}/${e.jaimini.max}`
             : "—",
@@ -90,7 +101,7 @@ export const validateModule: ReportModule = {
       },
       {
         kind: "note",
-        text: "Hits: D, B and A mark a dasa, bhukti or antara lord that signifies one of the matter's houses by the four-step rule; a dash marks one that does not. Promised: the sub lord of the matter's cusp signifies the matter. KP verdict: confirmed when promised and both dasa and bhukti lords signify, partial when something links, missed when nothing does. The chara dasha column gives the mahadasha and antardasha signs running that day and Rao's fit; the Nadi column scores Jupiter's and Saturn's contacts with the matter's karakas that day out of six. Window: the timing window each system names in advance, if one was open at the date — Jupiter's passage for Nadi (left of the slash), the KP dasa-bhukti joint period (right), with +A marking an antara lord that also signifies the matter. Within the conjoined period, the book's day trigger is the transiting Sun or Moon in the sign, star or sub of the period lords (Part 2 p. 26, provisional reading), shown in the app's transit column. The scoring scales are the app's, not the books'.",
+        text: "Hits: D, B and A mark a dasa, bhukti or antara lord that signifies one of the matter's houses by the four-step rule. Promised: the sub lord of the matter's cusp signifies the matter. A KP period/cusp match requires the promise and both dasa and bhukti lords to signify; it does not include antara or transit. Partial means something links, missed means nothing does. The chara dasha column gives the mahadasha and antardasha signs and Rao's fit; the Nadi column scores Jupiter's and Saturn's contacts with the matter's karakas. Timing windows are shown separately. The scoring scales are the app's, not the books'.",
         cites: [kpSrc, filterSrc],
         provisional: true,
       },
@@ -102,6 +113,61 @@ export const validateModule: ReportModule = {
         cites: [filterSrc],
       });
 
+    if (v.events.some((e) => e.parashariVargas)) {
+      paras.push({
+        kind: "note",
+        text: "Parashari cross-checks the relevant D1 house and D7, D9 or D10 at the recorded birth time. The placements are descriptive and do not alter the KP, Jaimini or Nadi scores.",
+        cites: [cites.add(PARASHARI_VARGA_SOURCE.label, PARASHARI_VARGA_SOURCE.url)],
+        provisional: true,
+      });
+      for (const e of v.events) if (e.parashariVargas) paras.push(...parashariEvidenceParas(e.parashariVargas));
+    }
+    for (const event of v.events) if (event.parashariPromise) {
+      const p = event.parashariPromise;
+      paras.push({ kind: "p", text: `${p.label} · ${p.date}: ${p.score}/5 experimental Parashari rule matches. D1 support: ${p.d1Support.join("; ") || "none found"}; D1 difficult: ${p.d1Strain.join("; ") || "none found"}; ${p.division} support: ${p.divisionSupport.join("; ") || "none found"}; ${p.division} difficult: ${p.divisionStrain.join("; ") || "none found"}. ${p.periods.map((x) => `${x.level} ${x.planet}: ${x.links.join("; ") || "no matter-house link"}`).join(". ")}. Double transit: ${p.doubleTransitTargets.join("; ") || "no shared target"}. Equal weights are an app convention, not proof of a promise.`, provisional: true });
+    }
+    if (v.events.some((event) => event.parashariPromise)) paras.push({ kind: "note", text: "In a small eight-person public-case test, the experimental Parashari ranking missed the reported-time ±5-minute band in all eight cases. Some birth times were uncertain; the matches do not establish a birth time or a promise.", provisional: true });
+    for (const event of v.events) if (event.parashariSpecific) {
+      const p = event.parashariSpecific;
+      const source = p.matter === "marriage"
+        ? cites.add("K.N. Rao-guided Astrology and Timing of Marriage, ch. 2", "https://www.scribd.com/document/1022561037/Kn-Rao-Astrology-and-Timing-of-Marriage-2008")
+        : p.matter === "child"
+          ? cites.add("Astrological Assessment of Timing of Childbirth, §§2.6–2.7", "https://www.futuresamachar.com/download/astrological-assessment-of-timing-of-childbirth-487.pdf")
+          : cites.add("Vishnu Bhaskar, Advanced Techniques of Predictive Astrology, vol. 1 pp. 23–24", "https://pdfcoffee.com/advanced-techniques-of-predictive-astrology-4-pdf-free.html");
+      paras.push({ kind: "p", text: `${p.label} · ${p.date}: ${p.score}/6 experimental event-specific matches. ${p.factors.map((f) => `${f.label}: ${f.matched ? "match" : "no match"} (${f.details.join("; ") || "none found"})`).join(". ")}.${p.matter === "marriage" ? " The Vivah Saham check counts full aspects; Jupiter occupying the same sign is not counted." : ""} D1 difficult: ${p.d1Strain.join("; ") || "none found"}; ${p.division} difficult: ${p.divisionStrain.join("; ") || "none found"}. Equal weights and strict subsets are app choices.`, cites: [source], provisional: true });
+    }
+    if (v.events.some((event) => event.parashariSpecific)) paras.push({ kind: "note", text: "In nine new public cases, v2's top intervals touched the reported-time ±5-minute band in eight but covered 35% of the scanned hour on average. At the reported birth times, held-out event scores were nearly the same on nearby comparison dates. This is a small sample and the birth times are not independent proof.", provisional: true });
+    if (v.events.some((event) => event.parashariDivisional)) {
+      const source = cites.add(MANLEY_SOURCE.label);
+      paras.push({ kind: "note", text: "V3 adds two divisional period-lord observations to v2. In ten fresh public cases, held-out event scores at the published birth times resembled nearby comparison dates. The eight equal points are an app convention; its factors can overlap and the book's full qualitative funnel is not automated. These matches do not establish a birth time.", cites: [source], provisional: true });
+      for (const event of v.events) if (event.parashariDivisional) {
+        const p = event.parashariDivisional;
+        paras.push({ kind: "p", text: `${p.label} · ${p.date}: ${p.score}/${p.max} v3 rule matches. ${p.factors.map((f) => `${f.label}: ${f.matched ? "match" : "no match"} (${f.details.join("; ") || "none found"})`).join(". ")}. D1 difficult: ${p.d1Strain.join("; ") || "none found"}; ${p.division} difficult: ${p.divisionStrain.join("; ") || "none found"}.`, cites: [source], provisional: true });
+      }
+    }
+    if (v.events.some((event) => event.manley)) {
+      const source = cites.add(MANLEY_SOURCE.label);
+      paras.push({ kind: "note", text: "The following Manley-style D1 and divisional event clues are descriptive; the main and subperiod primary divisional links also contribute to v3. The third-period clues do not change that score. Repeated lords are not independent confirmations. Missing event times are evaluated at noon and missing event zones use the birth zone. Nodes receive but do not cast aspects in this subset. Indirect node-dispositor links, the full manual funnel and fourth/fifth period levels are omitted. Admission is not necessarily the first day of study.", cites: [source], provisional: true });
+      for (const event of v.events) if (event.manley) paras.push(...manleyEvidenceParas(event.manley, source,
+        event.manley.educationFourth ? cites.add(RAO_EDUCATION_SOURCE.label, RAO_EDUCATION_SOURCE.url) : undefined));
+    }
+    for (const e of v.events) if (e.kp.aurora) paras.push(...auroraEvidenceParas(e.kp.aurora, `${S(e.label)} · ${e.date}`, cites.add(AURORA_SOURCE)));
+    for (const e of v.events) if (e.kp.auroraV2) paras.push(...auroraV2EvidenceParas(e.kp.auroraV2, `${S(e.label)} · ${e.date}`, cites.add(AURORA_V2_SOURCE)));
+    if (v.baseline?.aurora) paras.push({ kind: "note", provisional: true, text: `Aurora full chains: ${v.baseline.aurora.actual} on recorded dates, comparison mean ${v.baseline.aurora.mean} across ${v.baseline.trials} random-date trials. Random dates are not verified non-events.` });
+    if (v.baseline?.auroraV2) paras.push({ kind: "note", provisional: true, text: `Aurora v2 full chains: ${v.baseline.auroraV2.actual} on recorded dates, comparison mean ${v.baseline.auroraV2.mean} across ${v.baseline.trials} random-date trials. ${v.baseline.auroraV2.sd === 0 && v.baseline.auroraV2.actual === v.baseline.auroraV2.mean ? "The comparison scores show no spread and match the events, so this comparison does not distinguish the dates. " : ""}Random dates are not verified non-events.` });
+    if (v.events.some((e) => e.kp.transit.evidence)) {
+      paras.push({
+        kind: "note",
+        text: "The practitioner appendix shows the event-day sky against natal houses, significators, planets and cusps. Major geometric contacts within 1° use an app display convention. These observations do not enter the two-period-lord score or random-date comparison. Event times and zones are shown below; an event ascendant is not calculated.",
+        cites: [cites.add(KP_TRANSIT_EVIDENCE_SOURCE.label, KP_TRANSIT_EVIDENCE_SOURCE.url)],
+        provisional: true,
+      });
+      for (const e of v.events) {
+        if (!e.kp.transit.evidence) continue;
+        paras.push({ kind: "p", text: `${S(e.label)} · ${e.date} · ${describeEventMoment(e, result.chart.timezone)}`, appendix: true });
+        paras.push(transitEvidenceTable(e.label, e.kp.transit.evidence));
+      }
+    }
     const sub: ReportSection[] = [];
     {
       const w = v.windows;
@@ -185,38 +251,30 @@ export const validateModule: ReportModule = {
     }
     if (v.baseline) {
       const b = v.baseline;
-      const measures = 7;
-      const corrected = Math.round(100 - 5 / measures);
       const row = (name: string, st: BaselineStat) => [
         name,
         String(st.actual),
         `${st.mean} ± ${st.sd}`,
         `${st.percentile}`,
-        st.verdict === "above"
-          ? "above chance"
-          : st.verdict === "below"
-            ? "below chance"
-            : "chance",
       ];
       sub.push({
         id: "validate-baseline",
-        title: "Against chance",
+        title: "Random-date comparison",
         paras: [
           {
             kind: "p",
-            text: `Each matter was re-scored at ${b.trials} sets of random dates between ${b.span[0]} and ${b.span[1]}. The percentile is the share of those trials the real dates beat; 50 is pure chance. Seven measures are read together, so one of them clears the 95th percentile by chance about ${Math.round((1 - Math.pow(0.95, measures)) * 100)}% of the time; a single measure is a signal only from the ${corrected}th percentile (Bonferroni, 5% over the family).`,
+            text: `Each matter was rescored at ${b.trials} sets of independently selected dates between ${b.span[0]} and ${b.span[1]}. Transits use each sampled date and the same natal chart. The mid-rank percentile counts scores below the actual score plus half the tied scores. These comparisons are descriptive and do not adjust for related measures or the selection of birth times. Random dates need not preserve plausible event ages or order.`,
           },
           {
             kind: "table",
             head: [
               "Measure",
               "Actual",
-              "Chance mean ± sd",
+              "Comparison mean ± sd",
               "Percentile",
-              "Verdict",
             ],
             rows: [
-              row("KP confirmed events", b.confirmed),
+              row("KP period/cusp matches", b.confirmed),
               row("KP period-lord points", b.kp),
               row("KP transit points", b.transit),
               row("Chara dasha points", b.jaimini),
@@ -231,14 +289,15 @@ export const validateModule: ReportModule = {
           },
           {
             kind: "note",
-            text: "A birth time whose events do no better than shuffled dates is not thereby wrong, and one that does better is not thereby right; the baseline shows how much of the score is the chart's structure and how much is the dates.",
+            text: "The comparison describes results under this particular date-sampling rule; it does not establish whether a birth time or method is correct.",
           },
+          ...(b.parashari ? parashariComparisonParas(b.parashari, b.trials, b.parashariExample, result.chart.timezone) : []),
         ],
       });
     } else {
       paras.push({
         kind: "note",
-        text: "No chance baseline: it needs at least two events spanning more than a year.",
+        text: "A random-date comparison needs at least two events spanning more than a year.",
       });
     }
 

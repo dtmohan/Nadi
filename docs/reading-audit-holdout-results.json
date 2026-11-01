@@ -1,0 +1,333 @@
+{
+  "protocol": "docs/reading-audit-protocol.md",
+  "summary": {
+    "cases": 4,
+    "professionMentioned": 1,
+    "knownChildCases": 0
+  },
+  "cases": [
+    {
+      "name": "Ada Lovelace",
+      "birthSource": "https://www.astro.com/astro-databank/Lovelace%2C_Ada",
+      "birthQuality": "B; time quoted from a biography and correspondence, at a round hour; approximate London longitude.",
+      "timeBasis": "Local mean time of birthplace -0:00:40",
+      "profession": "technical",
+      "professionSource": "https://www.computerhistory.org/babbage/adalovelace",
+      "career": {
+        "headline": "The strong rules disagree. A steady, respected profession with authority over others; yet breaks and restarts in the career line. Read both before deciding.",
+        "key": [
+          {
+            "id": "sa-exalt",
+            "score": 2,
+            "text": "Saturn dignified: a steady, respected profession with authority over others."
+          },
+          {
+            "id": "sa-ke",
+            "score": 2.1,
+            "text": "Karma with Ketu: technical, computing, healing or research work; breaks and restarts in the career line."
+          },
+          {
+            "id": "t-ju-ve-me",
+            "score": 2.73,
+            "text": "Jupiter, Venus and Mercury linked by sign (not necessarily in the same sign): refined intellect; advisor, teacher, financier or artist; pleasant speech wins support."
+          }
+        ],
+        "categoryMentioned": true
+      },
+      "children": {
+        "headline": "Venus stands in the same sign as Jupiter, the putra karaka. This tradition treats the connection as prominent when discussing children; it cannot establish whether or when someone has children.",
+        "key": [
+          {
+            "id": "ch-ju-ve",
+            "text": "Jupiter with Venus in one sign: a Jupiter–Venus connection that this Nadi tradition considers relevant to children; it does not establish whether, how or when someone has children."
+          },
+          {
+            "id": "ch-ju-ra",
+            "text": "Jupiter with or in trine to Rahu: some Nadi readers consider Rahu a factor in family circumstances; the connection cannot identify a route to parenthood or a child's future."
+          },
+          {
+            "id": "ch-ve-ra",
+            "text": "Rahu with or in trine to Venus: a traditional family-related combination; it cannot assess conception or a child's health."
+          }
+        ],
+        "cardHeadline": "Venus stands in the same sign as Jupiter, the putra karaka. This tradition treats the connection as prominent when discussing children; it cannot establish whether or when someone has children.",
+        "cardNotes": [
+          "The 5th from Jupiter (Aquarius) is empty, but Venus and Rahu aspect it. These placements do not determine the number or sex of children.",
+          "Venus (linked to Rahu at its star). The star extension is provisional; these links cannot establish timing or a route to parenthood.",
+          "Rahu in trine to Jupiter: a traditional family-related link; it cannot determine the circumstances of parenthood.",
+          "Jupiter with or in trine to Venus, with a Rahu link: a traditional family-related indicator, not a prediction of a child's sex or circumstances."
+        ],
+        "overview": [
+          {
+            "system": "bnn",
+            "word": "no verdict",
+            "note": "Nadi shows traditional children-related links; these do not establish an individual outcome."
+          },
+          {
+            "system": "kp",
+            "word": "traditional supportive indication (conditional)",
+            "note": "5th sub lord Moon: the app's provisional threshold applies the book's supportive rule for children; the sub lord changes to Mars 29 s later"
+          }
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is business."
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Kevin Mitnick",
+      "birthSource": "https://www.astro.com/astro-databank/Mitnik%2C_Kevin",
+      "birthQuality": "A; Astro-Databank reports the time as from memory, not from a birth record.",
+      "timeBasis": "standard time of America/Los_Angeles -7:00",
+      "profession": "technical",
+      "professionSource": "https://www.knowbe4.com/about-us",
+      "career": {
+        "headline": "Possible career themes in these interpretations: career reversals or a change of field; a steady, respected profession with authority over others; work with the public, liquids, food, shipping or frequent travel. These are alternatives, not a predicted occupation.",
+        "key": [
+          {
+            "id": "sa-retro",
+            "score": 2,
+            "text": "Retrograde Saturn: career reversals or a change of field; the profession also takes colour from the previous sign."
+          },
+          {
+            "id": "sa-exalt",
+            "score": 2,
+            "text": "Saturn dignified: a steady, respected profession with authority over others."
+          },
+          {
+            "id": "sa-mo",
+            "score": 1.95,
+            "text": "Karma with the Moon: work with the public, liquids, food, shipping or frequent travel; fluctuating routines."
+          }
+        ],
+        "categoryMentioned": false
+      },
+      "children": {
+        "headline": "Venus stands in the 5th from Jupiter, the putra karaka. This tradition reads a trinal connection as relevant to children; it cannot establish an individual outcome or timing.",
+        "key": [
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: a traditional classification that cannot assess fertility or pregnancy."
+          },
+          {
+            "id": "ch-ju-ve-trine",
+            "text": "Jupiter in trine to Venus: a Jupiter–Venus connection traditionally considered relevant to children; it does not establish timing or outcome."
+          },
+          {
+            "id": "ch-ju-su",
+            "text": "Jupiter with or in trine to the Sun: a traditional children-related indicator; it cannot establish a child's sex or the nature of a relationship."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 5th from Jupiter, the putra karaka. This tradition reads a trinal connection as relevant to children; it cannot establish an individual outcome or timing.",
+        "cardNotes": [
+          "Sun and Venus in Cancer, the 5th from Jupiter, with Saturn aspecting it. Some traditional readings count these placements, but they cannot determine the number or sex of children.",
+          "Cancer, the 5th from Jupiter, is a watery sign. The traditional classification cannot assess fertility or pregnancy.",
+          "Jupiter with or in trine to the Sun: a traditional children-related link; it cannot determine a child's sex.",
+          "Jupiter with or in trine to Venus: a traditional family-related indicator, not a prediction of a child's sex or circumstances."
+        ],
+        "overview": [
+          {
+            "system": "bnn",
+            "word": "no verdict",
+            "note": "Nadi shows traditional children-related links; these do not establish an individual outcome."
+          },
+          {
+            "system": "kp",
+            "word": "traditional supportive indication (conditional)",
+            "note": "5th sub lord Rahu: a traditional KP rule reads these as supportive for children, but it cannot establish an individual outcome or timing; the sub lord changes…"
+          }
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is business."
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Rita Lee",
+      "birthSource": "https://www.astro.com/astro-databank/Lee%2C_Rita",
+      "birthQuality": "AA; birth certificate reportedly in hand, but another source reports 09:15. Fixed UTC-03 matches the published chart.",
+      "timeBasis": "Fixed offset -3:00",
+      "profession": "music",
+      "professionSource": "https://qa.grammy.com/news/2022-latin-grammy-acoustic-sessions-brazil-giulia-be-manu-gavassi-agnes-nunes-luisa-sonza-perform",
+      "career": {
+        "headline": "A mixed picture. A career in accounts, law, teaching or writing; yet a career with a break and a return, or a late spiritual turn.",
+        "key": [
+          {
+            "id": "t-ju-sa-me",
+            "score": 2.05,
+            "text": "Jupiter, Saturn and Mercury linked by sign (not necessarily in the same sign): a career in accounts, law, teaching or writing; scholarly, methodical livelihood."
+          },
+          {
+            "id": "t-ju-sa-ke",
+            "score": 2.2,
+            "text": "Jupiter, Saturn and Ketu linked by sign (not necessarily in the same sign): technical or research work; a career with a break and a return, or a late spiritual turn."
+          },
+          {
+            "id": "t-ju-sa-su",
+            "score": 2.05,
+            "text": "Jupiter, Saturn and the Sun linked by sign (not necessarily in the same sign): a government or institutional post of authority; administrative career."
+          }
+        ],
+        "categoryMentioned": false
+      },
+      "children": {
+        "headline": "Venus stands in the 3rd from Jupiter, the putra karaka. This tradition treats the connection as less prominent; no individual timing or outcome follows from it.",
+        "key": [
+          {
+            "id": "ch-t-ju-sa-node",
+            "text": "Jupiter, Saturn and Ketu linked by sign: some Nadi readers consider this a timing factor; it cannot establish a delay or route to parenthood."
+          },
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: a traditional classification that cannot assess fertility or pregnancy."
+          },
+          {
+            "id": "ch-ra-su",
+            "text": "Rahu with or in trine to the Sun: a traditional association involving children; it cannot determine a child's sex or health."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 3rd from Jupiter, the putra karaka. This tradition treats the connection as less prominent; no individual timing or outcome follows from it.",
+        "cardNotes": [
+          "The 5th from Jupiter (Pisces) is empty, but Saturn aspect it. These placements do not determine the number or sex of children.",
+          "Pisces, the 5th from Jupiter, is a watery sign. The traditional classification cannot assess fertility or pregnancy.",
+          "Saturn in trine to Jupiter: some Nadi readers consider this a timing factor; it does not establish a delay.",
+          "Rahu with or in trine to the Sun: a traditional link that cannot determine a child's sex or health."
+        ],
+        "overview": [
+          {
+            "system": "bnn",
+            "word": "no verdict",
+            "note": "Nadi shows traditional children-related links; these do not establish an individual outcome."
+          },
+          {
+            "system": "kp",
+            "word": "no verdict",
+            "note": "No general children verdict fires; KP has a separate rule about children."
+          }
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is business."
+        },
+        "rules": [
+          {
+            "id": "kp7-opponent",
+            "text": "The 7th sub lord signifies at least three of 5, 7, 8 and 12: the app's provisional threshold reads this as strength of opponents.",
+            "used": [
+              5,
+              8,
+              12
+            ],
+            "evidence": "Mercury is the sub lord of cusp 7; signifies 5, 8, 12"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Pablo Neruda",
+      "birthSource": "https://www.astro.com/astro-databank/Neruda%2C_Pablo",
+      "birthQuality": "B; biography quotes 21:00, a rounded time; another historical source gave 14:00. Fixed Santiago mean time, longitude 70°41′30″ W as in published chart.",
+      "timeBasis": "Fixed offset -4:42:46",
+      "profession": "writing",
+      "professionSource": "https://www.nobelprize.org/nomination/archive/show.php?id=21612&mode=",
+      "career": {
+        "headline": "A mixed picture. A steady, respected profession with authority over others; yet career reversals or a change of field.",
+        "key": [
+          {
+            "id": "sa-exalt",
+            "score": 2,
+            "text": "Saturn dignified: a steady, respected profession with authority over others."
+          },
+          {
+            "id": "sa-retro",
+            "score": 2,
+            "text": "Retrograde Saturn: career reversals or a change of field; the profession also takes colour from the previous sign."
+          },
+          {
+            "id": "sa-ke",
+            "score": 1.95,
+            "text": "Karma with Ketu: technical, computing, healing or research work; breaks and restarts in the career line."
+          }
+        ],
+        "categoryMentioned": false
+      },
+      "children": {
+        "headline": "Venus stands in the 3rd from Jupiter, the putra karaka. This tradition treats the connection as less prominent; no individual timing or outcome follows from it.",
+        "key": [
+          {
+            "id": "ch-ve-ke",
+            "text": "Ketu with or in trine to Venus: a traditional family-related combination; it does not establish a delay or difficulty having children."
+          },
+          {
+            "id": "ch-t-ju-sa-rahu",
+            "text": "Jupiter, Saturn and Rahu linked by sign: some Nadi readers consider this a timing factor; it cannot establish a delay or route to parenthood. The adjacent-sign extension is provisional."
+          },
+          {
+            "id": "ch-mo-ve",
+            "text": "Moon with Venus: a traditional family-related combination; it cannot assess conception or pregnancy outcomes."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 3rd from Jupiter, the putra karaka. This tradition treats the connection as less prominent; no individual timing or outcome follows from it.",
+        "cardNotes": [
+          "Rahu in Leo, the 5th from Jupiter, with Ketu aspecting it. Some traditional readings count these placements, but they cannot determine the number or sex of children.",
+          "Rahu in trine to Jupiter: a traditional family-related link; it cannot determine the circumstances of parenthood.",
+          "Ketu with or in trine to Venus: a traditional family-related link, not evidence of a difficulty."
+        ],
+        "overview": [
+          {
+            "system": "bnn",
+            "word": "no verdict",
+            "note": "Nadi shows traditional children-related links; these do not establish an individual outcome."
+          },
+          {
+            "system": "kp",
+            "word": "traditional supportive indication (conditional)",
+            "note": "5th sub lord Venus: a traditional KP rule reads these as supportive for children, but it cannot establish an individual outcome or timing; the sub lord…"
+          }
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is business."
+        },
+        "rules": [
+          {
+            "id": "kp7-harmony",
+            "text": "The 7th sub lord signifies at least three of 2, 5, 7 and 11: the app's provisional threshold reads this as harmony and comfort in the union.",
+            "used": [
+              2,
+              5,
+              11
+            ],
+            "evidence": "Moon is the sub lord of cusp 7; signifies 2, 5, 11"
+          },
+          {
+            "id": "kp11-marital",
+            "text": "The 11th sub lord signifies at least three of 2, 5, 7 and 11: the app's provisional threshold reads this as harmony in married life, while the 7th is read for marriage itself.",
+            "used": [
+              2,
+              5,
+              11
+            ],
+            "evidence": "Moon is the sub lord of cusp 11; signifies 2, 5, 11"
+          }
+        ]
+      }
+    }
+  ]
+}

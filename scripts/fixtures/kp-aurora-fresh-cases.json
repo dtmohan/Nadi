@@ -1,0 +1,49 @@
+{
+  "note": "Fresh for this Aurora adapter; conflicting or rounded birth accounts are not ground truth. Source URLs document the individual events and the reported birth data.",
+  "cases": [
+    {
+      "chart": {"name":"Carl XVI Gustaf","gender":"male","birthDate":"1946-04-30","birthTime":"10:30","timezone":"Europe/Stockholm","timeStandard":"zone","place":"Haga Palace, Stockholm","latitude":59.34,"longitude":18.05,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Carl_XVI_Gustaf%2C_King_of_Sweden?nho2=7",
+      "birthQuality":"Medical-record account 10:30; a quoted official announcement says 10:20. Both are reports, not records inspected here.",
+      "alternativeBirthTimes":["10:20"],
+      "events":[
+        {"id":"wedding","matter":"marriage","date":"1976-06-19","timezone":"Europe/Stockholm","source":"https://www.kungahuset.se/kungl.-huset/h.m.-konungen","description":"First wedding, Stockholm; time not established."},
+        {"id":"victoria","matter":"child","date":"1977-07-14","time":"21:45","timezone":"Europe/Stockholm","source":"https://www.kungahuset.se/english/royal-house/hrh-the-crown-princess","description":"First child, Victoria, Karolinska Hospital."},
+        {"id":"carlphilip","matter":"child","date":"1979-05-13","timezone":"Europe/Stockholm","source":"https://www.kungahuset.se/english/royal-house/hrh-prince-carl-philip","description":"Second child, Carl Philip; time not established."},
+        {"id":"madeleine","matter":"child","date":"1982-06-10","timezone":"Europe/Stockholm","source":"https://www.kungahuset.se/english/royal-house/hrh-princess-madeleine","description":"Third child, Madeleine; time not established."}
+      ]
+    },
+    {
+      "chart":{"name":"Grace Kelly","gender":"female","birthDate":"1929-11-12","birthTime":"05:31","timezone":"America/New_York","timeStandard":"zone","place":"Philadelphia, Pennsylvania","latitude":39.95,"longitude":-75.1667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Kelly%2C_Grace?lang=r&nho2=9&nhor=7&pa=nmo",
+      "birthQuality":"AA; Astro-Databank reports birth certificate in hand, not inspected here.",
+      "events":[
+        {"id":"wedding","matter":"marriage","date":"1956-04-18","timezone":"Europe/Monaco","source":"https://www.monte-carlo.mc/static/img/guides/parcours-princesse-grace-en.pdf","description":"Civil marriage, Monaco; church wedding 19 April; time not established."},
+        {"id":"caroline","matter":"child","date":"1957-01-23","timezone":"Europe/Monaco","source":"https://www.palais.mc/fr/la-famille-princiere/s-a-r-la-princesse-de-hanovre/biographie-1-8.html","description":"First child Caroline, Monaco; time not established."},
+        {"id":"albert","matter":"child","date":"1958-03-14","timezone":"Europe/Monaco","source":"https://www.palais.mc/en/princely-family/h-s-h-prince-albert-ii/biography-1-5.html","description":"Second child Albert, Monaco; time not established."},
+        {"id":"stephanie","matter":"child","date":"1965-02-01","timezone":"Europe/Monaco","source":"https://memoriamonaco.com/en/personnalite/princesse-grace/","description":"Third child Stéphanie, Monaco; time not established."}
+      ]
+    },
+    {
+      "chart":{"name":"Paul McCartney","gender":"male","birthDate":"1942-06-18","birthTime":"02:00","timezone":"Europe/London","timeStandard":"zone","place":"Liverpool, England","latitude":53.45,"longitude":-2.96,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/McCartney%2C_Paul",
+      "birthQuality":"Competing rounded 02:00 and 14:00 reports; neither is treated as verified to the minute. Astro-Databank quotes a biography saying shortly after 02:00; a separate account says 14:00.",
+      "alternativeWindows":["14:00"],
+      "events":[
+        {"id":"wedding","matter":"marriage","date":"1969-03-12","timezone":"Europe/London","source":"https://www.lindamccartney.com/biography/","description":"First marriage to Linda Eastman, London; time not established."},
+        {"id":"stella","matter":"child","date":"1971-09-13","timezone":"Europe/London","source":"https://www.beatlesbible.com/1971/09/13/stella-mccartney-born/","description":"Daughter Stella, London; time not established."},
+        {"id":"james","matter":"child","date":"1977-09-12","timezone":"Europe/London","source":"https://www.beatlesbible.com/1977/09/12/james-mccartney-born/","description":"Son James, London; time not established."}
+      ],
+      "excluded":"Daughter Mary: published sources disagree between 28 and 29 August 1969; excluded instead of choosing a date after inspecting results."
+    },
+    {
+      "chart":{"name":"Frida Kahlo","gender":"female","birthDate":"1907-07-06","birthTime":"08:30","timezone":"America/Mexico_City","timeStandard":"lmt","place":"Coyoacán, Mexico","latitude":19.3333,"longitude":-99.1667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/adbvip/adbvip_07_06.htm?lang=e&nho2=7&pa=nmo",
+      "birthQuality":"AA; Astro-Databank reports a birth-register entry, not examined here. The published time is rounded to 08:30 local mean time.",
+      "events":[
+        {"id":"wedding","matter":"marriage","date":"1929-08-21","timezone":"America/Mexico_City","source":"https://www.museofridakahlo.org.mx/frida/?lang=en","description":"First wedding to Diego Rivera, Coyoacán; time not established."}
+      ],
+      "excluded":"The 1940 remarriage is not treated as a first marriage; only one supported event remains, so this case has no holdout or random-span comparison."
+    }
+  ]
+}

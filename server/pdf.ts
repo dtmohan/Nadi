@@ -799,18 +799,18 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
     const counted = c.inFifth.length + c.aspectingFifth.length;
     ensureSpace(doc, 60);
     doc.font("Helvetica-Bold").fontSize(10).fillColor(planetColor("Jupiter")).text(`Jupiter · Putra karaka · children`);
-    doc.font("Helvetica").fontSize(8).fillColor(MUTED).text(`No 5th lord: promise from Jupiter's link with Venus; count and sex from the planets in and aspecting the 5th from Jupiter (${c.karakaSign} to ${c.fifthSign}).`, { width: CONTENT_W });
-    const label = { strong: "Promised, strong", moderate: "Promised, moderate", weak: "Promised, lesser strength", faint: "Faint signature", unsigned: "No Venus signature" }[c.promised];
+    doc.font("Helvetica").fontSize(8).fillColor(MUTED).text(`Traditional Jupiter–Venus and 5th-from-Jupiter links (${c.karakaSign} to ${c.fifthSign}); these do not establish fertility, the number or sex of children.`, { width: CONTENT_W });
+    const label = { strong: "Prominent Jupiter–Venus link", moderate: "Jupiter–Venus opposition", weak: "Less prominent link", faint: "More distant link", unsigned: "No link in this rule" }[c.promised];
     doc.font("Helvetica").fontSize(9).fillColor(INK).text(`${label}. ${c.headline}`, { width: CONTENT_W });
     if (counted > 0) {
       doc.text(
-        `Count from the 5th: ${counted} planet${counted === 1 ? "" : "s"}, giving ${c.sons} son${c.sons === 1 ? "" : "s"}, ${c.daughters} daughter${c.daughters === 1 ? "" : "s"}${c.undecided.filter((p) => p === "Rahu" || p === "Ketu").length ? `, ${c.undecided.filter((p) => p === "Rahu" || p === "Ketu").join(" and ")} left open` : ""}${c.undecided.filter((p) => p === "Mercury" || p === "Saturn").length ? ` (${c.undecided.filter((p) => p === "Mercury" || p === "Saturn").join(", ")} by sign parity)` : ""}. An upper bound, not a promise.`,
+        `${counted} planet${counted === 1 ? " is" : "s are"} in or aspecting the fifth from Jupiter; this is not an estimate of family size.`,
         { width: CONTENT_W },
       );
     }
     for (const n of c.notes) doc.text(`• ${n}`, PAGE.m + 8, doc.y + 1, { width: CONTENT_W - 8 });
     doc.font("Helvetica").fontSize(8).fillColor(MUTED).text(
-      `Triggers: Jupiter's return over ${c.karakaSign}, or his passage over ${c.fifthSign} and its trines.${win ? ` Next (from age 18): Jupiter ${win.kind === "return" ? "returns to" : win.kind === "fifth" ? "over the 5th," : "in trine,"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.` : ""}`,
+      `Traditional transit windows, not event predictions: Jupiter's return over ${c.karakaSign}, or his passage over ${c.fifthSign} and its trines.${win ? ` Next (from age 18): Jupiter ${win.kind === "return" ? "returns to" : win.kind === "fifth" ? "over the 5th," : "in trine,"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.` : ""}`,
       PAGE.m,
       doc.y + 2,
       { width: CONTENT_W },

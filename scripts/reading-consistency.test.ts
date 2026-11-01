@@ -106,10 +106,11 @@ test("a mixed area's headline names one line from each side", () => {
     }
   }
   assert.ok(checked >= 2, `mixed areas checked: ${checked}`);
-  // The children reading's own headline no longer speaks for a mixed children area (CHENNAI).
+  // Children-related links stay descriptive and do not become a verdict about family outcomes.
   const children = synthesize(resultOf(CHENNAI).reading, "male").find((a) => a.area === "children")!;
-  assert.equal(children.tone, "mixed");
-  assert.notEqual(children.headline, resultOf(CHENNAI).reading.children.headline);
+  assert.equal(children.tone, "quiet");
+  assert.equal(children.headline, resultOf(CHENNAI).reading.children.headline);
+  assert.ok([...children.key, ...children.rest].every((f) => toneOf(f) === "neutral"));
 });
 
 test("a supportive or care headline quotes only its own side when it has two such lines", () => {
@@ -128,9 +129,9 @@ test("a supportive or care headline quotes only its own side when it has two suc
     }
   assert.ok(checked >= 3, `areas checked: ${checked}`);
   const lagos = synthesize(resultOf(LAGOS).reading, "male").find((a) => a.area === "children")!;
-  assert.equal(lagos.tone, "care");
-  assert.match(lagos.headline, /^Asks for care\./);
-  assert.notEqual(lagos.headline, resultOf(LAGOS).reading.children.headline, "the children reading's promise does not head a care area");
+  assert.equal(lagos.tone, "quiet");
+  assert.equal(lagos.headline, resultOf(LAGOS).reading.children.headline);
+  assert.ok([...lagos.key, ...lagos.rest].every((f) => toneOf(f) === "neutral"));
 });
 
 test("KP marks a topic with only descriptive rules as no verdict, not as unread", () => {
@@ -141,8 +142,8 @@ test("KP marks a topic with only descriptive rules as no verdict, not as unread"
       if (kp.word !== "no verdict") continue;
       seen++;
       assert.equal(kp.stance, "silent");
-      assert.match(kp.note, /^No promise or denial rule fires .+; the KP rules that do fire describe it: .+\.$/);
-      assert.match(t.sentence, /KP has no verdict here, only rules that describe it\./);
+      assert.match(kp.note, /^(No promise or denial rule fires .+; the KP rules that do fire describe it: .+|No general .+ verdict fires; KP has a separate rule about .+)\.?[.…]?$/);
+      assert.match(t.sentence, /KP (?:has|have) no verdict on this general question\./);
       assert.doesNotMatch(t.sentence, /KP does not read it/);
     }
   assert.ok(seen >= 3, `no-verdict cells seen: ${seen}`);

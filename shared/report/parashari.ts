@@ -21,6 +21,9 @@ import {
 } from "../parashari-dasa";
 import { computeVargas, VARGAS, SCHEMES } from "../vargas";
 import { normaliseParashariHouseMethod } from "../schema";
+import { natalEventEvidence } from "../event-reading";
+import { PARASHARI_VARGA_SOURCE } from "../parashari-varga-evidence";
+import { parashariEvidenceParas } from "./parashari-varga-evidence";
 import { AREA_ONSET, HOUSE_AREA } from "../life-stage";
 import { GENTLE_NOTE } from "../gentle";
 import { antarSignifications, dasaSignifications } from "../parashari-period-significations";
@@ -672,8 +675,17 @@ export const parashariModule: ReportModule = {
   tab: "parashari",
   build(ctx) {
     const par = computeFor(ctx);
+    const houses = housesSection(ctx, par);
+    const natal = natalEventEvidence(ctx.result);
+    if (natal.length) (houses.sub ??= []).push({
+      id: "parashari-natal-event-foundations", title: "Natal foundations for event topics",
+      paras: [
+        { kind: "note", text: "These are the same partial natal D1 and divisional house observations used in the event checks. They use whole-sign houses regardless of the main house-view setting. Periods and transits depend on the date being investigated; the placements do not establish that an event is promised.", cites: [ctx.cites.add(PARASHARI_VARGA_SOURCE.label, PARASHARI_VARGA_SOURCE.url)], provisional: true },
+        ...natal.flatMap((e) => parashariEvidenceParas(e, { natalOnly: true })),
+      ],
+    });
     return [
-      housesSection(ctx, par),
+      houses,
       timingSection(ctx, par),
       tablesSection(ctx, par),
     ];

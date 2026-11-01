@@ -1,0 +1,89 @@
+{
+  "description": "Seven newly selected public subjects for the third-period experiment; sources and caveats recorded before evaluating the new rule. No user case is included.",
+  "selectionNotes": [
+    "These public-figure cases are a convenience sample, dominated by entertainment and family events. None was included in the earlier Nadi public, v1, v2, v3 or rectification fixtures. No original birth document was inspected by this project.",
+    "Date-only events use local noon. When an event's location is not verified, the recorded zone is an explicitly noted approximation rather than a claim of the actual birthplace or ceremony time.",
+    "F. Scott Fitzgerald's baby-book time is 15:30; Astro-Databank interprets it as local mean time. Whether that is the correct civil time basis in 1896 is uncertain, so the evaluator also checks zone-database time as a sensitivity.",
+    "Guilherme Berenguer's son Sebastian was omitted: some later biographies give 22 May 2013, but contemporaneous UOL and Globo reports say the announcement did not state the birth day. Julianne Moore's daughter was omitted because sources conflict on the date.",
+    "Audrey Hepburn's first civil and religious wedding dates are reported as 24 and 25 September 1954 in different sources. We use the reported religious ceremony on 25 September, never both as independent events. Olivier Sarkozy's 1997 French ceremony is distinct from an earlier Nantucket legal wedding; the 2008 job date is a reported appointment/announcement, not a verified first day of work.",
+    "Subjects are drawn from varied places and occupations, but seven public biographies and related family events cannot establish population accuracy. Olivier Sarkozy is the half-brother of a subject in the reused v3 cohort; analyse cohorts separately."
+  ],
+  "cases": [
+    {
+      "chart": {"name":"F. Scott Fitzgerald","gender":"male","birthDate":"1896-09-24","birthTime":"15:30","timezone":"America/Chicago","timeStandard":"lmt","place":"St Paul, Minnesota, USA","latitude":44.95,"longitude":-93.1,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Fitzgerald%2C_F._Scott",
+      "birthQuality":"Astro-Databank reports a baby-book page with 15:30, rates AA and interprets it as local mean time; the page and time standard were not independently inspected. The round half-hour and LMT versus local civil time matter.",
+      "category":"Writer; United States; university classes",
+      "events":[
+        {"id":"classes","matter":"education","date":"1913-09-24","timezone":"America/New_York","source":"https://manuscripts.blogs.princeton.edu/2013/09/","description":"Princeton University Library states this was the first day of classes. Local clock unknown."},
+        {"id":"marriage","matter":"marriage","date":"1920-04-03","timezone":"America/New_York","source":"https://oiraa.sc.edu/about/offices_and_divisions/university_libraries/browse/irvin_dept_special_collections/collections/matthew_arlyn_bruccoli_collection_of_f_scott_fitzgerald/chronology/index.php","description":"Marriage in New York; the exact ceremony clock is not established."},
+        {"id":"child","matter":"child","date":"1921-10-26","timezone":"America/Chicago","source":"https://oiraa.sc.edu/about/offices_and_divisions/university_libraries/browse/irvin_dept_special_collections/collections/matthew_arlyn_bruccoli_collection_of_f_scott_fitzgerald/chronology/index.php","description":"Daughter Scottie; St Paul area and local clock are approximate assumptions."}
+      ]
+    },
+    {
+      "chart": {"name":"Gerard Way","gender":"male","birthDate":"1977-04-09","birthTime":"10:52","timezone":"America/New_York","timeStandard":"auto","place":"Summit, New Jersey, USA","latitude":40.7333,"longitude":-74.3667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Way%2C_Gerard",
+      "birthQuality":"Astro-Databank quotes a birth certificate and rates AA; the certificate was not independently inspected. An unsourced website gives another time, and another site reports no verified time.",
+      "category":"Musician and comics writer; United States",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"2007-09-03","timezone":"America/Denver","source":"https://www.astro.com/astro-databank/Way%2C_Gerard","description":"Marriage after a Colorado concert; time unknown; Mountain zone based on the reported state."},
+        {"id":"child","matter":"child","date":"2009-05-27","time":"14:57","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Way%2C_Gerard","description":"Daughter Bandit; birth time and Los Angeles location are quoted by Astro-Databank, not independently verified."}
+      ]
+    },
+    {
+      "chart": {"name":"Guilherme Berenguer","gender":"male","birthDate":"1980-09-20","birthTime":"09:45","timezone":"America/Recife","timeStandard":"auto","place":"Recife, Brazil","latitude":-8.0539,"longitude":-34.8811,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Berenguer%2C_Guilherme",
+      "birthQuality":"Astro-Databank reports a birth certificate in hand, rated AA; the original was not independently inspected. 09:45 could be rounded.",
+      "category":"Actor and advertising professional; Brazil",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"2009-06-11","timezone":"America/Sao_Paulo","source":"https://airmadanoiva.blogspot.com/2009/06/casamento-de-famosos-o-casamento-de.html","description":"Wedding at a hotel in Copacabana, Rio de Janeiro; local time unknown."},
+        {"id":"child","matter":"child","date":"2016-06-01","timezone":"America/Los_Angeles","source":"https://kogut.oglobo.globo.com/noticias-da-tv/noticia/2016/07/morando-nos-eua-guilherme-berenguer-apresenta-segunda-filha-e-diz-que-sente-saudade-de-atuar.html","description":"Daughter Rebecca; Los Angeles time zone assumed from family residence; birthplace and clock unknown."}
+      ]
+    },
+    {
+      "chart": {"name":"Kareena Kapoor","gender":"female","birthDate":"1980-09-21","birthTime":"08:39","timezone":"Asia/Kolkata","timeStandard":"auto","place":"Mumbai, India","latitude":18.9667,"longitude":72.8333,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Kapoor%2C_Kareena",
+      "birthQuality":"Astro-Databank reports 08:39 from a family friend, rating A; it previously listed 09:30 as speculative. Neither the time nor the family report was independently verified, and the former estimate is outside a ±30-minute scan.",
+      "category":"Actor and author; India",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"2012-10-16","timezone":"Asia/Kolkata","source":"https://www.deccanherald.com/entertainment/its-a-boy-kareena-kapoor-saif-ali-khan-welcome-second-child-953621.html","description":"Marriage in Mumbai; local ceremony time unknown."},
+        {"id":"child1","matter":"child","date":"2016-12-20","time":"08:49","timezone":"Asia/Kolkata","source":"https://www.astro.com/astro-databank/Kapoor%2C_Kareena","description":"First son, Mumbai; 08:49 is attributed by Astro-Databank to an astrology collector and is not independently verified."},
+        {"id":"child2","matter":"child","date":"2021-02-21","timezone":"Asia/Kolkata","source":"https://www.vogue.in/whats-new/content/kareena-kapoor-khan-second-baby-boy-birth-saif-ali-khan-announcement","description":"Second son, Mumbai; reported as morning, but no exact time used."}
+      ]
+    },
+    {
+      "chart": {"name":"Audrey Hepburn","gender":"female","birthDate":"1929-05-04","birthTime":"03:00","timezone":"Europe/Brussels","timeStandard":"auto","place":"Ixelles, Belgium","latitude":50.8333,"longitude":4.3667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Hepburn%2C_Audrey",
+      "birthQuality":"Astro-Databank quotes birth register No. 477 and rates AA; the register was not independently inspected. 03:00 may be rounded.",
+      "category":"Actor and humanitarian; Belgium",
+      "events":[
+        {"id":"wedding1","matter":"marriage","date":"1954-09-25","timezone":"Europe/Zurich","source":"https://www.otrr.org/FILES/Magz_pdf/Modern%20Screen/ModernScreen%205501.pdf","description":"Religious wedding in Bürgenstock; contemporaneous magazine reports 25 September. Other sources report a civil ceremony on 24 September; these are not counted separately."},
+        {"id":"child1","matter":"child","date":"1960-07-17","timezone":"Europe/Zurich","source":"https://www.hachettebookgroup.com/contributor/sean-hepburn-ferrer/","description":"Son Sean born in Lucerne; local clock unknown."},
+        {"id":"wedding2","matter":"marriage","date":"1969-01-18","time":"11:45","timezone":"Europe/Zurich","source":"https://disco-legacy-data.s3.eu-central-1.amazonaws.com/public/upload/4/6/46347.pdf","description":"Second wedding in Morges at 11:45 according to a contemporary Lausanne newspaper; https://www.morges.ch/espace-presse/plaque-commemorative-du-mariage-d-audrey-hepburn-a-morges-8098 confirms the date and place."},
+        {"id":"child2","matter":"child","date":"1970-02-08","timezone":"Europe/Zurich","source":"https://erenow.org/biographies/audrey-hepburn/8.php","description":"Son Luca; source reports Lausanne. Some genealogies instead say Rome; both locations had the same UTC offset for this event date. Clock unknown."}
+      ]
+    },
+    {
+      "chart": {"name":"Olivier Sarkozy","gender":"male","birthDate":"1969-05-26","birthTime":"10:05","timezone":"Europe/Paris","timeStandard":"auto","place":"Boulogne-Billancourt, France","latitude":48.8333,"longitude":2.25,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Sarkozy%2C_Olivier",
+      "birthQuality":"Astro-Databank reports an extract from birth certificate No. 1330, rated AA; the original was not independently inspected. He is a half-brother of an earlier v3 case.",
+      "category":"Investment banker; France and United States",
+      "events":[
+        {"id":"wedding1","matter":"marriage","date":"1997-12-20","timezone":"Europe/Paris","source":"https://www.astro.com/astro-databank/Sarkozy%2C_Olivier","description":"French wedding ceremony at Neuilly-sur-Seine; an earlier Nantucket legal wedding is not counted separately. Clock unknown."},
+        {"id":"appointment","matter":"job","date":"2008-03-03","timezone":"America/New_York","source":"https://www.washingtonpost.com/archive/business/2008/03/04/local-briefing/74469a0c-1bc7-4771-b442-4f51aeb3c1ce/","description":"Reported Carlyle co-head appointment/announcement, not a verified first day of work; Eastern zone assumed, clock unknown."},
+        {"id":"wedding2","matter":"marriage","date":"2015-11-27","timezone":"America/New_York","source":"https://www.usmagazine.com/celebrity-news/news/mary-kate-olsen-olivier-sarkozy-road-to-marriage-w158591/","description":"Second marriage in New York; exact clock unknown. Astro-Databank's September 2014 entry conflicts with contemporary November 2015 reporting."}
+      ]
+    },
+    {
+      "chart": {"name":"Laura Dern","gender":"female","birthDate":"1967-02-10","birthTime":"07:48","timezone":"America/Los_Angeles","timeStandard":"auto","place":"Santa Monica, California, USA","latitude":34.0167,"longitude":-118.4833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Dern%2C_Laura",
+      "birthQuality":"Astro-Databank reports a birth certificate in hand, rated AA, noting a public discrepancy in the birth year; the record was not independently inspected.",
+      "category":"Actor and producer; United States",
+      "events":[
+        {"id":"child1","matter":"child","date":"2001-08-21","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Dern%2C_Laura","description":"Son Ellery; Pacific zone assumed, birthplace and local clock not independently confirmed."},
+        {"id":"child2","matter":"child","date":"2004-11-28","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Dern%2C_Laura","description":"Daughter Jaya; Pacific zone assumed, birthplace and local clock not independently confirmed."},
+        {"id":"wedding","matter":"marriage","date":"2005-12-23","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Dern%2C_Laura","description":"Marriage to Ben Harper; Pacific zone assumed, local time unknown."}
+      ]
+    }
+  ]
+}

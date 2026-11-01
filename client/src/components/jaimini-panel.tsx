@@ -8,6 +8,8 @@ import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
+import type { ChartEvent } from "@shared/events";
+import { TopicReadingPanel } from "@/components/topic-reading";
 import {
   PLANET_ABBR,
   SIGNS,
@@ -421,7 +423,7 @@ function DashaRow({
   );
 }
 
-export function JaiminiPanel({ result }: { result: ChartResult }) {
+export function JaiminiPanel({ result, onTopicSelected }: { result: ChartResult; onTopicSelected?: (event: ChartEvent | null) => void }) {
   const { jaimini: j, positions, chart } = result;
   // "Now" in the period tables is the reading date, or the recorded date of passing.
   const lifeNow = lifeAsOf(chart, result.now.asOf);
@@ -469,6 +471,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
       technical: "Dashas",
       blurb: "Chara dasha in K.N. Rao's method, the fixed Sthira dasha, and the Kerala school's Manduka and Brahma dashas.",
     },
+    { id: "topic-check", plain: "Matter and date", technical: "Matter and date", blurb: "Check the matter's Chara dasha links at a chosen date." },
     {
       id: "roles",
       plain: "Chart and roles",
@@ -681,6 +684,7 @@ export function JaiminiPanel({ result }: { result: ChartResult }) {
       </div>
 
       <Chapters tab="jaimini" chapters={chapterDefs} className="mt-4">
+      <Chapter id="topic-check"><TopicReadingPanel result={result} system="jaimini" onSelected={onTopicSelected} /></Chapter>
       <Chapter id="brief">
       <JaiminiVerdict result={result} />
 

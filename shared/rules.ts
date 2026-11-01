@@ -1565,13 +1565,15 @@ export function evaluate(
     }
   }
   for (const g of toGrade) gradeFinding(g, strengthOf);
-  // Rahu holding the Sun cancels the indication of a son (the children reading, shared/children.ts); the Jupiter-Sun
-  // line says so rather than promising the son the same reading sets aside, and no longer counts toward the area.
+  // Children findings describe traditional links, not verified individual outcomes. Give them a
+  // neutral tone so a keyword scan cannot turn an interpretive line into a promise or diagnosis.
+  for (const f of findings) if (f.area === "children") f.tone = "neutral";
+  // Keep the node/star calculation visible without turning the traditional gender indication into a fact.
   const held = rahuHoldsSun(positions);
   if (held)
     for (const f of findings)
       if (f.ruleId === "ch-ju-su") {
-        f.text = `Jupiter with or in trine to the Sun would indicate a son, but Rahu holds the Sun (${held.via === "degree" ? "at the same degree" : "the Sun stands in his star, a provisional extension"}): the indication of a son gives way.`;
+        f.text = `Jupiter is linked to the Sun, while Rahu holds the Sun (${held.via === "degree" ? "at the same degree" : "the Sun stands in Rahu's star, a provisional extension"}). This traditional combination cannot determine a child's sex.`;
         f.tone = "neutral";
       }
   findings.sort((a, b) => b.score - a.score);

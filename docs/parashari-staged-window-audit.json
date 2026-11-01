@@ -1,0 +1,334 @@
+{
+  "subject": "Emily Deschanel",
+  "birthSource": "https://www.astro.com/astro-databank/Deschanel%2C_Emily",
+  "eventSource": "https://www.cbsnews.com/news/emily-deschanel-and-david-hornsby-tie-the-knot/",
+  "reportedBirthDate": "1976-10-11",
+  "reportedBirthTime": "22:56",
+  "birthTimeZone": "America/Los_Angeles",
+  "originalWindow": {
+    "sampleStepSeconds": 5,
+    "moonNakshatras": [
+      "Krittika"
+    ],
+    "weddingLords": [
+      "Rahu/Moon"
+    ],
+    "weddingD9Ascendants": [
+      "Sagittarius",
+      "Capricorn",
+      "Aquarius",
+      "Pisces",
+      "Aries"
+    ],
+    "matchingWeddingSamples": 0
+  },
+  "atReported": {
+    "offsetSeconds": 0,
+    "local": "1976-10-11T22:56:00.000-07:00",
+    "sameBirthDate": true,
+    "nakshatra": "Krittika",
+    "wedding": {
+      "lords": [
+        "Rahu",
+        "Moon"
+      ],
+      "primary": [
+        false,
+        false
+      ],
+      "both": false,
+      "divisionalAscendant": "Aquarius",
+      "details": [
+        {
+          "planet": "Rahu",
+          "D1": {
+            "chart": "D1",
+            "ascendant": 2,
+            "house": 7,
+            "houseSign": 8,
+            "houseLord": "Jupiter",
+            "bhavatHouse": 1,
+            "bhavatLord": "Mercury",
+            "primary": {
+              "house": [],
+              "houseLord": [],
+              "karaka": [
+                "karaka Venus: Rahu and Venus share Libra",
+                "karaka Venus: Rahu is in Venus's sign"
+              ]
+            },
+            "supporting": {
+              "ascendant": [],
+              "natalHouseLord": [],
+              "bhavat": [],
+              "nodes": [
+                "Rahu is in Libra, ruled by Venus"
+              ]
+            }
+          },
+          "division": {
+            "chart": "D9",
+            "ascendant": 10,
+            "house": 7,
+            "houseSign": 4,
+            "houseLord": "Sun",
+            "bhavatHouse": 1,
+            "bhavatLord": "Saturn",
+            "primary": {
+              "house": [],
+              "houseLord": [],
+              "karaka": []
+            },
+            "supporting": {
+              "ascendant": [],
+              "natalHouseLord": [],
+              "bhavat": [
+                "house 1 lord Saturn: Rahu and Saturn share Capricorn",
+                "house 1 lord Saturn: Rahu is in Saturn's sign"
+              ],
+              "nodes": [
+                "Rahu is in Capricorn, ruled by Saturn"
+              ]
+            }
+          }
+        },
+        {
+          "planet": "Moon",
+          "D1": {
+            "chart": "D1",
+            "ascendant": 2,
+            "house": 7,
+            "houseSign": 8,
+            "houseLord": "Jupiter",
+            "bhavatHouse": 1,
+            "bhavatLord": "Mercury",
+            "primary": {
+              "house": [],
+              "houseLord": [
+                "house 7 lord Jupiter: Moon and Jupiter share Taurus"
+              ],
+              "karaka": []
+            },
+            "supporting": {
+              "ascendant": [],
+              "natalHouseLord": [],
+              "bhavat": [],
+              "nodes": []
+            }
+          },
+          "division": {
+            "chart": "D9",
+            "ascendant": 10,
+            "house": 7,
+            "houseSign": 4,
+            "houseLord": "Sun",
+            "bhavatHouse": 1,
+            "bhavatLord": "Saturn",
+            "primary": {
+              "house": [],
+              "houseLord": [],
+              "karaka": []
+            },
+            "supporting": {
+              "ascendant": [],
+              "natalHouseLord": [
+                "D1 house 7 lord Jupiter: Moon and Jupiter share Pisces"
+              ],
+              "bhavat": [
+                "house 1 lord Saturn: Saturn fully aspects Moon"
+              ],
+              "nodes": []
+            }
+          }
+        }
+      ]
+    },
+    "child": {
+      "lords": [
+        "Rahu",
+        "Mars"
+      ],
+      "primary": [
+        true,
+        true
+      ],
+      "both": true,
+      "divisionalAscendant": "Virgo",
+      "details": [
+        {
+          "planet": "Rahu",
+          "D1": {
+            "chart": "D1",
+            "ascendant": 2,
+            "house": 5,
+            "houseSign": 6,
+            "houseLord": "Venus",
+            "bhavatHouse": 9,
+            "bhavatLord": "Saturn",
+            "primary": {
+              "house": [
+                "Rahu is in house 5"
+              ],
+              "houseLord": [
+                "house 5 lord Venus: Rahu and Venus share Libra",
+                "house 5 lord Venus: Rahu is in Venus's sign"
+              ],
+              "karaka": []
+            },
+            "supporting": {
+              "ascendant": [],
+              "natalHouseLord": [],
+              "bhavat": [],
+              "nodes": [
+                "Rahu is in Libra, ruled by Venus"
+              ]
+            }
+          },
+          "division": {
+            "chart": "D7",
+            "ascendant": 5,
+            "house": 5,
+            "houseSign": 9,
+            "houseLord": "Saturn",
+            "bhavatHouse": 9,
+            "bhavatLord": "Venus",
+            "primary": {
+              "house": [],
+              "houseLord": [],
+              "karaka": [
+                "karaka Jupiter: Rahu and Jupiter share Sagittarius",
+                "karaka Jupiter: Rahu is in Jupiter's sign"
+              ]
+            },
+            "supporting": {
+              "ascendant": [],
+              "natalHouseLord": [],
+              "bhavat": [],
+              "nodes": [
+                "Rahu is in Sagittarius, ruled by Jupiter"
+              ]
+            }
+          }
+        },
+        {
+          "planet": "Mars",
+          "D1": {
+            "chart": "D1",
+            "ascendant": 2,
+            "house": 5,
+            "houseSign": 6,
+            "houseLord": "Venus",
+            "bhavatHouse": 9,
+            "bhavatLord": "Saturn",
+            "primary": {
+              "house": [
+                "Mars is in house 5"
+              ],
+              "houseLord": [
+                "house 5 lord Venus: Mars and Venus share Libra"
+              ],
+              "karaka": [
+                "karaka Jupiter: Mars fully aspects Jupiter"
+              ]
+            },
+            "supporting": {
+              "ascendant": [],
+              "natalHouseLord": [],
+              "bhavat": [],
+              "nodes": []
+            }
+          },
+          "division": {
+            "chart": "D7",
+            "ascendant": 5,
+            "house": 5,
+            "houseSign": 9,
+            "houseLord": "Saturn",
+            "bhavatHouse": 9,
+            "bhavatLord": "Venus",
+            "primary": {
+              "house": [],
+              "houseLord": [],
+              "karaka": [
+                "karaka Jupiter: Mars and Jupiter share Sagittarius"
+              ]
+            },
+            "supporting": {
+              "ascendant": [],
+              "natalHouseLord": [],
+              "bhavat": [],
+              "nodes": []
+            }
+          }
+        }
+      ]
+    }
+  },
+  "dashaShift": [
+    {
+      "offsetMinutes": -10,
+      "moonNakshatra": "Krittika",
+      "lords": [
+        "Rahu",
+        "Moon",
+        "Ketu"
+      ],
+      "bhuktiStartUtc": "2009-08-05T22:26:45.144Z",
+      "bhuktiEndUtc": "2011-02-04T19:26:45.144Z"
+    },
+    {
+      "offsetMinutes": 0,
+      "moonNakshatra": "Krittika",
+      "lords": [
+        "Rahu",
+        "Moon",
+        "Venus"
+      ],
+      "bhuktiStartUtc": "2009-07-23T10:22:50.650Z",
+      "bhuktiEndUtc": "2011-01-22T07:22:50.650Z"
+    },
+    {
+      "offsetMinutes": 10,
+      "moonNakshatra": "Krittika",
+      "lords": [
+        "Rahu",
+        "Moon",
+        "Venus"
+      ],
+      "bhuktiStartUtc": "2009-07-09T22:18:01.094Z",
+      "bhuktiEndUtc": "2011-01-08T19:18:01.094Z"
+    }
+  ],
+  "expandedWindow": {
+    "hoursEitherSide": 3,
+    "sampleStepSeconds": 5,
+    "sameBirthDateWedding": [
+      {
+        "first": "1976-10-11T21:13:20.000-07:00",
+        "last": "1976-10-11T21:39:50.000-07:00",
+        "firstOffsetSeconds": -6160,
+        "lastOffsetSeconds": -4570,
+        "sampleCount": 319
+      }
+    ],
+    "sameBirthDateWeddingAndChild": [
+      {
+        "first": "1976-10-11T21:13:20.000-07:00",
+        "last": "1976-10-11T21:39:50.000-07:00",
+        "firstOffsetSeconds": -6160,
+        "lastOffsetSeconds": -4570,
+        "sampleCount": 319
+      }
+    ],
+    "otherDateWedding": [
+      {
+        "first": "1976-10-12T00:09:15.000-07:00",
+        "last": "1976-10-12T00:23:30.000-07:00",
+        "firstOffsetSeconds": 4395,
+        "lastOffsetSeconds": 5250,
+        "sampleCount": 172
+      }
+    ]
+  },
+  "assumptions": "Exploratory post-hoc 5-second sampling; actual wedding clock unknown, 20:00 is only an evening scenario, and child's clock is assumed noon. Other-date samples conflict with the stated birth date. Missing primary links are unresolved under the partial model, not full-method failures. Original birth record not inspected."
+}

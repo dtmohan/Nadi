@@ -1,0 +1,1191 @@
+{
+  "protocol": "±30 minute scan; chronological alternate unique dates for train/holdout; top raw score with tied selectable sample nearest reported time; compare holdout with recorded time; ±5 minute tolerance is a chosen reporting band, not certificate precision. The current UI highlight is examined separately.",
+  "assumptions": "Events use any documented local time and zone, otherwise noon and the birth timezone; KP ayanamsa for KP, chart ayanamsa for other methods; 200 random-date trials for the descriptive comparison. Small public convenience sample, not population-representative; several held-out sets are very small.",
+  "results": [
+    {
+      "name": "Albert Einstein",
+      "category": "Physicist; born in Germany",
+      "reportedBirthTime": "11:30",
+      "birthSource": "https://einstein-virtuell.mpiwg-berlin.mpg.de/VEA/SC-1098931061_MOD-778631397_SEQ817366022_en.html",
+      "training": [
+        "1903-01-06 marriage",
+        "1910-07-28 child",
+        "1920-02-20 mother"
+      ],
+      "heldOut": [
+        "1904-05-14 child",
+        "1919-06-02 marriage"
+      ],
+      "samples": 76,
+      "methods": {
+        "kp-events": {
+          "recordedScore": {
+            "score": 7,
+            "max": 12
+          },
+          "minimumScore": 6,
+          "maximumScore": 10,
+          "distinctScores": 5,
+          "topSamples": 21,
+          "topCoveragePercent": 28.3,
+          "topTouchesRecordedFiveMinuteBand": false,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 3,
+          "distinctParashariPatternsAmongTopSamples": 6,
+          "eligibleAbovePercentileSamples": 3,
+          "highlightedSamples": 3,
+          "highlightedCoveragePercent": 2,
+          "highlightedTouchesRecordedFiveMinuteBand": true,
+          "selectedTime": "11:22:54",
+          "selectedOffsetMinutes": -7.1,
+          "heldOutRecorded": {
+            "score": 4,
+            "max": 8
+          },
+          "heldOutSelected": {
+            "score": 4,
+            "max": 8
+          }
+        },
+        "kp-transit": {
+          "recordedScore": {
+            "score": 11,
+            "max": 18
+          },
+          "minimumScore": 11,
+          "maximumScore": 13,
+          "distinctScores": 3,
+          "topSamples": 52,
+          "topCoveragePercent": 66.3,
+          "topTouchesRecordedFiveMinuteBand": false,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 6,
+          "distinctParashariPatternsAmongTopSamples": 10,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "11:21:14",
+          "selectedOffsetMinutes": -8.8,
+          "heldOutRecorded": {
+            "score": 9,
+            "max": 12
+          },
+          "heldOutSelected": {
+            "score": 10,
+            "max": 12
+          }
+        },
+        "jaimini-dasha": {
+          "recordedScore": {
+            "score": 12,
+            "max": 12
+          },
+          "minimumScore": 12,
+          "maximumScore": 12,
+          "distinctScores": 1,
+          "topSamples": 76,
+          "topCoveragePercent": 100,
+          "topTouchesRecordedFiveMinuteBand": true,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 7,
+          "distinctParashariPatternsAmongTopSamples": 15,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "11:30:02",
+          "selectedOffsetMinutes": 0,
+          "heldOutRecorded": {
+            "score": 5,
+            "max": 8
+          },
+          "heldOutSelected": {
+            "score": 5,
+            "max": 8
+          }
+        }
+      },
+      "kpMoon": {
+        "recordedIntervalScore": {
+          "score": 1,
+          "max": 9
+        },
+        "best": 8,
+        "distinctScores": 6
+      },
+      "kundaD81": {
+        "recordedWindowMatches": false,
+        "matchingCoveragePercent": 10.6
+      },
+      "recordedChartBaseline": {
+        "kp": {
+          "actual": 11,
+          "mean": 11.2,
+          "sd": 1.5,
+          "percentile": 44,
+          "verdict": "chance"
+        },
+        "transit": {
+          "actual": 20,
+          "mean": 18.9,
+          "sd": 2.4,
+          "percentile": 68,
+          "verdict": "chance"
+        },
+        "jaimini": {
+          "actual": 17,
+          "mean": 16.8,
+          "sd": 1.5,
+          "percentile": 54,
+          "verdict": "chance"
+        },
+        "nadi": {
+          "actual": 8,
+          "mean": 11.3,
+          "sd": 3.2,
+          "percentile": 16,
+          "verdict": "chance"
+        }
+      }
+    },
+    {
+      "name": "Elizabeth II",
+      "category": "Monarch; born in England",
+      "reportedBirthTime": "02:40",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_04_21.htm?lang=r&nho2=3026903&nhor=1",
+      "training": [
+        "1947-11-20 marriage",
+        "1950-08-15 child",
+        "1960-02-19 child",
+        "2002-03-30 mother"
+      ],
+      "heldOut": [
+        "1948-11-14 child",
+        "1952-02-06 father",
+        "1964-03-10 child",
+        "2021-04-09 spouse"
+      ],
+      "samples": 85,
+      "methods": {
+        "kp-events": {
+          "recordedScore": {
+            "score": 10,
+            "max": 16
+          },
+          "minimumScore": 6,
+          "maximumScore": 15,
+          "distinctScores": 9,
+          "topSamples": 14,
+          "topCoveragePercent": 16.2,
+          "topTouchesRecordedFiveMinuteBand": false,
+          "supportedVargaEvents": 3,
+          "distinctDivisionalPatternsAmongTopSamples": 4,
+          "distinctParashariPatternsAmongTopSamples": 7,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "02:51:08",
+          "selectedOffsetMinutes": 11.1,
+          "heldOutRecorded": {
+            "score": 13,
+            "max": 16
+          },
+          "heldOutSelected": {
+            "score": 15,
+            "max": 16
+          }
+        },
+        "kp-transit": {
+          "recordedScore": {
+            "score": 22,
+            "max": 24
+          },
+          "minimumScore": 20,
+          "maximumScore": 22,
+          "distinctScores": 3,
+          "topSamples": 46,
+          "topCoveragePercent": 51.2,
+          "topTouchesRecordedFiveMinuteBand": true,
+          "supportedVargaEvents": 3,
+          "distinctDivisionalPatternsAmongTopSamples": 9,
+          "distinctParashariPatternsAmongTopSamples": 15,
+          "eligibleAbovePercentileSamples": 39,
+          "highlightedSamples": 14,
+          "highlightedCoveragePercent": 17.3,
+          "highlightedTouchesRecordedFiveMinuteBand": true,
+          "selectedTime": "02:40:10",
+          "selectedOffsetMinutes": 0.2,
+          "heldOutRecorded": {
+            "score": 22,
+            "max": 24
+          },
+          "heldOutSelected": {
+            "score": 22,
+            "max": 24
+          }
+        },
+        "jaimini-dasha": {
+          "recordedScore": {
+            "score": 12,
+            "max": 16
+          },
+          "minimumScore": 12,
+          "maximumScore": 13,
+          "distinctScores": 2,
+          "topSamples": 35,
+          "topCoveragePercent": 42.6,
+          "topTouchesRecordedFiveMinuteBand": true,
+          "supportedVargaEvents": 3,
+          "distinctDivisionalPatternsAmongTopSamples": 5,
+          "distinctParashariPatternsAmongTopSamples": 10,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "02:45:06",
+          "selectedOffsetMinutes": 5.1,
+          "heldOutRecorded": {
+            "score": 12,
+            "max": 16
+          },
+          "heldOutSelected": {
+            "score": 13,
+            "max": 16
+          }
+        }
+      },
+      "kpMoon": {
+        "recordedIntervalScore": {
+          "score": 2,
+          "max": 9
+        },
+        "best": 8,
+        "distinctScores": 5
+      },
+      "kundaD81": {
+        "recordedWindowMatches": false,
+        "matchingCoveragePercent": 11.3
+      },
+      "recordedChartBaseline": {
+        "kp": {
+          "actual": 23,
+          "mean": 23.7,
+          "sd": 2,
+          "percentile": 35,
+          "verdict": "chance"
+        },
+        "transit": {
+          "actual": 44,
+          "mean": 39,
+          "sd": 2.4,
+          "percentile": 98,
+          "verdict": "above"
+        },
+        "jaimini": {
+          "actual": 24,
+          "mean": 25.7,
+          "sd": 2.1,
+          "percentile": 22,
+          "verdict": "chance"
+        },
+        "nadi": {
+          "actual": 18,
+          "mean": 22.3,
+          "sd": 3.9,
+          "percentile": 15,
+          "verdict": "chance"
+        }
+      }
+    },
+    {
+      "name": "Steve Jobs",
+      "category": "Technology entrepreneur; born in California, USA",
+      "reportedBirthTime": "19:15",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_02_24.htm?lang=r&nho2=2154523&nhor=2154523",
+      "training": [
+        "1976-04-01 business",
+        "1985-09-16 job-loss",
+        "1991-09-22 child",
+        "1998-07-09 child"
+      ],
+      "heldOut": [
+        "1978-05-17 child",
+        "1991-03-18 marriage",
+        "1995-08-19 child",
+        "2004-07-31 illness"
+      ],
+      "samples": 81,
+      "methods": {
+        "kp-events": {
+          "recordedScore": {
+            "score": 11,
+            "max": 16
+          },
+          "minimumScore": 10,
+          "maximumScore": 16,
+          "distinctScores": 7,
+          "topSamples": 20,
+          "topCoveragePercent": 25.1,
+          "topTouchesRecordedFiveMinuteBand": false,
+          "supportedVargaEvents": 4,
+          "distinctDivisionalPatternsAmongTopSamples": 3,
+          "distinctParashariPatternsAmongTopSamples": 10,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "18:56:29",
+          "selectedOffsetMinutes": -18.5,
+          "heldOutRecorded": {
+            "score": 10,
+            "max": 16
+          },
+          "heldOutSelected": {
+            "score": 15,
+            "max": 16
+          }
+        },
+        "kp-transit": {
+          "recordedScore": {
+            "score": 20,
+            "max": 24
+          },
+          "minimumScore": 18,
+          "maximumScore": 22,
+          "distinctScores": 4,
+          "topSamples": 21,
+          "topCoveragePercent": 25.5,
+          "topTouchesRecordedFiveMinuteBand": false,
+          "supportedVargaEvents": 4,
+          "distinctDivisionalPatternsAmongTopSamples": 3,
+          "distinctParashariPatternsAmongTopSamples": 8,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "18:59:40",
+          "selectedOffsetMinutes": -15.3,
+          "heldOutRecorded": {
+            "score": 14,
+            "max": 24
+          },
+          "heldOutSelected": {
+            "score": 21,
+            "max": 24
+          }
+        },
+        "jaimini-dasha": {
+          "recordedScore": {
+            "score": 9,
+            "max": 16
+          },
+          "minimumScore": 9,
+          "maximumScore": 15,
+          "distinctScores": 2,
+          "topSamples": 33,
+          "topCoveragePercent": 42.3,
+          "topTouchesRecordedFiveMinuteBand": true,
+          "supportedVargaEvents": 4,
+          "distinctDivisionalPatternsAmongTopSamples": 3,
+          "distinctParashariPatternsAmongTopSamples": 11,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "19:20:28",
+          "selectedOffsetMinutes": 5.5,
+          "heldOutRecorded": {
+            "score": 14,
+            "max": 16
+          },
+          "heldOutSelected": {
+            "score": 12,
+            "max": 16
+          }
+        }
+      },
+      "kpMoon": {
+        "recordedIntervalScore": {
+          "score": 2,
+          "max": 9
+        },
+        "best": 8,
+        "distinctScores": 6
+      },
+      "kundaD81": {
+        "recordedWindowMatches": false,
+        "matchingCoveragePercent": 10.7
+      },
+      "recordedChartBaseline": {
+        "kp": {
+          "actual": 21,
+          "mean": 19.4,
+          "sd": 1.8,
+          "percentile": 79,
+          "verdict": "chance"
+        },
+        "transit": {
+          "actual": 34,
+          "mean": 35.8,
+          "sd": 3,
+          "percentile": 27,
+          "verdict": "chance"
+        },
+        "jaimini": {
+          "actual": 23,
+          "mean": 23,
+          "sd": 2.6,
+          "percentile": 51,
+          "verdict": "chance"
+        },
+        "nadi": {
+          "actual": 15,
+          "mean": 15.1,
+          "sd": 4.5,
+          "percentile": 53,
+          "verdict": "chance"
+        }
+      }
+    },
+    {
+      "name": "Barack Obama",
+      "category": "Public official; born in Hawaii, USA",
+      "reportedBirthTime": "19:24",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_08_04.htm?lang=r&nho2=46&nhor=1",
+      "training": [
+        "1992-10-03 marriage",
+        "2001-06-10 child"
+      ],
+      "heldOut": [
+        "1998-07-04 child",
+        "2009-01-20 job"
+      ],
+      "samples": 53,
+      "methods": {
+        "kp-events": {
+          "recordedScore": {
+            "score": 7,
+            "max": 8
+          },
+          "minimumScore": 4,
+          "maximumScore": 7,
+          "distinctScores": 4,
+          "topSamples": 26,
+          "topCoveragePercent": 44.5,
+          "topTouchesRecordedFiveMinuteBand": true,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 10,
+          "distinctParashariPatternsAmongTopSamples": 11,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "19:24:27",
+          "selectedOffsetMinutes": 0.5,
+          "heldOutRecorded": {
+            "score": 6,
+            "max": 8
+          },
+          "heldOutSelected": {
+            "score": 6,
+            "max": 8
+          }
+        },
+        "kp-transit": {
+          "recordedScore": {
+            "score": 9,
+            "max": 12
+          },
+          "minimumScore": 9,
+          "maximumScore": 12,
+          "distinctScores": 4,
+          "topSamples": 10,
+          "topCoveragePercent": 18.1,
+          "topTouchesRecordedFiveMinuteBand": false,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 3,
+          "distinctParashariPatternsAmongTopSamples": 3,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "19:04:16",
+          "selectedOffsetMinutes": -19.7,
+          "heldOutRecorded": {
+            "score": 8,
+            "max": 12
+          },
+          "heldOutSelected": {
+            "score": 10,
+            "max": 12
+          }
+        },
+        "jaimini-dasha": {
+          "recordedScore": {
+            "score": 5,
+            "max": 8
+          },
+          "minimumScore": 5,
+          "maximumScore": 6,
+          "distinctScores": 2,
+          "topSamples": 14,
+          "topCoveragePercent": 20.4,
+          "topTouchesRecordedFiveMinuteBand": false,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 2,
+          "distinctParashariPatternsAmongTopSamples": 3,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "19:41:54",
+          "selectedOffsetMinutes": 17.9,
+          "heldOutRecorded": {
+            "score": 5,
+            "max": 8
+          },
+          "heldOutSelected": {
+            "score": 4,
+            "max": 8
+          }
+        }
+      },
+      "kpMoon": {
+        "recordedIntervalScore": {
+          "score": 4,
+          "max": 9
+        },
+        "best": 6,
+        "distinctScores": 5
+      },
+      "kundaD81": {
+        "recordedWindowMatches": false,
+        "matchingCoveragePercent": 11.3
+      },
+      "recordedChartBaseline": {
+        "kp": {
+          "actual": 13,
+          "mean": 12.6,
+          "sd": 1.4,
+          "percentile": 58,
+          "verdict": "chance"
+        },
+        "transit": {
+          "actual": 17,
+          "mean": 15.6,
+          "sd": 2.4,
+          "percentile": 73,
+          "verdict": "chance"
+        },
+        "jaimini": {
+          "actual": 10,
+          "mean": 11.2,
+          "sd": 1.6,
+          "percentile": 22,
+          "verdict": "chance"
+        },
+        "nadi": {
+          "actual": 12,
+          "mean": 9.4,
+          "sd": 2.7,
+          "percentile": 81,
+          "verdict": "chance"
+        }
+      }
+    },
+    {
+      "name": "Sonia Gandhi",
+      "category": "Indian political leader; born in Italy",
+      "reportedBirthTime": "21:30",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_12_09.htm?lang=e&nho2=2&nhor=...&pa=nmo",
+      "training": [
+        "1968-02-25 marriage",
+        "1972-01-12 child"
+      ],
+      "heldOut": [
+        "1970-06-19 child",
+        "1991-05-21 spouse"
+      ],
+      "samples": 60,
+      "methods": {
+        "kp-events": {
+          "recordedScore": {
+            "score": 5,
+            "max": 8
+          },
+          "minimumScore": 3,
+          "maximumScore": 6,
+          "distinctScores": 4,
+          "topSamples": 16,
+          "topCoveragePercent": 25.7,
+          "topTouchesRecordedFiveMinuteBand": true,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 4,
+          "distinctParashariPatternsAmongTopSamples": 11,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "21:33:35",
+          "selectedOffsetMinutes": 3.6,
+          "heldOutRecorded": {
+            "score": 4,
+            "max": 8
+          },
+          "heldOutSelected": {
+            "score": 3,
+            "max": 8
+          }
+        },
+        "kp-transit": {
+          "recordedScore": {
+            "score": 9,
+            "max": 12
+          },
+          "minimumScore": 9,
+          "maximumScore": 11,
+          "distinctScores": 3,
+          "topSamples": 5,
+          "topCoveragePercent": 6.1,
+          "topTouchesRecordedFiveMinuteBand": false,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 1,
+          "distinctParashariPatternsAmongTopSamples": 1,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "21:56:22",
+          "selectedOffsetMinutes": 26.4,
+          "heldOutRecorded": {
+            "score": 10,
+            "max": 12
+          },
+          "heldOutSelected": {
+            "score": 10,
+            "max": 12
+          }
+        },
+        "jaimini-dasha": {
+          "recordedScore": {
+            "score": 5,
+            "max": 8
+          },
+          "minimumScore": 4,
+          "maximumScore": 5,
+          "distinctScores": 2,
+          "topSamples": 47,
+          "topCoveragePercent": 75,
+          "topTouchesRecordedFiveMinuteBand": true,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 5,
+          "distinctParashariPatternsAmongTopSamples": 17,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "21:29:22",
+          "selectedOffsetMinutes": -0.6,
+          "heldOutRecorded": {
+            "score": 5,
+            "max": 8
+          },
+          "heldOutSelected": {
+            "score": 5,
+            "max": 8
+          }
+        }
+      },
+      "kpMoon": {
+        "recordedIntervalScore": {
+          "score": 0,
+          "max": 9
+        },
+        "best": 8,
+        "distinctScores": 4
+      },
+      "kundaD81": {
+        "recordedWindowMatches": false,
+        "matchingCoveragePercent": 11.8
+      },
+      "recordedChartBaseline": {
+        "kp": {
+          "actual": 9,
+          "mean": 9.8,
+          "sd": 1.4,
+          "percentile": 29,
+          "verdict": "chance"
+        },
+        "transit": {
+          "actual": 19,
+          "mean": 16.8,
+          "sd": 2.2,
+          "percentile": 84,
+          "verdict": "chance"
+        },
+        "jaimini": {
+          "actual": 10,
+          "mean": 12.5,
+          "sd": 1.5,
+          "percentile": 8,
+          "verdict": "chance"
+        },
+        "nadi": {
+          "actual": 11,
+          "mean": 8,
+          "sd": 3.1,
+          "percentile": 83,
+          "verdict": "chance"
+        }
+      }
+    },
+    {
+      "name": "Bob Woolmer",
+      "category": "Cricketer and coach; born in India; birth record reported secondhand",
+      "reportedBirthTime": "02:15",
+      "birthSource": "https://www.astro.com/astro-databank/Woolmer%2C_Bob",
+      "training": [
+        "1972-08-24 job",
+        "2004-06-16 job"
+      ],
+      "heldOut": [
+        "1994-09-23 job"
+      ],
+      "samples": 59,
+      "methods": {
+        "kp-events": {
+          "recordedScore": {
+            "score": 8,
+            "max": 8
+          },
+          "minimumScore": 7,
+          "maximumScore": 8,
+          "distinctScores": 2,
+          "topSamples": 42,
+          "topCoveragePercent": 73.8,
+          "topTouchesRecordedFiveMinuteBand": true,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 7,
+          "distinctParashariPatternsAmongTopSamples": 14,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "02:14:52",
+          "selectedOffsetMinutes": -0.1,
+          "heldOutRecorded": {
+            "score": 4,
+            "max": 4
+          },
+          "heldOutSelected": {
+            "score": 4,
+            "max": 4
+          }
+        },
+        "kp-transit": {
+          "recordedScore": {
+            "score": 12,
+            "max": 12
+          },
+          "minimumScore": 10,
+          "maximumScore": 12,
+          "distinctScores": 2,
+          "topSamples": 57,
+          "topCoveragePercent": 96.3,
+          "topTouchesRecordedFiveMinuteBand": true,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 7,
+          "distinctParashariPatternsAmongTopSamples": 17,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "02:14:52",
+          "selectedOffsetMinutes": -0.1,
+          "heldOutRecorded": {
+            "score": 6,
+            "max": 6
+          },
+          "heldOutSelected": {
+            "score": 6,
+            "max": 6
+          }
+        },
+        "jaimini-dasha": {
+          "recordedScore": {
+            "score": 6,
+            "max": 8
+          },
+          "minimumScore": 6,
+          "maximumScore": 7,
+          "distinctScores": 2,
+          "topSamples": 24,
+          "topCoveragePercent": 37.1,
+          "topTouchesRecordedFiveMinuteBand": false,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 3,
+          "distinctParashariPatternsAmongTopSamples": 8,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "02:23:09",
+          "selectedOffsetMinutes": 8.2,
+          "heldOutRecorded": {
+            "score": 4,
+            "max": 4
+          },
+          "heldOutSelected": {
+            "score": 4,
+            "max": 4
+          }
+        }
+      },
+      "kpMoon": {
+        "recordedIntervalScore": {
+          "score": 0,
+          "max": 9
+        },
+        "best": 8,
+        "distinctScores": 7
+      },
+      "kundaD81": {
+        "recordedWindowMatches": false,
+        "matchingCoveragePercent": 11.2
+      },
+      "recordedChartBaseline": {
+        "kp": {
+          "actual": 12,
+          "mean": 12,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "transit": {
+          "actual": 18,
+          "mean": 18,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "jaimini": {
+          "actual": 10,
+          "mean": 10.1,
+          "sd": 1.1,
+          "percentile": 45,
+          "verdict": "chance"
+        },
+        "nadi": {
+          "actual": 4,
+          "mean": 5.5,
+          "sd": 1.6,
+          "percentile": 16,
+          "verdict": "chance"
+        }
+      }
+    },
+    {
+      "name": "Gisele Bündchen",
+      "category": "Fashion model; born in Brazil",
+      "reportedBirthTime": "17:00",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_07_20.htm?lang=r&nhor=1",
+      "training": [
+        "2009-02-26 marriage",
+        "2012-12-05 child"
+      ],
+      "heldOut": [
+        "2009-12-08 child"
+      ],
+      "samples": 51,
+      "methods": {
+        "kp-events": {
+          "recordedScore": {
+            "score": 6,
+            "max": 8
+          },
+          "minimumScore": 4,
+          "maximumScore": 7,
+          "distinctScores": 4,
+          "topSamples": 15,
+          "topCoveragePercent": 32.9,
+          "topTouchesRecordedFiveMinuteBand": true,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 5,
+          "distinctParashariPatternsAmongTopSamples": 7,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "16:57:47",
+          "selectedOffsetMinutes": -2.2,
+          "heldOutRecorded": {
+            "score": 4,
+            "max": 4
+          },
+          "heldOutSelected": {
+            "score": 4,
+            "max": 4
+          }
+        },
+        "kp-transit": {
+          "recordedScore": {
+            "score": 9,
+            "max": 12
+          },
+          "minimumScore": 9,
+          "maximumScore": 10,
+          "distinctScores": 2,
+          "topSamples": 10,
+          "topCoveragePercent": 19.8,
+          "topTouchesRecordedFiveMinuteBand": false,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 3,
+          "distinctParashariPatternsAmongTopSamples": 4,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "16:41:24",
+          "selectedOffsetMinutes": -18.6,
+          "heldOutRecorded": {
+            "score": 4,
+            "max": 6
+          },
+          "heldOutSelected": {
+            "score": 4,
+            "max": 6
+          }
+        },
+        "jaimini-dasha": {
+          "recordedScore": {
+            "score": 5,
+            "max": 8
+          },
+          "minimumScore": 5,
+          "maximumScore": 5,
+          "distinctScores": 1,
+          "topSamples": 51,
+          "topCoveragePercent": 100,
+          "topTouchesRecordedFiveMinuteBand": true,
+          "supportedVargaEvents": 2,
+          "distinctDivisionalPatternsAmongTopSamples": 8,
+          "distinctParashariPatternsAmongTopSamples": 13,
+          "eligibleAbovePercentileSamples": 0,
+          "highlightedSamples": 0,
+          "highlightedCoveragePercent": 0,
+          "highlightedTouchesRecordedFiveMinuteBand": false,
+          "selectedTime": "16:59:22",
+          "selectedOffsetMinutes": -0.6,
+          "heldOutRecorded": {
+            "score": 2,
+            "max": 4
+          },
+          "heldOutSelected": {
+            "score": 2,
+            "max": 4
+          }
+        }
+      },
+      "kpMoon": {
+        "recordedIntervalScore": {
+          "score": 4,
+          "max": 9
+        },
+        "best": 8,
+        "distinctScores": 4
+      },
+      "kundaD81": {
+        "recordedWindowMatches": false,
+        "matchingCoveragePercent": 11.2
+      },
+      "recordedChartBaseline": {
+        "kp": {
+          "actual": 10,
+          "mean": 10.2,
+          "sd": 1.1,
+          "percentile": 44,
+          "verdict": "chance"
+        },
+        "transit": {
+          "actual": 13,
+          "mean": 11.6,
+          "sd": 2.7,
+          "percentile": 72,
+          "verdict": "chance"
+        },
+        "jaimini": {
+          "actual": 7,
+          "mean": 8.5,
+          "sd": 1.2,
+          "percentile": 16,
+          "verdict": "chance"
+        },
+        "nadi": {
+          "actual": 11,
+          "mean": 10.3,
+          "sd": 1.9,
+          "percentile": 64,
+          "verdict": "chance"
+        }
+      }
+    }
+  ],
+  "weddingSky": [
+    {
+      "time": "10:30",
+      "sky": [
+        {
+          "planet": "Sun",
+          "sign": "Scorpio",
+          "star": "Anuradha",
+          "signLord": "Mars",
+          "starLord": "Saturn",
+          "subLord": "Saturn"
+        },
+        {
+          "planet": "Moon",
+          "sign": "Capricorn",
+          "star": "Dhanishta",
+          "signLord": "Saturn",
+          "starLord": "Mars",
+          "subLord": "Saturn"
+        },
+        {
+          "planet": "Mars",
+          "sign": "Leo",
+          "star": "Magha",
+          "signLord": "Sun",
+          "starLord": "Ketu",
+          "subLord": "Venus"
+        },
+        {
+          "planet": "Mercury",
+          "sign": "Libra",
+          "star": "Swati",
+          "signLord": "Venus",
+          "starLord": "Rahu",
+          "subLord": "Ketu"
+        },
+        {
+          "planet": "Jupiter",
+          "sign": "Scorpio",
+          "star": "Anuradha",
+          "signLord": "Mars",
+          "starLord": "Saturn",
+          "subLord": "Mars"
+        },
+        {
+          "planet": "Venus",
+          "sign": "Scorpio",
+          "star": "Jyeshtha",
+          "signLord": "Mars",
+          "starLord": "Mercury",
+          "subLord": "Rahu"
+        },
+        {
+          "planet": "Saturn",
+          "sign": "Cancer",
+          "star": "Ashlesha",
+          "signLord": "Moon",
+          "starLord": "Mercury",
+          "subLord": "Saturn"
+        },
+        {
+          "planet": "Rahu",
+          "sign": "Aries",
+          "star": "Krittika",
+          "signLord": "Mars",
+          "starLord": "Sun",
+          "subLord": "Rahu"
+        },
+        {
+          "planet": "Ketu",
+          "sign": "Libra",
+          "star": "Vishakha",
+          "signLord": "Venus",
+          "starLord": "Jupiter",
+          "subLord": "Moon"
+        }
+      ]
+    },
+    {
+      "time": "12:00",
+      "sky": [
+        {
+          "planet": "Sun",
+          "sign": "Scorpio",
+          "star": "Anuradha",
+          "signLord": "Mars",
+          "starLord": "Saturn",
+          "subLord": "Saturn"
+        },
+        {
+          "planet": "Moon",
+          "sign": "Capricorn",
+          "star": "Dhanishta",
+          "signLord": "Saturn",
+          "starLord": "Mars",
+          "subLord": "Saturn"
+        },
+        {
+          "planet": "Mars",
+          "sign": "Leo",
+          "star": "Magha",
+          "signLord": "Sun",
+          "starLord": "Ketu",
+          "subLord": "Venus"
+        },
+        {
+          "planet": "Mercury",
+          "sign": "Libra",
+          "star": "Swati",
+          "signLord": "Venus",
+          "starLord": "Rahu",
+          "subLord": "Ketu"
+        },
+        {
+          "planet": "Jupiter",
+          "sign": "Scorpio",
+          "star": "Anuradha",
+          "signLord": "Mars",
+          "starLord": "Saturn",
+          "subLord": "Rahu"
+        },
+        {
+          "planet": "Venus",
+          "sign": "Scorpio",
+          "star": "Jyeshtha",
+          "signLord": "Mars",
+          "starLord": "Mercury",
+          "subLord": "Rahu"
+        },
+        {
+          "planet": "Saturn",
+          "sign": "Cancer",
+          "star": "Ashlesha",
+          "signLord": "Moon",
+          "starLord": "Mercury",
+          "subLord": "Saturn"
+        },
+        {
+          "planet": "Rahu",
+          "sign": "Aries",
+          "star": "Krittika",
+          "signLord": "Mars",
+          "starLord": "Sun",
+          "subLord": "Rahu"
+        },
+        {
+          "planet": "Ketu",
+          "sign": "Libra",
+          "star": "Vishakha",
+          "signLord": "Venus",
+          "starLord": "Jupiter",
+          "subLord": "Moon"
+        }
+      ]
+    }
+  ]
+}

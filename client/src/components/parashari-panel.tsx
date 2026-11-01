@@ -41,6 +41,8 @@ import {
 } from "@/components/parashari-timing-now";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
+import type { ChartEvent } from "@shared/events";
+import { TopicReadingPanel } from "@/components/topic-reading";
 import { PLANET_ABBR, SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "@shared/astro";
 import {
   computeParashari,
@@ -806,10 +808,12 @@ function TopicPeriodsBlock({ topics }: { topics: TopicPeriods[] }) {
 export function ParashariPanel({
   result,
   onOpenOverview,
+  onTopicSelected,
 }: {
   result: ChartResult;
   /** Now and next lives on the Overview; the Timing chapter points there. */
   onOpenOverview?: () => void;
+  onTopicSelected?: (event: ChartEvent | null) => void;
 }) {
   const { positions, chart } = result;
   const combinations = useMemo(
@@ -1337,6 +1341,7 @@ export function ParashariPanel({
       technical: "Dasas",
       blurb: "The life periods and their sub-periods, the three-ring wheel, the sign-based and Kalachakra periods, and transits.",
     },
+    { id: "topic-check", plain: "Matter and date", technical: "Matter and date", blurb: "The same D1, divisional, period and transit checks used in Validate." },
     {
       id: "vargas",
       plain: "Finer charts",
@@ -1415,6 +1420,7 @@ export function ParashariPanel({
     <FoundCtx.Provider value={foundCtx}>
     <div data-testid="parashari-panel">
       <Chapters tab="parashari" chapters={chapterDefs}>
+      <Chapter id="topic-check"><TopicReadingPanel result={result} system="parashari" onSelected={onTopicSelected} /></Chapter>
       <Chapter id="brief">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>

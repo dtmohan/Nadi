@@ -29,15 +29,15 @@ const exchange = (id: string, area: LifeArea, a: Planet, b: Planet, text: string
   f({ id, area, when: { subject: a, object: b, exchange: true }, text, weight, source: NAIK });
 
 const trio = (id: string, area: LifeArea, subject: Planet, object: Planet, third: Planet, text: string, weight: 1 | 2 | 3 = 3, source = RAO): Rule =>
-  f({ id, area, when: { subject, object, relation: NEAR, with: [{ planet: third, relation: NEAR }] }, text, weight, source });
+  f({ id, area, when: { subject, object, relation: NEAR, with: [{ planet: third, relation: NEAR }] }, text: text.replace(/\btogether:/, "linked by sign (not necessarily in the same sign):"), weight, source: `${source}; adjacent-sign extension provisional` });
 
 const quad = (id: string, area: LifeArea, subject: Planet, object: Planet, third: Planet, fourth: Planet, text: string, weight: 1 | 2 | 3 = 3): Rule =>
-  f({ id, area, when: { subject, object, relation: NEAR, with: [{ planet: third, relation: NEAR }, { planet: fourth, relation: NEAR }] }, text, weight, source: RAO });
+  f({ id, area, when: { subject, object, relation: NEAR, with: [{ planet: third, relation: NEAR }, { planet: fourth, relation: NEAR }] }, text: text.replace(/\btogether:/, "linked by sign (not necessarily in the same sign):"), weight, source: `${RAO}; adjacent-sign extension provisional` });
 
 export const FEMALE_RULES: Rule[] = [
   // ───────────── Venus as Deha: the native herself ─────────────
   pair("f-ve-sa", "self", "Venus", "Saturn", "Deha (Venus) bound to Karma: a working woman whose life is organised around duty and profession; maturity early, comforts earned slowly.", 3),
-  pair("f-ve-ju", "self", "Venus", "Jupiter", "Deha (Venus) with Jupiter: a fortunate, principled native; wisdom, children and a blessed marriage shape the life path.", 3),
+  pair("f-ve-ju", "self", "Venus", "Jupiter", "Deha (Venus) with Jupiter: a traditional association with counsel, family and partnership; it does not establish whether someone has children.", 3),
   pair("f-ve-me", "self", "Venus", "Mercury", "Deha (Venus) with Mercury: articulate, sociable and quick; learning, communication, trade or the arts are her field.", 3),
   pair("f-ve-ma", "self", "Venus", "Mars", "Deha (Venus) with Mars, the husband: the marriage is central to her life; a strong bond from a previous birth, with occasional heat and temporary separations.", 3),
   pair("f-ve-su", "self", "Venus", "Sun", "Deha (Venus) with the Sun: dignity and closeness to authority; the father's standing marks her life; she may work with government or in a position of status.", 3),
@@ -55,15 +55,15 @@ export const FEMALE_RULES: Rule[] = [
   f({ id: "f-ve-debil", area: "self", when: { subject: "Venus", subjectDignity: ["Debilitated"] }, text: "Venus, the Jeeva, debilitated: self-worth must be earned; comforts come by effort and adjustment.", weight: 2 }),
   f({ id: "f-ma-exalt", area: "marriage", when: { subject: "Mars", subjectDignity: ["Exalted", "Own sign", "Moolatrikona"] }, text: "Mars, the husband's karaka, is dignified: a capable, established husband; property and standing through the marriage.", weight: 2 }),
   f({ id: "f-ma-debil", area: "marriage", when: { subject: "Mars", subjectDignity: ["Debilitated"] }, text: "Mars, the husband's karaka, debilitated: the husband's circumstances may be modest or his temper uneven; adjustments in marriage.", weight: 2 }),
-  f({ id: "f-ju-exalt", area: "wealth", when: { subject: "Jupiter", subjectDignity: ["Exalted", "Own sign", "Moolatrikona"] }, text: "Jupiter dignified: fortune, children and sound counsel protect the native; the husband's side is respected.", weight: 2 }),
-  f({ id: "f-ju-debil", area: "wealth", when: { subject: "Jupiter", subjectDignity: ["Debilitated"] }, text: "Jupiter debilitated: fortune and guidance must be built by effort; delays with children or learning.", weight: 2 }),
+  f({ id: "f-ju-exalt", area: "wealth", when: { subject: "Jupiter", subjectDignity: ["Exalted", "Own sign", "Moolatrikona"] }, text: "Jupiter dignified: the tradition associates this with fortune and sound counsel; individual family circumstances cannot be inferred.", weight: 2 }),
+  f({ id: "f-ju-debil", area: "wealth", when: { subject: "Jupiter", subjectDignity: ["Debilitated"] }, text: "Jupiter debilitated: the tradition reads fortune and guidance with caution; this cannot establish a delay in having children.", weight: 2 }),
 
   // ───────────── Direction around the Deha (Venus) ─────────────
   ahead("f-ve-next-sa", "career", "Venus", "Saturn", "Saturn ahead of Venus: the native moves toward work; a career taken up by choice, gains through patience.", 2),
   behind("f-ve-prev-sa", "career", "Venus", "Saturn", "Saturn behind Venus: Karma pushes the Jeeva; work begins early, often from necessity, and becomes the ground she stands on.", 2),
   ahead("f-ve-next-ma", "marriage", "Venus", "Mars", "Mars ahead of Venus: the native moves toward the husband; marriage is a chosen step, the husband's affairs become her next chapter.", 2),
   behind("f-ve-prev-ma", "marriage", "Venus", "Mars", "Mars behind Venus: the husband stands behind her, supporting from the background; his circumstances shape what she inherits.", 2),
-  ahead("f-ve-next-ju", "wealth", "Venus", "Jupiter", "Jupiter ahead of Venus: fortune and children lie ahead; growth comes after marriage or a move.", 2),
+  ahead("f-ve-next-ju", "wealth", "Venus", "Jupiter", "Jupiter ahead of Venus: a directional association with fortune and learning; it does not establish a family outcome.", 2),
   behind("f-ve-prev-ju", "wealth", "Venus", "Jupiter", "Jupiter behind Venus: born into fortune and learning; the family's wisdom carries her forward.", 2),
   ahead("f-ve-next-me", "education", "Venus", "Mercury", "Mercury ahead of Venus: education and communication are the next step; study or trade after the early years.", 1),
   behind("f-ve-prev-me", "education", "Venus", "Mercury", "Mercury behind Venus: a learned background; education and speech are inherited strengths.", 1),
@@ -91,14 +91,14 @@ export const FEMALE_RULES: Rule[] = [
   ahead("f-ma-next-mo", "marriage", "Mars", "Moon", "Moon in the 2nd to Mars: the husband comes from a distant or foreign place, or his work keeps him travelling.", 2),
   ahead("f-ma-next-me", "marriage", "Mars", "Mercury", "Mercury in the 2nd to Mars: the husband's step is commerce, communication or a luxurious trade.", 2),
   ahead("f-ma-next-sa", "marriage", "Mars", "Saturn", "Saturn in the 2nd to Mars: the husband's path is heavy work and slow gains; marriage itself is delayed.", 2),
-  ahead("f-ma-next-ju", "marriage", "Mars", "Jupiter", "Jupiter in the 2nd to Mars: the husband rises through learning or position; children follow soon after marriage.", 2),
+  ahead("f-ma-next-ju", "marriage", "Mars", "Jupiter", "Jupiter in the 2nd to Mars: a traditional association with learning or position; no conclusion about the timing of children follows.", 2),
   ahead("f-ma-next-ra", "marriage", "Mars", "Rahu", "Rahu in the 2nd to Mars: the husband's affairs turn foreign or unconventional after marriage.", 2),
   behind("f-ma-prev-sa", "marriage", "Mars", "Saturn", "Saturn in the 12th to Mars: the husband's background is toil and modest means; he has worked for what he has.", 1),
   behind("f-ma-prev-ju", "marriage", "Mars", "Jupiter", "Jupiter in the 12th to Mars: a husband from a learned or respected family.", 1),
 
   // ───────────── Exchanges ─────────────
   exchange("f-x-ve-ma", "marriage", "Venus", "Mars", "Venus and Mars exchange signs: the native and husband exchange fortunes; a love marriage or a bond that reverses both lives."),
-  exchange("f-x-ve-ju", "self", "Venus", "Jupiter", "Venus and Jupiter exchange signs: fortune and the native are intertwined; marriage and children are decisive turns in her life."),
+  exchange("f-x-ve-ju", "self", "Venus", "Jupiter", "Venus and Jupiter exchange signs: a traditional connection between the native and themes of fortune and partnership; family circumstances cannot be inferred."),
   exchange("f-x-ve-sa", "career", "Venus", "Saturn", "Venus and Saturn exchange signs: the native's life and her profession are one; a career in finance, luxury, arts or design."),
   exchange("f-x-ve-me", "self", "Venus", "Mercury", "Venus and Mercury exchange signs: eloquence and grace; a life in communication, trade or the arts."),
   exchange("f-x-ma-sa", "marriage", "Mars", "Saturn", "Mars and Saturn exchange signs: the husband is a man of hard work and technical trade; the marriage is slow to arrive but durable."),
@@ -130,7 +130,7 @@ export const FEMALE_RULES: Rule[] = [
   pair("f-ju-ra", "marriage", "Jupiter", "Rahu", "Jupiter with Rahu in a female chart: the husband's side has a foreign or unconventional strand; ambition in the marriage.", 1, ["conjunct"]),
 
   // ───────────── Children and career for the female native ─────────────
-  pair("f-ju-mo-child", "children", "Jupiter", "Moon", "Jupiter with the Moon: children and motherhood are a source of joy; the native's mother is a strong support.", 2, ["conjunct", "trine"]),
+  pair("f-ju-mo-child", "children", "Jupiter", "Moon", "Jupiter with the Moon: a traditional association of children and care; individual family circumstances cannot be inferred.", 2, ["conjunct", "trine"]),
   pair("f-sa-ve-career", "career", "Saturn", "Venus", "Saturn with the Deha (Venus): the native works; finance, arts, design, luxury goods, beauty or hospitality are her fields.", 2, ["conjunct", "trine"]),
   pair("f-sa-ma-career", "career", "Saturn", "Mars", "Saturn with Mars in a female chart: the husband's work is technical or laborious, and the couple's fortunes rise through property or engineering.", 2, ["conjunct", "trine"]),
   pair("f-ve-me-career", "career", "Venus", "Mercury", "Venus with Mercury: livelihood through communication, teaching, media, design or trade.", 1, ["conjunct", "trine"]),

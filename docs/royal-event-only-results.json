@@ -1,0 +1,4463 @@
+{
+  "person": {
+    "name": "Prince William",
+    "birthDate": "1982-06-21",
+    "place": "St Mary's Hospital, Paddington, London, England",
+    "timezone": "Europe/London",
+    "latitude": 51.5175,
+    "longitude": -0.1735,
+    "ayanamsa": "lahiri",
+    "nodeType": "mean"
+  },
+  "events": [
+    {
+      "id": "marriage",
+      "matter": "marriage",
+      "date": "2011-04-29",
+      "timezone": "Europe/London",
+      "startTime": "11:00",
+      "endTime": "12:15",
+      "role": "input",
+      "description": "Westminster Abbey ceremony; the entire published ceremony range is treated as possible timing, not as the exact instant of vows.",
+      "sources": [
+        "https://www.westminster-abbey.org/history/explore-our-history/the-wedding-of-william-and-kate",
+        "https://www.royal.uk/wedding-prince-william-and-miss-catherine-middleton?page=4"
+      ]
+    },
+    {
+      "id": "george",
+      "matter": "child",
+      "date": "2013-07-22",
+      "timezone": "Europe/London",
+      "startTime": "16:19",
+      "endTime": "16:29",
+      "role": "input",
+      "description": "Prince George born at 16:24. The +/-5-minute range is an explicit sensitivity assumption, not a verified error bound.",
+      "sources": [
+        "https://www.royal.uk/prince-george",
+        "https://www.itv.com/news/2013-12-27/july-2013-an-heir-is-born"
+      ]
+    },
+    {
+      "id": "ambulance",
+      "matter": "job",
+      "date": "2015-07-13",
+      "timezone": "Europe/London",
+      "startTime": "06:30",
+      "endTime": "07:30",
+      "role": "input",
+      "description": "First operational shift with East Anglian Air Ambulance at Cambridge Airport. One contemporary report gives 07:00; +/-30 minutes is a sensitivity assumption, not a verified error bound.",
+      "sources": [
+        "https://www.itv.com/news/anglia/update/2015-07-13/full-interview-with-prince-william-on-his-new-job-as-air-ambulance-pilot/",
+        "https://www.airmedandrescue.com/latest/news/prince-william-begins-role-hems-pilot",
+        "https://www.standard.co.uk/news/uk/nervous-prince-william-begins-new-job-as-air-ambulance-pilot-10384795.html"
+      ]
+    },
+    {
+      "id": "charlotte",
+      "matter": "child",
+      "date": "2015-05-02",
+      "timezone": "Europe/London",
+      "startTime": "08:29",
+      "endTime": "08:39",
+      "role": "heldout",
+      "description": "Princess Charlotte born at 08:34. +/-5 minutes is a sensitivity assumption, not a verified error bound.",
+      "sources": [
+        "https://www.royal.uk/princess-charlotte",
+        "https://www.thegazette.co.uk/all-notices/content/100028",
+        "https://time.com/3835850/royal-baby-girl-princess-kate/"
+      ]
+    },
+    {
+      "id": "louis",
+      "matter": "child",
+      "date": "2018-04-23",
+      "timezone": "Europe/London",
+      "startTime": "10:56",
+      "endTime": "11:06",
+      "role": "heldout",
+      "description": "Prince Louis born at 11:01. +/-5 minutes is a sensitivity assumption, not a verified error bound.",
+      "sources": [
+        "https://www.royal.uk/prince-louis",
+        "https://news.sky.com/story/prince-louis-birth-certificate-released-11354753"
+      ]
+    }
+  ],
+  "protocol": "docs/royal-event-only-protocol.md",
+  "hashes": {
+    "scripts/fixtures/royal-event-only-case.json": "5625d1a6f2d0832c0062fbdee8d2a04d9bb2aac6c3699567e4cbacdc85ce0fa5",
+    "docs/royal-event-only-protocol.md": "54e2ea76ba7a6fac312481ded7975940c0b18701d7abd9d9d7f7e24630fae45c",
+    "scripts/eval-royal-event-only.ts": "54e235bfb99c12f4d553c6615cdf83deb24c4918ddf2559c441519d0820bb583",
+    "shared/vimshottari-depth.ts": "576c3744c7a422972da4762cd8070af71706f47c289b50c00340882435a74358",
+    "shared/manley-evidence.ts": "b26e1431c39f15e6a752bc8a06c334cb1f81a72e280ee38ad90fe379f8d1966c",
+    "shared/kp.ts": "7d215c785f3befe14232eb468d0b254e38257da649bb5d9b028fa8011839a41f",
+    "shared/vargas.ts": "c6944edd0e2843efce2f562c0177892ff6d1290bec6f751b6fafa76dd6930e49",
+    "server/ephemeris.ts": "e43cf09f92bf3c75f61c6ecc033c06ea77322dae8e9a62520994c9e927d0e7a6"
+  },
+  "caveat": "Retrospective non-blind illustration on a previously studied person. Candidate ranking does not use a birth clock or held-out events. Links are partial and are not calibrated probabilities.",
+  "birthDay": {
+    "localStart": "1982-06-21T00:00:00.000+01:00",
+    "localEndExclusive": "1982-06-22T00:00:00.000+01:00",
+    "sampleStepSeconds": 5,
+    "detectedBoundaryToleranceMs": 200
+  },
+  "scan": {
+    "sampleCount": 18753,
+    "segmentCount": 288,
+    "maximumFirstStageEvents": 3,
+    "maximumThirdStageEvents": 3,
+    "noFirstStageSupport": false,
+    "stage2": {
+      "coveragePercent": 35.3,
+      "intervals": [
+        {
+          "startLocal": "1982-06-21T00:00:18.125+01:00",
+          "endLocalExclusive": "1982-06-21T00:06:58.281+01:00",
+          "startUtc": "1982-06-20T23:00:18.125Z",
+          "endUtcExclusive": "1982-06-20T23:06:58.281Z",
+          "durationSeconds": 400.16
+        },
+        {
+          "startLocal": "1982-06-21T00:13:25.625+01:00",
+          "endLocalExclusive": "1982-06-21T00:19:41.406+01:00",
+          "startUtc": "1982-06-20T23:13:25.625Z",
+          "endUtcExclusive": "1982-06-20T23:19:41.406Z",
+          "durationSeconds": 375.78
+        },
+        {
+          "startLocal": "1982-06-21T00:25:47.187+01:00",
+          "endLocalExclusive": "1982-06-21T00:31:44.375+01:00",
+          "startUtc": "1982-06-20T23:25:47.187Z",
+          "endUtcExclusive": "1982-06-20T23:31:44.375Z",
+          "durationSeconds": 357.19
+        },
+        {
+          "startLocal": "1982-06-21T00:43:18.750+01:00",
+          "endLocalExclusive": "1982-06-21T00:48:58.281+01:00",
+          "startUtc": "1982-06-20T23:43:18.750Z",
+          "endUtcExclusive": "1982-06-20T23:48:58.281Z",
+          "durationSeconds": 339.53
+        },
+        {
+          "startLocal": "1982-06-21T01:11:14.375+01:00",
+          "endLocalExclusive": "1982-06-21T01:16:48.593+01:00",
+          "startUtc": "1982-06-21T00:11:14.375Z",
+          "endUtcExclusive": "1982-06-21T00:16:48.593Z",
+          "durationSeconds": 334.22
+        },
+        {
+          "startLocal": "1982-06-21T01:22:25.156+01:00",
+          "endLocalExclusive": "1982-06-21T01:28:05.468+01:00",
+          "startUtc": "1982-06-21T00:22:25.156Z",
+          "endUtcExclusive": "1982-06-21T00:28:05.468Z",
+          "durationSeconds": 340.31
+        },
+        {
+          "startLocal": "1982-06-21T01:33:50.625+01:00",
+          "endLocalExclusive": "1982-06-21T01:39:41.718+01:00",
+          "startUtc": "1982-06-21T00:33:50.625Z",
+          "endUtcExclusive": "1982-06-21T00:39:41.718Z",
+          "durationSeconds": 351.09
+        },
+        {
+          "startLocal": "1982-06-21T01:51:47.656+01:00",
+          "endLocalExclusive": "1982-06-21T02:04:34.531+01:00",
+          "startUtc": "1982-06-21T00:51:47.656Z",
+          "endUtcExclusive": "1982-06-21T01:04:34.531Z",
+          "durationSeconds": 766.88
+        },
+        {
+          "startLocal": "1982-06-21T02:18:14.687+01:00",
+          "endLocalExclusive": "1982-06-21T02:27:42.812+01:00",
+          "startUtc": "1982-06-21T01:18:14.687Z",
+          "endUtcExclusive": "1982-06-21T01:27:42.812Z",
+          "durationSeconds": 568.13
+        },
+        {
+          "startLocal": "1982-06-21T02:41:43.750+01:00",
+          "endLocalExclusive": "1982-06-21T02:49:11.093+01:00",
+          "startUtc": "1982-06-21T01:41:43.750Z",
+          "endUtcExclusive": "1982-06-21T01:49:11.093Z",
+          "durationSeconds": 447.34
+        },
+        {
+          "startLocal": "1982-06-21T02:57:51.406+01:00",
+          "endLocalExclusive": "1982-06-21T03:05:06.718+01:00",
+          "startUtc": "1982-06-21T01:57:51.406Z",
+          "endUtcExclusive": "1982-06-21T02:05:06.718Z",
+          "durationSeconds": 435.31
+        },
+        {
+          "startLocal": "1982-06-21T03:26:40.000+01:00",
+          "endLocalExclusive": "1982-06-21T03:48:30.625+01:00",
+          "startUtc": "1982-06-21T02:26:40.000Z",
+          "endUtcExclusive": "1982-06-21T02:48:30.625Z",
+          "durationSeconds": 1310.63
+        },
+        {
+          "startLocal": "1982-06-21T04:12:42.187+01:00",
+          "endLocalExclusive": "1982-06-21T04:39:20.781+01:00",
+          "startUtc": "1982-06-21T03:12:42.187Z",
+          "endUtcExclusive": "1982-06-21T03:39:20.781Z",
+          "durationSeconds": 1598.59
+        },
+        {
+          "startLocal": "1982-06-21T04:53:35.312+01:00",
+          "endLocalExclusive": "1982-06-21T05:08:25.468+01:00",
+          "startUtc": "1982-06-21T03:53:35.312Z",
+          "endUtcExclusive": "1982-06-21T04:08:25.468Z",
+          "durationSeconds": 890.16
+        },
+        {
+          "startLocal": "1982-06-21T05:23:50.156+01:00",
+          "endLocalExclusive": "1982-06-21T05:39:47.187+01:00",
+          "startUtc": "1982-06-21T04:23:50.156Z",
+          "endUtcExclusive": "1982-06-21T04:39:47.187Z",
+          "durationSeconds": 957.03
+        },
+        {
+          "startLocal": "1982-06-21T06:13:09.375+01:00",
+          "endLocalExclusive": "1982-06-21T06:32:14.375+01:00",
+          "startUtc": "1982-06-21T05:13:09.375Z",
+          "endUtcExclusive": "1982-06-21T05:32:14.375Z",
+          "durationSeconds": 1145
+        },
+        {
+          "startLocal": "1982-06-21T07:54:08.906+01:00",
+          "endLocalExclusive": "1982-06-21T08:01:38.125+01:00",
+          "startUtc": "1982-06-21T06:54:08.906Z",
+          "endUtcExclusive": "1982-06-21T07:01:38.125Z",
+          "durationSeconds": 449.22
+        },
+        {
+          "startLocal": "1982-06-21T08:20:26.562+01:00",
+          "endLocalExclusive": "1982-06-21T08:22:14.218+01:00",
+          "startUtc": "1982-06-21T07:20:26.562Z",
+          "endUtcExclusive": "1982-06-21T07:22:14.218Z",
+          "durationSeconds": 107.66
+        },
+        {
+          "startLocal": "1982-06-21T09:15:15.937+01:00",
+          "endLocalExclusive": "1982-06-21T09:17:21.406+01:00",
+          "startUtc": "1982-06-21T08:15:15.937Z",
+          "endUtcExclusive": "1982-06-21T08:17:21.406Z",
+          "durationSeconds": 125.47
+        },
+        {
+          "startLocal": "1982-06-21T09:55:27.031+01:00",
+          "endLocalExclusive": "1982-06-21T10:33:30.781+01:00",
+          "startUtc": "1982-06-21T08:55:27.031Z",
+          "endUtcExclusive": "1982-06-21T09:33:30.781Z",
+          "durationSeconds": 2283.75
+        },
+        {
+          "startLocal": "1982-06-21T11:11:28.750+01:00",
+          "endLocalExclusive": "1982-06-21T11:49:20.312+01:00",
+          "startUtc": "1982-06-21T10:11:28.750Z",
+          "endUtcExclusive": "1982-06-21T10:49:20.312Z",
+          "durationSeconds": 2271.56
+        },
+        {
+          "startLocal": "1982-06-21T12:08:13.750+01:00",
+          "endLocalExclusive": "1982-06-21T12:27:06.250+01:00",
+          "startUtc": "1982-06-21T11:08:13.750Z",
+          "endUtcExclusive": "1982-06-21T11:27:06.250Z",
+          "durationSeconds": 1132.5
+        },
+        {
+          "startLocal": "1982-06-21T14:12:11.250+01:00",
+          "endLocalExclusive": "1982-06-21T14:14:37.343+01:00",
+          "startUtc": "1982-06-21T13:12:11.250Z",
+          "endUtcExclusive": "1982-06-21T13:14:37.343Z",
+          "durationSeconds": 146.09
+        },
+        {
+          "startLocal": "1982-06-21T14:58:10.312+01:00",
+          "endLocalExclusive": "1982-06-21T15:36:09.062+01:00",
+          "startUtc": "1982-06-21T13:58:10.312Z",
+          "endUtcExclusive": "1982-06-21T14:36:09.062Z",
+          "durationSeconds": 2278.75
+        },
+        {
+          "startLocal": "1982-06-21T16:30:32.812+01:00",
+          "endLocalExclusive": "1982-06-21T16:51:15.937+01:00",
+          "startUtc": "1982-06-21T15:30:32.812Z",
+          "endUtcExclusive": "1982-06-21T15:51:15.937Z",
+          "durationSeconds": 1243.13
+        },
+        {
+          "startLocal": "1982-06-21T17:30:17.812+01:00",
+          "endLocalExclusive": "1982-06-21T18:07:58.906+01:00",
+          "startUtc": "1982-06-21T16:30:17.812Z",
+          "endUtcExclusive": "1982-06-21T17:07:58.906Z",
+          "durationSeconds": 2261.09
+        },
+        {
+          "startLocal": "1982-06-21T18:45:05.468+01:00",
+          "endLocalExclusive": "1982-06-21T18:55:32.500+01:00",
+          "startUtc": "1982-06-21T17:45:05.468Z",
+          "endUtcExclusive": "1982-06-21T17:55:32.500Z",
+          "durationSeconds": 627.03
+        },
+        {
+          "startLocal": "1982-06-21T19:41:25.000+01:00",
+          "endLocalExclusive": "1982-06-21T20:24:46.875+01:00",
+          "startUtc": "1982-06-21T18:41:25.000Z",
+          "endUtcExclusive": "1982-06-21T19:24:46.875Z",
+          "durationSeconds": 2601.88
+        },
+        {
+          "startLocal": "1982-06-21T21:23:29.062+01:00",
+          "endLocalExclusive": "1982-06-21T22:27:54.062+01:00",
+          "startUtc": "1982-06-21T20:23:29.062Z",
+          "endUtcExclusive": "1982-06-21T21:27:54.062Z",
+          "durationSeconds": 3865
+        },
+        {
+          "startLocal": "1982-06-21T23:18:44.218+01:00",
+          "endLocalExclusive": "1982-06-21T23:26:56.250+01:00",
+          "startUtc": "1982-06-21T22:18:44.218Z",
+          "endUtcExclusive": "1982-06-21T22:26:56.250Z",
+          "durationSeconds": 492.03
+        }
+      ],
+      "heldout": [
+        {
+          "id": "charlotte",
+          "firstDefinitePercent": 65.98,
+          "firstPossiblePercent": 65.98,
+          "thirdDefinitePercent": 46.74,
+          "thirdPossiblePercent": 46.74
+        },
+        {
+          "id": "louis",
+          "firstDefinitePercent": 62.7,
+          "firstPossiblePercent": 62.7,
+          "thirdDefinitePercent": 55.51,
+          "thirdPossiblePercent": 55.51
+        }
+      ]
+    },
+    "stage3": {
+      "coveragePercent": 21.44,
+      "intervals": [
+        {
+          "startLocal": "1982-06-21T00:00:18.125+01:00",
+          "endLocalExclusive": "1982-06-21T00:06:58.281+01:00",
+          "startUtc": "1982-06-20T23:00:18.125Z",
+          "endUtcExclusive": "1982-06-20T23:06:58.281Z",
+          "durationSeconds": 400.16
+        },
+        {
+          "startLocal": "1982-06-21T00:25:47.187+01:00",
+          "endLocalExclusive": "1982-06-21T00:31:44.375+01:00",
+          "startUtc": "1982-06-20T23:25:47.187Z",
+          "endUtcExclusive": "1982-06-20T23:31:44.375Z",
+          "durationSeconds": 357.19
+        },
+        {
+          "startLocal": "1982-06-21T00:43:18.750+01:00",
+          "endLocalExclusive": "1982-06-21T00:48:50.937+01:00",
+          "startUtc": "1982-06-20T23:43:18.750Z",
+          "endUtcExclusive": "1982-06-20T23:48:50.937Z",
+          "durationSeconds": 332.19
+        },
+        {
+          "startLocal": "1982-06-21T01:23:13.593+01:00",
+          "endLocalExclusive": "1982-06-21T01:28:05.468+01:00",
+          "startUtc": "1982-06-21T00:23:13.593Z",
+          "endUtcExclusive": "1982-06-21T00:28:05.468Z",
+          "durationSeconds": 291.88
+        },
+        {
+          "startLocal": "1982-06-21T02:01:06.093+01:00",
+          "endLocalExclusive": "1982-06-21T02:04:34.531+01:00",
+          "startUtc": "1982-06-21T01:01:06.093Z",
+          "endUtcExclusive": "1982-06-21T01:04:34.531Z",
+          "durationSeconds": 208.44
+        },
+        {
+          "startLocal": "1982-06-21T02:18:14.687+01:00",
+          "endLocalExclusive": "1982-06-21T02:27:42.812+01:00",
+          "startUtc": "1982-06-21T01:18:14.687Z",
+          "endUtcExclusive": "1982-06-21T01:27:42.812Z",
+          "durationSeconds": 568.13
+        },
+        {
+          "startLocal": "1982-06-21T02:57:51.406+01:00",
+          "endLocalExclusive": "1982-06-21T03:01:01.562+01:00",
+          "startUtc": "1982-06-21T01:57:51.406Z",
+          "endUtcExclusive": "1982-06-21T02:01:01.562Z",
+          "durationSeconds": 190.16
+        },
+        {
+          "startLocal": "1982-06-21T03:26:40.000+01:00",
+          "endLocalExclusive": "1982-06-21T03:38:52.187+01:00",
+          "startUtc": "1982-06-21T02:26:40.000Z",
+          "endUtcExclusive": "1982-06-21T02:38:52.187Z",
+          "durationSeconds": 732.19
+        },
+        {
+          "startLocal": "1982-06-21T04:12:42.187+01:00",
+          "endLocalExclusive": "1982-06-21T04:15:27.656+01:00",
+          "startUtc": "1982-06-21T03:12:42.187Z",
+          "endUtcExclusive": "1982-06-21T03:15:27.656Z",
+          "durationSeconds": 165.47
+        },
+        {
+          "startLocal": "1982-06-21T05:23:50.156+01:00",
+          "endLocalExclusive": "1982-06-21T05:29:45.156+01:00",
+          "startUtc": "1982-06-21T04:23:50.156Z",
+          "endUtcExclusive": "1982-06-21T04:29:45.156Z",
+          "durationSeconds": 355
+        },
+        {
+          "startLocal": "1982-06-21T07:58:10.468+01:00",
+          "endLocalExclusive": "1982-06-21T08:01:38.125+01:00",
+          "startUtc": "1982-06-21T06:58:10.468Z",
+          "endUtcExclusive": "1982-06-21T07:01:38.125Z",
+          "durationSeconds": 207.66
+        },
+        {
+          "startLocal": "1982-06-21T09:55:27.031+01:00",
+          "endLocalExclusive": "1982-06-21T10:33:30.781+01:00",
+          "startUtc": "1982-06-21T08:55:27.031Z",
+          "endUtcExclusive": "1982-06-21T09:33:30.781Z",
+          "durationSeconds": 2283.75
+        },
+        {
+          "startLocal": "1982-06-21T11:30:25.312+01:00",
+          "endLocalExclusive": "1982-06-21T11:49:20.312+01:00",
+          "startUtc": "1982-06-21T10:30:25.312Z",
+          "endUtcExclusive": "1982-06-21T10:49:20.312Z",
+          "durationSeconds": 1135
+        },
+        {
+          "startLocal": "1982-06-21T12:08:13.750+01:00",
+          "endLocalExclusive": "1982-06-21T12:27:06.250+01:00",
+          "startUtc": "1982-06-21T11:08:13.750Z",
+          "endUtcExclusive": "1982-06-21T11:27:06.250Z",
+          "durationSeconds": 1132.5
+        },
+        {
+          "startLocal": "1982-06-21T14:12:18.906+01:00",
+          "endLocalExclusive": "1982-06-21T14:14:37.343+01:00",
+          "startUtc": "1982-06-21T13:12:18.906Z",
+          "endUtcExclusive": "1982-06-21T13:14:37.343Z",
+          "durationSeconds": 138.44
+        },
+        {
+          "startLocal": "1982-06-21T14:58:10.312+01:00",
+          "endLocalExclusive": "1982-06-21T15:06:45.781+01:00",
+          "startUtc": "1982-06-21T13:58:10.312Z",
+          "endUtcExclusive": "1982-06-21T14:06:45.781Z",
+          "durationSeconds": 515.47
+        },
+        {
+          "startLocal": "1982-06-21T15:17:08.906+01:00",
+          "endLocalExclusive": "1982-06-21T15:36:09.062+01:00",
+          "startUtc": "1982-06-21T14:17:08.906Z",
+          "endUtcExclusive": "1982-06-21T14:36:09.062Z",
+          "durationSeconds": 1140.16
+        },
+        {
+          "startLocal": "1982-06-21T16:30:32.812+01:00",
+          "endLocalExclusive": "1982-06-21T16:39:12.187+01:00",
+          "startUtc": "1982-06-21T15:30:32.812Z",
+          "endUtcExclusive": "1982-06-21T15:39:12.187Z",
+          "durationSeconds": 519.38
+        },
+        {
+          "startLocal": "1982-06-21T17:30:17.812+01:00",
+          "endLocalExclusive": "1982-06-21T18:05:40.625+01:00",
+          "startUtc": "1982-06-21T16:30:17.812Z",
+          "endUtcExclusive": "1982-06-21T17:05:40.625Z",
+          "durationSeconds": 2122.81
+        },
+        {
+          "startLocal": "1982-06-21T18:45:05.468+01:00",
+          "endLocalExclusive": "1982-06-21T18:53:33.125+01:00",
+          "startUtc": "1982-06-21T17:45:05.468Z",
+          "endUtcExclusive": "1982-06-21T17:53:33.125Z",
+          "durationSeconds": 507.66
+        },
+        {
+          "startLocal": "1982-06-21T19:41:25.000+01:00",
+          "endLocalExclusive": "1982-06-21T20:24:46.875+01:00",
+          "startUtc": "1982-06-21T18:41:25.000Z",
+          "endUtcExclusive": "1982-06-21T19:24:46.875Z",
+          "durationSeconds": 2601.88
+        },
+        {
+          "startLocal": "1982-06-21T21:23:29.062+01:00",
+          "endLocalExclusive": "1982-06-21T21:29:19.062+01:00",
+          "startUtc": "1982-06-21T20:23:29.062Z",
+          "endUtcExclusive": "1982-06-21T20:29:19.062Z",
+          "durationSeconds": 350
+        },
+        {
+          "startLocal": "1982-06-21T21:41:15.937+01:00",
+          "endLocalExclusive": "1982-06-21T21:52:40.625+01:00",
+          "startUtc": "1982-06-21T20:41:15.937Z",
+          "endUtcExclusive": "1982-06-21T20:52:40.625Z",
+          "durationSeconds": 684.69
+        },
+        {
+          "startLocal": "1982-06-21T21:57:13.593+01:00",
+          "endLocalExclusive": "1982-06-21T22:08:50.000+01:00",
+          "startUtc": "1982-06-21T20:57:13.593Z",
+          "endUtcExclusive": "1982-06-21T21:08:50.000Z",
+          "durationSeconds": 696.41
+        },
+        {
+          "startLocal": "1982-06-21T22:13:17.812+01:00",
+          "endLocalExclusive": "1982-06-21T22:19:51.875+01:00",
+          "startUtc": "1982-06-21T21:13:17.812Z",
+          "endUtcExclusive": "1982-06-21T21:19:51.875Z",
+          "durationSeconds": 394.06
+        },
+        {
+          "startLocal": "1982-06-21T23:18:44.218+01:00",
+          "endLocalExclusive": "1982-06-21T23:26:56.250+01:00",
+          "startUtc": "1982-06-21T22:18:44.218Z",
+          "endUtcExclusive": "1982-06-21T22:26:56.250Z",
+          "durationSeconds": 492.03
+        }
+      ],
+      "heldout": [
+        {
+          "id": "charlotte",
+          "firstDefinitePercent": 72.75,
+          "firstPossiblePercent": 72.75,
+          "thirdDefinitePercent": 53.08,
+          "thirdPossiblePercent": 53.08
+        },
+        {
+          "id": "louis",
+          "firstDefinitePercent": 79.04,
+          "firstPossiblePercent": 79.04,
+          "thirdDefinitePercent": 72.21,
+          "thirdPossiblePercent": 72.21
+        }
+      ]
+    },
+    "fullDayHeldout": [
+      {
+        "id": "charlotte",
+        "firstDefinitePercent": 52.29,
+        "firstPossiblePercent": 52.29,
+        "thirdDefinitePercent": 35.69,
+        "thirdPossiblePercent": 35.69
+      },
+      {
+        "id": "louis",
+        "firstDefinitePercent": 49.23,
+        "firstPossiblePercent": 49.23,
+        "thirdDefinitePercent": 41.98,
+        "thirdPossiblePercent": 41.98
+      }
+    ],
+    "representatives": [
+      {
+        "candidateLocal": "1982-06-21T00:03:38.203+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Mercury",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Moon"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Sun"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Mars",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T00:28:45.781+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Mercury",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Mars"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Mars"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Ketu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  false
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Mars",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T00:46:04.843+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Mercury",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Mars"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Moon"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Mars",
+                  "Moon"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T01:25:39.530+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Mercury",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  false,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T02:02:50.312+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Ketu",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T02:22:58.749+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Ketu",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  false
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T02:59:26.484+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Ketu",
+                  "Mars"
+                ],
+                "primaryD1": [
+                  false,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Mars"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  false
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T03:32:46.093+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Ketu",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  false,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Mars"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T04:14:04.921+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Ketu",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  false,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T05:26:47.656+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Ketu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Ketu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  false
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T07:59:54.296+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  false,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Sun",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Mars",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Mars",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Mars"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  false
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T10:14:28.906+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  false,
+                  false,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T11:39:52.812+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  false,
+                  false,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T12:17:40.000+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Venus",
+                  "Ketu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Sun"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  false,
+                  false,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T14:13:28.124+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Moon"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Mars",
+                  "Moon"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Sun"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  false,
+                  false,
+                  false
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T15:02:28.046+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T15:26:38.984+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Moon",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T16:34:52.499+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Mars",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Sun"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Moon"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T17:47:59.218+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  false
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T18:49:19.296+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Jupiter",
+                  "Rahu",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  false,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Ketu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  false
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Ketu",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T20:03:05.937+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  false,
+                  false,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Moon"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Venus",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T21:26:24.062+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Ketu",
+                  "Ketu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Venus",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T21:46:58.281+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Moon"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Sun"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Ketu",
+                  "Moon"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Ketu",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Venus",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T22:03:01.796+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Mars"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Moon"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Ketu",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Ketu",
+                  "Moon"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Venus",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T22:16:34.843+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Saturn",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Mars"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Ketu",
+                  "Jupiter"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": false,
+            "anyFirst": false,
+            "allThird": false,
+            "anyThird": false,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Ketu",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  false,
+                  false
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Venus",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  true,
+                  false,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "candidateLocal": "1982-06-21T23:22:50.234+01:00",
+        "facts": [
+          {
+            "id": "marriage",
+            "matter": "marriage",
+            "role": "input",
+            "division": "D9",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Mercury"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "george",
+            "matter": "child",
+            "role": "input",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Mercury",
+                  "Saturn"
+                ],
+                "primaryD1": [
+                  false,
+                  true,
+                  false
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "ambulance",
+            "matter": "job",
+            "role": "input",
+            "division": "D10",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Venus",
+                  "Sun"
+                ],
+                "primaryD1": [
+                  true,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "charlotte",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Venus",
+                  "Venus"
+                ],
+                "primaryD1": [
+                  false,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "louis",
+            "matter": "child",
+            "role": "heldout",
+            "division": "D7",
+            "allFirst": true,
+            "anyFirst": true,
+            "allThird": true,
+            "anyThird": true,
+            "paths": [
+              {
+                "lords": [
+                  "Saturn",
+                  "Sun",
+                  "Rahu"
+                ],
+                "primaryD1": [
+                  false,
+                  true,
+                  true
+                ],
+                "primaryDivision": [
+                  true,
+                  true,
+                  true
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

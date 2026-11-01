@@ -10,6 +10,7 @@ import { z } from "zod";
 import type { JaiminiArea } from "./jaimini-areas";
 import type { LifeArea } from "./rules";
 import type { Planet } from "./astro";
+import { KP_EVENT_AREA } from "./life-stage";
 
 export const EVENT_OUTCOMES = ["favourable", "unfavourable", "mixed"] as const;
 export type EventOutcome = (typeof EVENT_OUTCOMES)[number];
@@ -18,12 +19,23 @@ export const chartEventSchema = z.object({
   id: z.string().min(1).max(40),
   /** One of EVENT_MATTERS ids; unknown ids fall back to the first matter when read. */
   matter: z.string().min(1).max(40),
-  /** YYYY-MM-DD in the birth zone. */
+  /** YYYY-MM-DD in the event's local zone, or the birth zone if unspecified. */
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  /** Optional local clock time; without one the engines use noon. */
+  time: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/).optional(),
+  /** Optional IANA zone (or a Luxon UTC offset), defaulting to the birth zone. */
+  timezone: z.string().min(1).max(80).optional(),
   outcome: z.enum(EVENT_OUTCOMES).optional(),
   note: z.string().max(300).optional(),
 });
 export type ChartEvent = z.infer<typeof chartEventSchema>;
+
+/** Show the assumptions alongside the calculated event sky. */
+export function describeEventMoment(e: { time?: string; timezone?: string }, birthZone: string): string {
+  const time = e.time ?? "12:00 (assumed)";
+  const zone = e.timezone ?? `${birthZone} (birth zone assumed)`;
+  return `${time} · ${zone}`;
+}
 
 export const chartEventsSchema = z.array(chartEventSchema).max(100);
 
@@ -111,6 +123,48 @@ export function bnnKarakasFor(t: BnnTiming, roles: { native: Planet; deha: Plane
 
 export function matterOf(id: string): EventMatter {
   return EVENT_MATTERS.find((m) => m.id === id) ?? EVENT_MATTERS[0];
+}
+
+/** The KP reading's existing labels/IDs, backed by the same house definitions used by Validate and Rectify. */
+export interface KpTimingTopic {
+  id: string;
+  label: string;
+  /** The matching saved-event category, absent for a timing-only topic. */
+  matter?: string;
+  houses: number[];
+  cusp: number;
+}
+const kpTopic = (id: string, label: string, matter = id): KpTimingTopic => {
+  const m = EVENT_MATTERS.find((item) => item.id === matter);
+  if (!m) throw new Error(`Unknown KP timing matter: ${matter}`);
+  return { id, label, matter: m.id, houses: m.houses, cusp: m.cusp };
+};
+export const KP_TIMING_TOPICS: KpTimingTopic[] = [
+  kpTopic("marriage", "Marriage"),
+  kpTopic("children", "Childbirth", "child"),
+  kpTopic("job", "Employment, promotion"),
+  kpTopic("business", "Business gains"),
+  kpTopic("property", "House, property"),
+  kpTopic("vehicle", "Vehicle"),
+  kpTopic("education", "Higher education"),
+  kpTopic("foreign", "Foreign travel", "abroad"),
+  kpTopic("loan", "Loans, money received"),
+  kpTopic("litigation", "Litigation success"),
+  // This timing template has no matching saved-event category yet.
+  { id: "recovery", label: "Recovery from illness", houses: [1, 5, 9, 11], cusp: 1 },
+  kpTopic("illness", "Illness, hospitalisation"),
+  kpTopic("move", "Change of residence"),
+];
+
+/** Topics gated in an ordinary reading, regardless of the date being investigated. */
+export function eventReadingArea(matter: string): string | undefined {
+  const kpId = matter === "child" ? "children" : matter === "job-loss" ? "job" : matter;
+  return KP_EVENT_AREA[kpId];
+}
+
+/** Sensitive event categories withheld in ordinary readings for a minor. */
+export function sensitiveEventMatter(matter: string): boolean {
+  return ["illness", "accident", "father", "mother", "spouse"].includes(matter);
 }
 
 /** The outcome to judge a planet by: the recorded outcome, else the matter's own nature. */

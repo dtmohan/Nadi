@@ -141,7 +141,7 @@ export const VARGA_MEANINGS: VargaMeaning[] = [
         house: 7,
         withLord: true,
         plain: "the spouse",
-        text: "the 7th of the navamsa: 18.19 reads its lord; Mehta says most astrologers describe the spouse from it; Pande reads its lord in full",
+        text: "the 7th of the navamsa: 18.19 considers its sign ruler as one condition alongside the natal 7th lord; Mehta says most astrologers describe the spouse from it; Pande reads its lord in full",
         cites: [P(18, "19"), M(XVIII("§3 Navamsa")), PANDE],
       },
     ],

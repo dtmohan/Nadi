@@ -1,0 +1,267 @@
+{
+  "sourceCase": "Audrey Hepburn",
+  "event": "1969-01-18|marriage",
+  "eventClock": "11:45",
+  "timezone": "Europe/Zurich",
+  "rangeSeconds": [
+    -30,
+    30
+  ],
+  "sampleStepSeconds": 1,
+  "changesBetweenSamples": 5,
+  "distinctLords": [
+    "Rahu",
+    "Jupiter",
+    "Saturn",
+    "Mercury",
+    "Ketu",
+    "Venus"
+  ],
+  "samples": [
+    {
+      "offsetSeconds": -30,
+      "fifthLord": "Rahu"
+    },
+    {
+      "offsetSeconds": -29,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -28,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -27,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -26,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -25,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -24,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -23,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -22,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -21,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -20,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -19,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -18,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -17,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -16,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -15,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -14,
+      "fifthLord": "Jupiter"
+    },
+    {
+      "offsetSeconds": -13,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -12,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -11,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -10,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -9,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -8,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -7,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -6,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -5,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -4,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -3,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -2,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": -1,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": 0,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": 1,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": 2,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": 3,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": 4,
+      "fifthLord": "Saturn"
+    },
+    {
+      "offsetSeconds": 5,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 6,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 7,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 8,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 9,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 10,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 11,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 12,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 13,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 14,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 15,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 16,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 17,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 18,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 19,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 20,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 21,
+      "fifthLord": "Mercury"
+    },
+    {
+      "offsetSeconds": 22,
+      "fifthLord": "Ketu"
+    },
+    {
+      "offsetSeconds": 23,
+      "fifthLord": "Ketu"
+    },
+    {
+      "offsetSeconds": 24,
+      "fifthLord": "Ketu"
+    },
+    {
+      "offsetSeconds": 25,
+      "fifthLord": "Ketu"
+    },
+    {
+      "offsetSeconds": 26,
+      "fifthLord": "Ketu"
+    },
+    {
+      "offsetSeconds": 27,
+      "fifthLord": "Ketu"
+    },
+    {
+      "offsetSeconds": 28,
+      "fifthLord": "Ketu"
+    },
+    {
+      "offsetSeconds": 29,
+      "fifthLord": "Venus"
+    },
+    {
+      "offsetSeconds": 30,
+      "fifthLord": "Venus"
+    }
+  ],
+  "caveat": "Post-hoc illustration only; one-second sampling can itself miss changes, and event/birth clocks and year convention are uncertain."
+}

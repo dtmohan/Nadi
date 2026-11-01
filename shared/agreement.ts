@@ -151,19 +151,19 @@ export const AGREEMENT_TOPICS: AgreementTopic[] = [
 
 /** What each school's stance is made from, for the method note in the panel, the report and the About page. */
 export const AGREEMENT_METHOD: Record<AgreementSystem, string> = {
-  bnn: "the life-area verdict of the Nadi tab, from R.G. Rao's Bhrigu Nandi Nadi and S. Naik's Prediction Secrets. Nadi rules carry no tone of their own; the direction of each is read from its wording.",
+  bnn: "the life-area verdict of the Nadi tab, from R.G. Rao's Bhrigu Nandi Nadi and S. Naik's Prediction Secrets. Most directions are read from the wording; children-related links are descriptive and do not decide an individual outcome.",
   parashari:
     "three books, each weighed on its own and then combined: BPHS in Santhanam's translation (the house chapters and the house judgement of 11.14-16), Phaladeepika 8.25-33 on the nodes, and Sarvartha Chintamani in Bhasin's translation, whose stanzas carry no tone in the app, so their direction is read from the wording.",
   jaimini:
     "the balance of the chara karaka and arudha pada notes on the Jaimini tab; the notes are the app's encoding, cited to no sutra or page (provisional). The span of life is the three-pairs method of Jaimini Sutras 2.1.1-14.",
-  kp: "the cusp sub-lord rules of the KP tab, from Astro Secrets & KP and Dr. Andrew Dutta's free KP bhava rules, with the principal cusp's sub lord deciding (Part 3 p. 12).",
+  kp: "general cusp sub-lord rules of the KP tab, from Astro Secrets & KP and Dr. Andrew Dutta's free KP bhava rules, with the principal cusp's sub lord deciding (Part 3 p. 12). Rules about a particular party, job return or other narrower circumstance stay on the KP tab and do not decide a general promise.",
 };
 
 export const AGREEMENT_PARENTS_NOTE =
   "Father and mother take only the rules that name the parent, and the Sarvartha Chintamani stanzas filed under each. BPHS 11.5 gives the mother to the 4th house and 11.11 the father to the 10th, so the general judgement of those houses (11.14-16) counts as well; the 9th's does not, since 11.10 does not list the father. Jaimini reads the father from the Pitrikaraka and A9, the mother from the Matrikaraka and A4.";
 
 export const AGREEMENT_NOTE =
-  "Nadi, Jaimini and KP stances are the verdicts their own tabs show. Parashari's comes from three books, each weighed on its own: a book supports or strains when two-thirds of its rules that fire point that way, and is mixed otherwise. Books, and then schools, are combined by which stances are present, never by how many voices hold them: support beside strain is a dispute, one way beside a mixed reading only leans, and two books of one school never count as agreement between schools. Statements withheld for a minor are removed before anything is weighed. The two-thirds rule and the comparison are the app's conventions (provisional). KP stances rest on a cusp sub lord that changes every few minutes of birth time.";
+  "Nadi, Jaimini and KP stances use their own tabs' findings. Nadi children links are descriptive; KP's overview uses only rules about the general question, not narrower rules about a particular person or event. Parashari's comes from three books, each weighed on its own: a book supports or strains when two-thirds of its rules that fire point that way, and is mixed otherwise. Books, and then schools, are combined by which stances are present, never by how many voices hold them: support beside strain is a dispute, one way beside a mixed reading only leans, and two books of one school never count as agreement between schools. Statements withheld for a minor are removed before anything is weighed. The two-thirds rule and the comparison are the app's conventions (provisional). KP stances rest on a cusp sub lord that changes every few minutes of birth time.";
 
 /** The life-area key each topic is gated by (age season), when any. */
 const TOPIC_SEASON: Partial<Record<AgreementTopic, string>> = {
@@ -296,7 +296,7 @@ function bnnVoice(
   input: AgreementInput,
   areas: AreaSynthesis[],
   gate: Gate,
-): Voice {
+): Voice & { word?: string } {
   const key = BNN_AREA[topic];
   let a: AreaSynthesis | undefined;
   if (key && isParent(topic)) {
@@ -308,6 +308,15 @@ function bnnVoice(
       ? synthesizeArea(key, items, input.reading, input.reading.roles.gender)
       : undefined;
   } else if (key) a = areas.find((x) => x.area === key);
+  if (topic === "children" && a && a.total > 0)
+    return {
+      ...K.schoolVoice("bnn", {
+        stance: "silent", tier: "provisional",
+        note: "Nadi shows traditional children-related links; these do not establish an individual outcome.",
+        cites: Array.from(new Set([...a.key, ...a.rest].map((f) => f.source).filter((s): s is string => !!s))).map((label) => ({ label })),
+      }, { gate, texts: [...a.key, ...a.rest].map((f) => f.text) }),
+      word: "no verdict",
+    };
   if (!a || a.tone === "quiet")
     return K.schoolVoice("bnn", {
       stance: "silent",
@@ -333,12 +342,14 @@ function bnnVoice(
   const lead =
     (want && a.key.find((f) => toneOf(f) === want)) ??
     (a.contest ? a.contest.good : a.key[0]);
-  const note = lead
+  const note = topic === "career" && lead && a.careerAlternative
+    ? `${firstClause(gist(lead.text))}; another interpretation: ${lc(firstClause(gist(a.careerAlternative.text)))}`
+    : lead
     ? a.contest
       ? `${firstClause(gist(a.contest.good.text))}; yet ${lc(firstClause(gist(a.contest.hard.text)))}`
       : firstClause(gist(lead.text))
     : a.headline;
-  const all = [...a.key, ...a.rest];
+  const all = [...a.key, ...(a.careerAlternative ? [a.careerAlternative] : []), ...a.rest];
   const keyword = all.some((f) => toneOf(f) !== "neutral" && toneIsKeyword(f));
   const cites: Cite[] = Array.from(
     new Set(all.map((f) => f.source).filter((s): s is string => !!s)),
@@ -691,18 +702,34 @@ const KP_CUSPS: Record<Exclude<AgreementTopic, Parent>, { cusps: number[]; topic
   lifespan: { cusps: [1, 8, 11], topics: ["Longevity"] },
 };
 
+// Only a finding about the general matter can decide that matter in the overview. A prediction
+// about marital harmony, a child's health, promotions, tax, or a return to a former job remains
+// on the KP tab but cannot be promoted into a promise or denial of marriage, children or work.
+const KP_GENERAL: Partial<Record<AgreementTopic, ReadonlySet<string>>> = {
+  marriage: new Set(["kp7-marriage", "kp7-denied-by-6"]),
+  children: new Set(["kp5-children", "kp5-children-denied", "kp5-children-certain", "kp5-children-none-4", "kp5-children-destined", "kp5-children-denied-full"]),
+  career: new Set(["kp10-employment", "kp10-business", "kp10-service", "kp10-both", "kp10-self"]),
+};
+
 /** The word for a system whose rules fire on a topic without any of them promising or denying it. */
 const NO_VERDICT = "no verdict";
 
 function kpVoice(topic: AgreementTopic, kp: KpResult, gate: Gate): Voice & { word?: string } {
   const w = WORDS[topic];
+  // A question-specific answer cannot decide the general life-area promise. Keep it visible on
+  // the KP tab, but do not tally reappointment/reinstatement or a particular proposed marriage.
+  const scoped = kp.findings.filter((f) => f.standing !== "note" && (
+    (topic === "career" && f.cusp === 10 && (["Reappointment", "Reinstatement", "Tax scrutiny", "Earnings conduct", "Standing", "Public life"].includes(f.topic) || (f.topic === "Career" && !KP_GENERAL.career!.has(f.ruleId)))) ||
+    (topic === "marriage" && f.cusp === 7 && (f.topic === "Marriage with a particular party" || (KP_CUSPS.marriage.topics.includes(f.topic) && !KP_GENERAL.marriage!.has(f.ruleId)))) ||
+    (topic === "children" && f.cusp === 5 && f.topic === "Children" && !KP_GENERAL.children!.has(f.ruleId))
+  ));
   // Notes overruled by the principal cusp's sub lord (Part 3 p. 12) do not take a stance.
   const fs: KpFinding[] = kp.findings.filter((f) =>
     f.standing === "note"
       ? false
       : isParent(topic)
         ? namesParent(topic, f.text)
-        : KP_CUSPS[topic].cusps.includes(f.cusp) && KP_CUSPS[topic].topics.includes(f.topic),
+        : KP_CUSPS[topic].cusps.includes(f.cusp) && KP_CUSPS[topic].topics.includes(f.topic) && (!KP_GENERAL[topic] || KP_GENERAL[topic]!.has(f.ruleId)),
   );
   const good = fs.filter((f) => f.polarity === "good");
   const bad = fs.filter((f) => f.polarity === "bad");
@@ -713,6 +740,17 @@ function kpVoice(topic: AgreementTopic, kp: KpResult, gate: Gate): Voice & { wor
     // Rules that only describe (the kind of work, the source of money) fire, but none promises or denies: KP has
     // no verdict here, which is not the same as reading nothing.
     const neutral = fs.filter((f) => f.polarity === "neutral");
+    if (!neutral.length && scoped.length) {
+      const f = scoped[0];
+      return {
+        ...K.schoolVoice("kp", {
+          stance: "silent", tier: "sourced",
+          note: `No general ${topic} verdict fires; KP has a separate rule about ${f.topic.toLowerCase()}.`,
+          cites: [{ label: f.source, url: f.sourceUrl }],
+        }, { gate, texts: scoped.map((x) => x.text) }),
+        word: NO_VERDICT,
+      };
+    }
     if (neutral.length) {
       const cites: Cite[] = [];
       for (const f of neutral)
@@ -741,7 +779,13 @@ function kpVoice(topic: AgreementTopic, kp: KpResult, gate: Gate): Voice & { wor
       cites: [],
     });
   }
-  const denied = bad.find((f) => /denied/.test(f.ruleId));
+  // An ID containing "denied" may name only a particular event or party. Only these rules
+  // explicitly concern the general question; the topic-specific ones above never enter fs.
+  const generalDenial: Partial<Record<AgreementTopic, string[]>> = {
+    marriage: ["kp7-denied-by-6"],
+    children: ["kp5-children-denied", "kp5-children-denied-full"],
+  };
+  const denied = bad.find((f) => generalDenial[topic]?.includes(f.ruleId));
   const lead = denied ?? bad[0] ?? good[0];
   const cuspNo = isParent(topic) ? lead.cusp : KP_CUSPS[topic].cusps[0];
   const cusp = kp.cusps.find((c) => c.house === cuspNo);
@@ -774,10 +818,10 @@ function kpVoice(topic: AgreementTopic, kp: KpResult, gate: Gate): Voice & { wor
   if (bad.length)
     return voice(
       "strains",
-      condWord(denied ? "denied or much delayed" : w.strains),
+      condWord(topic === "children" ? "traditional adverse indication" : denied ? "denied or much delayed" : w.strains),
       `${sub}: ${gistOf(denied ?? bad[0])}${condNote}`,
     );
-  return voice("supports", condWord(w.supports), `${sub}: ${gistOf(good[0])}${condNote}`);
+  return voice("supports", condWord(topic === "children" ? "traditional supportive indication" : w.supports), `${sub}: ${gistOf(good[0])}${condNote}`);
 }
 
 // ---- Comparison -------------------------------------------------------------------------------
@@ -824,7 +868,7 @@ function sentenceFor(
       ? ` ${joinList(quiet.map((s) => AGREEMENT_SYSTEM_LABEL[s.system]))} ${quiet.length === 1 ? "does" : "do"} not read it.`
       : "") +
     (describing.length
-      ? ` ${joinList(describing.map((s) => AGREEMENT_SYSTEM_LABEL[s.system]))} ${describing.length === 1 ? "has" : "have"} no verdict here, only rules that describe it.`
+      ? ` ${joinList(describing.map((s) => AGREEMENT_SYSTEM_LABEL[s.system]))} ${describing.length === 1 ? "has" : "have"} no verdict on this general question.`
       : "");
   if (!spoken.length) return `${label}: no system reads it strongly.`;
   return `${label}: ${body}: ${tail[verdict]}.${unread}`;

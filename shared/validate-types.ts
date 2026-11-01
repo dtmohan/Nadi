@@ -3,6 +3,15 @@ import type { Planet, Sign } from "./astro";
 import type { DashaFit } from "./jaimini-areas";
 import type { EventOutcome } from "./events";
 import type { TransitCheck } from "./rectify-types";
+import type { KpTransitEvidence } from "./kp-transit-evidence";
+import type { AuroraEventEvidence } from "./kp-aurora";
+import type { AuroraV2Evidence } from "./kp-aurora-v2";
+import type { ParashariVargaEvidence } from "./parashari-varga-evidence";
+import type { ParashariPromiseCheck } from "./parashari-promise";
+import type { ParashariSpecificCheck } from "./parashari-specific";
+import type { ParashariDivisionalCheck } from "./parashari-divisional";
+import type { ManleyEvidence } from "./manley-evidence";
+import type { ParashariComparison, ParashariComparisonExample } from "./parashari-comparison";
 import type { WindowVerdict } from "./kp-windows";
 import { listJoin, ordH, withGlossList } from "./house-gloss";
 
@@ -13,13 +22,24 @@ export interface EventValidation {
   matter: string;
   label: string;
   date: string;
+  time?: string;
+  timezone?: string;
   /** Age at the event, in years to one decimal. */
   age: number;
   /** The recorded outcome, else the matter's own nature. */
   outcome: EventOutcome;
   houses: number[];
   cusp: number;
+  /** D1 and the subject's varga, separate from the other systems' scores. */
+  parashariVargas?: ParashariVargaEvidence;
+  parashariPromise?: ParashariPromiseCheck;
+  parashariSpecific?: ParashariSpecificCheck;
+  parashariDivisional?: ParashariDivisionalCheck;
+  manley?: ManleyEvidence;
   kp: {
+    /** Separate experimental Aurora-style evidence, never included in KP's existing score. */
+    aurora?: AuroraEventEvidence;
+    auroraV2?: AuroraV2Evidence;
     dasa: Planet;
     bhukti: Planet;
     antara: Planet;
@@ -43,7 +63,9 @@ export interface EventValidation {
       bhukti: TransitCheck;
       score: number;
       max: number;
-      /** Whether the transiting Sun and Moon stood in the sign, star or sub of a significator of the matter that day (Part 2 p. 26). */
+      /** Broader event-day contacts against this natal frame; descriptive, not scored. */
+      evidence?: KpTransitEvidence[];
+      /** Whether the transiting Sun and Moon stood in a sign, star or sub ruled by a period lord (provisional reading of Part 2 p. 26). */
       luminary: { sun: boolean; moon: boolean };
     };
     /** Period-lord hits plus the promise: 0..4. */
@@ -232,6 +254,8 @@ export interface PlanetTally {
 
 export type BaselineMeasure =
   | "confirmed"
+  | "aurora"
+  | "auroraV2"
   | "kp"
   | "transit"
   | "jaimini"
@@ -250,7 +274,7 @@ export interface BaselineStat {
   sd: number;
   /** Share of random trials the real events beat (ties count half), 0-100. */
   percentile: number;
-  /** above: beats 95% of random trials; below: worse than 95% of them; chance: indistinguishable. */
+  /** Exploratory mid-rank category: 95th percentile or more, 5th or less, or between them. */
   verdict: "above" | "chance" | "below";
 }
 
@@ -258,7 +282,17 @@ export interface BaselineStat {
 export interface ChanceBaseline {
   trials: number;
   span: [string, string];
+  /** One reproducible set of dates, for inspecting the natal/transit evidence. */
+  example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence: KpTransitEvidence[] }>;
+  auroraExample?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence?: AuroraEventEvidence }>;
+  auroraV2Example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence?: AuroraV2Evidence }>;
+  /** Same Parashari checks run for real and random dates; descriptive only. */
+  parashari?: ParashariComparison;
+  parashariExample?: ParashariComparisonExample[];
   confirmed: BaselineStat;
+  /** Full experimental staged chains, calculated identically for actual and sampled dates. */
+  aurora?: BaselineStat;
+  auroraV2?: BaselineStat;
   kp: BaselineStat;
   transit: BaselineStat;
   jaimini: BaselineStat;

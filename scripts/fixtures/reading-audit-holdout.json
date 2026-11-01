@@ -1,0 +1,29 @@
+{
+  "description": "Four additional public cases selected after the first audit and before running this holdout; no personal charts.",
+  "cases": [
+    {
+      "chart": {"name":"Ada Lovelace","gender":"female","birthDate":"1815-12-10","birthTime":"13:00","timezone":"Europe/London","timeStandard":"lmt","place":"London, England","latitude":51.5,"longitude":-0.1667,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"1852-11-27"},
+      "birthSource":"https://www.astro.com/astro-databank/Lovelace%2C_Ada",
+      "birthQuality":"B; time quoted from a biography and correspondence, at a round hour; approximate London longitude.",
+      "profession":"technical", "professionSource":"https://www.computerhistory.org/babbage/adalovelace"
+    },
+    {
+      "chart": {"name":"Kevin Mitnick","gender":"male","birthDate":"1963-08-06","birthTime":"01:38","timezone":"America/Los_Angeles","timeStandard":"auto","place":"Van Nuys, California, USA","latitude":34.1833,"longitude":-118.45,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"2023-07-16"},
+      "birthSource":"https://www.astro.com/astro-databank/Mitnik%2C_Kevin",
+      "birthQuality":"A; Astro-Databank reports the time as from memory, not from a birth record.",
+      "profession":"technical", "professionSource":"https://www.knowbe4.com/about-us"
+    },
+    {
+      "chart": {"name":"Rita Lee","gender":"female","birthDate":"1947-12-31","birthTime":"09:45","timezone":"America/Sao_Paulo","timeStandard":"-03:00","place":"Sao Paulo, Brazil","latitude":-23.5525,"longitude":-46.6247,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"2023-05-08"},
+      "birthSource":"https://www.astro.com/astro-databank/Lee%2C_Rita",
+      "birthQuality":"AA; birth certificate reportedly in hand, but another source reports 09:15. Fixed UTC-03 matches the published chart.",
+      "profession":"music", "professionSource":"https://qa.grammy.com/news/2022-latin-grammy-acoustic-sessions-brazil-giulia-be-manu-gavassi-agnes-nunes-luisa-sonza-perform"
+    },
+    {
+      "chart": {"name":"Pablo Neruda","gender":"male","birthDate":"1904-07-12","birthTime":"21:00","timezone":"America/Santiago","timeStandard":"-04:42:46","place":"Parral, Chile","latitude":-36.15,"longitude":-71.8333,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"1973-09-23"},
+      "birthSource":"https://www.astro.com/astro-databank/Neruda%2C_Pablo",
+      "birthQuality":"B; biography quotes 21:00, a rounded time; another historical source gave 14:00. Fixed Santiago mean time, longitude 70°41′30″ W as in published chart.",
+      "profession":"writing", "professionSource":"https://www.nobelprize.org/nomination/archive/show.php?id=21612&mode="
+    }
+  ]
+}

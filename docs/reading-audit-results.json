@@ -1,0 +1,920 @@
+{
+  "protocol": "docs/reading-audit-protocol.md",
+  "summary": {
+    "cases": 7,
+    "professionMentioned": 4,
+    "knownChildCases": 2
+  },
+  "beforeSummary": {
+    "cases": 7,
+    "professionMentioned": 4,
+    "knownChildCases": 2
+  },
+  "before": [
+    {
+      "name": "Margaret Hamilton",
+      "career": {
+        "headline": "The strong rules disagree. A steady, respected profession with authority over others; yet technical, computing, healing or research work. Read both before deciding.",
+        "key": [
+          {
+            "id": "sa-exalt",
+            "score": 2,
+            "text": "Saturn dignified: a steady, respected profession with authority over others."
+          },
+          {
+            "id": "sa-ke",
+            "score": 2.25,
+            "text": "Karma with Ketu: technical, computing, healing or research work; breaks and restarts in the career line."
+          },
+          {
+            "id": "sa-retro",
+            "score": 2,
+            "text": "Retrograde Saturn: career reversals or a change of field; the profession also takes colour from the previous sign."
+          }
+        ],
+        "categoryMentioned": true
+      },
+      "children": {
+        "headline": "Asks for care. Trouble or delay in getting children; conception may be delicate.",
+        "key": [
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: trouble or delay in getting children; care in pregnancy."
+          },
+          {
+            "id": "ch-mo-ve",
+            "text": "Moon with Venus: conception may be delicate; Naik warns of difficulty conceiving or of a pregnancy that does not hold, so care is advised."
+          },
+          {
+            "id": "ch-ve-ra",
+            "text": "Rahu with or in trine to Venus: difficulty in conceiving, or a child of delicate early health; remedies and medical care are indicated."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 10th from Jupiter, the putra karaka, an axis with no progeny signature; children are read from the 5th from Jupiter and his companions alone.",
+        "cardNotes": [
+          "The 5th from Jupiter (Pisces) is empty, but Mars aspect it: children are read from the aspecting planets, fewer than a tenanted 5th would give.",
+          "Pisces, the 5th from Jupiter, is a watery sign: trouble or delay in getting children; care in pregnancy.",
+          "Rahu with or in trine to the Sun: difficulty for a male child, or a son of delicate health."
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is service."
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Steve Wozniak",
+      "career": {
+        "headline": "Well supported. Profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields; government, administration or a large institution.",
+        "key": [
+          {
+            "id": "t-sa-me-ke",
+            "score": 2.73,
+            "text": "Saturn, Mercury and Ketu together: computing, coding, statistics or research; introverted, detail-driven livelihood."
+          },
+          {
+            "id": "sa-ve",
+            "score": 2.1,
+            "text": "Karma with Venus: profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields."
+          },
+          {
+            "id": "sa-su",
+            "score": 2.1,
+            "text": "Karma with the Sun: government, administration or a large institution; a position of authority reached through service."
+          }
+        ],
+        "categoryMentioned": true
+      },
+      "children": {
+        "headline": "Asks for care. Conception may be delicate; anxiety around the first child.",
+        "key": [
+          {
+            "id": "ch-mo-ve",
+            "text": "Moon with Venus: conception may be delicate; Naik warns of difficulty conceiving or of a pregnancy that does not hold, so care is advised."
+          },
+          {
+            "id": "ch-ju-ke",
+            "text": "Jupiter with or in trine to Ketu: anxiety around the first child; the classical texts read loss, the modern lineage delay and a child of spiritual or medical bent."
+          },
+          {
+            "id": "ch-ra-su",
+            "text": "Rahu with or in trine to the Sun: difficulty for a male child, or a son of delicate health."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 6th from Jupiter, the putra karaka, an axis with no progeny signature; children are read from the 5th from Jupiter and his companions alone.",
+        "cardNotes": [
+          "The 5th from Jupiter (Gemini) is empty, but Mars aspect it: children are read from the aspecting planets, fewer than a tenanted 5th would give.",
+          "Rahu with or in trine to the Sun: difficulty for a male child, or a son of delicate health."
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "supports",
+          "word": "supported (conditional)",
+          "note": "10th sub lord Moon: employment and steady earnings, promotions in the conjoined periods; the sub lord was Sun until 1 min 42 s earlier"
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Alan Turing",
+      "career": {
+        "headline": "Well supported. Profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields; work with the public, liquids, food, shipping or frequent travel.",
+        "key": [
+          {
+            "id": "sa-mo",
+            "score": 2.25,
+            "text": "Karma with the Moon: work with the public, liquids, food, shipping or frequent travel; fluctuating routines."
+          },
+          {
+            "id": "t-sa-me-ke",
+            "score": 2.05,
+            "text": "Saturn, Mercury and Ketu together: computing, coding, statistics or research; introverted, detail-driven livelihood."
+          },
+          {
+            "id": "sa-ve",
+            "score": 1.95,
+            "text": "Karma with Venus: profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields."
+          }
+        ],
+        "categoryMentioned": true
+      },
+      "children": {
+        "headline": "Asks for care. Trouble or delay in getting children; children by an unusual route, after a long wait, through medical help or in a foreign place.",
+        "key": [
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: trouble or delay in getting children; care in pregnancy."
+          },
+          {
+            "id": "ch-ju-ra",
+            "text": "Jupiter with or in trine to Rahu: children by an unusual route, after a long wait, through medical help or in a foreign place; a child settles abroad or in technology."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 8th from Jupiter, the putra karaka, an axis with no progeny signature; children are read from the 5th from Jupiter and his companions alone.",
+        "cardNotes": [
+          "Rahu in Pisces, the 5th from Jupiter, with Moon, Mars and Ketu aspecting it: the count of children is read from these planets, male planets for sons, female planets for daughters.",
+          "Pisces, the 5th from Jupiter, is a watery sign: trouble or delay in getting children; care in pregnancy.",
+          "Rahu in trine to Jupiter: an unusual route to children, after a long wait, through medical help or far from home."
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is business."
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Maya Angelou",
+      "career": {
+        "headline": "Well supported. A government or institutional post of authority; a career in accounts, law, teaching or writing.",
+        "key": [
+          {
+            "id": "t-ju-sa-su",
+            "score": 3.15,
+            "text": "Jupiter, Saturn and the Sun together: a government or institutional post of authority; administrative career."
+          },
+          {
+            "id": "t-ju-sa-ke",
+            "score": 2.36,
+            "text": "Jupiter, Saturn and Ketu together: technical or research work; a career with a break and a return, or a late spiritual turn."
+          },
+          {
+            "id": "t-ju-sa-me",
+            "score": 2.2,
+            "text": "Jupiter, Saturn and Mercury together: a career in accounts, law, teaching or writing; scholarly, methodical livelihood."
+          }
+        ],
+        "categoryMentioned": true
+      },
+      "children": {
+        "headline": "Asks for care. The heaviest progeny signature; trouble or delay in getting children.",
+        "key": [
+          {
+            "id": "ch-t-ju-sa-node",
+            "text": "Jupiter, Saturn and Ketu combined: the heaviest progeny signature; a very late child, or one raised as one's own by adoption."
+          },
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: trouble or delay in getting children; care in pregnancy."
+          },
+          {
+            "id": "ch-t-su-ma-ju",
+            "text": "Sun, Mars and Jupiter combined: Rao reads at least two male children; sons of drive and standing."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 12th from Jupiter, the putra karaka: a faint signature; children often delayed or fewer than hoped, and wanted with focus.",
+        "cardNotes": [
+          "The 5th from Jupiter (Cancer) is empty, but Sun, Saturn and Ketu aspect it: children are read from the aspecting planets, fewer than a tenanted 5th would give.",
+          "Cancer, the 5th from Jupiter, is a watery sign: trouble or delay in getting children; care in pregnancy.",
+          "Saturn in trine to Jupiter: a later first child and fewer children overall; delay rather than denial.",
+          "Ketu in trine to Jupiter: anxiety around the first child; the classical texts read loss, the modern lineage a delay and a spiritually inclined child.",
+          "Jupiter with or in trine to the Sun: a son is indicated.",
+          "Jupiter, Saturn and Ketu together without Venus: the heaviest progeny signature; adoption or a very late child is read."
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "not read",
+          "note": "No rule fires for the 10th cusp."
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Edith Piaf",
+      "career": {
+        "headline": "A mixed picture. Advisory, teaching, law, finance or religious institutions; yet career reversals or a change of field.",
+        "key": [
+          {
+            "id": "sa-ju",
+            "score": 2.25,
+            "text": "Karma with Jupiter: advisory, teaching, law, finance or religious institutions; the native's own effort defines status."
+          },
+          {
+            "id": "sa-retro",
+            "score": 2,
+            "text": "Retrograde Saturn: career reversals or a change of field; the profession also takes colour from the previous sign."
+          },
+          {
+            "id": "sa-mo",
+            "score": 2.42,
+            "text": "Karma with the Moon: work with the public, liquids, food, shipping or frequent travel; fluctuating routines."
+          }
+        ],
+        "categoryMentioned": false
+      },
+      "children": {
+        "headline": "Asks for care. Children after long delay and by an unconventional path (provisional wording.",
+        "key": [
+          {
+            "id": "ch-t-ju-sa-rahu",
+            "text": "Jupiter, Saturn and Rahu combined: children after long delay and by an unconventional path (provisional wording; the delay is the sourced part)."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 11th from Jupiter, the putra karaka: a supporting axis; children come later or with effort, the signature is not prominent.",
+        "cardNotes": [
+          "Saturn in Gemini, the 5th from Jupiter, with Sun, Mercury and Venus aspecting it: the count of children is read from these planets, male planets for sons, female planets for daughters.",
+          "Saturn in trine to Jupiter: a later first child and fewer children overall; delay rather than denial."
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is business."
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "A. R. Rahman",
+      "career": {
+        "headline": "Asks for care. Engineering, machinery, land, construction, defence or surgery; technical or research work.",
+        "key": [
+          {
+            "id": "sa-ra",
+            "score": 1.95,
+            "text": "Karma with Rahu: foreign employment, technology, unconventional or high-risk fields; career in a distant land or with foreigners."
+          },
+          {
+            "id": "sa-ma",
+            "score": 1.5,
+            "text": "Karma with Mars: engineering, machinery, land, construction, defence or surgery; work demands physical or technical effort."
+          },
+          {
+            "id": "t-ju-sa-ke",
+            "score": 1.36,
+            "text": "Jupiter, Saturn and Ketu together: technical or research work; a career with a break and a return, or a late spiritual turn."
+          }
+        ],
+        "categoryMentioned": false
+      },
+      "children": {
+        "headline": "Asks for care. Trouble or delay in getting children; the heaviest progeny signature.",
+        "key": [
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: trouble or delay in getting children; care in pregnancy."
+          },
+          {
+            "id": "ch-t-ju-sa-node",
+            "text": "Jupiter, Saturn and Ketu combined: the heaviest progeny signature; a very late child, or one raised as one's own by adoption."
+          },
+          {
+            "id": "ch-ju-mo",
+            "text": "Jupiter with or in trine to the Moon: easy conception and children who bring joy; the mother's line is fertile."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 7th from Jupiter, the putra karaka: mutual aspect at half strength; children are promised, the rest depends on the companions of Jupiter.",
+        "cardNotes": [
+          "The 5th from Jupiter (Scorpio) is empty, but Saturn aspect it: children are read from the aspecting planets, fewer than a tenanted 5th would give.",
+          "Scorpio, the 5th from Jupiter, is a watery sign: trouble or delay in getting children; care in pregnancy.",
+          "Saturn in trine to Jupiter: a later first child and fewer children overall; delay rather than denial.",
+          "Rahu with or in trine to the Sun: difficulty for a male child, or a son of delicate health."
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "supports",
+          "word": "supported (conditional)",
+          "note": "10th sub lord Mercury: employment and steady earnings, promotions in the conjoined periods; the sub lord was Saturn until 1 s earlier"
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Garry Kasparov",
+      "career": {
+        "headline": "A mixed picture. A steady, respected profession with authority over others; yet technical, computing, healing or research work.",
+        "key": [
+          {
+            "id": "sa-exalt",
+            "score": 2,
+            "text": "Saturn dignified: a steady, respected profession with authority over others."
+          },
+          {
+            "id": "sa-ke",
+            "score": 3,
+            "text": "Karma with Ketu: technical, computing, healing or research work; breaks and restarts in the career line."
+          },
+          {
+            "id": "sa-ve",
+            "score": 1.95,
+            "text": "Karma with Venus: profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields."
+          }
+        ],
+        "categoryMentioned": false
+      },
+      "children": {
+        "headline": "Asks for care. Trouble or delay in getting children; rao reads at least two male children.",
+        "key": [
+          {
+            "id": "ch-t-su-ma-ju",
+            "text": "Sun, Mars and Jupiter combined: Rao reads at least two male children; sons of drive and standing."
+          },
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: trouble or delay in getting children; care in pregnancy."
+          },
+          {
+            "id": "ch-ju-mo",
+            "text": "Jupiter with or in trine to the Moon: easy conception and children who bring joy; the mother's line is fertile."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 12th from Jupiter, the putra karaka: a faint signature; children often delayed or fewer than hoped, and wanted with focus.",
+        "cardNotes": [
+          "Mars and Rahu in Cancer, the 5th from Jupiter, with Sun, Moon, Saturn and Ketu aspecting it: the count of children is read from these planets, male planets for sons, female planets for daughters.",
+          "Cancer, the 5th from Jupiter, is a watery sign: trouble or delay in getting children; care in pregnancy.",
+          "Rahu in trine to Jupiter: an unusual route to children, after a long wait, through medical help or far from home.",
+          "Rahu with or in trine to the Sun: difficulty for a male child, or a son of delicate health.",
+          "Jupiter with or in trine to the Sun: a son is indicated.",
+          "Sun, Mars and Jupiter combined: Rao reads at least two male children.",
+          "Moon with or in trine to Jupiter: the wife conceives easily; children bring joy to the home."
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: earnings by self-exertion and independent work."
+        },
+        "rules": [
+          {
+            "id": "kp7-opponent",
+            "text": "The 7th sub lord signifies 7, 8, 12 and 5: opponents are strong in every walk of life.",
+            "used": [
+              5,
+              8,
+              12
+            ],
+            "evidence": "Rahu is the sub lord of cusp 7; signifies 5, 8, 12"
+          }
+        ]
+      }
+    }
+  ],
+  "cases": [
+    {
+      "name": "Margaret Hamilton",
+      "birthSource": "https://www.astro.com/astro-databank/Hamilton%2C_Margaret",
+      "birthQuality": "AA; birth certificate reported in hand. 10:00 may be rounded. Fixed CST matches the published chart; exact birthplace coordinates are approximate.",
+      "timeBasis": "Fixed offset -6:00",
+      "profession": "technical",
+      "professionSource": "https://science.nasa.gov/people/margaret-hamilton/",
+      "knownChild": "A daughter is documented; this does not establish details of conception or the full history.",
+      "childSource": "https://news.mit.edu/2026/margaret-hamilton-computing-pioneer-dies-1007",
+      "career": {
+        "headline": "The strong rules disagree. A steady, respected profession with authority over others; yet breaks and restarts in the career line. Read both before deciding.",
+        "key": [
+          {
+            "id": "sa-exalt",
+            "score": 2,
+            "text": "Saturn dignified: a steady, respected profession with authority over others."
+          },
+          {
+            "id": "sa-ke",
+            "score": 2.25,
+            "text": "Karma with Ketu: technical, computing, healing or research work; breaks and restarts in the career line."
+          },
+          {
+            "id": "sa-retro",
+            "score": 2,
+            "text": "Retrograde Saturn: career reversals or a change of field; the profession also takes colour from the previous sign."
+          }
+        ],
+        "categoryMentioned": true
+      },
+      "children": {
+        "headline": "Venus stands in the 10th from Jupiter, the putra karaka. This particular Jupiter–Venus rule does not identify a connection; that is not a conclusion about children.",
+        "key": [
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: a traditional classification that cannot assess fertility or pregnancy."
+          },
+          {
+            "id": "ch-mo-ve",
+            "text": "Moon with Venus: a traditional family-related combination; it cannot assess conception or pregnancy outcomes."
+          },
+          {
+            "id": "ch-ve-ra",
+            "text": "Rahu with or in trine to Venus: a traditional family-related combination; it cannot assess conception or a child's health."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 10th from Jupiter, the putra karaka. This particular Jupiter–Venus rule does not identify a connection; that is not a conclusion about children.",
+        "cardNotes": [
+          "The 5th from Jupiter (Pisces) is empty, but Mars aspect it. These placements do not determine the number or sex of children.",
+          "Pisces, the 5th from Jupiter, is a watery sign. The traditional classification cannot assess fertility or pregnancy.",
+          "Rahu with or in trine to the Sun: a traditional link that cannot determine a child's sex or health."
+        ],
+        "overview": [
+          {
+            "system": "bnn",
+            "word": "no verdict",
+            "note": "Nadi shows traditional children-related links; these do not establish an individual outcome."
+          },
+          {
+            "system": "kp",
+            "word": "not read",
+            "note": "No rule fires for the 5th cusp."
+          }
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is service."
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Steve Wozniak",
+      "birthSource": "https://www.astro.com/astro-databank/Wozniak%2C_Steve",
+      "birthQuality": "AA in Astro-Databank; source notes cite an announcement in a magazine. 09:45 may be rounded.",
+      "timeBasis": "standard time of America/Los_Angeles -7:00",
+      "profession": "technical",
+      "professionSource": "https://computerhistory.org/profile/steve-wozniak/",
+      "career": {
+        "headline": "Possible career themes in these interpretations: computing, coding, statistics or research; profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields; government, administration or a large institution. These are alternatives, not a predicted occupation.",
+        "key": [
+          {
+            "id": "t-sa-me-ke",
+            "score": 2.73,
+            "text": "Saturn, Mercury and Ketu linked by sign (not necessarily in the same sign): computing, coding, statistics or research; introverted, detail-driven livelihood."
+          },
+          {
+            "id": "sa-ve",
+            "score": 2.1,
+            "text": "Karma with Venus: profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields."
+          },
+          {
+            "id": "sa-su",
+            "score": 2.1,
+            "text": "Karma with the Sun: government, administration or a large institution; a position of authority reached through service."
+          }
+        ],
+        "categoryMentioned": true
+      },
+      "children": {
+        "headline": "Venus stands in the 6th from Jupiter, the putra karaka. This particular Jupiter–Venus rule does not identify a connection; that is not a conclusion about children.",
+        "key": [
+          {
+            "id": "ch-mo-ve",
+            "text": "Moon with Venus: a traditional family-related combination; it cannot assess conception or pregnancy outcomes."
+          },
+          {
+            "id": "ch-ju-ke",
+            "text": "Jupiter with or in trine to Ketu: a traditional children-related combination with differing interpretations; it does not establish a personal outcome."
+          },
+          {
+            "id": "ch-ra-su",
+            "text": "Rahu with or in trine to the Sun: a traditional association involving children; it cannot determine a child's sex or health."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 6th from Jupiter, the putra karaka. This particular Jupiter–Venus rule does not identify a connection; that is not a conclusion about children.",
+        "cardNotes": [
+          "The 5th from Jupiter (Gemini) is empty, but Mars aspect it. These placements do not determine the number or sex of children.",
+          "Rahu with or in trine to the Sun: a traditional link that cannot determine a child's sex or health."
+        ],
+        "overview": [
+          {
+            "system": "bnn",
+            "word": "no verdict",
+            "note": "Nadi shows traditional children-related links; these do not establish an individual outcome."
+          },
+          {
+            "system": "kp",
+            "word": "no verdict",
+            "note": "No general children verdict fires; KP has a separate rule about children."
+          }
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "supports",
+          "word": "supported (conditional)",
+          "note": "10th sub lord Moon: the app's provisional threshold reads this as support for employment and earnings; the sub lord was Sun until 1 min 42 s earlier"
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Alan Turing",
+      "birthSource": "https://www.astro.com/astro-databank/Turing%2C_Alan",
+      "birthQuality": "A; mother reportedly recalled the time. 02:15 may be rounded.",
+      "timeBasis": "standard time of Europe/London +0:00",
+      "profession": "technical",
+      "professionSource": "https://www.turing.ac.uk/about-us",
+      "career": {
+        "headline": "Possible career themes in these interpretations: work with the public, liquids, food, shipping or frequent travel; computing, coding, statistics or research; profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields. These are alternatives, not a predicted occupation.",
+        "key": [
+          {
+            "id": "sa-mo",
+            "score": 2.25,
+            "text": "Karma with the Moon: work with the public, liquids, food, shipping or frequent travel; fluctuating routines."
+          },
+          {
+            "id": "t-sa-me-ke",
+            "score": 2.05,
+            "text": "Saturn, Mercury and Ketu linked by sign (not necessarily in the same sign): computing, coding, statistics or research; introverted, detail-driven livelihood."
+          },
+          {
+            "id": "sa-ve",
+            "score": 1.95,
+            "text": "Karma with Venus: profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields."
+          }
+        ],
+        "categoryMentioned": true
+      },
+      "children": {
+        "headline": "Venus stands in the 8th from Jupiter, the putra karaka. This particular Jupiter–Venus rule does not identify a connection; that is not a conclusion about children.",
+        "key": [
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: a traditional classification that cannot assess fertility or pregnancy."
+          },
+          {
+            "id": "ch-ju-ra",
+            "text": "Jupiter with or in trine to Rahu: some Nadi readers consider Rahu a factor in family circumstances; the connection cannot identify a route to parenthood or a child's future."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 8th from Jupiter, the putra karaka. This particular Jupiter–Venus rule does not identify a connection; that is not a conclusion about children.",
+        "cardNotes": [
+          "Rahu in Pisces, the 5th from Jupiter, with Moon, Mars and Ketu aspecting it. Some traditional readings count these placements, but they cannot determine the number or sex of children.",
+          "Pisces, the 5th from Jupiter, is a watery sign. The traditional classification cannot assess fertility or pregnancy.",
+          "Rahu in trine to Jupiter: a traditional family-related link; it cannot determine the circumstances of parenthood."
+        ],
+        "overview": [
+          {
+            "system": "bnn",
+            "word": "no verdict",
+            "note": "Nadi shows traditional children-related links; these do not establish an individual outcome."
+          },
+          {
+            "system": "kp",
+            "word": "traditional adverse indication (conditional)",
+            "note": "5th sub lord Moon: the source treats this as adverse for children, but it cannot establish an individual outcome; the sub lord changes to Mars 1 min 37 s later"
+          }
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is business."
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Maya Angelou",
+      "birthSource": "https://www.astro.com/astro-databank/Angelou%2C_Maya",
+      "birthQuality": "AA; birth record quoted via Contemporary American Horoscopes.",
+      "timeBasis": "standard time of America/Chicago -6:00",
+      "profession": "writing",
+      "professionSource": "https://www.poetryfoundation.org/poets/maya-angelou",
+      "knownChild": "A son is documented; this is not a complete reproductive history.",
+      "childSource": "https://www.poetryfoundation.org/poets/maya-angelou",
+      "career": {
+        "headline": "Possible career themes in these interpretations: a government or institutional post of authority; technical or research work; a career in accounts, law, teaching or writing. These are alternatives, not a predicted occupation.",
+        "key": [
+          {
+            "id": "t-ju-sa-su",
+            "score": 3.15,
+            "text": "Jupiter, Saturn and the Sun linked by sign (not necessarily in the same sign): a government or institutional post of authority; administrative career."
+          },
+          {
+            "id": "t-ju-sa-ke",
+            "score": 2.36,
+            "text": "Jupiter, Saturn and Ketu linked by sign (not necessarily in the same sign): technical or research work; a career with a break and a return, or a late spiritual turn."
+          },
+          {
+            "id": "t-ju-sa-me",
+            "score": 2.2,
+            "text": "Jupiter, Saturn and Mercury linked by sign (not necessarily in the same sign): a career in accounts, law, teaching or writing; scholarly, methodical livelihood."
+          }
+        ],
+        "categoryMentioned": true
+      },
+      "children": {
+        "headline": "Venus stands in the 12th from Jupiter, the putra karaka. This tradition treats the connection as less prominent; it cannot establish a delay or number of children.",
+        "key": [
+          {
+            "id": "ch-t-ju-sa-node",
+            "text": "Jupiter, Saturn and Ketu linked by sign: some Nadi readers consider this a timing factor; it cannot establish a delay or route to parenthood."
+          },
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: a traditional classification that cannot assess fertility or pregnancy."
+          },
+          {
+            "id": "ch-t-su-ma-ju",
+            "text": "Sun, Mars and Jupiter linked by sign: Rao discusses a children-related combination; its proposed count and sex are not reliable individual predictions."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 12th from Jupiter, the putra karaka. This tradition treats the connection as less prominent; it cannot establish a delay or number of children.",
+        "cardNotes": [
+          "The 5th from Jupiter (Cancer) is empty, but Sun, Saturn and Ketu aspect it. These placements do not determine the number or sex of children.",
+          "Cancer, the 5th from Jupiter, is a watery sign. The traditional classification cannot assess fertility or pregnancy.",
+          "Saturn in trine to Jupiter: some Nadi readers consider this a timing factor; it does not establish a delay.",
+          "Ketu in trine to Jupiter: a traditional family-related link with differing interpretations; no individual outcome is established.",
+          "Jupiter with or in trine to the Sun: a traditional children-related link; it cannot determine a child's sex.",
+          "Jupiter, Saturn and Ketu are linked by sign without Venus: a traditional timing interpretation that cannot determine a delay or route to parenthood."
+        ],
+        "overview": [
+          {
+            "system": "bnn",
+            "word": "no verdict",
+            "note": "Nadi shows traditional children-related links; these do not establish an individual outcome."
+          },
+          {
+            "system": "kp",
+            "word": "traditional adverse indication (conditional)",
+            "note": "5th sub lord Saturn: the source treats this as adverse for children, but it cannot establish an individual outcome; the sub lord changes to Ketu 54 s later"
+          }
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "not read",
+          "note": "No rule fires for the 10th cusp."
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Edith Piaf",
+      "birthSource": "https://www.astro.com/astro-databank/Piaf%2C_%C3%89dith",
+      "birthQuality": "AA; birth record reportedly in hand. 05:00 may be rounded.",
+      "timeBasis": "standard time of Europe/Paris +0:00",
+      "profession": "music",
+      "professionSource": "https://www.universalmusic.fr/artistes/20000091849",
+      "career": {
+        "headline": "A mixed picture. Advisory, teaching, law, finance or religious institutions; yet career reversals or a change of field.",
+        "key": [
+          {
+            "id": "sa-ju",
+            "score": 2.25,
+            "text": "Karma with Jupiter: advisory, teaching, law, finance or religious institutions; the native's own effort defines status."
+          },
+          {
+            "id": "sa-retro",
+            "score": 2,
+            "text": "Retrograde Saturn: career reversals or a change of field; the profession also takes colour from the previous sign."
+          },
+          {
+            "id": "sa-mo",
+            "score": 2.42,
+            "text": "Karma with the Moon: work with the public, liquids, food, shipping or frequent travel; fluctuating routines."
+          }
+        ],
+        "categoryMentioned": false
+      },
+      "children": {
+        "headline": "Venus stands in the 11th from Jupiter, the putra karaka. This tradition treats the connection as less prominent; no individual timing or outcome follows from it.",
+        "key": [
+          {
+            "id": "ch-t-ju-sa-rahu",
+            "text": "Jupiter, Saturn and Rahu linked by sign: some Nadi readers consider this a timing factor; it cannot establish a delay or route to parenthood. The adjacent-sign extension is provisional."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 11th from Jupiter, the putra karaka. This tradition treats the connection as less prominent; no individual timing or outcome follows from it.",
+        "cardNotes": [
+          "Saturn in Gemini, the 5th from Jupiter, with Sun, Mercury and Venus aspecting it. Some traditional readings count these placements, but they cannot determine the number or sex of children.",
+          "Saturn in trine to Jupiter: some Nadi readers consider this a timing factor; it does not establish a delay."
+        ],
+        "overview": [
+          {
+            "system": "bnn",
+            "word": "no verdict",
+            "note": "Nadi shows traditional children-related links; these do not establish an individual outcome."
+          },
+          {
+            "system": "kp",
+            "word": "no verdict",
+            "note": "No general children verdict fires; KP has a separate rule about children."
+          }
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is business."
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "A. R. Rahman",
+      "birthSource": "https://www.astro.com/astro-databank/Rahman%2C_A._R.",
+      "birthQuality": "A; Astro-Databank reports the time as from memory. 05:50 may be rounded.",
+      "timeBasis": "standard time of Asia/Kolkata +5:30",
+      "profession": "music",
+      "professionSource": "https://www.grammy.com/artists/ar-rahman/6529",
+      "career": {
+        "headline": "Possible career themes in these interpretations: foreign employment, technology, unconventional or high-risk fields; engineering, machinery, land, construction, defence or surgery; technical or research work. These are alternatives, not a predicted occupation.",
+        "key": [
+          {
+            "id": "sa-ra",
+            "score": 1.95,
+            "text": "Karma with Rahu: foreign employment, technology, unconventional or high-risk fields; career in a distant land or with foreigners."
+          },
+          {
+            "id": "sa-ma",
+            "score": 1.5,
+            "text": "Karma with Mars: engineering, machinery, land, construction, defence or surgery; work demands physical or technical effort."
+          },
+          {
+            "id": "t-ju-sa-ke",
+            "score": 1.36,
+            "text": "Jupiter, Saturn and Ketu linked by sign (not necessarily in the same sign): technical or research work; a career with a break and a return, or a late spiritual turn."
+          }
+        ],
+        "categoryMentioned": false
+      },
+      "children": {
+        "headline": "Venus stands in the 7th from Jupiter, the putra karaka. This tradition reads the opposition as a connection when discussing children; it cannot establish an individual outcome.",
+        "key": [
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: a traditional classification that cannot assess fertility or pregnancy."
+          },
+          {
+            "id": "ch-t-ju-sa-node",
+            "text": "Jupiter, Saturn and Ketu linked by sign: some Nadi readers consider this a timing factor; it cannot establish a delay or route to parenthood."
+          },
+          {
+            "id": "ch-ju-mo",
+            "text": "Jupiter with or in trine to the Moon: a traditional association of children and care; it does not establish fertility or ease of conception."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 7th from Jupiter, the putra karaka. This tradition reads the opposition as a connection when discussing children; it cannot establish an individual outcome.",
+        "cardNotes": [
+          "The 5th from Jupiter (Scorpio) is empty, but Saturn aspect it. These placements do not determine the number or sex of children.",
+          "Scorpio, the 5th from Jupiter, is a watery sign. The traditional classification cannot assess fertility or pregnancy.",
+          "Saturn in trine to Jupiter: some Nadi readers consider this a timing factor; it does not establish a delay.",
+          "Rahu with or in trine to the Sun: a traditional link that cannot determine a child's sex or health."
+        ],
+        "overview": [
+          {
+            "system": "bnn",
+            "word": "no verdict",
+            "note": "Nadi shows traditional children-related links; these do not establish an individual outcome."
+          },
+          {
+            "system": "kp",
+            "word": "no verdict",
+            "note": "No general children verdict fires; KP has a separate rule about children."
+          }
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "supports",
+          "word": "supported (conditional)",
+          "note": "10th sub lord Mercury: the app's provisional threshold reads this as support for employment and earnings; the sub lord was Saturn until 1 s earlier"
+        },
+        "rules": []
+      }
+    },
+    {
+      "name": "Garry Kasparov",
+      "birthSource": "https://www.astro.com/astro-databank/Kasparov%2C_Garry",
+      "birthQuality": "A; time reportedly from memory and may be rounded. Fixed UTC+04 matches the published source.",
+      "timeBasis": "Fixed offset +4:00",
+      "profession": "sport",
+      "professionSource": "https://www.chess.com/article/view/world-chess-champions",
+      "career": {
+        "headline": "A mixed picture. A steady, respected profession with authority over others; yet breaks and restarts in the career line.",
+        "key": [
+          {
+            "id": "sa-exalt",
+            "score": 2,
+            "text": "Saturn dignified: a steady, respected profession with authority over others."
+          },
+          {
+            "id": "sa-ke",
+            "score": 3,
+            "text": "Karma with Ketu: technical, computing, healing or research work; breaks and restarts in the career line."
+          },
+          {
+            "id": "sa-ve",
+            "score": 1.95,
+            "text": "Karma with Venus: profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields."
+          }
+        ],
+        "categoryMentioned": false
+      },
+      "children": {
+        "headline": "Venus stands in the 12th from Jupiter, the putra karaka. This tradition treats the connection as less prominent; it cannot establish a delay or number of children.",
+        "key": [
+          {
+            "id": "ch-t-su-ma-ju",
+            "text": "Sun, Mars and Jupiter linked by sign: Rao discusses a children-related combination; its proposed count and sex are not reliable individual predictions."
+          },
+          {
+            "id": "ch-ju-water",
+            "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: a traditional classification that cannot assess fertility or pregnancy."
+          },
+          {
+            "id": "ch-ju-mo",
+            "text": "Jupiter with or in trine to the Moon: a traditional association of children and care; it does not establish fertility or ease of conception."
+          }
+        ],
+        "cardHeadline": "Venus stands in the 12th from Jupiter, the putra karaka. This tradition treats the connection as less prominent; it cannot establish a delay or number of children.",
+        "cardNotes": [
+          "Mars and Rahu in Cancer, the 5th from Jupiter, with Sun, Moon, Saturn and Ketu aspecting it. Some traditional readings count these placements, but they cannot determine the number or sex of children.",
+          "Cancer, the 5th from Jupiter, is a watery sign. The traditional classification cannot assess fertility or pregnancy.",
+          "Rahu in trine to Jupiter: a traditional family-related link; it cannot determine the circumstances of parenthood.",
+          "Rahu with or in trine to the Sun: a traditional link that cannot determine a child's sex or health.",
+          "Jupiter with or in trine to the Sun: a traditional children-related link; it cannot determine a child's sex.",
+          "Sun, Mars and Jupiter are linked by sign; traditional counts from this combination cannot determine the number or sex of children.",
+          "Moon with or in trine to Jupiter: a traditional association of children and care, not an assessment of conception."
+        ],
+        "overview": [
+          {
+            "system": "bnn",
+            "word": "no verdict",
+            "note": "Nadi shows traditional children-related links; these do not establish an individual outcome."
+          },
+          {
+            "system": "kp",
+            "word": "no verdict",
+            "note": "No general children verdict fires; KP has a separate rule about children."
+          }
+        ]
+      },
+      "kp": {
+        "career": {
+          "stance": "silent",
+          "word": "no verdict",
+          "note": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: earnings by self-exertion and independent work."
+        },
+        "rules": [
+          {
+            "id": "kp7-opponent",
+            "text": "The 7th sub lord signifies at least three of 5, 7, 8 and 12: the app's provisional threshold reads this as strength of opponents.",
+            "used": [
+              5,
+              8,
+              12
+            ],
+            "evidence": "Rahu is the sub lord of cusp 7; signifies 5, 8, 12"
+          }
+        ]
+      }
+    }
+  ]
+}

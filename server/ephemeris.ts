@@ -128,7 +128,8 @@ export function julianDay(utc: DateTime): number {
   return r.data[1]; // UT
 }
 
-export function jdToIso(jd: number): string {
+/** Convert the Swiss Ephemeris UT Julian day back to UTC, preserving milliseconds. */
+export function utcAtJulianDay(jd: number): DateTime {
   const r = sweph.jdut1_to_utc(jd, C.SE_GREG_CAL) as unknown as {
     year: number;
     month: number;
@@ -137,9 +138,15 @@ export function jdToIso(jd: number): string {
     minute: number;
     second: number;
   };
-  // Nearest second, not the floor: UT1-to-UTC conversion leaves a fraction that truncation turned into a one-second drift.
   return DateTime.utc(r.year, r.month, r.day, r.hour, r.minute, 0)
-    .plus({ seconds: Math.round(r.second) })
+    .plus({ milliseconds: Math.round(r.second * 1000) });
+}
+
+export function jdToIso(jd: number): string {
+  // Nearest second, not the floor: UT1-to-UTC conversion leaves a fraction that truncation turned into a one-second drift.
+  return utcAtJulianDay(jd)
+    .plus({ milliseconds: 500 })
+    .startOf("second")
     .toISO()!;
 }
 
@@ -777,9 +784,14 @@ export function judgementNow(
   longitude: number,
   zone: string,
   nodeType: EphemerisOptions["nodeType"],
+  asOf?: string,
 ): KpBase["now"] {
   const opts: EphemerisOptions = { ayanamsa: "kp", nodeType };
-  const nj = nowJd();
+  // Capture one instant for both the calculations and the returned timestamp.
+  // The optional value is used to reproduce an already-run scan in a report.
+  const instant = asOf ? DateTime.fromISO(asOf, { setZone: true }).toUTC() : DateTime.utc();
+  if (!instant.isValid) throw new Error("Invalid judgment instant");
+  const nj = julianDay(instant);
   let weekday: number;
   try {
     weekday = weekdayOf(sunriseBefore(nj, latitude, longitude), zone);
@@ -787,7 +799,7 @@ export function judgementNow(
     weekday = weekdayOf(nj, zone);
   }
   return {
-    asOf: DateTime.utc().toISO()!,
+    asOf: instant.toISO()!,
     positions: positionsAt(nj, opts),
     ascendant: ascendantAt(nj, latitude, longitude, opts),
     weekday,

@@ -14,7 +14,7 @@
    "ayanamsa": "lahiri",
    "nodeType": "mean",
    "deathDate": "1964-05-27",
-   "notes": "Birth time Rodden A (biography; 23:30 Madras mean time, as the IANA zone gives for 1889). Events day-documented: married Kamala Kaul 8 Feb 1916; Indira born 19 Nov 1917; father Motilal died 6 Feb 1931; wife Kamala died 28 Feb 1936 (Lausanne); mother Swarup Rani died 10 Jan 1938; sworn in as first Prime Minister 15 Aug 1947.",
+   "notes": "Birth time reported as Rodden A (biography; 23:30 Madras mean time). The auto time basis in this fixture may use Allahabad local mean time instead, so it is not an independent reference until the original time basis is resolved. Events day-documented: married Kamala Kaul 8 Feb 1916; Indira born 19 Nov 1917; father Motilal died 6 Feb 1931; wife Kamala died 28 Feb 1936 (Lausanne); mother Swarup Rani died 10 Jan 1938; sworn in as first Prime Minister 15 Aug 1947.",
    "events": [
     {
      "id": "e1",
@@ -336,7 +336,7 @@
    "ayanamsa": "lahiri",
    "nodeType": "mean",
    "deathDate": "2011-10-05",
-   "notes": "Birth time from the birth certificate (Rodden A; 7:15 pm PST). Events day-documented: Lisa Brennan-Jobs born 17 May 1978; Apple partnership 1 Apr 1976; resigned from Apple 16 Sep 1985; NeXT acquisition announced and he returned to Apple 20 Dec 1996; married Laurene Powell 18 Mar 1991; Reed born 22 Sep 1991; Erin 19 Aug 1995; Eve 9 Jul 1998; Whipple surgery 31 Jul 2004.",
+   "notes": "Birth time from the birth certificate (Astro-Databank Rodden AA; 7:15 pm PST). Events day-documented: Lisa Brennan-Jobs born 17 May 1978; Apple partnership 1 Apr 1976; resigned from Apple 16 Sep 1985; NeXT acquisition announced and he returned to Apple 20 Dec 1996; married Laurene Powell 18 Mar 1991; Reed born 22 Sep 1991; Erin 19 Aug 1995; Eve 9 Jul 1998; surgery 31 Jul 2004.",
    "events": [
     {
      "id": "e1",

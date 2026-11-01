@@ -35,6 +35,7 @@ import { kpModule } from "./kp";
 import { alpModule } from "./alp";
 import { rectifyModule } from "./rectify";
 import { validateModule } from "./validate";
+import { topicReadingSection } from "./topic-reading";
 import {
   AGREEMENT_METHOD,
   AGREEMENT_NOTE,
@@ -134,7 +135,11 @@ export function buildReport(
   // birth (Panchanga, then the birth star); each system in its own part; the sky today; and, in the
   // practitioner report only, an appendix of the data tables the readings rest on.
   const built: ReportSection[] = [];
-  for (const m of modules) built.push(...m.build(ctx));
+  for (const m of modules) {
+    built.push(...m.build(ctx));
+    const topic = topicReadingSection(ctx, m.id);
+    if (topic) built.push(topic);
+  }
   const { body, tables } = splitAppendix(built);
   const DAY = ["day", "birth-star"];
   const chartSec = body.find((s) => s.id === "chart");

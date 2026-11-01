@@ -1,0 +1,89 @@
+{
+  "description": "Small exploratory evaluation of recorded birth times and dated events. Event descriptions and links are deliberately retained so each input can be audited. Sources for a birth time may be transcripts or reports of records, not an independently verified original.",
+  "cases": [
+    {
+      "fixtureName": "Albert Einstein",
+      "birthSource": "https://einstein-virtuell.mpiwg-berlin.mpg.de/VEA/SC-1098931061_MOD-778631397_SEQ817366022_en.html",
+      "category": "Physicist; born in Germany",
+      "events": [
+        {"id":"e1", "timezone":"Europe/Zurich", "description":"Married Mileva Marić in Bern", "source":"https://www.christies.com.cn/lot/lot-1105271"},
+        {"id":"e2", "description":"Son Hans Albert born", "source":"https://www.astro.com/astro-databank/Einstein%2C_Albert"},
+        {"id":"e4", "description":"Son Eduard born", "source":"https://www.astro.com/astro-databank/Einstein%2C_Albert"},
+        {"id":"e5", "description":"Married Elsa Löwenthal", "source":"https://www.astro.com/astro-databank/Einstein%2C_Albert"},
+        {"id":"e6", "description":"Mother Pauline died", "source":"https://en.wikipedia.org/wiki/Einstein_family"}
+      ]
+    },
+    {
+      "fixtureName": "Elizabeth II",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_04_21.htm?lang=r&nho2=3026903&nhor=1",
+      "category": "Monarch; born in England",
+      "events": [
+        {"id":"e1", "time":"10:30", "timezone":"Europe/London", "description":"Wedding to Prince Philip at 10:30 in London", "source":"https://www.royal.uk/70-facts-about-queen-and-duke-edinburghs-wedding?page=1"},
+        {"id":"e2", "description":"Son Charles born", "source":"https://www.royal.uk/diary-events-early-life-queen?page=7"},
+        {"id":"e3", "description":"Daughter Anne born", "source":"https://www.royal.uk/diary-events-early-life-queen?page=7"},
+        {"id":"e4", "description":"Father George VI died", "source":"https://www.royal.uk/the-queens-accession-and-coronation"},
+        {"id":"e6", "description":"Son Andrew born", "source":"https://www.royal.uk/the-duke-of-york"},
+        {"id":"e7", "description":"Son Edward born", "source":"https://www.royal.uk/duke/edinburgh?ch=3&page=2"},
+        {"id":"e8", "description":"Mother Elizabeth died", "source":"https://www.royal.uk/life-and-work-queen-elizabeth-queen-mother"},
+        {"id":"e9", "description":"Husband Philip died", "source":"https://www.royal.uk/the-duke-of-edinburgh"}
+      ]
+    },
+    {
+      "fixtureName": "Steve Jobs",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_02_24.htm?lang=r&nho2=2154523&nhor=2154523",
+      "category": "Technology entrepreneur; born in California, USA",
+      "events": [
+        {"id":"e1", "description":"Apple founded", "source":"https://www.apple.com/tn/newsroom/2026/03/apple-to-celebrate-50-years-of-thinking-different/"},
+        {"id":"e2", "description":"Daughter Lisa born", "source":"https://www.biography.com/business-leaders/steve-jobs"},
+        {"id":"e3", "description":"Resigned from Apple", "source":"https://www.edn.com/steve-jobs-leaves-apple-computer-september-16-1985/"},
+        {"id":"e4", "description":"Married Laurene Powell", "source":"https://www.biography.com/business-leaders/steve-jobs"},
+        {"id":"e5", "description":"Son Reed born", "source":"https://www.biography.com/business-leaders/steve-jobs"},
+        {"id":"e6", "description":"Daughter Erin born", "source":"https://www.biography.com/business-leaders/steve-jobs"},
+        {"id":"e7", "description":"Daughter Eve born", "source":"https://www.biography.com/business-leaders/steve-jobs"},
+        {"id":"e9", "description":"Cancer surgery", "source":"https://fortune.com/2008/03/05/the-trouble-with-steve-jobs/"}
+      ]
+    },
+    {
+      "fixtureName": "Barack Obama",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_08_04.htm?lang=r&nho2=46&nhor=1",
+      "category": "Public official; born in Hawaii, USA",
+      "events": [
+        {"id":"ev2", "timezone":"America/Chicago", "description":"Married Michelle Robinson in Chicago", "source":"https://www.obamalibrary.gov/obamas/first-lady-michelle-obama"},
+        {"id":"ev3", "timezone":"America/Chicago", "description":"Daughter Malia born in Chicago", "source":"https://millercenter.org/president/obama/family-life"},
+        {"id":"ev4", "timezone":"America/Chicago", "description":"Daughter Sasha born in Chicago", "source":"https://millercenter.org/president/obama/family-life"},
+        {"id":"office", "matter":"job", "date":"2009-01-20", "timezone":"America/New_York", "description":"Took office as US President in Washington", "source":"https://obamawhitehouse.archives.gov/blog/2012/01/20/archives-inauguration-president-barack-obama"}
+      ]
+    },
+    {
+      "chart": {"name":"Sonia Gandhi", "gender":"female", "birthDate":"1946-12-09", "birthTime":"21:30", "timezone":"Europe/Rome", "timeStandard":"auto", "place":"Lusiana, Italy", "latitude":45.785, "longitude":11.576, "ayanamsa":"lahiri", "nodeType":"mean"},
+      "birthSource": "https://www.astro.com/adbvip/adbvip_12_09.htm?lang=e&nho2=2&nhor=...&pa=nmo",
+      "category": "Indian political leader; born in Italy",
+      "events": [
+        {"id":"marriage", "matter":"marriage", "date":"1968-02-25", "timezone":"Asia/Kolkata", "description":"Married Rajiv Gandhi in Delhi", "source":"https://www.thequint.com/news/webqoof/former-pm-rajiv-gandhi-sonia-gandhi-islamic-ritual-marriage-lineage-fact-check"},
+        {"id":"rahul", "matter":"child", "date":"1970-06-19", "timezone":"Asia/Kolkata", "description":"Son Rahul born in India", "source":"https://www.ndtv.com/photos/news/the-gandhi-family-portrait-774/amp/1"},
+        {"id":"priyanka", "matter":"child", "date":"1972-01-12", "timezone":"Asia/Kolkata", "description":"Daughter Priyanka born in India", "source":"https://www.ndtv.com/photos/news/the-gandhi-family-portrait-774/amp/1"},
+        {"id":"rajiv", "matter":"spouse", "date":"1991-05-21", "timezone":"Asia/Kolkata", "description":"Husband Rajiv Gandhi died in India", "source":"https://elibrary.sansad.in/handle/123456789/57464"}
+      ]
+    },
+    {
+      "chart": {"name":"Bob Woolmer", "gender":"male", "birthDate":"1948-05-14", "birthTime":"02:15", "timezone":"Asia/Kolkata", "timeStandard":"auto", "place":"Kanpur, India", "latitude":26.4667, "longitude":80.35, "ayanamsa":"lahiri", "nodeType":"mean", "deathDate":"2007-03-18"},
+      "birthSource": "https://www.astro.com/astro-databank/Woolmer%2C_Bob",
+      "category": "Cricketer and coach; born in India; birth record reported secondhand",
+      "events": [
+        {"id":"england", "matter":"job", "date":"1972-08-24", "timezone":"Europe/London", "description":"England one-day international debut in Manchester; treated as new national-team role", "source":"https://iol.co.za/capeargus/sport/2007-03-18-bob-woolmer-factfile/"},
+        {"id":"south-africa", "matter":"job", "date":"1994-09-23", "description":"South Africa coaching appointment announced; actual work began later", "source":"https://www.the-independent.com/sport/woolmer-appointed-south-africa-coach-cricket-1450929.html"},
+        {"id":"pakistan", "matter":"job", "date":"2004-06-16", "description":"Pakistan coaching appointment announced; actual work began later", "source":"https://www.dawn.com/news/amp/362047"}
+      ]
+    },
+    {
+      "chart": {"name":"Gisele Bündchen", "gender":"female", "birthDate":"1980-07-20", "birthTime":"17:00", "timezone":"America/Sao_Paulo", "timeStandard":"auto", "place":"Três de Maio, Brazil", "latitude":-27.7733, "longitude":-54.24, "ayanamsa":"lahiri", "nodeType":"mean"},
+      "birthSource": "https://www.astro.com/adbvip/adbvip_07_20.htm?lang=r&nhor=1",
+      "category": "Fashion model; born in Brazil",
+      "events": [
+        {"id":"marriage", "matter":"marriage", "date":"2009-02-26", "timezone":"America/Los_Angeles", "description":"Married Tom Brady in California", "source":"https://www.harpersbazaar.com.sg/celebrity/tom-brady-gisele-bundchen-relationship-timeline"},
+        {"id":"benjamin", "matter":"child", "date":"2009-12-08", "timezone":"America/New_York", "description":"Son Benjamin born in Boston", "source":"https://filmibeat.com/hollywood/news/2010/gisele-baby-boy-picture-100210.html"},
+        {"id":"vivian", "matter":"child", "date":"2012-12-05", "timezone":"America/New_York", "description":"Daughter Vivian born in Boston", "source":"https://abcnews.com/blogs/entertainment/2012/12/tom-brady-gisele-bundchen-welcome-daughter-in-home-birth"}
+      ]
+    }
+  ]
+}

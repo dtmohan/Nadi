@@ -1,0 +1,50 @@
+{
+  "note": "New people for the frozen v2 protocol; links document the birth reports and dated events. Reported times and event dates are not treated as independent ground truth. Event times and zones marked assumed were not found in the cited reports.",
+  "cases": [
+    {
+      "chart": {"name":"Meryl Streep","gender":"female","birthDate":"1949-06-22","birthTime":"08:05","timezone":"America/New_York","timeStandard":"zone","place":"Summit, New Jersey, USA","latitude":40.7333,"longitude":-74.3667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/adbvip/adbvip_06_22.htm?lang=s&nho2=186&nhor=1&pa=nmo",
+      "birthQuality":"AA according to Astro-Databank (birth certificate/record reported); the underlying record has not been independently examined here.",
+      "events":[
+        {"id":"wedding","matter":"marriage","date":"1978-09-30","timezone":"America/New_York","source":"https://www.imdb.com/name/nm3149786/bio/","description":"First wedding; Connecticut family home reported separately. Time unknown, local noon assumed."},
+        {"id":"henry","matter":"child","date":"1979-11-13","timezone":"America/New_York","source":"https://www.harpersbazaar.com/celebrity/latest/a71043908/who-are-meryl-streep-kids-henry-mamie-grace-louisa-gummer-details/","description":"Henry born in New York. Time unknown."},
+        {"id":"mamie","matter":"child","date":"1983-08-03","timezone":"America/New_York","source":"https://www.harpersbazaar.com/celebrity/latest/a71043908/who-are-meryl-streep-kids-henry-mamie-grace-louisa-gummer-details/","description":"Mamie born in New York. Time unknown."},
+        {"id":"grace","matter":"child","date":"1986-05-09","timezone":"America/New_York","source":"https://www.imdb.com/name/nm3501146/","description":"Grace born in New York City. Time unknown."},
+        {"id":"louisa","matter":"child","date":"1991-06-12","timezone":"America/Los_Angeles","source":"https://www.imdb.com/name/nm10861517/bio/","description":"Louisa born in Los Angeles. Time unknown."}
+      ]
+    },
+    {
+      "chart": {"name":"Amitabh Bachchan","gender":"male","birthDate":"1942-10-11","birthTime":"15:00","timezone":"Asia/Kolkata","timeStandard":"zone","place":"Allahabad, India","latitude":25.45,"longitude":81.85,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Bachchan%2C_Amitabh",
+      "birthQuality":"DD: the subject has reportedly stated 15:00; a 2002 biography says between 03:00 and 04:00. Father described early afternoon. The published 16:00 is also disputed. The IANA historical time zone applies UTC+06:30 on this date.",
+      "alternativeWindows":["03:30"],
+      "alternativeBirthTimes":["16:00"],
+      "events":[
+        {"id":"wedding","matter":"marriage","date":"1973-06-03","timezone":"Asia/Kolkata","source":"https://www.imdb.com/name/nm0000821/bio/","description":"First wedding to Jaya; time not established."},
+        {"id":"shweta","matter":"child","date":"1974-03-17","timezone":"Asia/Kolkata","source":"https://www.tuliresearchcentre.org/amitabh-bachchan/introduction/teaching","description":"Daughter Shweta; time not established."},
+        {"id":"abhishek","matter":"child","date":"1976-02-05","timezone":"Asia/Kolkata","source":"https://www.indiatoday.in/movies/celebrities/story/amitabh-bachchan-unseen-birth-picture-abhishek-bachchan-birthday-2675154-2025-02-05","description":"Son Abhishek; time not established."}
+      ]
+    },
+    {
+      "chart": {"name":"Rihanna","gender":"female","birthDate":"1988-02-20","birthTime":"08:50","timezone":"America/Barbados","timeStandard":"zone","place":"Bridgetown, Barbados","latitude":13.10,"longitude":-59.6167,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Rihanna",
+      "birthQuality":"C: Astro-Databank says the original source of 08:50 is unknown. A forum mentions an unsourced noon report; neither should be treated as verified.",
+      "alternativeWindows":["12:00"],
+      "events":[
+        {"id":"rza","matter":"child","date":"2022-05-13","time":"10:58","timezone":"America/Los_Angeles","source":"https://www.astro.com/astro-databank/Mayers%2C_RZA","description":"First son RZA, Los Angeles; reported birth certificate. Date also reported by Los Angeles Times: https://www.latimes.com/entertainment-arts/music/story/2023-05-12/rihannas-babys-name-revealed-rza-wu-tang-clan"},
+        {"id":"riot","matter":"child","date":"2023-08-01","time":"07:41","timezone":"America/Los_Angeles","source":"https://www.etonline.com/rihanna-and-aap-rockys-second-childs-name-revealed-210387","description":"Second son Riot, Los Angeles; reported birth certificate; clock time also reported at https://hollywoodlife.com/2023/09/08/rihanna-second-baby-name-revealed-meet-riot-rose/"}
+      ]
+    },
+    {
+      "chart": {"name":"Richard Branson","gender":"male","birthDate":"1950-07-18","birthTime":"07:00","timezone":"Europe/London","timeStandard":"zone","place":"Blackheath, London, England","latitude":51.4667,"longitude":0.0167,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Branson%2C_Richard",
+      "birthQuality":"A: 07:00 reported via his assistant from his mother; rounded, not a record inspected here. Another unsourced report says 12:30.",
+      "alternativeWindows":["12:30"],
+      "events":[
+        {"id":"wedding","matter":"marriage","date":"1972-07-22","timezone":"Europe/London","source":"https://www.imdb.com/name/nm0105232/bio/","description":"First marriage to Kristen Tomassi; time and place not established, London time assumed. Astro-Databank independently lists the date, but the underlying sources may overlap."},
+        {"id":"holly","matter":"child","date":"1981-11-21","timezone":"Europe/London","source":"https://www.tv.nu/medverkande/holly-branson","description":"Daughter Holly; date also appears at https://www.dicytrends.com/holly-branson-everything-about-richard-bransons-daughter/. These secondary listings may share a source; birth place and time not established, London time assumed."}
+      ],
+      "excluded":"Virgin Atlantic's first flight on 22 June 1984 was considered, but the frozen fresh-case protocol covers first marriages and children's births, not a business-launch proxy."
+    }
+  ]
+}

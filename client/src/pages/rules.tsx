@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useParams } from "wouter";
 import { SourceLink, Cite } from "@/components/source-link";
+import { KP_TRANSIT_EVIDENCE_SOURCE } from "@shared/kp-transit-evidence";
 import { SutraLibrary } from "@/components/sutra-library";
 import {
   ALP_CHAPTERS,
@@ -189,6 +190,23 @@ function KpRules() {
         </code>
         .
       </p>
+      <section className="mt-5 max-w-3xl rounded-md border px-3 py-3 text-sm" data-testid="kp-transit-rule-note">
+        <h2 className="font-semibold">KP event timing and transit evidence</h2>
+        <p className="mt-1 text-muted-foreground">
+          The cusp and natal significators describe the matter; the cited KP
+          example considers their planetary periods together with event-day
+          transits. It also examines the Sun, Moon and other planets relative
+          to natal planets and cusps, and reads their stars and subs. {" "}
+          <SourceLink source={KP_TRANSIT_EVIDENCE_SOURCE} />
+        </p>
+        <p className="mt-1 text-muted-foreground">
+          The KP chart reading, Rectify and Validate show the app's nine transit points separately
+          from the existing score for the transiting dasa and bhukti lords. The source
+          supplies a worked judgment, not a numerical recipe for combining all
+          planets; no such total is inferred here. Without an event time, noon
+          is assumed; without an event time zone, the birth zone is assumed.
+        </p>
+      </section>
       <div className="mt-6 space-y-8">
         {Array.from({ length: 12 }, (_, i) => i + 1).map((cusp) => {
           const rules = KP_RULES.filter((r) => r.cusp === cusp);
@@ -653,7 +671,7 @@ export default function RulesPage() {
         defaultValue={sutraRef !== undefined ? "sutras" : "bnn"}
         className="mt-4"
       >
-        <TabsList>
+        <TabsList className="h-auto flex-wrap justify-start">
           <TabsTrigger value="bnn" data-testid="tab-rules-bnn">
             Bhrigu Nandi Nadi
           </TabsTrigger>
@@ -669,7 +687,41 @@ export default function RulesPage() {
           <TabsTrigger value="kp" data-testid="tab-rules-kp">
             KP
           </TabsTrigger>
+          <TabsTrigger value="parashari" data-testid="tab-rules-parashari">
+            Parashari event check
+          </TabsTrigger>
         </TabsList>
+        <TabsContent value="parashari">
+          <section className="mt-4 max-w-3xl space-y-3 text-sm" data-testid="parashari-ranking-rules">
+            <p className="text-muted-foreground">The chart's Matter and date chapter and the Validate and Rectify tools use the same implemented event checks. The Bhrigu Nandi Nadi rule array belongs to that separate system; these Parashari checks are implemented by their own shared evaluators. The natal house factors can be inspected without choosing a date.</p>
+            <h2 className="font-semibold">Experimental birth-time event ranking · version 1</h2>
+            <p className="text-muted-foreground">The app counts five matches per eligible event. The equal points and their combination are Nadi's experimental convention; they are not a published numerical formula. A difficult house can coexist with an event, and an absent match is not a denial.</p>
+            <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
+              <li>D1 matter house has at least one of the partial support conditions the app checks.</li>
+              <li>D9, D7 or D10 matter house has a benefic occupant or full aspect, or its ruler is in an own or exaltation sign. Applying the house test to a division is an app interpretation.</li>
+              <li>The event's Vimshottari dasa lord rules, occupies or fully aspects the matter house in D1 or its division.</li>
+              <li>The bhukti lord meets the same condition.</li>
+              <li>At the event instant both Jupiter and Saturn occupy or fully aspect the same D1 matter house or matter lord's sign.</li>
+            </ol>
+            <p className="text-muted-foreground">D1 house 7 and D9 are used for marriage; house 5 and D7 for childbirth; house 10 and D10 for a new job or promotion. Other events, including job loss, and events explicitly recorded as mixed or unfavourable are not scored. The career timing test extends the cited D10 approach and is particularly provisional.</p>
+            <p className="text-muted-foreground">Sources: <a className="underline" href="https://vedic-astro.s3.amazonaws.com/books/bhrihat_parasara_hora_shastra.pdf" target="_blank" rel="noreferrer">BPHS 7.1–8 and 11.14–16</a>; M.S. Mehta, <em>Analysing Horoscope Through Modern Techniques</em>, ch. XVIII and profession cases; <a className="underline" href="https://www.scribd.com/document/552741942/Kn-Rao-Astrology-and-Timing-of-Marriage-2008" target="_blank" rel="noreferrer">Astrology and Timing of Marriage, ch. 2</a>; <a className="underline" href="https://www.futuresamachar.com/download/astrological-assessment-of-timing-of-childbirth-487.pdf" target="_blank" rel="noreferrer">Astrological Assessment of Timing of Childbirth</a>; and <a className="underline" href="https://www.vedicastrologer.org/articles/vedic_astro_textbook.pdf" target="_blank" rel="noreferrer">P.V.R. Narasimha Rao, Vedic Astrology: An Integrated Approach</a>.</p>
+            <p className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">In a small test on eight new public cases, top-ranked intervals missed the ±5-minute band around every reported time. Some reported times are uncertain. Do not use this ranking on its own to change a birth time.</p>
+            <h2 className="pt-4 font-semibold">Event-specific comparison · version 2</h2>
+            <p className="text-muted-foreground">The first two of six app-defined points retain the partial D1 and relevant divisional support checks above. The remaining checks differ by event. They use same-sign conjunctions and full sign-based aspects, and are strict subsets of wider source methods.</p>
+            <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
+              <li><strong>Marriage:</strong> each of the dasa and bhukti lords directly connects to the ascendant, seventh house or their lords in both D1 and D9; Jupiter and Saturn share a natal ascendant/seventh target; and Jupiter aspects the Vivah Saham sign (the sum of the D1 ascendant and seventh lords' longitudes). This aspect check does not count Jupiter occupying the same sign. <a className="underline" href="https://www.scribd.com/document/1022561037/Kn-Rao-Astrology-and-Timing-of-Marriage-2008" target="_blank" rel="noreferrer">Astrology and Timing of Marriage, ch. 2</a>.</li>
+              <li><strong>Childbirth:</strong> the dasa and bhukti lords are each checked against the cited list of ascendant, seventh and fifth lords, Jupiter and planets in or aspecting the fifth; Jupiter is checked against the fifth-from-Jupiter lord's D1/D9 signs, and the transiting ascendant lord against a subset of fifth-house targets. <a className="underline" href="https://www.futuresamachar.com/download/astrological-assessment-of-timing-of-childbirth-487.pdf" target="_blank" rel="noreferrer">Astrological Assessment of Timing of Childbirth, §§2.6–2.7</a> reproduces these rules from Phaladeepika.</li>
+              <li><strong>New job or promotion:</strong> the two period lords are checked for D1 ascendant/tenth lordship or exaltation; Jupiter and Saturn must share both an ascendant target and a career target; and the D1 tenth lord is checked for a relationship with the D10 ascendant lord. <a className="underline" href="https://pdfcoffee.com/advanced-techniques-of-predictive-astrology-4-pdf-free.html" target="_blank" rel="noreferrer">Vishnu Bhaskar, Advanced Techniques of Predictive Astrology, vol. 1 pp. 23–24</a>.</li>
+            </ul>
+            <p className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">In a separate nine-person public-case test, version 2's top intervals touched the reported-time ±5-minute band in eight cases, but covered 35% of the scanned hour on average. At the reported birth times, held-out event scores were nearly the same as scores on nearby comparison dates. The sample is small and some times are uncertain; the ranking remains experimental.</p>
+            <h2 className="pt-4 font-semibold">Divisional period lords · version 3</h2>
+            <p className="text-muted-foreground">Version 3 keeps all six version 2 checks and adds one point each for the dasa and bhukti lord. In the relevant divisional chart, a lord matches if it occupies or fully aspects the event house; is, conjoins or has a full sign aspect with its lord; or is, conjoins or has a full sign aspect with an event karaka. A node in the relevant lord or karaka's sign also matches. Nodes receive but do not cast aspects in this subset.</p>
+            <p className="text-muted-foreground">The event house and karaka are D7 fifth house and Jupiter for childbirth, D9 seventh house and Venus for marriage, and D10 tenth house and Sun, Mercury, Jupiter or Saturn for a new job or promotion. Being one of these karakas counts by itself, even without a separate house connection. Source: Paul Manley, <em>Birth Time Rectification: How to Find Your Exact Birth Time</em> (2022), ch. 4, pp. 101, 118–122. The eight equal points are Nadi's partial interpretation, not the book's scoring formula. The added checks can repeat v2 evidence or count one planet twice when both period lords are the same. The third period is shown separately as descriptive evidence; it does not change v3. The book's full qualitative judgment and fourth/fifth period levels are not automated.</p>
+            <p className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">In ten fresh public cases, v3's highest intervals came within five minutes of the published time in four cases and covered 29% of the tested hour on average. Held-out event scores resembled scores on nearby dates. The sample is small and some times are uncertain; do not use the ranking on its own to change a birth time.</p>
+            <h2 className="pt-4 font-semibold">Staged primary links · exploratory</h2>
+            <p className="text-muted-foreground">For one matter, both main- and subperiod lords must have a primary link in the relevant division before the third lord can count as a further match. The partial rule checks the event house, its lord and the listed significators. A missing link is unresolved; this subset does not add a transit condition or claim to implement Manley's full method. The dated chart reading, validation and comparison use the same gate.</p>
+          </section>
+        </TabsContent>
         <TabsContent value="alp">
           <AlpRules />
         </TabsContent>

@@ -84,7 +84,7 @@ export const bnnModule: ReportModule = {
               : a.tone === "care"
                 ? "strain"
                 : "mixed",
-          aside: AREA_TONE_LABEL[a.tone],
+          aside: a.area === "children" ? "Traditional interpretation" : AREA_TONE_LABEL[a.tone],
         },
       ];
       if (a.reconciliation) ps.push({ kind: "p", text: S(a.reconciliation) });
@@ -94,7 +94,7 @@ export const bnnModule: ReportModule = {
           text: "Contested: the strongest supportive rule and the strongest hard rule here are of comparable weight, so no single verdict is given. The threshold is the app's own convention, not a Nadi rule.",
           provisional: true,
         });
-      for (const f of a.key) {
+      for (const f of [...a.key, ...(a.careerAlternative ? [a.careerAlternative] : [])]) {
         ps.push({
           kind: "p",
           text: S(endStop(f.text)),
@@ -116,6 +116,7 @@ export const bnnModule: ReportModule = {
           });
         }
       }
+      if (a.careerAlternative) ps.push({ kind: "note", text: "The additional Jupiter or Saturn career interpretation is selected by the app's provisional presentation threshold; it is not a probability.", provisional: true });
       if (a.area === "marriage") {
         const m = reading.marriage;
         const win = nextMarriageWindow(m, transits, asOf.slice(0, 10));
@@ -132,17 +133,16 @@ export const bnnModule: ReportModule = {
       if (a.area === "children") {
         const c = reading.children;
         const win = nextChildWindow(c, transits, asOf.slice(0, 10), result.utc);
-        const counted = c.inFifth.length + c.aspectingFifth.length;
         ps.push({
           kind: "p",
           text: S(
-            `${c.notes.join(" ")}${counted ? ` The count from the fifth sign from Jupiter gives ${counted} planet${counted === 1 ? "" : "s"}, an upper bound rather than a promise.` : ""}`.trim() ||
+            c.notes.join(" ").trim() ||
               "The headline above is the whole of what the karaka says; no further note applies.",
           ),
           cites: [rao()],
           aside:
             win && !deceased
-              ? `Next: Jupiter ${win.kind === "return" ? "returns to" : win.kind === "fifth" ? "over the fifth," : "in trine,"} ${win.period.sign}, ${fmtMonth(win.period.start)} to ${fmtMonth(win.period.end)}.`
+              ? `Traditional transit window (not an event prediction): Jupiter ${win.kind === "return" ? "returns to" : win.kind === "fifth" ? "over the fifth," : "in trine,"} ${win.period.sign}, ${fmtMonth(win.period.start)} to ${fmtMonth(win.period.end)}.`
               : undefined,
         });
       }

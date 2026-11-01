@@ -63,6 +63,8 @@ export interface AreaSynthesis {
   headline: string;
   /** The findings that carry the verdict, strongest first, after deduplication. */
   key: Finding[];
+  /** A sufficiently weighted career finding anchored on the other Nadi karaka, when not already in key. */
+  careerAlternative?: Finding;
   /** Everything else that fired in the area, for the working. */
   rest: Finding[];
   /** Why some findings were demoted: ruleId → ruleId of the finding that covers it. */
@@ -226,6 +228,7 @@ function areaTone(
   goodCount: number,
 ): AreaTone {
   if (total === 0) return "quiet";
+  if (!goodCount && !hardCount) return "quiet";
   if (goodCount && hardCount && Math.abs(balance) < 1.5) return "mixed";
   if (balance >= 1.5) return "supportive";
   if (balance <= -1.5) return "care";
@@ -239,9 +242,19 @@ function headlineFor(
   reading: Reading,
   reconciled: boolean,
   pair: { good: Finding; hard: Finding } | null = null,
+  careerAlternative?: Finding,
 ): string {
   // A mixed area shows one line from each side, so the headline never reads one way while the verdict reads both.
   if (pair) return `A mixed picture. ${uc(clauseOf(pair.good))}; yet ${clauseOf(pair.hard)}.`;
+  if (area === "career" && key.length) {
+    const alternatives = [...key, ...(careerAlternative ? [careerAlternative] : [])].map((f) => {
+      const clauses = gist(f.text).split(/[.;]/).map((x) => x.trim()).filter(Boolean);
+      // Prefer the occupational clause when a rule opens with a generic trait.
+      const clause = /\b(intellect|intelligence|personality|temperament)\b/i.test(clauses[0] ?? "") && clauses[1] ? clauses[1] : clauses[0];
+      return lc(clause ?? "");
+    });
+    return `Possible career themes in these interpretations: ${alternatives.join("; ")}. These are alternatives, not a predicted occupation.`;
+  }
   // The marriage and children readings have their own headline; it speaks for the area only where the verdict agrees
   // with it (well supported, or lightly marked). An area that asks for care leads with its key findings instead.
   if (tone === "supportive" || tone === "quiet" || tone === "mixed") {
@@ -271,7 +284,14 @@ function headlineFor(
 
 /** A finding's reading in one clause, lower-cased, with any parenthesis the clause cut open dropped. */
 function clauseOf(f: Finding): string {
-  return lc(firstClause(gist(f.text)).replace(/\s*\([^)]*$/, ""));
+  const text = gist(f.text);
+  // A career rule can first list occupations and only then mention breaks or reversals.
+  // When it is the hard side of a mixed verdict, show the actual hard clause instead of
+  // presenting "technical work" itself as the adverse outcome.
+  const hardCareer = f.area === "career" && toneOf(f) === "hard"
+    ? text.split(/[.;]/).find((part) => OUTCOME_HARD.test(part))?.trim()
+    : undefined;
+  return lc((hardCareer || firstClause(text)).replace(/\s*\([^)]*$/, ""));
 }
 
 /** Headline for a contested area: both sides named, the supportive one first. */
@@ -370,7 +390,18 @@ export function synthesizeArea(
   const key = lead
     ? [lead.good, lead.hard, ...keep.filter((f) => f !== lead.good && f !== lead.hard)].slice(0, 3)
     : keep.slice(0, 3);
-  const rest = [...keep.filter((f) => !key.includes(f)), ...demoted];
+  let careerAlternative: Finding | undefined;
+  if (area === "career" && !lead && keep.length) {
+    // BNN uses Jupiter for the person and Saturn for work. The score stays unchanged: for
+    // presentation only, let a reasonably weighted finding anchored on the other karaka appear
+    // alongside the strongest line, instead of showing three similar combinations of one anchor.
+    // 60% is an app convention, not a source rule or an estimated likelihood.
+    const first = keep[0];
+    const other = first.planets[0] === "Jupiter" ? "Saturn" : first.planets[0] === "Saturn" ? "Jupiter" : undefined;
+    const alternative = other && keep.find((f) => f.planets[0] === other && f.planets.length >= 2 && f.score >= first.score * 0.6);
+    if (alternative && !key.includes(alternative)) careerAlternative = alternative;
+  }
+  const rest = [...keep.filter((f) => !key.includes(f) && f !== careerAlternative), ...demoted];
   const karaka = areaKaraka(area, gender);
   const reconciliation = reconcile(area, keep, karaka);
   return {
@@ -378,8 +409,9 @@ export function synthesizeArea(
     tone,
     headline: contest
       ? contestedHeadline(contest)
-      : headlineFor(area, tone, key, reading, Boolean(reconciliation), pair),
+      : headlineFor(area, tone, key, reading, Boolean(reconciliation), pair, careerAlternative),
     key,
+    careerAlternative,
     rest,
     coveredBy,
     reconciliation,

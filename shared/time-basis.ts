@@ -5,7 +5,7 @@
 // recorded in local time at Ulm in 1879 or Porbandar in 1869 must instead use the mean time of the birthplace
 // itself: four minutes of time per degree of longitude. The "auto" standard detects the mean-time era and does
 // that; the others let the practitioner force the database offset, the birthplace mean time, or a fixed offset.
-import { DateTime, FixedOffsetZone, IANAZone } from "luxon";
+import { DateTime, IANAZone } from "luxon";
 import {
   findLegalTimeRule,
   nethOffsetSeconds,
@@ -107,7 +107,11 @@ export const lmtOffsetSeconds = (longitude: number) =>
 
 const displayZoneFor = (sec: number) => {
   const minutes = Math.round(sec / 60);
-  return FixedOffsetZone.instance(minutes).name; // e.g. "UTC+0:40"
+  if (!minutes) return "UTC";
+  // Luxon's FixedOffsetZone.name can produce "UTC-0:1" for one minute, which its own
+  // string parser rejects. Always pad the minute field when the name is passed back in.
+  const abs = Math.abs(minutes);
+  return `UTC${minutes < 0 ? "-" : "+"}${Math.floor(abs / 60)}:${String(abs % 60).padStart(2, "0")}`;
 };
 
 /**

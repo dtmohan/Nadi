@@ -10,6 +10,7 @@ const RAO = "R.G. Rao, Bhrigu Nandi Nadi";
 const NAIK = "S. Naik, Prediction Secrets: Naadi Astrology";
 
 // Rao: a trio "may be in one sign or 5th or 9th to each other" — trines count as combination.
+// The adjacent-sign extension is this app's provisional interpretation, not established by that quotation.
 const NEAR: Relation[] = ["conjunct", "trine", "prev", "next"];
 const ALL: Relation[] = ["conjunct", "prev", "next", "trine", "opposite"];
 
@@ -38,9 +39,9 @@ const trio = (id: string, area: LifeArea, subject: Planet, object: Planet, third
   id,
   area,
   when: { subject, object, relation: NEAR, with: [{ planet: third, relation: NEAR }] },
-  text,
+  text: text.replace(/\btogether:/, "linked by sign (not necessarily in the same sign):"),
   weight,
-  source: RAO,
+  source: `${RAO}; adjacent-sign extension provisional`,
 });
 
 export const EXTRA_RULES: Rule[] = [

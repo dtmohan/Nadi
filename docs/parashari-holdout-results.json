@@ -1,0 +1,760 @@
+{
+  "protocol": "Fixed source-informed five-factor rule; ±30 minutes; alternate unique dates for input/holdout. Ties choose selectable midpoint nearest reported time, so selection is not blind. Two-event cases use one input. Recorded scores use the exact recorded instant.",
+  "limitations": "Public convenience sample, not independent of celebrity selection; birth times can be rounded, disputed, or based on memory; chronology is retrospective; noon is assumed where event time is not documented. Scores are not probabilities or proof of birth time.",
+  "results": [
+    {
+      "name": "Marie Curie",
+      "category": "Physicist and chemist; born in Poland",
+      "reportedBirthTime": "12:00",
+      "birthSource": "https://www.astro.com/astro-databank/Curie%2C_Marie",
+      "birthQuality": "AA, baptism record quoted; noon is rounded and an alternate family account says soon after sunrise. Warsaw local mean time, UTC+01:24.",
+      "input": [
+        "1895-07-26 marriage",
+        "1904-12-06 child"
+      ],
+      "heldOut": [
+        "1897-09-12 child"
+      ],
+      "recordedInput": {
+        "score": 4,
+        "max": 10,
+        "details": [
+          {
+            "date": "1895-07-26",
+            "matter": "marriage",
+            "score": 3,
+            "factors": [
+              true,
+              false,
+              true,
+              true,
+              false
+            ]
+          },
+          {
+            "date": "1904-12-06",
+            "matter": "child",
+            "score": 1,
+            "factors": [
+              false,
+              false,
+              true,
+              false,
+              false
+            ]
+          }
+        ]
+      },
+      "recordedHoldout": {
+        "score": 2,
+        "max": 5,
+        "details": [
+          {
+            "date": "1897-09-12",
+            "matter": "child",
+            "score": 2,
+            "factors": [
+              false,
+              false,
+              true,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "selectedHoldout": {
+        "score": 1,
+        "max": 5,
+        "details": [
+          {
+            "date": "1897-09-12",
+            "matter": "child",
+            "score": 1,
+            "factors": [
+              false,
+              true,
+              false,
+              false,
+              false
+            ]
+          }
+        ]
+      },
+      "samples": 61,
+      "minScore": 3,
+      "maxScore": 6,
+      "distinctScores": 4,
+      "topCoveragePercent": 21.9,
+      "topTouchesRecordedFiveMinuteBand": false,
+      "uniformReferenceFiveMinuteBandTouchPercent": 37.3,
+      "recordedMidpointScore": 4,
+      "recordedAgainstUniformCandidate": {
+        "belowPercent": 11.5,
+        "equalPercent": 35.6,
+        "abovePercent": 52.9,
+        "midrankPercentile": 29.3
+      },
+      "selectedTime": "11:46:21",
+      "selectedOffsetMinutes": -13.6
+    },
+    {
+      "name": "Yoko Ono",
+      "category": "Artist and musician; born in Japan",
+      "reportedBirthTime": "20:30",
+      "birthSource": "https://www.astro.com/astro-databank/Ono%2C_Yoko",
+      "birthQuality": "A, reported from memory; 20:30 may be rounded. A daughter's 1963 birth date differs between published sources and is excluded.",
+      "input": [
+        "1969-03-20 marriage"
+      ],
+      "heldOut": [
+        "1975-10-09 child"
+      ],
+      "recordedInput": {
+        "score": 1,
+        "max": 5,
+        "details": [
+          {
+            "date": "1969-03-20",
+            "matter": "marriage",
+            "score": 1,
+            "factors": [
+              false,
+              false,
+              false,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "recordedHoldout": {
+        "score": 2,
+        "max": 5,
+        "details": [
+          {
+            "date": "1975-10-09",
+            "matter": "child",
+            "score": 2,
+            "factors": [
+              true,
+              true,
+              false,
+              false,
+              false
+            ]
+          }
+        ]
+      },
+      "selectedHoldout": {
+        "score": 3,
+        "max": 5,
+        "details": [
+          {
+            "date": "1975-10-09",
+            "matter": "child",
+            "score": 3,
+            "factors": [
+              true,
+              true,
+              false,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "samples": 32,
+      "minScore": 1,
+      "maxScore": 3,
+      "distinctScores": 3,
+      "topCoveragePercent": 14.6,
+      "topTouchesRecordedFiveMinuteBand": false,
+      "uniformReferenceFiveMinuteBandTouchPercent": 22.9,
+      "recordedMidpointScore": 1,
+      "recordedAgainstUniformCandidate": {
+        "belowPercent": 0,
+        "equalPercent": 32,
+        "abovePercent": 68,
+        "midrankPercentile": 16
+      },
+      "selectedTime": "20:52:06",
+      "selectedOffsetMinutes": 22.1
+    },
+    {
+      "name": "Shakira",
+      "category": "Musician; born in Colombia",
+      "reportedBirthTime": "09:30",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_02_02.htm?lang=p&nho2=432639&nhor=1&pa=nmo",
+      "birthQuality": "B, time quoted from a biography; apparently rounded to the half hour, with a different unsourced time also circulating.",
+      "input": [
+        "2013-01-22 child"
+      ],
+      "heldOut": [
+        "2015-01-29 child"
+      ],
+      "recordedInput": {
+        "score": 2,
+        "max": 5,
+        "details": [
+          {
+            "date": "2013-01-22",
+            "matter": "child",
+            "score": 2,
+            "factors": [
+              true,
+              false,
+              false,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "recordedHoldout": {
+        "score": 2,
+        "max": 5,
+        "details": [
+          {
+            "date": "2015-01-29",
+            "matter": "child",
+            "score": 2,
+            "factors": [
+              true,
+              false,
+              false,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "selectedHoldout": {
+        "score": 4,
+        "max": 5,
+        "details": [
+          {
+            "date": "2015-01-29",
+            "matter": "child",
+            "score": 4,
+            "factors": [
+              true,
+              true,
+              true,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "samples": 37,
+      "minScore": 2,
+      "maxScore": 4,
+      "distinctScores": 3,
+      "topCoveragePercent": 25.9,
+      "topTouchesRecordedFiveMinuteBand": false,
+      "uniformReferenceFiveMinuteBandTouchPercent": 34.2,
+      "recordedMidpointScore": 2,
+      "recordedAgainstUniformCandidate": {
+        "belowPercent": 0,
+        "equalPercent": 26.1,
+        "abovePercent": 73.9,
+        "midrankPercentile": 13.1
+      },
+      "selectedTime": "09:44:51",
+      "selectedOffsetMinutes": 14.9
+    },
+    {
+      "name": "Aamir Khan",
+      "category": "Actor and filmmaker; born in India",
+      "reportedBirthTime": "10:05",
+      "birthSource": "https://www.astro.com/astro-databank/Khan%2C_Aamir",
+      "birthQuality": "A, astrologer reports time from mother; another source gives 06:15 and an astrologer rectified a third time, so the time is disputed.",
+      "input": [
+        "1986-04-18 marriage",
+        "2011-12-01 child"
+      ],
+      "heldOut": [
+        "2005-12-28 marriage",
+        "2026-07-05 marriage"
+      ],
+      "recordedInput": {
+        "score": 6,
+        "max": 10,
+        "details": [
+          {
+            "date": "1986-04-18",
+            "matter": "marriage",
+            "score": 3,
+            "factors": [
+              true,
+              true,
+              false,
+              true,
+              false
+            ]
+          },
+          {
+            "date": "2011-12-01",
+            "matter": "child",
+            "score": 3,
+            "factors": [
+              true,
+              true,
+              true,
+              false,
+              false
+            ]
+          }
+        ]
+      },
+      "recordedHoldout": {
+        "score": 7,
+        "max": 10,
+        "details": [
+          {
+            "date": "2005-12-28",
+            "matter": "marriage",
+            "score": 3,
+            "factors": [
+              true,
+              true,
+              true,
+              false,
+              false
+            ]
+          },
+          {
+            "date": "2026-07-05",
+            "matter": "marriage",
+            "score": 4,
+            "factors": [
+              true,
+              true,
+              true,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "selectedHoldout": {
+        "score": 5,
+        "max": 10,
+        "details": [
+          {
+            "date": "2005-12-28",
+            "matter": "marriage",
+            "score": 2,
+            "factors": [
+              false,
+              true,
+              false,
+              true,
+              false
+            ]
+          },
+          {
+            "date": "2026-07-05",
+            "matter": "marriage",
+            "score": 3,
+            "factors": [
+              false,
+              true,
+              true,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "samples": 92,
+      "minScore": 3,
+      "maxScore": 7,
+      "distinctScores": 4,
+      "topCoveragePercent": 17.3,
+      "topTouchesRecordedFiveMinuteBand": false,
+      "uniformReferenceFiveMinuteBandTouchPercent": 40.7,
+      "recordedMidpointScore": 6,
+      "recordedAgainstUniformCandidate": {
+        "belowPercent": 37.6,
+        "equalPercent": 45.1,
+        "abovePercent": 17.3,
+        "midrankPercentile": 60.1
+      },
+      "selectedTime": "10:26:00",
+      "selectedOffsetMinutes": 21
+    },
+    {
+      "name": "Elon Musk",
+      "category": "Technology entrepreneur; born in South Africa",
+      "reportedBirthTime": "07:30",
+      "birthSource": "https://www.astro.com/astro-databank/Musk%2C_Elon?nhor=804",
+      "birthQuality": "B, time quoted from Isaacson biography; 07:30 may be rounded.",
+      "input": [
+        "2002-05-18 child"
+      ],
+      "heldOut": [
+        "2020-05-04 child"
+      ],
+      "recordedInput": {
+        "score": 0,
+        "max": 5,
+        "details": [
+          {
+            "date": "2002-05-18",
+            "matter": "child",
+            "score": 0,
+            "factors": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ]
+          }
+        ]
+      },
+      "recordedHoldout": {
+        "score": 0,
+        "max": 5,
+        "details": [
+          {
+            "date": "2020-05-04",
+            "matter": "child",
+            "score": 0,
+            "factors": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ]
+          }
+        ]
+      },
+      "selectedHoldout": {
+        "score": 2,
+        "max": 5,
+        "details": [
+          {
+            "date": "2020-05-04",
+            "matter": "child",
+            "score": 2,
+            "factors": [
+              false,
+              true,
+              false,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "samples": 52,
+      "minScore": 0,
+      "maxScore": 1,
+      "distinctScores": 2,
+      "topCoveragePercent": 41.9,
+      "topTouchesRecordedFiveMinuteBand": false,
+      "uniformReferenceFiveMinuteBandTouchPercent": 59,
+      "recordedMidpointScore": 0,
+      "recordedAgainstUniformCandidate": {
+        "belowPercent": 0,
+        "equalPercent": 58.1,
+        "abovePercent": 41.9,
+        "midrankPercentile": 29
+      },
+      "selectedTime": "07:17:01",
+      "selectedOffsetMinutes": -13
+    },
+    {
+      "name": "Marilyn Monroe",
+      "category": "Actor and model; born in the United States",
+      "reportedBirthTime": "09:30",
+      "birthSource": "https://www.astro.com/astro-databank/Monroe%2C_Marilyn?lang=j&nho2=261&nhor=1",
+      "birthQuality": "AA, birth certificate reportedly in hand; 09:30 may be rounded.",
+      "input": [
+        "1942-06-19 marriage",
+        "1956-06-29 marriage"
+      ],
+      "heldOut": [
+        "1954-01-14 marriage"
+      ],
+      "recordedInput": {
+        "score": 3,
+        "max": 10,
+        "details": [
+          {
+            "date": "1942-06-19",
+            "matter": "marriage",
+            "score": 1,
+            "factors": [
+              false,
+              true,
+              false,
+              false,
+              false
+            ]
+          },
+          {
+            "date": "1956-06-29",
+            "matter": "marriage",
+            "score": 2,
+            "factors": [
+              false,
+              true,
+              true,
+              false,
+              false
+            ]
+          }
+        ]
+      },
+      "recordedHoldout": {
+        "score": 3,
+        "max": 5,
+        "details": [
+          {
+            "date": "1954-01-14",
+            "matter": "marriage",
+            "score": 3,
+            "factors": [
+              false,
+              true,
+              true,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "selectedHoldout": {
+        "score": 3,
+        "max": 5,
+        "details": [
+          {
+            "date": "1954-01-14",
+            "matter": "marriage",
+            "score": 3,
+            "factors": [
+              false,
+              true,
+              true,
+              true,
+              false
+            ]
+          }
+        ]
+      },
+      "samples": 31,
+      "minScore": 0,
+      "maxScore": 6,
+      "distinctScores": 5,
+      "topCoveragePercent": 20.1,
+      "topTouchesRecordedFiveMinuteBand": false,
+      "uniformReferenceFiveMinuteBandTouchPercent": 28.4,
+      "recordedMidpointScore": 3,
+      "recordedAgainstUniformCandidate": {
+        "belowPercent": 52,
+        "equalPercent": 26.9,
+        "abovePercent": 21.1,
+        "midrankPercentile": 65.4
+      },
+      "selectedTime": "09:11:35",
+      "selectedOffsetMinutes": -18.4
+    },
+    {
+      "name": "Bruce Lee",
+      "category": "Martial artist and actor; Chinese-American, born in the United States",
+      "reportedBirthTime": "07:12",
+      "birthSource": "https://www.astro.com/astro-databank/Lee%2C_Bruce",
+      "birthQuality": "AA, birth certificate reportedly in hand.",
+      "input": [
+        "1964-08-17 marriage",
+        "1969-04-19 child"
+      ],
+      "heldOut": [
+        "1965-02-01 child"
+      ],
+      "recordedInput": {
+        "score": 3,
+        "max": 10,
+        "details": [
+          {
+            "date": "1964-08-17",
+            "matter": "marriage",
+            "score": 2,
+            "factors": [
+              false,
+              true,
+              false,
+              true,
+              false
+            ]
+          },
+          {
+            "date": "1969-04-19",
+            "matter": "child",
+            "score": 1,
+            "factors": [
+              false,
+              true,
+              false,
+              false,
+              false
+            ]
+          }
+        ]
+      },
+      "recordedHoldout": {
+        "score": 3,
+        "max": 5,
+        "details": [
+          {
+            "date": "1965-02-01",
+            "matter": "child",
+            "score": 3,
+            "factors": [
+              false,
+              true,
+              false,
+              true,
+              true
+            ]
+          }
+        ]
+      },
+      "selectedHoldout": {
+        "score": 3,
+        "max": 5,
+        "details": [
+          {
+            "date": "1965-02-01",
+            "matter": "child",
+            "score": 3,
+            "factors": [
+              false,
+              true,
+              false,
+              true,
+              true
+            ]
+          }
+        ]
+      },
+      "samples": 66,
+      "minScore": 1,
+      "maxScore": 4,
+      "distinctScores": 4,
+      "topCoveragePercent": 18.2,
+      "topTouchesRecordedFiveMinuteBand": false,
+      "uniformReferenceFiveMinuteBandTouchPercent": 43.2,
+      "recordedMidpointScore": 3,
+      "recordedAgainstUniformCandidate": {
+        "belowPercent": 54.9,
+        "equalPercent": 26.9,
+        "abovePercent": 18.2,
+        "midrankPercentile": 68.3
+      },
+      "selectedTime": "06:56:36",
+      "selectedOffsetMinutes": -15.4
+    },
+    {
+      "name": "Kamala Harris",
+      "category": "Attorney and public official; born in the United States",
+      "reportedBirthTime": "21:28",
+      "birthSource": "https://www.astro.com/astro-databank/Harris%2C_Kamala",
+      "birthQuality": "AA, birth certificate reportedly in hand.",
+      "input": [
+        "2014-08-22 marriage",
+        "2021-01-20 job"
+      ],
+      "heldOut": [
+        "2017-01-03 job"
+      ],
+      "recordedInput": {
+        "score": 0,
+        "max": 10,
+        "details": [
+          {
+            "date": "2014-08-22",
+            "matter": "marriage",
+            "score": 0,
+            "factors": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ]
+          },
+          {
+            "date": "2021-01-20",
+            "matter": "job",
+            "score": 0,
+            "factors": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ]
+          }
+        ]
+      },
+      "recordedHoldout": {
+        "score": 2,
+        "max": 5,
+        "details": [
+          {
+            "date": "2017-01-03",
+            "matter": "job",
+            "score": 2,
+            "factors": [
+              false,
+              false,
+              false,
+              true,
+              true
+            ]
+          }
+        ]
+      },
+      "selectedHoldout": {
+        "score": 2,
+        "max": 5,
+        "details": [
+          {
+            "date": "2017-01-03",
+            "matter": "job",
+            "score": 2,
+            "factors": [
+              true,
+              false,
+              true,
+              false,
+              false
+            ]
+          }
+        ]
+      },
+      "samples": 42,
+      "minScore": 0,
+      "maxScore": 5,
+      "distinctScores": 5,
+      "topCoveragePercent": 20,
+      "topTouchesRecordedFiveMinuteBand": false,
+      "uniformReferenceFiveMinuteBandTouchPercent": 30.5,
+      "recordedMidpointScore": 0,
+      "recordedAgainstUniformCandidate": {
+        "belowPercent": 0,
+        "equalPercent": 20.9,
+        "abovePercent": 79.1,
+        "midrankPercentile": 10.5
+      },
+      "selectedTime": "21:10:41",
+      "selectedOffsetMinutes": -17.3
+    }
+  ]
+}

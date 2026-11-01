@@ -1,0 +1,105 @@
+{
+  "description": "Nine new published public-figure cases selected before running version 2. This is a convenience sample, not a representative or independently certified population. Birth records and reported event dates may be uncertain.",
+  "cases": [
+    {
+      "chart": {"name":"Sunil Gavaskar","gender":"male","birthDate":"1949-07-10","birthTime":"20:42","timezone":"Asia/Kolkata","timeStandard":"auto","place":"Mumbai, India","latitude":18.9667,"longitude":72.8333,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Gavaskar%2C_Sunil",
+      "birthQuality":"A; Astro-Databank quotes a newspaper report attributing 20:42 to hospital officials. Original record was not independently inspected.",
+      "category":"Cricketer and commentator; born in India",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"1974-09-23","timezone":"Asia/Kolkata","source":"https://www.wbnsou.ac.in/online_services/SLM_UGC_DEB/UG_4YR/ENGLISH/NEC_EG_02_E.pdf","description":"Marriage to Marshneil Mehrotra; source quotes Gavaskar's memoir"},
+        {"id":"child","matter":"child","date":"1976-02-20","timezone":"Asia/Kolkata","source":"https://www.wbnsou.ac.in/online_services/SLM_UGC_DEB/UG_4YR/ENGLISH/NEC_EG_02_E.pdf","description":"Son Rohan born in Kanpur"},
+        {"id":"bcci","matter":"job","date":"2014-03-28","timezone":"Asia/Kolkata","source":"https://www.astro.com/astro-databank/Gavaskar%2C_Sunil","description":"Appointed interim BCCI president"}
+      ]
+    },
+    {
+      "chart":{"name":"Lionel Messi","gender":"male","birthDate":"1987-06-24","birthTime":"20:30","timezone":"America/Argentina/Cordoba","timeStandard":"auto","place":"Rosario, Argentina","latitude":-32.95,"longitude":-60.6667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/adbvip/adbvip_06_24.htm?lang=r&nho2=432491&nhor=432491",
+      "birthQuality":"AA; Astro-Databank reproduces a birth certificate reporting 20:30, but notes another account attributed to his mother reports 16:20. The certificate was not independently inspected.",
+      "category":"Footballer; born in Argentina",
+      "events":[
+        {"id":"thiago","matter":"child","date":"2012-11-02","timezone":"Europe/Madrid","source":"https://www.kidsco.org.uk/lionel-messis-3-kids/","description":"Son Thiago born in Barcelona"},
+        {"id":"mateo","matter":"child","date":"2015-09-11","timezone":"Europe/Madrid","source":"https://www.kidsco.org.uk/lionel-messis-3-kids/","description":"Son Mateo born in Barcelona"},
+        {"id":"marriage","matter":"marriage","date":"2017-06-30","timezone":"America/Argentina/Cordoba","source":"https://www.nbcdfw.com/news/sports/from-hometown-sweethearts-to-soccer-power-couple-lionel-messi-and-antonela-roccuzzos-relationship-timeline/4047513/","description":"Marriage to Antonela Roccuzzo in Rosario"},
+        {"id":"ciro","matter":"child","date":"2018-03-10","timezone":"Europe/Madrid","source":"https://www.eluniversal.com.mx/universal-deportes/futbol/leo-messi-se-convierte-en-padre-por-tercer-vez/","description":"Son Ciro born in Barcelona"}
+      ]
+    },
+    {
+      "chart":{"name":"Roger Federer","gender":"male","birthDate":"1981-08-08","birthTime":"08:40","timezone":"Europe/Zurich","timeStandard":"auto","place":"Basel, Switzerland","latitude":47.55,"longitude":7.5833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/adbvip/adbvip_08_08.htm?lang=t&nho2=9497305&nhor=427844",
+      "birthQuality":"A; Astro-Databank reports a remembered time attributed to Federer's website. Original record not inspected.",
+      "category":"Tennis player; born in Switzerland, Swiss and South African family",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"2009-04-11","timezone":"Europe/Zurich","source":"https://www.swissmint.ch/dam/en/sd-web/9f3fCgui-gON/2020-1-kundenmagazin-kopfzahl-e.pdf","description":"Marriage in Riehen"},
+        {"id":"twins2009","matter":"child","date":"2009-07-23","timezone":"Europe/Zurich","source":"https://www.swissmint.ch/dam/en/sd-web/9f3fCgui-gON/2020-1-kundenmagazin-kopfzahl-e.pdf","description":"Twin daughters born; counted as one dated event"},
+        {"id":"twins2014","matter":"child","date":"2014-05-06","timezone":"Europe/Zurich","source":"https://www.swissmint.ch/dam/en/sd-web/9f3fCgui-gON/2020-1-kundenmagazin-kopfzahl-e.pdf","description":"Twin sons born; counted as one dated event"}
+      ]
+    },
+    {
+      "chart":{"name":"Justin Trudeau","gender":"male","birthDate":"1971-12-25","birthTime":"21:27","timezone":"America/Toronto","timeStandard":"auto","place":"Ottawa, Canada","latitude":45.4167,"longitude":-75.7,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Trudeau%2C_Justin",
+      "birthQuality":"A; contemporaneous Ottawa Citizen news report quoted at Astro-Databank.",
+      "category":"Teacher and politician; born in Canada",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"2005-05-28","timezone":"America/Toronto","source":"https://www.astro.com/astro-databank/Trudeau%2C_Justin","description":"Marriage in Montréal"},
+        {"id":"xavier","matter":"child","date":"2007-10-18","time":"12:30","timezone":"America/Toronto","source":"https://www.astro.com/astro-databank/Trudeau%2C_Xavier","description":"Son Xavier born in Montréal"},
+        {"id":"ella","matter":"child","date":"2009-02-05","timezone":"America/Toronto","source":"https://www.astro.com/astro-databank/Trudeau%2C_Justin","description":"Daughter Ella-Grace born"},
+        {"id":"pm","matter":"job","date":"2015-11-04","timezone":"America/Toronto","source":"https://www.astro.com/astro-databank/Trudeau%2C_Justin","description":"Took office as Canadian prime minister"}
+      ]
+    },
+    {
+      "chart":{"name":"Emmanuel Macron","gender":"male","birthDate":"1977-12-21","birthTime":"10:40","timezone":"Europe/Paris","timeStandard":"auto","place":"Amiens, France","latitude":49.9,"longitude":2.3,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Macron%2C_Emmanuel?nhor=804",
+      "birthQuality":"AA; birth certificate is quoted by a genealogy website, as reported by Astro-Databank; original not independently inspected.",
+      "category":"Banker and public official; born in France",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"2007-10-20","timezone":"Europe/Paris","source":"https://www.astro.com/astro-databank/Macron%2C_Emmanuel?nhor=804","description":"Marriage to Brigitte Trogneux"},
+        {"id":"minister","matter":"job","date":"2014-08-26","timezone":"Europe/Paris","source":"https://indianexpress.com/about/emmanuel-macron/","description":"Appointed minister of economy"},
+        {"id":"president","matter":"job","date":"2017-05-14","timezone":"Europe/Paris","source":"https://indianexpress.com/about/emmanuel-macron/","description":"Took office as president of France"}
+      ]
+    },
+    {
+      "chart":{"name":"Serena Williams","gender":"female","birthDate":"1981-09-26","birthTime":"20:28","timezone":"America/Detroit","timeStandard":"auto","place":"Saginaw, Michigan, USA","latitude":43.4167,"longitude":-83.95,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/adbvip/adbvip_09_26.htm?nho2=5&nhor=6&pa=nmo",
+      "birthQuality":"AA; birth record quoted by Astro-Databank, not independently inspected.",
+      "category":"Tennis player and entrepreneur; born in the United States",
+      "events":[
+        {"id":"olympia","matter":"child","date":"2017-09-01","timezone":"America/New_York","source":"https://www.astro.com/adbvip/adbvip_09_26.htm?lang=t&nhor=1.evo&pa=nmo","description":"Daughter Olympia born in Palm Beach, Florida"},
+        {"id":"marriage","matter":"marriage","date":"2017-11-16","timezone":"America/Chicago","source":"https://www.majorcadailybulletin.com/news/celebs/2025/07/30/135261/lady-red-serena-williams-shines-over-soller-mallorca.html","description":"Marriage to Alexis Ohanian in New Orleans"}
+      ]
+    },
+    {
+      "chart":{"name":"Prince William","gender":"male","birthDate":"1982-06-21","birthTime":"21:03","timezone":"Europe/London","timeStandard":"auto","place":"Paddington, London, England","latitude":51.5333,"longitude":-0.2,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/adbvip/adbvip_06_21.htm?nho2=3454298btyp%3Dacx&pa=nmo",
+      "birthQuality":"AA; birth record reported in hand by Astro-Databank collectors; not independently inspected.",
+      "category":"Royal and public servant; born in England",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"2011-04-29","time":"11:20","timezone":"Europe/London","source":"https://www.astro.com/adbvip/adbvip_06_21.htm?lang=j&nho2=3890981&pa=nmo","description":"Marriage to Catherine Middleton at Westminster Abbey"},
+        {"id":"george","matter":"child","date":"2013-07-22","time":"16:24","timezone":"Europe/London","source":"https://royallifemagazine.co.uk/news/page/41/","description":"Son George born in London"},
+        {"id":"charlotte","matter":"child","date":"2015-05-02","time":"08:34","timezone":"Europe/London","source":"https://royallifemagazine.co.uk/news/page/41/","description":"Daughter Charlotte born in London"},
+        {"id":"louis","matter":"child","date":"2018-04-23","time":"11:01","timezone":"Europe/London","source":"https://www.astro.com/adbvip/adbvip_06_21.htm?lang=j&nho2=3890981&pa=nmo","description":"Son Louis born in London"}
+      ]
+    },
+    {
+      "chart":{"name":"Jane Goodall","gender":"female","birthDate":"1934-04-03","birthTime":"23:30","timezone":"Europe/London","timeStandard":"auto","place":"Hampstead, England","latitude":51.5667,"longitude":-0.1833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Goodall%2C_Jane?lang=r&nho2=6",
+      "birthQuality":"B; time is attributed to a biography and may be rounded to half an hour. No original birth record inspected.",
+      "category":"Primatologist and conservationist; born in England",
+      "events":[
+        {"id":"marriage","matter":"marriage","date":"1964-03-28","timezone":"Europe/London","source":"https://www.astro.com/astro-databank/Goodall%2C_Jane?lang=r&nho2=6","description":"Marriage to Hugo van Lawick in London"},
+        {"id":"child","matter":"child","date":"1967-03-04","time":"09:45","timezone":"Africa/Nairobi","source":"https://www.astro.com/astro-databank/Lawick%2C%20Hugo%20van","description":"Son Hugo born in Nairobi; birth time quoted from Goodall biography"}
+      ]
+    },
+    {
+      "chart":{"name":"Nicole Kidman","gender":"female","birthDate":"1967-06-20","birthTime":"15:15","timezone":"Pacific/Honolulu","timeStandard":"auto","place":"Honolulu, Hawaii, USA","latitude":21.3,"longitude":-157.8667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/adbvip/adbvip_06_20.htm?lang=r&nho2=5&nhor=8",
+      "birthQuality":"A; astrologer reported conversation with her father; an earlier rectification was different and original record was not inspected.",
+      "category":"Actor; Australian-American, born in Hawaii",
+      "events":[
+        {"id":"cruise","matter":"marriage","date":"1990-12-24","timezone":"America/Denver","source":"https://www.femalefirst.co.uk/weddings/tom-cruise-366527.html","description":"Marriage to Tom Cruise in Telluride, Colorado"},
+        {"id":"urban","matter":"marriage","date":"2006-06-25","timezone":"Australia/Sydney","source":"https://www.cbsnews.com/pictures/keith-urban/","description":"Marriage to Keith Urban in Sydney"},
+        {"id":"sunday","matter":"child","date":"2008-07-07","timezone":"America/Chicago","source":"https://dujour.com/news/becoming-nicole-kidman/","description":"Daughter Sunday born in Nashville"}
+      ]
+    }
+  ]
+}

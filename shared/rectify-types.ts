@@ -1,13 +1,27 @@
 /** Types shared by the KP birth time rectification route and its panel. */
-import type { Planet } from "./astro";
+import type { Planet, PlanetPosition } from "./astro";
 import type { RulingPlanets } from "./kp";
 import type { DashaFit, JaiminiArea } from "./jaimini-areas";
 import type { BodyMarksResult } from "./body-marks";
+import type { ParashariVargaEvidence } from "./parashari-varga-evidence";
+import type { ParashariPromiseCheck } from "./parashari-promise";
+import type { ParashariSpecificCheck } from "./parashari-specific";
+import type { ParashariDivisionalCheck } from "./parashari-divisional";
+import type { NemaniRpMoonCheck } from "./kp-nemani-rp";
+import type { ManleyDivision, ManleyEvidence } from "./manley-evidence";
+import type { ParashariComparison, ParashariComparisonExample } from "./parashari-comparison";
+import type { AuroraAscendantLinks, AuroraEventEvidence } from "./kp-aurora";
+import type { AuroraV2Evidence } from "./kp-aurora-v2";
 
 export interface RectifyEvent {
   label: string;
-  /** YYYY-MM-DD in the birth zone. */
+  /** Native event category, used only to select relevant Parashari divisional evidence. */
+  matter?: string;
+  outcome?: "favourable" | "unfavourable" | "mixed";
+  /** YYYY-MM-DD in the event's zone, falling back to the birth zone. */
   date: string;
+  time?: string;
+  timezone?: string;
   houses: number[];
   /** Cusp whose sub lord must promise the matter (optional). */
   cusp?: number;
@@ -30,12 +44,18 @@ export interface RectifyRequest {
   windowMinutes: number;
   events: RectifyEvent[];
   judge?: JudgePlaceInput;
+  /** Preserve a scan's actual judgment instant when rebuilding its report. */
+  judgedAsOf?: string;
 }
 
 export interface RectifyEventCheck {
   label: string;
   date: string;
+  time?: string;
+  timezone?: string;
   houses: number[];
+  aurora?: AuroraEventEvidence;
+  auroraV2?: AuroraV2Evidence;
   dasa: Planet;
   bhukti: Planet;
   antara: Planet;
@@ -101,9 +121,8 @@ export interface MoonLordsCheck {
 }
 
 /**
- * How firm the cusp sub lords are across an interval. The intervals are cut where the lagna's own
- * sub lord changes, so inside one the other eleven cusps may still change theirs; a candidate whose
- * 7th cusp sub lord flips halfway is two candidates for a marriage question, not one.
+ * Cusp sub-lord stability sampled at the start, midpoint and end. The scan also cuts at
+ * relevant event-cusp changes, but other cusps can change within a segment.
  */
 export interface RectifySegmentStability {
   /** Cusps (1-12) whose sub lord is the same at the start, middle and end of the interval. */
@@ -119,13 +138,13 @@ export interface RectifySegmentStability {
 }
 
 /**
- * Dutta's RP-Moon three-level linkage ("Birth Time Rectification through KP Astrology", first
+ * Nadi's Dutta-inspired mixed-chart RP-Moon linkage ("Birth Time Rectification through KP Astrology", first
  * testing): the lagna's sign, star and sub lords at the candidate time must each link to the sign,
  * star and sub lords of the Moon ruling at the moment of judgement. Linkage is any of: the same
  * planet; one in the sub of the other; one in the star of the other; one in the other's sign; or
  * X in the star or sub of a third planet that rules Z at its star or sub level. All three levels
- * linking is the author's mark of the correct birth time. The scoring weights the sub level double,
- * mirroring the book RP method's own weighting of the sub lord as decisive.
+ * linking is not proof of a birth time. Nadi compares the natal position of X with the judgment
+ * position of Z; Nemani's separate check uses judgment positions for both. Weighting is an app convention.
  */
 export interface DuttaRpMoonCheck {
   /** The RP Moon's sign, star and sub lords at the moment of judgement (fixed for the whole scan). */
@@ -143,6 +162,7 @@ export interface DuttaRpMoonCheck {
  * twelve nakshatras (provisional).
  */
 export interface KundaCheck {
+  /** Remainder from the named arithmetic; D81 uses a longitude in degrees. */
   remainder: number;
   kundaNakshatra: number;
   birthStar: number;
@@ -150,6 +170,20 @@ export interface KundaCheck {
   via: string;
   score: number;
   max: number;
+}
+
+/** A separately scanned D81 Kunda interval, in the birth time's display zone. */
+export interface KundaD81Window {
+  start: string;
+  end: string;
+  mid: string;
+  midDate: string;
+  startIso: string;
+  endIso: string;
+  check: KundaCheck;
+  given: boolean;
+  /** The rounded whole-second midpoint is still inside the calculated interval. */
+  selectable: boolean;
 }
 
 /** Brihat Jataka 26.9-10 Lost Horoscope nakshatra check against the birth star. */
@@ -163,12 +197,18 @@ export interface BjNashtaCheck {
 }
 
 export interface RectifySegment {
+  /** Descriptive source example; no genetic or birth-time conclusion. */
+  auroraAscendant?: AuroraAscendantLinks;
   /** Local civil times in the birth zone, HH:mm:ss. */
   start: string;
   end: string;
   mid: string;
+  /** Civil date of the midpoint in the chart's display basis. */
+  midDate?: string;
   startIso: string;
   endIso: string;
+  /** The rounded midpoint is inside this interval; older results may omit it. */
+  selectable?: boolean;
   /** Lagna at the two ends of the interval. */
   lagnaFrom: number;
   lagnaTo: number;
@@ -198,11 +238,13 @@ export interface RectifySegment {
    */
   moonLords: MoonLordsCheck;
   /**
-   * Dutta's RP-Moon three-level linkage, the first testing of his birth-time rectification: the lagna's
+ * Nadi's Dutta-inspired mixed-chart linkage: the lagna's
    * sign, star and sub lords link, level to level, to the Moon ruling at the moment of judgement. Absent on
    * results computed before it was added.
    */
   dutta?: DuttaRpMoonCheck;
+  /** Nemani's separate three-level test, using judgment-chart positions on both sides. */
+  nemani?: NemaniRpMoonCheck;
   /** Sun-transit hint (Part 2 p. 192): the lagna's sub (or star) lord is the sub lord the Sun transits on the day of judgement. */
   sunHint: { star: boolean; sub: boolean; score: number; max: number };
   /** Lagna sign in the chart's own ayanamsa, which the Jaimini check is read from (sign-level only). */
@@ -211,21 +253,42 @@ export interface RectifySegment {
     name: string;
     direction: "forward" | "backward";
   };
+  /** Inputs for drawing the period timeline at this candidate, not at the recorded time. */
+  candidate?: {
+    birthUtc: string;
+    kpMoonLon: number;
+    positions: PlanetPosition[];
+    kpPlanets: Array<Pick<PlanetPosition, "planet" | "lon">>;
+    kpCusps: number[];
+  };
   /** Rising drekkana of the interval in the chart's own ayanamsa, 0-35 (sign x 3 + third); key into RectifyResult.marks. */
   drekkana: number;
+  /** Body-mark calculation at this midpoint; can differ within one drekkana. */
+  marksKey?: number;
   /** Prasna Marga 5.8-9 Kunda check of the lagna against the birth star. */
   kunda?: KundaCheck;
+  /** D81 variant at this interval's midpoint; exact D81 intervals are returned separately. */
+  kundaD81?: KundaCheck;
   /** Brihat Jataka 26.9-10 Lost Horoscope nakshatra check. */
   bjNashta?: BjNashtaCheck;
   events: RectifyEventCheck[];
+  /** Separate, descriptive Parashari evidence; never included in the KP or Jaimini score. */
+  parashariVargas?: ParashariVargaEvidence[];
+  /** Source-informed exploratory matches, independent of KP/Jaimini. */
+  parashariPromise?: ParashariPromiseCheck[];
+  /** Event-specific version 2; kept separate so version 1 remains reviewable. */
+  parashariSpecific?: ParashariSpecificCheck[];
+  /** Experimental v3: v2 plus two divisional period-lord factors. */
+  parashariDivisional?: ParashariDivisionalCheck[];
+  /** Descriptive Manley event clues, separate from every ranking. */
+  manley?: ManleyEvidence[];
   score: number;
   max: number;
   /** True when the recorded birth time falls in this interval. */
   given: boolean;
   /**
-   * The same event scores for this interval at shuffled dates (RectifyResult.baseline.trials random dates drawn
-   * from the span the real events cover). A sub lord that signifies many houses scores well whatever the dates;
-   * the percentile shows how much of the interval's score is that bias and how much is the dates.
+   * Event scores at random dates drawn from the span the real events cover. These describe
+   * the selected comparison distribution; they do not establish a probability of correctness.
    */
   baseline?: RectifySegmentBaseline;
 }
@@ -234,7 +297,7 @@ export interface RectifyBaselineStat {
   actual: number;
   mean: number;
   sd: number;
-  /** Mid-rank percentile of the real score among the shuffled trials, 0-100. */
+  /** Mid-rank percentile of the real score among the random trials, 0-100. */
   percentile: number;
   verdict: "above" | "chance" | "below";
 }
@@ -243,6 +306,13 @@ export interface RectifySegmentBaseline {
   kpEvents: RectifyBaselineStat;
   transit: RectifyBaselineStat;
   jaimini: RectifyBaselineStat;
+  aurora?: RectifyBaselineStat;
+  auroraV2?: RectifyBaselineStat;
+  auroraExample?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence?: AuroraEventEvidence }>;
+  auroraV2Example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence?: AuroraV2Evidence }>;
+  /** Descriptive comparisons; these do not alter candidate ranking. */
+  parashari?: ParashariComparison;
+  parashariExample?: ParashariComparisonExample[];
 }
 
 export interface RectifyResult {
@@ -255,13 +325,27 @@ export interface RectifyResult {
   accepted: Array<{ planet: Planet; reason: string; weight: number }>;
   windowMinutes: number;
   /**
-   * Marks on the body (Brihat Jataka 5.22-26) for every rising drekkana the window crosses, keyed by
-   * RectifySegment.drekkana. Drekkana-level only: every interval in one drekkana reads alike.
+   * Marks on the body (Brihat Jataka 5.22-26), keyed by RectifySegment.marksKey.
+   * Older results used the drekkana as the key.
    */
   marks: Record<number, BodyMarksResult>;
   given: { time: string; lagna: number };
   segments: RectifySegment[];
+  /** D81 is scanned independently: its boundaries need not match KP intervals. */
+  kundaD81?: KundaD81Window[];
+  /** Independently sampled ascendant windows for the book's divisions. */
+  vargaWindows?: Array<{
+    division: "D1" | ManleyDivision | "D60";
+    windows: Array<{ start: string; end: string; startIso: string; endIso: string; sign: number; given: boolean }>;
+  }>;
+  /** Real event-day skies at the supplied or assumed time, shared by candidates. */
+  eventTransits?: Array<{
+    date: string;
+    positions: Array<Pick<PlanetPosition, "planet" | "lon">>;
+    /** The same event in the first random-date set, when a comparison was run. */
+    example?: { date: string; time?: string; timezone?: string; positions: Array<Pick<PlanetPosition, "planet" | "lon">> };
+  }>;
   best: number[];
-  /** Shuffled-date baseline behind RectifySegment.baseline; null when there are too few events or too short a span. */
+  /** Random-date comparison; null when there are too few events or too short a span. */
   baseline: { trials: number; span: [string, string] } | null;
 }

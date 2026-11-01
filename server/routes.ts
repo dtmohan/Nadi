@@ -56,7 +56,9 @@ import type { OwnMarks } from "@shared/gochara";
 import { fatherArishtaWindows } from "./arishta";
 import { rectify } from "./rectify";
 import { validateEvents } from "./validate";
+import { topicReading } from "./topic-reading";
 import { z } from "zod";
+import { chartEventSchema } from "@shared/events";
 import { createHash } from "node:crypto";
 import { sensitiveGate, redactSensitive, withholdText } from "@shared/life-stage";
 import { starPassages, janmaIndexOf, isNamedNakshatra } from "@shared/special-stars";
@@ -319,6 +321,18 @@ export async function registerRoutes(
       const result = computeChart(chart);
       // The two tools are computed here only when their module is named; the Report page never asks for them.
       const toolResults: ReportTools = {};
+      const topicInputs = z.object({ kp: chartEventSchema.optional(), parashari: chartEventSchema.optional(),
+        jaimini: chartEventSchema.optional(), bnn: chartEventSchema.optional() }).safeParse(
+          (tools as Record<string, unknown> | undefined)?.topicReadings ?? {},
+        );
+      if (!topicInputs.success)
+        return res.status(400).json({ message: "Invalid matter/date reading", issues: topicInputs.error.issues });
+      for (const system of ["kp", "parashari", "jaimini", "bnn"] as const) {
+        const event = topicInputs.data[system];
+        if (event && (!ids?.length || ids.includes(system))) {
+          (toolResults.topicReadings ??= {})[system] = topicReading(parsed.data, event);
+        }
+      }
       if (ids?.includes("validate"))
         toolResults.validation = parsed.data.events?.length
           ? validateEvents(parsed.data)
@@ -339,6 +353,7 @@ export async function registerRoutes(
             windowMinutes: state.windowMinutes,
             events: state.events,
             judge: state.judge,
+            judgedAsOf: state.judgedAsOf,
           }),
           state,
         };
@@ -654,7 +669,11 @@ export async function registerRoutes(
     .array(
       z.object({
         label: z.string().max(80),
+        matter: z.string().min(1).max(40).optional(),
+        outcome: chartEventSchema.shape.outcome,
         date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        time: chartEventSchema.shape.time,
+        timezone: chartEventSchema.shape.timezone,
         houses: z.array(z.number().int().min(1).max(12)).min(1).max(12),
         cusp: z.number().int().min(1).max(12).optional(),
         area: z
@@ -686,9 +705,22 @@ export async function registerRoutes(
     windowMinutes: z.number().min(1).max(720).default(30),
     events: rectifyEventsSchema,
     judge: judgeSchema.optional(),
+    judgedAsOf: z.string().datetime().optional(),
     confirmedMarks: z.array(z.string().max(60)).max(40).default([]),
   });
   // Check the saved life events against the chart as it stands (nothing is stored)
+  // One chosen chart-reading date, evaluated through the same rules as Validate; never saved.
+  app.post("/api/topic-reading", (req, res) => {
+    const parsed = z.object({ chart: insertChartSchema, event: chartEventSchema }).safeParse(req.body);
+    if (!parsed.success)
+      return res.status(400).json({ message: "Invalid chart or topic", issues: parsed.error.issues });
+    try {
+      res.json(topicReading(parsed.data.chart, parsed.data.event));
+    } catch (e: any) {
+      res.status(400).json({ message: e.message });
+    }
+  });
+
   app.post("/api/validate", (req, res) => {
     const parsed = insertChartSchema.safeParse(req.body);
     if (!parsed.success)

@@ -21,8 +21,16 @@ import {
 } from "@shared/validate-types";
 import type { TransitCheck } from "@shared/rectify-types";
 import type { EventOutcome } from "@shared/events";
+import { describeEventMoment } from "@shared/events";
 import { RAO_SOURCE } from "@shared/jaimini-areas";
 import { LifeEventsEditor } from "@/components/life-events";
+import { KpTransitEvidencePanel } from "@/components/kp-transit-evidence";
+import { ParashariVargaEvidencePanel } from "@/components/parashari-varga-evidence";
+import { ManleyEvidencePanel } from "@/components/manley-evidence";
+import { AuroraEventPanel, AuroraV2Panel } from "@/components/kp-aurora-evidence";
+import { ParashariComparisonPanel } from "@/components/parashari-comparison";
+import { ParashariPromisePanel } from "@/components/parashari-promise";
+import { ParashariSpecificPanel } from "@/components/parashari-specific";
 import { LifeTimeline, type TlMark } from "@/components/life-timeline";
 import { charaBands, transitBand, vimshottariBands } from "@/lib/timeline-data";
 import { vimshottari } from "@shared/kp";
@@ -39,6 +47,7 @@ import {
 } from "@/components/ui/table";
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 
 function Mark({ on, title }: { on: boolean; title?: string }) {
@@ -54,7 +63,7 @@ function Mark({ on, title }: { on: boolean; title?: string }) {
   );
 }
 
-/** How the real events compare with the same matters at random dates: the test a birth time can fail. */
+/** How the real events compare with the same matters at random dates. */
 function BaselineLine({
   b,
   hasJaimini,
@@ -62,10 +71,11 @@ function BaselineLine({
   b: ChanceBaseline;
   hasJaimini: boolean;
 }) {
+  const t = useT();
   const cells: Array<{ key: string; label: string; s: BaselineStat }> = [
-    { key: "confirmed", label: "confirmed", s: b.confirmed },
+    { key: "confirmed", label: "period/cusp matches", s: b.confirmed },
     { key: "kp", label: "KP", s: b.kp },
-    { key: "transit", label: "transits", s: b.transit },
+    { key: "transit", label: "period-lord transits", s: b.transit },
     ...(hasJaimini ? [{ key: "jaimini", label: "Jaimini", s: b.jaimini }] : []),
     { key: "bnn", label: "Nadi", s: b.bnn },
     { key: "bnnWindow", label: "Nadi windows", s: b.bnnWindow },
@@ -79,42 +89,29 @@ function BaselineLine({
     },
     { key: "luminary", label: "Sun/Moon", s: b.luminary },
   ];
-  // Several metrics are read at once, so one of them clears the 95th by chance more often than one in twenty.
-  // Bonferroni: a single metric counts as a signal only from the (100 - 5/n)th percentile.
-  const n = cells.length;
-  const familyChance = Math.round((1 - Math.pow(0.95, n)) * 100);
-  const corrected = Math.ceil(100 - 5 / n);
-  const tone = (pct: number, v: BaselineStat["verdict"]) =>
-    pct >= corrected
-      ? "text-verdict-good"
-      : v === "below"
-        ? "text-verdict-bad"
-        : "text-muted-foreground";
-  const anyAbove = cells.some((c) => c.s.percentile >= corrected);
   return (
     <span
       className="basis-full text-muted-foreground"
       data-testid="validate-baseline"
-      title={`Each matter re-scored at ${b.trials} sets of random dates between ${b.span[0]} and ${b.span[1]}. The percentile is the share of those trials the real dates beat; 50 is pure chance. With ${n} metrics read together, at least one reaches the 95th by chance about ${familyChance}% of the time, so a single metric is read as a signal only from the ${corrected}${ordinal(corrected)} percentile (Bonferroni, 5% over the family).`}
+      title={`Each matter is rescored at ${b.trials} sets of dates selected independently between ${b.span[0]} and ${b.span[1]}. The mid-rank percentile counts lower scores plus half of tied scores. This describes these samples and is not a probability that a birth time is correct.`}
     >
-      Against chance ({b.trials} random-date trials):{" "}
+      {t("Randomly selected comparison dates")} ({b.trials} sets):{" "}
       {cells.map((c, i) => (
         <span key={c.key} data-testid={`validate-baseline-${c.key}`}>
           {i > 0 && " · "}
           {c.label}{" "}
-          <span className={cn("tabular", tone(c.s.percentile, c.s.verdict))}>
+          <span className="tabular">
             {c.s.percentile}
             {ordinal(c.s.percentile)}
           </span>
-          <span className="tabular"> (chance {c.s.mean})</span>
+          <span className="tabular"> (comparison mean {c.s.mean})</span>
         </span>
       ))}
       <span className="block" data-testid="validate-baseline-family">
-        {n} metrics at once: one clears the 95th by chance about {familyChance}%
-        of the time, so a signal here needs the {corrected}
-        {ordinal(corrected)} percentile
-        {anyAbove ? "; reached" : "; none reaches it"}. One chart is one
-        witness, not a test of the method.
+        Each date uses its own transit positions against the same natal chart.
+        Percentiles count ties halfway and are descriptive, with no adjustment
+        for the related measures or for choosing among birth times. Random dates
+        need not preserve plausible event ages or order.
       </span>
     </span>
   );
@@ -185,7 +182,7 @@ function VerdictBadge({
       )}
       data-testid={`validate-verdict-${verdict}`}
     >
-      {verdict}
+      {verdict === "confirmed" ? "period/cusp match" : verdict}
     </Badge>
   );
 }
@@ -364,6 +361,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
       chart.id,
       chart.birthDate,
       chart.birthTime,
+      chart.timezone,
+      chart.timeStandard,
       chart.latitude,
       chart.longitude,
       chart.ayanamsa,
@@ -408,15 +407,15 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
     () =>
       (v?.events ?? []).map((e) => ({
         id: e.id,
-        date: DateTime.fromISO(e.date, { zone }).toISO()!,
-        label: `${e.label} · KP ${e.kp.verdict}`,
+        date: DateTime.fromISO(`${e.date}T${e.time ?? "12:00"}`, { zone: e.timezone ?? zone }).toISO()!,
+        label: `${e.label} · KP ${e.kp.verdict === "confirmed" ? "period/cusp match" : e.kp.verdict}`,
         tone:
           e.kp.verdict === "confirmed"
             ? "good"
             : e.kp.verdict === "partial"
               ? "mixed"
               : "bad",
-        title: `${e.label} · ${fmtDate(e.date)} · KP ${e.kp.verdict} (${e.kp.score}/${e.kp.max}); Nadi ${e.bnn.score}/${e.bnn.max}${e.jaimini ? `; Chara ${e.jaimini.mdSignName}–${e.jaimini.adSignName}` : ""}`,
+        title: `${e.label} · ${fmtDate(e.date)} · KP ${e.kp.verdict === "confirmed" ? "period/cusp match" : e.kp.verdict} (${e.kp.score}/${e.kp.max}); Nadi ${e.bnn.score}/${e.bnn.max}${e.jaimini ? `; Chara ${e.jaimini.mdSignName}–${e.jaimini.adSignName}` : ""}`,
       })),
     [v, zone],
   );
@@ -437,6 +436,11 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             timing windows, named in advance by each system, the dates fell
             inside. The planet table then shows how each planet's periods
             actually went, against what its houses lead KP to expect.
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Without an event time the app uses noon; without an event time zone
+            it uses the birth zone ({chart.timezone}). A period or transit may
+            change during the day. Random dates keep the same local time and zone.
           </p>
         </div>
       </div>
@@ -515,7 +519,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             marksLabel="Checked"
           />
           <p className="mb-4 text-xs text-muted-foreground">
-            Each event is tinted by the KP verdict at its date: green confirmed,
+            Each event is tinted by the KP period/cusp verdict: green match,
             amber partial, red missed. The bands beneath are the clocks it was
             read against; hover an event to see the Nadi and Chara scores as
             well.
@@ -532,12 +536,12 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             <span className="inline-flex items-center gap-1.5">
               KP <ScoreBar score={v.summary.kpScore} max={v.summary.kpMax} />
               <span className="text-muted-foreground">
-                {v.summary.confirmed} confirmed, {v.summary.partial} partial,{" "}
+                {v.summary.confirmed} period/cusp matches, {v.summary.partial} partial,{" "}
                 {v.summary.missed} missed
               </span>
             </span>
             <span className="inline-flex items-center gap-1.5">
-              Transits{" "}
+              Period-lord transits{" "}
               <ScoreBar
                 score={v.summary.transitScore}
                 max={v.summary.transitMax}
@@ -797,6 +801,48 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             </Table>
           </div>
 
+          {v.events.some((e) => e.parashariVargas) && (
+            <p className="mt-4 text-xs text-muted-foreground">
+              Parashari reads the recorded birth chart and the relevant division
+              alongside the event's periods. Expand an event to examine its
+              placements; this does not change the other systems' scores.
+            </p>
+          )}
+          {v.events.some((e) => e.parashariPromise) && <p className="mt-3 text-xs text-muted-foreground">Version 1 Parashari rule matches are separate from the other systems' scores. These do not establish that an event was promised. In a small eight-person public-case test, the ranking missed the reported-time ±5-minute band in all eight cases.</p>}
+          {v.events.map((e) => e.parashariPromise && <ParashariPromisePanel key={`parashari-score-${e.id}`} check={e.parashariPromise} />)}
+          {v.events.some((e) => e.parashariSpecific) && <p className="mt-4 text-xs text-muted-foreground">Version 2 uses event-specific period and transit checks; its six equal points are an app convention. In nine public cases, held-out event scores at the reported birth times were nearly the same on nearby dates. The results do not establish a birth time.</p>}
+          {v.events.map((e) => e.parashariSpecific && <ParashariSpecificPanel key={`parashari-specific-${e.id}`} check={e.parashariSpecific} />)}
+          {v.events.some((e) => e.parashariDivisional) && <p className="mt-4 text-xs text-muted-foreground">Version 3 adds two primary divisional-period links to v2. In ten fresh public cases, held-out event scores resembled nearby comparison dates. These overlapping factors and equal points are an app convention and do not establish a birth time.</p>}
+          {v.events.map((e) => e.parashariDivisional && <ParashariSpecificPanel key={`parashari-divisional-${e.id}`} check={e.parashariDivisional} />)}
+          {v.baseline?.parashari && <ParashariComparisonPanel comparison={v.baseline.parashari}
+            example={v.baseline.parashariExample} trials={v.baseline.trials} birthZone={chart.timezone} />}
+          {v.events.map((e) => e.parashariVargas && (
+            <ParashariVargaEvidencePanel key={`parashari-${e.id}`} evidence={e.parashariVargas} />
+          ))}
+          {v.events.some((e) => e.manley) && <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="validate-manley-clues">
+            <summary className="cursor-pointer font-medium">Manley divisional event clues · recorded birth time</summary>
+            {v.events.map((e) => e.manley && <ManleyEvidencePanel key={`manley-${e.id}`} evidence={e.manley} />)}
+          </details>}
+          {v.events.map((e) => e.kp.transit.evidence && (
+            <KpTransitEvidencePanel key={e.id} label={e.label} date={e.date} when={describeEventMoment(e, chart.timezone)} evidence={e.kp.transit.evidence} />
+          ))}
+          {v.events.map((e) => e.kp.aurora && <AuroraEventPanel key={`aurora-${e.id}`} evidence={e.kp.aurora} label={`${e.label} · ${e.date}`} />)}
+          {v.events.map((e) => e.kp.auroraV2 && <AuroraV2Panel key={`aurora-v2-${e.id}`} evidence={e.kp.auroraV2} label={`${e.label} · ${e.date}`} />)}
+          {v.baseline?.aurora && <p className="mt-2 text-xs text-muted-foreground">Aurora full chains: {v.baseline.aurora.actual} on recorded dates; random-date mean {v.baseline.aurora.mean} across {v.baseline.trials} trials. Comparison dates are not known non-events.</p>}
+          {v.baseline?.auroraV2 && <p className="mt-2 text-xs text-muted-foreground">Aurora v2 full chains: {v.baseline.auroraV2.actual} on recorded dates; random-date mean {v.baseline.auroraV2.mean} across {v.baseline.trials} trials. {v.baseline.auroraV2.sd === 0 && v.baseline.auroraV2.actual === v.baseline.auroraV2.mean ? "The comparison scores show no spread and match the events, so this comparison does not distinguish the dates. " : ""}Comparison dates are not known non-events.</p>}
+          {v.baseline?.example && (
+            <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="validate-comparison-example">
+              <summary className="cursor-pointer font-medium">Inspect one randomly selected comparison set</summary>
+              <p className="mt-2 text-muted-foreground">
+                These are the first dates in the reproducible comparison. Each
+                sky is recalculated for its selected date against this same natal chart.
+              </p>
+              {v.baseline.example.map((e, i) => (
+                <KpTransitEvidencePanel key={`${e.label}-${e.date}-${i}`} label={`${e.label} · comparison`} date={e.date} when={describeEventMoment(e, chart.timezone)} evidence={e.evidence} />
+              ))}
+            </details>
+          )}
+
           </Chapter>
 
           <Chapter id="windows">
@@ -815,9 +861,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             worked marriages are dated by, with the antara carried as a
             refinement? Only the past windows that caught a recorded event are
             listed, with the counts giving the honest denominator of windows
-            that caught nothing; the chance line under Events carries the same
-            measures, so a window real events fall in no more often than random
-            dates reads as chance, not as a hit.
+            that caught nothing. The comparison under Events also shows how
+            often randomly selected dates fall in the windows.
           </p>
           <p
             className="mt-2 text-xs text-muted-foreground"
@@ -1057,8 +1102,9 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             the matter's own (Venus or Mars for the spouse, Saturn for work, Sun
             for the father, Rahu for foreign places), contact is by sign, trine
             or the 7th, and the count from the natal Jeeva follows the BNN tab.
-            Strong needs 4 of 6. A confirmed verdict needs the cusp promise and
-            both dasa and bhukti lords signifying; partial means something
+            Strong needs 4 of 6. A period/cusp match needs the cusp promise and
+            both dasa and bhukti lords signifying; it does not include the
+            antara or transit checks. Partial means something
             links; missed means nothing does. Timing windows: a Nadi window is a
             Jupiter passage over the matter's karaka or in its count-signs from
             the Jeeva (R.G. Rao; Naik on the female Deha), the same tests as the
@@ -1074,8 +1120,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             in the sub of another significator of the matter (the same page;
             stated there for the job houses 2-6-10-11, so its use for every
             matter is provisional). A
-            poor score across several events points to the birth time rather
-            than to the events: take it to the Rectify tab.
+            poor score across several events can be explored on the Rectify
+            tab; it does not by itself identify the cause.
           </p>
           </Chapter>
           </Chapters>

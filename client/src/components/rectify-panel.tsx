@@ -11,9 +11,19 @@ import type {
   RectifySegment,
   RectifySegmentStability,
   RectifyEvent,
+  KundaD81Window,
 } from "@shared/rectify-types";
-import { matterOf } from "@shared/events";
+import { describeEventMoment, matterOf } from "@shared/events";
 import { LifeEventsEditor } from "@/components/life-events";
+import { KpTransitEvidencePanel } from "@/components/kp-transit-evidence";
+import { ParashariVargaEvidencePanel } from "@/components/parashari-varga-evidence";
+import { ParashariPromisePanel } from "@/components/parashari-promise";
+import { ParashariSpecificPanel } from "@/components/parashari-specific";
+import { ManleyEvidencePanel } from "@/components/manley-evidence";
+import { AuroraEventPanel, AuroraLinkDetail, AuroraV2Panel } from "@/components/kp-aurora-evidence";
+import { ParashariComparisonPanel } from "@/components/parashari-comparison";
+import { VargaWindowsPanel } from "@/components/varga-windows";
+import { kpTransitEvidence } from "@shared/kp-transit-evidence";
 import {
   LifeTimeline,
   type TlBand,
@@ -45,6 +55,7 @@ import {
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { chartsStore, CHARTS_QUERY_KEY } from "@/lib/charts-store";
 import { useToast } from "@/hooks/use-toast";
+import { useLocale } from "@/lib/i18n";
 import { useJudgePlace } from "@/lib/judge-place";
 import { JudgePlaceControl } from "@/components/judge-place";
 import { setBirthTime } from "@/components/birth-time-editor";
@@ -56,6 +67,9 @@ import {
   methodLabel,
   methodScore,
   baselineFor,
+  highlightedCandidates,
+  rawScoreCoverage,
+  groupNemaniSegments,
   type RectifyMethod,
   type RectifyExportState,
 } from "@shared/rectify-methods";
@@ -80,11 +94,11 @@ function VsChance({ b }: { b: RectifyBaselineStat | undefined }) {
             ? "text-verdict-bad"
             : "text-muted-foreground",
       )}
-      title={`${b.actual} against a shuffled-date mean of ${b.mean} (sd ${b.sd}); ${b.percentile}th percentile`}
+      title={`${b.actual} against a random-date mean of ${b.mean} (sd ${b.sd}); ${ordinalOf(b.percentile)} mid-rank percentile`}
       data-testid="rectify-vs-chance"
     >
       {excess >= 0 ? "+" : "−"}
-      {Math.abs(excess).toFixed(1)} · {b.percentile}th
+      {Math.abs(excess).toFixed(1)} · {ordinalOf(b.percentile)}
     </span>
   );
 }
@@ -156,7 +170,7 @@ function FirmCell({
       title={
         st.changing.length
           ? `${plain ? "Deciding planet changes inside this slice for the" : "Sub lord changes inside the interval on the"} ${st.changing.map(ordinalOf).join(", ")}${split ? `; the matter's ${matterChanging.map(ordinalOf).join(", ")} among them` : ""}. Interval ${Math.round(st.seconds)} s long.`
-          : `Every cusp keeps its sub lord through the interval (${Math.round(st.seconds)} s).`
+          : `Every cusp has the same sub lord at the sampled start, midpoint and end (${Math.round(st.seconds)} s).`
       }
       data-testid="rectify-firm"
       data-split={split}
@@ -171,8 +185,11 @@ function FirmCell({
   );
 }
 
-const ordinalOf = (n: number) =>
-  `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
+const ordinalOf = (n: number) => {
+  const lastTwo = n % 100;
+  const suffix = lastTwo >= 11 && lastTwo <= 13 ? "th" : n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th";
+  return `${n}${suffix}`;
+};
 
 function ScoreBar({ score, max }: { score: number; max: number }) {
   const pct = max > 0 ? Math.round((score / max) * 100) : 0;
@@ -200,6 +217,7 @@ export function RectifyPanel({
   onExportState?: (s: RectifyExportState | null) => void;
 }) {
   const { chart } = result;
+  const { locale } = useLocale();
   const { toast } = useToast();
   const [, navigate] = useLocation();
   // Open on the dated events when the chart has any: that method can be checked against chance; the ruling planets cannot.
@@ -207,9 +225,11 @@ export function RectifyPanel({
     chart.events?.length ? "kp-events" : "kp-rp",
   );
   const m = RECTIFY_METHODS.find((x) => x.id === method)!;
+  const isParashariMethod = method === "parashari-events" || method === "parashari-events-v2" || method === "parashari-events-v3";
   const [showHow, setShowHow] = useState(false);
   const [windowMinutes, setWindowMinutes] = useState(30);
   const [sortByScore, setSortByScore] = useState(false);
+  const [showAllKunda, setShowAllKunda] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
   // Limbs the person confirms a mark on (Brihat Jataka 5.24-26); memory only, never stored.
   const [confirmedMarks, setConfirmedMarks] = useState<Set<string>>(
@@ -229,11 +249,15 @@ export function RectifyPanel({
   const events = chart.events ?? [];
   const eventPayload = useMemo<RectifyEvent[]>(
     () =>
-      events.map((e) => {
+      [...events].sort((a, b) => a.date.localeCompare(b.date)).map((e) => {
         const m = matterOf(e.matter);
         return {
           label: m.label,
+          matter: e.matter,
+          outcome: e.outcome,
           date: e.date,
+          time: e.time,
+          timezone: e.timezone,
           houses: m.houses,
           cusp: m.cusp,
           area: m.area,
@@ -241,25 +265,6 @@ export function RectifyPanel({
       }),
     [events],
   );
-
-  useEffect(() => {
-    onExportState?.({
-      method,
-      windowMinutes,
-      events: eventPayload,
-      judge: judge
-        ? {
-            latitude: judge.latitude,
-            longitude: judge.longitude,
-            timezone: judge.timezone,
-            label: judge.label,
-          }
-        : undefined,
-      confirmedMarks: Array.from(confirmedMarks),
-    });
-    return () => onExportState?.(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [method, windowMinutes, eventPayload, judge, confirmedMarks]);
 
   const scan = useMutation({
     mutationFn: async () => {
@@ -286,10 +291,46 @@ export function RectifyPanel({
         variant: "destructive",
       }),
   });
+  const scanInputsKey = JSON.stringify([
+    chart.id, chart.birthDate, chart.birthTime, chart.timezone, chart.timeStandard,
+    chart.latitude, chart.longitude, chart.ayanamsa, chart.nodeType, chart.gender,
+    windowMinutes, eventPayload, judge,
+  ]);
+  useEffect(() => {
+    // Never keep displaying scores after any of their inputs have changed.
+    scan.reset();
+    setOpen(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanInputsKey]);
+  useEffect(() => {
+    onExportState?.({
+      method,
+      windowMinutes,
+      events: eventPayload,
+      judge: judge
+        ? {
+            latitude: judge.latitude,
+            longitude: judge.longitude,
+            timezone: judge.timezone,
+            label: judge.label,
+          }
+        : undefined,
+      judgedAsOf: scan.data?.ruling.asOf,
+      confirmedMarks: Array.from(confirmedMarks),
+    });
+    return () => onExportState?.(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [method, windowMinutes, eventPayload, judge, confirmedMarks, scan.data?.ruling.asOf]);
 
   /** Why this interval was chosen, for the notes of the copy or of this chart. */
-  const provenance = (seg: RectifySegment) => {
+  const provenance = (seg: RectifySegment | KundaD81Window) => {
+    if ("check" in seg) {
+      return `by ${m.system} ${methodLabel(m)} (${m.source}): D81 interval ${seg.start} to ${seg.end}, midpoint ${seg.mid}; ${seg.check.via}`;
+    }
     const sc = methodScore(seg, method, marksCtx);
+    if (method === "kunda") {
+      return `by ${m.system} ${methodLabel(m)} (${m.source}): sampled midpoint ${seg.mid}; ${seg.kunda?.via ?? "no result"}. This is not a scan of the full interval`;
+    }
     const inputs = [
       m.needsJudge && data
         ? `judged ${DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from ${data.judgedAt.label}`
@@ -300,11 +341,13 @@ export function RectifyPanel({
     ]
       .filter(Boolean)
       .join("; ");
-    return `by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}${method === "bj-marks" && data ? ` (${data.marks[seg.drekkana]?.drekkanaLabel}; confirmed ${Array.from(confirmedMarks).join(", ") || "none"})` : ""}${method === "kunda" && seg.kunda ? ` (${seg.kunda.via})` : ""}${method === "bj-nashta" && seg.bjNashta ? ` (${seg.bjNashta.via})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}`;
+    return `by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}${method === "bj-marks" && data ? ` (${data.marks[seg.marksKey ?? seg.drekkana]?.drekkanaLabel}; confirmed ${Array.from(confirmedMarks).join(", ") || "none"})` : ""}${method === "bj-nashta" && seg.bjNashta ? ` (${seg.bjNashta.via})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}`;
   };
 
   const saveCopy = useMutation({
-    mutationFn: async (seg: RectifySegment) => {
+    mutationFn: async (seg: RectifySegment | KundaD81Window) => {
+      if (seg.selectable === false || (seg.midDate && seg.midDate !== chart.birthDate))
+        throw new Error("This candidate cannot be saved on the recorded birth date at whole-second precision.");
       const { id: _id, ...insert } = chart;
       const time = seg.mid;
       const base = chart.name.replace(/\s*\(rectified[^)]*\)\s*$/i, "");
@@ -333,7 +376,9 @@ export function RectifyPanel({
 
   /** Change this chart's birth time in place; the id, name and events stay, every tab recomputes. */
   const useHere = useMutation({
-    mutationFn: async (seg: RectifySegment) => {
+    mutationFn: async (seg: RectifySegment | KundaD81Window) => {
+      if (seg.selectable === false || (seg.midDate && seg.midDate !== chart.birthDate))
+        throw new Error("This candidate cannot be applied on the recorded birth date at whole-second precision.");
       const c = await setBirthTime(
         chart,
         seg.mid,
@@ -377,10 +422,14 @@ export function RectifyPanel({
         : [],
     [data, method, marksCtx],
   );
-  // With a baseline the ranking is by excess over chance, and only intervals at or above the 95th percentile
-  // count as singled out; without one it is the raw score.
+  // The 95th-percentile cutoff is an exploratory display convention, not a test of the selected time.
   const baselined =
     EVENT_METHODS.includes(method) && scored.some((r) => r.b !== undefined);
+  const maxOf = scored[0]?.max ?? 0;
+  // A score of 0/0 is not a ranking, and totals cannot be compared when an
+  // event is before birth for only part of the candidate window.
+  const parashariComparable = maxOf > 0 && scored.every((r) => r.max === maxOf);
+  const anyParashariScore = scored.some((r) => r.max > 0);
   const top = scored.reduce((t, r) => Math.max(t, r.score), 0);
   const topExcess = scored.reduce(
     (t, r) => Math.max(t, r.excess ?? -Infinity),
@@ -388,20 +437,9 @@ export function RectifyPanel({
   );
   const bestSet = useMemo(
     () =>
-      baselined
-        ? new Set(
-            scored
-              .filter(
-                (r) =>
-                  r.b?.verdict === "above" &&
-                  Math.abs((r.excess ?? 0) - topExcess) < 1e-9,
-              )
-              .map((r) => r.i),
-          )
-        : new Set(
-            scored.filter((r) => r.score === top && top > 0).map((r) => r.i),
-          ),
-    [scored, top, topExcess, baselined],
+      method === "kunda" || (isParashariMethod && !parashariComparable)
+        ? new Set<number>() : new Set(highlightedCandidates(scored)),
+    [scored, method, parashariComparable, isParashariMethod],
   );
   // Ranking: the method's score (or its excess over chance) first. Among equals: intervals whose matter
   // cusps keep their sub lord throughout (the cusp in question depends on the corrected time, Astro
@@ -428,8 +466,8 @@ export function RectifyPanel({
               (baselined
                 ? (b.excess ?? 0) - (a.excess ?? 0)
                 : b.score - a.score) ||
-              matterIntact(b.s) - matterIntact(a.s) ||
-              firmCount(b.s) - firmCount(a.s) ||
+              (isParashariMethod ? 0 : matterIntact(b.s) - matterIntact(a.s)) ||
+              (isParashariMethod ? 0 : firmCount(b.s) - firmCount(a.s)) ||
               distance(a.s) - distance(b.s) ||
               a.i - b.i,
           )
@@ -437,8 +475,36 @@ export function RectifyPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [scored, sortByScore, baselined, givenSec],
   );
-  const hasStability = scored.some((r) => r.s.stability);
-  const maxOf = scored[0]?.max ?? 0;
+  // KP's fine cusp boundaries can create many adjacent slices with identical
+  // Parashari evidence. Group only when the full displayed evidence agrees.
+  const parashariGroups = useMemo(() => {
+    type Row = (typeof scored)[number];
+    const groups: Array<{ first: Row; last: Row; representative: Row; given: boolean; signature: string }> = [];
+    for (const row of scored) {
+      const check = method === "parashari-events-v3" ? row.s.parashariDivisional : method === "parashari-events-v2" ? row.s.parashariSpecific : row.s.parashariPromise;
+      const signature = JSON.stringify([check, row.s.parashariVargas, row.s.manley, row.s.baseline?.parashari]);
+      const previous = groups[groups.length - 1];
+      if (previous && previous.signature === signature && previous.last.s.midDate === row.s.midDate) {
+        previous.last = row;
+        previous.given ||= row.s.given;
+        if (row.s.selectable !== false && (!previous.representative.s.candidate || distance(row.s) < distance(previous.representative.s)))
+          previous.representative = row;
+      } else groups.push({ first: row, last: row, representative: row, given: row.s.given, signature });
+    }
+    return sortByScore && parashariComparable ? groups.sort((a, b) => b.first.score - a.first.score || distance(a.representative.s) - distance(b.representative.s)) : groups;
+    // distance depends only on the recorded clock, included through givenSec.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scored, sortByScore, givenSec, parashariComparable, method]);
+  // Cusp and event boundaries can split the same Nemani result into dozens of
+  // slices. Preserve every change in the displayed lords or linkage, but join
+  // adjacent slices that carry exactly the same evidence.
+  const nemaniGroups = useMemo(() => groupNemaniSegments(scored.map((r) => r.s)), [scored]);
+  const hasStability = !isParashariMethod && scored.some((r) => r.s.stability);
+  // Body-mark maxima can differ by candidate; the Kunda variants use separate
+  // sampling rules. Do not imply their midpoint scores are comparable here.
+  const coverage = method !== "bj-marks" && method !== "kunda" && method !== "kunda-d81" && !(method === "kp-nemani-rp" && top === 0) && maxOf > 0 && (!isParashariMethod || parashariComparable)
+    ? rawScoreCoverage(scored.map((r) => ({ score: r.score, startIso: r.s.startIso, endIso: r.s.endIso, given: r.s.given })))
+    : undefined;
 
   // Shared timeline for the event methods: the candidate under review (the opened interval, else the best), its clock, and each event tinted by how well that candidate fits it.
   const focusIdx =
@@ -446,21 +512,18 @@ export function RectifyPanel({
       ? open
       : bestSet.size
         ? Math.min(...Array.from(bestSet))
-        : null;
+        : data ? data.segments.findIndex((s) => s.given) : null;
   const focus = focusIdx !== null && data ? data.segments[focusIdx] : null;
   const tlBands = useMemo<TlBand[]>(() => {
-    if (!focus) return [];
+    if (!focus?.candidate) return [];
     if (method === "jaimini-dasha")
       return charaBands(
-        charaDasha(focus.jaiminiSign.index, result.positions, result.utc),
+        charaDasha(focus.jaiminiSign.index, focus.candidate.positions, focus.candidate.birthUtc),
         result.now.asOf,
       );
-    const moon = result.kp.positions.find((p) => p.planet === "Moon");
-    return moon
-      ? vimshottariBands(vimshottari(moon.lon, result.utc, result.now.asOf), {
+    return vimshottariBands(vimshottari(focus.candidate.kpMoonLon, focus.candidate.birthUtc, result.now.asOf), {
           label: "KP dasa",
-        })
-      : [];
+        });
   }, [
     focus,
     method,
@@ -477,7 +540,7 @@ export function RectifyPanel({
       const ratio = mx > 0 ? sc / mx : 0;
       return {
         id: `${e.label}-${e.date}-${i}`,
-        date: DateTime.fromISO(e.date, { zone: chart.timezone }).toISO()!,
+        date: DateTime.fromISO(`${e.date}T${e.time ?? "12:00"}`, { zone: e.timezone ?? chart.timezone }).toISO()!,
         label: `${e.label} ${sc}/${mx}`,
         tone:
           mx === 0
@@ -494,7 +557,7 @@ export function RectifyPanel({
       };
     });
   }, [focus, method, chart.timezone]);
-  /** Jaimini is whole-sign: contiguous intervals in one rising sign form one row. */
+  /** Group adjacent Jaimini intervals only when their actual event results agree. */
   const signGroups = useMemo(() => {
     if (!data) return [];
     const groups: Array<{
@@ -506,10 +569,16 @@ export function RectifyPanel({
       given: boolean;
       nearest: number | null;
       b?: RectifyBaselineStat;
+      signature: string;
+      date?: string;
     }> = [];
     data.segments.forEach((s, i) => {
       const g = groups[groups.length - 1];
-      if (g && g.sign.index === s.jaiminiSign.index) {
+      const signature = JSON.stringify({
+        events: s.events.map((e) => e.jaimini),
+        baseline: s.baseline?.jaimini,
+      });
+      if (g && g.sign.index === s.jaiminiSign.index && g.signature === signature && g.date === s.midDate) {
         g.last = i;
         g.given = g.given || s.given;
       } else {
@@ -523,19 +592,24 @@ export function RectifyPanel({
           given: s.given,
           nearest: null,
           b: s.baseline?.jaimini,
+          signature,
+          date: s.midDate,
         });
       }
     });
     const givenIdx = data.segments.findIndex((s) => s.given);
     for (const g of groups) {
       if (g.given) continue;
-      g.nearest = givenIdx < g.first ? g.first : g.last;
+      const eligible = data.segments.slice(g.first, g.last + 1)
+        .map((s, n) => s.selectable === false || (s.midDate && s.midDate !== chart.birthDate) ? null : g.first + n)
+        .filter((n): n is number => n !== null);
+      g.nearest = (givenIdx < g.first ? eligible[0] : eligible.at(-1)) ?? null;
     }
     return groups;
-  }, [data]);
+  }, [data, chart.birthDate]);
   const groupBaselined = signGroups.some((g) => g.b !== undefined);
   const groupTopExcess = signGroups.reduce(
-    (t, g) => Math.max(t, g.b ? g.b.actual - g.b.mean : -Infinity),
+    (t, g) => Math.max(t, g.b?.verdict === "above" ? g.b.actual - g.b.mean : -Infinity),
     -Infinity,
   );
   const groupBest = (g: { score: number; b?: RectifyBaselineStat }) =>
@@ -544,13 +618,15 @@ export function RectifyPanel({
         Math.abs(g.b.actual - g.b.mean - groupTopExcess) < 1e-9
       : g.score === groupTop && groupTop > 0;
   const groupTop = signGroups.reduce((t, g) => Math.max(t, g.score), 0);
-  // Brihat Jataka marks: rows are rising drekkanas, since every interval in one drekkana reads alike.
+  // Group only identical body-mark calculations, even inside the same drekkana.
   const drekkanaGroups = useMemo(() => {
     if (!data) return [];
     const groups: Array<{
       first: number;
       last: number;
       drekkana: number;
+      marksKey: number;
+      date?: string;
       score: number;
       max: number;
       given: boolean;
@@ -558,7 +634,8 @@ export function RectifyPanel({
     }> = [];
     data.segments.forEach((s, i) => {
       const g = groups[groups.length - 1];
-      if (g && g.drekkana === s.drekkana) {
+      const marksKey = s.marksKey ?? s.drekkana;
+      if (g && g.drekkana === s.drekkana && g.marksKey === marksKey && g.date === s.midDate) {
         g.last = i;
         g.given = g.given || s.given;
       } else {
@@ -567,6 +644,8 @@ export function RectifyPanel({
           first: i,
           last: i,
           drekkana: s.drekkana,
+          marksKey,
+          date: s.midDate,
           score: sc.score,
           max: sc.max,
           given: s.given,
@@ -577,10 +656,13 @@ export function RectifyPanel({
     const givenIdx = data.segments.findIndex((s) => s.given);
     for (const g of groups) {
       if (g.given) continue;
-      g.nearest = givenIdx < g.first ? g.first : g.last;
+      const eligible = data.segments.slice(g.first, g.last + 1)
+        .map((s, n) => s.selectable === false || (s.midDate && s.midDate !== chart.birthDate) ? null : g.first + n)
+        .filter((n): n is number => n !== null);
+      g.nearest = (givenIdx < g.first ? eligible[0] : eligible.at(-1)) ?? null;
     }
     return groups;
-  }, [data, marksCtx]);
+  }, [data, marksCtx, chart.birthDate]);
   const drekkanaTop = drekkanaGroups.reduce((t, g) => Math.max(t, g.score), 0);
   const sortedDrekkanas = useMemo(
     () =>
@@ -594,9 +676,10 @@ export function RectifyPanel({
   const [openDrekkana, setOpenDrekkana] = useState<number | null>(null);
   const shownDrekkana =
     openDrekkana ??
-    drekkanaGroups.find((g) => g.given)?.drekkana ??
-    drekkanaGroups[0]?.drekkana ??
+    drekkanaGroups.find((g) => g.given)?.first ??
+    drekkanaGroups[0]?.first ??
     null;
+  const shownMarksGroup = drekkanaGroups.find((g) => g.first === shownDrekkana);
   const sortedGroups = useMemo(
     () =>
       sortByScore
@@ -658,9 +741,11 @@ export function RectifyPanel({
             practitioner={
               <>
                 The window around the recorded time {chart.birthTime} is cut at
-                every change of the lagna's sign, star and sub lord, and each
-                interval is scored by the method you choose. One scan serves
-                every method; switch between them without scanning again. Use
+                changes in the rising degree and the event-related KP cusps and
+                natal inputs. Each interval is scored at its midpoint; other
+                fine divisions can still change within it. D81 Kunda has its own
+                independently scanned intervals. One scan serves every method;
+                switch between them without scanning again. Use
                 here moves this chart to that interval's midpoint, keeping its
                 name and events; Save makes a copy at that time and leaves this
                 one untouched.
@@ -681,7 +766,10 @@ export function RectifyPanel({
             type="button"
             role="tab"
             aria-selected={method === x.id}
-            onClick={() => setMethod(x.id)}
+            onClick={() => {
+              setMethod(x.id);
+              setOpen(null);
+            }}
             className={cn(
               "rounded px-2.5 py-1",
               method === x.id
@@ -701,6 +789,19 @@ export function RectifyPanel({
       >
         {plain ? m.plainShort : m.short} <Cite>{m.source}</Cite>
       </p>
+      {locale === "ml" && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          പദങ്ങൾ: രാശ്യാധിപൻ (sign lord), ഭാവാധിപൻ (house lord), നക്ഷത്രാധിപൻ
+          (star lord), സഹാധിപൻ (sub-lord; നിർദ്ദേശിച്ച പദം).
+        </p>
+      )}
+      {m.needsEvents && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Without an event time, both tabs use noon; without an event time zone,
+          they use the birth time zone ({chart.timezone}). Periods and transits
+          can change during the day. Random dates keep the same local time and zone.
+        </p>
+      )}
       {m.needsJudge && (
         <JudgePlaceControl
           birthPlace={chart.place}
@@ -782,7 +883,7 @@ export function RectifyPanel({
             {method === "kp-events" || method === "jaimini-dasha"
               ? " against every dated event"
               : ""}
-            . Usually a few seconds.
+            . Larger event lists or wider windows can take longer.
           </p>
           <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
           <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
@@ -814,6 +915,7 @@ export function RectifyPanel({
           aria-busy={scan.isPending || undefined}
           data-testid="rectify-results"
         >
+          {data.vargaWindows && <VargaWindowsPanel rows={data.vargaWindows} birthDate={chart.birthDate} />}
           {method === "kp-rp" && (
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
               <span>
@@ -840,9 +942,24 @@ export function RectifyPanel({
               ))}
             </div>
           )}
+          {method === "kp-nemani-rp" && (() => {
+            const g = data.segments.find((s) => s.given) ?? data.segments[0];
+            const n = g?.nemani;
+            return <div className="rounded-md border px-3 py-2 text-xs text-muted-foreground" data-testid="rectify-nemani-explanation">
+              <p>Judged at {DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm:ss")} from {data.judgedAt.label} ({data.judgedAt.timezone}). The judgment Moon's sign, star and sub lords are compared level by level with the candidate's ascendant lords; the connections between the planets use their positions at judgment.</p>
+              <p className="mt-1">A 1/1 match requires all three links, using equality or a direct or two-step star/sub chain in either direction. This is an experimental interpretation; neither a match nor a narrow interval confirms a birth time. The book recommends checking life events separately.</p>
+              {n && <p className="mt-1">Recorded-time interval midpoint: sign — {n.via.sign}; star — {n.via.star}; sub — {n.via.sub}.</p>}
+              {!n && <p className="mt-1">Scan again to calculate this check.</p>}
+            </div>;
+          })()}
           {method === "kp-moon" &&
             (() => {
               const g = data.segments.find((s) => s.given) ?? data.segments[0];
+              const moonVaries = data.segments.some(
+                (s) =>
+                  s.moonLords.birthStar !== g.moonLords.birthStar ||
+                  s.moonLords.moonSign !== g.moonLords.moonSign,
+              );
               return (
                 <p
                   className="text-xs text-muted-foreground"
@@ -850,12 +967,14 @@ export function RectifyPanel({
                 >
                   {plain ? (
                     <>
-                      The Moon was in the star {g.moonLords.birthStar}, ruled by{" "}
+                      At the midpoint of the recorded-time slice, the Moon was in the star {g.moonLords.birthStar}, ruled by{" "}
                       <PlanetName planet={g.moonLords.birthStarLord} abbr />,
                       and in the sign {g.moonLords.moonSign}, ruled by{" "}
-                      <PlanetName planet={g.moonLords.moonSignLord} abbr />;
-                      these do not change across the window, only the rising
-                      degree's deciding planet does. Levels: the deciding planet
+                      <PlanetName planet={g.moonLords.moonSignLord} abbr />.{" "}
+                      {moonVaries
+                        ? "The Moon's star or sign changes across this scan; each slice uses its own midpoint. "
+                        : "The sampled slices have the same Moon star and sign; each is read at its midpoint. "}
+                      Levels: the deciding planet
                       is the star's ruler (4), stands in that ruler's star (3),
                       in one of its finer divisions (2), or reaches it through
                       the planet whose sub it stands in (1). The score is twice
@@ -865,12 +984,14 @@ export function RectifyPanel({
                     </>
                   ) : (
                     <>
-                      Birth star {g.moonLords.birthStar}, lord{" "}
+                      At the recorded-time interval's midpoint: birth star {g.moonLords.birthStar}, lord{" "}
                       <PlanetName planet={g.moonLords.birthStarLord} abbr />;
                       Moon in {g.moonLords.moonSign}, lord{" "}
-                      <PlanetName planet={g.moonLords.moonSignLord} abbr />. The
-                      Moon's lords do not change across the window; only the
-                      lagna sub lord does. Levels: the sub lord is the birth
+                      <PlanetName planet={g.moonLords.moonSignLord} abbr />.{" "}
+                      {moonVaries
+                        ? "The Moon's star or sign changes across the scan; each interval uses its own midpoint. "
+                        : "The sampled intervals have the same Moon star and sign; each is read at its midpoint. "}
+                      Levels: the sub lord is the birth
                       star lord (4), stands in its star (3), in its sub, sub-sub
                       or sookshma (2), or reaches it through the planet whose
                       sub it occupies (1). The score is twice the level, plus
@@ -915,6 +1036,7 @@ export function RectifyPanel({
                   the matter.
                 </>
               )}
+              {" "}The Sun hint is separate from the event-transit score and comparison.
             </p>
           )}
           <p className="mt-1 text-xs text-muted-foreground">
@@ -927,8 +1049,8 @@ export function RectifyPanel({
                 : " Several intervals usually pass at some level; keep those at the top level, then settle between them with the ruling planets or dated events. Shanmugham allows the chain to run to the sookshma because births are timed at different moments (first cry, laid down, head appearing).")}
             {method === "kp-rp" &&
               (plain
-                ? " Outlined badges are doubtful rulers (moving backwards today) or their stand-ins and count half. The second set of marks is Dutta's test: the rising degree's sign, star and deciding planets must each link to the sign, star and deciding planets of the Moon ruling the moment you judge — the same planet, or one in the other's sign, star or sub, or through a third planet ruling at that level; all three linking is his mark of the correct slice. Rerun on another day and the ruling planets change; the slices that agree every time are the ones to trust."
-                : " Half-weight badges are doubtful ruling planets (retrograde now) or their stand-ins. The second set of marks is Dutta's first testing: the lagna's sign, star and sub lords must each link, level to level, to the sign, star and sub lords of the RP Moon — the same planet, or one in the other's sign, star or sub, or through a third planet ruling at that level; all three levels linking is his mark of the correct interval (Birth Time Rectification through KP Astrology). Rerun on another day and the ruling planets change; the intervals that agree every time are the ones to trust.")}
+                ? " Outlined badges are doubtful rulers or stand-ins and count half. The second set is Nadi's Dutta-inspired mixed-chart check: it compares a birth-chart position with a judgment-time position. Its weights are app choices. The separate Nemani method uses the judgment chart for both sides. Neither check establishes a birth time."
+                : " Half-weight badges are doubtful ruling planets or stand-ins. The RP Moon marks are Nadi's Dutta-inspired mixed-chart interpretation, comparing a natal position with a judgment-time position; the combined weights are app choices. Nemani's separately named method reads both planets in the judgment chart. Neither check establishes a birth time.")}
             {method === "kp-events" &&
               (eventPayload.length
                 ? plain
@@ -942,38 +1064,86 @@ export function RectifyPanel({
             {method === "jaimini-dasha" &&
               (eventPayload.length
                 ? plain
-                  ? ` Rows are rising signs, not minute slices. Each event shows the period and sub-period signs running that day (fwd, bwd: the direction the periods run from that rising sign); a full dot means the sign carries the matter by Rao's threshold, a faint one a lighter touch. ${signGroups.length < 2 ? "Only one sign rises in this window; widen it to ± 120 or 180 min to test the neighbouring signs." : ""}`
-                  : ` Rows are rising signs, not sub-lord intervals. Each event shows the mahadasha and antardasha signs running that day (fwd, bwd: the direction the dasha runs from that lagna); a full mark means the sign carries the matter by Rao's threshold (the area's karaka in its house, its pada, or the karaka's own sign), a faint one a lighter touch. ${signGroups.length < 2 ? "Only one sign rises in this window; widen it to ± 120 or 180 min to test the neighbouring signs." : ""}`
+                  ? " Adjacent slices are grouped when their rising sign and event results agree. A full dot means the period sign carries the matter by Rao's threshold; a faint one is a lighter touch. Each slice is checked at its midpoint."
+                  : " Adjacent intervals are grouped when their lagna sign and event results agree. Period boundaries can change within a sign; each interval is checked at its midpoint. A full mark means Rao's threshold is met, a faint one a lighter touch."
                 : " Add dated events and scan again to score by this method.")}
             {method === "bj-marks" &&
               (plain
-                ? ` Rows are thirds of the rising sign, not minute slices; each lists the body parts the planets should have marked, green where you ticked the part above. ${drekkanaGroups.length < 2 ? "Only one third rises in this window; widen it to ± 60 min or more to test the neighbouring thirds." : ""}`
-                : ` Rows are rising drekkanas, not sub-lord intervals; each lists the limbs the planets and benefic aspects predict, green where confirmed above. ${drekkanaGroups.length < 2 ? "Only one drekkana rises in this window; widen it to ± 60 min or more to test the neighbouring drekkanas." : ""}`)}
+                ? " Adjacent slices with the same third of the rising sign and identical body-mark calculations are grouped. Each uses its midpoint."
+                : " Adjacent intervals with the same rising drekkana and identical body-mark calculations are grouped. Each uses its midpoint.")}
           </p>
 
           <div className="mt-3 flex items-center justify-between text-xs">
             <span className="text-muted-foreground">
-              {method === "jaimini-dasha"
-                ? `${signGroups.length} rising ${signGroups.length === 1 ? "sign" : "signs"} in ± ${data.windowMinutes} min · ${plain ? "Jaimini sign periods" : "Jaimini chara dasha"} · best score ${groupTop} of ${signGroups[0]?.max ?? 0}`
+              {method === "kunda-d81"
+                ? `${data.kundaD81?.length ?? 0} D81 intervals · ${(data.kundaD81 ?? []).filter((s) => s.check.trine).length} match the birth star or a trine`
+                : method === "kunda"
+                  ? `${data.segments.length} midpoint samples · Raman's arithmetic is not resolved into time intervals`
+                  : method === "jaimini-dasha"
+                ? `${signGroups.length} Jaimini result ${signGroups.length === 1 ? "group" : "groups"} in ± ${data.windowMinutes} min · highest raw score ${groupTop} of ${signGroups[0]?.max ?? 0}`
                 : method === "bj-marks"
-                  ? `${drekkanaGroups.length} rising ${drekkanaGroups.length === 1 ? "drekkana" : "drekkanas"} in ± ${data.windowMinutes} min · Brihat Jataka marks · ${confirmedMarks.size ? `best ${drekkanaTop} confirmed` : "tick your marks above to score"}`
-                  : `${data.segments.length} ${plain ? "slices" : "intervals"} in ± ${data.windowMinutes} min · ${m.system} ${plain ? m.plainLabel.toLowerCase() : methodLabel(m)} · best score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}${baselined ? ` · best over chance ${topExcess >= 0 ? "+" : "−"}${Math.abs(topExcess).toFixed(1)}` : ""}`}
+                  ? `${drekkanaGroups.length} body-mark result ${drekkanaGroups.length === 1 ? "group" : "groups"} in ± ${data.windowMinutes} min · ${confirmedMarks.size ? `highest ${drekkanaTop} confirmed` : "tick your marks above to score"}`
+                  : method === "kp-nemani-rp"
+                    ? `${nemaniGroups.length} groups from ${data.segments.length} sampled slices · ${top ? "some intervals match all three levels" : "no interval matches all three levels"}`
+                  : isParashariMethod && !parashariComparable
+                  ? `${data.segments.length} slices in ± ${data.windowMinutes} min · ${anyParashariScore ? "event eligibility differs across the window" : "no eligible events to score"}`
+                  : `${data.segments.length} ${plain ? "slices" : "intervals"} in ± ${data.windowMinutes} min · ${m.system} ${plain ? m.plainLabel.toLowerCase() : methodLabel(m)} · highest raw score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}${baselined ? ` · highest difference from comparison mean ${topExcess >= 0 ? "+" : "−"}${Math.abs(topExcess).toFixed(1)}` : ""}`}
             </span>
-            <button
+            {method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && (!isParashariMethod || parashariComparable) && <button
               type="button"
               className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground"
               onClick={() => setSortByScore((v) => !v)}
               data-testid="button-rectify-sort"
             >
               {sortByScore ? "Sort by time" : "Sort by score"}
-            </button>
-            {hasStability && sortByScore && (
+            </button>}
+            {method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && hasStability && sortByScore && (
               <span className="text-2xs text-muted-foreground">
                 ties broken by matter cusps intact, firm cusps, then nearness to
                 the recorded time
               </span>
             )}
           </div>
+          {data.segments.some((s) => s.midDate && s.midDate !== chart.birthDate) && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              This window crosses a calendar date. Candidates on another date
+              are labelled and cannot be applied to this chart; create a chart
+              for that date and scan again to use one.
+            </p>
+          )}
+          {coverage && (
+            <p className="mt-2 rounded border px-3 py-1.5 text-xs text-muted-foreground" data-testid="rectify-score-coverage">
+              At the sampled midpoints, the highest raw score ({coverage.top} of {maxOf})
+              covers about {coverage.percent}% of this time window.
+              {coverage.recorded !== undefined && ` The midpoint of the recorded-time interval scores ${coverage.recorded} of ${maxOf}.`}
+              {" "}This estimates how much the score narrows the window; scores can change
+              within an interval. Highlights use a separate comparison when available.
+            </p>
+          )}
+          {method === "kp-nemani-rp" && (
+            <div className="mt-3 overflow-x-auto" data-testid="rectify-nemani-groups">
+              <p className="mb-2 text-xs text-muted-foreground">Adjacent slices are grouped only when their rising sign, three lords and displayed connections agree. Open a group to see its three links.</p>
+              <Table className="text-xs">
+                <TableHeader><TableRow><TableHead>Time interval</TableHead><TableHead>Rising sign and lords</TableHead><TableHead>Connections</TableHead></TableRow></TableHeader>
+                <TableBody>{nemaniGroups.map((g) => {
+                  const s = g.first;
+                  const n = s.nemani;
+                  return <TableRow key={`${s.startIso}-${g.firstIndex}`}>
+                    <TableCell className="whitespace-nowrap">{s.midDate && s.midDate !== chart.birthDate ? `${s.midDate} ` : ""}{s.start}–{g.last.end}{g.given ? " · recorded" : ""}</TableCell>
+                    <TableCell>{s.sign} · {s.signLord} · {s.starLord} · {s.subLord}</TableCell>
+                    <TableCell>{n ? <details><summary className="cursor-pointer">{n.all ? "All three link" : "Not all three link"}</summary><p>Sign: {n.via.sign}.</p><p>Star: {n.via.star}.</p><p>Sub: {n.via.sub}.</p></details> : "Scan again"}</TableCell>
+                  </TableRow>;
+                })}</TableBody>
+              </Table>
+            </div>
+          )}
+          {EVENT_METHODS.includes(method) && scored.length > 1 && scored.every((r) => r.score === scored[0].score) && (
+            <p className="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200" data-testid="rectify-flat-score-note">
+              Every sampled interval has the same raw score, so that score alone
+              cannot narrow this birth-time window. The random-date comparisons
+              may still differ; none establishes the correct time.
+            </p>
+          )}
           {EVENT_METHODS.includes(method) &&
             eventPayload.length > 0 &&
             (() => {
@@ -982,12 +1152,6 @@ export function RectifyPanel({
               const above = isJ
                 ? signGroups.filter((g) => g.b?.verdict === "above").length
                 : scored.filter((r) => r.b?.verdict === "above").length;
-              const unit = isJ ? "rising sign" : plain ? "slice" : "interval";
-              const units = isJ
-                ? "rising signs"
-                : plain
-                  ? "slices"
-                  : "intervals";
               return (
                 <p
                   className={cn(
@@ -999,13 +1163,75 @@ export function RectifyPanel({
                   data-testid="rectify-baseline-note"
                 >
                   {!on
-                    ? "No chance baseline: it needs at least two dated events at least a year apart."
-                    : above === 0
-                      ? `None of these ${units} beats its own chance level. Each was scored again at ${data.baseline?.trials ?? 200} shuffled dates drawn from ${data.baseline?.span[0].slice(0, 4)}–${data.baseline?.span[1].slice(0, 4)}, and no real score reaches the 95th percentile of its own trials. These events do not single out a birth time in this window; the raw scores mostly measure how many houses each ${isJ ? "sign" : "sub lord"} signifies whatever the dates.`
-                      : `${above} ${above === 1 ? unit : units} ${above === 1 ? "beats" : "beat"} chance at the 95th percentile of ${data.baseline?.trials ?? 200} shuffled-date trials; the ranking and the highlighted row go by excess over chance, not by raw score.`}
+                    ? "A random-date comparison needs at least two events at least a year apart."
+                    : `${data.baseline?.trials ?? 200} sets of comparison dates were independently selected between ${data.baseline?.span[0]} and ${data.baseline?.span[1]}; transits are recalculated on each date against this candidate's natal chart. ${above} ${above === 1 ? "result reaches" : "results reach"} the 95th mid-rank percentile. Highlighting uses that exploratory cutoff and the difference from the comparison mean; it does not account for trying multiple measures or candidates and does not establish a correct birth time. Random dates need not preserve plausible event ages or order.`}
                 </p>
               );
             })()}
+
+          {EVENT_METHODS.includes(method) && focus && eventPayload.length > 0 && (
+            <div className="mt-3" data-testid="rectify-parashari-cross-check">
+              <p className="text-xs text-muted-foreground">
+                Parashari cross-check at candidate midpoint {focus.midDate} {focus.mid}.
+                Use Houses or Cusps on another row to compare its birth-chart and divisional evidence.
+                Available for marriage, children and career events; no automatic verdict.
+              </p>
+              {(focus.parashariVargas ?? []).map((e, i) => (
+                <ParashariVargaEvidencePanel key={`${e.matter}-${e.date}-${i}`} evidence={e} />
+              ))}
+              {!focus.parashariVargas?.length && (
+                <p className="mt-1 text-xs text-muted-foreground">No supported event was supplied for this cross-check.</p>
+              )}
+            </div>
+          )}
+
+          {(isParashariMethod || EVENT_METHODS.includes(method)) && !!focus?.manley?.length && <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="rectify-manley-clues">
+            <summary className="cursor-pointer font-medium">Manley divisional event clues · candidate midpoint {focus.midDate} {focus.mid}</summary>
+            {(focus.manley ?? []).map((e, i) => <ManleyEvidencePanel key={`${e.matter}-${e.date}-${i}`} evidence={e} />)}
+          </details>}
+
+          {isParashariMethod && (
+            <div className="mt-3" data-testid="rectify-parashari-ranking">
+              <p className="text-xs text-muted-foreground">
+                Each supported event contributes up to {method === "parashari-events-v3" ? "eight" : method === "parashari-events-v2" ? "six" : "five"} experimental rule matches. Marriage, childbirth,
+                and a new job or promotion are scored; other or explicitly mixed or unfavourable events are omitted.
+                D1 and divisional indications are partial and can conflict. These scores are not probabilities
+                or proof of a birth time. The random-date comparison is exploratory and is not calibrated to select a birth time.
+                Adjacent slices are grouped only when their displayed Parashari evidence agrees; Inspect chooses
+                a midpoint near the recorded time in that group.
+                {sortByScore && parashariComparable ? " Ties are displayed nearest the recorded time first." : ""}
+              </p>
+              {!parashariComparable && anyParashariScore && <p className="mt-2 text-xs text-muted-foreground">
+                The eligible events differ across candidate times, so their totals cannot be ranked. Check event dates and times relative to birth.
+              </p>}
+              <p className="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+                {method === "parashari-events" ? "In an initial eight-person public-case test, the v1 highest scores missed the ±5-minute band around the reported birth time in all eight cases. " : method === "parashari-events-v2" ? "In nine new public cases, v2's highest intervals touched the reported-time ±5-minute band in eight but covered 35% of the hour on average. At the reported birth times, held-out event scores were nearly the same on nearby comparison dates. " : "In ten fresh public cases, v3's highest intervals came within five minutes of the reported time in four cases and covered 29% of the hour on average. Held-out event scores resembled nearby dates. The added links can overlap and equal weights are app choices. "}
+                The ranking should not be used on its own to change a birth time.
+              </p>
+              {focus && <>
+                <p className="mt-2 text-xs font-medium">Candidate midpoint {focus.midDate} {focus.mid}</p>
+                {focus.baseline?.parashari && data.baseline && <ParashariComparisonPanel comparison={focus.baseline.parashari}
+                  example={focus.baseline.parashariExample} trials={data.baseline.trials} birthZone={chart.timezone} />}
+                {method === "parashari-events-v3"
+                  ? (focus.parashariDivisional ?? []).map((check, i) => <ParashariSpecificPanel key={`${check.matter}-${check.date}-${i}`} check={check} />)
+                  : method === "parashari-events-v2"
+                  ? (focus.parashariSpecific ?? []).map((check, i) => <ParashariSpecificPanel key={`${check.matter}-${check.date}-${i}`} check={check} />)
+                  : (focus.parashariPromise ?? []).map((check, i) => <ParashariPromisePanel key={`${check.matter}-${check.date}-${i}`} check={check} />)}
+                {(focus.parashariVargas ?? []).map((e, i) => <ParashariVargaEvidencePanel key={`varga-${e.matter}-${e.date}-${i}`} evidence={e} />)}
+                {!(method === "parashari-events-v3" ? focus.parashariDivisional : method === "parashari-events-v2" ? focus.parashariSpecific : focus.parashariPromise)?.length && <p className="text-xs text-muted-foreground">No eligible event is available to score.</p>}
+              </>}
+              {anyParashariScore && <div className="mt-3 overflow-x-auto">
+                <Table className="text-xs">
+                  <TableHeader><TableRow><TableHead>Time interval</TableHead><TableHead>Rule matches</TableHead><TableHead>Candidate</TableHead></TableRow></TableHeader>
+                  <TableBody>{parashariGroups.map((g) => <TableRow key={`${g.first.s.startIso}-${g.first.i}`}>
+                    <TableCell>{g.first.s.start}–{g.last.s.end}{g.given ? " · recorded" : ""}</TableCell>
+                    <TableCell>{g.first.score} / {g.first.max}{parashariComparable && g.first.score === top ? " · highest" : ""}</TableCell>
+                    <TableCell><button type="button" className="underline" onClick={() => setOpen(open === g.representative.i ? null : g.representative.i)}>{open === g.representative.i ? "Hide" : "Inspect"}</button></TableCell>
+                  </TableRow>)}</TableBody>
+                </Table>
+              </div>}
+            </div>
+          )}
 
           {(method === "kp-events" || method === "jaimini-dasha") &&
             focus &&
@@ -1028,7 +1254,7 @@ export function RectifyPanel({
                       : `, lagna sub lord ${focus.subLord}`}
                     {focus.given ? " (the given time)" : ""};{" "}
                     {open === null
-                      ? "the best-scoring interval; open another row to compare"
+                      ? bestSet.size ? "a highlighted interval; open another row to compare" : "the recorded-time interval; open another row to compare"
                       : "the opened row"}
                     . Green events fit fully, amber in part, red not at all.
                   </span>
@@ -1036,7 +1262,7 @@ export function RectifyPanel({
                 <LifeTimeline
                   className="mt-2"
                   testid="rectify-timeline"
-                  birthIso={result.utc}
+                  birthIso={focus.candidate?.birthUtc ?? result.utc}
                   asOfIso={result.now.asOf}
                   bands={tlBands}
                   marks={tlMarks}
@@ -1044,6 +1270,155 @@ export function RectifyPanel({
                 />
               </div>
             )}
+
+          {method === "kp-transit" && focus?.candidate && data.eventTransits && (
+            <div className="mt-3">
+              <p className="text-xs text-muted-foreground">
+                Natal chart at {focus.midDate} {focus.mid}; use Houses on a row
+                below to inspect another candidate. The full transit context is
+                descriptive and does not change the two-period-lord score.
+              </p>
+              {focus.events.map((e, i) => {
+                const sky = data.eventTransits?.[i];
+                return sky ? <KpTransitEvidencePanel key={`${e.label}-${e.date}-${i}`} label={e.label} date={e.date} when={describeEventMoment(e, chart.timezone)} evidence={kpTransitEvidence(sky.positions, focus.candidate!.kpPlanets, focus.candidate!.kpCusps, e.houses)} /> : null;
+              })}
+              {data.baseline && (
+                <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="rectify-comparison-example">
+                  <summary className="cursor-pointer font-medium">Inspect one randomly selected comparison set</summary>
+                  <p className="mt-2 text-muted-foreground">
+                    These are the first dates in the reproducible comparison,
+                    using this candidate's natal chart and each selected date's sky.
+                  </p>
+                  {focus.events.map((e, i) => {
+                    const example = data.eventTransits?.[i]?.example;
+                    return example ? <KpTransitEvidencePanel key={`${e.label}-${example.date}-${i}`} label={`${e.label} · comparison`} date={example.date} when={describeEventMoment(example, chart.timezone)} evidence={kpTransitEvidence(example.positions, focus.candidate!.kpPlanets, focus.candidate!.kpCusps, e.houses)} /> : null;
+                  })}
+                </details>
+              )}
+            </div>
+          )}
+
+          {method === "kp-aurora" && focus && <div className="mt-3" data-testid="rectify-aurora-evidence">
+            <p className="text-xs text-muted-foreground">At the selected candidate, only complete staged chains are counted. Ties and unresolved stages do not identify a birth time. Event skies are descriptive.</p>
+            {focus.auroraAscendant && <AuroraLinkDetail links={focus.auroraAscendant} />}
+            {focus.events.map((e, i) => e.aurora && <AuroraEventPanel key={`${e.label}-${e.date}-${i}`} evidence={e.aurora} label={`${e.label} · ${e.date}`} />)}
+            {!focus.events.some((e) => e.aurora) && <p className="mt-2 text-xs text-muted-foreground">None of the selected events is supported by this research adapter.</p>}
+            {focus.baseline?.aurora && <p className="mt-2 text-xs text-muted-foreground">Full chains on the events: {focus.baseline.aurora.actual}; random-date mean: {focus.baseline.aurora.mean}. Random dates are not known non-events.</p>}
+          </div>}
+          {method === "kp-aurora-v2" && focus && <div className="mt-3" data-testid="rectify-aurora-v2-evidence">
+            <p className="text-xs text-muted-foreground">Only complete v2 chains are counted. A supported mixed star retains its caution; a mixed sub remains unresolved. Ties do not identify a birth time.</p>
+            {focus.auroraAscendant && <AuroraLinkDetail links={focus.auroraAscendant} />}
+            {focus.events.map((e, i) => e.auroraV2 && <AuroraV2Panel key={`${e.label}-${e.date}-${i}`} evidence={e.auroraV2} label={`${e.label} · ${e.date}`} />)}
+            {!focus.events.some((e) => e.auroraV2) && <p className="mt-2 text-xs text-muted-foreground">None of the selected events is supported by this research adapter.</p>}
+            {focus.baseline?.auroraV2 && <p className="mt-2 text-xs text-muted-foreground">Full v2 chains on the events: {focus.baseline.auroraV2.actual}; random-date mean: {focus.baseline.auroraV2.mean}. {focus.baseline.auroraV2.sd === 0 && focus.baseline.auroraV2.actual === focus.baseline.auroraV2.mean ? "The comparison scores show no spread and match the events, so this comparison does not distinguish the dates. " : ""}Random dates are not known non-events.</p>}
+          </div>}
+
+          {method === "kunda" && (
+            <div className="mt-3 overflow-x-auto" data-testid="rectify-kunda-raman">
+              <p className="mb-2 text-xs text-muted-foreground">
+                Samples use the chart's selected ayanamsa. Their times come from
+                the general scan; those boundaries are not Raman Kunda intervals.
+                A row marked recorded contains the recorded time, but its result
+                is calculated at the sample time shown.
+              </p>
+              <Table className="text-xs [&_td]:px-3 [&_th]:px-3">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Sample time</TableHead>
+                    <TableHead>Kunda star</TableHead>
+                    <TableHead>Birth star</TableHead>
+                    <TableHead>Check</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {data.segments.map((s, i) => (
+                    <TableRow key={`${s.startIso}-${i}`}>
+                      <TableCell className="whitespace-nowrap tabular">
+                        {s.mid}{s.midDate && s.midDate !== chart.birthDate ? ` (${s.midDate})` : ""}{s.given ? " · contains recorded time" : ""}
+                      </TableCell>
+                      <TableCell>{s.kunda ? NAKSHATRAS[s.kunda.kundaNakshatra] : "—"}</TableCell>
+                      <TableCell>{s.kunda ? NAKSHATRAS[s.kunda.birthStar] : "—"}</TableCell>
+                      <TableCell>{s.kunda ? (s.kunda.trine ? "matches" : "does not match") : "Not representable at whole-second precision"}</TableCell>
+                      <TableCell className="whitespace-nowrap text-right">
+                        {!s.given && (
+                          <button
+                            type="button"
+                            className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50"
+                            onClick={() => saveCopy.mutate(s)}
+                            disabled={busy || s.selectable === false || Boolean(s.midDate && s.midDate !== chart.birthDate)}
+                            title={`Save a copy at the sampled time ${s.mid}`}
+                          >
+                            Save sampled midpoint
+                          </button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
+          {method === "kunda-d81" && (
+            <div className="mt-3 overflow-x-auto" data-testid="rectify-kunda-d81">
+              <p className="mb-2 text-xs text-muted-foreground">
+                D81 uses the chart's selected ayanamsa. The scan samples Kunda
+                and Moon-star changes; boundaries are rounded to seconds and
+                very rapid changes can be missed, especially near the poles.
+                A midpoint that cannot be represented within its interval at
+                whole-second precision cannot be saved.
+                Matching a star is a traditional check, not proof of a birth time.
+              </p>
+              <p className="mb-2 text-xs text-muted-foreground">
+                {showAllKunda ? "Showing all intervals." : "Showing matching intervals and the recorded-time interval."}{" "}
+                <button type="button" className="underline underline-offset-2" onClick={() => setShowAllKunda((v) => !v)}>
+                  {showAllKunda ? "Show matching intervals" : "Show all intervals"}
+                </button>
+              </p>
+              <Table className="text-xs [&_td]:px-3 [&_th]:px-3">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>From</TableHead>
+                    <TableHead>To</TableHead>
+                    <TableHead>Midpoint</TableHead>
+                    <TableHead>Kunda star</TableHead>
+                    <TableHead>Birth star</TableHead>
+                    <TableHead>Check</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(data.kundaD81 ?? []).filter((s) => showAllKunda || s.check.trine || s.given).map((s, i) => (
+                    <TableRow key={`${s.startIso}-${i}`} data-testid={`rectify-d81-${i}`}>
+                      <TableCell className="whitespace-nowrap">{s.start}</TableCell>
+                      <TableCell className="whitespace-nowrap">{s.end}</TableCell>
+                      <TableCell className="whitespace-nowrap">{s.mid}{s.midDate !== chart.birthDate ? ` (${s.midDate})` : ""}{s.given ? " · recorded" : ""}</TableCell>
+                      <TableCell>{NAKSHATRAS[s.check.kundaNakshatra]}</TableCell>
+                      <TableCell>{NAKSHATRAS[s.check.birthStar]}</TableCell>
+                      <TableCell>{s.check.trine ? "matches" : "does not match"}</TableCell>
+                      <TableCell className="whitespace-nowrap text-right">
+                        {!s.given && (
+                          <button
+                            type="button"
+                            className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50"
+                            onClick={() => saveCopy.mutate(s)}
+                            disabled={busy || !s.selectable || s.midDate !== chart.birthDate}
+                            title={!s.selectable ? "The rounded midpoint lies outside this short interval" : s.midDate !== chart.birthDate ? "This candidate is on a different date; create a chart for that date and scan again" : `Save a copy at ${s.mid}`}
+                          >
+                            Save midpoint copy
+                          </button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+              {!data.kundaD81 && (
+                <p className="mt-2 text-xs text-muted-foreground">Scan again to calculate the D81 intervals.</p>
+              )}
+            </div>
+          )}
 
           {method === "bj-marks" && (
             <div className="mt-2 overflow-x-auto" data-testid="rectify-marks">
@@ -1067,9 +1442,9 @@ export function RectifyPanel({
                   {sortedDrekkanas.map((g) => {
                     const first = data.segments[g.first];
                     const last = data.segments[g.last];
-                    const r = data.marks[g.drekkana];
+                    const r = data.marks[g.marksKey];
                     const best = g.score === drekkanaTop && drekkanaTop > 0;
-                    const shown = shownDrekkana === g.drekkana;
+                    const shown = shownDrekkana === g.first;
                     return (
                       <TableRow
                         key={g.first}
@@ -1089,6 +1464,7 @@ export function RectifyPanel({
                           <span className="text-muted-foreground">
                             :{last.end.slice(6)}
                           </span>
+                          {first.midDate && first.midDate !== chart.birthDate && <span className="ml-1 text-muted-foreground">({first.midDate})</span>}
                           {g.given && (
                             <span className="ml-1.5 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground">
                               given
@@ -1126,7 +1502,7 @@ export function RectifyPanel({
                               shown && "font-medium no-underline",
                             )}
                             onClick={() =>
-                              setOpenDrekkana(shown ? null : g.drekkana)
+                              setOpenDrekkana(shown ? null : g.first)
                             }
                             data-testid={`button-rectify-marks-open-${g.drekkana}`}
                           >
@@ -1170,17 +1546,17 @@ export function RectifyPanel({
                   })}
                 </TableBody>
               </Table>
-              {shownDrekkana !== null && data.marks[shownDrekkana] && (
+              {shownMarksGroup && data.marks[shownMarksGroup.marksKey] && (
                 <MarksDetail
-                  r={data.marks[shownDrekkana]}
+                  r={data.marks[shownMarksGroup.marksKey]}
                   confirmed={confirmedMarks}
                   plain={plain}
-                  degrees={`${(shownDrekkana % 3) * 10}°–${(shownDrekkana % 3) * 10 + 10}°`}
+                  degrees={`${(shownMarksGroup.drekkana % 3) * 10}°–${(shownMarksGroup.drekkana % 3) * 10 + 10}°`}
                 />
               )}
               <p className="mt-2 text-xs text-muted-foreground">
-                The marks settle the drekkana; pick the minute inside it with a
-                KP method. Use nearest here moves this chart to the{" "}
+                Body marks provide a separate traditional check, not an exact
+                birth time. Use nearest here moves this chart to the{" "}
                 {plain ? "slice" : "interval"} of that drekkana closest to the
                 recorded time; Save nearest makes a copy there.
               </p>
@@ -1210,7 +1586,7 @@ export function RectifyPanel({
                     <TableHead className="whitespace-nowrap">Score</TableHead>
                     {groupBaselined && (
                       <TableHead className="whitespace-nowrap">
-                        {plain ? "Beats chance by" : "vs chance"}
+                        Difference · percentile
                       </TableHead>
                     )}
                     <TableHead />
@@ -1240,6 +1616,7 @@ export function RectifyPanel({
                           <span className="text-muted-foreground">
                             :{last.end.slice(6)}
                           </span>
+                          {first.midDate && first.midDate !== chart.birthDate && <span className="ml-1 text-muted-foreground">({first.midDate})</span>}
                           {g.given && (
                             <span className="ml-1.5 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground">
                               given
@@ -1363,15 +1740,15 @@ export function RectifyPanel({
                 </TableBody>
               </Table>
               <p className="mt-2 text-xs text-muted-foreground">
-                Jaimini settles the sign; pick the minute inside it with a KP
-                method. Use nearest here moves this chart to the{" "}
+                This check samples each candidate; it does not establish an exact
+                birth time. Use nearest here moves this chart to the{" "}
                 {plain ? "slice" : "interval"} of that sign closest to the
                 recorded time; Save nearest makes a copy there.
               </p>
             </div>
           )}
 
-          {method !== "jaimini-dasha" && method !== "bj-marks" && (
+          {!isParashariMethod && method !== "kp-nemani-rp" && method !== "jaimini-dasha" && method !== "bj-marks" && method !== "kunda-d81" && method !== "kunda" && (
             <div className="mt-2 overflow-x-auto">
               <Table className="text-xs leading-5 [&_button]:[word-spacing:0.2em] [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
                 <TableHeader>
@@ -1414,11 +1791,6 @@ export function RectifyPanel({
                         Moon sign
                       </TableHead>
                     )}
-                    {method === "kunda" && (
-                      <TableHead className="whitespace-nowrap">
-                        {plain ? "Kunda star" : "Kunda vs birth star"}
-                      </TableHead>
-                    )}
                     {method === "bj-nashta" && (
                       <TableHead className="whitespace-nowrap">
                         {plain ? "Lost horoscope" : "Nashta star vs birth star"}
@@ -1446,14 +1818,14 @@ export function RectifyPanel({
                     {hasStability && (
                       <TableHead
                         className="whitespace-nowrap"
-                        title="Cusps whose sub lord is the same throughout the interval, of 12"
+                        title="Cusps whose sub lord agrees at the sampled start, midpoint and end, of 12"
                       >
                         {plain ? "Firm houses" : "Firm cusps"}
                       </TableHead>
                     )}
                     {baselined && (
                       <TableHead className="whitespace-nowrap">
-                        {plain ? "Beats chance by" : "vs chance"}
+                        Difference · percentile
                       </TableHead>
                     )}
                     <TableHead />
@@ -1462,9 +1834,10 @@ export function RectifyPanel({
                 <TableBody>
                   {segments.map(({ s, i, score, max, b }) => {
                     const best = bestSet.has(i);
+                    const rpMoonLink = s.dutta;
                     return (
                       <TableRow
-                        key={s.startIso}
+                        key={`${s.startIso}-${i}`}
                         className={cn(
                           best && "bg-verdict-good/10",
                           s.given &&
@@ -1481,18 +1854,19 @@ export function RectifyPanel({
                           <span className="text-muted-foreground">
                             :{s.end.slice(6)}
                           </span>
+                          {s.midDate && s.midDate !== chart.birthDate && <span className="ml-1 text-muted-foreground">({s.midDate})</span>}
                           {s.given && (
                             <span className="ml-1.5 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground">
                               given
                             </span>
                           )}
                         </TableCell>
-                        <TableCell className="whitespace-nowrap">
-                          <ScoreBar score={score} max={max} />
-                        </TableCell>
                         <TableCell className="whitespace-nowrap tabular">
                           {s.sign.slice(0, 3)}{" "}
                           {degRange(s.lagnaFrom, s.lagnaTo)}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          <ScoreBar score={score} max={max} />
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
                           {method === "kp-rp" ? (
@@ -1544,35 +1918,35 @@ export function RectifyPanel({
                         </TableCell>
                         {method === "kp-rp" && (
                           <TableCell className="whitespace-nowrap">
-                            {s.dutta ? (
+                            {rpMoonLink ? (
                               <span
                                 className="inline-flex items-center gap-1.5"
-                                title={`RP Moon's lords, judged now: ${s.dutta.moon.signLord} (sign), ${s.dutta.moon.starLord} (star), ${s.dutta.moon.subLord} (sub)`}
+                                title={`RP Moon's lords, judged now: ${rpMoonLink.moon.signLord} (sign), ${rpMoonLink.moon.starLord} (star), ${rpMoonLink.moon.subLord} (sub)`}
                               >
                                 <Mark
-                                  on={s.dutta.linked.sign}
-                                  title={s.dutta.via.sign}
+                                  on={rpMoonLink.linked.sign}
+                                  title={rpMoonLink.via.sign}
                                 />{" "}
                                 <PlanetName
-                                  planet={s.dutta.moon.signLord}
+                                  planet={rpMoonLink.moon.signLord}
                                   abbr
                                 />
                                 <span className="text-muted-foreground">·</span>
                                 <Mark
-                                  on={s.dutta.linked.star}
-                                  title={s.dutta.via.star}
+                                  on={rpMoonLink.linked.star}
+                                  title={rpMoonLink.via.star}
                                 />{" "}
                                 <PlanetName
-                                  planet={s.dutta.moon.starLord}
+                                  planet={rpMoonLink.moon.starLord}
                                   abbr
                                 />
                                 <span className="text-muted-foreground">·</span>
                                 <Mark
-                                  on={s.dutta.linked.sub}
-                                  title={s.dutta.via.sub}
+                                  on={rpMoonLink.linked.sub}
+                                  title={rpMoonLink.via.sub}
                                 />{" "}
                                 <PlanetName
-                                  planet={s.dutta.moon.subLord}
+                                  planet={rpMoonLink.moon.subLord}
                                   abbr
                                 />
                               </span>
@@ -1686,28 +2060,6 @@ export function RectifyPanel({
                                 }
                               />{" "}
                               in it
-                            </span>
-                          </TableCell>
-                        )}
-                        {method === "kunda" && s.kunda && (
-                          <TableCell className="whitespace-nowrap">
-                            <span
-                              className="inline-flex items-center gap-1.5"
-                              title={s.kunda.via}
-                            >
-                              <Mark on={s.kunda.trine} title={s.kunda.via} />
-                              <span
-                                className={cn(
-                                  s.kunda.trine
-                                    ? "text-foreground"
-                                    : "text-muted-foreground",
-                                )}
-                              >
-                                {NAKSHATRAS[s.kunda.kundaNakshatra]}
-                              </span>
-                              <span className="text-muted-foreground">
-                                vs {NAKSHATRAS[s.kunda.birthStar]}
-                              </span>
                             </span>
                           </TableCell>
                         )}
@@ -1841,7 +2193,7 @@ export function RectifyPanel({
                                 className="ml-2 underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50"
                                 title={`Moves this chart to ${s.mid}`}
                                 onClick={() => useHere.mutate(s)}
-                                disabled={busy}
+                                disabled={busy || s.selectable === false || Boolean(s.midDate && s.midDate !== chart.birthDate)}
                                 data-testid={`button-rectify-use-${i}`}
                               >
                                 Use here
@@ -1851,7 +2203,7 @@ export function RectifyPanel({
                                 className="ml-2 underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground disabled:opacity-50"
                                 title={`Saves a copy of the chart at ${s.mid}`}
                                 onClick={() => saveCopy.mutate(s)}
-                                disabled={busy}
+                                disabled={busy || s.selectable === false || Boolean(s.midDate && s.midDate !== chart.birthDate)}
                                 data-testid={`button-rectify-save-${i}`}
                               >
                                 Save copy
@@ -1868,8 +2220,12 @@ export function RectifyPanel({
           )}
 
           {open !== null &&
+            !isParashariMethod &&
+            method !== "kp-nemani-rp" &&
             method !== "jaimini-dasha" &&
             method !== "bj-marks" &&
+            method !== "kunda" &&
+            method !== "kunda-d81" &&
             data.segments[open] && (
               <div
                 className="mt-3 rounded-md border p-3 text-xs"
@@ -1920,8 +2276,8 @@ export function RectifyPanel({
                   · sub{" "}
                   <PlanetName planet={data.segments[open].moon.subLord} abbr />.{" "}
                   {plain
-                    ? "Only the rising degree is cut at every change; another house may change its deciding planet inside a slice, so read the houses at the exact time you settle on."
-                    : "Only the lagna is cut at every change; a cusp may change its sub lord inside an interval, so read the cusps at the exact time you settle on."}
+                    ? "Relevant house changes are sampled during the scan; other house rulers may still change inside a slice. Recheck the chart at any time you select."
+                    : "The scan samples changes to relevant cusps; other cusp sub lords may still change within an interval. Recheck the chart at any selected time."}
                 </p>
               </div>
             )}

@@ -49,6 +49,11 @@ const ML: Record<string, string> = {
   Import: "ഇംപോർട്ട്",
   Export: "എക്സ്പോർട്ട്",
   "No charts saved yet.": "ഇതുവരെ ജാതകങ്ങൾ സൂക്ഷിച്ചിട്ടില്ല.",
+  "Randomly selected comparison dates": "താരതമ്യത്തിനായി ക്രമരഹിതമായി തിരഞ്ഞെടുത്ത തീയതികൾ",
+  "House lord": "ഭാവാധിപൻ",
+  "Sign lord": "രാശ്യാധിപൻ",
+  "Star lord": "നക്ഷത്രാധിപൻ",
+  "Sub lord": "സഹാധിപൻ (sub-lord)",
   age: "വയസ്സ്",
 
   // ── Overview · frame and fixed labels ──────────────────────────────────────
