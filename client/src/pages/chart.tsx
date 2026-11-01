@@ -134,6 +134,7 @@ import { ParashariPanel } from "@/components/parashari-panel";
 import { RectifyPanel } from "@/components/rectify-panel";
 import { LifeEventsSection } from "@/components/life-events";
 import { AgreementPanel } from "@/components/agreement-panel";
+import { plainTopicNatal } from "@shared/topic-brief";
 import { BirthTimeEditor } from "@/components/birth-time-editor";
 import { ValidatePanel } from "@/components/validate-panel";
 import { PanchangaPanel } from "@/components/panchanga-panel";
@@ -899,7 +900,25 @@ function AreaSection({
   const { mode } = useReadingMode();
   const full = mode === "practitioner";
   const area = s.area;
+  const plainTopic = !full && (area === "career" || area === "marriage")
+    ? plainTopicNatal(area, s, reading)
+    : undefined;
   const [showEarly, setShowEarly] = useState(false);
+  const keyFindings = (
+    <>
+      <ul className="space-y-3">
+        {s.key.map((f) => (
+          <FindingItem key={f.ruleId} f={f} relations={reading.relations} full={full} female={gender === "female"} />
+        ))}
+      </ul>
+      {s.careerAlternative && (
+        <div className="mt-3" data-testid="career-alternative">
+          <p className="mb-1 text-xs text-muted-foreground">Another Jupiter or Saturn career interpretation; its selection threshold is the app's convention.</p>
+          <ul><FindingItem f={s.careerAlternative} relations={reading.relations} full={full} female={gender === "female"} /></ul>
+        </div>
+      )}
+    </>
+  );
   if (!season.inSeason && !showEarly)
     return (
       <section
@@ -986,8 +1005,12 @@ function AreaSection({
         className="mt-3 text-sm leading-relaxed"
         data-testid={`text-verdict-${area}`}
       >
-        {s.headline}
+        <Soft>{plainTopic?.summary ?? s.headline}</Soft>
       </p>
+      {plainTopic?.detailIntro && <p className="mt-2 text-sm leading-relaxed">{plainTopic.detailIntro}</p>}
+      {!!plainTopic?.details?.length && <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed">{plainTopic.details.map((detail, i) => <li key={i}><Soft>{detail}</Soft></li>)}</ul>}
+      {plainTopic && <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{plainTopic.limit}</p>}
+      {plainTopic?.contrast && <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{plainTopic.contrast}</p>}
       {s.reconciliation && (
         <p
           className="mt-1.5 text-sm leading-relaxed text-muted-foreground"
@@ -996,23 +1019,9 @@ function AreaSection({
           {s.reconciliation}
         </p>
       )}
-      <ul className="mt-3 space-y-3">
-        {s.key.map((f) => (
-          <FindingItem
-            key={f.ruleId}
-            f={f}
-            relations={reading.relations}
-            full={full}
-            female={gender === "female"}
-          />
-        ))}
-      </ul>
-      {s.careerAlternative && (
-        <div className="mt-3" data-testid="career-alternative">
-          <p className="mb-1 text-xs text-muted-foreground">Another Jupiter or Saturn career interpretation; its selection threshold is the app's convention.</p>
-          <ul><FindingItem f={s.careerAlternative} relations={reading.relations} full={full} female={gender === "female"} /></ul>
-        </div>
-      )}
+      {plainTopic ? (
+        <Working id={`topic-findings-${area}`} label="Show the source findings" className="mt-3">{keyFindings}</Working>
+      ) : <div className="mt-3">{keyFindings}</div>}
       {s.rest.length > 0 && (
         <Working
           id={area}
@@ -2297,7 +2306,7 @@ export default function ChartPage() {
 
         <AgreementPanel
           className="mt-4"
-          compact={mode !== "overview"}
+          compact={mode !== "overview" || readingMode === "plain"}
           result={data}
           onOpenTab={(t) => {
             setMode(t);
@@ -2540,6 +2549,7 @@ export default function ChartPage() {
                     selected={selected}
                     roles={data.reading.roles}
                     asOfIso={lifeAsOf(data.chart, new Date().toISOString())}
+                    zone={data.chart.timezone || "UTC"}
                   />,
                 )}
               </Chapter>

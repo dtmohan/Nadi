@@ -8,7 +8,6 @@
 import type { Planet } from "./astro";
 import {
   LIFE_AREAS,
-  areaKaraka,
   type Finding,
   type LifeArea,
   type Reading,
@@ -179,17 +178,9 @@ const RECONCILE_AREAS = new Set<LifeArea>([
   "wealth",
   "career",
 ]);
-const DELAYERS = new Set<Planet>(["Saturn", "Rahu", "Ketu", "Mars", "Sun"]);
-
-function planetsList(ps: Planet[]): string {
-  if (ps.length <= 1) return ps[0] ?? "";
-  return `${ps.slice(0, -1).join(", ")} and ${ps[ps.length - 1]}`;
-}
-
 function reconcile(
   area: LifeArea,
   all: Finding[],
-  karaka: Planet,
 ): string | undefined {
   if (!RECONCILE_AREAS.has(area)) return undefined;
   // A rule with a declared tone (the colouring rules) is not read from its wording here either.
@@ -199,24 +190,11 @@ function reconcile(
   );
   const delay = worded.filter((f) => DELAY.test(f.text));
   const denial = worded.filter((f) => DENIAL.test(f.text));
-  const agents = (fs: Finding[]) =>
-    Array.from(
-      new Set(
-        fs
-          .flatMap((f) => f.planets)
-          .filter((p) => p !== karaka && DELAYERS.has(p)),
-      ),
-    );
-  const noun = LIFE_AREAS[area].label.split(" &")[0].toLowerCase();
   if (promise.length && (delay.length || denial.length)) {
-    const slow = agents([...delay, ...denial]);
-    const who = slow.length
-      ? planetsList(slow.slice(0, 3))
-      : "the slower planets";
-    return `The promise is there; ${who} ${slow.length === 1 ? "slows" : "slow"} it: later rather than never. The harder lines describe the road, not the destination.`;
+    return "Some rules describe support, while others describe delay or difficulty. They do not settle the outcome or its timing.";
   }
   if (!promise.length && delay.length >= 2) {
-    return `Most of what fires here is about timing rather than outcome: ${noun} ${noun.endsWith("s") || noun === "children" ? "come" : "comes"} later than average, not less.`;
+    return "Several rules describe delay or slowness; they do not establish an outcome or a date.";
   }
   return undefined;
 }
@@ -301,7 +279,7 @@ function contestedHeadline(c: AreaContest): string {
 
 /**
  * A hard finding that speaks only of timing ("delayed", "later", "a long wait") does not contest a
- * promise; promise against delay is reconciled as "later rather than never" below. Only a hard
+ * promise; both indications are retained without deciding the outcome. Only a hard
  * finding about the outcome itself (austere, denied, hazardous, loss) can contest.
  */
 function timingOnly(f: Finding): boolean {
@@ -402,8 +380,7 @@ export function synthesizeArea(
     if (alternative && !key.includes(alternative)) careerAlternative = alternative;
   }
   const rest = [...keep.filter((f) => !key.includes(f) && f !== careerAlternative), ...demoted];
-  const karaka = areaKaraka(area, gender);
-  const reconciliation = reconcile(area, keep, karaka);
+  const reconciliation = reconcile(area, keep);
   return {
     area,
     tone,

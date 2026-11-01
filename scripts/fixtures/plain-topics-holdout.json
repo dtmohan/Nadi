@@ -1,0 +1,28 @@
+{
+  "description": "Two fresh public cases selected after the initial presentation review and before this follow-up run. Neither appears in earlier repository fixtures.",
+  "cases": [
+    {
+      "chart": {"name":"Milind Soman","gender":"male","birthDate":"1965-11-04","birthTime":"16:21","timezone":"Europe/London","timeStandard":"auto","place":"Glasgow, Scotland","latitude":55.8833,"longitude":-4.25,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Soman%2C_Milind",
+      "birthQuality":"AA; birth certificate reportedly quoted. The record was not independently inspected.",
+      "career":"Indian model, actor, producer and fitness promoter.",
+      "careerSource":"https://www.astro.com/astro-databank/Soman%2C_Milind",
+      "marriage":"Married Ankita Konwar in Alibaug on 22 April 2018.",
+      "marriageSource":"https://www.ndtv.com/entertainment/milind-soman-marries-ankita-konwar-see-wedding-pics-1841029",
+      "events":[{"topic":"marriage","date":"2018-04-22","timezone":"Asia/Kolkata","description":"Wedding to Ankita Konwar in Alibaug","source":"https://www.ndtv.com/entertainment/milind-soman-marries-ankita-konwar-see-wedding-pics-1841029","corroboration":"https://www.indiatoday.in/lifestyle/celebrity/story/milind-soman-and-ankita-konwar-are-now-married-1217506-2018-04-22"}]
+    },
+    {
+      "chart": {"name":"Werner Heisenberg","gender":"male","birthDate":"1901-12-05","birthTime":"16:45","timezone":"Europe/Berlin","timeStandard":"auto","place":"Wurzburg, Germany","latitude":49.8,"longitude":9.9333,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"1976-02-01"},
+      "birthSource":"https://www.astro.com/astro-databank/Heisenberg%2C_Werner",
+      "birthQuality":"AA; certificate reportedly inspected and quoted by a biographer. The record was not independently inspected.",
+      "career":"Theoretical physicist; awarded the 1932 Nobel Prize in Physics in 1933.",
+      "careerSource":"https://www.nobelprize.org/prizes/physics/1932/summary/",
+      "marriage":"Married Elisabeth Schumacher in Berlin on 29 April 1937.",
+      "marriageSource":"https://www.leopoldina.org/mitglieder/mitgliederverzeichnis/detail/werner-heisenberg/",
+      "events":[
+        {"topic":"marriage","date":"1937-04-29","timezone":"Europe/Berlin","description":"Marriage to Elisabeth Schumacher","source":"https://www.leopoldina.org/mitglieder/mitgliederverzeichnis/detail/werner-heisenberg/","corroboration":"https://www.deutsche-biographie.de/dbo064959.html"},
+        {"topic":"career","date":"1933-12-10","timezone":"Europe/Stockholm","description":"Received the 1932 Nobel Prize in 1933","source":"https://www.leipzig-lese.de/persoenlichkeiten/h/heisenberg-werner/werner-heisenberg/","corroboration":"https://www.nobelprize.org/prizes/physics/1932/summary/"}
+      ]
+    }
+  ]
+}

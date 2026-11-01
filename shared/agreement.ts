@@ -918,12 +918,22 @@ export function readTopic(
 ): TopicAgreement {
   if (!topicOpen(topic, input))
     throw new KernelInputError(`${topic}: closed for this chart; it must not reach the kernel`);
-  const stances: SystemStance[] = [
+  let stances: SystemStance[] = [
     as("bnn", topic, bnnVoice(topic, input, pre.bnnAreas, pre.gate)),
     as("parashari", topic, parashariVoice(topic, input, pre.gate)),
     as("jaimini", topic, jaiminiVoice(topic, input.jaimini, input.ayur, pre.gate)),
     as("kp", topic, kpVoice(topic, input.kp, pre.gate)),
   ];
+  // In a technical reading “promised” is a term of art. On its own, in a plain
+  // summary, it can sound like a guarantee. Keep the same stances and sources.
+  if (input.plain && topic === "marriage") {
+    const indicated = (word: string) => word.replace(/\bpromised\b/gi, "indicated");
+    stances = stances.map((s) => ({
+      ...s,
+      word: indicated(s.word),
+      texts: s.texts?.map((b) => ({ ...b, word: indicated(b.word) })),
+    }));
+  }
   const c = K.combineSchools(stances);
   return {
     topic,

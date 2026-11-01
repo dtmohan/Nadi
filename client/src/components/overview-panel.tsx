@@ -26,6 +26,7 @@ import { briefingFor, type BriefLink } from "@shared/briefing";
 import { BriefingBefore, BriefingNow, BriefingPlanets, useOpenLink } from "@/components/briefing";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { cn } from "@/lib/utils";
+import { plainTopicBriefs } from "@shared/topic-brief";
 
 const VERDICT_PILL: Record<GocharaVerdict, string> = {
   favourable: "bg-verdict-good/15 text-verdict-good",
@@ -134,6 +135,14 @@ export function OverviewPanel({
   const areas = allAreas.filter((a) =>
     areaSeason(a.area, result.utc, lifeAt).inSeason,
   );
+  const topics = plainTopicBriefs({
+    reading,
+    areas: allAreas,
+    agreement,
+    brief,
+    zone: chart.timezone || "UTC",
+    inSeason: (topic) => areaSeason(topic, result.utc, lifeAt).inSeason,
+  });
   const deferred = allAreas.filter(
     (a) => !areaSeason(a.area, result.utc, lifeAt).inSeason,
   );
@@ -270,6 +279,46 @@ export function OverviewPanel({
 
       <BriefingBefore notes={brief.before} onOpen={openLink} />
 
+      {plain && topics.length > 0 && (
+        <section className="mt-4 rounded-lg border bg-card p-5 sm:p-6" aria-label="Life topics" data-testid="plain-topic-briefs">
+          <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{t("Life topics")}</p>
+          <p className="mt-1 text-sm text-muted-foreground">These short readings use the Nadi method. Other schools have their own readings.</p>
+          {(chart.timeUncertaintyMin ?? 0) > 0 && (
+            <p className="mt-2 text-xs text-muted-foreground">The entered birth time has an uncertainty of ±{chart.timeUncertaintyMin} minutes. Some details can change within that range.</p>
+          )}
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            {topics.map((topic) => (
+              <article key={topic.topic} className="min-w-0 scroll-mt-4 rounded-md border p-4" data-testid={`overview-area-${topic.topic}`}>
+                <h3 className="font-display text-lg font-semibold">{t(topic.topic === "career" ? "Career" : "Marriage")}</h3>
+                <p className="mt-2 text-sm leading-relaxed"><Soft>{topic.summary}</Soft></p>
+                {topic.detailIntro && <p className="mt-2 text-sm leading-relaxed">{topic.detailIntro}</p>}
+                {!!topic.details?.length && <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed">{topic.details.map((detail, i) => <li key={i}><Soft>{detail}</Soft></li>)}</ul>}
+                {topic.contrast && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{topic.contrast}</p>}
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.limit}</p>
+                {topic.comparison && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.comparison}</p>}
+                <div className="mt-4 border-t pt-3">
+                  <p className="text-xs font-semibold">{t(brief.past ? "At passing" : "Periods to explore")}</p>
+                  {topic.windows.length ? (
+                    <ul className="mt-2 space-y-3">
+                      {topic.windows.map((w) => (
+                        <li key={w.id} data-testid={`plain-topic-window-${topic.topic}-${w.id}`}>
+                          <p className="text-sm font-medium tabular">{w.when}</p>
+                          <p className="mt-0.5 text-sm leading-relaxed">{w.statement}</p>
+                          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t("Why")}: {w.reason}</p>
+                          <button type="button" className="mt-1 text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => openLink(w.link)}>See the transit details</button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : <p className="mt-2 text-xs leading-relaxed text-muted-foreground">No matching Nadi passage is shown in this briefing. That is not a conclusion about whether an event can occur.</p>}
+                  {topic.windows.length > 0 && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention.</p>}
+                </div>
+                <button type="button" className="mt-3 text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => openLink(topic.hasArea ? { tab: "bnn", chapter: "areas", target: `[data-testid="section-area-${topic.topic}"]` } : { tab: "bnn", chapter: "karakas" })}>{t("See Nadi details")}</button>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Now and next: each system's clock side by side, built in shared/briefing.ts */}
       <BriefingNow
         brief={brief}
@@ -365,7 +414,7 @@ export function OverviewPanel({
 
       {/* The life areas as plain cards */}
       <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {areas.map((a) => (
+        {areas.filter((a) => !plain || (a.area !== "career" && a.area !== "marriage")).map((a) => (
           <li
             key={a.area}
             className="scroll-mt-4 rounded-md border bg-card p-3"

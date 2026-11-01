@@ -40,7 +40,19 @@ export function useOpenLink(onOpenTab?: (tab: BriefLink["tab"]) => void) {
     if (!link.target) return;
     // A jump, not a smooth scroll: the new tab is still drawing, and a smooth scroll would crawl.
     let tries = 0;
+    let selectedTransit = false;
     const seek = () => {
+      if (link.transitPlanet && !selectedTransit) {
+        const track = document.querySelector<HTMLButtonElement>(`[data-testid="button-track-${link.transitPlanet.toLowerCase()}"]`);
+        if (!track) {
+          if (tries++ < 20) window.setTimeout(seek, 100);
+          return;
+        }
+        track.click();
+        selectedTransit = true;
+        window.setTimeout(seek, 100);
+        return;
+      }
       const el = document.querySelector(link.target!);
       if (!el) {
         if (tries++ < 20) window.setTimeout(seek, 100);

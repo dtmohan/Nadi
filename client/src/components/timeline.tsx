@@ -27,8 +27,9 @@ import {
 } from "@/lib/timeline-data";
 import type { ChartEvent } from "@shared/events";
 import { AREA_ONSET, heldAreasAt, lifeAsOf } from "@shared/life-stage";
+import { transitDay } from "@shared/transit-date";
 
-const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
+const fmt = transitDay;
 
 function planetTone(p: Planet) {
   return cn(
@@ -66,7 +67,7 @@ function Activated({
   );
 }
 
-function NowCard({ r, birth }: { r: TransitReading; birth: DateTime }) {
+function NowCard({ r, birth, zone }: { r: TransitReading; birth: DateTime; zone: string }) {
   const t = r.period;
   const age = Math.floor(DateTime.utc().diff(birth, "years").years);
   return (
@@ -81,7 +82,7 @@ function NowCard({ r, birth }: { r: TransitReading; birth: DateTime }) {
           <span className="text-muted-foreground"> · age {age}</span>
         </div>
         <div className="tabular text-xs text-muted-foreground">
-          {fmt(t.start)} – {fmt(t.end)}
+          {fmt(t.start, zone)} – {fmt(t.end, zone)}
         </div>
       </div>
       <p className="mt-2 text-sm leading-relaxed">{r.headline}</p>
@@ -103,6 +104,7 @@ export function Timeline({
   selected,
   roles,
   asOfIso,
+  zone,
 }: {
   transits: TransitPeriod[];
   positions: PlanetPosition[];
@@ -112,6 +114,8 @@ export function Timeline({
   roles?: Roles;
   /** Reading instant; the date of passing for a deceased native, else today. */
   asOfIso?: string;
+  /** Birth-place zone used for the passage dates, matching the Overview. */
+  zone: string;
 }) {
   const [track, setTrack] = useState<"Jupiter" | "Saturn">("Jupiter");
   const [onlyTouches, setOnlyTouches] = useState(false);
@@ -143,8 +147,8 @@ export function Timeline({
     return readings
       .filter((r) => r.period.planet === track)
       .map((r) => {
-        const start = DateTime.fromISO(r.period.start);
-        const end = DateTime.fromISO(r.period.end);
+        const start = DateTime.fromISO(r.period.start, { zone });
+        const end = DateTime.fromISO(r.period.end, { zone });
         return {
           r,
           start,
@@ -165,7 +169,7 @@ export function Timeline({
           x.r.trine.includes(selected) ||
           x.r.opposite.includes(selected),
       );
-  }, [readings, track, onlyTouches, birth, now, selected]);
+  }, [readings, track, onlyTouches, birth, now, selected, zone]);
 
   const next = useMemo(() => {
     return readings.find(
@@ -188,9 +192,10 @@ export function Timeline({
             findings its natal planets take part in, and is counted from the
             natal Jeeva and Karma.
           </p>
+          <p className="mt-1 text-xs text-muted-foreground">Passage dates use the birth-place time zone ({zone}); a transition can occur during the displayed day.</p>
           <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(15rem,100%),1fr))] gap-3">
-            {current.Jupiter && <NowCard r={current.Jupiter} birth={birth} />}
-            {current.Saturn && <NowCard r={current.Saturn} birth={birth} />}
+            {current.Jupiter && <NowCard r={current.Jupiter} birth={birth} zone={zone} />}
+            {current.Saturn && <NowCard r={current.Saturn} birth={birth} zone={zone} />}
           </div>
         </section>
       )}
@@ -236,7 +241,7 @@ export function Timeline({
           <span>
             {" "}
             Next passage touching a natal planet: {next.period.sign},{" "}
-            {fmt(next.period.start)} ({next.conjunct.length ? "over" : "trine"}{" "}
+            {fmt(next.period.start, zone)} ({next.conjunct.length ? "over" : "trine"}{" "}
             {(next.conjunct.length ? next.conjunct : next.trine)
               .map((p) => PLANET_ABBR[p])
               .join(" ")}
@@ -251,12 +256,14 @@ export function Timeline({
             <li
               key={`${r.period.planet}-${r.period.start}`}
               className={cn(
-                "grid grid-cols-[4.5rem_1fr] gap-x-4 rounded-md px-3 py-2.5 sm:grid-cols-[4.5rem_11rem_1fr]",
+                "grid scroll-mt-24 grid-cols-[4.5rem_1fr] gap-x-4 rounded-md px-3 py-2.5 sm:grid-cols-[4.5rem_11rem_1fr]",
                 isCurrent && "bg-primary/10 ring-1 ring-primary/40",
                 past && !isCurrent && "opacity-60",
                 r.weight === 3 && !isCurrent && "bg-muted/40",
               )}
               data-testid={`row-transit-${i}`}
+              data-transit-planet={r.period.planet}
+              data-transit-start={r.period.start}
             >
               <div className="tabular text-sm">
                 <div className="font-medium">
@@ -284,7 +291,7 @@ export function Timeline({
                   )}
                 </div>
                 <div className="tabular text-xs text-muted-foreground">
-                  {fmt(r.period.start)} – {fmt(end.toISO()!)}
+                  {fmt(r.period.start, zone)} – {fmt(r.period.end, zone)}
                   {days < 120 && <span> · brief</span>}
                 </div>
                 {(r.conjunct.length > 0 ||

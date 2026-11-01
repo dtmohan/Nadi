@@ -1,0 +1,845 @@
+{
+  "protocol": "docs/plain-topics-fresh-protocol.md",
+  "cases": [
+    {
+      "name": "Toni Morrison",
+      "birthSource": "https://www.astro.com/astro-databank/Morrison%2C_Toni?lang=r&nho2=2&nhor=1",
+      "birthQuality": "AA; published birth-record quotation; the 11:00 time may be rounded. The underlying record was not inspected.",
+      "career": "Writer and editor; Nobel Prize in Literature in 1993.",
+      "careerSource": "https://www.nobelprize.org/prizes/literature/1993/morrison/biographical/",
+      "marriage": "Married Harold Morrison in 1958; divorced in 1964.",
+      "marriageSource": "https://www.tonimorrisonsociety.org/author.html",
+      "asOf": "2019-08-05T12:00:00.000Z",
+      "timeBasis": "standard time of America/New_York -5:00",
+      "ascendant": "Taurus",
+      "material": [
+        {
+          "topic": "career",
+          "beforeOverview": "Possible career themes in these interpretations: profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields; livelihood through commerce, accounts, writing, communication, teaching or documentation; advisory, teaching, law, finance or religious institutions. These are alternatives, not a predicted occupation.",
+          "after": {
+            "topic": "career",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible work themes or experiences:",
+            "details": [
+              "Profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields.",
+              "Livelihood through commerce, accounts, writing, communication, teaching or documentation.",
+              "Advisory, teaching, law, finance or religious institutions."
+            ],
+            "limit": "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "26 Oct 2017 – 23 Jan 2020",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Saturn's passage is read in relation to Saturn and Venus in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2017-10-26T09:58:10.000Z\"]"
+                },
+                "start": "2017-10-26T09:58:10.000Z",
+                "end": "2020-01-24T04:26:37.000Z"
+              }
+            ]
+          },
+          "sourceFindings": [
+            {
+              "id": "sa-ve",
+              "text": "Karma with Venus: profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "sa-me",
+              "text": "Karma with Mercury: livelihood through commerce, accounts, writing, communication, teaching or documentation.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "sa-ju",
+              "text": "Karma with Jupiter: advisory, teaching, law, finance or religious institutions; the native's own effort defines status.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "marriage",
+          "beforeOverview": "The strong rules disagree. Early or timely marriage; yet a very short-tempered husband, possibly from another community or country. Read both before deciding.",
+          "after": {
+            "topic": "marriage",
+            "hasArea": true,
+            "summary": "This Nadi check finds an indirect link between the planets it uses for you and a partner. It treats that as an indication related to marriage.",
+            "detailIntro": "Other selected Nadi rules describe these possible relationship themes:",
+            "details": [
+              "Early or timely marriage; a principled husband, an administrator, manager, teacher or guide.",
+              "One interpretation raises questions about communication or conflict and timing or delays; see the source finding for its wording.",
+              "A relationship that returns or is reconsidered."
+            ],
+            "limit": "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
+            "contrast": "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-now",
+                "when": "22 Apr 2019 – 4 Nov 2019",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Jupiter's passage is read in relation to Mars and Rahu in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2019-04-22T19:40:47.000Z\"]"
+                },
+                "start": "2019-04-22T19:40:47.000Z",
+                "end": "2019-11-04T23:47:45.000Z"
+              }
+            ]
+          },
+          "sourceFindings": [
+            {
+              "id": "f-ma-ju",
+              "text": "Husband (Mars) with Jupiter: early or timely marriage; a principled husband, an administrator, manager, teacher or guide.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology"
+            },
+            {
+              "id": "f-ma-ra",
+              "text": "Husband (Mars) with Rahu: a very short-tempered husband, possibly from another community or country; late marriage and obstacles before it.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology"
+            },
+            {
+              "id": "f-ma-retro",
+              "text": "Retrograde Mars, the husband's karaka: a relationship that returns or is reconsidered; the husband also carries qualities of the previous sign.",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            }
+          ],
+          "technicalMarriageHeadline": "Mars (husband) stands in the 8th from Venus (the native), with no direct link and none through Saturn; the dispositor Moon (lord of Cancer) does link to Venus, so marriage is read through it, indirectly.",
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        }
+      ],
+      "eventChecks": [
+        {
+          "event": {
+            "topic": "career",
+            "date": "1993-10-07",
+            "timezone": "Europe/Stockholm",
+            "description": "Nobel Prize in Literature announced",
+            "source": "https://www.nobelprize.org/prizes/literature/1993/press-release/",
+            "corroboration": "https://www.upi.com/Archives/1993/10/07/Toni-Morrison-wins-Nobel-Prize-for-literature/8175749966400/"
+          },
+          "actual": {
+            "date": "1993-10-07",
+            "asOf": "1993-07-08T22:00:00.000Z",
+            "zone": "Europe/Stockholm",
+            "possibleDayOverlap": false,
+            "windows": [
+              {
+                "when": "12 Oct 1993 – 11 Nov 1994",
+                "start": "1993-10-12T12:58:51.000Z",
+                "end": "1994-11-11T06:46:38.000Z",
+                "reason": "Jupiter's passage is read in relation to Jupiter in the birth-chart findings selected for career."
+              },
+              {
+                "when": "15 Oct 1993 – 9 Nov 1993",
+                "start": "1993-10-15T06:34:51.000Z",
+                "end": "1993-11-09T23:36:55.000Z",
+                "reason": "Saturn's passage is read in relation to Mercury in the birth-chart findings selected for career."
+              }
+            ]
+          },
+          "comparisons": [
+            {
+              "date": "1993-04-10",
+              "asOf": "1993-01-09T23:00:00.000Z",
+              "zone": "Europe/Stockholm",
+              "possibleDayOverlap": false,
+              "windows": [
+                {
+                  "when": "14 Dec 1990 – 5 Mar 1993",
+                  "start": "1990-12-14T19:38:13.000Z",
+                  "end": "1993-03-05T13:01:40.000Z",
+                  "reason": "Saturn's passage is read in relation to Mercury in the birth-chart findings selected for career."
+                },
+                {
+                  "when": "12 Oct 1993 – 11 Nov 1994",
+                  "start": "1993-10-12T12:58:51.000Z",
+                  "end": "1994-11-11T06:46:38.000Z",
+                  "reason": "Jupiter's passage is read in relation to Jupiter in the birth-chart findings selected for career."
+                }
+              ]
+            },
+            {
+              "date": "1994-04-05",
+              "asOf": "1994-01-04T23:00:00.000Z",
+              "zone": "Europe/Stockholm",
+              "possibleDayOverlap": true,
+              "windows": [
+                {
+                  "when": "12 Oct 1993 – 11 Nov 1994",
+                  "start": "1993-10-12T12:58:51.000Z",
+                  "end": "1994-11-11T06:46:38.000Z",
+                  "reason": "Jupiter's passage is read in relation to Jupiter in the birth-chart findings selected for career."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Johannes van der Waals",
+      "birthSource": "https://www.astro.com/astro-databank/Waals%2C_Johannes_van_der",
+      "birthQuality": "AA; Astro-Databank reports a Leiden birth certificate. Local mean time and approximate listed coordinates; the record was not inspected.",
+      "career": "Physicist; Nobel Prize in Physics in 1910.",
+      "careerSource": "https://www.nobelprize.org/prizes/physics/1910/summary/",
+      "marriage": "Married Anna Magdalena Smit; sources disagree about whether the year was 1864 or 1865.",
+      "marriageSource": "https://dwc.knaw.nl/wp-content/berkelbio/60.vanderwaals.pdf",
+      "asOf": "1923-03-08T12:00:00.000Z",
+      "timeBasis": "Local mean time of birthplace +0:18",
+      "ascendant": "Leo",
+      "material": [
+        {
+          "topic": "career",
+          "beforeOverview": "Possible career themes in these interpretations: work with the public, liquids, food, shipping or frequent travel; government, administration or a large institution; computing, coding, statistics or research. These are alternatives, not a predicted occupation.",
+          "after": {
+            "topic": "career",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible work themes or experiences:",
+            "details": [
+              "Work with the public, liquids, food, shipping or frequent travel.",
+              "Government, administration or a large institution.",
+              "Computing, coding, statistics or research."
+            ],
+            "limit": "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "8 Aug 1921 – 15 Oct 1923",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Saturn's passage is read in relation to Moon in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"1921-08-08T09:06:45.000Z\"]"
+                },
+                "start": "1921-08-08T09:06:45.000Z",
+                "end": "1923-10-15T08:03:50.000Z"
+              },
+              {
+                "id": "nadi-jupiter-now",
+                "when": "23 Sep 1922 – 22 Oct 1923",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Jupiter's passage is read in relation to Saturn in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"1922-09-23T04:12:39.000Z\"]"
+                },
+                "start": "1922-09-23T04:12:39.000Z",
+                "end": "1923-10-22T18:53:29.000Z"
+              }
+            ]
+          },
+          "sourceFindings": [
+            {
+              "id": "sa-mo",
+              "text": "Karma with the Moon: work with the public, liquids, food, shipping or frequent travel; fluctuating routines.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "sa-su",
+              "text": "Karma with the Sun: government, administration or a large institution; a position of authority reached through service.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "t-sa-me-ke",
+              "text": "Saturn, Mercury and Ketu linked by sign (not necessarily in the same sign): computing, coding, statistics or research; introverted, detail-driven livelihood.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "marriage",
+          "beforeOverview": "A mixed picture. A wise, supportive spouse who raises the native's fortune; yet passionate attraction.",
+          "after": {
+            "topic": "marriage",
+            "hasArea": true,
+            "summary": "This Nadi check finds a direct link between the planets it uses for you and a partner. The method reads that as supportive of the possibility of marriage.",
+            "detailIntro": "Other selected Nadi rules describe these possible relationship themes:",
+            "details": [
+              "A wise, supportive spouse who raises the native's fortune; marriage brings growth.",
+              "Passionate attraction; love marriage or a spouse with a technical, forceful temperament.",
+              "One interpretation raises questions about commitment or boundaries; see the source finding for its wording."
+            ],
+            "limit": "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
+            "contrast": "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": []
+          },
+          "sourceFindings": [
+            {
+              "id": "ve-ju",
+              "text": "Venus with Jupiter: a wise, supportive spouse who raises the native's fortune; marriage brings growth.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ve-ma",
+              "text": "Venus with Mars: passionate attraction; love marriage or a spouse with a technical, forceful temperament.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ve-me",
+              "text": "Venus with Mercury: educated, talkative spouse; friendship precedes romance; more than one attachment is possible.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "technicalMarriageHeadline": "Venus (wife) stands in the 5th from Jupiter (the native): same direction, three-quarter strength; marriage is well promised.",
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        }
+      ],
+      "eventChecks": []
+    },
+    {
+      "name": "Barbara Bain",
+      "birthSource": "https://www.astro.com/astro-databank/Bain%2C_Barbara",
+      "birthQuality": "AA; birth certificate reportedly quoted, not independently inspected. Fixed CST follows the published chart.",
+      "career": "Actor; Hollywood Walk of Fame television star awarded 28 April 2016.",
+      "careerSource": "https://walkoffame.com/barbara-bain/",
+      "marriage": "Married Martin Landau on 31 January 1957; divorced in 1993.",
+      "marriageSource": "https://www.astro.com/astro-databank/Bain%2C_Barbara",
+      "asOf": "2026-11-01T23:32:07.128Z",
+      "timeBasis": "Fixed offset -6:00",
+      "ascendant": "Taurus",
+      "material": [
+        {
+          "topic": "career",
+          "beforeOverview": "Possible career themes in these interpretations: livelihood through commerce, accounts, writing, communication, teaching or documentation; profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields; government, administration or a large institution; advisor, teacher, financier or artist. These are alternatives, not a predicted occupation.",
+          "after": {
+            "topic": "career",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible work themes or experiences:",
+            "details": [
+              "Livelihood through commerce, accounts, writing, communication, teaching or documentation.",
+              "Profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields.",
+              "Advisor, teacher, financier or artist."
+            ],
+            "limit": "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": []
+          },
+          "sourceFindings": [
+            {
+              "id": "sa-me",
+              "text": "Karma with Mercury: livelihood through commerce, accounts, writing, communication, teaching or documentation.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "sa-ve",
+              "text": "Karma with Venus: profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "sa-su",
+              "text": "Karma with the Sun: government, administration or a large institution; a position of authority reached through service.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "marriage",
+          "beforeOverview": "Asks for care. The husband is often away from his wife and leads a disturbed life; an attachment outside the marriage on the native's side, or a friendship that turns cold.",
+          "after": {
+            "topic": "marriage",
+            "hasArea": true,
+            "summary": "This Nadi check finds a direct link between the planets it uses for you and a partner. The method reads that as supportive of the possibility of marriage.",
+            "detailIntro": "Other selected Nadi rules describe these possible relationship themes:",
+            "details": [
+              "One interpretation raises questions about distance or time apart; see the source finding for its wording.",
+              "One interpretation raises questions about commitment or boundaries; see the source finding for its wording.",
+              "One interpretation raises questions about timing or delays; see the source finding for its wording."
+            ],
+            "limit": "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
+            "contrast": "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": []
+          },
+          "sourceFindings": [
+            {
+              "id": "f-t-ma-mo-ke",
+              "text": "Mars, Moon and Ketu linked by sign (not necessarily in the same sign): the husband is often away from his wife and leads a disturbed life; an ordinary job.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology; adjacent-sign extension provisional"
+            },
+            {
+              "id": "f-t-ve-me-ke",
+              "text": "Venus, Mercury and Ketu linked by sign (not necessarily in the same sign): an attachment outside the marriage on the native's side, or a friendship that turns cold.",
+              "source": "B. Sakurkar, Nadi principles for marriage (Saptarishis); adjacent-sign extension provisional"
+            },
+            {
+              "id": "f-t-ve-sa-ke",
+              "text": "Venus, Saturn and Ketu linked by sign (not necessarily in the same sign): the native's own life is austere and delayed in marriage; a spiritual or detached turn.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology; adjacent-sign extension provisional"
+            }
+          ],
+          "technicalMarriageHeadline": "Mars (husband) stands in the 3rd from Venus (the native): a supporting axis; marriage is promised at lesser strength, often later or by circumstance.",
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        }
+      ],
+      "eventChecks": [
+        {
+          "event": {
+            "topic": "marriage",
+            "date": "1957-01-31",
+            "timezone": "America/New_York",
+            "description": "Civil marriage to Martin Landau",
+            "source": "https://www.imdb.com/name/nm0000828/bio/",
+            "corroboration": "https://catacombs.space1999.net/main/crguide/vcaml.html"
+          },
+          "actual": {
+            "date": "1957-01-31",
+            "asOf": "1956-11-02T05:00:00.000Z",
+            "zone": "America/New_York",
+            "possibleDayOverlap": true,
+            "windows": [
+              {
+                "when": "28 Oct 1956 – 17 Apr 1957",
+                "start": "1956-10-28T16:53:24.000Z",
+                "end": "1957-04-18T01:10:31.000Z",
+                "reason": "Jupiter's passage is read in relation to Moon and Ketu in the birth-chart findings selected for marriage."
+              }
+            ]
+          },
+          "comparisons": [
+            {
+              "date": "1956-08-04",
+              "asOf": "1956-05-06T04:00:00.000Z",
+              "zone": "America/New_York",
+              "possibleDayOverlap": false,
+              "windows": []
+            },
+            {
+              "date": "1957-07-30",
+              "asOf": "1957-05-01T04:00:00.000Z",
+              "zone": "America/New_York",
+              "possibleDayOverlap": true,
+              "windows": [
+                {
+                  "when": "19 Jun 1957 – 28 Nov 1957",
+                  "start": "1957-06-19T11:12:45.000Z",
+                  "end": "1957-11-28T13:34:25.000Z",
+                  "reason": "Jupiter's passage is read in relation to Moon and Ketu in the birth-chart findings selected for marriage."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "event": {
+            "topic": "career",
+            "date": "2016-04-28",
+            "timezone": "America/Los_Angeles",
+            "description": "Walk of Fame television star",
+            "source": "https://walkoffame.com/barbara-bain/",
+            "corroboration": "https://cityclerk.lacity.org/onlinedocs/2016/16-0013_misc_2_01-05-2016.pdf"
+          },
+          "actual": {
+            "date": "2016-04-28",
+            "asOf": "2016-01-29T08:00:00.000Z",
+            "zone": "America/Los_Angeles",
+            "possibleDayOverlap": false,
+            "windows": [
+              {
+                "when": "26 Jan 2017 – 20 Jun 2017",
+                "start": "2017-01-26T14:01:11.000Z",
+                "end": "2017-06-20T23:08:25.000Z",
+                "reason": "Saturn's passage is read in relation to Saturn and Mercury in the birth-chart findings selected for career."
+              }
+            ]
+          },
+          "comparisons": [
+            {
+              "date": "2015-10-31",
+              "asOf": "2015-08-02T07:00:00.000Z",
+              "zone": "America/Los_Angeles",
+              "possibleDayOverlap": false,
+              "windows": [
+                {
+                  "when": "26 Jan 2017 – 20 Jun 2017",
+                  "start": "2017-01-26T14:01:11.000Z",
+                  "end": "2017-06-20T23:08:25.000Z",
+                  "reason": "Saturn's passage is read in relation to Saturn and Mercury in the birth-chart findings selected for career."
+                }
+              ]
+            },
+            {
+              "date": "2016-10-25",
+              "asOf": "2016-07-27T07:00:00.000Z",
+              "zone": "America/Los_Angeles",
+              "possibleDayOverlap": false,
+              "windows": [
+                {
+                  "when": "26 Jan 2017 – 20 Jun 2017",
+                  "start": "2017-01-26T14:01:11.000Z",
+                  "end": "2017-06-20T23:08:25.000Z",
+                  "reason": "Saturn's passage is read in relation to Saturn and Mercury in the birth-chart findings selected for career."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Oprah Winfrey",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_01_29.htm?lang=r&nho2=4319606&nhor=147268451",
+      "birthQuality": "A; recalled by the subject to an astrologer, who reported that she said nobody knew for sure. 04:30 may be rounded; alternative reports exist.",
+      "career": "Broadcaster and media entrepreneur; her talk show began national syndication on 8 September 1986.",
+      "careerSource": "https://nmaahc.si.edu/watching-oprah",
+      "marriage": "Has publicly discussed not marrying her long-term partner; an enduring relationship is not a legal marriage.",
+      "marriageSource": "https://www.cbsnews.com/news/oprah-explains-why-she-and-partner-stedman-graham-are-not-married/",
+      "asOf": "2026-11-01T23:32:08.068Z",
+      "timeBasis": "standard time of America/Chicago -6:00",
+      "ascendant": "Sagittarius",
+      "material": [
+        {
+          "topic": "career",
+          "beforeOverview": "A mixed picture. Refined intellect; yet engineering, machinery, land, construction, defence or surgery.",
+          "after": {
+            "topic": "career",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible work themes or experiences:",
+            "details": [
+              "Advisor, teacher, financier or artist.",
+              "Engineering, machinery, land, construction, defence or surgery.",
+              "Profession and partnership intertwine."
+            ],
+            "limit": "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": []
+          },
+          "sourceFindings": [
+            {
+              "id": "t-ju-ve-me",
+              "text": "Jupiter, Venus and Mercury linked by sign (not necessarily in the same sign): refined intellect; advisor, teacher, financier or artist; pleasant speech wins support.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "sa-ma",
+              "text": "Karma with Mars: engineering, machinery, land, construction, defence or surgery; work demands physical or technical effort.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "x-sa-ve",
+              "text": "Saturn and Venus exchange signs: profession and partnership intertwine; work in finance, luxury or with the spouse.",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "marriage",
+          "beforeOverview": "The strong rules disagree. A capable, established husband; yet denial or a very late marriage. Read both before deciding.",
+          "after": {
+            "topic": "marriage",
+            "hasArea": true,
+            "summary": "This Nadi check finds a direct link between the planets it uses for you and a partner. The method reads that as supportive of the possibility of marriage.",
+            "detailIntro": "Other selected Nadi rules describe these possible relationship themes:",
+            "details": [
+              "A capable, established husband; property and standing through the marriage.",
+              "One interpretation raises questions about timing or delays and whether marriage occurs; see the source finding for its wording.",
+              "One interpretation raises questions about distance or time apart; see the source finding for its wording."
+            ],
+            "limit": "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
+            "contrast": "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 2 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Saturn's passage is read in relation to Mars, Moon and Ketu in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:15.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:15.000Z",
+                "end": "2027-06-02T23:58:19.000Z"
+              },
+              {
+                "id": "nadi-jupiter-next",
+                "when": "24 Jan 2027 – 25 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Jupiter's passage is read in relation to Mars, Moon and Ketu in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:33.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:33.000Z",
+                "end": "2027-06-25T23:49:16.000Z"
+              }
+            ]
+          },
+          "sourceFindings": [
+            {
+              "id": "f-ma-exalt",
+              "text": "Mars, the husband's karaka, is dignified: a capable, established husband; property and standing through the marriage.",
+              "source": "General Nadi principles (Rao, Naik)"
+            },
+            {
+              "id": "f-t-ma-sa-ke",
+              "text": "Mars, Saturn and Ketu linked by sign (not necessarily in the same sign): denial or a very late marriage; with Jupiter the husband is a doctor or in a healing profession.",
+              "source": "B. Sakurkar, Nadi principles for marriage (Saptarishis); adjacent-sign extension provisional"
+            },
+            {
+              "id": "f-t-ma-mo-ke",
+              "text": "Mars, Moon and Ketu linked by sign (not necessarily in the same sign): the husband is often away from his wife and leads a disturbed life; an ordinary job.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology; adjacent-sign extension provisional"
+            }
+          ],
+          "technicalMarriageHeadline": "Mars (husband) stands in the 11th from Venus (the native): a supporting axis; marriage is promised at lesser strength, often later or by circumstance.",
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        }
+      ],
+      "eventChecks": [
+        {
+          "event": {
+            "topic": "career",
+            "date": "1986-09-08",
+            "timezone": "America/Chicago",
+            "description": "Talk show began national syndication",
+            "source": "https://nmaahc.si.edu/watching-oprah",
+            "corroboration": "https://interviews.televisionacademy.com/shows/oprah-winfrey-show-the"
+          },
+          "actual": {
+            "date": "1986-09-08",
+            "asOf": "1986-06-10T05:00:00.000Z",
+            "zone": "America/Chicago",
+            "possibleDayOverlap": false,
+            "windows": []
+          },
+          "comparisons": [
+            {
+              "date": "1986-03-12",
+              "asOf": "1985-12-12T06:00:00.000Z",
+              "zone": "America/Chicago",
+              "possibleDayOverlap": false,
+              "windows": []
+            },
+            {
+              "date": "1987-03-07",
+              "asOf": "1986-12-07T06:00:00.000Z",
+              "zone": "America/Chicago",
+              "possibleDayOverlap": false,
+              "windows": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Kiran Bedi",
+      "birthSource": "https://www.astro.com/astro-databank/Bedi%2C_Kiran",
+      "birthQuality": "C; time quoted from an astrology biography without an identified original source, approximately 14:10. A sensitivity example, not a reliable birth-time benchmark.",
+      "career": "Police officer and administrator; joined the Indian Police Service in 1972.",
+      "careerSource": "https://police.un.org/en/news/half-a-century-of-advancing-womens-role-in-police-meet-kiran-bedi-the-first-indian-and",
+      "marriage": "Married Brij Bedi in 1972.",
+      "marriageSource": "https://kiranbedi.com/my-family/",
+      "asOf": "2026-11-01T23:32:08.818Z",
+      "timeBasis": "standard time of Asia/Kolkata +5:30",
+      "ascendant": "Virgo",
+      "material": [
+        {
+          "topic": "career",
+          "beforeOverview": "A mixed picture. Work involving energy, metal, machines, leadership or the armed services; yet breaks and restarts in the career line.",
+          "after": {
+            "topic": "career",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible work themes or experiences:",
+            "details": [
+              "Work involving energy, metal, machines, leadership or the armed services.",
+              "Technical, computing, healing or research work.",
+              "Livelihood linked to father, authority, government."
+            ],
+            "contrast": "Another part of a selected rule mentions breaks and restarts in the career line.",
+            "limit": "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-now",
+                "when": "31 Oct 2026 – 25 Jan 2027",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Jupiter's passage is read in relation to Saturn in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2026-10-31T06:32:44.000Z\"]"
+                },
+                "start": "2026-10-31T06:32:44.000Z",
+                "end": "2027-01-24T20:01:30.000Z"
+              }
+            ]
+          },
+          "sourceFindings": [
+            {
+              "id": "sa-fire",
+              "text": "Saturn in a fiery sign: work involving energy, metal, machines, leadership or the armed services.",
+              "source": "General Nadi principles (Rao, Naik)"
+            },
+            {
+              "id": "sa-ke",
+              "text": "Karma with Ketu: technical, computing, healing or research work; breaks and restarts in the career line.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "sa-lord-su",
+              "text": "Saturn sits in a sign owned by Sun: Livelihood takes the colour of Sun's significations (father, authority, government).",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "marriage",
+          "beforeOverview": "The strong rules disagree. A learned, advisory husband; yet sharp words followed by cold detachment. Read both before deciding.",
+          "after": {
+            "topic": "marriage",
+            "hasArea": true,
+            "summary": "This Nadi check finds a direct link between the planets it uses for you and a partner. The method reads that as supportive of the possibility of marriage.",
+            "detailIntro": "Other selected Nadi rules describe these possible relationship themes:",
+            "details": [
+              "A learned, advisory husband; law, teaching, consultancy or administration.",
+              "One interpretation raises questions about commitment or boundaries, communication or conflict and distance or time apart; see the source finding for its wording.",
+              "One interpretation raises questions about communication or conflict; see the source finding for its wording."
+            ],
+            "limit": "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
+            "contrast": "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 3 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Saturn's passage is read in relation to Ketu in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:14.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:14.000Z",
+                "end": "2027-06-02T23:58:18.000Z"
+              },
+              {
+                "id": "nadi-jupiter-next",
+                "when": "25 Jan 2027 – 26 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Jupiter's passage is read in relation to Jupiter in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:30.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:30.000Z",
+                "end": "2027-06-25T23:49:13.000Z"
+              }
+            ]
+          },
+          "sourceFindings": [
+            {
+              "id": "f-t-ma-me-ju",
+              "text": "Mars, Mercury and Jupiter linked by sign (not necessarily in the same sign): a learned, advisory husband; law, teaching, consultancy or administration.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology; adjacent-sign extension provisional"
+            },
+            {
+              "id": "f-t-ma-me-ke",
+              "text": "Mars, Mercury and Ketu linked by sign (not necessarily in the same sign): sharp words followed by cold detachment; the husband may keep an attachment outside the marriage; risk of separation.",
+              "source": "B. Sakurkar, Nadi principles for marriage (Saptarishis); adjacent-sign extension provisional"
+            },
+            {
+              "id": "f-t-ma-me-ve",
+              "text": "Mars, Mercury and Venus linked by sign (not necessarily in the same sign): an intellectual husband and constant quarrels, yet property and wealth are gained; he may follow a luxurious commercial profession.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology; adjacent-sign extension provisional"
+            }
+          ],
+          "technicalMarriageHeadline": "Mars (husband) stands in the 12th from Venus (the native): the background the native carries; marriage is promised at lesser strength.",
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        }
+      ],
+      "eventChecks": [
+        {
+          "event": {
+            "topic": "career",
+            "date": "2006-08-01",
+            "timezone": "Asia/Kolkata",
+            "description": "Became Director General, Bureau of Police Research and Development",
+            "source": "https://bprd.nic.in/uploads/pdf/August%202006.pdf"
+          },
+          "actual": {
+            "date": "2006-08-01",
+            "asOf": "2006-05-02T18:30:00.000Z",
+            "zone": "Asia/Kolkata",
+            "possibleDayOverlap": false,
+            "windows": [
+              {
+                "when": "1 Nov 2006 – 10 Jan 2007",
+                "start": "2006-11-01T01:43:32.000Z",
+                "end": "2007-01-10T12:32:36.000Z",
+                "reason": "Saturn's passage is read in relation to Saturn in the birth-chart findings selected for career."
+              }
+            ]
+          },
+          "comparisons": [
+            {
+              "date": "2006-02-02",
+              "asOf": "2005-11-03T18:30:00.000Z",
+              "zone": "Asia/Kolkata",
+              "possibleDayOverlap": false,
+              "windows": [
+                {
+                  "when": "1 Nov 2006 – 10 Jan 2007",
+                  "start": "2006-11-01T01:43:32.000Z",
+                  "end": "2007-01-10T12:32:36.000Z",
+                  "reason": "Saturn's passage is read in relation to Saturn in the birth-chart findings selected for career."
+                }
+              ]
+            },
+            {
+              "date": "2007-01-28",
+              "asOf": "2006-10-29T18:30:00.000Z",
+              "zone": "Asia/Kolkata",
+              "possibleDayOverlap": false,
+              "windows": [
+                {
+                  "when": "1 Nov 2006 – 10 Jan 2007",
+                  "start": "2006-11-01T01:43:32.000Z",
+                  "end": "2007-01-10T12:32:36.000Z",
+                  "reason": "Saturn's passage is read in relation to Saturn in the birth-chart findings selected for career."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

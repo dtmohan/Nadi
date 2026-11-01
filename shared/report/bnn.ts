@@ -7,6 +7,9 @@ import { nextMarriageWindow } from "../marriage";
 import { nextChildWindow } from "../children";
 import { vimshottari, type KpPeriod } from "../kp";
 import { AREA_ONSET, lifePeriods, periodStateLabel } from "../life-stage";
+import { agreementInput, computeAgreement } from "../agreement";
+import { briefingFor } from "../briefing";
+import { plainTopicBriefs, type PlainTopicBrief } from "../topic-brief";
 import {
   endStop,
   fmtMonth,
@@ -26,7 +29,30 @@ export const bnnModule: ReportModule = {
     const { reading, transits } = result;
     const roles = reading.roles;
     const areas = synthesize(reading, roles.gender);
+    const briefInput = plain ? agreementInput(result, true) : undefined;
+    const topicBriefs = briefInput ? plainTopicBriefs({
+      reading,
+      areas,
+      agreement: computeAgreement(briefInput),
+      brief: briefingFor(result, briefInput),
+      zone: result.chart.timezone || "UTC",
+      inSeason,
+    }) : [];
     const rao = (s?: string) => cites.add(s ?? "R.G. Rao, Bhrigu Nandi Nadi");
+    const simpleAdditions = (simple: PlainTopicBrief): ReportPara[] => {
+      const ps: ReportPara[] = [];
+      if (simple.detailIntro) ps.push({ kind: "p", text: simple.detailIntro });
+      for (const detail of simple.details ?? []) ps.push({ kind: "p", text: S(detail) });
+      ps.push({ kind: "note", text: simple.limit });
+      if (simple.contrast) ps.push({ kind: "p", text: simple.contrast });
+      if (simple.comparison) ps.push({ kind: "p", text: simple.comparison });
+      if (deceased && simple.windows.length) ps.push({ kind: "note", text: "The following passages were running at the recorded date of passing; they are not future forecasts." });
+      for (const w of simple.windows) ps.push({ kind: "p", text: `${w.when}: ${w.statement} ${w.reason}` });
+      ps.push({ kind: "note", text: simple.windows.length
+        ? "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected Nadi transit passages are not predicted event dates. Topic selection is the app's convention."
+        : "No matching Nadi passage is shown in this briefing. That is not a conclusion about whether an event can occur." });
+      return ps;
+    };
     const relOf = (f: Finding) => {
       if (f.planets.length === 2) {
         if (f.relation && f.relation !== "conjunct")
@@ -74,10 +100,12 @@ export const bnnModule: ReportModule = {
         );
         continue;
       }
+      const simple = topicBriefs.find((t) => t.topic === a.area);
       const ps: ReportPara[] = [
         {
           kind: "p",
-          text: S(a.headline),
+          text: S(simple?.summary ?? a.headline),
+          cites: simple ? Array.from(new Set([rao(), ...a.key.map((f) => rao(f.source)), ...(a.careerAlternative ? [rao(a.careerAlternative.source)] : [])])) : undefined,
           tone:
             a.tone === "supportive"
               ? "support"
@@ -87,6 +115,8 @@ export const bnnModule: ReportModule = {
           aside: a.area === "children" ? "Traditional interpretation" : AREA_TONE_LABEL[a.tone],
         },
       ];
+      if (simple) ps.push(...simpleAdditions(simple));
+      if (!simple) {
       if (a.reconciliation) ps.push({ kind: "p", text: S(a.reconciliation) });
       if (a.contest)
         ps.push({
@@ -130,6 +160,7 @@ export const bnnModule: ReportModule = {
           aside: `Jupiter over ${m.spouseSign} or its trines brings the matter forward${win && !deceased ? `; next: Jupiter ${win.kind === "over" ? "over" : "in trine from"} ${win.period.sign}, ${fmtMonth(win.period.start)} to ${fmtMonth(win.period.end)}` : ""}.`,
         });
       }
+      }
       if (a.area === "children") {
         const c = reading.children;
         const win = nextChildWindow(c, transits, asOf.slice(0, 10), result.utc);
@@ -150,6 +181,15 @@ export const bnnModule: ReportModule = {
         id: `bnn-${a.area}`,
         title: LIFE_AREAS[a.area].label,
         paras: ps,
+      });
+    }
+    // The dedicated Nadi marriage check exists even when no general life-area rule fired.
+    // Keep its plain explanation in the report as well as the Overview in that case.
+    for (const simple of topicBriefs.filter((t) => !t.hasArea)) {
+      sub.push({
+        id: `bnn-${simple.topic}`,
+        title: LIFE_AREAS[simple.topic].label,
+        paras: [{ kind: "p", text: S(simple.summary), cites: [rao()] }, ...simpleAdditions(simple)],
       });
     }
     // Ashtalakshmi: the Venus-lagna wealth reading, kept beside the area verdicts

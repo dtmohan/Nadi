@@ -1,0 +1,28 @@
+{
+  "description":"Fresh public follow-up cases selected after the two presentation fixes, before this evaluation. Neither appears in earlier fixtures.",
+  "cases":[
+    {
+      "chart":{"name":"Srinivasa Ramanujan","gender":"male","birthDate":"1887-12-22","birthTime":"18:00","timezone":"Asia/Kolkata","timeStandard":"+05:21:10","place":"Erode, India","latitude":11.35,"longitude":77.7333,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"1920-04-26"},
+      "birthSource":"https://www.astro.com/astro-databank/Ramanujan%2C_Srinivasa",
+      "birthQuality":"B; a biography quotes 18:00 and another says just after sunset. The time is approximate, not a birth-record benchmark. Fixed Madras time follows the reported chart.",
+      "career":"Mathematician known for work in number theory and infinite series.",
+      "careerSource":"https://mathshistory.st-andrews.ac.uk/Biographies/Ramanujan/",
+      "marriage":"Married Janaki Ammal on 14 July 1909.",
+      "marriageSource":"https://mathshistory.st-andrews.ac.uk/Biographies/Ramanujan/",
+      "events":[{"topic":"marriage","date":"1909-07-14","timezone":"Asia/Kolkata","description":"Marriage to Janaki Ammal","source":"https://mathshistory.st-andrews.ac.uk/Biographies/Ramanujan/","corroboration":"https://www.imsc.res.in/~rao/ramanujan/rao/page18.htm"}]
+    },
+    {
+      "chart":{"name":"Simone Biles","gender":"female","birthDate":"1997-03-14","birthTime":"06:02","timezone":"America/New_York","timeStandard":"auto","place":"Columbus, Ohio, USA","latitude":39.9667,"longitude":-83.0,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Biles%2C_Simone",
+      "birthQuality":"AA; certificate reportedly in hand, but earlier reports differed; the record was not independently inspected.",
+      "career":"Artistic gymnast; Olympic all-around gold medallist in Rio in 2016.",
+      "careerSource":"https://members.usagym.org/pages/post.html?PostID=19105",
+      "marriage":"Married Jonathan Owens in April 2023.",
+      "marriageSource":"https://www.espn.com/nfl/story/_/id/36265038/simone-biles-jonathan-owens-announce-marriage",
+      "events":[
+        {"topic":"career","date":"2016-08-11","timezone":"America/Sao_Paulo","description":"Olympic individual all-around gold medal","source":"https://members.usagym.org/pages/post.html?PostID=19105","corroboration":"https://static.usagym.org/PDFs/Results/Olympics_2016_CompleteResults.pdf"},
+        {"topic":"marriage","date":"2023-04-22","timezone":"America/Chicago","description":"Marriage to Jonathan Owens","source":"https://www.espn.com/nfl/story/_/id/36265038/simone-biles-jonathan-owens-announce-marriage","corroboration":"https://www.cbsnews.com/amp/news/olympic-gymnast-simone-biles-marries/"}
+      ]
+    }
+  ]
+}

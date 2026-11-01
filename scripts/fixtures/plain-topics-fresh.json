@@ -1,0 +1,57 @@
+{
+  "description": "Fresh public cases for a presentation and scope review of Nadi career and marriage cards. None appears in the previous fixtures. No private charts.",
+  "cases": [
+    {
+      "chart": {"name":"Toni Morrison","gender":"female","birthDate":"1931-02-18","birthTime":"11:00","timezone":"America/New_York","timeStandard":"auto","place":"Lorain, Ohio, USA","latitude":41.45,"longitude":-82.1833,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"2019-08-05"},
+      "birthSource":"https://www.astro.com/astro-databank/Morrison%2C_Toni?lang=r&nho2=2&nhor=1",
+      "birthQuality":"AA; published birth-record quotation; the 11:00 time may be rounded. The underlying record was not inspected.",
+      "career":"Writer and editor; Nobel Prize in Literature in 1993.",
+      "careerSource":"https://www.nobelprize.org/prizes/literature/1993/morrison/biographical/",
+      "marriage":"Married Harold Morrison in 1958; divorced in 1964.",
+      "marriageSource":"https://www.tonimorrisonsociety.org/author.html",
+      "events": [{"topic":"career","date":"1993-10-07","timezone":"Europe/Stockholm","description":"Nobel Prize in Literature announced","source":"https://www.nobelprize.org/prizes/literature/1993/press-release/","corroboration":"https://www.upi.com/Archives/1993/10/07/Toni-Morrison-wins-Nobel-Prize-for-literature/8175749966400/"}]
+    },
+    {
+      "chart": {"name":"Johannes van der Waals","gender":"male","birthDate":"1837-11-23","birthTime":"00:30","timezone":"Europe/Amsterdam","timeStandard":"lmt","place":"Leiden, Netherlands","latitude":52.1667,"longitude":4.5,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"1923-03-08"},
+      "birthSource":"https://www.astro.com/astro-databank/Waals%2C_Johannes_van_der",
+      "birthQuality":"AA; Astro-Databank reports a Leiden birth certificate. Local mean time and approximate listed coordinates; the record was not inspected.",
+      "career":"Physicist; Nobel Prize in Physics in 1910.",
+      "careerSource":"https://www.nobelprize.org/prizes/physics/1910/summary/",
+      "marriage":"Married Anna Magdalena Smit; sources disagree about whether the year was 1864 or 1865.",
+      "marriageSource":"https://dwc.knaw.nl/wp-content/berkelbio/60.vanderwaals.pdf"
+    },
+    {
+      "chart": {"name":"Barbara Bain","gender":"female","birthDate":"1931-09-13","birthTime":"20:45","timezone":"America/Chicago","timeStandard":"-06:00","place":"Chicago, Illinois, USA","latitude":41.85,"longitude":-87.65,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Bain%2C_Barbara",
+      "birthQuality":"AA; birth certificate reportedly quoted, not independently inspected. Fixed CST follows the published chart.",
+      "career":"Actor; Hollywood Walk of Fame television star awarded 28 April 2016.",
+      "careerSource":"https://walkoffame.com/barbara-bain/",
+      "marriage":"Married Martin Landau on 31 January 1957; divorced in 1993.",
+      "marriageSource":"https://www.astro.com/astro-databank/Bain%2C_Barbara",
+      "events": [
+        {"topic":"marriage","date":"1957-01-31","timezone":"America/New_York","description":"Civil marriage to Martin Landau","source":"https://www.imdb.com/name/nm0000828/bio/","corroboration":"https://catacombs.space1999.net/main/crguide/vcaml.html"},
+        {"topic":"career","date":"2016-04-28","timezone":"America/Los_Angeles","description":"Walk of Fame television star","source":"https://walkoffame.com/barbara-bain/","corroboration":"https://cityclerk.lacity.org/onlinedocs/2016/16-0013_misc_2_01-05-2016.pdf"}
+      ]
+    },
+    {
+      "chart": {"name":"Oprah Winfrey","gender":"female","birthDate":"1954-01-29","birthTime":"04:30","timezone":"America/Chicago","timeStandard":"auto","place":"Kosciusko, Mississippi, USA","latitude":33.05,"longitude":-89.5833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/adbvip/adbvip_01_29.htm?lang=r&nho2=4319606&nhor=147268451",
+      "birthQuality":"A; recalled by the subject to an astrologer, who reported that she said nobody knew for sure. 04:30 may be rounded; alternative reports exist.",
+      "career":"Broadcaster and media entrepreneur; her talk show began national syndication on 8 September 1986.",
+      "careerSource":"https://nmaahc.si.edu/watching-oprah",
+      "marriage":"Has publicly discussed not marrying her long-term partner; an enduring relationship is not a legal marriage.",
+      "marriageSource":"https://www.cbsnews.com/news/oprah-explains-why-she-and-partner-stedman-graham-are-not-married/",
+      "events": [{"topic":"career","date":"1986-09-08","timezone":"America/Chicago","description":"Talk show began national syndication","source":"https://nmaahc.si.edu/watching-oprah","corroboration":"https://interviews.televisionacademy.com/shows/oprah-winfrey-show-the"}]
+    },
+    {
+      "chart": {"name":"Kiran Bedi","gender":"female","birthDate":"1949-06-09","birthTime":"14:10","timezone":"Asia/Kolkata","timeStandard":"auto","place":"Amritsar, India","latitude":31.5833,"longitude":74.8833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Bedi%2C_Kiran",
+      "birthQuality":"C; time quoted from an astrology biography without an identified original source, approximately 14:10. A sensitivity example, not a reliable birth-time benchmark.",
+      "career":"Police officer and administrator; joined the Indian Police Service in 1972.",
+      "careerSource":"https://police.un.org/en/news/half-a-century-of-advancing-womens-role-in-police-meet-kiran-bedi-the-first-indian-and",
+      "marriage":"Married Brij Bedi in 1972.",
+      "marriageSource":"https://kiranbedi.com/my-family/",
+      "events": [{"topic":"career","date":"2006-08-01","timezone":"Asia/Kolkata","description":"Became Director General, Bureau of Police Research and Development","source":"https://bprd.nic.in/uploads/pdf/August%202006.pdf"}]
+    }
+  ]
+}

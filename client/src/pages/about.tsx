@@ -594,8 +594,9 @@ export default function AboutPage() {
               strongest supportive rule and its strongest hard rule about the
               outcome are of comparable weight; both are named in the headline
               and neither is summed away. A hard rule that speaks only of timing
-              ("delayed", "later") does not contest a promise; that pair is
-              still read as later rather than never. Two rules that describe
+              ("delayed", "later") does not contest a promise at that
+              threshold; both indications remain visible and neither settles
+              whether or when an event will happen. Two rules that describe
               different kinds of the same thing (a career in vehicles beside one
               in mining) carry incidental tone words but no verdict, so they do
               not contest each other: a contest needs a promise against a

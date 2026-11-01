@@ -43,6 +43,8 @@ export interface BriefLink {
   target?: string;
   /** A fold to open on arrival (its Expander id), when the line summarises what the fold holds. */
   open?: string;
+  /** Select the planet's track before seeking a Nadi transit row. */
+  transitPlanet?: "Jupiter" | "Saturn";
 }
 
 export interface BeforeNote {
@@ -75,6 +77,8 @@ export interface BriefRow {
   what: string;
   lean?: string;
   line?: string;
+  /** Natal planets in each area's activated findings that the Nadi passage actually touches. */
+  nadiPlanets?: Partial<Record<LifeArea, Planet[]>>;
   /** Practitioner detail; undefined in the plain view. */
   detail?: string;
   tags: AreaTag[];
@@ -725,6 +729,13 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
   }
   function nadiRow(x: TransitReading, group: "now" | "next"): BriefRow {
     const areas = x.areas.filter((a) => !held(a)).map((area) => ({ area, why: "the Nadi reading of this passage" }));
+    const touched = new Set([...x.conjunct, ...x.trine, ...x.opposite]);
+    const nadiPlanets: Partial<Record<LifeArea, Planet[]>> = {};
+    for (const { area } of areas) {
+      nadiPlanets[area] = Array.from(new Set(
+        x.activated.filter((f) => f.area === area).flatMap((f) => f.planets.filter((p) => touched.has(p))),
+      ));
+    }
     return {
       id: `nadi-${x.period.planet.toLowerCase()}-${group}`,
       group,
@@ -734,9 +745,13 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
       system: "Nadi",
       what: group === "now" ? `${x.period.planet} through ${SIGNS[x.period.signIndex]}` : `${x.period.planet} enters ${SIGNS[x.period.signIndex]}`,
       line: x.headline,
+      nadiPlanets,
       detail: plain ? undefined : `Weight ${x.weight} of 3 (Rao and Naik: Jupiter from the native, Saturn from karma).`,
       tags: tagsFor({ attached: areas }, lagnaSign, held),
-      link: { tab: "bnn", chapter: "timing" },
+      link: {
+        tab: "bnn", chapter: "timing", transitPlanet: x.period.planet,
+        target: `[data-transit-planet="${x.period.planet}"][data-transit-start="${x.period.start}"]`,
+      },
     };
   }
 

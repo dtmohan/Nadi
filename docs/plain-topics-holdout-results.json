@@ -1,0 +1,407 @@
+{
+  "protocol": "docs/plain-topics-fresh-protocol.md",
+  "cases": [
+    {
+      "name": "Milind Soman",
+      "birthSource": "https://www.astro.com/astro-databank/Soman%2C_Milind",
+      "birthQuality": "AA; birth certificate reportedly quoted. The record was not independently inspected.",
+      "career": "Indian model, actor, producer and fitness promoter.",
+      "careerSource": "https://www.astro.com/astro-databank/Soman%2C_Milind",
+      "marriage": "Married Ankita Konwar in Alibaug on 22 April 2018.",
+      "marriageSource": "https://www.ndtv.com/entertainment/milind-soman-marries-ankita-konwar-see-wedding-pics-1841029",
+      "asOf": "2026-11-01T23:32:05.210Z",
+      "timeBasis": "standard time of Europe/London +0:00",
+      "ascendant": "Aries",
+      "material": [
+        {
+          "topic": "career",
+          "beforeOverview": "Possible career themes in these interpretations: work with the public, liquids, food, shipping or frequent travel; a government or institutional post of authority; career reversals or a change of field. These are alternatives, not a predicted occupation.",
+          "after": {
+            "topic": "career",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible work themes or experiences:",
+            "details": [
+              "Work with the public, liquids, food, shipping or frequent travel.",
+              "A government or institutional post of authority.",
+              "Career reversals or a change of field."
+            ],
+            "limit": "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": []
+          },
+          "sourceFindings": [
+            {
+              "id": "sa-mo",
+              "text": "Karma with the Moon: work with the public, liquids, food, shipping or frequent travel; fluctuating routines.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "t-ju-sa-su",
+              "text": "Jupiter, Saturn and the Sun linked by sign (not necessarily in the same sign): a government or institutional post of authority; administrative career.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "sa-retro",
+              "text": "Retrograde Saturn: career reversals or a change of field; the profession also takes colour from the previous sign.",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "marriage",
+          "beforeOverview": "Asks for care. Passionate attraction; educated, talkative spouse.",
+          "after": {
+            "topic": "marriage",
+            "hasArea": true,
+            "summary": "This Nadi check finds a direct link between the planets it uses for you and a partner. The method reads that as supportive of the possibility of marriage.",
+            "detailIntro": "Other selected Nadi rules describe these possible relationship themes:",
+            "details": [
+              "One interpretation raises questions about commitment or boundaries; see the source finding for its wording.",
+              "Passionate attraction; love marriage or a spouse with a technical, forceful temperament.",
+              "A wise, supportive spouse who raises the native's fortune; marriage brings growth."
+            ],
+            "limit": "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
+            "contrast": "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 3 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Saturn's passage is read in relation to Mercury in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:10.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:10.000Z",
+                "end": "2027-06-02T23:58:15.000Z"
+              },
+              {
+                "id": "nadi-jupiter-next",
+                "when": "24 Jan 2027 – 26 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Jupiter's passage is read in relation to Mercury in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:31.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:31.000Z",
+                "end": "2027-06-25T23:49:14.000Z"
+              }
+            ]
+          },
+          "sourceFindings": [
+            {
+              "id": "ve-me",
+              "text": "Venus with Mercury: educated, talkative spouse; friendship precedes romance; more than one attachment is possible.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ve-ma",
+              "text": "Venus with Mars: passionate attraction; love marriage or a spouse with a technical, forceful temperament.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ve-ju",
+              "text": "Venus with Jupiter: a wise, supportive spouse who raises the native's fortune; marriage brings growth.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "technicalMarriageHeadline": "Venus (wife) stands in the 7th from Jupiter (the native): mutual aspect at half strength; marriage is promised, the partner a counterweight.",
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        }
+      ],
+      "eventChecks": [
+        {
+          "event": {
+            "topic": "marriage",
+            "date": "2018-04-22",
+            "timezone": "Asia/Kolkata",
+            "description": "Wedding to Ankita Konwar in Alibaug",
+            "source": "https://www.ndtv.com/entertainment/milind-soman-marries-ankita-konwar-see-wedding-pics-1841029",
+            "corroboration": "https://www.indiatoday.in/lifestyle/celebrity/story/milind-soman-and-ankita-konwar-are-now-married-1217506-2018-04-22"
+          },
+          "actual": {
+            "date": "2018-04-22",
+            "asOf": "2018-01-21T18:30:00.000Z",
+            "zone": "Asia/Kolkata",
+            "possibleDayOverlap": true,
+            "windows": [
+              {
+                "when": "26 Oct 2017 – 24 Jan 2020",
+                "start": "2017-10-26T09:58:09.000Z",
+                "end": "2020-01-24T04:26:35.000Z",
+                "reason": "Saturn's passage is read in relation to Venus in the birth-chart findings selected for marriage."
+              }
+            ]
+          },
+          "comparisons": [
+            {
+              "date": "2017-10-24",
+              "asOf": "2017-07-25T18:30:00.000Z",
+              "zone": "Asia/Kolkata",
+              "possibleDayOverlap": false,
+              "windows": [
+                {
+                  "when": "26 Oct 2017 – 24 Jan 2020",
+                  "start": "2017-10-26T09:58:09.000Z",
+                  "end": "2020-01-24T04:26:35.000Z",
+                  "reason": "Saturn's passage is read in relation to Venus in the birth-chart findings selected for marriage."
+                }
+              ]
+            },
+            {
+              "date": "2018-10-19",
+              "asOf": "2018-07-20T18:30:00.000Z",
+              "zone": "Asia/Kolkata",
+              "possibleDayOverlap": true,
+              "windows": [
+                {
+                  "when": "26 Oct 2017 – 24 Jan 2020",
+                  "start": "2017-10-26T09:58:09.000Z",
+                  "end": "2020-01-24T04:26:35.000Z",
+                  "reason": "Saturn's passage is read in relation to Venus in the birth-chart findings selected for marriage."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Werner Heisenberg",
+      "birthSource": "https://www.astro.com/astro-databank/Heisenberg%2C_Werner",
+      "birthQuality": "AA; certificate reportedly inspected and quoted by a biographer. The record was not independently inspected.",
+      "career": "Theoretical physicist; awarded the 1932 Nobel Prize in Physics in 1933.",
+      "careerSource": "https://www.nobelprize.org/prizes/physics/1932/summary/",
+      "marriage": "Married Elisabeth Schumacher in Berlin on 29 April 1937.",
+      "marriageSource": "https://www.leopoldina.org/mitglieder/mitgliederverzeichnis/detail/werner-heisenberg/",
+      "asOf": "1976-02-01T12:00:00.000Z",
+      "timeBasis": "standard time of Europe/Berlin +1:00",
+      "ascendant": "Taurus",
+      "material": [
+        {
+          "topic": "career",
+          "beforeOverview": "Possible career themes in these interpretations: engineering or construction is the life's work; technical or research work; a career in accounts, law, teaching or writing; technical and analytical profession. These are alternatives, not a predicted occupation.",
+          "after": {
+            "topic": "career",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible work themes or experiences:",
+            "details": [
+              "Engineering or construction may be a work theme.",
+              "Technical or research work.",
+              "Technical and analytical profession."
+            ],
+            "contrast": "Another part of a selected rule mentions a career with a break and a return, or a late spiritual turn.",
+            "limit": "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "23 Jul 1975 – 7 Sep 1977",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Saturn's passage is read in relation to Mercury in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"1975-07-23T11:11:42.000Z\"]"
+                },
+                "start": "1975-07-23T11:11:42.000Z",
+                "end": "1977-09-07T05:45:35.000Z"
+              },
+              {
+                "id": "nadi-jupiter-now",
+                "when": "10 Sep 1975 – 25 Feb 1976",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Jupiter's passage is read in relation to Mercury in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"1975-09-10T19:08:12.000Z\"]"
+                },
+                "start": "1975-09-10T19:08:12.000Z",
+                "end": "1976-02-25T12:37:00.000Z"
+              }
+            ]
+          },
+          "sourceFindings": [
+            {
+              "id": "t-ju-sa-ma",
+              "text": "Jupiter, Saturn and Mars linked by sign (not necessarily in the same sign): engineering or construction is the life's work; property is built through personal labour.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "t-ju-sa-ke",
+              "text": "Jupiter, Saturn and Ketu linked by sign (not necessarily in the same sign): technical or research work; a career with a break and a return, or a late spiritual turn.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "t-ju-sa-me",
+              "text": "Jupiter, Saturn and Mercury linked by sign (not necessarily in the same sign): a career in accounts, law, teaching or writing; scholarly, methodical livelihood.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "marriage",
+          "beforeOverview": "A mixed picture. Emotional, caring spouse, possibly from a distant place; yet delayed or duty-bound marriage.",
+          "after": {
+            "topic": "marriage",
+            "hasArea": true,
+            "summary": "This Nadi check finds a direct link between the planets it uses for you and a partner. The method reads that as supportive of the possibility of marriage.",
+            "detailIntro": "Other selected Nadi rules describe these possible relationship themes:",
+            "details": [
+              "Emotional, caring spouse, possibly from a distant place; romance is strongly felt.",
+              "One interpretation raises questions about timing or delays; see the source finding for its wording.",
+              "Passionate attraction; love marriage or a spouse with a technical, forceful temperament."
+            ],
+            "limit": "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
+            "contrast": "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": []
+          },
+          "sourceFindings": [
+            {
+              "id": "ve-mo",
+              "text": "Venus with the Moon: emotional, caring spouse, possibly from a distant place; romance is strongly felt.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ve-sa",
+              "text": "Venus with Saturn: delayed or duty-bound marriage; spouse may be older, hard-working or met through the workplace.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ve-ma",
+              "text": "Venus with Mars: passionate attraction; love marriage or a spouse with a technical, forceful temperament.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "technicalMarriageHeadline": "Venus (wife) stands in the 2nd from Jupiter (the native): the next step in the native's affairs; marriage is promised at lesser strength.",
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        }
+      ],
+      "eventChecks": [
+        {
+          "event": {
+            "topic": "marriage",
+            "date": "1937-04-29",
+            "timezone": "Europe/Berlin",
+            "description": "Marriage to Elisabeth Schumacher",
+            "source": "https://www.leopoldina.org/mitglieder/mitgliederverzeichnis/detail/werner-heisenberg/",
+            "corroboration": "https://www.deutsche-biographie.de/dbo064959.html"
+          },
+          "actual": {
+            "date": "1937-04-29",
+            "asOf": "1937-01-28T23:00:00.000Z",
+            "zone": "Europe/Berlin",
+            "possibleDayOverlap": true,
+            "windows": [
+              {
+                "when": "22 Mar 1937 – 10 Jul 1937",
+                "start": "1937-03-22T01:40:43.000Z",
+                "end": "1937-07-10T20:31:31.000Z",
+                "reason": "Jupiter's passage is read in relation to Venus and Moon in the birth-chart findings selected for marriage."
+              }
+            ]
+          },
+          "comparisons": [
+            {
+              "date": "1936-10-31",
+              "asOf": "1936-08-01T23:00:00.000Z",
+              "zone": "Europe/Berlin",
+              "possibleDayOverlap": false,
+              "windows": []
+            },
+            {
+              "date": "1937-10-26",
+              "asOf": "1937-07-27T23:00:00.000Z",
+              "zone": "Europe/Berlin",
+              "possibleDayOverlap": false,
+              "windows": [
+                {
+                  "when": "14 Nov 1937 – 31 Mar 1938",
+                  "start": "1937-11-14T04:49:15.000Z",
+                  "end": "1938-03-31T10:40:22.000Z",
+                  "reason": "Jupiter's passage is read in relation to Venus and Moon in the birth-chart findings selected for marriage."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "event": {
+            "topic": "career",
+            "date": "1933-12-10",
+            "timezone": "Europe/Stockholm",
+            "description": "Received the 1932 Nobel Prize in 1933",
+            "source": "https://www.leipzig-lese.de/persoenlichkeiten/h/heisenberg-werner/werner-heisenberg/",
+            "corroboration": "https://www.nobelprize.org/prizes/physics/1932/summary/"
+          },
+          "actual": {
+            "date": "1933-12-10",
+            "asOf": "1933-09-10T23:00:00.000Z",
+            "zone": "Europe/Stockholm",
+            "possibleDayOverlap": true,
+            "windows": [
+              {
+                "when": "24 Dec 1931 – 15 Mar 1934",
+                "start": "1931-12-24T15:02:34.000Z",
+                "end": "1934-03-15T17:19:18.000Z",
+                "reason": "Saturn's passage is read in relation to Venus in the birth-chart findings selected for career."
+              }
+            ]
+          },
+          "comparisons": [
+            {
+              "date": "1933-06-13",
+              "asOf": "1933-03-14T23:00:00.000Z",
+              "zone": "Europe/Stockholm",
+              "possibleDayOverlap": true,
+              "windows": [
+                {
+                  "when": "24 Dec 1931 – 15 Mar 1934",
+                  "start": "1931-12-24T15:02:34.000Z",
+                  "end": "1934-03-15T17:19:18.000Z",
+                  "reason": "Saturn's passage is read in relation to Venus in the birth-chart findings selected for career."
+                },
+                {
+                  "when": "22 Jan 1933 – 6 Aug 1933",
+                  "start": "1933-01-22T17:52:05.000Z",
+                  "end": "1933-08-06T08:52:53.000Z",
+                  "reason": "Jupiter's passage is read in relation to Jupiter, Saturn and Mars in the birth-chart findings selected for career."
+                }
+              ]
+            },
+            {
+              "date": "1934-06-08",
+              "asOf": "1934-03-09T23:00:00.000Z",
+              "zone": "Europe/Stockholm",
+              "possibleDayOverlap": false,
+              "windows": [
+                {
+                  "when": "24 Dec 1931 – 15 Mar 1934",
+                  "start": "1931-12-24T15:02:34.000Z",
+                  "end": "1934-03-15T17:19:18.000Z",
+                  "reason": "Saturn's passage is read in relation to Venus in the birth-chart findings selected for career."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
