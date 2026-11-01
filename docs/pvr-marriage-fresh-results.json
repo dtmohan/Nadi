@@ -1,0 +1,544 @@
+{
+  "protocol": "docs/pvr-rectification-research-protocol.md",
+  "hashes": {
+    "docs/pvr-rectification-research-protocol.md": "f5464aafc1039d2827558a528004a319c7db358c2b146838fe5c2c0409fe912c",
+    "scripts/fixtures/pvr-marriage-fresh.json": "90d3973cdd785592cb1333515247d91fedf6af637546db7bcab832ee032ecbe9",
+    "scripts/eval-pvr-marriage.ts": "f10aa5c12f33a71d7f76f7d1b701c5c9b76c408efbd637a31828b465931b64e8",
+    "shared/pvr-event-evidence.ts": "bdc094355c3a9f8b668e657ede1dc71aa2b7a60003bce0c9cee68ebf1f0f09a5",
+    "shared/pvr-kalachakra.ts": "8372b702b77e5a399bfe7d2c7ce7b171bd645a4d96a5861d24483465ec0509e2",
+    "shared/vimshottari-depth.ts": "89cc7ce9b879a743b45bf9ab2020c4b5d1a98059082cc883052c5bf9224cf02f",
+    "shared/vargas.ts": "c6944edd0e2843efce2f562c0177892ff6d1290bec6f751b6fafa76dd6930e49",
+    "shared/astro.ts": "e672e930ae6d6cda1cd600a677ab2a4d709e14784373ca3a70358734bc7dc49d",
+    "shared/kalachakra.ts": "bce5349601ceca91d424b1bafbd16465f85a99f7b004a15cf3366044b04b2220",
+    "server/ephemeris.ts": "e43cf09f92bf3c75f61c6ecc033c06ea77322dae8e9a62520994c9e927d0e7a6"
+  },
+  "caveat": "Exploratory source-inspired subset, not the complete PVR method, a probability or a birth-time estimate. Nearby dates are not verified non-events.",
+  "results": [
+    {
+      "name": "Tom Hanks",
+      "category": "US actor",
+      "birthSource": "https://www.astro.com/astro-databank/Hanks%2C_Tom",
+      "birthQuality": "AA, birth certificate reported in hand; original not examined",
+      "reportedBirthTime": "11:17",
+      "eventSources": [
+        "https://www.cbsnews.com/news/tom-hanks-rita-wilson-35-year-anniversary-post-celebrate-marriage/",
+        "https://www.latimes.com/archives/la-xpm-1988-05-04-ca-1917-story.html"
+      ],
+      "actual": {
+        "date": "1988-04-30",
+        "zone": "America/Los_Angeles",
+        "any": true,
+        "all": true,
+        "portions": [
+          {
+            "start": "1988-04-30T00:00:00.000-07:00",
+            "end": "1988-05-01T00:00:00.000-07:00",
+            "sub": "Sagittarius",
+            "clues": [
+              "D9 ascendant"
+            ]
+          }
+        ]
+      },
+      "controls": [
+        {
+          "offsetDays": -180,
+          "date": "1987-11-02",
+          "zone": "America/Los_Angeles",
+          "any": true,
+          "all": true,
+          "portions": [
+            {
+              "start": "1987-11-02T00:00:00.000-08:00",
+              "end": "1987-11-03T00:00:00.000-08:00",
+              "sub": "Sagittarius",
+              "clues": [
+                "D9 ascendant"
+              ]
+            }
+          ]
+        },
+        {
+          "offsetDays": -120,
+          "date": "1988-01-01",
+          "zone": "America/Los_Angeles",
+          "any": true,
+          "all": true,
+          "portions": [
+            {
+              "start": "1988-01-01T00:00:00.000-08:00",
+              "end": "1988-01-02T00:00:00.000-08:00",
+              "sub": "Sagittarius",
+              "clues": [
+                "D9 ascendant"
+              ]
+            }
+          ]
+        },
+        {
+          "offsetDays": -60,
+          "date": "1988-03-01",
+          "zone": "America/Los_Angeles",
+          "any": true,
+          "all": true,
+          "portions": [
+            {
+              "start": "1988-03-01T00:00:00.000-08:00",
+              "end": "1988-03-02T00:00:00.000-08:00",
+              "sub": "Sagittarius",
+              "clues": [
+                "D9 ascendant"
+              ]
+            }
+          ]
+        },
+        {
+          "offsetDays": 60,
+          "date": "1988-06-29",
+          "zone": "America/Los_Angeles",
+          "any": true,
+          "all": true,
+          "portions": [
+            {
+              "start": "1988-06-29T00:00:00.000-07:00",
+              "end": "1988-06-30T00:00:00.000-07:00",
+              "sub": "Sagittarius",
+              "clues": [
+                "D9 ascendant"
+              ]
+            }
+          ]
+        },
+        {
+          "offsetDays": 120,
+          "date": "1988-08-28",
+          "zone": "America/Los_Angeles",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "1988-08-28T00:00:00.000-07:00",
+              "end": "1988-08-29T00:00:00.000-07:00",
+              "sub": "Capricorn",
+              "clues": []
+            }
+          ]
+        },
+        {
+          "offsetDays": 180,
+          "date": "1988-10-27",
+          "zone": "America/Los_Angeles",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "1988-10-27T00:00:00.000-07:00",
+              "end": "1988-10-28T00:00:00.000-07:00",
+              "sub": "Capricorn",
+              "clues": []
+            }
+          ]
+        }
+      ],
+      "scan": {
+        "samples": 120,
+        "spacingSeconds": 30,
+        "anySamples": 54,
+        "allSamples": 54,
+        "anyPercent": 45,
+        "allPercent": 45
+      }
+    },
+    {
+      "name": "Mina",
+      "category": "Italian singer",
+      "birthSource": "https://www.astro.com/astro-databank/Mina",
+      "birthQuality": "AA, quoted birth record; rounded clock; original not examined",
+      "reportedBirthTime": "15:00",
+      "eventSources": [
+        "https://www.corriere.it/spettacoli/cards/mina-spegne-84-candeline-38-anni-ribalta-46-in-ritiro-censura-rai-due-figli-matrimonio-il-cardiochirurgo/amore-matrimonio-eugenio-quaini.shtml",
+        "https://www.repubblica.it/2006/c/sezioni/persone/minasposa/minasposa/minasposa.html"
+      ],
+      "actual": {
+        "date": "2006-01-10",
+        "zone": "Europe/Zurich",
+        "any": true,
+        "all": true,
+        "portions": [
+          {
+            "start": "2006-01-10T00:00:00.000+01:00",
+            "end": "2006-01-11T00:00:00.000+01:00",
+            "sub": "Libra",
+            "clues": [
+              "D9 seventh house"
+            ]
+          }
+        ]
+      },
+      "controls": [
+        {
+          "offsetDays": -180,
+          "date": "2005-07-14",
+          "zone": "Europe/Zurich",
+          "any": true,
+          "all": true,
+          "portions": [
+            {
+              "start": "2005-07-14T00:00:00.000+02:00",
+              "end": "2005-07-15T00:00:00.000+02:00",
+              "sub": "Libra",
+              "clues": [
+                "D9 seventh house"
+              ]
+            }
+          ]
+        },
+        {
+          "offsetDays": -120,
+          "date": "2005-09-12",
+          "zone": "Europe/Zurich",
+          "any": true,
+          "all": true,
+          "portions": [
+            {
+              "start": "2005-09-12T00:00:00.000+02:00",
+              "end": "2005-09-13T00:00:00.000+02:00",
+              "sub": "Libra",
+              "clues": [
+                "D9 seventh house"
+              ]
+            }
+          ]
+        },
+        {
+          "offsetDays": -60,
+          "date": "2005-11-11",
+          "zone": "Europe/Zurich",
+          "any": true,
+          "all": true,
+          "portions": [
+            {
+              "start": "2005-11-11T00:00:00.000+01:00",
+              "end": "2005-11-12T00:00:00.000+01:00",
+              "sub": "Libra",
+              "clues": [
+                "D9 seventh house"
+              ]
+            }
+          ]
+        },
+        {
+          "offsetDays": 60,
+          "date": "2006-03-11",
+          "zone": "Europe/Zurich",
+          "any": true,
+          "all": true,
+          "portions": [
+            {
+              "start": "2006-03-11T00:00:00.000+01:00",
+              "end": "2006-03-12T00:00:00.000+01:00",
+              "sub": "Libra",
+              "clues": [
+                "D9 seventh house"
+              ]
+            }
+          ]
+        },
+        {
+          "offsetDays": 120,
+          "date": "2006-05-10",
+          "zone": "Europe/Zurich",
+          "any": true,
+          "all": true,
+          "portions": [
+            {
+              "start": "2006-05-10T00:00:00.000+02:00",
+              "end": "2006-05-11T00:00:00.000+02:00",
+              "sub": "Libra",
+              "clues": [
+                "D9 seventh house"
+              ]
+            }
+          ]
+        },
+        {
+          "offsetDays": 180,
+          "date": "2006-07-09",
+          "zone": "Europe/Zurich",
+          "any": true,
+          "all": true,
+          "portions": [
+            {
+              "start": "2006-07-09T00:00:00.000+02:00",
+              "end": "2006-07-10T00:00:00.000+02:00",
+              "sub": "Libra",
+              "clues": [
+                "D9 seventh house"
+              ]
+            }
+          ]
+        }
+      ],
+      "scan": {
+        "samples": 120,
+        "spacingSeconds": 30,
+        "anySamples": 62,
+        "allSamples": 62,
+        "anyPercent": 51.67,
+        "allPercent": 51.67
+      }
+    },
+    {
+      "name": "Puneeth Rajkumar",
+      "category": "Indian actor and producer",
+      "birthSource": "https://www.astro.com/astro-databank/Rajkumar%2C_Puneeth",
+      "birthQuality": "AA, screenshot of hospital register reported on file; original not examined",
+      "reportedBirthTime": "18:07",
+      "eventSources": [
+        "https://timesofindia.indiatimes.com/city/bengaluru/puneeth-rajkumar-power-stars-love-story-began-fittingly-in-a-gym/articleshow/87389812.cms",
+        "https://www.indiatoday.in/movies/regional-cinema/story/the-puneeth-rajkumar-and-ashwini-revanth-love-story-1871051-2021-10-29"
+      ],
+      "actual": {
+        "date": "1999-12-01",
+        "zone": "Asia/Kolkata",
+        "any": false,
+        "all": false,
+        "portions": [
+          {
+            "start": "1999-12-01T00:00:00.000+05:30",
+            "end": "1999-12-02T00:00:00.000+05:30",
+            "sub": "Sagittarius",
+            "clues": []
+          }
+        ]
+      },
+      "controls": [
+        {
+          "offsetDays": -180,
+          "date": "1999-06-04",
+          "zone": "Asia/Kolkata",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "1999-06-04T00:00:00.000+05:30",
+              "end": "1999-06-05T00:00:00.000+05:30",
+              "sub": "Aquarius",
+              "clues": []
+            }
+          ]
+        },
+        {
+          "offsetDays": -120,
+          "date": "1999-08-03",
+          "zone": "Asia/Kolkata",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "1999-08-03T00:00:00.000+05:30",
+              "end": "1999-08-04T00:00:00.000+05:30",
+              "sub": "Aquarius",
+              "clues": []
+            }
+          ]
+        },
+        {
+          "offsetDays": -60,
+          "date": "1999-10-02",
+          "zone": "Asia/Kolkata",
+          "any": true,
+          "all": true,
+          "portions": [
+            {
+              "start": "1999-10-02T00:00:00.000+05:30",
+              "end": "1999-10-03T00:00:00.000+05:30",
+              "sub": "Capricorn",
+              "clues": [
+                "D9 ascendant"
+              ]
+            }
+          ]
+        },
+        {
+          "offsetDays": 60,
+          "date": "2000-01-30",
+          "zone": "Asia/Kolkata",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "2000-01-30T00:00:00.000+05:30",
+              "end": "2000-01-31T00:00:00.000+05:30",
+              "sub": "Sagittarius",
+              "clues": []
+            }
+          ]
+        },
+        {
+          "offsetDays": 120,
+          "date": "2000-03-30",
+          "zone": "Asia/Kolkata",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "2000-03-30T00:00:00.000+05:30",
+              "end": "2000-03-31T00:00:00.000+05:30",
+              "sub": "Sagittarius",
+              "clues": []
+            }
+          ]
+        },
+        {
+          "offsetDays": 180,
+          "date": "2000-05-29",
+          "zone": "Asia/Kolkata",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "2000-05-29T00:00:00.000+05:30",
+              "end": "2000-05-30T00:00:00.000+05:30",
+              "sub": "Sagittarius",
+              "clues": []
+            }
+          ]
+        }
+      ],
+      "scan": {
+        "samples": 120,
+        "spacingSeconds": 30,
+        "anySamples": 34,
+        "allSamples": 34,
+        "anyPercent": 28.33,
+        "allPercent": 28.33
+      }
+    },
+    {
+      "name": "Aaron Novick",
+      "category": "US molecular biologist",
+      "birthSource": "https://www.astro.com/astro-databank/Novick%2C_Aaron",
+      "birthQuality": "AA, birth certificate reported on file; original not examined; source uses UTC-05:00",
+      "reportedBirthTime": "08:20",
+      "eventSources": [
+        "https://en.wikipedia.org/wiki/Aaron_Novick",
+        "https://www.astro.com/astro-databank/Novick%2C_Aaron"
+      ],
+      "actual": {
+        "date": "1948-01-25",
+        "zone": "America/Chicago",
+        "any": false,
+        "all": false,
+        "portions": [
+          {
+            "start": "1948-01-25T00:00:00.000-06:00",
+            "end": "1948-01-26T00:00:00.000-06:00",
+            "sub": "Taurus",
+            "clues": []
+          }
+        ]
+      },
+      "controls": [
+        {
+          "offsetDays": -180,
+          "date": "1947-07-29",
+          "zone": "America/Chicago",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "1947-07-29T00:00:00.000-05:00",
+              "end": "1947-07-30T00:00:00.000-05:00",
+              "sub": "Taurus",
+              "clues": []
+            }
+          ]
+        },
+        {
+          "offsetDays": -120,
+          "date": "1947-09-27",
+          "zone": "America/Chicago",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "1947-09-27T00:00:00.000-05:00",
+              "end": "1947-09-28T00:00:00.000-05:00",
+              "sub": "Taurus",
+              "clues": []
+            }
+          ]
+        },
+        {
+          "offsetDays": -60,
+          "date": "1947-11-26",
+          "zone": "America/Chicago",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "1947-11-26T00:00:00.000-06:00",
+              "end": "1947-11-27T00:00:00.000-06:00",
+              "sub": "Taurus",
+              "clues": []
+            }
+          ]
+        },
+        {
+          "offsetDays": 60,
+          "date": "1948-03-25",
+          "zone": "America/Chicago",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "1948-03-25T00:00:00.000-06:00",
+              "end": "1948-03-26T00:00:00.000-06:00",
+              "sub": "Taurus",
+              "clues": []
+            }
+          ]
+        },
+        {
+          "offsetDays": 120,
+          "date": "1948-05-24",
+          "zone": "America/Chicago",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "1948-05-24T00:00:00.000-05:00",
+              "end": "1948-05-25T00:00:00.000-05:00",
+              "sub": "Taurus",
+              "clues": []
+            }
+          ]
+        },
+        {
+          "offsetDays": 180,
+          "date": "1948-07-23",
+          "zone": "America/Chicago",
+          "any": false,
+          "all": false,
+          "portions": [
+            {
+              "start": "1948-07-23T00:00:00.000-05:00",
+              "end": "1948-07-24T00:00:00.000-05:00",
+              "sub": "Taurus",
+              "clues": []
+            }
+          ]
+        }
+      ],
+      "scan": {
+        "samples": 120,
+        "spacingSeconds": 30,
+        "anySamples": 30,
+        "allSamples": 30,
+        "anyPercent": 25,
+        "allPercent": 25
+      }
+    }
+  ]
+}

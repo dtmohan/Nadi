@@ -1512,6 +1512,17 @@ function ParashariMethod() {
         Samhita and Phaladeepika rather than Parashara.
       </p>
       <p>
+        The displayed Kalachakra follows Nadi's documented BPHS-based
+        nine-sign repeat and a 365.25-day year. P.V.R. Narasimha Rao describes
+        a different continuation through a 24-sign wheel and prefers a
+        360-day year. Those conventions can produce different period dates;
+        his version is offered as a separate dated research comparison and is
+        not used in the standard table or event scores. See{" "}
+        <a href="https://www.vedicastrologer.org/articles/vedic_astro_textbook.pdf#page=301" {...ext}>
+          Rao, <em>Vedic Astrology: An Integrated Approach</em>, chapter 24
+        </a>.
+      </p>
+      <p>
         Vimshottari dasa is computed from the Lahiri Moon with the same
         arithmetic as the KP mode. Each dasa lord is glossed by the houses it
         owns and occupies and by its functional role for the rising sign, and

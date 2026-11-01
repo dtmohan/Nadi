@@ -1,0 +1,34 @@
+{
+  "notes": [
+    "Selected before running the PVR diagnostic; birth references are reported records, not independently examined or certain.",
+    "Hanks: Astro-Databank lists 30 March, but his wife and contemporaneous reporting identify 30 April 1988; the conflicting database date is not used.",
+    "Novick: preserve the birth source's UTC-05:00 convention, rather than assuming the present-day zone's historical clock. The wedding is in Chicago.",
+    "All wedding clocks are unknown. Date sources may not be fully independent of one another."
+  ],
+  "cases": [
+    {
+      "name": "Tom Hanks", "category": "US actor", "birthSource": "https://www.astro.com/astro-databank/Hanks%2C_Tom",
+      "birthQuality": "AA, birth certificate reported in hand; original not examined",
+      "chart": {"name":"Tom Hanks","birthDate":"1956-07-09","birthTime":"11:17","timezone":"America/Los_Angeles","timeStandard":"zone","place":"Concord, California","latitude":37.9833,"longitude":-122.0333,"ayanamsa":"lahiri","nodeType":"mean"},
+      "wedding": {"date":"1988-04-30","timezone":"America/Los_Angeles","sources":["https://www.cbsnews.com/news/tom-hanks-rita-wilson-35-year-anniversary-post-celebrate-marriage/","https://www.latimes.com/archives/la-xpm-1988-05-04-ca-1917-story.html"]}
+    },
+    {
+      "name": "Mina", "category": "Italian singer", "birthSource": "https://www.astro.com/astro-databank/Mina",
+      "birthQuality": "AA, quoted birth record; rounded clock; original not examined",
+      "chart": {"name":"Mina","birthDate":"1940-03-25","birthTime":"15:00","timezone":"Europe/Rome","timeStandard":"zone","place":"Busto Arsizio, Italy","latitude":45.6167,"longitude":8.85,"ayanamsa":"lahiri","nodeType":"mean"},
+      "wedding": {"date":"2006-01-10","timezone":"Europe/Zurich","sources":["https://www.corriere.it/spettacoli/cards/mina-spegne-84-candeline-38-anni-ribalta-46-in-ritiro-censura-rai-due-figli-matrimonio-il-cardiochirurgo/amore-matrimonio-eugenio-quaini.shtml","https://www.repubblica.it/2006/c/sezioni/persone/minasposa/minasposa/minasposa.html"]}
+    },
+    {
+      "name": "Puneeth Rajkumar", "category": "Indian actor and producer", "birthSource": "https://www.astro.com/astro-databank/Rajkumar%2C_Puneeth",
+      "birthQuality": "AA, screenshot of hospital register reported on file; original not examined",
+      "chart": {"name":"Puneeth Rajkumar","birthDate":"1975-03-17","birthTime":"18:07","timezone":"Asia/Kolkata","timeStandard":"zone","place":"Chennai, India","latitude":13.0833,"longitude":80.2833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "wedding": {"date":"1999-12-01","timezone":"Asia/Kolkata","sources":["https://timesofindia.indiatimes.com/city/bengaluru/puneeth-rajkumar-power-stars-love-story-began-fittingly-in-a-gym/articleshow/87389812.cms","https://www.indiatoday.in/movies/regional-cinema/story/the-puneeth-rajkumar-and-ashwini-revanth-love-story-1871051-2021-10-29"]}
+    },
+    {
+      "name": "Aaron Novick", "category": "US molecular biologist", "birthSource": "https://www.astro.com/astro-databank/Novick%2C_Aaron",
+      "birthQuality": "AA, birth certificate reported on file; original not examined; source uses UTC-05:00",
+      "chart": {"name":"Aaron Novick","birthDate":"1919-06-24","birthTime":"08:20","timezone":"America/New_York","timeStandard":"-05:00","place":"Toledo, Ohio","latitude":41.6667,"longitude":-83.55,"ayanamsa":"lahiri","nodeType":"mean"},
+      "wedding": {"date":"1948-01-25","timezone":"America/Chicago","sources":["https://en.wikipedia.org/wiki/Aaron_Novick","https://www.astro.com/astro-databank/Novick%2C_Aaron"]}
+    }
+  ]
+}

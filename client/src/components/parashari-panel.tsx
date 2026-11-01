@@ -43,6 +43,7 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import type { ChartEvent } from "@shared/events";
 import { TopicReadingPanel } from "@/components/topic-reading";
+import { PvrKalachakraResearch } from "@/components/pvr-kalachakra-research";
 import { ParashariNatalRules } from "@/components/natal-rule-evidence";
 import { PLANET_ABBR, SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "@shared/astro";
 import {
@@ -2368,7 +2369,8 @@ export function ParashariPanel({
                 label={kcLabel}
                 className="mt-2"
               >
-                <KalachakraSection k={r.kalachakra} />
+                <KalachakraSection k={r.kalachakra} moonLon={positions.find((p) => p.planet === "Moon")?.lon}
+                  birthIso={result.utc} asOfIso={asOfIso} birthZone={chart.timezone} />
               </Working>
               {!withheld && (
                 <Working
@@ -2656,7 +2658,9 @@ export function ParashariPanel({
   );
 }
 
-function KalachakraSection({ k }: { k: KalachakraResult }) {
+function KalachakraSection({ k, moonLon, birthIso, asOfIso, birthZone }: {
+  k: KalachakraResult; moonLon?: number; birthIso: string; asOfIso: string; birthZone: string;
+}) {
   const plain = usePlain();
   const curIdx = k.periods.findIndex((p) => p.current);
   const [pick, setPick] = useState<number>(curIdx >= 0 ? curIdx : 0);
@@ -2693,6 +2697,14 @@ function KalachakraSection({ k }: { k: KalachakraResult }) {
           </>
         }
       />
+      <p className="mt-2 text-sm text-muted-foreground" data-testid="kalachakra-variant-note">
+        This panel uses Nadi's nine-sign repeat and 365.25-day year. P.V.R.
+        Narasimha Rao describes a different 24-sign continuation and prefers
+        a 360-day year; the resulting periods can differ. His version is
+        shown separately below and does not change the standard table or event scores.
+      </p>
+      {moonLon !== undefined && <PvrKalachakraResearch key={`${birthIso}|${birthZone}`} moonLon={moonLon}
+        birthIso={birthIso} asOfIso={asOfIso} birthZone={birthZone} />}
       {plain && (
         <p
           className="mt-2 text-sm text-muted-foreground"
