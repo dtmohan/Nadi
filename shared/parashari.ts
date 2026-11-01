@@ -536,8 +536,8 @@ export function computeParashari(
       findings.push({
         id: `pa-yoga-node-${node}`,
         kind: "yoga",
-        title: `${node} as yogakaraka`,
-        text: `${node} is in the ${ord(nh)} with ${mates.join(", ")}. A node in an angle with a trine lord, or in a trine with an angle lord, becomes a yoga-giver; without a strong lord in company the yoga does not bear fruit.`,
+        title: `${node} node-yoga condition`,
+        text: `${node} is in the ${ord(nh)} with ${mates.join(", ")}. This is the app's conjunction-only node-yoga interpretation of 34.17: a node in an angle with a trine lord, or in a trine with an angle lord. Translations differ on placement and aspect wording. This check does not assess the participating lord's full strength or all counterindications, so it does not establish the outcome.`,
         tone: "support",
         planets: [node, ...mates],
         source: S(34, "16-17"),

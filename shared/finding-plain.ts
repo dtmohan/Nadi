@@ -567,8 +567,8 @@ const PREFIX: [string, Make][] = [
     (f) => {
       const node = suffix(f.id);
       return E(
-        `${node} sits in an angle or trine with the ruler of the other kind of house. Rahu and Ketu give the results of the planets they join, so Parashara makes ${node} a yoga-giver here (34.16-17).`,
-        `${node} turns helpful`,
+        `${node} sits in an angle or trine with the ruler of the other kind of house. This fits the app's conjunction-only interpretation of a node yoga (34.16–17); translations vary, and the full strength and contrary indications have not been assessed.`,
+        `${node}: a conditional node-yoga clue`,
       );
     },
   ],

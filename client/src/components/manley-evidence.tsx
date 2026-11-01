@@ -11,12 +11,14 @@ export function ManleyEvidencePanel({ evidence }: { evidence: ManleyEvidence }) 
   const frame = (f: ManleyFrame) => <div key={f.chart} className="rounded border px-2 py-2">
     <p className="font-medium text-foreground">{f.chart} · {SIGNS[f.ascendant]} rising · house {f.house} {SIGNS[f.houseSign]}, lord {f.houseLord}</p>
     {f.functional && <p data-testid={`functional-${f.chart}`}><strong>{f.functional.planet}:</strong> {SIGNS[f.functional.sign]}, house {f.functional.house}, {f.functional.dignity === "other" ? "no listed sign dignity" : f.functional.dignity}; owns {f.functional.owns.length ? `house${f.functional.owns.length > 1 ? "s" : ""} ${f.functional.owns.join(", ")}` : "no houses in this convention"}; functional classification: {f.functional.classification}{f.functional.directMatterLord ? ` · direct house ${f.house} lord` : ""}.
-      {f.functional.yogaPair && ` Named yoga pair with ${f.functional.yogaPair.partner}: ${show(f.functional.yogaPair.links)}; a pair is not an independent yogakaraka label.`}</p>}
+      {f.functional.yogaPair && ` Named yoga pair with ${f.functional.yogaPair.partner} (owns ${f.functional.yogaPair.partnerOwns?.join(", ")}): ${show(f.functional.yogaPair.links)}. Formation check: ${show(f.functional.yogaPair.formation ?? [])}; one-way aspect alone is not a formation in this subset. Assess both planets' other lordships; a pair is not an independent benefic label.`}</p>}
     <p>House: {show(f.primary.house)}.</p>
     <p>House lord: {show(f.primary.houseLord)}.</p>
     <p>Karaka: {show(f.primary.karaka)}.</p>
     <p>Supporting — divisional ascendant: {f.chart === "D1" ? "not applicable in D1" : show(f.supporting.ascendant)}; D1 house lord in the division: {f.chart === "D1" ? "not applicable in D1" : show(f.supporting.natalHouseLord)}; house {f.bhavatHouse} and its lord: {show(f.supporting.bhavat)}.</p>
     {f.supporting.nodes.length > 0 && <p>Node context: {show(f.supporting.nodes)}.</p>}
+    {f.nodeDispositor && <p data-testid={`node-dispositor-${f.chart}`}>Node's sign ruler {f.nodeDispositor.planet}: {SIGNS[f.nodeDispositor.sign]}, house {f.nodeDispositor.house}, owns houses {f.nodeDispositor.owns.join(", ")}. One-hop event links: {show(f.nodeDispositor.links)}. These are indirect; its other lordships also matter.</p>}
+    {f.eventCombination?.matched && <p data-testid={`event-combination-${f.chart}`}>Same-frame event combination: {show(f.eventCombination.explanations)}.</p>}
   </div>;
   return <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="manley-evidence">
     <summary className="cursor-pointer font-medium">Manley event clues and functional lordship · {evidence.label} · {evidence.date} · D1 and {evidence.division}</summary>
@@ -38,7 +40,7 @@ export function ManleyEvidencePanel({ evidence }: { evidence: ManleyEvidence }) 
         </div>;
       })}
       {evidence.educationFourth && <p>The D24 fourth house is a separate education interpretation; it is not added to Manley's fifth-house clues or to a score. <Cite href={RAO_EDUCATION_SOURCE.url}>{RAO_EDUCATION_SOURCE.label}</Cite></p>}
-      <p>The third period is descriptive and does not change the ranking. A repeated lord is not independent confirmation. This subset omits indirect links through a node's dispositor, many yogas, fourth and fifth period levels, and the full manual funnel. The first two primary divisional period links also appear in the separate v3 experiment. <Cite>{MANLEY_SOURCE.label}</Cite></p>
+      <p>One-hop node-ruler links follow Manley's worked examples (capture pp. 69–72, 140–141, 165). The house-plus-lord/karaka combination follows his childbirth examples; these clues can overlap. Named pair formation follows BPHS 34.11–15; divisional application is provisional. These are observations, not a complete promise or event verdict. The third period is descriptive and does not change the ranking; a repeated lord is not independent confirmation. Many yogas, deeper periods and the full manual funnel remain unimplemented. <Cite>{MANLEY_SOURCE.label}</Cite></p>
     </div>
   </details>;
 }

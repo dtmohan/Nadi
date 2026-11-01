@@ -89,6 +89,7 @@ import { vargaTopicFor } from "@shared/parashari-varga-evidence";
 import { manleyTopicFor } from "@shared/manley-evidence";
 import { createParashariEventScorer } from "./parashari-event";
 import { functionalObservation } from "@shared/parashari-functional";
+import { conditionalObservations } from "@shared/parashari-conditional";
 import {
   birthInstant,
   julianDay,
@@ -905,6 +906,7 @@ function chanceBaseline(
     v1: v.parashariPromise?.score, v2: v.parashariSpecific?.score, v3: v.parashariDivisional?.score,
     staged: stagedObservation(v.manley), hierarchy: v.parashariHierarchy?.passes, crossTiming: v.parashariHierarchy?.crossChart?.timing,
     functional: functionalObservation(v.manley, v.outcome),
+    conditional: conditionalObservations(v.manley, v.outcome),
   });
   const parashariTrials: ParashariObservation[][] = [];
   const actualStages = auroraV2StageCounts(real.map((v) => v.kp.auroraV2));

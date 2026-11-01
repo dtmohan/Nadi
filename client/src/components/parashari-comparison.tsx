@@ -32,6 +32,14 @@ export function ParashariComparisonPanel({ comparison, example, trials, birthZon
         <p>For each favourable mapped event this experimental count includes distinct main and subperiod planets that directly own its house and are individually auspicious or yogakaraka in the same D1 or divisional frame. Repeated lords count once; nodes, conditional pairs and the third period do not count. The same subset is recomputed on sampled dates. A zero leaves the event unresolved; it is not a denial, prediction or birth-time filter. Functional role, dignity and other links still need judgment.</p>
         <p>In five fresh public cases, four adjacent-sign comparisons tied and one favoured the published-sign side. Of 30 dates near held-out events, 29 had the same count as the event. These comparison dates are not verified non-events.</p>
       </div>}
+      {comparison.conditional && <div className="rounded border px-2 py-2" data-testid="parashari-comparison-conditional">
+        <p><strong>Conditional clues, across {comparison.conditional.eligibleEvents} favourable mapped events:</strong></p>
+        <p>Named yoga pair linked to the event house: {show(comparison.conditional.yoga)}.</p>
+        <p>Node sign ruler with an indirect event link: {show(comparison.conditional.node)}.</p>
+        <p>Period lord in the event house with a direct lord/karaka link: {show(comparison.conditional.event)}.</p>
+        <p>Each measure counts events once using main and subperiods in D1 or the relevant division. The measures overlap; they are not added together or used for ranking. The node rule is one hop and retains the ruler's other houses. Pair formation requires conjunction, exchange or mutual full aspect. A missing clue is unresolved, not an event denial. The same checks run on actual and random dates.</p>
+        <p>In five fresh public cases, the pair flag appeared in none of 15 events. For five held-out events, 23 of 30 nearby dates had the same node flag and 28 had the same event-combination flag. Those dates are not verified non-events. <a className="underline" href="https://github.com/dtmohan/Nadi/blob/main/docs/parashari-conditional-fresh-review.md" target="_blank" rel="noreferrer">See the case review and limitations</a>.</p>
+      </div>}
       {comparison.crossTiming && <div className="rounded border px-2 py-2" data-testid="parashari-comparison-cross-timing">
         <p><strong>D1 and division period clues:</strong> both the main and subperiod lords have listed links in both charts for {comparison.crossTiming.first.actual} of {comparison.crossTiming.eligibleEvents} eligible events; random-date mean {comparison.crossTiming.first.mean}.</p>
         <p>The third period is compared only when both earlier lords have links for the actual event and for its sampled dates.

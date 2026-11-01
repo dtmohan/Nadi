@@ -18,13 +18,13 @@ export interface FunctionalFrame {
   owns: number[];
   classification: FunctionalClass;
   /** A named pair is not independently promoted to an auspicious planet. */
-  yogaPair?: { partner: Planet; links: string[] };
+  yogaPair?: { partner: Planet; links: string[]; formation?: string[]; partnerOwns?: number[] };
   directMatterLord: boolean;
 }
 
 /** BPHS 34's natal table is also applied to divisional ascendants provisionally. */
 export function functionalFrame(planet: Planet, ascendant: number, sign: number, matterHouse: number,
-  relation: (other: Planet) => string[]): FunctionalFrame {
+  relation: (other: Planet) => string[], formation?: (other: Planet) => string[]): FunctionalFrame {
   const node = planet === "Rahu" || planet === "Ketu";
   const n = LAGNA_NATURE[ascendant];
   const owns = node ? [] : Array.from({ length: 12 }, (_, i) => i + 1)
@@ -34,7 +34,9 @@ export function functionalFrame(planet: Planet, ascendant: number, sign: number,
       : n.neutral.includes(planet) ? "neutral" : "unclassified";
   const partner = n.yogaPair?.includes(planet) ? n.yogaPair.find((p) => p !== planet) : undefined;
   return { planet, sign, house: houseFrom(ascendant, sign), dignity: node ? "not graded" : signDignity(planet, sign),
-    owns, classification, yogaPair: partner ? { partner, links: relation(partner) } : undefined,
+    owns, classification, yogaPair: partner ? { partner, links: relation(partner),
+      formation: formation?.(partner), partnerOwns: Array.from({ length: 12 }, (_, i) => i + 1)
+        .filter((house) => SIGN_LORD[(ascendant + house - 1) % 12] === partner) } : undefined,
     directMatterLord: owns.includes(matterHouse) };
 }
 

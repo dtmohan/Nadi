@@ -4,6 +4,7 @@ import type { ParashariPromiseCheck } from "./parashari-promise";
 import type { ParashariSpecificCheck } from "./parashari-specific";
 import type { ParashariDivisionalCheck } from "./parashari-divisional";
 import type { HierarchyEvent } from "./parashari-hierarchy";
+import type { ConditionalObservations } from "./parashari-conditional";
 
 export interface ComparisonStat {
   actual: number;
@@ -32,8 +33,9 @@ export interface ParashariComparison {
   crossTiming?: StagedComparison;
   /** Narrow distinct favourable direct-lord subset, not a candidate ranking. */
   functional?: { eligibleEvents: number; stat: ComparisonStat };
+  conditional?: { eligibleEvents: number; yoga: ComparisonStat; node: ComparisonStat; event: ComparisonStat };
   /** A trial lost an event eligible in the actual set, so the measure cannot be compared fairly. */
-  unavailable?: Array<"v1" | "v2" | "v3" | "staged" | "hierarchy" | "crossTiming" | "functional">;
+  unavailable?: Array<"v1" | "v2" | "v3" | "staged" | "hierarchy" | "crossTiming" | "functional" | "conditional">;
 }
 export interface ParashariObservation {
   v1?: number;
@@ -44,6 +46,7 @@ export interface ParashariObservation {
   hierarchy?: HierarchyEvent["passes"];
   crossTiming?: { first: boolean; third: boolean };
   functional?: number;
+  conditional?: ConditionalObservations;
 }
 /** One random-date event, for inspecting the very checks used in the trial. */
 export interface ParashariComparisonExample {
@@ -107,6 +110,18 @@ export function summarizeParashariComparisons(actual: ParashariObservation[], tr
     } else {
       const total = (set: ParashariObservation[]) => functionalIndices.reduce((sum, i) => sum + set[i].functional!, 0);
       result.functional = { eligibleEvents: functionalIndices.length, stat: comparisonStat(trials.map(total), total(actual)) };
+    }
+  }
+  const conditionalIndices = actual.flatMap((a, i) => a.conditional ? [i] : []);
+  if (conditionalIndices.length) {
+    if (trials.some((trial) => conditionalIndices.some((i) => !trial[i].conditional))) {
+      (result.unavailable ??= []).push("conditional");
+    } else {
+      const stat = (key: keyof ConditionalObservations) => {
+        const count = (set: ParashariObservation[]) => conditionalIndices.filter((i) => set[i].conditional![key]).length;
+        return comparisonStat(trials.map(count), count(actual));
+      };
+      result.conditional = { eligibleEvents: conditionalIndices.length, yoga: stat("yoga"), node: stat("node"), event: stat("event") };
     }
   }
   const crossIndices = actual.flatMap((a, i) => a.crossTiming ? [i] : []);

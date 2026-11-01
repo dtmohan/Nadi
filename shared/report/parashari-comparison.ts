@@ -29,6 +29,11 @@ export function parashariComparisonParas(comparison: ParashariComparison, trials
     const s = comparison.functional.stat;
     rows.push(["Functional direct-lord subset", `${s.actual} (${comparison.functional.eligibleEvents} events)`, `${s.mean} ± ${s.sd}`, String(s.percentile)]);
   }
+  if (comparison.conditional) {
+    const c = comparison.conditional;
+    for (const [label, stat] of [["Conditional yoga pair", c.yoga], ["Node sign-ruler link", c.node], ["Event-house combination", c.event]] as const)
+      rows.push([label, `${stat.actual}/${c.eligibleEvents}`, `${stat.mean} ± ${stat.sd}`, String(stat.percentile)]);
+  }
   const paras: ReportPara[] = [{ kind: "note", provisional: true,
     text: `Parashari comparisons use ${trials} sets of random dates, the same eligible events, outcomes and natal candidate, with the same event clock and time zone. Period lords and any transits required by the selected check are recalculated. The staged third level uses actual events that passed the first gate and each event's sampled dates that also passed it, recombined independently across events; this staged gate does not assess outcome or add a transit rule. The partial checks do not deny an event or establish a birth time, and their percentiles do not adjust for trying multiple birth times or related measures. Random dates need not preserve event ages or order and are not known non-events. These comparisons do not change the ranking.` }];
   if (comparison.staged) paras.push({ kind: "note", provisional: true,
@@ -39,6 +44,8 @@ export function parashariComparisonParas(comparison: ParashariComparison, trials
     text: `Cross-chart timing clues include the divisional ascendant, D1 house lord and secondary house, as well as the primary house, its lord and significators. Each qualifying period has a listed link in both charts; third-level comparisons are conditional on the first two. Qualifying sampled-date counts: ${comparison.crossTiming.qualifyingDraws.join(", ") || "none"}. These describe timing clues, not a complete natal promise, a candidate filter or a validated forecast. In a small three-person check, all three held-out dates and all 18 nearby comparison dates had the main-and-subperiod clues; the comparison dates are not known non-events.` });
   if (comparison.functional) paras.push({ kind: "note", provisional: true,
     text: "The functional direct-lord subset counts distinct main/subperiod lords that directly own the mapped event house and are independently auspicious or yogakaraka in that same D1 or divisional frame. A repeated lord counts once. It is an app convention for favourable mapped events, recomputed on random dates; it is not a natal promise, event prediction or birth-time filter. Nodes, conditional pairs and third periods are not scored. In five fresh public cases, four adjacent-sign comparisons tied and one favoured the published-sign side; 29 of 30 nearby comparison dates had the same count as the held-out event. Those dates are not verified non-events." });
+  if (comparison.conditional) paras.push({ kind: "note", provisional: true,
+    text: "Conditional measures separately count events with a formed named yoga pair linked to the matter house, an indirect one-hop node sign-ruler link, and a period lord in the matter house with a direct house-lord or karaka link. They use main/subperiods in D1 or the event's division for favourable mapped events and are recomputed on random dates. They can overlap and are not summed, ranked or used to deny events. In five fresh public cases the pair flag appeared in none of 15 events. Of 30 dates near held-out events, 23 had the same node flag and 28 had the same combination flag. Comparison dates are not verified non-events." });
   if (rows.length) paras.push({ kind: "table", head: ["Measure", "Actual", "Comparison mean ± sd", "Percentile"], rows });
   if (comparison.staged && !comparison.staged.third) paras.push({ kind: "note", provisional: true,
     text: comparison.staged.first.actual === 0 ? "No actual event met the first-stage gate, so the third-stage comparison is unresolved."

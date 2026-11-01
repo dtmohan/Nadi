@@ -46,6 +46,10 @@ export interface ManleyFrame {
   supporting: { ascendant: string[]; natalHouseLord: string[]; bhavat: string[]; nodes: string[] };
   /** Functional lordship of this period planet in this frame; partial and descriptive. */
   functional?: FunctionalFrame;
+  /** One-hop dispositor clues are weaker, separate from direct primary links. */
+  nodeDispositor?: { planet: Planet; sign: number; house: number; owns: number[]; links: string[] };
+  /** Placement plus a second direct event indicator in the same frame. */
+  eventCombination?: { matched: boolean; explanations: string[] };
 }
 
 export interface ManleyEvidence {
@@ -138,15 +142,44 @@ export function createManleyEvidenceScorer(natal: PlanetPosition[], lagnaLon: nu
       bhavat.push(...targetLinks(bhavatLord, `house ${bhavatHouse} lord ${bhavatLord}`));
       const nodes = nodeDispositor ? [`${p} is in ${SIGNS[pSign]}, ruled by ${nodeDispositor}`,
         ...natal.filter((x) => !isNode(x.planet) && aspect(x.planet, signOf(x.planet), pSign)).map((x) => `${p} receives a full aspect from ${x.planet}`)] : [];
+      const formation = (other: Planet): string[] => {
+        const a = pSign, b = signOf(other), result: string[] = [];
+        if (a === b) result.push("same-sign conjunction");
+        if (SIGN_LORD[a] === other && SIGN_LORD[b] === p) result.push("sign exchange");
+        if (aspect(p, a, b) && aspect(other, b, a)) result.push("mutual full aspect");
+        return result;
+      };
+      let dispositor: ManleyFrame["nodeDispositor"];
+      if (nodeDispositor) {
+        const d = nodeDispositor, ds = signOf(d), links: string[] = [];
+        if (ds === houseSign) links.push(`${d} is in house ${eventHouse}`);
+        if (aspect(d, ds, houseSign)) links.push(`${d} fully aspects house ${eventHouse}`);
+        for (const [target, role] of [[houseLord, `house ${eventHouse} lord`],
+          ...topic.karakas.map((k): [Planet, string] => [k, "karaka"]) ] as Array<[Planet, string]>) {
+          // Direct identity is already shown in the node's primary links.
+          if (d !== target) links.push(...relates(d, target).map((s) => `${role}: ${s}`));
+        }
+        dispositor = { planet: d, sign: ds, house: ((ds - asc + 12) % 12) + 1,
+          owns: Array.from({ length: 12 }, (_, i) => i + 1).filter((h) => SIGN_LORD[(asc + h - 1) % 12] === d), links };
+      }
+      const primary = { house, houseLord: targetLinks(houseLord, `house ${eventHouse} lord ${houseLord}`),
+        karaka: topic.karakas.flatMap((k) => targetLinks(k, `karaka ${k}`)) };
+      // Exclude the tautology "a node in the house is in its lord's sign";
+      // this combination requires a direct identity, conjunction or aspect.
+      const combinationTarget = (target: Planet, role: string) => p === target
+        ? [`${p} is the ${role}`] : relates(p, target).map((s) => `${role}: ${s}`);
+      const combinations = pSign === houseSign ? [
+        ...combinationTarget(houseLord, `house ${eventHouse} lord`),
+        ...topic.karakas.flatMap((k) => combinationTarget(k, `karaka ${k}`)),
+      ] : [];
       const frame: ManleyFrame = {
         chart, ascendant: asc, house: eventHouse, houseSign, houseLord, bhavatHouse, bhavatLord,
-        primary: {
-          house,
-          houseLord: targetLinks(houseLord, `house ${eventHouse} lord ${houseLord}`),
-          karaka: topic.karakas.flatMap((k) => targetLinks(k, `karaka ${k}`)),
-        },
+        primary,
         supporting: { ascendant, natalHouseLord, bhavat, nodes },
-        functional: functionalFrame(p, asc, pSign, eventHouse, (other) => relates(p, other)),
+        functional: functionalFrame(p, asc, pSign, eventHouse, (other) => relates(p, other), formation),
+        nodeDispositor: dispositor,
+        eventCombination: { matched: combinations.length > 0,
+          explanations: combinations.map((x) => `${p} occupies house ${eventHouse}; ${x}`) },
       };
       frameCache.set(key, frame);
       return frame;

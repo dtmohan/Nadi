@@ -17,6 +17,7 @@ import { comparisonSeed, seeded, validateEvents } from "../server/validate";
 import { createParashariEventScorer } from "../server/parashari-event";
 import { createParashariHierarchyScorer } from "@shared/parashari-hierarchy";
 import { functionalObservation } from "@shared/parashari-functional";
+import { conditionalObservations } from "@shared/parashari-conditional";
 
 const chart = {
   name: "Synthetic comparison chart", birthDate: "1990-01-01", birthTime: "12:00",
@@ -56,7 +57,7 @@ function independent(event: ChartEvent, date: string) {
 const observe = (r: ReturnType<typeof independent>, outcome?: ChartEvent["outcome"]): ParashariObservation => ({
   v1: r.promise?.score, v2: r.specific?.score, v3: r.divisional?.score, staged: stagedObservation(r.manley),
   hierarchy: r.hierarchy?.passes, crossTiming: r.hierarchy?.crossChart?.timing,
-  functional: functionalObservation(r.manley, outcome),
+  functional: functionalObservation(r.manley, outcome), conditional: conditionalObservations(r.manley, outcome),
 });
 
 test("Parashari trials independently recompute period lords and transit rules with each event's clock, zone and outcome", () => {
@@ -138,6 +139,14 @@ test("Parashari trials independently recompute period lords and transit rules wi
   assert.equal(comparison.functional?.stat.actual, functionalTotal(actual));
   assert.equal(comparison.functional?.stat.mean,
     Math.round(trials.reduce((sum, set) => sum + functionalTotal(set), 0) / trials.length * 10) / 10);
+  const conditionalEligible = actual.flatMap((o, i) => o.conditional ? [i] : []);
+  assert.equal(comparison.conditional?.eligibleEvents, conditionalEligible.length);
+  for (const key of ["yoga", "node", "event"] as const) {
+    const count = (set: ParashariObservation[]) => conditionalEligible.filter((i) => set[i].conditional![key]).length;
+    assert.equal(comparison.conditional?.[key].actual, count(actual));
+    assert.equal(comparison.conditional?.[key].mean, Math.round(trials.reduce((s, t) => s + count(t), 0) / trials.length * 10) / 10);
+  }
+  assert.equal(actual[4].conditional, undefined, "unfavourable events are not included in favourable diagnostics");
   assert.equal(actual[4].functional, undefined, "unfavourable events are not given a favourable subset count");
   assert.equal(actual[4].v1, undefined, "unfavourable event is omitted from favourable v1–v3");
   assert.ok(actual[4].staged, "the descriptive staged check still covers this matter");

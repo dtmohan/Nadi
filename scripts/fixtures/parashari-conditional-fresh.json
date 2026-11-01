@@ -1,0 +1,65 @@
+{
+  "notes": [
+    "Cases, event roles, and controls were selected before evaluating the conditional observations. Birth-clock reports are not ground truth; none of the five people appears as a chart in earlier fixtures.",
+    "Priyanka Gandhi's mother and grandmother were earlier case subjects; the public cases are not independent families, although Priyanka's own events here are new.",
+    "Ronald Reagan's birth certificate does not contain a clock. 04:16 is attributed to his daughter; 08:25 is attributed to Reagan through an astrologer; an official 1981 document says 02:00. All are scenarios, not verified times.",
+    "Vega event zones are New York assumptions, not established event locations. Her two reference dates are childbirth and her second wedding; the first wedding is held out and is chronologically earlier.",
+    "Bratt reference events are his wedding and second child's birth; the first child's birth is held out and is chronologically earlier. One Spanish-language biography gives December 14 instead of December 6; both are checked. New York is the best-supported first-child location, but another site says Los Angeles.",
+    "Priyanka Gandhi's wedding invitation was for 17:00, not proof of the ceremony time. Use noon by default and test 17:00 as an alternative. Her 2019 appointment was announced on January 23.",
+    "Flávio Bolsonaro's 2018 election and February 2019 oath are related parts of the same career transition, not independent events. Rio de Janeiro and Brasília time zones are reasonable but exact event times are unknown."
+  ],
+  "cases": [
+    {
+      "name":"Ronald Reagan", "category":"actor and politician, United States",
+      "birthSource":"https://www.astro.com/astro-databank/Reagan%2C_Ronald?lang=e&pa=nmo",
+      "birthQuality":"DD, family-reported 04:16; certificate has no clock; other reported clocks 08:25 and 02:00",
+      "alternateBirthTimes":["08:25","02:00"],
+      "chart":{"name":"Ronald Reagan","gender":"male","birthDate":"1911-02-06","birthTime":"04:16","timezone":"America/Chicago","timeStandard":"auto","place":"Tampico, Illinois","latitude":41.6333,"longitude":-89.7833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events":[
+        {"id":"wedding","matter":"marriage","date":"1952-03-04","timezone":"America/Los_Angeles","sources":["https://www.reaganlibrary.gov/public/finding_aids_pdfs/220128.pdf","https://www.astro.com/astro-databank/Reagan%2C_Ronald?lang=e&pa=nmo"]},
+        {"id":"child","matter":"child","date":"1958-05-20","time":"08:46","timezone":"America/Los_Angeles","sources":["https://www.reaganlibrary.gov/reagans/ronald-reagan/reagans-pre-presidential-biographical-sketch-timeline-1911-1980","https://www.astro.com/astro-databank/Reagan%2C_Ronald?lang=e&pa=nmo"]},
+        {"id":"president_holdout","matter":"job","date":"1981-01-20","timezone":"America/New_York","sources":["https://www.reaganlibrary.gov/reagans/reagan-administration/inauguration-facts","https://www.reaganlibrary.gov/public/digitallibrary/smof/publicliaison/blackwell/box-023/40_047_7006969_023_007_2017.pdf"]}
+      ]
+    },
+    {
+      "name":"Suzanne Vega", "category":"singer and songwriter, United States",
+      "birthSource":"https://www.astro.com/astro-databank/Vega%2C_Suzanne", "birthQuality":"AA, birth certificate quoted, clock may still be rounded",
+      "chart":{"name":"Suzanne Vega","gender":"female","birthDate":"1959-07-11","birthTime":"05:18","timezone":"America/Los_Angeles","timeStandard":"auto","place":"Santa Monica, California","latitude":34.0167,"longitude":-118.4833,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events":[
+        {"id":"child","matter":"child","date":"1994-07-08","timezone":"America/New_York","sources":["https://www.astro.com/astro-databank/Vega%2C_Suzanne","https://en.wikipedia.org/wiki/Suzanne_Vega"]},
+        {"id":"second_wedding","matter":"marriage","date":"2006-02-11","timezone":"America/New_York","sources":["https://www.astro.com/astro-databank/Vega%2C_Suzanne","https://www.imdb.com/name/nm0891916/bio/"]},
+        {"id":"wedding_holdout","matter":"marriage","date":"1995-03-17","timezone":"America/New_York","sources":["https://www.astro.com/astro-databank/Vega%2C_Suzanne","https://www.imdb.com/name/nm0891916/bio/"]}
+      ]
+    },
+    {
+      "name":"Benjamin Bratt", "category":"actor, Quechua and European ancestry, United States",
+      "birthSource":"https://www.astro.com/astro-databank/Bratt%2C_Benjamin", "birthQuality":"AA, birth certificate quoted in hand",
+      "chart":{"name":"Benjamin Bratt","gender":"male","birthDate":"1963-12-16","birthTime":"22:45","timezone":"America/Los_Angeles","timeStandard":"auto","place":"San Francisco, California","latitude":37.7833,"longitude":-122.4167,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events":[
+        {"id":"wedding","matter":"marriage","date":"2002-04-13","timezone":"America/Los_Angeles","sources":["https://www.astro.com/astro-databank/Bratt%2C_Benjamin","https://en.wikipedia.org/wiki/Benjamin_Bratt"]},
+        {"id":"second_child","matter":"child","date":"2005-10-03","timezone":"America/Los_Angeles","sources":["https://www.astro.com/astro-databank/Bratt%2C_Benjamin","https://www.imdb.com/name/nm0000650/trivia/"]},
+        {"id":"first_child_holdout","matter":"child","date":"2002-12-06","alternateDates":["2002-12-14"],"timezone":"America/New_York","sources":["https://www.astro.com/astro-databank/Bratt%2C_Benjamin","https://www.imdb.com/name/nm0000650/trivia/","https://es.wikipedia.org/wiki/Benjamin_Bratt"]}
+      ]
+    },
+    {
+      "name":"Priyanka Gandhi", "category":"politician, India; family studied in earlier fixtures",
+      "birthSource":"https://www.astro.com/astro-databank/Gandhi%2C_Priyanka?nho2=28", "birthQuality":"AA, hospital record quoted; older source has conflicting date and time",
+      "chart":{"name":"Priyanka Gandhi","gender":"female","birthDate":"1972-01-12","birthTime":"17:05","timezone":"Asia/Kolkata","timeStandard":"auto","place":"Delhi, India","latitude":28.6667,"longitude":77.2167,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events":[
+        {"id":"wedding","matter":"marriage","date":"1997-02-18","alternateTimes":["17:00"],"timezone":"Asia/Kolkata","sources":["https://m.rediff.com/news/slide-show/slide-show-1-from-our-archives-when-priyanka-married-robert-vadra/20121010.htm","https://www.rediff.com/news/feb/10gandhi.htm"]},
+        {"id":"general_secretary","matter":"job","date":"2019-01-23","timezone":"Asia/Kolkata","sources":["https://www.thenewsminute.com/news/priyanka-gandhi-officially-enters-politics-appointed-congs-gen-secretary-east-95524","https://m.thewire.in/article/politics/priyanka-gandhi-given-key-congress-party-post-in-up-ahead-of-2019-elections"]},
+        {"id":"parliament_holdout","matter":"job","date":"2024-11-28","timezone":"Asia/Kolkata","sources":["https://prsindia.org/mptrack/18-lok-sabha/priyanka-gandhi-vadra","https://pynr.in/wp-content/uploads/2024/11/29-HYD-12-PAGES-PDF.compressed.pdf"]}
+      ]
+    },
+    {
+      "name":"Flavio Bolsonaro", "category":"politician and lawyer, Brazil",
+      "birthSource":"https://www.astro.com/astro-databank/Bolsonaro%2C_Fl%C3%A1vio?nhor=1", "birthQuality":"AA, birth certificate in hand",
+      "chart":{"name":"Flavio Bolsonaro","gender":"male","birthDate":"1981-04-30","birthTime":"20:10","timezone":"America/Sao_Paulo","timeStandard":"auto","place":"Resende, Brazil","latitude":-22.4689,"longitude":-44.4467,"ayanamsa":"lahiri","nodeType":"mean"},
+      "events":[
+        {"id":"reelection","matter":"job","date":"2014-10-05","timezone":"America/Sao_Paulo","sources":["https://www.tse.jus.br/eleicoes/historia/cronologia-das-eleicoes","https://odia.ig.com.br/eleicoes2014/2014-10-05/amp/freixo-e-eleito-deputado-estadual-com-mais-de-340-mil-votos.html"]},
+        {"id":"senate_election","matter":"job","date":"2018-10-07","timezone":"America/Sao_Paulo","sources":["https://www.tse.jus.br/eleicoes/historia/cronologia-das-eleicoes","https://www12.senado.leg.br/noticias/materias/2018/10/07/flavio-bolsonaro-e-arolde-de-oliveira-sao-eleitos-pelo-rio-de-janeiro"]},
+        {"id":"senate_term_holdout","matter":"job","date":"2019-02-01","timezone":"America/Sao_Paulo","sources":["https://www.politicometro.org/p/flavio-bolsonaro","https://app.fichaaberta.org/politicos/flavio-bolsonaro?eleicao=2018"]}
+      ]
+    }
+  ]
+}

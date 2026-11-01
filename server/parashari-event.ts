@@ -9,6 +9,7 @@ import { parashariDivisionalCheck, type ParashariDivisionalCheck } from "@shared
 import { stagedObservation, type ParashariObservation } from "@shared/parashari-comparison";
 import { createParashariHierarchyScorer, type HierarchyEvent } from "@shared/parashari-hierarchy";
 import { functionalObservation } from "@shared/parashari-functional";
+import { conditionalObservations } from "@shared/parashari-conditional";
 
 export interface ParashariEventInput {
   label: string;
@@ -30,7 +31,7 @@ export interface ParashariEventResult {
 export function parashariObservation(result: ParashariEventResult, outcome?: ParashariEventInput["outcome"]): ParashariObservation {
   return { v1: result.promise?.score, v2: result.specific?.score, v3: result.divisional?.score,
     staged: stagedObservation(result.manley), hierarchy: result.hierarchy?.passes, crossTiming: result.hierarchy?.crossChart?.timing,
-    functional: functionalObservation(result.manley, outcome) };
+    functional: functionalObservation(result.manley, outcome), conditional: conditionalObservations(result.manley, outcome) };
 }
 
 /**
