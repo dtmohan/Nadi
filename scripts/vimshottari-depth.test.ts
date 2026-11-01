@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { vimshottariLordsAt } from "../shared/kp";
+import { vimshottariLordsAt, vimshottariLordsAtMs } from "../shared/kp";
 import { vimshottariPathAt } from "../shared/vimshottari-depth";
 
 test("nested periods agree with Nadi's existing three-level path across longitudes and dates", () => {
@@ -29,6 +29,18 @@ test("fifth-level boundary changes the nested lord without changing its parent",
   const after = vimshottariPathAt(0, birthMs, boundary + 1, 5);
   assert.deepEqual(before.map((p) => p.lord), ["Ketu", "Ketu", "Ketu", "Ketu", "Ketu"]);
   assert.deepEqual(after.map((p) => p.lord), ["Ketu", "Ketu", "Ketu", "Ketu", "Venus"]);
+});
+
+test("preparsed instants retain the same third-level lords across offsets and boundaries", () => {
+  const birthIso = "1990-01-01T07:30:00.125+05:30", birthMs = Date.parse(birthIso);
+  const eventIso = "2025-04-30T14:21:32.456-07:00", eventMs = Date.parse(eventIso), moon = 137.1;
+  assert.deepEqual(vimshottariLordsAtMs(moon, birthMs, eventMs), vimshottariLordsAt(moon, birthIso, eventIso));
+  const boundary = vimshottariPathAt(moon, birthMs, eventMs, 3)[2].endMs;
+  for (const at of [Math.floor(boundary) - 50, Math.ceil(boundary) + 50]) {
+    const fast = vimshottariLordsAtMs(moon, birthMs, at);
+    assert.deepEqual(fast, vimshottariLordsAt(moon, birthIso, new Date(at).toISOString()));
+    assert.deepEqual(fast, vimshottariPathAt(moon, birthMs, at, 3).map((p) => p.lord));
+  }
 });
 
 test("nested period path rejects impossible inputs", () => {

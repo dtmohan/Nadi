@@ -42,7 +42,7 @@ import {
   kpPoint,
   houseOf,
   computeSignificators,
-  vimshottariLordsAt,
+  vimshottariLordsAtMs,
   rulingPlanets,
   NODES_KP,
   type KpCusp,
@@ -434,6 +434,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
   // Both real and comparison dates use each event's supplied or assumed local time and zone.
   const eventUtc = req.events.map((e) => eventInstant(e.date, e, zone).toUTC());
   const eventInstants = eventUtc.map((instant) => instant.toISO()!);
+  const eventMilliseconds = eventUtc.map((instant) => instant.toMillis());
   // The event sky is used only for transit longitudes; retrograde-entry walks
   // belong to natal interpretation and do not change these longitudes.
   const eventPositions = eventUtc.map((instant) => positionsLite(julianDay(instant), opts));
@@ -452,6 +453,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const rnd = seeded(comparisonSeed(req.events.map((e) => e.date)));
   const trialDates: string[][] = [];
   const trialInstants: string[][] = [];
+  const trialMilliseconds: number[][] = [];
   const trialPositions: (ReturnType<typeof positionsAt> | null)[][] = [];
   const trialPositionsJ: (ReturnType<typeof positionsLite> | null)[][] = [];
   for (let t = 0; t < trials; t++) {
@@ -459,6 +461,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const utc = dates.map((date, i) => eventInstant(date, req.events[i], zone).toUTC());
     trialDates.push(dates);
     trialInstants.push(utc.map((instant) => instant.toISO()!));
+    trialMilliseconds.push(utc.map((instant) => instant.toMillis()));
     trialPositions.push(utc.map((instant) => positionsLite(julianDay(instant), opts)));
     // Parashari uses the chart's own ayanamsa, not the KP comparison sky.
     trialPositionsJ.push(utc.map((instant, i) =>
@@ -496,7 +499,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const cusps = cuspsAt(jd, chart.latitude, chart.longitude, opts);
     const positions = positionsLite(jd, opts);
     const moon = positions.find((p) => p.planet === "Moon")!;
-    const instant = utcAtJulianDay(jd).toISO()!;
+    const instantMs = utcAtJulianDay(jd).toMillis();
     const planetFrame = positions.map((p) => {
       const point = kpPoint(p.lon);
       return `${point.signIndex}:${point.starLord}:${hasAuroraEvents ? `${point.subLord}:${point.subSubLord}:` : ""}${houseOf(p.lon, cusps)}`;
@@ -529,15 +532,15 @@ export function rectify(req: RectifyRequest): RectifyResult {
       }) : []),
       ...matterCusps.map((c) => kpPoint(cusps[c - 1]).subLord),
       ...planetFrame,
-      ...eventInstants.map((event) =>
-        vimshottariLordsAt(moon.lon, instant, event).join(":"),
+      ...eventMilliseconds.map((eventMs) =>
+        vimshottariLordsAtMs(moon.lon, instantMs, eventMs).join(":"),
       ),
       ...chartPositions.map((p) => vargaSignAt("D1", p.lon)),
       ...(chartMoon && chartSun ? [norm360(chartMoon.lon - chartSun.lon) < 180 ? "waxing" : "waning"] : []),
       ...vargaFrame,
       marriageSaham,
-      ...(chartMoon ? vargaEvents.map(({ i }) => vimshottariLordsAt(chartMoon.lon, instant, eventInstants[i]).join(":")) : []),
-      ...(chartMoon ? manleyEvents.map(({ i }) => vimshottariLordsAt(chartMoon.lon, instant, eventInstants[i]).join(":")) : []),
+      ...(chartMoon ? vargaEvents.map(({ i }) => vimshottariLordsAtMs(chartMoon.lon, instantMs, eventMilliseconds[i]).join(":")) : []),
+      ...(chartMoon ? manleyEvents.map(({ i }) => vimshottariLordsAtMs(chartMoon.lon, instantMs, eventMilliseconds[i]).join(":")) : []),
     ].join("|");
   };
   const boundaries: number[] = [];
@@ -642,6 +645,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const lagna = cusps[0];
     const moon = planets.find((p) => p.planet === "Moon")!;
     const birthIso = utcAtJulianDay(mid).toUTC().toISO()!;
+    const birthMs = Date.parse(birthIso);
 
     const lagnaJ = norm360(
       ascendantAt(mid, chart.latitude, chart.longitude, optsJ),
@@ -704,14 +708,11 @@ export function rectify(req: RectifyRequest): RectifyResult {
       dateIso: string,
       evPositions: ReturnType<typeof positionsAt> | null,
       evIso: string,
+      evMs: number,
       includeAuroraTransit = true,
     ): RectifyEventCheck => {
       const houses = e.houses.filter((h) => h >= 1 && h <= 12);
-      const lords = vimshottariLordsAt(
-        moon.lon,
-        birthIso,
-        evIso,
-      );
+      const lords = vimshottariLordsAtMs(moon.lon, birthMs, evMs);
       const signified = lords.map((l) =>
         (sig.get(l) ?? []).filter((h) => houses.includes(h)),
       ) as [number[], number[], number[]];
@@ -752,9 +753,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
       const tScore = [...tDasa.hits, ...tBhukti.hits].filter(Boolean).length;
       let jaimini: RectifyEventCheck["jaimini"] = null;
       if (e.area) {
-        const millis = Date.parse(evIso);
-        const pi = jaiPeriods.findIndex((p) => p.start <= millis && millis < p.end);
-        const ai = pi < 0 ? -1 : jaiPeriods[pi].antars.findIndex((a) => a.start <= millis && millis < a.end);
+        const pi = jaiPeriods.findIndex((p) => p.start <= evMs && evMs < p.end);
+        const ai = pi < 0 ? -1 : jaiPeriods[pi].antars.findIndex((a) => a.start <= evMs && evMs < a.end);
         const key = `${e.area}:${pi}:${ai}`;
         if (!jaiFits.has(key)) {
           jaiFits.set(key, dashaFitAt(jai.j, jai.positions, e.area, evIso));
@@ -802,7 +802,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       };
     };
     const events: RectifyEventCheck[] = req.events.map((e, ei) =>
-      checkEvent(e, e.date, eventPositions[ei], eventInstants[ei]),
+      checkEvent(e, e.date, eventPositions[ei], eventInstants[ei], eventMilliseconds[ei]),
     );
 
     // Baseline: the same interval scored at the selected random dates.
@@ -832,7 +832,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
         if (t === 0) auroraExample = [];
         if (t === 0) auroraV2Example = [];
         req.events.forEach((e, ei) => {
-          const c = checkEvent(e, trialDates[t][ei], trialPositions[t][ei], trialInstants[t][ei], t === 0);
+          const c = checkEvent(e, trialDates[t][ei], trialPositions[t][ei], trialInstants[t][ei], trialMilliseconds[t][ei], t === 0);
           if (t === 0) auroraExample!.push({ label: e.label, date: trialDates[t][ei], time: e.time,
             timezone: e.timezone, evidence: c.aurora });
           if (t === 0) auroraV2Example!.push({ label: e.label, date: trialDates[t][ei], time: e.time,

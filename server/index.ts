@@ -84,7 +84,8 @@ app.use((req, res, next) => {
 
 // Liveness probe for the host's health check; returns before any heavy work is done.
 app.get("/health", (_req, res) => {
-  res.json({ ok: true });
+  // Render supplies this per-deploy commit SHA; omit it on hosts without one.
+  res.json({ ok: true, commit: process.env.RENDER_GIT_COMMIT || undefined });
 });
 
 (async () => {

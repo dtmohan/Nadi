@@ -3,7 +3,8 @@ import test from "node:test";
 import { DateTime } from "luxon";
 import { matterOf, type ChartEvent } from "@shared/events";
 import { vimshottariLordsAt } from "@shared/kp";
-import { manleyEvidence } from "@shared/manley-evidence";
+import { createManleyEvidenceScorer, manleyEvidence } from "@shared/manley-evidence";
+import type { Planet } from "@shared/astro";
 import { parashariVargaEvidence } from "@shared/parashari-varga-evidence";
 import { parashariPromiseCheck } from "@shared/parashari-promise";
 import { parashariSpecificCheck } from "@shared/parashari-specific";
@@ -156,4 +157,19 @@ test("cached period frames retain the individual event's date, label, clock and 
   assert.deepEqual(two.manley?.moment, { time: b.time, timeAssumed: false, timezone: b.timezone, timezoneAssumed: false });
   assert.equal(two.promise?.date, b.date);
   assert.equal(two.specific?.label, b.label);
+});
+
+test("reused divisional frames match independently rebuilt evidence for every planet and matter", () => {
+  const birth = birthInstant(chart).utc, jd = julianDay(birth);
+  const natal = positionsAt(jd, options), lagna = ascendantAt(jd, chart.latitude, chart.longitude, options);
+  const cached = createManleyEvidenceScorer(natal, lagna);
+  const planets: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"];
+  for (const matter of ["move", "child", "marriage", "job", "education"]) {
+    planets.forEach((p, i) => {
+      const event = { label: `${matter} ${i}`, date: `2010-01-${String(i + 1).padStart(2, "0")}`,
+        matter, time: i % 2 ? "09:30" : undefined, timezone: "America/Los_Angeles", birthTimezone: chart.timezone };
+      const periods: [Planet, Planet, Planet] = [p, planets[(i + 1) % planets.length], planets[(i + 3) % planets.length]];
+      assert.deepEqual(cached(event, periods), manleyEvidence(event, natal, lagna, periods), `${matter} ${p}`);
+    });
+  }
 });

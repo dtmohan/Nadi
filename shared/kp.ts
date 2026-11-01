@@ -563,8 +563,13 @@ export function vimshottariLordsAt(
   birthIso: string,
   asOfIso: string,
 ): [Planet, Planet, Planet] {
-  const birthMs = DateTime.fromISO(birthIso).toMillis();
-  const asOfMs = DateTime.fromISO(asOfIso).toMillis();
+  return vimshottariLordsAtMs(moonLon, DateTime.fromISO(birthIso).toMillis(), DateTime.fromISO(asOfIso).toMillis());
+}
+
+/** Identical three-level arithmetic for callers that already have UTC instants. */
+export function vimshottariLordsAtMs(
+  moonLon: number, birthMs: number, asOfMs: number,
+): [Planet, Planet, Planet] {
   const DAY = 86400000;
   const nak = Math.floor(norm360(moonLon) / NAK_ARC) % 27;
   const lord = NAKSHATRA_LORD[nak];

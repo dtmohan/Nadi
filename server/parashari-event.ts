@@ -1,7 +1,7 @@
 /** Shared real-event and comparison-date Parashari evaluation at one natal candidate. */
 import { SIGN_LORD, type Planet, type PlanetPosition } from "@shared/astro";
-import { vimshottariLordsAt } from "@shared/kp";
-import { manleyEvidence, manleyTopicFor, type ManleyEvidence } from "@shared/manley-evidence";
+import { vimshottariLordsAtMs } from "@shared/kp";
+import { createManleyEvidenceScorer, manleyTopicFor, type ManleyEvidence } from "@shared/manley-evidence";
 import { parashariVargaEvidence, parashariVargaPeriods, vargaTopicFor, type ParashariVargaEvidence } from "@shared/parashari-varga-evidence";
 import { parashariPromiseCheck, type ParashariPromiseCheck } from "@shared/parashari-promise";
 import { parashariSpecificCheck, type ParashariSpecificCheck } from "@shared/parashari-specific";
@@ -37,6 +37,7 @@ export function createParashariEventScorer(natal: PlanetPosition[], lagna: numbe
   const moon = natal.find((p) => p.planet === "Moon");
   if (!moon) throw new Error("Parashari event check requires the natal Moon");
   const birthMs = Date.parse(birthIso);
+  const scoreManley = createManleyEvidenceScorer(natal, lagna);
   const natalVargaCache = new Map<string, ParashariVargaEvidence>();
   const vargaCache = new Map<string, ParashariVargaEvidence>();
   const manleyCache = new Map<string, ManleyEvidence>();
@@ -48,7 +49,7 @@ export function createParashariEventScorer(natal: PlanetPosition[], lagna: numbe
     const millis = Date.parse(eventIso);
     if (!Number.isFinite(millis) || !Number.isFinite(birthMs)) throw new Error("Invalid Parashari event instant");
     const periods: [Planet, Planet, Planet] | null = millis >= birthMs
-      ? vimshottariLordsAt(moon.lon, birthIso, eventIso) : null;
+      ? vimshottariLordsAtMs(moon.lon, birthMs, millis) : null;
     const key = `${event.matter ?? ""}|${periods?.join(":") ?? "before-birth"}`;
     let varga: ParashariVargaEvidence | undefined;
     if (vargaTopicFor(event.matter)) {
@@ -71,7 +72,7 @@ export function createParashariEventScorer(natal: PlanetPosition[], lagna: numbe
     if (periods && manleyTopicFor(event.matter)) {
       let template = manleyCache.get(key);
       if (!template) {
-        template = manleyEvidence({ ...event, date, birthTimezone: birthZone }, natal, lagna, periods);
+        template = scoreManley({ ...event, date, birthTimezone: birthZone }, periods);
         if (template) manleyCache.set(key, template);
       }
       if (template) manley = { ...template, label: event.label, date,
