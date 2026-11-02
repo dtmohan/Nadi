@@ -1,6 +1,7 @@
 /** The ordinary ALP evaluator projected to reviewed topic associations at an event instant. */
 import { DateTime } from "luxon";
-import { alpLonAt, alpPointAt, arpLonAt, computeAlpEventFrame, DEFAULT_ALP_CONFIG, type AlpResult } from "./alp";
+import { alpLonAt, alpPointAt, alpRate, arpLonAt, computeAlpEventFrame, DEFAULT_ALP_CONFIG, type AlpResult } from "./alp";
+import { norm360 } from "./astro";
 import { ALP_PLAIN_TOPIC_RULES } from "./school-topics-expanded";
 import type { AlpFinding } from "./rules-alp";
 import type { SchoolTopic } from "./school-topic-brief";
@@ -22,7 +23,13 @@ export interface AlpEventEvidence {
   akshaya?: { sign: AlpResult["arp"]["point"]["sign"]; nakshatra: string; pada: number; dasa: string; bhukti: string };
   findings: Array<{ finding: AlpFinding; topicMeaning: string }>;
 }
-interface CacheEntry { start: number; end: number; withheld: boolean; pointKey: string; result: AlpEventEvidence }
+interface CacheEntry {
+  start: number; end: number;
+  point: NonNullable<AlpEventEvidence["point"]>;
+  akshaya: NonNullable<AlpEventEvidence["akshaya"]>;
+  /** The ordinary ALP rule evaluation is independent of the event's topic. */
+  findings: AlpFinding[];
+}
 
 /** The cache is scoped to one natal candidate. Discrete ALP and ARP points are
  * recalculated at every instant; the stored result also cannot cross the ARP
@@ -42,26 +49,40 @@ export function createAlpEventScorer(context: PlanetContext, lagna: number, birt
     const status = allowed && !allowed(matter) ? "withheld" : !topic ? "unmapped" : ms < birthMs ? "before-birth" : "assessed";
     if (status !== "assessed" || !topic) return { matter, topic, status, asOf, findings: [] };
     const withhold = currentWithhold || sensitiveGate(chart, birthIso, asOf).withheld;
-    const instant = DateTime.fromMillis(ms, { zone: "utc" });
-    const ap = alpPointAt(alpLonAt(lagna, birth, instant, DEFAULT_ALP_CONFIG));
-    const rp = alpPointAt(arpLonAt(moon, Math.max(0, (ms - birthMs) / 86400000)));
+    const days = Math.max(0, (ms - birthMs) / 86400000);
+    let instant: DateTime | undefined;
+    const when = () => instant ??= DateTime.fromMillis(ms, { zone: "utc" });
+    // Use elapsed UTC milliseconds for the cache key; at a pada boundary use the ordinary
+    // Luxon arithmetic to avoid a floating-point rounding disagreement.
+    const natalLon = norm360(lagna);
+    const startLon = DEFAULT_ALP_CONFIG.start === "sign" ? Math.floor(natalLon / 30) * 30 : natalLon;
+    const quickLon = norm360(startLon + alpRate(DEFAULT_ALP_CONFIG) * days);
+    const pada = quickLon / (360 / 108);
+    const lon = Math.abs(pada - Math.round(pada)) < 1e-7
+      ? alpLonAt(lagna, birth, when(), DEFAULT_ALP_CONFIG) : quickLon;
+    const ap = alpPointAt(lon);
+    const rp = alpPointAt(arpLonAt(moon, days));
     const pointKey = [ap.signIndex, ap.nakshatraIndex, ap.pada, ap.navamsaSign,
       rp.signIndex, rp.nakshatraIndex, rp.pada, rp.navamsaSign].join(":");
+    const cacheKey = `${withhold ? 1 : 0}:${pointKey}`;
     // The timeline's ISO rounding and direct longitude can disagree at an
     // exact boundary. Re-evaluate on both sides rather than trusting a cached
     // period in the small rounding margin.
-    const previous = cache.get(matter)?.find((e) => e.withheld === withhold && e.pointKey === pointKey && e.start + 2000 < ms && ms < e.end - 2000);
-    if (previous) return { ...previous.result, asOf };
-    const a = computeAlpEventFrame(context, lagna, birthIso, instant.toISO()!, DEFAULT_ALP_CONFIG, withhold);
+    const project = (point: CacheEntry["point"], akshaya: CacheEntry["akshaya"], findings: AlpFinding[]): AlpEventEvidence => ({
+      matter, topic, status, asOf, point, akshaya,
+      findings: findings.flatMap((finding) => {
+        const topicMeaning = ALP_PLAIN_TOPIC_RULES[finding.ruleId]?.[topic];
+        return topicMeaning ? [{ finding, topicMeaning }] : [];
+      }),
+    });
+    const previous = cache.get(cacheKey)?.find((e) => e.start + 2000 < ms && ms < e.end - 2000);
+    if (previous) return project(previous.point, previous.akshaya, previous.findings);
+    const a = computeAlpEventFrame(context, lagna, birthIso, when().toISO()!, DEFAULT_ALP_CONFIG, withhold);
     const point = { sign: a.point.sign, nakshatra: a.point.nakshatra, pada: a.point.pada,
       lord: a.point.lord, nakshatraLord: a.point.nakshatraLord, navamsaSign: a.point.navamsaSign };
     const akshaya = { sign: a.arp.point.sign, nakshatra: a.arp.point.nakshatra, pada: a.arp.point.pada,
       dasa: a.arp.dasa.lord, bhukti: a.arp.bhukti.lord };
-    const findings = a.findings.flatMap((finding) => {
-      const topicMeaning = ALP_PLAIN_TOPIC_RULES[finding.ruleId]?.[topic];
-      return topicMeaning ? [{ finding, topicMeaning }] : [];
-    });
-    const result: AlpEventEvidence = { matter, topic, status, asOf, point, akshaya, findings };
+    const result = project(point, akshaya, a.findings);
     // Point-dependent conditions are guarded by the exact pointKey above;
     // only the independently changing period bounds need to be stored here.
     const spans = [a.arp.dasa, a.arp.bhukti];
@@ -69,9 +90,9 @@ export function createAlpEventScorer(context: PlanetContext, lagna: number, birt
       const start = Math.max(...spans.map((v) => Date.parse(v!.start)));
       const end = Math.min(...spans.map((v) => Date.parse(v!.end)));
       if (start <= ms && ms < end) {
-        const entries = cache.get(matter) ?? [];
-        entries.push({ start, end, withheld: withhold, pointKey, result });
-        cache.set(matter, entries);
+        const entries = cache.get(cacheKey) ?? [];
+        entries.push({ start, end, point, akshaya, findings: a.findings });
+        cache.set(cacheKey, entries);
       }
     }
     return result;

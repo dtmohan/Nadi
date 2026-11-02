@@ -70,7 +70,7 @@ test("ALP cached event findings equal the ordinary evaluator at many instants an
     .flatMap((p) => p ? [Date.parse(p.start), Date.parse(p.end)] : []);
   const times = [
     ...Array.from({ length: 100 }, (_, i) => DateTime.fromISO("2010-01-01T00:00:00Z").plus({ days: i * 43 }).toMillis()),
-    ...boundaries.flatMap((time) => [time - 1000, time, time + 1000]),
+    ...boundaries.flatMap((time) => [time - 1000, time - 1, time, time + 1, time + 1000]),
   ];
   for (const ms of times) {
     const iso = DateTime.fromMillis(ms, { zone: "utc" }).toISO()!;
@@ -88,6 +88,29 @@ test("ALP cached event findings equal the ordinary evaluator at many instants an
   }
   assert.equal(score("marriage", "1989-01-01T00:00:00Z")?.status, "before-birth");
   assert.equal(score("unknown", "2015-01-01T00:00:00Z")?.status, "unmapped");
+});
+
+test("ALP frame reuse across different event topics preserves ordinary findings and both period boundaries", () => {
+  const context = natalPlanetContext(chart), asc = chart.jaimini.lagna.lon;
+  const scorer = createAlpEventScorer(context, asc, chart.utc, chart.chart, asOf);
+  const ref = computeAlp(context, asc, chart.utc, "2015-01-01T00:00:00Z", DEFAULT_ALP_CONFIG);
+  const boundaries = [ref.arp.dasa, ref.arp.bhukti, ref.padaPeriods.find((p) => p.current)]
+    .flatMap((p) => p ? [Date.parse(p.start), Date.parse(p.end)] : []);
+  const times = [...Array.from({ length: 35 }, (_, i) => DateTime.fromISO("1990-01-01T06:30:00Z").plus({ days: i * 1277 }).toMillis()),
+    ...boundaries.flatMap((ms) => [ms - 2001, ms - 1, ms, ms + 1, ms + 2001])];
+  for (const ms of times) {
+    const iso = DateTime.fromMillis(ms, { zone: "utc" }).toISO()!;
+    const ordinary = computeAlp(context, asc, chart.utc, iso, DEFAULT_ALP_CONFIG,
+      sensitiveGate(chart.chart, chart.utc, asOf).withheld || sensitiveGate(chart.chart, chart.utc, iso).withheld);
+    for (const [matter, topic] of [["job", "career"], ["marriage", "marriage"], ["child", "children"], ["education", "education"]] as const) {
+      const scored = scorer(matter, iso)!;
+      const findings = ordinary.findings.flatMap((finding) => { const topicMeaning = ALP_PLAIN_TOPIC_RULES[finding.ruleId]?.[topic];
+        return topicMeaning ? [{ finding, topicMeaning }] : []; });
+      assert.deepEqual(scored.findings, findings, `${matter} ${iso}`);
+      assert.deepEqual(scored.akshaya, { sign: ordinary.arp.point.sign, nakshatra: ordinary.arp.point.nakshatra,
+        pada: ordinary.arp.point.pada, dasa: ordinary.arp.dasa.lord, bhukti: ordinary.arp.bhukti.lord }, `${matter} ${iso}`);
+    }
+  }
 });
 
 test("catalogue comparisons count the actual rule set without inventing scores or counting unavailable trials", () => {
