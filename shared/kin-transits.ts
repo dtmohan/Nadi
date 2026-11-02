@@ -11,7 +11,7 @@ import type { ShadbalaResult } from "./shadbala";
  */
 export type KinPlanet = "Mars" | "Mercury" | "Venus";
 /** "lean" is the dots-heavy sign where the verse promises nothing; "distress" is Mars in a sign without rekhas (70.26). */
-export type KinVerdict = "favourable" | "even" | "lean" | "distress";
+export type KinVerdict = "favourable" | "even" | "lean" | "distress" | "ungraded";
 
 export interface KinTransitRow {
   planet: KinPlanet;
@@ -46,9 +46,9 @@ export const KIN_SOURCES = {
 };
 
 export const KIN_CAVEATS = [
-  "\"Larger number of rekhas\" is read as five or more of eight and \"without rekhas\" as zero; three or fewer is shown as lean, a sign where the verse promises nothing, and four as even. The thresholds are not in the text (provisional).",
-  "For Mars 70.24 names the figure after Trikona shodhana; the row shows both the unreduced count (which sets the verdict) and the reduced one. Mercury and Venus are read from the unreduced chart, as 70.28 and 70.34 name no reduction.",
-  "\"Mars weak\" for the brothers' longevity (70.25) is taken as a Shadbala total below the requirement of 27.32-33 (provisional).",
+  "For Mercury and Venus, 'larger number of rekhas' is provisionally read as five or more of eight, three or fewer as lean and four as even. These thresholds are not in the text.",
+  "For Mars, 70.24-27 names the figure after Trikona shodhana. The row reports both counts and the reduced value's position among the twelve signs, without applying an eight-mark cutoff or issuing a grade. The passage about no rekhas does not unambiguously specify which table is meant.",
+  "The Shadbala strength comparison uses 27.32-33 as a provisional proxy for 'Mars weak'. Translations of 70.26 differ on the brother-longevity passage; no lifespan conclusion is drawn.",
   "The count of children by navamsas (70.32) is read as the ordinal of the navamsa the 5th lord occupies within its sign, one to nine; commentators differ on this verse.",
   "Directions of the signs follow chapter 4 (fire east, earth south, air west, Scorpio and Pisces north); Cancer's direction is not in the chapter 4 text used and north is taken from the pattern.",
   "Passages are computed for six months before and two years after the day the chart was opened; retrograde loops appear as repeated signs. Reopen the chart for a fresh span.",
@@ -76,19 +76,13 @@ export function readKinTransits(
     const chart = bhinnaOf(av, planet);
     if (!chart || !(planet in rows)) continue;
     const rekhas = chart.rekhas[t.signIndex];
-    const verdict: KinVerdict = planet === "Mars" && rekhas === 0 ? "distress" : verdictOf(rekhas);
+    const verdict: KinVerdict = planet === "Mars" ? "ungraded" : verdictOf(rekhas);
     let text: string;
     let trikona: number | undefined;
     if (planet === "Mars") {
       trikona = chart.trikona[t.signIndex];
-      text =
-        rekhas === 0
-          ? `Mars in ${SIGNS[t.signIndex]}, a sign without rekhas in its chart: distress to brothers.`
-          : verdict === "favourable"
-            ? `Mars in ${SIGNS[t.signIndex]} with ${rekhas} rekhas (${trikona} after Trikona shodhana): gain of land, happiness from the wife and great happiness to a brother.`
-            : verdict === "lean"
-              ? `Mars in ${SIGNS[t.signIndex]} with only ${rekhas} rekhas (${trikona} after Trikona shodhana): little for brothers, valour or land.`
-              : `Mars in ${SIGNS[t.signIndex]} with ${rekhas} rekhas (${trikona} after Trikona shodhana): an even passage.`;
+      const below = chart.trikona.filter((n) => n < trikona!).length;
+      text = `Mars in ${SIGNS[t.signIndex]}: ${rekhas} original rekhas, ${trikona} after Trikona shodhana (greater than ${below} of the twelve reduced sign counts). The text associates larger reduced counts with land and family happiness; it gives no numerical cutoff, so this passage is ungraded.`;
     } else if (planet === "Mercury") {
       text =
         verdict === "favourable"
@@ -113,11 +107,9 @@ export function readKinTransits(
   const marsBala = shadbala?.planets.find((p) => p.planet === "Mars");
   if (marsBala) {
     natal.push({
-      text: marsBala.strong
-        ? `Mars has ${marsBala.total.toFixed(1)} rupas against ${marsBala.required} required: not weak, so 70.25 does not shorten the brothers' lives.`
-        : `Mars has ${marsBala.total.toFixed(1)} rupas against ${marsBala.required} required: weak, and 70.25 says the brothers will be short-lived.`,
+      text: `Mars has ${marsBala.total.toFixed(1)} rupas against ${marsBala.required} required: ${marsBala.strong ? "above" : "below"} this provisional strength requirement. Translations differ on the related passage about brothers, so it does not establish their lifespan.`,
       source: KIN_SOURCES.marsWeak,
-      tone: marsBala.strong ? "support" : "strain",
+      tone: "mixed",
     });
   }
   // 70.30-33: progeny from the 5th from Jupiter.

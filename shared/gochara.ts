@@ -309,6 +309,8 @@ export interface GocharaRow {
   aspects: GocharaAspect[];
   /** PD 26.30 applied: an aspect that voids the good or the ill of this house. */
   aspectNote?: { text: string; sources: GocharaSource[]; by: Planet[] };
+  /** A competing aspect where the documented dignity-first ordering retains the original verdict. */
+  modifierConflict?: { text: string; sources: GocharaSource[]; by: Planet[] };
   /** Rekhas of eight in the planet's own Ashtakavarga for this sign, when the birth chart's marks were given. */
   avMarks?: number;
   /** PD 26.41 applied: enough marks in the planet's own Ashtakavarga make an unfavourable house good. */
@@ -318,7 +320,7 @@ export interface GocharaRow {
    * 26.30, the good by 26.32 or 26.30. The plain reading then gives the rule (gocharaPlainEffect); the practitioner
    * reading shows both.
    */
-  voided?: "ill" | "good";
+  voided?: "ill" | "good" | "both";
   /** Saturn only: the name practice gives this passage from the Moon (see saturnPracticeName); provisional, never a verdict. */
   practiceName?: { text: string; source: GocharaSource };
   danger?: { text: string; source: GocharaSource };
@@ -420,12 +422,14 @@ export function computeGochara(
     const isNode = p.planet === "Rahu" || p.planet === "Ketu";
     // 26.32's eclipse by the Surya Siddhanta distances from the transiting Sun, not the Nadi flag on the position.
     const combust = !isNode && sunLon !== undefined && ssCombust(p, sunLon);
-    if (!isNode && STRONG.has(p.dignity) && !good) {
+    if (!isNode && !combust && STRONG.has(p.dignity) && !good) {
       dignityNote = { text: `${p.dignity} in transit: an unfavourable house does no harm (26.31).${SET_ASIDE}`, sources: [PD("31")] };
       verdict = "neutral";
       illVoid = true;
-    } else if (!isNode && STRONG.has(p.dignity) && good && !vedhaBy.length) {
+    } else if (!isNode && !combust && STRONG.has(p.dignity) && favourable && !vedhaBy.length) {
       dignityNote = { text: `${p.dignity} in a favourable house: full results (26.31).`, sources: [PD("31")] };
+    } else if (!isNode && !combust && STRONG.has(p.dignity) && avGood) {
+      dignityNote = { text: `${p.dignity} in an unfavourable Moon-house: dignity softens its difficulty (26.31); the Ashtakavarga marks are a separate indication (26.41).`, sources: [PD("31"), PD("41", true)] };
     } else if (!isNode && (WEAK.has(p.dignity) || combust)) {
       const why = combust ? "combust" : p.dignity.toLowerCase();
       if (good) {
@@ -435,14 +439,17 @@ export function computeGochara(
       } else {
         dignityNote = { text: `${why} in transit: the ill of this house is aggravated (26.32).`, sources: [PD("32")] };
       }
-      if (p.planet === "Saturn" && combust) dignityNote = { text: "Saturn combust does not trouble the righteous (BS 104.55), though 26.32 voids his good results.", sources: [BS("55"), PD("32")] };
+      if (p.planet === "Saturn" && combust) dignityNote = { text: `Saturn combust does not trouble the righteous (BS 104.55), though 26.32 ${good ? "voids his good results" : "aggravates the ill of this house"}.`, sources: [BS("55"), PD("32")] };
     }
 
     // PD 26.30: a benefic's aspect voids an ill result, a malefic's voids a good one, and an enemy's voids either; BS 104.53
     // agrees that an enemy's aspect spoils the good. Applied only where dignity has not already decided the house.
     const aspects = aspectsOn(p, transits);
     let aspectNote: GocharaRow["aspectNote"];
-    if (!dignityNote && (verdict === "favourable" || verdict === "unfavourable")) {
+    let modifierConflict: GocharaRow["modifierConflict"];
+    // A strong planet's dignity can describe the original unfavourable house without deciding
+    // whether a separate Ashtakavarga benefit is held back by an aspect.
+    if ((!dignityNote || (avGood && !combust && STRONG.has(p.dignity))) && (verdict === "favourable" || verdict === "unfavourable")) {
       const onGood = verdict === "favourable";
       const hits = aspects.filter((a) => a.enemy || a.nature === (onGood ? "malefic" : "benefic"));
       if (hits.length) {
@@ -455,6 +462,13 @@ export function computeGochara(
         };
         verdict = "neutral";
       }
+    } else if (dignityNote && !combust && STRONG.has(p.dignity) && favourable && verdict === "favourable") {
+      const hits = aspects.filter((a) => a.enemy || a.nature === "malefic");
+      if (hits.length) modifierConflict = {
+        text: `Strong dignity supports the favourable house (26.31), while ${hits.map(aspectText).join(", ")} would hold its good back (26.30). Their priority is unresolved; this verdict retains the provisional dignity-first ordering.`,
+        sources: [PD("31"), PD("30", true)],
+        by: hits.map((a) => a.by),
+      };
     }
 
     let danger: GocharaRow["danger"];
@@ -478,9 +492,10 @@ export function computeGochara(
       dignityNote,
       aspects,
       aspectNote,
+      modifierConflict,
       avMarks,
       avNote,
-      voided: illVoid ? "ill" : goodVoid ? "good" : undefined,
+      voided: illVoid && goodVoid ? "both" : illVoid ? "ill" : goodVoid ? "good" : undefined,
       practiceName:
         p.planet === "Saturn" && saturnPracticeName(house)
           ? { text: saturnPracticeName(house)!, source: SATURN_NAMES_SOURCE }
@@ -517,9 +532,13 @@ const andList = (xs: string[]) => (xs.length <= 1 ? xs.join("") : `${xs.slice(0,
 export function gocharaPlainEffect(r: GocharaRow): string {
   const own = [r.effect.bs?.text, r.effect.pd?.text].filter(Boolean).join("; ");
   if (!r.voided) return own;
-  const state = r.dignityNote?.text.match(/^(.+?) in transit/)?.[1]?.toLowerCase();
+  const state = r.combust ? "combust" : r.dignityNote?.text.match(/^(.+?) in transit/)?.[1]?.toLowerCase();
   const by = r.aspectNote ? andList(r.aspectNote.by) : "";
   const many = (r.aspectNote?.by.length ?? 0) > 1;
+  if (r.voided === "both") {
+    const reason = state ? `${r.planet} is ${state} in transit` : by ? `the ${many ? "aspects" : "aspect"} of ${by}` : "another modifier";
+    return `The Ashtakavarga marks ease the usual difficulty of this house, while ${reason} holds back their good. The combined reading is neutral under the provisional ordering.`;
+  }
   if (r.voided === "ill") {
     const why = r.avNote
       ? `${r.avMarks} of 8 marks in ${r.planet}'s own Ashtakavarga turn this house good (26.41)`
@@ -548,6 +567,7 @@ export const GOCHARA_CAVEATS: string[] = [
   `Dignity here is the sidereal sign dignity. Combustion, the eclipse (maudhya) of 26.32, is measured by the Surya Siddhanta distances (9.6-9, and 10.1 for the Moon): ${SS_ORB_TEXT} from the transiting Sun. Chapter 26 gives no distances, so these are the app's choice and provisional; they are the distances the period rules use (Phaladeepika 20.30, 20.57), while BNN keeps its own 3°20'. The relief of 20.57 stays a period rule: no verse extends it to transits.`,
   "Effective portions of the sign (Brihat Samhita 104.49-51; Phaladeepika 26.25) differ between the two texts and are shown, not applied to the verdict.",
   "Aspects follow Phaladeepika 26.30: a planet giving ill results that is aspected by a benefic, or one giving good results that is aspected by a malefic, gives neither, and the same holds when the aspect comes from the planet's enemy; Brihat Samhita 104.53 agrees that an enemy's aspect spoils the good. The verse does not say which planets aspect or how, so these choices are provisional: the aspecting planets are the other planets in transit (as with vedha), only full aspects count (the 7th for all; Mars also the 4th and 8th, Jupiter the 5th and 9th, Saturn the 3rd and 10th), sign to sign, and the nodes cast none. Benefic and malefic follow Phaladeepika's own list in its Sarvatobhadra notes (ch. 26); enemies follow the natural friendships of the seven planets, so for Rahu and Ketu as the aspected planet only the benefic and malefic part applies (the node rows of the friendship table follow the Nadi convention). Brihat Samhita 104.52 on a benefic and a malefic together in one sign is not applied.",
+  "Where strong dignity and an adverse aspect give competing indications, the verdict retains the app's provisional dignity-first ordering and the conflicting aspect is shown separately. Combustion is considered even in an otherwise strong sign. When both the house's difficulty and an Ashtakavarga benefit are voided, both modifications are reported; their combination is an app interpretation.",
   "The order of the rules is a reading, not stated in either text: the house from the Moon, then the Ashtakavarga rule (26.41), vedha, dignity (26.31-32) and last the aspect. Where dignity has already decided the house, the aspect is not applied. Where a rule voids the ill of a house (26.31, 26.30 or 26.41), the danger reading of 26.33-34 is set aside with it; that too is a reading.",
   "Phaladeepika 26.41: a planet passing through a sign with more benefic dots in the Ashtakavarga gives good results always, even in the 12th, 6th or 8th. Here 'more' is read as five or more of eight in the planet's own Ashtakavarga, and the marks are those of the BPHS Ashtakavarga computed for the birth chart (Phaladeepika's own tables in ch. 23 are not checked against them); where the rule applies, the danger houses of 26.33-34 are set aside. All three choices are provisional. Rahu and Ketu have no Ashtakavarga of their own, so the rule does not apply to them.",
   "Saturn's passages carry the names practice gives them, which Brihat Samhita 104 and Phaladeepika 26 do not use; both read Saturn house by house (BS 104.39-45, PD 26.22-23). Usage varies by region: Kerala usage names the 12th, 1st and 2nd Ezhara Shani, the 4th and 10th (some add the 7th) Kandaka Shani and the 8th Ashtama Shani; Tamil usage names the 12th, 1st and 2nd Elarai Sani, the 4th Ardhashtama, the 7th Kandaka and the 8th Ashtama Sani; Hindi usage names the 12th, 1st and 2nd Sade Sati and the 4th and 8th the two Dhaiya periods (the small Panoti). Kantaka, 'thorn', is also Varahamihira's word for the kendras. The names are provisional and never change a colour.",

@@ -176,7 +176,7 @@ export const panchangaModule: ReportModule = {
             ? `vedha by ${r.vedhaBy.join(", ")}`
             : "";
         // The rules that changed the house verdict: 26.41 marks, dignity 26.31-32, aspect 26.30.
-        const notes = [...(plainVoid ? [] : [r.avNote?.text, r.dignityNote?.text, r.aspectNote?.text]), r.practiceName ? `name in practice (provisional): ${r.practiceName.text}` : undefined]
+        const notes = [...(plainVoid ? [] : [r.avNote?.text, r.dignityNote?.text, r.aspectNote?.text]), r.modifierConflict?.text, r.practiceName ? `name in practice (provisional): ${r.practiceName.text}` : undefined]
           .filter((t): t is string => !!t)
           .map((t) => ctx.S(t));
         return [
@@ -194,7 +194,7 @@ export const panchangaModule: ReportModule = {
           srcs.add(cites.add(r.effect.bs.source.label, r.effect.bs.source.url));
         if (r.effect.pd)
           srcs.add(cites.add(r.effect.pd.source.label, r.effect.pd.source.url));
-        for (const n of [r.avNote, r.dignityNote, r.aspectNote])
+        for (const n of [r.avNote, r.dignityNote, r.aspectNote, r.modifierConflict])
           for (const s of n?.sources ?? []) srcs.add(cites.add(s.label, s.url));
       }
       paras.push({

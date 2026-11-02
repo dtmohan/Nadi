@@ -39,6 +39,7 @@ import { computeSarvartha, SC_LIFESPAN_TOPICS } from "@shared/sarvartha";
 import { computeVargas } from "@shared/vargas";
 import { lagnaWindows } from "./lagna-windows";
 import { vimshottari } from "@shared/kp";
+import { vimshottariPathAt } from "@shared/vimshottari-depth";
 import type { DasaStartTransit } from "@shared/shadbala";
 import { JAIMINI_RULE_INFO } from "@shared/rules-jaimini";
 import JAIMINI_SUTRAS from "@shared/data/jaimini-sutras.json";
@@ -113,18 +114,21 @@ const opts0 = (chart: Chart): EphemerisOptions => ({
 });
 
 /** Sidereal position of each dasa lord at the start of its maha dasa (48.8). */
-function dasaStartTransits(
+export function dasaStartTransits(
   moonLon: number,
   birthIso: string,
   opts: EphemerisOptions,
 ): DasaStartTransit[] {
   const vim = vimshottari(moonLon, birthIso, birthIso);
-  return vim.dasas.map((d) => {
+  const birthMs = Date.parse(birthIso);
+  const firstStartMs = Math.ceil(vimshottariPathAt(moonLon, birthMs, birthMs, 1)[0].startMs);
+  return vim.dasas.map((d, index) => {
+    const actualStart = index === 0 ? new Date(firstStartMs).toISOString() : d.start;
     const p = positionsAt(
-      julianDay(DateTime.fromISO(d.start).toUTC()),
+      julianDay(DateTime.fromISO(actualStart).toUTC()),
       opts,
     ).find((x) => x.planet === d.lord)!;
-    return { lord: d.lord, start: d.start, lon: p.lon, signIndex: p.signIndex };
+    return { lord: d.lord, start: d.start, actualStart, lon: p.lon, signIndex: p.signIndex };
   });
 }
 

@@ -14,7 +14,6 @@ import type { Planet, PlanetPosition } from "./astro";
 import { houseFrom, SIGN_LORD } from "./astro";
 import { zodiacQuarter } from "./zodiac-quarter";
 import { drishtiQuarters, naturalBenefic } from "./parashari";
-import { toneOfText } from "./synthesis";
 import { redactProse } from "./life-stage";
 import type { PlanetStrength } from "./strength";
 import { ordH, thePlanet, withGloss } from "./house-gloss";
@@ -738,6 +737,21 @@ export const PRASNA_TRANSIT_EFFECTS: Partial<Record<Planet, string[]>> = {
 
 export type PrasnaTransitTone = "good" | "hard" | "neutral";
 
+/**
+ * Editorial tone of the individual 22.1-24 passages above, not a universal gochara table.
+ * Mixed or purely descriptive passages are neutral; in particular Mars 6 and Saturn 10
+ * contain both gain and loss. This is a presentation aid, not an event score.
+ */
+export const PRASNA_TRANSIT_TONES: Partial<Record<Planet, readonly PrasnaTransitTone[]>> = {
+  Sun:     ["hard", "hard", "good", "hard", "hard", "good", "hard", "hard", "hard", "good", "good", "hard"],
+  Moon:    ["good", "hard", "good", "hard", "hard", "good", "good", "hard", "hard", "good", "good", "hard"],
+  Mars:    ["hard", "hard", "good", "hard", "hard", "neutral", "hard", "hard", "hard", "good", "good", "hard"],
+  Mercury: ["hard", "good", "hard", "good", "hard", "good", "hard", "good", "hard", "good", "good", "hard"],
+  Jupiter: ["hard", "good", "hard", "hard", "good", "hard", "good", "hard", "good", "hard", "good", "hard"],
+  Venus:   ["good", "good", "good", "good", "good", "hard", "hard", "good", "good", "hard", "good", "good"],
+  Saturn:  ["hard", "hard", "good", "hard", "hard", "good", "neutral", "hard", "hard", "neutral", "good", "hard"],
+};
+
 export interface PrasnaTransit {
   planet: Planet;
   house: number; // from the natal Moon
@@ -757,21 +771,22 @@ export function computePrasnaTransits(
       const house = houseFrom(moonSignIndex, p.signIndex);
       // The sensitive-content gate (shared/life-stage.ts) strips child-loss and death statements
       // for a minor, matching the Overview's own Saturn transit.
-      const text = withhold
-        ? redactProse(PRASNA_TRANSIT_EFFECTS[p.planet]?.[house - 1] ?? "")
-        : PRASNA_TRANSIT_EFFECTS[p.planet]?.[house - 1] ?? "";
-      const t = toneOfText(text);
+      const original = PRASNA_TRANSIT_EFFECTS[p.planet]?.[house - 1] ?? "";
+      const text = withhold ? redactProse(original) : original;
+      // Do not let a colour reveal the tone of a sentence withheld or partially redacted for a minor.
+      const tone = text === original ? PRASNA_TRANSIT_TONES[p.planet]?.[house - 1] ?? "neutral" : "neutral";
       return {
         planet: p.planet,
         house,
         text,
-        tone: t === "good" ? "good" : t === "hard" ? "hard" : "neutral",
+        tone,
       };
     });
 }
 
 export const PRASNA_TRANSIT_NOTES = [
   "Effects of Transits, Prasna Marga Chapter XXII, condensed from Varahamihira's Brihat Samhita (22.1). Counted from the natal Moon.",
+  "Colours are editorial summaries of these passages, not a universal favourable-house table; mixed or descriptive wording is left neutral. They are not event scores.",
   "The Sun and Mars give their effects at the beginning of the sign; Jupiter and Venus in the middle; the Moon and Saturn in the last part; Mercury throughout (22.26).",
   "Unfavourable planets aspected by benefics are not fully evil, and favourable planets aspected by malefics do not give full good (22.26 notes).",
 ];
@@ -1406,7 +1421,8 @@ export function computeFructificationTiming(
 // Vedha and Vipareeta-vedha (Ch. XXII, stanzas 34-53): a planet transiting a favourable (Vedhya)
 // position from the natal Moon has its good nullified when another planet occupies the Vedha
 // (obstruction) sign; a planet in an unfavourable place, counter-afflicted from its own Vedha,
-// does good instead (22.35, 22.53). The pairs follow 22.46-51, and the exempt pairs 22.52
+// gives relief (22.35; 22.53 is stronger). The default uses the Moon pairs from 22.38 and
+// the other pairs from 22.46-51. Venus 22.42 is a separate selectable variant. Exempt pairs 22.52
 // (Saturn does not vedha the Sun, nor the Sun Saturn; the Moon and Mercury are not mutually
 // afflictive).
 
@@ -1420,6 +1436,22 @@ export const PRASNA_VEDHA: Partial<Record<Planet, Array<[number, number]>>> = {
   Saturn: [[3, 12], [6, 9], [11, 5]],
   Rahu: [[3, 12], [6, 9], [11, 5]],
   Ketu: [[3, 12], [6, 9], [11, 5]],
+};
+
+/** Venus pairs printed in the earlier passage, kept separate from 22.50. */
+export const PRASNA_VENUS_VEDHA_22_42: Array<[number, number]> = [
+  [1, 8], [2, 7], [3, 1], [4, 10], [5, 9], [8, 5], [9, 11], [12, 6], [11, 3],
+];
+export type PrasnaVenusVedhaVariant = "22.50" | "22.42";
+export interface PrasnaVedhaOptions { venusVariant?: PrasnaVenusVedhaVariant }
+const prasnaVedhaTable = (planet: Planet, options: PrasnaVedhaOptions) =>
+  planet === "Venus" && options.venusVariant === "22.42" ? PRASNA_VENUS_VEDHA_22_42 : PRASNA_VEDHA[planet];
+
+// 22.36 describes additional Sripati favourable houses. Conservatively do not label these
+// as adverse for a reverse Vedha just because the selected pair table does not contain them.
+const SRIPATI_FAVOURABLE: Partial<Record<Planet, readonly number[]>> = {
+  Sun: [3, 6, 10, 11], Mars: [1, 3, 6, 7, 10, 11], Mercury: [2, 4, 6, 8, 10, 11],
+  Jupiter: [2, 5, 7, 9, 11], Venus: [1, 2, 3, 4, 5, 8, 9, 11, 12], Saturn: [3, 6, 11],
 };
 
 const VEDHA_EXEMPT: Array<[Planet, Planet]> = [
@@ -1438,22 +1470,48 @@ export interface PrasnaVedhaAffliction {
 export function computePrasnaVedha(
   positions: PlanetPosition[],
   moonSignIndex: number,
+  options: PrasnaVedhaOptions = {},
 ): PrasnaVedhaAffliction[] {
   const houseOf = (p: PlanetPosition) => houseFrom(moonSignIndex, p.signIndex);
   const exempt = (a: Planet, b: Planet) =>
     VEDHA_EXEMPT.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
   const out: PrasnaVedhaAffliction[] = [];
   for (const p of positions) {
-    const table = PRASNA_VEDHA[p.planet];
+    const table = prasnaVedhaTable(p.planet, options);
     if (!table) continue;
     const h = houseOf(p);
-    const entry = table.find(([vedhya]) => vedhya === h);
-    if (!entry) continue;
-    const vedhaHouse = entry[1];
-    const obstructor = positions.find(
-      (q) => q.planet !== p.planet && !exempt(p.planet, q.planet) && houseOf(q) === vedhaHouse,
-    );
-    if (obstructor) out.push({ planet: p.planet, house: h, vedhaHouse, obstructor: obstructor.planet });
+    for (const [, vedhaHouse] of table.filter(([vedhya]) => vedhya === h)) {
+      for (const obstructor of positions.filter(
+        (q) => q.planet !== p.planet && !exempt(p.planet, q.planet) && houseOf(q) === vedhaHouse,
+      )) out.push({ planet: p.planet, house: h, vedhaHouse, obstructor: obstructor.planet });
+    }
+  }
+  return out;
+}
+
+export interface PrasnaVipareetaVedha {
+  planet: Planet;
+  house: number; // the planet's adverse Vedha position
+  vedhyaHouse: number; // its paired favourable place
+  counterObstructor: Planet;
+}
+
+/** Reverse pairs are a qualified separate clue; neither a forecast nor a change to event scores. */
+export function computePrasnaVipareetaVedha(
+  positions: PlanetPosition[], moonSignIndex: number, options: PrasnaVedhaOptions = {},
+): PrasnaVipareetaVedha[] {
+  const houseOf = (p: PlanetPosition) => houseFrom(moonSignIndex, p.signIndex);
+  const exempt = (a: Planet, b: Planet) => VEDHA_EXEMPT.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
+  const out: PrasnaVipareetaVedha[] = [];
+  for (const p of positions) {
+    const table = prasnaVedhaTable(p.planet, options);
+    if (!table) continue;
+    const h = houseOf(p);
+    if (table.some(([vedhya]) => vedhya === h) || SRIPATI_FAVOURABLE[p.planet]?.includes(h)) continue;
+    for (const [vedhyaHouse] of table.filter(([, vedha]) => vedha === h)) {
+      for (const q of positions.filter((other) => other.planet !== p.planet && !exempt(p.planet, other.planet) && houseOf(other) === vedhyaHouse))
+        out.push({ planet: p.planet, house: h, vedhyaHouse, counterObstructor: q.planet });
+    }
   }
   return out;
 }

@@ -373,6 +373,7 @@ export function OverviewPanel({
         brief={brief}
         plain={plain}
         onOpen={openLink}
+        moonWeather={deceased ? undefined : { Jupiter: jupRow, Saturn: satRow }}
         heading={deceased ? t("At passing") : pastEnd ? t("Past the periods") : t("Now and next")}
       >
         <div className="mt-4 border-t pt-3" data-testid="overview-from-moon">
@@ -445,6 +446,11 @@ export function OverviewPanel({
                         )}
                       </p>
                     )
+                  )}
+                  {r!.modifierConflict && (
+                    <p className="mt-1.5 text-muted-foreground" data-testid={`overview-weather-conflict-${r!.planet}`}>
+                      {r!.modifierConflict.text}
+                    </p>
                   )}
                 </li>
               ))}

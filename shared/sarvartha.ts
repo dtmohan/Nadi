@@ -8,6 +8,7 @@
 import { SIGN_LORD, houseFrom, drishtiQuarters, naturalBenefic, type Dignity, type Planet, type PlanetPosition } from "./astro";
 import { parashariCombust, type VargasResult } from "./vargas";
 import { sensitiveTags, withholdText } from "./life-stage";
+import { bphsDignityContext } from "./planet-dignity";
 
 /** Ch. 1.25-27: the good-varga count earns a named amsha. Mirrors the app's BPHS varga designation. */
 export const SC_AMSHA_TIERS: Array<{ good: number; name: string; bpbsName: string }> = [
@@ -223,7 +224,7 @@ export const SC_BHAVA_RULES: ScHouseRules[] = [
       { stanza: 36, topic: "mathematics", when: "Mars is in the 2nd with the Moon, aspected by Mercury, or Mercury is in a kendra", then: "understands mathematics" },
       { stanza: 37, topic: "mathematics", when: "Mercury is 2nd lord exalted, Jupiter in the lagna and Saturn in the 8th", then: "a mathematician" },
       { stanza: 39, topic: "astrology", when: "the 2nd lord is the Sun or Mars, aspected by Jupiter and Venus, and Mercury is in Paravatamsha", then: "knows the rationale of astrology" },
-      { stanza: 40, topic: "logic", when: "the 2nd lord is Jupiter or Venus, aspected by the Sun and Mars, in moolatrikona or exaltation", then: "foremost among knowers of the science of logic" },
+      { stanza: 40, topic: "logic", when: "the 2nd lord is Jupiter or Venus, aspected by the Sun and Mars, in exaltation or the BPHS degree range for moolatrikona", then: "foremost among knowers of the science of logic" },
       { stanza: 41, topic: "grammar", when: "Jupiter as 2nd lord is strong under aspect of the Sun and Venus", then: "a grammarian" },
       { stanza: 42, topic: "vedanta", when: "Mercury is 2nd lord exalted, Saturn in Gopuramsha and Jupiter in Simhasanamsha", then: "knows Vedanta shastra" },
       { stanza: 50, topic: "wealth", when: "natural benefics are in the 1st, 2nd and 7th, exalted or friendly or in benefic navamsa, in Vaisheshika, aspected by the 2nd lord's navamsa dispositor", then: "much wealth in childhood" },
@@ -661,12 +662,12 @@ export interface SarvarthaResult {
 }
 
 /**
- * Rules whose condition rests on the app's own reading rather than the text's letter: the Amsha
- * tiers are the same varga classification as Parashara 6.42-53 with different names, so they are
- * provisional, not cited.
+ * Rules whose conditions use the app's interpretations or approximations are provisional. These
+ * include Amsha tiers mapped to Parashara's varga classifications, adopted degree ranges and aspect
+ * conventions, and sign dignity plus combustion as a proxy for a text's unspecified full strength.
  */
 const SC_RULE_FIDELITY: Record<string, FidelityTier> = {
-  "2.18": "provisional", "2.21": "provisional", "2.22": "provisional", "2.24": "provisional", "2.53": "provisional",
+  "2.18": "provisional", "2.21": "provisional", "2.22": "provisional", "2.24": "provisional", "2.36": "provisional", "2.40": "provisional", "2.41": "provisional", "2.53": "provisional",
   "3.19": "provisional", "3.23": "provisional", "3.38": "provisional",
   "4.56": "provisional", "4.60": "provisional", "4.61": "provisional", "4.82": "provisional", "4.89": "provisional", "4.144": "provisional", "4.171": "provisional",
   "5.7": "provisional", "5.19": "provisional", "5.21": "provisional", "5.52": "provisional", "5.54": "provisional",
@@ -719,10 +720,13 @@ export interface SarvarthaContext {
   lordOf(h: number): Planet;
   lordHouse(h: number): number;
   lordDignity(h: number): Dignity;
+  /** BPHS 3.49-54 degree range, not the legacy whole-sign dignity label. */
+  lordMoolatrikona(h: number): boolean;
   /** Whether the lord of house h is a natural benefic. */
   lordNature(h: number): boolean;
   lordWith(h: number, kind: "benefic" | "malefic" | Planet): boolean;
   lordAspected(h: number, kind: "benefic" | "malefic" | Planet): boolean;
+  houseAspected(h: number, kind: "benefic" | "malefic" | Planet): boolean;
   houseHas(h: number, kind: "benefic" | "malefic" | Planet): boolean;
   isKendra(h: number): boolean;
   isTrine(h: number): boolean;
@@ -733,7 +737,7 @@ export interface SarvarthaContext {
   moonWeak: boolean;
   /** The named Amsha tier (ch. 1.25-27) a planet's ten-fold good-varga count earns, or null. */
   amsa(p: Planet): string | null;
-  /** The planets behind lordWith, lordAspected and houseHas, for saying which chart facts a rule used. */
+  /** The planets behind conjunction, aspect and occupancy checks, for explaining chart facts. */
   detail?: ScDetail;
 }
 
@@ -742,6 +746,7 @@ type ScKind = "benefic" | "malefic" | Planet;
 export interface ScDetail {
   lordWith(h: number, kind: ScKind): Planet[];
   lordAspectedBy(h: number, kind: ScKind): Planet[];
+  houseAspectedBy(h: number, kind: ScKind): Planet[];
   inHouse(h: number, kind: ScKind): Planet[];
 }
 
@@ -779,12 +784,19 @@ export function buildSarvarthaContext(positions: PlanetPosition[], lagnaLon: num
       .filter((p) => p.signIndex !== lp.signIndex && drishtiQuarters(p.planet, p.signIndex, lp.signIndex) >= 1 && matches(p, kind))
       .map((p) => p.planet);
   };
+  const houseAspList = (h: number, kind: ScKind): Planet[] => {
+    const sign = (lagnaSign + h - 1) % 12;
+    return positions
+      .filter((p) => p.signIndex !== sign && drishtiQuarters(p.planet, p.signIndex, sign) >= 1 && matches(p, kind))
+      .map((p) => p.planet);
+  };
   const inList = (h: number, kind: ScKind): Planet[] => {
     const s = (lagnaSign + h - 1) % 12;
     return positions.filter((p) => p.signIndex === s && matches(p, kind)).map((p) => p.planet);
   };
   const lordWith = (h: number, kind: ScKind): boolean => withList(h, kind).length > 0;
   const lordAspected = (h: number, kind: ScKind): boolean => aspList(h, kind).length > 0;
+  const houseAspected = (h: number, kind: ScKind): boolean => houseAspList(h, kind).length > 0;
   const houseHas = (h: number, kind: ScKind): boolean => inList(h, kind).length > 0;
   const isKendra = (h: number) => [1, 4, 7, 10].includes(h);
   const isTrine = (h: number) => [1, 5, 9].includes(h);
@@ -801,9 +813,14 @@ export function buildSarvarthaContext(positions: PlanetPosition[], lagnaLon: num
   const moonStrong = moonElongation > 72;
   return {
     positions, lagnaSign, houseOf, lordOf, lordHouse, lordNature: (h) => isBenefic(lordPos(h)),
-    lordDignity: (h) => lordPos(h).dignity, lordWith, lordAspected, houseHas, isKendra, isTrine, isBad,
+    lordDignity: (h) => lordPos(h).dignity,
+    lordMoolatrikona: (h) => {
+      const p = lordPos(h);
+      return bphsDignityContext(p.planet, p.signIndex, p.degInSign)?.moolatrikona ?? false;
+    },
+    lordWith, lordAspected, houseAspected, houseHas, isKendra, isTrine, isBad,
     strong, combust, moonStrong, moonWeak, amsa,
-    detail: { lordWith: withList, lordAspectedBy: aspList, inHouse: inList },
+    detail: { lordWith: withList, lordAspectedBy: aspList, houseAspectedBy: houseAspList, inHouse: inList },
   };
 }
 
@@ -837,9 +854,11 @@ function tracedContext(ctx: SarvarthaContext, flip?: string): { t: SarvarthaCont
     houseOf: wrap("houseOf", ctx.houseOf),
     lordHouse: wrap("lordHouse", ctx.lordHouse),
     lordDignity: wrap("lordDignity", ctx.lordDignity),
+    lordMoolatrikona: wrap("lordMoolatrikona", ctx.lordMoolatrikona),
     lordNature: wrap("lordNature", ctx.lordNature),
     lordWith: wrap("lordWith", ctx.lordWith),
     lordAspected: wrap("lordAspected", ctx.lordAspected),
+    houseAspected: wrap("houseAspected", ctx.houseAspected),
     houseHas: wrap("houseHas", ctx.houseHas),
     strong: wrap("strong", ctx.strong),
     combust: wrap("combust", ctx.combust),
@@ -901,6 +920,8 @@ function describeCall(c: ScCall, ctx: SarvarthaContext): { tech: string; plain: 
       if (!DIGNITY_TECH[g]) return null;
       return { tech: `${lordT} ${DIGNITY_TECH[g]}`, plain: `${lordP} is ${DIGNITY_PLAIN[g]}` };
     }
+    case "lordMoolatrikona":
+      return c.result ? { tech: `${lordT} in the BPHS moolatrikona degree range`, plain: `${lordP} is in the BPHS moolatrikona degree range` } : null;
     case "lordNature":
       return c.result
         ? { tech: `${lordT} benefic`, plain: `${lordP} is a benefic` }
@@ -916,6 +937,12 @@ function describeCall(c: ScCall, ctx: SarvarthaContext): { tech: string; plain: 
       if (!c.result) return { tech: `${lordT} unaspected by a ${kindNone(kind, false)}`, plain: `no ${kindNone(kind, true)} looks at ${lordP.replace(/,$/, "")}` };
       const list = d?.lordAspectedBy(h, kind) ?? [];
       return { tech: `${lordT} aspected by ${kindTech(list, kind)}`, plain: `${lordP} is looked at by ${kindPlain(list, kind)}` };
+    }
+    case "houseAspected": {
+      const kind = b as ScKind;
+      if (!c.result) return { tech: `${ordS(h)} unaspected by a ${kindNone(kind, false)}`, plain: `no ${kindNone(kind, true)} looks at the ${ordS(h)} house` };
+      const list = d?.houseAspectedBy(h, kind) ?? [];
+      return { tech: `${ordS(h)} aspected by ${kindTech(list, kind)}`, plain: `the ${ordS(h)} house is looked at by ${kindPlain(list, kind)}` };
     }
     case "houseHas": {
       const kind = b as ScKind;
@@ -985,10 +1012,15 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "2.15": (c) => !c.lordNature(2) && c.lordWith(2, "malefic"),
   "2.25": (c) => c.isKendra(c.lordHouse(2)) && c.lordAspected(2, "benefic"),
   "2.27": (c) => c.houseHas(2, "malefic") && (c.lordWith(2, "malefic") || c.lordDignity(2) === "Debilitated"),
-  "2.29": (c) => c.lordWith(2, "benefic") && (c.isKendra(c.lordHouse(2)) || c.isTrine(c.lordHouse(2))),
-  "2.36": (c) => c.houseHas(2, "Mars"),
-  "2.40": (c) => (c.lordOf(2) === "Jupiter" || c.lordOf(2) === "Venus") && (c.lordDignity(2) === "Exalted" || c.lordDignity(2) === "Moolatrikona"),
-  "2.41": (c) => c.lordOf(2) === "Jupiter" && c.strong(c.lordOf(2)),
+  // 3.29 is kept in the reference catalogue, but not fired: its exaltation, aspect and male-planet
+  // clauses and their alternatives need a source-level interpretation before a full test is safe.
+  "2.36": (c) => (c.houseHas(2, "Mars") && c.houseHas(2, "Moon") && c.houseAspected(2, "Mercury"))
+    || c.isKendra(c.houseOf("Mercury")),
+  "2.40": (c) => (c.lordOf(2) === "Jupiter" || c.lordOf(2) === "Venus")
+    && (c.lordDignity(2) === "Exalted" || c.lordMoolatrikona(2))
+    && c.lordAspected(2, "Sun") && c.lordAspected(2, "Mars"),
+  "2.41": (c) => c.lordOf(2) === "Jupiter" && c.strong(c.lordOf(2))
+    && c.lordAspected(2, "Sun") && c.lordAspected(2, "Venus"),
   "2.54": (c) => c.lordHouse(1) === 2 && c.lordHouse(2) === 11 && c.lordHouse(11) === 1,
   "2.88": (c) => c.isKendra(c.lordHouse(1)) && c.isKendra(c.lordHouse(2)),
   "2.109": (c) => c.houseHas(2, "malefic") && c.lordHouse(1) === 12,

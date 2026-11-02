@@ -88,7 +88,10 @@ export interface IshtaKashta {
 /** Position of a dasa lord when its maha dasa begins, for 48.8; computed on the server. */
 export interface DasaStartTransit {
   lord: Planet;
+  /** Displayed period start (the first is clipped to birth). */
   start: string;
+  /** True, unclipped start used to calculate the transit, including for the first period. */
+  actualStart?: string;
   lon: number;
   signIndex: number;
 }

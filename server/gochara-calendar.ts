@@ -3,7 +3,7 @@
  * Moon stays the same, with the change instants narrowed to the hour. Rules are the day-view rules
  * in shared/gochara.ts (Brihat Samhita 104, Phaladeepika 26); this file only walks them over time.
  */
-import { computeGochara, type GocharaRow, type OwnMarks } from "@shared/gochara";
+import { computeGochara, gocharaPlainEffect, type GocharaRow, type OwnMarks } from "@shared/gochara";
 import { CALENDAR_PLANETS, GOCHARA_CALENDAR_NOTES, SATURN_NAMED_HOUSES, type GocharaCalendar, type GocharaPlanetCalendar, type GocharaSegment, type SaturnPassage } from "@shared/gochara-calendar";
 import type { Planet, PlanetPosition } from "@shared/astro";
 import { sensitiveGate } from "@shared/life-stage";
@@ -39,7 +39,7 @@ function rowsAt(jd: number, moonSign: number, opts: EphemerisOptions, ownMarks?:
   const out = new Map<Planet, State>();
   for (const row of reading.rows) {
     if (!CALENDAR_PLANETS.includes(row.planet)) continue;
-    const key = `${row.signIndex}|${row.verdict}|${row.vedhaBy.join(",")}|${row.dignityNote?.text ?? ""}|${row.aspectNote?.text ?? ""}|${row.avNote ? "av" : ""}`;
+    const key = `${row.signIndex}|${row.verdict}|${row.vedhaBy.join(",")}|${row.dignityNote?.text ?? ""}|${row.aspectNote?.text ?? ""}|${row.modifierConflict?.text ?? ""}|${row.avNote ? "av" : ""}`;
     out.set(row.planet, { row, key });
   }
   return out;
@@ -51,8 +51,9 @@ function toSegment(row: GocharaRow, start: number, end: number, positions: Plane
   const danger = !row.danger ? undefined : row.danger.source.label.endsWith("26.33") ? "33" : "34";
   // Compact reasons for the calendar; the aspecting planets are pooled across merged stretches in `aspectBy`.
   const note = [
-    row.avNote ? `${row.avMarks} of 8 own Ashtakavarga marks make the house good (26.41).` : undefined,
+    row.voided === "both" ? gocharaPlainEffect(row) : row.avNote ? `${row.avMarks} of 8 own Ashtakavarga marks make the house good (26.41).` : undefined,
     row.dignityNote && row.verdict === "neutral" ? row.dignityNote.text : undefined,
+    row.modifierConflict?.text,
   ]
     .filter(Boolean)
     .join(" ");

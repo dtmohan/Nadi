@@ -20,7 +20,7 @@
  *   clause fires most months through the Moon alone.
  * - 20.36 with 20.60-61: the Moon today counted from the dasa lord's transit position (vedicpupil's reading of
  *   20.60), judged by the list 20.36 and 20.61 share. Wisdomlib counts the dasa lord's house from the natal Moon,
- *   which needs Phaladeepika 26.2's table (Panchanga code): that count is shown without a verdict.
+ *   which can be compared separately with Phaladeepika 26.2's basic table. It does not change the 20.36 tone.
  *
  * Natural relations by BPHS 3.55 (shared/astro.ts); combustion by the Surya Siddhanta distances (shared/combustion.ts),
  * as in the transit calendar. The nodes are not graded by 20.34, 20.35, 20.37 or 20.38: they have no sign tables in
@@ -44,6 +44,7 @@ import {
 import { SS_COMBUST_ORB, SS_ORB_CITE, type CombustPlanet } from "./combustion";
 import { HOUSE_AREAS_PLAIN, listJoin, ordH, thePlanet } from "./house-gloss";
 import { AREA_ONSET, HOUSE_AREA, heldAreasAt } from "./life-stage";
+import { periodLordMoonHouse, type PeriodLordMoonHouse } from "./transit-context";
 
 export const PHALADIPIKA_CH20_VEDICPUPIL_URL = "https://vedicpupil.in/library/books/phaladipika/chapter-20";
 
@@ -704,6 +705,7 @@ export interface MoonToday {
   line: string;
   /** Practitioner detail; undefined in the plain view. */
   detail?: string;
+  fromNatalMoon?: PeriodLordMoonHouse;
 }
 
 /**
@@ -748,7 +750,7 @@ export function moonFromDasaLord(dasaLord: Planet, now: PlanetPosition[], natal:
           : tone === "open"
             ? `The Moon runs the main period itself, so this day reading only marks the days it passes ${listJoin(selfSigns.map(String)).replace(/ and /, " or ")}, which the text calls helpful (Phaladeepika 20.36). Today it is in ${sign}.`
             : `Today the Moon is ${ordH(count)} from ${dl}, the main-period planet: a day to go gently (Phaladeepika 20.36).`;
-    return { tone, what: "The Moon today", line };
+    return { tone, what: "The Moon today", line, fromNatalMoon: periodLordMoonHouse(dasaLord, natalMoon.signIndex, now) };
   }
   const signWhy = exalt ? `${dasaLord}'s exaltation sign` : friend ? `the sign of ${dasaLord}'s friend ${signLord}` : "";
   const vp = "20.60 as vedicpupil reads it";
@@ -760,17 +762,13 @@ export function moonFromDasaLord(dasaLord: Planet, now: PlanetPosition[], natal:
         : tone === "open"
           ? `Moon dasa: the count from the dasa lord cannot be read. The Moon in ${sign} is in neither its exaltation nor a friend's sign (${selfSigns.join(", ")} would be), so 20.36 gives no reading today.`
           : `Moon in ${sign}, ${ordH(count)} from ${dasaLord} in transit (${lordSign}), in neither ${dasaLord}'s exaltation nor a friend's sign: trouble (20.36; ${vp}).`;
-  const fromNatal = ((lord.signIndex - natalMoon.signIndex + 12) % 12) + 1;
   const detail = [
     `Now: the Moon ${fmtDegShort(moon.lon)} ${sign}, ${dl} ${fmtDegShort(lord.lon)} ${lordSign}${lord.retrograde && !node ? " retrograde" : ""}.`,
     node ? "The nodes have no exaltation or friendship tables in the app's Parashari readings, so only the count is read." : "",
-    self
-      ? ""
-      : `Wisdomlib's 20.60 counts the other way, the dasa lord's house from the Moon: ${dl} is ${ordH(fromNatal)} from the natal Moon (${SIGNS[natalMoon.signIndex]}). That count needs Phaladeepika 26.2's table, which the Panchanga tab uses, and is not judged here.`,
   ]
     .filter(Boolean)
     .join(" ");
-  return { tone, what: "Moon from the dasa lord", line, detail };
+  return { tone, what: "Moon from the dasa lord", line, detail, fromNatalMoon: periodLordMoonHouse(dasaLord, natalMoon.signIndex, now) };
 }
 
 // ---------------------------------------------------------------------------------------------------------------

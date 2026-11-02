@@ -18,6 +18,7 @@ import {
   computePrasnaFructification,
   computePrasnaTransits,
   computePrasnaVedha,
+  computePrasnaVipareetaVedha,
   computeProgeny,
   computeSantanaTrisphuta,
   computeSphutas,
@@ -40,6 +41,7 @@ import {
   type PrasnaSphutaVerdict,
   type PrasnaSphutas,
   type RasiVerdict,
+  type PrasnaVenusVedhaVariant,
 } from "@shared/rules-prasna";
 import { PlanetName } from "@/components/planet-name";
 import { SouthIndianChart } from "@/components/south-indian-chart";
@@ -272,6 +274,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
   } | null>(null);
   const [observedHeaps, setObservedHeaps] = useState<[string, string, string]>(["", "", ""]);
   const [question, setQuestion] = useState("");
+  const [venusVedhaVariant, setVenusVedhaVariant] = useState<PrasnaVenusVedhaVariant>("22.50");
 
   const observedCounts = observedHeaps.map((value) => /^\d+$/.test(value) ? Number(value) : NaN);
   const validObservedHeaps = observedCounts.every((count) => Number.isSafeInteger(count) && count > 0)
@@ -323,8 +326,12 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
     [natalMoon.signIndex, now.positions, withheld],
   );
   const vedha = useMemo(
-    () => computePrasnaVedha(now.positions, natalMoon.signIndex),
-    [now.positions, natalMoon.signIndex],
+    () => computePrasnaVedha(now.positions, natalMoon.signIndex, { venusVariant: venusVedhaVariant }),
+    [now.positions, natalMoon.signIndex, venusVedhaVariant],
+  );
+  const vipareetaVedha = useMemo(
+    () => computePrasnaVipareetaVedha(now.positions, natalMoon.signIndex, { venusVariant: venusVedhaVariant }),
+    [now.positions, natalMoon.signIndex, venusVedhaVariant],
   );
   const gulika = useMemo(
     () =>
@@ -800,6 +807,15 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
             <li key={i}>{n}</li>
           ))}
         </ul>
+        <label className="mt-3 flex flex-wrap items-center gap-2 text-xs" htmlFor="prasna-venus-vedha-variant">
+          Venus Vedha source
+          <select id="prasna-venus-vedha-variant" className="rounded border bg-background px-2 py-1" value={venusVedhaVariant}
+            onChange={(e) => setVenusVedhaVariant(e.target.value as PrasnaVenusVedhaVariant)}>
+            <option value="22.50">Prasna Marga 22.50</option>
+            <option value="22.42">Prasna Marga 22.42</option>
+          </select>
+        </label>
+        <p className="mt-1 text-2xs text-muted-foreground">These passages list different Venus pairs. The Moon pairs follow 22.38; the other default pairs follow 22.46–51. The checks are context, not event scores.</p>
         {vedha.length > 0 && (
           <p
             className="mt-2 rounded-md border border-verdict-mixed/40 bg-verdict-mixed/[0.06] p-2 text-xs"
@@ -813,6 +829,13 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
               )
               .join("; ")}
             .
+          </p>
+        )}
+        {vipareetaVedha.length > 0 && (
+          <p className="mt-2 rounded-md border border-verdict-mixed/40 bg-verdict-mixed/[0.06] p-2 text-xs" data-testid="prasna-vipareeta-vedha">
+            Vipareeta Vedha (22.35, 22.53):{" "}
+            {vipareetaVedha.map((v) => `${v.planet} in the ${ord(v.house)} has a counter-affliction from ${v.counterObstructor} in the paired ${ord(v.vedhyaHouse)}`).join("; ")}.
+            This is a possible mitigating indication, not a guarantee of an outcome.
           </p>
         )}
       </div>

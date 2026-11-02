@@ -1656,7 +1656,7 @@ export function computeDasaReadings(
         id: `${p}-48-transit`,
         layer: "general",
         tone: good ? "support" : bad ? "strain" : "mixed",
-        text: `When this dasa begins ${p} transits ${SIGNS[tr.signIndex]}, the ${ord(th)} house from the natal lagna: ${good ? "an auspicious house (angle or trine), so Parashara expects favourable results from the period" : bad ? "the 6th, 8th or 12th, which he says yields only adverse results in the dasa" : "neither an angle or trine nor the 6th, 8th or 12th; the verse names only those, so the transit is read as neutral"}. He asks that birth placement and this transit both be weighed.`,
+        text: `When this dasa begins${tr.actualStart && Date.parse(tr.actualStart) < Date.parse(birthIso) ? ` before birth (${tr.actualStart})` : ""}, ${p} transits ${SIGNS[tr.signIndex]}, the ${ord(th)} house from the natal lagna: ${good ? "an auspicious house (angle or trine), so Parashara expects favourable results from the period" : bad ? "the 6th, 8th or 12th, which he says yields only adverse results in the dasa" : "neither an angle or trine nor the 6th, 8th or 12th; the verse names only those, so the transit is read as neutral"}. He asks that birth placement and this transit both be weighed.`,
         source: S(48, "8", !good && !bad),
       });
       // 66.70-72 and 72.5: the same transit sign read by the lord's own Ashtakavarga and by the aggregate.

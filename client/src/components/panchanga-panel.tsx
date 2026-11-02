@@ -401,6 +401,12 @@ function GocharaRowView({ r }: { r: GocharaRow }) {
           ))}
         </p>
       )}
+      {r.modifierConflict && (
+        <p className="mt-1 text-xs text-verdict-mixed" data-testid={`gochara-conflict-${r.planet}`}>
+          {r.modifierConflict.text}{" "}
+          {r.modifierConflict.sources.map((s, i) => <span key={i} className="text-2xs text-muted-foreground">{i > 0 && ", "}<SourceLink source={s} /></span>)}
+        </p>
+      )}
       {r.practiceName && (
         <p
           className="mt-1 text-xs text-muted-foreground"

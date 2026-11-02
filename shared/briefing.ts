@@ -20,6 +20,7 @@ import { heldAreasAt, lifeAsOf, redactSensitive } from "./life-stage";
 import { DEFAULT_ASPECT_FLOOR } from "./parashari";
 import { dasaCombinations, timingNow, levelName, type DasaCombinations, type TimingChange, type TimingNow } from "./timing-now";
 import { moonFromDasaLord } from "./period-lord-transits";
+import { periodLordMoonHouseText } from "./transit-context";
 import { computeSudarshana } from "./sudarshana";
 import { computeAvTimeline, type AvTimeline, type AvTransitRow } from "./av-transit";
 import { topicPeriods, type PeriodTopic } from "./parashari-topic-periods";
@@ -546,8 +547,8 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
         when: day(asOf, zone),
         system: "Parashari",
         what: t.what,
-        line: t.line,
-        detail: plain ? undefined : t.detail,
+        line: [t.line, plain && t.fromNatalMoon ? periodLordMoonHouseText(t.fromNatalMoon, true) : undefined].filter(Boolean).join(" "),
+        detail: plain ? undefined : [t.detail, t.fromNatalMoon ? periodLordMoonHouseText(t.fromNatalMoon) : undefined].filter(Boolean).join(" ") || undefined,
         tags: [],
         link: periodLink,
       });

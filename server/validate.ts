@@ -528,7 +528,8 @@ export function validateEvents(chart: InsertChart, asOf = DateTime.utc().toISO()
       houses,
       cusp: m.cusp,
       // Descriptive only, computed for the exact event instant and the first sampled comparison set.
-      moonTransit: includeEvidence ? moonTransitContext(natalMoonJ, Math.floor(lagnaJ / 30), dayJ, evIso, ownMarks) : undefined,
+      moonTransit: includeEvidence ? moonTransitContext(natalMoonJ, Math.floor(lagnaJ / 30), dayJ, evIso, ownMarks,
+        vimshottariLordsAt(natalMoonJ.lon, birthIso, evIso)[0]) : undefined,
       parashariVargas: parashari.varga,
       parashariOrdinary: parashari.ordinary,
       additionalNatal,

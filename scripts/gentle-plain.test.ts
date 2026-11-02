@@ -277,6 +277,9 @@ test("a transit house a rule voids gives the rule, not the voided text (Phaladee
     } else if (row.voided === "good") {
       assert.notEqual(row.verdict, "favourable", row.planet);
       assert.match(plain, /^The usual good of this house is held back/, row.planet);
+    } else if (row.voided === "both") {
+      assert.equal(row.verdict, "neutral", row.planet);
+      assert.match(plain, /marks ease.*while.*holds back/i, row.planet);
     } else {
       assert.equal(plain, [row.effect.bs?.text, row.effect.pd?.text].filter(Boolean).join("; "), row.planet);
     }

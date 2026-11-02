@@ -22,12 +22,14 @@ const PILL: Record<KinVerdict, string> = {
   distress: "bg-verdict-bad/10 text-verdict-bad",
   lean: "bg-muted text-muted-foreground",
   even: "bg-verdict-mixed/15 text-verdict-mixed",
+  ungraded: "bg-muted text-muted-foreground",
 };
 const BORDER: Record<KinVerdict, string> = {
   favourable: "border-l-verdict-good/70",
   distress: "border-l-verdict-bad/70",
   lean: "border-l-border",
   even: "border-l-verdict-mixed/70",
+  ungraded: "border-l-border",
 };
 const TONE_PILL = {
   support: PILL.favourable,
@@ -123,9 +125,8 @@ export function KinTransitsSection({ k }: { k: KinTransitsReading }) {
       <ModeText
         plain={
           <>
-            Each planet has its own points table. When Mars passes through signs
-            where it holds many points, brothers, courage and property prosper,
-            and where it holds none they suffer; Mercury's passages through its
+            Each planet has its own points table. Mars's passages show the points
+            remaining after reduction without a numerical verdict; Mercury's passages through its
             high-point signs favour family, mother's relatives and friends;
             Venus's passages through its high-point signs favour money, land,
             happiness and marriage. Saturn's testing passages are in the
@@ -135,8 +136,8 @@ export function KinTransitsSection({ k }: { k: KinTransitsReading }) {
         practitioner={
           <>
             Chapter 70 reads brothers, valour and land from Mars' passage
-            through signs rich in rekhas in Mars' own chart, with distress to
-            brothers where it has none{" "}
+            through signs rich in rekhas in Mars' own chart after Trikona reduction;
+            the app shows the counts without assigning a numerical cutoff{" "}
             <SourceLink source={k.sources.brothers} />; happiness to family,
             maternal uncle and friends from Mercury's passage through its
             rekha-rich signs <SourceLink source={k.sources.family} />; and gain

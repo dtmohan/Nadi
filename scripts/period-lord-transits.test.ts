@@ -153,8 +153,7 @@ test("20.36 with 20.60-61: the Moon is counted from the dasa lord's position in 
   assert.doesNotMatch(second.line, /trouble/i);
   const secondP = moonFromDasaLord("Jupiter", [P("Jupiter", 10), P("Moon", 40)], natal, false)!;
   assert.match(secondP.line, /trouble \(20\.36; 20\.60 as vedicpupil reads it\)/);
-  assert.match(secondP.detail ?? "", /Wisdomlib's 20\.60 counts the other way/);
-  assert.match(secondP.detail ?? "", /not judged here/);
+  assert.deepEqual(secondP.fromNatalMoon, { lord: "Jupiter", house: 12, favourableByHouse: false });
 
   // The 1st from the lord: 20.36 leaves it out, 20.61's trikona may count it.
   assert.equal(moonFromDasaLord("Jupiter", [P("Jupiter", 40), P("Moon", 50)], natal, false)!.tone, "both");
@@ -327,8 +326,14 @@ test("The Overview's Running-now card: the Moon line for the living, none at a r
     assert.equal(row.system, "Parashari");
     assert.equal(row.lean, undefined);
     assert.match(row.line ?? "", /20\.36/);
-    if (plain) assert.equal(row.detail, undefined);
-    else assert.match(row.detail ?? "", /Wisdomlib's 20\.60/);
+    if (plain) {
+      assert.equal(row.detail, undefined);
+      assert.match(row.line ?? "", /main-period planet.*birth Moon/);
+      assert.match(row.line ?? "", /does not change event scores/);
+    } else {
+      assert.match(row.detail ?? "", /Sastri 20\.60 direction/);
+      assert.match(row.detail ?? "", /does not change an event score/);
+    }
     assert.ok(b.now.findIndex((x) => x.id === "pa-moon-today") > b.now.findIndex((x) => x.id === "pa-dasa"));
   }
   const jobs = fig("Steve Jobs").r;
@@ -356,10 +361,10 @@ test("Import guard: the module is display only, read by the strips, the endpoint
   };
   for (const d of ["shared", "server", "client/src"]) walk(join(root, d));
   assert.deepEqual(importers.sort(), allowed);
-  // It reads no verdict, rule or kernel module: positions, combustion distances, house words and the topic gate only.
+  // The shared transit context supplies the separate, unscored natal-Moon comparison.
   const own = readFileSync("shared/period-lord-transits.ts", "utf8");
   const specs = Array.from(own.matchAll(/from "([^"]+)"/g), (m) => m[1]).sort();
-  assert.deepEqual(specs, ["./astro", "./combustion", "./house-gloss", "./life-stage"]);
+  assert.deepEqual(specs, ["./astro", "./combustion", "./house-gloss", "./life-stage", "./transit-context"]);
   // The timeline helpers take its types only.
   assert.match(readFileSync("client/src/lib/timeline-data.ts", "utf8"), /import type \{ Strip, StripState \} from "@shared\/period-lord-transits"/);
 });

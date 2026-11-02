@@ -1,6 +1,6 @@
 import { NAKSHATRAS, SIGNS } from "@shared/astro";
 import { PD } from "@shared/gochara";
-import { EVENT_MOON_TRANSIT_NOTE, moonTransitDetails, type MoonTransitContext } from "@shared/transit-context";
+import { EVENT_MOON_TRANSIT_NOTE, moonTransitDetails, periodLordMoonHouseText, type MoonTransitContext } from "@shared/transit-context";
 import { PlanetName } from "@/components/planet-name";
 import { SourceLink } from "@/components/source-link";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -14,6 +14,7 @@ export function MoonTransitContextPanel({ context, label, date, when }: {
     <summary className="cursor-pointer font-medium">Moon-based transit context · {label} · {date} · {when}</summary>
     <p className="mt-2 max-w-4xl text-muted-foreground">{EVENT_MOON_TRANSIT_NOTE} <SourceLink source={PD("1-2")} /></p>
     <p className="mt-2 font-medium" data-testid="moon-transit-slow-summary">{slow.map((r) => `${r.planet}: house ${r.moonHouse} from the Moon, ${r.verdict}`).join(" · ")}.</p>
+    {context.periodLordFromMoon && <p className="mt-2 text-muted-foreground" data-testid="period-lord-from-moon">{periodLordMoonHouseText(context.periodLordFromMoon)}</p>}
     <p className="mt-2 text-muted-foreground">Birth Moon: {SIGNS[context.natalMoonSign]} · birth ascendant: {SIGNS[context.natalLagnaSign]}.
       At this moment the Moon is in {NAKSHATRAS[context.transitMoonStar]}, giving {context.tara.name} tara from the birth star {NAKSHATRAS[context.birthStar]}.
       The Moon's star can change during the day, so an assumed time may give a different tara.</p>

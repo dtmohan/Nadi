@@ -37,6 +37,15 @@ const historicalBnnRules = RULES.map((rule) => rule.id === "su-exalt" ? { ...rul
     text: "the Sun in his own strength: born to authority; command sits naturally on the native and others defer. (provisional)",
     source: "General Nadi principles (Rao, Naik)" } : rule);
 
+// Commit 50c156e deliberately qualified these ALP interpretations after the
+// independent historical capture. Restore only the old wording for this
+// comparison; the live rules and their source qualifications stay unchanged.
+const historicalAlpText: Record<string, string> = {
+  "b2-marriage-navamsa-touches": "The current pada's navamsa sign touches the ALP lagna, its 7th, the janma lagna or its 7th: this is a period in which a marriage or alliance can take place, if the chart otherwise allows it.",
+  "b2-marriage-navamsa-away": "The current pada's navamsa sign touches none of the ALP lagna, its 7th, the janma lagna or its 7th. The cited example does not select certain such padas for marriage; extending that example to every chart is provisional and this condition alone cannot rule marriage out.",
+  "b2c3-nak-lord-past": "The lord of the ALP nakshatra stands in the 2nd, 5th, 8th or 11th from the ALP lagna: what the period brings is rooted in the past; the native lives out the fruit of earlier deeds rather than starting new ones.",
+};
+
 test("school natal readings retain independent pre-migration outputs at correct UTC instants", () => {
   const asOf = "2025-01-01T00:00:00Z";
   for (let i = 0; i < examples.length; i++) {
@@ -59,7 +68,8 @@ test("school natal readings retain independent pre-migration outputs at correct 
       bnn: evaluate(context, historicalBnnRules as typeof RULES, e.gender), jaimini: computeJaimini(context, asc, e.birth),
       parashari: pick(parashari, ["aspectFloor", "houseMethod", "lagna", "bhavas", "natures", "findings", "ties", "neechaBhanga", "bhavaJudgement", "shadbala", "ashtakavarga", "bhavaPhala", "vargaPhala", "houseProse"]),
       kp: pick(kp, ["ayanamsaValue", "cusps", "planets", "significators", "houseSignificators", "badhaka", "marakas", "lagnaQuality", "ruling", "findings"]),
-      alp: pick(alp, ["config", "natalLagna", "point", "houseFromJanma", "houses", "placements", "book", "findings"]),
+      alp: pick({ ...alp, findings: alp.findings.map((f) => historicalAlpText[f.ruleId] ? { ...f, text: historicalAlpText[f.ruleId] } : f) },
+        ["config", "natalLagna", "point", "houseFromJanma", "houses", "placements", "book", "findings"]),
       prasna: computePrasna(context, Math.floor(asc / 30)),
     };
     if (i === 0) {

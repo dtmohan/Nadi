@@ -4,6 +4,7 @@
 import { useState } from "react";
 import type { LifeArea } from "@shared/rules";
 import type { AreaTag, BeforeNote, BriefLink, BriefRow, Briefing, PlanetBrief } from "@shared/briefing";
+import type { GocharaRow } from "@shared/gochara";
 import { areaNoun } from "@shared/life-areas";
 import { PlanetName } from "@/components/planet-name";
 import { DasaCombinationsBody } from "@/components/dasa-combinations";
@@ -122,7 +123,7 @@ function Tags({ row, practitioner }: { row: BriefRow; practitioner: boolean }) {
   const proposed = row.tags.some((t) => t.proposed);
   return (
     <>
-      <span className="text-xs text-muted-foreground">Areas:</span>
+      <span className="text-xs text-muted-foreground">{row.system === "Ashtakavarga transit" ? "Areas from ascendant:" : "Areas:"}</span>
       {row.tags.map((t: AreaTag) => (
         <button
           key={t.area}
@@ -153,14 +154,17 @@ function Row({
   brief,
   plain,
   onOpen,
+  moonWeather,
 }: {
   row: BriefRow;
   brief: Briefing;
   plain: boolean;
   onOpen: (link: BriefLink) => void;
+  moonWeather?: Partial<Record<"Jupiter" | "Saturn", GocharaRow>>;
 }) {
   const [combosOpen, setCombosOpen] = useState(false);
   const combos = row.dasaLord && brief.dasaCombos ? brief.dasaCombos : undefined;
+  const moonRow = row.id === "tr-jupiter" ? moonWeather?.Jupiter : row.id === "tr-saturn" ? moonWeather?.Saturn : undefined;
   return (
     <li className="border-t py-3 first:border-t-0 first:pt-0" data-testid={`brief-row-${row.id}`}>
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -170,8 +174,11 @@ function Row({
           {row.system}
         </span>
         {row.lean && (
-          <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium", LEAN_PILL[row.lean])}>{row.lean}</span>
+          <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium", LEAN_PILL[row.lean])}>{row.system === "Ashtakavarga transit" ? "Ashtakavarga: " : ""}{row.lean}</span>
         )}
+        {moonRow && <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium" data-testid={`brief-moon-${row.id}`}>
+          Moon gochara: {moonRow.verdict} · house {moonRow.house} from Moon
+        </span>}
       </div>
       {row.line && (
         <p className="mt-1 text-sm leading-relaxed text-foreground/90">
@@ -218,12 +225,14 @@ export function BriefingNow({
   onOpen,
   heading,
   children,
+  moonWeather,
 }: {
   brief: Briefing;
   plain: boolean;
   onOpen: (link: BriefLink) => void;
   heading: string;
   children?: React.ReactNode;
+  moonWeather?: Partial<Record<"Jupiter" | "Saturn", GocharaRow>>;
 }) {
   const t = useT();
   return (
@@ -239,7 +248,7 @@ export function BriefingNow({
           </p>
           <ul className="mt-2" data-testid="brief-now-list">
             {brief.now.map((r) => (
-              <Row key={r.id} row={r} brief={brief} plain={plain} onOpen={onOpen} />
+              <Row key={r.id} row={r} brief={brief} plain={plain} onOpen={onOpen} moonWeather={moonWeather} />
             ))}
           </ul>
         </>
