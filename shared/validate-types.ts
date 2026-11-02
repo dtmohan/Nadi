@@ -18,6 +18,7 @@ import type { WindowVerdict } from "./kp-windows";
 import type { ParashariDatedCatalogue } from "./parashari-event-natal-rules";
 import type { AdditionalSchoolNatalEvidence } from "./additional-school-event-rules";
 import type { AlpEventEvidence } from "./alp-event-evidence";
+import type { QualifiedEventScores, QualifiedScoreKey } from "./qualified-event-scores";
 import { listJoin, ordH, withGlossList } from "./house-gloss";
 
 export type KpVerdict = "confirmed" | "partial" | "missed";
@@ -47,6 +48,8 @@ export interface EventValidation {
   parashariOrdinary?: ParashariDatedCatalogue;
   additionalNatal?: AdditionalSchoolNatalEvidence;
   alp?: AlpEventEvidence;
+  /** Separate, source-scoped experimental counts; absent means ineligible. */
+  qualifiedScores?: QualifiedEventScores;
   kp: Omit<KpEventRules, "cuspSubLord" | "promised" | "transit" | "max"> & {
     dasa: Planet;
     bhukti: Planet;
@@ -271,7 +274,8 @@ export interface ChanceBaseline {
   trials: number;
   span: [string, string];
   /** One reproducible set of dates, for inspecting the natal/transit evidence. */
-  example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence: KpTransitEvidence[]; moonTransit?: MoonTransitContext; natalRules?: KpEventRules["natalRules"]; parashariOrdinary?: ParashariDatedCatalogue; additionalNatal?: AdditionalSchoolNatalEvidence; alp?: AlpEventEvidence }>;
+  example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence: KpTransitEvidence[]; moonTransit?: MoonTransitContext; natalRules?: KpEventRules["natalRules"]; parashariOrdinary?: ParashariDatedCatalogue; additionalNatal?: AdditionalSchoolNatalEvidence; alp?: AlpEventEvidence; qualifiedScores?: QualifiedEventScores }>;
+  qualified?: Partial<Record<QualifiedScoreKey, BaselineStat>>;
   /** Date-dependent ordinary rule frequencies, descriptive and separate from scores. */
   catalogueComparison?: import("./catalogue-comparison").EventCatalogueComparison[];
   auroraExample?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence?: AuroraEventEvidence }>;

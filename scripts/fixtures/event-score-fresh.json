@@ -1,0 +1,42 @@
+{
+  "protocol": "docs/event-score-integration-protocol.md",
+  "selection": "Frozen before running the new scored checks; names absent from earlier fixture files. Dates and clocks below are public, not independently authenticated birth certificates.",
+  "cases": [
+    {
+      "name": "Annie Glenn", "category": "American disability advocate and musician", "birthQuality": "AA, birth certificate reported in hand; certificate not independently examined. Astro-Databank says CST UTC-6, whereas America/New_York gives UTC-5: use the published fixed offset and report a zone sensitivity separately.",
+      "birthSource": "https://www.astro.com/astro-databank/Glenn%2C_Annie",
+      "chart": { "name": "Annie Glenn", "gender": "female", "birthDate": "1920-02-17", "birthTime": "00:21", "timezone": "UTC-06:00", "timeStandard": "auto", "place": "Columbus, Ohio, USA", "latitude": 39.9667, "longitude": -83, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "2020-05-19" },
+      "events": [
+        { "id": "ag-marriage", "matter": "marriage", "date": "1943-04-06", "timezone": "America/New_York", "note": "Wedding at New Concord, Ohio; clock unknown.", "sources": ["https://www.johnandannieglennmuseum.org/love-story", "https://www.govinfo.gov/content/pkg/CREC-2020-07-01/pdf/CREC-2020-07-01.pdf"] },
+        { "id": "ag-child1", "matter": "child", "date": "1945-12-13", "timezone": "America/New_York", "note": "Birth city, zone and clock not verified; Eastern zone assumed. Both children's exact dates are from the same museum account.", "sources": ["https://www.johnandannieglennmuseum.org/love-story"] },
+        { "id": "ag-child2", "matter": "child", "date": "1947-03-19", "timezone": "America/New_York", "note": "Birth city, zone and clock not verified; Eastern zone assumed.", "sources": ["https://www.johnandannieglennmuseum.org/love-story"] }
+      ]
+    },
+    {
+      "name": "Gavin Newsom", "category": "American politician and businessman", "birthQuality": "AA, birth certificate quoted by an astrologer; certificate not independently examined.",
+      "birthSource": "https://www.astro.com/astro-databank/Newsom%2C_Gavin",
+      "chart": { "name": "Gavin Newsom", "gender": "male", "birthDate": "1967-10-10", "birthTime": "05:13", "timezone": "America/Los_Angeles", "timeStandard": "auto", "place": "San Francisco, California, USA", "latitude": 37.775, "longitude": -122.4194, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "gn-marriage1", "matter": "marriage", "date": "2001-12-08", "timezone": "America/Los_Angeles", "note": "Wedding in San Francisco; contemporary reports say Saturday night, but exact clock is unavailable; noon assumed.", "sources": ["https://www.sfgate.com/living/article/A-wedding-to-remember-Newsom-Guilfoyle-nuptials-2838891.php/", "https://www.sfgate.com/news/article/Classy-nuptials-bring-city-together-Newsom-2843225.php"] },
+        { "id": "gn-mayor", "matter": "job", "date": "2004-01-08", "timezone": "America/Los_Angeles", "note": "Took office as San Francisco mayor; clock unknown.", "sources": ["https://oac.cdlib.org/findaid/ark:/13030/c8b56r6d"] },
+        { "id": "gn-marriage2", "matter": "marriage", "date": "2008-07-26", "timezone": "America/Denver", "note": "Wedding near Stevensville, Montana; clock unknown.", "sources": ["https://governors.library.ca.gov/firstladies/40-Siebel.html", "https://www.latimes.com/archives/la-xpm-2008-jul-27-me-briefs27.s4-story.html"] }
+      ]
+    },
+    {
+      "name": "Catherine Rich", "category": "French stage and film actress", "birthQuality": "AA, birth record quoted in a secondary compilation; round 22:00 may be approximate, original certificate not examined.",
+      "birthSource": "https://www.astro.com/astro-databank/Rich%2C_Catherine",
+      "chart": { "name": "Catherine Rich", "gender": "female", "birthDate": "1932-06-10", "birthTime": "22:00", "timezone": "Europe/Paris", "timeStandard": "auto", "place": "Paris, France", "latitude": 48.8667, "longitude": 2.3333, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "2021-01-18" },
+      "events": [
+        { "id": "cr-marriage", "matter": "marriage", "date": "1959-06-26", "timezone": "Europe/Paris", "note": "Paris wedding; some historical references instead state June 20, so June 26 is disputed. Clock unknown.", "sources": ["https://www.imdb.com/fr/name/nm0723623/bio/", "https://www.alsace-histoire.org/netdba/rich-claude/", "https://cdn.paris.fr/paris/2023/11/22/expose-des-motifs-pdf-TFZS.PDF"] }
+      ]
+    },
+    {
+      "name": "Karina", "category": "Peruvian-born Venezuelan singer", "birthQuality": "AA, birth certificate reported in hand; certificate not independently examined. Astro-Databank labels gender M in error; female specified for the source's gendered rule.",
+      "birthSource": "https://www.astro.com/astro-databank/Karina_%281968%29",
+      "chart": { "name": "Karina", "gender": "female", "birthDate": "1968-11-19", "birthTime": "10:35", "timezone": "America/Lima", "timeStandard": "auto", "place": "Miraflores, Peru", "latitude": -12.1167, "longitude": -77.0333, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "ka-marriage", "matter": "marriage", "date": "1998-06-20", "timezone": "America/Caracas", "note": "Contemporary anniversary report says June 20; other sources say June 21 or 27. Location/zone assumed Venezuela, clock unknown.", "sources": ["https://lamananadigital.com/karina-celebra-25-anos-de-relacion-con-su-pareja/", "https://culturaminiteka.com/images/Imagenes%20CMTK/Documentos/Revista-de-las-minitecas-Edicion-Vladimir-Medina.pdf"] }
+      ]
+    }
+  ]
+}

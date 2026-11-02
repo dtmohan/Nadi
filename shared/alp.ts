@@ -14,7 +14,7 @@ import { DateTime } from "luxon";
 import { NAKSHATRAS, NAKSHATRA_LORD, SIGNS, SIGN_LORD, houseFrom, norm360, type Planet, type PlanetPosition, type Sign } from "./astro";
 import { navamsaOf } from "./jaimini";
 import { evaluateAlp, type AlpFinding } from "./rules-alp";
-import { asPlanetContext, assertContextAscendant, planetPositions, type PlanetInput } from "./planet-context";
+import { asPlanetContext, assertContextAscendant, planetPositions, type PlanetContext, type PlanetInput } from "./planet-context";
 
 // Akshaya Rasi (AR / ARP), Book 2 ch. 6-8 (pp. 68-77): the Moon's birth nakshatra is the birth rasi;
 // with each Vimshottari dasa the Moon "shifts" to the next nakshatra, one pada for each quarter of the
@@ -357,13 +357,9 @@ function computeArp(positions: PlanetPosition[], birth: DateTime, asOf: DateTime
   };
 }
 
-export function computeAlp(input: PlanetInput, natalLagnaLon: number, birthIso: string, asOfIso: string, config: AlpConfig = DEFAULT_ALP_CONFIG, withhold = false): AlpResult {
-  const context = asPlanetContext(input);
-  assertContextAscendant(context, natalLagnaLon);
+/** The common rule frame, without the long timelines used only by the chart UI. */
+function alpRuleFrame(context: PlanetContext, natalLagnaLon: number, birth: DateTime, asOf: DateTime, config: AlpConfig, withhold: boolean) {
   const positions = planetPositions(context);
-  const birth = DateTime.fromISO(birthIso, { setZone: true });
-  const asOf = DateTime.fromISO(asOfIso, { setZone: true });
-  const ageYears = Math.max(0, asOf.diff(birth, "days").days / YEAR_DAYS);
   const natalLagna = alpPointAt(natalLagnaLon);
   const point = alpPointAt(alpLonAt(natalLagnaLon, birth, asOf, config));
   const janma = natalLagna.signIndex;
@@ -391,6 +387,33 @@ export function computeAlp(input: PlanetInput, natalLagnaLon: number, birthIso: 
     place(point.nakshatraLord, "Lord of the ALP nakshatra"),
     place(SIGN_LORD[point.navamsaSign], "Lord of the activated navamsa sign"),
   ];
+  const nakEnd = (point.nakshatraIndex + 1) * NAK_ARC;
+  const signEnd = (point.signIndex + 1) * 30;
+  const nakStraddlesAhead = nakEnd > signEnd + 1e-9;
+  const arp = computeArp(positions, birth, asOf, janma, alp, point);
+  const findings0 = evaluateAlp({ positions, janma, alp, point, natalLagna, houses, placements, nakStraddlesAhead, arp });
+  const findings = withhold ? redactSensitive(findings0) : findings0;
+  return { natalLagna, point, janma, alp, houses, placements, arp, findings };
+}
+
+/** Same frame and findings as the ordinary chart, without building chart-only
+ * 120-year ALP timelines or calendar arithmetic for each sampled event. */
+export function computeAlpEventFrame(input: PlanetInput, natalLagnaLon: number, birthIso: string, asOfIso: string,
+  config: AlpConfig = DEFAULT_ALP_CONFIG, withhold = false) {
+  const context = asPlanetContext(input);
+  assertContextAscendant(context, natalLagnaLon);
+  return alpRuleFrame(context, natalLagnaLon, DateTime.fromISO(birthIso, { setZone: true }),
+    DateTime.fromISO(asOfIso, { setZone: true }), config, withhold);
+}
+
+export function computeAlp(input: PlanetInput, natalLagnaLon: number, birthIso: string, asOfIso: string, config: AlpConfig = DEFAULT_ALP_CONFIG, withhold = false): AlpResult {
+  const context = asPlanetContext(input);
+  assertContextAscendant(context, natalLagnaLon);
+  const birth = DateTime.fromISO(birthIso, { setZone: true });
+  const asOf = DateTime.fromISO(asOfIso, { setZone: true });
+  const ageYears = Math.max(0, asOf.diff(birth, "days").days / YEAR_DAYS);
+  const { natalLagna, point, janma, alp, houses, placements, arp, findings } =
+    alpRuleFrame(context, natalLagnaLon, birth, asOf, config, withhold);
 
   const signPeriods = periodsBetween(natalLagnaLon, birth, asOf, config, 30, 120);
   const curSign = signPeriods.find((s) => s.current);
@@ -435,17 +458,6 @@ export function computeAlp(input: PlanetInput, natalLagnaLon: number, birthIso: 
   const nakshatraTimeline = periodsBetween(natalLagnaLon, birth, asOf, config, NAK_ARC, 120);
 
   const book = bookArithmetic(natalLagnaLon, birth, asOf, point);
-  const nakStraddlesAhead = (() => {
-    // The current nakshatra continues past the end of the current sign (Book 2 p. 42: a "split" nakshatra).
-    const nakEnd = (point.nakshatraIndex + 1) * NAK_ARC;
-    const signEnd = (point.signIndex + 1) * 30;
-    return nakEnd > signEnd + 1e-9;
-  })();
-  const arp = computeArp(positions, birth, asOf, janma, alp, point);
-  const findings0 = evaluateAlp({ positions, janma, alp, point, natalLagna, houses, placements, nakStraddlesAhead, arp });
-  // The sensitive-content gate (shared/life-stage.ts) strips longevity statements for a minor.
-  const findings = withhold ? redactSensitive(findings0) : findings0;
-
   return {
     config,
     arp,

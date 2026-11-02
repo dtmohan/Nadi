@@ -30,6 +30,7 @@ import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
 import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
 import { AdditionalSchoolEventEvidence } from "@/components/additional-school-event-evidence";
 import { AlpEventEvidencePanel } from "@/components/alp-event-evidence";
+import { QualifiedEventScoresPanel, QualifiedComparisonPanel } from "@/components/qualified-event-scores";
 import { CatalogueComparisonPanel } from "@/components/catalogue-comparison";
 import { MoonTransitContextPanel } from "@/components/moon-transit-context";
 import { ParashariVargaEvidencePanel } from "@/components/parashari-varga-evidence";
@@ -814,7 +815,9 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             <summary className="cursor-pointer font-medium">Related school rules · {e.label} · {e.date}</summary>
             <KpCatalogueEvidence evidence={e.kp.natalRules} /><ParashariCatalogueEvidence evidence={e.parashariOrdinary} />
             <AdditionalSchoolEventEvidence evidence={e.additionalNatal} /><AlpEventEvidencePanel evidence={e.alp} />
+            <QualifiedEventScoresPanel scores={e.qualifiedScores} />
           </details>)}
+          <QualifiedComparisonPanel comparison={v.baseline?.qualified} trials={v.baseline?.trials} />
           {v.events.some((e) => e.parashariVargas) && (
             <p className="mt-4 text-xs text-muted-foreground">
               Parashari reads the recorded birth chart and the relevant division
@@ -861,6 +864,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                 <ParashariCatalogueEvidence evidence={e.parashariOrdinary} />
                 <AdditionalSchoolEventEvidence evidence={e.additionalNatal} />
                 <AlpEventEvidencePanel evidence={e.alp} />
+                <QualifiedEventScoresPanel scores={e.qualifiedScores} />
                 <KpTransitEvidencePanel label={`${e.label} · comparison`} date={e.date} when={describeEventMoment(e, chart.timezone)} evidence={e.evidence} />
                 {e.moonTransit && <MoonTransitContextPanel context={e.moonTransit} label={`${e.label} · comparison`} date={e.date} when={describeEventMoment(e, chart.timezone)} />}
               </div>)}

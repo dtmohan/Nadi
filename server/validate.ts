@@ -78,6 +78,7 @@ import type { Gender } from "@shared/marriage";
 import { createKpEventScorer } from "@shared/kp-event-evidence";
 import { additionalSchoolEvents } from "./additional-school-events";
 import { createAlpEventScorer } from "@shared/alp-event-evidence";
+import { qualifiedEventScores, qualifiedComparable, qualifiedTotals, QUALIFIED_SCORE_KEYS, type QualifiedEventScores, type QualifiedScoreKey } from "@shared/qualified-event-scores";
 import { dashaFitAt } from "@shared/jaimini-areas";
 import { comparisonDate, eventInstant } from "./event-time";
 import { kpTransitEvidence } from "@shared/kp-transit-evidence";
@@ -85,7 +86,7 @@ import { auroraV2StageCounts, AURORA_V2_STAGES } from "@shared/kp-aurora-v2";
 import { vargaTopicFor } from "@shared/parashari-varga-evidence";
 import { manleyTopicFor } from "@shared/manley-evidence";
 import { createParashariEventScorer } from "./parashari-event";
-import { computeParashari, DEFAULT_ASPECT_FLOOR } from "@shared/parashari";
+import { computeParashariNatal, DEFAULT_ASPECT_FLOOR } from "@shared/parashari";
 import { createParashariNatalCatalogue } from "@shared/parashari-event-natal-rules";
 import { functionalObservation } from "@shared/parashari-functional";
 import { conditionalObservations } from "@shared/parashari-conditional";
@@ -188,8 +189,8 @@ export function validateEvents(chart: InsertChart, asOf = DateTime.utc().toISO()
     houseMethod: chart.parashariHouseMethod || "rashi", ascendant: lagnaJ, division: "D1", precision: "full" });
   const natalMoonJ = positionsJ.find((p) => p.planet === "Moon")!;
   const ownMarks = natalOwnMarks(positionsJ, lagnaJ);
-  const parashariNatal = computeParashari(natalContext, lagnaJ, birthIso, lifeAsOf(chart, asOf),
-    shadbalaBase(jd0, chart.latitude, chart.longitude, optsJ), undefined, DEFAULT_ASPECT_FLOOR,
+  const parashariNatal = computeParashariNatal(natalContext, lagnaJ, birthIso, lifeAsOf(chart, asOf),
+    shadbalaBase(jd0, chart.latitude, chart.longitude, optsJ), DEFAULT_ASPECT_FLOOR,
     sensitiveGate(chart, birthIso, asOf).withheld, normaliseParashariHouseMethod(chart.parashariHouseMethod));
   const ordinary = createParashariNatalCatalogue(parashariNatal,
     (matter) => eventReadingAllowed(matter, birthIso, asOf, chart));
@@ -503,6 +504,12 @@ export function validateEvents(chart: InsertChart, asOf = DateTime.utc().toISO()
     // The same scorer receives the actual or sampled event instant and its own
     // transit sky. Descriptive KP evidence remains separately controlled.
     const parashari = scoreParashari({ label: m.label, matter: m.id, outcome: e.outcome, time: e.time, timezone: e.timezone }, date, evIso, dayJ);
+    const additionalNatal = school.catalogue(e.matter);
+    const alp = scoreAlp(e.matter, evIso);
+    const qualifiedScores = qualifiedEventScores({ matter: e.matter, outcome: effectiveOutcome(e),
+      custom: e.matter !== m.id, afterDeath: !!chart.deathDate && date > chart.deathDate,
+      birthIso, eventIso: evIso, gender: chart.gender, natalPositions: positionsJ, sky: dayJ,
+      kp: checked, divisional: parashari.divisional, ordinary: parashari.ordinary, additional: additionalNatal, alp });
     return {
       id: e.id,
       matter: m.id,
@@ -518,8 +525,9 @@ export function validateEvents(chart: InsertChart, asOf = DateTime.utc().toISO()
       moonTransit: includeEvidence ? moonTransitContext(natalMoonJ, Math.floor(lagnaJ / 30), dayJ, evIso, ownMarks) : undefined,
       parashariVargas: parashari.varga,
       parashariOrdinary: parashari.ordinary,
-      additionalNatal: school.catalogue(m.id),
-      alp: scoreAlp(m.id, evIso),
+      additionalNatal,
+      alp,
+      qualifiedScores,
       manley: parashari.manley,
       parashariHierarchy: parashari.hierarchy,
       parashariPromise: parashari.promise,
@@ -837,6 +845,9 @@ function chanceBaseline(
   const catalogueComparison = createCatalogueComparison(real);
   const actualStages = auroraV2StageCounts(real.map((v) => v.kp.auroraV2));
   const stageSamples = { cusps: [] as number[], major: [] as number[], sub: [] as number[], third: [] as number[] };
+  const qualifiedActual = real.map((v) => v.qualifiedScores);
+  const qualifiedSamples: Record<QualifiedScoreKey, number[]> = { kp: [], parashari: [], alp: [], bnn: [] };
+  const qualifiedValid: Record<QualifiedScoreKey, boolean> = { kp: true, parashari: true, alp: true, bnn: true };
   for (let t = 0; t < BASELINE_TRIALS; t++) {
     const trial = events.map((e) =>
       scoreEvent(
@@ -848,7 +859,7 @@ function chanceBaseline(
     trial.forEach((v, i) => catalogueComparison.observe(i, v));
     if (t === 0) {
       example = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone,
-        evidence: v.kp.transit.evidence ?? [], moonTransit: v.moonTransit, natalRules: v.kp.natalRules, parashariOrdinary: v.parashariOrdinary, additionalNatal: v.additionalNatal, alp: v.alp }));
+        evidence: v.kp.transit.evidence ?? [], moonTransit: v.moonTransit, natalRules: v.kp.natalRules, parashariOrdinary: v.parashariOrdinary, additionalNatal: v.additionalNatal, alp: v.alp, qualifiedScores: v.qualifiedScores }));
       auroraExample = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone, evidence: v.kp.aurora }));
       auroraV2Example = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone, evidence: v.kp.auroraV2 }));
       parashariExample = trial.flatMap((v, i) => {
@@ -859,6 +870,11 @@ function chanceBaseline(
       });
     }
     parashariTrials.push(trial.map(observe));
+    const sampled = trial.map((v) => v.qualifiedScores);
+    for (const key of QUALIFIED_SCORE_KEYS) {
+      if (!qualifiedComparable(qualifiedActual, sampled, key)) qualifiedValid[key] = false;
+      qualifiedSamples[key].push(qualifiedTotals(sampled, key).score);
+    }
     for (const k of keys) samples[k].push(measures[k](trial));
     const stages = auroraV2StageCounts(trial.map((v) => v.kp.auroraV2));
     for (const stage of AURORA_V2_STAGES) stageSamples[stage].push(stages[stage]);
@@ -882,10 +898,16 @@ function chanceBaseline(
     };
   };
   const stat = (k: BaselineMeasure) => summarize(samples[k], measures[k](real));
+  const qualified: Partial<Record<QualifiedScoreKey, BaselineStat>> = {};
+  for (const key of QUALIFIED_SCORE_KEYS) {
+    const total = qualifiedTotals(qualifiedActual, key);
+    if (total.max && qualifiedValid[key]) qualified[key] = summarize(qualifiedSamples[key], total.score);
+  }
   const parashari = summarizeParashariComparisons(real.map(observe), parashariTrials);
   return {
     trials: BASELINE_TRIALS,
     example,
+    qualified,
     catalogueComparison: catalogueComparison.result(),
     auroraExample,
     auroraV2Example,

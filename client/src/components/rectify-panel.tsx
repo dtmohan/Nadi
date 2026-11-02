@@ -21,6 +21,8 @@ import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
 import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
 import { AdditionalSchoolEventEvidence } from "@/components/additional-school-event-evidence";
 import { AlpEventEvidencePanel } from "@/components/alp-event-evidence";
+import { QualifiedEventScoresPanel, QualifiedComparisonPanel } from "@/components/qualified-event-scores";
+import { qualifiedComparable } from "@shared/qualified-event-scores";
 import { CatalogueComparisonPanel } from "@/components/catalogue-comparison";
 import { ParashariVargaEvidencePanel } from "@/components/parashari-varga-evidence";
 import { ParashariPromisePanel } from "@/components/parashari-promise";
@@ -70,6 +72,7 @@ import { Cite } from "@/components/source-link";
 import { limbTermsFor, type BodyMarksResult } from "@shared/body-marks";
 import {
   RECTIFY_METHODS,
+  QUALIFIED_RECTIFY_METHODS,
   EVENT_METHODS,
   methodLabel,
   methodScore,
@@ -233,6 +236,7 @@ export function RectifyPanel({
   );
   const m = RECTIFY_METHODS.find((x) => x.id === method)!;
   const isParashariMethod = method === "parashari-events" || method === "parashari-events-v2" || method === "parashari-events-v3";
+  const qualifiedMethod = QUALIFIED_RECTIFY_METHODS[method];
   const [showHow, setShowHow] = useState(false);
   const [windowMinutes, setWindowMinutes] = useState(30);
   const [sortByScore, setSortByScore] = useState(false);
@@ -430,12 +434,15 @@ export function RectifyPanel({
     [data, method, marksCtx],
   );
   // The 95th-percentile cutoff is an exploratory display convention, not a test of the selected time.
-  const baselined =
-    EVENT_METHODS.includes(method) && scored.some((r) => r.b !== undefined);
+  const baselined = EVENT_METHODS.includes(method) && scored.some((r) => r.b !== undefined) &&
+    (!qualifiedMethod || scored.every((r) => r.b !== undefined));
   const maxOf = scored[0]?.max ?? 0;
   // A score of 0/0 is not a ranking, and totals cannot be compared when an
   // event is before birth for only part of the candidate window.
   const parashariComparable = maxOf > 0 && scored.every((r) => r.max === maxOf);
+  const qualifiedComparableWindow = !qualifiedMethod || (parashariComparable &&
+    scored.every((r) => qualifiedComparable(scored[0].s.events.map((e) => e.qualifiedScores), r.s.events.map((e) => e.qualifiedScores), qualifiedMethod)) &&
+    (!scored.some((r) => r.b !== undefined) || scored.every((r) => r.b !== undefined)));
   const anyParashariScore = scored.some((r) => r.max > 0);
   const top = scored.reduce((t, r) => Math.max(t, r.score), 0);
   const topExcess = scored.reduce(
@@ -444,9 +451,9 @@ export function RectifyPanel({
   );
   const bestSet = useMemo(
     () =>
-      method === "kunda" || (isParashariMethod && !parashariComparable)
+      method === "kunda" || (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow
         ? new Set<number>() : new Set(highlightedCandidates(scored)),
-    [scored, method, parashariComparable, isParashariMethod],
+    [scored, method, parashariComparable, isParashariMethod, qualifiedComparableWindow],
   );
   // Ranking: the method's score (or its excess over chance) first. Among equals: intervals whose matter
   // cusps keep their sub lord throughout (the cusp in question depends on the corrected time, Astro
@@ -509,7 +516,7 @@ export function RectifyPanel({
   const hasStability = !isParashariMethod && scored.some((r) => r.s.stability);
   // Body-mark maxima can differ by candidate; the Kunda variants use separate
   // sampling rules. Do not imply their midpoint scores are comparable here.
-  const coverage = method !== "bj-marks" && method !== "kunda" && method !== "kunda-d81" && !(method === "kp-nemani-rp" && top === 0) && maxOf > 0 && (!isParashariMethod || parashariComparable)
+  const coverage = method !== "bj-marks" && method !== "kunda" && method !== "kunda-d81" && !(method === "kp-nemani-rp" && top === 0) && maxOf > 0 && (!isParashariMethod || parashariComparable) && qualifiedComparableWindow
     ? rawScoreCoverage(scored.map((r) => ({ score: r.score, startIso: r.s.startIso, endIso: r.s.endIso, given: r.s.given })))
     : undefined;
 
@@ -1094,11 +1101,11 @@ export function RectifyPanel({
                   ? `${drekkanaGroups.length} body-mark result ${drekkanaGroups.length === 1 ? "group" : "groups"} in ± ${data.windowMinutes} min · ${confirmedMarks.size ? `highest ${drekkanaTop} confirmed` : "tick your marks above to score"}`
                   : method === "kp-nemani-rp"
                     ? `${nemaniGroups.length} groups from ${data.segments.length} sampled slices · ${top ? "some intervals match all three levels" : "no interval matches all three levels"}`
-                  : isParashariMethod && !parashariComparable
+                  : (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow
                   ? `${data.segments.length} slices in ± ${data.windowMinutes} min · ${anyParashariScore ? "event eligibility differs across the window" : "no eligible events to score"}`
                   : `${data.segments.length} ${plain ? "slices" : "intervals"} in ± ${data.windowMinutes} min · ${m.system} ${plain ? m.plainLabel.toLowerCase() : methodLabel(m)} · highest raw score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}${baselined ? ` · highest difference from comparison mean ${topExcess >= 0 ? "+" : "−"}${Math.abs(topExcess).toFixed(1)}` : ""}`}
             </span>
-            {method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && (!isParashariMethod || parashariComparable) && <button
+            {method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && (!isParashariMethod || parashariComparable) && qualifiedComparableWindow && <button
               type="button"
               className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground"
               onClick={() => setSortByScore((v) => !v)}
@@ -1172,7 +1179,7 @@ export function RectifyPanel({
                   data-testid="rectify-baseline-note"
                 >
                   {!on
-                    ? "A random-date comparison needs at least two events at least a year apart."
+                    ? "A comparison needs at least two events a year apart and the same eligible checks for every sampled set."
                     : `${data.baseline?.trials ?? 200} sets of comparison dates were independently selected between ${data.baseline?.span[0]} and ${data.baseline?.span[1]}; transits are recalculated on each date against this candidate's natal chart. ${above} ${above === 1 ? "result reaches" : "results reach"} the 95th mid-rank percentile. Highlighting uses that exploratory cutoff and the difference from the comparison mean; it does not account for trying multiple measures or candidates and does not establish a correct birth time. Random dates need not preserve plausible event ages or order.`}
                 </p>
               );
@@ -1203,12 +1210,14 @@ export function RectifyPanel({
             <summary className="cursor-pointer font-medium">Related school rules · {e.label} · {e.date} · candidate midpoint</summary>
             <KpCatalogueEvidence evidence={e.natalRules} /><ParashariCatalogueEvidence evidence={focus.parashariOrdinary?.[i]} />
             <AdditionalSchoolEventEvidence evidence={e.additionalNatal} /><AlpEventEvidencePanel evidence={e.alp} />
+            <QualifiedEventScoresPanel scores={e.qualifiedScores} />
           </details>)}
           {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.baseline?.catalogueExample && <details className="mt-2 rounded border px-2 py-2 text-xs">
             <summary className="cursor-pointer font-medium">School rules in the first comparison set</summary>
             <p className="mt-1 text-muted-foreground">These are contextual findings for the sampled dates. They do not add points to the comparison statistics.</p>
-            {focus.baseline.catalogueExample.map((e, i) => <div key={`${e.label}-${e.date}-${i}`}><p className="mt-2 font-medium">{e.label} · {e.date}</p><KpCatalogueEvidence evidence={e.natalRules} /><ParashariCatalogueEvidence evidence={e.parashariOrdinary} /><AdditionalSchoolEventEvidence evidence={e.additionalNatal} /><AlpEventEvidencePanel evidence={e.alp} /></div>)}
+            {focus.baseline.catalogueExample.map((e, i) => <div key={`${e.label}-${e.date}-${i}`}><p className="mt-2 font-medium">{e.label} · {e.date}</p><KpCatalogueEvidence evidence={e.natalRules} /><ParashariCatalogueEvidence evidence={e.parashariOrdinary} /><AdditionalSchoolEventEvidence evidence={e.additionalNatal} /><AlpEventEvidencePanel evidence={e.alp} /><QualifiedEventScoresPanel scores={e.qualifiedScores} /></div>)}
           </details>}
+          <QualifiedComparisonPanel comparison={focus?.baseline?.qualified} trials={data.baseline?.trials} />
           {(isParashariMethod || EVENT_METHODS.includes(method)) && <CatalogueComparisonPanel rows={focus?.baseline?.catalogueComparison} />}
 
           {method.startsWith("kp-") && focus && focus.events.length > 0 && <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="rectify-kp-event-evidence">
@@ -1782,7 +1791,14 @@ export function RectifyPanel({
             </div>
           )}
 
-          {!isParashariMethod && method !== "kp-nemani-rp" && method !== "jaimini-dasha" && method !== "bj-marks" && method !== "kunda-d81" && method !== "kunda" && (
+          {qualifiedMethod && <div className="mt-3 overflow-x-auto" data-testid="rectify-qualified-ranking">
+            <p className="text-xs text-muted-foreground">These partial matches are experimental, use the same conditions at sampled dates, and cannot establish a birth time. Each row represents its midpoint; boundaries may be missed. {qualifiedComparableWindow ? "" : anyParashariScore ? "Eligibility or comparison availability differs, so totals cannot be ranked." : "No eligible events can be scored under this method."}</p>
+            <Table className="text-xs"><TableHeader><TableRow><TableHead>Interval</TableHead><TableHead>Matches</TableHead><TableHead>Comparison mean</TableHead><TableHead>Candidate</TableHead></TableRow></TableHeader>
+              <TableBody>{(qualifiedComparableWindow ? segments : scored).map(({ s, i, score, max, b }) => <TableRow key={s.startIso}>
+                <TableCell>{s.start}–{s.end}{s.given ? " · recorded" : ""}</TableCell><TableCell>{max ? `${score}/${max}` : "unavailable"}{bestSet.has(i) ? " · highlighted" : ""}</TableCell><TableCell>{b ? `${b.mean} · ${b.percentile}% mid-rank` : "unavailable"}</TableCell>
+                <TableCell><button type="button" className="underline" onClick={() => setOpen(open === i ? null : i)}>{open === i ? "Hide" : "Inspect"}</button></TableCell></TableRow>)}</TableBody>
+            </Table></div>}
+          {!qualifiedMethod && !isParashariMethod && method !== "kp-nemani-rp" && method !== "jaimini-dasha" && method !== "bj-marks" && method !== "kunda-d81" && method !== "kunda" && (
             <div className="mt-2 overflow-x-auto">
               <Table className="text-xs leading-5 [&_button]:[word-spacing:0.2em] [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
                 <TableHeader>
@@ -2254,6 +2270,7 @@ export function RectifyPanel({
           )}
 
           {open !== null &&
+            !qualifiedMethod &&
             !isParashariMethod &&
             method !== "kp-nemani-rp" &&
             method !== "jaimini-dasha" &&

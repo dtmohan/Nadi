@@ -19,6 +19,7 @@ import { kpCatalogueParas } from "./kp-catalogue-evidence";
 import { parashariCatalogueParas } from "./parashari-catalogue-evidence";
 import { additionalSchoolParas } from "./additional-school-event-evidence";
 import { alpEventParas } from "./alp-event-evidence";
+import { qualifiedScoreParas } from "./qualified-event-scores";
 
 /** The chart tab's chosen date, recomputed by the same one-event evaluator for the export. */
 export function topicReadingSection(ctx: ReportContext, system: string): ReportSection | undefined {
@@ -29,6 +30,7 @@ export function topicReadingSection(ctx: ReportContext, system: string): ReportS
   const paras: ReportPara[] = [{ kind: "note", provisional: true,
     text: `${e.label} · ${e.date} · ${describeEventMoment(e, ctx.result.chart.timezone)}. This chosen-date reading applies the same conditions as Validate. It does not claim that an event occurred or predict that it will occur.` }];
   paras.push({ kind: "note", text: EVENT_TRANSIT_SCOPE });
+  paras.push(...qualifiedScoreParas(e.qualifiedScores, `${e.label} · ${e.date}`, (source, url) => cites.add(source, url), system));
   if (system === "bnn" || system === "jaimini") paras.push(...additionalSchoolParas(e.additionalNatal, e.label, (source, url) => cites.add(source, url), system, ctx.plain));
   if (system === "prasna") paras.push(...additionalSchoolParas(e.additionalNatal, e.label, (source, url) => cites.add(source, url), "prasna", ctx.plain));
   if (system === "alp") paras.push(...alpEventParas(e.alp, e.label, (source, url) => cites.add(source, url), ctx.plain));

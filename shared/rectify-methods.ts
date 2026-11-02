@@ -7,6 +7,7 @@ import type {
   JudgePlaceInput,
 } from "./rectify-types";
 import { scoreMarks, type BodyMarksResult } from "./body-marks";
+import { qualifiedTotals, type QualifiedScoreKey } from "./qualified-event-scores";
 
 /** Rectification methods. One at a time, never blended; each cites its own source. */
 export type RectifyMethod =
@@ -17,6 +18,10 @@ export type RectifyMethod =
   | "kp-transit"
   | "kp-aurora"
   | "kp-aurora-v2"
+  | "kp-qualified"
+  | "parashari-events-v4"
+  | "alp-marriage"
+  | "bnn-marriage"
   | "jaimini-dasha"
   | "parashari-events"
   | "parashari-events-v2"
@@ -36,6 +41,22 @@ export const RECTIFY_METHODS: Array<{
   needsJudge: boolean;
   needsEvents: boolean;
 }> = [
+  { id: "kp-qualified", system: "KP", label: "Natal then periods · research", plainLabel: "Natal then periods · research",
+    plainShort: "A conservative experiment checks natal indications before three period lords. Mixed or absent clues remain unresolved.",
+    short: "Four app-defined sequential stages: the registered ordinary natal promise clues, then dasa, bhukti and antara. Missing or mixed clues stop the sequence, without denying the event. Matter-house links are partial, not the full KP method.",
+    source: "M.P. Shanmugham, Astro Secrets & KP, Part 1 pp. 167–172 and Part 2 p. 203; Leena Aurora, The Ultimate Guide to KP Astrology Techniques, pp. 258–262, 266–268.", needsJudge: false, needsEvents: true },
+  { id: "parashari-events-v4", system: "Parashari", label: "Children natal clue · v4 research", plainLabel: "Children natal clue · v4 research",
+    plainShort: "The v3 event check adds one separately sourced children clue. Its points overlap and remain experimental.",
+    short: "Adds BPHS 16.16's ordinary fifth-lord clue to v3 for children only; marriage and career retain v3. House methods may differ and the extra clue overlaps other factors.",
+    source: "Brihat Parashara Hora Shastra 16.16; Paul Manley, Birth Time Rectification, ch. 4 pp. 101, 118–122.", needsJudge: false, needsEvents: true },
+  { id: "alp-marriage", system: "ALP", label: "Marriage pada · research", plainLabel: "Marriage pada · research",
+    plainShort: "Compare one marriage-specific progressed-lagna condition, which can last for a long period.",
+    short: "One ordinary ALP pada-navamsa condition. The source also requires the chart to permit marriage, which this test does not establish.",
+    source: "S. Pothuvudaimoorthy, Akshaya Lagna Paddhathi vol. 2 p. 35.", needsJudge: false, needsEvents: true },
+  { id: "bnn-marriage", system: "BNN", label: "Marriage Jupiter contact · research", plainLabel: "Marriage Jupiter contact · research",
+    plainShort: "Compare a single year-scale Jupiter contact with the natal spouse significator; this is a partial clue.",
+    short: "Same-sign Jupiter contact with natal Venus in male or Mars in female charts. The cited Venus example specifies a second Jupiter round, which this partial clue does not check. Unspecified gender is unassessed.",
+    source: "N. Srinivasan Shastry, Brighu Naadi Sangraha, introductory principles and Jupiter chapter.", needsJudge: false, needsEvents: true },
   {
     id: "kp-aurora-v2", system: "KP", label: "Aurora mixed scripts · v2 research",
     plainLabel: "Aurora mixed scripts · v2 research",
@@ -212,6 +233,10 @@ export const RECTIFY_METHODS: Array<{
   },
 ];
 
+export const QUALIFIED_RECTIFY_METHODS: Partial<Record<RectifyMethod, QualifiedScoreKey>> = {
+  "kp-qualified": "kp", "parashari-events-v4": "parashari", "alp-marriage": "alp", "bnn-marriage": "bnn",
+};
+
 /** Method label for running text; only "Moon" keeps its capital. */
 export function methodLabel(m: { label: string }): string {
   return m.label.startsWith("Moon") ? m.label : m.label.toLowerCase();
@@ -223,6 +248,8 @@ export function methodScore(
   m: RectifyMethod,
   marks?: { table: Record<number, BodyMarksResult>; confirmed: Set<string> },
 ): { score: number; max: number } {
+  const qualifiedKey = QUALIFIED_RECTIFY_METHODS[m];
+  if (qualifiedKey) return qualifiedTotals(s.events.map((e) => e.qualifiedScores), qualifiedKey);
   if (m === "kp-aurora-v2")
     return s.events.reduce((a, e) => e.auroraV2
       ? { score: a.score + (e.auroraV2.allSupported ? 1 : 0), max: a.max + 1 } : a,
@@ -293,6 +320,8 @@ export function baselineFor(
   s: RectifySegment,
   m: RectifyMethod,
 ): RectifyBaselineStat | undefined {
+  const qualifiedKey = QUALIFIED_RECTIFY_METHODS[m];
+  if (qualifiedKey) return s.baseline?.qualified?.[qualifiedKey];
   if (m === "kp-aurora-v2") return s.baseline?.auroraV2;
   if (m === "kp-aurora") return s.baseline?.aurora;
   if (m === "kp-events") return s.baseline?.kpEvents;
@@ -359,6 +388,10 @@ export const EVENT_METHODS: RectifyMethod[] = [
   "kp-transit",
   "kp-aurora",
   "kp-aurora-v2",
+  "kp-qualified",
+  "parashari-events-v4",
+  "alp-marriage",
+  "bnn-marriage",
   "jaimini-dasha",
 ];
 

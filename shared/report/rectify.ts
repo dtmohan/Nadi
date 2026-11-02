@@ -24,8 +24,11 @@ import { parashariCatalogueParas } from "./parashari-catalogue-evidence";
 import { additionalSchoolParas } from "./additional-school-event-evidence";
 import { alpEventParas } from "./alp-event-evidence";
 import { catalogueComparisonParas } from "./catalogue-comparison";
+import { qualifiedScoreParas, qualifiedComparisonParas } from "./qualified-event-scores";
+import { qualifiedComparable } from "../qualified-event-scores";
 import {
   RECTIFY_METHODS,
+  QUALIFIED_RECTIFY_METHODS,
   EVENT_METHODS,
   baselineFor,
   methodLabel,
@@ -181,7 +184,11 @@ export const rectifyModule: ReportModule = {
     }));
     const maxOf = Math.max(0, ...scored.map((x) => x.sc.max));
     const top = Math.max(0, ...scored.map((x) => x.sc.score));
-    const highlighted = new Set(highlightedCandidates(scored.map((x) => ({ score: x.sc.score, b: x.b }))));
+    const qualifiedKey = QUALIFIED_RECTIFY_METHODS[state.method];
+    const comparable = !qualifiedKey || (maxOf > 0 && scored.every((r) => r.sc.max === maxOf) &&
+      scored.every((r) => qualifiedComparable(scored[0].seg.events.map((e) => e.qualifiedScores), r.seg.events.map((e) => e.qualifiedScores), qualifiedKey)) &&
+      (!scored.some((r) => r.b) || scored.every((r) => r.b)));
+    const highlighted = new Set(comparable ? highlightedCandidates(scored.map((x) => ({ score: x.sc.score, b: x.b }))) : []);
     const best = scored.filter((_, i) => highlighted.has(i));
     const given = scan.segments.find((s) => s.given);
     const nemaniGroups = state.method === "kp-nemani-rp" ? groupNemaniSegments(scan.segments) : [];
@@ -205,7 +212,7 @@ export const rectifyModule: ReportModule = {
     ];
     if (m.needsEvents) paras.push({ kind: "note", text: EVENT_TRANSIT_SCOPE });
     paras.push(...windowParas());
-    const coverage = state.method !== "bj-marks" && maxOf > 0 && !(state.method === "kp-nemani-rp" && top === 0) ? rawScoreCoverage(scored.map((r) => ({
+    const coverage = state.method !== "bj-marks" && maxOf > 0 && comparable && !(state.method === "kp-nemani-rp" && top === 0) ? rawScoreCoverage(scored.map((r) => ({
       score: r.sc.score, startIso: r.seg.startIso, endIso: r.seg.endIso, given: r.seg.given,
     }))) : undefined;
     if (coverage) paras.push({
@@ -232,7 +239,7 @@ export const rectifyModule: ReportModule = {
     } else {
       paras.push({
         kind: "p",
-        text: eventMethod && scan.baseline ? "No candidate meets the exploratory highlighting rule." : "No interval in the window scores under this method.",
+        text: !comparable ? maxOf === 0 ? "No eligible events can be scored under this method." : "Eligibility or comparison availability differs across candidate intervals; these totals cannot be ranked." : eventMethod && scan.baseline ? "No candidate meets the exploratory highlighting rule." : "No interval in the window scores under this method.",
       });
     }
     if (eventMethod && scan.baseline) {
@@ -390,6 +397,9 @@ export const rectifyModule: ReportModule = {
       } else if (state.method === "kp-aurora") {
         ps.push({ kind: "note", provisional: true, text: "Aurora staged scripts are a strict app research adapter. Mixed or silent stages do not pass, later stages cannot rescue them, and no complete chains passed in a small fresh-case pilot.", cites: [cites.add(AURORA_SOURCE)] });
         for (const e of focus.events) if (e.aurora) ps.push(...auroraEvidenceParas(e.aurora, `${S(e.label)} · ${e.date}`, cites.add(AURORA_SOURCE)));
+      } else if (qualifiedKey) {
+        for (const event of focus.events) ps.push(...qualifiedScoreParas(event.qualifiedScores, `${S(event.label)} · ${event.date}`, (source, url) => cites.add(source, url), qualifiedKey));
+        ps.push(...qualifiedComparisonParas(focus.baseline?.qualified));
       } else {
         ps.push({
           kind: "table",

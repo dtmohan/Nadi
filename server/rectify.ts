@@ -87,6 +87,8 @@ import {
 import { SIGNS, SIGN_LORD } from "@shared/astro";
 import { additionalSchoolEvents } from "./additional-school-events";
 import { createAlpEventScorer } from "@shared/alp-event-evidence";
+import { qualifiedEventScores, qualifiedComparable, qualifiedTotals, QUALIFIED_SCORE_KEYS, type QualifiedEventScores, type QualifiedScoreKey } from "@shared/qualified-event-scores";
+import { EVENT_MATTERS } from "@shared/events";
 import { dashaFitAt } from "@shared/jaimini-areas";
 import { comparisonDate, eventInstant } from "./event-time";
 import { kundaD81Check, scanKundaD81 } from "./kunda";
@@ -96,7 +98,7 @@ import { manleyTopicFor } from "@shared/manley-evidence";
 import { MANLEY_WINDOW_DIVISIONS, scanVargaWindows } from "./varga-windows";
 import { summarizeParashariComparisons, type ParashariComparisonExample, type ParashariObservation } from "@shared/parashari-comparison";
 import { createParashariEventScorer, parashariObservation } from "./parashari-event";
-import { computeParashari, DEFAULT_ASPECT_FLOOR } from "@shared/parashari";
+import { computeParashariNatal, DEFAULT_ASPECT_FLOOR } from "@shared/parashari";
 import { createParashariNatalCatalogue } from "@shared/parashari-event-natal-rules";
 import { createKpEventScorer } from "@shared/kp-event-evidence";
 import { KP_EVENT_NATAL_RULES } from "@shared/kp-event-natal-rules";
@@ -664,8 +666,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
       latitude: chart.latitude, longitude: chart.longitude, timezone: zone, timeStandard: chart.timeStandard,
       ayanamsa: optsJ.ayanamsa, nodeType: optsJ.nodeType, sunrise: chart.sunriseDef || "edge",
       houseMethod: chart.parashariHouseMethod || "rashi", ascendant: lagnaJ, division: "D1", precision: "full" });
-    const parashariNatal = computeParashari(natalContext, lagnaJ, birthIso, lifeAsOf(chart, readingAsOf),
-      shadbalaBase(mid, chart.latitude, chart.longitude, optsJ), undefined, DEFAULT_ASPECT_FLOOR,
+    const parashariNatal = computeParashariNatal(natalContext, lagnaJ, birthIso, lifeAsOf(chart, readingAsOf),
+      shadbalaBase(mid, chart.latitude, chart.longitude, optsJ), DEFAULT_ASPECT_FLOOR,
       sensitiveGate(chart, birthIso, readingAsOf).withheld, normaliseParashariHouseMethod(chart.parashariHouseMethod));
     const ordinary = createParashariNatalCatalogue(parashariNatal,
       (matter) => eventReadingAllowed(matter, birthIso, readingAsOf, chart));
@@ -754,9 +756,22 @@ export function rectify(req: RectifyRequest): RectifyResult {
         jaimini,
       };
     };
-    const events: RectifyEventCheck[] = req.events.map((e, ei) =>
-      checkEvent(e, e.date, eventPositions[ei], eventInstants[ei], eventMilliseconds[ei]),
-    );
+    const qualify = (e: RectifyRequest["events"][number], date: string, instant: string,
+      sky: ReturnType<typeof positionsLite> | null, checked: RectifyEventCheck,
+      parashari: typeof parashariByEvent[number] | undefined): QualifiedEventScores => {
+      const known = EVENT_MATTERS.find((m) => m.id === e.matter);
+      const outcome = e.outcome ?? (known?.nature === "good" ? "favourable" : known?.nature === "bad" ? "unfavourable" : "mixed");
+      const custom = !known || e.cusp !== known.cusp || [...e.houses].sort((a,b) => a-b).join(",") !== [...known.houses].sort((a,b) => a-b).join(",");
+      return qualifiedEventScores({ matter: e.matter, outcome, custom,
+        afterDeath: !!chart.deathDate && date > chart.deathDate, birthIso, eventIso: instant,
+        gender: chart.gender, natalPositions: posJ, sky: sky ?? [], kp: checked,
+        divisional: parashari?.divisional, ordinary: parashari?.ordinary, additional: checked.additionalNatal, alp: checked.alp });
+    };
+    const events: RectifyEventCheck[] = req.events.map((e, ei) => {
+      const checked = checkEvent(e, e.date, eventPositions[ei], eventInstants[ei], eventMilliseconds[ei]);
+      checked.qualifiedScores = qualify(e, e.date, eventInstants[ei], eventPositionsJ[ei], checked, parashariByEvent[ei]);
+      return checked;
+    });
 
     // Baseline: the same interval scored at the selected random dates.
     let baseline: RectifySegmentBaseline | undefined;
@@ -777,12 +792,16 @@ export function rectify(req: RectifyRequest): RectifyResult {
       let auroraExample: RectifySegmentBaseline["auroraExample"];
       let auroraV2Example: RectifySegmentBaseline["auroraV2Example"];
       let catalogueExample: RectifySegmentBaseline["catalogueExample"];
+      const qualifiedActual = events.map((e) => e.qualifiedScores);
+      const qualifiedSamples: Record<QualifiedScoreKey, number[]> = { kp: [], parashari: [], alp: [], bnn: [] };
+      const qualifiedValid: Record<QualifiedScoreKey, boolean> = { kp: true, parashari: true, alp: true, bnn: true };
       for (let t = 0; t < trials; t++) {
         let k = 0, aurora = 0, auroraV2 = 0,
           tr = 0,
           ja = 0;
         const trialParashari: ParashariObservation[] = [];
         const trialAuroraV2: Array<AuroraV2Evidence | undefined> = [];
+        const qualifiedTrial: QualifiedEventScores[] = [];
         if (t === 0) parashariExample = [];
         if (t === 0) auroraExample = [];
         if (t === 0) auroraV2Example = [];
@@ -802,17 +821,26 @@ export function rectify(req: RectifyRequest): RectifyResult {
           ja += c.jaimini?.score ?? 0;
           const sky = trialPositionsJ[t][ei];
           let trialOrdinary: typeof parashariByEvent[number]["ordinary"];
+          let trialParashariResult: typeof parashariByEvent[number] | undefined;
           if (sky) {
             const date = trialDates[t][ei];
             const p = scoreParashari(e, date, trialInstants[t][ei], sky);
+            trialParashariResult = p;
             trialOrdinary = p.ordinary;
             if (t === 0) catalogueExample![ei].parashariOrdinary = p.ordinary;
             trialParashari.push(parashariObservation(p, e.outcome));
             if (t === 0 && (actualParashari[ei].v1 !== undefined || actualParashari[ei].staged)) parashariExample!.push({ label: e.label, date, time: e.time, timezone: e.timezone,
               promise: p.promise, specific: p.specific, divisional: p.divisional, manley: p.manley, hierarchy: p.hierarchy });
           } else trialParashari.push({});
+          const qualified = qualify(e, trialDates[t][ei], trialInstants[t][ei], sky, c, trialParashariResult);
+          qualifiedTrial.push(qualified);
+          if (t === 0) catalogueExample![ei].qualifiedScores = qualified;
           catalogueComparison.observe(ei, { alp: c.alp, parashariOrdinary: trialOrdinary });
         });
+        for (const key of QUALIFIED_SCORE_KEYS) {
+          if (!qualifiedComparable(qualifiedActual, qualifiedTrial, key)) qualifiedValid[key] = false;
+          qualifiedSamples[key].push(qualifiedTotals(qualifiedTrial, key).score);
+        }
         parashariTrials.push(trialParashari);
         sums.kpEvents.push(k);
         sums.aurora.push(aurora);
@@ -823,7 +851,13 @@ export function rectify(req: RectifyRequest): RectifyResult {
         sums.jaimini.push(ja);
       }
       const parashari = summarizeParashariComparisons(actualParashari, parashariTrials);
+      const qualified: Partial<Record<QualifiedScoreKey, RectifyBaselineStat>> = {};
+      for (const key of QUALIFIED_SCORE_KEYS) {
+        const total = qualifiedTotals(qualifiedActual, key);
+        if (total.max && qualifiedValid[key]) qualified[key] = baselineStat(qualifiedSamples[key], total.score);
+      }
       baseline = {
+        qualified,
         kpEvents: baselineStat(
           sums.kpEvents,
           events.reduce((a, e) => a + e.score, 0),

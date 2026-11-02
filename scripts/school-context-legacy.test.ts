@@ -6,7 +6,7 @@ import { DateTime } from "luxon";
 import { createPlanetContext } from "@shared/planet-context";
 import { evaluate } from "@shared/rules";
 import { computeJaimini } from "@shared/jaimini";
-import { computeParashari } from "@shared/parashari";
+import { computeParashari, computeParashariNatal } from "@shared/parashari";
 import { computeKp } from "@shared/kp";
 import { computeAlp } from "@shared/alp";
 import { computePrasna } from "@shared/rules-prasna";
@@ -50,6 +50,22 @@ test("all six school readings retain their pre-migration full results on varied 
         .replaceAll('"kp6-sickness-part3"', '"kp6-sickness"')
         .replaceAll('"kp6-separation-part3"', '"kp6-separation"')) : result;
       assert.equal(digest(normalized), reference.hashes[i][school], `chart ${i}, ${school}`);
+    }
+  }
+});
+
+test("the faster natal-only Parashari frame matches the full ordinary reading under every house method and gate", () => {
+  const asOf = "2025-01-01T00:00:00Z";
+  for (const e of examples) {
+    const jd = julianDay(DateTime.fromISO(e.birth));
+    const opts = { ayanamsa: e.aya, nodeType: e.node, sunrise: "edge" as const };
+    const positions = positionsAt(jd, opts), asc = ascendantAt(jd, e.lat, e.lon, opts);
+    const shadbala = shadbalaBase(jd, e.lat, e.lon, opts);
+    for (const house of ["rashi", "equal", "sripati"] as const) for (const withhold of [false, true]) for (const strength of [shadbala, undefined]) {
+      const full = computeParashari(positions, asc, e.birth, asOf, strength, undefined, undefined, withhold, house);
+      const fast = computeParashariNatal(positions, asc, e.birth, asOf, strength, undefined, withhold, house);
+      for (const key of ["aspectFloor", "houseMethod", "houseMethodNote", "bhavas", "findings", "bhavaJudgement"] as const)
+        assert.deepEqual(fast[key], full[key], `${e.birth} ${house} withhold=${withhold} strength=${!!strength} ${key}`);
     }
   }
 });

@@ -23,6 +23,7 @@ import { parashariCatalogueParas } from "./parashari-catalogue-evidence";
 import { additionalSchoolParas } from "./additional-school-event-evidence";
 import { alpEventParas } from "./alp-event-evidence";
 import { catalogueComparisonParas } from "./catalogue-comparison";
+import { qualifiedScoreParas, qualifiedComparisonParas } from "./qualified-event-scores";
 import {
   type ReportModule,
   type ReportPara,
@@ -120,6 +121,7 @@ export const validateModule: ReportModule = {
     for (const event of v.events) paras.push(...parashariCatalogueParas(event.parashariOrdinary, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), ctx.plain));
     for (const event of v.events) paras.push(...additionalSchoolParas(event.additionalNatal, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), "all", ctx.plain));
     for (const event of v.events) paras.push(...alpEventParas(event.alp, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), ctx.plain));
+    for (const event of v.events) paras.push(...qualifiedScoreParas(event.qualifiedScores, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url)));
     if (s.diverted)
       paras.push({
         kind: "p",
@@ -287,6 +289,7 @@ export const validateModule: ReportModule = {
         title: "Random-date comparison",
         paras: [
           ...catalogueComparisonParas(b.catalogueComparison),
+          ...qualifiedComparisonParas(b.qualified),
           {
             kind: "p",
             text: `Each matter was rescored at ${b.trials} sets of independently selected dates between ${b.span[0]} and ${b.span[1]}. Transits use each sampled date and the same natal chart. The mid-rank percentile counts scores below the actual score plus half the tied scores. These comparisons are descriptive and do not adjust for related measures or the selection of birth times. Random dates need not preserve plausible event ages or order.`,

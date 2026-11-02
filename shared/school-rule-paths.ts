@@ -19,7 +19,7 @@ export interface RuleFamilyPath {
 export const SCHOOL_RULE_PATHS = {
   bnnNatal: { school: "BNN", label: "Natal combinations", evaluator: "evaluate", requires: ["natal frame"],
     paths: { chart: "shared", "dated-reading": "shared", validate: "shared", rectify: "shared", comparison: "shared" },
-    limits: "Mapped natal area findings are shared as context at each candidate and comparison date. Validate's separate transit score selects a touched finding; Rectify has no BNN event ranking method." },
+    limits: "Mapped natal area findings remain context. A separate partial marriage Jupiter-contact experiment uses the same dated evaluator in every event path." },
   kpNatal: { school: "KP", label: "Natal interpretations", evaluator: "computeKp / evaluateKp", requires: ["KP natal frame", "Placidus cusps", "reading settings"],
     paths: { chart: "shared", "dated-reading": "shared", validate: "shared", rectify: "shared", comparison: "shared" },
     limits: "A reviewed event-specific subset uses the ordinary four-step rule evaluator at every candidate and trial. Other catalogue rules are not automatically event rules; the existing event score remains separate. Custom houses or cusps are not silently mapped." },
@@ -43,7 +43,7 @@ export const SCHOOL_RULE_PATHS = {
     limits: "The chart's timing windows use the same underlying triggers; the dated check is available only for matters mapped to a Jaimini area." },
   alp: { school: "ALP", label: "Progressed-lagna readings", evaluator: "computeAlp / evaluateAlp", requires: ["natal frame", "reading instant", "ALP settings"],
     paths: { chart: "shared", "dated-reading": "shared", validate: "shared", rectify: "shared", comparison: "shared" },
-    limits: "Reviewed topic findings reuse the default ordinary ALP evaluator at the exact actual or sampled event instant; comparison frequencies are descriptive, without an event score. The chart date picker uses the start of a day and may differ at a boundary." },
+    limits: "Reviewed topic findings reuse the default ordinary ALP evaluator at each exact event instant. The sourced marriage-pada clue has a separate experimental count; other topic associations remain descriptive. The chart date picker uses the start of a day and may differ at a boundary." },
   prasna: { school: "Prasna Marga", label: "House readings", evaluator: "computePrasna", requires: ["specified natal or sky frame", "reference sign"],
     paths: { chart: "shared", "dated-reading": "shared", validate: "shared", rectify: "shared", comparison: "shared" },
     limits: "The selected natal-house and Gulika clues are shared as context; they do not form a horary question chart or event score. A stored sky snapshot and actual question chart require separate inputs." },
@@ -62,7 +62,8 @@ export const SCHOOL_RULE_PATHS = {
 export const RECTIFY_RULE_FAMILY = {
   "kp-rp": "kpDiagnostic", "kp-nemani-rp": "kpDiagnostic", "kp-moon": "kpDiagnostic",
   "kp-events": "kpEvent", "kp-transit": "kpEvent", "kp-aurora": "kpEvent", "kp-aurora-v2": "kpEvent",
+  "kp-qualified": "kpEvent", "alp-marriage": "alp", "bnn-marriage": "bnnNatal",
   "jaimini-dasha": "jaiminiDasha",
-  "parashari-events": "parashariEvent", "parashari-events-v2": "parashariEvent", "parashari-events-v3": "parashariEvent",
+  "parashari-events": "parashariEvent", "parashari-events-v2": "parashariEvent", "parashari-events-v3": "parashariEvent", "parashari-events-v4": "parashariEvent",
   "bj-marks": "bjMarks", "bj-nashta": "bjNashta", kunda: "kunda", "kunda-d81": "kunda",
 } as const satisfies Record<RectifyMethod, keyof typeof SCHOOL_RULE_PATHS>;

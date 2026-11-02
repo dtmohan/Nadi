@@ -28,6 +28,7 @@ import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
 import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
 import { AdditionalSchoolEventEvidence } from "@/components/additional-school-event-evidence";
 import { AlpEventEvidencePanel } from "@/components/alp-event-evidence";
+import { QualifiedEventScoresPanel } from "@/components/qualified-event-scores";
 
 export type TopicReadingSystem = "kp" | "parashari" | "jaimini" | "bnn" | "alp" | "prasna";
 
@@ -151,6 +152,7 @@ export function TopicReadingPanel({ result, system, onSelected }: {
     </form>}
     {shown && <div className="space-y-2 rounded-md border px-3 py-3 text-xs" data-testid={`topic-reading-result-${system}`}>
       <p className="font-medium">{shown.reading.label} · {shown.reading.date} · {describeEventMoment(shown.event, chart.timezone)}</p>
+      <QualifiedEventScoresPanel scores={shown.reading.qualifiedScores} school={system} />
       {system === "alp" && <AlpEventEvidencePanel evidence={shown.reading.alp} />}
       {system === "prasna" && <AdditionalSchoolEventEvidence evidence={shown.reading.additionalNatal} school="prasna" />}
       {system === "parashari" && <>

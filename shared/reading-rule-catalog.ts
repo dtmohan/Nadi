@@ -52,7 +52,9 @@ export const RECTIFY_RULE_SCOPE = {
   "kp-transit": { inputs: "chart+event+judgment", shared: "KP event checks and period-lord transits", boundary: "judgment Sun hint is separate from event-day score" },
   "kp-aurora": { inputs: "chart+event", shared: "Aurora strict cusp and period stages", boundary: "mapped topics only; research convention" },
   "kp-aurora-v2": { inputs: "chart+event", shared: "Aurora mixed cusp and period stages", boundary: "mapped topics only; research convention" },
+  "kp-qualified": { inputs: "chart+event", shared: "registered natal clues then three period links", boundary: "favourable mapped events; partial research convention" },
   "parashari-events": { inputs: "chart+event", shared: "partial D1/divisional support, periods, double transit", boundary: "favourable marriage, child or job; v1 experimental tally" },
   "parashari-events-v2": { inputs: "chart+event", shared: "event-specific v2 factors", boundary: "favourable marriage, child or job; experimental tally" },
   "parashari-events-v3": { inputs: "chart+event", shared: "v2 and divisional period links", boundary: "favourable marriage, child or job; experimental tally" },
+  "parashari-events-v4": { inputs: "chart+event", shared: "v3 plus ordinary BPHS children clue", boundary: "favourable marriage, child or job; overlapping experimental tally" },
 } as const satisfies Record<ScopedMethod, MethodScope>;

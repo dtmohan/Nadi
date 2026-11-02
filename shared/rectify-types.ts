@@ -16,6 +16,7 @@ import type { AuroraV2Evidence, AuroraV2StageComparison } from "./kp-aurora-v2";
 import type { ParashariDatedCatalogue } from "./parashari-event-natal-rules";
 import type { AdditionalSchoolNatalEvidence } from "./additional-school-event-rules";
 import type { AlpEventEvidence } from "./alp-event-evidence";
+import type { QualifiedEventScores, QualifiedScoreKey } from "./qualified-event-scores";
 
 export interface RectifyEvent {
   label: string;
@@ -56,6 +57,7 @@ export interface RectifyRequest {
 export interface RectifyEventCheck extends KpEventRules {
   additionalNatal?: AdditionalSchoolNatalEvidence;
   alp?: AlpEventEvidence;
+  qualifiedScores?: QualifiedEventScores;
   label: string;
   date: string;
   time?: string;
@@ -294,7 +296,8 @@ export interface RectifyBaselineStat {
 
 export interface RectifySegmentBaseline {
   /** First comparison set carries the same candidate-specific natal rule evidence. */
-  catalogueExample?: Array<{ label: string; date: string; natalRules?: KpEventRules["natalRules"]; parashariOrdinary?: ParashariDatedCatalogue; additionalNatal?: AdditionalSchoolNatalEvidence; alp?: AlpEventEvidence }>;
+  catalogueExample?: Array<{ label: string; date: string; natalRules?: KpEventRules["natalRules"]; parashariOrdinary?: ParashariDatedCatalogue; additionalNatal?: AdditionalSchoolNatalEvidence; alp?: AlpEventEvidence; qualifiedScores?: QualifiedEventScores }>;
+  qualified?: Partial<Record<QualifiedScoreKey, RectifyBaselineStat>>;
   /** Date-dependent ordinary rule frequencies, descriptive and separate from ranking. */
   catalogueComparison?: import("./catalogue-comparison").EventCatalogueComparison[];
   kpEvents: RectifyBaselineStat;

@@ -785,6 +785,7 @@ export default function RulesPage() {
           </section>
         </TabsContent>
         <TabsContent value="alp">
+          <RuleQualificationList system="ALP" />
           <AlpRules />
         </TabsContent>
         <TabsContent value="kp">
@@ -797,6 +798,7 @@ export default function RulesPage() {
           <SutraLibrary initialRef={sutraRef} />
         </TabsContent>
         <TabsContent value="bnn">
+          <RuleQualificationList system="BNN" />
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Bhrigu Nandi Nadi chart interpretations use these declarative rules. A rule names a
             subject planet, an optional object planet with the sign relations

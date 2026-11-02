@@ -5,7 +5,7 @@ import type { RectifyMethod } from "./rectify-methods";
 
 export type RuleQualification = {
   id: string;
-  system: "KP" | "Parashari";
+  system: "KP" | "Parashari" | "BNN" | "ALP";
   title: string;
   status: "Source-adapted subset" | "Research convention" | "Birth-time diagnostic";
   needs: string;
@@ -36,6 +36,8 @@ export const RULE_QUALIFICATIONS = [
     checks: "Cusp and period script layers in order; a later stage cannot pass an unresolved predecessor.", limits: "The no-adverse threshold is Nadi's strict choice and does not reproduce every mixed example. In the small case tests no complete chains passed; the method cannot yet rank birth times.", source: aurora },
   { id: "kp-mixed", system: "KP", title: "Aurora mixed staged script", status: "Research convention", needs: "Birth chart, mapped matter and event date for period stages",
     checks: "A supportive sub can carry a mixed star with caution; a mixed sub remains unresolved. Nodes and self-significators have explicit app treatments.", limits: "The node, promotion and repeated-star conventions are incomplete interpretations; no complete chains passed in the small published-case tests. An unresolved stage is not an event denial.", source: aurora },
+  { id: "kp-qualified", system: "KP", title: "Natal clues before period links", status: "Research convention", needs: "Birth chart and favourable mapped event at a dated instant",
+    checks: "Registered natal promise-role findings, then dasa, bhukti and antara links in order. A later stage is not counted if an earlier stage is unresolved.", limits: "Mixed, absent or adverse clues remain unresolved, not denial. The four-step house sets and stage count are a partial app interpretation, not Aurora's complete method.", source: aurora },
   { id: "kp-rp", system: "KP", title: "Moon and ruling-planet rectification", status: "Birth-time diagnostic", needs: "Candidate birth chart; ruling-planet variants also need a judgment instant and place",
     checks: "Separate Moon-lord, mixed-chart ruling-planet and Nemani judgment-chart comparisons.", limits: "These test a candidate birth time and do not turn into an ordinary event prediction. Their respective source interpretations are not blended.", source: { label: "Astro Secrets & KP Part 2 pp. 80–82; Nemani, Birth Time Rectification Methods vol. 1 ch. 4" } },
   { id: "para-support", system: "Parashari", title: "D1 and divisional support and strain", status: "Source-adapted subset", needs: "Birth chart and mapped matter",
@@ -58,8 +60,14 @@ export const RULE_QUALIFICATIONS = [
     checks: "Partial D1/divisional support plus the app's selected event-specific period, lordship and transit factors.", limits: "Six equal points combine source subsets; they are not a published formula or a probability. Event-specific rules and outcomes need broader validation.", source: { label: "Rao-guided Astrology and Timing of Marriage ch. 2; Astrological Assessment of Timing of Childbirth §§2.6–2.7; Bhaskar, Advanced Techniques vol. 1 pp. 23–24" } },
   { id: "para-v3", system: "Parashari", title: "Divisional period links · v3", status: "Research convention", needs: "Birth chart and favourable marriage, childbirth or job event with date",
     checks: "Adds the main/subperiod lords' primary divisional house, lord or significator links to v2.", limits: "The eight equal points can overlap, and later points do not require D1 to pass. The third period is descriptive; neither this tally nor the separate earlier D1 gate is validated as a time selector.", source: manley },
+  { id: "para-v4", system: "Parashari", title: "Children natal clue · v4", status: "Research convention", needs: "Birth chart and favourable childbirth event",
+    checks: "Adds the ordinary BPHS 16.16 fifth-lord finding as one child-event condition alongside v3.", limits: "The added point overlaps v3 and uses the selected ordinary house method, while v3 uses whole signs. Other indications can conflict; no match is not a denial. Marriage and career retain v3.", source: { label: "Brihat Parashara Hora Shastra 16.16; Manley, Birth Time Rectification", url: bphs.url } },
   { id: "para-gate", system: "Parashari", title: "Earlier D1-to-division funnel", status: "Research convention", needs: "Birth chart and a mapped favourable event with date",
     checks: "An older strict screen checks D1, the matter's own division and period links in order.", limits: "It omits many possibilities and can stop before considering a strong divisional clue. It must not exclude a candidate or prove a denial.", source: manley },
+  { id: "alp-marriage", system: "ALP", title: "Marriage pada-navamsa clue", status: "Research convention", needs: "Birth chart and favourable marriage date and time",
+    checks: "The ordinary ALP evaluator's marriage-pada finding at the event instant.", limits: "One partial clue; the source also requires a chart that permits marriage. A zero is not a denial and can persist for long periods.", source: { label: "S. Pothuvudaimoorthy, Akshaya Lagna Paddhathi vol. 2 p. 35", url: "https://www.scribd.com/document/972735161/Jyotish-S-Pothuvudai-Moorthy-Akshaya-Lagna-Pathathi-ALP-Part-2-2021" } },
+  { id: "bnn-marriage", system: "BNN", title: "Marriage Jupiter contact clue", status: "Research convention", needs: "Birth chart, chart gender and favourable marriage date and time",
+    checks: "Transiting Jupiter in the same sign as natal Venus in a male chart or Mars in a female chart.", limits: "Same sign is a narrow interpretation of touch. The Venus example specifies Jupiter's second round, not evaluated here. Gender-unspecified charts are unassessed; a zero does not deny an event.", source: { label: "N. Srinivasan Shastry, Brighu Naadi Sangraha", url: "https://ashramsofindia.com/wp-content/uploads/2023/09/Brighu-Naadi-Sangraha-by-N-Srinivasan-Shastry.pdf" } },
 ] as const satisfies readonly RuleQualification[];
 
 /** Every KP and Parashari rectification method must point at a qualification.
@@ -68,6 +76,6 @@ type ScopedMethod = Extract<RectifyMethod, `kp-${string}` | `parashari-${string}
 type QualificationId = (typeof RULE_QUALIFICATIONS)[number]["id"];
 export const RECTIFY_QUALIFICATION = {
   "kp-moon": "kp-rp", "kp-rp": "kp-rp", "kp-nemani-rp": "kp-rp",
-  "kp-events": "kp-periods", "kp-transit": "kp-transits", "kp-aurora": "kp-strict", "kp-aurora-v2": "kp-mixed",
-  "parashari-events": "para-v1", "parashari-events-v2": "para-v2", "parashari-events-v3": "para-v3",
+  "kp-events": "kp-periods", "kp-transit": "kp-transits", "kp-aurora": "kp-strict", "kp-aurora-v2": "kp-mixed", "kp-qualified": "kp-qualified",
+  "parashari-events": "para-v1", "parashari-events-v2": "para-v2", "parashari-events-v3": "para-v3", "parashari-events-v4": "para-v4",
 } as const satisfies Record<ScopedMethod, QualificationId>;

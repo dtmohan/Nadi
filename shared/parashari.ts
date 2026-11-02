@@ -344,7 +344,10 @@ const strongDignity = (p: PlanetPosition) =>
   p.dignity === "Own sign" ||
   p.dignity === "Moolatrikona";
 
-export function computeParashari(
+/** Fields needed to project the ordinary house and yoga reading into events. */
+export type ParashariNatalResult = Pick<ParashariResult, "aspectFloor" | "houseMethod" | "houseMethodNote" | "bhavas" | "findings" | "bhavaJudgement">;
+
+function computeParashariInternal(
   input: PlanetInput,
   lagnaLon: number,
   birthIso: string,
@@ -354,7 +357,8 @@ export function computeParashari(
   aspectFloor: AspectFloor = DEFAULT_ASPECT_FLOOR,
   withhold = false,
   houseMethod: ParashariHouseMethod = "rashi",
-): ParashariResult {
+  natalOnly = false,
+): ParashariResult | ParashariNatalResult {
   const context = asPlanetContext(input);
   assertContextAscendant(context, lagnaLon);
   const positions = planetPositions(context);
@@ -1137,6 +1141,68 @@ export function computeParashari(
     }
   }
 
+  // Chapters 11-13: house judgement and the stated effects of the 1st and 2nd houses.
+  const houseDeps = { aspect: asp, benefic: naturalBenefic };
+  // The avasthas come first: Sayana is one of the 6.53 exclusions, which with combustion, defeat in
+  // war and Shadbala weakness decide which divisions count for 13.11, 36.38-39 and the dasa notes.
+  const avasthas = computeAvasthas(
+    positions,
+    lagnaIdx,
+    houseDeps,
+    shadbala,
+    shadbalaBase,
+  );
+  const vargaExcl = vargaExclusions(shadbala, avasthas);
+  const vargas = computeVargas(positions, lagnaLon, vargaExcl);
+  const houseReading = houseFindings(positions, houseView, lagnaLon, lagnaIdx, houseDeps, shadbala, vargas);
+  if (houseMethod !== "rashi" && !fellBack)
+    for (const f of houseReading) {
+      f.source = { ...f.source, label: `${f.source.label}, bhava-chalit placement`, provisional: true };
+    }
+  findings.push(...houseReading);
+  // Phaladeepika 8.1-33: the nine planets by house placement, gated for a minor result by result.
+  findings.push(...placementFindings(positions, houseView, lagnaIdx, withhold));
+  // Chapters 35-38: Nabhasa, remaining ch. 36, lunar and solar yogas.
+  findings.push(
+    ...yogaFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala, vargas),
+  );
+  findings.push(
+    ...royalFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
+  );
+  findings.push(...fatherFindings(positions, lagnaIdx));
+  // Ch. 9-10 evils and their checks are infancy-danger rules: never computed under the gate.
+  if (!withhold)
+    findings.push(
+      ...evilFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
+    );
+  findings.push(
+    ...curseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
+  );
+  const bhavaJudgement = judgeBhavas(positions, houseView, houseDeps, shadbala);
+  if (chalit)
+    for (const j of bhavaJudgement)
+      j.chalitNote = bhavaHouseAnnotation(chalit, j.house, houseMethod);
+  // Plain meanings for the combinations, attached before the gate so it strips them with the rest.
+  for (const f of findings) {
+    if (f.plain) continue;
+    const m = plainMeaning(f);
+    if (m) Object.assign(f, m);
+  }
+  // N1: a finding that states a debility a classical rule cancels names the cancellation beside it, in both
+  // views. Display only: counts and tones are unchanged. The neechabhanga findings themselves, supports and
+  // nullified lines are left as they are.
+  for (const f of findings) {
+    if (f.id.startsWith("pa-neecha-") || f.tone === "support" || f.nullified) continue;
+    const c = debilityLink(neecha, f.text, SEVEN, { author: authorOf(f.source.label) });
+    if (c) f.debilityCancelled = c;
+  }
+  // Event callers need the identical natal findings, not every date-based dasha timeline.
+  if (natalOnly) {
+    const natal: ParashariNatalResult = { aspectFloor, houseMethod,
+      ...(houseMethodNote ? { houseMethodNote } : {}), bhavas, findings, bhavaJudgement };
+    return withhold ? redactSensitive(natal) : natal;
+  }
+
   // Vimshottari, glossed by lordship (Lahiri Moon).
   const vim = vimshottari(pos("Moon").lon, birthIso, asOfIso);
   const condDasas = conditionalDasas(
@@ -1217,47 +1283,6 @@ export function computeParashari(
     };
   });
 
-  // Chapters 11-13: house judgement and the stated effects of the 1st and 2nd houses.
-  const houseDeps = { aspect: asp, benefic: naturalBenefic };
-  // The avasthas come first: Sayana is one of the 6.53 exclusions, which with combustion, defeat in
-  // war and Shadbala weakness decide which divisions count for 13.11, 36.38-39 and the dasa notes.
-  const avasthas = computeAvasthas(
-    positions,
-    lagnaIdx,
-    houseDeps,
-    shadbala,
-    shadbalaBase,
-  );
-  const vargaExcl = vargaExclusions(shadbala, avasthas);
-  const vargas = computeVargas(positions, lagnaLon, vargaExcl);
-  const houseReading = houseFindings(positions, houseView, lagnaLon, lagnaIdx, houseDeps, shadbala, vargas);
-  if (houseMethod !== "rashi" && !fellBack)
-    for (const f of houseReading) {
-      f.source = { ...f.source, label: `${f.source.label}, bhava-chalit placement`, provisional: true };
-    }
-  findings.push(...houseReading);
-  // Phaladeepika 8.1-33: the nine planets by house placement, gated for a minor result by result.
-  findings.push(...placementFindings(positions, houseView, lagnaIdx, withhold));
-  // Chapters 35-38: Nabhasa, remaining ch. 36, lunar and solar yogas.
-  findings.push(
-    ...yogaFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala, vargas),
-  );
-  findings.push(
-    ...royalFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
-  );
-  findings.push(...fatherFindings(positions, lagnaIdx));
-  // Ch. 9-10 evils and their checks are infancy-danger rules: never computed under the gate.
-  if (!withhold)
-    findings.push(
-      ...evilFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
-    );
-  findings.push(
-    ...curseFindings(positions, lagnaIdx, lagnaLon, houseDeps, shadbala),
-  );
-  const bhavaJudgement = judgeBhavas(positions, houseView, houseDeps, shadbala);
-  if (chalit)
-    for (const j of bhavaJudgement)
-      j.chalitNote = bhavaHouseAnnotation(chalit, j.house, houseMethod);
   const padas = computePadas(
     positions,
     lagnaIdx,
@@ -1284,12 +1309,6 @@ export function computeParashari(
     asp,
     vargas,
   );
-  // Plain meanings for the combinations, attached before the gate so it strips them with the rest.
-  for (const f of findings) {
-    if (f.plain) continue;
-    const m = plainMeaning(f);
-    if (m) Object.assign(f, m);
-  }
   // Ties between any two of the nine by the three ties of 34.11-13 used for the angle and trine lords
   // above. Rahu and Ketu cast no aspect here, so they are tied only by sharing a sign.
   const NINE: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"];
@@ -1312,14 +1331,6 @@ export function computeParashari(
               : null;
       if (how) ties.push({ a, b, how });
     }
-  }
-  // N1: a finding that states a debility a classical rule cancels names the cancellation beside it, in both
-  // views. Display only: counts and tones are unchanged. The neechabhanga findings themselves, supports and
-  // nullified lines are left as they are.
-  for (const f of findings) {
-    if (f.id.startsWith("pa-neecha-") || f.tone === "support" || f.nullified) continue;
-    const c = debilityLink(neecha, f.text, SEVEN, { author: authorOf(f.source.label) });
-    if (c) f.debilityCancelled = c;
   }
   const out: ParashariResult = {
     ...(vargaExcl ? { vargaExclusions: vargaExcl } : {}),
@@ -1358,6 +1369,25 @@ export function computeParashari(
   const gated = redactSensitive(out);
   const shown = { ...gated, dasaReadings: rejudgeAfterGate(gated.dasaReadings) };
   return { ...shown, houseProse: composeHouseProse(shown) };
+}
+
+export function computeParashari(
+  input: PlanetInput, lagnaLon: number, birthIso: string, asOfIso: string,
+  shadbalaBase?: ShadbalaBase, dasaStarts?: DasaStartTransit[], aspectFloor: AspectFloor = DEFAULT_ASPECT_FLOOR,
+  withhold = false, houseMethod: ParashariHouseMethod = "rashi",
+): ParashariResult {
+  return computeParashariInternal(input, lagnaLon, birthIso, asOfIso, shadbalaBase, dasaStarts,
+    aspectFloor, withhold, houseMethod, false) as ParashariResult;
+}
+
+/** The same ordinary natal findings and gate, without chart-only period timelines. */
+export function computeParashariNatal(
+  input: PlanetInput, lagnaLon: number, birthIso: string, asOfIso: string,
+  shadbalaBase?: ShadbalaBase, aspectFloor: AspectFloor = DEFAULT_ASPECT_FLOOR,
+  withhold = false, houseMethod: ParashariHouseMethod = "rashi",
+): ParashariNatalResult {
+  return computeParashariInternal(input, lagnaLon, birthIso, asOfIso, shadbalaBase, undefined,
+    aspectFloor, withhold, houseMethod, true) as ParashariNatalResult;
 }
 
 export function ord(n: number): string {

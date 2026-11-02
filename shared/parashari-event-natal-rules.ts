@@ -3,7 +3,7 @@
  * A house spans several subjects; inclusion is context, never an event verdict.
  */
 import type { Planet } from "./astro";
-import type { ParashariFinding, ParashariResult } from "./parashari";
+import type { ParashariFinding, ParashariNatalResult, ParashariResult } from "./parashari";
 import type { BhavaJudgement } from "./parashari-houses";
 
 /** Primary D1 house for each event's broad subject, not a timing formula. */
@@ -38,7 +38,7 @@ export interface ParashariDatedCatalogue {
 /** Reuses the ordinary reading's already evaluated rules, conditions, sources,
  * counterindications and sensitivity filtering. The mapping does not turn a
  * whole-house result or a yoga involving its lord into an independent promise. */
-export function createParashariNatalCatalogue(result: ParashariResult, allowed?: (matter: string) => boolean) {
+export function createParashariNatalCatalogue(result: ParashariNatalResult, allowed?: (matter: string) => boolean) {
   const cache = new Map<string, ParashariNatalCatalogue>();
   return (matter: string | undefined): ParashariNatalCatalogue | undefined => {
     if (!matter) return undefined;

@@ -1,6 +1,6 @@
 /** The ordinary ALP evaluator projected to reviewed topic associations at an event instant. */
 import { DateTime } from "luxon";
-import { alpLonAt, alpPointAt, arpLonAt, computeAlp, DEFAULT_ALP_CONFIG, type AlpResult } from "./alp";
+import { alpLonAt, alpPointAt, arpLonAt, computeAlpEventFrame, DEFAULT_ALP_CONFIG, type AlpResult } from "./alp";
 import { ALP_PLAIN_TOPIC_RULES } from "./school-topics-expanded";
 import type { AlpFinding } from "./rules-alp";
 import type { SchoolTopic } from "./school-topic-brief";
@@ -24,8 +24,9 @@ export interface AlpEventEvidence {
 }
 interface CacheEntry { start: number; end: number; withheld: boolean; pointKey: string; result: AlpEventEvidence }
 
-/** The cache is scoped to one natal candidate. It is valid only until the first
- * ALP or ARP sign, star/pada or period boundary; no cross-candidate reuse. */
+/** The cache is scoped to one natal candidate. Discrete ALP and ARP points are
+ * recalculated at every instant; the stored result also cannot cross the ARP
+ * dasa or bhukti boundary. No result is shared between candidates. */
 export function createAlpEventScorer(context: PlanetContext, lagna: number, birthIso: string,
   chart: { deathDate?: string | null }, readingAsOf: string, allowed?: (matter: string) => boolean) {
   const cache = new Map<string, CacheEntry[]>();
@@ -51,7 +52,7 @@ export function createAlpEventScorer(context: PlanetContext, lagna: number, birt
     // period in the small rounding margin.
     const previous = cache.get(matter)?.find((e) => e.withheld === withhold && e.pointKey === pointKey && e.start + 2000 < ms && ms < e.end - 2000);
     if (previous) return { ...previous.result, asOf };
-    const a = computeAlp(context, lagna, birthIso, instant.toISO()!, DEFAULT_ALP_CONFIG, withhold);
+    const a = computeAlpEventFrame(context, lagna, birthIso, instant.toISO()!, DEFAULT_ALP_CONFIG, withhold);
     const point = { sign: a.point.sign, nakshatra: a.point.nakshatra, pada: a.point.pada,
       lord: a.point.lord, nakshatraLord: a.point.nakshatraLord, navamsaSign: a.point.navamsaSign };
     const akshaya = { sign: a.arp.point.sign, nakshatra: a.arp.point.nakshatra, pada: a.arp.point.pada,
@@ -61,8 +62,9 @@ export function createAlpEventScorer(context: PlanetContext, lagna: number, birt
       return topicMeaning ? [{ finding, topicMeaning }] : [];
     });
     const result: AlpEventEvidence = { matter, topic, status, asOf, point, akshaya, findings };
-    const spans = [a.signPeriods.find((v) => v.current), a.nakshatraPeriods.find((v) => v.current),
-      a.padaPeriods.find((v) => v.current), a.arp.padaPeriods.find((v) => v.current), a.arp.dasa, a.arp.bhukti];
+    // Point-dependent conditions are guarded by the exact pointKey above;
+    // only the independently changing period bounds need to be stored here.
+    const spans = [a.arp.dasa, a.arp.bhukti];
     if (spans.every((v) => v && v.start && v.end)) {
       const start = Math.max(...spans.map((v) => Date.parse(v!.start)));
       const end = Math.min(...spans.map((v) => Date.parse(v!.end)));
