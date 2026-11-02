@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { EVENT_MATTERS, matterOf, type ChartEvent } from "@shared/events";
 import { eventReadingAllowed } from "@shared/event-reading";
 import { MANLEY_TOPICS } from "@shared/manley-evidence";
-import { kpNatalConditions, parashariNatalConditions } from "@shared/natal-reading-evidence";
+import { additionalSchoolNatalConditions, kpNatalConditions, parashariNatalConditions } from "@shared/natal-reading-evidence";
 import { KP_EVENT_FIELDS, MANLEY_FRAME_FIELDS, RECTIFY_RULE_SCOPE } from "@shared/reading-rule-catalog";
 import { RECTIFY_METHODS } from "@shared/rectify-methods";
 import { buildReport } from "@shared/report";
@@ -35,13 +35,15 @@ test("all scoped rectification methods are inventoried", () => {
 test("natal evidence is the actual date-independent part of every registered event engine", () => {
   const chart = computeChart(full);
   chart.now.asOf = asOf;
-  const para = parashariNatalConditions(chart), kp = kpNatalConditions(chart);
+  const para = parashariNatalConditions(chart), kp = kpNatalConditions(chart), extra = additionalSchoolNatalConditions(chart);
   assert.deepEqual(para.map((x) => x.matter), Object.keys(MANLEY_TOPICS).filter((m) => eventReadingAllowed(m, chart.utc, asOf, chart.chart)));
   assert.deepEqual(kp.map((x) => x.matter), EVENT_MATTERS.filter((m) => eventReadingAllowed(m.id, chart.utc, asOf, chart.chart)).map((m) => m.id));
   assert.equal(kp.find((x) => x.matter === "vehicle")?.strict, undefined);
   for (const topic of para) {
-    const dated = topicReading(base, eventFor(topic.matter), asOf);
+    const dated = topicReading({ ...base, parashariHouseMethod: "sripati" }, eventFor(topic.matter), asOf);
     assert.ok(dated.manley, topic.matter);
+    assert.deepEqual(topic.ordinary, dated.parashariOrdinary?.natal, `${topic.matter}: ordinary Parashari natal rules`);
+    assert.deepEqual(extra.find((item) => item.matter === topic.matter), dated.additionalNatal, `${topic.matter}: ordinary BNN, Jaimini and Prasna`);
     for (const period of [...dated.manley.periods, dated.manley.antara!]) {
       const natal = topic.planets.find((p) => p.planet === period.planet)!;
       assert.deepEqual(natal.frames, period.frames, `${topic.matter}: ${period.level}`);
@@ -108,6 +110,8 @@ test("a rectification midpoint and a chosen date use the same KP and Parashari e
     } else assert.deepEqual(eventCheck[key], dated.kp[key], key);
   }
   assert.deepEqual(s.parashariVargas?.[0], dated.parashariVargas);
+  assert.deepEqual(s.parashariOrdinary?.[0], dated.parashariOrdinary);
+  assert.deepEqual(eventCheck.additionalNatal, dated.additionalNatal);
   assert.deepEqual(s.parashariPromise?.[0], dated.parashariPromise);
   assert.deepEqual(s.parashariSpecific?.[0], dated.parashariSpecific);
   assert.deepEqual(s.parashariDivisional?.[0], dated.parashariDivisional);

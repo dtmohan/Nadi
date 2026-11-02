@@ -1,0 +1,41 @@
+{
+  "protocol": "docs/catalogue-event-holdout-protocol.md",
+  "cases": [
+    {
+      "name": "Édouard Philippe", "category": "French politician and lawyer", "birthQuality": "AA, a certificate is quoted in Astro-Databank; not independently inspected",
+      "birthSource": "https://www.astro.com/astro-databank/Philippe%2C_Edouard",
+      "chart": { "name": "Édouard Philippe", "gender": "male", "birthDate": "1970-11-28", "birthTime": "08:45", "timezone": "Europe/Paris", "timeStandard": "auto", "place": "Rouen, France", "latitude": 49.4333, "longitude": 1.0833, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "ep-mayor", "matter": "job", "date": "2010-10-24", "timezone": "Europe/Paris", "note": "Election as Le Havre mayor. Public sources disagree by one day; clock unknown.", "sources": ["https://lesnouvellesnumeriques.blogspot.com/2010/10/edouard-philippe-nouveau-maire-au-havre.html", "https://www.info.gouv.fr/actualite/edouard-philippe-est-nomme-premier-ministre"] },
+        { "id": "ep-pm", "matter": "job", "date": "2017-05-15", "time": "14:30", "timezone": "Europe/Paris", "note": "The Élysée announced a 14:30 scheduled announcement; this is not an independently measured actual instant.", "sources": ["https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000034719850", "https://www.elysee.fr/emmanuel-macron/2017/05/15/nomination-du-premier-ministre"] }
+      ]
+    },
+    {
+      "name": "Mia Farrow", "category": "US actor and activist", "birthQuality": "AA, birth record reported in hand; minute-level accuracy not independently verified",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_02_09.htm?lang=s&nho2=29&nhor=2&pa=nmo",
+      "chart": { "name": "Mia Farrow", "gender": "female", "birthDate": "1945-02-09", "birthTime": "11:27", "timezone": "America/Los_Angeles", "timeStandard": "auto", "place": "Los Angeles, California, USA", "latitude": 34.05, "longitude": -118.25, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "mf-marriage", "matter": "marriage", "date": "1966-07-19", "time": "17:20", "timezone": "America/Los_Angeles", "note": "Las Vegas wedding; 17:20 is attributed by Astro-Databank, not independently verified.", "sources": ["https://www.gettyimages.ae/detail/news-photo/american-singer-and-actor-frank-sinatra-and-actress-mia-news-photo/3319994", "https://www.astro.com/adbvip/adbvip_02_09.htm?lang=n&nhor=2"] },
+        { "id": "mf-twins", "matter": "child", "date": "1970-02-26", "time": "18:00", "timezone": "Europe/London", "note": "Twins born in London; a 1970 newspaper confirms the date, while the 18:00 clock is an astrological source attribution.", "sources": ["https://britishnewspaperarchive.co.uk/search/results/1970-01-01/1970-12-31?basicsearch=twins&country=ireland&mostspecificlocation=ireland&newspapertitle=belfast%2Bnews-letter&retrievecountrycounts=false&sortorder=score", "https://www.astro.com/astro-databank/Twins%2C_Previn?lang=j&nho2=1297018&nhor=1", "https://www.sdnyblog.com/files/2014/02/Allen-v.-Farrow-Custody-Ruling.pdf"] }
+      ]
+    },
+    {
+      "name": "Celina Jaitly", "category": "Indian actor and model", "birthQuality": "A, 09:30 is the midpoint of a 09:00–10:00 report relayed by a friend; birthplace sometimes disputed. This is not a recorded minute.",
+      "birthSource": "https://www.astro.com/astro-databank/Jaitly%2C_Celina?nhor=3",
+      "chart": { "name": "Celina Jaitly", "gender": "female", "birthDate": "1981-11-24", "birthTime": "09:30", "timezone": "Asia/Kolkata", "timeStandard": "auto", "place": "Shimla, India", "latitude": 31.1, "longitude": 77.1667, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "cj-twins-2012", "matter": "child", "date": "2012-03-24", "timezone": "Asia/Dubai", "note": "The mother and contemporary coverage identify 24 March; later reports also say 25 March. Clock unknown.", "sources": ["https://www.ndtv.com/entertainment/before-the-12th-birthday-of-twins-winston-and-viraaj-mom-celina-jaitly-shares-a-pic-from-their-first-hike-5162575", "https://www.hindustantimes.com/entertainment/celina-jaitly-blessed-with-twins/story-WEENpO2EBe69ToXmfOXwyL_amp.html"] },
+        { "id": "cj-twins-2017", "matter": "child", "date": "2017-09-10", "timezone": "Asia/Dubai", "outcome": "mixed", "note": "Birth of twins; one died soon afterward. No clock established.", "sources": ["https://timesofindia.indiatimes.com/entertainment/hindi/bollywood/photo-features/celebrity-couples-set-to-welcome-their-babies-in-2017/photostory/58774668.cms", "https://timesofindia.indiatimes.com/entertainment/hindi/bollywood/news/celina-jaitly-pens-a-heart-touching-note-as-son-arthur-turns-three-calls-him-a-miracle-baby/articleshow/78058374.cms"] }
+      ]
+    },
+    {
+      "name": "Michelle Bolsonaro", "category": "Brazilian sign-language interpreter and campaigner", "birthQuality": "AA; birth certificate reported in hand, location is Brasília as listed; minute-level accuracy not independently checked",
+      "birthSource": "https://www.astro.com/astro-databank/Bolsonaro%2C_Michelle?nhor=3",
+      "chart": { "name": "Michelle Bolsonaro", "gender": "female", "birthDate": "1982-03-22", "birthTime": "05:10", "timezone": "America/Sao_Paulo", "timeStandard": "auto", "place": "Brasília, Brazil", "latitude": -15.7797, "longitude": -47.9297, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "mb-civil", "matter": "marriage", "date": "2007-11-28", "timezone": "America/Sao_Paulo", "note": "Civil marriage in Brasília; clock unknown.", "sources": ["https://www.metropoles.com/colunas/guilherme-amado/em-caso-de-separacao-michelle-nao-tera-direito-a-nada-de-bolsonaro", "https://radiojornal.ne10.uol.com.br/webstory/2022/08/15066933-bolsonaro-no-jn-hoje-como-jair-e-michelle-se-conheceram.html"] },
+        { "id": "mb-religious", "matter": "marriage", "date": "2013-03-21", "timezone": "America/Sao_Paulo", "note": "Religious ceremony in Rio for the same couple; not independent of the earlier civil marriage. Clock unknown.", "sources": ["https://piaui.uol.com.br/revista/241/com-a-cruz-e-a-espada-michelle-bolsonaro/", "https://www.bnews.com.br/amp/noticias/politica/casados-ha-15-anos-saiba-como-jair-e-michelle-bolsonaro-se-conheceram.html"] }
+      ]
+    }
+  ]
+}

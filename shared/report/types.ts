@@ -17,7 +17,7 @@ export interface ReportTools {
   /** The scan the Rectify tab was looking at, rerun on the server. */
   rectify?: { result: RectifyResult; state: RectifyExportState } | null;
   /** One chosen matter/date per reading, computed through the event evaluator. */
-  topicReadings?: Partial<Record<"kp" | "parashari" | "jaimini" | "bnn", import("../validate-types").EventValidation>>;
+  topicReadings?: Partial<Record<"kp" | "parashari" | "jaimini" | "bnn" | "alp" | "prasna", import("../validate-types").EventValidation>>;
 }
 
 export interface ReportCite {

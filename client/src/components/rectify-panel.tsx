@@ -17,6 +17,11 @@ import type {
 import { describeEventMoment, matterOf } from "@shared/events";
 import { LifeEventsEditor } from "@/components/life-events";
 import { KpTransitEvidencePanel } from "@/components/kp-transit-evidence";
+import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
+import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
+import { AdditionalSchoolEventEvidence } from "@/components/additional-school-event-evidence";
+import { AlpEventEvidencePanel } from "@/components/alp-event-evidence";
+import { CatalogueComparisonPanel } from "@/components/catalogue-comparison";
 import { ParashariVargaEvidencePanel } from "@/components/parashari-varga-evidence";
 import { ParashariPromisePanel } from "@/components/parashari-promise";
 import { ParashariSpecificPanel } from "@/components/parashari-specific";
@@ -477,8 +482,8 @@ export function RectifyPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [scored, sortByScore, baselined, givenSec],
   );
-  // KP's fine cusp boundaries can create many adjacent slices with identical
-  // Parashari evidence. Group only when the full displayed evidence agrees.
+  // Group by the older score and D1/divisional evidence. Ordinary catalogue
+  // observations are explicitly shown for the selected representative midpoint.
   const parashariGroups = useMemo(() => {
     type Row = (typeof scored)[number];
     const groups: Array<{ first: Row; last: Row; representative: Row; given: boolean; signature: string }> = [];
@@ -555,7 +560,7 @@ export function RectifyPanel({
         title:
           method === "jaimini-dasha"
             ? `${e.label} · ${e.date} · Chara ${e.jaimini ? `${sc}/${mx}` : "no area"}`
-            : `${e.label} · ${e.date} · ${e.dasa}–${e.bhukti}–${e.antara} · ${sc}/${mx}${e.promised === undefined ? "" : e.promised ? " · promised" : " · not promised at the cusp"}`,
+            : `${e.label} · ${e.date} · ${e.dasa}–${e.bhukti}–${e.antara} · ${sc}/${mx}${e.promised === undefined ? "" : e.promised ? " · basic cusp link" : " · no basic cusp link"}`,
       };
     });
   }, [focus, method, chart.timezone]);
@@ -1058,8 +1063,8 @@ export function RectifyPanel({
             {method === "kp-events" &&
               (eventPayload.length
                 ? plain
-                  ? " Green dots are period planets that speak for the matter's houses and deciding planets that promise it; grey dots fail."
-                  : " Green marks are period lords that signify the matter's houses (four-step significators) and cusp sub lords that promise it."
+                  ? " Green dots mark period planets and cusp sub lords linked to at least one matter house; grey marks have no such link."
+                  : " Green marks are period lords and cusp sub lords that signify at least one matter house under the four-step convention."
                 : " Add dated events and scan again to score by this method.")}
             {method === "kp-transit" &&
               (plain
@@ -1194,6 +1199,17 @@ export function RectifyPanel({
             {(focus.manley ?? []).map((e, i) => <ManleyEvidencePanel key={`${e.matter}-${e.date}-${i}`} evidence={e} />)}
           </details>}
           {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.parashariHierarchy?.map((e, i) => e && <ParashariHierarchyEvent key={`hierarchy-${i}`} event={e} />)}
+          {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.events.map((e, i) => <details key={`school-context-${i}`} className="mt-2 rounded border px-2 py-2 text-xs">
+            <summary className="cursor-pointer font-medium">Related school rules · {e.label} · {e.date} · candidate midpoint</summary>
+            <KpCatalogueEvidence evidence={e.natalRules} /><ParashariCatalogueEvidence evidence={focus.parashariOrdinary?.[i]} />
+            <AdditionalSchoolEventEvidence evidence={e.additionalNatal} /><AlpEventEvidencePanel evidence={e.alp} />
+          </details>)}
+          {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.baseline?.catalogueExample && <details className="mt-2 rounded border px-2 py-2 text-xs">
+            <summary className="cursor-pointer font-medium">School rules in the first comparison set</summary>
+            <p className="mt-1 text-muted-foreground">These are contextual findings for the sampled dates. They do not add points to the comparison statistics.</p>
+            {focus.baseline.catalogueExample.map((e, i) => <div key={`${e.label}-${e.date}-${i}`}><p className="mt-2 font-medium">{e.label} · {e.date}</p><KpCatalogueEvidence evidence={e.natalRules} /><ParashariCatalogueEvidence evidence={e.parashariOrdinary} /><AdditionalSchoolEventEvidence evidence={e.additionalNatal} /><AlpEventEvidencePanel evidence={e.alp} /></div>)}
+          </details>}
+          {(isParashariMethod || EVENT_METHODS.includes(method)) && <CatalogueComparisonPanel rows={focus?.baseline?.catalogueComparison} />}
 
           {method.startsWith("kp-") && focus && focus.events.length > 0 && <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="rectify-kp-event-evidence">
             <summary className="cursor-pointer font-medium">KP event cusp filters and event-day luminaries · candidate midpoint</summary>
@@ -1214,8 +1230,8 @@ export function RectifyPanel({
                 D1 and divisional indications are partial and can conflict. These scores are not probabilities
                 or proof of a birth time. The random-date comparison is exploratory and is not calibrated to select a birth time.
                 These older point totals do not require D1 to pass before awarding later points. The older strict funnel above also has known gaps and cannot rule out a candidate. Inspect D1 and the relevant division together below; these clues do not change this ranking.
-                Adjacent slices are grouped only when their displayed Parashari evidence agrees; Inspect chooses
-                a midpoint near the recorded time in that group.
+                Adjacent slices are grouped when their older scores and D1/divisional research evidence agree; Inspect chooses
+                a representative midpoint. The ordinary catalogue context is evaluated at that midpoint and can vary within a group.
                 {sortByScore && parashariComparable ? " Ties are displayed nearest the recorded time first." : ""}
               </p>
               {!parashariComparable && anyParashariScore && <p className="mt-2 text-xs text-muted-foreground">
@@ -2177,7 +2193,7 @@ export function RectifyPanel({
                                     </span>
                                     <Mark
                                       on={Boolean(e.promised)}
-                                      title={`cusp sub lord ${e.cuspSubLord} ${e.promised ? "promises" : "does not promise"} ${e.houses.join(", ")}`}
+                                      title={`cusp sub lord ${e.cuspSubLord} ${e.promised ? "links to at least one of" : "has no basic link to"} ${e.houses.join(", ")}`}
                                     />{" "}
                                     <PlanetName planet={e.cuspSubLord} abbr />
                                   </>

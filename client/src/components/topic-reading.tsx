@@ -24,8 +24,12 @@ import { ParashariSpecificPanel } from "@/components/parashari-specific";
 import { ManleyEvidencePanel } from "@/components/manley-evidence";
 import { ParashariHierarchyEvent } from "@/components/parashari-hierarchy";
 import { MoonTransitContextPanel } from "@/components/moon-transit-context";
+import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
+import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
+import { AdditionalSchoolEventEvidence } from "@/components/additional-school-event-evidence";
+import { AlpEventEvidencePanel } from "@/components/alp-event-evidence";
 
-export type TopicReadingSystem = "kp" | "parashari" | "jaimini" | "bnn";
+export type TopicReadingSystem = "kp" | "parashari" | "jaimini" | "bnn" | "alp" | "prasna";
 
 /** The chart-reading view asks the same one-event evaluator used by Validate. */
 export function TopicReadingPanel({ result, system, onSelected }: {
@@ -49,7 +53,8 @@ export function TopicReadingPanel({ result, system, onSelected }: {
   selectedRef.current = onSelected;
   const generation = useRef(0);
   const chartKey = JSON.stringify([chart.id, chart.birthDate, chart.birthTime, chart.timezone, chart.timeStandard,
-    chart.latitude, chart.longitude, chart.ayanamsa, chart.nodeType, chart.gender, chart.deathDate, chart.events]);
+    chart.latitude, chart.longitude, chart.ayanamsa, chart.nodeType, chart.gender, chart.deathDate, chart.events,
+    chart.parashariHouseMethod, chart.sunriseDef, chart.gulikaMethod]);
   const savedEvents = sanitiseEvents(chart.events).filter((e) => topics.some((m) => m.id === e.matter));
   const read = useMutation({
     mutationFn: async ({ event }: { event: ChartEvent; generation: number }) => {
@@ -146,8 +151,11 @@ export function TopicReadingPanel({ result, system, onSelected }: {
     </form>}
     {shown && <div className="space-y-2 rounded-md border px-3 py-3 text-xs" data-testid={`topic-reading-result-${system}`}>
       <p className="font-medium">{shown.reading.label} · {shown.reading.date} · {describeEventMoment(shown.event, chart.timezone)}</p>
+      {system === "alp" && <AlpEventEvidencePanel evidence={shown.reading.alp} />}
+      {system === "prasna" && <AdditionalSchoolEventEvidence evidence={shown.reading.additionalNatal} school="prasna" />}
       {system === "parashari" && <>
         <p className="text-muted-foreground">The natal, period-lord and event-specific transit observations below come from the same Parashari checks as Validate. Favourable-event checks describe that scenario; they do not predict the outcome. The points are experimental app conventions; the staged links are a partial check.</p>
+        <ParashariCatalogueEvidence evidence={shown.reading.parashariOrdinary} />
         {shown.reading.parashariVargas && <ParashariVargaEvidencePanel evidence={shown.reading.parashariVargas} />}
         {shown.reading.parashariPromise && <ParashariPromisePanel check={shown.reading.parashariPromise} />}
         {shown.reading.parashariSpecific && <ParashariSpecificPanel check={shown.reading.parashariSpecific} />}
@@ -161,6 +169,7 @@ export function TopicReadingPanel({ result, system, onSelected }: {
       {system === "kp" && <>
         <p className="text-muted-foreground">This is Validate's four-step event check, even if the timing window above uses the optional six-step view. The cusp and period matches are a limited check alongside the fuller cusp rules.</p>
         <p>Cusp {shown.reading.cusp} sub lord {shown.reading.kp.cuspSubLord} signifies {shown.reading.kp.cuspSignified.join(", ") || "none of the selected houses"}; matter houses {shown.reading.houses.join(", ")}.</p>
+        <KpCatalogueEvidence evidence={shown.reading.kp.natalRules} />
         {shown.reading.kp.deniedAtCusp && <p className="text-muted-foreground">The app's twelfth-from-cusp condition is also present. This limited filter is not proof that an event cannot occur.</p>}
         <p>{(["dasa", "bhukti", "antara"] as const).map((level, i) => `${level} ${shown.reading.kp[level]}: ${shown.reading.kp.signified[i].join(", ") || "no selected house"}`).join(" · ")}.</p>
         <details className="rounded border px-2 py-2"><summary className="cursor-pointer font-medium">Cusp filters and the two period-lord transits</summary>
@@ -175,12 +184,14 @@ export function TopicReadingPanel({ result, system, onSelected }: {
           when={describeEventMoment(shown.event, chart.timezone)} evidence={shown.reading.kp.transit.evidence} />}
       </>}
       {system === "jaimini" && (shown.reading.jaimini ? <>
+        <AdditionalSchoolEventEvidence evidence={shown.reading.additionalNatal} school="jaimini" />
         <p className="text-muted-foreground">Validate maps this matter to Jaimini's {shown.reading.jaimini.area} area and uses its Chara dasha checks. That broad area mapping and the count are app conventions; they are not an event-specific forecast. <SourceLink source={RAO_SOURCE} /></p>
         <p>Main period: {shown.reading.jaimini.mdSignName} · <Soft>{shown.reading.jaimini.md.triggers.join("; ") || "no listed trigger"}</Soft>.</p>
         <p>Subperiod: {shown.reading.jaimini.adSignName} · <Soft>{shown.reading.jaimini.ad.triggers.join("; ") || "no listed trigger"}</Soft>.</p>
         <p>Partial area links: {shown.reading.jaimini.score}/{shown.reading.jaimini.max}.</p>
       </> : <p>No Jaimini event-area check is available for this matter and date in this reading.</p>)}
       {system === "bnn" && <>
+        <AdditionalSchoolEventEvidence evidence={shown.reading.additionalNatal} school="bnn" />
         <p className="text-muted-foreground">Validate maps this matter to the Nadi {matterOf(shown.reading.matter).bnn.area} area and uses the same natal findings and Jupiter/Saturn timing observations. The mapping and combined count are app conventions, not a forecast. <Cite>R.G. Rao, Bhrigu Nandi Nadi</Cite></p>
         <p>Jupiter in {shown.reading.bnn.jupiterSign}; Saturn in {shown.reading.bnn.saturnSign}; matter significators: {shown.reading.bnn.karakas.join(", ")}.</p>
         <p>Jupiter contact: {shown.reading.bnn.jupiter ? `${shown.reading.bnn.jupiter.contact} ${shown.reading.bnn.jupiter.planet}` : "none listed"}; Saturn contact: {shown.reading.bnn.saturn ? `${shown.reading.bnn.saturn.contact} ${shown.reading.bnn.saturn.planet}` : "none listed"}; both contact the same significator: {shown.reading.bnn.double ? "yes" : "no"}.</p>

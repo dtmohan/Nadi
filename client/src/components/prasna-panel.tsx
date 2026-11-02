@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
 import type { ChartResult } from "@shared/schema";
+import type { ChartEvent } from "@shared/events";
+import { TopicReadingPanel } from "@/components/topic-reading";
 import { NAKSHATRAS, SIGN_LORD, SIGNS } from "@shared/astro";
 import { GULIKA_METHODS, normaliseGulikaMethod } from "@shared/gulika-methods";
 import { gulikaNatalClues } from "@shared/gulika-clues";
@@ -255,7 +257,7 @@ function HouseWalk({
  * the current planets are read from it. The birth-chart reading follows, since the text's house
  * effects are also read against a natal lagna.
  */
-export function PrasnaPanel({ result }: { result: ChartResult }) {
+export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; onTopicSelected?: (event: ChartEvent | null) => void }) {
   const { positions, reading, now } = result;
   const plain = usePlain();
   const birthLagnaIdx = result.jaimini.lagna.signIndex;
@@ -418,6 +420,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
 
   const chapterDefs: ChapterDef[] = [
     { id: "houses", plain: "The twelve houses", technical: "Bhava phala" },
+    { id: "topic-check", plain: "Matter and natal context", technical: "Event context" },
     {
       id: "prasna",
       plain: "Ask a question",
@@ -475,6 +478,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
       )}
 
       <Chapters tab="prasna" chapters={chapterDefs} className="mt-4">
+      <Chapter id="topic-check"><TopicReadingPanel result={result} system="prasna" onSelected={onTopicSelected} /></Chapter>
       <Chapter id="prasna">
 
       {/* Prasna (query) */}

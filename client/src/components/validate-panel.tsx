@@ -26,6 +26,11 @@ import { describeEventMoment } from "@shared/events";
 import { RAO_SOURCE } from "@shared/jaimini-areas";
 import { LifeEventsEditor } from "@/components/life-events";
 import { KpTransitEvidencePanel } from "@/components/kp-transit-evidence";
+import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
+import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
+import { AdditionalSchoolEventEvidence } from "@/components/additional-school-event-evidence";
+import { AlpEventEvidencePanel } from "@/components/alp-event-evidence";
+import { CatalogueComparisonPanel } from "@/components/catalogue-comparison";
 import { MoonTransitContextPanel } from "@/components/moon-transit-context";
 import { ParashariVargaEvidencePanel } from "@/components/parashari-varga-evidence";
 import { ManleyEvidencePanel } from "@/components/manley-evidence";
@@ -433,7 +438,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
           <p className="mt-1 text-sm text-muted-foreground">
             Each saved life event is read back at its date with the birth time
             as recorded: were the KP period lords significators of the matter
-            and did its cusp promise it, did the Jaimini chara dasha carry the
+            and did its cusp link to a matter house, did the Jaimini chara dasha carry the
             area, and did Jupiter and Saturn touch the matter's Nadi karakas.
             The window tables read the same events the other way round: which
             timing windows, named in advance by each system, the dates fell
@@ -608,7 +613,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                   </TableHead>
                   <TableHead
                     className="whitespace-nowrap"
-                    title="Sub lord of the matter's cusp; green when it signifies one of the matter's houses, so the matter is promised."
+                    title="Sub lord of the matter's cusp; green when it signifies at least one matter house. This basic link is not a complete promise assessment."
                   >
                     Cusp
                   </TableHead>
@@ -685,7 +690,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                     <TableCell className="whitespace-nowrap">
                       <span
                         className="inline-flex items-center gap-1"
-                        title={`Cusp ${e.cusp} sub lord ${e.kp.cuspSubLord}: ${e.kp.promised ? `signifies ${e.kp.cuspSignified.join(", ")}` : e.kp.deniedAtCusp ? `signifies none of the matter's houses and does signify the 12th from the cusp: the matter is denied even in a fitting period (Part 3 ch. 5 p. 28)` : "signifies none of the matter's houses"}`}
+                        title={`Cusp ${e.cusp} sub lord ${e.kp.cuspSubLord}: ${e.kp.promised ? `signifies ${e.kp.cuspSignified.join(", ")}` : e.kp.deniedAtCusp ? `signifies none of the matter's houses and does signify the 12th from the cusp: this limited filter is present; it does not establish denial` : "signifies none of the matter's houses"}`}
                         data-denied={e.kp.deniedAtCusp || undefined}
                       >
                         <Mark on={e.kp.promised} />
@@ -805,6 +810,11 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             </Table>
           </div>
 
+          {v.events.map((e) => <details key={`catalogue-${e.id}`} className="mt-2 rounded border px-2 py-2 text-xs">
+            <summary className="cursor-pointer font-medium">Related school rules · {e.label} · {e.date}</summary>
+            <KpCatalogueEvidence evidence={e.kp.natalRules} /><ParashariCatalogueEvidence evidence={e.parashariOrdinary} />
+            <AdditionalSchoolEventEvidence evidence={e.additionalNatal} /><AlpEventEvidencePanel evidence={e.alp} />
+          </details>)}
           {v.events.some((e) => e.parashariVargas) && (
             <p className="mt-4 text-xs text-muted-foreground">
               Parashari reads the recorded birth chart and the relevant division
@@ -820,6 +830,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
           {v.events.map((e) => e.parashariDivisional && <ParashariSpecificPanel key={`parashari-divisional-${e.id}`} check={e.parashariDivisional} />)}
           {v.baseline?.parashari && <ParashariComparisonPanel comparison={v.baseline.parashari}
             example={v.baseline.parashariExample} trials={v.baseline.trials} birthZone={chart.timezone} />}
+          <CatalogueComparisonPanel rows={v.baseline?.catalogueComparison} />
           {v.events.map((e) => e.parashariVargas && (
             <ParashariVargaEvidencePanel key={`parashari-${e.id}`} evidence={e.parashariVargas} />
           ))}
@@ -846,6 +857,10 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                 sky is recalculated for its selected date against this same natal chart.
               </p>
               {v.baseline.example.map((e, i) => <div key={`${e.label}-${e.date}-${i}`}>
+                <KpCatalogueEvidence evidence={e.natalRules} />
+                <ParashariCatalogueEvidence evidence={e.parashariOrdinary} />
+                <AdditionalSchoolEventEvidence evidence={e.additionalNatal} />
+                <AlpEventEvidencePanel evidence={e.alp} />
                 <KpTransitEvidencePanel label={`${e.label} · comparison`} date={e.date} when={describeEventMoment(e, chart.timezone)} evidence={e.evidence} />
                 {e.moonTransit && <MoonTransitContextPanel context={e.moonTransit} label={`${e.label} · comparison`} date={e.date} when={describeEventMoment(e, chart.timezone)} />}
               </div>)}
@@ -1111,7 +1126,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             the matter's own (Venus or Mars for the spouse, Saturn for work, Sun
             for the father, Rahu for foreign places), contact is by sign, trine
             or the 7th, and the count from the natal Jeeva follows the BNN tab.
-            Strong needs 4 of 6. A period/cusp match needs the cusp promise and
+            Strong needs 4 of 6. A period/cusp match needs the basic cusp link and
             both dasa and bhukti lords signifying; it does not include the
             antara or transit checks. Partial means something
             links; missed means nothing does. Timing windows: a Nadi window is a

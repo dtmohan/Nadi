@@ -43,7 +43,13 @@ test("all six school readings retain their pre-migration full results on varied 
       kp: computeKp(base, e.birth, asOf), alp: computeAlp(context, asc, e.birth, asOf),
       prasna: computePrasna(context, Math.floor(asc / 30)),
     };
-    for (const [school, result] of Object.entries(output))
-      assert.equal(digest(result), reference.hashes[i][school], `chart ${i}, ${school}`);
+    for (const [school, result] of Object.entries(output)) {
+      // Two formerly duplicated KP IDs now identify their Part 3 source. Normalize
+      // only those identifiers for the historical full-output comparison.
+      const normalized = school === "kp" ? JSON.parse(JSON.stringify(result)
+        .replaceAll('"kp6-sickness-part3"', '"kp6-sickness"')
+        .replaceAll('"kp6-separation-part3"', '"kp6-separation"')) : result;
+      assert.equal(digest(normalized), reference.hashes[i][school], `chart ${i}, ${school}`);
+    }
   }
 });

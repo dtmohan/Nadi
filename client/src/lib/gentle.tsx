@@ -1,4 +1,4 @@
-import { useCallback, type ReactNode } from "react";
+import React, { useCallback, type ReactNode } from "react";
 import { GENTLE_NOTE, soften } from "@shared/gentle";
 import { useReadingMode } from "@/lib/reading-mode";
 

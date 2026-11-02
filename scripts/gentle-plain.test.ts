@@ -36,6 +36,8 @@ import { sarvarthaLeftOut } from "@shared/sarvartha";
 import { PLACEMENT_TABLE, placementEntry } from "@shared/phaladeepika-houses";
 import type { Planet, PlanetPosition } from "@shared/astro";
 import { computeChart } from "../server/routes";
+import { topicReading } from "../server/topic-reading";
+import { validateEvents } from "../server/validate";
 import { julianDay, positionsAt } from "../server/ephemeris";
 
 const chart = (
@@ -237,6 +239,19 @@ test("the plain report carries none of the deny-listed phrasings", () => {
     const hits = texts(buildReport(resultOf(c), { plain: true })).flatMap(plainViolations);
     assert.deepEqual(hits, [], c.name);
   }
+});
+
+test("dated and validation catalogue evidence follows the plain report's wording policy", () => {
+  const events = [
+    { id: "test-marriage", matter: "marriage", date: "2018-07-22" },
+    { id: "test-child", matter: "child", date: "2021-04-10" },
+  ];
+  const checked = events.map((e) => topicReading(PORTLAND, e));
+  const validation = validateEvents({ ...PORTLAND, events });
+  const systems = ["kp", "parashari", "jaimini", "bnn", "alp", "prasna"] as const;
+  const report = buildReport(resultOf(PORTLAND), { plain: true, modules: [...systems, "validate"],
+    tools: { validation, topicReadings: Object.fromEntries(systems.map((s) => [s, checked[0]])) } });
+  assert.deepEqual(texts(report).flatMap(plainViolations), []);
 });
 
 test("the practitioner report keeps the verse wording", () => {

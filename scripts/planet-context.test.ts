@@ -87,7 +87,8 @@ test("the per-planet index uses the actual school results and refuses a mismatch
   assert.equal(planetRulesBySchool("Jupiter", {}).kp.status, "not-evaluated");
   assert.throws(() => planetRulesBySchool("Jupiter", { kp: { context: natal, result: kp } }), /KP-ayanamsa/);
   assert.equal(SCHOOL_RULE_PATHS.kpEvent.paths.rectify, "shared");
-  assert.equal(SCHOOL_RULE_PATHS.alp.paths.validate, "not-implemented");
+  assert.equal(SCHOOL_RULE_PATHS.alp.paths.validate, "shared");
+  assert.match(SCHOOL_RULE_PATHS.alp.limits, /without an event score/);
   assert.deepEqual(Object.keys(RECTIFY_RULE_FAMILY).sort(), RECTIFY_METHODS.map((m) => m.id).sort());
   for (const family of Object.values(RECTIFY_RULE_FAMILY))
     assert.ok(["shared", "separate-method"].includes(SCHOOL_RULE_PATHS[family].paths.rectify));

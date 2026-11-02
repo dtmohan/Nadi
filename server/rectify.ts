@@ -36,6 +36,10 @@ import type {
   RectifySegmentStability,
 } from "@shared/rectify-types";
 import { DateTime } from "luxon";
+import { eventReadingAllowed } from "@shared/event-reading";
+import { createCatalogueComparison } from "@shared/catalogue-comparison";
+import { lifeAsOf, sensitiveGate } from "@shared/life-stage";
+import { normaliseParashariHouseMethod, normaliseSunriseDef } from "@shared/schema";
 import { norm360, NAKSHATRAS, type Planet } from "@shared/astro";
 import { nashtaNakshatra } from "@shared/brihat-jataka";
 import {
@@ -73,6 +77,7 @@ import {
   utcAtJulianDay,
   positionsAt,
   positionsLite,
+  shadbalaBase,
   planetLonAt,
   ascendantAt,
   cuspsAt,
@@ -80,7 +85,8 @@ import {
   type EphemerisOptions,
 } from "./ephemeris";
 import { SIGNS, SIGN_LORD } from "@shared/astro";
-import { computeJaimini } from "@shared/jaimini";
+import { additionalSchoolEvents } from "./additional-school-events";
+import { createAlpEventScorer } from "@shared/alp-event-evidence";
 import { dashaFitAt } from "@shared/jaimini-areas";
 import { comparisonDate, eventInstant } from "./event-time";
 import { kundaD81Check, scanKundaD81 } from "./kunda";
@@ -90,7 +96,11 @@ import { manleyTopicFor } from "@shared/manley-evidence";
 import { MANLEY_WINDOW_DIVISIONS, scanVargaWindows } from "./varga-windows";
 import { summarizeParashariComparisons, type ParashariComparisonExample, type ParashariObservation } from "@shared/parashari-comparison";
 import { createParashariEventScorer, parashariObservation } from "./parashari-event";
+import { computeParashari, DEFAULT_ASPECT_FLOOR } from "@shared/parashari";
+import { createParashariNatalCatalogue } from "@shared/parashari-event-natal-rules";
 import { createKpEventScorer } from "@shared/kp-event-evidence";
+import { KP_EVENT_NATAL_RULES } from "@shared/kp-event-natal-rules";
+import { KP_RULES } from "@shared/rules-kp";
 import { nemaniRpMoonCheck } from "@shared/kp-nemani-rp";
 import { createPlanetContext } from "@shared/planet-context";
 import { auroraAscendantLinks, auroraMatter } from "@shared/kp-aurora";
@@ -395,6 +405,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const optsJ: EphemerisOptions = {
     ayanamsa: chart.ayanamsa || "lahiri",
     nodeType: opts.nodeType,
+    sunrise: normaliseSunriseDef(chart.sunriseDef),
   };
   const zone = chart.timezone;
   const limbTerms = limbTermsFor(chart.gender);
@@ -465,10 +476,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     trialMilliseconds.push(utc.map((instant) => instant.toMillis()));
     trialPositions.push(utc.map((instant) => positionsLite(julianDay(instant), opts)));
     // Parashari uses the chart's own ayanamsa, not the KP comparison sky.
-    trialPositionsJ.push(utc.map((instant, i) =>
-      vargaTopicFor(req.events[i].matter) || manleyTopicFor(req.events[i].matter)
-        ? positionsLite(julianDay(instant), optsJ) : null,
-    ));
+    trialPositionsJ.push(utc.map((instant) => positionsLite(julianDay(instant), optsJ)));
   }
 
   // Split at changes that affect the event checks, not just the rising sub lord.
@@ -483,7 +491,12 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const matterCusps = Array.from(
     new Set(
       req.events
-        .flatMap((e) => [e.cusp, ...(e.matter ? auroraMatter(e.matter)?.cusps ?? [] : [])])
+        .flatMap((e) => {
+          const ids = new Set(KP_EVENT_NATAL_RULES.filter((r) => r.matter === e.matter).map((r) => r.id));
+          const catalogueCusps = KP_RULES.filter((r) => ids.has(r.id)).flatMap((r) =>
+            [r.cusp, r.when.otherCusp?.cusp, ...(r.when.everyCusps?.cusps ?? [])]);
+          return [e.cusp, ...(e.matter ? auroraMatter(e.matter)?.cusps ?? [] : []), ...catalogueCusps];
+        })
         .filter((c): c is number => !!c && c >= 1 && c <= 12),
     ),
   ).sort((a, b) => a - b);
@@ -503,7 +516,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const instantMs = utcAtJulianDay(jd).toMillis();
     const planetFrame = positions.map((p) => {
       const point = kpPoint(p.lon);
-      return `${point.signIndex}:${point.starLord}:${hasAuroraEvents ? `${point.subLord}:${point.subSubLord}:` : ""}${houseOf(p.lon, cusps)}`;
+      return `${point.signIndex}:${point.starLord}:${point.subLord}:${hasAuroraEvents ? `${point.subSubLord}:` : ""}${houseOf(p.lon, cusps)}`;
     });
     // A Parashari cross-check is evaluated at each candidate midpoint. Split at
     // the relevant divisional sign and period changes so a KP interval does not
@@ -632,7 +645,11 @@ export function rectify(req: RectifyRequest): RectifyResult {
       latitude: chart.latitude, longitude: chart.longitude, timezone: zone, timeStandard: chart.timeStandard,
       ayanamsa: "kp", nodeType: opts.nodeType, houseMethod: "placidus", cusps: cuspLons, ascendant: cuspLons[0], division: "D1", precision: "lite" });
     const { cusps, planets, significators: sigs } = kpNatalFrame(kpContext, cuspLons);
-    const scoreKp = createKpEventScorer(cusps, sigs, planets);
+    const readingAsOf = DateTime.utc().toISO()!;
+    const scoreKp = createKpEventScorer(cusps, sigs, planets, {
+      withhold: sensitiveGate(chart, birthIso, readingAsOf).withheld,
+      allowed: (matter) => eventReadingAllowed(matter, birthIso, readingAsOf, chart),
+    });
     const lagna = cusps[0];
     const moon = planets.find((p) => p.planet === "Moon")!;
     const birthMs = Date.parse(birthIso);
@@ -647,15 +664,24 @@ export function rectify(req: RectifyRequest): RectifyResult {
       latitude: chart.latitude, longitude: chart.longitude, timezone: zone, timeStandard: chart.timeStandard,
       ayanamsa: optsJ.ayanamsa, nodeType: optsJ.nodeType, sunrise: chart.sunriseDef || "edge",
       houseMethod: chart.parashariHouseMethod || "rashi", ascendant: lagnaJ, division: "D1", precision: "full" });
-    const scoreParashari = createParashariEventScorer(natalContext, lagnaJ, birthIso, zone);
+    const parashariNatal = computeParashari(natalContext, lagnaJ, birthIso, lifeAsOf(chart, readingAsOf),
+      shadbalaBase(mid, chart.latitude, chart.longitude, optsJ), undefined, DEFAULT_ASPECT_FLOOR,
+      sensitiveGate(chart, birthIso, readingAsOf).withheld, normaliseParashariHouseMethod(chart.parashariHouseMethod));
+    const ordinary = createParashariNatalCatalogue(parashariNatal,
+      (matter) => eventReadingAllowed(matter, birthIso, readingAsOf, chart));
+    const scoreParashari = createParashariEventScorer(natalContext, lagnaJ, birthIso, zone, { natalCatalogue: ordinary });
     const parashariByEvent = req.events.map((e, ei) => scoreParashari(e, e.date, eventInstants[ei], eventPositionsJ[ei]));
     const parashariVargas = parashariByEvent.flatMap((p) => p.varga ? [p.varga] : []);
+    const parashariOrdinary = parashariByEvent.map((p) => p.ordinary);
     const parashariPromise = parashariByEvent.flatMap((p) => p.promise ? [p.promise] : []);
     const parashariSpecific = parashariByEvent.flatMap((p) => p.specific ? [p.specific] : []);
     const parashariDivisional = parashariByEvent.flatMap((p) => p.divisional ? [p.divisional] : []);
     const manley = parashariByEvent.flatMap((p) => p.manley ? [p.manley] : []);
     const parashariHierarchy = parashariByEvent.map((p) => p.hierarchy ?? null);
-    const jai = { j: computeJaimini(natalContext, lagnaJ, birthIso), positions: posJ };
+    const school = additionalSchoolEvents(natalContext, chart, mid, lagnaJ, birthIso, readingAsOf, optsJ);
+    const scoreAlp = createAlpEventScorer(natalContext, lagnaJ, birthIso, chart, readingAsOf,
+      (matter) => eventReadingAllowed(matter, birthIso, readingAsOf, chart));
+    const jai = { j: school.jaimini, positions: posJ };
     // The result is constant within a Chara maha/antar period for this
     // candidate and area. Cache only inside this candidate so another birth
     // time can never inherit its period boundaries or natal positions.
@@ -715,6 +741,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
       }
       return {
         ...checked,
+        additionalNatal: school.catalogue(e.matter),
+        alp: scoreAlp(e.matter, evIso),
         label: e.label,
         date: dateIso,
         time: e.time,
@@ -743,10 +771,12 @@ export function rectify(req: RectifyRequest): RectifyResult {
       const stageSamples = { cusps: [] as number[], major: [] as number[], sub: [] as number[], third: [] as number[] };
       const actualStages = auroraV2StageCounts(events.map((e) => e.auroraV2));
       const actualParashari = parashariByEvent.map((p, i) => parashariObservation(p, req.events[i].outcome));
+      const catalogueComparison = createCatalogueComparison(events.map((e, i) => ({ ...e, parashariOrdinary: parashariByEvent[i].ordinary })));
       const parashariTrials: ParashariObservation[][] = [];
       let parashariExample: ParashariComparisonExample[] | undefined;
       let auroraExample: RectifySegmentBaseline["auroraExample"];
       let auroraV2Example: RectifySegmentBaseline["auroraV2Example"];
+      let catalogueExample: RectifySegmentBaseline["catalogueExample"];
       for (let t = 0; t < trials; t++) {
         let k = 0, aurora = 0, auroraV2 = 0,
           tr = 0,
@@ -756,8 +786,10 @@ export function rectify(req: RectifyRequest): RectifyResult {
         if (t === 0) parashariExample = [];
         if (t === 0) auroraExample = [];
         if (t === 0) auroraV2Example = [];
+        if (t === 0) catalogueExample = [];
         req.events.forEach((e, ei) => {
           const c = checkEvent(e, trialDates[t][ei], trialPositions[t][ei], trialInstants[t][ei], trialMilliseconds[t][ei], t === 0);
+          if (t === 0) catalogueExample!.push({ label: e.label, date: trialDates[t][ei], natalRules: c.natalRules, additionalNatal: c.additionalNatal, alp: c.alp });
           if (t === 0) auroraExample!.push({ label: e.label, date: trialDates[t][ei], time: e.time,
             timezone: e.timezone, evidence: c.aurora });
           if (t === 0) auroraV2Example!.push({ label: e.label, date: trialDates[t][ei], time: e.time,
@@ -769,13 +801,17 @@ export function rectify(req: RectifyRequest): RectifyResult {
           tr += c.transit.score;
           ja += c.jaimini?.score ?? 0;
           const sky = trialPositionsJ[t][ei];
-          if (sky && (actualParashari[ei].v1 !== undefined || actualParashari[ei].staged)) {
+          let trialOrdinary: typeof parashariByEvent[number]["ordinary"];
+          if (sky) {
             const date = trialDates[t][ei];
             const p = scoreParashari(e, date, trialInstants[t][ei], sky);
+            trialOrdinary = p.ordinary;
+            if (t === 0) catalogueExample![ei].parashariOrdinary = p.ordinary;
             trialParashari.push(parashariObservation(p, e.outcome));
-            if (t === 0) parashariExample!.push({ label: e.label, date, time: e.time, timezone: e.timezone,
+            if (t === 0 && (actualParashari[ei].v1 !== undefined || actualParashari[ei].staged)) parashariExample!.push({ label: e.label, date, time: e.time, timezone: e.timezone,
               promise: p.promise, specific: p.specific, divisional: p.divisional, manley: p.manley, hierarchy: p.hierarchy });
           } else trialParashari.push({});
+          catalogueComparison.observe(ei, { alp: c.alp, parashariOrdinary: trialOrdinary });
         });
         parashariTrials.push(trialParashari);
         sums.kpEvents.push(k);
@@ -805,6 +841,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
         } : undefined,
         auroraExample,
         auroraV2Example,
+        catalogueExample,
+        catalogueComparison: catalogueComparison.result(),
         transit: baselineStat(
           sums.transit,
           events.reduce((a, e) => a + e.transit.score, 0),
@@ -894,6 +932,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       events,
       auroraAscendant: auroraAscendantLinks(planets, cusps),
       parashariVargas,
+      parashariOrdinary,
       parashariPromise,
       parashariSpecific,
       parashariDivisional,

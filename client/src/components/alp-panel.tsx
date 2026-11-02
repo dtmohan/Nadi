@@ -7,6 +7,8 @@ import { defaultAlpDay } from "@shared/school-topics-expanded";
 import { Cite } from "@/components/source-link";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
+import type { ChartEvent } from "@shared/events";
+import { TopicReadingPanel } from "@/components/topic-reading";
 import {
   NAKSHATRAS,
   PLANET_ABBR,
@@ -158,7 +160,7 @@ function fmtLon360(lon: number): string {
   return m === 60 ? `${d + 1}°00'` : `${d}°${String(m).padStart(2, "0")}'`;
 }
 
-export function AlpPanel({ result, initialAsOf, onAsOfChange }: { result: ChartResult; initialAsOf?: string; onAsOfChange?: (day: string) => void }) {
+export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }: { result: ChartResult; initialAsOf?: string; onAsOfChange?: (day: string) => void; onTopicSelected?: (event: ChartEvent | null) => void }) {
   const nowLabel = useNowLabel();
   const { chart, positions } = result;
   // "As of" opens on today, or on the recorded date of passing.
@@ -256,6 +258,7 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange }: { result: ChartR
 
   const chapterDefs: ChapterDef[] = [
     { id: "brief", plain: "In brief", technical: "Summary" },
+    { id: "topic-check", plain: "Matter and date", technical: "Event context" },
     {
       id: "placements",
       plain: "Where it stands",
@@ -395,6 +398,7 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange }: { result: ChartR
       </div>
 
       <Chapters tab="alp" chapters={chapterDefs} className="mt-4">
+      <Chapter id="topic-check"><TopicReadingPanel result={result} system="alp" onSelected={onTopicSelected} /></Chapter>
       <Chapter id="brief">
       <SchoolTopicPanel result={result} school="alp" options={{ alp: a }} />
       <VerdictCard

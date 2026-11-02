@@ -19,6 +19,11 @@ import { manleyEvidenceParas } from "./manley-evidence";
 import { hierarchyParas } from "./parashari-hierarchy";
 import { hierarchyWindowStages } from "../parashari-hierarchy";
 import { parashariComparisonParas } from "./parashari-comparison";
+import { kpCatalogueParas } from "./kp-catalogue-evidence";
+import { parashariCatalogueParas } from "./parashari-catalogue-evidence";
+import { additionalSchoolParas } from "./additional-school-event-evidence";
+import { alpEventParas } from "./alp-event-evidence";
+import { catalogueComparisonParas } from "./catalogue-comparison";
 import {
   RECTIFY_METHODS,
   EVENT_METHODS,
@@ -149,6 +154,7 @@ export const rectifyModule: ReportModule = {
             ? "The eligible events differ across candidate times, so the totals cannot be ranked. Check event dates and times relative to birth."
             : "No eligible event is available to score.", provisional: true }] : []),
           ...(coverage ? [{ kind: "p" as const, text: `At sampled midpoints, the highest raw score ${coverage.top} covers approximately ${coverage.percent}% of the window. The recorded-time interval midpoint scores ${coverage.recorded ?? "—"}. Midpoint values can differ from other instants in the same interval.`, provisional: true }] : []),
+          ...catalogueComparisonParas(focus?.baseline?.catalogueComparison),
           ...(focus?.baseline?.parashari && scan.baseline ? parashariComparisonParas(focus.baseline.parashari,
             scan.baseline.trials, focus.baseline.parashariExample, result.chart.timezone) : []),
           ...(focus?.parashariHierarchy ?? []).flatMap((e) => e ? hierarchyParas(e) : []),
@@ -394,7 +400,7 @@ export const rectifyModule: ReportModule = {
                   "Date",
                   "Dasa / bhukti / antara",
                   "Hits",
-                  "Promised",
+                  "Basic cusp link",
                   "Score",
                 ]
               : state.method === "kp-transit"
@@ -475,10 +481,14 @@ export const rectifyModule: ReportModule = {
           });
       }
       if (state.method.startsWith("kp-") && focus.events.length) {
+        for (const e of focus.events) ps.push(...kpCatalogueParas(e.natalRules, `${e.label} · ${e.date}`, (source, url) => cites.add(source, url), ctx.plain));
         ps.push({ kind: "note", provisional: true, text: "The following cusp filters and event-day Sun/Moon links use the same four-step evaluator as the chart's dated reading and Validate. They are descriptive and do not change the existing event or transit score." });
         for (const e of focus.events) ps.push({ kind: "p", provisional: true,
           text: `${S(e.label)} · ${e.date}: cusp sub lord ${e.cuspSubLord ?? "not selected"}, matter houses ${e.cuspSignified.join(", ") || "none listed"}. ${(["dasa", "bhukti", "antara"] as const).map((level, i) => `${level}: ${e.filtered[i].map((f) => `house ${f.house} through ${f.cuspSubLord}: ${f.denied ? "denied in this filter" : f.kept ? "kept" : "directed elsewhere"}`).join("; ") || "no selected house"}`).join(". ")}. Sun/Moon period links ${e.transit.luminary.sun ? "yes" : "no"}/${e.transit.luminary.moon ? "yes" : "no"}.` });
       }
+      (focus.parashariOrdinary ?? []).forEach((evidence, i) => ps.push(...parashariCatalogueParas(evidence, focus.events[i]?.label ?? "Event", (source, url) => cites.add(source, url), ctx.plain)));
+      for (const event of focus.events) ps.push(...additionalSchoolParas(event.additionalNatal, event.label, (source, url) => cites.add(source, url), "all", ctx.plain));
+      for (const event of focus.events) ps.push(...alpEventParas(event.alp, event.label, (source, url) => cites.add(source, url), ctx.plain));
       if (focus.parashariVargas?.length) {
         ps.push({
           kind: "note",

@@ -758,8 +758,8 @@ export const KP_RULES: KpRule[] = [
   { id: "kp8-harmless", cusp: 8, topic: "Accidents", when: { cusp: 8, minOf: { houses: [1, 3, 10, 11], count: 2 } }, text: "The 8th sub lord is connected to the improving houses, 1, 3, 10 and 11 above all: the 8th's matters turn to advantage. Even the period of a full 8th-house significator brings no accident or lasting harm, only passing strain, and money can come from unforeseen sources.", polarity: "good", source: `${P3C5("29")}; ${P2C7("53")}` },
   { id: "kp8-diverted", cusp: 8, topic: "Accidents", when: { cusp: 8, minOf: { houses: [1, 2, 3, 6, 10], count: 1 }, none: [8, 12] }, text: "The 8th sub lord holds its power to one of 1, 2, 3, 6, 10 and does not signify 8 or 12: whatever planets attack the 8th in their dasas, the sub lord diverts them; the native need not fear the 8th's disappointments, punishments or accidents in any period.", polarity: "good", source: P2C7("52-53") },
   { id: "kp6-chronic-debts", cusp: 6, topic: "Debts", when: { cusp: 6, all: [8] }, text: "The 6th sub lord signifies the 8th: chronic debts.", polarity: "bad", source: P3C5("31") },
-  { id: "kp6-sickness", cusp: 6, topic: "Health", when: { cusp: 6, all: [6, 7] }, text: "The 6th sub lord signifies 6 and 7: serious sickness in the period of the 6th significator.", polarity: "bad", source: P3C5("31") },
-  { id: "kp6-separation", cusp: 6, topic: "Marriage", when: { cusp: 6, all: [6, 10] }, text: "The 6th sub lord signifies 6 and 10: separation from the life partner in the period of the 6th significator.", polarity: "bad", source: P3C5("31") },
+  { id: "kp6-sickness-part3", cusp: 6, topic: "Health", when: { cusp: 6, all: [6, 7] }, text: "The 6th sub lord signifies 6 and 7: serious sickness in the period of the 6th significator.", polarity: "bad", source: P3C5("31") },
+  { id: "kp6-separation-part3", cusp: 6, topic: "Marriage", when: { cusp: 6, all: [6, 10] }, text: "The 6th sub lord signifies 6 and 10: separation from the life partner in the period of the 6th significator.", polarity: "bad", source: P3C5("31") },
   { id: "kp6-immune", cusp: 6, topic: "Health", when: { cusp: 6, all: [5, 11] }, text: "The 6th sub lord signifies 5 and 11 (the 12th and 6th to the 6th): debts, sickness and separation, the 6th's matters, do not come to pass even in the period of a full 6th significator.", polarity: "good", source: P3C5("31") },
   { id: "kp10-no-occupation", cusp: 10, topic: "Career", when: { cusp: 10, all: [5, 9], none: [6, 10] }, text: "The 10th sub lord signifies 5 and 9 rather than 6 or 10: no settled occupation even in the period of a full 10th significator, which is barren for work yet good for name, progeny, political contacts, creative or research work.", polarity: "neutral", source: P3C5("31-32") },
   { id: "kp11-ambitions-fail", cusp: 11, topic: "Gains", when: { cusp: 11, any: [8, 12], none: [11] }, text: "The 11th sub lord is tied to 8 or 12 and not to the 11th itself: ambitions fall short through life, and even the period of a full 11th significator gives little of what was desired.", polarity: "bad", source: P3C5("32") },
@@ -770,7 +770,9 @@ export const KP_RULES: KpRule[] = [
 
 // ---------- evaluation ----------
 
-type Partial = Omit<KpResult, "findings">;
+/** Only natal facts are needed to evaluate the ordinary cusp catalogue. */
+export type KpRuleFrame = Pick<KpResult, "cusps" | "planets" | "significators" | "badhaka" | "marakas" | "lagnaQuality">;
+type Partial = KpRuleFrame;
 
 function houses(r: Partial, planet: Planet, six: boolean): number[] {
   const s = r.significators.find((x) => x.planet === planet);

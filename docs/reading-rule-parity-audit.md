@@ -4,8 +4,9 @@ This inventory describes implemented subsets, not the completeness or validity o
 
 The broader six-school migration and the paths that remain unavailable are documented in
 [`planet-context-parity-audit.md`](planet-context-parity-audit.md). The full ordinary KP and
-Parashari natal catalogues are not automatically event-scoring catalogues; the shared event
-families below are the explicitly implemented subsets.
+Parashari natal catalogues are not automatically event-scoring catalogues. A reviewed KP subset
+and broad Parashari subject-house/lord/yoga context reuse the ordinary evaluators in event work.
+Neither adds points to the legacy event scores; the families below are implemented subsets.
 
 ## Common boundaries
 
@@ -18,6 +19,7 @@ families below are the explicitly implemented subsets.
 
 | Implemented rule | Natal chart | Chosen date / Validate / Rectify and trials | Qualification |
 | --- | --- | --- | --- |
+| Registered ordinary KP natal findings by matter | Same `evaluateKp` findings and precedence | Same candidate findings; first comparison set displayed | Explicit registry distinguishes promise clues, modifiers and context; custom house/cusp definitions are unmapped. Unmatched conditions do not prove their opposite. No new points. |
 | KP cusps, planetary sign/star/sub and four-step house significators | Shared frame; cusp evidence for each permitted registered matter | Same frame at the candidate | Optional six-step display is separate. |
 | Matter cusp sub lord, matched houses and twelfth-from-cusp condition | Shown for each permitted registered matter | Same cusp scorer | The twelfth condition is a limited filter, not proof of denial. |
 | Dasa/bhukti/antara house links and raw points | Natal house links are visible, without assigning periods | Same event scorer | The period sequence needs a selected instant. |
@@ -37,6 +39,7 @@ Sources and their specific scope are recorded in `shared/rectify-methods.ts`, th
 
 | Implemented rule | Natal chart | Chosen date / Validate / Rectify and trials | Qualification |
 | --- | --- | --- | --- |
+| Ordinary subject-house, house-lord and lord-connected yoga findings | Same `computeParashari` result in the selected house construction | Same candidate context; event period participants named for actual and comparison dates | Broad context only, no hard gate or new score; can use a different house method from the whole-sign/full-aspect research checks. |
 | D1 event house and relevant D7/D9/D10 occupants, aspects, lord, dignity, supportive and contrary factors | Shared natal frame and partial support/strain | Same frame used by v1–v3 and the dated hierarchy | Marriage, child and job; not a complete promise. |
 | D1 matter lord, divisional matter lord and karaka in D1 and Dn | Shared foundation, placement, sign dignity and limited relationship | Same foundation in the event hierarchy | A strong divisional placement is evidence alongside D1, not automatic cancellation. |
 | Move D4, child D7, marriage D9, career D10, education D24 matter, lord, karaka and secondary links | All nine planets' D1 and Dn frames in the regular chart/report | The same frames are selected for the running periods | Education D24 fourth-house view remains separate from Manley's fifth-house comparison. |

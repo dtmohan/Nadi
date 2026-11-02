@@ -15,17 +15,25 @@ import { parashariEvidenceParas } from "./parashari-varga-evidence";
 import { transitEvidenceTable } from "./kp-transit-evidence";
 import { moonTransitParas } from "./moon-transit";
 import type { ReportContext, ReportPara, ReportSection } from "./types";
+import { kpCatalogueParas } from "./kp-catalogue-evidence";
+import { parashariCatalogueParas } from "./parashari-catalogue-evidence";
+import { additionalSchoolParas } from "./additional-school-event-evidence";
+import { alpEventParas } from "./alp-event-evidence";
 
 /** The chart tab's chosen date, recomputed by the same one-event evaluator for the export. */
 export function topicReadingSection(ctx: ReportContext, system: string): ReportSection | undefined {
-  if (!["kp", "parashari", "jaimini", "bnn"].includes(system)) return undefined;
-  const e = ctx.tools.topicReadings?.[system as "kp" | "parashari" | "jaimini" | "bnn"];
+  if (!["kp", "parashari", "jaimini", "bnn", "alp", "prasna"].includes(system)) return undefined;
+  const e = ctx.tools.topicReadings?.[system as "kp" | "parashari" | "jaimini" | "bnn" | "alp" | "prasna"];
   if (!e) return undefined;
   const { cites, S } = ctx;
   const paras: ReportPara[] = [{ kind: "note", provisional: true,
     text: `${e.label} · ${e.date} · ${describeEventMoment(e, ctx.result.chart.timezone)}. This chosen-date reading applies the same conditions as Validate. It does not claim that an event occurred or predict that it will occur.` }];
   paras.push({ kind: "note", text: EVENT_TRANSIT_SCOPE });
+  if (system === "bnn" || system === "jaimini") paras.push(...additionalSchoolParas(e.additionalNatal, e.label, (source, url) => cites.add(source, url), system, ctx.plain));
+  if (system === "prasna") paras.push(...additionalSchoolParas(e.additionalNatal, e.label, (source, url) => cites.add(source, url), "prasna", ctx.plain));
+  if (system === "alp") paras.push(...alpEventParas(e.alp, e.label, (source, url) => cites.add(source, url), ctx.plain));
   if (system === "parashari") {
+    paras.push(...parashariCatalogueParas(e.parashariOrdinary, e.label, (source, url) => cites.add(source, url), ctx.plain));
     if (e.parashariVargas) {
       paras.push({ kind: "note", text: "The natal and divisional frames below use whole-sign houses and the chart's selected ayanamsa.",
         cites: [cites.add(PARASHARI_VARGA_SOURCE.label, PARASHARI_VARGA_SOURCE.url)], provisional: true });
@@ -53,6 +61,7 @@ export function topicReadingSection(ctx: ReportContext, system: string): ReportS
       cites.add(FUNCTIONAL_SOURCE.label, FUNCTIONAL_SOURCE.url)));
   } else if (system === "kp") {
     const k = e.kp;
+    paras.push(...kpCatalogueParas(k.natalRules, e.label, (source, url) => cites.add(source, url), ctx.plain));
     paras.push({ kind: "p", text: `Matter houses ${e.houses.join(", ")}; cusp ${e.cusp} sub lord ${k.cuspSubLord} signifies ${k.cuspSignified.join(", ") || "none of them"}. ${(["dasa", "bhukti", "antara"] as const).map((level, i) => `${level} ${k[level]}: ${k.signified[i].join(", ") || "no selected house"}`).join("; ")}. Period-lord transit points: ${k.transit.score}/${k.transit.max}. This uses Validate's four-step event check; the broader sky is descriptive.`,
       cites: [cites.add("Astro Secrets & KP, Part 1 pp. 167–172; Part 2 p. 203 (uploaded PDFs)")], provisional: true });
     paras.push({ kind: "p", text: `${(["dasa", "bhukti", "antara"] as const).map((level, i) => `${level} ${k[level]} cusp filter: ${k.filtered[i].map((f) => `house ${f.house} via ${f.cuspSubLord}: ${f.denied ? "denied" : f.kept ? "kept" : "directed elsewhere"}`).join("; ") || "no selected house"}`).join(". ")}. ${(["dasa", "bhukti"] as const).map((level) => { const t = k.transit[level]; return `${level} ${t.planet} transits the sign, star and sub of ${t.signLord}, ${t.starLord}, ${t.subLord}; selected-house links ${t.hits.map((hit) => hit ? "yes" : "no").join(" / ")}`; }).join(". ")}.`, provisional: true });
@@ -67,7 +76,7 @@ export function topicReadingSection(ctx: ReportContext, system: string): ReportS
     paras.push(e.jaimini ? { kind: "p", text: `The app maps this matter to Jaimini's ${e.jaimini.area} area. Chara main period ${e.jaimini.mdSignName}: ${S(e.jaimini.md.triggers.join("; ") || "no listed trigger")}. Subperiod ${e.jaimini.adSignName}: ${S(e.jaimini.ad.triggers.join("; ") || "no listed trigger")}. The broad mapping and count are app conventions, not an event-specific forecast.`,
       cites: [cites.add(RAO_SOURCE.label, RAO_SOURCE.url)], provisional: true }
       : { kind: "note", text: "No Jaimini event-area check is available for this matter and date in this reading." });
-  } else {
+  } else if (system === "bnn") {
     const n = e.bnn;
     const finding = n.combination ? ctx.result.reading.findings.find((f) => f.text === n.combination) : undefined;
     paras.push({ kind: "p", text: `The app maps this matter to the Nadi ${matterOf(e.matter).bnn.area} area. Jupiter in ${n.jupiterSign}; Saturn in ${n.saturnSign}; matter significators ${n.karakas.join(", ")}. Jupiter contact: ${n.jupiter ? `${n.jupiter.contact} ${n.jupiter.planet}` : "none listed"}; Saturn contact: ${n.saturn ? `${n.saturn.contact} ${n.saturn.planet}` : "none listed"}; both contact the same significator: ${n.double ? "yes" : "no"}. Jupiter's count from natal Jeeva: ${n.fromJeeva}${n.fromDeha !== null ? `; from natal Deha: ${n.fromDeha}` : ""}; listed count match: ${n.progression ? "yes" : "no"}; partial timing points ${n.score}/${n.max}.${n.combination ? ` Related natal rule${finding ? ` ${finding.ruleId}` : ""}: ${S(n.combination)}` : ""} The mapping and combined count are app conventions, not a forecast.`, cites: [cites.add("R.G. Rao, Bhrigu Nandi Nadi"), cites.add("S. Naik, Prediction Secrets: Naadi Astrology"), ...(finding?.source ? [cites.add(finding.source)] : [])], provisional: true });

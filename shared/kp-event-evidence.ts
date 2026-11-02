@@ -5,6 +5,7 @@ import { auroraEventEvidence, type AuroraEventEvidence } from "./kp-aurora";
 import { auroraV2Evidence, type AuroraV2Evidence } from "./kp-aurora-v2";
 import type { CuspFilter } from "./validate-types";
 import type { TransitCheck } from "./rectify-types";
+import { createKpEventNatalRules, kpRuleFrame, type KpEventNatalRules } from "./kp-event-natal-rules";
 
 export interface KpEventRules {
   signified: [number[], number[], number[]];
@@ -21,6 +22,8 @@ export interface KpEventRules {
     luminary: { sun: boolean; moon: boolean } };
   aurora?: AuroraEventEvidence;
   auroraV2?: AuroraV2Evidence;
+  /** Qualified findings from the ordinary four-step natal catalogue. */
+  natalRules?: KpEventNatalRules;
 }
 
 /** Natal cusp condition used without inventing any running period. */
@@ -39,9 +42,11 @@ export function createKpCuspScorer(cusps: KpCusp[], significators: KpSignificato
 /** Inputs are explicit: an event's own clock and sky must be supplied by each
  * caller. This intentionally uses the four-step significator set, even when a
  * chart window separately offers the optional six-step interpretation. */
-export function createKpEventScorer(cusps: KpCusp[], significators: KpSignificators[], planets: KpPlanet[]) {
+export function createKpEventScorer(cusps: KpCusp[], significators: KpSignificators[], planets: KpPlanet[],
+  natalPolicy: { withhold?: boolean; allowed?: (matter: string) => boolean } = {}) {
   const sig = new Map(significators.map((s) => [s.planet, s.houses]));
   const scoreCusp = createKpCuspScorer(cusps, significators);
+  const natalRules = createKpEventNatalRules(kpRuleFrame(cusps, planets, significators), natalPolicy);
   const stagedCache = new Map<string, { aurora?: AuroraEventEvidence; auroraV2?: AuroraV2Evidence }>();
   return (houses: number[], cusp: number | undefined, lords: [Planet, Planet, Planet],
     sky: Array<Pick<PlanetPosition, "planet" | "lon">>, matter?: string, includeAuroraSky = true): KpEventRules => {
@@ -85,6 +90,7 @@ export function createKpEventScorer(cusps: KpCusp[], significators: KpSignificat
       }
     }
     return { signified, hits, cuspSubLord, cuspSignified, promised, filtered, effective, deniedAtCusp,
+      natalRules: natalRules(matter, houses, cusp),
       score, max: 3 + (cuspSubLord ? 1 : 0), transit: { dasa, bhukti,
         score: [...dasa.hits, ...bhukti.hits].filter(Boolean).length, max: 6,
         luminary: { sun: luminaryTrigger("Sun"), moon: luminaryTrigger("Moon") } }, ...staged };

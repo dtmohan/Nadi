@@ -683,7 +683,7 @@ export default function RulesPage() {
             return <tr key={id} className="border-t align-top"><td className="py-1 pr-3"><strong>{family.school}</strong><br /><span className="text-muted-foreground">{family.label}</span><br />{family.limits}</td>{(["chart", "dated-reading", "validate", "rectify", "comparison"] as const).map((path) => <td className="py-1 pr-3" key={path}>{label[family.paths[path]]}</td>)}</tr>;
           })}</tbody>
         </table></div>
-        <p className="mt-2 text-muted-foreground">A natal rule is not automatically a timing rule or a score. In practitioner mode, “Planets in play” shows a partial index of matched rules whose evidence explicitly links each displayed planet.</p>
+        <p className="mt-2 text-muted-foreground">“Shared” can mean contextual findings, not a timing score; see each family's limits. KP, Parashari and the other schools retain their own existing scores. ALP topic findings and Parashari period participants are counted across comparison dates as descriptive frequencies, without adding points. A future natal rule must be qualified for its event matter before it appears there. In practitioner mode, “Planets in play” shows a partial index of matched rules whose evidence explicitly links each displayed planet.</p>
       </details>
       <details className="mt-3 rounded-md border p-3 text-sm" data-testid="rulebook-topic-coverage">
         <summary className="cursor-pointer font-semibold">How the plain topic summaries use these rules</summary>

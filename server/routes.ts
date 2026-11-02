@@ -338,12 +338,12 @@ export async function registerRoutes(
       if (!alpDate.success) return res.status(400).json({ message: "Invalid ALP date", issues: alpDate.error.issues });
       if (alpDate.data) toolResults.alpAsOf = alpDate.data;
       const topicInputs = z.object({ kp: chartEventSchema.optional(), parashari: chartEventSchema.optional(),
-        jaimini: chartEventSchema.optional(), bnn: chartEventSchema.optional() }).safeParse(
+        jaimini: chartEventSchema.optional(), bnn: chartEventSchema.optional(), alp: chartEventSchema.optional(), prasna: chartEventSchema.optional() }).safeParse(
           (tools as Record<string, unknown> | undefined)?.topicReadings ?? {},
         );
       if (!topicInputs.success)
         return res.status(400).json({ message: "Invalid matter/date reading", issues: topicInputs.error.issues });
-      for (const system of ["kp", "parashari", "jaimini", "bnn"] as const) {
+      for (const system of ["kp", "parashari", "jaimini", "bnn", "alp", "prasna"] as const) {
         const event = topicInputs.data[system];
         if (event && (!ids?.length || ids.includes(system))) {
           (toolResults.topicReadings ??= {})[system] = topicReading(parsed.data, event);

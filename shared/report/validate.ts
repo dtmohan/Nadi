@@ -18,6 +18,11 @@ import { AURORA_SOURCE } from "../kp-aurora";
 import { auroraEvidenceParas, auroraV2EvidenceParas, auroraV2StagesParas } from "./kp-aurora";
 import { AURORA_V2_SOURCE } from "../kp-aurora-v2";
 import { agreeWord, KP_MARKED_KEY, markedHousesText } from "../validate-types";
+import { kpCatalogueParas } from "./kp-catalogue-evidence";
+import { parashariCatalogueParas } from "./parashari-catalogue-evidence";
+import { additionalSchoolParas } from "./additional-school-event-evidence";
+import { alpEventParas } from "./alp-event-evidence";
+import { catalogueComparisonParas } from "./catalogue-comparison";
 import {
   type ReportModule,
   type ReportPara,
@@ -82,7 +87,7 @@ export const validateModule: ReportModule = {
           "Houses",
           "Dasa / bhukti / antara",
           "Hits",
-          "Promised",
+          "Basic cusp link",
           "KP",
           "Chara dasha",
           "Nadi",
@@ -106,11 +111,15 @@ export const validateModule: ReportModule = {
       },
       {
         kind: "note",
-        text: "Hits: D, B and A mark a dasa, bhukti or antara lord that signifies one of the matter's houses by the four-step rule. Promised: the sub lord of the matter's cusp signifies the matter. A KP period/cusp match requires the promise and both dasa and bhukti lords to signify; it does not include antara or transit. Partial means something links, missed means nothing does. The chara dasha column gives the mahadasha and antardasha signs and Rao's fit; the Nadi column scores Jupiter's and Saturn's contacts with the matter's karakas. Timing windows are shown separately. The scoring scales are the app's, not the books'.",
+        text: "Hits: D, B and A mark a dasa, bhukti or antara lord that signifies one of the matter's houses by the four-step rule. Basic cusp link: the sub lord signifies at least one matter house, a partial check rather than a complete promise assessment. A KP period/cusp match requires that link and both dasa and bhukti lords to signify; it does not include antara or transit. Partial means something links, missed means nothing does. The chara dasha column gives the mahadasha and antardasha signs and Rao's fit; the Nadi column scores Jupiter's and Saturn's contacts with the matter's karakas. Timing windows are shown separately. The scoring scales are the app's, not the books'.",
         cites: [kpSrc, filterSrc],
         provisional: true,
       },
     ];
+    for (const event of v.events) paras.push(...kpCatalogueParas(event.kp.natalRules, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), ctx.plain));
+    for (const event of v.events) paras.push(...parashariCatalogueParas(event.parashariOrdinary, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), ctx.plain));
+    for (const event of v.events) paras.push(...additionalSchoolParas(event.additionalNatal, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), "all", ctx.plain));
+    for (const event of v.events) paras.push(...alpEventParas(event.alp, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), ctx.plain));
     if (s.diverted)
       paras.push({
         kind: "p",
@@ -277,6 +286,7 @@ export const validateModule: ReportModule = {
         id: "validate-baseline",
         title: "Random-date comparison",
         paras: [
+          ...catalogueComparisonParas(b.catalogueComparison),
           {
             kind: "p",
             text: `Each matter was rescored at ${b.trials} sets of independently selected dates between ${b.span[0]} and ${b.span[1]}. Transits use each sampled date and the same natal chart. The mid-rank percentile counts scores below the actual score plus half the tied scores. These comparisons are descriptive and do not adjust for related measures or the selection of birth times. Random dates need not preserve plausible event ages or order.`,

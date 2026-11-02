@@ -13,6 +13,9 @@ import type { HierarchyEvent } from "./parashari-hierarchy";
 import type { ParashariComparison, ParashariComparisonExample } from "./parashari-comparison";
 import type { AuroraAscendantLinks, AuroraEventEvidence } from "./kp-aurora";
 import type { AuroraV2Evidence, AuroraV2StageComparison } from "./kp-aurora-v2";
+import type { ParashariDatedCatalogue } from "./parashari-event-natal-rules";
+import type { AdditionalSchoolNatalEvidence } from "./additional-school-event-rules";
+import type { AlpEventEvidence } from "./alp-event-evidence";
 
 export interface RectifyEvent {
   label: string;
@@ -51,6 +54,8 @@ export interface RectifyRequest {
 }
 
 export interface RectifyEventCheck extends KpEventRules {
+  additionalNatal?: AdditionalSchoolNatalEvidence;
+  alp?: AlpEventEvidence;
   label: string;
   date: string;
   time?: string;
@@ -255,6 +260,8 @@ export interface RectifySegment {
   events: RectifyEventCheck[];
   /** Separate, descriptive Parashari evidence; never included in the KP or Jaimini score. */
   parashariVargas?: ParashariVargaEvidence[];
+  /** Ordinary natal catalogue and dated period-lord participants, by event. */
+  parashariOrdinary?: Array<ParashariDatedCatalogue | undefined>;
   /** Source-informed exploratory matches, independent of KP/Jaimini. */
   parashariPromise?: ParashariPromiseCheck[];
   /** Event-specific version 2; kept separate so version 1 remains reviewable. */
@@ -286,6 +293,10 @@ export interface RectifyBaselineStat {
 }
 
 export interface RectifySegmentBaseline {
+  /** First comparison set carries the same candidate-specific natal rule evidence. */
+  catalogueExample?: Array<{ label: string; date: string; natalRules?: KpEventRules["natalRules"]; parashariOrdinary?: ParashariDatedCatalogue; additionalNatal?: AdditionalSchoolNatalEvidence; alp?: AlpEventEvidence }>;
+  /** Date-dependent ordinary rule frequencies, descriptive and separate from ranking. */
+  catalogueComparison?: import("./catalogue-comparison").EventCatalogueComparison[];
   kpEvents: RectifyBaselineStat;
   transit: RectifyBaselineStat;
   jaimini: RectifyBaselineStat;

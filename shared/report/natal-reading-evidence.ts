@@ -3,11 +3,14 @@ import type { KpNatalConditions, ParashariNatalConditions } from "../natal-readi
 import { manleyNatalSummaries } from "../manley-natal-summary";
 import { kpQualifiedSummary, parashariQualifiedSummary } from "../qualified-natal-summary";
 import type { ReportPara } from "./types";
+import { kpCatalogueParas } from "./kp-catalogue-evidence";
+import { parashariCatalogueParas } from "./parashari-catalogue-evidence";
 
-export function parashariNatalConditionsParas(items: ParashariNatalConditions[], source: number, functionalSource?: number): ReportPara[] {
+export function parashariNatalConditionsParas(items: ParashariNatalConditions[], source: number, functionalSource?: number, plain = false): ReportPara[] {
   const paras: ReportPara[] = [{ kind: "note", provisional: true, cites: [source, ...(functionalSource === undefined ? [] : [functionalSource])], text: "Natal event foundations reuse the dated-check frames without choosing a period or event. They supplement the existing overview and do not automatically change its verdict. D1 and divisions use whole-sign houses and full aspects; applying the natal functional table to divisions is provisional. The named pair, node and house combinations overlap and do not establish an outcome." }];
   for (const row of parashariQualifiedSummary(items)) paras.push({ kind: "p", provisional: true, text: `${row.label}: ${row.text}` });
   for (const topic of items) {
+    paras.push(...parashariCatalogueParas(topic.ordinary, topic.subject, undefined, plain));
     if (topic.support) paras.push({ kind: "p", provisional: true, text: `${topic.subject}: D1 support ${topic.support.d1Support.join("; ") || "none listed"}; D1 strain ${topic.support.d1Strain.join("; ") || "none listed"}; ${topic.division} support ${topic.support.divisionSupport.join("; ") || "none listed"}; strain ${topic.support.divisionStrain.join("; ") || "none listed"}.` });
     if (topic.foundation) paras.push({ kind: "p", provisional: true, text: `Earlier partial D1/divisional screen: ${topic.foundation.d1.status}/${topic.foundation.divisionCheck.status}; it cannot exclude an event. Cross-chart lords and significators: ${topic.foundation.planets.map((p) => `${p.planet} (${p.roles.join(", ")}): D1 ${SIGNS[p.d1.sign]} house ${p.d1.house}, ${p.d1.dignity}; ${topic.division} ${SIGNS[p.division.sign]} house ${p.division.house}, ${p.division.dignity}`).join("; ")}.` });
     const specific = topic.specific;
@@ -31,7 +34,7 @@ export function parashariNatalConditionsParas(items: ParashariNatalConditions[],
   return paras;
 }
 
-export function kpNatalConditionsParas(items: KpNatalConditions[], source: number): ReportPara[] {
+export function kpNatalConditionsParas(items: KpNatalConditions[], source: number, plain = false): ReportPara[] {
   const rows = items.flatMap((e) => ([ ["Strict", e.strict?.layers], ["Mixed v2", e.mixed?.layers] ] as const).flatMap(([method, layers]) => (layers ?? []).map((l) => [
     e.label, method, l.role, l.planet, `${l.star.planet}: ${l.star.houses.join(", ") || "—"}`,
     `${l.sub.planet}: ${l.sub.houses.join(", ") || "—"}`, l.eligible ? l.status : `not counted (raw: ${l.status})`,
@@ -39,6 +42,7 @@ export function kpNatalConditionsParas(items: KpNatalConditions[], source: numbe
   return [
     { kind: "note", provisional: true, cites: [source], text: "These are the natal cusp stages of the same KP dated-event checks. They supplement the existing overview and do not automatically change its verdict. They use four-step significators and the separately named strict and mixed Aurora research scripts; no period or event date is inferred. Mixed and unresolved stages do not deny an event." },
     ...kpQualifiedSummary(items).map((row): ReportPara => ({ kind: "p", provisional: true, text: `${row.label}: ${row.text}` })),
+    ...items.flatMap((item) => kpCatalogueParas(item.natalRules, item.label, undefined, plain)),
     { kind: "p", provisional: true, text: items.map((e) => `${e.label}: basic cusp ${e.basic.cusp}, sub lord ${e.basic.cuspSubLord}, matter-house links ${e.basic.signified.join(", ") || "none listed"}${e.basic.deniedAtCusp ? "; twelfth-from-cusp condition present" : ""}`).join(". ") + "." },
     { kind: "table", head: ["Matter", "Script", "Cusp stage", "Planet", "Star houses", "Sub houses", "Status"], rows },
   ];

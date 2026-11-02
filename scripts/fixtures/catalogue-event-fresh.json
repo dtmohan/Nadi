@@ -1,0 +1,40 @@
+{
+  "protocol": "docs/catalogue-event-fresh-protocol.md",
+  "cases": [
+    {
+      "name": "Victor Glover", "category": "US naval aviator and astronaut", "birthQuality": "AA; Astro-Databank reports birth certificate in hand; minute-level accuracy is not independently verified",
+      "birthSource": "https://www.astro.com/astro-databank/Glover%2C_Victor",
+      "chart": { "name": "Victor Glover", "gender": "male", "birthDate": "1976-04-30", "birthTime": "06:17", "timezone": "America/Los_Angeles", "timeStandard": "auto", "place": "Pomona, California, USA", "latitude": 34.05, "longitude": -117.75, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "vg-test-pilot", "matter": "job", "date": "2007-06-09", "timezone": "America/Los_Angeles", "note": "Test-pilot designation; career milestone, not necessarily a new job. Event zone assumed.", "sources": ["https://www.nasa.gov/wp-content/uploads/2026/04/glover-vj.pdf"] },
+        { "id": "vg-nasa", "matter": "job", "date": "2013-06-17", "timezone": "America/Chicago", "note": "Public announcement of astronaut-candidate selection; actual notification time not established.", "sources": ["https://www.nasa.gov/news-release/nasa-selects-next-generation-of-space-explorers-google-hangout-today/", "https://www.nasa.gov/wp-content/uploads/2026/04/glover-vj.pdf"] }
+      ]
+    },
+    {
+      "name": "Emmanuelle Seigner", "category": "French actor and singer", "birthQuality": "AA; Astro-Databank reports certificate in hand; minute-level accuracy is not independently verified",
+      "birthSource": "https://www.astro.com/astro-databank/Seigner%2C_Emmanuelle",
+      "chart": { "name": "Emmanuelle Seigner", "gender": "female", "birthDate": "1966-06-22", "birthTime": "18:35", "timezone": "Europe/Paris", "timeStandard": "auto", "place": "Paris, France", "latitude": 48.8667, "longitude": 2.3333, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "es-marriage", "matter": "marriage", "date": "1989-08-30", "timezone": "Europe/Paris", "sources": ["https://universalmusic.fr/artistes/20000261050", "https://www.astro.com/astro-databank/Seigner%2C_Emmanuelle"] },
+        { "id": "es-child", "matter": "child", "date": "1993-01-20", "timezone": "Europe/Paris", "note": "Birth date and location attributed to film and genealogical databases, not a reviewed original record.", "sources": ["https://www.imdb.com/name/nm1364281/bio/", "https://www.geneastar.org/celebrite/polanskimor/morgane-polanski"] }
+      ]
+    },
+    {
+      "name": "Fábio Assunção", "category": "Brazilian actor", "birthQuality": "AA; Astro-Databank reports certificate in hand; minute-level accuracy is not independently verified",
+      "birthSource": "https://www.astro.com/astro-databank/Assun%C3%A7%C3%A3o%2C_F%C3%A1bio",
+      "chart": { "name": "Fábio Assunção", "gender": "male", "birthDate": "1971-08-10", "birthTime": "06:45", "timezone": "America/Sao_Paulo", "timeStandard": "auto", "place": "São Paulo, Brazil", "latitude": -23.5525, "longitude": -46.6247, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "fa-marriage", "matter": "marriage", "date": "2020-10-01", "timezone": "America/Sao_Paulo", "note": "Wedding zone assumed from southeastern Brazil; exact location and clock not established.", "sources": ["https://entretenimento.r7.com/famosos-e-tv/fotos/lua-de-mel-famosos-escolhem-destinos-paradisiacos-para-viagens-04062021/", "https://heloisatolipan.com.br/tv/fabio-assuncao-que-teve-covid-ano-passado-esta-em-contagem-regressiva-para-o-nascimento-da-filha-e-pede-mais-amor-ao-mundo/"] },
+        { "id": "fa-child", "matter": "child", "date": "2021-04-27", "timezone": "America/Sao_Paulo", "note": "Birth reported in Rio de Janeiro; time unknown.", "sources": ["https://gauchazh.clicrbs.com.br/donna/gente/noticia/2021/04/nasce-alana-filha-de-fabio-assuncao-bem-vinda-cko2xioq80025018m1jw0v74y.html", "https://www.mulher.com.br/familia/gravidez-e-bebes/fabio-assuncao-e-ana-verena-dispensam-tradicao-ao-sair-da-maternidade-com-alana"] }
+      ]
+    },
+    {
+      "name": "Robert Holley", "category": "US biochemist", "birthQuality": "AA; Astro-Databank quotes a birth record; source not personally inspected",
+      "birthSource": "https://www.astro.com/astro-databank/Holley%2C_Robert",
+      "chart": { "name": "Robert Holley", "gender": "male", "birthDate": "1922-01-28", "birthTime": "23:00", "timezone": "America/Chicago", "timeStandard": "auto", "place": "Urbana, Illinois, USA", "latitude": 40.1167, "longitude": -88.2, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "1993-02-11" },
+      "events": [
+        { "id": "rh-marriage", "matter": "marriage", "date": "1945-03-03", "note": "Place and event clock unknown; birth zone and noon are assumptions. Academy biography independently confirms the year only.", "sources": ["https://www.astro.com/astro-databank/Holley%2C_Robert", "https://www.nasonline.org/wp-content/uploads/2024/06/holley-robert.pdf", "https://www.encyclopedia.com/people/medicine/biochemistry-biographies/robert-william-holley"] }
+      ]
+    }
+  ]
+}

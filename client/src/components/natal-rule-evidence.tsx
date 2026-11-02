@@ -5,6 +5,8 @@ import type { ChartResult } from "@shared/schema";
 import { parashariNatalConditions, kpNatalConditions } from "@shared/natal-reading-evidence";
 import { manleyNatalSummaries } from "@shared/manley-natal-summary";
 import { kpQualifiedSummary, parashariQualifiedSummary } from "@shared/qualified-natal-summary";
+import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
+import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
 import { FUNCTIONAL_SOURCE } from "@shared/parashari-functional";
 import { Cite } from "@/components/source-link";
 
@@ -23,6 +25,7 @@ export function ParashariNatalRules({ result }: { result: ChartResult }) {
     <p className="mt-2 text-muted-foreground">These are the same yoga-pair, node and matter-house combinations used in dated checks, before choosing an event or period. They use whole-sign houses and full aspects even if the main chart uses a different house view. They supplement the existing overview; they do not automatically change its verdict. The D1 table applied to divisional ascendants is provisional; these observations do not promise an outcome. <Cite href={FUNCTIONAL_SOURCE.url}>{FUNCTIONAL_SOURCE.label}</Cite></p>
     {topics.map((topic) => <details key={topic.matter} className="mt-2 rounded border px-2 py-2" data-testid={`parashari-natal-${topic.matter}`}>
       <summary className="cursor-pointer font-medium">{topic.subject} · D1 and {topic.division}</summary>
+      <ParashariCatalogueEvidence evidence={topic.ordinary} />
       {topic.support && <div className="mt-2 space-y-1 text-muted-foreground"><p>Partial D1 support: {shown(topic.support.d1Support)}; strain: {shown(topic.support.d1Strain)}.</p>
         <p>Partial {topic.division} support: {shown(topic.support.divisionSupport)}; strain: {shown(topic.support.divisionStrain)}.</p></div>}
       {topic.foundation && <div className="mt-2 text-muted-foreground"><p>Earlier partial D1 / divisional screen: {topic.foundation.d1.status} / {topic.foundation.divisionCheck.status}. It is incomplete and does not exclude an event.</p>
@@ -65,6 +68,7 @@ export function KpNatalRules({ result, plain = false }: { result: ChartResult; p
     {topics.map((topic) => <details key={topic.matter} className="mt-2 rounded border px-2 py-2" data-testid={`kp-natal-${topic.matter}`}>
       <summary className="cursor-pointer font-medium">{topic.label}</summary>
       <p className="mt-2">Basic four-step cusp {topic.basic.cusp}: {topic.basic.cuspSubLord} signifies {topic.basic.signified.join(", ") || "none of the listed matter houses"} (matter houses {topic.basic.matterHouses.join(", ")}).{topic.basic.deniedAtCusp ? " The app's separate twelfth-from-cusp condition is also present." : ""}</p>
+      <KpCatalogueEvidence evidence={topic.natalRules} />
       {([ ["Strict script", topic.strict?.layers], ["Mixed script v2", topic.mixed?.layers] ] as const).map(([label, layers]) => layers && <div key={label} className="mt-2">
         <p className="font-medium">{label} · natal cusps only</p>
         {layers.map((l) => <p key={l.role}>{l.role}, {l.planet}: star layer {l.star.planet} ({l.star.houses.join(", ") || "none"}), sub layer {l.sub.planet} ({l.sub.houses.join(", ") || "none"}); {l.eligible ? l.status.replaceAll("-", " ") : `not counted after earlier stage (raw: ${l.status.replaceAll("-", " ")})`}.</p>)}

@@ -1,0 +1,1921 @@
+{
+  "protocol": "docs/catalogue-event-holdout-protocol.md",
+  "hashes": {
+    "docs/catalogue-event-holdout-protocol.md": "8879d000989e1438643022e7c3e874355ecb3a6215b68244baeb816bda99609e",
+    "scripts/fixtures/catalogue-event-holdout.json": "bb44a5322d6f219ae03c6a4102506bc73fbb58a34a59e1a0707f043499530a4e",
+    "scripts/eval-catalogue-event-fresh.ts": "23720c30d129e4f97757fa18b0b9807abfab141ea40ea9bafe14902ea26b669a",
+    "shared/kp-event-natal-rules.ts": "e1b55d53935b42bac029031e845f99d087b59d5165034411eb5672ef7913883c",
+    "shared/parashari-event-natal-rules.ts": "28e94ff3cc3bf715757c02e2954ed23ff6dda4f462c70a571856f366151bc242",
+    "shared/additional-school-event-rules.ts": "5946ca683cc3dedac9816d89c4c41beda319197b7d8c18bc89023b8d60588693",
+    "shared/alp-event-evidence.ts": "1adc83710815f47c3be3bcc65fc151769b80a52e6fb2687f80c3a8582bc7894b",
+    "shared/catalogue-comparison.ts": "adad73f95b4939d9f897acdba54e4569786d131cc9d5be699cc6f8b6d1585d15",
+    "shared/rules-kp.ts": "ee3af7457e839ab1ff0d0fcf1f9451f262648c180366c0bc6b9752565cee7514",
+    "shared/parashari.ts": "21ca88cfc14d63c18a6426f7c70df39cb5d6c393d2f24374d2afa51391d39711",
+    "shared/rules-alp.ts": "f87106bbb8d1f8f3423eae925019bb2b0c37cab90e8e1c66372baeb0a5f71ce4",
+    "server/validate.ts": "d549c696d1387bb303644bdc66ab086c68d33056232227980a912e2d7d005ee4",
+    "server/rectify.ts": "ec26933ca8682522251a5e7380440d14133c6d622e482bf1efb4254fbad01219",
+    "server/parashari-event.ts": "bbbbb58ce709ec4186460045c54fa5ad4c48683c9382abbf0fca5b654e96a597",
+    "server/additional-school-events.ts": "be5eb973038928795acbb560a3391eb095064cca20c2f206346d728daaf4305f"
+  },
+  "warning": "Public convenience cases. Path parity does not establish a prediction or verify reported times. Comparison dates are not known non-events.",
+  "results": [
+    {
+      "name": "Édouard Philippe",
+      "category": "French politician and lawyer",
+      "birthQuality": "AA, a certificate is quoted in Astro-Databank; not independently inspected",
+      "birthSource": "https://www.astro.com/astro-databank/Philippe%2C_Edouard",
+      "reportedBirth": "1970-11-28 08:45 Europe/Paris",
+      "midpoint": "1970-11-28 08:45:01",
+      "scanHalfWindowMinutes": 5,
+      "rankings": [
+        {
+          "method": "kp-events",
+          "eligible": true,
+          "topScore": 7,
+          "givenSampleIsTop": true,
+          "topSegments": 21,
+          "totalSegments": 29,
+          "topCoveragePct": 59.3
+        },
+        {
+          "method": "parashari-events-v3",
+          "eligible": true,
+          "topScore": 10,
+          "givenSampleIsTop": false,
+          "topSegments": 13,
+          "totalSegments": 29,
+          "topCoveragePct": 37.7
+        }
+      ],
+      "events": [
+        {
+          "id": "ep-mayor",
+          "matter": "job",
+          "date": "2010-10-24",
+          "clock": "12:00 assumed",
+          "zone": "Europe/Paris",
+          "note": "Election as Le Havre mayor. Public sources disagree by one day; clock unknown.",
+          "sources": [
+            "https://lesnouvellesnumeriques.blogspot.com/2010/10/edouard-philippe-nouveau-maire-au-havre.html",
+            "https://www.info.gouv.fr/actualite/edouard-philippe-est-nomme-premier-ministre"
+          ],
+          "exactParity": true,
+          "actual": {
+            "kp": 3,
+            "kpTransit": 6,
+            "kpIndication": {
+              "supports": [],
+              "strains": [],
+              "status": "unresolved"
+            },
+            "kpNatalMatched": [
+              "kp10-service:context"
+            ],
+            "kpPromiseMatched": [],
+            "parashari": {
+              "v1": 2,
+              "v2": 1,
+              "v3": 3,
+              "natalTone": "strain",
+              "natalRules": [
+                "pa-lord-10-1",
+                "pa-yoga-kt-Moon-Sun",
+                "pa-wealth-5-9",
+                "pa-h10-21-4",
+                "pa-h10-21-9",
+                "pa-node-ketu",
+                "pa-solar-vosi",
+                "pa-royal-40-7",
+                "pa-father-70-18"
+              ],
+              "periods": [
+                {
+                  "level": "dasa",
+                  "planet": "Ketu",
+                  "ruleIds": [
+                    "pa-node-ketu"
+                  ]
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Mercury",
+                  "ruleIds": [
+                    "pa-wealth-5-9",
+                    "pa-h10-21-4",
+                    "pa-h10-21-9",
+                    "pa-royal-40-7"
+                  ]
+                },
+                {
+                  "level": "antara",
+                  "planet": "Rahu",
+                  "ruleIds": [
+                    "pa-royal-40-7"
+                  ]
+                }
+              ]
+            },
+            "additional": {
+              "bnnRules": [
+                "t-ju-ve-me",
+                "sa-ke",
+                "sa-retro",
+                "alone-sa",
+                "sa-ve",
+                "sa-ma",
+                "sa-ju",
+                "sa-fire",
+                "sa-lord-ma",
+                "sa-star-ve"
+              ],
+              "jaiminiRules": [
+                "jks-10th-benefic-aspect"
+              ],
+              "gulikaHouse": null,
+              "jupiterGulika": null
+            },
+            "alp": {
+              "status": "assessed",
+              "point": {
+                "sign": "Pisces",
+                "nakshatra": "Uttara Bhadrapada",
+                "pada": 4,
+                "lord": "Jupiter",
+                "nakshatraLord": "Saturn",
+                "navamsaSign": 7
+              },
+              "akshaya": {
+                "sign": "Sagittarius",
+                "nakshatra": "Mula",
+                "pada": 4,
+                "dasa": "Ketu",
+                "bhukti": "Mercury"
+              },
+              "findings": [
+                "b2-10th-lord-dusthana",
+                "alp-activated-9",
+                "b2c16-arp-in-10"
+              ]
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2010-04-27",
+              "scores": [
+                3,
+                6,
+                1,
+                0,
+                2
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": -120,
+              "date": "2010-06-26",
+              "scores": [
+                2,
+                5,
+                2,
+                1,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": -60,
+              "date": "2010-08-25",
+              "scores": [
+                3,
+                4,
+                2,
+                1,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 60,
+              "date": "2010-12-23",
+              "scores": [
+                3,
+                6,
+                2,
+                1,
+                3
+              ],
+              "sameScoreVector": true,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 120,
+              "date": "2011-02-21",
+              "scores": [
+                4,
+                4,
+                1,
+                1,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": 180,
+              "date": "2011-04-22",
+              "scores": [
+                4,
+                4,
+                1,
+                1,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            }
+          ],
+          "catalogueComparison": {
+            "label": "New job, promotion",
+            "date": "2010-10-24",
+            "alp": {
+              "status": "assessed",
+              "actual": [
+                "alp-activated-9",
+                "b2-10th-lord-dusthana",
+                "b2c16-arp-in-10"
+              ],
+              "availableTrials": 200,
+              "identicalSets": 24,
+              "occurrences": [
+                {
+                  "id": "alp-activated-9",
+                  "count": 24
+                },
+                {
+                  "id": "b2-10th-lord-dusthana",
+                  "count": 165
+                },
+                {
+                  "id": "b2c16-arp-in-10",
+                  "count": 165
+                }
+              ]
+            },
+            "parashariPeriods": {
+              "status": "assessed",
+              "actual": [
+                "antara:Rahu:pa-royal-40-7",
+                "bhukti:Mercury:pa-h10-21-4",
+                "bhukti:Mercury:pa-h10-21-9",
+                "bhukti:Mercury:pa-royal-40-7",
+                "bhukti:Mercury:pa-wealth-5-9",
+                "dasa:Ketu:pa-node-ketu"
+              ],
+              "availableTrials": 200,
+              "identicalSets": 1,
+              "occurrences": [
+                {
+                  "id": "antara:Rahu:pa-royal-40-7",
+                  "count": 28
+                },
+                {
+                  "id": "bhukti:Mercury:pa-h10-21-4",
+                  "count": 11
+                },
+                {
+                  "id": "bhukti:Mercury:pa-h10-21-9",
+                  "count": 11
+                },
+                {
+                  "id": "bhukti:Mercury:pa-royal-40-7",
+                  "count": 11
+                },
+                {
+                  "id": "bhukti:Mercury:pa-wealth-5-9",
+                  "count": 11
+                },
+                {
+                  "id": "dasa:Ketu:pa-node-ketu",
+                  "count": 11
+                }
+              ]
+            }
+          },
+          "randomComparison": "200 sets; first set replayed; descriptive rule frequencies compared"
+        },
+        {
+          "id": "ep-pm",
+          "matter": "job",
+          "date": "2017-05-15",
+          "clock": "14:30",
+          "zone": "Europe/Paris",
+          "note": "The Élysée announced a 14:30 scheduled announcement; this is not an independently measured actual instant.",
+          "sources": [
+            "https://www.legifrance.gouv.fr/jorf/id/JORFTEXT000034719850",
+            "https://www.elysee.fr/emmanuel-macron/2017/05/15/nomination-du-premier-ministre"
+          ],
+          "exactParity": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 5,
+            "kpIndication": {
+              "supports": [],
+              "strains": [],
+              "status": "unresolved"
+            },
+            "kpNatalMatched": [
+              "kp10-service:context"
+            ],
+            "kpPromiseMatched": [],
+            "parashari": {
+              "v1": 0,
+              "v2": 1,
+              "v3": 3,
+              "natalTone": "strain",
+              "natalRules": [
+                "pa-lord-10-1",
+                "pa-yoga-kt-Moon-Sun",
+                "pa-wealth-5-9",
+                "pa-h10-21-4",
+                "pa-h10-21-9",
+                "pa-node-ketu",
+                "pa-solar-vosi",
+                "pa-royal-40-7",
+                "pa-father-70-18"
+              ],
+              "periods": [
+                {
+                  "level": "dasa",
+                  "planet": "Venus",
+                  "ruleIds": [
+                    "pa-wealth-5-9",
+                    "pa-solar-vosi"
+                  ]
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Mars",
+                  "ruleIds": [
+                    "pa-wealth-5-9",
+                    "pa-solar-vosi"
+                  ]
+                },
+                {
+                  "level": "antara",
+                  "planet": "Rahu",
+                  "ruleIds": [
+                    "pa-royal-40-7"
+                  ]
+                }
+              ]
+            },
+            "additional": {
+              "bnnRules": [
+                "t-ju-ve-me",
+                "sa-ke",
+                "sa-retro",
+                "alone-sa",
+                "sa-ve",
+                "sa-ma",
+                "sa-ju",
+                "sa-fire",
+                "sa-lord-ma",
+                "sa-star-ve"
+              ],
+              "jaiminiRules": [
+                "jks-10th-benefic-aspect"
+              ],
+              "gulikaHouse": null,
+              "jupiterGulika": null
+            },
+            "alp": {
+              "status": "assessed",
+              "point": {
+                "sign": "Aries",
+                "nakshatra": "Ashwini",
+                "pada": 2,
+                "lord": "Mars",
+                "nakshatraLord": "Ketu",
+                "navamsaSign": 1
+              },
+              "akshaya": {
+                "sign": "Sagittarius",
+                "nakshatra": "Purva Ashadha",
+                "pada": 2,
+                "dasa": "Venus",
+                "bhukti": "Mars"
+              },
+              "findings": [
+                "b2-alp-in-janma-6"
+              ]
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2016-11-16",
+              "scores": [
+                3,
+                5,
+                1,
+                0,
+                2
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": -120,
+              "date": "2017-01-15",
+              "scores": [
+                4,
+                4,
+                1,
+                0,
+                2
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": -60,
+              "date": "2017-03-16",
+              "scores": [
+                4,
+                5,
+                0,
+                1,
+                3
+              ],
+              "sameScoreVector": true,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 60,
+              "date": "2017-07-14",
+              "scores": [
+                4,
+                4,
+                0,
+                1,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 120,
+              "date": "2017-09-12",
+              "scores": [
+                4,
+                3,
+                0,
+                1,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 180,
+              "date": "2017-11-11",
+              "scores": [
+                4,
+                5,
+                0,
+                1,
+                3
+              ],
+              "sameScoreVector": true,
+              "sameAlpState": true
+            }
+          ],
+          "catalogueComparison": {
+            "label": "New job, promotion",
+            "date": "2017-05-15",
+            "alp": {
+              "status": "assessed",
+              "actual": [
+                "b2-alp-in-janma-6"
+              ],
+              "availableTrials": 200,
+              "identicalSets": 36,
+              "occurrences": [
+                {
+                  "id": "b2-alp-in-janma-6",
+                  "count": 36
+                }
+              ]
+            },
+            "parashariPeriods": {
+              "status": "assessed",
+              "actual": [
+                "antara:Rahu:pa-royal-40-7",
+                "bhukti:Mars:pa-solar-vosi",
+                "bhukti:Mars:pa-wealth-5-9",
+                "dasa:Venus:pa-solar-vosi",
+                "dasa:Venus:pa-wealth-5-9"
+              ],
+              "availableTrials": 200,
+              "identicalSets": 5,
+              "occurrences": [
+                {
+                  "id": "antara:Rahu:pa-royal-40-7",
+                  "count": 41
+                },
+                {
+                  "id": "bhukti:Mars:pa-solar-vosi",
+                  "count": 6
+                },
+                {
+                  "id": "bhukti:Mars:pa-wealth-5-9",
+                  "count": 6
+                },
+                {
+                  "id": "dasa:Venus:pa-solar-vosi",
+                  "count": 195
+                },
+                {
+                  "id": "dasa:Venus:pa-wealth-5-9",
+                  "count": 195
+                }
+              ]
+            }
+          },
+          "randomComparison": "200 sets; first set replayed; descriptive rule frequencies compared"
+        }
+      ]
+    },
+    {
+      "name": "Mia Farrow",
+      "category": "US actor and activist",
+      "birthQuality": "AA, birth record reported in hand; minute-level accuracy not independently verified",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_02_09.htm?lang=s&nho2=29&nhor=2&pa=nmo",
+      "reportedBirth": "1945-02-09 11:27 America/Los_Angeles",
+      "midpoint": "1945-02-09 11:26:22",
+      "scanHalfWindowMinutes": 5,
+      "rankings": [
+        {
+          "method": "kp-events",
+          "eligible": true,
+          "topScore": 7,
+          "givenSampleIsTop": false,
+          "topSegments": 2,
+          "totalSegments": 27,
+          "topCoveragePct": 6.7
+        },
+        {
+          "method": "parashari-events-v3",
+          "eligible": true,
+          "topScore": 8,
+          "givenSampleIsTop": false,
+          "topSegments": 7,
+          "totalSegments": 27,
+          "topCoveragePct": 29.5
+        }
+      ],
+      "events": [
+        {
+          "id": "mf-marriage",
+          "matter": "marriage",
+          "date": "1966-07-19",
+          "clock": "17:20",
+          "zone": "America/Los_Angeles",
+          "note": "Las Vegas wedding; 17:20 is attributed by Astro-Databank, not independently verified.",
+          "sources": [
+            "https://www.gettyimages.ae/detail/news-photo/american-singer-and-actor-frank-sinatra-and-actress-mia-news-photo/3319994",
+            "https://www.astro.com/adbvip/adbvip_02_09.htm?lang=n&nhor=2"
+          ],
+          "exactParity": true,
+          "actual": {
+            "kp": 1,
+            "kpTransit": 3,
+            "kpIndication": {
+              "supports": [],
+              "strains": [],
+              "status": "unresolved"
+            },
+            "kpNatalMatched": [],
+            "kpPromiseMatched": [],
+            "parashari": {
+              "v1": 2,
+              "v2": 2,
+              "v3": 4,
+              "natalTone": "strain",
+              "natalRules": [
+                "pa-lord-7-12",
+                "pa-yoga-kt-Jupiter-Venus",
+                "pa-h7-18-1",
+                "pa-h7-18-4"
+              ],
+              "periods": [
+                {
+                  "level": "dasa",
+                  "planet": "Moon",
+                  "ruleIds": []
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Jupiter",
+                  "ruleIds": [
+                    "pa-yoga-kt-Jupiter-Venus",
+                    "pa-h7-18-4"
+                  ]
+                },
+                {
+                  "level": "antara",
+                  "planet": "Mercury",
+                  "ruleIds": []
+                }
+              ]
+            },
+            "additional": {
+              "bnnRules": [
+                "f-t-ma-me-ju",
+                "f-ma-su",
+                "f-ma-me",
+                "f-t-ma-me-ke",
+                "f-ma-ju",
+                "f-ma-mo",
+                "f-ma-ke",
+                "f-t-ma-mo-ke",
+                "f-ma-earth",
+                "f-ma-lord-sa",
+                "f-ma-star-su"
+              ],
+              "jaiminiRules": [
+                "ju-ul-benefic",
+                "ju-2nd-benefic",
+                "ju-2nd-exalted",
+                "ja-a7-from-lagna",
+                "ju-2nd-ak"
+              ],
+              "gulikaHouse": null,
+              "jupiterGulika": null
+            },
+            "alp": {
+              "status": "assessed",
+              "point": {
+                "sign": "Gemini",
+                "nakshatra": "Punarvasu",
+                "pada": 1,
+                "lord": "Mercury",
+                "nakshatraLord": "Jupiter",
+                "navamsaSign": 0
+              },
+              "akshaya": {
+                "sign": "Capricorn",
+                "nakshatra": "Shravana",
+                "pada": 2,
+                "dasa": "Moon",
+                "bhukti": "Jupiter"
+              },
+              "findings": [
+                "b2-marriage-navamsa-touches"
+              ]
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "1966-01-20",
+              "scores": [
+                1,
+                4,
+                1,
+                0,
+                2
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": -120,
+              "date": "1966-03-21",
+              "scores": [
+                2,
+                3,
+                2,
+                1,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": -60,
+              "date": "1966-05-20",
+              "scores": [
+                1,
+                4,
+                2,
+                2,
+                4
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 60,
+              "date": "1966-09-17",
+              "scores": [
+                2,
+                6,
+                3,
+                2,
+                4
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 120,
+              "date": "1966-11-16",
+              "scores": [
+                1,
+                4,
+                2,
+                1,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 180,
+              "date": "1967-01-15",
+              "scores": [
+                2,
+                3,
+                3,
+                2,
+                4
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            }
+          ],
+          "catalogueComparison": {
+            "label": "Marriage",
+            "date": "1966-07-19",
+            "alp": {
+              "status": "assessed",
+              "actual": [
+                "b2-marriage-navamsa-touches"
+              ],
+              "availableTrials": 200,
+              "identicalSets": 142,
+              "occurrences": [
+                {
+                  "id": "b2-marriage-navamsa-touches",
+                  "count": 142
+                }
+              ]
+            },
+            "parashariPeriods": {
+              "status": "assessed",
+              "actual": [
+                "bhukti:Jupiter:pa-h7-18-4",
+                "bhukti:Jupiter:pa-yoga-kt-Jupiter-Venus"
+              ],
+              "availableTrials": 200,
+              "identicalSets": 36,
+              "occurrences": [
+                {
+                  "id": "bhukti:Jupiter:pa-h7-18-4",
+                  "count": 47
+                },
+                {
+                  "id": "bhukti:Jupiter:pa-yoga-kt-Jupiter-Venus",
+                  "count": 47
+                }
+              ]
+            }
+          },
+          "randomComparison": "200 sets; first set replayed; descriptive rule frequencies compared"
+        },
+        {
+          "id": "mf-twins",
+          "matter": "child",
+          "date": "1970-02-26",
+          "clock": "18:00",
+          "zone": "Europe/London",
+          "note": "Twins born in London; a 1970 newspaper confirms the date, while the 18:00 clock is an astrological source attribution.",
+          "sources": [
+            "https://britishnewspaperarchive.co.uk/search/results/1970-01-01/1970-12-31?basicsearch=twins&country=ireland&mostspecificlocation=ireland&newspapertitle=belfast%2Bnews-letter&retrievecountrycounts=false&sortorder=score",
+            "https://www.astro.com/astro-databank/Twins%2C_Previn?lang=j&nho2=1297018&nhor=1",
+            "https://www.sdnyblog.com/files/2014/02/Allen-v.-Farrow-Custody-Ruling.pdf"
+          ],
+          "exactParity": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 5,
+            "kpIndication": {
+              "supports": [],
+              "strains": [],
+              "status": "unresolved"
+            },
+            "kpNatalMatched": [],
+            "kpPromiseMatched": [],
+            "parashari": {
+              "v1": 2,
+              "v2": 3,
+              "v3": 3,
+              "natalTone": "mixed",
+              "natalRules": [
+                "pa-lord-5-10",
+                "pa-yoga-kt-Mars-Sun",
+                "pa-yoga-sankha",
+                "pa-wealth-5-9",
+                "pa-h5-16-1",
+                "pa-h5-16-8",
+                "pa-h5-16-16",
+                "pa-lunar-37-1",
+                "pa-royal-40-6",
+                "pa-royal-40-8",
+                "pa-royal-40-15"
+              ],
+              "periods": [
+                {
+                  "level": "dasa",
+                  "planet": "Moon",
+                  "ruleIds": [
+                    "pa-lunar-37-1",
+                    "pa-royal-40-6"
+                  ]
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Mercury",
+                  "ruleIds": [
+                    "pa-yoga-sankha",
+                    "pa-wealth-5-9"
+                  ]
+                },
+                {
+                  "level": "antara",
+                  "planet": "Jupiter",
+                  "ruleIds": [
+                    "pa-wealth-5-9",
+                    "pa-h5-16-16",
+                    "pa-royal-40-8"
+                  ]
+                }
+              ]
+            },
+            "additional": {
+              "bnnRules": [
+                "ch-t-su-ma-ju",
+                "ch-ju-su",
+                "f-ju-mo-child",
+                "ch-ju-me",
+                "ch-ju-mo",
+                "ch-ju-ke",
+                "ch-ju-ve-opp"
+              ],
+              "jaiminiRules": [
+                "jks-5th-jupiter",
+                "jks-5th-moon",
+                "jks-5th-saturn",
+                "ju-7th-children-few",
+                "ju-11th-children"
+              ],
+              "gulikaHouse": 12,
+              "jupiterGulika": false
+            },
+            "alp": {
+              "status": "assessed",
+              "point": {
+                "sign": "Cancer",
+                "nakshatra": "Punarvasu",
+                "pada": 4,
+                "lord": "Moon",
+                "nakshatraLord": "Jupiter",
+                "navamsaSign": 3
+              },
+              "akshaya": {
+                "sign": "Capricorn",
+                "nakshatra": "Shravana",
+                "pada": 3,
+                "dasa": "Moon",
+                "bhukti": "Mercury"
+              },
+              "findings": []
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "1969-08-30",
+              "scores": [
+                3,
+                6,
+                3,
+                3,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": -120,
+              "date": "1969-10-29",
+              "scores": [
+                4,
+                4,
+                3,
+                4,
+                4
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": -60,
+              "date": "1969-12-28",
+              "scores": [
+                4,
+                4,
+                2,
+                3,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 60,
+              "date": "1970-04-27",
+              "scores": [
+                4,
+                2,
+                2,
+                3,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": 120,
+              "date": "1970-06-26",
+              "scores": [
+                3,
+                5,
+                2,
+                4,
+                4
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": 180,
+              "date": "1970-08-25",
+              "scores": [
+                4,
+                4,
+                2,
+                4,
+                4
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            }
+          ],
+          "catalogueComparison": {
+            "label": "Birth of a child",
+            "date": "1970-02-26",
+            "alp": {
+              "status": "assessed",
+              "actual": [],
+              "availableTrials": 200,
+              "identicalSets": 200,
+              "occurrences": []
+            },
+            "parashariPeriods": {
+              "status": "assessed",
+              "actual": [
+                "antara:Jupiter:pa-h5-16-16",
+                "antara:Jupiter:pa-royal-40-8",
+                "antara:Jupiter:pa-wealth-5-9",
+                "bhukti:Mercury:pa-wealth-5-9",
+                "bhukti:Mercury:pa-yoga-sankha",
+                "dasa:Moon:pa-lunar-37-1",
+                "dasa:Moon:pa-royal-40-6"
+              ],
+              "availableTrials": 200,
+              "identicalSets": 5,
+              "occurrences": [
+                {
+                  "id": "antara:Jupiter:pa-h5-16-16",
+                  "count": 19
+                },
+                {
+                  "id": "antara:Jupiter:pa-royal-40-8",
+                  "count": 19
+                },
+                {
+                  "id": "antara:Jupiter:pa-wealth-5-9",
+                  "count": 19
+                },
+                {
+                  "id": "bhukti:Mercury:pa-wealth-5-9",
+                  "count": 59
+                },
+                {
+                  "id": "bhukti:Mercury:pa-yoga-sankha",
+                  "count": 59
+                },
+                {
+                  "id": "dasa:Moon:pa-lunar-37-1",
+                  "count": 200
+                },
+                {
+                  "id": "dasa:Moon:pa-royal-40-6",
+                  "count": 200
+                }
+              ]
+            }
+          },
+          "randomComparison": "200 sets; first set replayed; descriptive rule frequencies compared"
+        }
+      ]
+    },
+    {
+      "name": "Celina Jaitly",
+      "category": "Indian actor and model",
+      "birthQuality": "A, 09:30 is the midpoint of a 09:00–10:00 report relayed by a friend; birthplace sometimes disputed. This is not a recorded minute.",
+      "birthSource": "https://www.astro.com/astro-databank/Jaitly%2C_Celina?nhor=3",
+      "reportedBirth": "1981-11-24 09:30 Asia/Kolkata",
+      "midpoint": "1981-11-24 09:30:21",
+      "scanHalfWindowMinutes": 5,
+      "rankings": [
+        {
+          "method": "kp-events",
+          "eligible": true,
+          "topScore": 8,
+          "givenSampleIsTop": true,
+          "topSegments": 24,
+          "totalSegments": 24,
+          "topCoveragePct": 100
+        },
+        {
+          "method": "parashari-events-v3",
+          "eligible": true,
+          "topScore": 5,
+          "givenSampleIsTop": false,
+          "topSegments": 9,
+          "totalSegments": 24,
+          "topCoveragePct": 30.3
+        }
+      ],
+      "events": [
+        {
+          "id": "cj-twins-2012",
+          "matter": "child",
+          "date": "2012-03-24",
+          "clock": "12:00 assumed",
+          "zone": "Asia/Dubai",
+          "note": "The mother and contemporary coverage identify 24 March; later reports also say 25 March. Clock unknown.",
+          "sources": [
+            "https://www.ndtv.com/entertainment/before-the-12th-birthday-of-twins-winston-and-viraaj-mom-celina-jaitly-shares-a-pic-from-their-first-hike-5162575",
+            "https://www.hindustantimes.com/entertainment/celina-jaitly-blessed-with-twins/story-WEENpO2EBe69ToXmfOXwyL_amp.html"
+          ],
+          "exactParity": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 6,
+            "kpIndication": {
+              "supports": [],
+              "strains": [],
+              "status": "unresolved"
+            },
+            "kpNatalMatched": [],
+            "kpPromiseMatched": [],
+            "parashari": {
+              "v1": 2,
+              "v2": 3,
+              "v3": 3,
+              "natalTone": "mixed",
+              "natalRules": [
+                "pa-lord-5-9",
+                "pa-wealth-5-9",
+                "pa-h5-16-16"
+              ],
+              "periods": [
+                {
+                  "level": "dasa",
+                  "planet": "Saturn",
+                  "ruleIds": []
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Saturn",
+                  "ruleIds": []
+                },
+                {
+                  "level": "antara",
+                  "planet": "Jupiter",
+                  "ruleIds": []
+                }
+              ]
+            },
+            "additional": {
+              "bnnRules": [
+                "f-ju-mo-child",
+                "ch-ju-mo",
+                "ch-ju-me",
+                "ch-ra-su"
+              ],
+              "jaiminiRules": [
+                "ju-11th-children"
+              ],
+              "gulikaHouse": 3,
+              "jupiterGulika": true
+            },
+            "alp": {
+              "status": "assessed",
+              "point": {
+                "sign": "Pisces",
+                "nakshatra": "Uttara Bhadrapada",
+                "pada": 3,
+                "lord": "Jupiter",
+                "nakshatraLord": "Saturn",
+                "navamsaSign": 6
+              },
+              "akshaya": {
+                "sign": "Scorpio",
+                "nakshatra": "Anuradha",
+                "pada": 1,
+                "dasa": "Saturn",
+                "bhukti": "Saturn"
+              },
+              "findings": []
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2011-09-26",
+              "scores": [
+                4,
+                4,
+                1,
+                3,
+                3
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": -120,
+              "date": "2011-11-25",
+              "scores": [
+                4,
+                6,
+                2,
+                3,
+                3
+              ],
+              "sameScoreVector": true,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": -60,
+              "date": "2012-01-24",
+              "scores": [
+                4,
+                6,
+                2,
+                3,
+                3
+              ],
+              "sameScoreVector": true,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 60,
+              "date": "2012-05-23",
+              "scores": [
+                4,
+                6,
+                2,
+                3,
+                4
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": 120,
+              "date": "2012-07-22",
+              "scores": [
+                4,
+                5,
+                2,
+                3,
+                4
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": 180,
+              "date": "2012-09-20",
+              "scores": [
+                4,
+                4,
+                2,
+                3,
+                4
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            }
+          ],
+          "catalogueComparison": {
+            "label": "Birth of a child",
+            "date": "2012-03-24",
+            "alp": {
+              "status": "assessed",
+              "actual": [],
+              "availableTrials": 200,
+              "identicalSets": 200,
+              "occurrences": []
+            },
+            "parashariPeriods": {
+              "status": "assessed",
+              "actual": [],
+              "availableTrials": 200,
+              "identicalSets": 173,
+              "occurrences": []
+            }
+          },
+          "randomComparison": "200 sets; first set replayed; descriptive rule frequencies compared"
+        },
+        {
+          "id": "cj-twins-2017",
+          "matter": "child",
+          "date": "2017-09-10",
+          "clock": "12:00 assumed",
+          "zone": "Asia/Dubai",
+          "note": "Birth of twins; one died soon afterward. No clock established.",
+          "sources": [
+            "https://timesofindia.indiatimes.com/entertainment/hindi/bollywood/photo-features/celebrity-couples-set-to-welcome-their-babies-in-2017/photostory/58774668.cms",
+            "https://timesofindia.indiatimes.com/entertainment/hindi/bollywood/news/celina-jaitly-pens-a-heart-touching-note-as-son-arthur-turns-three-calls-him-a-miracle-baby/articleshow/78058374.cms"
+          ],
+          "exactParity": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 4,
+            "kpIndication": {
+              "supports": [],
+              "strains": [],
+              "status": "unresolved"
+            },
+            "kpNatalMatched": [],
+            "kpPromiseMatched": [],
+            "parashari": {
+              "v1": null,
+              "v2": null,
+              "v3": null,
+              "natalTone": "mixed",
+              "natalRules": [
+                "pa-lord-5-9",
+                "pa-wealth-5-9",
+                "pa-h5-16-16"
+              ],
+              "periods": [
+                {
+                  "level": "dasa",
+                  "planet": "Saturn",
+                  "ruleIds": []
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Venus",
+                  "ruleIds": []
+                },
+                {
+                  "level": "antara",
+                  "planet": "Jupiter",
+                  "ruleIds": []
+                }
+              ]
+            },
+            "additional": {
+              "bnnRules": [
+                "f-ju-mo-child",
+                "ch-ju-mo",
+                "ch-ju-me",
+                "ch-ra-su"
+              ],
+              "jaiminiRules": [
+                "ju-11th-children"
+              ],
+              "gulikaHouse": 3,
+              "jupiterGulika": true
+            },
+            "alp": {
+              "status": "assessed",
+              "point": {
+                "sign": "Pisces",
+                "nakshatra": "Revati",
+                "pada": 4,
+                "lord": "Jupiter",
+                "nakshatraLord": "Mercury",
+                "navamsaSign": 11
+              },
+              "akshaya": {
+                "sign": "Scorpio",
+                "nakshatra": "Anuradha",
+                "pada": 2,
+                "dasa": "Saturn",
+                "bhukti": "Venus"
+              },
+              "findings": []
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2017-03-14",
+              "scores": [
+                3,
+                6,
+                null,
+                null,
+                null
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": -120,
+              "date": "2017-05-13",
+              "scores": [
+                3,
+                6,
+                null,
+                null,
+                null
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": -60,
+              "date": "2017-07-12",
+              "scores": [
+                3,
+                5,
+                null,
+                null,
+                null
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 60,
+              "date": "2017-11-09",
+              "scores": [
+                4,
+                4,
+                null,
+                null,
+                null
+              ],
+              "sameScoreVector": true,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 120,
+              "date": "2018-01-08",
+              "scores": [
+                4,
+                6,
+                null,
+                null,
+                null
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 180,
+              "date": "2018-03-09",
+              "scores": [
+                4,
+                6,
+                null,
+                null,
+                null
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            }
+          ],
+          "catalogueComparison": {
+            "label": "Birth of a child",
+            "date": "2017-09-10",
+            "alp": {
+              "status": "assessed",
+              "actual": [],
+              "availableTrials": 200,
+              "identicalSets": 200,
+              "occurrences": []
+            },
+            "parashariPeriods": {
+              "status": "assessed",
+              "actual": [],
+              "availableTrials": 200,
+              "identicalSets": 175,
+              "occurrences": []
+            }
+          },
+          "randomComparison": "200 sets; first set replayed; descriptive rule frequencies compared"
+        }
+      ]
+    },
+    {
+      "name": "Michelle Bolsonaro",
+      "category": "Brazilian sign-language interpreter and campaigner",
+      "birthQuality": "AA; birth certificate reported in hand, location is Brasília as listed; minute-level accuracy not independently checked",
+      "birthSource": "https://www.astro.com/astro-databank/Bolsonaro%2C_Michelle?nhor=3",
+      "reportedBirth": "1982-03-22 05:10 America/Sao_Paulo",
+      "midpoint": "1982-03-22 05:10:25",
+      "scanHalfWindowMinutes": 5,
+      "rankings": [
+        {
+          "method": "kp-events",
+          "eligible": true,
+          "topScore": 8,
+          "givenSampleIsTop": false,
+          "topSegments": 6,
+          "totalSegments": 23,
+          "topCoveragePct": 24.5
+        },
+        {
+          "method": "parashari-events-v3",
+          "eligible": true,
+          "topScore": 13,
+          "givenSampleIsTop": true,
+          "topSegments": 21,
+          "totalSegments": 23,
+          "topCoveragePct": 90.3
+        }
+      ],
+      "events": [
+        {
+          "id": "mb-civil",
+          "matter": "marriage",
+          "date": "2007-11-28",
+          "clock": "12:00 assumed",
+          "zone": "America/Sao_Paulo",
+          "note": "Civil marriage in Brasília; clock unknown.",
+          "sources": [
+            "https://www.metropoles.com/colunas/guilherme-amado/em-caso-de-separacao-michelle-nao-tera-direito-a-nada-de-bolsonaro",
+            "https://radiojornal.ne10.uol.com.br/webstory/2022/08/15066933-bolsonaro-no-jn-hoje-como-jair-e-michelle-se-conheceram.html"
+          ],
+          "exactParity": true,
+          "actual": {
+            "kp": 4,
+            "kpTransit": 3,
+            "kpIndication": {
+              "supports": [],
+              "strains": [],
+              "status": "unresolved"
+            },
+            "kpNatalMatched": [],
+            "kpPromiseMatched": [],
+            "parashari": {
+              "v1": 5,
+              "v2": 5,
+              "v3": 7,
+              "natalTone": "mixed",
+              "natalRules": [
+                "pa-lord-7-2",
+                "pa-h7-18-3b",
+                "pa-lunar-37-1",
+                "pa-solar-vosi",
+                "pa-royal-40-7"
+              ],
+              "periods": [
+                {
+                  "level": "dasa",
+                  "planet": "Jupiter",
+                  "ruleIds": []
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Saturn",
+                  "ruleIds": []
+                },
+                {
+                  "level": "antara",
+                  "planet": "Mars",
+                  "ruleIds": []
+                }
+              ]
+            },
+            "additional": {
+              "bnnRules": [
+                "f-t-ma-sa-ve",
+                "f-ma-sa",
+                "f-t-ma-sa-ju",
+                "f-t-ma-mo-ve",
+                "f-ma-mo",
+                "f-ma-ve",
+                "f-t-ma-ju-ve",
+                "f-ma-retro",
+                "f-ma-ju",
+                "f-q-ma-sa-ju-ke",
+                "f-t-ma-sa-ke",
+                "f-ma-su",
+                "f-t-ve-sa-ke",
+                "f-ma-next-ju",
+                "f-t-ve-me-ke",
+                "f-t-ma-ke-ve",
+                "f-t-ma-mo-ke",
+                "f-ma-ke",
+                "f-ma-earth",
+                "f-ma-lord-me",
+                "f-ma-star-mo",
+                "f-ma-me"
+              ],
+              "jaiminiRules": [
+                "jks-7th-spouse",
+                "ju-ul-benefic",
+                "ju-2nd-benefic",
+                "ju-2nd-gemini",
+                "ja-a7-from-lagna",
+                "ju-2nd-spouse-health"
+              ],
+              "gulikaHouse": null,
+              "jupiterGulika": null
+            },
+            "alp": {
+              "status": "assessed",
+              "point": {
+                "sign": "Taurus",
+                "nakshatra": "Krittika",
+                "pada": 4,
+                "lord": "Venus",
+                "nakshatraLord": "Sun",
+                "navamsaSign": 11
+              },
+              "akshaya": {
+                "sign": "Aquarius",
+                "nakshatra": "Purva Bhadrapada",
+                "pada": 1,
+                "dasa": "Jupiter",
+                "bhukti": "Saturn"
+              },
+              "findings": [
+                "b2-marriage-navamsa-away"
+              ]
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2007-06-01",
+              "scores": [
+                4,
+                4,
+                4,
+                4,
+                6
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": -120,
+              "date": "2007-07-31",
+              "scores": [
+                4,
+                5,
+                4,
+                4,
+                6
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": -60,
+              "date": "2007-09-29",
+              "scores": [
+                4,
+                4,
+                4,
+                4,
+                6
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 60,
+              "date": "2008-01-27",
+              "scores": [
+                4,
+                2,
+                5,
+                5,
+                7
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": 120,
+              "date": "2008-03-27",
+              "scores": [
+                4,
+                4,
+                5,
+                5,
+                7
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": 180,
+              "date": "2008-05-26",
+              "scores": [
+                4,
+                6,
+                5,
+                5,
+                7
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            }
+          ],
+          "catalogueComparison": {
+            "label": "Marriage",
+            "date": "2007-11-28",
+            "alp": {
+              "status": "assessed",
+              "actual": [
+                "b2-marriage-navamsa-away"
+              ],
+              "availableTrials": 200,
+              "identicalSets": 139,
+              "occurrences": [
+                {
+                  "id": "b2-marriage-navamsa-away",
+                  "count": 139
+                }
+              ]
+            },
+            "parashariPeriods": {
+              "status": "assessed",
+              "actual": [],
+              "availableTrials": 200,
+              "identicalSets": 26,
+              "occurrences": []
+            }
+          },
+          "randomComparison": "200 sets; first set replayed; descriptive rule frequencies compared"
+        },
+        {
+          "id": "mb-religious",
+          "matter": "marriage",
+          "date": "2013-03-21",
+          "clock": "12:00 assumed",
+          "zone": "America/Sao_Paulo",
+          "note": "Religious ceremony in Rio for the same couple; not independent of the earlier civil marriage. Clock unknown.",
+          "sources": [
+            "https://piaui.uol.com.br/revista/241/com-a-cruz-e-a-espada-michelle-bolsonaro/",
+            "https://www.bnews.com.br/amp/noticias/politica/casados-ha-15-anos-saiba-como-jair-e-michelle-bolsonaro-se-conheceram.html"
+          ],
+          "exactParity": true,
+          "actual": {
+            "kp": 3,
+            "kpTransit": 5,
+            "kpIndication": {
+              "supports": [],
+              "strains": [],
+              "status": "unresolved"
+            },
+            "kpNatalMatched": [],
+            "kpPromiseMatched": [],
+            "parashari": {
+              "v1": 4,
+              "v2": 4,
+              "v3": 6,
+              "natalTone": "mixed",
+              "natalRules": [
+                "pa-lord-7-2",
+                "pa-h7-18-3b",
+                "pa-lunar-37-1",
+                "pa-solar-vosi",
+                "pa-royal-40-7"
+              ],
+              "periods": [
+                {
+                  "level": "dasa",
+                  "planet": "Jupiter",
+                  "ruleIds": []
+                },
+                {
+                  "level": "bhukti",
+                  "planet": "Venus",
+                  "ruleIds": [
+                    "pa-h7-18-3b"
+                  ]
+                },
+                {
+                  "level": "antara",
+                  "planet": "Jupiter",
+                  "ruleIds": []
+                }
+              ]
+            },
+            "additional": {
+              "bnnRules": [
+                "f-t-ma-sa-ve",
+                "f-ma-sa",
+                "f-t-ma-sa-ju",
+                "f-t-ma-mo-ve",
+                "f-ma-mo",
+                "f-ma-ve",
+                "f-t-ma-ju-ve",
+                "f-ma-retro",
+                "f-ma-ju",
+                "f-q-ma-sa-ju-ke",
+                "f-t-ma-sa-ke",
+                "f-ma-su",
+                "f-t-ve-sa-ke",
+                "f-ma-next-ju",
+                "f-t-ve-me-ke",
+                "f-t-ma-ke-ve",
+                "f-t-ma-mo-ke",
+                "f-ma-ke",
+                "f-ma-earth",
+                "f-ma-lord-me",
+                "f-ma-star-mo",
+                "f-ma-me"
+              ],
+              "jaiminiRules": [
+                "jks-7th-spouse",
+                "ju-ul-benefic",
+                "ju-2nd-benefic",
+                "ju-2nd-gemini",
+                "ja-a7-from-lagna",
+                "ju-2nd-spouse-health"
+              ],
+              "gulikaHouse": null,
+              "jupiterGulika": null
+            },
+            "alp": {
+              "status": "assessed",
+              "point": {
+                "sign": "Taurus",
+                "nakshatra": "Mrigashira",
+                "pada": 1,
+                "lord": "Venus",
+                "nakshatraLord": "Mars",
+                "navamsaSign": 4
+              },
+              "akshaya": {
+                "sign": "Aquarius",
+                "nakshatra": "Purva Bhadrapada",
+                "pada": 3,
+                "dasa": "Jupiter",
+                "bhukti": "Venus"
+              },
+              "findings": [
+                "b2-marriage-navamsa-touches"
+              ]
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2012-09-22",
+              "scores": [
+                3,
+                3,
+                4,
+                4,
+                6
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": -120,
+              "date": "2012-11-21",
+              "scores": [
+                3,
+                3,
+                4,
+                4,
+                6
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": false
+            },
+            {
+              "offsetDays": -60,
+              "date": "2013-01-20",
+              "scores": [
+                3,
+                4,
+                4,
+                4,
+                6
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 60,
+              "date": "2013-05-20",
+              "scores": [
+                3,
+                3,
+                4,
+                4,
+                6
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 120,
+              "date": "2013-07-19",
+              "scores": [
+                3,
+                4,
+                4,
+                3,
+                5
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            },
+            {
+              "offsetDays": 180,
+              "date": "2013-09-17",
+              "scores": [
+                3,
+                3,
+                4,
+                3,
+                5
+              ],
+              "sameScoreVector": false,
+              "sameAlpState": true
+            }
+          ],
+          "catalogueComparison": {
+            "label": "Marriage",
+            "date": "2013-03-21",
+            "alp": {
+              "status": "assessed",
+              "actual": [
+                "b2-marriage-navamsa-touches"
+              ],
+              "availableTrials": 200,
+              "identicalSets": 42,
+              "occurrences": [
+                {
+                  "id": "b2-marriage-navamsa-touches",
+                  "count": 42
+                }
+              ]
+            },
+            "parashariPeriods": {
+              "status": "assessed",
+              "actual": [
+                "bhukti:Venus:pa-h7-18-3b"
+              ],
+              "availableTrials": 200,
+              "identicalSets": 6,
+              "occurrences": [
+                {
+                  "id": "bhukti:Venus:pa-h7-18-3b",
+                  "count": 44
+                }
+              ]
+            }
+          },
+          "randomComparison": "200 sets; first set replayed; descriptive rule frequencies compared"
+        }
+      ]
+    }
+  ]
+}

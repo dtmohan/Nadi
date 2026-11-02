@@ -21,7 +21,7 @@ export function topicReading(chart: InsertChart, event: ChartEvent, asOf = DateT
   if (instant.toMillis() < birth.toMillis()) throw new Error("Choose a date and time at or after birth.");
   if (isDeceased(chart, asOf) && chart.deathDate && event.date > chart.deathDate)
     throw new Error("Choose a date on or before the recorded date of passing.");
-  let result = validateEvents({ ...chart, events: [event] }).events[0];
+  let result = validateEvents({ ...chart, events: [event] }, asOf).events[0];
   if (!result) throw new Error("This matter could not be evaluated.");
   // A mapped area may be broader than the topic label (e.g. education is
   // mapped to Jaimini's children area); keep the ordinary reading's age gate.

@@ -11,6 +11,7 @@ import { createParashariHierarchyScorer, type HierarchyEvent } from "@shared/par
 import { functionalObservation } from "@shared/parashari-functional";
 import { conditionalObservations } from "@shared/parashari-conditional";
 import { asPlanetContext, assertContextAscendant, planetPositions, type PlanetInput } from "@shared/planet-context";
+import { dateParashariNatalCatalogue, type ParashariDatedCatalogue, type ParashariNatalCatalogue } from "@shared/parashari-event-natal-rules";
 
 export interface ParashariEventInput {
   label: string;
@@ -27,6 +28,7 @@ export interface ParashariEventResult {
   specific?: ParashariSpecificCheck;
   divisional?: ParashariDivisionalCheck;
   hierarchy?: HierarchyEvent;
+  ordinary?: ParashariDatedCatalogue;
 }
 
 export function parashariObservation(result: ParashariEventResult, outcome?: ParashariEventInput["outcome"]): ParashariObservation {
@@ -39,7 +41,8 @@ export function parashariObservation(result: ParashariEventResult, outcome?: Par
  * Cache only natal/period frames for this candidate. The score is recomputed
  * with each event date's own transit sky and the input's own outcome.
  */
-export function createParashariEventScorer(input: PlanetInput, lagna: number, birthIso: string, birthZone: string) {
+export function createParashariEventScorer(input: PlanetInput, lagna: number, birthIso: string, birthZone: string,
+  options: { natalCatalogue?: (matter: string | undefined) => ParashariNatalCatalogue | undefined } = {}) {
   const context = asPlanetContext(input);
   assertContextAscendant(context, lagna);
   const natal = planetPositions(context);
@@ -110,6 +113,7 @@ export function createParashariEventScorer(input: PlanetInput, lagna: number, bi
       if (hierarchy) hierarchyCache.set(hierarchyKey, hierarchy);
     }
     if (hierarchy) hierarchy = { ...hierarchy, label: event.label, date, moment: manley?.moment };
-    return { varga, manley, promise, specific, divisional: parashariDivisionalCheck(specific, manley), hierarchy };
+    return { varga, manley, promise, specific, divisional: parashariDivisionalCheck(specific, manley), hierarchy,
+      ordinary: dateParashariNatalCatalogue(options.natalCatalogue?.(event.matter), periods) };
   };
 }

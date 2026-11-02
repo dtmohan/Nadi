@@ -15,6 +15,9 @@ import type { HierarchyEvent } from "./parashari-hierarchy";
 import type { ParashariComparison, ParashariComparisonExample } from "./parashari-comparison";
 import type { MoonTransitContext } from "./transit-context";
 import type { WindowVerdict } from "./kp-windows";
+import type { ParashariDatedCatalogue } from "./parashari-event-natal-rules";
+import type { AdditionalSchoolNatalEvidence } from "./additional-school-event-rules";
+import type { AlpEventEvidence } from "./alp-event-evidence";
 import { listJoin, ordH, withGlossList } from "./house-gloss";
 
 export type KpVerdict = "confirmed" | "partial" | "missed";
@@ -41,12 +44,15 @@ export interface EventValidation {
   parashariDivisional?: ParashariDivisionalCheck;
   manley?: ManleyEvidence;
   parashariHierarchy?: HierarchyEvent;
+  parashariOrdinary?: ParashariDatedCatalogue;
+  additionalNatal?: AdditionalSchoolNatalEvidence;
+  alp?: AlpEventEvidence;
   kp: Omit<KpEventRules, "cuspSubLord" | "promised" | "transit" | "max"> & {
     dasa: Planet;
     bhukti: Planet;
     antara: Planet;
     cuspSubLord: Planet;
-    /** The cusp sub lord signifies one of the matter's houses: the matter is promised. */
+    /** Legacy basic flag: the cusp sub lord signifies at least one matter house; this is not a complete promise assessment. */
     promised: boolean;
     transit: KpEventRules["transit"] & {
       /** Broader event-day contacts against this natal frame; descriptive, not scored. */
@@ -265,7 +271,9 @@ export interface ChanceBaseline {
   trials: number;
   span: [string, string];
   /** One reproducible set of dates, for inspecting the natal/transit evidence. */
-  example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence: KpTransitEvidence[]; moonTransit?: MoonTransitContext }>;
+  example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence: KpTransitEvidence[]; moonTransit?: MoonTransitContext; natalRules?: KpEventRules["natalRules"]; parashariOrdinary?: ParashariDatedCatalogue; additionalNatal?: AdditionalSchoolNatalEvidence; alp?: AlpEventEvidence }>;
+  /** Date-dependent ordinary rule frequencies, descriptive and separate from scores. */
+  catalogueComparison?: import("./catalogue-comparison").EventCatalogueComparison[];
   auroraExample?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence?: AuroraEventEvidence }>;
   auroraV2Example?: Array<{ label: string; date: string; time?: string; timezone?: string; evidence?: AuroraV2Evidence }>;
   /** Same Parashari checks run for real and random dates; descriptive only. */

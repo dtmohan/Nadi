@@ -2431,7 +2431,7 @@ export default function ChartPage() {
 
         {mode === "alp" && (
           <div className="mt-8 animate-in fade-in-0 duration-300">
-            <AlpPanel result={data} initialAsOf={alpAsOf} onAsOfChange={setAlpAsOf} />
+            <AlpPanel result={data} initialAsOf={alpAsOf} onAsOfChange={setAlpAsOf} onTopicSelected={(event) => rememberTopic("alp", event)} />
           </div>
         )}
 
@@ -2462,7 +2462,7 @@ export default function ChartPage() {
 
         {mode === "prasna" && (
           <div className="mt-8 animate-in fade-in-0 duration-300">
-            <PrasnaPanel result={data} />
+            <PrasnaPanel result={data} onTopicSelected={(event) => rememberTopic("prasna", event)} />
           </div>
         )}
 

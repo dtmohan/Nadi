@@ -31,6 +31,9 @@
  * Nothing here is stored; the caller sends the chart, with its events, on each request.
  */
 import { DateTime } from "luxon";
+import { eventReadingAllowed } from "@shared/event-reading";
+import { createCatalogueComparison } from "@shared/catalogue-comparison";
+import { lifeAsOf, sensitiveGate } from "@shared/life-stage";
 import { stagedObservation, summarizeParashariComparisons, type ParashariObservation } from "@shared/parashari-comparison";
 import {
   norm360,
@@ -45,7 +48,7 @@ import {
   vimshottari,
   jointPeriods,
 } from "@shared/kp";
-import type { InsertChart } from "@shared/schema";
+import { normaliseParashariHouseMethod, normaliseSunriseDef, type InsertChart } from "@shared/schema";
 import {
   bnnKarakasFor,
   effectiveOutcome,
@@ -70,10 +73,11 @@ import type {
   KpWindowRow,
 } from "@shared/validate-types";
 import { scoreWindows } from "@shared/kp-windows";
-import { evaluate, rolesFor } from "@shared/rules";
+import { rolesFor } from "@shared/rules";
 import type { Gender } from "@shared/marriage";
 import { createKpEventScorer } from "@shared/kp-event-evidence";
-import { computeJaimini } from "@shared/jaimini";
+import { additionalSchoolEvents } from "./additional-school-events";
+import { createAlpEventScorer } from "@shared/alp-event-evidence";
 import { dashaFitAt } from "@shared/jaimini-areas";
 import { comparisonDate, eventInstant } from "./event-time";
 import { kpTransitEvidence } from "@shared/kp-transit-evidence";
@@ -81,6 +85,8 @@ import { auroraV2StageCounts, AURORA_V2_STAGES } from "@shared/kp-aurora-v2";
 import { vargaTopicFor } from "@shared/parashari-varga-evidence";
 import { manleyTopicFor } from "@shared/manley-evidence";
 import { createParashariEventScorer } from "./parashari-event";
+import { computeParashari, DEFAULT_ASPECT_FLOOR } from "@shared/parashari";
+import { createParashariNatalCatalogue } from "@shared/parashari-event-natal-rules";
 import { functionalObservation } from "@shared/parashari-functional";
 import { conditionalObservations } from "@shared/parashari-conditional";
 import { natalOwnMarks } from "@shared/gochara";
@@ -91,6 +97,7 @@ import {
   julianDay,
   positionsAt,
   positionsLite,
+  shadbalaBase,
   ascendantAt,
   cuspsAt,
   transitPeriods,
@@ -107,7 +114,7 @@ function natureOf(good: number, evil: number): Nature {
   return "mixed";
 }
 
-export function validateEvents(chart: InsertChart): ValidationResult {
+export function validateEvents(chart: InsertChart, asOf = DateTime.utc().toISO()!): ValidationResult {
   const events = sanitiseEvents(chart.events);
   const opts: EphemerisOptions = {
     ayanamsa: "kp",
@@ -116,6 +123,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   const optsJ: EphemerisOptions = {
     ayanamsa: chart.ayanamsa || "lahiri",
     nodeType: opts.nodeType,
+    sunrise: normaliseSunriseDef(chart.sunriseDef),
   };
   const zone = chart.timezone;
   const { utc: utc0 } = birthInstant(chart);
@@ -130,7 +138,10 @@ export function validateEvents(chart: InsertChart): ValidationResult {
     ayanamsa: "kp", nodeType: opts.nodeType, houseMethod: "placidus", cusps: cuspLons, ascendant: cuspLons[0], division: "D1", precision: "full" });
   const { cusps, planets, significators: sigs } = kpNatalFrame(kpContext, cuspLons);
   const sig = new Map(sigs.map((s) => [s.planet, s.houses]));
-  const scoreKp = createKpEventScorer(cusps, sigs, planets);
+  const scoreKp = createKpEventScorer(cusps, sigs, planets, {
+    withhold: sensitiveGate(chart, birthIso, asOf).withheld,
+    allowed: (matter) => eventReadingAllowed(matter, birthIso, asOf, chart),
+  });
   // Strict significators, the ordered hierarchy of Astro Secrets Part 2 p. 151: planets in the
   // stars of a bhava's occupants are its strongest significators; the occupants count only when
   // no planet sits in their stars; then the planets in the stars of the owner; then the owner.
@@ -177,13 +188,20 @@ export function validateEvents(chart: InsertChart): ValidationResult {
     houseMethod: chart.parashariHouseMethod || "rashi", ascendant: lagnaJ, division: "D1", precision: "full" });
   const natalMoonJ = positionsJ.find((p) => p.planet === "Moon")!;
   const ownMarks = natalOwnMarks(positionsJ, lagnaJ);
-  const scoreParashari = createParashariEventScorer(natalContext, lagnaJ, birthIso, zone);
-  const jaimini = computeJaimini(natalContext, lagnaJ, birthIso);
+  const parashariNatal = computeParashari(natalContext, lagnaJ, birthIso, lifeAsOf(chart, asOf),
+    shadbalaBase(jd0, chart.latitude, chart.longitude, optsJ), undefined, DEFAULT_ASPECT_FLOOR,
+    sensitiveGate(chart, birthIso, asOf).withheld, normaliseParashariHouseMethod(chart.parashariHouseMethod));
+  const ordinary = createParashariNatalCatalogue(parashariNatal,
+    (matter) => eventReadingAllowed(matter, birthIso, asOf, chart));
+  const scoreParashari = createParashariEventScorer(natalContext, lagnaJ, birthIso, zone, { natalCatalogue: ordinary });
+  const school = additionalSchoolEvents(natalContext, chart, jd0, lagnaJ, birthIso, asOf, optsJ);
+  const { jaimini, reading } = school;
+  const scoreAlp = createAlpEventScorer(natalContext, lagnaJ, birthIso, chart, asOf,
+    (matter) => eventReadingAllowed(matter, birthIso, asOf, chart));
   const natalJupiter = positionsJ.find((p) => p.planet === "Jupiter")!;
   const gender = (chart.gender as Gender) ?? "unspecified";
   const roles = rolesFor(gender);
   const natalDeha = positionsJ.find((p) => p.planet === roles.deha)!;
-  const reading = evaluate(natalContext, undefined, gender);
   const natalSign = new Map(positionsJ.map((p) => [p.planet, p.signIndex]));
   const CONTACT_POINTS: Record<BnnContact, number> = {
     over: 2,
@@ -484,9 +502,7 @@ export function validateEvents(chart: InsertChart): ValidationResult {
 
     // The same scorer receives the actual or sampled event instant and its own
     // transit sky. Descriptive KP evidence remains separately controlled.
-    const parashari = vargaTopicFor(m.id) || manleyTopicFor(m.id)
-      ? scoreParashari({ label: m.label, matter: m.id, outcome: e.outcome, time: e.time, timezone: e.timezone }, date, evIso, dayJ)
-      : {};
+    const parashari = scoreParashari({ label: m.label, matter: m.id, outcome: e.outcome, time: e.time, timezone: e.timezone }, date, evIso, dayJ);
     return {
       id: e.id,
       matter: m.id,
@@ -501,6 +517,9 @@ export function validateEvents(chart: InsertChart): ValidationResult {
       // Descriptive only, computed for the exact event instant and the first sampled comparison set.
       moonTransit: includeEvidence ? moonTransitContext(natalMoonJ, Math.floor(lagnaJ / 30), dayJ, evIso, ownMarks) : undefined,
       parashariVargas: parashari.varga,
+      parashariOrdinary: parashari.ordinary,
+      additionalNatal: school.catalogue(m.id),
+      alp: scoreAlp(m.id, evIso),
       manley: parashari.manley,
       parashariHierarchy: parashari.hierarchy,
       parashariPromise: parashari.promise,
@@ -815,6 +834,7 @@ function chanceBaseline(
     conditional: conditionalObservations(v.manley, v.outcome),
   });
   const parashariTrials: ParashariObservation[][] = [];
+  const catalogueComparison = createCatalogueComparison(real);
   const actualStages = auroraV2StageCounts(real.map((v) => v.kp.auroraV2));
   const stageSamples = { cusps: [] as number[], major: [] as number[], sub: [] as number[], third: [] as number[] };
   for (let t = 0; t < BASELINE_TRIALS; t++) {
@@ -825,9 +845,10 @@ function chanceBaseline(
         t === 0,
       ),
     );
+    trial.forEach((v, i) => catalogueComparison.observe(i, v));
     if (t === 0) {
       example = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone,
-        evidence: v.kp.transit.evidence ?? [], moonTransit: v.moonTransit }));
+        evidence: v.kp.transit.evidence ?? [], moonTransit: v.moonTransit, natalRules: v.kp.natalRules, parashariOrdinary: v.parashariOrdinary, additionalNatal: v.additionalNatal, alp: v.alp }));
       auroraExample = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone, evidence: v.kp.aurora }));
       auroraV2Example = trial.map((v) => ({ label: v.label, date: v.date, time: v.time, timezone: v.timezone, evidence: v.kp.auroraV2 }));
       parashariExample = trial.flatMap((v, i) => {
@@ -865,6 +886,7 @@ function chanceBaseline(
   return {
     trials: BASELINE_TRIALS,
     example,
+    catalogueComparison: catalogueComparison.result(),
     auroraExample,
     auroraV2Example,
     parashari: Object.keys(parashari).length ? parashari : undefined,

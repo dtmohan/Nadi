@@ -691,7 +691,7 @@ export const parashariModule: ReportModule = {
     const conditional = parashariNatalConditions(ctx.result);
     if (conditional.length) (houses.sub ??= []).push({ id: "parashari-natal-conditional-rules",
       title: "Natal yoga pairs, nodes and matter-house combinations",
-      paras: parashariNatalConditionsParas(conditional, ctx.cites.add(MANLEY_SOURCE.label), ctx.cites.add(FUNCTIONAL_SOURCE.label, FUNCTIONAL_SOURCE.url)) });
+      paras: parashariNatalConditionsParas(conditional, ctx.cites.add(MANLEY_SOURCE.label), ctx.cites.add(FUNCTIONAL_SOURCE.label, FUNCTIONAL_SOURCE.url), ctx.plain) });
     return [
       houses,
       timingSection(ctx, par),
