@@ -1016,6 +1016,40 @@ export function gulikaLongitude(
   return { lon, signIndex: Math.floor(lon / 30), day };
 }
 
+/**
+ * Research comparison: weekday-constant Mandi method in Prashnanushthana Paddhati 3.9–10
+ * (extract pp. 54–55), also described in B.V. Raman's Prasna Marga 5.14–16 notes. Duration and
+ * result use the same unit. The books treat Mandi as Gulika for this Kerala method; other authors
+ * distinguish them. This is not the convention currently used by gulikaLongitude or chart output.
+ */
+export function keralaMandiOffset(duration: number, weekday: number, day: boolean): number {
+  if (!Number.isFinite(duration) || duration <= 0 || !Number.isInteger(weekday) || weekday < 0 || weekday > 6) {
+    throw new Error("Mandi offset requires a positive duration and a weekday from 0 to 6");
+  }
+  const constants = day ? [26, 22, 18, 14, 10, 6, 2] : [10, 6, 2, 26, 22, 18, 14];
+  return duration * constants[weekday] / 30;
+}
+
+/** Named research variant, deliberately not substituted for the production Gulika calculation. */
+export function keralaMandiLongitude(
+  jd: number,
+  latitude: number,
+  longitude: number,
+  zone: string,
+  opts: EphemerisOptions,
+): { lon: number; signIndex: number; day: boolean; risingJd: number } {
+  const sunrise = sunriseBefore(jd, latitude, longitude, opts.sunrise);
+  const sunset = riseOrSetAfter(sunrise, latitude, longitude, C.SE_CALC_SET, opts.sunrise);
+  const nextSunrise = riseOrSetAfter(sunset, latitude, longitude, C.SE_CALC_RISE, opts.sunrise);
+  const day = jd < sunset;
+  const start = day ? sunrise : sunset;
+  const end = day ? sunset : nextSunrise;
+  // The weekday belongs to the beginning of the day/night, including a night after midnight.
+  const risingJd = start + keralaMandiOffset(end - start, weekdayOf(start, zone), day);
+  const lon = ascendantAt(risingJd, latitude, longitude, opts);
+  return { lon, signIndex: Math.floor(lon / 30), day, risingJd };
+}
+
 /** The time-based sphutas (Ch. V 20-23) read at the query instant `jd`, from the day's ghatis. */
 export function timeSphutas(
   jd: number,

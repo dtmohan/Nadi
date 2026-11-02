@@ -4,6 +4,7 @@ import { NAKSHATRAS, SIGN_LORD, SIGNS } from "@shared/astro";
 import {
   arudhaFromHandful,
   ashtamangalaFromGroups,
+  simulateCowrieGroups,
   PRASNA_COWRIES,
   computeArudhaReading,
   computeGulikaReading,
@@ -261,23 +262,30 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
     handful: number;
     remainder: number;
     groups: [number, number, number];
-    ashtamangala: { digits: [number, number, number]; number: number };
   } | null>(null);
+  const [observedHeaps, setObservedHeaps] = useState<[string, string, string]>(["", "", ""]);
   const [question, setQuestion] = useState("");
+
+  const observedCounts = observedHeaps.map((value) => /^\d+$/.test(value) ? Number(value) : NaN);
+  const validObservedHeaps = observedCounts.every((count) => Number.isSafeInteger(count) && count > 0)
+    && observedCounts.reduce((sum, count) => sum + count, 0) === PRASNA_COWRIES;
+  const observedRemainders = validObservedHeaps
+    ? ashtamangalaFromGroups(observedCounts[0], observedCounts[1], observedCounts[2])
+    : null;
+  const observedOneToEight = validObservedHeaps
+    ? ashtamangalaFromGroups(observedCounts[0], observedCounts[1], observedCounts[2], "one-through-eight")
+    : null;
 
   const castShells = () => {
     const handful = 1 + Math.floor(Math.random() * PRASNA_COWRIES);
     const remainder = handful % 12;
     setArudhaIdx(arudhaFromHandful(handful));
-    // Ashtamangala: split the 108 cowries into three groups and read each ÷8.
-    const a = 1 + Math.floor(Math.random() * 106);
-    const b = 1 + Math.floor(Math.random() * (108 - a));
-    const groups: [number, number, number] = [a, b, 108 - a - b];
+    // A simulation of three positive heaps, not the physical act of placing the gold Arudha.
+    const groups = simulateCowrieGroups();
     setShellCast({
       handful,
       remainder,
       groups,
-      ashtamangala: ashtamangalaFromGroups(groups[0], groups[1], groups[2]),
     });
   };
   const savedPrasnas = useSavedPrasnas();
@@ -428,6 +436,11 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         location and Arudha; this app's query view currently uses a stored sky
         snapshot at the birth-chart location. The birth-chart view is separate.
       </p>
+      <p className="mt-2 max-w-[80ch] text-xs text-muted-foreground" data-testid="prasna-gulika-convention">
+        Gulika and points derived from it use a provisional Saturn-portion calculation. It differs
+        from the weekday-constant Mandi method described in Prasna Marga and Prashnanushthana Paddhati,
+        and their placements may change under that method.
+      </p>
 
       <Chapters tab="prasna" chapters={chapterDefs} className="mt-4">
       <Chapter id="prasna">
@@ -449,9 +462,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
           </Button>
           <select
             value={arudhaIdx ?? ""}
-            onChange={(e) =>
-              setArudhaIdx(e.target.value === "" ? null : Number(e.target.value))
-            }
+            onChange={(e) => {
+              setArudhaIdx(e.target.value === "" ? null : Number(e.target.value));
+              setShellCast(null);
+            }}
             className="h-8 rounded-md border bg-background px-2 text-sm"
             data-testid="prasna-select-arudha"
             aria-label="Pick the Arudha sign"
@@ -465,6 +479,51 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
           </select>
         </div>
 
+        <details className="mt-3 rounded-md border p-3" data-testid="prasna-observed-heaps">
+          <summary className="cursor-pointer text-sm font-medium">Calculate observed cowrie heaps</summary>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Enter the three positive heap counts from a physical consultation, totalling 108. The heaps
+            give an Ashtamangala number; the gold-placement Arudha is a separate input.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-3">
+            {(["Left / north", "Middle", "Right / south"] as const).map((label, index) => (
+              <label key={label} className="flex flex-col gap-1 text-xs text-muted-foreground">
+                {label}
+                <input
+                  type="number"
+                  min="1"
+                  max="106"
+                  step="1"
+                  inputMode="numeric"
+                  value={observedHeaps[index]}
+                  onChange={(e) => {
+                    const value = e.currentTarget.value;
+                    setObservedHeaps((previous) => {
+                      const next: [string, string, string] = [...previous];
+                      next[index] = value;
+                      return next;
+                    });
+                  }}
+                  className="h-8 w-24 rounded-md border bg-background px-2 text-sm text-foreground"
+                  aria-label={`${label} cowries`}
+                />
+              </label>
+            ))}
+          </div>
+          {observedRemainders && observedOneToEight ? (
+            <p className="mt-2 text-xs tabular" data-testid="prasna-observed-heap-result">
+              0–7 remainder: {observedRemainders.digits.join(" · ")} ({observedRemainders.digits.join("")})
+              {" · "}1–8 interpretation: {observedOneToEight.digits.join(" · ")} ({observedOneToEight.digits.join("")})
+            </p>
+          ) : (
+            <p className="mt-2 text-xs text-muted-foreground">Enter three whole numbers greater than zero that add up to 108.</p>
+          )}
+          <p className="mt-1 text-2xs text-muted-foreground">
+            Prashnanushthana Paddhati, chapter 5, describes digits 1–8; reading a positive multiple of
+            8 as 8 is an interpretation of that convention. The 0–7 remainder is shown alongside it.
+          </p>
+        </details>
+
         {prasna && arudhaIdx !== null && (
           <div className="mt-3" data-testid="prasna-result">
             <p className="text-sm">
@@ -475,12 +534,11 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             <p className="mt-1 text-xs text-muted-foreground">Snapshot: {now.asOf}; location: {result.chart.place} (the birth-chart coordinates). To judge an actual question, its own time, place and Arudha must be established; this snapshot does not establish them.</p>
             {shellCast && (
               <p className="mt-1 text-xs text-muted-foreground tabular" data-testid="prasna-shell-cast">
-                A handful of {shellCast.handful} cowries ÷ 12 → remainder{" "}
+                A simulated handful of {shellCast.handful} cowries ÷ 12 → remainder{" "}
                 {shellCast.remainder === 0 ? 12 : shellCast.remainder} →{" "}
-                {SIGNS[arudhaIdx]} · Ashtamangala: {shellCast.groups[0]} ·{" "}
-                {shellCast.groups[1]} · {shellCast.groups[2]} cowries → digits{" "}
-                {shellCast.ashtamangala.digits.join("·")} →{" "}
-                {shellCast.ashtamangala.number}
+                {SIGNS[arudhaIdx]}. Simulated heaps (left, middle, right): {shellCast.groups.join(" · ")};{" "}
+                0–7 remainder: {ashtamangalaFromGroups(...shellCast.groups).digits.join("")};{" "}
+                1–8 interpretation: {ashtamangalaFromGroups(...shellCast.groups, "one-through-eight").digits.join("")}.
               </p>
             )}
             <div className="mt-3 grid gap-4 md:grid-cols-[minmax(0,16rem)_1fr]">
@@ -553,11 +611,9 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
           </p>
         )}
         <p className="mt-3 text-2xs text-muted-foreground" data-testid="prasna-arudha-caveat">
-          “Cast shells” simulates the cowrie method: a handful is taken from a
-          lot of 108 and divided by twelve, the remainder names the Arudha. It
-          is a simulation, not a live ritual — the text's canonical Arudha is the
-          gold piece placed by an innocent person (4.51–53), and the cowrie
-          division by eight yields the Ashtamangala number (4.54–55).
+          “Cast shells” is an exploratory simulation that divides a random handful by 12.
+          The cited Prasna Marga passages instead describe gold placement for Arudha (4.51–53)
+          and three cowrie heaps for Ashtamangala (4.54–55). The simulation does not recreate that ritual.
         </p>
         {prasna && arudhaIdx !== null && (
           <div className="mt-3 space-y-2">

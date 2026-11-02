@@ -6,6 +6,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import { DateTime } from "luxon";
 
 import {
   birthInstant,
@@ -14,6 +15,8 @@ import {
   ayanamsaAt,
   ascendantAt,
   gulikaLongitude,
+  keralaMandiOffset,
+  keralaMandiLongitude,
   type EphemerisOptions,
 } from "../server/ephemeris";
 import { tithiOf, nakshatraOf, yogaOf, karanaOf } from "@shared/panchanga";
@@ -30,6 +33,7 @@ import {
   computeChatraRasi,
   arudhaFromHandful,
   ashtamangalaFromGroups,
+  simulateCowrieGroups,
   computeTertiaryPlanets,
   rasiAgreement,
   timeSphutasFromGhatis,
@@ -307,6 +311,37 @@ test("Prasna Marga Gulika position on the reference chart", () => {
   assert.equal(g.day, true);
 });
 
+test("Kerala Mandi weekday constants, including the corrected example arithmetic", () => {
+  const day = [26, 22, 18, 14, 10, 6, 2];
+  const night = [10, 6, 2, 26, 22, 18, 14];
+  for (let weekday = 0; weekday < 7; weekday++) {
+    assert.equal(keralaMandiOffset(30, weekday, true), day[weekday]);
+    assert.equal(keralaMandiOffset(30, weekday, false), night[weekday]);
+  }
+  // Paddhati extract p. 55: 29 ghati 15 vighati × 26/30 = 25 ghati 21 vighati,
+  // although the printed example says 25 ghati 16 vighati. Thursday's example agrees.
+  assert.ok(Math.abs(keralaMandiOffset(29.25, 0, true) - 25.35) < 1e-10);
+  assert.ok(Math.abs(keralaMandiOffset(32, 4, false) - (23 + 28 / 60)) < 1e-10);
+  assert.throws(() => keralaMandiOffset(0, 0, true));
+  assert.throws(() => keralaMandiOffset(30, 7, true));
+});
+
+test("Kerala Mandi research calculation retains the preceding weekday after midnight", () => {
+  const question = DateTime.fromISO("1994-11-11T19:25", { zone: "Asia/Kolkata" }).toUTC();
+  const afterMidnight = DateTime.fromISO("1994-11-12T01:00", { zone: "Asia/Kolkata" }).toUTC();
+  const expectedRise = DateTime.fromISO("1994-11-12T01:23:14.200", { zone: "Asia/Kolkata" }).toUTC();
+  const latitude = 10 + 31 / 60;
+  const longitude = 76 + 13 / 60;
+  const first = keralaMandiLongitude(julianDay(question), latitude, longitude, "Asia/Kolkata", opts);
+  const second = keralaMandiLongitude(julianDay(afterMidnight), latitude, longitude, "Asia/Kolkata", opts);
+  assert.equal(first.day, false);
+  assert.ok(Math.abs(first.risingJd - julianDay(expectedRise)) * 86400 < 1);
+  approxLon(first.lon, second.lon);
+  assert.equal(first.risingJd, second.risingJd);
+  // This computes the source's formula; it does not reproduce its printed example's Mandi.
+  assert.ok(Math.abs(first.lon - 131.44056) < 0.01);
+});
+
 test("Prasna Marga 21 Rasi agreement: the twelve relative houses", () => {
   const expected = ["good", "bad", "moderate", "moderate", "bad", "bad", "good", "bad", "good", "good", "good", "bad"];
   for (let h = 1; h <= 12; h++) {
@@ -350,7 +385,7 @@ test("Prasna Marga 8.1 worked example: Chatra Rasi", () => {
   assert.equal(computeChatraRasi(7, 0, 3), 5);
 });
 
-test("Prasna Marga 4.38, 51-55 cowrie Arudha: remainder names the sign", () => {
+test("exploratory simulated handful Arudha: remainder names the sign", () => {
   // Remainder 1 = Aries … 11 = Aquarius, 0 = Pisces.
   assert.equal(arudhaFromHandful(1), 0); // Aries
   assert.equal(arudhaFromHandful(7), 6); // Libra
@@ -371,6 +406,30 @@ test("Prasna Marga 4.54-55 Ashtamangala number: remainders of three ÷8 groups",
   const c = ashtamangalaFromGroups(3, 5, 7);
   assert.deepEqual(c.digits, [3, 5, 7]);
   assert.equal(c.number, 357);
+});
+
+test("Paddhati example and the separately named 1–8 cowrie interpretation", () => {
+  const sourceExample = [34, 39, 35] as const;
+  assert.deepEqual(ashtamangalaFromGroups(...sourceExample).digits, [2, 7, 3]);
+  assert.deepEqual(ashtamangalaFromGroups(...sourceExample, "one-through-eight").digits, [2, 7, 3]);
+  const multiples = [32, 40, 36] as const; // 108 cowries: the conventions differ.
+  assert.deepEqual(ashtamangalaFromGroups(...multiples).digits, [0, 0, 4]);
+  assert.deepEqual(ashtamangalaFromGroups(...multiples, "one-through-eight").digits, [8, 8, 4]);
+  assert.equal(ashtamangalaFromGroups(...multiples, "one-through-eight").number, 884);
+  // An empty heap is not a positive multiple of eight.
+  assert.equal(ashtamangalaFromGroups(0, 1, 1, "one-through-eight").digits[0], 0);
+});
+
+test("simulated cowrie heaps remain positive and sum to 108 at the extremes", () => {
+  assert.deepEqual(simulateCowrieGroups(() => 0), [1, 1, 106]);
+  assert.deepEqual(simulateCowrieGroups(() => 1 - Number.EPSILON), [106, 1, 1]);
+  let seed = 73;
+  const random = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  for (let i = 0; i < 500; i++) {
+    const groups = simulateCowrieGroups(random);
+    assert.ok(groups.every((group) => Number.isInteger(group) && group > 0));
+    assert.equal(groups.reduce((sum, group) => sum + group, 0), 108);
+  }
 });
 
 test("Prasna Marga 14.72 tertiary planets: Upaketu + 30 returns the Sun", () => {

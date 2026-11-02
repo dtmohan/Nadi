@@ -1122,11 +1122,10 @@ export function computeArudhaReading(
 }
 
 // ───────────────────────────────────────────────────────────────────────────────────────────────
-// The cowrie-division Arudha (Ch. IV, stanzas 38, 51-55): the astrologer works with a lot of 108
-// cowries. A handful is taken and divided by twelve, and the remainder names the Arudha sign
-// (1 = Aries … 11 = Aquarius, 0 = Pisces). The text's canonical Arudha is the gold piece placed by
-// an innocent person (4.51-53); the cowrie division by eight yields the Ashtamangala number
-// (4.54-55). This helper simulates the handful-and-remainder practice many astrologers use.
+// Exploratory simulated Arudha: a random handful divided by twelve names a sign
+// (1 = Aries … 11 = Aquarius, 0 = Pisces). Prasna Marga 4.38, 51–55 describes 108 cowries,
+// gold placement for Arudha and the three heaps for Ashtamangala; those passages do not establish
+// this handful-by-twelve procedure. It must not be presented as the cited gold-placement ritual.
 
 export const PRASNA_COWRIES = 108;
 
@@ -1139,21 +1138,36 @@ export function arudhaFromHandful(handful: number): number {
 // ───────────────────────────────────────────────────────────────────────────────────────────────
 // The Ashtamangala Number (Ch. IV, stanzas 54-55): the cowries are divided into three groups
 // (left, front, right); each is counted and multiples of eight are expunged, the remainders forming
-// the hundreds, tens and units of a three-digit number. The text keeps the remainder of ÷8, so each
-// digit is 0-7; some practitioners read a zero remainder as 8.
+// the hundreds, tens and units of a three-digit number. Prashnanushthana Paddhati ch. 5 describes
+// digits 1–8 (extract pp. 92–95), which suggests reading a positive multiple of eight as 8. Keep
+// that interpretation separate from ordinary 0–7 remainders; neither determines the Arudha sign.
 
 export interface Ashtamangala {
   digits: [number, number, number]; // left (hundreds), front (tens), right (units)
   number: number;
 }
 
+export type AshtamangalaConvention = "remainder" | "one-through-eight";
+
 export function ashtamangalaFromGroups(
   left: number,
   front: number,
   right: number,
+  convention: AshtamangalaConvention = "remainder",
 ): Ashtamangala {
-  const digits: [number, number, number] = [left % 8, front % 8, right % 8];
+  const digit = (count: number) => {
+    const remainder = count % 8;
+    return convention === "one-through-eight" && count > 0 && remainder === 0 ? 8 : remainder;
+  };
+  const digits: [number, number, number] = [digit(left), digit(front), digit(right)];
   return { digits, number: digits[0] * 100 + digits[1] * 10 + digits[2] };
+}
+
+/** A simulated positive three-heap split. This is not a physical cast or a uniform ritual model. */
+export function simulateCowrieGroups(random: () => number = Math.random): [number, number, number] {
+  const left = 1 + Math.floor(random() * (PRASNA_COWRIES - 2));
+  const middle = 1 + Math.floor(random() * (PRASNA_COWRIES - 1 - left));
+  return [left, middle, PRASNA_COWRIES - left - middle];
 }
 
 // ───────────────────────────────────────────────────────────────────────────────────────────────
