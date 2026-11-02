@@ -65,7 +65,7 @@ export const ALP_PLAIN_TOPIC_RULES: Record<string, Partial<Record<SchoolTopic, s
   "b2-alp-in-janma-11": { wealth: "The current progressed position includes gains among its themes.", family: "The current progressed position includes elder siblings among its themes." },
   "b2-alp-in-janma-12": { travel: "The current progressed position includes distant places among several themes." },
   "b2-marriage-navamsa-touches": { marriage: "One marriage-specific pada condition is present; it does not establish a complete natal promise." },
-  "b2-marriage-navamsa-away": { marriage: "The selected marriage condition is not met in this pada. The cited example does not establish a universal exclusion, and this alone cannot rule marriage out." },
+  "b2-marriage-navamsa-away": { marriage: "The selected marriage condition is not met in this pada. The book states a contact condition, but its absence in this interpretation cannot by itself rule marriage out." },
   "b2-12th-lord-in-4": { family: "One source interpretation concerns possible spending on the home or family.", mother: "One source interpretation concerns possible spending connected with the mother." },
   "b2-4th-lord-in-12": { wealth: "One source interpretation raises the possibility of giving up property." },
   "b2-10th-lord-dusthana": { career: "One source interpretation describes possible dissatisfaction or delay in work." },

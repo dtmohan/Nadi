@@ -1272,6 +1272,8 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
           Book 2 groups the houses from the ALP lagna as present (1, 4, 7, 10),
           past (2, 5, 8, 11) and future (3, 6, 9, 12), and gives each one a
           past-life karma bhava: the 4th from it, the 10th counted backwards.
+          These traditional groups describe the source's view of experience;
+          a future-group house does not by itself mean an event cannot happen now.
           Houses 10 to 3 are free-will bhavas where remedies work; 4 to 9 are
           destined, and the book asks that no remedy be prescribed for them (p.
           57). Signs and planets below are from this chart.

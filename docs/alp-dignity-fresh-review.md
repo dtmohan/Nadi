@@ -2,7 +2,7 @@
 
 The corrected code and the public-only [predeclared protocol](alp-dignity-validation-protocol.md) were tested on four previously unused people, 11 dated events and five wedding events. The [full machine-readable results](alp-dignity-fresh-results.json) contain source links, 200-date baselines, alternate dates, controls and code hashes. Twin deliveries count once. These are consistency and exploratory checks, not prospective evidence that astrology predicts events or an independent verification of birth records.
 
-The selected ALP marriage-pada condition matched **none of the five wedding dates at the reported birth anchors**. This is a counterexample to treating this partial condition as necessary for marriage; it does not establish that the complete ALP method is false. The source also requires a natal promise, which this test does not establish. The documented times and event dates are uncertain, and the five weddings are not independent random draws.
+The selected ALP marriage-pada condition matched **none of the five wedding dates at the reported birth anchors**. This challenges treating this particular interpretation as necessary for marriage; it does not establish that the complete ALP method is false. Correction: the available passage does not specify a complete natal-promise gate. The documented times and event dates are uncertain, and the five weddings are not independent random draws.
 
 | Person | Anchor and source qualification | ALP at anchor | Highest raw ALP match in ±10 min; share of whole-second grid | Legacy KP at anchor; mean of 200 random-date sets |
 | --- | --- | --- | --- | --- |
