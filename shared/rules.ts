@@ -144,6 +144,7 @@ export function areaKaraka(area: LifeArea, gender: Gender): Planet {
 /** Karaka label for an area heading; the female "self" reads from both the Jeeva and the Deha. */
 export function areaKarakaLabel(area: LifeArea, gender: Gender): string {
   const roles = rolesFor(gender);
+  if (area === "family") return "Sun (father) · Moon (mother) · Mars (siblings)";
   if (area === "self" && roles.deha !== roles.native)
     return `${roles.native} (Jeeva) · ${roles.deha} (Deha)`;
   return areaKaraka(area, gender);

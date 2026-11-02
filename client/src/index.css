@@ -44,7 +44,7 @@
   --secondary: 38 26% 88%;
   --secondary-foreground: 26 22% 13%;
   --muted: 38 24% 89%;
-  --muted-foreground: 28 12% 40%;
+  --muted-foreground: 28 12% 37%;
   --accent: 38 26% 88%;
   --accent-foreground: 26 22% 13%;
   --destructive: 0 60% 40%;
@@ -57,11 +57,11 @@
   --chart-4: 150 25% 35%;
   --chart-5: 28 12% 40%;
   /* Planet hues: the traditional colours, muted to sit on the paper. Identity, not role. */
-  --planet-sun: 28 85% 42%;
-  --planet-moon: 205 22% 46%;
+  --planet-sun: 28 85% 32%;
+  --planet-moon: 205 32% 34%;
   --planet-mars: 355 62% 42%;
   --planet-mercury: 170 48% 30%;
-  --planet-jupiter: 44 78% 34%;
+  --planet-jupiter: 44 82% 27%;
   --planet-venus: 330 42% 46%;
   --planet-saturn: 232 22% 40%;
   --planet-rahu: 272 30% 42%;
@@ -73,7 +73,7 @@
   --elem-water: 232 28% 46%;
   /* Verdicts: promised, mixed, denied. Judgement colours, never used for a planet. */
   --verdict-good: 122 34% 30%;
-  --verdict-mixed: 36 70% 34%;
+  --verdict-mixed: 36 75% 28%;
   --verdict-bad: 4 58% 40%;
   /* The three ways of time. */
   --time-present: 145 42% 32%;
@@ -338,13 +338,13 @@
   }
   a.cite::after {
     content: "\2197";
-    @apply text-[0.6rem] leading-none text-muted-foreground/60;
+    @apply text-[0.6rem] leading-none text-muted-foreground;
   }
   a.cite:hover::after {
     @apply text-foreground/70;
   }
   .cite-mark {
-    @apply text-muted-foreground/60;
+    @apply text-muted-foreground;
   }
 }
 

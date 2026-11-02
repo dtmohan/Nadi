@@ -21,5 +21,5 @@ export function qualifiedComparisonParas(comparison?: Partial<Record<QualifiedSc
   const rows = QUALIFIED_SCORE_KEYS.flatMap((key) => { const s = comparison?.[key];
     return s ? [[key.toUpperCase(), String(s.actual), `${s.mean} ± ${s.sd}`, `${s.percentile}%`]] : []; });
   return rows.length ? [{ kind: "table", head: ["Research check", "Actual", "Comparison mean ± sd", "Mid-rank"], rows },
-    { kind: "note", text: "Each comparison uses the same eligible-event conditions. A natal condition can be counted again for each event; repeated points are not independent evidence. Random dates are not verified non-events; percentiles are descriptive.", provisional: true }] : [];
+    { kind: "note", text: "Each comparison uses the same eligible-event conditions. Registered date-independent clues count once per candidate and matter; other factors can overlap. Random dates are not verified non-events; percentiles are descriptive.", provisional: true }] : [];
 }

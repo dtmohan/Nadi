@@ -14,7 +14,9 @@ export interface QualifiedEventScore {
   score: number;
   max: number;
   /** True and false refer to the named condition, not to whether the event occurred. */
-  conditions: Array<{ id: string; label: string; status: "matched" | "unresolved" | "not-reached"; detail?: string }>;
+  conditions: Array<{ id: string; label: string; status: "matched" | "unresolved" | "not-reached"; detail?: string;
+    /** One date-independent condition within this candidate and matter. */
+    oncePerCandidate?: string }>;
 }
 export type QualifiedEventScores = Partial<Record<QualifiedScoreKey, QualifiedEventScore>>;
 
@@ -45,7 +47,8 @@ export function qualifiedEventScores(input: {
   if (natal?.status === "assessed" && natal.rules.some((r) => r.role === "promise")) {
     const condition = natal.indication.status === "support";
     const conditions: QualifiedEventScore["conditions"] = [{ id: "natal", label: "Registered natal promise clues",
-      status: condition ? "matched" : "unresolved", detail: `Natal indication: ${natal.indication.status}` }];
+      status: condition ? "matched" : "unresolved", detail: `Natal indication: ${natal.indication.status}`,
+      oncePerCandidate: `kp:${input.matter}:natal` }];
     let passes = condition;
     ["Dasa", "Bhukti", "Antara"].forEach((label, i) => {
       const reached = passes;
@@ -61,12 +64,15 @@ export function qualifiedEventScores(input: {
   const div = input.divisional;
   const ordinary = input.ordinary?.natal;
   if (div && ordinary?.status === "assessed") {
+    const natalFactors = new Set(["d1-support", "division-support", "d10-lords"]);
     const conditions: QualifiedEventScore["conditions"] = div.factors.map((f) => ({ id: f.id, label: f.label,
-      status: f.matched ? "matched" : "unresolved", detail: f.details.join("; ") }));
+      status: f.matched ? "matched" : "unresolved", detail: f.details.join("; "),
+      ...(natalFactors.has(f.id) ? { oncePerCandidate: `parashari:${input.matter}:${div.division}:${f.id}` } : {}) }));
     if (input.matter === "child") {
       const clue = ordinary.rules.find((r) => r.finding.id === "pa-h5-16-16")?.finding;
       conditions.push({ id: "pa-h5-16-16", label: "BPHS 16.16 fifth-lord children clue",
-        status: clue ? "matched" : "unresolved", detail: clue?.text ?? `No match in the selected ${ordinary.houseMethod} house frame` });
+        status: clue ? "matched" : "unresolved", detail: clue?.text ?? `No match in the selected ${ordinary.houseMethod} house frame`,
+        oncePerCandidate: `parashari:child:${ordinary.houseMethod}:pa-h5-16-16` });
     }
     result.parashari = { score: conditions.filter((c) => c.status === "matched").length,
       max: input.matter === "child" ? 9 : 8, conditions };
@@ -96,8 +102,38 @@ export function qualifiedEventScores(input: {
 /** Aggregate only when every recorded eligible event has exactly the same
  * eligibility in each comparison set. Missing checks are not zeroes. */
 export function qualifiedTotals(rows: Array<QualifiedEventScores | undefined>, key: QualifiedScoreKey): { score: number; max: number } {
-  return rows.reduce((a, row) => { const v = row?.[key]; return v ? { score: a.score + v.score, max: a.max + v.max } : a; }, { score: 0, max: 0 });
+  const total = { score: 0, max: 0 };
+  const seen = new Map<string, "matched" | "unresolved" | "not-reached">();
+  for (const row of rows) {
+    const value = row?.[key];
+    if (!value) continue;
+    // Compatibility for older saved results that do not carry condition details.
+    if (value.conditions.length !== value.max) {
+      total.score += value.score;
+      total.max += value.max;
+      continue;
+    }
+    for (const condition of value.conditions) {
+      if (condition.oncePerCandidate) {
+        const previous = seen.get(condition.oncePerCandidate);
+        if (previous !== undefined) {
+          if (previous !== condition.status) throw new Error(`Inconsistent natal condition: ${condition.oncePerCandidate}`);
+          continue;
+        }
+        seen.set(condition.oncePerCandidate, condition.status);
+      }
+      total.max++;
+      if (condition.status === "matched") total.score++;
+    }
+  }
+  return total;
 }
 export function qualifiedComparable(actual: Array<QualifiedEventScores | undefined>, sample: Array<QualifiedEventScores | undefined>, key: QualifiedScoreKey): boolean {
-  return actual.length === sample.length && actual.every((row, i) => (row?.[key]?.max ?? 0) === (sample[i]?.[key]?.max ?? 0));
+  return actual.length === sample.length && actual.every((row, i) => {
+    const a = row?.[key], b = sample[i]?.[key];
+    if ((a?.max ?? 0) !== (b?.max ?? 0)) return false;
+    if (!a || !b) return !a && !b;
+    return a.conditions.length === b.conditions.length && a.conditions.every((c, j) =>
+      c.id === b.conditions[j].id && c.oncePerCandidate === b.conditions[j].oncePerCandidate);
+  });
 }

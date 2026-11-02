@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { vimshottariLordsAt, vimshottariLordsAtMs } from "../shared/kp";
+import { vimshottari, vimshottariLordsAt, vimshottariLordsAtMs } from "../shared/kp";
+import { Settings } from "luxon";
 import { vimshottariPathAt } from "../shared/vimshottari-depth";
 
 test("nested periods agree with Nadi's existing three-level path across longitudes and dates", () => {
@@ -47,4 +48,28 @@ test("nested period path rejects impossible inputs", () => {
   assert.throws(() => vimshottariPathAt(0, 1, 0), RangeError);
   assert.throws(() => vimshottariPathAt(0, 0, 1, 7), RangeError);
   assert.throws(() => vimshottariPathAt(NaN, 0, 1), RangeError);
+});
+
+test("display and fast period lords agree across time zones and exact boundaries", () => {
+  const originalZone = Settings.defaultZone;
+  const birth = "1900-01-01T00:00:00Z", birthMs = Date.parse(birth);
+  try {
+    for (const zone of ["UTC", "America/Los_Angeles", "Asia/Kolkata"]) {
+      Settings.defaultZone = zone;
+      for (const moon of [0, 23.333333333, 109.2, 359.99999]) for (const years of [5, 28, 108, 121]) {
+        const asOf = new Date(birthMs + years * 365.25 * 86400000).toISOString();
+        const display = vimshottari(moon, birth, asOf);
+        assert.ok(display.current.dasa.current && display.current.bhukti.current && display.current.antara.current);
+        const points = [Date.parse(asOf), ...display.antaras.flatMap((p) => [Date.parse(p.start) - 1, Date.parse(p.start), Date.parse(p.end) - 1, Date.parse(p.end)])];
+        for (const ms of points) {
+          if (ms < birthMs) continue;
+          const moment = new Date(ms).toISOString();
+          const v = vimshottari(moon, birth, moment);
+          assert.deepEqual([v.current.dasa.lord, v.current.bhukti.lord, v.current.antara.lord],
+            vimshottariLordsAt(moon, birth, moment), `${zone}: ${moon} at ${moment}`);
+        }
+      }
+    }
+  } finally { Settings.defaultZone = originalZone; }
+  assert.throws(() => vimshottari(0, birth, "1899-12-31T23:59:59Z"), RangeError);
 });

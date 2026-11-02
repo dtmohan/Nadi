@@ -485,6 +485,7 @@ export default function Home() {
               <Label htmlFor="place">{t("Place of birth")}</Label>
               <PlaceSearch
                 value={form.place}
+                onEdit={(place) => setForm((f) => ({ ...f, place, latitude: 0, longitude: 0, timezone: "" }))}
                 onPick={(h) =>
                   setForm((f) => ({
                     ...f,
@@ -497,7 +498,7 @@ export default function Home() {
                   }))
                 }
               />
-              {form.place && (
+              {form.place && form.timezone && (form.latitude !== 0 || form.longitude !== 0) && (
                 <p
                   className="text-xs text-muted-foreground tabular"
                   data-testid="text-coords"
@@ -505,6 +506,9 @@ export default function Home() {
                   {form.latitude.toFixed(3)}°, {form.longitude.toFixed(3)}° ·{" "}
                   {form.timezone}
                 </p>
+              )}
+              {form.place && !form.timezone && (
+                <p className="text-xs text-muted-foreground">Select a place from the suggestions, or enter its coordinates and time zone in the advanced settings.</p>
               )}
             </div>
 

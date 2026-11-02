@@ -5,6 +5,8 @@ import type { ParashariSpecificCheck } from "./parashari-specific";
 import type { ParashariDivisionalCheck } from "./parashari-divisional";
 import type { HierarchyEvent } from "./parashari-hierarchy";
 import type { ConditionalObservations } from "./parashari-conditional";
+import type { QualifiedEventScore } from "./qualified-event-scores";
+import { aggregateParashariLegacy } from "./parashari-score-aggregation";
 
 export interface ComparisonStat {
   actual: number;
@@ -41,6 +43,10 @@ export interface ParashariObservation {
   v1?: number;
   v2?: number;
   v3?: number;
+  /** Conditions accompany modern observations so a repeated natal clue is counted once. */
+  v1Details?: QualifiedEventScore;
+  v2Details?: QualifiedEventScore;
+  v3Details?: QualifiedEventScore;
   /** Two gated observations for one event, or undefined when the event cannot be assessed. */
   staged?: { first: boolean; third: boolean };
   hierarchy?: HierarchyEvent["passes"];
@@ -100,7 +106,15 @@ export function summarizeParashariComparisons(actual: ParashariObservation[], tr
       (result.unavailable ??= []).push(version);
       continue;
     }
-    const total = (set: ParashariObservation[]) => indices.reduce((sum, i) => sum + set[i][version]!, 0);
+    const detailKey = `${version}Details` as const;
+    const total = (set: ParashariObservation[]) => {
+      const details = indices.map((i) => set[i][detailKey]);
+      // The number-only form is retained for older research callers; current
+      // Validate and Rectify provide a full condition set for every event.
+      if (details.every(Boolean)) return aggregateParashariLegacy(details).score;
+      if (details.some(Boolean)) throw new Error(`Incomplete ${version} condition metadata`);
+      return indices.reduce((sum, i) => sum + set[i][version]!, 0);
+    };
     result[version] = comparisonStat(trials.map(total), total(actual));
   }
   const functionalIndices = actual.flatMap((a, i) => a.functional === undefined ? [] : [i]);

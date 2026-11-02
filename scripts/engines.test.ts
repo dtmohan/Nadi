@@ -167,10 +167,12 @@ test("vimshottari: birth dasa lord and balance for the reference Moon", () => {
   );
 });
 
-test("vimshottari: nine maha dasas, each lord appearing once", () => {
+test("vimshottari: the full post-birth 120 years include the first lord's closing period", () => {
   const vim = vimshottari(byPlanet["Moon"].lon, utc.toISO()!, utc.toISO()!);
-  assert.equal(vim.dasas.length, 9);
-  assert.equal(new Set(vim.dasas.map((d) => d.lord)).size, 9);
+  assert.equal(vim.dasas.length, 10);
+  assert.equal(new Set(vim.dasas.slice(0, 9).map((d) => d.lord)).size, 9);
+  assert.equal(vim.dasas[9].lord, vim.dasas[0].lord);
+  assert.ok(Date.parse(vim.dasas[9].end) >= utc.toMillis() + 120 * 365.25 * 86400000);
 });
 
 // -----------------------------------------------------------------------------------------------
@@ -200,6 +202,7 @@ test("synthesis: every life area has a valid tone, a headline and a finite balan
     "mixed",
     "care",
     "contested",
+    "descriptive",
     "quiet",
   ]);
   for (const a of areas) {

@@ -1697,7 +1697,7 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
                 KP_EVENT_AREA[e.id] &&
                   !areaSeason(KP_EVENT_AREA[e.id], result.utc, asOfIso)
                     .inSeason &&
-                  "text-muted-foreground/70",
+                  "text-muted-foreground",
               )}
               title={
                 KP_EVENT_AREA[e.id] &&

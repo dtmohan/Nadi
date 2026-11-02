@@ -639,6 +639,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
       </div>
 
       <Chapters tab="panchanga" chapters={chapterDefs}>
+      {!birth && <Chapter id="birth"><p className="text-sm text-muted-foreground">Birth-day panchanga is unavailable because a daily sunrise or sunset could not be computed for this date and place.</p></Chapter>}
       {birth && (
         <Chapter id="birth">
         <section>

@@ -8,6 +8,7 @@ import type {
 } from "./rectify-types";
 import { scoreMarks, type BodyMarksResult } from "./body-marks";
 import { qualifiedTotals, type QualifiedScoreKey } from "./qualified-event-scores";
+import { aggregateParashariLegacy, parashariLegacyScore } from "./parashari-score-aggregation";
 
 /** Rectification methods. One at a time, never blended; each cites its own source. */
 export type RectifyMethod =
@@ -43,11 +44,11 @@ export const RECTIFY_METHODS: Array<{
 }> = [
   { id: "kp-qualified", system: "KP", label: "Natal then periods · research", plainLabel: "Natal then periods · research",
     plainShort: "A conservative experiment checks natal indications before three period lords. Mixed or absent clues remain unresolved.",
-    short: "Four app-defined sequential stages: the registered ordinary natal promise clues, then dasa, bhukti and antara. Missing or mixed clues stop the sequence, without denying the event. Matter-house links are partial, not the full KP method.",
+    short: "Four app-defined sequential stages: the registered ordinary natal promise clues, then dasa, bhukti and antara. The natal stage counts once per candidate and matter in totals; timing stages remain per event. Missing or mixed clues stop the sequence, without denying the event. Matter-house links are partial, not the full KP method.",
     source: "M.P. Shanmugham, Astro Secrets & KP, Part 1 pp. 167–172 and Part 2 p. 203; Leena Aurora, The Ultimate Guide to KP Astrology Techniques, pp. 258–262, 266–268.", needsJudge: false, needsEvents: true },
   { id: "parashari-events-v4", system: "Parashari", label: "Children natal clue · v4 research", plainLabel: "Children natal clue · v4 research",
     plainShort: "The v3 event check adds one separately sourced children clue. Its points overlap and remain experimental.",
-    short: "Adds BPHS 16.16's ordinary fifth-lord clue to v3 for children only; marriage and career retain v3. House methods may differ and the extra clue overlaps other factors.",
+    short: "Adds BPHS 16.16's ordinary fifth-lord clue to v3 for children only; marriage and career retain v3. Registered date-independent factors count once per candidate and matter in totals, while event timing factors remain per event. House methods may differ and clues can overlap.",
     source: "Brihat Parashara Hora Shastra 16.16; Paul Manley, Birth Time Rectification, ch. 4 pp. 101, 118–122.", needsJudge: false, needsEvents: true },
   { id: "alp-marriage", system: "ALP", label: "Marriage pada · research", plainLabel: "Marriage pada · research",
     plainShort: "Compare one marriage-specific progressed-lagna condition, which can last for a long period.",
@@ -77,7 +78,7 @@ export const RECTIFY_METHODS: Array<{
     id: "parashari-events-v3", system: "Parashari", label: "Divisional period lords · v3",
     plainLabel: "Divisional period lords · v3",
     plainShort: "An experimental event comparison that adds the two main period planets' direct links to the relevant divisional house, lord or significator. It also retains v2's event-day transit checks. A match cannot establish a promise or birth time.",
-    short: "Eight app-defined checks per event: the unchanged six v2 factors plus one primary divisional-chart connection each for the dasa and bhukti lords. Equal weights, overlapping factors and this numerical synthesis are Nadi's choices, not a published formula.",
+    short: "Up to eight app-defined checks per event: the six v2 factors plus one primary divisional-chart connection each for the dasa and bhukti lords. Repeated date-independent clues count once per candidate and matter. Equal weights, overlapping factors and this numerical synthesis are Nadi's choices, not a published formula.",
     source: "Paul Manley, Birth Time Rectification: How to Find Your Exact Birth Time (2022), ch. 4 pp. 101, 118–122, plus the sources of Nadi's v2 factors; this partial eight-point combination is an app experiment.",
     needsJudge: false, needsEvents: true,
   },
@@ -85,7 +86,7 @@ export const RECTIFY_METHODS: Array<{
     id: "parashari-events-v2", system: "Parashari", label: "Event-specific rules · v2",
     plainLabel: "Event-specific rules · v2",
     plainShort: "An experimental comparison with different timing rules for marriage, childbirth and new jobs or promotions. It combines partial D1 and divisional support, period links and event-day transits; a match cannot establish a promise or a birth time.",
-    short: "Six app-defined event-specific checks: two partial D1/divisional support checks and four marriage-, childbirth- or career-specific timing/relationship checks. Equal weights and strict subsets are Nadi's experimental convention.",
+    short: "Up to six app-defined event-specific checks: two partial D1/divisional support checks and four marriage-, childbirth- or career-specific timing/relationship checks. Repeated date-independent clues count once per candidate and matter. Equal weights and strict subsets are Nadi's experimental convention.",
     source: "BPHS 7.1–8 and 11.14–16; K.N. Rao-guided Astrology and Timing of Marriage ch. 2; Astrological Assessment of Timing of Childbirth §§2.6–2.7 (citing Phaladeepika); Vishnu Bhaskar, Advanced Techniques of Predictive Astrology vol. 1 ch. 1 pp. 23–24. The six-point synthesis is Nadi's, not a published formula.",
     needsJudge: false, needsEvents: true,
   },
@@ -93,7 +94,7 @@ export const RECTIFY_METHODS: Array<{
     id: "parashari-events", system: "Parashari", label: "D1, varga and event timing · v1",
     plainLabel: "Birth chart, division and events · v1",
     plainShort: "A provisional comparison of D1 and D9, D7 or D10 house support, the event's two main periods and Jupiter–Saturn transits. It counts documented rule matches for marriage, childbirth and a new job or promotion; it cannot confirm that an event was promised or establish the birth time.",
-    short: "Five app-defined checks per supported event: partial D1 house support, D9/D7/D10 house support, dasa and bhukti links, and a narrow same-target Jupiter–Saturn double transit. Mixed indications are shown; equal weights are an experimental app convention.",
+    short: "Up to five app-defined checks per supported event: partial D1 house support, D9/D7/D10 house support, dasa and bhukti links, and a narrow same-target Jupiter–Saturn double transit. Repeated date-independent clues count once per candidate and matter. Mixed indications are shown; equal weights are an experimental app convention.",
     source: "BPHS 7.1–8, 11.14–16; M.S. Mehta, Analysing Horoscope Through Modern Techniques, ch. XVIII; K.N. Rao-guided Astrology and Timing of Marriage, ch. 2; Astrological Assessment of Timing of Childbirth; P.V.R. Narasimha Rao, Vedic Astrology: An Integrated Approach, §§6.3, 9.3 and 18.5. This score is Nadi's synthesis, not a published formula.",
     needsJudge: false, needsEvents: true,
   },
@@ -261,11 +262,11 @@ export function methodScore(
   if (m === "kp-nemani-rp")
     return s.nemani ? { score: s.nemani.all ? 1 : 0, max: 1 } : { score: 0, max: 0 };
   if (m === "parashari-events-v3")
-    return (s.parashariDivisional ?? []).reduce((a, e) => ({ score: a.score + e.score, max: a.max + e.max }), { score: 0, max: 0 });
+    return aggregateParashariLegacy((s.parashariDivisional ?? []).map(parashariLegacyScore));
   if (m === "parashari-events-v2")
-    return (s.parashariSpecific ?? []).reduce((a, e) => ({ score: a.score + e.score, max: a.max + e.max }), { score: 0, max: 0 });
+    return aggregateParashariLegacy((s.parashariSpecific ?? []).map(parashariLegacyScore));
   if (m === "parashari-events")
-    return (s.parashariPromise ?? []).reduce((a, e) => ({ score: a.score + e.score, max: a.max + e.max }), { score: 0, max: 0 });
+    return aggregateParashariLegacy((s.parashariPromise ?? []).map(parashariLegacyScore));
   if (m === "bj-marks") {
     const r = marks?.table[s.marksKey ?? s.drekkana];
     if (!r) return { score: 0, max: 0 };

@@ -1221,12 +1221,23 @@ function KpMethod() {
       <p>
         Rectification has its own tab on the chart page, because it changes the
         birth time that every reading depends on and is not itself a reading.
-        The tab scans a window around the recorded time, cuts it at every change
-        of the lagna's sign, star or sub lord, and scores each interval by one
+        The tab scans a window around the recorded time, splits it at detected
+        changes of the lagna's sign, star or sub lord and other selected inputs, and scores each interval by one
         method at a time, never blended, in the same way the reading systems are
         kept apart. One scan serves all methods. A chosen interval can be saved
         as a copy of the chart, with a note recording the method, its source and
         the inputs; the original is never altered.
+      </p>
+      <p>
+        The interface starts with a quick scan; choose a full scan for the 200
+        comparison-date sets, or use Validate on a candidate. Registered
+        date-independent natal clues in the source-scoped KP and Parashari
+        scores and the older Parashari event scores count once per candidate
+        and matter; date-dependent checks remain per event. Scores are app
+        conventions and may contain overlapping clues. ALP boundaries for
+        actual marriage dates are included, while comparison-date ALP changes
+        are sampled at the midpoint. Other inputs can still change within a
+        sampled interval.
       </p>
       <ul>
         <li>
@@ -1256,7 +1267,7 @@ function KpMethod() {
           and the cusp concerned must promise it through its sub lord (Part 1
           pp. 167-172; Part 2 p. 203). The events are chosen from a list of
           matters with their KP houses. A sub lord that signifies many houses
-          scores well whatever the dates, so every interval is scored again at
+          scores well whatever the dates, so in a full scan every interval is scored again at
           200 shuffled dates drawn from the span the events cover (the same
           seeded procedure as the Validate tab), the ranking goes by excess over
           that chance level, and an interval is singled out only at the 95th
@@ -1541,6 +1552,13 @@ function ParashariMethod() {
           on strength or on the navamsa are matched on dignity and the navamsa
           sign; each dasa reading also carries a Shadbala note from chapter 27
           against the requirement of 27.32-33.
+        </li>
+        <li>
+          BPHS 3.49–54 distinguishes exaltation signs from specified
+          moolatrikona degree ranges, which can overlap. The planet context
+          shows both facts. Shadbala and the Venus dasa condition of 47.81–82
+          use the degree range; other general dignity labels remain sign-based
+          until their individual source rules are reviewed.
         </li>
         <li>
           Chapter 27, Shadbala: the six strengths in virupas for the seven

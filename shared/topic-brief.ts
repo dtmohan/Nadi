@@ -101,6 +101,21 @@ function generalTheme(topic: PlainTopic, text: string): string | undefined {
 }
 
 function otherNatal(topic: Exclude<PlainTopic, "career" | "marriage">, area: AreaSynthesis | undefined, reading: Reading): PlainTopicNatal {
+  if (topic === "family") {
+    const findings = area ? [...area.key, ...area.rest] : [];
+    const subjects: Array<[string, RegExp]> = [["Father", /\bfather\b/i], ["Mother", /\bmother\b/i],
+      ["Siblings", /\b(sibling|siblings|brother|sister)\b/i], ["Family", /\b(parents|family|home)\b/i]];
+    const details = subjects.flatMap(([label, pattern]) => {
+      const finding = findings.find((f) => pattern.test(gist(f.text)) &&
+        (label !== "Family" || !/\b(father|mother|sibling|siblings|brother|sister)\b/i.test(gist(f.text))) &&
+        generalTheme("family", f.text));
+      const theme = finding && generalTheme("family", finding.text);
+      return theme ? [`${label}: ${theme}`] : [];
+    });
+    return { summary: findings.length ? "The selected Nadi rules discuss different family members separately."
+      : "The selected Nadi rules do not provide a family interpretation here.", details,
+      limit: "These are traditional possibilities in individual findings, not a combined verdict about your family." };
+  }
   if (topic === "children") {
     const link = reading.children.promised;
     return {

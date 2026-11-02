@@ -184,7 +184,7 @@ export function SarvarthaSection({
                           <Soft>{f.topic}</Soft>:
                         </span>{" "}
                         <Soft>{f.text}</Soft>
-                        <span className="ml-1 text-muted-foreground/70">
+                        <span className="ml-1 text-muted-foreground">
                           ({h.chapter}.{f.stanza})
                         </span>
                         <FidelityDot tier={f.fidelity} />
@@ -261,7 +261,7 @@ export function SarvarthaSection({
                     {shownSigs(b.significations).join(", ")}.
                   </p>
                   {b.karakaNote && (
-                    <p className="mt-0.5 text-xs text-muted-foreground/80">
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       {b.karakaNote}.
                     </p>
                   )}
@@ -307,7 +307,7 @@ export function SarvarthaSection({
                             <Soft>{r.topic}</Soft>:
                           </span>{" "}
                           <Soft>{`${r.when} — ${r.then}`}</Soft>
-                          <span className="ml-1 text-muted-foreground/70">
+                          <span className="ml-1 text-muted-foreground">
                             ({h.chapter}.{r.stanza})
                           </span>
                           <FidelityDot tier={ruleFidelity(h.house, r.stanza)} />
@@ -328,7 +328,7 @@ export function SarvarthaSection({
             <ul className="space-y-1.5 text-xs leading-5 text-muted-foreground">
               {SC_RAJYOGAS.map((r, i) => (
                 <li key={i}>
-                  <span className="text-muted-foreground/70">(9.{r.stanza})</span>{" "}
+                  <span className="text-muted-foreground">(9.{r.stanza})</span>{" "}
                   {r.when} — {r.then}.
                 </li>
               ))}
@@ -371,7 +371,7 @@ export function SarvarthaSection({
               <ul className="mt-2 space-y-1.5 text-xs leading-5 text-muted-foreground">
                 {SC_LONGEVITY.map((r, i) => (
                   <li key={i}>
-                    <span className="text-muted-foreground/70">
+                    <span className="text-muted-foreground">
                       ({r.chapter}.{r.stanza})
                     </span>{" "}
                     {r.when} — {r.then}.

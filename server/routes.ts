@@ -4,7 +4,6 @@ import {
   insertChartSchema,
   type Chart,
   type ChartResult,
-  type GeoHit,
   normaliseSunriseDef,
 } from "@shared/schema";
 import { RULES, applyBand, evaluate } from "@shared/rules";
@@ -32,6 +31,7 @@ import {
   signStay,
   gulikaComparisons,
   timeSphutas,
+  whenSolarEventAvailable,
   type EphemerisOptions,
 } from "./ephemeris";
 import { computeJaimini } from "@shared/jaimini";
@@ -65,6 +65,7 @@ import { chartEventSchema } from "@shared/events";
 import { createHash } from "node:crypto";
 import { sensitiveGate, redactSensitive, withholdText } from "@shared/life-stage";
 import { starPassages, janmaIndexOf, isNamedNakshatra } from "@shared/special-stars";
+import { searchPlaces } from "./geocode";
 
 // Computed readings kept briefly so repeat requests are quick. An entry holds no name, notes,
 // life events or birth inputs (the request supplies those again on a hit), is looked up by a
@@ -187,8 +188,11 @@ export function computeChart(chart: Chart): ChartResult {
   ];
   const nj = nowJd();
   const gulikaMethod = normaliseGulikaMethod(chart.gulikaMethod);
-  const birthGulika = gulikaComparisons(jd, chart.latitude, chart.longitude, zone, opts);
-  const nowGulika = gulikaComparisons(nj, chart.latitude, chart.longitude, zone, opts);
+  const birthGulika = whenSolarEventAvailable(() => gulikaComparisons(jd, chart.latitude, chart.longitude, zone, opts));
+  const nowGulika = whenSolarEventAvailable(() => gulikaComparisons(nj, chart.latitude, chart.longitude, zone, opts));
+  const strength = whenSolarEventAvailable(() => shadbalaBase(jd, chart.latitude, chart.longitude, opts));
+  const birthPanchanga = whenSolarEventAvailable(() => panchangaAt(jd, chart.latitude, chart.longitude, zone, opts));
+  const currentTimeSphutas = whenSolarEventAvailable(() => timeSphutas(nj, chart.latitude, chart.longitude, zone, opts));
   let special: { horaLagna: number; ghatikaLagna: number } | undefined;
   try {
     special = specialLagnas(jd, chart.latitude, chart.longitude, opts);
@@ -213,17 +217,17 @@ export function computeChart(chart: Chart): ChartResult {
       positions: positionsAt(nj, opts),
       asOf: DateTime.utc().toISO()!,
       lagnaLon: ascendantAt(nj, chart.latitude, chart.longitude, opts),
-      gulika: nowGulika[gulikaMethod],
+      gulika: nowGulika?.[gulikaMethod],
       gulikaComparisons: nowGulika,
       marsStay: signStay("Mars", nj, opts),
     },
     jaimini,
     kp: kpBase(jd, chart.latitude, chart.longitude, zone, opts.nodeType),
-    shadbala: shadbalaBase(jd, chart.latitude, chart.longitude, opts),
-    panchanga: panchangaAt(jd, chart.latitude, chart.longitude, zone, opts),
-    gulika: birthGulika[gulikaMethod],
+    shadbala: strength,
+    panchanga: birthPanchanga,
+    gulika: birthGulika?.[gulikaMethod],
     gulikaComparisons: birthGulika,
-    timeSphutas: timeSphutas(nowJd(), chart.latitude, chart.longitude, zone, opts),
+    timeSphutas: currentTimeSphutas,
     dasaStarts: dasaStartTransits(
       positions.find((p) => p.planet === "Moon")!.lon,
       utc.toISO()!,
@@ -784,18 +788,7 @@ export async function registerRoutes(
     const q = String(req.query.q ?? "").trim();
     if (q.length < 2) return res.json([]);
     try {
-      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=8&language=en&format=json`;
-      const r = await fetch(url);
-      const data = (await r.json()) as any;
-      const hits: GeoHit[] = (data.results ?? []).map((h: any) => ({
-        name: h.name,
-        admin1: h.admin1,
-        country: h.country,
-        latitude: h.latitude,
-        longitude: h.longitude,
-        timezone: h.timezone,
-      }));
-      res.json(hits);
+      res.json(await searchPlaces(q));
     } catch (e: any) {
       res
         .status(502)

@@ -241,7 +241,9 @@ export function RectifyPanel({
   const qualifiedMethod = QUALIFIED_RECTIFY_METHODS[method];
   const [showHow, setShowHow] = useState(false);
   const [windowMinutes, setWindowMinutes] = useState(30);
-  const [includeComparisons, setIncludeComparisons] = useState(true);
+  // Start with the explicitly labelled exploratory scan. Users can enable the
+  // slower random-date comparison before treating a candidate as interesting.
+  const [includeComparisons, setIncludeComparisons] = useState(false);
   const [sortByScore, setSortByScore] = useState(false);
   const [showAllKunda, setShowAllKunda] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
@@ -767,7 +769,9 @@ export function RectifyPanel({
                 changes in the rising degree and the event-related KP cusps and
                 natal inputs. Each interval is scored at its midpoint; other
                 fine divisions can still change within it. D81 Kunda has its own
-                independently scanned intervals. One scan serves every method;
+                independently scanned intervals. ALP checks at actual marriage
+                dates contribute boundaries; comparison-date ALP changes are
+                sampled at each interval's midpoint. One scan serves every method;
                 switch between them without scanning again. Use
                 here moves this chart to that interval's midpoint, keeping its
                 name and events; Save makes a copy at that time and leaves this
@@ -1260,6 +1264,7 @@ export function RectifyPanel({
               <p className="text-xs text-muted-foreground">
                 Each supported event contributes up to {method === "parashari-events-v3" ? "eight" : method === "parashari-events-v2" ? "six" : "five"} experimental rule matches. Marriage, childbirth,
                 and a new job or promotion are scored; other or explicitly mixed or unfavourable events are omitted.
+                Registered date-independent clues count once per candidate and matter; event timing checks remain per event, and other factors can overlap.
                 D1 and divisional indications are partial and can conflict. These scores are not probabilities
                 or proof of a birth time. The random-date comparison is exploratory and is not calibrated to select a birth time.
                 These older point totals do not require D1 to pass before awarding later points. The older strict funnel above also has known gaps and cannot rule out a candidate. Inspect D1 and the relevant division together below; these clues do not change this ranking.
@@ -1271,7 +1276,8 @@ export function RectifyPanel({
                 The eligible events differ across candidate times, so their totals cannot be ranked. Check event dates and times relative to birth.
               </p>}
               <p className="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
-                {method === "parashari-events" ? "In an initial eight-person public-case test, the v1 highest scores missed the ±5-minute band around the reported birth time in all eight cases. " : method === "parashari-events-v2" ? "In nine new public cases, v2's highest intervals touched the reported-time ±5-minute band in eight but covered 35% of the hour on average. At the reported birth times, held-out event scores were nearly the same on nearby comparison dates. " : "In ten fresh public cases, v3's highest intervals came within five minutes of the reported time in four cases and covered 29% of the hour on average. Held-out event scores resembled nearby dates. The added links can overlap and equal weights are app choices. "}
+                Before the correction to repeated natal clues, {method === "parashari-events" ? "an initial eight-person public-case test found v1's highest scores missed the ±5-minute band around the reported birth time in all eight cases. " : method === "parashari-events-v2" ? "nine public cases had v2's highest intervals touch the reported-time ±5-minute band in eight but cover 35% of the hour on average. At the reported birth times, held-out event scores were nearly the same on nearby comparison dates. " : "ten public cases had v3's highest intervals come within five minutes of the reported time in four cases and cover 29% of the hour on average. Held-out event scores resembled nearby dates. The added links can overlap and equal weights are app choices. "}
+                Those historical results do not validate the revised totals.
                 The ranking should not be used on its own to change a birth time.
               </p>
               {focus && <>
@@ -1816,7 +1822,7 @@ export function RectifyPanel({
           )}
 
           {qualifiedMethod && <div className="mt-3 overflow-x-auto" data-testid="rectify-qualified-ranking">
-            <p className="text-xs text-muted-foreground">These partial matches are experimental, use the same conditions at sampled dates, and cannot establish a birth time. A natal condition may be counted again for each eligible event; repeated points are not independent evidence. Each row represents its midpoint; boundaries may be missed. {qualifiedComparableWindow ? "" : anyParashariScore ? "Eligibility or comparison availability differs, so totals cannot be ranked." : "No eligible events can be scored under this method."}</p>
+            <p className="text-xs text-muted-foreground">These partial matches are experimental, use the same conditions at sampled dates, and cannot establish a birth time. Registered date-independent clues count once per candidate and matter; other checks can overlap. Each row represents its midpoint; boundaries may be missed. {qualifiedComparableWindow ? "" : anyParashariScore ? "Eligibility or comparison availability differs, so totals cannot be ranked." : "No eligible events can be scored under this method."}</p>
             <Table className="text-xs"><TableHeader><TableRow><TableHead>Interval</TableHead><TableHead>Matches</TableHead><TableHead>Comparison mean</TableHead><TableHead>Candidate</TableHead></TableRow></TableHeader>
               <TableBody>{(qualifiedComparableWindow ? segments : scored).map(({ s, i, score, max, b }) => <TableRow key={s.startIso}>
                 <TableCell>{s.start}–{s.end}{s.given ? " · recorded" : ""}</TableCell><TableCell>{max ? `${score}/${max}` : "unavailable"}{bestSet.has(i) ? " · highlighted" : ""}</TableCell><TableCell>{b ? `${b.mean} · ${b.percentile}% mid-rank` : "unavailable"}</TableCell>

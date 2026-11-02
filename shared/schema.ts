@@ -170,6 +170,8 @@ export interface ChartResult {
 
 export interface GeoHit {
   name: string;
+  /** A source-checked alternative name that led to this suggestion. */
+  matchedAlias?: string;
   admin1?: string;
   country: string;
   latitude: number;

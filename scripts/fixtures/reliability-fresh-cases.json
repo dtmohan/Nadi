@@ -1,0 +1,47 @@
+{
+  "protocol": "docs/reliability-recheck-protocol.md",
+  "selection": "Four public people selected before the corrected scores were evaluated; no certificates examined. Event source and clock limitations are stated below.",
+  "cases": [
+    {
+      "name": "Matthew McConaughey", "category": "American actor", "birthQuality": "Astro-Databank AA, birth certificate in hand; original not independently examined.",
+      "birthSource": "https://www.astro.com/astro-databank/McConaughey%2C_Matthew",
+      "chart": { "name": "Matthew McConaughey", "gender": "male", "birthDate": "1969-11-04", "birthTime": "19:34", "timezone": "America/Chicago", "timeStandard": "auto", "place": "Uvalde, Texas, USA", "latitude": 29.2167, "longitude": -99.7833, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "mm-child1", "matter": "child", "date": "2008-07-07", "time": "18:22", "timezone": "America/Los_Angeles", "note": "Santa Monica birth; time reported by Astro-Databank, not independently verified.", "sources": ["https://www.astro.com/astro-databank/McConaughey%2C_Matthew", "https://okmagazine.com/photos/world-exclusive-matthew-camilas-baby-boy/"] },
+        { "id": "mm-child2", "matter": "child", "date": "2010-01-03", "time": "00:13", "timezone": "America/Los_Angeles", "note": "California birth; time from Astro-Databank, not independently verified.", "sources": ["https://www.astro.com/astro-databank/McConaughey%2C_Matthew", "https://www.cbsnews.com/news/mcconaugheys-new-baby/"] },
+        { "id": "mm-marriage", "matter": "marriage", "date": "2012-06-09", "timezone": "America/Chicago", "note": "Austin wedding; reported as a sunset ceremony, but exact time is unavailable and noon is assumed.", "sources": ["https://www.astro.com/astro-databank/McConaughey%2C_Matthew", "https://www.latimes.com/entertainment/la-xpm-2012-jun-11-la-et-mg-matthew-mcconaughey-marries-camila-alves-story.html"] },
+        { "id": "mm-child3", "matter": "child", "date": "2012-12-28", "time": "07:43", "timezone": "America/Chicago", "note": "Austin birth; time from Astro-Databank, not independently verified.", "sources": ["https://www.astro.com/astro-databank/McConaughey%2C_Matthew", "https://www.usmagazine.com/celebrity-moms/news/matthew-mcconaughey-camila-alves-name-newborn-son-livingston-20122912/"] }
+      ]
+    },
+    {
+      "name": "Karine Ferri", "category": "French television presenter and model", "birthQuality": "Astro-Databank AA, birth certificate quoted; original not independently examined.",
+      "birthSource": "https://www.astro.com/astro-databank/Ferri%2C_Karine",
+      "chart": { "name": "Karine Ferri", "gender": "female", "birthDate": "1982-04-25", "birthTime": "22:25", "timezone": "Europe/Paris", "timeStandard": "auto", "place": "Suresnes, France", "latitude": 48.8667, "longitude": 2.2333, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "kf-child1", "matter": "child", "date": "2016-04-06", "timezone": "Europe/Paris", "note": "Saint-Grégoire hospital near Rennes; clock unknown.", "sources": ["https://www.astro.com/astro-databank/Ferri%2C_Karine", "https://www.ledauphine.com/france-monde/2018/07/17/karine-ferri-a-accouche-d-une-petite-claudia"] },
+        { "id": "kf-child2", "matter": "child", "date": "2018-07-16", "timezone": "Europe/Paris", "note": "City and clock not verified; France zone and noon assumed.", "sources": ["https://www.astro.com/astro-databank/Ferri%2C_Karine", "https://www.ledauphine.com/france-monde/2018/07/17/karine-ferri-a-accouche-d-une-petite-claudia"] },
+        { "id": "kf-marriage", "matter": "marriage", "date": "2019-06-08", "timezone": "Europe/Paris", "note": "Wedding in France; clock unknown.", "sources": ["https://www.astro.com/astro-databank/Ferri%2C_Karine", "https://www.public.fr/karine-ferri-une-rare-photo-de-son-mariage-avec-yoann-gourcuff-devoilee-sur-instagram"] },
+        { "id": "kf-child3", "matter": "child", "date": "2023-05-03", "timezone": "Europe/Paris", "note": "City and clock not verified; France zone and noon assumed.", "sources": ["https://www.astro.com/astro-databank/Ferri%2C_Karine", "https://www.purepeople.com/article/photo-karine-ferri-maman-pour-la-3e-fois-apparition-surprise-de-son-bebe-sasha-un-instant-calin-immortalise_a512855/1"] }
+      ]
+    },
+    {
+      "name": "Cécilia Attias", "category": "French public figure and foundation founder", "birthQuality": "Astro-Databank AA, birth record reported; original not independently examined.",
+      "birthSource": "https://www.astro.com/astro-databank/Attias%2C_C%C3%A9cilia",
+      "chart": { "name": "Cécilia Attias", "gender": "female", "birthDate": "1957-11-12", "birthTime": "23:55", "timezone": "Europe/Paris", "timeStandard": "auto", "place": "Boulogne-Billancourt, France", "latitude": 48.8333, "longitude": 2.25, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "ca-marriage1", "matter": "marriage", "date": "1984-08-10", "timezone": "Europe/Paris", "note": "Wedding in Neuilly-sur-Seine; clock unknown.", "sources": ["https://www.astro.com/astro-databank/Attias%2C_C%C3%A9cilia", "https://www.imdb.com/fr-ca/name/nm2678548/bio/"] },
+        { "id": "ca-child1", "matter": "child", "date": "1984-08-22", "timezone": "Europe/Paris", "note": "Birth city and clock not verified; France zone and noon assumed.", "sources": ["https://www.astro.com/astro-databank/Attias%2C_C%C3%A9cilia", "https://www.imdb.com/fr-ca/name/nm2678548/bio/"] },
+        { "id": "ca-child2", "matter": "child", "date": "1987-06-08", "timezone": "Europe/Paris", "note": "Paris birth; clock unknown.", "sources": ["https://www.astro.com/astro-databank/Attias%2C_C%C3%A9cilia", "https://www.astrotheme.fr/astrologie/Jeanne-Marie_Martin"] },
+        { "id": "ca-marriage2", "matter": "marriage", "date": "2008-03-23", "timezone": "America/New_York", "note": "Wedding in New York; clock unknown. A later son's birth is excluded because published dates conflict.", "sources": ["https://www.astro.com/astro-databank/Attias%2C_C%C3%A9cilia", "https://www.closermag.fr/politique/nicolas-sarkozy-se-confie-sur-son-divorce-d-avec-cecilia-attias-son-attitude-me-988728"] }
+      ]
+    },
+    {
+      "name": "Jeanne-Claude", "category": "Moroccan-born French-American conceptual artist", "birthQuality": "Astro-Databank AA, birth record reported; round 18:00 may be approximate and original not examined.",
+      "birthSource": "https://www.astro.com/astro-databank/Jeanne-Claude",
+      "chart": { "name": "Jeanne-Claude", "gender": "female", "birthDate": "1935-06-13", "birthTime": "18:00", "timezone": "Africa/Casablanca", "timeStandard": "auto", "place": "Casablanca, Morocco", "latitude": 33.65, "longitude": -7.5833, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "2009-11-18" },
+      "events": [
+        { "id": "jc-child", "matter": "child", "date": "1960-05-11", "timezone": "Europe/Paris", "note": "Birth near Paris; clock unknown. Wedding dates in sources conflict and are excluded.", "sources": ["https://www.astro.com/astro-databank/Jeanne-Claude", "https://nsuartmuseum.org/wp-content/uploads/2025/05/NYT-Christo-and-Jeanne-Claude-Legendary-Artists-Are-Back-in-Spirit-5.6.25.pdf"] }
+      ]
+    }
+  ]
+}

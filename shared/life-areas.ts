@@ -34,7 +34,7 @@ export function nadiAreasClauses(areas: AreaSynthesis[]): string | null {
   if (contested.length)
     parts.push(`${joinList(contested)} ${contested.length === 1 ? "is" : "are"} in dispute, with strong rules both ways`);
   const mixedN = areas.filter((a) => a.tone === "mixed").length;
-  if (mixedN) parts.push(parts.length ? "the rest is mixed" : "the picture is mixed");
+  if (mixedN) parts.push(parts.length ? "other marked areas are mixed" : "the picture is mixed");
   return parts.length ? parts.join("; ") : null;
 }
 

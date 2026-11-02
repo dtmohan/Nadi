@@ -9,6 +9,7 @@ import { parashariVargaEvidence } from "@shared/parashari-varga-evidence";
 import { parashariPromiseCheck } from "@shared/parashari-promise";
 import { parashariSpecificCheck } from "@shared/parashari-specific";
 import { parashariDivisionalCheck } from "@shared/parashari-divisional";
+import { methodScore, type RectifyMethod } from "@shared/rectify-methods";
 import { stagedObservation, type ParashariObservation } from "@shared/parashari-comparison";
 import { birthInstant, julianDay, positionsAt, positionsLite, ascendantAt } from "../server/ephemeris";
 import { comparisonDate, eventInstant } from "../server/event-time";
@@ -177,6 +178,62 @@ test("both tabs return the same Parashari comparison for the same candidate", ()
   assert.deepEqual(candidate.baseline?.parashari, validation.baseline?.parashari);
   assert.deepEqual(candidate.baseline?.parashariExample, validation.baseline?.parashariExample);
   assert.deepEqual(candidate.parashariHierarchy, validation.events.map((e) => e.parashariHierarchy ?? null));
+});
+
+test("repeated child and career events count natal clues once in all three rankings and every random comparison", () => {
+  const repeated: ChartEvent[] = [
+    { id: "c1", matter: "child", date: "2016-09-14", time: "14:30", timezone: "America/Los_Angeles" },
+    { id: "c2", matter: "child", date: "2019-10-04", time: "09:30", timezone: "America/New_York" },
+    { id: "j1", matter: "job", date: "2021-06-18", timezone: "Asia/Kolkata" },
+    { id: "j2", matter: "job", date: "2022-08-09", timezone: "Asia/Kolkata" },
+  ];
+  const validation = validateEvents({ ...chart, events: repeated });
+  const versions = ["v1", "v2", "v3"] as const;
+  const totals = (rows: ReturnType<typeof independent>[], version: typeof versions[number]) => {
+    const seen = new Set<string>();
+    let score = 0, max = 0;
+    for (const row of rows) {
+      const check = version === "v1" ? row.promise : version === "v2" ? row.specific : row.divisional;
+      assert.ok(check);
+      const factors = "version" in check ? check.factors : check.factors.map((matched, index) => ({
+        id: ["d1-support", "division-support", "dasa", "bhukti", "double-transit"][index], matched,
+      }));
+      for (const factor of factors) {
+        if (["d1-support", "division-support", "d10-lords"].includes(factor.id)) {
+          const key = `${check.matter}:${check.division}:${factor.id}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+        }
+        max++;
+        score += Number(factor.matched);
+      }
+    }
+    return { score, max };
+  };
+  const actual = repeated.map((e) => independent(e, e.date));
+  const random = seeded(comparisonSeed(repeated.map((e) => e.date)));
+  const lo = DateTime.fromISO(repeated[0].date, { zone: "utc" }).toMillis();
+  const hi = DateTime.fromISO(repeated.at(-1)!.date, { zone: "utc" }).toMillis();
+  const draws = Array.from({ length: validation.baseline!.trials }, () => repeated.map((e) =>
+    independent(e, comparisonDate(random, lo, hi, e, chart.timezone))));
+  for (const version of versions) {
+    const expected = totals(actual, version);
+    const values = draws.map((rows) => totals(rows, version).score);
+    const mean = Math.round(values.reduce((a, b) => a + b, 0) / values.length * 10) / 10;
+    const percentile = Math.round(100 * (values.filter((n) => n < expected.score).length +
+      values.filter((n) => n === expected.score).length / 2) / values.length);
+    assert.deepEqual([validation.baseline!.parashari![version]?.actual, validation.baseline!.parashari![version]?.mean,
+      validation.baseline!.parashari![version]?.percentile], [expected.score, mean, percentile], version);
+    assert.equal(expected.max, { v1: 16, v2: 19, v3: 27 }[version], `${version} removes the repeated natal factors`);
+  }
+  const requested = repeated.map((e) => { const m = matterOf(e.matter); return { ...e, label: m.label, houses: m.houses, cusp: m.cusp, area: m.area }; });
+  const scan = rectify({ chart, windowMinutes: 1, events: requested });
+  const candidate = scan.segments.find((s) => s.given && s.selectable)!;
+  const checked = validateEvents({ ...chart, birthDate: candidate.midDate ?? chart.birthDate, birthTime: candidate.mid, events: repeated });
+  for (const [version, method] of [["v1", "parashari-events"], ["v2", "parashari-events-v2"], ["v3", "parashari-events-v3"]] as Array<[typeof versions[number], RectifyMethod]>) {
+    assert.deepEqual(candidate.baseline?.parashari?.[version], checked.baseline?.parashari?.[version], version);
+    assert.equal(methodScore(candidate, method).score, candidate.baseline?.parashari?.[version]?.actual, version);
+  }
 });
 
 test("cached period frames retain the individual event's date, label, clock and zone", () => {

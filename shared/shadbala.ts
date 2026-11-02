@@ -5,9 +5,10 @@
 // The ephemeris facts that need the Swiss Ephemeris (declinations, tropical longitudes, meridian,
 // sunrise and sunset) arrive in `ShadbalaBase` from the server; everything else is arithmetic here so
 // the client can show the working and the dasa rules can consult it.
-import { EXALTATION, MOOLATRIKONA, SIGN_LORD, houseFrom, norm360, type Planet, type PlanetPosition } from "./astro";
+import { EXALTATION, SIGN_LORD, houseFrom, norm360, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
 import { zodiacQuarter } from "./zodiac-quarter";
+import { bphsDignityContext } from "./planet-dignity";
 
 export const SEVEN = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"] as const;
 export type Seven = (typeof SEVEN)[number];
@@ -220,16 +221,7 @@ export function compoundRelation(a: Seven, b: Seven, signA: number, signB: numbe
 
 /** Moolatrikona by degree range, BPHS 3.51-54. */
 export function inMoolatrikona(p: Seven, sign: number, deg: number): boolean {
-  if (MOOLATRIKONA[p] !== sign) return false;
-  switch (p) {
-    case "Sun": return deg < 20;
-    case "Moon": return deg >= 3;
-    case "Mars": return deg < 12;
-    case "Mercury": return deg >= 15 && deg < 20;
-    case "Jupiter": return deg < 10;
-    case "Venus": return deg < 15;
-    case "Saturn": return deg < 20;
-  }
+  return bphsDignityContext(p, sign, deg)?.moolatrikona ?? false;
 }
 
 const RELATION_VIRUPAS: Record<Compound, number> = { "great friend": 20, friend: 15, neutral: 10, enemy: 4, "great enemy": 2 };

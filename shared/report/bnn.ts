@@ -111,7 +111,7 @@ export const bnnModule: ReportModule = {
               ? "support"
               : a.tone === "care"
                 ? "strain"
-                : "mixed",
+                : a.tone === "descriptive" ? undefined : "mixed",
           aside: a.area === "children" ? "Traditional interpretation" : AREA_TONE_LABEL[a.tone],
         },
       ];

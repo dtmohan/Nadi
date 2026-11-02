@@ -1496,7 +1496,7 @@ export function JaiminiPanel({ result, onTopicSelected }: { result: ChartResult;
               >
                 {cur && <span className="mr-1 text-verdict-good">▶</span>}
                 {p.signName}
-                <span className="ml-1 text-muted-foreground/70">
+                <span className="ml-1 text-muted-foreground">
                   · {p.years.toFixed(1)} yrs
                 </span>
               </li>

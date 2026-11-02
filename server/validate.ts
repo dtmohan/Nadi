@@ -35,6 +35,7 @@ import { eventReadingAllowed } from "@shared/event-reading";
 import { createCatalogueComparison } from "@shared/catalogue-comparison";
 import { lifeAsOf, sensitiveGate } from "@shared/life-stage";
 import { stagedObservation, summarizeParashariComparisons, type ParashariObservation } from "@shared/parashari-comparison";
+import { parashariLegacyScore } from "@shared/parashari-score-aggregation";
 import {
   norm360,
   PLANETS,
@@ -99,6 +100,7 @@ import {
   positionsAt,
   positionsLite,
   shadbalaBase,
+  whenSolarEventAvailable,
   ascendantAt,
   cuspsAt,
   transitPeriods,
@@ -190,7 +192,7 @@ export function validateEvents(chart: InsertChart, asOf = DateTime.utc().toISO()
   const natalMoonJ = positionsJ.find((p) => p.planet === "Moon")!;
   const ownMarks = natalOwnMarks(positionsJ, lagnaJ);
   const parashariNatal = computeParashariNatal(natalContext, lagnaJ, birthIso, lifeAsOf(chart, asOf),
-    shadbalaBase(jd0, chart.latitude, chart.longitude, optsJ), DEFAULT_ASPECT_FLOOR,
+    whenSolarEventAvailable(() => shadbalaBase(jd0, chart.latitude, chart.longitude, optsJ)), DEFAULT_ASPECT_FLOOR,
     sensitiveGate(chart, birthIso, asOf).withheld, normaliseParashariHouseMethod(chart.parashariHouseMethod));
   const ordinary = createParashariNatalCatalogue(parashariNatal,
     (matter) => eventReadingAllowed(matter, birthIso, asOf, chart));
@@ -837,6 +839,8 @@ function chanceBaseline(
   let parashariExample: ChanceBaseline["parashariExample"];
   const observe = (v: EventValidation): ParashariObservation => ({
     v1: v.parashariPromise?.score, v2: v.parashariSpecific?.score, v3: v.parashariDivisional?.score,
+    v1Details: parashariLegacyScore(v.parashariPromise), v2Details: parashariLegacyScore(v.parashariSpecific),
+    v3Details: parashariLegacyScore(v.parashariDivisional),
     staged: stagedObservation(v.manley), hierarchy: v.parashariHierarchy?.passes, crossTiming: v.parashariHierarchy?.crossChart?.timing,
     functional: functionalObservation(v.manley, v.outcome),
     conditional: conditionalObservations(v.manley, v.outcome),

@@ -41,6 +41,6 @@ test("quick scan skips only comparisons and preserves all candidate and event re
     const state = { method, windowMinutes: 1, events: requestedEvents, confirmedMarks: [], includeComparisons: false };
     const report = buildReport(computed, { plain: false, modules: ["rectify"], tools: { rectify: { result: quick, state } } });
     assert.match(JSON.stringify(report.sections), /Quick scan: random-date comparisons were not computed/, method);
-    if (method !== "parashari-events-v3") assert.match(JSON.stringify(report.sections), /repeated points are not independent evidence/, method);
+    assert.match(JSON.stringify(report.sections), /date-independent clues count once per candidate and matter/, method);
   }
 });

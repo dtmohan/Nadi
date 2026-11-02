@@ -704,6 +704,7 @@ const TONE_CLASS: Record<AreaTone, string> = {
   mixed: "border-verdict-mixed/40 text-verdict-mixed",
   care: "border-verdict-bad/40 text-verdict-bad",
   contested: "border-dashed border-verdict-mixed/60 text-verdict-mixed",
+  descriptive: "border-border text-muted-foreground",
   quiet: "border-border text-muted-foreground",
 };
 
@@ -977,9 +978,9 @@ function AreaSection({
           </Badge>
         </h3>
         <span className="text-xs text-muted-foreground">
-          <Term k="karaka">karaka</Term>{" "}
+          <Term k="karaka">{area === "family" ? "karakas" : "karaka"}</Term>{" "}
           {areaKarakaLabel(area, gender as Gender)}
-          {full && (
+          {full && s.tone !== "descriptive" && (
             <span className="tabular">
               {" "}
               · balance {s.balance > 0 ? "+" : ""}
@@ -1364,19 +1365,18 @@ function Reading({
           className="text-xs text-muted-foreground"
           data-testid="text-plain-note"
         >
-          Each area opens with the balance of what the Nadi rules say, then the
-          two or three signatures that carry it. "Show the working" lists every
-          rule that fired, with its source.
+          Each area opens with selected Nadi interpretations. Family members are
+          read separately. "Show the working" lists the findings and sources.
         </p>
       )}
-      <p
-        className="text-xs leading-relaxed text-muted-foreground"
-        data-testid="text-grade-note"
-      >
-        {GRADE_NOTE} {DIRECTION_NOTE}
-        {(chart.timeUncertaintyMin ?? 0) > 0 &&
-          ` The birth time is taken as ±${chart.timeUncertaintyMin} minutes; lines whose direction or bond changes inside that band say so.`}
-      </p>
+      <details className="text-xs leading-relaxed text-muted-foreground" open={mode !== "plain"}>
+        <summary className="cursor-pointer font-medium">How the grades and directions work</summary>
+        <p className="mt-2" data-testid="text-grade-note">
+          {GRADE_NOTE} {DIRECTION_NOTE}
+          {(chart.timeUncertaintyMin ?? 0) > 0 &&
+            ` The birth time is taken as ±${chart.timeUncertaintyMin} minutes; lines whose direction or bond changes inside that band say so.`}
+        </p>
+      </details>
 
       {areas.map((s) => (
         <AreaSection

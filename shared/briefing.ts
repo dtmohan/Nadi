@@ -791,7 +791,7 @@ function signNotes(result: ChartResult, sign: number, plain: boolean, held: (a: 
 
 const DIGNITY_WORD: Record<string, string> = {
   Exalted: "exalted",
-  Moolatrikona: "in its moolatrikona",
+  Moolatrikona: "in its moolatrikona sign",
   "Own sign": "in its own sign",
   Friendly: "in a friend's sign",
   Neutral: "in a neutral sign",

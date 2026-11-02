@@ -13,7 +13,7 @@ import { validateEvents } from "../server/validate";
 
 type PublicCase = { name: string; category: string; birthQuality: string; birthSource: string;
   chart: InsertChart; events: Array<ChartEvent & { sources: string[] }> };
-const fixture = "scripts/fixtures/event-score-fresh.json";
+const fixture = process.argv[2] ?? "scripts/fixtures/event-score-fresh.json";
 const input = JSON.parse(readFileSync(fixture, "utf8")) as { protocol: string; cases: PublicCase[] };
 const asOf = "2026-11-01T12:00:00.000Z";
 const normalize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
@@ -82,7 +82,9 @@ const results = input.cases.map((c) => {
 });
 const files = [fixture, input.protocol, "scripts/eval-qualified-event-fresh.ts", "shared/qualified-event-scores.ts",
   "shared/kp-event-natal-rules.ts", "shared/parashari-divisional.ts", "shared/parashari-event-natal-rules.ts", "shared/alp-event-evidence.ts",
-  "shared/rectify-methods.ts", "server/validate.ts", "server/rectify.ts"];
+  "shared/kp.ts", "shared/planet-context.ts", "shared/planet-dignity.ts", "shared/parashari.ts", "shared/parashari-dasa.ts",
+  "shared/rectify-methods.ts", "shared/parashari-score-aggregation.ts", "shared/parashari-comparison.ts",
+  "server/ephemeris.ts", "server/additional-school-events.ts", "server/parashari-event.ts", "server/validate.ts", "server/rectify.ts"];
 const hash = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
 console.log(JSON.stringify({ protocol: input.protocol, hashes: Object.fromEntries(files.map((f) => [f, hash(f)])),
   warning: "Small public convenience sample; scores and controls do not verify reported times or test whether astrology predicts events. Top intervals use midpoint sampling; controls are not known non-events.", results }, null, 2));

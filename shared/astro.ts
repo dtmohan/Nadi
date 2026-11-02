@@ -305,13 +305,16 @@ export function fmtDegShort(lon: number): string {
   return `${deg}°${String(min).padStart(2, "0")}'`;
 }
 
-export function dignityOf(planet: Planet, signIndex: number, degInSign: number): Dignity {
+/** Historical sign-level single label used by several schools. It cannot
+ * express overlapping BPHS exaltation-sign and degree-bounded moolatrikona
+ * facts; use bphsDignityContext when a degree-specific rule requires them. */
+export function dignityOf(planet: Planet, signIndex: number, _degInSign: number): Dignity {
   if (planet === "Rahu" || planet === "Ketu") return "—";
   const ex = EXALTATION[planet]!;
   if (signIndex === ex.sign) return "Exalted";
   if (signIndex === (ex.sign + 6) % 12) return "Debilitated";
   if (MOOLATRIKONA[planet] === signIndex) {
-    // Moolatrikona is degree-bounded; keep simple: treat whole sign as MT for Sun/Mars etc. except Moon (3-30 Taurus)
+    // This legacy sign-level label does not assert the degree lies in the BPHS range.
     return "Moolatrikona";
   }
   if (OWN_SIGNS[planet]?.includes(signIndex)) return "Own sign";

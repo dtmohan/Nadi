@@ -901,6 +901,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
             </p>
           </div></>}
 
+          {!gulika && <p className="mt-2 text-xs text-muted-foreground">Natal Gulika / Mandi is unavailable when the required sunrise or sunset cannot be computed.</p>}
           {gulika && (
             <div
               className="mt-2 rounded-md border bg-card p-3"

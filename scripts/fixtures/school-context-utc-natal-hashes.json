@@ -1,0 +1,30 @@
+{
+  "referenceCommit": "12891291f6df0096fd8bb3f580c70d9e7e2ccc0c",
+  "description": "UTC natal projections of three synthetic charts computed independently from the archived pre-PlanetContext revision; numeric values canonicalized to 12 significant digits. Time-period output and the later ALP timeline corrections are tested separately.",
+  "hashes": [
+    {
+      "bnn": "d7366963dc6bdccb8e0bba63d1e003a610e28d89ab91ea443d219ce270892614",
+      "jaimini": "83bf30634033f69f1fbd7e8db64febcb6c3e01c60ebd4b5bc0d302a39956cb36",
+      "parashari": "af969912a911b1fc52f8f7f922a80210ac5f34a01631127781ceeff985323ec2",
+      "kp": "d2f9322fc77606372c8a1b230affeeae803b075484161cb39abab49d16ed3cbd",
+      "alp": "163b3f11fbed521cad16481890ea45f9677576adc7ee752e2ded44ffe24a21b8",
+      "prasna": "7a224040328df763dec3f2c3bdb17b5fe251f61d51605b00a6845e194e726e26"
+    },
+    {
+      "bnn": "a226187fc7d9bfdfc94643ec931174818456a9b02d5dd65fc27da221f04b565b",
+      "jaimini": "db6473becd4afa68be8a160580f15419f3030932a816391fc90a2cae6922b591",
+      "parashari": "d15d22c0ac917470ef61f84eeba3d5be8283c8a39be82e8e1b6e3b57a4c233e0",
+      "kp": "2e3f08f57a82e0fd76e255604b269eb27d36e6173b624af6e2d256a6acd42e0d",
+      "alp": "a73cb9c261d5196f28ab37734dac031cdda902add02782895d1a9e7e57d3de17",
+      "prasna": "5e907206b882077fb99a0dc211ba11aad9d03e1580c1db82cde9fda00e7cd8c1"
+    },
+    {
+      "bnn": "01eec48f4276943532a44d2210e30f6e33692cf06df0efe10fa98faa215c9be4",
+      "jaimini": "08a74cc9ecf38a86d8112ce8d9107abc8d2e4c917e7848b7e8734c12b9d6dcc8",
+      "parashari": "f4ea9f24766f46f9b000951d7949044c692e2d18d46d72695e79cd77567832fd",
+      "kp": "7e0c603f24811996e8d9f8ef014afef06b4cd6ed6dbdb5433bec30cf780fc58f",
+      "alp": "3ae3c8b7373b31c56461df28b98febd474cf52ee284b7438b96609e0568238af",
+      "prasna": "f44c472ffac2c5c902799379bf973a1e64f520faf2fba352cf8309629c2f4912"
+    }
+  ]
+}

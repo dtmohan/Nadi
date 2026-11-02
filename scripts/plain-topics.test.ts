@@ -91,6 +91,25 @@ test("a career difficulty is attributed to its source finding, not to an occupat
   assert.doesNotMatch(plain.details?.join(" ") ?? "", /yet engineering/);
 });
 
+test("family summaries keep different people separate without a combined verdict", () => {
+  const mk = (ruleId: string, text: string, planets: Finding["planets"]): Finding => ({
+    ruleId, area: "family", score: 2, planets, relation: "conjunct", viaRetro: false, text,
+  });
+  const findings = [mk("father", "Sun with Saturn: father faces hardship; the family bears the burden.", ["Sun", "Saturn"]),
+    mk("mother", "Moon with Jupiter: nurturing, wise mother.", ["Moon", "Jupiter"]),
+    mk("sibling", "Mars with Jupiter: supportive siblings.", ["Mars", "Jupiter"])];
+  const family = synthesize(result.reading, "male", findings).find((a) => a.area === "family")!;
+  assert.equal(family.tone, "descriptive");
+  assert.equal(family.contest, undefined);
+  assert.deepEqual([...family.key, ...family.rest].map((f) => f.ruleId).sort(), ["father", "mother", "sibling"]);
+  const plain = plainTopicNatal("family", family, result.reading);
+  assert.match(plain.details?.join(" ") ?? "", /Father:.*Mother:.*Siblings:/);
+  assert.ok(!plain.details?.some((detail) => detail.startsWith("Family:")), "a father's finding is not repeated as a separate family finding");
+  assert.match(plain.limit, /not a combined verdict/);
+  // Parent-specific synthesis is still available to the agreement view.
+  assert.notEqual(synthesizeArea("family", [findings[0]], result.reading, "male").tone, "descriptive");
+});
+
 test("career themes do not turn a rule's work or identity wording into a certainty", () => {
   const mk = (ruleId: string, text: string, planets: Finding["planets"]): Finding => ({
     ruleId, area: "career", score: 2, planets, relation: "conjunct", viaRetro: false, text,
@@ -168,8 +187,9 @@ test("plain family themes do not make a medical claim about a parent", () => {
   const area = areas.find((a) => a.area === "family")!;
   const family = { ...area, key: [{ ...area.key[0], text: "Moon with Rahu: mother's health or circumstances are unusual." }] };
   const plain = plainTopicNatal("family", family, result.reading);
-  assert.match(plain.details?.[0] ?? "", /cannot assess a parent's health/);
-  assert.doesNotMatch(plain.details?.[0] ?? "", /health .*unusual/i);
+  const mother = plain.details?.find((detail) => detail.startsWith("Mother:")) ?? "";
+  assert.match(mother, /cannot assess a parent's health/);
+  assert.doesNotMatch(mother, /health .*unusual/i);
   assert.match(family.key[0].text, /health or circumstances are unusual/);
 });
 

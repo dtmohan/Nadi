@@ -24,8 +24,9 @@ random-date sets. For example, `node --import tsx scripts/benchmark-rectify.ts 1
 --quick` took 0.61 s for this same local ±10-minute workload, versus 1.98 s for
 a full scan in a neighboring run. The quick response was 6.57 MB uncompressed;
 the full response was 12.51 MB. These are individual samples, not guarantees.
-The default remains a full scan; quick scans and their exported reports clearly
-state that comparisons were skipped. Use a full scan or Validate a selected
+The Rectify interface now defaults to a quick scan; API requests that omit the
+comparison option remain full scans for backward compatibility. Quick scans
+and their exported reports clearly state that comparisons were skipped. Use a full scan or Validate a selected
 candidate when a random-date comparison is needed. A parity test compares all
 candidate fields in quick and full scans after removing comparison data.
 

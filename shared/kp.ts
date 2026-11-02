@@ -491,9 +491,15 @@ export function vimshottari(
   birthIso: string,
   asOfIso: string,
 ): Vimshottari {
-  const birth = DateTime.fromISO(birthIso);
-  const asOf = DateTime.fromISO(asOfIso);
-  const age = (iso: DateTime) => iso.diff(birth, "days").days / YEAR_DAYS;
+  // Period lengths are elapsed 365.25-day years, not local calendar days.
+  // Parse the instants into UTC so DST and the reader's device zone cannot
+  // alter the displayed periods relative to the event-scoring arithmetic.
+  const birth = DateTime.fromISO(birthIso, { zone: "utc" });
+  const asOf = DateTime.fromISO(asOfIso, { zone: "utc" });
+  if (!birth.isValid || !asOf.isValid || asOf < birth)
+    throw new RangeError("Vimshottari requires valid instants at or after birth");
+  const birthMs = birth.toMillis(), asOfMs = asOf.toMillis();
+  const DAY = 86400000;
   const quarter = zodiacQuarter(moonLon);
   const nak = quarter.starIndex;
   const lord = NAKSHATRA_LORD[nak];
@@ -505,8 +511,8 @@ export function vimshottari(
   const mk = (
     level: KpPeriod["level"],
     l: Planet,
-    s: DateTime,
-    e: DateTime,
+    s: number,
+    e: number,
     dasaLord: Planet,
     bhuktiLord?: Planet,
   ): KpPeriod => ({
@@ -514,41 +520,66 @@ export function vimshottari(
     lord: l,
     dasaLord,
     bhuktiLord,
-    start: s.toISO()!,
-    end: e.toISO()!,
-    ageStart: age(s),
-    ageEnd: age(e),
-    current: asOf >= s && asOf < e,
+    // At millisecond precision a half-open interval starts at the first
+    // integer millisecond at or after the unrounded mathematical boundary.
+    start: DateTime.fromMillis(Math.ceil(s), { zone: "utc" }).toISO()!,
+    end: DateTime.fromMillis(Math.ceil(e), { zone: "utc" }).toISO()!,
+    ageStart: (s - birthMs) / DAY / YEAR_DAYS,
+    ageEnd: (e - birthMs) / DAY / YEAR_DAYS,
+    current: asOfMs >= s && asOfMs < e,
   });
 
   const dasas: KpPeriod[] = [];
   const bhuktis: KpPeriod[] = [];
-  let t = birth;
-  // First dasa runs from before birth so the bhuktis are prorated the same way as the balance.
-  const firstStart = birth.minus({
-    days: (VIMSHOTTARI_YEARS[lord] - balance) * YEAR_DAYS,
-  });
-  for (let i = 0; i < 9; i++) {
+  // Use the same elapsed-time arithmetic and cycle origins as the fast event
+  // lookup. Retain fractional milliseconds internally until an ISO is emitted.
+  const firstStart = birthMs - VIMSHOTTARI_YEARS[lord] * frac * YEAR_DAYS * DAY;
+  const cycleDays = 120 * YEAR_DAYS;
+  let cycleStart = firstStart, t = firstStart;
+  let currentBhukti: { start: number; end: number; days: number; lord: Planet; dasaLord: Planet } | undefined;
+  // Nine lords from the start of the first dasa cover less than 120 years
+  // after birth when that first period began before birth. Include the next
+  // period, and continue as needed for an explicitly later reading instant.
+  const minimumEnd = birthMs + cycleDays * DAY;
+  for (let i = 0; i < 9 || t < minimumEnd || t <= asOfMs; i++) {
+    if (i > 0 && i % 9 === 0) {
+      cycleStart += cycleDays * DAY;
+      t = cycleStart;
+    }
     const dl = order[(idx + i) % 9];
-    const s = i === 0 ? firstStart : t;
-    const e = s.plus({ days: VIMSHOTTARI_YEARS[dl] * YEAR_DAYS });
-    dasas.push(mk("dasa", dl, i === 0 ? birth : s, e, dl));
+    const s = t;
+    const dasaDays = cycleDays * VIMSHOTTARI_YEARS[dl] / 120;
+    const e = i % 9 === 8 ? cycleStart + cycleDays * DAY : s + dasaDays * DAY;
+    dasas.push(mk("dasa", dl, Math.max(birthMs, s), e, dl));
     let bt = s;
     for (let j = 0; j < 9; j++) {
       const bl = order[(order.indexOf(dl) + j) % 9];
-      const be = bt.plus({
-        days: (VIMSHOTTARI_YEARS[dl] * VIMSHOTTARI_YEARS[bl] * YEAR_DAYS) / 120,
-      });
-      if (be > birth)
-        bhuktis.push(mk("bhukti", bl, bt < birth ? birth : bt, be, dl, bl));
+      const bhuktiDays = dasaDays * VIMSHOTTARI_YEARS[bl] / 120;
+      const be = j === 8 ? e : bt + bhuktiDays * DAY;
+      if (be > birthMs) {
+        const b = mk("bhukti", bl, Math.max(bt, birthMs), be, dl, bl);
+        bhuktis.push(b);
+        if (b.current) currentBhukti = { start: bt, end: be, days: bhuktiDays, lord: bl, dasaLord: dl };
+      }
       bt = be;
     }
     t = e;
   }
-  const dasa = dasas.find((d) => d.current) ?? dasas[dasas.length - 1];
-  const bhukti = bhuktis.find((b) => b.current) ?? bhuktis[bhuktis.length - 1];
-  const antaras = antarasOf(bhukti, birth, asOf);
-  const antara = antaras.find((a) => a.current) ?? antaras[0];
+  const dasa = dasas.find((d) => d.current);
+  const bhukti = bhuktis.find((b) => b.current);
+  if (!dasa || !bhukti) throw new Error("Could not find the current Vimshottari period");
+  if (!currentBhukti) throw new Error("Could not find the current Vimshottari sub-period origin");
+  const antaras: KpPeriod[] = [];
+  let at = currentBhukti.start;
+  const ai = order.indexOf(currentBhukti.lord);
+  for (let k = 0; k < 9; k++) {
+    const al = order[(ai + k) % 9];
+    const end = k === 8 ? currentBhukti.end : at + (currentBhukti.days * VIMSHOTTARI_YEARS[al] / 120) * DAY;
+    if (end > birthMs) antaras.push(mk("antara", al, Math.max(at, birthMs), end, currentBhukti.dasaLord, currentBhukti.lord));
+    at = end;
+  }
+  const antara = antaras.find((a) => a.current);
+  if (!antara) throw new Error("Could not find the current Vimshottari sub-period");
   return {
     balanceYears: balance,
     dasas,
@@ -624,7 +655,7 @@ export function antarasOf(
   // Reconstruct the full bhukti span (the first bhukti may have been clipped at birth).
   const fullDays =
     (VIMSHOTTARI_YEARS[dl] * VIMSHOTTARI_YEARS[bl] * YEAR_DAYS) / 120;
-  const end = DateTime.fromISO(bhukti.end);
+  const end = DateTime.fromISO(bhukti.end, { zone: "utc" });
   let t = end.minus({ days: fullDays });
   const idx = VIMSHOTTARI_ORDER.indexOf(bl);
   for (let k = 0; k < 9; k++) {
@@ -677,8 +708,8 @@ export function jointPeriods(
   asOfIso: string,
   yearsAhead = 30,
 ): JointPeriod[] {
-  const birth = DateTime.fromISO(birthIso);
-  const asOf = DateTime.fromISO(asOfIso);
+  const birth = DateTime.fromISO(birthIso, { zone: "utc" });
+  const asOf = DateTime.fromISO(asOfIso, { zone: "utc" });
   const limit = asOf.plus({ days: yearsAhead * YEAR_DAYS });
   const hit = (p: Planet) =>
     (sig.get(p) ?? []).filter((h) => houses.includes(h));

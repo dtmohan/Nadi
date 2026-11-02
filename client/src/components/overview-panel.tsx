@@ -46,6 +46,7 @@ const TONE_CLASS: Record<AreaTone, string> = {
   mixed: "border-verdict-mixed/40 text-verdict-mixed",
   care: "border-verdict-bad/40 text-verdict-bad",
   contested: "border-dashed border-verdict-mixed/60 text-verdict-mixed",
+  descriptive: "border-border text-muted-foreground",
   quiet: "border-border text-muted-foreground",
 };
 
@@ -168,7 +169,7 @@ export function OverviewPanel({
       : d === "Inimical"
         ? "in inimical sign"
         : d === "Moolatrikona"
-          ? "in moolatrikona"
+          ? "in the moolatrikona sign"
           : d.toLowerCase();
   const noteParts: string[] = [];
   if (retro.length) noteParts.push(`${joinList(retro)} ${t("retrograde")}`);
@@ -354,9 +355,9 @@ export function OverviewPanel({
           {topics.some((topic) => topic.topic !== "career" && topic.topic !== "marriage") && (
             <details className="mt-4 rounded-md border" data-testid="plain-more-topics">
               <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">{t("More life topics")}</summary>
-              <div className="grid grid-cols-2 items-start gap-2 border-t p-3 lg:grid-cols-3">
+              <div className="grid grid-cols-1 items-start gap-2 border-t p-3 md:grid-cols-2 xl:grid-cols-3">
                 {topics.filter((topic) => topic.topic !== "career" && topic.topic !== "marriage").map((topic) => (
-                  <details key={topic.topic} className="min-w-0 scroll-mt-24 rounded-md border p-3 open:col-span-2 lg:open:col-span-3" data-testid={`overview-area-${topic.topic}`}>
+                  <details key={topic.topic} className="min-w-0 scroll-mt-24 rounded-md border p-3" data-testid={`overview-area-${topic.topic}`}>
                     <summary className="cursor-pointer text-sm font-semibold">{t(PLAIN_TOPIC_LABEL[topic.topic])}</summary>
                     <PlainTopicContent topic={topic} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} />
                   </details>

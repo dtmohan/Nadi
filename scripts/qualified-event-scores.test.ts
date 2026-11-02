@@ -90,6 +90,26 @@ test("missing sampled eligibility is never counted as a zero", () => {
   assert.deepEqual(qualifiedTotals([{}, assessed], "alp"), { score: 0, max: 1 });
 });
 
+test("registered natal conditions count once per candidate and matter while event timing remains per date", () => {
+  const child: QualifiedEventScores = { parashari: { score: 3, max: 4, conditions: [
+    { id: "d1-support", label: "D1", status: "matched", oncePerCandidate: "parashari:child:D7:d1-support" },
+    { id: "pa-h5-16-16", label: "Fifth-lord clue", status: "matched", oncePerCandidate: "parashari:child:rashi:pa-h5-16-16" },
+    { id: "dasa", label: "Dasa", status: "matched" },
+    { id: "bhukti", label: "Bhukti", status: "unresolved" },
+  ] } };
+  const second: QualifiedEventScores = { parashari: { ...child.parashari!, score: 2,
+    conditions: child.parashari!.conditions.map((c) => c.id === "dasa" ? { ...c, status: "unresolved" as const } : c) } };
+  assert.deepEqual(qualifiedTotals([child, second], "parashari"), { score: 3, max: 6 });
+  assert.ok(qualifiedComparable([child, second], [second, child], "parashari"));
+  const conflict = { parashari: { ...second.parashari!, conditions: second.parashari!.conditions.map((c) =>
+    c.id === "d1-support" ? { ...c, status: "unresolved" as const } : c) } };
+  assert.throws(() => qualifiedTotals([child, conflict], "parashari"), /Inconsistent natal condition/);
+  const otherMatter = { parashari: { ...child.parashari!, conditions: child.parashari!.conditions.map((c) =>
+    c.oncePerCandidate ? { ...c, oncePerCandidate: c.oncePerCandidate.replace("child", "marriage") } : c) } };
+  assert.deepEqual(qualifiedTotals([child, otherMatter], "parashari"), { score: 6, max: 8 });
+  assert.equal(qualifiedComparable([child], [otherMatter], "parashari"), false);
+});
+
 test("the registered children and ALP findings change only their own eligible source-scoped counts", () => {
   const child = topicReading(base, events[1], asOf);
   assert.ok(child.parashariDivisional && child.parashariOrdinary);

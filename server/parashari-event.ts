@@ -7,6 +7,7 @@ import { parashariPromiseCheck, type ParashariPromiseCheck } from "@shared/paras
 import { parashariSpecificCheck, type ParashariSpecificCheck } from "@shared/parashari-specific";
 import { parashariDivisionalCheck, type ParashariDivisionalCheck } from "@shared/parashari-divisional";
 import { stagedObservation, type ParashariObservation } from "@shared/parashari-comparison";
+import { parashariLegacyScore } from "@shared/parashari-score-aggregation";
 import { createParashariHierarchyScorer, type HierarchyEvent } from "@shared/parashari-hierarchy";
 import { functionalObservation } from "@shared/parashari-functional";
 import { conditionalObservations } from "@shared/parashari-conditional";
@@ -33,6 +34,8 @@ export interface ParashariEventResult {
 
 export function parashariObservation(result: ParashariEventResult, outcome?: ParashariEventInput["outcome"]): ParashariObservation {
   return { v1: result.promise?.score, v2: result.specific?.score, v3: result.divisional?.score,
+    v1Details: parashariLegacyScore(result.promise), v2Details: parashariLegacyScore(result.specific),
+    v3Details: parashariLegacyScore(result.divisional),
     staged: stagedObservation(result.manley), hierarchy: result.hierarchy?.passes, crossTiming: result.hierarchy?.crossChart?.timing,
     functional: functionalObservation(result.manley, outcome), conditional: conditionalObservations(result.manley, outcome) };
 }

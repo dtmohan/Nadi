@@ -79,6 +79,7 @@ import {
   positionsAt,
   positionsLite,
   shadbalaBase,
+  whenSolarEventAvailable,
   planetLonAt,
   ascendantAt,
   cuspsAt,
@@ -88,6 +89,7 @@ import {
 import { SIGNS, SIGN_LORD } from "@shared/astro";
 import { additionalSchoolEvents } from "./additional-school-events";
 import { createAlpEventScorer } from "@shared/alp-event-evidence";
+import { alpLonAt, alpPointAt, alpRate, DEFAULT_ALP_CONFIG } from "@shared/alp";
 import { qualifiedEventScores, qualifiedComparable, qualifiedTotals, QUALIFIED_SCORE_KEYS, type QualifiedEventScores, type QualifiedScoreKey } from "@shared/qualified-event-scores";
 import { EVENT_MATTERS } from "@shared/events";
 import { dashaFitAt } from "@shared/jaimini-areas";
@@ -512,6 +514,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
     // V2 childbirth additionally checks the D9 sign of the fifth lord from Jupiter.
     ...(vargaEvents.some(({ event }) => event.matter === "child") ? ["D9" as const] : []),
   ]));
+  const alpMarriageTimes = req.events.flatMap((event, i) => event.matter === "marriage" ? [eventMilliseconds[i]] : []);
+  const alpDegreesPerDay = alpRate(DEFAULT_ALP_CONFIG);
   const keyAt = (jd: number) => {
     const cusps = cuspsAt(jd, chart.latitude, chart.longitude, opts);
     const positions = positionsLite(jd, opts);
@@ -539,6 +543,20 @@ export function rectify(req: RectifyRequest): RectifyResult {
           chartPositions.find((p) => p.planet === SIGN_LORD[(chartLagna + 6) % 12])!.lon,
         ) / 30)
       : -1;
+    // The ALP marriage clue uses the progressed sign and the navamsa of its
+    // current pada. These boundaries move with each event date and need not
+    // coincide with a natal KP or divisional boundary.
+    const alpFrame = alpMarriageTimes.map((eventMs) => {
+      if (eventMs < instantMs) return "before-birth";
+      const start = DEFAULT_ALP_CONFIG.start === "sign" ? Math.floor(chartAsc / 30) * 30 : chartAsc;
+      const quick = norm360(start + alpDegreesPerDay * (eventMs - instantMs) / 86400000);
+      const pada = quick / (360 / 108);
+      const lon = Math.abs(pada - Math.round(pada)) < 1e-7
+        ? alpLonAt(chartAsc, utcAtJulianDay(jd), DateTime.fromMillis(eventMs, { zone: "utc" }), DEFAULT_ALP_CONFIG)
+        : quick;
+      const point = alpPointAt(lon);
+      return `${point.signIndex}:${point.nakshatraIndex}:${point.pada}:${point.navamsaSign}`;
+    });
     return [
       lagnaKey(cusps[0]),
       Math.floor(chartAsc / 10),
@@ -556,6 +574,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       ...(chartMoon && chartSun ? [norm360(chartMoon.lon - chartSun.lon) < 180 ? "waxing" : "waning"] : []),
       ...vargaFrame,
       marriageSaham,
+      ...alpFrame,
       ...(chartMoon ? vargaEvents.map(({ i }) => vimshottariLordsAtMs(chartMoon.lon, instantMs, eventMilliseconds[i]).join(":")) : []),
       ...(chartMoon ? manleyEvents.map(({ i }) => vimshottariLordsAtMs(chartMoon.lon, instantMs, eventMilliseconds[i]).join(":")) : []),
     ].join("|");
@@ -668,7 +687,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       ayanamsa: optsJ.ayanamsa, nodeType: optsJ.nodeType, sunrise: chart.sunriseDef || "edge",
       houseMethod: chart.parashariHouseMethod || "rashi", ascendant: lagnaJ, division: "D1", precision: "full" });
     const parashariNatal = computeParashariNatal(natalContext, lagnaJ, birthIso, lifeAsOf(chart, readingAsOf),
-      shadbalaBase(mid, chart.latitude, chart.longitude, optsJ), DEFAULT_ASPECT_FLOOR,
+      whenSolarEventAvailable(() => shadbalaBase(mid, chart.latitude, chart.longitude, optsJ)), DEFAULT_ASPECT_FLOOR,
       sensitiveGate(chart, birthIso, readingAsOf).withheld, normaliseParashariHouseMethod(chart.parashariHouseMethod));
     const ordinary = createParashariNatalCatalogue(parashariNatal,
       (matter) => eventReadingAllowed(matter, birthIso, readingAsOf, chart));

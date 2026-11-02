@@ -84,6 +84,22 @@ function setMode(opts: EphemerisOptions) {
   sweph.set_sid_mode(AYANAMSA_MODE[opts.ayanamsa] ?? C.SE_SIDM_LAHIRI, 0, 0);
 }
 
+/** A daily rising/setting event does not exist at this date and location. */
+export class SolarEventUnavailableError extends Error {
+  constructor() {
+    super("A daily sunrise or sunset is unavailable at this date and latitude; sunrise-based calculations cannot be computed.");
+    this.name = "SolarEventUnavailableError";
+  }
+}
+
+/** Suppress only the known missing-sunrise case; do not mask other calculation errors. */
+export function whenSolarEventAvailable<T>(calculate: () => T): T | undefined {
+  try { return calculate(); } catch (error) {
+    if (error instanceof SolarEventUnavailableError) return undefined;
+    throw error;
+  }
+}
+
 export function localToUtc(date: string, time: string, zone: string): DateTime {
   const dt = DateTime.fromISO(`${date}T${time}`, { zone });
   if (!dt.isValid)
@@ -115,7 +131,10 @@ export function birthInstant(chart: {
   return { utc: birthUtc(chart.birthDate, chart.birthTime, basis), basis };
 }
 
-export function julianDay(utc: DateTime): number {
+export function julianDay(instant: DateTime): number {
+  // Swiss Ephemeris expects UTC fields, regardless of the caller's display zone.
+  const utc = instant.toUTC();
+  if (!utc.isValid) throw new Error(`Invalid instant: ${utc.invalidExplanation}`);
   const r = sweph.utc_to_jd(
     utc.year,
     utc.month,
@@ -454,7 +473,7 @@ export function ascendantAt(
     flag: number;
     data: { houses: number[]; points: number[] };
   };
-  if (r.flag < 0) throw new Error("Could not compute the ascendant");
+  if (r.flag < 0) throw new Error("Placidus houses are unavailable at this latitude; Nadi cannot yet cast this complete chart.");
   return norm360(r.data.points[0]);
 }
 
@@ -476,7 +495,7 @@ export function cuspsAt(
     flag: number;
     data: { houses: number[]; points: number[] };
   };
-  if (r.flag < 0) throw new Error("Could not compute the Placidus cusps");
+  if (r.flag < 0) throw new Error("Placidus houses are unavailable at this latitude; Nadi cannot yet cast this complete chart.");
   return r.data.houses.slice(0, 12).map(norm360);
 }
 
@@ -502,6 +521,7 @@ export function sunriseBefore(
       1013.25,
       15,
     ) as unknown as { flag: number; data: number[] | number };
+    if (r.flag === -2) throw new SolarEventUnavailableError();
     if (r.flag < 0) throw new Error("Could not compute sunrise");
     return Array.isArray(r.data) ? r.data[0] : r.data;
   };
@@ -532,6 +552,7 @@ function riseOrSetAfter(
     1013.25,
     15,
   ) as unknown as { flag: number; data: number[] | number };
+  if (r.flag === -2) throw new SolarEventUnavailableError();
   if (r.flag < 0) throw new Error("Could not compute sunrise or sunset");
   return Array.isArray(r.data) ? r.data[0] : r.data;
 }
@@ -662,7 +683,7 @@ export function kpBase(
     flag: number;
     data: { houses: number[]; points: number[] };
   };
-  if (r.flag < 0) throw new Error("Could not compute the Placidus cusps");
+  if (r.flag < 0) throw new Error("Placidus houses are unavailable at this latitude; Nadi cannot yet cast this complete chart.");
   const cusps = r.data.houses.slice(0, 12).map(norm360);
   return {
     ayanamsaValue: ayanamsaAt(jd, opts),
@@ -793,12 +814,8 @@ export function judgementNow(
   const instant = asOf ? DateTime.fromISO(asOf, { setZone: true }).toUTC() : DateTime.utc();
   if (!instant.isValid) throw new Error("Invalid judgment instant");
   const nj = julianDay(instant);
-  let weekday: number;
-  try {
-    weekday = weekdayOf(sunriseBefore(nj, latitude, longitude), zone);
-  } catch {
-    weekday = weekdayOf(nj, zone);
-  }
+  // KP's weekday is a sunrise-based day, not a civil-midnight substitute.
+  const weekday = weekdayOf(sunriseBefore(nj, latitude, longitude), zone);
   return {
     asOf: instant.toISO()!,
     positions: positionsAt(nj, opts),

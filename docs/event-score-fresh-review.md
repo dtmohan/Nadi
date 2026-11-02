@@ -1,5 +1,10 @@
 # Fresh source-scoped event-score evaluation
 
+**Historical result:** These figures were generated before the 2026-11-02
+correction that counts repeated date-independent natal clues once per candidate
+and matter. They do not validate the revised totals; see
+[the reliability recheck](reliability-recheck.md) for the corrected analysis.
+
 This is a small public convenience sample, not a test establishing that astrology
 predicts events or that an algorithm can determine an unrecorded birth time. The
 [protocol](event-score-integration-protocol.md) and

@@ -9,6 +9,7 @@ import { rasiAspects } from "./jaimini-core";
 import { directedSignRelation, type DirectedPointRelation } from "./point-relations";
 import type { ChartResult } from "./schema";
 import { nakshatraContext, naikSolarContact, type NakshatraContext } from "./nakshatra-context";
+import { bphsDignityContext, type BphsDignityContext } from "./planet-dignity";
 
 export interface PlanetFrame {
   kind: "natal" | "divisional" | "transit" | "question" | "unspecified";
@@ -33,6 +34,8 @@ export interface PlanetFacts {
   readonly planet: Planet;
   /** Legacy position fields include Nadi-specific dignity/combustion interpretations; they are not universal. */
   readonly position: Readonly<PlanetPosition>;
+  /** Separate BPHS sign and degree facts; no cross-school interpretation is implied. */
+  readonly bphsDignity?: Readonly<BphsDignityContext>;
   /** Descriptive D1 longitude geometry and Sutton-labelled tags, in this frame's ayanamsa. */
   readonly nakshatra: Readonly<NakshatraContext>;
   /** Naik's same-pada solar condition and the former angular-distance diagnostic. */
@@ -68,7 +71,8 @@ export function createPlanetContext(positions: readonly PlanetPosition[], frame:
     if (byId.has(position.planet)) throw new Error(`Duplicate planet ${position.planet} in a chart frame`);
     if (!Number.isInteger(position.signIndex) || position.signIndex < 0 || position.signIndex > 11)
       throw new Error(`Invalid sign for ${position.planet}`);
-    const record = Object.freeze({ planet: position.planet, position, nakshatra: nakshatraContext(position.lon),
+    const dignity = bphsDignityContext(position.planet, position.signIndex, position.degInSign);
+    const record = Object.freeze({ planet: position.planet, position, bphsDignity: dignity ? Object.freeze(dignity) : undefined, nakshatra: nakshatraContext(position.lon),
       naikSolarContact: sun ? naikSolarContact(position.planet, position.lon, sun.lon) : undefined,
       sameSign: Object.freeze(snapshot.filter((other) => other.planet !== position.planet && other.signIndex === position.signIndex).map((p) => p.planet)),
       wholeSignHouse: frameSnapshot.ascendant === undefined ? undefined : houseFrom(Math.floor(((frameSnapshot.ascendant % 360) + 360) % 360 / 30), position.signIndex),

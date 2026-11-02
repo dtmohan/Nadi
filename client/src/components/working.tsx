@@ -88,7 +88,7 @@ export function Expander({
           <span>
             {open && openLabel ? openLabel : label}
             {count !== undefined ? (
-              <span className="tabular font-normal text-muted-foreground/80">
+              <span className="tabular font-normal text-muted-foreground">
                 {" "}
                 ({count})
               </span>

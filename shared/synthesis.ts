@@ -20,6 +20,7 @@ export type AreaTone =
   | "mixed"
   | "care"
   | "contested"
+  | "descriptive"
   | "quiet";
 
 export const AREA_TONE_LABEL: Record<AreaTone, string> = {
@@ -27,6 +28,7 @@ export const AREA_TONE_LABEL: Record<AreaTone, string> = {
   mixed: "Mixed",
   care: "Needs care",
   contested: "Contested",
+  descriptive: "Separate themes",
   quiet: "Lightly marked",
 };
 
@@ -255,6 +257,7 @@ function headlineFor(
     mixed: "A mixed picture.",
     care: "Asks for care.",
     contested: "The strong rules disagree.",
+    descriptive: "Separate themes.",
     quiet: "Lightly marked.",
   };
   return `${lead[tone]} ${uc(gists[0])}${gists[1] ? `; ${gists[1]}` : ""}.`;
@@ -407,7 +410,14 @@ export function synthesize(
   for (const area of Object.keys(LIFE_AREAS) as LifeArea[]) {
     const items = findings.filter((f) => f.area === area);
     if (!items.length) continue;
-    out.push(synthesizeArea(area, items, reading, gender));
+    if (area === "family") {
+      // The umbrella combines statements about different people. Their
+      // weights cannot form one verdict or a contest with each other. Keep
+      // every original finding; parent-specific agreement remains separate.
+      const ordered = [...items].sort((a, b) => b.score - a.score);
+      out.push({ area, tone: "descriptive", headline: "These findings address parents, siblings and family separately; read each in its own context.",
+        key: ordered.slice(0, 3), rest: ordered.slice(3), coveredBy: {}, balance: 0, total: items.length });
+    } else out.push(synthesizeArea(area, items, reading, gender));
   }
   return out;
 }

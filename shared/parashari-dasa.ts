@@ -8,12 +8,14 @@ import {
   houseFrom,
   norm360,
   EXALTATION,
+  OWN_SIGNS,
   SIGN_LORD,
   SIGNS,
   type Planet,
   type PlanetPosition,
 } from "./astro";
 import { BPHS_URL, LAGNA_NATURE } from "./parashari-data";
+import { bphsDignityContext } from "./planet-dignity";
 import { zodiacQuarter } from "./zodiac-quarter";
 import type { Vimshottari } from "./kp";
 import { antarasOf, VIMSHOTTARI_ORDER, VIMSHOTTARI_YEARS } from "./kp";
@@ -314,7 +316,7 @@ interface Ctx {
   bala: (p: Planet) => PlanetShadbala | undefined;
   ishta: (p: Planet) => IshtaKashta | undefined;
   /** Where the dasa lord stands when its dasa begins (48.8), when the server supplied it. */
-  transitAtStart: (p: Planet) => DasaStartTransit | undefined;
+  transitAtStart: (p: Planet, start: string) => DasaStartTransit | undefined;
   /** Ashtakavarga of ch. 66-72, always available (needs only signs). */
   av: AshtakavargaResult | undefined;
 }
@@ -412,7 +414,7 @@ function makeCtx(
     yogakaraka,
     bala: (pl) => sb?.planets.find((x) => x.planet === pl),
     ishta: (pl) => sb?.ishta.find((x) => x.planet === pl),
-    transitAtStart: (pl) => starts?.find((x) => x.lord === pl),
+    transitAtStart: (pl, start) => starts?.find((x) => x.lord === pl && Date.parse(x.start) === Date.parse(start)),
     av,
   };
 }
@@ -734,7 +736,7 @@ const PLANET_RULES: Record<Planet, Rule[]> = {
       tone: "support",
       when: (c, p) =>
         c.dignity(p) === "Exalted" ||
-        c.dignity(p) === "Own sign" ||
+        (OWN_SIGNS[p]?.includes(c.pos(p).signIndex) ?? false) ||
         KENDRA.includes(c.houseOf(p)) ||
         TRINE.includes(c.houseOf(p)),
       text: (c, p) =>
@@ -743,7 +745,7 @@ const PLANET_RULES: Record<Planet, Rule[]> = {
     {
       verse: "81-82",
       tone: "support",
-      when: (c, p) => c.dignity(p) === "Moolatrikona",
+      when: (c, p) => bphsDignityContext(p, c.pos(p).signIndex, c.pos(p).degInSign)?.moolatrikona ?? false,
       text: () =>
         "Venus in moolatrikona (Libra 0-15): position, a house, children and grandchildren, a marriage in the family, recovery of what was lost.",
     },
@@ -1645,7 +1647,7 @@ export function computeDasaReadings(
       if (vn) notes.push(vn);
     }
     // 48.8: the lord's transit house when the dasa begins.
-    const tr = c.transitAtStart(p);
+    const tr = c.transitAtStart(p, d.start);
     if (tr) {
       const th = ((tr.signIndex - lagnaIdx + 12) % 12) + 1;
       const good = [1, 4, 5, 7, 9, 10].includes(th),
@@ -1758,7 +1760,8 @@ export function computeDasaReadings(
     const lean = leanOf(countedTones(notes));
 
     // Antars.
-    const bhuktis = vim.bhuktis.filter((b) => b.dasaLord === p);
+    const start = Date.parse(d.start), end = Date.parse(d.end);
+    const bhuktis = vim.bhuktis.filter((b) => b.dasaLord === p && Date.parse(b.start) >= start && Date.parse(b.start) < end);
     const antars: AntarReading[] = bhuktis.map((b) => {
       const bl = b.bhuktiLord ?? b.lord;
       const entry = ANTAR_DASA[p]?.[bl];

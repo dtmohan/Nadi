@@ -31,7 +31,7 @@ export function QualifiedComparisonPanel({ comparison, trials }: { comparison?: 
   if (!keys.length) return null;
   return <details className="mt-2 rounded border px-2 py-2 text-xs" data-testid="qualified-comparison">
     <summary className="cursor-pointer font-medium">Research checks on {trials ?? 200} comparison-date sets</summary>
-    <p className="text-muted-foreground">Each set applies the same conditions to the same eligible events. A natal condition can be counted again for each event; repeated points are not independent evidence. Dates are not verified non-events; mid-rank percentiles are exploratory.</p>
+    <p className="text-muted-foreground">Each set applies the same conditions to the same eligible events. Registered date-independent clues count once per candidate and matter; other conditions can still overlap. Dates are not verified non-events; mid-rank percentiles are exploratory.</p>
     {keys.map((key) => { const s = comparison![key]!; return <p key={key}>{LABEL[key]}: actual {s.actual}; comparison mean {s.mean}, spread {s.sd}; mid-rank {s.percentile}%.</p>; })}
   </details>;
 }

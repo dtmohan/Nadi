@@ -1,0 +1,5526 @@
+{
+  "protocol": "docs/reliability-recheck-protocol.md",
+  "hashes": {
+    "scripts/fixtures/reliability-fresh-cases.json": "77ac08c580a8ad68294e2058611d3c28c4b87676ecb2fbcb9376ff4e415b8452",
+    "docs/reliability-recheck-protocol.md": "62f5f0527d99b4de354cc4d99f94faba910c7060f72f0d573d9e82fd16e445af",
+    "scripts/eval-qualified-event-fresh.ts": "37abd5f022b792a333209bde491dc6b16263943b0166b6c32c5cb2e3a05e5b2c",
+    "shared/qualified-event-scores.ts": "67b21dd404023b0a74f5c71e91853bbe078bd99ed1cc6ec089705e858b95bd57",
+    "shared/kp-event-natal-rules.ts": "e1b55d53935b42bac029031e845f99d087b59d5165034411eb5672ef7913883c",
+    "shared/parashari-divisional.ts": "6780e20d4c26dbc5f1f6fb7cda88f66d1a0289bfa52056ae6314e8c33270d313",
+    "shared/parashari-event-natal-rules.ts": "93d1cb82e4688f4b3b4f6f796780505232bcb2aca4aa46c38ad9e4a19843c48d",
+    "shared/alp-event-evidence.ts": "d2b7388e1e95028a724e52770e6312c7231e1ffc0ccf793eaa4492600b2a1708",
+    "shared/kp.ts": "ecd2281e96ca0200b304c0f6f7dba81452a14e0506faf41b741f080174a04a88",
+    "shared/planet-context.ts": "3be2346c0723caaba25c1d7eab0e8b9ba95278522cfa79a77a248165d0009837",
+    "shared/planet-dignity.ts": "9c716d8a375e58f628ebdb7fa58c796de2ebaf0a275fd7d4663ba27b40119fc7",
+    "shared/parashari.ts": "e1a62ed487759bd2ef6f304576c3c2e2eb8d637838fcde9dda450e2d301b9e22",
+    "shared/parashari-dasa.ts": "23d1182bbb2799c66ccdf6e343a60c59be4a770bdc78d3586285b23e684427c1",
+    "shared/rectify-methods.ts": "bdf55ffed01b7ac8024403f2d72831c717533847e65c29ad683b113dff2b505d",
+    "shared/parashari-score-aggregation.ts": "de60b594275cc78b5f613b330c29ee635bb0a725773451a49f0d60e8b4a1fbd7",
+    "shared/parashari-comparison.ts": "b872401767cc23ac015f766ac01a7d42b36edf766ea74dc8dc88cc54413a2692",
+    "server/ephemeris.ts": "08b3b4aa6bdda179fcbe75330bb41f9fba30863e8f4fb5842778c1a7e8df1cef",
+    "server/additional-school-events.ts": "0388c6832ee12c655e168d1f1c1d138ba112f4473c1edb6fbbd2bfaa85e247fe",
+    "server/parashari-event.ts": "f60267fb3250010f78568ece9138e75fe6398f3fa4928dcd92a7c75ccd35006a",
+    "server/validate.ts": "25f66c7d8dbafd3ce15ced137935411188c3312d106a67d287afb0464a9dae6f",
+    "server/rectify.ts": "a169ed7aca0556fb4385049a00f3ebfe67b128f690ddac80c2c033fe860c1e1c"
+  },
+  "warning": "Small public convenience sample; scores and controls do not verify reported times or test whether astrology predicts events. Top intervals use midpoint sampling; controls are not known non-events.",
+  "results": [
+    {
+      "name": "Matthew McConaughey",
+      "category": "American actor",
+      "birthQuality": "Astro-Databank AA, birth certificate in hand; original not independently examined.",
+      "birthSource": "https://www.astro.com/astro-databank/McConaughey%2C_Matthew",
+      "reportedBirth": "1969-11-04 19:34 America/Chicago",
+      "midpoint": "1969-11-04 19:33:48",
+      "scanHalfWindowMinutes": 10,
+      "comparisons": {
+        "kp": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        },
+        "parashari": {
+          "actual": 14,
+          "mean": 14.3,
+          "sd": 1.9,
+          "percentile": 44,
+          "verdict": "chance"
+        },
+        "alp": {
+          "actual": 1,
+          "mean": 0.3,
+          "sd": 0.4,
+          "percentile": 87,
+          "verdict": "chance"
+        },
+        "bnn": {
+          "actual": 0,
+          "mean": 0,
+          "sd": 0,
+          "percentile": 50,
+          "verdict": "chance"
+        }
+      },
+      "rankings": [
+        {
+          "method": "kp-qualified",
+          "comparable": true,
+          "topScore": 10,
+          "max": 14,
+          "recordedSegmentScore": 0,
+          "recordedSegmentIsTop": false,
+          "topIntervals": 13,
+          "totalIntervals": 58,
+          "topCoveragePct": 23.3,
+          "comparison": {
+            "actual": 0,
+            "mean": 0,
+            "sd": 0,
+            "percentile": 50,
+            "verdict": "chance"
+          }
+        },
+        {
+          "method": "parashari-events-v4",
+          "comparable": true,
+          "topScore": 15,
+          "max": 29,
+          "recordedSegmentScore": 14,
+          "recordedSegmentIsTop": false,
+          "topIntervals": 5,
+          "totalIntervals": 58,
+          "topCoveragePct": 7.2,
+          "comparison": {
+            "actual": 14,
+            "mean": 14.3,
+            "sd": 1.9,
+            "percentile": 44,
+            "verdict": "chance"
+          }
+        },
+        {
+          "method": "alp-marriage",
+          "comparable": true,
+          "topScore": 1,
+          "max": 1,
+          "recordedSegmentScore": 1,
+          "recordedSegmentIsTop": true,
+          "topIntervals": 34,
+          "totalIntervals": 58,
+          "topCoveragePct": 54.7,
+          "comparison": {
+            "actual": 1,
+            "mean": 0.3,
+            "sd": 0.4,
+            "percentile": 87,
+            "verdict": "chance"
+          }
+        },
+        {
+          "method": "bnn-marriage",
+          "comparable": true,
+          "topScore": 0,
+          "max": 1,
+          "recordedSegmentScore": 0,
+          "recordedSegmentIsTop": true,
+          "topIntervals": 58,
+          "totalIntervals": 58,
+          "topCoveragePct": 100,
+          "comparison": {
+            "actual": 0,
+            "mean": 0,
+            "sd": 0,
+            "percentile": 50,
+            "verdict": "chance"
+          }
+        }
+      ],
+      "events": [
+        {
+          "id": "mm-child1",
+          "matter": "child",
+          "date": "2008-07-07",
+          "clock": "18:22",
+          "zone": "America/Los_Angeles",
+          "note": "Santa Monica birth; time reported by Astro-Databank, not independently verified.",
+          "sources": [
+            "https://www.astro.com/astro-databank/McConaughey%2C_Matthew",
+            "https://okmagazine.com/photos/world-exclusive-matthew-camilas-baby-boy/"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 0,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 5,
+              "max": 9,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-support",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "jupiter-trine",
+                  "status": "matched"
+                },
+                {
+                  "id": "asc-lord-transit",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "pa-h5-16-16",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "alp": null,
+            "bnn": null
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2008-01-09",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2008-05-08",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2008-09-05",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2009-01-03",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "mm-child2",
+          "matter": "child",
+          "date": "2010-01-03",
+          "clock": "00:13",
+          "zone": "America/Los_Angeles",
+          "note": "California birth; time from Astro-Databank, not independently verified.",
+          "sources": [
+            "https://www.astro.com/astro-databank/McConaughey%2C_Matthew",
+            "https://www.cbsnews.com/news/mcconaugheys-new-baby/"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 0,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 4,
+              "max": 9,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-support",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "jupiter-trine",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "asc-lord-transit",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "pa-h5-16-16",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "alp": null,
+            "bnn": null
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2009-07-07",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2009-11-04",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2010-03-04",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2010-07-02",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "mm-marriage",
+          "matter": "marriage",
+          "date": "2012-06-09",
+          "clock": "noon assumed",
+          "zone": "America/Chicago",
+          "note": "Austin wedding; reported as a sunset ceremony, but exact time is unavailable and noon is assumed.",
+          "sources": [
+            "https://www.astro.com/astro-databank/McConaughey%2C_Matthew",
+            "https://www.latimes.com/entertainment/la-xpm-2012-jun-11-la-et-mg-matthew-mcconaughey-marries-camila-alves-story.html"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 0,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 3,
+              "max": 8,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-support",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "double-transit",
+                  "status": "matched"
+                },
+                {
+                  "id": "vivah-saham",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "matched"
+                }
+              ]
+            },
+            "alp": {
+              "score": 1,
+              "max": 1,
+              "conditions": [
+                {
+                  "id": "b2-marriage-navamsa-touches",
+                  "status": "matched"
+                }
+              ]
+            },
+            "bnn": {
+              "score": 0,
+              "max": 1,
+              "conditions": [
+                {
+                  "id": "jupiter-venus-same-sign",
+                  "status": "unresolved"
+                }
+              ]
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2011-12-12",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 2,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-venus-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2012-04-10",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 2,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-venus-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2012-08-08",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 2,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 1,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-venus-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2012-12-06",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 2,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 1,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-venus-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "mm-child3",
+          "matter": "child",
+          "date": "2012-12-28",
+          "clock": "07:43",
+          "zone": "America/Chicago",
+          "note": "Austin birth; time from Astro-Databank, not independently verified.",
+          "sources": [
+            "https://www.astro.com/astro-databank/McConaughey%2C_Matthew",
+            "https://www.usmagazine.com/celebrity-moms/news/matthew-mcconaughey-camila-alves-name-newborn-son-livingston-20122912/"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 0,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 4,
+              "max": 9,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-support",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "jupiter-trine",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "asc-lord-transit",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "pa-h5-16-16",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "alp": null,
+            "bnn": null
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2012-07-01",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2012-10-29",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2013-02-26",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2013-06-26",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Karine Ferri",
+      "category": "French television presenter and model",
+      "birthQuality": "Astro-Databank AA, birth certificate quoted; original not independently examined.",
+      "birthSource": "https://www.astro.com/astro-databank/Ferri%2C_Karine",
+      "reportedBirth": "1982-04-25 22:25 Europe/Paris",
+      "midpoint": "1982-04-25 22:25:07",
+      "scanHalfWindowMinutes": 10,
+      "comparisons": {
+        "kp": {
+          "actual": 4,
+          "mean": 3.7,
+          "sd": 0.5,
+          "percentile": 64,
+          "verdict": "chance"
+        },
+        "parashari": {
+          "actual": 16,
+          "mean": 19.3,
+          "sd": 2.4,
+          "percentile": 11,
+          "verdict": "chance"
+        },
+        "alp": {
+          "actual": 0,
+          "mean": 0.3,
+          "sd": 0.5,
+          "percentile": 35,
+          "verdict": "chance"
+        },
+        "bnn": {
+          "actual": 0,
+          "mean": 0.2,
+          "sd": 0.4,
+          "percentile": 43,
+          "verdict": "chance"
+        }
+      },
+      "rankings": [
+        {
+          "method": "kp-qualified",
+          "comparable": true,
+          "topScore": 14,
+          "max": 14,
+          "recordedSegmentScore": 4,
+          "recordedSegmentIsTop": false,
+          "topIntervals": 8,
+          "totalIntervals": 47,
+          "topCoveragePct": 13,
+          "comparison": {
+            "actual": 4,
+            "mean": 3.7,
+            "sd": 0.5,
+            "percentile": 64,
+            "verdict": "chance"
+          }
+        },
+        {
+          "method": "parashari-events-v4",
+          "comparable": true,
+          "topScore": 16,
+          "max": 29,
+          "recordedSegmentScore": 16,
+          "recordedSegmentIsTop": true,
+          "topIntervals": 41,
+          "totalIntervals": 47,
+          "topCoveragePct": 89.7,
+          "comparison": {
+            "actual": 16,
+            "mean": 19.3,
+            "sd": 2.4,
+            "percentile": 11,
+            "verdict": "chance"
+          }
+        },
+        {
+          "method": "alp-marriage",
+          "comparable": true,
+          "topScore": 1,
+          "max": 1,
+          "recordedSegmentScore": 0,
+          "recordedSegmentIsTop": false,
+          "topIntervals": 18,
+          "totalIntervals": 47,
+          "topCoveragePct": 37.1,
+          "comparison": {
+            "actual": 0,
+            "mean": 0.3,
+            "sd": 0.5,
+            "percentile": 35,
+            "verdict": "chance"
+          }
+        },
+        {
+          "method": "bnn-marriage",
+          "comparable": true,
+          "topScore": 0,
+          "max": 1,
+          "recordedSegmentScore": 0,
+          "recordedSegmentIsTop": true,
+          "topIntervals": 47,
+          "totalIntervals": 47,
+          "topCoveragePct": 100,
+          "comparison": {
+            "actual": 0,
+            "mean": 0.2,
+            "sd": 0.4,
+            "percentile": 43,
+            "verdict": "chance"
+          }
+        }
+      ],
+      "events": [
+        {
+          "id": "kf-child1",
+          "matter": "child",
+          "date": "2016-04-06",
+          "clock": "noon assumed",
+          "zone": "Europe/Paris",
+          "note": "Saint-Grégoire hospital near Rennes; clock unknown.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Ferri%2C_Karine",
+            "https://www.ledauphine.com/france-monde/2018/07/17/karine-ferri-a-accouche-d-une-petite-claudia"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 0,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 3,
+              "max": 9,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "dasa",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "jupiter-trine",
+                  "status": "matched"
+                },
+                {
+                  "id": "asc-lord-transit",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "pa-h5-16-16",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "alp": null,
+            "bnn": null
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2015-10-09",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2016-02-06",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2016-06-05",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2016-10-03",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "kf-child2",
+          "matter": "child",
+          "date": "2018-07-16",
+          "clock": "noon assumed",
+          "zone": "Europe/Paris",
+          "note": "City and clock not verified; France zone and noon assumed.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Ferri%2C_Karine",
+            "https://www.ledauphine.com/france-monde/2018/07/17/karine-ferri-a-accouche-d-une-petite-claudia"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 0,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 6,
+              "max": 9,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "jupiter-trine",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "asc-lord-transit",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "pa-h5-16-16",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "alp": null,
+            "bnn": null
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2018-01-17",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 6,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2018-05-17",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 6,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2018-09-14",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 6,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2019-01-12",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 6,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "kf-marriage",
+          "matter": "marriage",
+          "date": "2019-06-08",
+          "clock": "noon assumed",
+          "zone": "Europe/Paris",
+          "note": "Wedding in France; clock unknown.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Ferri%2C_Karine",
+            "https://www.public.fr/karine-ferri-une-rare-photo-de-son-mariage-avec-yoann-gourcuff-devoilee-sur-instagram"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 4,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "matched"
+                },
+                {
+                  "id": "dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "antara",
+                  "status": "matched"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 6,
+              "max": 8,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "double-transit",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "vivah-saham",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "matched"
+                }
+              ]
+            },
+            "alp": {
+              "score": 0,
+              "max": 1,
+              "conditions": [
+                {
+                  "id": "b2-marriage-navamsa-touches",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "bnn": {
+              "score": 0,
+              "max": 1,
+              "conditions": [
+                {
+                  "id": "jupiter-mars-same-sign",
+                  "status": "unresolved"
+                }
+              ]
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2018-12-10",
+              "scores": {
+                "kp": {
+                  "score": 3,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 6,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2019-04-09",
+              "scores": {
+                "kp": {
+                  "score": 4,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 7,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2019-08-07",
+              "scores": {
+                "kp": {
+                  "score": 4,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 6,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 1,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2019-12-05",
+              "scores": {
+                "kp": {
+                  "score": 4,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 1,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "kf-child3",
+          "matter": "child",
+          "date": "2023-05-03",
+          "clock": "noon assumed",
+          "zone": "Europe/Paris",
+          "note": "City and clock not verified; France zone and noon assumed.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Ferri%2C_Karine",
+            "https://www.purepeople.com/article/photo-karine-ferri-maman-pour-la-3e-fois-apparition-surprise-de-son-bebe-sasha-un-instant-calin-immortalise_a512855/1"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 0,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 5,
+              "max": 9,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "jupiter-trine",
+                  "status": "matched"
+                },
+                {
+                  "id": "asc-lord-transit",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "pa-h5-16-16",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "alp": null,
+            "bnn": null
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2022-11-04",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2023-03-04",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2023-07-02",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2023-10-30",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cécilia Attias",
+      "category": "French public figure and foundation founder",
+      "birthQuality": "Astro-Databank AA, birth record reported; original not independently examined.",
+      "birthSource": "https://www.astro.com/astro-databank/Attias%2C_C%C3%A9cilia",
+      "reportedBirth": "1957-11-12 23:55 Europe/Paris",
+      "midpoint": "1957-11-12 23:54:38",
+      "scanHalfWindowMinutes": 10,
+      "comparisons": {
+        "kp": {
+          "actual": 1,
+          "mean": 3.2,
+          "sd": 1.7,
+          "percentile": 11,
+          "verdict": "chance"
+        },
+        "parashari": {
+          "actual": 15,
+          "mean": 15.2,
+          "sd": 2.1,
+          "percentile": 43,
+          "verdict": "chance"
+        },
+        "alp": {
+          "actual": 1,
+          "mean": 0.7,
+          "sd": 0.6,
+          "percentile": 64,
+          "verdict": "chance"
+        },
+        "bnn": {
+          "actual": 0,
+          "mean": 0.2,
+          "sd": 0.4,
+          "percentile": 42,
+          "verdict": "chance"
+        }
+      },
+      "rankings": [
+        {
+          "method": "kp-qualified",
+          "comparable": true,
+          "topScore": 1,
+          "max": 14,
+          "recordedSegmentScore": 1,
+          "recordedSegmentIsTop": true,
+          "topIntervals": 44,
+          "totalIntervals": 49,
+          "topCoveragePct": 90.1,
+          "comparison": {
+            "actual": 1,
+            "mean": 3.2,
+            "sd": 1.7,
+            "percentile": 11,
+            "verdict": "chance"
+          }
+        },
+        {
+          "method": "parashari-events-v4",
+          "comparable": true,
+          "topScore": 15,
+          "max": 29,
+          "recordedSegmentScore": 15,
+          "recordedSegmentIsTop": true,
+          "topIntervals": 40,
+          "totalIntervals": 49,
+          "topCoveragePct": 80.7,
+          "comparison": {
+            "actual": 15,
+            "mean": 15.2,
+            "sd": 2.1,
+            "percentile": 43,
+            "verdict": "chance"
+          }
+        },
+        {
+          "method": "alp-marriage",
+          "comparable": true,
+          "topScore": 2,
+          "max": 2,
+          "recordedSegmentScore": 1,
+          "recordedSegmentIsTop": false,
+          "topIntervals": 13,
+          "totalIntervals": 49,
+          "topCoveragePct": 25.5,
+          "comparison": {
+            "actual": 1,
+            "mean": 0.7,
+            "sd": 0.6,
+            "percentile": 64,
+            "verdict": "chance"
+          }
+        },
+        {
+          "method": "bnn-marriage",
+          "comparable": true,
+          "topScore": 0,
+          "max": 2,
+          "recordedSegmentScore": 0,
+          "recordedSegmentIsTop": true,
+          "topIntervals": 49,
+          "totalIntervals": 49,
+          "topCoveragePct": 100,
+          "comparison": {
+            "actual": 0,
+            "mean": 0.2,
+            "sd": 0.4,
+            "percentile": 42,
+            "verdict": "chance"
+          }
+        }
+      ],
+      "events": [
+        {
+          "id": "ca-marriage1",
+          "matter": "marriage",
+          "date": "1984-08-10",
+          "clock": "noon assumed",
+          "zone": "Europe/Paris",
+          "note": "Wedding in Neuilly-sur-Seine; clock unknown.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Attias%2C_C%C3%A9cilia",
+            "https://www.imdb.com/fr-ca/name/nm2678548/bio/"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 0,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 5,
+              "max": 8,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "double-transit",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "vivah-saham",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "matched"
+                }
+              ]
+            },
+            "alp": {
+              "score": 0,
+              "max": 1,
+              "conditions": [
+                {
+                  "id": "b2-marriage-navamsa-touches",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "bnn": {
+              "score": 0,
+              "max": 1,
+              "conditions": [
+                {
+                  "id": "jupiter-mars-same-sign",
+                  "status": "unresolved"
+                }
+              ]
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "1984-02-12",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "1984-06-11",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "1984-10-09",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "1985-02-06",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 1,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "id": "ca-child1",
+          "matter": "child",
+          "date": "1984-08-22",
+          "clock": "noon assumed",
+          "zone": "Europe/Paris",
+          "note": "Birth city and clock not verified; France zone and noon assumed.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Attias%2C_C%C3%A9cilia",
+            "https://www.imdb.com/fr-ca/name/nm2678548/bio/"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 1,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "matched"
+                },
+                {
+                  "id": "dasa",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 3,
+              "max": 9,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-support",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "jupiter-trine",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "asc-lord-transit",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "pa-h5-16-16",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "alp": null,
+            "bnn": null
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "1984-02-24",
+              "scores": {
+                "kp": {
+                  "score": 1,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "1984-06-23",
+              "scores": {
+                "kp": {
+                  "score": 1,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "1984-10-21",
+              "scores": {
+                "kp": {
+                  "score": 1,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "1985-02-18",
+              "scores": {
+                "kp": {
+                  "score": 1,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "ca-child2",
+          "matter": "child",
+          "date": "1987-06-08",
+          "clock": "noon assumed",
+          "zone": "Europe/Paris",
+          "note": "Paris birth; clock unknown.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Attias%2C_C%C3%A9cilia",
+            "https://www.astrotheme.fr/astrologie/Jeanne-Marie_Martin"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 1,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "matched"
+                },
+                {
+                  "id": "dasa",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 6,
+              "max": 9,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-support",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "jupiter-trine",
+                  "status": "matched"
+                },
+                {
+                  "id": "asc-lord-transit",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "pa-h5-16-16",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "alp": null,
+            "bnn": null
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "1986-12-10",
+              "scores": {
+                "kp": {
+                  "score": 1,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "1987-04-09",
+              "scores": {
+                "kp": {
+                  "score": 1,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "1987-08-07",
+              "scores": {
+                "kp": {
+                  "score": 1,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "1987-12-05",
+              "scores": {
+                "kp": {
+                  "score": 1,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 5,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            }
+          ]
+        },
+        {
+          "id": "ca-marriage2",
+          "matter": "marriage",
+          "date": "2008-03-23",
+          "clock": "noon assumed",
+          "zone": "America/New_York",
+          "note": "Wedding in New York; clock unknown. A later son's birth is excluded because published dates conflict.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Attias%2C_C%C3%A9cilia",
+            "https://www.closermag.fr/politique/nicolas-sarkozy-se-confie-sur-son-divorce-d-avec-cecilia-attias-son-attitude-me-988728"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 0,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 3,
+              "max": 8,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "dasa",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "double-transit",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "vivah-saham",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "alp": {
+              "score": 1,
+              "max": 1,
+              "conditions": [
+                {
+                  "id": "b2-marriage-navamsa-touches",
+                  "status": "matched"
+                }
+              ]
+            },
+            "bnn": {
+              "score": 0,
+              "max": 1,
+              "conditions": [
+                {
+                  "id": "jupiter-mars-same-sign",
+                  "status": "unresolved"
+                }
+              ]
+            }
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "2007-09-25",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 1,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "2008-01-23",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 1,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "2008-05-22",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 1,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "2008-09-19",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 3,
+                  "max": 8,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "double-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "vivah-saham",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": {
+                  "score": 1,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "b2-marriage-navamsa-touches",
+                      "status": "matched"
+                    }
+                  ]
+                },
+                "bnn": {
+                  "score": 0,
+                  "max": 1,
+                  "conditions": [
+                    {
+                      "id": "jupiter-mars-same-sign",
+                      "status": "unresolved"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Jeanne-Claude",
+      "category": "Moroccan-born French-American conceptual artist",
+      "birthQuality": "Astro-Databank AA, birth record reported; round 18:00 may be approximate and original not examined.",
+      "birthSource": "https://www.astro.com/astro-databank/Jeanne-Claude",
+      "reportedBirth": "1935-06-13 18:00 Africa/Casablanca",
+      "midpoint": "1935-06-13 17:59:58",
+      "scanHalfWindowMinutes": 10,
+      "comparisons": null,
+      "rankings": [
+        {
+          "method": "kp-qualified",
+          "comparable": true,
+          "topScore": 2,
+          "max": 4,
+          "recordedSegmentScore": 0,
+          "recordedSegmentIsTop": false,
+          "topIntervals": 21,
+          "totalIntervals": 48,
+          "topCoveragePct": 32.2,
+          "comparison": null
+        },
+        {
+          "method": "parashari-events-v4",
+          "comparable": true,
+          "topScore": 5,
+          "max": 9,
+          "recordedSegmentScore": 5,
+          "recordedSegmentIsTop": true,
+          "topIntervals": 29,
+          "totalIntervals": 48,
+          "topCoveragePct": 55.4,
+          "comparison": null
+        },
+        {
+          "method": "alp-marriage",
+          "comparable": false,
+          "topScore": null,
+          "max": 0,
+          "recordedSegmentScore": 0,
+          "recordedSegmentIsTop": false,
+          "topIntervals": 0,
+          "totalIntervals": 48,
+          "topCoveragePct": null,
+          "comparison": null
+        },
+        {
+          "method": "bnn-marriage",
+          "comparable": false,
+          "topScore": null,
+          "max": 0,
+          "recordedSegmentScore": 0,
+          "recordedSegmentIsTop": false,
+          "topIntervals": 0,
+          "totalIntervals": 48,
+          "topCoveragePct": null,
+          "comparison": null
+        }
+      ],
+      "events": [
+        {
+          "id": "jc-child",
+          "matter": "child",
+          "date": "1960-05-11",
+          "clock": "noon assumed",
+          "zone": "Europe/Paris",
+          "note": "Birth near Paris; clock unknown. Wedding dates in sources conflict and are excluded.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Jeanne-Claude",
+            "https://nsuartmuseum.org/wp-content/uploads/2025/05/NYT-Christo-and-Jeanne-Claude-Legendary-Artists-Are-Back-in-Spirit-5.6.25.pdf"
+          ],
+          "recorded": {
+            "kp": {
+              "score": 0,
+              "max": 4,
+              "conditions": [
+                {
+                  "id": "natal",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "dasa",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "not-reached"
+                },
+                {
+                  "id": "antara",
+                  "status": "not-reached"
+                }
+              ]
+            },
+            "parashari": {
+              "score": 5,
+              "max": 9,
+              "conditions": [
+                {
+                  "id": "d1-support",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "division-support",
+                  "status": "matched"
+                },
+                {
+                  "id": "dasa",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "jupiter-trine",
+                  "status": "unresolved"
+                },
+                {
+                  "id": "asc-lord-transit",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-dasa",
+                  "status": "matched"
+                },
+                {
+                  "id": "division-bhukti",
+                  "status": "matched"
+                },
+                {
+                  "id": "pa-h5-16-16",
+                  "status": "unresolved"
+                }
+              ]
+            },
+            "alp": null,
+            "bnn": null
+          },
+          "controls": [
+            {
+              "offsetDays": -180,
+              "date": "1959-11-13",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 6,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": -60,
+              "date": "1960-03-12",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 60,
+              "date": "1960-07-10",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            },
+            {
+              "offsetDays": 180,
+              "date": "1960-11-07",
+              "scores": {
+                "kp": {
+                  "score": 0,
+                  "max": 4,
+                  "conditions": [
+                    {
+                      "id": "natal",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "not-reached"
+                    },
+                    {
+                      "id": "antara",
+                      "status": "not-reached"
+                    }
+                  ]
+                },
+                "parashari": {
+                  "score": 4,
+                  "max": 9,
+                  "conditions": [
+                    {
+                      "id": "d1-support",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-support",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "dasa",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "jupiter-trine",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "asc-lord-transit",
+                      "status": "unresolved"
+                    },
+                    {
+                      "id": "division-dasa",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "division-bhukti",
+                      "status": "matched"
+                    },
+                    {
+                      "id": "pa-h5-16-16",
+                      "status": "unresolved"
+                    }
+                  ]
+                },
+                "alp": null,
+                "bnn": null
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

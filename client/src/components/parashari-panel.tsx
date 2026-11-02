@@ -9,6 +9,7 @@ import {
 import { GentleNote, Soft } from "@/lib/gentle";
 import { formationOnly } from "@shared/gentle";
 import { natalPlanetContext } from "@shared/planet-context";
+import { BphsDignityContextPanel } from "@/components/bphs-dignity-context";
 import {
   ALL_CHAPTERS,
   Chapter,
@@ -1142,7 +1143,7 @@ export function ParashariPanel({
   const kcLabel = `Kalachakra periods${kcNow ? ` · ${nowWord}: ${SIGNS[kcNow.sign]}, to ${fmt(kcNow.end)}` : ""}`;
   const bjLabel = `Varahamihira's planetary years${bjDasa?.current ? ` · ${nowWord}: ${bjDasa.current.lord}` : ""}`;
   const selDasa: DasaReading | undefined =
-    r.dasaReadings.find((d) => d.lord === dasaPick) ??
+    r.dasaReadings.find((d) => d.start === dasaPick) ??
     r.dasaReadings.find((d) => d.current) ??
     r.dasaReadings[0];
 
@@ -2214,11 +2215,11 @@ export function ParashariPanel({
                       className={cn(
                         "cursor-pointer",
                         d.current && "bg-primary/5",
-                        selDasa?.lord === d.lord &&
+                        selDasa?.start === d.start &&
                           "ring-1 ring-inset ring-primary/40",
                       )}
                       onClick={() => {
-                        setDasaPick(d.lord);
+                        setDasaPick(d.start);
                         setAntarOpen(null);
                       }}
                       data-testid={`parashari-dasa-${d.lord}`}
@@ -2396,6 +2397,8 @@ export function ParashariPanel({
       </Chapter>
 
       <Chapter id="planets">
+      <BphsDignityContextPanel context={natalPlanetContext(result)} />
+      {!r.shadbala && <p className="mt-8 text-sm text-muted-foreground">Shadbala is unavailable when the required sunrise or sunset cannot be computed.</p>}
       {r.shadbala && (
         <Working
           id="parashari-shadbala"
@@ -6164,7 +6167,7 @@ function AntarRows({
         className={cn(
           "cursor-pointer scroll-mt-24",
           a.current && "bg-primary/5",
-          a.past && !a.current && "text-muted-foreground/80",
+          a.past && !a.current && "text-muted-foreground",
         )}
         onClick={toggle}
         data-testid={`parashari-antar-${dasaLord}-${a.lord}`}
