@@ -45,5 +45,10 @@ follow-up (`a8f1699`) on Render took 73.49 s and 64.14 s respectively for the
 ±10-minute, three-event synthetic workload, much longer than locally. They
 produced identical candidate event scores and comparison statistics. The server's
 CPU, load, startup and network can contribute; these measurements do not establish
-the cause. Wider windows and larger event lists still cost more because the app
-evaluates each sampled candidate and, in full scans, each comparison date.
+the cause. A subsequent quick scan of the same live input (`ec41152`) took
+18.12 s, returned 1,335,185 compressed bytes and produced identical per-event
+qualified scores in all 51 candidates, with no comparison sets. The three live
+measurements are single requests taken at different times; they are not a
+controlled server benchmark. Wider windows and larger event lists still cost more
+because the app evaluates each sampled candidate and, in full scans, each
+comparison date.
