@@ -462,7 +462,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
   const spanLo = Math.min(...evMillis);
   const spanHi = Math.max(...evMillis);
   const baselineOn =
-    req.events.length >= 2 && spanHi - spanLo >= 365 * 86400000;
+    req.includeComparisons !== false && req.events.length >= 2 && spanHi - spanLo >= 365 * 86400000;
   const trials = baselineOn ? BASELINE_TRIALS : 0;
   const rnd = seeded(comparisonSeed(req.events.map((e) => e.date)));
   const trialDates: string[][] = [];

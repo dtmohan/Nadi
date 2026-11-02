@@ -400,6 +400,7 @@ export interface RectifyExportState {
   method: RectifyMethod;
   windowMinutes: number;
   events: RectifyEvent[];
+  includeComparisons?: boolean;
   judge?: JudgePlaceInput;
   /** The displayed scan's actual judgment instant, for reproducible export. */
   judgedAsOf?: string;

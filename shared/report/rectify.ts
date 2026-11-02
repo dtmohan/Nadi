@@ -151,6 +151,8 @@ export const rectifyModule: ReportModule = {
         paras: [
           { kind: "lead", text: m.short, cites: [cites.add(m.source)] },
           { kind: "note", text: EVENT_TRANSIT_SCOPE },
+          ...(state.includeComparisons === false ? [{ kind: "note" as const, provisional: true,
+            text: "Quick scan: random-date comparisons were not computed. Candidate event conditions use the same rules as the full scan; run a full scan or Validate to compare dates." }] : []),
           { kind: "note", text: `The ${v3 ? "eight" : specific ? "six" : "five"} equal points are an experimental Nadi synthesis. These older point totals do not require D1 to pass before awarding later points. The separate strict funnel has known gaps and is diagnostic only; the cross-chart clues below do not change this ranking. D1 and divisional support can coexist with difficult indications; neither proves an event was promised. Other or explicitly mixed or unfavourable events are omitted from these scores. The random-date comparison is exploratory and is not calibrated to select a birth time. ${v3 ? "In ten fresh public cases, v3's highest intervals touched the reported-time ±5-minute band in four and covered 29% of the scanned hour on average. Held-out event scores resembled nearby dates. Its added period-lord checks can overlap with the earlier factors and with each other." : specific ? "In nine new public cases, v2's top intervals touched the reported-time ±5-minute band in eight but covered 35% of the scanned hour on average. At the reported birth times, held-out event scores were nearly the same on nearby comparison dates." : "In an initial eight-person public-case test, the v1 highest scores missed the reported-time ±5-minute band around the reported birth time in all eight cases."} These samples are small and some times are uncertain. Do not use this ranking on its own to change a birth time.`, provisional: true },
           ...windowParas(),
           ...(!comparable ? [{ kind: "note" as const, text: anyScore
@@ -211,6 +213,8 @@ export const rectifyModule: ReportModule = {
       },
     ];
     if (m.needsEvents) paras.push({ kind: "note", text: EVENT_TRANSIT_SCOPE });
+    if (m.needsEvents && state.includeComparisons === false) paras.push({ kind: "note", provisional: true,
+      text: "Quick scan: random-date comparisons were not computed. Candidate event conditions use the same rules as the full scan; run a full scan or Validate to compare dates." });
     paras.push(...windowParas());
     const coverage = state.method !== "bj-marks" && maxOf > 0 && comparable && !(state.method === "kp-nemani-rp" && top === 0) ? rawScoreCoverage(scored.map((r) => ({
       score: r.sc.score, startIso: r.seg.startIso, endIso: r.seg.endIso, given: r.seg.given,

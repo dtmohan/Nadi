@@ -19,6 +19,16 @@ first integrated version took 7.28 s and the follow-up took 5.47 s; their comple
 Response transfer and rendering can add time. The endpoint compresses responses
 when the client accepts gzip.
 
+An optional quick scan runs the same candidate and event checks without the 200
+random-date sets. For example, `node --import tsx scripts/benchmark-rectify.ts 10
+--quick` took 0.61 s for this same local ±10-minute workload, versus 1.98 s for
+a full scan in a neighboring run. The quick response was 6.57 MB uncompressed;
+the full response was 12.51 MB. These are individual samples, not guarantees.
+The default remains a full scan; quick scans and their exported reports clearly
+state that comparisons were skipped. Use a full scan or Validate a selected
+candidate when a random-date comparison is needed. A parity test compares all
+candidate fields in quick and full scans after removing comparison data.
+
 The faster Parashari path runs the same natal house/yoga rules and sensitivity gate
 without constructing date-only period timelines that event checks do not use. ALP
 shares the same ordinary rule frame without building chart-only timelines; within a
@@ -30,9 +40,10 @@ shared between different candidate birth times. Tests compare full and optimized
 findings, topic projections and period boundaries, and replay all 200 comparison
 sets through the same event evaluator.
 
-A live run of the first integrated version (`c526072`) on Render took 73.49 s for
-the ±10-minute synthetic workload, much longer than locally. The server's CPU,
-load, startup and network contribute; the measurement does not establish the
-cause. The follow-up should therefore be checked on that host before claiming a
-corresponding live improvement. Wider windows and larger event lists still cost
-more because the app evaluates each sampled candidate and comparison date.
+Live full runs of the first integrated version (`c526072`) and the ALP reuse
+follow-up (`a8f1699`) on Render took 73.49 s and 64.14 s respectively for the
+±10-minute, three-event synthetic workload, much longer than locally. They
+produced identical candidate event scores and comparison statistics. The server's
+CPU, load, startup and network can contribute; these measurements do not establish
+the cause. Wider windows and larger event lists still cost more because the app
+evaluates each sampled candidate and, in full scans, each comparison date.

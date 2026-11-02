@@ -19,10 +19,13 @@ const eventsForScan = events.map((e) => {
 });
 const windowMinutes = Number(process.argv[2] ?? 30);
 if (![10, 30, 60].includes(windowMinutes)) throw new Error("Choose a 10, 30 or 60 minute half-window");
+const includeComparisons = !process.argv.slice(3).includes("--quick");
 const start = performance.now();
-const result = rectify({ chart, windowMinutes, events: eventsForScan, judgedAsOf: "2026-10-30T00:00:00.000Z" });
+const result = rectify({ chart, windowMinutes, events: eventsForScan, includeComparisons, judgedAsOf: "2026-10-30T00:00:00.000Z" });
 const json = JSON.stringify(result);
-if (process.argv[3]) writeFileSync(process.argv[3], json);
+const output = process.argv.slice(3).find((arg) => arg !== "--quick");
+if (output) writeFileSync(output, json);
 console.log(JSON.stringify({ windowMinutes, events: events.length, segments: result.segments.length,
+  includeComparisons,
   trials: result.baseline?.trials ?? 0, elapsedSeconds: (performance.now() - start) / 1000,
   responseBytes: Buffer.byteLength(json), sha256: createHash("sha256").update(json).digest("hex") }, null, 2));

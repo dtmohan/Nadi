@@ -239,6 +239,7 @@ export function RectifyPanel({
   const qualifiedMethod = QUALIFIED_RECTIFY_METHODS[method];
   const [showHow, setShowHow] = useState(false);
   const [windowMinutes, setWindowMinutes] = useState(30);
+  const [includeComparisons, setIncludeComparisons] = useState(true);
   const [sortByScore, setSortByScore] = useState(false);
   const [showAllKunda, setShowAllKunda] = useState(false);
   const [open, setOpen] = useState<number | null>(null);
@@ -284,6 +285,7 @@ export function RectifyPanel({
         chart: insert,
         windowMinutes,
         events: eventPayload,
+        includeComparisons,
         judge: judge
           ? {
               latitude: judge.latitude,
@@ -305,7 +307,7 @@ export function RectifyPanel({
   const scanInputsKey = JSON.stringify([
     chart.id, chart.birthDate, chart.birthTime, chart.timezone, chart.timeStandard,
     chart.latitude, chart.longitude, chart.ayanamsa, chart.nodeType, chart.gender,
-    windowMinutes, eventPayload, judge,
+    windowMinutes, eventPayload, judge, includeComparisons,
   ]);
   useEffect(() => {
     // Never keep displaying scores after any of their inputs have changed.
@@ -318,6 +320,7 @@ export function RectifyPanel({
       method,
       windowMinutes,
       events: eventPayload,
+      includeComparisons,
       judge: judge
         ? {
             latitude: judge.latitude,
@@ -331,7 +334,7 @@ export function RectifyPanel({
     });
     return () => onExportState?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [method, windowMinutes, eventPayload, judge, confirmedMarks, scan.data?.ruling.asOf]);
+  }, [method, windowMinutes, eventPayload, judge, confirmedMarks, includeComparisons, scan.data?.ruling.asOf]);
 
   /** Why this interval was chosen, for the notes of the copy or of this chart. */
   const provenance = (seg: RectifySegment | KundaD81Window) => {
@@ -854,6 +857,11 @@ export function RectifyPanel({
             </SelectContent>
           </Select>
         </label>
+        <label className="inline-flex items-center gap-2 text-muted-foreground">
+          <input type="checkbox" checked={!includeComparisons} onChange={(e) => setIncludeComparisons(!e.target.checked)}
+            data-testid="rectify-quick-scan" />
+          Quick scan: skip random-date comparisons
+        </label>
         {missingEvents && (
           <span className="text-muted-foreground">
             This method needs at least one dated event; add one below.
@@ -873,6 +881,13 @@ export function RectifyPanel({
               : "Scan the window"}
         </Button>
       </div>
+
+      {!includeComparisons && (
+        <p className="mt-2 text-xs text-muted-foreground" data-testid="rectify-quick-scan-note">
+          Candidate and event checks stay the same. The 200 random-date comparison sets are skipped;
+          run a full scan or use Validate for a candidate to compare dates.
+        </p>
+      )}
 
       <div className="mt-3" data-testid="rectify-events">
         <p className="mb-1.5 text-xs font-medium">
@@ -1179,7 +1194,9 @@ export function RectifyPanel({
                   data-testid="rectify-baseline-note"
                 >
                   {!on
-                    ? "A comparison needs at least two events a year apart and the same eligible checks for every sampled set."
+                    ? !includeComparisons
+                      ? "Quick scan skips random-date comparisons. Turn it off and scan again, or compare a candidate in Validate."
+                      : "A comparison needs at least two events a year apart and the same eligible checks for every sampled set."
                     : `${data.baseline?.trials ?? 200} sets of comparison dates were independently selected between ${data.baseline?.span[0]} and ${data.baseline?.span[1]}; transits are recalculated on each date against this candidate's natal chart. ${above} ${above === 1 ? "result reaches" : "results reach"} the 95th mid-rank percentile. Highlighting uses that exploratory cutoff and the difference from the comparison mean; it does not account for trying multiple measures or candidates and does not establish a correct birth time. Random dates need not preserve plausible event ages or order.`}
                 </p>
               );

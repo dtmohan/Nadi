@@ -9,9 +9,9 @@
     "shared/parashari-divisional.ts": "6780e20d4c26dbc5f1f6fb7cda88f66d1a0289bfa52056ae6314e8c33270d313",
     "shared/parashari-event-natal-rules.ts": "93d1cb82e4688f4b3b4f6f796780505232bcb2aca4aa46c38ad9e4a19843c48d",
     "shared/alp-event-evidence.ts": "d2b7388e1e95028a724e52770e6312c7231e1ffc0ccf793eaa4492600b2a1708",
-    "shared/rectify-methods.ts": "1cf9474b5a999a82456cb2fabb50fe034cb8af6aa4683a03f7c968b0b7d62d32",
+    "shared/rectify-methods.ts": "7ca549e93137d1414f88baa957e90129245b2ae3b0601bceb5d413b5c257842a",
     "server/validate.ts": "fb7dabda9f9bbf93d1c7f5accf2d261495edbf7cc6f5528f93d6c7f2ffc0bbc1",
-    "server/rectify.ts": "3db1452473a6cc82a6161870086f46a4d5a3df355f96b753d4aa7e60cf9ce559"
+    "server/rectify.ts": "e24612e00befc85636d975f5af4171e03b1e136dee0568f1a222852277192703"
   },
   "warning": "Small public convenience sample; scores and controls do not verify reported times or test whether astrology predicts events. Top intervals use midpoint sampling; controls are not known non-events.",
   "results": [

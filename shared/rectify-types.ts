@@ -49,6 +49,8 @@ export interface RectifyRequest {
   chart: InsertChart;
   windowMinutes: number;
   events: RectifyEvent[];
+  /** False runs the same candidate/event checks without random-date comparisons. */
+  includeComparisons?: boolean;
   judge?: JudgePlaceInput;
   /** Preserve a scan's actual judgment instant when rebuilding its report. */
   judgedAsOf?: string;

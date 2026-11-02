@@ -368,6 +368,7 @@ export async function registerRoutes(
             chart: parsed.data,
             windowMinutes: state.windowMinutes,
             events: state.events,
+            includeComparisons: state.includeComparisons,
             judge: state.judge,
             judgedAsOf: state.judgedAsOf,
           }),
@@ -712,6 +713,7 @@ export async function registerRoutes(
     judge: judgeSchema.optional(),
     windowMinutes: z.number().min(1).max(720).default(30),
     events: rectifyEventsSchema,
+    includeComparisons: z.boolean().default(true),
   });
   /** What the Rectify tab was looking at, sent with a report export so the same scan is rerun. */
   const reportRectifySchema = z.object({
@@ -720,6 +722,7 @@ export async function registerRoutes(
     ),
     windowMinutes: z.number().min(1).max(720).default(30),
     events: rectifyEventsSchema,
+    includeComparisons: z.boolean().default(true),
     judge: judgeSchema.optional(),
     judgedAsOf: z.string().datetime().optional(),
     confirmedMarks: z.array(z.string().max(60)).max(40).default([]),
