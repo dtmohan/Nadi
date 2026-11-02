@@ -25,6 +25,7 @@ import {
   type Sign,
 } from "./astro";
 import { evaluateKp, applyKpPrecedence, type KpFinding } from "./rules-kp";
+import { createPlanetContext, type PlanetContext } from "./planet-context";
 export { KP_PRECEDENCE } from "./rules-kp";
 
 export const VIMSHOTTARI_ORDER: Planet[] = [
@@ -783,8 +784,15 @@ export interface KpResult {
 /** The KP natal frame is shared by ordinary readings, validation and each
  * rectification candidate. The caller chooses the KP ayanamsa and cusps. */
 export function kpNatalFrame(
-  positions: Array<Pick<PlanetPosition, "planet" | "lon" | "retrograde">>, cuspLons: number[],
+  input: Array<Pick<PlanetPosition, "planet" | "lon" | "retrograde">> | PlanetContext, cuspLons: number[],
 ): { cusps: KpCusp[]; planets: KpPlanet[]; significators: KpSignificators[] } {
+  if (!Array.isArray(input)) {
+    if (input.frame.ayanamsa && input.frame.ayanamsa !== "kp") throw new Error("KP natal frame requires KP ayanamsa");
+    if (input.frame.houseMethod && input.frame.houseMethod !== "placidus") throw new Error("KP natal frame requires Placidus cusps");
+    if (input.frame.cusps && (input.frame.cusps.length !== cuspLons.length || input.frame.cusps.some((c, i) => c !== cuspLons[i])))
+      throw new Error("KP cusps do not belong to this planet context");
+  }
+  const positions = Array.isArray(input) ? input : input.positions;
   const cusps = cuspLons.map((lon, i) => ({ ...kpPoint(lon), house: i + 1 }));
   const owners = cusps.map((c) => c.signLord);
   const planets: KpPlanet[] = positions.map((p) => ({ ...kpPoint(p.lon), planet: p.planet,
@@ -800,7 +808,9 @@ export function computeKp(
   sixStep = false,
   withhold = false,
 ): KpResult {
-  const { cusps, planets, significators } = kpNatalFrame(base.positions, base.cusps);
+  const context = createPlanetContext(base.positions, { kind: "natal", instant: birthIso,
+    ayanamsa: "kp", houseMethod: "placidus", cusps: base.cusps, ascendant: base.cusps[0], division: "D1" });
+  const { cusps, planets, significators } = kpNatalFrame(context, base.cusps);
   const hs = houseSignificators(planets, cusps);
   const lagnaSign = cusps[0].signIndex;
   const moon = base.positions.find((p) => p.planet === "Moon")!;

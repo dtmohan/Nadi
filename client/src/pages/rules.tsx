@@ -21,6 +21,7 @@ import { SourceLink, Cite } from "@/components/source-link";
 import { KP_TRANSIT_EVIDENCE_SOURCE } from "@shared/kp-transit-evidence";
 import { SutraLibrary } from "@/components/sutra-library";
 import { RuleQualificationList } from "@/components/rule-qualification-list";
+import { SCHOOL_RULE_PATHS, type PathStatus } from "@shared/school-rule-paths";
 import {
   ALP_CHAPTERS,
   ALP_RULES,
@@ -672,6 +673,18 @@ export default function RulesPage() {
       <h1 className="font-display text-xl font-bold tracking-tight">
         Rule book
       </h1>
+      <details className="mt-3 rounded-md border p-3 text-sm" data-testid="rulebook-school-paths">
+        <summary className="cursor-pointer font-semibold">Where rule families are used</summary>
+        <p className="mt-2 text-muted-foreground">The same planet context carries positions and named relationships; each school evaluates its own rules. A dated event or judgment needs its own inputs. Shared event checks use the same evaluator in a selected-date reading, Validate, Rectify and comparison dates when those paths are available.</p>
+        <div className="mt-2 overflow-x-auto"><table className="w-full text-left text-xs">
+          <thead><tr><th className="pr-3">Rule family</th><th className="pr-3">Chart</th><th className="pr-3">Selected date</th><th className="pr-3">Validate</th><th className="pr-3">Rectify</th><th>Comparison dates</th></tr></thead>
+          <tbody>{Object.entries(SCHOOL_RULE_PATHS).map(([id, family]) => {
+            const label: Record<PathStatus, string> = { shared: "Shared", "natal-only": "Natal portion", "separate-method": "Separate method", "not-implemented": "Not implemented" };
+            return <tr key={id} className="border-t align-top"><td className="py-1 pr-3"><strong>{family.school}</strong><br /><span className="text-muted-foreground">{family.label}</span><br />{family.limits}</td>{(["chart", "dated-reading", "validate", "rectify", "comparison"] as const).map((path) => <td className="py-1 pr-3" key={path}>{label[family.paths[path]]}</td>)}</tr>;
+          })}</tbody>
+        </table></div>
+        <p className="mt-2 text-muted-foreground">A natal rule is not automatically a timing rule or a score. In practitioner mode, “Planets in play” shows a partial index of matched rules whose evidence explicitly links each displayed planet.</p>
+      </details>
       <details className="mt-3 rounded-md border p-3 text-sm" data-testid="rulebook-topic-coverage">
         <summary className="cursor-pointer font-semibold">How the plain topic summaries use these rules</summary>
         <p className="mt-2 text-muted-foreground">Each school keeps its own calculation. The five existing general comparison topics retain their selected school-specific stances. Other KP summaries use reviewed topic labels and keep each finding's particular scope and precedence. They use the four-step comparison; where the existing six-step option changes a missing-house education rule, the basis notes this. The source's additional ninth-cusp, sub-level and close-conjunction checks are not all implemented. Parashari and Prasna house readings cover several matters and are not a separate verdict on each matter. Jaimini names shared areas and separately identifies selected topic-specific findings.</p>

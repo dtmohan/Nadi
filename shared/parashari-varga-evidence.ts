@@ -4,8 +4,11 @@
  * house-by-house reading of D7/D9/D10 follows the named practitioner sources.
  * None of these placements is, on its own, a yes/no promise of an event.
  */
-import { drishtiQuarters, EXALTATION, houseFrom, naturalBenefic, norm360, OWN_SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "./astro";
-import { VARGA_BY_KEY, type VargaKey } from "./vargas";
+import { drishtiQuarters, EXALTATION, houseFrom, naturalBenefic, OWN_SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "./astro";
+import { vargaSignAt } from "./varga-sign";
+export { vargaSignAt } from "./varga-sign";
+import { asPlanetContext, planetPositions, type PlanetInput } from "./planet-context";
+import { createDivisionalPlanetContext, type DivisionalPlanetContext } from "./divisional-planet-context";
 import { judgeBhavas } from "./parashari-houses";
 import { rashiHouseView } from "./house-view";
 
@@ -30,13 +33,6 @@ export function vargaTopicFor(matter?: string): VargaTopic | undefined {
   if (matter === "child") return { division: "D7", house: 5, subject: "children", practitionerSource: `${mehta}, ch. XVIII §6 (Saptamsa)` };
   if (matter === "job" || matter === "job-loss" || matter === "business") return { division: "D10", house: 10, subject: "career and standing", practitionerSource: `${mehta}, profession cases and ch. XVIII §9 (Dasamsa)` };
   return undefined;
-}
-
-/** Use the same BPHS sign mapping as the Parashari tab. */
-export function vargaSignAt(key: VargaKey, lon: number): number {
-  const degree = norm360(lon);
-  const sign = Math.floor(degree / 30);
-  return VARGA_BY_KEY[key].signOf(sign, degree - sign * 30);
 }
 
 export type PlacementDignity = "own sign" | "exaltation sign" | "debilitation sign" | "other";
@@ -106,26 +102,26 @@ export function parashariVargaPeriods(
 
 export function parashariVargaEvidence(
   event: { label: string; date: string; matter?: string },
-  positions: PlanetPosition[],
+  input: PlanetInput,
   lagnaLon: number,
   periods: [Planet, Planet, Planet] | null,
 ): ParashariVargaEvidence | undefined {
   const topic = vargaTopicFor(event.matter);
   if (!topic || !event.matter) return undefined;
-  const signs = (key: VargaKey) => new Map(positions.map((p) => [p.planet, vargaSignAt(key, p.lon)]));
-  const d1 = signs("D1");
-  const dv = signs(topic.division);
-  const frame = (key: "D1" | PromiseVarga, p: Map<Planet, number>): PromiseHouseEvidence => {
-    const lagnaSign = vargaSignAt(key, lagnaLon);
+  const context = asPlanetContext(input);
+  const positions = planetPositions(context);
+  const d1 = createDivisionalPlanetContext(context, "D1", lagnaLon);
+  const dv = createDivisionalPlanetContext(context, topic.division, lagnaLon);
+  const frame = (key: "D1" | PromiseVarga, p: DivisionalPlanetContext): PromiseHouseEvidence => {
+    const lagnaSign = p.ascendantSign;
     const houseSign = (lagnaSign + topic.house - 1) % 12;
     const houseLord = SIGN_LORD[houseSign];
-    const lordSign = p.get(houseLord);
-    if (lordSign === undefined) throw new Error(`Missing ${houseLord} in ${key}`);
+    const lordSign = p.requirePlanet(houseLord).signIndex;
     return {
       chart: key, lagnaSign, house: topic.house, houseSign, houseLord,
       lordSign, lordHouse: houseFrom(lagnaSign, lordSign), lordDignity: signDignity(houseLord, lordSign),
-      occupants: positions.filter((x) => p.get(x.planet) === houseSign).map((x) => x.planet),
-      fullAspects: positions.filter((x) => p.get(x.planet) !== houseSign && drishtiQuarters(x.planet, p.get(x.planet)!, houseSign) >= 4).map((x) => x.planet),
+      occupants: p.occupants(houseSign).map((x) => x.planet),
+      fullAspects: p.planets.filter((x) => x.signIndex !== houseSign && p.fullAspect(x.planet, houseSign)).map((x) => x.planet),
     };
   };
   const rashi = frame("D1", d1);
@@ -137,9 +133,9 @@ export function parashariVargaEvidence(
     },
     benefic: naturalBenefic,
   }).find((h) => h.house === topic.house)!;
-  const rashiLordSign = dv.get(rashi.houseLord)!;
+  const rashiLordSign = dv.requirePlanet(rashi.houseLord).signIndex;
   const lagnaLord = SIGN_LORD[varga.lagnaSign];
-  const lagnaLordSign = dv.get(lagnaLord)!;
+  const lagnaLordSign = dv.requirePlanet(lagnaLord).signIndex;
   const evidence: ParashariVargaEvidence = {
     label: event.label, date: event.date, matter: event.matter, subject: topic.subject,
     division: topic.division, practitionerSource: topic.practitionerSource, rashi, varga,

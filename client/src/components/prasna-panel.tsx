@@ -3,6 +3,7 @@ import type { ChartResult } from "@shared/schema";
 import { NAKSHATRAS, SIGN_LORD, SIGNS } from "@shared/astro";
 import { GULIKA_METHODS, normaliseGulikaMethod } from "@shared/gulika-methods";
 import { gulikaNatalClues } from "@shared/gulika-clues";
+import { createPlanetContext, natalPlanetContext } from "@shared/planet-context";
 import {
   arudhaFromHandful,
   ashtamangalaFromGroups,
@@ -295,8 +296,8 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
   const savedPrasnas = useSavedPrasnas();
 
   const natal = useMemo(
-    () => computePrasna(positions, birthLagnaIdx),
-    [positions, birthLagnaIdx],
+    () => computePrasna(natalPlanetContext(result), birthLagnaIdx),
+    [result, birthLagnaIdx],
   );
   const dispositions = useMemo(
     () => computePrasnaDispositions(reading.strength),
@@ -335,8 +336,8 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
     // An unspecified gender must not silently select Beeja as a personal association.
     const sphuta = result.chart.gender === "male" || result.chart.gender === "female"
       ? { kind: progeny.kind, signIndex: progeny.signIndex } : undefined;
-    return gulikaNatalClues(positions, result.gulika, birthLagnaIdx, sphuta);
-  }, [positions, result.gulika, result.chart.gender, birthLagnaIdx, progeny]);
+    return gulikaNatalClues(natalPlanetContext(result), result.gulika, birthLagnaIdx, sphuta);
+  }, [result, birthLagnaIdx, progeny]);
   const sphutas = useMemo(() => {
     if (!result.gulika) return null;
     const lon = (p: string) => positions.find((x) => x.planet === p)!.lon;
@@ -383,8 +384,12 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
     return computeKootas(maleLon, femaleLon);
   }, [partnerNak, femaleChart, natalMoon.lon]);
   const prasna = useMemo(
-    () => (arudhaIdx === null ? null : computePrasna(now.positions, arudhaIdx)),
-    [now.positions, arudhaIdx],
+    () => (arudhaIdx === null ? null : computePrasna(createPlanetContext(now.positions, {
+      kind: "transit", instant: now.asOf, latitude: result.chart.latitude, longitude: result.chart.longitude,
+      timezone: result.chart.timezone, ayanamsa: result.chart.ayanamsa, nodeType: result.chart.nodeType,
+      ascendant: now.lagnaLon, precision: "full",
+    }), arudhaIdx)),
+    [result, now, arudhaIdx],
   );
   const arudhaReading = useMemo(() => {
     if (arudhaIdx === null || now.lagnaLon === undefined) return null;

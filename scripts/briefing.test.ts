@@ -60,6 +60,20 @@ const briefOf = (c: Chart, plain = true) => briefingFor(resultOf(c), agreementIn
 
 const LIBRA = 6;
 
+test("the planet rule index is practitioner-only and is withheld for a minor", () => {
+  const adult = resultOf(MID);
+  const technical = briefingFor(adult, agreementInput(adult, false));
+  assert.ok(technical.planets.some((p) => p.ruleContext?.some((group) => group.count > 0)));
+  assert.ok(technical.planets.flatMap((p) => p.ruleContext ?? []).every((g) => g.examples.every((e) => e.text)));
+  const plain = briefingFor(adult, agreementInput(adult, true));
+  assert.ok(plain.planets.every((p) => p.ruleContext === undefined));
+  const underlying = resultOf(MINOR);
+  const minor = { ...underlying, now: { ...underlying.now, asOf: "2024-01-01T12:00:00Z" },
+    sensitive: { withheld: true, ageYears: 7, minAge: 18 } };
+  const held = briefingFor(minor, agreementInput(minor, false));
+  assert.ok(held.planets.every((p) => p.ruleContext === undefined));
+});
+
 test("the lagna-edge note fires within five minutes of a sign change and stays silent mid-sign", () => {
   // 15' before the end of Libra, a minute of clock time from Scorpio.
   const e = lagnaEdge(LIBRA * 30 + 29.75, { D1: { before: 119, after: 1 }, D9: { before: 12, after: 1 }, D10: { before: 9, after: 14 } });

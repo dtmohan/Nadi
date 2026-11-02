@@ -2,6 +2,11 @@
 
 This inventory describes implemented subsets, not the completeness or validity of either tradition. A chart-only fact may be displayed before choosing a date; a period or transit cannot. Natal observations are descriptive, and an absent clue is not proof that an event will not occur. The older scores and funnels remain research tools, not birth-time proof. For the fresh-case replay and its limitations see `reading-parity-fresh-review.md`.
 
+The broader six-school migration and the paths that remain unavailable are documented in
+[`planet-context-parity-audit.md`](planet-context-parity-audit.md). The full ordinary KP and
+Parashari natal catalogues are not automatically event-scoring catalogues; the shared event
+families below are the explicitly implemented subsets.
+
 ## Common boundaries
 
 * The ordinary Parashari house reading uses the user's house/aspect settings. These event-research subsets instead use whole-sign houses and full sign-based aspects in D1 and divisions, and are labelled accordingly. They use the chart's selected ayanamsa. Applying D1 functional-lordship tables to divisional ascendants is provisional.

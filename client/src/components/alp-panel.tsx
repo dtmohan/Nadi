@@ -1,4 +1,5 @@
 import { sensitiveGate, lifeAsOf } from "@shared/life-stage";
+import { natalPlanetContext } from "@shared/planet-context";
 import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
 import { SchoolTopicPanel } from "@/components/school-topic-brief";
@@ -172,7 +173,7 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange }: { result: ChartR
       ? DateTime.fromISO(day, { zone: chart.timezone }).toISO()!
       : DateTime.local().toISO()!;
     return computeAlp(
-      positions,
+      natalPlanetContext(result),
       result.jaimini.lagna.lon,
       result.utc,
       iso,

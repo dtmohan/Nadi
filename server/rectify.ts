@@ -92,6 +92,7 @@ import { summarizeParashariComparisons, type ParashariComparisonExample, type Pa
 import { createParashariEventScorer, parashariObservation } from "./parashari-event";
 import { createKpEventScorer } from "@shared/kp-event-evidence";
 import { nemaniRpMoonCheck } from "@shared/kp-nemani-rp";
+import { createPlanetContext } from "@shared/planet-context";
 import { auroraAscendantLinks, auroraMatter } from "@shared/kp-aurora";
 import { auroraV2StageCounts, AURORA_V2_STAGES, type AuroraV2Evidence } from "@shared/kp-aurora-v2";
 import {
@@ -626,11 +627,14 @@ export function rectify(req: RectifyRequest): RectifyResult {
     // whether a retrograde planet entered this sign by backing into it.
     const positions = positionsLite(mid, opts);
     const cuspLons = cuspsAt(mid, chart.latitude, chart.longitude, opts);
-    const { cusps, planets, significators: sigs } = kpNatalFrame(positions, cuspLons);
+    const birthIso = utcAtJulianDay(mid).toUTC().toISO()!;
+    const kpContext = createPlanetContext(positions, { kind: "natal", instant: birthIso,
+      latitude: chart.latitude, longitude: chart.longitude, timezone: zone, timeStandard: chart.timeStandard,
+      ayanamsa: "kp", nodeType: opts.nodeType, houseMethod: "placidus", cusps: cuspLons, ascendant: cuspLons[0], division: "D1", precision: "lite" });
+    const { cusps, planets, significators: sigs } = kpNatalFrame(kpContext, cuspLons);
     const scoreKp = createKpEventScorer(cusps, sigs, planets);
     const lagna = cusps[0];
     const moon = planets.find((p) => p.planet === "Moon")!;
-    const birthIso = utcAtJulianDay(mid).toUTC().toISO()!;
     const birthMs = Date.parse(birthIso);
 
     const lagnaJ = norm360(
@@ -639,7 +643,11 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const moonJ = planetLonAt("Moon", mid, optsJ).lon;
     const jSign = Math.floor(lagnaJ / 30);
     const posJ = positionsAt(mid, optsJ);
-    const scoreParashari = createParashariEventScorer(posJ, lagnaJ, birthIso, zone);
+    const natalContext = createPlanetContext(posJ, { kind: "natal", instant: birthIso,
+      latitude: chart.latitude, longitude: chart.longitude, timezone: zone, timeStandard: chart.timeStandard,
+      ayanamsa: optsJ.ayanamsa, nodeType: optsJ.nodeType, sunrise: chart.sunriseDef || "edge",
+      houseMethod: chart.parashariHouseMethod || "rashi", ascendant: lagnaJ, division: "D1", precision: "full" });
+    const scoreParashari = createParashariEventScorer(natalContext, lagnaJ, birthIso, zone);
     const parashariByEvent = req.events.map((e, ei) => scoreParashari(e, e.date, eventInstants[ei], eventPositionsJ[ei]));
     const parashariVargas = parashariByEvent.flatMap((p) => p.varga ? [p.varga] : []);
     const parashariPromise = parashariByEvent.flatMap((p) => p.promise ? [p.promise] : []);
@@ -647,7 +655,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const parashariDivisional = parashariByEvent.flatMap((p) => p.divisional ? [p.divisional] : []);
     const manley = parashariByEvent.flatMap((p) => p.manley ? [p.manley] : []);
     const parashariHierarchy = parashariByEvent.map((p) => p.hierarchy ?? null);
-    const jai = { j: computeJaimini(posJ, lagnaJ, birthIso), positions: posJ };
+    const jai = { j: computeJaimini(natalContext, lagnaJ, birthIso), positions: posJ };
     // The result is constant within a Chara maha/antar period for this
     // candidate and area. Cache only inside this candidate so another birth
     // time can never inherit its period boundaries or natal positions.

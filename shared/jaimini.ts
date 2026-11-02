@@ -9,6 +9,7 @@ import { rasiAspects, isBenefic, argalaOn, type Argala } from "./jaimini-core";
 import { evaluateJaimini } from "./rules-jaimini";
 import { computeAyur, type AyurResult } from "./jaimini-ayur";
 import { computeInduLagna, type InduLagnaResult } from "./indu-lagna";
+import { asPlanetContext, assertContextAscendant, planetPositions, type PlanetInput } from "./planet-context";
 
 export { rasiAspects, isBenefic, argalaOn, type Argala };
 
@@ -420,7 +421,10 @@ function lagnaAt(lon: number): JaiminiLagna {
   return { lon, signIndex, sign: SIGNS[signIndex], degInSign: lon - signIndex * 30 };
 }
 
-export function computeJaimini(positions: PlanetPosition[], lagnaLon: number, birthIso: string, specialLons?: { horaLagna: number; ghatikaLagna: number }): JaiminiResult {
+export function computeJaimini(input: PlanetInput, lagnaLon: number, birthIso: string, specialLons?: { horaLagna: number; ghatikaLagna: number }): JaiminiResult {
+  const context = asPlanetContext(input);
+  assertContextAscendant(context, lagnaLon);
+  const positions = planetPositions(context);
   const lagnaSign = Math.floor(lagnaLon / 30);
   const lagna = lagnaAt(lagnaLon);
   const special = specialLons ? { horaLagna: lagnaAt(specialLons.horaLagna), ghatikaLagna: lagnaAt(specialLons.ghatikaLagna) } : undefined;

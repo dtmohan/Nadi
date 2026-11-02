@@ -11,6 +11,7 @@ import {
   type PlanetPosition,
   type Sign,
 } from "./astro";
+import { asPlanetContext, assertContextAscendant, planetPositions, type PlanetInput } from "./planet-context";
 import { allPlanetChecks, type PlanetCheck } from "./parashari-checks";
 import { vimshottari, type Vimshottari } from "./kp";
 import {
@@ -344,7 +345,7 @@ const strongDignity = (p: PlanetPosition) =>
   p.dignity === "Moolatrikona";
 
 export function computeParashari(
-  positions: PlanetPosition[],
+  input: PlanetInput,
   lagnaLon: number,
   birthIso: string,
   asOfIso: string,
@@ -354,6 +355,9 @@ export function computeParashari(
   withhold = false,
   houseMethod: ParashariHouseMethod = "rashi",
 ): ParashariResult {
+  const context = asPlanetContext(input);
+  assertContextAscendant(context, lagnaLon);
+  const positions = planetPositions(context);
   const lagnaIdx = Math.floor((((lagnaLon % 360) + 360) % 360) / 30);
   const asp = ruleAspect(aspectFloor);
   const shadbala = shadbalaBase
@@ -377,7 +381,7 @@ export function computeParashari(
     ? computeBhavaPhala(positions, shadbala, ashtakavarga, houseView)
     : undefined;
   const vargaPhala = shadbala ? computeVargaPhala(shadbala) : undefined;
-  const pos = (pl: Planet) => positions.find((p) => p.planet === pl)!;
+  const pos = (pl: Planet) => context.requirePlanet(pl).position as PlanetPosition;
   const houseOf = (pl: Planet) => houseView.houseOf(pos(pl));
   const signOfHouse = (h: number) => houseView.signOfHouse(h);
   const lordOf = (h: number) => houseView.lordOf(h);

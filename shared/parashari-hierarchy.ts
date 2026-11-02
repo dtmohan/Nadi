@@ -9,6 +9,8 @@ import { rashiHouseView } from "./house-view";
 import { judgeBhavas } from "./parashari-houses";
 import { manleyTopicFor, type ManleyDivision, type ManleyEvidence, type ManleyFrame } from "./manley-evidence";
 import { signDignity, vargaSignAt, type PlacementDignity } from "./parashari-varga-evidence";
+import { asPlanetContext, planetPositions, type PlanetInput } from "./planet-context";
+import { createDivisionalPlanetContext } from "./divisional-planet-context";
 
 export type HierarchyStatus = "supported" | "mixed" | "unresolved";
 export const CROSS_CHART_SOURCE = {
@@ -67,7 +69,9 @@ const status = (support: string[], strain: string[]): HierarchyStatus =>
 const links = (frame: ManleyFrame) => [...frame.primary.house, ...frame.primary.houseLord, ...frame.primary.karaka];
 
 /** Shared natal foundations; no period or event date is required. */
-export function createParashariFoundationScorer(natal: PlanetPosition[], lagna: number) {
+export function createParashariFoundationScorer(input: PlanetInput, lagna: number) {
+  const context = asPlanetContext(input);
+  const natal = planetPositions(context);
   const asc = vargaSignAt("D1", lagna);
   const judgements = judgeBhavas(natal, rashiHouseView(asc, natal), {
     aspect: (p, from, to) => drishtiQuarters(p, from, to) >= 4 ? 4 : 0,
@@ -79,19 +83,20 @@ export function createParashariFoundationScorer(natal: PlanetPosition[], lagna: 
     if (!topic) return undefined;
     let foundation = cache.get(matter);
     if (!foundation) {
+      const division = createDivisionalPlanetContext(context, topic.division, lagna);
       const judgement = judgements[topic.house - 1];
       const d1: HierarchyNatalCheck = { house: topic.house, status: status(judgement.support, judgement.strain),
         support: judgement.support, strain: judgement.strain };
-      const houseSign = (vargaSignAt(topic.division, lagna) + topic.house - 1) % 12;
+      const houseSign = (division.ascendantSign + topic.house - 1) % 12;
       const lord = SIGN_LORD[houseSign];
       const position = natal.find((p) => p.planet === lord);
       if (!position) throw new Error(`Missing ${lord} in ${topic.division}`);
-      const lordSign = vargaSignAt(topic.division, position.lon);
+      const lordSign = division.requirePlanet(lord).signIndex;
       const benefit = natal.filter((p) => naturalBenefic(p, natal));
-      const occupants = benefit.filter((p) => vargaSignAt(topic.division, p.lon) === houseSign).map((p) => p.planet);
+      const occupants = benefit.filter((p) => division.requirePlanet(p.planet).signIndex === houseSign).map((p) => p.planet);
       const aspects = benefit.filter((p) => {
-        const from = vargaSignAt(topic.division, p.lon);
-        return from !== houseSign && drishtiQuarters(p.planet, from, houseSign) >= 4;
+        const from = division.requirePlanet(p.planet).signIndex;
+        return from !== houseSign && division.fullAspect(p.planet, houseSign);
       }).map((p) => p.planet);
       const support: string[] = [];
       if (occupants.length) support.push(`${occupants.join(", ")} in ${topic.division} house ${topic.house}`);
@@ -101,7 +106,7 @@ export function createParashariFoundationScorer(natal: PlanetPosition[], lagna: 
       const strain = EXALTATION[lord] && (EXALTATION[lord].sign + 6) % 12 === lordSign
         ? [`${lord}, the house lord, in its debilitation sign`] : [];
       const divisionCheck: HierarchyNatalCheck = { house: topic.house, status: status(support, strain), support, strain };
-      const divisionAsc = vargaSignAt(topic.division, lagna);
+      const divisionAsc = division.ascendantSign;
       const natalLord = SIGN_LORD[(asc + topic.house - 1) % 12];
       const roles = new Map<Planet, CrossChartPlanet["roles"]>();
       const addRole = (planet: Planet, role: CrossChartPlanet["roles"][number]) => {
@@ -115,7 +120,7 @@ export function createParashariFoundationScorer(natal: PlanetPosition[], lagna: 
       const planets = Array.from(roles.entries()).map(([planet, planetRoles]) => {
         const p = natal.find((x) => x.planet === planet);
         if (!p) throw new Error(`Missing ${planet} in cross-chart evidence`);
-        const d1Sign = vargaSignAt("D1", p.lon), divisionSign = vargaSignAt(topic.division, p.lon);
+        const d1Sign = vargaSignAt("D1", p.lon), divisionSign = division.requirePlanet(planet).signIndex;
         const place = (sign: number, ascendant: number): CrossChartPlacement => {
           const signLord = SIGN_LORD[sign];
           const relation = signLord === planet ? "own" : FRIENDS[planet].includes(signLord) ? "friend"
@@ -133,7 +138,7 @@ export function createParashariFoundationScorer(natal: PlanetPosition[], lagna: 
 }
 
 /** Cached natal foundations are shared by every actual and trial date. */
-export function createParashariHierarchyScorer(natal: PlanetPosition[], lagna: number) {
+export function createParashariHierarchyScorer(natal: PlanetInput, lagna: number) {
   const foundationFor = createParashariFoundationScorer(natal, lagna);
   return (evidence: ManleyEvidence | undefined, outcome?: "favourable" | "unfavourable" | "mixed"): HierarchyEvent | undefined => {
     if (!evidence || (outcome && outcome !== "favourable") || !evidence.antara || evidence.periods.length !== 2) return undefined;

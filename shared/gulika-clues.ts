@@ -6,7 +6,8 @@
  */
 import { houseFrom, naturalBenefic, type Planet, type PlanetPosition } from "./astro";
 import type { GulikaPoint } from "./gulika-methods";
-import { directedSignRelation, type DirectedPointRelation } from "./point-relations";
+import type { DirectedPointRelation } from "./point-relations";
+import { asPlanetContext, planetPositions, type PlanetInput } from "./planet-context";
 
 export interface GulikaNatalClues {
   house: number;
@@ -22,17 +23,17 @@ export interface GulikaNatalClues {
 const CLASSICAL: readonly Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 
 export function gulikaNatalClues(
-  positions: PlanetPosition[],
+  input: PlanetInput,
   gulika: Pick<GulikaPoint, "signIndex">,
   lagnaSign: number,
   sphuta?: { kind: "beeja" | "kshetra"; signIndex: number },
 ): GulikaNatalClues {
+  const context = asPlanetContext(input);
+  const positions = planetPositions(context);
   const planets = CLASSICAL.map((planet) => {
-    const p = positions.find((pos) => pos.planet === planet);
-    if (!p) throw new Error(`Missing ${planet} for Gulika natal clues`);
-    return p;
+    return context.requirePlanet(planet).position as PlanetPosition;
   });
-  const planetaryRelations = planets.map((p) => directedSignRelation(p, { id: "Gulika", signIndex: gulika.signIndex }));
+  const planetaryRelations = planets.map((p) => context.parashariPointRelation(p.planet, { id: "Gulika", signIndex: gulika.signIndex }));
   const jupiter = planetaryRelations.find((r) => r.from === "Jupiter")!;
   const fifthSign = (lagnaSign + 4) % 12;
   const benefics = planets.filter((p) => naturalBenefic(p, positions));
@@ -43,7 +44,7 @@ export function gulikaNatalClues(
     fifth: {
       signIndex: fifthSign,
       naturalBeneficOccupants: benefics.filter((p) => p.signIndex === fifthSign).map((p) => p.planet),
-      naturalBeneficAspects: benefics.filter((p) => directedSignRelation(p, { id: "fifth-house sign", signIndex: fifthSign }).fullAspect).map((p) => p.planet),
+      naturalBeneficAspects: benefics.filter((p) => context.parashariPointRelation(p.planet, { id: "fifth-house sign", signIndex: fifthSign }).fullAspect).map((p) => p.planet),
     },
     sphuta: sphuta ? { ...sphuta, sameSignAsGulika: sphuta.signIndex === gulika.signIndex } : null,
   };

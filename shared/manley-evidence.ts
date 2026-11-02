@@ -6,6 +6,8 @@
 import { drishtiQuarters, PLANETS, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
 import { vargaSignAt } from "./parashari-varga-evidence";
 import { functionalFrame, type FunctionalFrame } from "./parashari-functional";
+import { asPlanetContext, planetPositions, type PlanetInput } from "./planet-context";
+import { createDivisionalPlanetContext, type DivisionalPlanetContext } from "./divisional-planet-context";
 
 export type ManleyDivision = "D4" | "D7" | "D9" | "D10" | "D24";
 export const MANLEY_SOURCE = {
@@ -97,9 +99,11 @@ export interface ManleyNatalEvidence {
 /** One natal candidate may be evaluated for hundreds of dates. The event
  * frames depend on the candidate, matter, chart and planet, not on the date
  * or the other period lords. Cache those immutable frames per candidate. */
-export function createManleyFrameScorer(natal: PlanetPosition[], lagnaLon: number) {
+export function createManleyFrameScorer(input: PlanetInput, lagnaLon: number) {
+  const natalContext = asPlanetContext(input);
+  const natal = planetPositions(natalContext);
   const frameCache = new Map<string, ManleyFrame>();
-  const signCache = new Map<string, Map<Planet, number>>();
+  const signCache = new Map<string, DivisionalPlanetContext>();
   const isNode = (p: Planet) => p === "Rahu" || p === "Ketu";
   return (matter: string, chart: "D1" | ManleyDivision, p: Planet, houseOverride?: number): ManleyFrame => {
       const topic = manleyTopicFor(matter);
@@ -109,13 +113,9 @@ export function createManleyFrameScorer(natal: PlanetPosition[], lagnaLon: numbe
       const cached = frameCache.get(key);
       if (cached) return cached;
       let signs = signCache.get(chart);
-      if (!signs) { signs = new Map(natal.map((x) => [x.planet, vargaSignAt(chart, x.lon)])); signCache.set(chart, signs); }
-      const signOf = (planet: Planet) => {
-        const sign = signs!.get(planet);
-        if (sign === undefined) throw new Error(`Missing ${planet} in ${chart}`);
-        return sign;
-      };
-      const asc = vargaSignAt(chart, lagnaLon);
+      if (!signs) { signs = createDivisionalPlanetContext(natalContext, chart, lagnaLon); signCache.set(chart, signs); }
+      const signOf = (planet: Planet) => signs!.requirePlanet(planet).signIndex;
+      const asc = signs.ascendantSign;
       const houseSign = (asc + eventHouse - 1) % 12;
       const houseLord = SIGN_LORD[houseSign];
       const natalLagna = vargaSignAt("D1", lagnaLon);
@@ -220,7 +220,7 @@ export function createManleyFrameScorer(natal: PlanetPosition[], lagnaLon: numbe
 }
 
 /** Natal clues use the same frames as dated checks; no period is invented. */
-export function manleyNatalEvidence(matter: string, natal: PlanetPosition[], lagnaLon: number,
+export function manleyNatalEvidence(matter: string, natal: PlanetInput, lagnaLon: number,
   frame = createManleyFrameScorer(natal, lagnaLon)): ManleyNatalEvidence | undefined {
   const topic = manleyTopicFor(matter);
   if (!topic) return undefined;
@@ -229,7 +229,7 @@ export function manleyNatalEvidence(matter: string, natal: PlanetPosition[], lag
     educationFourth: matter === "education" ? PLANETS.map((planet) => ({ planet, frame: frame(matter, "D24", planet, 4) })) : undefined };
 }
 
-export function createManleyEvidenceScorer(natal: PlanetPosition[], lagnaLon: number) {
+export function createManleyEvidenceScorer(natal: PlanetInput, lagnaLon: number) {
   const frame = createManleyFrameScorer(natal, lagnaLon);
   return (event: ManleyEventInput, periods: [Planet, Planet, Planet] | null): ManleyEvidence | undefined => {
     const topic = manleyTopicFor(event.matter);

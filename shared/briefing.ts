@@ -9,6 +9,9 @@
  * transit timeline is redacted for a minor before it is read.
  */
 import { DateTime } from "luxon";
+import { kpPlanetContext, natalPlanetContext } from "./planet-context";
+import { kpPlanetDetail, planetRulesBySchool, type ContextSchool, type SchoolRuleSnapshots } from "./planet-rule-context";
+import { computePrasna } from "./rules-prasna";
 import { houseFrom, SIGNS, type Planet, type PlanetPosition } from "./astro";
 import type { ChartResult } from "./schema";
 import type { LifeArea } from "./rules";
@@ -98,6 +101,8 @@ export interface PlanetBrief {
   rules: string;
   /** One line per system that gives the planet a role, labelled. */
   systems: { system: string; text: string }[];
+  /** Practitioner-only index of explicitly attributed fired rules, not all dependencies. */
+  ruleContext?: Array<{ school: string; count: number; examples: Array<{ id: string; text: string; source?: string; chart?: "D1" | "D9"; asOf?: string }>; coverage: string }>;
 }
 
 export interface Briefing {
@@ -673,7 +678,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
   }
 
   // ALP: the progressed lagna's sign now, as the ALP tab reads it.
-  const alp: AlpResult = computeAlp(positions, result.jaimini.lagna.lon, result.utc, lifeAt, undefined, withheld);
+  const alp: AlpResult = computeAlp(natalPlanetContext(result), result.jaimini.lagna.lon, result.utc, lifeAt, undefined, withheld);
   {
     const sp = alp.signPeriods.find((s) => s.start <= lifeAt && lifeAt < s.end);
     const nakP = alp.placements.find((p) => p.role === "Lord of the ALP nakshatra");
@@ -758,7 +763,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
   }
 
   next.sort((a, b) => a.start.localeCompare(b.start));
-  const planets = planetsInPlay(result, input, tn, chalit, zone, plain);
+  const planets = planetsInPlay(result, input, tn, chalit, zone, plain, alp);
   const running = par.dasaReadings.find((d) => d.current);
   const yogas = par.findings.filter((f) => f.kind !== "lord" && f.kind !== "house" && f.kind !== "evil");
   const dasaCombos = running ? dasaCombinations(yogas, running, par.ties, par.natures) : undefined;
@@ -804,8 +809,21 @@ function planetsInPlay(
   chalit: ChalitResult | undefined,
   zone: string,
   plain: boolean,
+  alp: AlpResult,
 ): PlanetBrief[] {
   const par = input.parashari;
+  const context = natalPlanetContext(result);
+  const kpContext = kpPlanetContext(result);
+  // The source modules' adult readings are not surfaced through this index for a minor.
+  const snapshots: SchoolRuleSnapshots | undefined = plain || input.withheld ? undefined : {
+    bnn: { context, result: result.reading },
+    kp: { context: kpContext, result: input.kp },
+    jaimini: { context, result: result.jaimini },
+    parashari: { context, result: par },
+    alp: { context, result: alp },
+    prasna: { context, result: computePrasna(context, result.jaimini.lagna.signIndex) },
+  };
+  const schoolNames: Record<ContextSchool, string> = { bnn: "Nadi", kp: "KP", jaimini: "Jaimini", parashari: "Parashari", alp: "ALP", prasna: "Prasna Marga" };
   const lagnaSign = par.lagna.signIndex;
   const moonSign = result.positions.find((p) => p.planet === "Moon")?.signIndex;
   const roles = new Map<Planet, string[]>();
@@ -822,13 +840,12 @@ function planetsInPlay(
 
   const out: PlanetBrief[] = [];
   roles.forEach((rs, planet) => {
-    const pos = result.positions.find((p) => p.planet === planet) as PlanetPosition | undefined;
-    if (!pos) return;
-    const house = ((pos.signIndex - lagnaSign + 12) % 12) + 1;
+    const facts = context.planet(planet);
+    if (!facts) return;
+    const pos = facts.position;
+    const house = facts.wholeSignHouse!;
     const cmp = chalit?.comparison.find((c) => c.planet === planet);
-    const withP = result.positions
-      .filter((p) => p.planet !== planet && p.signIndex === pos.signIndex && ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"].includes(p.planet))
-      .map((p) => thePlanet(p.planet));
+    const withP = facts.sameSign.map(thePlanet);
     const place = [
       `${pos.sign}, your ${ordH(house)}`,
       cmp && cmp.agree && !cmp.unchanged ? `${ordH(cmp.sripati.chalitHouse)} by bhava` : undefined,
@@ -890,10 +907,15 @@ function planetsInPlay(
       const info = CHARA_KARAKA_INFO[ck.karaka as keyof typeof CHARA_KARAKA_INFO];
       if (info) systems.push({ system: "Jaimini", text: plain ? `${info.name}: ${info.meaning}` : `${info.name} (${ck.karaka}), ${dm(ck.rankDegree)} in its sign` });
     }
-    const subOf = input.kp.cusps.filter((c) => c.subLord === planet).map((c) => c.house);
+    const subOf = kpPlanetDetail(kpContext, input.kp, planet)?.cuspSubLordOf ?? [];
     if (subOf.length) systems.push({ system: "KP", text: `Sub lord of the ${ordList(subOf)} cusp${subOf.length === 1 ? "" : "s"}` });
 
-    out.push({ planet, roles: rs, place, states: states.map(cap), rules, systems });
+    const ruleContext = snapshots ? (Object.entries(planetRulesBySchool(planet, snapshots)) as Array<[ContextSchool, ReturnType<typeof planetRulesBySchool>[ContextSchool]]>)
+      .flatMap(([school, found]) => found.status === "evaluated" && found.rules.length
+        ? [{ school: schoolNames[school], count: found.rules.length, coverage: found.coverage,
+          examples: found.rules.slice(0, 3).map((r) => ({ id: r.ruleId, text: r.text, source: r.source, chart: r.chart, asOf: r.asOf })) }]
+        : []) : undefined;
+    out.push({ planet, roles: rs, place, states: states.map(cap), rules, systems, ruleContext });
   });
   return out;
 }

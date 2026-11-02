@@ -8,6 +8,7 @@ import {
   normaliseSunriseDef,
 } from "@shared/schema";
 import { RULES, applyBand, evaluate } from "@shared/rules";
+import { createPlanetContext } from "@shared/planet-context";
 import { normaliseGulikaMethod } from "@shared/gulika-methods";
 import { assessNakshatraWealth } from "@shared/nakshatra-wealth";
 import {
@@ -159,9 +160,15 @@ export function computeChart(chart: Chart): ChartResult {
   const zone = basis.displayZone;
   const jd = julianDay(utc);
   const positions = positionsAt(jd, opts);
+  const asc = ascendantAt(jd, chart.latitude, chart.longitude, opts);
+  const natal = createPlanetContext(positions, { kind: "natal", instant: utc.toISO()!,
+    latitude: chart.latitude, longitude: chart.longitude, timezone: zone, timeStandard: chart.timeStandard,
+    ayanamsa: opts.ayanamsa, nodeType: opts.nodeType, sunrise: opts.sunrise,
+    houseMethod: chart.parashariHouseMethod || "rashi", gulikaMethod: normaliseGulikaMethod(chart.gulikaMethod),
+    ascendant: asc, division: "D1", precision: "full" });
   const gender =
     (chart.gender as "male" | "female" | "unspecified") ?? "unspecified";
-  const reading = evaluate(positions, undefined, gender);
+  const reading = evaluate(natal, undefined, gender);
   // Birth-time band: read the Nadi lines again at both ends; lines whose direction, bond or
   // firing changes inside the band say so. The reading at the stated time is unchanged.
   const band = Math.max(0, Math.min(180, Number(chart.timeUncertaintyMin ?? 0) || 0));
@@ -188,8 +195,7 @@ export function computeChart(chart: Chart): ChartResult {
   } catch {
     special = undefined;
   }
-  const asc = ascendantAt(jd, chart.latitude, chart.longitude, opts);
-  const jaimini = computeJaimini(positions, asc, utc.toISO()!, special);
+  const jaimini = computeJaimini(natal, asc, utc.toISO()!, special);
   // Saturn's nakshatra periods serve both the chapter-70 points and the special stars counted
   // from the birth star (Phaladeepika 26.27-28, Sutton ch. 9).
   const saturnNaks = nakshatraPeriods("Saturn", jd, endJd, opts);

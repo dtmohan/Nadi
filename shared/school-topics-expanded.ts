@@ -3,6 +3,7 @@
  * A new rule is not assigned to a topic until its wording and scope are reviewed.
  */
 import { DateTime } from "luxon";
+import { natalPlanetContext } from "./planet-context";
 import type { ChartResult } from "./schema";
 import type { AgreementInput, TopicAgreement } from "./agreement";
 import { PLAIN_TOPIC_ORDER } from "./topic-brief";
@@ -119,7 +120,7 @@ export function defaultAlpForTopics(result: ChartResult, withheld: boolean, sele
   const passing = lifeAsOf(result.chart, result.now.asOf) !== result.now.asOf ? result.chart.deathDate : null;
   const day = passing && parsed > passing ? passing : parsed < result.chart.birthDate ? result.chart.birthDate : parsed;
   const when = DateTime.fromISO(day, { zone: result.chart.timezone }).toISO()!;
-  return computeAlp(result.positions, result.jaimini.lagna.lon, result.utc, when, DEFAULT_ALP_CONFIG, withheld || sensitiveGate(result.chart, result.utc, when).withheld);
+  return computeAlp(natalPlanetContext(result), result.jaimini.lagna.lon, result.utc, when, DEFAULT_ALP_CONFIG, withheld || sensitiveGate(result.chart, result.utc, when).withheld);
 }
 
 export interface TopicBuildOptions {
@@ -135,7 +136,7 @@ export function expandedSchoolTopicBriefs(result: ChartResult, school: BriefScho
   const allowed = (topic: SchoolTopic) => areaSeason(topic, result.utc, topicAt).inSeason;
   const pm = school === "prasna" ? options.prasna ?? {
     frame: "natal" as const,
-    readings: computePrasna(result.positions, result.jaimini.lagna.signIndex),
+    readings: computePrasna(natalPlanetContext(result), result.jaimini.lagna.signIndex),
     fructification: computePrasnaFructification(result.positions, result.reading.strength, result.jaimini.lagna.signIndex),
   } : undefined;
   return ALL_SCHOOL_TOPICS.filter(allowed).flatMap((topic) => {

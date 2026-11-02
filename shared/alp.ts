@@ -14,6 +14,7 @@ import { DateTime } from "luxon";
 import { NAKSHATRAS, NAKSHATRA_LORD, SIGNS, SIGN_LORD, houseFrom, norm360, type Planet, type PlanetPosition, type Sign } from "./astro";
 import { navamsaOf } from "./jaimini";
 import { evaluateAlp, type AlpFinding } from "./rules-alp";
+import { asPlanetContext, assertContextAscendant, planetPositions, type PlanetInput } from "./planet-context";
 
 // Akshaya Rasi (AR / ARP), Book 2 ch. 6-8 (pp. 68-77): the Moon's birth nakshatra is the birth rasi;
 // with each Vimshottari dasa the Moon "shifts" to the next nakshatra, one pada for each quarter of the
@@ -356,7 +357,10 @@ function computeArp(positions: PlanetPosition[], birth: DateTime, asOf: DateTime
   };
 }
 
-export function computeAlp(positions: PlanetPosition[], natalLagnaLon: number, birthIso: string, asOfIso: string, config: AlpConfig = DEFAULT_ALP_CONFIG, withhold = false): AlpResult {
+export function computeAlp(input: PlanetInput, natalLagnaLon: number, birthIso: string, asOfIso: string, config: AlpConfig = DEFAULT_ALP_CONFIG, withhold = false): AlpResult {
+  const context = asPlanetContext(input);
+  assertContextAscendant(context, natalLagnaLon);
+  const positions = planetPositions(context);
   const birth = DateTime.fromISO(birthIso, { setZone: true });
   const asOf = DateTime.fromISO(asOfIso, { setZone: true });
   const ageYears = Math.max(0, asOf.diff(birth, "days").days / YEAR_DAYS);
@@ -372,13 +376,13 @@ export function computeAlp(positions: PlanetPosition[], natalLagnaLon: number, b
       signIndex,
       sign: SIGNS[signIndex],
       lord: SIGN_LORD[signIndex],
-      planets: positions.filter((p) => p.signIndex === signIndex).map((p) => p.planet),
+      planets: context.occupants(signIndex).map((p) => p.planet),
       houseFromJanma: houseFrom(janma, signIndex),
     };
   });
 
   const place = (planet: Planet, role: string): AlpPlacement => {
-    const p = positions.find((x) => x.planet === planet)!;
+    const p = context.requirePlanet(planet).position;
     return { planet, role, signIndex: p.signIndex, houseFromAlp: houseFrom(alp, p.signIndex), houseFromJanma: houseFrom(janma, p.signIndex) };
   };
   const placements: AlpPlacement[] = [

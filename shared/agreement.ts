@@ -14,6 +14,8 @@
 // Statements withheld for a minor never reach the kernel: the age gate removes them first, and the kernel
 // refuses any that arrive. The weighing and the comparison are the app's conventions (provisional).
 
+import { natalPlanetContext } from "./planet-context";
+
 import {
   firstClause,
   gist,
@@ -970,7 +972,7 @@ export function agreementInput(result: ChartResult, plain: boolean): AgreementIn
   return {
     reading: result.reading,
     parashari: computeParashari(
-      result.positions,
+      natalPlanetContext(result),
       result.jaimini.lagna.lon,
       result.utc,
       lifeAt,

@@ -1,6 +1,7 @@
 // Prasna Marga's natal house walk, using exactly the inputs of the on-screen birth-chart view.
 // The interactive question chart has a separate selected Arudha and is not part of this export.
 import { computePrasna, computePrasnaFructification, PRASNA_BHAVA_SIGNIFICATIONS } from "../rules-prasna";
+import { natalPlanetContext } from "../planet-context";
 import { HOUSE_AREA, redactProse } from "../life-stage";
 import { PRASNA_HOUSE_GLOSS } from "../house-gloss";
 import { ORD, type ReportModule, type ReportPara } from "./types";
@@ -10,7 +11,7 @@ export const prasnaModule: ReportModule = {
   build(ctx) {
     const { result, S, cites, withheld, inSeason } = ctx;
     const lagna = result.jaimini.lagna.signIndex;
-    const readings = computePrasna(result.positions, lagna);
+    const readings = computePrasna(natalPlanetContext(result), lagna);
     const fructification = computePrasnaFructification(result.positions, result.reading.strength, lagna);
     const paras: ReportPara[] = [
       { kind: "lead", text: "These are the birth-chart houses counted from the natal rising sign. They are not a question-time chart and do not answer a horary question." },

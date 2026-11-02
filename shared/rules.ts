@@ -16,6 +16,9 @@ import {
   houseFrom,
 } from "./astro";
 import { EXTRA_RULES } from "./rules-bnn";
+import { BNN_RELATION_STRENGTH as RELATION_STRENGTH, RETRO_STRENGTH } from "./bnn-relations";
+import { asPlanetContext, planetPositions, type PlanetInput } from "./planet-context";
+export { RETRO_STRENGTH } from "./bnn-relations";
 import { FEMALE_RULES, MALE_FRAME_IDS } from "./rules-female";
 import { CHILDREN_RULES } from "./rules-children";
 import { HOUSE_RULES } from "./rules-houses";
@@ -233,17 +236,6 @@ export interface Reading {
     summary: string;
   };
 }
-
-const RELATION_STRENGTH: Record<Relation, number> = {
-  // Nadi hierarchy: same sign, then trines (~75%), then the 7th (~50%); the 2nd/12th are
-  // directional links (ahead/behind) that Rao's rules lean on, so they keep a working weight.
-  conjunct: 1,
-  trine: 0.75,
-  prev: 0.7,
-  next: 0.65,
-  opposite: 0.5,
-  none: 0,
-};
 
 /**
  * Score bonus per planet beyond the pair, so "Saturn, Mercury and Ketu" outranks "Saturn with Mercury"
@@ -1036,59 +1028,6 @@ const CLASSICAL: Planet[] = [
 // A planet merely in a house from the karaka, without combining with it (below the 7th's 0.5).
 export const HOUSE_STRENGTH = 0.45;
 
-// Rao: a retro planet "will aspect the rear sign by 1/2 strength".
-export const RETRO_STRENGTH = 0.5;
-
-// Effective signs a planet acts from. A retrograde classical planet also acts from the previous
-// sign, unless it backed into its sign from the sign ahead or sits under Rahu/Ketu (see flow.ts).
-function effectiveSigns(
-  p: PlanetPosition,
-  positions: PlanetPosition[],
-): Array<{ sign: number; viaRetro: boolean }> {
-  const out = [{ sign: p.signIndex, viaRetro: false }];
-  if (readsFromPreviousSign(p, positions))
-    out.push({ sign: (p.signIndex + 11) % 12, viaRetro: true });
-  return out;
-}
-
-// Best relation between two planets, considering retrograde alternates.
-function bestRelation(
-  a: PlanetPosition,
-  b: PlanetPosition,
-  positions: PlanetPosition[],
-): {
-  relation: Relation;
-  viaRetro: boolean;
-  aSign: number;
-  bSign: number;
-} | null {
-  let best: {
-    relation: Relation;
-    viaRetro: boolean;
-    aSign: number;
-    bSign: number;
-  } | null = null;
-  for (const ea of effectiveSigns(a, positions)) {
-    for (const eb of effectiveSigns(b, positions)) {
-      const r = relationOf(ea.sign, eb.sign);
-      if (r === "none") continue;
-      const cand = {
-        relation: r,
-        viaRetro: ea.viaRetro || eb.viaRetro,
-        aSign: ea.sign,
-        bSign: eb.sign,
-      };
-      const score = RELATION_STRENGTH[r] * (cand.viaRetro ? RETRO_STRENGTH : 1);
-      const bestScore = best
-        ? RELATION_STRENGTH[best.relation] *
-          (best.viaRetro ? RETRO_STRENGTH : 1)
-        : -1;
-      if (score > bestScore) best = cand;
-    }
-  }
-  return best;
-}
-
 /** What the grader needs besides the finding: the rule, its kind, and the factors already in the base. */
 interface GradeInput {
   f: Finding;
@@ -1310,10 +1249,12 @@ export function bandSentence(f: Finding, female = false): string | null {
 }
 
 export function evaluate(
-  positions: PlanetPosition[],
+  input: PlanetInput,
   rules: Rule[] = RULES,
   gender: Gender = "unspecified",
 ): Reading {
+  const context = asPlanetContext(input);
+  const positions = planetPositions(context);
   const byPlanet = Object.fromEntries(
     positions.map((p) => [p.planet, p]),
   ) as Record<Planet, PlanetPosition>;
@@ -1331,7 +1272,7 @@ export function evaluate(
         (a.planet === "Ketu" && b.planet === "Rahu")
       )
         continue;
-      const r = bestRelation(a, b, positions);
+      const r = context.bnnRelation(a.planet, b.planet);
       if (r)
         relations.push({
           subject: a.planet,
@@ -1409,7 +1350,7 @@ export function evaluate(
     let extraRetro = false;
     for (const c of w.with ?? []) {
       const o = byPlanet[c.planet];
-      const rel = o ? bestRelation(s, o, positions) : null;
+      const rel = o ? context.bnnRelation(s.planet, o.planet) : null;
       const allowed = c.relation ?? ["conjunct", "prev", "next"];
       if (!rel || !allowed.includes(rel.relation)) {
         extraOk = false;
@@ -1471,7 +1412,7 @@ export function evaluate(
       if (!o) continue;
       if (w.exchange && !(s.signLord === o.planet && o.signLord === s.planet))
         continue;
-      const rel = bestRelation(s, o, positions);
+      const rel = context.bnnRelation(s.planet, o.planet);
       const allowed = w.exchange
         ? (w.relation ?? [
             "conjunct",

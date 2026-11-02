@@ -17,6 +17,7 @@ import { toneOfText } from "./synthesis";
 import { redactProse } from "./life-stage";
 import type { PlanetStrength } from "./strength";
 import { ordH, thePlanet, withGloss } from "./house-gloss";
+import { asPlanetContext, planetPositions, type PlanetInput } from "./planet-context";
 
 export interface PrasnaHouseRule {
   house: number; // 1..12 from the ascendant
@@ -144,14 +145,14 @@ const PM = (stanza: string) => `Prasna Marga 14.${stanza}`;
  * from the ascendant. Empty houses are left silent (the text reads them by their lord elsewhere).
  */
 export function computePrasna(
-  positions: PlanetPosition[],
+  input: PlanetInput,
   lagnaIdx: number,
 ): PrasnaHouseReading[] {
+  const context = asPlanetContext(input);
+  const positions = planetPositions(context);
   const out: PrasnaHouseReading[] = [];
   for (const rule of PRASNA_HOUSE_EFFECTS) {
-    const occupants = positions.filter(
-      (p) => houseFrom(lagnaIdx, p.signIndex) === rule.house,
-    );
+    const occupants = context.occupants((lagnaIdx + rule.house - 1) % 12).map((p) => p.position as PlanetPosition);
     if (!occupants.length) continue;
     const malefics = occupants.filter((p) => !naturalBenefic(p, positions));
     const benefics = occupants.filter((p) => naturalBenefic(p, positions));

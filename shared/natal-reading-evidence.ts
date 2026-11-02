@@ -12,6 +12,7 @@ import { parashariPromiseNatal } from "./parashari-promise";
 import { parashariSpecificNatal, type ParashariSpecificNatal } from "./parashari-specific";
 import { createParashariFoundationScorer, type ParashariFoundations } from "./parashari-hierarchy";
 import { createKpCuspScorer } from "./kp-event-evidence";
+import { kpPlanetContext, natalPlanetContext, planetPositions } from "./planet-context";
 
 type NatalChart = Pick<ChartResult, "positions" | "jaimini" | "utc" | "chart" | "now" | "kp">;
 
@@ -25,17 +26,19 @@ export type ParashariNatalConditions = ManleyNatalEvidence & {
 };
 
 export function parashariNatalConditions(result: NatalChart): ParashariNatalConditions[] {
-  const scorer = createManleyFrameScorer(result.positions, result.jaimini.lagna.lon);
-  const foundations = createParashariFoundationScorer(result.positions, result.jaimini.lagna.lon);
+  const context = natalPlanetContext(result);
+  const positions = planetPositions(context);
+  const scorer = createManleyFrameScorer(context, result.jaimini.lagna.lon);
+  const foundations = createParashariFoundationScorer(context, result.jaimini.lagna.lon);
   return Object.keys(MANLEY_TOPICS).flatMap((matter) => {
     if (!eventReadingAllowed(matter, result.utc, result.now.asOf, result.chart)) return [];
-    const e = manleyNatalEvidence(matter, result.positions, result.jaimini.lagna.lon, scorer);
+    const e = manleyNatalEvidence(matter, context, result.jaimini.lagna.lon, scorer);
     if (!e) return [];
     const v = parashariVargaEvidence({ label: matterOf(matter).label, date: result.chart.birthDate, matter },
-      result.positions, result.jaimini.lagna.lon, null);
+      context, result.jaimini.lagna.lon, null);
     return [{ ...e, varga: v,
-      support: v ? parashariPromiseNatal(v, result.positions) : undefined,
-      specific: v ? parashariSpecificNatal(v, result.positions) : undefined, foundation: foundations(matter) }];
+      support: v ? parashariPromiseNatal(v, positions) : undefined,
+      specific: v ? parashariSpecificNatal(v, positions) : undefined, foundation: foundations(matter) }];
   });
 }
 
@@ -51,7 +54,7 @@ export interface KpNatalConditions {
  * separately named Aurora scripts are available only for their mapped topics.
  * Period and transit layers are not assessed without an actual event date. */
 export function kpNatalConditions(result: NatalChart): KpNatalConditions[] {
-  const { cusps, planets, significators } = kpNatalFrame(result.kp.positions, result.kp.cusps);
+  const { cusps, planets, significators } = kpNatalFrame(kpPlanetContext(result), result.kp.cusps);
   const scoreCusp = createKpCuspScorer(cusps, significators);
   return EVENT_MATTERS.flatMap(({ id: matter, label, houses, cusp }) => {
     if (!eventReadingAllowed(matter, result.utc, result.now.asOf, result.chart)) return [];

@@ -10,6 +10,7 @@ import { stagedObservation, type ParashariObservation } from "@shared/parashari-
 import { createParashariHierarchyScorer, type HierarchyEvent } from "@shared/parashari-hierarchy";
 import { functionalObservation } from "@shared/parashari-functional";
 import { conditionalObservations } from "@shared/parashari-conditional";
+import { asPlanetContext, assertContextAscendant, planetPositions, type PlanetInput } from "@shared/planet-context";
 
 export interface ParashariEventInput {
   label: string;
@@ -38,12 +39,15 @@ export function parashariObservation(result: ParashariEventResult, outcome?: Par
  * Cache only natal/period frames for this candidate. The score is recomputed
  * with each event date's own transit sky and the input's own outcome.
  */
-export function createParashariEventScorer(natal: PlanetPosition[], lagna: number, birthIso: string, birthZone: string) {
+export function createParashariEventScorer(input: PlanetInput, lagna: number, birthIso: string, birthZone: string) {
+  const context = asPlanetContext(input);
+  assertContextAscendant(context, lagna);
+  const natal = planetPositions(context);
   const moon = natal.find((p) => p.planet === "Moon");
   if (!moon) throw new Error("Parashari event check requires the natal Moon");
   const birthMs = Date.parse(birthIso);
-  const scoreManley = createManleyEvidenceScorer(natal, lagna);
-  const scoreHierarchy = createParashariHierarchyScorer(natal, lagna);
+  const scoreManley = createManleyEvidenceScorer(context, lagna);
+  const scoreHierarchy = createParashariHierarchyScorer(context, lagna);
   const natalVargaCache = new Map<string, ParashariVargaEvidence>();
   const vargaCache = new Map<string, ParashariVargaEvidence>();
   const manleyCache = new Map<string, ManleyEvidence>();
@@ -65,7 +69,7 @@ export function createParashariEventScorer(natal: PlanetPosition[], lagna: numbe
         const matter = event.matter!;
         let base = natalVargaCache.get(matter);
         if (!base) {
-          base = parashariVargaEvidence({ label: event.label, date, matter }, natal, lagna, null);
+          base = parashariVargaEvidence({ label: event.label, date, matter }, context, lagna, null);
           if (base) natalVargaCache.set(matter, base);
         }
         if (base) {

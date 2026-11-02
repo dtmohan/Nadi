@@ -85,6 +85,7 @@ import { functionalObservation } from "@shared/parashari-functional";
 import { conditionalObservations } from "@shared/parashari-conditional";
 import { natalOwnMarks } from "@shared/gochara";
 import { moonTransitContext } from "@shared/transit-context";
+import { createPlanetContext } from "@shared/planet-context";
 import {
   birthInstant,
   julianDay,
@@ -124,7 +125,10 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   // KP frame at the recorded time.
   const positions = positionsAt(jd0, opts);
   const cuspLons = cuspsAt(jd0, chart.latitude, chart.longitude, opts);
-  const { cusps, planets, significators: sigs } = kpNatalFrame(positions, cuspLons);
+  const kpContext = createPlanetContext(positions, { kind: "natal", instant: birthIso,
+    latitude: chart.latitude, longitude: chart.longitude, timezone: zone, timeStandard: chart.timeStandard,
+    ayanamsa: "kp", nodeType: opts.nodeType, houseMethod: "placidus", cusps: cuspLons, ascendant: cuspLons[0], division: "D1", precision: "full" });
+  const { cusps, planets, significators: sigs } = kpNatalFrame(kpContext, cuspLons);
   const sig = new Map(sigs.map((s) => [s.planet, s.houses]));
   const scoreKp = createKpEventScorer(cusps, sigs, planets);
   // Strict significators, the ordered hierarchy of Astro Secrets Part 2 p. 151: planets in the
@@ -167,15 +171,19 @@ export function validateEvents(chart: InsertChart): ValidationResult {
   const lagnaJ = norm360(
     ascendantAt(jd0, chart.latitude, chart.longitude, optsJ),
   );
+  const natalContext = createPlanetContext(positionsJ, { kind: "natal", instant: birthIso,
+    latitude: chart.latitude, longitude: chart.longitude, timezone: zone, timeStandard: chart.timeStandard,
+    ayanamsa: optsJ.ayanamsa, nodeType: optsJ.nodeType, sunrise: chart.sunriseDef || "edge",
+    houseMethod: chart.parashariHouseMethod || "rashi", ascendant: lagnaJ, division: "D1", precision: "full" });
   const natalMoonJ = positionsJ.find((p) => p.planet === "Moon")!;
   const ownMarks = natalOwnMarks(positionsJ, lagnaJ);
-  const scoreParashari = createParashariEventScorer(positionsJ, lagnaJ, birthIso, zone);
-  const jaimini = computeJaimini(positionsJ, lagnaJ, birthIso);
+  const scoreParashari = createParashariEventScorer(natalContext, lagnaJ, birthIso, zone);
+  const jaimini = computeJaimini(natalContext, lagnaJ, birthIso);
   const natalJupiter = positionsJ.find((p) => p.planet === "Jupiter")!;
   const gender = (chart.gender as Gender) ?? "unspecified";
   const roles = rolesFor(gender);
   const natalDeha = positionsJ.find((p) => p.planet === roles.deha)!;
-  const reading = evaluate(positionsJ, undefined, gender);
+  const reading = evaluate(natalContext, undefined, gender);
   const natalSign = new Map(positionsJ.map((p) => [p.planet, p.signIndex]));
   const CONTACT_POINTS: Record<BnnContact, number> = {
     over: 2,

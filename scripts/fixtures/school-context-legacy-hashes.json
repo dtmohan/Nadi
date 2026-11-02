@@ -1,0 +1,30 @@
+{
+  "referenceCommit": "12891291f6df0096fd8bb3f580c70d9e7e2ccc0c",
+  "description": "Full school results for three synthetic charts at a fixed reading instant; sha256 of JSON.stringify per school.",
+  "hashes": [
+    {
+      "bnn": "9511a6c5f33503774f7dd30cbe69a0f146b1c419b6ec99c7db47f738f62be3e1",
+      "jaimini": "33d5481488a72791fc71de62136207e1f810bff3a3cf910ee63e71cd2300b770",
+      "parashari": "ace2d983d0e34510e62ff13bd7c3c31dbb9e051c51e1a01ae1c84af9bec501b9",
+      "kp": "c79ec231f9f66256a21a41992ff1399fe69a3faaccdce385ebcd2a8366c1eb00",
+      "alp": "4f9333b47d1c739744c01513e316e3f7902e02714b1e013115ab04ff4e321dbc",
+      "prasna": "fecb68b9f26ccc003795eb5830e882dfcdd28170c14fb495ab1baf9248e0b1b9"
+    },
+    {
+      "bnn": "f32aa05692a12e56e55a386970276daa7a455b721a9a779ac5e8ce4c83792f7f",
+      "jaimini": "989c9af549ccdb9508e9b9dbb61968be001aa2b10400fb5f5261cef8e7a56a3f",
+      "parashari": "c47dd112768f36519efedd6e0568f64e629581622e7cca3c1fb10252557a432e",
+      "kp": "6dbc39ed8e290a0ce15ada91f52bd5bba225f16029f30042a1b7c95a7cf01098",
+      "alp": "831e5470461a54841c1ac9bcb4acd72ec91a9970bee4f690451b61d8c54fa12a",
+      "prasna": "27df7de4babbe62d3dc094563171af1f3080dc225b2f6637359aeb924ec5e39c"
+    },
+    {
+      "bnn": "01fb6688f6c8555a8c42f54063d5b671acd06fbedf54f7f80245985aee0a388a",
+      "jaimini": "b36b16a4ce9527074c48e85b3d45a32bbe4ae2ce0073ebcef722a36f80771d21",
+      "parashari": "7934daa348b4d456688d0118ea92e1640b55d15a15e8999e74dceed6a27b48ae",
+      "kp": "f886b52470c0435827ac6297439677f8aebfd4f71ed29f1a8b70beed81cab47c",
+      "alp": "b1b45694497a7974f7cee1aeca85edd8c6fb04cf141fca716e2e6912771ae108",
+      "prasna": "ef12af4553a2e2033e7ea51d6a2746da75f2ac35cfaea388cc497aaf3144ba4d"
+    }
+  ]
+}

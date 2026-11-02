@@ -8,6 +8,7 @@ import {
 } from "@shared/life-stage";
 import { GentleNote, Soft } from "@/lib/gentle";
 import { formationOnly } from "@shared/gentle";
+import { natalPlanetContext } from "@shared/planet-context";
 import {
   ALL_CHAPTERS,
   Chapter,
@@ -853,7 +854,7 @@ export function ParashariPanel({
   const r = useMemo(
     () =>
       computeParashari(
-        positions,
+        natalPlanetContext(result),
         result.jaimini.lagna.lon,
         result.utc,
         asOfIso,
