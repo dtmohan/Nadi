@@ -5,11 +5,13 @@ import { agreementInput, computeAgreement, readTopic } from "../shared/agreement
 import { briefingFor, type Briefing, type BriefRow } from "../shared/briefing";
 import { areaSeason, lifeAsOf } from "../shared/life-stage";
 import { synthesize, synthesizeArea } from "../shared/synthesis";
-import { plainTopicBriefs, plainTopicNatal } from "../shared/topic-brief";
+import { PLAIN_TOPIC_ORDER, plainTopicBriefs, plainTopicNatal } from "../shared/topic-brief";
 import { buildReport } from "../shared/report";
 import type { Chart } from "../shared/schema";
 import type { Finding } from "../shared/rules";
 import { transitDay } from "../shared/transit-date";
+import { schoolTopicBasisPlain, schoolTopicBriefs, SCHOOL_TOPICS, type BriefSchool } from "../shared/school-topic-brief";
+import { KP_RULES, kpFindingPlain } from "../shared/rules-kp";
 
 // Synthetic inputs; no private chart belongs in the test suite.
 const chart = (birthDate = "1990-01-01"): Chart => ({
@@ -57,6 +59,11 @@ test("marriage themes preserve selected source interpretations as possibilities"
   assert.match(theme, /distance or time apart/);
   assert.doesNotMatch(theme, /attachment outside the marriage/);
   assert.match(sensitive.key[0].text, /attachment outside the marriage/);
+
+  sensitive.key[0].text = "Mars and Sun: the wife holds authority and the husband must listen, else hostility; an unsettled married life.";
+  const behaviour = plainTopicNatal("marriage", sensitive, result.reading).details?.[0] ?? "";
+  assert.match(behaviour, /communication or conflict/);
+  assert.doesNotMatch(behaviour, /husband must listen|wife holds authority/);
 });
 
 test("plain cross-school marriage comparisons preserve stances without implying a guarantee", () => {
@@ -135,7 +142,71 @@ test("age gates apply before the new topic cards are built", () => {
     agreement: computeAgreement(minorInput), brief: briefingFor(minor, minorInput),
     zone: "Asia/Kolkata", inSeason: (t) => areaSeason(t, minor.utc, lifeAt).inSeason,
   });
-  assert.deepEqual(out, []);
+  assert.deepEqual(out.map((t) => t.topic), PLAIN_TOPIC_ORDER.filter((t) => !["career", "marriage", "children", "wealth"].includes(t)));
+  const minorAgreement = computeAgreement(minorInput);
+  for (const school of ["parashari", "kp", "jaimini"] as BriefSchool[])
+    assert.ok(schoolTopicBriefs(minorAgreement, school).every((b) => b.topic !== "career" && b.topic !== "marriage" && b.topic !== "children"));
+});
+
+test("all BNN topics have a plain explanation without changing their source findings", () => {
+  const out = topics();
+  assert.deepEqual(out.map((t) => t.topic), PLAIN_TOPIC_ORDER);
+  for (const topic of out) {
+    assert.ok(topic.summary.length > 0, topic.topic);
+    assert.ok(topic.limit.length > 0, topic.topic);
+    assert.equal(topic.hasArea, areas.some((a) => a.area === topic.topic));
+  }
+  const health = out.find((t) => t.topic === "health")!;
+  assert.match(health.limit, /cannot diagnose/);
+  assert.deepEqual(health.windows, []);
+  const children = out.find((t) => t.topic === "children")!;
+  assert.match(children.limit, /cannot determine fertility/);
+  assert.doesNotMatch(children.summary, /will have|will not have|guarantee/i);
+});
+
+test("plain family themes do not make a medical claim about a parent", () => {
+  const area = areas.find((a) => a.area === "family")!;
+  const family = { ...area, key: [{ ...area.key[0], text: "Moon with Rahu: mother's health or circumstances are unusual." }] };
+  const plain = plainTopicNatal("family", family, result.reading);
+  assert.match(plain.details?.[0] ?? "", /cannot assess a parent's health/);
+  assert.doesNotMatch(plain.details?.[0] ?? "", /health .*unusual/i);
+  assert.match(family.key[0].text, /health or circumstances are unusual/);
+});
+
+test("other-school summaries keep each existing voice, including silent and conditional ones", () => {
+  const agreement = computeAgreement(input);
+  for (const school of ["parashari", "kp", "jaimini"] as BriefSchool[]) {
+    const briefs = schoolTopicBriefs(agreement, school);
+    assert.deepEqual(briefs.map((b) => b.topic), SCHOOL_TOPICS);
+    for (const b of briefs) {
+      const voice = agreement.find((a) => a.topic === b.topic)!.stances.find((s) => s.system === school)!;
+      assert.equal(b.stance, voice.stance);
+      assert.equal(b.basis, voice.note);
+      assert.equal(b.conditional, /conditional/i.test(voice.word));
+      if (b.stance === "silent") assert.match(b.summary, /do not give a general conclusion/);
+      if (b.topic === "children") assert.match(b.limit, /not an assessment of fertility/);
+      if ((b.topic === "father" || b.topic === "mother") && /\bhealth\b|\billness\b|\bdisease\b|\bdies?\b|\bdeath\b|\blongevity\b/i.test(b.basis))
+        assert.match(schoolTopicBasisPlain(b), /cannot assess a parent's health/);
+    }
+    const doc = buildReport(result, { plain: true, modules: [school] });
+    const section = doc.sections.find((s) => s.id === `${school}-plain-topics`)!;
+    assert.ok(section, school);
+    for (const b of briefs) assert.ok(section.paras.some((p) => p.text?.includes(b.summary)), `${school} ${b.topic}`);
+    assert.ok(!buildReport(result, { plain: false, modules: [school] }).sections.some((s) => s.id === `${school}-plain-topics`));
+  }
+});
+
+test("KP's plain reading does not predict a child's sex or family size from traditional rules", () => {
+  for (const id of ["kp5-child-male", "kp5-child-female", "kp5-twins", "kp5-children-limited"]) {
+    const rule = KP_RULES.find((r) => r.id === id)!;
+    const original = rule.text;
+    const plain = kpFindingPlain({ ruleId: id, text: original });
+    assert.match(plain, /cannot determine/i, id);
+    assert.doesNotMatch(plain, /likely a boy|likely a girl|a twin birth, girls|restricts the number/i, id);
+    assert.equal(rule.text, original);
+  }
+  const report = JSON.stringify(buildReport(result, { plain: true, modules: ["kp"] }));
+  assert.doesNotMatch(report, /first child is likely a (?:boy|girl)|a twin birth, girls/i);
 });
 
 test("plain report uses the same wording, while the practitioner report retains the original findings", () => {

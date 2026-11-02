@@ -48,8 +48,8 @@ export const bnnModule: ReportModule = {
       if (simple.comparison) ps.push({ kind: "p", text: simple.comparison });
       if (deceased && simple.windows.length) ps.push({ kind: "note", text: "The following passages were running at the recorded date of passing; they are not future forecasts." });
       for (const w of simple.windows) ps.push({ kind: "p", text: `${w.when}: ${w.statement} ${w.reason}` });
-      ps.push({ kind: "note", text: simple.windows.length
-        ? "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected Nadi transit passages are not predicted event dates. Topic selection is the app's convention."
+      ps.push({ kind: "note", text: simple.topic === "health" || simple.windows.length
+        ? simple.timingNote
         : "No matching Nadi passage is shown in this briefing. That is not a conclusion about whether an event can occur." });
       return ps;
     };
@@ -161,7 +161,7 @@ export const bnnModule: ReportModule = {
         });
       }
       }
-      if (a.area === "children") {
+      if (a.area === "children" && !simple) {
         const c = reading.children;
         const win = nextChildWindow(c, transits, asOf.slice(0, 10), result.utc);
         ps.push({
@@ -183,8 +183,7 @@ export const bnnModule: ReportModule = {
         paras: ps,
       });
     }
-    // The dedicated Nadi marriage check exists even when no general life-area rule fired.
-    // Keep its plain explanation in the report as well as the Overview in that case.
+    // Keep the same plain topic explanation in the report when no general area rule fired.
     for (const simple of topicBriefs.filter((t) => !t.hasArea)) {
       sub.push({
         id: `bnn-${simple.topic}`,

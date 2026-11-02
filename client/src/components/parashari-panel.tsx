@@ -43,6 +43,7 @@ import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import type { ChartEvent } from "@shared/events";
 import { TopicReadingPanel } from "@/components/topic-reading";
+import { SchoolTopicPanel } from "@/components/school-topic-brief";
 import { PvrKalachakraResearch } from "@/components/pvr-kalachakra-research";
 import { ParashariNatalRules } from "@/components/natal-rule-evidence";
 import { PLANET_ABBR, SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "@shared/astro";
@@ -577,7 +578,7 @@ function HouseByHouse({
         {prose.map((hp) => {
           const open = focusHouse === hp.house;
           return (
-            <div key={hp.house} data-testid={`house-prose-${hp.house}`}>
+            <div key={hp.house} className="scroll-mt-24" data-testid={`house-prose-${hp.house}`}>
               <button
                 type="button"
                 onClick={() => onToggle(hp.house)}
@@ -1472,6 +1473,7 @@ export function ParashariPanel({
         </div>
       </div>
 
+      <SchoolTopicPanel result={result} school="parashari" />
       <ParashariVerdict
         r={r}
         cur={cur}

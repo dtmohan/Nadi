@@ -43,6 +43,8 @@ export interface BriefLink {
   target?: string;
   /** A fold to open on arrival (its Expander id), when the line summarises what the fold holds. */
   open?: string;
+  /** A chapter-local disclosure button to expand before scrolling to a specific result. */
+  openControl?: string;
   /** Select the planet's track before seeking a Nadi transit row. */
   transitPlanet?: "Jupiter" | "Saturn";
 }

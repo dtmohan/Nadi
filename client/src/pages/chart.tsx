@@ -900,9 +900,7 @@ function AreaSection({
   const { mode } = useReadingMode();
   const full = mode === "practitioner";
   const area = s.area;
-  const plainTopic = !full && (area === "career" || area === "marriage")
-    ? plainTopicNatal(area, s, reading)
-    : undefined;
+  const plainTopic = !full ? plainTopicNatal(area, s, reading) : undefined;
   const [showEarly, setShowEarly] = useState(false);
   const keyFindings = (
     <>

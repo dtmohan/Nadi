@@ -10,6 +10,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import type { ChartEvent } from "@shared/events";
 import { TopicReadingPanel } from "@/components/topic-reading";
+import { SchoolTopicPanel } from "@/components/school-topic-brief";
 import {
   PLANET_ABBR,
   SIGNS,
@@ -686,6 +687,7 @@ export function JaiminiPanel({ result, onTopicSelected }: { result: ChartResult;
       <Chapters tab="jaimini" chapters={chapterDefs} className="mt-4">
       <Chapter id="topic-check"><TopicReadingPanel result={result} system="jaimini" onSelected={onTopicSelected} /></Chapter>
       <Chapter id="brief">
+      <SchoolTopicPanel result={result} school="jaimini" />
       <JaiminiVerdict result={result} />
 
       <ModeText

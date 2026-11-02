@@ -26,7 +26,9 @@ import { briefingFor, type BriefLink } from "@shared/briefing";
 import { BriefingBefore, BriefingNow, BriefingPlanets, useOpenLink } from "@/components/briefing";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { cn } from "@/lib/utils";
-import { plainTopicBriefs } from "@shared/topic-brief";
+import { PLAIN_TOPIC_LABEL, plainTopicBriefs, type PlainTopicBrief } from "@shared/topic-brief";
+import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL, schoolTopicBriefs, type BriefSchool, type SchoolTopicBrief } from "@shared/school-topic-brief";
+import { schoolDetailsLink, SchoolTopicExplanation } from "@/components/school-topic-brief";
 
 const VERDICT_PILL: Record<GocharaVerdict, string> = {
   favourable: "bg-verdict-good/15 text-verdict-good",
@@ -57,6 +59,53 @@ function glanceSentence(areas: AreaSynthesis[]): string {
   return clauses
     ? `In the Nadi reading, ${clauses}.`
     : "The Nadi rules mark nothing in this chart strongly one way or the other; it is a quiet chart.";
+}
+
+/** The same source-grounded card is used for the two featured topics and the compact disclosures. */
+function PlainTopicContent({ topic, past, onOpen, comparisons }: { topic: PlainTopicBrief; past: boolean; onOpen: (link: BriefLink) => void; comparisons: SchoolTopicBrief[] }) {
+  const t = useT();
+  const passage = (w: PlainTopicBrief["windows"][number]) => (
+    <li key={w.id} data-testid={`plain-topic-window-${topic.topic}-${w.id}`}>
+      <p className="text-sm font-medium tabular">{w.when}</p>
+      <p className="mt-0.5 text-sm leading-relaxed">{w.statement}</p>
+      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t("Why")}: {w.reason}</p>
+      <button type="button" className="mt-1 text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => onOpen(w.link)}>{t("See the transit details")}</button>
+    </li>
+  );
+  return (
+    <>
+      <p className="mt-2 text-sm leading-relaxed"><Soft>{topic.summary}</Soft></p>
+      {topic.detailIntro && <p className="mt-2 text-sm leading-relaxed">{topic.detailIntro}</p>}
+      {!!topic.details?.length && <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed">{topic.details.map((detail, i) => <li key={i}><Soft>{detail}</Soft></li>)}</ul>}
+      {topic.contrast && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{topic.contrast}</p>}
+      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.limit}</p>
+      {topic.comparison && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.comparison}</p>}
+      <div className="mt-4 border-t pt-3">
+        <p className="text-xs font-semibold">{topic.topic === "health" ? "About timing" : t(past ? "At passing" : "Periods to explore")}</p>
+        {topic.windows.length ? (
+          <>
+            <ul className="mt-2 space-y-3">{topic.windows.slice(0, 1).map(passage)}</ul>
+            {topic.windows.length > 1 && <details className="mt-2 text-xs">
+              <summary className="cursor-pointer font-medium text-primary">{t("More passages")} ({topic.windows.length - 1})</summary>
+              <ul className="mt-2 space-y-3">{topic.windows.slice(1).map(passage)}</ul>
+            </details>}
+          </>
+        ) : topic.topic !== "health" && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">No matching Nadi passage is shown in this briefing. That is not a conclusion about whether an event can occur.</p>}
+        {(topic.windows.length > 0 || topic.topic === "health") && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.timingNote}</p>}
+      </div>
+      <button type="button" className="mt-3 text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => onOpen(topic.hasArea ? { tab: "bnn", chapter: "areas", target: `[data-testid="section-area-${topic.topic}"]` } : { tab: "bnn", chapter: "karakas" })}>{t("See Nadi details")}</button>
+      {comparisons.length > 0 && <details className="mt-3 border-t pt-3" data-testid={`plain-topic-schools-${topic.topic}`}>
+        <summary className="cursor-pointer text-xs font-semibold">See other schools</summary>
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Each is a separate summary of selected general rules; it may change with the birth time. Specific questions can use additional rules.</p>
+        <div className="mt-2 space-y-3">
+          {comparisons.map((b) => <div key={`${b.school}-${b.topic}`} className="rounded-md bg-muted/40 p-2">
+            <p className="mb-1 text-xs font-semibold">{SCHOOL_NAME[b.school]}{topic.topic === "family" ? ` · ${SCHOOL_TOPIC_LABEL[b.topic]}` : ""}</p>
+            <SchoolTopicExplanation brief={b} onOpen={() => onOpen(schoolDetailsLink(b))} />
+          </div>)}
+        </div>
+      </details>}
+    </>
+  );
 }
 
 /**
@@ -143,6 +192,10 @@ export function OverviewPanel({
     zone: chart.timezone || "UTC",
     inSeason: (topic) => areaSeason(topic, result.utc, lifeAt).inSeason,
   });
+  const schoolBriefs = (["parashari", "kp", "jaimini"] as BriefSchool[]).flatMap((s) => schoolTopicBriefs(agreement, s));
+  const comparisonsFor = (topic: PlainTopicBrief) => schoolBriefs.filter((b) =>
+    b.topic === topic.topic || (topic.topic === "family" && (b.topic === "father" || b.topic === "mother")),
+  );
   const deferred = allAreas.filter(
     (a) => !areaSeason(a.area, result.utc, lifeAt).inSeason,
   );
@@ -283,39 +336,31 @@ export function OverviewPanel({
         <section className="mt-4 rounded-lg border bg-card p-5 sm:p-6" aria-label="Life topics" data-testid="plain-topic-briefs">
           <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{t("Life topics")}</p>
           <p className="mt-1 text-sm text-muted-foreground">These short readings use the Nadi method. Other schools have their own readings.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Separate school summaries are available here for career, marriage, children and parents. Other topics remain in each school's own reading.</p>
           {(chart.timeUncertaintyMin ?? 0) > 0 && (
             <p className="mt-2 text-xs text-muted-foreground">The entered birth time has an uncertainty of ±{chart.timeUncertaintyMin} minutes. Some details can change within that range.</p>
           )}
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
-            {topics.map((topic) => (
+            {topics.filter((topic) => topic.topic === "career" || topic.topic === "marriage").map((topic) => (
               <article key={topic.topic} className="min-w-0 scroll-mt-4 rounded-md border p-4" data-testid={`overview-area-${topic.topic}`}>
-                <h3 className="font-display text-lg font-semibold">{t(topic.topic === "career" ? "Career" : "Marriage")}</h3>
-                <p className="mt-2 text-sm leading-relaxed"><Soft>{topic.summary}</Soft></p>
-                {topic.detailIntro && <p className="mt-2 text-sm leading-relaxed">{topic.detailIntro}</p>}
-                {!!topic.details?.length && <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed">{topic.details.map((detail, i) => <li key={i}><Soft>{detail}</Soft></li>)}</ul>}
-                {topic.contrast && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{topic.contrast}</p>}
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.limit}</p>
-                {topic.comparison && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.comparison}</p>}
-                <div className="mt-4 border-t pt-3">
-                  <p className="text-xs font-semibold">{t(brief.past ? "At passing" : "Periods to explore")}</p>
-                  {topic.windows.length ? (
-                    <ul className="mt-2 space-y-3">
-                      {topic.windows.map((w) => (
-                        <li key={w.id} data-testid={`plain-topic-window-${topic.topic}-${w.id}`}>
-                          <p className="text-sm font-medium tabular">{w.when}</p>
-                          <p className="mt-0.5 text-sm leading-relaxed">{w.statement}</p>
-                          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t("Why")}: {w.reason}</p>
-                          <button type="button" className="mt-1 text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => openLink(w.link)}>See the transit details</button>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : <p className="mt-2 text-xs leading-relaxed text-muted-foreground">No matching Nadi passage is shown in this briefing. That is not a conclusion about whether an event can occur.</p>}
-                  {topic.windows.length > 0 && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention.</p>}
-                </div>
-                <button type="button" className="mt-3 text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => openLink(topic.hasArea ? { tab: "bnn", chapter: "areas", target: `[data-testid="section-area-${topic.topic}"]` } : { tab: "bnn", chapter: "karakas" })}>{t("See Nadi details")}</button>
+                <h3 className="font-display text-lg font-semibold">{t(PLAIN_TOPIC_LABEL[topic.topic])}</h3>
+                <PlainTopicContent topic={topic} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} />
               </article>
             ))}
           </div>
+          {topics.some((topic) => topic.topic !== "career" && topic.topic !== "marriage") && (
+            <details className="mt-4 rounded-md border" data-testid="plain-more-topics">
+              <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">{t("More life topics")}</summary>
+              <div className="grid grid-cols-2 items-start gap-2 border-t p-3 lg:grid-cols-3">
+                {topics.filter((topic) => topic.topic !== "career" && topic.topic !== "marriage").map((topic) => (
+                  <details key={topic.topic} className="min-w-0 scroll-mt-24 rounded-md border p-3 open:col-span-2 lg:open:col-span-3" data-testid={`overview-area-${topic.topic}`}>
+                    <summary className="cursor-pointer text-sm font-semibold">{t(PLAIN_TOPIC_LABEL[topic.topic])}</summary>
+                    <PlainTopicContent topic={topic} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} />
+                  </details>
+                ))}
+              </div>
+            </details>
+          )}
         </section>
       )}
 
@@ -414,7 +459,7 @@ export function OverviewPanel({
 
       {/* The life areas as plain cards */}
       <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {areas.filter((a) => !plain || (a.area !== "career" && a.area !== "marriage")).map((a) => (
+        {areas.filter(() => !plain).map((a) => (
           <li
             key={a.area}
             className="scroll-mt-4 rounded-md border bg-card p-3"

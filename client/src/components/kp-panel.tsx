@@ -58,6 +58,7 @@ import {
   KP_SOURCES,
   KP_TYPE_LEVEL_LABEL,
   kpHerePlain,
+  kpFindingPlain,
   kpTimingPlain,
   kpUsedGloss,
   kpDisplayOrder,
@@ -98,6 +99,7 @@ import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 import { KP_TIMING_TOPICS } from "@shared/events";
 import type { ChartEvent } from "@shared/events";
 import { TopicReadingPanel } from "@/components/topic-reading";
+import { SchoolTopicPanel } from "@/components/school-topic-brief";
 import { KpNatalRules } from "@/components/natal-rule-evidence";
 import { AuroraSelfPanel } from "@/components/kp-aurora-evidence";
 
@@ -917,6 +919,7 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
       <Chapters tab="kp" chapters={chapterDefs} className="mt-4">
       <Chapter id="topic-check"><TopicReadingPanel result={result} system="kp" onSelected={onTopicSelected} /></Chapter>
       <Chapter id="brief">
+      <SchoolTopicPanel result={result} school="kp" />
       <VerdictCard
         system="Krishnamurti Paddhati"
         headline={
@@ -1411,7 +1414,7 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
 
       {/* Cuspal sub lord reading */}
       <Chapter id="houses">
-      <section className="mt-10" data-testid="section-kp-reading">
+      <section className="mt-10 scroll-mt-24" data-testid="section-kp-reading">
         <SectionTitle
           as="h2"
           plain="What each rule says"
@@ -1467,7 +1470,7 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
             return (
               <article
                 key={c.house}
-                className="rounded-lg border p-4"
+                className="scroll-mt-24 rounded-lg border p-4"
                 data-testid={`kp-cusp-reading-${c.house}`}
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -1542,7 +1545,7 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
                               note
                             </span>
                           )}
-                          <Soft>{f.text}</Soft>
+                          <Soft>{plain ? kpFindingPlain(f) : f.text}</Soft>
                           {f.timing && (
                             <span
                               className="ml-1.5 text-xs text-muted-foreground"

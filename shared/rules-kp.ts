@@ -1111,6 +1111,18 @@ export function kpHerePlain(f: Pick<KpFinding, "cusp" | "subLord" | "used" | "in
   return said.length ? `${who}, which ${listJoin(said).replace(/^in /, "stands in ")}.` : `${who}.`;
 }
 
+/** Keep traditional child-sex and family-size rules available to practitioners without
+ * presenting them as individual predictions in the plain reading. */
+export function kpFindingPlain(f: Pick<KpFinding, "ruleId" | "text">): string {
+  if (["kp5-child-male", "kp5-child-female"].includes(f.ruleId))
+    return "The source describes a traditional classification involving the first child. It cannot determine a child's sex.";
+  if (f.ruleId === "kp5-twins")
+    return "The source discusses a traditional twin-birth classification. It cannot determine whether twins will be born or their sex.";
+  if (f.ruleId === "kp5-children-limited")
+    return "The source discusses a traditional family-size interpretation. It cannot determine the number of children.";
+  return f.text;
+}
+
 /**
  * The plain timing line: the periods of planets that speak for any of the houses, by name. When
  * every planet does, the line says so, since then no period is singled out.

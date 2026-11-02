@@ -1,0 +1,37 @@
+{
+  "description": "Four public cases chosen before this review for BNN topic presentation and selected general-school summaries. All are new to the repository's earlier validation fixtures. No private charts.",
+  "protocol": "docs/plain-all-topics-protocol.md",
+  "cases": [
+    {
+      "chart": {"name":"Riccardo Giacconi","gender":"male","birthDate":"1931-10-06","birthTime":"04:00","timezone":"Europe/Rome","timeStandard":"auto","place":"Genoa, Italy","latitude":44.4167,"longitude":8.95,"ayanamsa":"lahiri","nodeType":"mean","deathDate":"2018-12-09"},
+      "birthSource":"https://www.astro.com/astro-databank/Giacconi%2C_Riccardo",
+      "birthQuality":"AA, reported birth-record quotation; the rounded 04:00 and the original record were not independently verified. ESO records 9 December as date of passing; NobelPrize.org gives 16 December, so the as-of-passing display has date uncertainty.",
+      "career":"Astrophysicist; PhD at Milan in 1954, Fulbright move to the United States in 1956, Nobel Prize in Physics in 2002; married with two children.",
+      "careerSource":"https://www.eso.org/public/about-eso/dg-office/rgiacconi/",
+      "events":[{"topic":"authority","date":"2002-10-08","timezone":"Europe/Stockholm","description":"Nobel Prize in Physics announced","source":"https://pages.jh.edu/news_info/news/home02/oct02/nobel.html","corroboration":"https://www.corriere.it/Primo_Piano/Scienze_e_Tecnologie/2002/10_Ottobre/08/nobelfisica.shtml"}]
+    },
+    {
+      "chart": {"name":"Sofía Mulánovich","gender":"female","birthDate":"1983-06-24","birthTime":"10:20","timezone":"America/Lima","timeStandard":"auto","place":"Lima, Peru","latitude":-12.05,"longitude":-77.05,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Mul%C3%A1novich%2C_Sof%C3%ADa?nhor=860265",
+      "birthQuality":"AA, birth record reportedly in collector's possession; original not independently inspected.",
+      "career":"Peruvian professional surfer; 2004 world champion and winner of the 2019 ISA World Surfing Games in Japan.",
+      "careerSource":"https://www.gob.pe/institucion/ipd/noticias/196918-sofia-mulanovich-se-corona-campeona-mundial-en-japon",
+      "events":[{"topic":"authority","date":"2019-09-10","timezone":"Asia/Tokyo","description":"ISA World Surfing Games women's gold medal in Miyazaki","source":"https://isaworlds.com/wsg/2019/en/perus-sofia-mulanovich-seizes-womens-gold-medal-2019-isa-world-surfing-games-presented-vans/","corroboration":"https://www.surfline.com/surf-news/italo-ferreira-team-brazil-win-gold-isa-world-surfing-games/62981"}]
+    },
+    {
+      "chart": {"name":"Geeta Phogat","gender":"female","birthDate":"1988-12-15","birthTime":"04:00","timezone":"Asia/Kolkata","timeStandard":"auto","place":"Bhiwani, Haryana, India","latitude":28.7833,"longitude":76.1333,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Phogat%2C_Geeta?nho2=1",
+      "birthQuality":"A, birth time reportedly obtained from her family; 04:00 is rounded and is not a verified record.",
+      "career":"Indian freestyle wrestler; her father Mahavir Phogat coached her; Commonwealth Games gold in 2010.",
+      "careerSource":"https://timesofindia.indiatimes.com/sports/geeta-phogat/articleshow/59899749.cms",
+      "events":[{"topic":"authority","date":"2010-10-07","timezone":"Asia/Kolkata","description":"Commonwealth Games women's freestyle wrestling gold in Delhi","source":"https://www.hindustantimes.com/other-sports/wrestler-geeta-phogat-and-her-dad-mahavir-singh-glorified-in-aamir-khan-s-dangal/story-WirVaAIBBtLFsb7FnmLVxJ_amp.html","corroboration":"https://www.indiatoday.in/sports/commonwealth-games-2010/story/cwg-geeta-wins-gold-in-freestyle-wrestling-83392-2010-10-06"}]
+    },
+    {
+      "chart": {"name":"Yamina Benguigui","gender":"female","birthDate":"1955-04-09","birthTime":"07:00","timezone":"Europe/Paris","timeStandard":"auto","place":"Lille, France","latitude":50.6333,"longitude":3.0667,"ayanamsa":"lahiri","nodeType":"mean"},
+      "birthSource":"https://www.astro.com/astro-databank/Benguigui%2C_Yamina",
+      "birthQuality":"AA, birth record reportedly in collector's possession; other published biographies give 1957. The record has not been independently inspected and this conflicting year makes the chart conditional.",
+      "career":"French film director and politician born to Algerian immigrant parents; her films address immigrant life in France.",
+      "careerSource":"https://www.lemonde.fr/vous/article/2008/09/29/yamina-benguigui-je-suis-toujours-en-colere_1100153_3238.html"
+    }
+  ]
+}

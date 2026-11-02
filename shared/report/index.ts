@@ -36,6 +36,7 @@ import { alpModule } from "./alp";
 import { rectifyModule } from "./rectify";
 import { validateModule } from "./validate";
 import { topicReadingSection } from "./topic-reading";
+import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL, schoolTopicBriefs, type BriefSchool } from "../school-topic-brief";
 import {
   AGREEMENT_METHOD,
   AGREEMENT_NOTE,
@@ -135,7 +136,20 @@ export function buildReport(
   // birth (Panchanga, then the birth star); each system in its own part; the sky today; and, in the
   // practitioner report only, an appendix of the data tables the readings rest on.
   const built: ReportSection[] = [];
+  const schoolAgreement = ctx.plain ? agreementFor(result, true) : [];
   for (const m of modules) {
+    if (ctx.plain && (m.id === "kp" || m.id === "parashari" || m.id === "jaimini")) {
+      const school = m.id as BriefSchool;
+      const topics = schoolTopicBriefs(schoolAgreement, school);
+      if (topics.length) built.push({
+        id: `${school}-plain-topics`, title: `Life topics in ${SCHOOL_NAME[school]}`,
+        paras: [
+          { kind: "note", text: "These summarize only the selected general rules in this school's comparison, not the full reading or a date-specific forecast. House-based readings can change with birth time." },
+          ...topics.map((t): ReportPara => ({ kind: "p", text: `${SCHOOL_TOPIC_LABEL[t.topic]}: ${t.summary} ${t.limit}${t.conditional ? " This assessment is conditional on the birth time." : ""}${t.provisional ? " This classification is provisional." : ""}`, provisional: t.provisional })),
+          { kind: "note", text: AGREEMENT_METHOD[school] },
+        ],
+      });
+    }
     built.push(...m.build(ctx));
     const topic = topicReadingSection(ctx, m.id);
     if (topic) built.push(topic);

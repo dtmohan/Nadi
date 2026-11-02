@@ -13,7 +13,7 @@ import { AURORA_SOURCE, auroraAscendantLinks, auroraSelfSignificators } from "..
 import { kpNatalConditions } from "../natal-reading-evidence";
 import { sensitiveEventMatter } from "../events";
 import { kpNatalConditionsParas } from "./natal-reading-evidence";
-import { kpDisplayOrder, kpHerePlain, kpUsedGloss } from "../rules-kp";
+import { kpDisplayOrder, kpFindingPlain, kpHerePlain, kpUsedGloss } from "../rules-kp";
 import {
   endStop,
   list,
@@ -137,10 +137,10 @@ export const kpModule: ReportModule = {
             kind: "p" as const,
             text: S(
               f.standing === "note"
-                ? `${f.topic}, as a note: ${endStop(f.text)} Overruled by the ${ORD(KP_PRECEDENCE.find((p) => p.topics.includes(f.topic))?.cusp ?? cusp)} cusp sub lord, the deciding factor for this matter; not counted.`
+                ? `${f.topic}, as a note: ${endStop(ctx.plain ? kpFindingPlain(f) : f.text)} Overruled by the ${ORD(KP_PRECEDENCE.find((p) => p.topics.includes(f.topic))?.cusp ?? cusp)} cusp sub lord, the deciding factor for this matter; not counted.`
                 : f.partOf && fs.some((x) => x.ruleId === f.partOf)
-                  ? `${f.topic}, part of the mixed reading above: ${endStop(f.text)}`
-                  : `${f.topic}: ${endStop(f.text)}${ctx.plain ? ` ${kpHerePlain(f)}` : ""}`,
+                  ? `${f.topic}, part of the mixed reading above: ${endStop(ctx.plain ? kpFindingPlain(f) : f.text)}`
+                  : `${f.topic}: ${endStop(ctx.plain ? kpFindingPlain(f) : f.text)}${ctx.plain ? ` ${kpHerePlain(f)}` : ""}`,
             ),
             cites: [
               cites.add(f.source, f.sourceUrl),

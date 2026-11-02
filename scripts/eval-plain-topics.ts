@@ -10,8 +10,10 @@ import { plainTopicBriefs } from "../shared/topic-brief";
 import { buildReport } from "../shared/report";
 import { DateTime } from "luxon";
 import type { Chart } from "../shared/schema";
+import type { LifeArea } from "../shared/rules";
+import { schoolTopicBriefs, type BriefSchool } from "../shared/school-topic-brief";
 
-type CaseEvent = { topic: "career" | "marriage"; date: string; timezone?: string; description: string; source?: string; corroboration?: string; locationNote?: string };
+type CaseEvent = { topic: LifeArea; date: string; timezone?: string; description: string; source?: string; corroboration?: string; locationNote?: string };
 type Case = {
   chart: Partial<Chart> & { name: string };
   birthSource?: string;
@@ -24,7 +26,7 @@ type Case = {
 };
 const arg = process.argv.indexOf("--fixture");
 const fixture = arg < 0 ? new URL("./fixtures/plain-topics-fresh.json", import.meta.url) : process.argv[arg + 1];
-const input = JSON.parse(readFileSync(fixture, "utf8")) as { cases: Case[]; events?: CaseEvent[] };
+const input = JSON.parse(readFileSync(fixture, "utf8")) as { protocol?: string; cases: Case[]; events?: CaseEvent[] };
 
 const cases = input.cases.map((item) => {
   const chart = { ...item.chart, id: 0, sunriseDef: "edge", parashariHouseMethod: "rashi", notes: "", deathDate: item.chart.deathDate ?? null, timeUncertaintyMin: item.chart.timeUncertaintyMin ?? 0, events: [] } as Chart;
@@ -96,7 +98,8 @@ const cases = input.cases.map((item) => {
     timeBasis: result.timeBasis.label,
     ascendant: result.jaimini.lagna.sign,
     material,
+    schoolSummaries: (["parashari", "kp", "jaimini"] as BriefSchool[]).flatMap((s) => schoolTopicBriefs(agreement, s)),
     eventChecks,
   };
 });
-process.stdout.write(JSON.stringify({ protocol: "docs/plain-topics-fresh-protocol.md", cases }, null, 2) + "\n");
+process.stdout.write(JSON.stringify({ protocol: input.protocol ?? "docs/plain-topics-fresh-protocol.md", cases }, null, 2) + "\n");

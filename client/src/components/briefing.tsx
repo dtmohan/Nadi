@@ -60,6 +60,10 @@ export function useOpenLink(onOpenTab?: (tab: BriefLink["tab"]) => void) {
       }
       // A fold's toggle has no header margin, so it is centred; sections land below the sticky header.
       if (link.open) openExpander(link.open);
+      if (link.openControl) {
+        const toggle = document.querySelector<HTMLButtonElement>(link.openControl);
+        if (toggle?.getAttribute("aria-expanded") === "false") toggle.click();
+      }
       window.requestAnimationFrame(() => el.scrollIntoView({ block: link.open ? "center" : "start" }));
     };
     window.setTimeout(seek, 150);
@@ -67,9 +71,12 @@ export function useOpenLink(onOpenTab?: (tab: BriefLink["tab"]) => void) {
 }
 
 function scrollToArea(area: LifeArea) {
-  document
-    .querySelector(`[data-testid="overview-area-${area}"]`)
-    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const el = document.querySelector<HTMLElement>(`[data-testid="overview-area-${area}"]`);
+  if (!el) return;
+  // Additional topics are compact disclosures. Open the topic and its enclosing list first.
+  for (let fold = el.closest<HTMLDetailsElement>("details"); fold; fold = fold.parentElement?.closest<HTMLDetailsElement>("details") ?? null)
+    fold.open = true;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 // ---- Before you read -----------------------------------------------------------------------------

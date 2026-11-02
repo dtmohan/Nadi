@@ -1,0 +1,2885 @@
+{
+  "protocol": "docs/plain-all-topics-protocol.md",
+  "cases": [
+    {
+      "name": "Riccardo Giacconi",
+      "birthSource": "https://www.astro.com/astro-databank/Giacconi%2C_Riccardo",
+      "birthQuality": "AA, reported birth-record quotation; the rounded 04:00 and the original record were not independently verified. ESO records 9 December as date of passing; NobelPrize.org gives 16 December, so the as-of-passing display has date uncertainty.",
+      "career": "Astrophysicist; PhD at Milan in 1954, Fulbright move to the United States in 1956, Nobel Prize in Physics in 2002; married with two children.",
+      "careerSource": "https://www.eso.org/public/about-eso/dg-office/rgiacconi/",
+      "asOf": "2018-12-09T12:00:00.000Z",
+      "timeBasis": "standard time of Europe/Rome +1:00",
+      "ascendant": "Leo",
+      "material": [
+        {
+          "topic": "career",
+          "beforeOverview": "Possible career themes in these interpretations: independent livelihood, self-employment or a solitary professional role; work involving energy, metal, machines, leadership or the armed services; livelihood takes the colour of Jupiter's significations (the native, children, wisdom). These are alternatives, not a predicted occupation.",
+          "after": {
+            "topic": "career",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible work themes or experiences:",
+            "details": [
+              "Independent livelihood, self-employment or a solitary professional role.",
+              "Work involving energy, metal, machines, leadership or the armed services.",
+              "Livelihood linked to the native, children, wisdom."
+            ],
+            "limit": "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "26 Oct 2017 – 24 Jan 2020",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Saturn's passage is read in relation to Saturn in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2017-10-26T09:58:12.000Z\"]"
+                },
+                "start": "2017-10-26T09:58:12.000Z",
+                "end": "2020-01-24T04:26:38.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "alone-sa",
+              "text": "Saturn stands alone: independent livelihood, self-employment or a solitary professional role; work is done one's own way.",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            },
+            {
+              "id": "sa-fire",
+              "text": "Saturn in a fiery sign: work involving energy, metal, machines, leadership or the armed services.",
+              "source": "General Nadi principles (Rao, Naik)"
+            },
+            {
+              "id": "sa-lord-ju",
+              "text": "Saturn sits in a sign owned by Jupiter: Livelihood takes the colour of Jupiter's significations (the native, children, wisdom).",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "marriage",
+          "beforeOverview": "The strong rules disagree. Spouse from an influential family; yet dissatisfaction or detachment in partnership. Read both before deciding.",
+          "after": {
+            "topic": "marriage",
+            "hasArea": true,
+            "summary": "This Nadi check finds a direct link between the planets it uses for you and a partner. The method reads that as supportive of the possibility of marriage.",
+            "detailIntro": "Other selected Nadi rules describe these possible relationship themes:",
+            "details": [
+              "Spouse from an influential family; ego and status enter the relationship.",
+              "One interpretation raises questions about a partner's circumstances, which the chart cannot assess medically; see the source finding for its wording.",
+              "One interpretation raises questions about commitment or boundaries; see the source finding for its wording."
+            ],
+            "limit": "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
+            "contrast": "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ve-su",
+              "text": "Venus with the Sun: spouse from an influential family; ego and status enter the relationship.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ve-ke",
+              "text": "Venus with Ketu: dissatisfaction or detachment in partnership; the spouse may be spiritually inclined or health-troubled.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ve-me",
+              "text": "Venus with Mercury: educated, talkative spouse; friendship precedes romance; more than one attachment is possible.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "technicalMarriageHeadline": "Venus (wife) stands in the 3rd from Jupiter (the native): a supporting axis; marriage is promised at lesser strength, often later or by circumstance.",
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "self",
+          "beforeOverview": "Well supported. Emotionally attuned, popular, mobile; strong protection, sound judgement and natural respect from others.",
+          "after": {
+            "topic": "self",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about personality and approach to life:",
+            "details": [
+              "Emotionally attuned, popular, mobile.",
+              "An unconventional life.",
+              "Strong protection, sound judgement and natural respect from others."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-now",
+                "when": "11 Oct 2018 – 29 Mar 2019",
+                "statement": "The Nadi transit reading connects this passage to personality and approach to life.",
+                "reason": "Jupiter's passage is read in relation to Jupiter and Moon in the birth-chart findings selected for self.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2018-10-11T13:50:02.000Z\"]"
+                },
+                "start": "2018-10-11T13:50:02.000Z",
+                "end": "2019-03-29T14:37:35.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ju-mo",
+              "text": "Jeeva with the Moon: emotionally attuned, popular, mobile; life connected with the public, travel or the mother.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ju-ra",
+              "text": "Jeeva with Rahu: an unconventional life; foreign connections, technology or ambition beyond the family's tradition.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ju-exalt",
+              "text": "Jupiter is dignified: strong protection, sound judgement and natural respect from others.",
+              "source": "General Nadi principles (Rao, Naik)"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "authority",
+          "beforeOverview": "Well supported. A following gathers; power among crowds.",
+          "after": {
+            "topic": "authority",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about standing and responsibility:",
+            "details": [
+              "A following gathers.",
+              "Power among crowds."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "auth-ju-ra",
+              "text": "Jupiter with Rahu: a following gathers; causes, crowds or movements look to the native, and leadership runs with the many. (provisional)",
+              "source": "General Nadi principles (Rao, Naik)"
+            },
+            {
+              "id": "auth-su-ra",
+              "text": "The Sun with Rahu: power among crowds; a rise that is public, unconventional or contested — politics, movements, mass attention. (provisional)",
+              "source": "General Nadi principles (Rao, Naik)"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "children",
+          "beforeOverview": "Venus stands in the 3rd from Jupiter, the putra karaka. This tradition treats the connection as less prominent; no individual timing or outcome follows from it.",
+          "after": {
+            "topic": "children",
+            "hasArea": true,
+            "summary": "This Nadi check finds a traditional connection between Jupiter and Venus that it associates with children and family.",
+            "limit": "This is a traditional association. It cannot determine fertility, pregnancy, the number or sex of children, or whether, when or how someone becomes a parent.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ch-ju-mo",
+              "text": "Jupiter with or in trine to the Moon: a traditional association of children and care; it does not establish fertility or ease of conception.",
+              "source": "R.G. Rao, Nadi Astrology"
+            },
+            {
+              "id": "ch-ju-water",
+              "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: a traditional classification that cannot assess fertility or pregnancy.",
+              "source": "Bhrigu Naadi principles (Srinivasan)"
+            },
+            {
+              "id": "ch-ve-ke",
+              "text": "Ketu with or in trine to Venus: a traditional family-related combination; it does not establish a delay or difficulty having children.",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "wealth",
+          "beforeOverview": "Well supported. Sudden or foreign-sourced gains; gains through property, vehicles or design.",
+          "after": {
+            "topic": "wealth",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about money and assets:",
+            "details": [
+              "Sudden or foreign-sourced gains.",
+              "Gains through property, vehicles or design.",
+              "Landed property."
+            ],
+            "limit": "These are traditional interpretations, not a forecast of financial outcomes or a basis for financial decisions.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ju-ra-wealth",
+              "text": "Jupiter and Rahu: sudden or foreign-sourced gains; wealth from unconventional means.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ma-ve",
+              "text": "Mars with Venus: gains through property, vehicles or design; strong desires drive acquisition.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "h-ju-4-ma",
+              "text": "Mars in or aspecting the 4th from Jupiter: landed property; the native buys or builds a house when Jupiter's transit touches the 4th.",
+              "source": "Bhrigu Naadi principles"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "education",
+          "beforeOverview": "Well supported. Administration, political science, medicine or leadership studies; arts, music, design, languages or finance.",
+          "after": {
+            "topic": "education",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about learning:",
+            "details": [
+              "Arts, music, design, languages or finance.",
+              "Administration, political science, medicine or leadership studies.",
+              "Breaks in education, or a turn toward research, computing and esoteric subjects."
+            ],
+            "contrast": "Other selected findings include both supportive and difficult themes; their details are in the Nadi reading.",
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "me-ve",
+              "text": "Mercury with Venus: arts, music, design, languages or finance; persuasive speech.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "me-su",
+              "text": "Mercury with the Sun: administration, political science, medicine or leadership studies; father supports learning.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "me-ke",
+              "text": "Mercury with Ketu: breaks in education, or a turn toward research, computing and esoteric subjects.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "family",
+          "beforeOverview": "Well supported. The father is educated and prosperous, in finance, arts or administration; nurturing, wise mother.",
+          "after": {
+            "topic": "family",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about parents and family:",
+            "details": [
+              "The father is educated and prosperous, in finance, arts or administration.",
+              "Nurturing, wise mother.",
+              "One interpretation mentions possible challenges affecting family matters; the source finding gives its context."
+            ],
+            "contrast": "Other selected findings include both supportive and difficult themes; their details are in the Nadi reading.",
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-now",
+                "when": "11 Oct 2018 – 29 Mar 2019",
+                "statement": "The Nadi transit reading connects this passage to parents and family.",
+                "reason": "Jupiter's passage is read in relation to Moon and Jupiter in the birth-chart findings selected for family.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2018-10-11T13:50:02.000Z\"]"
+                },
+                "start": "2018-10-11T13:50:02.000Z",
+                "end": "2019-03-29T14:37:35.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "t-su-me-ve",
+              "text": "Sun, Mercury and Venus linked by sign (not necessarily in the same sign): the father is educated and prosperous, in finance, arts or administration; eloquent family.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "mo-ju-fam",
+              "text": "Moon with Jupiter: nurturing, wise mother; a calm and generous mind.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "su-ke-fam",
+              "text": "Sun with Ketu: separation from father or father with spiritual leanings.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "health",
+          "beforeOverview": "Asks for care. A life that meets tools and blades, as patient or as practitioner; complaints that take time to diagnose.",
+          "after": {
+            "topic": "health",
+            "hasArea": true,
+            "summary": "The selected Nadi rules include interpretations about well-being. Their original wording is available in the source findings.",
+            "detailIntro": "The source interpretations mention these subjects:",
+            "details": [
+              "Emotions or mental well-being.",
+              "Physical well-being.",
+              "Physical safety."
+            ],
+            "limit": "A birth chart cannot diagnose a condition, assess health risks or replace medical care.",
+            "windows": [],
+            "timingNote": "Transit passages are not presented here as health forecasts."
+          },
+          "sourceFindings": [
+            {
+              "id": "ma-ke",
+              "text": "Mars with Ketu: a life that meets tools and blades, as patient or as practitioner; care with machines and sharp edges, and a gift for electronics or medicine.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "me-ke-health",
+              "text": "Mercury with Ketu: a sensitive nervous system; speech and hearing deserve attention; the mind is happiest in research.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ju-ra-health",
+              "text": "Jupiter with Rahu: complaints that take time to diagnose; allergies and sensitivities are the common form.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "spirituality",
+          "beforeOverview": "Well supported. The ego is tested; interest in mantra, scripture, computing or esoteric sciences.",
+          "after": {
+            "topic": "spirituality",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about spiritual life:",
+            "details": [
+              "The ego is tested.",
+              "Interest in mantra, scripture, computing or esoteric sciences.",
+              "Devotion through art and music."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ke-su-spirit",
+              "text": "Ketu with the Sun: the ego is tested; leadership in a spiritual or healing tradition.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ke-me-spirit",
+              "text": "Ketu with Mercury: interest in mantra, scripture, computing or esoteric sciences.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ke-ve-spirit",
+              "text": "Ketu with Venus: devotion through art and music; renunciation of pleasures at some stage.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "travel",
+          "beforeOverview": "Well supported. The native's fortune improves in a foreign land; frequent relocation.",
+          "after": {
+            "topic": "travel",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about travel and foreign ties:",
+            "details": [
+              "Possible growth connected with a foreign place.",
+              "Frequent relocation.",
+              "Work in foreign languages, IT or international trade."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-now",
+                "when": "11 Oct 2018 – 29 Mar 2019",
+                "statement": "The Nadi transit reading connects this passage to travel and foreign ties.",
+                "reason": "Jupiter's passage is read in relation to Rahu and Jupiter in the birth-chart findings selected for travel.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2018-10-11T13:50:02.000Z\"]"
+                },
+                "start": "2018-10-11T13:50:02.000Z",
+                "end": "2019-03-29T14:37:35.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ra-ju-travel",
+              "text": "Rahu with Jupiter: the native's fortune improves in a foreign land; overseas education or settlement.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ra-mo-travel",
+              "text": "Rahu with the Moon: frequent relocation; the mind is drawn to distant places.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ra-me-travel",
+              "text": "Rahu with Mercury: work in foreign languages, IT or international trade.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        }
+      ],
+      "schoolSummaries": [
+        {
+          "school": "parashari",
+          "topic": "career",
+          "stance": "strains",
+          "summary": "The selected Parashari interpretations emphasize cautions about career and work.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "BPHS: 10th house (work, honour and authority): its ruler, Venus, sits in the 2nd and does not look back at it, which Parashara counts against the house (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "marriage",
+          "stance": "contested",
+          "summary": "The selected Parashari interpretations disagree about marriage; support and caution are both retained.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "Sarvartha Chintamani reads the 7th kindly (6.40: a chaste wife; here the 7th's ruler, Saturn, is looked at by Venus, a benefic); yet BPHS: venus is joined by Sun, Mercury and Ketu in the 2nd",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "children",
+          "stance": "leans-strains",
+          "summary": "The selected Parashari interpretations lean cautionary about children and family, with qualifications.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "BPHS: 5th house (learning and children): its ruler, Jupiter, sits in the 12th and does not look back at it, which Parashara counts against the house (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "father",
+          "stance": "strains",
+          "summary": "The selected Parashari interpretations emphasize cautions about the father.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "BPHS: 10th house (work, honour and authority): its ruler, Venus, sits in the 2nd and does not look back at it, which Parashara counts against the house (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the house judgement leaves out the avastha clauses of 11.14-16 and settles a case the text leaves open"
+        },
+        {
+          "school": "parashari",
+          "topic": "mother",
+          "stance": "mixed",
+          "summary": "The selected Parashari interpretations give a mixed or inconclusive picture about the mother.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "BPHS: 4th house (mother, home and comforts): Jupiter, a benefic, looks at it, which Parashara counts in its favour (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the house judgement leaves out the avastha clauses of 11.14-16 and settles a case the text leaves open"
+        },
+        {
+          "school": "kp",
+          "topic": "career",
+          "stance": "supports",
+          "summary": "The selected KP interpretations are supportive about career and work.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "10th sub lord Saturn: the app's provisional threshold reads this as support for employment and earnings",
+          "conditional": false,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "marriage",
+          "stance": "silent",
+          "summary": "The selected KP rules do not give a general conclusion about marriage in this comparison. A more specific rule may still appear in that school's reading.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "No general marriage verdict fires; KP has a separate rule about marriage.",
+          "conditional": false,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "children",
+          "stance": "supports",
+          "summary": "The selected KP interpretations are supportive about children and family.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "5th sub lord Jupiter: a traditional KP rule reads these as supportive for children, but it cannot establish an individual outcome or timing; the sub lord…",
+          "conditional": true,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "father",
+          "stance": "supports",
+          "summary": "The selected KP interpretations are supportive about the father.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "9th sub lord Mercury: a long life for the father",
+          "conditional": false,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "mother",
+          "stance": "strains",
+          "summary": "The selected KP interpretations emphasize cautions about the mother.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "6th sub lord Mars: the mother's health gives trouble; the sub lord was Sun until 12 s earlier",
+          "conditional": true,
+          "provisional": false
+        },
+        {
+          "school": "jaimini",
+          "topic": "career",
+          "stance": "strains",
+          "summary": "The selected Jaimini interpretations emphasize cautions about career and work.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "Aspected by Sun, Rahu and Ketu (rasi drishti): pressure from outside its own sign",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "marriage",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about marriage.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "Moon is own sign in Cancer: the karaka is strong enough to deliver",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "children",
+          "stance": "strains",
+          "summary": "The selected Jaimini interpretations emphasize cautions about children and family.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "Aspected by Sun, Saturn and Ketu (rasi drishti): pressure from outside its own sign",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "father",
+          "stance": "mixed",
+          "summary": "The selected Jaimini interpretations give a mixed or inconclusive picture about the father.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "Joined by Mercury and Venus: benefic company increases what the karaka promises",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "mother",
+          "stance": "mixed",
+          "summary": "The selected Jaimini interpretations give a mixed or inconclusive picture about the mother.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "In the navamsa Mars is friendly in Pisces, which repairs the rasi placement",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        }
+      ],
+      "eventChecks": [
+        {
+          "event": {
+            "topic": "authority",
+            "date": "2002-10-08",
+            "timezone": "Europe/Stockholm",
+            "description": "Nobel Prize in Physics announced",
+            "source": "https://pages.jh.edu/news_info/news/home02/oct02/nobel.html",
+            "corroboration": "https://www.corriere.it/Primo_Piano/Scienze_e_Tecnologie/2002/10_Ottobre/08/nobelfisica.shtml"
+          },
+          "actual": {
+            "date": "2002-10-08",
+            "asOf": "2002-07-09T22:00:00.000Z",
+            "zone": "Europe/Stockholm",
+            "possibleDayOverlap": false,
+            "windows": []
+          },
+          "comparisons": [
+            {
+              "date": "2002-04-11",
+              "asOf": "2002-01-10T23:00:00.000Z",
+              "zone": "Europe/Stockholm",
+              "possibleDayOverlap": false,
+              "windows": []
+            },
+            {
+              "date": "2003-04-06",
+              "asOf": "2003-01-05T23:00:00.000Z",
+              "zone": "Europe/Stockholm",
+              "possibleDayOverlap": false,
+              "windows": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sofía Mulánovich",
+      "birthSource": "https://www.astro.com/astro-databank/Mul%C3%A1novich%2C_Sof%C3%ADa?nhor=860265",
+      "birthQuality": "AA, birth record reportedly in collector's possession; original not independently inspected.",
+      "career": "Peruvian professional surfer; 2004 world champion and winner of the 2019 ISA World Surfing Games in Japan.",
+      "careerSource": "https://www.gob.pe/institucion/ipd/noticias/196918-sofia-mulanovich-se-corona-campeona-mundial-en-japon",
+      "asOf": "2026-11-01T23:53:24.508Z",
+      "timeBasis": "Peru Standard Time -5:00",
+      "ascendant": "Leo",
+      "material": [
+        {
+          "topic": "career",
+          "beforeOverview": "The strong rules disagree. A steady, respected profession with authority over others; yet a career with a break and a return, or a late spiritual turn. Read both before deciding.",
+          "after": {
+            "topic": "career",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible work themes or experiences:",
+            "details": [
+              "A steady, respected profession with authority over others.",
+              "Technical or research work.",
+              "Police, defence, engineering in government or heavy administration."
+            ],
+            "contrast": "Another part of a selected rule mentions a career with a break and a return, or a late spiritual turn.",
+            "limit": "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 2 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Saturn's passage is read in relation to Jupiter in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:10.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:10.000Z",
+                "end": "2027-06-02T23:58:14.000Z"
+              },
+              {
+                "id": "nadi-jupiter-now",
+                "when": "31 Oct 2026 – 24 Jan 2027",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Jupiter's passage is read in relation to Ketu in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2026-10-31T06:32:44.000Z\"]"
+                },
+                "start": "2026-10-31T06:32:44.000Z",
+                "end": "2027-01-24T20:01:30.000Z"
+              },
+              {
+                "id": "nadi-saturn-next",
+                "when": "2 Jun 2027 – 19 Oct 2027",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Saturn's passage is read in relation to Saturn and Ketu in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2027-06-02T23:58:14.000Z\"]"
+                },
+                "start": "2027-06-02T23:58:14.000Z",
+                "end": "2027-10-20T01:42:11.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "sa-exalt",
+              "text": "Saturn dignified: a steady, respected profession with authority over others.",
+              "source": "General Nadi principles (Rao, Naik)"
+            },
+            {
+              "id": "t-ju-sa-ke",
+              "text": "Jupiter, Saturn and Ketu linked by sign (not necessarily in the same sign): technical or research work; a career with a break and a return, or a late spiritual turn.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "t-sa-su-ma",
+              "text": "Saturn, Sun and Mars linked by sign (not necessarily in the same sign): police, defence, engineering in government or heavy administration; command over labour.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "marriage",
+          "beforeOverview": "The strong rules disagree. The wife holds authority in the marriage and the husband must listen, else hostility; yet denial or a very late marriage. Read both before deciding.",
+          "after": {
+            "topic": "marriage",
+            "hasArea": true,
+            "summary": "This Nadi check finds a direct link between the planets it uses for you and a partner. The method reads that as supportive of the possibility of marriage.",
+            "detailIntro": "Other selected Nadi rules describe these possible relationship themes:",
+            "details": [
+              "One interpretation raises questions about communication or conflict; see the source finding for its wording.",
+              "One interpretation raises questions about timing or delays and whether marriage occurs; see the source finding for its wording.",
+              "One interpretation raises questions about communication or conflict; see the source finding for its wording."
+            ],
+            "limit": "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
+            "contrast": "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 2 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Saturn's passage is read in relation to Venus in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:10.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:10.000Z",
+                "end": "2027-06-02T23:58:14.000Z"
+              },
+              {
+                "id": "nadi-jupiter-next",
+                "when": "24 Jan 2027 – 25 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Jupiter's passage is read in relation to Venus in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:30.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:30.000Z",
+                "end": "2027-06-25T23:49:14.000Z"
+              },
+              {
+                "id": "nadi-saturn-next",
+                "when": "2 Jun 2027 – 19 Oct 2027",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Saturn's passage is read in relation to Saturn in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2027-06-02T23:58:14.000Z\"]"
+                },
+                "start": "2027-06-02T23:58:14.000Z",
+                "end": "2027-10-20T01:42:11.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "f-t-ma-ra-ve",
+              "text": "Mars, Rahu and Venus linked by sign (not necessarily in the same sign): the wife holds authority in the marriage and the husband must listen, else hostility; an unsettled married life.",
+              "source": "B. Sakurkar, Nadi principles for marriage (Saptarishis); adjacent-sign extension provisional"
+            },
+            {
+              "id": "f-t-ma-sa-ra",
+              "text": "Mars, Saturn and Rahu linked by sign (not necessarily in the same sign): denial or a very late marriage; Jupiter's aspect minimises it.",
+              "source": "B. Sakurkar, Nadi principles for marriage (Saptarishis); adjacent-sign extension provisional"
+            },
+            {
+              "id": "f-t-ma-su-ra",
+              "text": "Mars, Sun and Rahu linked by sign (not necessarily in the same sign): a very short-tempered, egoistic husband.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology; adjacent-sign extension provisional"
+            }
+          ],
+          "technicalMarriageHeadline": "Mars (husband) stands in the 12th from Venus (the native): the background the native carries; marriage is promised at lesser strength.",
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "self",
+          "beforeOverview": "Well supported. Life is organised around work, duty and responsibility; an unconventional life.",
+          "after": {
+            "topic": "self",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about personality and approach to life:",
+            "details": [
+              "Life is organised around work, duty and responsibility.",
+              "An unconventional life.",
+              "A traditional association with counsel, family and partnership."
+            ],
+            "contrast": "Other selected findings include both supportive and difficult themes; their details are in the Nadi reading.",
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 2 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to personality and approach to life.",
+                "reason": "Saturn's passage is read in relation to Jupiter in the birth-chart findings selected for self.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:10.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:10.000Z",
+                "end": "2027-06-02T23:58:14.000Z"
+              },
+              {
+                "id": "nadi-jupiter-next",
+                "when": "24 Jan 2027 – 25 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to personality and approach to life.",
+                "reason": "Jupiter's passage is read in relation to Venus in the birth-chart findings selected for self.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:30.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:30.000Z",
+                "end": "2027-06-25T23:49:14.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ju-sa",
+              "text": "Jeeva bound to Karma: life is organised around work, duty and responsibility. Maturity comes early; gains arrive slowly but hold.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "f-ve-ra",
+              "text": "Deha (Venus) with Rahu: an unconventional life; foreign ties, ambition and modern professions; she crosses her family's tradition.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology"
+            },
+            {
+              "id": "f-ve-ju",
+              "text": "Deha (Venus) with Jupiter: a traditional association with counsel, family and partnership; it does not establish whether someone has children.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "authority",
+          "beforeOverview": "Well supported. Power among crowds; a following gathers.",
+          "after": {
+            "topic": "authority",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about standing and responsibility:",
+            "details": [
+              "Power among crowds.",
+              "Authority the slow way — built in institutions, service and time, and held with discipline.",
+              "A following gathers."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "auth-su-ra",
+              "text": "The Sun with Rahu: power among crowds; a rise that is public, unconventional or contested — politics, movements, mass attention. (provisional)",
+              "source": "General Nadi principles (Rao, Naik)"
+            },
+            {
+              "id": "auth-su-sa",
+              "text": "The Sun with Saturn: authority the slow way — built in institutions, service and time, and held with discipline; standing that outlasts its critics. (provisional)",
+              "source": "General Nadi principles (Rao, Naik)"
+            },
+            {
+              "id": "auth-ju-ra",
+              "text": "Jupiter with Rahu: a following gathers; causes, crowds or movements look to the native, and leadership runs with the many. (provisional)",
+              "source": "General Nadi principles (Rao, Naik)"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "children",
+          "beforeOverview": "Venus stands in the 9th from Jupiter, the putra karaka. This tradition reads a trinal connection as relevant to children; it cannot establish an individual outcome or timing.",
+          "after": {
+            "topic": "children",
+            "hasArea": true,
+            "summary": "This Nadi check finds a traditional connection between Jupiter and Venus that it associates with children and family.",
+            "limit": "This is a traditional association. It cannot determine fertility, pregnancy, the number or sex of children, or whether, when or how someone becomes a parent.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-now",
+                "when": "31 Oct 2026 – 24 Jan 2027",
+                "statement": "The Nadi transit reading connects this passage to children and family.",
+                "reason": "Jupiter's passage is read in relation to Ketu in the birth-chart findings selected for children.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2026-10-31T06:32:44.000Z\"]"
+                },
+                "start": "2026-10-31T06:32:44.000Z",
+                "end": "2027-01-24T20:01:30.000Z"
+              },
+              {
+                "id": "nadi-saturn-next",
+                "when": "2 Jun 2027 – 19 Oct 2027",
+                "statement": "The Nadi transit reading connects this passage to children and family.",
+                "reason": "Saturn's passage is read in relation to Saturn and Ketu in the birth-chart findings selected for children.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2027-06-02T23:58:14.000Z\"]"
+                },
+                "start": "2027-06-02T23:58:14.000Z",
+                "end": "2027-10-20T01:42:11.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ch-t-ju-sa-node",
+              "text": "Jupiter, Saturn and Ketu linked by sign: some Nadi readers consider this a timing factor; it cannot establish a delay or route to parenthood.",
+              "source": "General Nadi principles (Rao, Naik)"
+            },
+            {
+              "id": "ch-ju-water",
+              "text": "Jupiter in a watery sign, so the 5th from Jupiter is watery too: a traditional classification that cannot assess fertility or pregnancy.",
+              "source": "Bhrigu Naadi principles (Srinivasan)"
+            },
+            {
+              "id": "ch-ju-ve-trine",
+              "text": "Jupiter in trine to Venus: a Jupiter–Venus connection traditionally considered relevant to children; it does not establish timing or outcome.",
+              "source": "BNN progeny sutras (Astroindus, Sakurkar)"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "wealth",
+          "beforeOverview": "Well supported. Comforts, popularity and prosperity; money comes and goes.",
+          "after": {
+            "topic": "wealth",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about money and assets:",
+            "details": [
+              "Comforts, popularity and prosperity.",
+              "Money comes and goes.",
+              "Gains through property, vehicles or design."
+            ],
+            "limit": "These are traditional interpretations, not a forecast of financial outcomes or a basis for financial decisions.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-next",
+                "when": "24 Jan 2027 – 25 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to money and assets.",
+                "reason": "Jupiter's passage is read in relation to Jupiter and Venus in the birth-chart findings selected for wealth.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:30.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:30.000Z",
+                "end": "2027-06-25T23:49:14.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "t-ju-mo-ve",
+              "text": "Jupiter, Moon and Venus linked by sign (not necessarily in the same sign): comforts, popularity and prosperity; an artistic, generous nature; helpful women in life.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "ju-ke-wealth",
+              "text": "Jupiter and Ketu: money comes and goes; ancestral property or inheritance issues.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ma-ve",
+              "text": "Mars with Venus: gains through property, vehicles or design; strong desires drive acquisition.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "education",
+          "beforeOverview": "A mixed picture. Technical education, mathematics, engineering or medicine; higher education, classical learning, law, philosophy or teaching.",
+          "after": {
+            "topic": "education",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about learning:",
+            "details": [
+              "Technical education, mathematics, engineering or medicine.",
+              "Higher education, classical learning, law, philosophy or teaching.",
+              "Foreign languages, technology, unconventional or overseas education."
+            ],
+            "contrast": "Other selected findings include both supportive and difficult themes; their details are in the Nadi reading.",
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "me-ma",
+              "text": "Mercury with Mars: technical education, mathematics, engineering or medicine; sharp analytical mind.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "me-ju",
+              "text": "Mercury with Jupiter: higher education, classical learning, law, philosophy or teaching.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "me-ra",
+              "text": "Mercury with Rahu: foreign languages, technology, unconventional or overseas education.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "family",
+          "beforeOverview": "Asks for care. Father's life is unconventional or connected with foreign lands; a forceful father, possibly in engineering, defence or property.",
+          "after": {
+            "topic": "family",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about parents and family:",
+            "details": [
+              "Father's life is unconventional or connected with foreign lands.",
+              "A forceful father, possibly in engineering, defence or property.",
+              "The father is educated and prosperous, in finance, arts or administration."
+            ],
+            "contrast": "Other selected findings include both supportive and difficult themes; their details are in the Nadi reading.",
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "su-ra-fam",
+              "text": "Sun with Rahu: father's life is unconventional or connected with foreign lands; eclipse-like shadow over paternal matters.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "su-ma",
+              "text": "Sun with Mars: a forceful father, possibly in engineering, defence or property; the native inherits drive and temper.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "t-su-me-ve",
+              "text": "Sun, Mercury and Venus linked by sign (not necessarily in the same sign): the father is educated and prosperous, in finance, arts or administration; eloquent family.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "health",
+          "beforeOverview": "Asks for care. A hot constitution; a life that meets tools and blades, as patient or as practitioner.",
+          "after": {
+            "topic": "health",
+            "hasArea": true,
+            "summary": "The selected Nadi rules include interpretations about well-being. Their original wording is available in the source findings.",
+            "detailIntro": "The source interpretations mention these subjects:",
+            "details": [
+              "Energy or vitality.",
+              "Physical well-being.",
+              "Physical safety."
+            ],
+            "limit": "A birth chart cannot diagnose a condition, assess health risks or replace medical care.",
+            "windows": [],
+            "timingNote": "Transit passages are not presented here as health forecasts."
+          },
+          "sourceFindings": [
+            {
+              "id": "su-ra-health",
+              "text": "Sun with Rahu: energy comes in waves; eyes, heart and immunity are worth routine checks.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "su-ma-health",
+              "text": "Sun with Mars: a hot constitution; blood pressure and the small accidents of hurry are the things to watch.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ma-ke",
+              "text": "Mars with Ketu: a life that meets tools and blades, as patient or as practitioner; care with machines and sharp edges, and a gift for electronics or medicine.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "spirituality",
+          "beforeOverview": "Well supported. A genuine spiritual guide appears; the ego is tested.",
+          "after": {
+            "topic": "spirituality",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about spiritual life:",
+            "details": [
+              "An interest in spiritual guidance.",
+              "Intuitive, meditative mind.",
+              "The ego is tested."
+            ],
+            "contrast": "Other selected findings include both supportive and difficult themes; their details are in the Nadi reading.",
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-now",
+                "when": "31 Oct 2026 – 24 Jan 2027",
+                "statement": "The Nadi transit reading connects this passage to spiritual life.",
+                "reason": "Jupiter's passage is read in relation to Ketu in the birth-chart findings selected for spirituality.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2026-10-31T06:32:44.000Z\"]"
+                },
+                "start": "2026-10-31T06:32:44.000Z",
+                "end": "2027-01-24T20:01:30.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ke-ju-spirit",
+              "text": "Ketu with Jupiter: a genuine spiritual guide appears; wisdom through renunciation of some worldly aim.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ke-mo-spirit",
+              "text": "Ketu with the Moon: intuitive, meditative mind; dreams and psychic sensitivity.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ke-su-spirit",
+              "text": "Ketu with the Sun: the ego is tested; leadership in a spiritual or healing tradition.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "travel",
+          "beforeOverview": "Well supported. Profession and fortune in a foreign land; work in foreign languages, IT or international trade.",
+          "after": {
+            "topic": "travel",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about travel and foreign ties:",
+            "details": [
+              "Work in foreign languages, IT or international trade.",
+              "Profession and fortune in a foreign land.",
+              "Frequent relocation."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ra-me-travel",
+              "text": "Rahu with Mercury: work in foreign languages, IT or international trade.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "t-ju-sa-ra",
+              "text": "Jupiter, Saturn and Rahu linked by sign (not necessarily in the same sign): profession and fortune in a foreign land; emigration for work.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "ra-mo-travel",
+              "text": "Rahu with the Moon: frequent relocation; the mind is drawn to distant places.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        }
+      ],
+      "schoolSummaries": [
+        {
+          "school": "parashari",
+          "topic": "career",
+          "stance": "leans-supports",
+          "summary": "The selected Parashari interpretations lean supportive about career and work, with qualifications.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "BPHS: 10th house (work, honour and authority): Mercury, a benefic, stands in it, which Parashara counts in its favour (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "marriage",
+          "stance": "leans-supports",
+          "summary": "The selected Parashari interpretations lean supportive about marriage, with qualifications.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "Phaladeepika reads Jupiter in your 4th house kindly here (a home shared with your mother, friends, helpers, children and partner)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "children",
+          "stance": "leans-supports",
+          "summary": "The selected Parashari interpretations lean supportive about children and family, with qualifications.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "Sarvartha Chintamani reads the 5th kindly (5.3: definitely gets a son; here the Moon, a benefic, stands in the 5th; the 5th's ruler, Jupiter, is looked at by Mercury and Venus, benefics)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "father",
+          "stance": "contested",
+          "summary": "The selected Parashari interpretations disagree about the father; support and caution are both retained.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "BPHS: 10th house (work, honour and authority): Mercury, a benefic, stands in it, which Parashara counts in its favour (11.14-16); yet Sarvartha Chintamani reads the 9th less kindly (7.17: trouble to the father; here the 9th's ruler, Mars, shares a sign with the Sun and Rahu,…",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "mother",
+          "stance": "leans-supports",
+          "summary": "The selected Parashari interpretations lean supportive about the mother, with qualifications.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "Phaladeepika reads Jupiter in your 4th house kindly here (a home shared with your mother, friends, helpers, children and partner)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "kp",
+          "topic": "career",
+          "stance": "supports",
+          "summary": "The selected KP interpretations are supportive about career and work.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "10th sub lord Rahu: the app's provisional threshold reads this as support for employment and earnings; the sub lord changes to Jupiter 1 min 48 s later",
+          "conditional": true,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "marriage",
+          "stance": "silent",
+          "summary": "The selected KP rules do not give a general conclusion about marriage in this comparison. A more specific rule may still appear in that school's reading.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "No general marriage verdict fires; KP has a separate rule about partner.",
+          "conditional": false,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "children",
+          "stance": "silent",
+          "summary": "The selected KP rules do not give a general conclusion about children and family in this comparison. A more specific rule may still appear in that school's reading.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "No general children verdict fires; KP has a separate rule about children.",
+          "conditional": false,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "father",
+          "stance": "strains",
+          "summary": "The selected KP interpretations emphasize cautions about the father.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "9th sub lord Venus: the father's health needs watching in their periods; the sub lord changes to Sun 1 min 53 s later",
+          "conditional": true,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "mother",
+          "stance": "supports",
+          "summary": "The selected KP interpretations are supportive about the mother.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "4th sub lord Rahu: higher education, land and ancestral property, vehicles and an affectionate, helpful mother",
+          "conditional": false,
+          "provisional": false
+        },
+        {
+          "school": "jaimini",
+          "topic": "career",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about career and work.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "In the navamsa Venus is friendly in Aquarius, which repairs the rasi placement",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "marriage",
+          "stance": "mixed",
+          "summary": "The selected Jaimini interpretations give a mixed or inconclusive picture about marriage.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "Joined by Ketu: the karaka is afflicted, so the spouse, partnerships and close alliances meet resistance",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "children",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about children and family.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "Saturn is exalted in Libra: the karaka is strong enough to deliver",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "father",
+          "stance": "mixed",
+          "summary": "The selected Jaimini interpretations give a mixed or inconclusive picture about the father.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "In the navamsa Sun is friendly in Sagittarius, which repairs the rasi placement",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "mother",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about the mother.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "Jupiter is friendly in Scorpio: the karaka is strong enough to deliver",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        }
+      ],
+      "eventChecks": [
+        {
+          "event": {
+            "topic": "authority",
+            "date": "2019-09-10",
+            "timezone": "Asia/Tokyo",
+            "description": "ISA World Surfing Games women's gold medal in Miyazaki",
+            "source": "https://isaworlds.com/wsg/2019/en/perus-sofia-mulanovich-seizes-womens-gold-medal-2019-isa-world-surfing-games-presented-vans/",
+            "corroboration": "https://www.surfline.com/surf-news/italo-ferreira-team-brazil-win-gold-isa-world-surfing-games/62981"
+          },
+          "actual": {
+            "date": "2019-09-10",
+            "asOf": "2019-06-11T15:00:00.000Z",
+            "zone": "Asia/Tokyo",
+            "possibleDayOverlap": false,
+            "windows": []
+          },
+          "comparisons": [
+            {
+              "date": "2019-03-14",
+              "asOf": "2018-12-13T15:00:00.000Z",
+              "zone": "Asia/Tokyo",
+              "possibleDayOverlap": false,
+              "windows": []
+            },
+            {
+              "date": "2020-03-08",
+              "asOf": "2019-12-08T15:00:00.000Z",
+              "zone": "Asia/Tokyo",
+              "possibleDayOverlap": false,
+              "windows": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Geeta Phogat",
+      "birthSource": "https://www.astro.com/astro-databank/Phogat%2C_Geeta?nho2=1",
+      "birthQuality": "A, birth time reportedly obtained from her family; 04:00 is rounded and is not a verified record.",
+      "career": "Indian freestyle wrestler; her father Mahavir Phogat coached her; Commonwealth Games gold in 2010.",
+      "careerSource": "https://timesofindia.indiatimes.com/sports/geeta-phogat/articleshow/59899749.cms",
+      "asOf": "2026-11-01T23:53:25.374Z",
+      "timeBasis": "India Standard Time +5:30",
+      "ascendant": "Libra",
+      "material": [
+        {
+          "topic": "career",
+          "beforeOverview": "Possible career themes in these interpretations: computing, coding, statistics or research; profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields; government, administration or a large institution. These are alternatives, not a predicted occupation.",
+          "after": {
+            "topic": "career",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible work themes or experiences:",
+            "details": [
+              "Computing, coding, statistics or research.",
+              "Profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields.",
+              "Government, administration or a large institution."
+            ],
+            "limit": "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-now",
+                "when": "31 Oct 2026 – 25 Jan 2027",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Jupiter's passage is read in relation to Saturn, Mercury and Ketu in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2026-10-31T06:32:47.000Z\"]"
+                },
+                "start": "2026-10-31T06:32:47.000Z",
+                "end": "2027-01-24T20:01:33.000Z"
+              },
+              {
+                "id": "nadi-saturn-next",
+                "when": "3 Jun 2027 – 20 Oct 2027",
+                "statement": "The Nadi transit reading connects this passage to work.",
+                "reason": "Saturn's passage is read in relation to Saturn, Mercury and Ketu in the birth-chart findings selected for career.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2027-06-02T23:58:14.000Z\"]"
+                },
+                "start": "2027-06-02T23:58:14.000Z",
+                "end": "2027-10-20T01:42:11.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "t-sa-me-ke",
+              "text": "Saturn, Mercury and Ketu linked by sign (not necessarily in the same sign): computing, coding, statistics or research; introverted, detail-driven livelihood.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "sa-ve",
+              "text": "Karma with Venus: profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "sa-su",
+              "text": "Karma with the Sun: government, administration or a large institution; a position of authority reached through service.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "marriage",
+          "beforeOverview": "The strong rules disagree. The wife holds authority in the marriage and the husband must listen, else hostility; yet late marriage. Read both before deciding.",
+          "after": {
+            "topic": "marriage",
+            "hasArea": true,
+            "summary": "This Nadi check finds a direct link between the planets it uses for you and a partner. The method reads that as supportive of the possibility of marriage.",
+            "detailIntro": "Other selected Nadi rules describe these possible relationship themes:",
+            "details": [
+              "One interpretation raises questions about communication or conflict; see the source finding for its wording.",
+              "One interpretation raises questions about communication or conflict and timing or delays; see the source finding for its wording.",
+              "One interpretation raises questions about communication or conflict; see the source finding for its wording."
+            ],
+            "limit": "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
+            "contrast": "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 3 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Saturn's passage is read in relation to Mars, Sun and Venus in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:10.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:10.000Z",
+                "end": "2027-06-02T23:58:14.000Z"
+              },
+              {
+                "id": "nadi-jupiter-next",
+                "when": "25 Jan 2027 – 26 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to marriage.",
+                "reason": "Jupiter's passage is read in relation to Mars, Sun and Venus in the birth-chart findings selected for marriage.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:33.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:33.000Z",
+                "end": "2027-06-25T23:49:16.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "f-t-ma-ra-ve",
+              "text": "Mars, Rahu and Venus linked by sign (not necessarily in the same sign): the wife holds authority in the marriage and the husband must listen, else hostility; an unsettled married life.",
+              "source": "B. Sakurkar, Nadi principles for marriage (Saptarishis); adjacent-sign extension provisional"
+            },
+            {
+              "id": "f-t-ma-mo-ve",
+              "text": "Mars, Moon and Venus linked by sign (not necessarily in the same sign): late marriage; a husband who listens to tales and travels for his career; misunderstandings at home.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology; adjacent-sign extension provisional"
+            },
+            {
+              "id": "f-t-ma-su-ve",
+              "text": "Mars, Sun and Venus linked by sign (not necessarily in the same sign): a husband of standing whose word carries at home; the wife defers to him.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology; adjacent-sign extension provisional"
+            }
+          ],
+          "technicalMarriageHeadline": "Mars (husband) stands in the 5th from Venus (the native): same direction, three-quarter strength; marriage is well promised.",
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "self",
+          "beforeOverview": "Well supported. Dignity and closeness to authority; a self-made native who relies on inner judgement.",
+          "after": {
+            "topic": "self",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about personality and approach to life:",
+            "details": [
+              "Dignity and closeness to authority.",
+              "A self-made person who relies on inner judgement."
+            ],
+            "contrast": "Other selected findings include both supportive and difficult themes; their details are in the Nadi reading.",
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 3 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to personality and approach to life.",
+                "reason": "Saturn's passage is read in relation to Venus and Mars in the birth-chart findings selected for self.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:10.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:10.000Z",
+                "end": "2027-06-02T23:58:14.000Z"
+              },
+              {
+                "id": "nadi-jupiter-next",
+                "when": "25 Jan 2027 – 26 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to personality and approach to life.",
+                "reason": "Jupiter's passage is read in relation to Venus and Sun in the birth-chart findings selected for self.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:33.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:33.000Z",
+                "end": "2027-06-25T23:49:16.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "f-ve-su",
+              "text": "Deha (Venus) with the Sun: dignity and closeness to authority; the father's standing marks her life; she may work with government or in a position of status.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology"
+            },
+            {
+              "id": "ju-retro",
+              "text": "Retrograde Jupiter: the native revisits decisions and also carries the qualities of the previous sign; life direction is reconsidered more than once.",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            },
+            {
+              "id": "alone-ju",
+              "text": "Jupiter stands alone: a self-made native who relies on inner judgement; independent path with few early helpers.",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "authority",
+          "beforeOverview": "Well supported. Jupiter, the life force, in a Sun-ruled star (Krittika, Uttara Phalguni, Uttara Ashadha): leadership and public standing are in the grain of the life; standing and authority travel with the father's line, government and institutions.",
+          "after": {
+            "topic": "authority",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about standing and responsibility:",
+            "details": [
+              "Leadership and public standing may be recurring themes.",
+              "Authority the slow way — built in institutions, service and time, and held with discipline.",
+              "Standing and authority travel with the father's line, government and institutions."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "auth-ju-sunstar",
+              "text": "Jupiter, the life force, in a Sun-ruled star (Krittika, Uttara Phalguni, Uttara Ashadha): leadership and public standing are in the grain of the life; the native rises to be heard. (Uttara Ashadha is the sourced star; the other Sun stars by extension, provisional)",
+              "source": "DNA Astrology of Wealth (Bhrigu Nandi Nadi): Rajya Lakshmi and the Sun, p. 57; Uttarashadha and leadership, p. 115"
+            },
+            {
+              "id": "auth-su-sa",
+              "text": "The Sun with Saturn: authority the slow way — built in institutions, service and time, and held with discipline; standing that outlasts its critics. (provisional)",
+              "source": "General Nadi principles (Rao, Naik)"
+            },
+            {
+              "id": "auth-ju-su",
+              "text": "Jupiter with the Sun: standing and authority travel with the father's line, government and institutions; the native's name carries past his own circle. (provisional)",
+              "source": "General Nadi principles (Rao, Naik)"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "children",
+          "beforeOverview": "Venus stands in the 7th from Jupiter, the putra karaka. This tradition reads the opposition as a connection when discussing children; it cannot establish an individual outcome.",
+          "after": {
+            "topic": "children",
+            "hasArea": true,
+            "summary": "This Nadi check finds a traditional connection between Jupiter and Venus that it associates with children and family.",
+            "limit": "This is a traditional association. It cannot determine fertility, pregnancy, the number or sex of children, or whether, when or how someone becomes a parent.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ch-t-ju-sa-node",
+              "text": "Jupiter, Saturn and Ketu linked by sign: some Nadi readers consider this a timing factor; it cannot establish a delay or route to parenthood.",
+              "source": "General Nadi principles (Rao, Naik)"
+            },
+            {
+              "id": "ch-ju-ve-opp",
+              "text": "Jupiter opposite Venus: a Jupiter–Venus connection that this tradition reads with reduced weight; individual family circumstances cannot be inferred.",
+              "source": "BNN progeny sutras (Astroindus, Sakurkar)"
+            },
+            {
+              "id": "ch-ju-me",
+              "text": "Jupiter with or in trine to Mercury: a traditional link between children and learning; it does not determine a child's interests or abilities.",
+              "source": "BNN progeny sutras (Astroindus, Sakurkar)"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "wealth",
+          "beforeOverview": "Well supported. Gains through property, vehicles or design; wealth through partnership, finance or refined trades.",
+          "after": {
+            "topic": "wealth",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about money and assets:",
+            "details": [
+              "Gains through property, vehicles or design.",
+              "Wealth through partnership, finance or refined trades.",
+              "Income through knowledge, trading or consultancy."
+            ],
+            "limit": "These are traditional interpretations, not a forecast of financial outcomes or a basis for financial decisions.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 3 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to money and assets.",
+                "reason": "Saturn's passage is read in relation to Mars and Venus in the birth-chart findings selected for wealth.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:10.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:10.000Z",
+                "end": "2027-06-02T23:58:14.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ma-ve",
+              "text": "Mars with Venus: gains through property, vehicles or design; strong desires drive acquisition.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ju-ve-wealth",
+              "text": "Jupiter and Venus together: wealth through partnership, finance or refined trades; comfortable living standards.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ju-me-wealth",
+              "text": "Jupiter and Mercury: income through knowledge, trading or consultancy.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "education",
+          "beforeOverview": "Asks for care. Education in commerce, accounts, engineering or a discipline requiring long practice; breaks in education, or a turn toward research, computing and esoteric subjects.",
+          "after": {
+            "topic": "education",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about learning:",
+            "details": [
+              "Education in commerce, accounts, engineering or a discipline requiring long practice.",
+              "Arts, music, design, languages or finance.",
+              "Breaks in education, or a turn toward research, computing and esoteric subjects."
+            ],
+            "contrast": "Other selected findings include both supportive and difficult themes; their details are in the Nadi reading.",
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-now",
+                "when": "31 Oct 2026 – 25 Jan 2027",
+                "statement": "The Nadi transit reading connects this passage to learning.",
+                "reason": "Jupiter's passage is read in relation to Mercury and Saturn in the birth-chart findings selected for education.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2026-10-31T06:32:47.000Z\"]"
+                },
+                "start": "2026-10-31T06:32:47.000Z",
+                "end": "2027-01-24T20:01:33.000Z"
+              },
+              {
+                "id": "nadi-saturn-next",
+                "when": "3 Jun 2027 – 20 Oct 2027",
+                "statement": "The Nadi transit reading connects this passage to learning.",
+                "reason": "Saturn's passage is read in relation to Mercury and Saturn in the birth-chart findings selected for education.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2027-06-02T23:58:14.000Z\"]"
+                },
+                "start": "2027-06-02T23:58:14.000Z",
+                "end": "2027-10-20T01:42:11.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "me-sa",
+              "text": "Mercury with Saturn: education in commerce, accounts, engineering or a discipline requiring long practice; possible interruption.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "me-ve",
+              "text": "Mercury with Venus: arts, music, design, languages or finance; persuasive speech.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "me-ke",
+              "text": "Mercury with Ketu: breaks in education, or a turn toward research, computing and esoteric subjects.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "family",
+          "beforeOverview": "A mixed picture. The father is educated and prosperous, in finance, arts or administration; yet mother's health or circumstances are unusual.",
+          "after": {
+            "topic": "family",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about parents and family:",
+            "details": [
+              "The father is educated and prosperous, in finance, arts or administration.",
+              "One interpretation discusses a parent's circumstances; it cannot assess a parent's health.",
+              "A forceful father, possibly in engineering, defence or property."
+            ],
+            "contrast": "Other selected findings include both supportive and difficult themes; their details are in the Nadi reading.",
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-next",
+                "when": "25 Jan 2027 – 26 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to parents and family.",
+                "reason": "Jupiter's passage is read in relation to Sun and Venus in the birth-chart findings selected for family.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:33.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:33.000Z",
+                "end": "2027-06-25T23:49:16.000Z"
+              },
+              {
+                "id": "nadi-saturn-next",
+                "when": "3 Jun 2027 – 20 Oct 2027",
+                "statement": "The Nadi transit reading connects this passage to parents and family.",
+                "reason": "Saturn's passage is read in relation to Mercury in the birth-chart findings selected for family.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2027-06-02T23:58:14.000Z\"]"
+                },
+                "start": "2027-06-02T23:58:14.000Z",
+                "end": "2027-10-20T01:42:11.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "t-su-me-ve",
+              "text": "Sun, Mercury and Venus linked by sign (not necessarily in the same sign): the father is educated and prosperous, in finance, arts or administration; eloquent family.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "mo-ra-fam",
+              "text": "Moon with Rahu: mother's health or circumstances are unusual; the native's mind is restless and imaginative.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "su-ma",
+              "text": "Sun with Mars: a forceful father, possibly in engineering, defence or property; the native inherits drive and temper.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "health",
+          "beforeOverview": "Asks for care. The mind magnifies; a hot constitution.",
+          "after": {
+            "topic": "health",
+            "hasArea": true,
+            "summary": "The selected Nadi rules include interpretations about well-being. Their original wording is available in the source findings.",
+            "detailIntro": "The source interpretations mention these subjects:",
+            "details": [
+              "Emotions or mental well-being.",
+              "Physical well-being.",
+              "Physical safety."
+            ],
+            "limit": "A birth chart cannot diagnose a condition, assess health risks or replace medical care.",
+            "windows": [],
+            "timingNote": "Transit passages are not presented here as health forecasts."
+          },
+          "sourceFindings": [
+            {
+              "id": "mo-ra-health",
+              "text": "Moon with Rahu: the mind magnifies; sleep and a settled routine keep anxiety in proportion.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "su-ma-health",
+              "text": "Sun with Mars: a hot constitution; blood pressure and the small accidents of hurry are the things to watch.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "me-ke-health",
+              "text": "Mercury with Ketu: a sensitive nervous system; speech and hearing deserve attention; the mind is happiest in research.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "spirituality",
+          "beforeOverview": "A mixed picture. Austerity, service and detachment as a path; a genuine spiritual guide appears.",
+          "after": {
+            "topic": "spirituality",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about spiritual life:",
+            "details": [
+              "Austerity, service and detachment as a path.",
+              "An interest in spiritual guidance.",
+              "Intuitive, meditative mind."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [
+              {
+                "id": "nadi-jupiter-now",
+                "when": "31 Oct 2026 – 25 Jan 2027",
+                "statement": "The Nadi transit reading connects this passage to spiritual life.",
+                "reason": "Jupiter's passage is read in relation to Ketu and Saturn in the birth-chart findings selected for spirituality.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2026-10-31T06:32:47.000Z\"]"
+                },
+                "start": "2026-10-31T06:32:47.000Z",
+                "end": "2027-01-24T20:01:33.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ke-sa-spirit",
+              "text": "Ketu with Saturn: austerity, service and detachment as a path; possible pilgrimage or ashram connection.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ke-ju-spirit",
+              "text": "Ketu with Jupiter: a genuine spiritual guide appears; wisdom through renunciation of some worldly aim.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ke-mo-spirit",
+              "text": "Ketu with the Moon: intuitive, meditative mind; dreams and psychic sensitivity.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "travel",
+          "beforeOverview": "A mixed picture. Frequent relocation; foreign or unconventional matters express through profession, livelihood, labour.",
+          "after": {
+            "topic": "travel",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about travel and foreign ties:",
+            "details": [
+              "Frequent relocation.",
+              "Technical work abroad."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ra-mo-travel",
+              "text": "Rahu with the Moon: frequent relocation; the mind is drawn to distant places.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ra-lord-sa",
+              "text": "Rahu in a sign of Saturn: foreign or unconventional matters express through profession, livelihood, labour.",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            },
+            {
+              "id": "ra-ma-travel",
+              "text": "Rahu with Mars: technical work abroad; property in a foreign land.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        }
+      ],
+      "schoolSummaries": [
+        {
+          "school": "parashari",
+          "topic": "career",
+          "stance": "contested",
+          "summary": "The selected Parashari interpretations disagree about career and work; support and caution are both retained.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "Phaladeepika reads the Moon in your 5th house kindly here (a senior advisory post); yet BPHS: 10th house (work, honour and authority): its ruler, the Moon, sits in the 5th and does not look back at it, which Parashara counts against the house (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "marriage",
+          "stance": "contested",
+          "summary": "The selected Parashari interpretations disagree about marriage; support and caution are both retained.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "Phaladeepika reads Saturn in your 3rd house kindly here (happiness with your partner); yet BPHS: 7th house (spouse, travel and trade): its ruler, Mars, sits in the 6th and does not look back at it, which Parashara counts against the house (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "children",
+          "stance": "mixed",
+          "summary": "The selected Parashari interpretations give a mixed or inconclusive picture about children and family.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "BPHS: 5th house (learning and children): the Moon, a benefic, stands in it, which Parashara counts in its favour (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "father",
+          "stance": "strains",
+          "summary": "The selected Parashari interpretations emphasize cautions about the father.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "BPHS: 10th house (work, honour and authority): its ruler, the Moon, sits in the 5th and does not look back at it, which Parashara counts against the house (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "mother",
+          "stance": "strains",
+          "summary": "The selected Parashari interpretations emphasize cautions about the mother.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "BPHS: 4th house (mother, home and comforts): its ruler, Saturn, sits in the 3rd and does not look back at it, which Parashara counts against the house (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the house judgement leaves out the avastha clauses of 11.14-16 and settles a case the text leaves open"
+        },
+        {
+          "school": "kp",
+          "topic": "career",
+          "stance": "silent",
+          "summary": "The selected KP rules do not give a general conclusion about career and work in this comparison. A more specific rule may still appear in that school's reading.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: earnings by service as well as business.",
+          "conditional": false,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "marriage",
+          "stance": "silent",
+          "summary": "The selected KP rules do not give a general conclusion about marriage in this comparison. A more specific rule may still appear in that school's reading.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "No general marriage verdict fires; KP has a separate rule about marriage.",
+          "conditional": false,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "children",
+          "stance": "supports",
+          "summary": "The selected KP interpretations are supportive about children and family.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "5th sub lord Saturn: a traditional KP rule reads these as supportive for children, but it cannot establish an individual outcome or timing; the sub lord…",
+          "conditional": true,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "father",
+          "stance": "silent",
+          "summary": "The selected KP rules do not give a general conclusion about the father in this comparison. A more specific rule may still appear in that school's reading.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "No KP rule on the father fires.",
+          "conditional": false,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "mother",
+          "stance": "silent",
+          "summary": "The selected KP rules do not give a general conclusion about the mother in this comparison. A more specific rule may still appear in that school's reading.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "No KP rule on the mother fires.",
+          "conditional": false,
+          "provisional": false
+        },
+        {
+          "school": "jaimini",
+          "topic": "career",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about career and work.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "Mars is friendly in Pisces: the karaka is strong enough to deliver",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "marriage",
+          "stance": "strains",
+          "summary": "The selected Jaimini interpretations emphasize cautions about marriage.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "UL in Sagittarius holds Saturn: the outer face of the area is harder or contested",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "children",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about children and family.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "In the navamsa Mercury is own sign in Gemini, which repairs the rasi placement",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "father",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about the father.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "In the navamsa Saturn is friendly in Gemini, which repairs the rasi placement",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "mother",
+          "stance": "mixed",
+          "summary": "The selected Jaimini interpretations give a mixed or inconclusive picture about the mother.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "Joined by Rahu: the karaka is afflicted, so mother, home, property and inner comfort meet resistance",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        }
+      ],
+      "eventChecks": [
+        {
+          "event": {
+            "topic": "authority",
+            "date": "2010-10-07",
+            "timezone": "Asia/Kolkata",
+            "description": "Commonwealth Games women's freestyle wrestling gold in Delhi",
+            "source": "https://www.hindustantimes.com/other-sports/wrestler-geeta-phogat-and-her-dad-mahavir-singh-glorified-in-aamir-khan-s-dangal/story-WirVaAIBBtLFsb7FnmLVxJ_amp.html",
+            "corroboration": "https://www.indiatoday.in/sports/commonwealth-games-2010/story/cwg-geeta-wins-gold-in-freestyle-wrestling-83392-2010-10-06"
+          },
+          "actual": {
+            "date": "2010-10-07",
+            "asOf": "2010-07-08T18:30:00.000Z",
+            "zone": "Asia/Kolkata",
+            "possibleDayOverlap": false,
+            "windows": []
+          },
+          "comparisons": [
+            {
+              "date": "2010-04-10",
+              "asOf": "2010-01-09T18:30:00.000Z",
+              "zone": "Asia/Kolkata",
+              "possibleDayOverlap": false,
+              "windows": []
+            },
+            {
+              "date": "2011-04-05",
+              "asOf": "2011-01-04T18:30:00.000Z",
+              "zone": "Asia/Kolkata",
+              "possibleDayOverlap": false,
+              "windows": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Yamina Benguigui",
+      "birthSource": "https://www.astro.com/astro-databank/Benguigui%2C_Yamina",
+      "birthQuality": "AA, birth record reportedly in collector's possession; other published biographies give 1957. The record has not been independently inspected and this conflicting year makes the chart conditional.",
+      "career": "French film director and politician born to Algerian immigrant parents; her films address immigrant life in France.",
+      "careerSource": "https://www.lemonde.fr/vous/article/2008/09/29/yamina-benguigui-je-suis-toujours-en-colere_1100153_3238.html",
+      "asOf": "2026-11-01T23:53:26.155Z",
+      "timeBasis": "standard time of Europe/Paris +1:00",
+      "ascendant": "Aries",
+      "material": [
+        {
+          "topic": "career",
+          "beforeOverview": "Possible career themes in these interpretations: technical or research work; work with the public, liquids, food, shipping or frequent travel; profession and partnership intertwine. These are alternatives, not a predicted occupation.",
+          "after": {
+            "topic": "career",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible work themes or experiences:",
+            "details": [
+              "Technical or research work.",
+              "Work with the public, liquids, food, shipping or frequent travel.",
+              "Profession and partnership intertwine."
+            ],
+            "contrast": "Another part of a selected rule mentions a career with a break and a return, or a late spiritual turn.",
+            "limit": "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "t-ju-sa-ke",
+              "text": "Jupiter, Saturn and Ketu linked by sign (not necessarily in the same sign): technical or research work; a career with a break and a return, or a late spiritual turn.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "sa-mo",
+              "text": "Karma with the Moon: work with the public, liquids, food, shipping or frequent travel; fluctuating routines.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "x-sa-ve",
+              "text": "Saturn and Venus exchange signs: profession and partnership intertwine; work in finance, luxury or with the spouse.",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "marriage",
+          "beforeOverview": "A mixed picture. Early or timely marriage; yet the native's own life is austere and delayed in marriage.",
+          "after": {
+            "topic": "marriage",
+            "hasArea": true,
+            "summary": "This Nadi check finds an indirect link between the planets it uses for you and a partner. It treats that as an indication related to marriage.",
+            "detailIntro": "Other selected Nadi rules describe these possible relationship themes:",
+            "details": [
+              "Early or timely marriage; a principled husband, an administrator, manager, teacher or guide.",
+              "One interpretation raises questions about timing or delays; see the source finding for its wording.",
+              "One interpretation raises questions about communication or conflict; see the source finding for its wording."
+            ],
+            "limit": "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
+            "contrast": "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "f-ma-ju",
+              "text": "Husband (Mars) with Jupiter: early or timely marriage; a principled husband, an administrator, manager, teacher or guide.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology"
+            },
+            {
+              "id": "f-t-ve-sa-ke",
+              "text": "Venus, Saturn and Ketu linked by sign (not necessarily in the same sign): the native's own life is austere and delayed in marriage; a spiritual or detached turn.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology; adjacent-sign extension provisional"
+            },
+            {
+              "id": "f-ma-ke",
+              "text": "Husband (Mars) with Ketu: a husband in an ordinary job or one given to detachment; misunderstandings between the couple unless Jupiter joins.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology"
+            }
+          ],
+          "technicalMarriageHeadline": "Mars (husband) stands in the 4th from Venus (the native), with no direct link and none through Saturn; the dispositor Venus (lord of Taurus) does link to Venus, so marriage is read through it, indirectly.",
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "self",
+          "beforeOverview": "Well supported. Life is organised around work, duty and responsibility; emotionally attuned, popular, mobile.",
+          "after": {
+            "topic": "self",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about personality and approach to life:",
+            "details": [
+              "Introspective and philosophical.",
+              "Life is organised around work, duty and responsibility.",
+              "Emotionally attuned, popular, mobile."
+            ],
+            "contrast": "Other selected findings include both supportive and difficult themes; their details are in the Nadi reading.",
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 3 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to personality and approach to life.",
+                "reason": "Saturn's passage is read in relation to Mercury in the birth-chart findings selected for self.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:11.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:11.000Z",
+                "end": "2027-06-02T23:58:15.000Z"
+              },
+              {
+                "id": "nadi-jupiter-next",
+                "when": "24 Jan 2027 – 26 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to personality and approach to life.",
+                "reason": "Jupiter's passage is read in relation to Mercury in the birth-chart findings selected for self.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:33.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:33.000Z",
+                "end": "2027-06-25T23:49:16.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ju-ke",
+              "text": "Jeeva with Ketu: introspective and philosophical; periodic detachment, interest in healing, research or the occult.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ju-sa",
+              "text": "Jeeva bound to Karma: life is organised around work, duty and responsibility. Maturity comes early; gains arrive slowly but hold.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ju-mo",
+              "text": "Jeeva with the Moon: emotionally attuned, popular, mobile; life connected with the public, travel or the mother.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "authority",
+          "beforeOverview": "Lightly marked. A following gathers.",
+          "after": {
+            "topic": "authority",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about standing and responsibility:",
+            "details": [
+              "A following gathers."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "auth-ju-ra",
+              "text": "Jupiter with Rahu: a following gathers; causes, crowds or movements look to the native, and leadership runs with the many. (provisional)",
+              "source": "General Nadi principles (Rao, Naik)"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "children",
+          "beforeOverview": "Venus stands in the 9th from Jupiter, the putra karaka. This tradition reads a trinal connection as relevant to children; it cannot establish an individual outcome or timing.",
+          "after": {
+            "topic": "children",
+            "hasArea": true,
+            "summary": "This Nadi check finds a traditional connection between Jupiter and Venus that it associates with children and family.",
+            "limit": "This is a traditional association. It cannot determine fertility, pregnancy, the number or sex of children, or whether, when or how someone becomes a parent.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ch-t-ju-sa-node",
+              "text": "Jupiter, Saturn and Ketu linked by sign: some Nadi readers consider this a timing factor; it cannot establish a delay or route to parenthood.",
+              "source": "General Nadi principles (Rao, Naik)"
+            },
+            {
+              "id": "f-ju-mo-child",
+              "text": "Jupiter with the Moon: a traditional association of children and care; individual family circumstances cannot be inferred.",
+              "source": "R.G. Rao, Fundamentals of Rao's System of Nadi Astrology"
+            },
+            {
+              "id": "ch-ju-ve-trine",
+              "text": "Jupiter in trine to Venus: a Jupiter–Venus connection traditionally considered relevant to children; it does not establish timing or outcome.",
+              "source": "BNN progeny sutras (Astroindus, Sakurkar)"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "wealth",
+          "beforeOverview": "Well supported. Comforts, popularity and prosperity; money comes and goes.",
+          "after": {
+            "topic": "wealth",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about money and assets:",
+            "details": [
+              "Comforts, popularity and prosperity.",
+              "Money comes and goes.",
+              "Assets in land and buildings."
+            ],
+            "limit": "These are traditional interpretations, not a forecast of financial outcomes or a basis for financial decisions.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "t-ju-mo-ve",
+              "text": "Jupiter, Moon and Venus linked by sign (not necessarily in the same sign): comforts, popularity and prosperity; an artistic, generous nature; helpful women in life.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "ju-ke-wealth",
+              "text": "Jupiter and Ketu: money comes and goes; ancestral property or inheritance issues.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ju-ma-wealth",
+              "text": "Jupiter and Mars: assets in land and buildings; gains through courage and initiative.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "education",
+          "beforeOverview": "Well supported. Learning and wisdom reinforce each other; administration, political science, medicine or leadership studies.",
+          "after": {
+            "topic": "education",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about learning:",
+            "details": [
+              "Learning and wisdom reinforce each other.",
+              "Arts, music, design, languages or finance.",
+              "Administration, political science, medicine or leadership studies."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 3 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to learning.",
+                "reason": "Saturn's passage is read in relation to Mercury and Sun in the birth-chart findings selected for education.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:11.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:11.000Z",
+                "end": "2027-06-02T23:58:15.000Z"
+              },
+              {
+                "id": "nadi-jupiter-next",
+                "when": "24 Jan 2027 – 26 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to learning.",
+                "reason": "Jupiter's passage is read in relation to Mercury in the birth-chart findings selected for education.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:33.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:33.000Z",
+                "end": "2027-06-25T23:49:16.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "x-ju-me",
+              "text": "Jupiter and Mercury exchange signs: learning and wisdom reinforce each other; teaching, writing or advisory success.",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            },
+            {
+              "id": "me-ve",
+              "text": "Mercury with Venus: arts, music, design, languages or finance; persuasive speech.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "me-su",
+              "text": "Mercury with the Sun: administration, political science, medicine or leadership studies; father supports learning.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "family",
+          "beforeOverview": "Well supported. The father is educated and prosperous, in finance, arts or administration; siblings or ancestral property push the native's path.",
+          "after": {
+            "topic": "family",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about parents and family:",
+            "details": [
+              "The father is educated and prosperous, in finance, arts or administration.",
+              "Mother bears hardship.",
+              "Siblings or ancestral property push your path."
+            ],
+            "contrast": "Other selected findings include both supportive and difficult themes; their details are in the Nadi reading.",
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "comparison": "Other methods read this topic differently. Their findings remain separate in the comparison.",
+            "windows": [
+              {
+                "id": "nadi-saturn-now",
+                "when": "29 Mar 2025 – 3 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to parents and family.",
+                "reason": "Saturn's passage is read in relation to Sun and Mercury in the birth-chart findings selected for family.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Saturn",
+                  "target": "[data-transit-planet=\"Saturn\"][data-transit-start=\"2025-03-29T16:15:11.000Z\"]"
+                },
+                "start": "2025-03-29T16:15:11.000Z",
+                "end": "2027-06-02T23:58:15.000Z"
+              },
+              {
+                "id": "nadi-jupiter-next",
+                "when": "24 Jan 2027 – 26 Jun 2027",
+                "statement": "The Nadi transit reading connects this passage to parents and family.",
+                "reason": "Jupiter's passage is read in relation to Sun and Mercury in the birth-chart findings selected for family.",
+                "link": {
+                  "tab": "bnn",
+                  "chapter": "timing",
+                  "transitPlanet": "Jupiter",
+                  "target": "[data-transit-planet=\"Jupiter\"][data-transit-start=\"2027-01-24T20:01:33.000Z\"]"
+                },
+                "start": "2027-01-24T20:01:33.000Z",
+                "end": "2027-06-25T23:49:16.000Z"
+              }
+            ],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "t-su-me-ve",
+              "text": "Sun, Mercury and Venus linked by sign (not necessarily in the same sign): the father is educated and prosperous, in finance, arts or administration; eloquent family.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi; adjacent-sign extension provisional"
+            },
+            {
+              "id": "mo-sa-fam",
+              "text": "Moon with Saturn: mother bears hardship; the native's mind is disciplined but prone to worry.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ju-prev-ma",
+              "text": "Mars behind Jupiter: siblings or ancestral property push the native's path; a forceful early environment.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "health",
+          "beforeOverview": "Asks for care. A life that meets tools and blades, as patient or as practitioner; a slow metabolism.",
+          "after": {
+            "topic": "health",
+            "hasArea": true,
+            "summary": "The selected Nadi rules include interpretations about well-being. Their original wording is available in the source findings.",
+            "detailIntro": "The source interpretations mention these subjects:",
+            "details": [
+              "Emotions or mental well-being.",
+              "Physical well-being.",
+              "Physical safety."
+            ],
+            "limit": "A birth chart cannot diagnose a condition, assess health risks or replace medical care.",
+            "windows": [],
+            "timingNote": "Transit passages are not presented here as health forecasts."
+          },
+          "sourceFindings": [
+            {
+              "id": "ma-ke",
+              "text": "Mars with Ketu: a life that meets tools and blades, as patient or as practitioner; care with machines and sharp edges, and a gift for electronics or medicine.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "mo-sa-health",
+              "text": "Moon with Saturn: moods can run low and colds linger; routine and warmth steady the mind.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ju-sa-health",
+              "text": "Jupiter with Saturn: a slow metabolism; the liver and the joints want movement, more so in later years.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "spirituality",
+          "beforeOverview": "Well supported. A genuine spiritual guide appears; austerity, service and detachment as a path.",
+          "after": {
+            "topic": "spirituality",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about spiritual life:",
+            "details": [
+              "An interest in spiritual guidance.",
+              "Austerity, service and detachment as a path.",
+              "Intuitive, meditative mind."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ke-ju-spirit",
+              "text": "Ketu with Jupiter: a genuine spiritual guide appears; wisdom through renunciation of some worldly aim.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ke-sa-spirit",
+              "text": "Ketu with Saturn: austerity, service and detachment as a path; possible pilgrimage or ashram connection.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ke-mo-spirit",
+              "text": "Ketu with the Moon: intuitive, meditative mind; dreams and psychic sensitivity.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        },
+        {
+          "topic": "travel",
+          "beforeOverview": "Well supported. The native's fortune improves in a foreign land; foreign or unconventional matters express through the native, children, wisdom.",
+          "after": {
+            "topic": "travel",
+            "hasArea": true,
+            "summary": "The selected Nadi rules describe these possible themes about travel and foreign ties:",
+            "details": [
+              "Possible growth connected with a foreign place."
+            ],
+            "limit": "These are traditional possibilities from selected rules, not established facts or a prediction of a specific event.",
+            "windows": [],
+            "timingNote": "Dates use the birth-place time zone; transitions may occur during the displayed day. These selected passages are not predicted event dates. Topic selection is the app's convention."
+          },
+          "sourceFindings": [
+            {
+              "id": "ra-ju-travel",
+              "text": "Rahu with Jupiter: the native's fortune improves in a foreign land; overseas education or settlement.",
+              "source": "R.G. Rao, Bhrigu Nandi Nadi"
+            },
+            {
+              "id": "ra-lord-ju",
+              "text": "Rahu in a sign of Jupiter: foreign or unconventional matters express through the native, children, wisdom.",
+              "source": "S. Naik, Prediction Secrets: Naadi Astrology"
+            }
+          ],
+          "reportContainsSummary": true,
+          "practitionerContainsFindings": true
+        }
+      ],
+      "schoolSummaries": [
+        {
+          "school": "parashari",
+          "topic": "career",
+          "stance": "contested",
+          "summary": "The selected Parashari interpretations disagree about career and work; support and caution are both retained.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "Phaladeepika reads Rahu in your 9th house kindly here (a leading role in your community); yet Sarvartha Chintamani reads the 10th less kindly (8.24: a bad name in life; here the 10th's ruler, Saturn, shares a sign with the Moon, a harsher planet)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "marriage",
+          "stance": "mixed",
+          "summary": "The selected Parashari interpretations give a mixed or inconclusive picture about marriage.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "BPHS: 7th house (spouse, travel and trade): Jupiter, a benefic, looks at it, which Parashara counts in its favour (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "children",
+          "stance": "strains",
+          "summary": "The selected Parashari interpretations emphasize cautions about children and family.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "BPHS: 5th house (learning and children): its ruler, the Sun, sits in the 12th and does not look back at it, which Parashara counts against the house (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "father",
+          "stance": "strains",
+          "summary": "The selected Parashari interpretations emphasize cautions about the father.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "BPHS: 10th house (work, honour and authority): its ruler, Saturn, sits in the 7th and does not look back at it, which Parashara counts against the house (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "Sarvartha Chintamani's stanzas carry no tone in the app; the direction is read from the wording"
+        },
+        {
+          "school": "parashari",
+          "topic": "mother",
+          "stance": "strains",
+          "summary": "The selected Parashari interpretations emphasize cautions about the mother.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "BPHS: 4th house (mother, home and comforts): its ruler, the Moon, sits in the 7th and does not look back at it, which Parashara counts against the house (11.14-16)",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the house judgement leaves out the avastha clauses of 11.14-16 and settles a case the text leaves open"
+        },
+        {
+          "school": "kp",
+          "topic": "career",
+          "stance": "silent",
+          "summary": "The selected KP rules do not give a general conclusion about career and work in this comparison. A more specific rule may still appear in that school's reading.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is business.",
+          "conditional": false,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "marriage",
+          "stance": "strains",
+          "summary": "The selected KP interpretations emphasize cautions about marriage.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "7th sub lord Moon: the book's answer to 'when will his marriage come up' is 'no marriage' — even while a 2-7-11 significator's period runs, this sub lord…",
+          "conditional": true,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "children",
+          "stance": "strains",
+          "summary": "The selected KP interpretations emphasize cautions about children and family.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "5th sub lord Jupiter: the source treats this as adverse for children, but it cannot establish an individual outcome; the sub lord changes to Mercury 36 s later",
+          "conditional": true,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "father",
+          "stance": "strains",
+          "summary": "The selected KP interpretations emphasize cautions about the father.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "9th sub lord Rahu: the father's health needs watching in their periods; the sub lord changes to Jupiter 1 min 22 s later",
+          "conditional": true,
+          "provisional": false
+        },
+        {
+          "school": "kp",
+          "topic": "mother",
+          "stance": "strains",
+          "summary": "The selected KP interpretations emphasize cautions about the mother.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "6th sub lord Rahu: the mother's health gives trouble; the sub lord changes to Jupiter 43 s later",
+          "conditional": true,
+          "provisional": false
+        },
+        {
+          "school": "jaimini",
+          "topic": "career",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about career and work.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "Saturn is exalted in Libra: the karaka is strong enough to deliver",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "marriage",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about marriage.",
+          "limit": "These are selected traditional interpretations, not a guarantee of an event, its outcome or its timing.",
+          "basis": "Aspected by Moon (rasi drishti): support from outside its own sign",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "children",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about children and family.",
+          "limit": "These are traditional associations, not an assessment of fertility or a prediction of whether, when or how someone has children.",
+          "basis": "Aspected by Venus (rasi drishti): support from outside its own sign",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "father",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about the father.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "Venus is friendly in Aquarius: the karaka is strong enough to deliver",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        },
+        {
+          "school": "jaimini",
+          "topic": "mother",
+          "stance": "supports",
+          "summary": "The selected Jaimini interpretations are supportive about the mother.",
+          "limit": "This is a traditional interpretation; it cannot establish a parent's health, personality or life events.",
+          "basis": "Aspected by Sun, Mercury and Jupiter (rasi drishti): support from outside its own sign",
+          "conditional": false,
+          "provisional": true,
+          "reason": "the karaka and pada notes are the app's encoding of the method, cited to no sutra or page"
+        }
+      ],
+      "eventChecks": []
+    }
+  ]
+}

@@ -307,7 +307,7 @@ function AreaCard({
     );
 
   return (
-    <Card data-testid={`jarea-${a.area}`}>
+    <Card className="scroll-mt-24" data-testid={`jarea-${a.area}`}>
       <CardContent className="p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="flex items-baseline gap-2">
