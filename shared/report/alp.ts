@@ -3,6 +3,7 @@ import { fmtDeg, SIGNS } from "../astro";
 import { computeAlp, DEFAULT_ALP_CONFIG } from "../alp";
 import { ALP_SOURCE_SITE, ALP_SOURCE_BOOKS } from "../rules-alp";
 import { defaultAlpForTopics } from "../school-topics-expanded";
+import { alpMarriageParas } from "./alp-marriage-context";
 import { DateTime } from "luxon";
 import {
   endStop,
@@ -64,6 +65,7 @@ export const alpModule: ReportModule = {
           ]),
       },
     ];
+    if (alp.ageYears >= 18) paras.push(...alpMarriageParas(alp.marriage, (source, url) => cites.add(source, url)));
     if (!deceased && alp.nakshatraPeriods.length)
       paras.push({
         kind: "table",

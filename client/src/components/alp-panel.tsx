@@ -1,6 +1,7 @@
 import { sensitiveGate, lifeAsOf } from "@shared/life-stage";
 import { natalPlanetContext } from "@shared/planet-context";
 import { Soft } from "@/lib/gentle";
+import { AlpMarriageContextPanel } from "@/components/alp-marriage-context";
 import { useMemo, useState } from "react";
 import { SchoolTopicPanel } from "@/components/school-topic-brief";
 import { defaultAlpDay } from "@shared/school-topics-expanded";
@@ -1461,6 +1462,7 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
       </Chapter>
 
       <Chapter id="reading">
+      {a.ageYears >= 18 && <AlpMarriageContextPanel context={a.marriage} />}
       <section className="mt-10" data-testid="section-alp-findings">
         <SectionTitle
           as="h2"

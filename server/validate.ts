@@ -46,6 +46,7 @@ import {
 import {
   kpNatalFrame,
   vimshottariLordsAt,
+  vimshottariLordsAtMs,
   vimshottari,
   jointPeriods,
 } from "@shared/kp";
@@ -83,6 +84,8 @@ import { createAlpEventScorer } from "@shared/alp-event-evidence";
 import { qualifiedEventScores, qualifiedComparable, qualifiedTotals, QUALIFIED_SCORE_KEYS, type QualifiedEventScores, type QualifiedScoreKey } from "@shared/qualified-event-scores";
 import { dashaFitAt } from "@shared/jaimini-areas";
 import { comparisonDate, eventInstant } from "./event-time";
+import { prepareKpMatchedDates, summarizeKpMatched } from "./kp-matched-comparison";
+import { summarizeAlpMatched } from "./alp-matched-comparison";
 import { kpTransitEvidence } from "@shared/kp-transit-evidence";
 import { auroraV2StageCounts, AURORA_V2_STAGES } from "@shared/kp-aurora-v2";
 import { vargaTopicFor } from "@shared/parashari-varga-evidence";
@@ -118,7 +121,7 @@ function natureOf(good: number, evil: number): Nature {
   return "mixed";
 }
 
-export function validateEvents(chart: InsertChart, asOf = DateTime.utc().toISO()!): ValidationResult {
+export function validateEvents(chart: InsertChart, asOf = DateTime.utc().toISO()!, options: { includeKpMatched?: boolean } = {}): ValidationResult {
   const events = sanitiseEvents(chart.events);
   const opts: EphemerisOptions = {
     ayanamsa: "kp",
@@ -658,6 +661,17 @@ export function validateEvents(chart: InsertChart, asOf = DateTime.utc().toISO()
   // Chance baseline: the same matters scored at random dates drawn from the span the real events cover.
   // A score that random dates reach as often as the real ones did is not evidence for the birth time.
   const baseline = chanceBaseline(events, out, scoreEvent, zone);
+  const matchedEvents = events.map((e) => {
+    const m = matterOf(e.matter);
+    return { ...e, houses: m.houses, cusp: m.cusp };
+  });
+  const matchedSelection = options.includeKpMatched === false ? undefined : prepareKpMatchedDates(matchedEvents, zone, chart.deathDate, asOf)(Date.parse(birthIso));
+  const kpMatched = matchedSelection && summarizeKpMatched(matchedEvents, matchedSelection, birthIso, out.map((e) => e.kp), (e, at) => {
+    const lords = vimshottariLordsAtMs(moon.lon, Date.parse(birthIso), at.ms);
+    const sky = positionsLite(julianDay(DateTime.fromMillis(at.ms, { zone: "utc" })), opts);
+    return scoreKp(e.houses, e.cusp, lords, sky, e.matter, false);
+  });
+  const alpMatched = matchedSelection && summarizeAlpMatched(matchedEvents, matchedSelection, out.map((e) => e.alp), scoreAlp);
 
   // Planet tally: what KP expects of each planet, against how its periods went.
   const weights = { dasa: 2, bhukti: 2, antara: 1 } as const;
@@ -733,6 +747,8 @@ export function validateEvents(chart: InsertChart, asOf = DateTime.utc().toISO()
     planets: tallies,
     windows,
     baseline,
+    kpMatched,
+    alpMatched,
     summary: {
       events: out.length,
       confirmed: out.filter((e) => e.kp.verdict === "confirmed").length,

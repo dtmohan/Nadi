@@ -6,6 +6,7 @@ import { ALP_PLAIN_TOPIC_RULES } from "./school-topics-expanded";
 import type { AlpFinding } from "./rules-alp";
 import type { SchoolTopic } from "./school-topic-brief";
 import type { PlanetContext } from "./planet-context";
+import type { AlpMarriageContext } from "./alp-marriage";
 import { sensitiveGate } from "./life-stage";
 
 const AREA: Readonly<Record<string, SchoolTopic>> = {
@@ -21,12 +22,14 @@ export interface AlpEventEvidence {
   /** Discrete positions; exact continuous longitude is not cached across instants. */
   point?: Pick<AlpResult["point"], "sign" | "nakshatra" | "pada" | "lord" | "nakshatraLord" | "navamsaSign">;
   akshaya?: { sign: AlpResult["arp"]["point"]["sign"]; nakshatra: string; pada: number; dasa: string; bhukti: string };
+  marriage?: AlpMarriageContext;
   findings: Array<{ finding: AlpFinding; topicMeaning: string }>;
 }
 interface CacheEntry {
   start: number; end: number;
   point: NonNullable<AlpEventEvidence["point"]>;
   akshaya: NonNullable<AlpEventEvidence["akshaya"]>;
+  marriage: AlpMarriageContext;
   /** The ordinary ALP rule evaluation is independent of the event's topic. */
   findings: AlpFinding[];
 }
@@ -73,21 +76,22 @@ export function createAlpEventScorer(context: PlanetContext, lagna: number, birt
     // The timeline's ISO rounding and direct longitude can disagree at an
     // exact boundary. Re-evaluate on both sides rather than trusting a cached
     // period in the small rounding margin.
-    const project = (point: CacheEntry["point"], akshaya: CacheEntry["akshaya"], findings: AlpFinding[]): AlpEventEvidence => ({
+    const project = (point: CacheEntry["point"], akshaya: CacheEntry["akshaya"], findings: AlpFinding[], marriage: AlpMarriageContext): AlpEventEvidence => ({
       matter, topic, status, asOf, point, akshaya,
+      ...(matter === "marriage" ? { marriage } : {}),
       findings: findings.flatMap((finding) => {
         const topicMeaning = ALP_PLAIN_TOPIC_RULES[finding.ruleId]?.[topic];
         return topicMeaning ? [{ finding, topicMeaning }] : [];
       }),
     });
     const previous = cache.get(cacheKey)?.find((e) => e.start + 2000 < ms && ms < e.end - 2000);
-    if (previous) return project(previous.point, previous.akshaya, previous.findings);
+    if (previous) return project(previous.point, previous.akshaya, previous.findings, previous.marriage);
     const a = computeAlpEventFrame(context, lagna, birthIso, when().toISO()!, DEFAULT_ALP_CONFIG, withhold);
     const point = { sign: a.point.sign, nakshatra: a.point.nakshatra, pada: a.point.pada,
       lord: a.point.lord, nakshatraLord: a.point.nakshatraLord, navamsaSign: a.point.navamsaSign };
     const akshaya = { sign: a.arp.point.sign, nakshatra: a.arp.point.nakshatra, pada: a.arp.point.pada,
       dasa: a.arp.dasa.lord, bhukti: a.arp.bhukti.lord };
-    const result = project(point, akshaya, a.findings);
+    const result = project(point, akshaya, a.findings, a.marriage);
     // Point-dependent conditions are guarded by the exact pointKey above;
     // only the independently changing period bounds need to be stored here.
     const spans = [a.arp.dasa, a.arp.bhukti];
@@ -96,7 +100,7 @@ export function createAlpEventScorer(context: PlanetContext, lagna: number, birt
       const end = Math.min(...spans.map((v) => Date.parse(v!.end)));
       if (start <= ms && ms < end) {
         const entries = cache.get(cacheKey) ?? [];
-        entries.push({ start, end, point, akshaya, findings: a.findings });
+        entries.push({ start, end, point, akshaya, findings: a.findings, marriage: a.marriage });
         cache.set(cacheKey, entries);
       }
     }

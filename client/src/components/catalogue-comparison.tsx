@@ -12,9 +12,9 @@ export function CatalogueComparisonPanel({ rows }: { rows?: EventCatalogueCompar
   if (!rows?.length) return null;
   return <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="catalogue-comparison">
     <summary className="cursor-pointer font-medium">How often the same school-rule links appear on comparison dates</summary>
-    <p className="mt-2 text-muted-foreground">ALP topic findings and ordinary Parashari period participants are recomputed on every sampled date. These counts describe recurrence, not a prediction, probability or extra score. Comparison dates are not confirmed non-events. Natal-only findings stay fixed for this birth candidate.</p>
+    <p className="mt-2 text-muted-foreground">ALP topic findings, separate marriage-context facts and ordinary Parashari period participants are recomputed on every sampled date. These counts describe recurrence, not a prediction, probability or extra score. Comparison dates are not confirmed non-events. Natal-only findings stay fixed for this birth candidate.</p>
     {rows.map((r, i) => <div className="mt-2" key={`${r.label}-${r.date}-${i}`}><p className="font-medium">{r.label} · {r.date}</p>
-      <Frequency title="ALP topic findings" value={r.alp} /><Frequency title="Parashari period participants" value={r.parashariPeriods} />
+      <Frequency title="ALP topic findings" value={r.alp} />{r.alpMarriage && <Frequency title="ALP marriage context facts" value={r.alpMarriage} />}<Frequency title="Parashari period participants" value={r.parashariPeriods} />
     </div>)}
   </details>;
 }

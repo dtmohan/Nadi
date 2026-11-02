@@ -26,7 +26,9 @@ test("quick scan skips only comparisons and preserves all candidate and event re
   assert.equal(quick.baseline, null);
   assert.ok(full.segments.every((s) => s.baseline));
   assert.ok(quick.segments.every((s) => s.baseline === undefined));
-  const withoutBaseline = (segments: typeof full.segments) => segments.map(({ baseline: _ignored, ...s }) => s);
+  assert.ok(full.segments.every((s) => s.kpMatched));
+  assert.ok(quick.segments.every((s) => s.kpMatched === undefined));
+  const withoutBaseline = (segments: typeof full.segments) => segments.map(({ baseline: _ignored, kpMatched: _matched, alpMatched: _alp, ...s }) => s);
   assert.deepEqual(withoutBaseline(quick.segments), withoutBaseline(full.segments));
   const withoutExamples = (transits: NonNullable<typeof full.eventTransits>) => transits.map(({ example: _ignored, ...e }) => e);
   assert.deepEqual(withoutExamples(quick.eventTransits!), withoutExamples(full.eventTransits!));

@@ -94,6 +94,8 @@ import { qualifiedEventEligible, qualifiedEventScores, qualifiedComparable, qual
 import { EVENT_MATTERS } from "@shared/events";
 import { dashaFitAt } from "@shared/jaimini-areas";
 import { comparisonDate, eventInstant } from "./event-time";
+import { prepareKpMatchedDates, summarizeKpMatched } from "./kp-matched-comparison";
+import { summarizeAlpMatched } from "./alp-matched-comparison";
 import { kundaD81Check, scanKundaD81 } from "./kunda";
 import { vargaSignAt, vargaTopicFor } from "@shared/parashari-varga-evidence";
 import type { VargaKey } from "@shared/vargas";
@@ -458,6 +460,10 @@ export function rectify(req: RectifyRequest): RectifyResult {
   // belong to natal interpretation and do not change these longitudes.
   const eventPositions = eventUtc.map((instant) => positionsLite(julianDay(instant), opts));
   const eventPositionsJ = eventUtc.map((instant) => positionsLite(julianDay(instant), optsJ));
+  const selectKpMatched = req.includeComparisons !== false
+    ? prepareKpMatchedDates(req.events, zone, chart.deathDate, req.judgedAsOf ?? readingAsOf) : undefined;
+  // The event sky is common to all candidate birth times and cached on demand.
+  const matchedSkies = new Map<number, ReturnType<typeof positionsLite>>();
 
   // Comparison trials: the same events at random dates within the span they cover, with the
   // planetary positions of each trial date computed once and shared by every interval.
@@ -843,6 +849,13 @@ export function rectify(req: RectifyRequest): RectifyResult {
       checked.qualifiedScores = qualify(e, e.date, eventInstants[ei], eventPositionsJ[ei], checked, parashariByEvent[ei]);
       return checked;
     });
+    const matchedSelection = selectKpMatched?.(birthMs);
+    const kpMatched = matchedSelection ? summarizeKpMatched(req.events, matchedSelection, birthIso, events, (e, at) => {
+      let sky = matchedSkies.get(at.ms);
+      if (!sky) { sky = positionsLite(julianDay(DateTime.fromMillis(at.ms, { zone: "utc" })), opts); matchedSkies.set(at.ms, sky); }
+      return scoreKp(e.houses, e.cusp, vimshottariLordsAtMs(moon.lon, birthMs, at.ms), sky, e.matter, false);
+    }) : undefined;
+    const alpMatched = matchedSelection && summarizeAlpMatched(req.events, matchedSelection, events.map((e) => e.alp), scoreAlp);
 
     // Baseline: the same interval scored at the selected random dates.
     let baseline: RectifySegmentBaseline | undefined;
@@ -986,6 +999,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
         : undefined,
     };
     segments.push({
+      kpMatched,
+      alpMatched,
       stability,
       start: fmtT(a),
       end: fmtT(b),

@@ -308,6 +308,9 @@ export interface ChanceBaseline {
 }
 
 export interface ValidationResult {
+  /** Sequence-preserving KP sensitivity comparison, separate from the older baseline. */
+  kpMatched?: import("./kp-matched-types").KpMatchedComparison;
+  alpMatched?: import("./alp-matched-types").AlpMatchedComparison;
   birthTime: string;
   lagna: { sign: Sign; degree: number };
   events: EventValidation[];

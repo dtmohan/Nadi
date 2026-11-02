@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PLANETS, SIGNS, type Planet } from "@shared/astro";
+import { ALP_MARRIAGE_SOURCE, BPHS_MARRIAGE_SOURCE } from "@shared/alp-marriage";
 import {
   LIFE_AREAS,
   RELATION_LABEL,
@@ -213,6 +214,7 @@ function KpRules() {
           is assumed; without an event time zone, the birth zone is assumed.
         </p>
         <p className="mt-1 text-muted-foreground">The separate KP transit score uses links from transiting period lords to natal significators, not a general Moon-based gochara grade. The natal houses displayed in the transit table use KP cusps.</p>
+        <p className="mt-1 text-muted-foreground">The newer KP comparison shifts the entire event sequence together by 180–365 days, retaining local clocks, zones and chronology where valid. Its period-hit comparison excludes the unchanging natal cusp point. The older independent-date comparison remains separately visible; neither uses confirmed non-events or supplies a probability of the birth time.</p>
       </section>
       <div className="mt-6 space-y-8">
         {Array.from({ length: 12 }, (_, i) => i + 1).map((cusp) => {
@@ -302,6 +304,11 @@ function AlpRules() {
         </code>
         .
       </p>
+      <section className="mt-6 rounded border p-3 text-sm" data-testid="alp-marriage-source-scope">
+        <h2 className="font-semibold">Marriage: additional context, not a complete natal gate</h2>
+        <p className="mt-1">Volume 2's online transcription gives a two-lord dasa/bhukti example. In the supplied printed edition's chapter 28, a second example refers to the progressed seventh lord as either period lord. Nadi shows these as distinct facts, together with narrow same-sign contacts to both natal and progressed D9 ascendants. The source does not define every kind of connection or give a complete natal gate. <Cite href={ALP_MARRIAGE_SOURCE}>ALP Vol. 2, online ch. 25 transcription</Cite></p>
+        <p className="mt-1">For natal context, Nadi displays the seventh lord's D1 and D9 positions and BPHS 18.1's distinct own/exaltation-sign clue for spouse happiness. This is a Parashari clue about quality, not a complete ALP promise of occurrence. <Cite href={BPHS_MARRIAGE_SOURCE}>BPHS 18.1</Cite></p>
+      </section>
       <div className="mt-6 space-y-8">
         {ALP_CHAPTERS.map((c) => {
           const rules = ALP_RULES.filter((r) => r.chapter === c.id);

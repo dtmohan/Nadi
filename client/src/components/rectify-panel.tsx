@@ -24,6 +24,8 @@ import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
 import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
 import { AdditionalSchoolEventEvidence } from "@/components/additional-school-event-evidence";
 import { AlpEventEvidencePanel } from "@/components/alp-event-evidence";
+import { KpMatchedComparisonPanel } from "@/components/kp-matched-comparison";
+import { AlpMatchedComparisonPanel } from "@/components/alp-matched-comparison";
 import { QualifiedEventScoresPanel, QualifiedComparisonPanel } from "@/components/qualified-event-scores";
 import { qualifiedComparable } from "@shared/qualified-event-scores";
 import { CatalogueComparisonPanel } from "@/components/catalogue-comparison";
@@ -80,6 +82,8 @@ import {
   methodLabel,
   methodScore,
   baselineFor,
+  isKpMatchedMethod,
+  kpMatchedComparable,
   highlightedCandidates,
   alpBandRanking,
   rawScoreCoverage,
@@ -452,7 +456,9 @@ export function RectifyPanel({
     [data, method, marksCtx],
   );
   // The 95th-percentile cutoff is an exploratory display convention, not a test of the selected time.
-  const baselined = EVENT_METHODS.includes(method) && scored.some((r) => r.b !== undefined) &&
+  const matchedRequested = isKpMatchedMethod(method) && !!data?.segments.some((s) => s.kpMatched);
+  const matchedComparableWindow = !matchedRequested || (!!data && kpMatchedComparable(data.segments) && scored.every((r) => r.b !== undefined));
+  const baselined = matchedComparableWindow && EVENT_METHODS.includes(method) && scored.some((r) => r.b !== undefined) &&
     (!qualifiedMethod || scored.every((r) => r.b !== undefined));
   const maxOf = scored[0]?.max ?? 0;
   // A score of 0/0 is not a ranking, and totals cannot be compared when an
@@ -469,9 +475,9 @@ export function RectifyPanel({
   );
   const bestSet = useMemo(
     () =>
-      method === "kunda" || method === "alp-marriage" || (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow
+      method === "kunda" || method === "alp-marriage" || (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow || !matchedComparableWindow
         ? new Set<number>() : new Set(highlightedCandidates(scored)),
-    [scored, method, parashariComparable, isParashariMethod, qualifiedComparableWindow],
+    [scored, method, parashariComparable, isParashariMethod, qualifiedComparableWindow, matchedComparableWindow],
   );
   // Ranking: the method's score (or its excess over chance) first. Among equals: intervals whose matter
   // cusps keep their sub lord throughout (the cusp in question depends on the corrected time, Astro
@@ -1222,7 +1228,9 @@ export function RectifyPanel({
                   {!on
                     ? !includeComparisons
                       ? "Quick scan skips random-date comparisons. Turn it off and scan again, or compare a candidate in Validate."
+                      : matchedRequested ? "The sequence-preserving comparison is unavailable or differs between candidates; these candidates are not ranked by it."
                       : "A comparison needs at least two events a year apart and the same eligible checks for every sampled set."
+                    : matchedRequested ? `The same event sequence is shifted 180–365 days in each direction, retaining clocks, zones and ordering. KP period or transit checks are recalculated at each shifted date; the period comparison excludes fixed natal cusp points. ${above} ${above === 1 ? "result reaches" : "results reach"} the exploratory 95th mid-rank percentile. The dates are not verified non-events; a highlight does not establish a birth time.`
                     : `${data.baseline?.trials ?? 200} sets of comparison dates were independently selected between ${data.baseline?.span[0]} and ${data.baseline?.span[1]}; ${isAlp ? "the progressed-lagna condition is recalculated at each sampled birth time and date" : "transits are recalculated on each date against this candidate's natal chart"}. ${above} ${above === 1 ? "result reaches" : "results reach"} the 95th mid-rank percentile. Highlighting uses that exploratory cutoff and the difference from the comparison mean; it does not account for trying multiple measures or candidates and does not establish a correct birth time. Random dates need not preserve plausible event ages or order.`}
                 </p>
               );
@@ -1261,7 +1269,10 @@ export function RectifyPanel({
             <p className="mt-1 text-muted-foreground">These are contextual findings for the sampled dates. They do not add points to the comparison statistics.</p>
             {focus.baseline.catalogueExample.map((e, i) => <div key={`${e.label}-${e.date}-${i}`}><p className="mt-2 font-medium">{e.label} · {e.date}</p><KpCatalogueEvidence evidence={e.natalRules} /><ParashariCatalogueEvidence evidence={e.parashariOrdinary} /><AdditionalSchoolEventEvidence evidence={e.additionalNatal} /><AlpEventEvidencePanel evidence={e.alp} /><QualifiedEventScoresPanel scores={e.qualifiedScores} /></div>)}
           </details>}
+          {focus?.baseline?.qualified && <p className="mt-2 text-xs text-muted-foreground">The following qualified comparison uses the older independently selected dates.</p>}
           <QualifiedComparisonPanel comparison={focus?.baseline?.qualified} trials={data.baseline?.trials} />
+          {isKpMatchedMethod(method) && <KpMatchedComparisonPanel comparison={focus?.kpMatched} />}
+          {method === "alp-marriage" && <><p className="mt-1 text-xs text-muted-foreground">Additional marriage facts below use the selected ordinary interval midpoint, not every second in the ALP bands.</p><AlpMatchedComparisonPanel comparison={focus?.alpMatched} /></>}
           {(isParashariMethod || EVENT_METHODS.includes(method)) && <CatalogueComparisonPanel rows={focus?.baseline?.catalogueComparison} />}
 
           {method.startsWith("kp-") && focus && focus.events.length > 0 && <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="rectify-kp-event-evidence">
@@ -1391,7 +1402,7 @@ export function RectifyPanel({
             {focus.auroraAscendant && <AuroraLinkDetail links={focus.auroraAscendant} />}
             {focus.events.map((e, i) => e.aurora && <AuroraEventPanel key={`${e.label}-${e.date}-${i}`} evidence={e.aurora} label={`${e.label} · ${e.date}`} />)}
             {!focus.events.some((e) => e.aurora) && <p className="mt-2 text-xs text-muted-foreground">None of the selected events is supported by this research adapter.</p>}
-            {focus.baseline?.aurora && <p className="mt-2 text-xs text-muted-foreground">Full chains on the events: {focus.baseline.aurora.actual}; random-date mean: {focus.baseline.aurora.mean}. Random dates are not known non-events.</p>}
+            {focus.baseline?.aurora && <p className="mt-2 text-xs text-muted-foreground">Older independent-date comparison: full chains on the events {focus.baseline.aurora.actual}; mean {focus.baseline.aurora.mean}. Random dates are not known non-events.</p>}
           </div>}
           {method === "kp-aurora-v2" && focus && <div className="mt-3" data-testid="rectify-aurora-v2-evidence">
             <p className="text-xs text-muted-foreground">Only complete v2 chains are counted. A supported mixed star retains its caution; a mixed sub remains unresolved. Ties do not identify a birth time.</p>
@@ -1399,7 +1410,7 @@ export function RectifyPanel({
             {focus.auroraAscendant && <AuroraLinkDetail links={focus.auroraAscendant} />}
             {focus.events.map((e, i) => e.auroraV2 && <AuroraV2Panel key={`${e.label}-${e.date}-${i}`} evidence={e.auroraV2} label={`${e.label} · ${e.date}`} />)}
             {!focus.events.some((e) => e.auroraV2) && <p className="mt-2 text-xs text-muted-foreground">None of the selected events is supported by this research adapter.</p>}
-            {focus.baseline?.auroraV2 && <p className="mt-2 text-xs text-muted-foreground">Full v2 chains on the events: {focus.baseline.auroraV2.actual}; random-date mean: {focus.baseline.auroraV2.mean}. {focus.baseline.auroraV2.sd === 0 && focus.baseline.auroraV2.actual === focus.baseline.auroraV2.mean ? "The comparison scores show no spread and match the events, so this comparison does not distinguish the dates. " : ""}Random dates are not known non-events.</p>}
+            {focus.baseline?.auroraV2 && <p className="mt-2 text-xs text-muted-foreground">Older independent-date comparison: full v2 chains on the events {focus.baseline.auroraV2.actual}; mean {focus.baseline.auroraV2.mean}. {focus.baseline.auroraV2.sd === 0 && focus.baseline.auroraV2.actual === focus.baseline.auroraV2.mean ? "The comparison scores show no spread and match the events, so this comparison does not distinguish the dates. " : ""}Random dates are not known non-events.</p>}
           </div>}
 
           {method === "kunda" && (

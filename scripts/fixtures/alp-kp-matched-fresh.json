@@ -1,0 +1,40 @@
+{
+  "protocol": "docs/alp-kp-matched-protocol.md",
+  "cases": [
+    {
+      "name": "Cindy Crawford", "category": "American model", "birthSource": "https://www.astro.com/astro-databank/Crawford%2C_Cindy", "quality": "AA secondary account quotes record 2:08; AM/PM not independently verified; Astro-Databank lists alternate 02:08 and an unverified 12:56. Anchor 14:08, alternate 02:08.",
+      "chart": { "name": "Cindy Crawford", "gender": "female", "birthDate": "1966-02-20", "birthTime": "14:08", "timezone": "America/Chicago", "timeStandard": "auto", "place": "DeKalb, Illinois", "latitude": 41.9333, "longitude": -88.75, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "cc-marriage1", "matter": "marriage", "date": "1991-12-12", "timezone": "America/Los_Angeles", "note": "Las Vegas; clock unknown.", "sources": ["https://lasvegassun.com/news/2019/feb/02/take-5-celebrities-married-in-las-vegas/", "https://www.theknot.com/content/celebrity-las-vegas-weddings/"] },
+        { "id": "cc-marriage2", "matter": "marriage", "date": "1998-05-29", "timezone": "America/Nassau", "note": "Paradise Island, Bahamas; clock unknown.", "sources": ["https://www.thestatesman.com/life-style/true-beauty-is-the-energy-you-give-out-1496144403.html", "https://famouskin.com/ahnentafel.php?name=123219+cindy+crawford"] },
+        { "id": "cc-child1", "matter": "child", "date": "1999-07-02", "timezone": "America/Los_Angeles", "note": "Pacific zone assumed; place and clock not verified.", "sources": ["https://www.astro.com/astro-databank/Crawford%2C_Cindy"] },
+        { "id": "cc-child2", "matter": "child", "date": "2001-09-03", "timezone": "America/Los_Angeles", "note": "Pacific zone assumed; place and clock not verified.", "sources": ["https://www.astro.com/astro-databank/Crawford%2C_Cindy"] }
+      ]
+    },
+    {
+      "name": "Luan Krasniqi", "category": "Kosovo-born German boxer", "birthSource": "https://www.astro.com/astro-databank/Krasniqi%2C_Luan", "quality": "A, quoted from memory. Original database previously had 4 May and was corrected to 10 May; Junik versus Dakovica place discrepancy. Anchor uses listed Dakovica.",
+      "chart": { "name": "Luan Krasniqi", "gender": "male", "birthDate": "1971-05-10", "birthTime": "08:30", "timezone": "Europe/Belgrade", "timeStandard": "auto", "place": "Dakovica", "latitude": 42.3833, "longitude": 20.4167, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "lk-marriage", "matter": "marriage", "date": "2005-02-04", "timezone": "Europe/Berlin", "note": "Date from Astro-Databank; event place and clock not verified; German zone assumed.", "sources": ["https://www.astro.com/astro-databank/Krasniqi%2C_Luan"] },
+        { "id": "lk-child", "matter": "child", "date": "2009-04-15", "timezone": "Europe/Berlin", "note": "Date from Astro-Databank; location and clock unverified.", "sources": ["https://www.astro.com/astro-databank/Krasniqi%2C_Luan"] }
+      ]
+    },
+    {
+      "name": "Flore Landru", "category": "French seamstress", "birthSource": "https://www.astro.com/astro-databank/Landru%2C_Flore", "quality": "AA secondary report of record in hand, 29 November 1835 at 09:00; genealogy page gives 29 September 1835. LMT, rounded hour; original record not examined.",
+      "chart": { "name": "Flore Landru", "gender": "female", "birthDate": "1835-11-29", "birthTime": "09:00", "timezone": "Europe/Paris", "timeStandard": "lmt", "place": "Noailles, France", "latitude": 49.3333, "longitude": 2.2, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "1912-03-12" },
+      "events": [
+        { "id": "fl-child1", "matter": "child", "date": "1854-01-02", "time": "23:00", "timezone": "Europe/Paris", "note": "Noailles; original local mean clock; Paris-zone historical offset differs by roughly half a minute.", "sources": ["https://www.astro.com/astro-databank/Landru%2C_Flore"] },
+        { "id": "fl-marriage", "matter": "marriage", "date": "1864-02-04", "timezone": "Europe/Paris", "note": "Noailles, clock unknown; historical Paris zone approximates local mean time.", "sources": ["https://www.astro.com/astro-databank/Landru%2C_Flore", "https://genealogie.baillet.org/g/ta/g04/1044-1a1a1b1b1e1a1b%2Clandru%2Chenri.php"] },
+        { "id": "fl-child2", "matter": "child", "date": "1866-08-23", "time": "06:00", "timezone": "Europe/Paris", "note": "Paris.", "sources": ["https://www.astro.com/astro-databank/Landru%2C_Flore"] },
+        { "id": "fl-child3", "matter": "child", "date": "1869-04-12", "time": "06:00", "timezone": "Europe/Paris", "note": "Paris.", "sources": ["https://www.astro.com/astro-databank/Landru%2C_Flore"] }
+      ]
+    },
+    {
+      "name": "Manuel Rodríguez Lozano", "category": "Mexican painter", "birthSource": "https://www.astro.com/astro-databank/Rodr%C3%ADguez_Lozano%2C_Manuel", "quality": "AA secondary report of a birth registry entry; original not examined. Other sources differ on birth year; 1891 anchor follows registry account.",
+      "chart": { "name": "Manuel Rodríguez Lozano", "gender": "male", "birthDate": "1891-12-04", "birthTime": "23:50", "timezone": "America/Mexico_City", "timeStandard": "lmt", "place": "Mexico City, Mexico", "latitude": 19.4, "longitude": -99.15, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "1971-03-27" },
+      "events": [
+        { "id": "mrl-marriage", "matter": "marriage", "date": "1913-08-06", "timezone": "America/Mexico_City", "note": "Tacubaya, Mexico City, clock unknown; institution reproduces 1922 court record. The marriage was later annulled; the ceremony still occurred.", "sources": ["https://signoshistoricos.izt.uam.mx/index.php/historicos/article/download/883/768", "https://simehbucket.s3.amazonaws.com/miscfiles/978-607-7605-90-4-semblanza_m77d5uw2.pdf"] }
+      ]
+    }
+  ]
+}

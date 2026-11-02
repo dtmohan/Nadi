@@ -190,6 +190,9 @@ export interface BjNashtaCheck {
 }
 
 export interface RectifySegment {
+  /** Sequence-preserving KP comparison for this midpoint, when requested. */
+  kpMatched?: import("./kp-matched-types").KpMatchedComparison;
+  alpMatched?: import("./alp-matched-types").AlpMatchedComparison;
   /** Descriptive source example; no genetic or birth-time conclusion. */
   auroraAscendant?: AuroraAscendantLinks;
   /** Local civil times in the birth zone, HH:mm:ss. */

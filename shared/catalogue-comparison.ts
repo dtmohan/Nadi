@@ -1,4 +1,5 @@
 import type { AlpEventEvidence } from "./alp-event-evidence";
+import { alpMarriageFacts } from "./alp-marriage";
 import type { ParashariDatedCatalogue } from "./parashari-event-natal-rules";
 
 /** Descriptive frequencies, not an event score or a forecast. */
@@ -13,6 +14,8 @@ export interface EventCatalogueComparison {
   label: string;
   date: string;
   alp: CatalogueRuleFrequency;
+  /** Separate factual projections of the ALP marriage context; no added score. */
+  alpMarriage?: CatalogueRuleFrequency;
   parashariPeriods: CatalogueRuleFrequency;
 }
 interface Evidence { alp?: AlpEventEvidence; parashariOrdinary?: ParashariDatedCatalogue }
@@ -21,6 +24,11 @@ type Extractor = (e: Evidence) => string[] | undefined;
 
 const alp: Extractor = (e) => e.alp?.status === "assessed"
   ? e.alp.findings.map((f) => f.finding.ruleId) : undefined;
+const alpMarriage: Extractor = (e) => {
+  const t = e.alp?.status === "assessed" ? e.alp.marriage?.timing : undefined;
+  if (!t) return undefined;
+  return Object.entries(alpMarriageFacts(t)).filter(([, present]) => present).map(([id]) => id);
+};
 const parashariPeriods: Extractor = (e) => e.parashariOrdinary?.natal.status === "assessed" && e.parashariOrdinary.periods.length
   ? e.parashariOrdinary.periods.flatMap((p) => p.ruleIds.map((id) => `${p.level}:${p.planet}:${id}`)) : undefined;
 const unique = (ids: string[]) => Array.from(new Set(ids)).sort();
@@ -35,7 +43,7 @@ export function createCatalogueComparison(events: EventEvidence[]) {
       occurrences: selected.map((id) => ({ id, count: 0 })) };
   };
   const rows: EventCatalogueComparison[] = events.map((e) => ({ label: e.label, date: e.date,
-    alp: make(e, alp), parashariPeriods: make(e, parashariPeriods) }));
+    alp: make(e, alp), ...(e.alp?.marriage ? { alpMarriage: make(e, alpMarriage) } : {}), parashariPeriods: make(e, parashariPeriods) }));
   const update = (out: CatalogueRuleFrequency, extract: Extractor, value: Evidence) => {
     if (out.status !== "assessed") return;
     const ids = extract(value);
@@ -50,6 +58,7 @@ export function createCatalogueComparison(events: EventEvidence[]) {
       const row = rows[index];
       if (!row) throw new Error("Catalogue comparison event index is out of range");
       update(row.alp, alp, value);
+      if (row.alpMarriage) update(row.alpMarriage, alpMarriage, value);
       update(row.parashariPeriods, parashariPeriods, value);
     },
     result: () => rows,

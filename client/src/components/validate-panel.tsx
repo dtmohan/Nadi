@@ -32,6 +32,8 @@ import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
 import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
 import { AdditionalSchoolEventEvidence } from "@/components/additional-school-event-evidence";
 import { AlpEventEvidencePanel } from "@/components/alp-event-evidence";
+import { KpMatchedComparisonPanel } from "@/components/kp-matched-comparison";
+import { AlpMatchedComparisonPanel } from "@/components/alp-matched-comparison";
 import { QualifiedEventScoresPanel, QualifiedComparisonPanel } from "@/components/qualified-event-scores";
 import { CatalogueComparisonPanel } from "@/components/catalogue-comparison";
 import { MoonTransitContextPanel } from "@/components/moon-transit-context";
@@ -853,6 +855,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
           {v.events.map((e) => e.moonTransit && <MoonTransitContextPanel key={`moon-transit-${e.id}`} context={e.moonTransit}
             label={e.label} date={e.date} when={describeEventMoment(e, chart.timezone)} />)}
           {v.events.map((e) => e.kp.aurora && <AuroraEventPanel key={`aurora-${e.id}`} evidence={e.kp.aurora} label={`${e.label} · ${e.date}`} />)}
+          <KpMatchedComparisonPanel comparison={v.kpMatched} />
+          <AlpMatchedComparisonPanel comparison={v.alpMatched} />
           <AuroraV2StagesPanel evidence={v.events.map((e) => e.kp.auroraV2)} comparison={v.baseline?.auroraV2Stages} trials={v.baseline?.trials} />
           {v.events.map((e) => e.kp.auroraV2 && <AuroraV2Panel key={`aurora-v2-${e.id}`} evidence={e.kp.auroraV2} label={`${e.label} · ${e.date}`} />)}
           {v.baseline?.aurora && <p className="mt-2 text-xs text-muted-foreground">Aurora full chains: {v.baseline.aurora.actual} on recorded dates; random-date mean {v.baseline.aurora.mean} across {v.baseline.trials} trials. Comparison dates are not known non-events.</p>}

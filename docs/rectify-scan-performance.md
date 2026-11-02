@@ -53,3 +53,13 @@ measurements are single requests taken at different times; they are not a
 controlled server benchmark. Wider windows and larger event lists still cost more
 because the app evaluates each sampled candidate and, in full scans, each
 comparison date.
+
+The later sequence-preserving comparison adds a separate set of up to 200 common
+calendar shifts for KP and ALP marriage facts; it does not replace the existing
+independent-date calculations for the other schools. On the same synthetic
+±10-minute, three-event workload and 53 candidate segments, a local full scan of
+`fded836` took 2.20 s and the new full scan took 2.59 s; the new quick scan took
+0.59 s. These are single neighboring development-machine samples, not a server
+latency guarantee. Candidate-independent comparison skies are cached across scan
+segments. A quick scan omits both comparison families and retains the same
+actual-event evidence.

@@ -1,0 +1,136 @@
+{
+  "protocol": "docs/alp-photo-holdout-protocol.md",
+  "cases": [
+    {
+      "name": "Tony Martin",
+      "category": "American singer",
+      "birthSource": "https://www.astro.com/astro-databank/Martin%2C_Tony",
+      "quality": "AA secondary report of 22:10 San Francisco birth record; magazine report instead gives about 10:00 AM Oakland. Original record not inspected.",
+      "chart": {
+        "name": "Tony Martin",
+        "gender": "male",
+        "birthDate": "1913-12-25",
+        "birthTime": "22:10",
+        "timezone": "America/Los_Angeles",
+        "timeStandard": "auto",
+        "place": "San Francisco, California",
+        "latitude": 37.7833,
+        "longitude": -122.4167,
+        "ayanamsa": "lahiri",
+        "nodeType": "mean",
+        "deathDate": "2012-07-27"
+      },
+      "events": [
+        {
+          "id": "tm-wedding1",
+          "matter": "marriage",
+          "date": "1937-09-04",
+          "timezone": "America/Los_Angeles",
+          "note": "Pacific zone assumed; location and clock not verified.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Martin%2C_Tony",
+            "https://www.imdb.com/name/nm0553149/bio/"
+          ]
+        },
+        {
+          "id": "tm-wedding2",
+          "matter": "marriage",
+          "date": "1948-05-15",
+          "timezone": "America/Los_Angeles",
+          "note": "Santa Barbara; clock unknown.",
+          "sources": [
+            "https://www.imdb.com/name/nm0001998/bio/",
+            "https://device.report/m/31d5046dfb0d9e3eac5ebec8c56a50e8bf64893127f1748867a010cea4a4626d"
+          ]
+        },
+        {
+          "id": "tm-child",
+          "matter": "child",
+          "date": "1950-08-28",
+          "timezone": "America/Los_Angeles",
+          "note": "Pacific zone assumed; location and clock unverified; a less reliable relationship site reports Aug 27.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Martin%2C_Tony",
+            "https://device.report/m/31d5046dfb0d9e3eac5ebec8c56a50e8bf64893127f1748867a010cea4a4626d"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Karina Moreno",
+      "category": "Peruvian-born Venezuelan singer",
+      "birthSource": "https://www.astro.com/astro-databank/Karina_%281968%29",
+      "quality": "AA secondary report of birth certificate. Database's gender field says M, but its biography and independent sources identify her as a woman; the source should be checked. No original inspected.",
+      "chart": {
+        "name": "Karina Moreno",
+        "gender": "female",
+        "birthDate": "1968-11-19",
+        "birthTime": "10:35",
+        "timezone": "America/Lima",
+        "timeStandard": "auto",
+        "place": "Miraflores, Peru",
+        "latitude": -12.1167,
+        "longitude": -77.0333,
+        "ayanamsa": "lahiri",
+        "nodeType": "mean"
+      },
+      "events": [
+        {
+          "id": "km-wedding",
+          "matter": "marriage",
+          "date": "1998-06-20",
+          "timezone": "America/Caracas",
+          "note": "Ceremony broadcast in Venezuela; Caracas zone assumed, clock unverified.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Karina_%281968%29",
+            "https://lamananadigital.com/karina-celebra-25-anos-de-relacion-con-su-pareja/"
+          ]
+        },
+        {
+          "id": "km-child",
+          "matter": "child",
+          "date": "2005-07-09",
+          "timezone": "America/Caracas",
+          "note": "Birth zone assumed Venezuela; place and clock unverified.",
+          "sources": [
+            "https://www.astro.com/astro-databank/Karina_%281968%29"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Frédérique Hébrard",
+      "category": "French writer and actress",
+      "birthSource": "https://www.astro.com/astro-databank/H%C3%A9brard%2C_Fr%C3%A9d%C3%A9rique",
+      "quality": "AA secondary report quoting birth certificate; 21:00 is rounded and original not examined.",
+      "chart": {
+        "name": "Frédérique Hébrard",
+        "gender": "female",
+        "birthDate": "1927-06-07",
+        "birthTime": "21:00",
+        "timezone": "Europe/Paris",
+        "timeStandard": "auto",
+        "place": "Nîmes, France",
+        "latitude": 43.8333,
+        "longitude": 4.35,
+        "ayanamsa": "lahiri",
+        "nodeType": "mean",
+        "deathDate": "2023-09-07"
+      },
+      "events": [
+        {
+          "id": "fh-wedding",
+          "matter": "marriage",
+          "date": "1949-09-06",
+          "timezone": "Europe/Paris",
+          "note": "Paris VIII civil ceremony, clock unknown; described in the author’s memoir.",
+          "sources": [
+            "https://www.astro.com/astro-databank/H%C3%A9brard%2C_Fr%C3%A9d%C3%A9rique",
+            "https://fr.scribd.com/document/903585113/Elle-etait-une-fois",
+            "https://www.imdb.com/fr/name/nm0372905/"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -12,6 +12,7 @@
 import { redactSensitive } from "./life-stage";
 import { DateTime } from "luxon";
 import { NAKSHATRAS, NAKSHATRA_LORD, SIGNS, SIGN_LORD, houseFrom, norm360, type Planet, type PlanetPosition, type Sign } from "./astro";
+import { alpMarriageContext, type AlpMarriageContext } from "./alp-marriage";
 import { evaluateAlp, type AlpFinding } from "./rules-alp";
 import { asPlanetContext, assertContextAscendant, planetPositions, type PlanetContext, type PlanetInput } from "./planet-context";
 import { zodiacQuarter } from "./zodiac-quarter";
@@ -134,6 +135,8 @@ export interface ArpResult {
 
 export interface AlpResult {
   config: AlpConfig;
+  /** Named marriage observations; no complete natal-promise verdict. */
+  marriage: AlpMarriageContext;
   /** The Akshaya rasi (the mind), Book 2 ch. 6-8. */
   arp: ArpResult;
   asOf: string;
@@ -394,7 +397,8 @@ function alpRuleFrame(context: PlanetContext, natalLagnaLon: number, birth: Date
   const arp = computeArp(positions, birth, asOf, janma, alp, point);
   const findings0 = evaluateAlp({ positions, janma, alp, point, natalLagna, houses, placements, nakStraddlesAhead, arp });
   const findings = withhold ? redactSensitive(findings0) : findings0;
-  return { natalLagna, point, janma, alp, houses, placements, arp, findings };
+  const marriage = alpMarriageContext(positions, natalLagna, point, arp);
+  return { natalLagna, point, janma, alp, houses, placements, arp, findings, marriage };
 }
 
 /** Same frame and findings as the ordinary chart, without building chart-only
@@ -413,7 +417,7 @@ export function computeAlp(input: PlanetInput, natalLagnaLon: number, birthIso: 
   const birth = DateTime.fromISO(birthIso, { setZone: true });
   const asOf = DateTime.fromISO(asOfIso, { setZone: true });
   const ageYears = Math.max(0, asOf.diff(birth, "days").days / YEAR_DAYS);
-  const { natalLagna, point, janma, alp, houses, placements, arp, findings } =
+  const { natalLagna, point, janma, alp, houses, placements, arp, findings, marriage } =
     alpRuleFrame(context, natalLagnaLon, birth, asOf, config, withhold);
 
   const signPeriods = periodsBetween(natalLagnaLon, birth, asOf, config, 30, 120);
@@ -463,6 +467,7 @@ export function computeAlp(input: PlanetInput, natalLagnaLon: number, birthIso: 
     config,
     arp,
     asOf: asOf.toISO()!,
+    marriage,
     ageYears,
     natalLagna,
     point,

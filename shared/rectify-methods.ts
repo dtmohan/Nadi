@@ -54,7 +54,7 @@ export const RECTIFY_METHODS: Array<{
     source: "Brihat Parashara Hora Shastra 16.16; Paul Manley, Birth Time Rectification, ch. 4 pp. 101, 118–122.", needsJudge: false, needsEvents: true },
   { id: "alp-marriage", system: "ALP", label: "Marriage pada · research", plainLabel: "Marriage pada · research",
     plainShort: "Compare one marriage-specific progressed-lagna condition, which can last for a long period.",
-    short: "One ordinary ALP pada-navamsa condition. The source also requires the chart to permit marriage, which this test does not establish.",
+    short: "One ordinary ALP pada-navamsa condition. It does not establish a complete natal promise or exhaust the author's other marriage methods.",
     source: "S. Pothuvudaimoorthy, Akshaya Lagna Paddhathi vol. 2 p. 35.", needsJudge: false, needsEvents: true },
   { id: "bnn-marriage", system: "BNN", label: "Marriage Jupiter contact · research", plainLabel: "Marriage Jupiter contact · research",
     plainShort: "Compare a single year-scale Jupiter contact with the natal spouse significator; this is a partial clue.",
@@ -315,10 +315,32 @@ export function methodScore(
 }
 
 /** The random-date comparison of one interval under an event method, if computed. */
+export function isKpMatchedMethod(m: RectifyMethod): boolean {
+  return ["kp-events", "kp-transit", "kp-qualified", "kp-aurora", "kp-aurora-v2"].includes(m);
+}
+
+/** Candidates can be ranked together only when the same shifted dates were used. */
+export function kpMatchedComparable(segments: readonly RectifySegment[]): boolean {
+  if (!segments.length || segments.some((s) => s.kpMatched?.status !== "available")) return false;
+  const first = segments[0].kpMatched;
+  if (!first || first.status !== "available") return false;
+  return segments.every((s) => s.kpMatched?.status === "available" &&
+    s.kpMatched.offsets.length === first.offsets.length && s.kpMatched.offsets.every((n, i) => n === first.offsets[i]));
+}
+
 export function baselineFor(
   s: RectifySegment,
   m: RectifyMethod,
 ): RectifyBaselineStat | undefined {
+  if (isKpMatchedMethod(m) && s.kpMatched) {
+    const b = s.kpMatched;
+    if (b.status !== "available") return undefined;
+    if (m === "kp-events") return b.timing;
+    if (m === "kp-transit") return b.transit;
+    if (m === "kp-qualified") return b.qualified;
+    if (m === "kp-aurora") return b.aurora;
+    if (m === "kp-aurora-v2") return b.auroraV2;
+  }
   const qualifiedKey = QUALIFIED_RECTIFY_METHODS[m];
   if (qualifiedKey) return s.baseline?.qualified?.[qualifiedKey];
   if (m === "kp-aurora-v2") return s.baseline?.auroraV2;

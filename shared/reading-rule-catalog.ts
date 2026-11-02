@@ -31,7 +31,7 @@ export const ADDITIONAL_SCHOOL_FIELDS = {
   matter: "natal", bnn: "natal", jaimini: "natal", prasna: "natal",
 } as const satisfies Record<keyof AdditionalSchoolNatalEvidence, FieldScope>;
 export const ALP_EVENT_FIELDS = {
-  matter: "natal", topic: "natal", status: "dated", asOf: "dated", point: "dated", akshaya: "dated", findings: "dated",
+  matter: "natal", topic: "natal", status: "dated", asOf: "dated", point: "dated", akshaya: "dated", findings: "dated", marriage: "dated",
 } as const satisfies Record<keyof AlpEventEvidence, FieldScope>;
 
 /** Every current frame field must receive an explicit scope when it is added. */

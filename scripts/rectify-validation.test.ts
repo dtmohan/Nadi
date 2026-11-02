@@ -668,7 +668,7 @@ test("candidate ayanamsa, transit scores and highlighting stay method-specific",
   const score = methodScore(sample, "kp-transit");
   assert.equal(score.score, sample.events.reduce((n, e) => n + e.transit.score, 0));
   assert.equal(score.max, sample.events.reduce((n, e) => n + e.transit.max, 0));
-  assert.equal(baselineFor(sample, "kp-transit"), sample.baseline?.transit);
+  assert.equal(baselineFor(sample, "kp-transit"), sample.kpMatched?.status === "available" ? sample.kpMatched.transit : undefined);
   const stat = (actual: number, mean: number, verdict: "above" | "chance") => ({ actual, mean, sd: 1, percentile: verdict === "above" ? 98 : 50, verdict });
   assert.deepEqual(highlightedCandidates([{ score: 10, b: stat(10, 9, "chance") }, { score: 8, b: stat(8, 4, "above") }]), [1]);
   assert.deepEqual(highlightedCandidates([{ score: 10, b: stat(10, 0, "chance") }, { score: 8, b: stat(8, 4, "above") }]), [1]);

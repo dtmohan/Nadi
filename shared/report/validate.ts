@@ -22,6 +22,8 @@ import { kpCatalogueParas } from "./kp-catalogue-evidence";
 import { parashariCatalogueParas } from "./parashari-catalogue-evidence";
 import { additionalSchoolParas } from "./additional-school-event-evidence";
 import { alpEventParas } from "./alp-event-evidence";
+import { kpMatchedParas } from "./kp-matched-comparison";
+import { alpMatchedParas } from "./alp-matched-comparison";
 import { catalogueComparisonParas } from "./catalogue-comparison";
 import { qualifiedScoreParas, qualifiedComparisonParas } from "./qualified-event-scores";
 import { natalPlanetContext } from "../planet-context";
@@ -172,6 +174,8 @@ export const validateModule: ReportModule = {
         event.manley.educationFourth ? cites.add(RAO_EDUCATION_SOURCE.label, RAO_EDUCATION_SOURCE.url) : undefined,
         cites.add(FUNCTIONAL_SOURCE.label, FUNCTIONAL_SOURCE.url)));
     }
+    paras.push(...kpMatchedParas(v.kpMatched));
+    paras.push(...alpMatchedParas(v.alpMatched));
     for (const e of v.events) if (e.kp.aurora) paras.push(...auroraEvidenceParas(e.kp.aurora, `${S(e.label)} · ${e.date}`, cites.add(AURORA_SOURCE)));
     paras.push(...auroraV2StagesParas(v.events.map((e) => e.kp.auroraV2), v.baseline?.auroraV2Stages, v.baseline?.trials));
     for (const e of v.events) if (e.kp.auroraV2) paras.push(...auroraV2EvidenceParas(e.kp.auroraV2, `${S(e.label)} · ${e.date}`, cites.add(AURORA_V2_SOURCE)));
