@@ -19,6 +19,7 @@ import {
   type Planet,
   type PlanetPosition,
 } from "./astro";
+import { zodiacQuarter } from "./zodiac-quarter";
 
 export interface NakshatraWealthHit {
   /** The nakshatra the rule belongs to. */
@@ -371,7 +372,7 @@ export function assessNakshatraWealth(
   lagnaLon: number,
 ): NakshatraWealthReading {
   const pos = (p: Planet) => positions.find((x) => x.planet === p);
-  const nakIndex = (lon: number) => Math.floor(norm360(lon) / (360 / 27));
+  const nakIndex = (lon: number) => zodiacQuarter(lon).starIndex;
   const lagnaNak = lagnaLon != null && isFinite(lagnaLon) ? NAKSHATRAS[nakIndex(lagnaLon)] : null;
   const lagnaSign = lagnaLon != null && isFinite(lagnaLon) ? Math.floor(norm360(lagnaLon) / 30) : null;
 

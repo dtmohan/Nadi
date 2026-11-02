@@ -29,6 +29,7 @@
  * navamsa (Jataka Parijata 7.20 asks for two to four); the dispositor in the same sign.
  */
 import { ENEMIES, EXALTATION, SIGN_LORD, SIGNS, houseFrom, type Planet, type PlanetPosition } from "./astro";
+import { zodiacQuarter } from "./zodiac-quarter";
 
 export const PHALADEEPIKA_CH7_URL = "https://www.wisdomlib.org/hinduism/book/phaladeepika-by-mantreswara-text-and-translation/d/doc1621579.html";
 export const JATAKA_PARIJATA_CH7_URL = "https://vedicpupil.in/library/books/jataka-parijata/chapter-7";
@@ -79,7 +80,7 @@ const uniqSorted = (xs: readonly string[]) =>
 
 /** Navamsa sign of a position: nine parts of 3°20', counted from the sign itself for movable signs. */
 export function navamsaOf(p: Pick<PlanetPosition, "signIndex" | "degInSign">): number {
-  return (p.signIndex * 9 + Math.floor(p.degInSign / (10 / 3))) % 12;
+  return zodiacQuarter(p.signIndex * 30 + p.degInSign).navamsaSign;
 }
 
 function versesText(pd: readonly string[], jp: readonly string[]): string {

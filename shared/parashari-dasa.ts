@@ -14,6 +14,7 @@ import {
   type PlanetPosition,
 } from "./astro";
 import { BPHS_URL, LAGNA_NATURE } from "./parashari-data";
+import { zodiacQuarter } from "./zodiac-quarter";
 import type { Vimshottari } from "./kp";
 import { antarasOf, VIMSHOTTARI_ORDER, VIMSHOTTARI_YEARS } from "./kp";
 import { DateTime } from "luxon";
@@ -407,8 +408,7 @@ function makeCtx(
     aspect,
     isBenefic,
     waning,
-    navamsaSign: (pl) =>
-      (pos(pl).signIndex * 9 + Math.floor(pos(pl).degInSign / (10 / 3))) % 12,
+    navamsaSign: (pl) => zodiacQuarter(pos(pl).lon).navamsaSign,
     yogakaraka,
     bala: (pl) => sb?.planets.find((x) => x.planet === pl),
     ishta: (pl) => sb?.ishta.find((x) => x.planet === pl),

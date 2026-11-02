@@ -427,7 +427,7 @@ export default function AboutPage() {
                 significations flow; enemies on both sides obstruct them.
               </li>
               <li>
-                Combustion is a planet within the Sun's pada, 3°20'. It is read
+                Naik describes combustion as a planet in the Sun's same nakshatra pada. Each pada spans 3°20', but proximity across a pada boundary does not meet this rule. The Sun and nodes are excluded by this app's convention. It is read
                 as a Sun combination first: results still come, in lesser degree
                 and coloured by the father, authority and status. A friendly
                 association or exchange cancels the reduction. The wide

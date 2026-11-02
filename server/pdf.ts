@@ -2,6 +2,7 @@
 // positions, reading, relations and Jupiter/Saturn timing).
 
 import { displayLocal } from "@shared/time-basis";
+import { zodiacQuarter } from "@shared/zodiac-quarter";
 import PDFDocument from "pdfkit";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
@@ -564,7 +565,7 @@ function panchangaSection(doc: Doc, result: ChartResult) {
   const practice = gocharaPractice({
     natalMoonSign: moon.signIndex,
     natalLagnaSign: Math.floor((((result.jaimini.lagna.lon % 360) + 360) % 360) / 30),
-    birthStar: Math.floor(moon.lon / (360 / 27)),
+    birthStar: zodiacQuarter(moon.lon).starIndex,
     positions: result.now.positions,
     asOf: result.now.asOf,
     marsStay: result.now.marsStay,

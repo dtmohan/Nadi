@@ -11,7 +11,7 @@
  * the Sun, so Mars keeps 17 either way. The Siddhanta reckons these as time-degrees at the horizon (kalamsa); the
  * app, like the note and most practice, applies them as degrees of longitude from the Sun.
  *
- * Kept apart: BNN's 3°20' (COMBUSTION_ORB_DEG in astro.ts, the `combust` flag on a position) and Iyer's limits
+ * Kept apart: BNN's same 3°20' quarter (the `combust` flag on a position) and Iyer's limits
  * under Brihat Jataka 7.2 in the longevity module (ayurdaya.ts).
  */
 import type { Planet, PlanetPosition } from "./astro";

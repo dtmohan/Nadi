@@ -1,6 +1,9 @@
 // The day of birth (Surya Siddhanta), the sky at the reading date, and the gochara from the natal Moon.
 import { SUNRISE_DEFINITIONS } from "../schema";
 import { fmtDeg, fmtDegShort, houseFrom, SIGNS } from "../astro";
+import { zodiacQuarter } from "../zodiac-quarter";
+import { natalPlanetContext } from "../planet-context";
+import { nakshatraContextParas } from "./nakshatra-context";
 import {
   BIRTH_STAR_CAVEATS,
   birthStarReading,
@@ -110,6 +113,7 @@ export const panchangaModule: ReportModule = {
         for (const n of star.notes)
           paras.push({ kind: "note", text: n.text, cites: [bc(n.cite)] });
       paras.push({ kind: "note", text: BIRTH_STAR_CAVEATS[0] });
+      paras.push(...nakshatraContextParas(natalPlanetContext(result), cites, "Planet and ascendant quarters"));
       // Each reading under its own heading, as on the screen.
       const sub: ReportSection[] = shownBirthStarItems(star, plain, ctx.inSeason("marriage")).map((i) => ({
         id: `birth-star-${i.id}`,
@@ -211,7 +215,7 @@ export const panchangaModule: ReportModule = {
         natalLagnaSign: Math.floor(
           (((result.jaimini.lagna.lon % 360) + 360) % 360) / 30,
         ),
-        birthStar: Math.floor(moon.lon / (360 / 27)),
+        birthStar: zodiacQuarter(moon.lon).starIndex,
         positions: now.positions,
         asOf: now.asOf,
         marsStay: now.marsStay,

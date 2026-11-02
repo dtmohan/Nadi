@@ -80,7 +80,7 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
   combust: {
     term: "Combust",
     short:
-      "Within the Sun's pada (about 3° 20'). The planet delivers its results in lesser degree; friends nearby ease it.",
+      "In the same nakshatra quarter as the Sun. A quarter spans 3°20′; a planet can be closer than that yet lie across its boundary. Nadi reads its results in lesser degree; friends nearby may ease it.",
     system: "bnn",
   },
   retrograde: {

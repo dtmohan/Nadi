@@ -23,6 +23,7 @@
  * Sanghatika at the 16th and Vainashika at the 23rd, which is used here.
  */
 import type { NakshatraPeriod } from "./astro";
+import { zodiacQuarter } from "./zodiac-quarter";
 import { NAKSHATRAS } from "./astro";
 
 export type StarPlanet = NakshatraPeriod["planet"];
@@ -107,7 +108,7 @@ export function isNamedNakshatra(
 }
 
 export function janmaIndexOf(moonLon: number): number {
-  return Math.floor((((moonLon % 360) + 360) % 360) / (360 / 27)) % 27;
+  return zodiacQuarter(moonLon).starIndex;
 }
 
 export interface StarPassage {

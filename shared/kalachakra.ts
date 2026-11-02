@@ -13,9 +13,8 @@ import { NAKSHATRAS, SIGNS, SIGN_LORD, houseFrom, norm360, type Planet, type Pla
 import { BPHS_URL } from "./parashari-data";
 import { rasiDasaReadings, lordEffect64, VARIANT_65, RASI_DASA_CAVEATS, type LordEffect, type RasiDasaDeps, type RasiReading } from "./kalachakra-effects";
 import { DateTime } from "luxon";
+import { zodiacQuarter } from "./zodiac-quarter";
 
-const NAK_ARC = 360 / 27;
-const NAV_ARC = NAK_ARC / 4;
 const YEAR_DAYS = 365.25;
 const CH46 = BPHS_URL(46);
 const CH49 = BPHS_URL(49);
@@ -203,10 +202,10 @@ export function computeKalachakra(positions: PlanetPosition[], lagnaLon: number,
   const asOf = DateTime.fromISO(asOfIso);
   const age = (d: DateTime) => d.diff(birth, "days").days / YEAR_DAYS;
   const lagnaIdx = Math.floor(norm360(lagnaLon) / 30);
-  const moonLon = norm360(positions.find((p) => p.planet === "Moon")!.lon);
-  const nak = Math.floor(moonLon / NAK_ARC) % 27;
-  const padaIdx = Math.floor((moonLon - nak * NAK_ARC) / NAV_ARC); // 0-3
-  const fracNav = (moonLon - nak * NAK_ARC - padaIdx * NAV_ARC) / NAV_ARC;
+  const quarter = zodiacQuarter(positions.find((p) => p.planet === "Moon")!.lon);
+  const nak = quarter.starIndex;
+  const padaIdx = quarter.pada - 1;
+  const fracNav = quarter.fraction;
   const savya = isSavya(nak);
   const t = nak % 3; // position within the triplet
   // Savya: navamsa from Aries onwards (46.87-88). Apsavya: the chakra runs from Scorpio backwards (46.71-72),

@@ -24,6 +24,8 @@ import { additionalSchoolParas } from "./additional-school-event-evidence";
 import { alpEventParas } from "./alp-event-evidence";
 import { catalogueComparisonParas } from "./catalogue-comparison";
 import { qualifiedScoreParas, qualifiedComparisonParas } from "./qualified-event-scores";
+import { natalPlanetContext } from "../planet-context";
+import { nakshatraContextParas } from "./nakshatra-context";
 import {
   type ReportModule,
   type ReportPara,
@@ -117,6 +119,7 @@ export const validateModule: ReportModule = {
         provisional: true,
       },
     ];
+    paras.push(...nakshatraContextParas(natalPlanetContext(result), cites, "Birth-chart star and D9 context"));
     for (const event of v.events) paras.push(...kpCatalogueParas(event.kp.natalRules, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), ctx.plain));
     for (const event of v.events) paras.push(...parashariCatalogueParas(event.parashariOrdinary, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), ctx.plain));
     for (const event of v.events) paras.push(...additionalSchoolParas(event.additionalNatal, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), "all", ctx.plain));

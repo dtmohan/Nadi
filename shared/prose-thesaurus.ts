@@ -194,7 +194,7 @@ export const PROSE_THESAURUS = {
   }
  },
  "combustion": {
-  "_note": "[Source: BPHS Ch.3 v.47 (combustion degrees); PD Ch.3 v.5 (combustion ranges); Jataka Parijata Ch.2 (combust effects). Degrees: Moon 12°, Mars 17°, Mercury 14° (12° retro), Jupiter 11°, Venus 10°, Saturn 15°. Combustion = planet's significations overshadowed by Sun's ego-principle.]",
+  "_note": "[Ranges follow the app's longitude interpretation of Surya Siddhanta 9.6–9 and 10.1: Moon 12°, Mars 17°, Mercury 14° (12° retro), Jupiter 11°, Venus 10° (8° retro), Saturn 15°. Effects are synthesized from PD and Jataka Parijata Ch.2. These are separate from the BNN same-pada condition.]",
   "Moon": {
    "effect": "Emotional self eclipsed by paternal/authority dynamics. Mind becomes reactive to ego-concerns.",
    "manifestation": "Difficulty distinguishing personal feelings from inherited expectations. Mother-figure may be overshadowed by father-figure.",

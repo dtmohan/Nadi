@@ -1,0 +1,50 @@
+{
+  "selection": "Frozen before running the new pada implementation: seven published cases absent from previous repository case manifests. Selection is by varied profession/place and an Astro-Databank AA clock, not by their calculated padas or combustion results. The underlying certificates were not independently inspected.",
+  "cases": [
+    {
+      "name": "Adriana Lima", "category": "Brazilian model", "birthSource": "https://www.astro.com/astro-databank/Lima%2C_Adriana",
+      "chart": { "name": "Adriana Lima", "gender": "female", "birthDate": "1981-06-12", "birthTime": "16:50", "timezone": "America/Bahia", "timeStandard": "auto", "place": "Salvador, Brazil", "latitude": -12.971111, "longitude": -38.510833, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "tropicalSun": 81.7333333333, "tropicalMoon": 208.9666666667,
+      "events": [
+        { "id": "marriage", "matter": "marriage", "date": "2009-02-14", "timezone": "America/Denver", "sources": ["https://peopleenespanol.com/article/adriana-lima-se-caso-en-secreto/", "https://abcnews.com/news/story/adriana-lima-marko-jaric-separate-23569237"], "note": "Jackson Hole; local clock unknown, use noon." },
+        { "id": "second-child", "matter": "child", "date": "2012-09-12", "time": "13:00", "timezone": "America/New_York", "sources": ["https://www.usmagazine.com/celebrity-moms/news/adriana-lima-gives-birth-to-daughter-sienna-2012129/", "https://www.cbsnews.com/news/adriana-lima-welcomes-a-daughter/"], "note": "New York; time reported by representative. Added after natal baseline capture, before event comparisons." }
+      ]
+    },
+    {
+      "name": "Ashley Judd", "category": "American actress and advocate", "birthSource": "https://www.astro.com/astro-databank/Judd%2C_Ashley",
+      "chart": { "name": "Ashley Judd", "gender": "female", "birthDate": "1968-04-19", "birthTime": "13:12", "timezone": "America/Los_Angeles", "timeStandard": "auto", "place": "Sylmar, California, USA", "latitude": 34.3, "longitude": -118.45, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "tropicalSun": 29.85, "tropicalMoon": 300.7,
+      "events": [{ "id": "marriage", "matter": "marriage", "date": "2001-12-12", "timezone": "Europe/London", "sources": ["https://www.chron.com/culture/main/article/judd-weds-racing-star-in-scotland-castle-2057216.php", "https://au.motorsport.com/indycar/news/champcar-cart-ashley-judd-and-dario-franchitti-scottish-wedding/1944860/"], "note": "Scotland; local clock unknown, use noon." }]
+    },
+    {
+      "name": "Frances Hashimoto", "category": "Japanese-American businesswoman and community advocate", "birthSource": "https://www.astro.com/astro-databank/Hashimoto%2C_Frances",
+      "chart": { "name": "Frances Hashimoto", "gender": "female", "birthDate": "1943-08-26", "birthTime": "19:45", "timezone": "America/Phoenix", "timeStandard": "-06:00", "place": "Poston, Arizona, USA", "latitude": 33.983333, "longitude": -114.4, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "2012-11-04" },
+      "tropicalSun": 152.9333333333, "tropicalMoon": 112.1, "events": [],
+      "biographySource": "https://www.mikawayamochi.com/our-history", "note": "Astro-Databank gives Mountain War Time UTC-06; fixed offset preserves its published birth time. Her business transition has only a year, not a reliably dated event."
+    },
+    {
+      "name": "Mhairi Calvey", "category": "Scottish actress", "birthSource": "https://www.astro.com/astro-databank/Calvey%2C_Mhairi",
+      "chart": { "name": "Mhairi Calvey", "gender": "female", "birthDate": "1988-05-07", "birthTime": "18:16", "timezone": "Europe/London", "timeStandard": "auto", "place": "Glasgow, Scotland", "latitude": 55.883333, "longitude": -4.25, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "tropicalSun": 47.35, "tropicalMoon": 299.8, "events": [],
+      "biographySource": "https://www.clemencyfilms.com/wp-content/uploads/2019/03/Brochure-HobbesHouse-Mar19c.pdf", "note": "Career event dates are not sufficiently precise for a timed-event comparison."
+    },
+    {
+      "name": "Steffen Ahrends", "category": "German-born South African architect", "birthSource": "https://www.astro.com/astro-databank/Ahrends%2C_Steffen",
+      "chart": { "name": "Steffen Ahrends", "gender": "male", "birthDate": "1907-08-16", "birthTime": "10:00", "timezone": "Europe/Berlin", "timeStandard": "+01:00", "place": "Berlin, Germany", "latitude": 52.483333, "longitude": 13.35, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "1992-10-31" },
+      "tropicalSun": 142.3333333333, "tropicalMoon": 225.9166666667, "events": [],
+      "biographySource": "https://www.getty.edu/vow/ULANFullDisplay?subjectid=500076602", "note": "Clock is rounded; published CET fixed offset preserved."
+    },
+    {
+      "name": "Bernard Malissen", "category": "French immunology researcher", "birthSource": "https://www.astro.com/astro-databank/Malissen%2C_Bernard",
+      "chart": { "name": "Bernard Malissen", "gender": "male", "birthDate": "1953-11-29", "birthTime": "18:30", "timezone": "Europe/Paris", "timeStandard": "auto", "place": "Agen, France", "latitude": 44.2, "longitude": 0.616667, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "tropicalSun": 247.2166666667, "tropicalMoon": 172.3, "events": [],
+      "note": "Clock is rounded. No precisely dated event is asserted."
+    },
+    {
+      "name": "Edelton Gloeden", "category": "Brazilian classical guitarist and teacher", "birthSource": "https://www.astro.com/astro-databank/Gloeden%2C_Edelton",
+      "chart": { "name": "Edelton Gloeden", "gender": "male", "birthDate": "1955-06-19", "birthTime": "01:20", "timezone": "America/Sao_Paulo", "timeStandard": "auto", "place": "Bela Vista, Sao Paulo, Brazil", "latitude": -23.083333, "longitude": -47.9, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "tropicalSun": 87.1333333333, "tropicalMoon": 73.0333333333, "events": [],
+      "biographySource": "https://uspaberta.ime.usp.br/docentes/2801748473197999", "note": "Uses the location coordinates published by Astro-Databank; no precisely dated event is asserted."
+    }
+  ]
+}

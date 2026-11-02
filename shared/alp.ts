@@ -12,9 +12,9 @@
 import { redactSensitive } from "./life-stage";
 import { DateTime } from "luxon";
 import { NAKSHATRAS, NAKSHATRA_LORD, SIGNS, SIGN_LORD, houseFrom, norm360, type Planet, type PlanetPosition, type Sign } from "./astro";
-import { navamsaOf } from "./jaimini";
 import { evaluateAlp, type AlpFinding } from "./rules-alp";
 import { asPlanetContext, assertContextAscendant, planetPositions, type PlanetContext, type PlanetInput } from "./planet-context";
+import { zodiacQuarter } from "./zodiac-quarter";
 
 // Akshaya Rasi (AR / ARP), Book 2 ch. 6-8 (pp. 68-77): the Moon's birth nakshatra is the birth rasi;
 // with each Vimshottari dasa the Moon "shifts" to the next nakshatra, one pada for each quarter of the
@@ -190,12 +190,13 @@ export function bookArithmetic(natalLon: number, birth: DateTime, asOf: DateTime
 }
 
 export function alpPointAt(lon: number): AlpPoint {
-  const l = norm360(lon);
-  const signIndex = Math.floor(l / 30);
+  const q = zodiacQuarter(lon);
+  const l = q.longitude;
+  const signIndex = q.signIndex;
   const degInSign = l - signIndex * 30;
-  const nakshatraIndex = Math.floor(l / (360 / 27)) % 27;
-  const pada = Math.floor((l % (360 / 27)) / PADA_ARC) + 1;
-  const padaInSign = Math.floor(degInSign / PADA_ARC) + 1;
+  const nakshatraIndex = q.starIndex;
+  const pada = q.pada;
+  const padaInSign = q.quarterOfSign;
   return {
     lon: l,
     signIndex,
@@ -207,7 +208,7 @@ export function alpPointAt(lon: number): AlpPoint {
     nakshatraLord: NAKSHATRA_LORD[nakshatraIndex],
     pada,
     padaInSign,
-    navamsaSign: navamsaOf(l).signIndex,
+    navamsaSign: q.navamsaSign,
   };
 }
 

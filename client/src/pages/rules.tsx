@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { useParams } from "wouter";
 import { SourceLink, Cite } from "@/components/source-link";
 import { KP_TRANSIT_EVIDENCE_SOURCE } from "@shared/kp-transit-evidence";
+import { NAIK_PADA_SOURCE } from "@shared/nakshatra-context";
 import { SutraLibrary } from "@/components/sutra-library";
 import { RuleQualificationList } from "@/components/rule-qualification-list";
 import { SCHOOL_RULE_PATHS, type PathStatus } from "@shared/school-rule-paths";
@@ -808,6 +809,9 @@ export default function RulesPage() {
             chart Venus is the native's own person (Deha) and Mars the husband.
             Each method has its own rules and event-timing checks; adding a BNN rule
             does not automatically add it to KP or Parashari readings.
+          </p>
+          <p className="mt-2 max-w-2xl text-xs text-muted-foreground">
+            BNN combustion here follows Naik's same-solar-pada condition. A planet less than 3°20′ away across a quarter boundary does not meet it; the Sun and nodes are excluded by the app's convention. Parashari uses separate classical solar orbs. <SourceLink source={NAIK_PADA_SOURCE} />
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-2">

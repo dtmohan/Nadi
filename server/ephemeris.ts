@@ -390,7 +390,7 @@ export function nakshatraPeriods(
   const nakAt = (jd: number) => {
     let lon = siderealLon(jd, body, opts).lon;
     if (planet === "Ketu") lon = lon + 180;
-    return Math.floor(norm360(lon) / (360 / 27)) % 27;
+    return nakshatraIndex(lon);
   };
   const periods: NakshatraPeriod[] = [];
   let t0 = jdStart;

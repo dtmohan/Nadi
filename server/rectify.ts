@@ -41,6 +41,7 @@ import { createCatalogueComparison } from "@shared/catalogue-comparison";
 import { lifeAsOf, sensitiveGate } from "@shared/life-stage";
 import { normaliseParashariHouseMethod, normaliseSunriseDef } from "@shared/schema";
 import { norm360, NAKSHATRAS, type Planet } from "@shared/astro";
+import { zodiacQuarter } from "@shared/zodiac-quarter";
 import { nashtaNakshatra } from "@shared/brihat-jataka";
 import {
   kpPoint,
@@ -346,7 +347,7 @@ export function kundaCheck(lagnaLon: number, moonLon: number): KundaCheck {
   const raw = ((lagnaLon * 60 * 81) % 12 + 12) % 12;
   const remainder = Math.floor(raw); // 0..11
   const kundaNakshatra = (remainder + 11) % 12; // 0 = Aswini ... 11 = Uttara Phalguni
-  const birthStar = Math.floor(norm(moonLon) / (360 / 27));
+  const birthStar = zodiacQuarter(moonLon).starIndex;
   const trine =
     kundaNakshatra === birthStar ||
     kundaNakshatra === (birthStar + 9) % 27 ||
@@ -376,7 +377,7 @@ function bjNashtaCheck(
     .filter((p) => p.signIndex === signIdx)
     .map((p) => p.planet as Planet);
   const nakshatra = nashtaNakshatra(lagnaLon, inSign);
-  const birthStar = Math.floor(norm(moonLon) / (360 / 27));
+  const birthStar = zodiacQuarter(moonLon).starIndex;
   const trine =
     nakshatra === birthStar ||
     nakshatra === (birthStar + 9) % 27 ||
@@ -952,7 +953,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
         name: SIGNS[jSign],
         direction: jai.j.charaDasha.direction,
       },
-      candidate: selectable ? { birthUtc: birthIso, kpMoonLon: moon.lon, positions: posJ, kpPlanets: planets.map(({ planet, lon }) => ({ planet, lon })), kpCusps: cuspLons } : undefined,
+      candidate: selectable ? { birthUtc: birthIso, kpMoonLon: moon.lon, ascendantLon: lagnaJ, positions: posJ, kpPlanets: planets.map(({ planet, lon }) => ({ planet, lon })), kpCusps: cuspLons } : undefined,
       drekkana: dIdx,
       marksKey,
       sunHint: {

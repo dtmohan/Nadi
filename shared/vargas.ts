@@ -7,6 +7,7 @@ import { compoundRelation, inMoolatrikona, SEVEN, type Seven, type Compound, typ
 import { BPHS_URL } from "./parashari-data";
 import { allArudhas } from "./jaimini";
 import { ssCombust, ssCombustOrb } from "./combustion";
+import { zodiacQuarter } from "./zodiac-quarter";
 
 export interface VargaSource {
   label: string;
@@ -46,7 +47,7 @@ export const VARGAS: VargaDef[] = [
   { key: "D7", n: 7, name: "Saptamsa", matter: "sons and grandsons", source: S(6, "10-11"), signOf: (s, d) => (s + (isOdd(s) ? 0 : 6) + part(d, 7)) % 12 },
   {
     key: "D9", n: 9, name: "Navamsa", matter: "spouse", source: S(6, "12"), cross: "navamsa",
-    signOf: (s, d) => ([s, s + 8, s + 4][kind(s)] + part(d, 9)) % 12,
+    signOf: (s, d) => zodiacQuarter(s * 30 + d).navamsaSign,
   },
   { key: "D10", n: 10, name: "Dasamsa", matter: "power and position", source: S(6, "13-14"), signOf: (s, d) => (s + (isOdd(s) ? 0 : 8) + part(d, 10)) % 12 },
   { key: "D12", n: 12, name: "Dvadasamsa", matter: "parents", source: S(6, "15"), cross: "dwadasamsa", signOf: (s, d) => (s + part(d, 12)) % 12 },
@@ -218,7 +219,7 @@ export function parashariCombustOrb(p: PlanetPosition): number | undefined {
 
 /**
  * Combust by the Surya Siddhanta distances (9.6-9, combustion.ts). This is the Parashari rule; the `combust` flag on
- * a position is the Nadi rule of 3°20' (astro.ts) and is not used here.
+ * a position is the Nadi same-pada rule (astro.ts) and is not used here.
  */
 export function parashariCombust(p: PlanetPosition, sunLon: number): boolean {
   return ssCombust(p, sunLon);

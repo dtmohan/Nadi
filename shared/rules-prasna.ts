@@ -12,6 +12,7 @@
 
 import type { Planet, PlanetPosition } from "./astro";
 import { houseFrom, SIGN_LORD } from "./astro";
+import { zodiacQuarter } from "./zodiac-quarter";
 import { drishtiQuarters, naturalBenefic } from "./parashari";
 import { toneOfText } from "./synthesis";
 import { redactProse } from "./life-stage";
@@ -594,9 +595,8 @@ export function computeSantanaTrisphuta(
   const lon = (p: string) => positions.find((x) => x.planet === p)!.lon;
   const moonLon = lon("Moon");
   const trisphuta = (((5 * (lon("Sun") + lon("Moon") + lon("Jupiter"))) % 360) + 360) % 360;
-  const NAK = 360 / 27;
-  const nakshatraIndex = Math.floor(trisphuta / NAK);
-  const birthNak = Math.floor(((moonLon % 360) + 360) % 360 / NAK);
+  const nakshatraIndex = zodiacQuarter(trisphuta).starIndex;
+  const birthNak = zodiacQuarter(moonLon).starIndex;
   const fromBirthStar = (nakshatraIndex - birthNak + 27) % 27;
   const inBadStar = [2, 4, 6].includes(fromBirthStar); // 3rd, 5th, 7th asterism
   const signIndex = Math.floor(trisphuta / 30);

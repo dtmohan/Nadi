@@ -8,6 +8,7 @@ import type { SunriseDefinition } from "./schema";
  * The arithmetic here is pure; the server finds the exact ending times with the ephemeris.
  */
 import { NAKSHATRAS, NAKSHATRA_LORD, norm360, type Planet } from "./astro";
+import { zodiacQuarter } from "./zodiac-quarter";
 
 export const SURYA_SIDDHANTA_URL = "https://archive.org/stream/SuryaSiddhantaTranslation/surya_siddhanta_english_djvu.txt";
 
@@ -109,7 +110,6 @@ export interface KaranaInfo {
 }
 
 const TITHI_ARC = 12;
-const NAK_ARC = 360 / 27;
 
 /** Moon less Sun, 0..360. */
 export const elongation = (moonLon: number, sunLon: number) => norm360(moonLon - sunLon);
@@ -124,16 +124,13 @@ export function tithiOf(moonLon: number, sunLon: number): TithiInfo {
 }
 
 export function nakshatraOf(moonLon: number): NakshatraInfo {
-  const l = norm360(moonLon);
-  const i = Math.min(26, Math.floor(l / NAK_ARC));
-  const within = l - i * NAK_ARC;
-  return { index: i, name: NAKSHATRAS[i], pada: Math.min(4, Math.floor(within / (NAK_ARC / 4)) + 1), lord: NAKSHATRA_LORD[i], elapsed: within / NAK_ARC };
+  const q = zodiacQuarter(moonLon);
+  return { index: q.starIndex, name: NAKSHATRAS[q.starIndex], pada: q.pada, lord: NAKSHATRA_LORD[q.starIndex], elapsed: q.starFraction };
 }
 
 export function yogaOf(moonLon: number, sunLon: number): YogaInfo {
-  const s = norm360(moonLon + sunLon);
-  const i = Math.min(26, Math.floor(s / NAK_ARC));
-  return { index: i, name: YOGA_NAMES[i], elapsed: (s - i * NAK_ARC) / NAK_ARC };
+  const q = zodiacQuarter(moonLon + sunLon);
+  return { index: q.starIndex, name: YOGA_NAMES[q.starIndex], elapsed: q.starFraction };
 }
 
 /**
@@ -155,8 +152,8 @@ export function karanaOf(moonLon: number, sunLon: number): KaranaInfo {
 /** Index (0..59) of the karana slot for a given elongation, used by the server to find slot changes. */
 export const karanaSlot = (moonLon: number, sunLon: number) => Math.min(59, Math.floor(elongation(moonLon, sunLon) / (TITHI_ARC / 2)));
 export const tithiIndex = (moonLon: number, sunLon: number) => Math.min(29, Math.floor(elongation(moonLon, sunLon) / TITHI_ARC));
-export const nakshatraIndex = (moonLon: number) => Math.min(26, Math.floor(norm360(moonLon) / NAK_ARC));
-export const yogaIndex = (moonLon: number, sunLon: number) => Math.min(26, Math.floor(norm360(moonLon + sunLon) / NAK_ARC));
+export const nakshatraIndex = (moonLon: number) => zodiacQuarter(moonLon).starIndex;
+export const yogaIndex = (moonLon: number, sunLon: number) => zodiacQuarter(moonLon + sunLon).starIndex;
 
 /** Moon phase from the elongation: waxing until 180°, then waning. */
 export function moonPhase(moonLon: number, sunLon: number): { waxing: boolean; illumination: number } {

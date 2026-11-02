@@ -1,0 +1,23 @@
+{
+  "selection": "Targeted diagnostic examples, chosen after screening published AA birth data for a planet near the Sun but across a quarter boundary. They are not a random or held-out sample and cannot validate prediction.",
+  "cases": [
+    {
+      "name": "Jamie Lee Curtis", "category": "American actress and author", "birthSource": "https://www.astro.com/astro-databank/Curtis%2C_Jamie_Lee",
+      "chart": { "name": "Jamie Lee Curtis", "gender": "female", "birthDate": "1958-11-22", "birthTime": "08:37", "timezone": "America/Los_Angeles", "timeStandard": "zone", "place": "Los Angeles, California, USA", "latitude": 34.05, "longitude": -118.25, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "tropicalSun": 239.8833333333, "tropicalMoon": 19.25, "expectedChanged": ["Venus"],
+      "events": [{ "id": "marriage", "matter": "marriage", "date": "1984-12-18", "time": "16:00", "timezone": "America/Los_Angeles", "sources": ["https://www.eonline.com/news/989363/the-unbelievable-story-of-jamie-lee-curtis-mysterious-marriage-to-christopher-guest", "https://www.usmagazine.com/celebrity-news/pictures/jamie-lee-curtis-christopher-guests-relationship-timeline/"], "note": "Date independently reported; one account supplies the clock." }]
+    },
+    {
+      "name": "Henri Cartier-Bresson", "category": "French photographer", "birthSource": "https://www.astro.com/astro-databank/Cartier-Bresson%2C_Henri",
+      "chart": { "name": "Henri Cartier-Bresson", "gender": "male", "birthDate": "1908-08-22", "birthTime": "15:00", "timezone": "Europe/Paris", "timeStandard": "+00:09:21", "place": "Chanteloup, France", "latitude": 48.85, "longitude": 2.733333, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "2004-08-02" },
+      "tropicalSun": 149.0666666667, "tropicalMoon": 101.7833333333, "expectedChanged": ["Mercury"], "events": [],
+      "biographySource": "https://www.henricartierbresson.org/en/hcb/expography/", "note": "15:00 is rounded; the published Paris mean-time offset is explicit. The 1947 MoMA exhibition date differs by a day between MoMA and the foundation, so it is not used as a timed event."
+    },
+    {
+      "name": "Gerald Carr", "category": "American astronaut and engineer", "birthSource": "https://www.astro.com/astro-databank/Carr%2C_Gerald",
+      "chart": { "name": "Gerald Carr", "gender": "male", "birthDate": "1932-08-22", "birthTime": "09:30", "timezone": "America/Denver", "timeStandard": "zone", "place": "Denver, Colorado, USA", "latitude": 39.733333, "longitude": -104.983333, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "2020-08-26" },
+      "tropicalSun": 149.3333333333, "tropicalMoon": 41.6666666667, "expectedChanged": ["Jupiter"], "events": [],
+      "biographySource": "https://www.nasa.gov/mission/skylab-4/", "note": "09:30 is rounded. The NASA launch is not treated as a new job or a move abroad; neither event mapping accurately describes it."
+    }
+  ]
+}

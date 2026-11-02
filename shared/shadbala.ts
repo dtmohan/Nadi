@@ -7,6 +7,7 @@
 // the client can show the working and the dasa rules can consult it.
 import { EXALTATION, MOOLATRIKONA, SIGN_LORD, houseFrom, norm360, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
+import { zodiacQuarter } from "./zodiac-quarter";
 
 export const SEVEN = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"] as const;
 export type Seven = (typeof SEVEN)[number];
@@ -248,7 +249,7 @@ function saptamsaSign(sign: number, deg: number) {
   return (sign + (isOdd(sign) ? 0 : 6) + Math.floor(deg / (30 / 7))) % 12;
 }
 export function navamsaSign(sign: number, deg: number) {
-  return (sign * 9 + Math.floor(deg / (10 / 3))) % 12;
+  return zodiacQuarter(sign * 30 + deg).navamsaSign;
 }
 function dwadasamsaSign(sign: number, deg: number) {
   return (sign + Math.floor(deg / 2.5)) % 12;

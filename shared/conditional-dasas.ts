@@ -7,6 +7,7 @@
 import { NAKSHATRAS, SIGN_LORD, SIGNS, norm360, type Planet, type PlanetPosition } from "./astro";
 import { BPHS_URL } from "./parashari-data";
 import { DateTime } from "luxon";
+import { zodiacQuarter } from "./zodiac-quarter";
 
 const NAK_ARC = 360 / 27;
 const YEAR_DAYS = 365.25;
@@ -72,7 +73,7 @@ type Spec = {
 
 const ODD = (si: number) => si % 2 === 0;
 const horaOfLagna = (si: number, deg: number): Planet => (deg < 15 ? (ODD(si) ? "Sun" : "Moon") : ODD(si) ? "Moon" : "Sun");
-const navamsaOf = (si: number, deg: number) => (si * 9 + Math.floor(deg / (30 / 9))) % 12;
+const navamsaOf = (si: number, deg: number) => zodiacQuarter(si * 30 + deg).navamsaSign;
 const dwadasamsaOf = (si: number, deg: number) => (si + Math.floor(deg / 2.5)) % 12;
 
 /** 28-nakshatra index and the fraction elapsed inside it, with Abhijit per 46.22. */
@@ -85,8 +86,8 @@ function nak28(lon: number): { idx: number; frac: number } {
   if (l >= uaStart && l < abhStart) return { idx: 20, frac: (l - uaStart) / (abhStart - uaStart) };
   if (l >= abhStart && l < abhEnd) return { idx: 21, frac: (l - abhStart) / (abhEnd - abhStart) };
   if (l >= abhEnd && l < shrEnd) return { idx: 22, frac: (l - abhEnd) / (shrEnd - abhEnd) };
-  const n = Math.floor(l / NAK_ARC) % 27;
-  return { idx: n >= 22 ? n + 1 : n, frac: (l - n * NAK_ARC) / NAK_ARC };
+  const q = zodiacQuarter(l);
+  return { idx: q.starIndex >= 22 ? q.starIndex + 1 : q.starIndex, frac: q.starFraction };
 }
 const NAK28_NAMES = [...NAKSHATRAS.slice(0, 21), "Abhijit", ...NAKSHATRAS.slice(21)];
 
@@ -123,8 +124,9 @@ export function conditionalDasas(positions: PlanetPosition[], lagnaLon: number, 
   const l10 = SIGN_LORD[(lagnaIdx + 9) % 12] as Planet;
   const moon = pos("Moon"), sun = pos("Sun");
   const moonLon = norm360(moon.lon);
-  const nak27 = Math.floor(moonLon / NAK_ARC) % 27;
-  const frac27 = (moonLon - nak27 * NAK_ARC) / NAK_ARC;
+  const moonQuarter = zodiacQuarter(moonLon);
+  const nak27 = moonQuarter.starIndex;
+  const frac27 = moonQuarter.starFraction;
   const shukla = norm360(moon.lon - sun.lon) < 180;
   const hora = horaOfLagna(lagnaIdx, lagnaDeg);
   const dayTxt = daytime === undefined ? "day or night birth not known" : daytime ? "a day birth" : "a night birth";

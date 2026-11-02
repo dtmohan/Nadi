@@ -10,6 +10,7 @@ import { evaluateJaimini } from "./rules-jaimini";
 import { computeAyur, type AyurResult } from "./jaimini-ayur";
 import { computeInduLagna, type InduLagnaResult } from "./indu-lagna";
 import { asPlanetContext, assertContextAscendant, planetPositions, type PlanetInput } from "./planet-context";
+import { zodiacQuarter } from "./zodiac-quarter";
 
 export { rasiAspects, isBenefic, argalaOn, type Argala };
 
@@ -60,11 +61,9 @@ export interface VargaPosition {
 
 /** Navamsa sign of a longitude: the ninth part of a sign, counted from the sign itself for movable signs (Parashara's continuous scheme). */
 export function navamsaOf(lon: number): { signIndex: number; degInSign: number } {
-  const signIndex = Math.floor(lon / 30);
-  const degInSign = lon - signIndex * 30;
-  const part = Math.floor(degInSign / (30 / 9));
-  const d9 = (signIndex * 9 + part) % 12;
-  return { signIndex: d9, degInSign: ((degInSign % (30 / 9)) * 9) };
+  const q = zodiacQuarter(lon);
+  const degree = q.longitude - q.signIndex * 30;
+  return { signIndex: q.navamsaSign, degInSign: q.fraction === 0 ? 0 : (degree % (30 / 9)) * 9 };
 }
 
 export function navamsaPositions(positions: PlanetPosition[]): VargaPosition[] {

@@ -11,6 +11,7 @@
  */
 import { NAKSHATRAS, SIGNS, type Planet } from "./astro";
 import { redactSensitive, withholdText } from "./life-stage";
+import { nakshatraContext, SUTTON_GANDANTA_DEG } from "./nakshatra-context";
 
 export const BIRTH_STAR_BOOK_URL = "https://www.wessexastrologer.com/product/wanak001/";
 export const BIRTH_STAR_BOOK = "Komilla Sutton, The Nakshatras: The Stars Beyond the Zodiac (Wessex, 2014)";
@@ -329,27 +330,16 @@ export interface BirthStarReading {
 }
 
 /** 48 arcminutes to either side of 0° Aries, Leo and Sagittarius (Sutton ch. 7). */
-export const GANDANTA_DEG = 48 / 60;
+export const GANDANTA_DEG = SUTTON_GANDANTA_DEG;
 export function birthStarPosition(moonLon: number) {
   if (!Number.isFinite(moonLon)) return null;
-  const lon = ((moonLon % 360) + 360) % 360;
-  // A tiny arithmetic tolerance at the exact 3°20′ boundaries, not an astrological orb.
-  const quarter = Math.min(107, Math.floor(lon * 3 / 10 + 1e-10));
-  const starIndex = Math.floor(quarter / 4);
-  const pada = (quarter % 4 + 1) as Pada;
-  const signIndex = Math.floor(lon / 30);
-  const navamsaSign = quarter % 12;
-  const partOfSign = quarter % 9;
-  const pushkaraParts = [[6, 8], [2, 4], [5, 7], [0, 2]][signIndex % 4];
-  const distance = Math.min(...[0, 120, 240].map((b) => Math.abs(((lon - b + 540) % 360) - 180)));
+  const q = nakshatraContext(moonLon);
   return {
-    moonLon: lon, starIndex, pada, signIndex, navamsaSign,
-    offsetDeg: lon - starIndex * (40 / 3), navamsaOfSign: partOfSign + 1, junctionDeg: distance,
+    moonLon: q.longitude, starIndex: q.starIndex, pada: q.pada, signIndex: q.signIndex, navamsaSign: q.navamsaSign,
+    offsetDeg: q.starFraction * (40 / 3), navamsaOfSign: q.quarterOfSign, junctionDeg: q.sutton.junctionDistanceDeg,
     flags: {
-      vargottama: signIndex === navamsaSign,
-      pushkara: pushkaraParts.includes(partOfSign),
-      ashtamamsha: (navamsaSign - signIndex + 12) % 12 === 7,
-      gandanta: distance <= GANDANTA_DEG + 1e-10,
+      vargottama: q.vargottama, pushkara: q.sutton.pushkara,
+      ashtamamsha: q.sutton.ashtamamsha, gandanta: q.sutton.gandanta,
     },
   };
 }
@@ -426,7 +416,7 @@ export function shownBirthStarItems(s: BirthStarReading, plain: boolean, relatio
 
 export const BIRTH_STAR_CAVEATS = [
   "A modern, single-author reading, paraphrased from Sutton's 27 star chapters. Mythic and contemplative descriptions are not psychological or medical assessments, and one Moon placement is not a complete chart reading.",
-  "This layer reads the natal Moon's star and quarter only. It does not reinterpret the other planets or the ascendant, add Abhijit, or reproduce the book's example charts.",
+  "The star-by-star reading is for the natal Moon. The separate planet and ascendant table shows quarter geometry and labelled qualifications, without adding other star interpretations, Abhijit or the book's example charts.",
   "Quarter qualifications follow Sutton's definitions of vargottama, pushkara and ashtamamsha. They remain separate observations; no points, net verdict or automatic cancellation are invented from them.",
   "The early-years lines paraphrase her comments on the first Vimshottari period. No period dates or fixed childhood age ranges are calculated here.",
   "The same selected reading serves the screen and report. Adult-topic withholding is applied before rendering in both modes; the general reading also uses gentler wording.",

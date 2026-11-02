@@ -1,4 +1,5 @@
 import { SIGN_LORD, type Planet } from "./astro";
+import { zodiacQuarter } from "./zodiac-quarter";
 
 /**
  * Prasna Marga Ch. XXI, the marriage kootas (21.17-50): the sources of agreement read from the
@@ -15,7 +16,7 @@ import { SIGN_LORD, type Planet } from "./astro";
 type Grade = "good" | "fair" | "bad";
 interface Koota { grade: Grade; text: string }
 
-const nak = (moonLon: number) => Math.floor((((moonLon % 360) + 360) % 360) / (360 / 27));
+const nak = (moonLon: number) => zodiacQuarter(moonLon).starIndex;
 const count = (from: number, to: number) => (to - from + 27) % 27 + 1; // 1..27
 
 // ── 21.17-18 Vasya: each Rasi's Vasya Rasi. ────────────────────────────────────────────────────

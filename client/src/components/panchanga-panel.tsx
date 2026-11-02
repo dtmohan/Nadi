@@ -38,6 +38,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 import { BirthStarSection } from "@/components/birth-star";
+import { NakshatraContextPanel } from "@/components/nakshatra-context";
+import { natalPlanetContext } from "@shared/planet-context";
 
 const fmtT = (iso: string, zone: string) =>
   DateTime.fromISO(iso).setZone(zone).toFormat("HH:mm");
@@ -426,6 +428,7 @@ function GocharaRowView({ r }: { r: GocharaRow }) {
 
 export function PanchangaPanel({ result }: { result: ChartResult }) {
   const chart = result.chart;
+  const natalContext = useMemo(() => natalPlanetContext(result), [result]);
   const judge = useJudgePlace();
   const place = judge
     ? {
@@ -668,6 +671,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
           asOfIso={lifeAt}
           withheld={withheld}
         />
+        <NakshatraContextPanel context={natalContext} />
       </Chapter>
 
       <Chapter id="day">

@@ -8,6 +8,7 @@ import { bestBnnRelation, type BnnRelation } from "./bnn-relations";
 import { rasiAspects } from "./jaimini-core";
 import { directedSignRelation, type DirectedPointRelation } from "./point-relations";
 import type { ChartResult } from "./schema";
+import { nakshatraContext, naikSolarContact, type NakshatraContext } from "./nakshatra-context";
 
 export interface PlanetFrame {
   kind: "natal" | "divisional" | "transit" | "question" | "unspecified";
@@ -32,6 +33,10 @@ export interface PlanetFacts {
   readonly planet: Planet;
   /** Legacy position fields include Nadi-specific dignity/combustion interpretations; they are not universal. */
   readonly position: Readonly<PlanetPosition>;
+  /** Descriptive D1 longitude geometry and Sutton-labelled tags, in this frame's ayanamsa. */
+  readonly nakshatra: Readonly<NakshatraContext>;
+  /** Naik's same-pada solar condition and the former angular-distance diagnostic. */
+  readonly naikSolarContact?: ReturnType<typeof naikSolarContact>;
   readonly sameSign: readonly Planet[];
   /** Whole-sign count only; not a KP cusp or bhava-chalit house. */
   readonly wholeSignHouse?: number;
@@ -42,6 +47,7 @@ export interface PlanetContext {
   readonly frame: Readonly<PlanetFrame>;
   readonly positions: readonly Readonly<PlanetPosition>[];
   readonly planets: readonly PlanetFacts[];
+  readonly ascendantNakshatra?: Readonly<NakshatraContext>;
   planet(id: Planet): PlanetFacts | undefined;
   requirePlanet(id: Planet): PlanetFacts;
   occupants(signIndex: number): readonly PlanetFacts[];
@@ -56,12 +62,14 @@ export type PlanetInput = PlanetPosition[] | PlanetContext;
 export function createPlanetContext(positions: readonly PlanetPosition[], frame: PlanetFrame): PlanetContext {
   const frameSnapshot = Object.freeze({ ...frame, cusps: frame.cusps ? Object.freeze([...frame.cusps]) : undefined });
   const snapshot = Object.freeze(positions.map((p) => Object.freeze({ ...p })));
+  const sun = snapshot.find((p) => p.planet === "Sun");
   const byId = new Map<Planet, PlanetFacts>();
   const records = snapshot.map((position): PlanetFacts => {
     if (byId.has(position.planet)) throw new Error(`Duplicate planet ${position.planet} in a chart frame`);
     if (!Number.isInteger(position.signIndex) || position.signIndex < 0 || position.signIndex > 11)
       throw new Error(`Invalid sign for ${position.planet}`);
-    const record = Object.freeze({ planet: position.planet, position,
+    const record = Object.freeze({ planet: position.planet, position, nakshatra: nakshatraContext(position.lon),
+      naikSolarContact: sun ? naikSolarContact(position.planet, position.lon, sun.lon) : undefined,
       sameSign: Object.freeze(snapshot.filter((other) => other.planet !== position.planet && other.signIndex === position.signIndex).map((p) => p.planet)),
       wholeSignHouse: frameSnapshot.ascendant === undefined ? undefined : houseFrom(Math.floor(((frameSnapshot.ascendant % 360) + 360) % 360 / 30), position.signIndex),
     });
@@ -76,6 +84,7 @@ export function createPlanetContext(positions: readonly PlanetPosition[], frame:
   const bnn = new Map<string, Readonly<BnnRelation> | null>();
   const context: PlanetContext = {
     type: "planet-context", frame: frameSnapshot, positions: snapshot, planets: Object.freeze(records),
+    ascendantNakshatra: frameSnapshot.ascendant === undefined ? undefined : nakshatraContext(frameSnapshot.ascendant),
     planet: (id) => byId.get(id), requirePlanet: get,
     occupants: (signIndex) => Object.freeze(records.filter((r) => r.position.signIndex === signIndex)),
     bnnRelation: (from, to) => {

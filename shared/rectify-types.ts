@@ -247,6 +247,8 @@ export interface RectifySegment {
   candidate?: {
     birthUtc: string;
     kpMoonLon: number;
+    /** Candidate ascendant in the chart's selected ayanamsa, not the KP frame. */
+    ascendantLon?: number;
     positions: PlanetPosition[];
     kpPlanets: Array<Pick<PlanetPosition, "planet" | "lon">>;
     kpCusps: number[];

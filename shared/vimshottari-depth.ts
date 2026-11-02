@@ -1,6 +1,7 @@
 /** Research utility: nested Vimshottari periods, using Nadi's 365.25-day year by default. */
-import { NAKSHATRA_LORD, norm360, type Planet } from "./astro";
+import { NAKSHATRA_LORD, type Planet } from "./astro";
 import { VIMSHOTTARI_ORDER, VIMSHOTTARI_YEARS } from "./kp";
+import { zodiacQuarter } from "./zodiac-quarter";
 
 export interface VimshottariLevel {
   level: number;
@@ -24,11 +25,10 @@ export function vimshottariPathAt(moonLon: number, birthMs: number, eventMs: num
   const dayMs = 86_400_000;
   const yearDays = options.yearDays ?? 365.25;
   if (!Number.isFinite(yearDays) || yearDays <= 0) throw new RangeError("yearDays must be positive and finite");
-  const arc = 360 / 27;
-  const longitude = norm360(moonLon);
-  const nak = Math.floor(longitude / arc) % 27;
+  const quarter = zodiacQuarter(moonLon);
+  const nak = quarter.starIndex;
   const natalLord = NAKSHATRA_LORD[nak];
-  const fraction = (longitude - nak * arc) / arc;
+  const fraction = quarter.starFraction;
   let start = birthMs - VIMSHOTTARI_YEARS[natalLord] * fraction * yearDays * dayMs;
   let span = 120 * yearDays * dayMs;
   while (eventMs >= start + span) start += span;

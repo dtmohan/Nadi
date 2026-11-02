@@ -11,12 +11,11 @@
  * Periods are astronomical calculations under named conventions. They do
  * not by themselves establish the occurrence of an event or a birth time.
  */
-import { NAKSHATRAS, norm360 } from "./astro";
+import { NAKSHATRAS } from "./astro";
 import { KC_SIGN_YEARS, isSavya } from "./kalachakra";
+import { zodiacQuarter } from "./zodiac-quarter";
 
 const DAY_MS = 86_400_000;
-const NAK_ARC = 360 / 27;
-const PADA_ARC = NAK_ARC / 4;
 
 // Zodiac indices: Aries=0. These are the two 24-sign wheels in Rao's table 43.
 const SAVYA = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 7, 6, 5, 3, 4, 2, 1, 0, 11, 10, 9, 8] as const;
@@ -47,10 +46,10 @@ export function pvrKalachakraAt(moonLon: number, birthMs: number, eventMs: numbe
   const yearDays = options.yearDays ?? 360;
   if (![moonLon, birthMs, eventMs, yearDays].every(Number.isFinite) || eventMs < birthMs || yearDays <= 0)
     throw new RangeError("Use finite inputs, a positive year length, and an event at or after birth");
-  const moon = norm360(moonLon);
-  const nak = Math.floor(moon / NAK_ARC);
-  const pada = Math.min(3, Math.floor((moon - nak * NAK_ARC) / PADA_ARC));
-  const fraction = (moon - nak * NAK_ARC - pada * PADA_ARC) / PADA_ARC;
+  const quarter = zodiacQuarter(moonLon);
+  const nak = quarter.starIndex;
+  const pada = quarter.pada - 1;
+  const fraction = quarter.fraction;
   const savya = isSavya(nak);
   const wheel: readonly number[] = savya ? SAVYA : APASAVYA;
   // Table 44/45 and 46/47 determine the subgroup's starting half of the wheel.

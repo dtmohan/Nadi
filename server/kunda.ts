@@ -1,4 +1,5 @@
 import { NAKSHATRAS, norm360 } from "@shared/astro";
+import { zodiacQuarter } from "@shared/zodiac-quarter";
 import type { KundaCheck } from "@shared/rectify-types";
 
 const STAR_ARC = 360 / 27;
@@ -11,8 +12,8 @@ const SECOND = 1 / 86400;
  */
 export function kundaD81Check(lagnaLon: number, moonLon: number): KundaCheck {
   const longitude = norm360(lagnaLon * 81);
-  const kundaNakshatra = Math.floor(longitude / STAR_ARC);
-  const birthStar = Math.floor(norm360(moonLon) / STAR_ARC);
+  const kundaNakshatra = zodiacQuarter(longitude).starIndex;
+  const birthStar = zodiacQuarter(moonLon).starIndex;
   const trine = [birthStar, (birthStar + 9) % 27, (birthStar + 18) % 27].includes(
     kundaNakshatra,
   );

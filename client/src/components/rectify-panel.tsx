@@ -16,6 +16,8 @@ import type {
 } from "@shared/rectify-types";
 import { describeEventMoment, matterOf } from "@shared/events";
 import { LifeEventsEditor } from "@/components/life-events";
+import { NakshatraContextPanel } from "@/components/nakshatra-context";
+import { createPlanetContext } from "@shared/planet-context";
 import { KpTransitEvidencePanel } from "@/components/kp-transit-evidence";
 import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
 import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
@@ -531,6 +533,10 @@ export function RectifyPanel({
         ? Math.min(...Array.from(bestSet))
         : data ? data.segments.findIndex((s) => s.given) : null;
   const focus = focusIdx !== null && data ? data.segments[focusIdx] : null;
+  const focusContext = useMemo(() => focus?.candidate ? createPlanetContext(focus.candidate.positions, {
+    kind: "natal", instant: focus.candidate.birthUtc, ascendant: focus.candidate.ascendantLon,
+    ayanamsa: result.chart.ayanamsa || "lahiri", precision: "full",
+  }) : null, [focus, result.chart.ayanamsa]);
   const tlBands = useMemo<TlBand[]>(() => {
     if (!focus?.candidate) return [];
     if (method === "jaimini-dasha")
@@ -1202,6 +1208,7 @@ export function RectifyPanel({
               );
             })()}
 
+          {focusContext && focus && <NakshatraContextPanel context={focusContext} label={`Candidate midpoint ${focus.mid}: star and D9 context`} />}
           {EVENT_METHODS.includes(method) && focus && eventPayload.length > 0 && (
             <div className="mt-3" data-testid="rectify-parashari-cross-check">
               <p className="text-xs text-muted-foreground">

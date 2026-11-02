@@ -4,6 +4,7 @@
 import { houseFrom, type PlanetPosition } from "./astro";
 import { soften } from "./gentle";
 import { PROSE_THESAURUS as T, thesaurusNote } from "./prose-thesaurus";
+import { ssCombust } from "./combustion";
 
 export interface ProseFragment {
   /** what kind of fragment this is */
@@ -39,6 +40,7 @@ export function renderPlanetFragments(
   lagnaIdx: number,
 ): ProseFragment[] {
   const out: ProseFragment[] = [];
+  const sun = positions.find((p) => p.planet === "Sun");
   for (const p of positions) {
     const house = houseFrom(lagnaIdx, p.signIndex);
     const hk = `H${house}`;
@@ -74,10 +76,10 @@ export function renderPlanetFragments(
       out.push({ kind: "dignity", planet: p.planet, text: dig.text, source: dig.source });
     }
 
-    // 4. combustion (only for the planets the thesaurus carries)
+    // 4. The thesaurus cites classical combustion ranges, not BNN's solar-pada flag.
     const comb = (T.combustion as unknown as Record<string, { effect?: string } | string>)[p.planet];
     const combText = typeof comb === "string" ? comb : comb?.effect;
-    if (typeof combText === "string" && p.combust) {
+    if (typeof combText === "string" && sun && ssCombust(p, sun.lon)) {
       out.push({
         kind: "combustion",
         planet: p.planet,

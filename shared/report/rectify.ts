@@ -26,6 +26,8 @@ import { alpEventParas } from "./alp-event-evidence";
 import { catalogueComparisonParas } from "./catalogue-comparison";
 import { qualifiedScoreParas, qualifiedComparisonParas } from "./qualified-event-scores";
 import { qualifiedComparable } from "../qualified-event-scores";
+import { createPlanetContext } from "../planet-context";
+import { nakshatraContextParas } from "./nakshatra-context";
 import {
   RECTIFY_METHODS,
   QUALIFIED_RECTIFY_METHODS,
@@ -101,6 +103,11 @@ export const rectifyModule: ReportModule = {
             rows: funnel.stages.map((stage) => [stage.label, `${stage.indices.length} of ${scan.segments.length}`]), provisional: true });
         }
       }
+      const sample = scan.segments.find((segment) => segment.given && segment.candidate);
+      if (sample?.candidate) paras.push(...nakshatraContextParas(createPlanetContext(sample.candidate.positions, {
+        kind: "natal", instant: sample.candidate.birthUtc, ascendant: sample.candidate.ascendantLon,
+        ayanamsa: result.chart.ayanamsa || "lahiri", precision: "full",
+      }), cites, `Recorded-time interval midpoint ${sample.midDate} ${sample.mid}`));
       return paras;
     };
     if (state.method === "kunda-d81") {

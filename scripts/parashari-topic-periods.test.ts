@@ -171,7 +171,7 @@ test("the report reads chart, how to read, at a glance, the day, the systems and
     } else {
       assert.equal(order[order.length - 1], "appendix");
       const app = doc.sections[order.length - 1];
-      assert.deepEqual(ids(app.sub ?? []).sort(), ["alp-tables", "jaimini-tables", "kp-tables", "parashari-tables"]);
+      assert.deepEqual(ids(app.sub ?? []).sort(), ["alp-tables", "birth-star-tables", "jaimini-tables", "kp-tables", "parashari-tables"]);
       assert.ok(appendixTables >= 7, `${appendixTables} data tables in the appendix`);
       // Outside the appendix, no data table remains.
       walk(doc.sections.slice(0, -1), (s) => {

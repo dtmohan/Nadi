@@ -1,0 +1,8 @@
+{
+  "description": "ALP full outputs after canonical quarter boundaries. A nakshatra timeline midpoint exactly at a sign boundary is in the following sign, fixing previous floating-point labels. The historical pre-migration hashes are retained separately.",
+  "alp": [
+    "6f52a573bdb1d767e716ed80fbee0e47c90075661a421da45397e24d387b3bd0",
+    "82ed87daba22b1867d012f9698e653e406b30067cfbffb0bd1eabf6a9c91b0d0",
+    "7f5dcc2c72626104958531f53988ec0eebcc5240afa068e0ae6287f98542b092"
+  ]
+}

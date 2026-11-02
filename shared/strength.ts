@@ -15,7 +15,7 @@ export interface PlanetStrength {
   effectiveDignity: Dignity;
   /** Why an exaltation or debilitation was set aside. */
   dignityNote: string | null;
-  /** Within 3°20' of the Sun. */
+  /** In the same nakshatra quarter as the Sun under the app's BNN convention. */
   combust: boolean;
   /** Combustion neutralised by a friendly association or exchange. */
   combustNote: string | null;

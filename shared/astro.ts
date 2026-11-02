@@ -1,5 +1,6 @@
 // Pure astrological constants and helpers shared by client and server.
 // No ephemeris calls live here — only arithmetic on longitudes.
+import { sameZodiacQuarter, zodiacQuarter } from "./zodiac-quarter";
 
 export const PLANETS = [
   "Sun",
@@ -220,8 +221,8 @@ export const ENEMIES: Record<Planet, Planet[]> = {
   Ketu: ["Sun", "Moon"],
 };
 
-// Nadi combustion: a planet within the same pada of the Sun, i.e. within 3°20' (Naik).
-// Standard Parashari orbs are deliberately not used; BNN reads Sun + planet as a combination.
+// The previous BNN proximity diagnostic, kept for comparisons: this angular
+// distance is not equivalent to sharing the Sun's same nakshatra quarter.
 export const COMBUSTION_ORB_DEG = 10 / 3;
 
 export type Dignity =
@@ -249,6 +250,7 @@ export interface PlanetPosition {
   nakshatraLord: Planet;
   pada: number; // 1..4
   dignity: Dignity;
+  /** BNN's same-solar-quarter convention; Parashari uses its own orb calculation. */
   combust: boolean;
   signLord: Planet;
 }
@@ -320,17 +322,16 @@ export function dignityOf(planet: Planet, signIndex: number, degInSign: number):
 }
 
 export function describePosition(planet: Planet, lon: number, speed: number, sunLon?: number): PlanetPosition {
-  const L = norm360(lon);
-  const signIndex = signOf(L);
+  const quarter = zodiacQuarter(lon);
+  const L = quarter.longitude;
+  const signIndex = quarter.signIndex;
   const degInSign = L - signIndex * 30;
-  const nakLen = 360 / 27;
-  const nakshatraIndex = Math.floor(L / nakLen);
-  const pada = Math.floor((L - nakshatraIndex * nakLen) / (nakLen / 4)) + 1;
+  const nakshatraIndex = quarter.starIndex;
+  const pada = quarter.pada;
   const retrograde = planet === "Rahu" || planet === "Ketu" ? true : speed < 0;
   let combust = false;
   if (sunLon !== undefined && planet !== "Sun" && planet !== "Rahu" && planet !== "Ketu") {
-    const dist = Math.abs(((L - sunLon + 540) % 360) - 180);
-    combust = dist <= COMBUSTION_ORB_DEG;
+    combust = sameZodiacQuarter(L, sunLon);
   }
   return {
     planet,

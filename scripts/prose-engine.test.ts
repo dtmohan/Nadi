@@ -5,7 +5,7 @@ import { renderPlanetFragments } from "@shared/prose-engine";
 import { birthInstant, julianDay, positionsAt, ascendantAt } from "../server/ephemeris";
 
 // A made-up birth moment, not any real person: 8 Aug 2003, 05:50 IST at 20°N 78°E (Cancer lagna,
-// Venus rising and combust). Positions come from the app's own ephemeris.
+// Venus rising and combust by the classical orbs, but not the BNN solar-pada rule). Positions come from the app's own ephemeris.
 const opts = { ayanamsa: "lahiri", nodeType: "mean" } as const;
 const { utc } = birthInstant({ birthDate: "2003-08-08", birthTime: "05:50", timezone: "Asia/Kolkata" } as never);
 const jd = julianDay(utc);
@@ -42,6 +42,7 @@ test("dignity substitution replaces {graha} with the planet name", () => {
 
 test("combustion fragment fires only for combust planets", () => {
   const frags = renderPlanetFragments(chart, LAGNA);
+  assert.equal(chart.find((p) => p.planet === "Venus")!.combust, false, "BNN's same-pada flag is separate");
   assert.equal(frags.filter((f) => f.planet === "Venus" && f.kind === "combustion").length, 1);
   assert.equal(frags.filter((f) => f.planet === "Sun" && f.kind === "combustion").length, 0);
 });

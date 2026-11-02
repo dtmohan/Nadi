@@ -25,6 +25,8 @@ import type { EventOutcome } from "@shared/events";
 import { describeEventMoment } from "@shared/events";
 import { RAO_SOURCE } from "@shared/jaimini-areas";
 import { LifeEventsEditor } from "@/components/life-events";
+import { NakshatraContextPanel } from "@/components/nakshatra-context";
+import { natalPlanetContext } from "@shared/planet-context";
 import { KpTransitEvidencePanel } from "@/components/kp-transit-evidence";
 import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
 import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
@@ -362,6 +364,7 @@ const VALIDATE_CHAPTERS: ChapterDef[] = [
 
 export function ValidatePanel({ result }: { result: ChartResult }) {
   const { chart } = result;
+  const natalContext = useMemo(() => natalPlanetContext(result), [result]);
   const events = chart.events ?? [];
   const eventsKey = JSON.stringify(events);
   const q = useQuery<ValidationResult>({
@@ -519,6 +522,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
         <div className="mt-6" data-testid="validate-results">
           <Chapters tab="validate" chapters={VALIDATE_CHAPTERS}>
           <Chapter id="events">
+          <NakshatraContextPanel context={natalContext} label="Birth-chart star and D9 context" />
           <LifeTimeline
             className="mb-5"
             testid="validate-timeline"

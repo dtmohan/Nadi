@@ -26,6 +26,7 @@ import {
 } from "./astro";
 import { evaluateKp, applyKpPrecedence, type KpFinding } from "./rules-kp";
 import { createPlanetContext, type PlanetContext } from "./planet-context";
+import { zodiacQuarter } from "./zodiac-quarter";
 export { KP_PRECEDENCE } from "./rules-kp";
 
 export const VIMSHOTTARI_ORDER: Planet[] = [
@@ -220,11 +221,12 @@ export function lordsAt(lon: number): {
   subStart: number;
   subEnd: number;
 } {
-  const l = norm360(lon);
-  const nak = Math.floor(l / NAK_ARC) % 27;
+  const quarter = zodiacQuarter(lon);
+  const l = quarter.longitude;
+  const nak = quarter.starIndex;
   const subs = subsOf(nak);
   const sub =
-    subs.find((s) => l >= s.start && l < s.end) ?? subs[subs.length - 1];
+    quarter.starFraction === 0 ? subs[0] : subs.find((s) => l >= s.start && l < s.end) ?? subs[subs.length - 1];
   // Sub-sub: the sub divided again in Vimshottari proportion, starting from the sub lord; sookshma: the sub-sub divided once more.
   const subSub = divisionAt(l, sub.start, sub.end, sub.subLord);
   const sookshma = divisionAt(l, subSub.start, subSub.end, subSub.lord);
@@ -256,8 +258,9 @@ export interface KpPoint {
 }
 
 export function kpPoint(lon: number): KpPoint {
-  const l = norm360(lon);
-  const signIndex = Math.floor(l / 30) % 12;
+  const quarter = zodiacQuarter(lon);
+  const l = quarter.longitude;
+  const signIndex = quarter.signIndex;
   const { starLord, subLord, subSubLord, sookshmaLord, nakshatraIndex } =
     lordsAt(l);
   return {
@@ -491,9 +494,10 @@ export function vimshottari(
   const birth = DateTime.fromISO(birthIso);
   const asOf = DateTime.fromISO(asOfIso);
   const age = (iso: DateTime) => iso.diff(birth, "days").days / YEAR_DAYS;
-  const nak = Math.floor(norm360(moonLon) / NAK_ARC) % 27;
+  const quarter = zodiacQuarter(moonLon);
+  const nak = quarter.starIndex;
   const lord = NAKSHATRA_LORD[nak];
-  const frac = (norm360(moonLon) - nak * NAK_ARC) / NAK_ARC;
+  const frac = quarter.starFraction;
   const balance = VIMSHOTTARI_YEARS[lord] * (1 - frac);
   const order = VIMSHOTTARI_ORDER;
   const idx = order.indexOf(lord);
@@ -572,9 +576,10 @@ export function vimshottariLordsAtMs(
   moonLon: number, birthMs: number, asOfMs: number,
 ): [Planet, Planet, Planet] {
   const DAY = 86400000;
-  const nak = Math.floor(norm360(moonLon) / NAK_ARC) % 27;
+  const quarter = zodiacQuarter(moonLon);
+  const nak = quarter.starIndex;
   const lord = NAKSHATRA_LORD[nak];
-  const frac = (norm360(moonLon) - nak * NAK_ARC) / NAK_ARC;
+  const frac = quarter.starFraction;
   const order = VIMSHOTTARI_ORDER;
   let idx = order.indexOf(lord);
   // Start of the first dasa lies before birth by the elapsed share of its span.
