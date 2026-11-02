@@ -877,7 +877,7 @@ export const PRASNA_GULIKA_EFFECTS: string[] = [
   "Untidy in dress, generally using abusive language.",
   "Hates brothers, but is valorous.",
   "Generally unhappy, and fear from enemies.",
-  "The traditional text makes an adverse claim about children and respect for elders; this placement cannot establish whether someone has children.",
+  "The traditional text associates this placement with being without children and disrespect for elders and teachers. This placement cannot establish whether someone has children.",
   "A tendency to find fault with relatives.",
   "Affliction to the wife, and a strong sex instinct.",
   "Short life, chronic complaints, sharp intelligence, and death from poison, weapon or fire.",

@@ -81,3 +81,7 @@ identifies this as a traditional source claim and says that the placement cannot
 whether someone has children, instead of presenting childlessness as a fact. A more useful
 future check would prospectively assemble independently recorded fifth-house cases and
 comparison charts, including non-parents, before examining outcomes and conventions.
+
+The subsequent [placement-first exploratory review](gulika-fifth-research.md) fixes a list of
+fifth-house cases before looking up family outcomes and finds documented counterexamples. It
+does not include a matched control group or establish accuracy for a full horary judgment.

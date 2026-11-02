@@ -1,0 +1,1069 @@
+{
+  "algorithm": "docs/gulika-fifth-discovery-protocol.md",
+  "eligibleInput": 1735,
+  "nominalFifth": 85,
+  "stableFifth": 75,
+  "calculationErrors": 0,
+  "selected": [
+    {
+      "id": "104985",
+      "name": "Witold Conti",
+      "date": "1908-02-02T09:30:00",
+      "jd": 2417973.854167,
+      "zone": "UTC+1:00",
+      "offsetMinutes": 60,
+      "latitude": 52.483333333333334,
+      "longitude": 13.35,
+      "place": "Berlin",
+      "country": "Germany",
+      "countryKey": "Germany",
+      "adb": "https://www.astro.com/astro-databank/Conti,_Witold",
+      "wikipedia": "https://en.wikipedia.org/wiki/Witold_Conti",
+      "nominal": {
+        "asc": "Pisces",
+        "point": "Cancer",
+        "longitude": 98.19728885792108,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Pisces",
+          "point": "Cancer",
+          "longitude": 98.1972889775148,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Pisces",
+          "point": "Cancer",
+          "longitude": 98.19728885792108,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Pisces",
+          "point": "Cancer",
+          "longitude": 98.19728885792108,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Pisces",
+          "point": "Cancer",
+          "longitude": 98.19728885792108,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "0027c41567a7461b87189c2e36b92398c7282bb944fd40f6fb69529779ab792c"
+    },
+    {
+      "id": "105954",
+      "name": "Ray Crowe",
+      "date": "1915-05-30T06:00:00",
+      "jd": 2420648,
+      "zone": "UTC-6:00",
+      "offsetMinutes": -360,
+      "latitude": 39.483333333333334,
+      "longitude": -86.05,
+      "place": "Franklin (Johnson County)",
+      "country": "Indiana",
+      "countryKey": "United States",
+      "adb": "https://www.astro.com/astro-databank/Crowe,_Ray",
+      "wikipedia": "https://en.wikipedia.org/wiki/Ray_Crowe",
+      "nominal": {
+        "asc": "Gemini",
+        "point": "Libra",
+        "longitude": 203.22404655913192,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 203.22404629292998,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 203.22404655913192,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 203.22404655913192,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 203.22404655913192,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "0a481bee6215d15fdd779599401a13c7dfd821005eced194897d38ebd02bab6f"
+    },
+    {
+      "id": "71889",
+      "name": "Vittoria Crispo",
+      "date": "1905-05-01T07:00:00",
+      "jd": 2416966.75,
+      "zone": "UTC+1:00",
+      "offsetMinutes": 60,
+      "latitude": 40.85,
+      "longitude": 14.283333333333333,
+      "place": "Naples",
+      "country": "Italy",
+      "countryKey": "Italy",
+      "adb": "https://www.astro.com/astro-databank/Crispo,_Vittoria",
+      "wikipedia": "https://it.wikipedia.org/wiki/Vittoria_Crispo",
+      "nominal": {
+        "asc": "Taurus",
+        "point": "Virgo",
+        "longitude": 155.0495847749886,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 155.0495847749886,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 155.0495847749886,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 155.0495847749886,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 155.0495847749886,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "0d69a7f458abbe813f56a170c860aea9f987b066f0e736646cce2c8f7e1d0919"
+    },
+    {
+      "id": "61510",
+      "name": "Del M. Clawson",
+      "date": "1914-01-11T10:00:00",
+      "jd": 2420144.208333,
+      "zone": "UTC-7:00",
+      "offsetMinutes": -420,
+      "latitude": 32.85,
+      "longitude": -109.76666666666667,
+      "place": "Thatcher",
+      "country": "Arizona",
+      "countryKey": "United States",
+      "adb": "https://www.astro.com/astro-databank/Clawson,_Del_M.",
+      "wikipedia": "https://en.wikipedia.org/wiki/Del_M._Clawson",
+      "nominal": {
+        "asc": "Aquarius",
+        "point": "Gemini",
+        "longitude": 71.61922219045437,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Aquarius",
+          "point": "Gemini",
+          "longitude": 71.61922219045437,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Aquarius",
+          "point": "Gemini",
+          "longitude": 71.61922219045437,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Aquarius",
+          "point": "Gemini",
+          "longitude": 71.61922219045437,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Aquarius",
+          "point": "Gemini",
+          "longitude": 71.61922219045437,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "114fb95f897b8e649cfa933d4e207bfd8384e71598a54886440c04040c58c966"
+    },
+    {
+      "id": "38702",
+      "name": "Guy Camberabero",
+      "date": "1936-05-17T08:00:00",
+      "jd": 2428305.791667,
+      "zone": "UTC+1:00",
+      "offsetMinutes": 60,
+      "latitude": 43.6725,
+      "longitude": -1.347222222222222,
+      "place": "Saubion (Landes)",
+      "country": "France",
+      "countryKey": "France",
+      "adb": "https://www.astro.com/astro-databank/Camberabero,_Guy",
+      "wikipedia": "https://en.wikipedia.org/wiki/Guy_Camberabero",
+      "nominal": {
+        "asc": "Gemini",
+        "point": "Libra",
+        "longitude": 192.05529105531832,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 192.05529105531832,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 192.05529105531832,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 192.05529105531832,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 192.05529105531832,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "1cc444e459b3af8fa98afec2ac076544981b818094ca6f812a211e53af1ddde0"
+    },
+    {
+      "id": "98614",
+      "name": "Richard Cunningham",
+      "date": "1943-04-28T20:20:00",
+      "jd": 2430843.597222,
+      "zone": "UTC-6:00",
+      "offsetMinutes": -360,
+      "latitude": 40.483333333333334,
+      "longitude": -86.13333333333334,
+      "place": "Kokomo",
+      "country": "Indiana",
+      "countryKey": "United States",
+      "adb": "https://www.astro.com/astro-databank/Cunningham,_Richard",
+      "wikipedia": "https://en.wikipedia.org/wiki/American_Eagle_Flight_4184#Passengers_and_crew",
+      "nominal": {
+        "asc": "Scorpio",
+        "point": "Pisces",
+        "longitude": 340.00847340794894,
+        "house": 5,
+        "day": false
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 340.00847340794894,
+          "house": 5,
+          "day": false
+        },
+        "minus5": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 340.00847340794894,
+          "house": 5,
+          "day": false
+        },
+        "plus5": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 340.00847340794894,
+          "house": 5,
+          "day": false
+        },
+        "plus15": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 340.00847340794894,
+          "house": 5,
+          "day": false
+        }
+      },
+      "priority": "1d873220c541b14f80579130e044ef9ce55b71563dfd8080f57c40675201e3b3"
+    },
+    {
+      "id": "107281",
+      "name": "Celia Cruz",
+      "date": "1925-10-21T21:00:00",
+      "jd": 2424445.583333,
+      "zone": "UTC-5:00",
+      "offsetMinutes": -300,
+      "latitude": 23.133333333333333,
+      "longitude": -82.36666666666666,
+      "place": "Havana",
+      "country": "Cuba",
+      "countryKey": "Cuba",
+      "adb": "https://www.astro.com/astro-databank/Cruz,_Celia",
+      "wikipedia": "https://en.wikipedia.org/wiki/Celia_Cruz",
+      "nominal": {
+        "asc": "Taurus",
+        "point": "Virgo",
+        "longitude": 162.03451881945603,
+        "house": 5,
+        "day": false
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 162.03451881945603,
+          "house": 5,
+          "day": false
+        },
+        "minus5": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 162.03451881945603,
+          "house": 5,
+          "day": false
+        },
+        "plus5": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 162.03451881945603,
+          "house": 5,
+          "day": false
+        },
+        "plus15": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 162.03451881945603,
+          "house": 5,
+          "day": false
+        }
+      },
+      "priority": "1e9a7b14f0af893bfbfc6750fa97e93006788e8406d5824582b61a7bd3b485ef"
+    },
+    {
+      "id": "61499",
+      "name": "Luis Cernuda",
+      "date": "1902-09-21T07:30:00",
+      "jd": 2416013.8125,
+      "zone": "UTC+0:00",
+      "offsetMinutes": 0,
+      "latitude": 37.38333333333333,
+      "longitude": -5.983333333333333,
+      "place": "Seville",
+      "country": "Spain",
+      "countryKey": "Spain",
+      "adb": "https://www.astro.com/astro-databank/Cernuda,_Luis",
+      "wikipedia": "https://en.wikipedia.org/wiki/Luis_Cernuda",
+      "nominal": {
+        "asc": "Virgo",
+        "point": "Capricorn",
+        "longitude": 299.0212847636358,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Virgo",
+          "point": "Capricorn",
+          "longitude": 299.0212847636358,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Virgo",
+          "point": "Capricorn",
+          "longitude": 299.0212847636358,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Virgo",
+          "point": "Capricorn",
+          "longitude": 299.0212845276768,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Virgo",
+          "point": "Capricorn",
+          "longitude": 299.0212845276768,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "1f5c6c98b5a2c902a891e066f81e5623a352ea4500c3146092f999915a616ebd"
+    },
+    {
+      "id": "71690",
+      "name": "Giorgio Comaschi",
+      "date": "1954-02-28T09:30:00",
+      "jd": 2434801.854167,
+      "zone": "UTC+1:00",
+      "offsetMinutes": 60,
+      "latitude": 44.483333333333334,
+      "longitude": 11.333333333333334,
+      "place": "Bologna",
+      "country": "Italy",
+      "countryKey": "Italy",
+      "adb": "https://www.astro.com/astro-databank/Comaschi,_Giorgio",
+      "wikipedia": "https://it.wikipedia.org/wiki/Giorgio_Comaschi",
+      "nominal": {
+        "asc": "Aries",
+        "point": "Leo",
+        "longitude": 120.41271091495275,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Aries",
+          "point": "Leo",
+          "longitude": 120.41271091495275,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Aries",
+          "point": "Leo",
+          "longitude": 120.41271091495275,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Aries",
+          "point": "Leo",
+          "longitude": 120.41271091495275,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Aries",
+          "point": "Leo",
+          "longitude": 120.41271091495275,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "1f5ce931c6b13ccc28544245b9e831c175cbb50bb7bc38b74be0f63f43d1b8d8"
+    },
+    {
+      "id": "74055",
+      "name": "José Manuel Cabanillas",
+      "date": "1901-09-23T06:30:00",
+      "jd": 2415650.9375,
+      "zone": "UTC-4:00",
+      "offsetMinutes": -240,
+      "latitude": 18.2,
+      "longitude": -67.13333333333334,
+      "place": "Mayaguez",
+      "country": "Puerto Rico",
+      "countryKey": "United States",
+      "adb": "https://www.astro.com/astro-databank/Cabanillas,_José_Manuel",
+      "wikipedia": "https://en.wikipedia.org/wiki/José_M._Cabanillas",
+      "nominal": {
+        "asc": "Virgo",
+        "point": "Capricorn",
+        "longitude": 280.9735013591096,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Virgo",
+          "point": "Taurus",
+          "longitude": 46.532350071415124,
+          "house": 9,
+          "day": false
+        },
+        "minus5": {
+          "asc": "Virgo",
+          "point": "Capricorn",
+          "longitude": 280.9735013591096,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Virgo",
+          "point": "Capricorn",
+          "longitude": 280.9735013591096,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Virgo",
+          "point": "Capricorn",
+          "longitude": 280.9735013591096,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "22fc4b470f0a404d5cf88ab54e1954c043196424445825dd592192537c5162f4"
+    },
+    {
+      "id": "104501",
+      "name": "Bobby Clancy",
+      "date": "1927-05-11T23:30:00",
+      "jd": 2425012.4375,
+      "zone": "UTC+1:00",
+      "offsetMinutes": 60,
+      "latitude": 52.35,
+      "longitude": -7.416666666666667,
+      "place": "Carrick-On-Suir",
+      "country": "Ireland",
+      "countryKey": "Ireland",
+      "adb": "https://www.astro.com/astro-databank/Clancy,_Bobby",
+      "wikipedia": "https://en.wikipedia.org/wiki/Bobby_Clancy",
+      "nominal": {
+        "asc": "Scorpio",
+        "point": "Pisces",
+        "longitude": 348.76970384296214,
+        "house": 5,
+        "day": false
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 348.76970384296214,
+          "house": 5,
+          "day": false
+        },
+        "minus5": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 348.76970384296214,
+          "house": 5,
+          "day": false
+        },
+        "plus5": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 348.76970384296214,
+          "house": 5,
+          "day": false
+        },
+        "plus15": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 348.76970384296214,
+          "house": 5,
+          "day": false
+        }
+      },
+      "priority": "28a90abac68a89c86e94babb45a08d618078c88670e8104dd25f24328c27475f"
+    },
+    {
+      "id": "53258",
+      "name": "Luigi Colaussi",
+      "date": "1914-03-04T07:00:00",
+      "jd": 2420195.75,
+      "zone": "UTC+1:00",
+      "offsetMinutes": 60,
+      "latitude": 45.88333333333333,
+      "longitude": 13.5,
+      "place": "Gradisca d'Isonzo",
+      "country": "Italy",
+      "countryKey": "Italy",
+      "adb": "https://www.astro.com/astro-databank/Colaussi,_Luigi",
+      "wikipedia": "https://en.wikipedia.org/wiki/Luigi_Colaussi",
+      "nominal": {
+        "asc": "Aquarius",
+        "point": "Gemini",
+        "longitude": 72.20482144648247,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Aquarius",
+          "point": "Gemini",
+          "longitude": 72.20482144648247,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Aquarius",
+          "point": "Gemini",
+          "longitude": 72.20482144648247,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Aquarius",
+          "point": "Gemini",
+          "longitude": 72.20482144648247,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Pisces",
+          "point": "Gemini",
+          "longitude": 72.20482144648247,
+          "house": 4,
+          "day": true
+        }
+      },
+      "priority": "292d35e702485009fa2cd4fcad17bfe865ba3b2abd6818d867443a30a2955d45"
+    },
+    {
+      "id": "71582",
+      "name": "Guido Caroselli",
+      "date": "1946-07-28T09:10:00",
+      "jd": 2432029.798611,
+      "zone": "UTC+2:00",
+      "offsetMinutes": 120,
+      "latitude": 41.9,
+      "longitude": 12.483333333333333,
+      "place": "Rome",
+      "country": "Italy",
+      "countryKey": "Italy",
+      "adb": "https://www.astro.com/astro-databank/Caroselli,_Guido",
+      "wikipedia": "https://it.wikipedia.org/wiki/Guido_Caroselli",
+      "nominal": {
+        "asc": "Leo",
+        "point": "Sagittarius",
+        "longitude": 251.1071159465157,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Leo",
+          "point": "Sagittarius",
+          "longitude": 251.1071159465157,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Leo",
+          "point": "Sagittarius",
+          "longitude": 251.1071159465157,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Leo",
+          "point": "Sagittarius",
+          "longitude": 251.1071159465157,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Leo",
+          "point": "Sagittarius",
+          "longitude": 251.1071159465157,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "302aaa230b3f9441565745328c6b3fb78835e78792ab7fc33999f50141adebe1"
+    },
+    {
+      "id": "1763",
+      "name": "Cyril Collard",
+      "date": "1957-12-19T17:40:00",
+      "jd": 2436192.194444,
+      "zone": "UTC+1:00",
+      "offsetMinutes": 60,
+      "latitude": 48.86666666666667,
+      "longitude": 2.3333333333333335,
+      "place": "Paris",
+      "country": "France",
+      "countryKey": "France",
+      "adb": "https://www.astro.com/astro-databank/Collard,_Cyril",
+      "wikipedia": "https://en.wikipedia.org/wiki/Cyril_Collard",
+      "nominal": {
+        "asc": "Gemini",
+        "point": "Libra",
+        "longitude": 195.10121762681263,
+        "house": 5,
+        "day": false
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 195.10121762681263,
+          "house": 5,
+          "day": false
+        },
+        "minus5": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 195.10121762681263,
+          "house": 5,
+          "day": false
+        },
+        "plus5": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 195.10121762681263,
+          "house": 5,
+          "day": false
+        },
+        "plus15": {
+          "asc": "Gemini",
+          "point": "Libra",
+          "longitude": 195.10121762681263,
+          "house": 5,
+          "day": false
+        }
+      },
+      "priority": "41a0350bd8ffec274e5dfe510e9385e5bdc2b7b3caca8ae69d15773d50ea2acd"
+    },
+    {
+      "id": "75183",
+      "name": "Cachimbal",
+      "date": "1924-04-13T08:20:00",
+      "jd": 2423889.097222,
+      "zone": "UTC-6:00",
+      "offsetMinutes": -360,
+      "latitude": 9.866666666666667,
+      "longitude": -83.91666666666667,
+      "place": "Cartago",
+      "country": "Costa Rica",
+      "countryKey": "Costa Rica",
+      "adb": "https://www.astro.com/astro-databank/Cachimbal",
+      "wikipedia": "https://es.wikipedia.org/wiki/Cachimbal",
+      "nominal": {
+        "asc": "Taurus",
+        "point": "Virgo",
+        "longitude": 156.9443001546141,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 156.9443001546141,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 156.9443001546141,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 156.9443001546141,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Taurus",
+          "point": "Virgo",
+          "longitude": 156.9443001546141,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "451e582752357e80cd216ebbb9d2e57eaa4e22d8484e715fd868dab70c3b8e0c"
+    },
+    {
+      "id": "62797",
+      "name": "Gilles Colpart",
+      "date": "1949-12-18T11:00:00",
+      "jd": 2433268.916667,
+      "zone": "UTC+1:00",
+      "offsetMinutes": 60,
+      "latitude": 44.13333333333333,
+      "longitude": 4.083333333333333,
+      "place": "Alès",
+      "country": "France",
+      "countryKey": "France",
+      "adb": "https://www.astro.com/astro-databank/Colpart,_Gilles",
+      "wikipedia": "https://fr.wikipedia.org/wiki/Gilles_Colpart",
+      "nominal": {
+        "asc": "Capricorn",
+        "point": "Taurus",
+        "longitude": 46.296324419206485,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Capricorn",
+          "point": "Taurus",
+          "longitude": 46.296324419206485,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Capricorn",
+          "point": "Taurus",
+          "longitude": 46.296324419206485,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Capricorn",
+          "point": "Taurus",
+          "longitude": 46.296324419206485,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Capricorn",
+          "point": "Taurus",
+          "longitude": 46.296324419206485,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "5414279007707544ec63308a067482995cc396946c730480589a99cd82bb5fcf"
+    },
+    {
+      "id": "57008",
+      "name": "Nicole Calfan",
+      "date": "1947-03-04T08:15:00",
+      "jd": 2432248.802083,
+      "zone": "UTC+1:00",
+      "offsetMinutes": 60,
+      "latitude": 48.88333333333333,
+      "longitude": 2.2666666666666666,
+      "place": "Neuilly sur Seine",
+      "country": "France",
+      "countryKey": "France",
+      "adb": "https://www.astro.com/astro-databank/Calfan,_Nicole",
+      "wikipedia": "https://fr.wikipedia.org/wiki/Nicole_Calfan",
+      "nominal": {
+        "asc": "Pisces",
+        "point": "Cancer",
+        "longitude": 92.35446677785126,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Pisces",
+          "point": "Cancer",
+          "longitude": 92.35446677785126,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Pisces",
+          "point": "Cancer",
+          "longitude": 92.35446677785126,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Pisces",
+          "point": "Cancer",
+          "longitude": 92.35446677785126,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Pisces",
+          "point": "Cancer",
+          "longitude": 92.35446677785126,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "639274f817ea1301af437bf07af5fadc7f4a8cef78f1a95aff10b80e5d322181"
+    },
+    {
+      "id": "92857",
+      "name": "Mercedes Cabanillas",
+      "date": "1947-05-22T19:00:00",
+      "jd": 2432328.5,
+      "zone": "UTC-5:00",
+      "offsetMinutes": -300,
+      "latitude": -12.066666666666666,
+      "longitude": -77.13333333333334,
+      "place": "Bellavista",
+      "country": "Peru",
+      "countryKey": "Peru",
+      "adb": "https://www.astro.com/astro-databank/Cabanillas,_Mercedes",
+      "wikipedia": "https://en.wikipedia.org/wiki/Mercedes_Cabanillas",
+      "nominal": {
+        "asc": "Scorpio",
+        "point": "Pisces",
+        "longitude": 349.77846408450773,
+        "house": 5,
+        "day": false
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 349.77846408450773,
+          "house": 5,
+          "day": false
+        },
+        "minus5": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 349.77846408450773,
+          "house": 5,
+          "day": false
+        },
+        "plus5": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 349.77846408450773,
+          "house": 5,
+          "day": false
+        },
+        "plus15": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 349.77846408450773,
+          "house": 5,
+          "day": false
+        }
+      },
+      "priority": "685869a39cfa18586cd11249546c258426bb109b41d2648b657a410e0f13e832"
+    },
+    {
+      "id": "74043",
+      "name": "José Antonio Chang Escobedo",
+      "date": "1958-10-19T08:30:00",
+      "jd": 2436496.0625,
+      "zone": "UTC-5:00",
+      "offsetMinutes": -300,
+      "latitude": -12.05,
+      "longitude": -77.05,
+      "place": "Lima",
+      "country": "Peru",
+      "countryKey": "Peru",
+      "adb": "https://www.astro.com/astro-databank/Chang_Escobedo,_José_Antonio",
+      "wikipedia": "https://es.wikipedia.org/wiki/José_Antonio_Chang",
+      "nominal": {
+        "asc": "Scorpio",
+        "point": "Pisces",
+        "longitude": 339.03534256624357,
+        "house": 5,
+        "day": true
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 339.03534256624357,
+          "house": 5,
+          "day": true
+        },
+        "minus5": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 339.03534256624357,
+          "house": 5,
+          "day": true
+        },
+        "plus5": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 339.03534256624357,
+          "house": 5,
+          "day": true
+        },
+        "plus15": {
+          "asc": "Scorpio",
+          "point": "Pisces",
+          "longitude": 339.03534256624357,
+          "house": 5,
+          "day": true
+        }
+      },
+      "priority": "70d603645b9d2d665b1b29444ea90a7d7ff3aea00e3c4d531840edd8104c0ca9"
+    },
+    {
+      "id": "8857",
+      "name": "Walter Campbell",
+      "date": "1941-05-22T01:40:00",
+      "jd": 2430136.486111,
+      "zone": "UTC+2:00",
+      "offsetMinutes": 120,
+      "latitude": 55.86666666666667,
+      "longitude": -4.233333333333333,
+      "place": "Glasgow",
+      "country": "Scotland",
+      "countryKey": "Scotland",
+      "adb": "https://www.astro.com/astro-databank/Campbell,_Walter",
+      "wikipedia": "https://en.wikipedia.org/wiki/Walter_Campbell",
+      "nominal": {
+        "asc": "Sagittarius",
+        "point": "Aries",
+        "longitude": 2.6060485311631965,
+        "house": 5,
+        "day": false
+      },
+      "sensitivity": {
+        "minus15": {
+          "asc": "Sagittarius",
+          "point": "Aries",
+          "longitude": 2.6060485311631965,
+          "house": 5,
+          "day": false
+        },
+        "minus5": {
+          "asc": "Sagittarius",
+          "point": "Aries",
+          "longitude": 2.6060485311631965,
+          "house": 5,
+          "day": false
+        },
+        "plus5": {
+          "asc": "Sagittarius",
+          "point": "Aries",
+          "longitude": 2.6060485311631965,
+          "house": 5,
+          "day": false
+        },
+        "plus15": {
+          "asc": "Sagittarius",
+          "point": "Aries",
+          "longitude": 2.6060485311631965,
+          "house": 5,
+          "day": false
+        }
+      },
+      "priority": "782e5a9998535be1ef9185a618c4bbcbabfae58950b340660ded27e5186c840e"
+    }
+  ]
+}

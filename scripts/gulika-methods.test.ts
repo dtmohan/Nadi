@@ -103,8 +103,32 @@ test("before sunrise belongs to the preceding night and flips exactly at sunrise
 test("a fifth-house Gulika does not assert that a person is childless", () => {
   const reading = computeGulikaReading({ signIndex: 10, day: true }, 6);
   assert.equal(reading.house, 5);
+  assert.match(reading.text, /traditional text associates this placement with being without children/i);
+  assert.match(reading.text, /elders and teachers/i);
   assert.match(reading.text, /cannot establish whether someone has children/i);
   assert.doesNotMatch(reading.text, /deprived of issues|will not have children/i);
+});
+
+test("published fifth-house examples remain in that house at sampled birth times", () => {
+  // Inputs and independent family sources are in docs/gulika-fifth-research.md.
+  // These are regression checks for the chosen convention, not proof of birth times or outcomes.
+  const cases = [
+    { name: "Ray Crowe", date: "1915-05-30T06:00", zone: "UTC-6", lat: 39 + 29 / 60, lon: -(86 + 3 / 60), asc: 2, sign: 6, degree: 23.224 },
+    { name: "Celia Cruz", date: "1925-10-21T21:00", zone: "UTC-5", lat: 23 + 8 / 60, lon: -(82 + 22 / 60), asc: 1, sign: 5, degree: 12.035 },
+    { name: "Nicole Calfan", date: "1947-03-04T08:15", zone: "UTC+1", lat: 48 + 53 / 60, lon: 2 + 16 / 60, asc: 11, sign: 3, degree: 2.354 },
+  ];
+  for (const c of cases) {
+    const birth = DateTime.fromISO(c.date, { zone: c.zone });
+    for (const minutes of [-15, 0, 15]) {
+      const time = julianDay(birth.plus({ minutes }).toUTC());
+      const asc = Math.floor(ascendantAt(time, c.lat, c.lon, opts) / 30);
+      const point = gulikaComparisons(time, c.lat, c.lon, c.zone, opts)["kerala-ghati"];
+      assert.equal(asc, c.asc, `${c.name} ascendant at ${minutes} minutes`);
+      assert.equal(point.signIndex, c.sign, `${c.name} Gulika at ${minutes} minutes`);
+      assert.ok(delta(point.lon, c.sign * 30 + c.degree) < 0.02, `${c.name} longitude at ${minutes} minutes`);
+      assert.equal((point.signIndex - asc + 12) % 12 + 1, 5);
+    }
+  }
 });
 
 test("chart selection drives the birth and snapshot points and dependent sphutas", () => {

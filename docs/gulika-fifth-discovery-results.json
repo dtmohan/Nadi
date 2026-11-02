@@ -1,0 +1,5411 @@
+{
+  "protocol": "docs/gulika-fifth-discovery-protocol.md",
+  "note": "Minute samples and nominal variants are sensitivity checks, not proof of exact birth times; family outcomes are documented separately.",
+  "results": [
+    {
+      "name": "Witold Conti",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Pisces",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Cancer",
+            "longitude": 98.19728885792108,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Gemini",
+            "longitude": 86.56135152407217,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Cancer",
+            "longitude": 92.88060303599673,
+            "house": 5,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Cancer",
+            "longitude": 92.88060303599673,
+            "house": 5,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Cancer",
+            "longitude": 99.00535386178524,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Pisces",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Cancer",
+              "longitude": 98.1972889775148,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Gemini",
+              "longitude": 86.56135178090688,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Cancer",
+              "longitude": 92.88060315970063,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Cancer",
+              "longitude": 92.88060315970063,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Cancer",
+              "longitude": 99.00535398104103,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Pisces",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Cancer",
+              "longitude": 98.19728885792108,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Gemini",
+              "longitude": 86.56135152407217,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Cancer",
+              "longitude": 92.88060303599673,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Cancer",
+              "longitude": 92.88060303599673,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Cancer",
+              "longitude": 99.00535386178524,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Pisces",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Cancer",
+              "longitude": 98.19728885792108,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Gemini",
+              "longitude": 86.56135152407217,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Cancer",
+              "longitude": 92.88060303599673,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Cancer",
+              "longitude": 92.88060303599673,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Cancer",
+              "longitude": 99.00535386178524,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Pisces",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Cancer",
+              "longitude": 98.19728885792108,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Gemini",
+              "longitude": 86.56135152407217,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Cancer",
+              "longitude": 92.88060303599673,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Cancer",
+              "longitude": 92.88060303599673,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Cancer",
+              "longitude": 99.00535386178524,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Pisces",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Cancer",
+              "longitude": 98.19728885792108,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Gemini",
+              "longitude": 86.56135152407217,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Cancer",
+              "longitude": 92.88060303599673,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Cancer",
+              "longitude": 92.88060303599673,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Cancer",
+              "longitude": 99.00535386178524,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": {
+        "minutesTested": 31,
+        "allFifth": true,
+        "allSameDayNight": true
+      },
+      "nominalAyanamsaSunriseVariants": [
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 98.19728885792108,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 97.9333526906837,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge-true",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 97.64954641618777,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre-true",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 97.3855232646714,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 99.6435903098498,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 99.37965414261254,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge-true",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 99.09584786811655,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre-true",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 98.83182471660018,
+          "house": 5,
+          "day": true
+        }
+      ],
+      "natalChildrenSubset": {
+        "d1Support": [
+          "Jupiter in the house"
+        ],
+        "d1Strain": [
+          "lord Moon with the malefic Sun"
+        ],
+        "divisionSupport": [],
+        "divisionStrain": [],
+        "rashi": {
+          "chart": "D1",
+          "lagnaSign": 11,
+          "house": 5,
+          "houseSign": 3,
+          "houseLord": "Moon",
+          "lordSign": 9,
+          "lordHouse": 11,
+          "lordDignity": "other",
+          "occupants": [
+            "Jupiter"
+          ],
+          "fullAspects": [
+            "Sun",
+            "Moon"
+          ]
+        },
+        "d7": {
+          "chart": "D7",
+          "lagnaSign": 7,
+          "house": 5,
+          "houseSign": 11,
+          "houseLord": "Jupiter",
+          "lordSign": 0,
+          "lordHouse": 6,
+          "lordDignity": "other",
+          "occupants": [],
+          "fullAspects": [
+            "Saturn"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ray Crowe",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Gemini",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Libra",
+            "longitude": 203.22404655913192,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Libra",
+            "longitude": 182.7961774603017,
+            "house": 5,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Libra",
+            "longitude": 193.75843980750562,
+            "house": 5,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Libra",
+            "longitude": 193.75843980750562,
+            "house": 5,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Libra",
+            "longitude": 204.68052720117907,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 203.22404629292998,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Libra",
+              "longitude": 182.79617692570923,
+              "house": 5,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 193.75843940852928,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 193.75843940852928,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 204.68052693633535,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 203.22404655913192,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Libra",
+              "longitude": 182.7961774603017,
+              "house": 5,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 193.75843980750562,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 193.75843980750562,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 204.68052720117907,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 203.22404655913192,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Libra",
+              "longitude": 182.7961774603017,
+              "house": 5,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 193.75843980750562,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 193.75843980750562,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 204.68052720117907,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 203.22404655913192,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Libra",
+              "longitude": 182.7961774603017,
+              "house": 5,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 193.75843980750562,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 193.75843980750562,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 204.68052720117907,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 203.22404655913192,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Libra",
+              "longitude": 182.7961774603017,
+              "house": 5,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 193.75843980750562,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 193.75843980750562,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 204.6805270687571,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": {
+        "minutesTested": 31,
+        "allFifth": true,
+        "allSameDayNight": true
+      },
+      "nominalAyanamsaSunriseVariants": [
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 203.22404655913192,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 202.99700930664505,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge-true",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 202.74120922818452,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre-true",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 202.5174519144906,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 204.67034799796693,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 204.44331074547995,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge-true",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 204.18751066701952,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre-true",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 203.9637533533255,
+          "house": 5,
+          "day": true
+        }
+      ],
+      "natalChildrenSubset": {
+        "d1Support": [
+          "aspected by Venus"
+        ],
+        "d1Strain": [
+          "lord Venus with the malefic Mars"
+        ],
+        "divisionSupport": [],
+        "divisionStrain": [],
+        "rashi": {
+          "chart": "D1",
+          "lagnaSign": 2,
+          "house": 5,
+          "houseSign": 6,
+          "houseLord": "Venus",
+          "lordSign": 0,
+          "lordHouse": 11,
+          "lordDignity": "other",
+          "occupants": [],
+          "fullAspects": [
+            "Mars",
+            "Venus"
+          ]
+        },
+        "d7": {
+          "chart": "D7",
+          "lagnaSign": 4,
+          "house": 5,
+          "houseSign": 8,
+          "houseLord": "Jupiter",
+          "lordSign": 5,
+          "lordHouse": 2,
+          "lordDignity": "other",
+          "occupants": [],
+          "fullAspects": [
+            "Mars"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Vittoria Crispo",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Taurus",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Virgo",
+            "longitude": 155.0495847749886,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Leo",
+            "longitude": 137.10146845292581,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Leo",
+            "longitude": 147.44197294095386,
+            "house": 4,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Leo",
+            "longitude": 147.44197294095386,
+            "house": 4,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Virgo",
+            "longitude": 157.81805576832062,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 155.0495847749886,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 137.10146845292581,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Leo",
+              "longitude": 147.44197294095386,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Leo",
+              "longitude": 147.44197294095386,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 157.81805576832062,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 155.0495847749886,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 137.10146845292581,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Leo",
+              "longitude": 147.44197294095386,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Leo",
+              "longitude": 147.44197294095386,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 157.81805576832062,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 155.0495847749886,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 137.10146845292581,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Leo",
+              "longitude": 147.44197294095386,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Leo",
+              "longitude": 147.44197294095386,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 157.81805576832062,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 155.0495847749886,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 137.10146845292581,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Leo",
+              "longitude": 147.44197294095386,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Leo",
+              "longitude": 147.44197294095386,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 157.81805576832062,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 155.0495847749886,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 137.10146845292581,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Leo",
+              "longitude": 147.44197294095386,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Leo",
+              "longitude": 147.44197294095386,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 157.81805576832062,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    },
+    {
+      "name": "Del M. Clawson",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Aquarius",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Gemini",
+            "longitude": 71.61922219045437,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Taurus",
+            "longitude": 54.86750285435562,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Gemini",
+            "longitude": 64.05250072398928,
+            "house": 5,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Gemini",
+            "longitude": 64.05250072398928,
+            "house": 5,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Gemini",
+            "longitude": 72.75721058798308,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Aquarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Gemini",
+              "longitude": 71.61922219045437,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Taurus",
+              "longitude": 54.86750285435562,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 64.05250072398928,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 64.05250072398928,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Gemini",
+              "longitude": 72.75721058798308,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Aquarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Gemini",
+              "longitude": 71.61922219045437,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Taurus",
+              "longitude": 54.86750285435562,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 64.05250072398928,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 64.05250072398928,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Gemini",
+              "longitude": 72.75721058798308,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Aquarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Gemini",
+              "longitude": 71.61922219045437,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Taurus",
+              "longitude": 54.86750285435562,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 64.05250072398928,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 64.05250072398928,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Gemini",
+              "longitude": 72.75721058798308,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Aquarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Gemini",
+              "longitude": 71.61922219045437,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Taurus",
+              "longitude": 54.86750285435562,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 64.05250072398928,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 64.05250072398928,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Gemini",
+              "longitude": 72.75721058798308,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Aquarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Gemini",
+              "longitude": 71.61922219045437,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Taurus",
+              "longitude": 54.86750285435562,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 64.05250072398928,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 64.05250072398928,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Gemini",
+              "longitude": 72.75721058798308,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    },
+    {
+      "name": "Guy Camberabero",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Gemini",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Libra",
+            "longitude": 192.05529105531832,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Virgo",
+            "longitude": 172.22693724590238,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Libra",
+            "longitude": 182.8726209469005,
+            "house": 5,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Libra",
+            "longitude": 182.8726209469005,
+            "house": 5,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Libra",
+            "longitude": 193.4654623376971,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 192.05529105531832,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Virgo",
+              "longitude": 172.22693724590238,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 182.87262107496827,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 182.87262107496827,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 193.4654623376971,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 192.05529105531832,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Virgo",
+              "longitude": 172.22693724590238,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 182.8726209469005,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 182.8726209469005,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 193.4654623376971,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 192.05529105531832,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Virgo",
+              "longitude": 172.22693724590238,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 182.8726209469005,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 182.8726209469005,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 193.4654623376971,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 192.05529105531832,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Virgo",
+              "longitude": 172.22693724590238,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 182.8726209469005,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 182.8726209469005,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 193.4654623376971,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 192.05529105531832,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Virgo",
+              "longitude": 172.22693724590238,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 182.8726209469005,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 182.8726209469005,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 193.4654623376971,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": {
+        "minutesTested": 31,
+        "allFifth": true,
+        "allSameDayNight": true
+      },
+      "nominalAyanamsaSunriseVariants": [
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 192.05529105531832,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 191.8238199509533,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge-true",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 191.5641334518118,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre-true",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 191.33598571907385,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 193.50159245862426,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 193.27012135425912,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge-true",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 193.01043485511764,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre-true",
+          "ascendant": "Gemini",
+          "sign": "Libra",
+          "longitude": 192.78228712237978,
+          "house": 5,
+          "day": true
+        }
+      ],
+      "natalChildrenSubset": {
+        "d1Support": [
+          "aspected by Venus"
+        ],
+        "d1Strain": [],
+        "divisionSupport": [],
+        "divisionStrain": [],
+        "rashi": {
+          "chart": "D1",
+          "lagnaSign": 2,
+          "house": 5,
+          "houseSign": 6,
+          "houseLord": "Venus",
+          "lordSign": 0,
+          "lordHouse": 11,
+          "lordDignity": "other",
+          "occupants": [],
+          "fullAspects": [
+            "Venus"
+          ]
+        },
+        "d7": {
+          "chart": "D7",
+          "lagnaSign": 4,
+          "house": 5,
+          "houseSign": 8,
+          "houseLord": "Jupiter",
+          "lordSign": 7,
+          "lordHouse": 4,
+          "lordDignity": "other",
+          "occupants": [
+            "Moon"
+          ],
+          "fullAspects": []
+        }
+      }
+    },
+    {
+      "name": "Richard Cunningham",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Scorpio",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Pisces",
+            "longitude": 340.00847340794894,
+            "house": 5,
+            "day": false
+          },
+          "saturn-start": {
+            "sign": "Aquarius",
+            "longitude": 309.84081641696,
+            "house": 4,
+            "day": false
+          },
+          "saturn-middle": {
+            "sign": "Aquarius",
+            "longitude": 325.7037869267813,
+            "house": 4,
+            "day": false
+          },
+          "poddar-table": {
+            "sign": "Pisces",
+            "longitude": 358.4108917686533,
+            "house": 5,
+            "day": false
+          },
+          "saturn-end": {
+            "sign": "Pisces",
+            "longitude": 342.2131612240555,
+            "house": 5,
+            "day": false
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 340.00847340794894,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 309.84081641696,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Aquarius",
+              "longitude": 325.7037869267813,
+              "house": 4,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Pisces",
+              "longitude": 358.4108917686533,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 342.2131612240555,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 340.00847340794894,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 309.84081641696,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Aquarius",
+              "longitude": 325.7037869267813,
+              "house": 4,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Pisces",
+              "longitude": 358.4108917686533,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 342.2131612240555,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 340.00847340794894,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 309.84081641696,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Aquarius",
+              "longitude": 325.7037869267813,
+              "house": 4,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Pisces",
+              "longitude": 358.4108917686533,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 342.2131612240555,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 340.00847340794894,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 309.84081641696,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Aquarius",
+              "longitude": 325.7037869267813,
+              "house": 4,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Pisces",
+              "longitude": 358.4108917686533,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 342.2131612240555,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 340.00847340794894,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 309.84081641696,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Aquarius",
+              "longitude": 325.7037869267813,
+              "house": 4,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Pisces",
+              "longitude": 358.4108917686533,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 342.2131612240555,
+              "house": 5,
+              "day": false
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    },
+    {
+      "name": "Celia Cruz",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Taurus",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Virgo",
+            "longitude": 162.03451881945603,
+            "house": 5,
+            "day": false
+          },
+          "saturn-start": {
+            "sign": "Leo",
+            "longitude": 141.8917130766033,
+            "house": 4,
+            "day": false
+          },
+          "saturn-middle": {
+            "sign": "Virgo",
+            "longitude": 152.66829137322907,
+            "house": 5,
+            "day": false
+          },
+          "poddar-table": {
+            "sign": "Virgo",
+            "longitude": 174.23970115888483,
+            "house": 5,
+            "day": false
+          },
+          "saturn-end": {
+            "sign": "Virgo",
+            "longitude": 163.47448942557696,
+            "house": 5,
+            "day": false
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 162.03451881945603,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 141.8917130766033,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Virgo",
+              "longitude": 152.66829137322907,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Virgo",
+              "longitude": 174.23970115888483,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 163.47448942557696,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 162.03451881945603,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 141.8917130766033,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Virgo",
+              "longitude": 152.66829137322907,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Virgo",
+              "longitude": 174.23970115888483,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 163.47448942557696,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 162.03451881945603,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 141.8917130766033,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Virgo",
+              "longitude": 152.66829137322907,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Virgo",
+              "longitude": 174.23970115888483,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 163.47448942557696,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 162.03451881945603,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 141.8917130766033,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Virgo",
+              "longitude": 152.66829137322907,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Virgo",
+              "longitude": 174.23970115888483,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 163.47448942557696,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 162.03451881945603,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 141.8917130766033,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Virgo",
+              "longitude": 152.66829137322907,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Virgo",
+              "longitude": 174.23970115888483,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 163.47448942557696,
+              "house": 5,
+              "day": false
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": {
+        "minutesTested": 31,
+        "allFifth": true,
+        "allSameDayNight": true
+      },
+      "nominalAyanamsaSunriseVariants": [
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 162.03451881945603,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 162.23566518391272,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge-true",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 162.45491414156947,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre-true",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 162.65437036716548,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 163.48082024030805,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 163.68196660476474,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge-true",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 163.9012155624215,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre-true",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 164.10067178801762,
+          "house": 5,
+          "day": false
+        }
+      ],
+      "natalChildrenSubset": {
+        "d1Support": [],
+        "d1Strain": [
+          "lord Mercury in the 6th does not aspect the house",
+          "lord Mercury with the malefics Sun and Saturn"
+        ],
+        "divisionSupport": [
+          "Venus in D7 house 5",
+          "Jupiter aspect D7 house 5"
+        ],
+        "divisionStrain": [],
+        "rashi": {
+          "chart": "D1",
+          "lagnaSign": 1,
+          "house": 5,
+          "houseSign": 5,
+          "houseLord": "Mercury",
+          "lordSign": 6,
+          "lordHouse": 6,
+          "lordDignity": "other",
+          "occupants": [
+            "Mars"
+          ],
+          "fullAspects": []
+        },
+        "d7": {
+          "chart": "D7",
+          "lagnaSign": 1,
+          "house": 5,
+          "houseSign": 5,
+          "houseLord": "Mercury",
+          "lordSign": 9,
+          "lordHouse": 9,
+          "lordDignity": "other",
+          "occupants": [
+            "Venus"
+          ],
+          "fullAspects": [
+            "Jupiter",
+            "Saturn"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Luis Cernuda",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Virgo",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Capricorn",
+            "longitude": 299.0212847636358,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Capricorn",
+            "longitude": 272.0119215174136,
+            "house": 5,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Capricorn",
+            "longitude": 285.7031580457548,
+            "house": 5,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Capricorn",
+            "longitude": 285.7031580457548,
+            "house": 5,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Aquarius",
+            "longitude": 301.19631563435314,
+            "house": 6,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Virgo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Capricorn",
+              "longitude": 299.0212847636358,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Capricorn",
+              "longitude": 272.0119215174136,
+              "house": 5,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Capricorn",
+              "longitude": 285.7031580457548,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Capricorn",
+              "longitude": 285.7031580457548,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Aquarius",
+              "longitude": 301.19631563435314,
+              "house": 6,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Virgo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Capricorn",
+              "longitude": 299.0212847636358,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Capricorn",
+              "longitude": 272.0119215174136,
+              "house": 5,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Capricorn",
+              "longitude": 285.7031580457548,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Capricorn",
+              "longitude": 285.7031580457548,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Aquarius",
+              "longitude": 301.19631563435314,
+              "house": 6,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Virgo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Capricorn",
+              "longitude": 299.0212847636358,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Capricorn",
+              "longitude": 272.0119215174136,
+              "house": 5,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Capricorn",
+              "longitude": 285.7031580457548,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Capricorn",
+              "longitude": 285.7031580457548,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Aquarius",
+              "longitude": 301.19631563435314,
+              "house": 6,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Virgo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Capricorn",
+              "longitude": 299.0212845276768,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Capricorn",
+              "longitude": 272.01192114184687,
+              "house": 5,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Capricorn",
+              "longitude": 285.70315762141433,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Capricorn",
+              "longitude": 285.70315762141433,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Aquarius",
+              "longitude": 301.1963153920917,
+              "house": 6,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Virgo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Capricorn",
+              "longitude": 299.0212845276768,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Capricorn",
+              "longitude": 272.01192114184687,
+              "house": 5,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Capricorn",
+              "longitude": 285.70315762141433,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Capricorn",
+              "longitude": 285.70315762141433,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Aquarius",
+              "longitude": 301.1963153920917,
+              "house": 6,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    },
+    {
+      "name": "Giorgio Comaschi",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Aries",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Leo",
+            "longitude": 120.41271091495275,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Cancer",
+            "longitude": 105.69928950400606,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Cancer",
+            "longitude": 113.59224552451673,
+            "house": 4,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Cancer",
+            "longitude": 113.59224552451673,
+            "house": 4,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Leo",
+            "longitude": 121.4621053300105,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Aries",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Leo",
+              "longitude": 120.41271091495275,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Cancer",
+              "longitude": 105.69928950400606,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Cancer",
+              "longitude": 113.59224552451673,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Cancer",
+              "longitude": 113.59224552451673,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Leo",
+              "longitude": 121.4621053300105,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Aries",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Leo",
+              "longitude": 120.41271091495275,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Cancer",
+              "longitude": 105.69928950400606,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Cancer",
+              "longitude": 113.59224552451673,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Cancer",
+              "longitude": 113.59224552451673,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Leo",
+              "longitude": 121.4621053300105,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Aries",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Leo",
+              "longitude": 120.41271091495275,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Cancer",
+              "longitude": 105.69928950400606,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Cancer",
+              "longitude": 113.59224552451673,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Cancer",
+              "longitude": 113.59224552451673,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Leo",
+              "longitude": 121.4621053300105,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Aries",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Leo",
+              "longitude": 120.41271091495275,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Cancer",
+              "longitude": 105.69928950400606,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Cancer",
+              "longitude": 113.59224552451673,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Cancer",
+              "longitude": 113.59224552451673,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Leo",
+              "longitude": 121.4621053300105,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Aries",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Leo",
+              "longitude": 120.41271091495275,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Cancer",
+              "longitude": 105.69928950400606,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Cancer",
+              "longitude": 113.59224552451673,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Cancer",
+              "longitude": 113.59224552451673,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Leo",
+              "longitude": 121.4621053300105,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    },
+    {
+      "name": "José Manuel Cabanillas",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Virgo",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Capricorn",
+            "longitude": 280.9735013591096,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Sagittarius",
+            "longitude": 261.08917000874044,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Capricorn",
+            "longitude": 272.3251531307328,
+            "house": 5,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Capricorn",
+            "longitude": 272.3251531307328,
+            "house": 5,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Capricorn",
+            "longitude": 284.21547354833274,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Virgo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Taurus",
+              "longitude": 46.532350071415124,
+              "house": 9,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Taurus",
+              "longitude": 31.159183757781534,
+              "house": 9,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Taurus",
+              "longitude": 42.79853397296523,
+              "house": 9,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Taurus",
+              "longitude": 42.79853397296523,
+              "house": 9,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Taurus",
+              "longitude": 53.81044035094038,
+              "house": 9,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Virgo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Capricorn",
+              "longitude": 280.9735013591096,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Sagittarius",
+              "longitude": 261.08917000874044,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Capricorn",
+              "longitude": 272.3251531307328,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Capricorn",
+              "longitude": 272.3251531307328,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Capricorn",
+              "longitude": 284.21547354833274,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Virgo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Capricorn",
+              "longitude": 280.9735013591096,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Sagittarius",
+              "longitude": 261.08917000874044,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Capricorn",
+              "longitude": 272.3251531307328,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Capricorn",
+              "longitude": 272.3251531307328,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Capricorn",
+              "longitude": 284.21547354833274,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Virgo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Capricorn",
+              "longitude": 280.9735013591096,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Sagittarius",
+              "longitude": 261.08917000874044,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Capricorn",
+              "longitude": 272.3251531307328,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Capricorn",
+              "longitude": 272.3251531307328,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Capricorn",
+              "longitude": 284.21547354833274,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Virgo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Capricorn",
+              "longitude": 280.9735013591096,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Sagittarius",
+              "longitude": 261.08917000874044,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Capricorn",
+              "longitude": 272.3251531307328,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Capricorn",
+              "longitude": 272.3251531307328,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Capricorn",
+              "longitude": 284.21547354833274,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    },
+    {
+      "name": "Bobby Clancy",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Scorpio",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Pisces",
+            "longitude": 348.76970384296214,
+            "house": 5,
+            "day": false
+          },
+          "saturn-start": {
+            "sign": "Aquarius",
+            "longitude": 312.5108000957998,
+            "house": 4,
+            "day": false
+          },
+          "saturn-middle": {
+            "sign": "Pisces",
+            "longitude": 331.6074624527125,
+            "house": 5,
+            "day": false
+          },
+          "poddar-table": {
+            "sign": "Aries",
+            "longitude": 9.524782263808277,
+            "house": 6,
+            "day": false
+          },
+          "saturn-end": {
+            "sign": "Pisces",
+            "longitude": 351.3542396174016,
+            "house": 5,
+            "day": false
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 348.76970384296214,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 312.5108000957998,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 331.6074624527125,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 9.524782263808277,
+              "house": 6,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 351.3542396174016,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 348.76970384296214,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 312.5108000957998,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 331.6074624527125,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 9.524782263808277,
+              "house": 6,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 351.3542396174016,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 348.76970384296214,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 312.5108000957998,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 331.6074624527125,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 9.524782263808277,
+              "house": 6,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 351.3542396174016,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 348.76970384296214,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 312.5108000957998,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 331.6074624527125,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 9.524782263808277,
+              "house": 6,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 351.3542396174016,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 348.76970384296214,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 312.5108000957998,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 331.6074624527125,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 9.524782263808277,
+              "house": 6,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 351.3542396174016,
+              "house": 5,
+              "day": false
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": {
+        "minutesTested": 31,
+        "allFifth": true,
+        "allSameDayNight": true
+      },
+      "nominalAyanamsaSunriseVariants": [
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 348.76970384296214,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 349.6718388282335,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge-true",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 350.67566855650523,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre-true",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 351.5554271324095,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 350.21600526119164,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 351.1181402464631,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge-true",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 352.12196997473495,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre-true",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 353.0017285506391,
+          "house": 5,
+          "day": false
+        }
+      ],
+      "natalChildrenSubset": {
+        "d1Support": [
+          "Jupiter in the house",
+          "aspected by Moon"
+        ],
+        "d1Strain": [],
+        "divisionSupport": [],
+        "divisionStrain": [],
+        "rashi": {
+          "chart": "D1",
+          "lagnaSign": 7,
+          "house": 5,
+          "houseSign": 11,
+          "houseLord": "Jupiter",
+          "lordSign": 11,
+          "lordHouse": 5,
+          "lordDignity": "own sign",
+          "occupants": [
+            "Jupiter"
+          ],
+          "fullAspects": [
+            "Moon"
+          ]
+        },
+        "d7": {
+          "chart": "D7",
+          "lagnaSign": 6,
+          "house": 5,
+          "houseSign": 10,
+          "houseLord": "Saturn",
+          "lordSign": 3,
+          "lordHouse": 10,
+          "lordDignity": "other",
+          "occupants": [],
+          "fullAspects": [
+            "Mars",
+            "Mercury"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Luigi Colaussi",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Aquarius",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Gemini",
+            "longitude": 72.20482144648247,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Taurus",
+            "longitude": 57.641540574695455,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Gemini",
+            "longitude": 67.79193645542898,
+            "house": 5,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Gemini",
+            "longitude": 67.79193645542898,
+            "house": 5,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Gemini",
+            "longitude": 77.05513650068201,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Aquarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Gemini",
+              "longitude": 72.20482144648247,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Taurus",
+              "longitude": 57.641540574695455,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 67.79193645542898,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 67.79193645542898,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Gemini",
+              "longitude": 77.05513650068201,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Aquarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Gemini",
+              "longitude": 72.20482144648247,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Taurus",
+              "longitude": 57.641540574695455,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 67.79193645542898,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 67.79193645542898,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Gemini",
+              "longitude": 77.05513650068201,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Aquarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Gemini",
+              "longitude": 72.20482144648247,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Taurus",
+              "longitude": 57.641540574695455,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 67.79193645542898,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 67.79193645542898,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Gemini",
+              "longitude": 77.05513650068201,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Aquarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Gemini",
+              "longitude": 72.20482144648247,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Taurus",
+              "longitude": 57.641540574695455,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 67.79193645542898,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 67.79193645542898,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Gemini",
+              "longitude": 77.05513650068201,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Pisces",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Gemini",
+              "longitude": 72.20482144648247,
+              "house": 4,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Taurus",
+              "longitude": 57.641540574695455,
+              "house": 3,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 67.79193645542898,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 67.79193645542898,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Gemini",
+              "longitude": 77.05513650068201,
+              "house": 4,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    },
+    {
+      "name": "Guido Caroselli",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Leo",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Sagittarius",
+            "longitude": 251.1071159465157,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Scorpio",
+            "longitude": 228.7480214133168,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Sagittarius",
+            "longitude": 240.3088571242631,
+            "house": 5,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Sagittarius",
+            "longitude": 240.3088571242631,
+            "house": 5,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Sagittarius",
+            "longitude": 252.85692482534284,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Leo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Sagittarius",
+              "longitude": 251.1071159465157,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Scorpio",
+              "longitude": 228.7480214133168,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Sagittarius",
+              "longitude": 240.3088571242631,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Sagittarius",
+              "longitude": 240.3088571242631,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Sagittarius",
+              "longitude": 252.85692482534284,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Leo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Sagittarius",
+              "longitude": 251.1071159465157,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Scorpio",
+              "longitude": 228.7480214133168,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Sagittarius",
+              "longitude": 240.3088571242631,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Sagittarius",
+              "longitude": 240.3088571242631,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Sagittarius",
+              "longitude": 252.85692482534284,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Leo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Sagittarius",
+              "longitude": 251.1071159465157,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Scorpio",
+              "longitude": 228.7480214133168,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Sagittarius",
+              "longitude": 240.3088571242631,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Sagittarius",
+              "longitude": 240.3088571242631,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Sagittarius",
+              "longitude": 252.85692482534284,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Leo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Sagittarius",
+              "longitude": 251.1071159465157,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Scorpio",
+              "longitude": 228.7480214133168,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Sagittarius",
+              "longitude": 240.30885727072655,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Sagittarius",
+              "longitude": 240.30885727072655,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Sagittarius",
+              "longitude": 252.85692482534284,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Leo",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Sagittarius",
+              "longitude": 251.1071159465157,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Scorpio",
+              "longitude": 228.7480214133168,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Sagittarius",
+              "longitude": 240.30885727072655,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Sagittarius",
+              "longitude": 240.30885727072655,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Sagittarius",
+              "longitude": 252.85692482534284,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    },
+    {
+      "name": "Cyril Collard",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Gemini",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Libra",
+            "longitude": 195.10121762681263,
+            "house": 5,
+            "day": false
+          },
+          "saturn-start": {
+            "sign": "Virgo",
+            "longitude": 176.5597600292325,
+            "house": 4,
+            "day": false
+          },
+          "saturn-middle": {
+            "sign": "Libra",
+            "longitude": 187.2687702555079,
+            "house": 5,
+            "day": false
+          },
+          "poddar-table": {
+            "sign": "Libra",
+            "longitude": 208.68340212253406,
+            "house": 5,
+            "day": false
+          },
+          "saturn-end": {
+            "sign": "Libra",
+            "longitude": 197.9501155613683,
+            "house": 5,
+            "day": false
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 195.10121762681263,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Virgo",
+              "longitude": 176.5597600292325,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 187.2687702555079,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 208.68340212253406,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 197.9501155613683,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 195.10121762681263,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Virgo",
+              "longitude": 176.5597600292325,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 187.2687702555079,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 208.68340212253406,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 197.9501155613683,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 195.10121762681263,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Virgo",
+              "longitude": 176.5597600292325,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 187.2687702555079,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 208.68340212253406,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 197.9501155613683,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 195.10121762681263,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Virgo",
+              "longitude": 176.5597600292325,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 187.2687702555079,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 208.68340212253406,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 197.9501155613683,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Gemini",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Libra",
+              "longitude": 195.10121762681263,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Virgo",
+              "longitude": 176.5597600292325,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Libra",
+              "longitude": 187.2687702555079,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Libra",
+              "longitude": 208.68340212253406,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Libra",
+              "longitude": 197.9501155613683,
+              "house": 5,
+              "day": false
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    },
+    {
+      "name": "Cachimbal",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Taurus",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Virgo",
+            "longitude": 156.9443001546141,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Leo",
+            "longitude": 135.16162334548676,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Leo",
+            "longitude": 146.78207112190455,
+            "house": 4,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Leo",
+            "longitude": 146.78207112190455,
+            "house": 4,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Virgo",
+            "longitude": 158.50995879003153,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 156.9443001546141,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 135.16162334548676,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Leo",
+              "longitude": 146.78207112190455,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Leo",
+              "longitude": 146.78207112190455,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 158.50995879003153,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 156.9443001546141,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 135.16162334548676,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Leo",
+              "longitude": 146.78207112190455,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Leo",
+              "longitude": 146.78207112190455,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 158.50995879003153,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 156.9443001546141,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 135.16162334548676,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Leo",
+              "longitude": 146.78207112190455,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Leo",
+              "longitude": 146.78207112190455,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 158.50995879003153,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 156.9443001546141,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 135.16162334548676,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Leo",
+              "longitude": 146.78207112190455,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Leo",
+              "longitude": 146.78207112190455,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 158.50995879003153,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Taurus",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Virgo",
+              "longitude": 156.9443001546141,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Leo",
+              "longitude": 135.16162334548676,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Leo",
+              "longitude": 146.78207112190455,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Leo",
+              "longitude": 146.78207112190455,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Virgo",
+              "longitude": 158.50995879003153,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": {
+        "minutesTested": 31,
+        "allFifth": true,
+        "allSameDayNight": true
+      },
+      "nominalAyanamsaSunriseVariants": [
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 156.9443001546141,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 156.7404824921847,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge-true",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 156.51484351133536,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre-true",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 156.3129612783349,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 158.3906015780567,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 158.1867839156273,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge-true",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 157.96114493477785,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre-true",
+          "ascendant": "Taurus",
+          "sign": "Virgo",
+          "longitude": 157.75926270177752,
+          "house": 5,
+          "day": true
+        }
+      ],
+      "natalChildrenSubset": {
+        "d1Support": [],
+        "d1Strain": [
+          "lord Mercury in the 12th does not aspect the house",
+          "lord Mercury with the malefic Sun"
+        ],
+        "divisionSupport": [],
+        "divisionStrain": [],
+        "rashi": {
+          "chart": "D1",
+          "lagnaSign": 1,
+          "house": 5,
+          "houseSign": 5,
+          "houseLord": "Mercury",
+          "lordSign": 0,
+          "lordHouse": 12,
+          "lordDignity": "other",
+          "occupants": [],
+          "fullAspects": []
+        },
+        "d7": {
+          "chart": "D7",
+          "lagnaSign": 10,
+          "house": 5,
+          "houseSign": 2,
+          "houseLord": "Mercury",
+          "lordSign": 4,
+          "lordHouse": 7,
+          "lordDignity": "other",
+          "occupants": [],
+          "fullAspects": []
+        }
+      }
+    },
+    {
+      "name": "Gilles Colpart",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Capricorn",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Taurus",
+            "longitude": 46.296324419206485,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Aries",
+            "longitude": 26.57408600771953,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Taurus",
+            "longitude": 37.679368912174255,
+            "house": 5,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Taurus",
+            "longitude": 37.679368912174255,
+            "house": 5,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Taurus",
+            "longitude": 47.55011096007695,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Capricorn",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Taurus",
+              "longitude": 46.296324419206485,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Aries",
+              "longitude": 26.57408600771953,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Taurus",
+              "longitude": 37.679368912174255,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Taurus",
+              "longitude": 37.679368912174255,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Taurus",
+              "longitude": 47.55011096007695,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Capricorn",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Taurus",
+              "longitude": 46.296324419206485,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Aries",
+              "longitude": 26.57408600771953,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Taurus",
+              "longitude": 37.679368912174255,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Taurus",
+              "longitude": 37.679368912174255,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Taurus",
+              "longitude": 47.55011096007695,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Capricorn",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Taurus",
+              "longitude": 46.296324419206485,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Aries",
+              "longitude": 26.57408600771953,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Taurus",
+              "longitude": 37.679368912174255,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Taurus",
+              "longitude": 37.679368912174255,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Taurus",
+              "longitude": 47.55011096007695,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Capricorn",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Taurus",
+              "longitude": 46.296324419206485,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Aries",
+              "longitude": 26.57408600771953,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Taurus",
+              "longitude": 37.679368912174255,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Taurus",
+              "longitude": 37.679368912174255,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Taurus",
+              "longitude": 47.55011096007695,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Capricorn",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Taurus",
+              "longitude": 46.296324419206485,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Aries",
+              "longitude": 26.574085770682245,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Taurus",
+              "longitude": 37.679368912174255,
+              "house": 5,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Taurus",
+              "longitude": 37.679368912174255,
+              "house": 5,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Taurus",
+              "longitude": 47.55011096007695,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    },
+    {
+      "name": "Nicole Calfan",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Pisces",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Cancer",
+            "longitude": 92.35446677785126,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Gemini",
+            "longitude": 79.22451720923073,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Gemini",
+            "longitude": 87.54643072994327,
+            "house": 4,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Gemini",
+            "longitude": 87.54643072994327,
+            "house": 4,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Cancer",
+            "longitude": 95.50420815624818,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Pisces",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Cancer",
+              "longitude": 92.35446677785126,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Gemini",
+              "longitude": 79.22451720923073,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 87.54643072994327,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 87.54643072994327,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Cancer",
+              "longitude": 95.50420815624818,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Pisces",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Cancer",
+              "longitude": 92.35446677785126,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Gemini",
+              "longitude": 79.22451720923073,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 87.54643072994327,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 87.54643072994327,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Cancer",
+              "longitude": 95.50420815624818,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Pisces",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Cancer",
+              "longitude": 92.35446677785126,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Gemini",
+              "longitude": 79.22451720923073,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 87.54643072994327,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 87.54643072994327,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Cancer",
+              "longitude": 95.50420815624818,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Pisces",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Cancer",
+              "longitude": 92.35446677785126,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Gemini",
+              "longitude": 79.22451720923073,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 87.54643072994327,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 87.54643072994327,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Cancer",
+              "longitude": 95.50420815624818,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Pisces",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Cancer",
+              "longitude": 92.35446677785126,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Gemini",
+              "longitude": 79.22451720923073,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Gemini",
+              "longitude": 87.54643072994327,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Gemini",
+              "longitude": 87.54643072994327,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Cancer",
+              "longitude": 95.50420815624818,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": {
+        "minutesTested": 31,
+        "allFifth": true,
+        "allSameDayNight": true
+      },
+      "nominalAyanamsaSunriseVariants": [
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 92.35446677785126,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 92.29137948930043,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge-true",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 92.22294648068203,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre-true",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 92.16030919004118,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 93.80076816400134,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 93.73768087545051,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge-true",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 93.66924786683222,
+          "house": 5,
+          "day": true
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre-true",
+          "ascendant": "Pisces",
+          "sign": "Cancer",
+          "longitude": 93.60661057619131,
+          "house": 5,
+          "day": true
+        }
+      ],
+      "natalChildrenSubset": {
+        "d1Support": [
+          "Moon in the house",
+          "aspected by Jupiter and Venus"
+        ],
+        "d1Strain": [
+          "lord Moon with the malefic Saturn"
+        ],
+        "divisionSupport": [
+          "Moon in D7 house 5"
+        ],
+        "divisionStrain": [],
+        "rashi": {
+          "chart": "D1",
+          "lagnaSign": 11,
+          "house": 5,
+          "houseSign": 3,
+          "houseLord": "Moon",
+          "lordSign": 3,
+          "lordHouse": 5,
+          "lordDignity": "own sign",
+          "occupants": [
+            "Moon",
+            "Saturn"
+          ],
+          "fullAspects": [
+            "Jupiter",
+            "Venus"
+          ]
+        },
+        "d7": {
+          "chart": "D7",
+          "lagnaSign": 7,
+          "house": 5,
+          "houseSign": 11,
+          "houseLord": "Jupiter",
+          "lordSign": 2,
+          "lordHouse": 8,
+          "lordDignity": "other",
+          "occupants": [
+            "Moon",
+            "Mars",
+            "Saturn"
+          ],
+          "fullAspects": []
+        }
+      }
+    },
+    {
+      "name": "Mercedes Cabanillas",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Scorpio",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Pisces",
+            "longitude": 349.77846408450773,
+            "house": 5,
+            "day": false
+          },
+          "saturn-start": {
+            "sign": "Aquarius",
+            "longitude": 329.5096383040486,
+            "house": 4,
+            "day": false
+          },
+          "saturn-middle": {
+            "sign": "Pisces",
+            "longitude": 341.21537850969503,
+            "house": 5,
+            "day": false
+          },
+          "poddar-table": {
+            "sign": "Aries",
+            "longitude": 4.390410559200404,
+            "house": 6,
+            "day": false
+          },
+          "saturn-end": {
+            "sign": "Pisces",
+            "longitude": 352.87773278415284,
+            "house": 5,
+            "day": false
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 349.77846408450773,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 329.5096383040486,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 341.21537850969503,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 4.390410559200404,
+              "house": 6,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 352.87773278415284,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 349.77846408450773,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 329.5096383040486,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 341.21537850969503,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 4.390410559200404,
+              "house": 6,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 352.87773278415284,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 349.77846408450773,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 329.5096383040486,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 341.21537850969503,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 4.390410559200404,
+              "house": 6,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 352.87773278415284,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 349.77846408450773,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 329.5096383040486,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 341.21537850969503,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 4.390410559200404,
+              "house": 6,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 352.87773278415284,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 349.77846408450773,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 329.5096383040486,
+              "house": 4,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 341.21537850969503,
+              "house": 5,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 4.390410559200404,
+              "house": 6,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 352.87773278415284,
+              "house": 5,
+              "day": false
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": {
+        "minutesTested": 31,
+        "allFifth": true,
+        "allSameDayNight": true
+      },
+      "nominalAyanamsaSunriseVariants": [
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 349.77846408450773,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 349.9121356961723,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "edge-true",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 350.06282540063626,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "lahiri",
+          "sunrise": "centre-true",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 350.1953545572171,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 351.22476547031874,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 351.3584370819832,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "edge-true",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 351.50912678644727,
+          "house": 5,
+          "day": false
+        },
+        {
+          "ayanamsa": "raman",
+          "sunrise": "centre-true",
+          "ascendant": "Scorpio",
+          "sign": "Pisces",
+          "longitude": 351.641655943028,
+          "house": 5,
+          "day": false
+        }
+      ],
+      "natalChildrenSubset": {
+        "d1Support": [],
+        "d1Strain": [
+          "lord Jupiter in the 12th does not aspect the house"
+        ],
+        "divisionSupport": [
+          "Moon aspect D7 house 5"
+        ],
+        "divisionStrain": [],
+        "rashi": {
+          "chart": "D1",
+          "lagnaSign": 7,
+          "house": 5,
+          "houseSign": 11,
+          "houseLord": "Jupiter",
+          "lordSign": 6,
+          "lordHouse": 12,
+          "lordDignity": "other",
+          "occupants": [],
+          "fullAspects": []
+        },
+        "d7": {
+          "chart": "D7",
+          "lagnaSign": 6,
+          "house": 5,
+          "houseSign": 10,
+          "houseLord": "Saturn",
+          "lordSign": 11,
+          "lordHouse": 6,
+          "lordDignity": "other",
+          "occupants": [
+            "Mercury"
+          ],
+          "fullAspects": [
+            "Moon"
+          ]
+        }
+      }
+    },
+    {
+      "name": "José Antonio Chang Escobedo",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Scorpio",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Pisces",
+            "longitude": 339.03534256624357,
+            "house": 5,
+            "day": true
+          },
+          "saturn-start": {
+            "sign": "Aquarius",
+            "longitude": 317.4166613495769,
+            "house": 4,
+            "day": true
+          },
+          "saturn-middle": {
+            "sign": "Aquarius",
+            "longitude": 328.96313137186485,
+            "house": 4,
+            "day": true
+          },
+          "poddar-table": {
+            "sign": "Aquarius",
+            "longitude": 328.96313137186485,
+            "house": 4,
+            "day": true
+          },
+          "saturn-end": {
+            "sign": "Pisces",
+            "longitude": 340.58526329826486,
+            "house": 5,
+            "day": true
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 339.03534256624357,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 317.4166613495769,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Aquarius",
+              "longitude": 328.96313137186485,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Aquarius",
+              "longitude": 328.96313137186485,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 340.58526329826486,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 339.03534256624357,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 317.4166613495769,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Aquarius",
+              "longitude": 328.96313137186485,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Aquarius",
+              "longitude": 328.96313137186485,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 340.58526329826486,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 339.03534256624357,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 317.4166613495769,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Aquarius",
+              "longitude": 328.96313137186485,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Aquarius",
+              "longitude": 328.96313137186485,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 340.58526329826486,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 339.03534256624357,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 317.4166613495769,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Aquarius",
+              "longitude": 328.96313137186485,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Aquarius",
+              "longitude": 328.96313137186485,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 340.58526329826486,
+              "house": 5,
+              "day": true
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Scorpio",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Pisces",
+              "longitude": 339.03534256624357,
+              "house": 5,
+              "day": true
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 317.4166613495769,
+              "house": 4,
+              "day": true
+            },
+            "saturn-middle": {
+              "sign": "Aquarius",
+              "longitude": 328.96313137186485,
+              "house": 4,
+              "day": true
+            },
+            "poddar-table": {
+              "sign": "Aquarius",
+              "longitude": 328.96313137186485,
+              "house": 4,
+              "day": true
+            },
+            "saturn-end": {
+              "sign": "Pisces",
+              "longitude": 340.58526329826486,
+              "house": 5,
+              "day": true
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    },
+    {
+      "name": "Walter Campbell",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Sagittarius",
+        "values": {
+          "kerala-ghati": {
+            "sign": "Aries",
+            "longitude": 2.6060485311631965,
+            "house": 5,
+            "day": false
+          },
+          "saturn-start": {
+            "sign": "Aquarius",
+            "longitude": 324.7600139956064,
+            "house": 3,
+            "day": false
+          },
+          "saturn-middle": {
+            "sign": "Pisces",
+            "longitude": 345.5140456605476,
+            "house": 4,
+            "day": false
+          },
+          "poddar-table": {
+            "sign": "Aries",
+            "longitude": 21.430580756474967,
+            "house": 5,
+            "day": false
+          },
+          "saturn-end": {
+            "sign": "Aries",
+            "longitude": 5.049922290667382,
+            "house": 5,
+            "day": false
+          }
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Sagittarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Aries",
+              "longitude": 2.6060485311631965,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 324.7600139956064,
+              "house": 3,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 345.5140456605476,
+              "house": 4,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 21.430580756474967,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Aries",
+              "longitude": 5.049922290667382,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Sagittarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Aries",
+              "longitude": 2.6060485311631965,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 324.7600139956064,
+              "house": 3,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 345.5140456605476,
+              "house": 4,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 21.430580756474967,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Aries",
+              "longitude": 5.049922290667382,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Sagittarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Aries",
+              "longitude": 2.6060485311631965,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 324.7600139956064,
+              "house": 3,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 345.5140456605476,
+              "house": 4,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 21.430580756474967,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Aries",
+              "longitude": 5.049922290667382,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Sagittarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Aries",
+              "longitude": 2.6060485311631965,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 324.7600139956064,
+              "house": 3,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 345.5140456605476,
+              "house": 4,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 21.430580756474967,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Aries",
+              "longitude": 5.049922290667382,
+              "house": 5,
+              "day": false
+            }
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Sagittarius",
+          "values": {
+            "kerala-ghati": {
+              "sign": "Aries",
+              "longitude": 2.6060485311631965,
+              "house": 5,
+              "day": false
+            },
+            "saturn-start": {
+              "sign": "Aquarius",
+              "longitude": 324.7600139956064,
+              "house": 3,
+              "day": false
+            },
+            "saturn-middle": {
+              "sign": "Pisces",
+              "longitude": 345.5140456605476,
+              "house": 4,
+              "day": false
+            },
+            "poddar-table": {
+              "sign": "Aries",
+              "longitude": 21.430580756474967,
+              "house": 5,
+              "day": false
+            },
+            "saturn-end": {
+              "sign": "Aries",
+              "longitude": 5.049922290667382,
+              "house": 5,
+              "day": false
+            }
+          }
+        }
+      ],
+      "everyMinuteWithin15": null,
+      "nominalAyanamsaSunriseVariants": [],
+      "natalChildrenSubset": null
+    }
+  ]
+}
