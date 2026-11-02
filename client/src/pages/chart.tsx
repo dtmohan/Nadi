@@ -1815,6 +1815,7 @@ const TAB_MODULE: Partial<Record<SystemMode, string>> = {
   alp: "alp",
   kp: "kp",
   parashari: "parashari",
+  prasna: "prasna",
   panchanga: "panchanga",
   rectify: "rectify",
   validate: "validate",
@@ -2032,6 +2033,8 @@ export default function ChartPage() {
   });
   const { toast } = useToast();
   const [exporting, setExporting] = useState<string | null>(null);
+  const [alpAsOf, setAlpAsOf] = useState<string | undefined>();
+  useEffect(() => setAlpAsOf(undefined), [id]);
   const { mode: readingMode } = useReadingMode();
   // The report PDF: the same sections as the Report page, one module per system, in the current
   // reading mode. With no modules the whole report; with one, that tab's section alone.
@@ -2056,7 +2059,7 @@ export default function ChartPage() {
       await downloadReportPdf(data.chart, {
         plain: readingMode === "plain",
         modules,
-        tools: { ...(modules?.includes("rectify") ? { rectify: rectifyState.current! } : {}), topicReadings: topicState.current },
+        tools: { ...(modules?.includes("rectify") ? { rectify: rectifyState.current! } : {}), topicReadings: topicState.current, alpAsOf },
       });
     } catch (e: any) {
       toast({
@@ -2411,6 +2414,7 @@ export default function ChartPage() {
           <div className="mt-8 animate-in fade-in-0 duration-300">
             <OverviewPanel
               result={data}
+              alpAsOf={alpAsOf}
               onOpenTab={(t) => {
                 setMode(t);
                 document.querySelector("main")?.scrollTo({ top: 0 });
@@ -2427,7 +2431,7 @@ export default function ChartPage() {
 
         {mode === "alp" && (
           <div className="mt-8 animate-in fade-in-0 duration-300">
-            <AlpPanel result={data} />
+            <AlpPanel result={data} initialAsOf={alpAsOf} onAsOfChange={setAlpAsOf} />
           </div>
         )}
 
@@ -2577,7 +2581,7 @@ export default function ChartPage() {
                     : mode === "overview"
                       ? "The Overview sets each system's own reading side by side and shows where they agree or differ. Nothing is blended: every line comes from one tab and is read there in full."
                       : mode === "prasna"
-                        ? "Prasna Marga is paraphrased from B.V. Raman's English translation and cited by chapter and stanza. The prasna mode is a horary tool for a question asked now; the twelve-house walk reads the same rules against the birth chart. A first pass, not a verdict."
+                        ? "Prasna Marga is paraphrased from B.V. Raman's English translation and cited by chapter and stanza. The house walk uses the birth chart; the separate question view currently uses a stored sky snapshot at the birth location, which must not be assumed to be the question's time and place. A first pass, not a verdict."
                         : mode === "panchanga"
                           ? "The panchanga follows Surya Siddhanta (tr. Burgess) with ending times from the ephemeris; transits from the birth Moon follow Brihat Samhita 104 and Phaladeepika 26. These are day-and-transit tables, not a reading of the chart."
                           : "Jaimini text follows the Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; Chara dasha follows K.N. Rao's method. It is a starting set of rules meant to be extended, not a verdict."}

@@ -1,15 +1,20 @@
 // Plain summaries of the existing agreement adapters. These do not calculate a new verdict,
 // merge schools, or infer a topic from keywords in unrelated rules.
 import type { AgreementSystem, AgreementTopic, Stance, TopicAgreement } from "./agreement";
+import type { LifeArea } from "./rules";
 
-export type BriefSchool = Exclude<AgreementSystem, "bnn">;
-export type SchoolTopic = Exclude<AgreementTopic, "lifespan">;
+export type AgreementSchool = Exclude<AgreementSystem, "bnn">;
+export type BriefSchool = AgreementSchool | "alp" | "prasna";
+export type CoreSchoolTopic = Exclude<AgreementTopic, "lifespan">;
+export type SchoolTopic = LifeArea | "father" | "mother";
 
-export const SCHOOL_TOPICS: SchoolTopic[] = ["career", "marriage", "children", "father", "mother"];
+export const SCHOOL_TOPICS: CoreSchoolTopic[] = ["career", "marriage", "children", "father", "mother"];
 export const SCHOOL_TOPIC_LABEL: Record<SchoolTopic, string> = {
   career: "Career", marriage: "Marriage", children: "Children", father: "Father", mother: "Mother",
+  self: "Self", authority: "Standing", wealth: "Money and assets", education: "Learning", family: "Parents and family",
+  health: "Well-being", spirituality: "Spiritual life", travel: "Travel and living abroad",
 };
-export const SCHOOL_NAME: Record<BriefSchool, string> = { parashari: "Parashari", kp: "KP", jaimini: "Jaimini" };
+export const SCHOOL_NAME: Record<BriefSchool, string> = { parashari: "Parashari", kp: "KP", jaimini: "Jaimini", alp: "ALP", prasna: "Prasna Marga" };
 
 export interface SchoolTopicBrief {
   school: BriefSchool;
@@ -21,6 +26,12 @@ export interface SchoolTopicBrief {
   conditional: boolean;
   provisional: boolean;
   reason?: string;
+  /** Selected, scoped source findings, not a combined verdict. */
+  details?: Array<{ text: string; source: string; sourceUrl?: string; id: string }>;
+  /** The relevant house/area for the details link. */
+  detailHouse?: number;
+  detailArea?: string;
+  frame?: string;
 }
 
 /** Keep the traditional source text accessible in the school detail without making it a plain claim. */
@@ -32,13 +43,14 @@ export function schoolTopicBasisPlain(brief: SchoolTopicBrief): string {
   return brief.basis;
 }
 
-const ABOUT: Record<SchoolTopic, string> = {
+const ABOUT: Record<CoreSchoolTopic, string> = {
   career: "career and work", marriage: "marriage", children: "children and family",
   father: "the father", mother: "the mother",
 };
 
 /** The stance and evidence come directly from the named school's existing agreement voice. */
 export function schoolTopicBriefs(agreement: TopicAgreement[], school: BriefSchool): SchoolTopicBrief[] {
+  if (school === "alp" || school === "prasna") return [];
   return SCHOOL_TOPICS.flatMap((topic) => {
     const voice = agreement.find((a) => a.topic === topic)?.stances.find((s) => s.system === school);
     // No agreement row also includes topics held by the age/sensitivity gates; do not recreate it.

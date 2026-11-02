@@ -33,16 +33,20 @@ import { parashariModule } from "./parashari";
 import { jaiminiModule } from "./jaimini";
 import { kpModule } from "./kp";
 import { alpModule } from "./alp";
+import { prasnaModule } from "./prasna";
 import { rectifyModule } from "./rectify";
 import { validateModule } from "./validate";
 import { topicReadingSection } from "./topic-reading";
-import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL, schoolTopicBriefs, type BriefSchool } from "../school-topic-brief";
+import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL, type BriefSchool } from "../school-topic-brief";
+import { defaultAlpForTopics, expandedSchoolTopicBriefs } from "../school-topics-expanded";
 import {
   AGREEMENT_METHOD,
   AGREEMENT_NOTE,
   AGREEMENT_PARENTS_NOTE,
   AGREEMENT_SYSTEM_LABEL,
   agreementFor,
+  agreementInput,
+  computeAgreement,
   type AgreementSystem,
   type SystemStance,
 } from "../agreement";
@@ -74,6 +78,7 @@ export const REPORT_MODULES: ReportModule[] = [
   jaiminiModule,
   kpModule,
   alpModule,
+  prasnaModule,
   rectifyModule,
   validateModule,
 ];
@@ -136,17 +141,21 @@ export function buildReport(
   // birth (Panchanga, then the birth star); each system in its own part; the sky today; and, in the
   // practitioner report only, an appendix of the data tables the readings rest on.
   const built: ReportSection[] = [];
-  const schoolAgreement = ctx.plain ? agreementFor(result, true) : [];
+  const schoolInput = ctx.plain ? agreementInput(result, true) : undefined;
+  const schoolAgreement = schoolInput ? computeAgreement(schoolInput) : [];
   for (const m of modules) {
-    if (ctx.plain && (m.id === "kp" || m.id === "parashari" || m.id === "jaimini")) {
+    if (schoolInput && (m.id === "kp" || m.id === "parashari" || m.id === "jaimini" || m.id === "alp" || m.id === "prasna")) {
       const school = m.id as BriefSchool;
-      const topics = schoolTopicBriefs(schoolAgreement, school);
+      const topics = expandedSchoolTopicBriefs(result, school, schoolInput, schoolAgreement, school === "alp" ? { alp: defaultAlpForTopics(result, schoolInput.withheld, ctx.tools.alpAsOf) } : undefined);
       if (topics.length) built.push({
         id: `${school}-plain-topics`, title: `Life topics in ${SCHOOL_NAME[school]}`,
         paras: [
-          { kind: "note", text: "These summarize only the selected general rules in this school's comparison, not the full reading or a date-specific forecast. House-based readings can change with birth time." },
-          ...topics.map((t): ReportPara => ({ kind: "p", text: `${SCHOOL_TOPIC_LABEL[t.topic]}: ${t.summary} ${t.limit}${t.conditional ? " This assessment is conditional on the birth time." : ""}${t.provisional ? " This classification is provisional." : ""}`, provisional: t.provisional })),
-          { kind: "note", text: AGREEMENT_METHOD[school] },
+          { kind: "note", text: "Selected interpretations keep their original scope. House-level assessments cover several matters. ALP uses the date shown; Prasna Marga here reads the birth chart, not a question chart. Birth-time uncertainty can change house-based readings." },
+          ...topics.flatMap((t): ReportPara[] => [
+            { kind: "p", text: `${SCHOOL_TOPIC_LABEL[t.topic]}${t.frame ? ` (${t.frame})` : ""}: ${t.summary} ${t.limit}${t.conditional ? " This assessment is conditional on the birth time." : ""}${t.provisional ? " This classification is provisional." : ""}`, provisional: t.provisional },
+            ...(t.details ?? []).map((d): ReportPara => ({ kind: "p", text: d.text, cites: [ctx.cites.add(d.source, d.sourceUrl)], provisional: t.provisional })),
+          ]),
+          ...(school === "kp" || school === "parashari" || school === "jaimini" ? [{ kind: "note" as const, text: AGREEMENT_METHOD[school] }] : []),
         ],
       });
     }

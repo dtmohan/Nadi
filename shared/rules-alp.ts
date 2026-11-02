@@ -312,7 +312,7 @@ export const ALP_RULES: AlpRule[] = [
     id: "b2-marriage-navamsa-away",
     chapter: "book2-calc",
     when: { activatedTouches: false },
-    text: "The current pada's navamsa sign touches none of the ALP lagna, its 7th, the janma lagna or its 7th: the book does not read such a pada as one that brings a marriage; the window opens in a later pada.",
+    text: "The current pada's navamsa sign touches none of the ALP lagna, its 7th, the janma lagna or its 7th. The cited example does not select certain such padas for marriage; extending that example to every chart is provisional and this condition alone cannot rule marriage out.",
     weight: 1,
     source: BOOK2("p. 35: Uttara Phalguni 2nd and 3rd padas, Hasta and Chitra padas read as no chance of marriage"),
     sourceUrl: ALP_SOURCE_BOOKS,

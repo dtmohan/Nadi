@@ -18,6 +18,7 @@ const TAB_NAME: Record<BriefLink["tab"], string> = {
   kp: "KP",
   jaimini: "Jaimini",
   alp: "ALP",
+  prasna: "Prasna Marga",
   bnn: "Nadi",
   rectify: "Rectify",
 };

@@ -27,7 +27,8 @@ import { BriefingBefore, BriefingNow, BriefingPlanets, useOpenLink } from "@/com
 import { PlanetName, SignName } from "@/components/planet-name";
 import { cn } from "@/lib/utils";
 import { PLAIN_TOPIC_LABEL, plainTopicBriefs, type PlainTopicBrief } from "@shared/topic-brief";
-import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL, schoolTopicBriefs, type BriefSchool, type SchoolTopicBrief } from "@shared/school-topic-brief";
+import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL, type BriefSchool, type SchoolTopicBrief } from "@shared/school-topic-brief";
+import { defaultAlpForTopics, expandedSchoolTopicBriefs } from "@shared/school-topics-expanded";
 import { schoolDetailsLink, SchoolTopicExplanation } from "@/components/school-topic-brief";
 
 const VERDICT_PILL: Record<GocharaVerdict, string> = {
@@ -96,7 +97,7 @@ function PlainTopicContent({ topic, past, onOpen, comparisons }: { topic: PlainT
       <button type="button" className="mt-3 text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => onOpen(topic.hasArea ? { tab: "bnn", chapter: "areas", target: `[data-testid="section-area-${topic.topic}"]` } : { tab: "bnn", chapter: "karakas" })}>{t("See Nadi details")}</button>
       {comparisons.length > 0 && <details className="mt-3 border-t pt-3" data-testid={`plain-topic-schools-${topic.topic}`}>
         <summary className="cursor-pointer text-xs font-semibold">See other schools</summary>
-        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Each is a separate summary of selected general rules; it may change with the birth time. Specific questions can use additional rules.</p>
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Each school is shown separately. ALP is a progressed reading for the date shown; Prasna Marga here uses the birth chart, not a question chart. Specific questions can use additional rules.</p>
         <div className="mt-2 space-y-3">
           {comparisons.map((b) => <div key={`${b.school}-${b.topic}`} className="rounded-md bg-muted/40 p-2">
             <p className="mb-1 text-xs font-semibold">{SCHOOL_NAME[b.school]}{topic.topic === "family" ? ` · ${SCHOOL_TOPIC_LABEL[b.topic]}` : ""}</p>
@@ -116,8 +117,10 @@ function PlainTopicContent({ topic, past, onOpen, comparisons }: { topic: PlainT
 export function OverviewPanel({
   result,
   onOpenTab,
+  alpAsOf,
 }: {
   result: ChartResult;
+  alpAsOf?: string;
   /** Switch the reading tab; the briefing's links open a tab at the line they summarise. */
   onOpenTab?: (tab: BriefLink["tab"]) => void;
 }) {
@@ -192,7 +195,7 @@ export function OverviewPanel({
     zone: chart.timezone || "UTC",
     inSeason: (topic) => areaSeason(topic, result.utc, lifeAt).inSeason,
   });
-  const schoolBriefs = (["parashari", "kp", "jaimini"] as BriefSchool[]).flatMap((s) => schoolTopicBriefs(agreement, s));
+  const schoolBriefs = useMemo(() => (["parashari", "kp", "jaimini", "alp", "prasna"] as BriefSchool[]).flatMap((s) => expandedSchoolTopicBriefs(result, s, agreementIn, agreement, s === "alp" ? { alp: defaultAlpForTopics(result, agreementIn.withheld, alpAsOf) } : undefined)), [result, agreementIn, agreement, alpAsOf]);
   const comparisonsFor = (topic: PlainTopicBrief) => schoolBriefs.filter((b) =>
     b.topic === topic.topic || (topic.topic === "family" && (b.topic === "father" || b.topic === "mother")),
   );
@@ -336,7 +339,7 @@ export function OverviewPanel({
         <section className="mt-4 rounded-lg border bg-card p-5 sm:p-6" aria-label="Life topics" data-testid="plain-topic-briefs">
           <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{t("Life topics")}</p>
           <p className="mt-1 text-sm text-muted-foreground">These short readings use the Nadi method. Other schools have their own readings.</p>
-          <p className="mt-1 text-xs text-muted-foreground">Separate school summaries are available here for career, marriage, children and parents. Other topics remain in each school's own reading.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Open a topic to compare selected interpretations from the other schools. Their coverage differs; ALP is date-specific and Prasna Marga here uses the birth chart.</p>
           {(chart.timeUncertaintyMin ?? 0) > 0 && (
             <p className="mt-2 text-xs text-muted-foreground">The entered birth time has an uncertainty of ±{chart.timeUncertaintyMin} minutes. Some details can change within that range.</p>
           )}

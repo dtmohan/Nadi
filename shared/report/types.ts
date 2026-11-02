@@ -10,6 +10,8 @@ import type { RectifyExportState } from "../rectify-methods";
 
 /** Server-computed tool results a report may carry; absent when the module was not asked for. */
 export interface ReportTools {
+  /** The ALP tab's selected civil day; omitted for the chart-date default. */
+  alpAsOf?: string;
   /** Null when the chart has no dated events. */
   validation?: ValidationResult | null;
   /** The scan the Rectify tab was looking at, rerun on the server. */
@@ -105,6 +107,7 @@ export type ReportTab =
   | "jaimini"
   | "kp"
   | "alp"
+  | "prasna"
   | "panchanga"
   | "rectify"
   | "validate";

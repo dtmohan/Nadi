@@ -118,6 +118,24 @@ test("a chart-tab PDF accepts and renders a selected matter and date", async () 
   assert.equal(Buffer.concat(chunks).subarray(0, 4).toString(), "%PDF");
 });
 
+test("a report PDF accepts a selected ALP day and the Prasna natal module", async () => {
+  const handlers = new Map<string, (req: any, res: any) => void>();
+  const app = { post: (path: string, fn: (req: any, res: any) => void) => { handlers.set(path, fn); }, get: () => {} };
+  await registerRoutes({} as Parameters<typeof registerRoutes>[0], app as unknown as Parameters<typeof registerRoutes>[1]);
+  const chunks: Buffer[] = [];
+  const response = new Writable({ write(chunk, _encoding, callback) { chunks.push(Buffer.from(chunk)); callback(); } }) as Writable & {
+    setHeader: (name: string, value: string) => void; status: (code: number) => typeof response; json: (value: unknown) => typeof response;
+  };
+  const headers: Record<string, string> = {};
+  response.setHeader = (name, value) => { headers[name.toLowerCase()] = value; };
+  response.status = (code) => { throw new Error(`Unexpected HTTP ${code}`); };
+  response.json = (value) => { throw new Error(`Unexpected JSON ${JSON.stringify(value)}`); };
+  await handlers.get("/api/report.pdf")!({ body: { ...chart, plain: true, modules: ["alp", "prasna"], tools: { alpAsOf: "2006-07-04" } } }, response);
+  await finished(response);
+  assert.equal(headers["content-type"], "application/pdf");
+  assert.equal(Buffer.concat(chunks).subarray(0, 4).toString(), "%PDF");
+});
+
 test("KP chart topics use the saved-event house and cusp definitions", () => {
   for (const topic of KP_TIMING_TOPICS) if (topic.matter) {
     const m = matterOf(topic.matter);

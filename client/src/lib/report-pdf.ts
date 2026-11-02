@@ -9,7 +9,7 @@ export interface ReportPdfOptions {
   /** Module ids to include (shared/report REPORT_MODULE_IDS); the whole report when omitted. */
   modules?: string[];
   /** Inputs the tool modules need: the Rectify tab's current scan. Validate needs only the chart's events. */
-  tools?: { rectify?: RectifyExportState; topicReadings?: Partial<Record<"kp" | "parashari" | "jaimini" | "bnn", ChartEvent>> };
+  tools?: { rectify?: RectifyExportState; alpAsOf?: string; topicReadings?: Partial<Record<"kp" | "parashari" | "jaimini" | "bnn", ChartEvent>> };
 }
 
 export async function downloadReportPdf(chart: Chart, opts: ReportPdfOptions) {

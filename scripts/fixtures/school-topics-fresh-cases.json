@@ -1,0 +1,25 @@
+{
+  "protocol": "docs/school-topic-expansion-protocol.md",
+  "cases": [
+    {
+      "name": "Stephanie Wilson", "gender": "female", "birthDate": "1966-09-27", "birthTime": "03:30", "timezone": "America/New_York", "place": "Boston, Massachusetts, USA", "latitude": 42.366667, "longitude": -71.066667,
+      "asOfDay": "2006-07-04", "asOfPurpose": "NASA STS-121 launch; date selected before examining readings",
+      "birthSource": "https://www.astro.com/astro-databank/Wilson,_Stephanie", "factSource": "https://www.nasa.gov/mission/sts-121/"
+    },
+    {
+      "name": "Michel Devoret", "gender": "male", "birthDate": "1953-03-05", "birthTime": "10:20", "timezone": "Europe/Paris", "place": "Paris, France", "latitude": 48.858333, "longitude": 2.379722,
+      "asOfDay": "2025-10-07", "asOfPurpose": "Nobel physics prize announcement; date selected before examining readings",
+      "birthSource": "https://www.astro.com/astro-databank/Devoret,_Michel", "factSource": "https://www.nobelprize.org/prizes/physics/2025/press-release/"
+    },
+    {
+      "name": "Catherine Breillat", "gender": "female", "birthDate": "1948-07-13", "birthTime": "20:15", "timezone": "Europe/Paris", "place": "Bressuire, France", "latitude": 46.85, "longitude": -0.5,
+      "asOfDay": "2023-07-01", "asOfPurpose": "Arbitrary observation date in film's production year, not a specific event date",
+      "birthSource": "https://www.astro.com/astro-databank/Breillat,_Catherine", "factSource": "https://www.festival-cannes.com/en/f/l-ete-dernier/"
+    },
+    {
+      "name": "Ricardo Bermudez Garcia", "gender": "male", "birthDate": "1975-11-19", "birthTime": "11:10", "timezone": "America/Sao_Paulo", "place": "São Paulo, Brazil", "latitude": -23.5525, "longitude": -46.625,
+      "asOfDay": "2004-08-29", "asOfPurpose": "Olympic men's volleyball final; date selected before examining readings",
+      "birthSource": "https://www.astro.com/astro-databank/Ricardinho", "factSource": "https://www.olympedia.org/results/37760"
+    }
+  ]
+}

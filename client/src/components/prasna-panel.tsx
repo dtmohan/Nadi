@@ -38,7 +38,7 @@ import {
 import { PlanetName } from "@/components/planet-name";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Soft } from "@/lib/gentle";
-import { redactProse } from "@shared/life-stage";
+import { redactProse, sensitiveGate } from "@shared/life-stage";
 import { computeKootas } from "@shared/prasna-kootas";
 import { PRASNA_DISEASE_REMEDIES, PRASNA_DISEASE_NOTES, diseaseCauses } from "@shared/prasna-diseases";
 import {
@@ -56,6 +56,7 @@ import {
 } from "@/lib/prasna-store";
 import { cn } from "@/lib/utils";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
+import { SchoolTopicPanel } from "@/components/school-topic-brief";
 
 const ord = (h: number) =>
   h === 1 ? "1st" : h === 2 ? "2nd" : h === 3 ? "3rd" : `${h}th`;
@@ -109,7 +110,8 @@ function buildPrasnaSummary(readings: PrasnaHouseReading[]): string {
     .join("\n");
 }
 
-function HouseEffectsList({ readings }: { readings: PrasnaHouseReading[] }) {
+function HouseEffectsList({ readings, withheld }: { readings: PrasnaHouseReading[]; withheld: boolean }) {
+  const plain = usePlain();
   return (
     <ul className="space-y-3">
       {readings.map((r) => (
@@ -136,7 +138,7 @@ function HouseEffectsList({ readings }: { readings: PrasnaHouseReading[] }) {
               <span className="font-medium text-verdict-bad">
                 {r.malefics.map((p) => p.planet).join(", ")} ·{" "}
               </span>
-              <Soft>{r.maleficText}</Soft>
+              {plain ? "The app has a challenging house-effects line; the source may require additional conditions." : <Soft>{withheld ? redactProse(r.maleficText) : r.maleficText}</Soft>}
             </p>
           )}
           {r.beneficText && (
@@ -144,7 +146,7 @@ function HouseEffectsList({ readings }: { readings: PrasnaHouseReading[] }) {
               <span className="font-medium text-verdict-good">
                 {r.benefics.map((p) => p.planet).join(", ")} ·{" "}
               </span>
-              <Soft>{r.beneficText}</Soft>
+              {plain ? "The source associates these occupants with supportive themes for this house as a whole." : <Soft>{withheld ? redactProse(r.beneficText) : r.beneficText}</Soft>}
             </p>
           )}
         </li>
@@ -197,7 +199,7 @@ function HouseWalk({
               </span>
             </div>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              <Soft>{withheld ? redactProse(sig.text) : sig.text}</Soft>
+              <Soft>{plain ? houseGloss("prasna", house) : withheld ? redactProse(sig.text) : sig.text}</Soft>
             </p>
             {r ? (
               <>
@@ -206,7 +208,7 @@ function HouseWalk({
                     <span className="font-medium text-verdict-bad">
                       {r.malefics.map((p) => p.planet).join(", ")} ·{" "}
                     </span>
-                    <Soft>{r.maleficText}</Soft>
+                    {plain ? "The app has a challenging house-effects line; the source may require additional conditions." : <Soft>{withheld ? redactProse(r.maleficText) : r.maleficText}</Soft>}
                   </p>
                 )}
                 {r.beneficText && (
@@ -214,7 +216,7 @@ function HouseWalk({
                     <span className="font-medium text-verdict-good">
                       {r.benefics.map((p) => p.planet).join(", ")} ·{" "}
                     </span>
-                    <Soft>{r.beneficText}</Soft>
+                    {plain ? "The source associates these occupants with supportive themes for this whole house." : <Soft>{withheld ? redactProse(r.beneficText) : r.beneficText}</Soft>}
                   </p>
                 )}
               </>
@@ -225,21 +227,16 @@ function HouseWalk({
             )}
             {f && (
               <p className="mt-1.5 text-xs leading-relaxed text-foreground/90">
-                <span className="font-medium">
-                  {plain && f.verdict === "negative"
-                    ? "Harder going"
-                    : FRUCT_LABEL[f.verdict]}
-                  .
-                </span>{" "}
+                {!plain && <><span className="font-medium">{FRUCT_LABEL[f.verdict]}.</span>{" "}</>}
                 <span data-testid={`prasna-fruct-note-${house}`}>
-                  {plain ? f.notePlain : f.note}
+                  {plain ? "The ruler and significator are assessed for this entire house; this is not a verdict on any one of its matters." : f.note}
                 </span>
               </p>
             )}
             {d && (
               <p className="mt-1 text-xs leading-relaxed text-foreground/90">
                 <span className="font-medium">Its lord {d.planet} is {d.disposition}.</span>{" "}
-                <Soft>{d.text}</Soft>
+                {!plain && <Soft>{withheld ? redactProse(d.text) : d.text}</Soft>}
               </p>
             )}
           </li>
@@ -256,8 +253,9 @@ function HouseWalk({
  */
 export function PrasnaPanel({ result }: { result: ChartResult }) {
   const { positions, reading, now } = result;
+  const plain = usePlain();
   const birthLagnaIdx = result.jaimini.lagna.signIndex;
-  const withheld = result.sensitive?.withheld ?? false;
+  const withheld = result.sensitive?.withheld ?? sensitiveGate(result.chart, result.utc, result.now.asOf).withheld;
   const [arudhaIdx, setArudhaIdx] = useState<number | null>(null);
   const [shellCast, setShellCast] = useState<{
     handful: number;
@@ -400,7 +398,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
       id: "prasna",
       plain: "Ask a question",
       technical: "Prasna",
-      blurb: "Cast a prasna for a question asked now, read from its Arudha lagna, and confirm it later against what happened.",
+      blurb: "Explore a selected Arudha against the stored sky snapshot; a true question chart needs the question's time and place.",
     },
     {
       id: "transits",
@@ -426,9 +424,9 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
     <section data-testid="prasna-panel" aria-label="Prasna Marga">
       <h2 className="text-xl font-semibold">Prasna Marga</h2>
       <p className="mt-1 max-w-[68ch] text-sm text-muted-foreground">
-        The Kerala horary classic. A query is read from an Arudha lagna derived
-        at the time of asking, with the planets as they stand now; the same
-        house rules are also read against the birth chart.
+        The Kerala horary classic. A genuine query needs its question time,
+        location and Arudha; this app's query view currently uses a stored sky
+        snapshot at the birth-chart location. The birth-chart view is separate.
       </p>
 
       <Chapters tab="prasna" chapters={chapterDefs} className="mt-4">
@@ -438,8 +436,8 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
       <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
         <SectionTitle plain="Cast a prasna" technical="Prasna kriya" as="h3" />
         <ModeText
-          plain="Ask a question and read the sky now, from an Arudha lagna cast with shells."
-          practitioner="The query is read from an Arudha lagna (4.51-55), with the planets as they stand now, the house effects (14.50-65) and Gulika read from it."
+          plain="Choose an Arudha and explore the stored sky snapshot. Verify the question's actual time and place before treating it as a horary chart."
+          practitioner="The selected Arudha (4.51-55) is read against the stored sky snapshot at the birth-chart location, not a separately cast question time and place."
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button
@@ -472,8 +470,9 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             <p className="text-sm">
               Arudha lagna:{" "}
               <span className="font-semibold">{SIGNS[arudhaIdx]}</span>{" "}
-              <span className="text-muted-foreground">· the sky now</span>
+              <span className="text-muted-foreground">· stored sky snapshot</span>
             </p>
+            <p className="mt-1 text-xs text-muted-foreground">Snapshot: {now.asOf}; location: {result.chart.place} (the birth-chart coordinates). To judge an actual question, its own time, place and Arudha must be established; this snapshot does not establish them.</p>
             {shellCast && (
               <p className="mt-1 text-xs text-muted-foreground tabular" data-testid="prasna-shell-cast">
                 A handful of {shellCast.handful} cowries ÷ 12 → remainder{" "}
@@ -494,8 +493,9 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                   now.gulika ? { [now.gulika.signIndex]: ["Gulika"] } : undefined
                 }
               />
-              <HouseEffectsList readings={prasna} />
+              <HouseEffectsList readings={prasna} withheld={withheld} />
             </div>
+            <SchoolTopicPanel result={result} school="prasna" options={{ prasna: { readings: prasna, frame: "question", arudha: SIGNS[arudhaIdx], asOf: now.asOf } }} />
             {arudhaReading && (
               <div
                 className="mt-3 rounded-md border bg-card p-3"
@@ -510,18 +510,18 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                       ARUDHA_CLASS[arudhaReading.verdict],
                     )}
                   >
-                    {arudhaReading.verdict}
+                    {plain ? "traditional classification" : arudhaReading.verdict}
                   </span>
                   <span className="ml-auto text-2xs text-muted-foreground">
                     {arudhaReading.source}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground tabular">
+                {!plain && <p className="mt-1 text-xs text-muted-foreground tabular">
                   Arudha governs {arudhaReading.arudhaPart} · lagna governs{" "}
                   {arudhaReading.lagnaPart} · Chatra {SIGNS[arudhaReading.chatraSign]}
-                </p>
+                </p>}
                 <p className="mt-1 text-xs leading-relaxed text-foreground/90">
-                  <Soft>{arudhaReading.note}</Soft>
+                  {plain ? "The traditional Arudha assessment depends on the query chart. This snapshot cannot establish danger or diagnose a condition." : <Soft>{withheld ? redactProse(arudhaReading.note) : arudhaReading.note}</Soft>}
                 </p>
               </div>
             )}
@@ -541,7 +541,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                   </span>
                 </div>
                 <p className="mt-1 text-xs leading-relaxed text-foreground/90">
-                  <Soft>{withheld ? redactProse(prasnaGulika.text) : prasnaGulika.text}</Soft>
+                  {plain ? "The source gives a traditional interpretation for this placement; see practitioner mode for its wording." : <Soft>{withheld ? redactProse(prasnaGulika.text) : prasnaGulika.text}</Soft>}
                 </p>
               </div>
             )}
@@ -579,7 +579,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               onClick={register}
               data-testid="prasna-register"
             >
-              Register this prasna
+              Register this snapshot
             </Button>
           </div>
         )}
@@ -591,8 +591,8 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
           <h3 className="text-base font-semibold">Registered prasnas</h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Kept on this device. Mark the outcome when it is known, and the
-            rules can be checked against what actually happened.
+            Kept on this device. The recorded time is the stored sky snapshot,
+            not necessarily the question time. Outcomes can be noted for follow-up.
           </p>
           <ul className="mt-3 space-y-2">
             {savedPrasnas.data.map((p) => (
@@ -606,7 +606,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                     {p.question || "—"}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {p.arudhaSign} ·{" "}
+                    {p.arudhaSign} · snapshot {" "}
                     {new Date(p.askedAt).toLocaleString(undefined, {
                       dateStyle: "medium",
                       timeStyle: "short",
@@ -626,7 +626,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                     Reading
                   </summary>
                   <pre className="mt-1 whitespace-pre-wrap text-xs leading-relaxed">
-                    {p.summary}
+                    {plain ? "The saved house effects are available in practitioner mode; the snapshot is not a verified question-time chart." : withheld ? redactProse(p.summary) : p.summary}
                   </pre>
                 </details>
                 <div className="mt-2 flex flex-wrap items-center gap-1">
@@ -729,10 +729,11 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
 
       <Chapter id="houses">
       {/* Birth chart: the twelve-house walk */}
+      <SchoolTopicPanel result={result} school="prasna" options={{ prasna: { readings: natal, fructification, frame: "natal" } }} />
       <section className="mt-6" aria-label="Birth chart">
         <SectionTitle plain="The twelve houses" technical="Bhava phala (14)" as="h3" />
         <ModeText
-          plain="Each house and what it promises, in one place."
+          plain="Each house covers several matters. Its traditional indications cannot establish a specific event."
           practitioner={`Each house read whole-sign from the ${SIGNS[birthLagnaIdx]} ascendant: its signification (14.3-14), the planets in it (14.50-65), how the promise ripens (14.39-41) and the lord's standing (14.90-100).`}
         />
         <div className="mt-3">
@@ -748,10 +749,10 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         <div className="mt-6" aria-label="Progeny">
           <SectionTitle plain="Progeny" technical="Santhana (19)" as="h4" />
           <ModeText
-            plain="Children, and how they come."
+            plain="Traditional chart factors relating to children. They cannot determine fertility or whether, when or how someone has children."
             practitioner={`${progeny.kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta, the sum of the three relevant longitudes (19.6-11), and the Santana Trisphuta (19.18).`}
           />
-          <div
+          {!plain && !withheld && <><div
             className="mt-2 rounded-md border bg-card p-3"
             data-testid="prasna-progeny"
             data-verdict={progeny.verdict}
@@ -806,7 +807,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             <p className="mt-1 text-xs leading-relaxed text-foreground/90">
               {trisphuta.note}
             </p>
-          </div>
+          </div></>}
 
           {gulika && (
             <div
@@ -823,7 +824,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                 </span>
               </div>
               <p className="mt-1 text-xs leading-relaxed text-foreground/90">
-                <Soft>{withheld ? redactProse(gulika.text) : gulika.text}</Soft>
+                {plain ? "The source gives a traditional interpretation for this placement; see practitioner mode for its wording." : <Soft>{withheld ? redactProse(gulika.text) : gulika.text}</Soft>}
               </p>
             </div>
           )}

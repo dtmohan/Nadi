@@ -322,6 +322,9 @@ export async function registerRoutes(
       const result = computeChart(chart);
       // The two tools are computed here only when their module is named; the Report page never asks for them.
       const toolResults: ReportTools = {};
+      const alpDate = z.iso.date().optional().safeParse((tools as Record<string, unknown> | undefined)?.alpAsOf);
+      if (!alpDate.success) return res.status(400).json({ message: "Invalid ALP date", issues: alpDate.error.issues });
+      if (alpDate.data) toolResults.alpAsOf = alpDate.data;
       const topicInputs = z.object({ kp: chartEventSchema.optional(), parashari: chartEventSchema.optional(),
         jaimini: chartEventSchema.optional(), bnn: chartEventSchema.optional() }).safeParse(
           (tools as Record<string, unknown> | undefined)?.topicReadings ?? {},

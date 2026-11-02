@@ -38,7 +38,7 @@ export type BriefSystem = "Parashari" | "Ashtakavarga transit" | "Jaimini" | "AL
 
 /** Where a line opens: a tab, optionally one of its chapters and an element to scroll to (a CSS selector). */
 export interface BriefLink {
-  tab: "parashari" | "kp" | "jaimini" | "alp" | "bnn" | "rectify";
+  tab: "parashari" | "kp" | "jaimini" | "alp" | "prasna" | "bnn" | "rectify";
   chapter?: string;
   target?: string;
   /** A fold to open on arrival (its Expander id), when the line summarises what the fold holds. */

@@ -2,6 +2,8 @@
 import { fmtDeg, SIGNS } from "../astro";
 import { computeAlp, DEFAULT_ALP_CONFIG } from "../alp";
 import { ALP_SOURCE_SITE, ALP_SOURCE_BOOKS } from "../rules-alp";
+import { defaultAlpForTopics } from "../school-topics-expanded";
+import { DateTime } from "luxon";
 import {
   endStop,
   fmtDate,
@@ -19,21 +21,15 @@ export const alpModule: ReportModule = {
   build(ctx) {
     const { result, S, cites, asOf, lifeAt, deceased, withheld } = ctx;
     const config = DEFAULT_ALP_CONFIG;
-    const alp = computeAlp(
-      result.positions,
-      result.jaimini.lagna.lon,
-      result.utc,
-      deceased ? lifeAt : asOf,
-      config,
-      withheld,
-    );
+    const alp = defaultAlpForTopics(result, withheld, ctx.tools.alpAsOf);
     const site = cites.add("ALP astrology, introduction", ALP_SOURCE_SITE);
     const p = alp.point;
     const arp = alp.arp;
+    const dayLabel = DateTime.fromISO(alp.asOf, { setZone: true }).setZone(result.chart.timezone).toFormat("d LLL yyyy");
     const paras: ReportPara[] = [
       {
         kind: "lead",
-        text: `Astro Lagna Paddhati moves the lagna forward at ${config.yearsPerSign} years per sign from its natal degree. ${deceased ? "At the date of passing it stood" : "It now stands"} at ${fmtDeg(p.lon)} ${p.sign} (lord ${p.lord}), in ${p.nakshatra} pada ${p.pada} (lord ${p.nakshatraLord}), the ${ORD(alp.houseFromJanma)} sign from the natal lagna. The Akshaya rasi, the Moon progressed the same way, is in ${arp.point.sign}, ${arp.point.nakshatra} pada ${arp.point.pada}; its nakshatra lord ${arp.dasa.lord} names the running ALP dasa (${fmtDate(arp.dasa.start)} to ${fmtDate(arp.dasa.end)}), with ${arp.bhukti.lord} bhukti to ${fmtDate(arp.bhukti.end)}.`,
+        text: `Astro Lagna Paddhati moves the lagna forward at ${config.yearsPerSign} years per sign from its natal degree. On ${dayLabel} it stands at ${fmtDeg(p.lon)} ${p.sign} (lord ${p.lord}), in ${p.nakshatra} pada ${p.pada} (lord ${p.nakshatraLord}), the ${ORD(alp.houseFromJanma)} sign from the natal lagna. The Akshaya rasi, the Moon progressed the same way, is in ${arp.point.sign}, ${arp.point.nakshatra} pada ${arp.point.pada}; its nakshatra lord ${arp.dasa.lord} names the running ALP dasa (${fmtDate(arp.dasa.start)} to ${fmtDate(arp.dasa.end)}), with ${arp.bhukti.lord} bhukti to ${fmtDate(arp.bhukti.end)}.`,
         cites: [site],
       },
       {
@@ -98,7 +94,7 @@ export const alpModule: ReportModule = {
     }
     paras.push({
       kind: "note",
-      text: `The ALP rules entered so far come from the publisher's website, the two e-magazines and class notes of the basic course; the printed volumes are not in hand, so every reading in this section is provisional until checked against them. Sign counted from ${SIGNS[alp.natalLagna.signIndex]}, the natal lagna.`,
+      text: `The entered ALP rules include selected material from Volume 2, the publisher's website, two e-magazines and Book 1 class notes. Coverage is partial, and interpretations from class notes and worked examples remain provisional. Sign counted from ${SIGNS[alp.natalLagna.signIndex]}, the natal lagna.`,
       provisional: true,
     });
     return [

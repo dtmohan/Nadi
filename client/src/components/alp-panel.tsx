@@ -1,6 +1,8 @@
 import { sensitiveGate, lifeAsOf } from "@shared/life-stage";
 import { Soft } from "@/lib/gentle";
 import { useMemo, useState } from "react";
+import { SchoolTopicPanel } from "@/components/school-topic-brief";
+import { defaultAlpDay } from "@shared/school-topics-expanded";
 import { Cite } from "@/components/source-link";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
@@ -155,17 +157,19 @@ function fmtLon360(lon: number): string {
   return m === 60 ? `${d + 1}°00'` : `${d}°${String(m).padStart(2, "0")}'`;
 }
 
-export function AlpPanel({ result }: { result: ChartResult }) {
+export function AlpPanel({ result, initialAsOf, onAsOfChange }: { result: ChartResult; initialAsOf?: string; onAsOfChange?: (day: string) => void }) {
   const nowLabel = useNowLabel();
   const { chart, positions } = result;
   // "As of" opens on today, or on the recorded date of passing.
   const [asOf, setAsOf] = useState(() =>
-    lifeAsOf(chart, DateTime.local().toISO()!).slice(0, 10),
+    initialAsOf ?? defaultAlpDay(result),
   );
+  const passing = lifeAsOf(chart, result.now.asOf) !== result.now.asOf ? chart.deathDate : null;
   const config: AlpConfig = DEFAULT_ALP_CONFIG;
   const a = useMemo(() => {
-    const iso = DateTime.fromISO(asOf, { zone: chart.timezone }).isValid
-      ? DateTime.fromISO(asOf, { zone: chart.timezone }).toISO()!
+    const day = passing && asOf > passing ? passing : asOf;
+    const iso = DateTime.fromISO(day, { zone: chart.timezone }).isValid
+      ? DateTime.fromISO(day, { zone: chart.timezone }).toISO()!
       : DateTime.local().toISO()!;
     return computeAlp(
       positions,
@@ -173,8 +177,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
       result.utc,
       iso,
       config,
-      result.sensitive?.withheld ??
-        sensitiveGate(chart, result.utc, result.now.asOf).withheld,
+      (result.sensitive?.withheld ?? sensitiveGate(chart, result.utc, result.now.asOf).withheld) || sensitiveGate(chart, result.utc, iso).withheld,
     );
   }, [
     asOf,
@@ -184,6 +187,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
     chart,
     result.sensitive,
     result.now.asOf,
+    passing,
   ]);
 
   const alpLord = a.point.lord;
@@ -358,7 +362,9 @@ export function AlpPanel({ result }: { result: ChartResult }) {
           <Input
             type="date"
             value={asOf}
-            onChange={(e) => e.target.value && setAsOf(e.target.value)}
+            min={chart.birthDate}
+            max={passing ?? undefined}
+            onChange={(e) => { if (e.target.value) { const day = passing && e.target.value > passing ? passing : e.target.value < chart.birthDate ? chart.birthDate : e.target.value; setAsOf(day); onAsOfChange?.(day); } }}
             className="h-7 w-40 text-xs"
             data-testid="input-alp-asof"
           />
@@ -366,7 +372,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
             size="sm"
             variant="ghost"
             className="h-7 px-2"
-            onClick={() => setAsOf(DateTime.local().toISODate()!)}
+            onClick={() => { const day = passing ?? DateTime.now().setZone(chart.timezone).toISODate()!; setAsOf(day); onAsOfChange?.(day); }}
             data-testid="button-alp-today"
           >
             Today
@@ -389,6 +395,7 @@ export function AlpPanel({ result }: { result: ChartResult }) {
 
       <Chapters tab="alp" chapters={chapterDefs} className="mt-4">
       <Chapter id="brief">
+      <SchoolTopicPanel result={result} school="alp" options={{ alp: a }} />
       <VerdictCard
         system="Akshaya Lagna Paddhati"
         headline={

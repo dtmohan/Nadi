@@ -27,6 +27,8 @@ import {
   ALP_ROLE_LABEL,
   type AlpRuleWhen,
 } from "@shared/rules-alp";
+import { ALP_PLAIN_TOPIC_RULES } from "@shared/school-topics-expanded";
+import { SCHOOL_TOPIC_LABEL, type SchoolTopic } from "@shared/school-topic-brief";
 import {
   KP_RULES,
   KP_CUSP_THEMES,
@@ -323,6 +325,7 @@ function AlpRules() {
                       <div className="text-xs text-muted-foreground">
                         <div className="font-mono">{r.id}</div>
                         <div className="mt-1">weight {r.weight}</div>
+                        {ALP_PLAIN_TOPIC_RULES[r.id] && <div className="mt-1">Plain topics: {Object.keys(ALP_PLAIN_TOPIC_RULES[r.id]).map((t) => SCHOOL_TOPIC_LABEL[t as SchoolTopic]).join(", ")}</div>}
                       </div>
                       <div>
                         <div className="text-xs font-medium text-primary">
@@ -669,6 +672,11 @@ export default function RulesPage() {
       <h1 className="font-display text-xl font-bold tracking-tight">
         Rule book
       </h1>
+      <details className="mt-3 rounded-md border p-3 text-sm" data-testid="rulebook-topic-coverage">
+        <summary className="cursor-pointer font-semibold">How the plain topic summaries use these rules</summary>
+        <p className="mt-2 text-muted-foreground">Each school keeps its own calculation. The five existing general comparison topics retain their selected school-specific stances. Other KP summaries use reviewed topic labels and keep each finding's particular scope and precedence. They use the four-step comparison; where the existing six-step option changes a missing-house education rule, the basis notes this. The source's additional ninth-cusp, sub-level and close-conjunction checks are not all implemented. Parashari and Prasna house readings cover several matters and are not a separate verdict on each matter. Jaimini names shared areas and separately identifies selected topic-specific findings.</p>
+        <p className="mt-2 text-muted-foreground">ALP uses only reviewed rule-to-topic mappings from the selected date; the mapped topics are listed beside each ALP rule below. New ALP rules remain in the technical reading until their topic and wording are reviewed. A missing summary does not mean an event cannot happen. Prasna's question view currently uses a stored sky snapshot at the birth location, not a verified question time and place.</p>
+      </details>
       <Tabs
         key={sutraRef ?? "rules"}
         defaultValue={sutraRef !== undefined ? "sutras" : "bnn"}

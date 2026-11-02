@@ -1,0 +1,1608 @@
+{
+  "protocol": "docs/school-topic-expansion-protocol.md",
+  "warning": "Descriptive presentation audit, not evidence of event prediction or horoscope accuracy; ALP evaluated at the selected day, not event instant.",
+  "cases": [
+    {
+      "name": "Stephanie Wilson",
+      "birthTime": "03:30",
+      "birthSource": "https://www.astro.com/astro-databank/Wilson,_Stephanie",
+      "factSource": "https://www.nasa.gov/mission/sts-121/",
+      "asOfDay": "2006-07-04",
+      "asOfPurpose": "NASA STS-121 launch; date selected before examining readings",
+      "lagna": "Leo",
+      "alpAsOf": "2006-07-04T00:00:00.000-04:00",
+      "alpRuleIds": [
+        "b2c8-lords-1-7",
+        "alp-lord-dusthana",
+        "b2-alp-in-janma-5",
+        "b2c3-nak-lord-past",
+        "b2c3-nak-lord-ketu",
+        "b2c5-6th-lord-in-9",
+        "ch17-3w-past-2-future-1",
+        "alp2-nak-lord-2-11",
+        "b2-marriage-navamsa-away",
+        "b2c5-nak-lord-free-will",
+        "b1n-alp-lord-8",
+        "ch17-alp-lord-past"
+      ],
+      "readings": {
+        "parashari": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected Parashari interpretations lean cautionary about career and work, with qualifications.",
+              "stance": "leans-strains",
+              "basis": "BPHS: 10th house (work, honour and authority): its ruler, Venus, sits in the 1st and does not look back at it, which Parashara counts against the house (11.14-16)",
+              "conditional": false,
+              "provisional": true
+            },
+            {
+              "topic": "authority",
+              "summary": "For this topic the reading refers to the 10th house, which also covers work, honour and authority. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Work, honour and authority. Taurus, ruled by Venus. Parashara's test finds it under strain.",
+              "conditional": false,
+              "provisional": true
+            },
+            {
+              "topic": "education",
+              "summary": "For this topic the reading refers to the 5th house, which also covers learning and children. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Learning and children. Sagittarius, ruled by Jupiter. Parashara's test finds it under strain.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "house-5-lord",
+                  "text": "A house-level interpretation: Since Jupiter, ruler of your 5th house, sits in your 12th (expenses), Parashara reads: no happiness from your own children; an adopted child. Jupiter is strong enough by Parashara's measure to give this in full.",
+                  "source": "Parashara 24.60",
+                  "sourceUrl": "http://jyotishvidya.com/ch24.htm"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "For this topic the reading refers to the 7th house, which also covers spouse, travel and trade. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Spouse, travel and trade. Aquarius, ruled by Saturn, with the Moon in it. Parashara's test finds signs both ways.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "house-7-lord",
+                  "text": "A house-level interpretation: Since Saturn, ruler of your 7th house, sits in your 8th (inheritance and conflict), Parashara reads: marital happiness withheld; the spouse ill, difficult and independent. Saturn has 86% of the strength Parashara asks for; short of full strength, expect about half of this.",
+                  "source": "Parashara 24.80",
+                  "sourceUrl": "http://jyotishvidya.com/ch24.htm"
+                }
+              ]
+            }
+          ]
+        },
+        "kp": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected KP rules do not give a general conclusion about career and work in this comparison. A more specific rule may still appear in that school's reading.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "No general career verdict fires; KP has a separate rule about reinstatement.",
+              "conditional": true,
+              "provisional": false
+            },
+            {
+              "topic": "authority",
+              "summary": "The entered KP rules have 2 specific interpretations in this area, including public life, standing. Each addresses its own question.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": false,
+              "details": [
+                {
+                  "id": "kp11-election-lose",
+                  "text": "The 11th sub lord signifies 5, 8 and 12: elections and contests are lost.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 57"
+                },
+                {
+                  "id": "kp12-reputation",
+                  "text": "The 12th sub lord signifies 8 and 12: loss of reputation in the conjoined period of 8 and 12.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 58"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "The entered KP rules have 4 specific interpretations in this area, including education, learning. Each addresses its own question.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "kp-six-step-education-check",
+                  "text": "The app's six-step significations add a house missing from the four-step check, so the cited education limitation no longer matches under that alternative. This is a sensitivity check, not a complete judgment; the source's other conditions still require review.",
+                  "source": "KP class notes 3.1–3.2; Astro Secrets & KP Part 1, ch. 16, pp. 138–141"
+                },
+                {
+                  "id": "kp4-education",
+                  "text": "The 4th sub lord is in the star of Mercury or Jupiter: a studious mind and sound education.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 44"
+                },
+                {
+                  "id": "kp4-edu-no-11",
+                  "text": "The 4th sub lord's computed significations include 4 and 9 but not 11. The source associates this partial pattern with difficulty completing higher studies, but also examines the 9th cusp, sub-level connections and close conjunctions; those extra checks are not all included here, so this alone cannot establish the educational outcome.",
+                  "source": "Astro Secrets & KP Part 1, ch. 16, p. 138-141"
+                },
+                {
+                  "id": "kp4-line-node",
+                  "text": "If higher education is independently established, the source associates a node as 4th sub lord with the subjects of the lord of the house it occupies. This partial match does not itself establish that prerequisite.",
+                  "source": "Astro Secrets & KP Part 1, ch. 16, p. 141"
+                },
+                {
+                  "id": "kp12-inventions",
+                  "text": "Saturn or Jupiter as 12th sub lord signifying 1, 5, 9 and 12: new inventions and research findings.",
+                  "source": "Astro Secrets & KP Part 1, ch. 16, p. 205, 208"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "The entered KP rules have 3 specific interpretations in this area, including journeys, foreign lands. Each addresses its own question.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": false,
+              "details": [
+                {
+                  "id": "kp9-pilgrimage",
+                  "text": "The 9th sub lord signifies 3, 9 and 10: pilgrimage and long journeys.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 54"
+                },
+                {
+                  "id": "kp10-pilgrimage",
+                  "text": "The 10th sub lord signifies 3, 9 and 10: pilgrimage.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 55"
+                },
+                {
+                  "id": "kp12-foreign",
+                  "text": "The 12th sub lord signifies 3, 9 and 12 (3 leaving home, 9 the long journey, 12 the new surroundings): foreign travel and residence, in their conjoined period.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 58"
+                }
+              ]
+            }
+          ]
+        },
+        "jaimini": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected Jaimini interpretations give a mixed or inconclusive picture about career and work.",
+              "stance": "mixed",
+              "basis": "Mars is debilitated in Cancer: what it promises comes with effort or delay",
+              "conditional": false,
+              "provisional": true
+            },
+            {
+              "topic": "authority",
+              "summary": "The Jaimini reading examines career & position as a shared area. Its indicators are not a separate verdict for every subject within it.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the shared area and its original conditions; its combined notes need not describe this particular subject.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "education",
+              "summary": "The entered Jaimini reading places learning alongside children in a shared area and has 1 learning-related source finding. The shared area's overall balance is not an education verdict.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the shared area and its original conditions; its combined notes need not describe this particular subject.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "jks-5th-sun",
+                  "text": "Sun in the Karakamsa or its 5th: a knower of Vedanta and of music.",
+                  "source": "Jaimini Sutras 1.2.113",
+                  "sourceUrl": "https://vedichora.org/classical/jaimini-sutras"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "The existing Jaimini area reading does not separate travel into its own general interpretation.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the source area for its karakas, padas and individual conditions.",
+              "conditional": false,
+              "provisional": false,
+              "details": []
+            }
+          ]
+        },
+        "alp": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "No reviewed, topic-specific ALP rule matched on 4 Jul 2006. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 4 Jul 2006",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "authority",
+              "summary": "No reviewed, topic-specific ALP rule matched on 4 Jul 2006. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 4 Jul 2006",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "education",
+              "summary": "No reviewed, topic-specific ALP rule matched on 4 Jul 2006. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 4 Jul 2006",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "travel",
+              "summary": "No reviewed, topic-specific ALP rule matched on 4 Jul 2006. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 4 Jul 2006",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            }
+          ]
+        },
+        "prasna": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The 10th house includes actions, the power to command and service. The selected chart has no planets in this house; its lord can still matter.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord, Venus in the 1st, is weak and well placed; its karaka, Mercury in the 2nd, is strong and neither well nor badly placed. The influence is mixed.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-10",
+                  "text": "This house covers actions, the power to command and service; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 10 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "authority",
+              "summary": "The 10th house includes actions, the power to command and service. The selected chart has no planets in this house; its lord can still matter.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord, Venus in the 1st, is weak and well placed; its karaka, Mercury in the 2nd, is strong and neither well nor badly placed. The influence is mixed.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-10",
+                  "text": "This house covers actions, the power to command and service; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 10 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "The 2nd house includes family, wealth and speech. The selected chart has planets in this house.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord, Mercury in the 2nd, and its karaka, Jupiter in the 12th, are both strong; the lord is neither well nor badly placed, the karaka badly placed. The promise exists, yet the native does not enjoy it.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-2",
+                  "text": "This house covers family, wealth and speech; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 2 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "No separate topic-specific interpretation is included in this house-based view.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "The entered house significations do not supply a dedicated reading for this subject.",
+              "conditional": false,
+              "provisional": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Michel Devoret",
+      "birthTime": "10:20",
+      "birthSource": "https://www.astro.com/astro-databank/Devoret,_Michel",
+      "factSource": "https://www.nobelprize.org/prizes/physics/2025/press-release/",
+      "asOfDay": "2025-10-07",
+      "asOfPurpose": "Nobel physics prize announcement; date selected before examining readings",
+      "lagna": "Taurus",
+      "alpAsOf": "2025-10-07T00:00:00.000+02:00",
+      "alpRuleIds": [
+        "b2c8-lords-1-7",
+        "ch17-3w-all-three",
+        "b2-alp-in-janma-8",
+        "b2-12th-lord-in-4",
+        "b2-navamsa-naklord-68",
+        "b2-nak-lord-owns-6",
+        "b2c3-nak-lord-past",
+        "b2c6-alp-arp-1-7",
+        "b2c8-nak-lords-1-7",
+        "alp2-nak-lord-5",
+        "b2-marriage-navamsa-away",
+        "b2c5-nak-lord-destined",
+        "b2c8-nak-lord-destined-arp",
+        "b2c10-dasa-bhukti-trine",
+        "ch17-nak-lord-12-janma",
+        "ch17-alp-lord-past"
+      ],
+      "readings": {
+        "parashari": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected Parashari interpretations disagree about career and work; support and caution are both retained.",
+              "stance": "contested",
+              "basis": "Phaladeepika reads the Sun in your 10th house kindly here (a position of authority); yet BPHS: 10th house (work, honour and authority): its ruler, Saturn, sits in the 6th and does not look back at it, which Parashara counts against the house (11.14-16)",
+              "conditional": false,
+              "provisional": true
+            },
+            {
+              "topic": "authority",
+              "summary": "For this topic the reading refers to the 10th house, which also covers work, honour and authority. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Work, honour and authority. Aquarius, ruled by Saturn, with the Sun in it. Parashara's test finds it under strain.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "house-10-lord",
+                  "text": "A house-level interpretation: Since Saturn, ruler of your 10th house, sits in your 6th (enemies and maternal relatives), Parashara reads: no happiness from the father; skilled but without wealth; troubled by rivals. Saturn is strong enough by Parashara's measure to give this in full.",
+                  "source": "Parashara 24.114",
+                  "sourceUrl": "http://jyotishvidya.com/ch24.htm"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "For this topic the reading refers to the 5th house, which also covers learning and children. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Learning and children. Virgo, ruled by Mercury. Parashara's test finds it under strain.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "house-5-lord",
+                  "text": "A house-level interpretation: Since Mercury, ruler of your 5th house, sits in your 11th (income and prosperity), Parashara reads: learned and popular, an author, very skilled; many children and wealth. Mercury has 99% of the strength Parashara asks for; short of full strength, expect about half of this.",
+                  "source": "Parashara 24.59",
+                  "sourceUrl": "http://jyotishvidya.com/ch24.htm"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "For this topic the reading refers to the 7th house, which also covers spouse, travel and trade. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Spouse, travel and trade. Scorpio, ruled by Mars. Parashara's test finds it under strain.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "house-7-lord",
+                  "text": "A house-level interpretation: Since Mars, ruler of your 7th house, sits in your 11th (income and prosperity), Parashara reads: wealth through the spouse; less happiness from children; daughters. Mars is strong enough by Parashara's measure to give this in full.",
+                  "source": "Parashara 24.83",
+                  "sourceUrl": "http://jyotishvidya.com/ch24.htm"
+                }
+              ]
+            }
+          ]
+        },
+        "kp": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected KP rules do not give a general conclusion about career and work in this comparison. A more specific rule may still appear in that school's reading.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "No rule fires for the 10th cusp.",
+              "conditional": true,
+              "provisional": false
+            },
+            {
+              "topic": "authority",
+              "summary": "The entered KP rules have 2 specific interpretations in this area, including public life, standing. Each addresses its own question.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": false,
+              "details": [
+                {
+                  "id": "kp11-election-lose",
+                  "text": "The 11th sub lord signifies 5, 8 and 12: elections and contests are lost.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 57"
+                },
+                {
+                  "id": "kp12-reputation",
+                  "text": "The 12th sub lord signifies 8 and 12: loss of reputation in the conjoined period of 8 and 12.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 58"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "The entered KP rules have 4 specific interpretations in this area, including education, learning. Each addresses its own question.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "kp4-edu-intermediate",
+                  "text": "The 4th sub lord signifies the 4th without 9 or 11: by the sub lord's own significations, schooling to the intermediate level; higher education needs the 9th and its completion the 11th (check the six-step table and the 9th sub lord before concluding).",
+                  "source": "Astro Secrets & KP Part 1, ch. 16, p. 138"
+                },
+                {
+                  "id": "kp9-astrology-insight",
+                  "text": "Mercury or Jupiter as 9th sub lord connected to the 9th but not to 10 or 11: a deep insight into astrology that stays private, without the popularity 10 and 11 would give.",
+                  "source": "Astro Secrets & KP Part 1, ch. 16, p. 186-187"
+                },
+                {
+                  "id": "kp11-research",
+                  "text": "The 11th sub lord is connected to the 12th and signifies 9 and 11: success in research; placement in the 12th points to research abroad.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 56"
+                },
+                {
+                  "id": "kp12-inventions",
+                  "text": "Saturn or Jupiter as 12th sub lord signifying 1, 5, 9 and 12: new inventions and research findings.",
+                  "source": "Astro Secrets & KP Part 1, ch. 16, p. 205, 208"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "The entered KP rules have 1 specific interpretation in this area, including foreign lands. Each addresses its own question.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": false,
+              "details": [
+                {
+                  "id": "kp12-foreign",
+                  "text": "The 12th sub lord signifies 3, 9 and 12 (3 leaving home, 9 the long journey, 12 the new surroundings): foreign travel and residence, in their conjoined period.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 58"
+                }
+              ]
+            }
+          ]
+        },
+        "jaimini": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected Jaimini interpretations are supportive about career and work.",
+              "stance": "supports",
+              "basis": "Jupiter is friendly in Aries: the karaka is strong enough to deliver",
+              "conditional": false,
+              "provisional": true
+            },
+            {
+              "topic": "authority",
+              "summary": "The Jaimini reading examines career & position as a shared area. Its indicators are not a separate verdict for every subject within it.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the shared area and its original conditions; its combined notes need not describe this particular subject.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "education",
+              "summary": "The entered Jaimini reading places learning alongside children in a shared area; no selected learning-specific rule matched. The shared area's overall balance is not an education verdict.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the shared area and its original conditions; its combined notes need not describe this particular subject.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "travel",
+              "summary": "The existing Jaimini area reading does not separate travel into its own general interpretation.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the source area for its karakas, padas and individual conditions.",
+              "conditional": false,
+              "provisional": false,
+              "details": []
+            }
+          ]
+        },
+        "alp": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "No reviewed, topic-specific ALP rule matched on 7 Oct 2025. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 7 Oct 2025",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "authority",
+              "summary": "The three-ways interpretation includes public recognition among its themes.",
+              "stance": "silent",
+              "frame": "Progressed reading for 7 Oct 2025",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "ch17-3w-all-three",
+                  "text": "The three-ways interpretation includes public recognition among its themes.",
+                  "source": "Akshaya Lagna Paddhati Vol. 2, Dr. S. Pothuvudaimoorthy, p. 139",
+                  "sourceUrl": "https://www.alpastrology.org/books"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "No reviewed, topic-specific ALP rule matched on 7 Oct 2025. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 7 Oct 2025",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "travel",
+              "summary": "No reviewed, topic-specific ALP rule matched on 7 Oct 2025. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 7 Oct 2025",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            }
+          ]
+        },
+        "prasna": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The 10th house includes actions, the power to command and service. The selected chart has planets in this house.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord, Saturn in the 6th, and its karaka, Mercury in the 11th, are both strong; the lord is badly placed, the karaka well placed. The promise exists, yet the native does not enjoy it.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-10",
+                  "text": "This house covers actions, the power to command and service; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 10 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "authority",
+              "summary": "The 10th house includes actions, the power to command and service. The selected chart has planets in this house.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord, Saturn in the 6th, and its karaka, Mercury in the 11th, are both strong; the lord is badly placed, the karaka well placed. The promise exists, yet the native does not enjoy it.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-10",
+                  "text": "This house covers actions, the power to command and service; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 10 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "The 2nd house includes family, wealth and speech. The selected chart has no planets in this house; its lord can still matter.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord, Mercury in the 11th, and its karaka, Jupiter in the 12th, are both strong; the lord is well placed, the karaka badly placed. The promise exists, yet the native does not enjoy it.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-2",
+                  "text": "This house covers family, wealth and speech; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 2 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "No separate topic-specific interpretation is included in this house-based view.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "The entered house significations do not supply a dedicated reading for this subject.",
+              "conditional": false,
+              "provisional": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Catherine Breillat",
+      "birthTime": "20:15",
+      "birthSource": "https://www.astro.com/astro-databank/Breillat,_Catherine",
+      "factSource": "https://www.festival-cannes.com/en/f/l-ete-dernier/",
+      "asOfDay": "2023-07-01",
+      "asOfPurpose": "Arbitrary observation date in film's production year, not a specific event date",
+      "lagna": "Sagittarius",
+      "alpAsOf": "2023-07-01T00:00:00.000+02:00",
+      "alpRuleIds": [
+        "b2-alp-in-janma-9",
+        "b2-navamsa-naklord-68",
+        "b2c3-nak-lord-future",
+        "b2c3-nak-lord-ketu",
+        "b2c8-nak-lords-1-7",
+        "b2c10-lords-6-8",
+        "b2c11-alp-from-rahu",
+        "ch17-3w-present-1-future-2",
+        "b2-marriage-navamsa-away",
+        "b2c5-nak-lord-free-will",
+        "ch17-alp-lord-past"
+      ],
+      "readings": {
+        "parashari": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected Parashari interpretations emphasize cautions about career and work.",
+              "stance": "strains",
+              "basis": "BPHS: 10th house (work, honour and authority): its ruler, Mercury, sits in the 7th and does not look back at it, which Parashara counts against the house (11.14-16)",
+              "conditional": false,
+              "provisional": true
+            },
+            {
+              "topic": "authority",
+              "summary": "For this topic the reading refers to the 10th house, which also covers work, honour and authority. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Work, honour and authority. Virgo, ruled by Mercury, with Mars in it. Parashara's test finds it under strain.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "house-10-lord",
+                  "text": "A house-level interpretation: Since Mercury, ruler of your 10th house, sits in your 7th (spouse, travel and trade), Parashara reads: happiness through the spouse; intelligent, virtuous, eloquent, truthful and religious. Mercury is strong enough by Parashara's measure to give this in full.",
+                  "source": "Parashara 24.115",
+                  "sourceUrl": "http://jyotishvidya.com/ch24.htm"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "For this topic the reading refers to the 5th house, which also covers learning and children. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Learning and children. Aries, ruled by Mars, with Rahu in it. Parashara's test finds it favoured.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "house-5-lord",
+                  "text": "A house-level interpretation: Since Mars, ruler of your 5th house, sits in your 10th (work, honour and authority), Parashara reads: a raja yoga: many pleasures and great fame. Mars is strong enough by Parashara's measure to give this in full.",
+                  "source": "Parashara 24.58",
+                  "sourceUrl": "http://jyotishvidya.com/ch24.htm"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "For this topic the reading refers to the 7th house, which also covers spouse, travel and trade. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Spouse, travel and trade. Gemini, ruled by Mercury, with the Sun, Mercury and Venus in it. Parashara's test finds signs both ways.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "house-7-lord",
+                  "text": "A house-level interpretation: Since Mercury, ruler of your 7th house, sits in the house itself, Parashara reads: happiness through the spouse; courageous, skilled and intelligent; wind complaints. Mercury is strong enough by Parashara's measure to give this in full.",
+                  "source": "Parashara 24.79",
+                  "sourceUrl": "http://jyotishvidya.com/ch24.htm"
+                }
+              ]
+            }
+          ]
+        },
+        "kp": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected KP rules do not give a general conclusion about career and work in this comparison. A more specific rule may still appear in that school's reading.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is business.",
+              "conditional": true,
+              "provisional": false
+            },
+            {
+              "topic": "authority",
+              "summary": "The entered KP rules have 2 specific interpretations in this area, including standing. Each addresses its own question.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": false,
+              "details": [
+                {
+                  "id": "kp1-popular",
+                  "text": "The lagna sub lord signifies 1, 3, 10 and 11: a popular, well-regarded person.",
+                  "source": "Kalpurush Astrology, KP class 3.2 (the 1st cusp), S. Neogi"
+                },
+                {
+                  "id": "kp1-fame",
+                  "text": "The lagna sub lord is connected to the 10th: name and reputation come through work.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 39"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "The entered KP rules have 3 specific interpretations in this area, including education. Each addresses its own question.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "kp4-edu-no-9",
+                  "text": "The 4th sub lord's computed significations include 4 and 11 but not 9. The source associates this partial pattern with limits on higher study, but also examines the 9th cusp, sub-level connections and close conjunctions; those extra checks are not all included here, so this alone cannot establish the educational outcome.",
+                  "source": "Astro Secrets & KP Part 1, ch. 16, p. 138-141"
+                },
+                {
+                  "id": "kp4-line-node",
+                  "text": "If higher education is independently established, the source associates a node as 4th sub lord with the subjects of the lord of the house it occupies. This partial match does not itself establish that prerequisite.",
+                  "source": "Astro Secrets & KP Part 1, ch. 16, p. 141"
+                },
+                {
+                  "id": "kp4-arts-school",
+                  "text": "The 4th sub lord signifies 4, 5 and 11: training in a Veda school or a performing-arts institute; Mercury gives wind instruments, Mars the martial arts, Venus tailoring and vocational crafts.",
+                  "source": "Astro Secrets & KP Part 1, ch. 16, p. 142"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "The entered KP rules have 2 specific interpretations in this area, including journeys, travel. Each addresses its own question.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": false,
+              "details": [
+                {
+                  "id": "kp9-pilgrimage",
+                  "text": "The 9th sub lord signifies 3, 9 and 10: pilgrimage and long journeys.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 54"
+                },
+                {
+                  "id": "kp9-abroad",
+                  "text": "The 9th sub lord signifies 9, 3 and 12: going abroad.",
+                  "source": "Astro Secrets & KP Part 1, ch. 16, p. 188"
+                }
+              ]
+            }
+          ]
+        },
+        "jaimini": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected Jaimini interpretations are supportive about career and work.",
+              "stance": "supports",
+              "basis": "AmK is in the 4th from the Atmakaraka in the navamsa: a good position in life attained with less struggle…",
+              "conditional": false,
+              "provisional": true
+            },
+            {
+              "topic": "authority",
+              "summary": "The Jaimini reading examines career & position as a shared area. Its indicators are not a separate verdict for every subject within it.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the shared area and its original conditions; its combined notes need not describe this particular subject.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "education",
+              "summary": "The entered Jaimini reading places learning alongside children in a shared area and has 2 learning-related source findings. The shared area's overall balance is not an education verdict.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the shared area and its original conditions; its combined notes need not describe this particular subject.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "jks-5th-jupiter",
+                  "text": "Jupiter in the Karakamsa or its 5th: broad learning, well-versed in books, a grammarian or knower of scripture.",
+                  "source": "Jaimini Sutras 1.2.106-108",
+                  "sourceUrl": "https://vedichora.org/classical/jaimini-sutras"
+                },
+                {
+                  "id": "jks-5th-ketu",
+                  "text": "Ketu in the Karakamsa or its 5th: a mathematician.",
+                  "source": "Jaimini Sutras 1.2.114",
+                  "sourceUrl": "https://vedichora.org/classical/jaimini-sutras"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "The existing Jaimini area reading does not separate travel into its own general interpretation.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the source area for its karakas, padas and individual conditions.",
+              "conditional": false,
+              "provisional": false,
+              "details": []
+            }
+          ]
+        },
+        "alp": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "No reviewed, topic-specific ALP rule matched on 1 Jul 2023. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 1 Jul 2023",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "authority",
+              "summary": "No reviewed, topic-specific ALP rule matched on 1 Jul 2023. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 1 Jul 2023",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "education",
+              "summary": "No reviewed, topic-specific ALP rule matched on 1 Jul 2023. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 1 Jul 2023",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "travel",
+              "summary": "No reviewed, topic-specific ALP rule matched on 1 Jul 2023. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 1 Jul 2023",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            }
+          ]
+        },
+        "prasna": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The 10th house includes actions, the power to command and service. The selected chart has planets in this house.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord and karaka, Mercury in the 7th, is strong and well placed. The house's promise is fully experienced.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-10",
+                  "text": "This house covers actions, the power to command and service; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 10 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "authority",
+              "summary": "The 10th house includes actions, the power to command and service. The selected chart has planets in this house.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord and karaka, Mercury in the 7th, is strong and well placed. The house's promise is fully experienced.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-10",
+                  "text": "This house covers actions, the power to command and service; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 10 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "The 2nd house includes family, wealth and speech. The selected chart has no planets in this house; its lord can still matter.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord, Saturn in the 8th, is weak and badly placed; its karaka, Jupiter in the 12th, is strong and badly placed. The influence is mixed.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-2",
+                  "text": "This house covers family, wealth and speech; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 2 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "No separate topic-specific interpretation is included in this house-based view.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "The entered house significations do not supply a dedicated reading for this subject.",
+              "conditional": false,
+              "provisional": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ricardo Bermudez Garcia",
+      "birthTime": "11:10",
+      "birthSource": "https://www.astro.com/astro-databank/Ricardinho",
+      "factSource": "https://www.olympedia.org/results/37760",
+      "asOfDay": "2004-08-29",
+      "asOfPurpose": "Olympic men's volleyball final; date selected before examining readings",
+      "lagna": "Capricorn",
+      "alpAsOf": "2004-08-29T00:00:00.000-03:00",
+      "alpRuleIds": [
+        "b2-marriage-navamsa-touches",
+        "alp2-nak-lord-6-8-12",
+        "b2-alp-in-janma-4",
+        "b2c3-nak-lord-future",
+        "ch17-3w-present-2-future-1",
+        "b2c5-nak-lord-destined",
+        "b2c8-nak-lord-destined-arp",
+        "b2c10-arp-in-3",
+        "b2c16-nak-lord-6",
+        "b1n-nak-lord-6",
+        "ch17-nak-lord-6-body"
+      ],
+      "readings": {
+        "parashari": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected Parashari interpretations disagree about career and work; support and caution are both retained.",
+              "stance": "contested",
+              "basis": "Phaladeepika reads the Sun in your 11th house kindly here (a leading place among people); yet BPHS: 10th house (work, honour and authority): its ruler, Venus, sits in the 9th and does not look back at it, which Parashara counts against the house (11.14-16)",
+              "conditional": false,
+              "provisional": true
+            },
+            {
+              "topic": "authority",
+              "summary": "For this topic the reading refers to the 10th house, which also covers work, honour and authority. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Work, honour and authority. Libra, ruled by Venus, with Mercury and Rahu in it. Parashara's test finds it under strain.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "house-10-lord",
+                  "text": "A house-level interpretation: Since Venus, ruler of your 10th house, sits in your 9th (fortune and religion), Parashara reads: rulership for the well-born, the equal of it for others; wealth and happiness through children. Venus is strong enough by Parashara's measure to give this in full.",
+                  "source": "Parashara 24.117",
+                  "sourceUrl": "http://jyotishvidya.com/ch24.htm"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "For this topic the reading refers to the 5th house, which also covers learning and children. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Learning and children. Taurus, ruled by Venus, with the Moon in it. Parashara's test finds it under strain.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "house-5-lord",
+                  "text": "A house-level interpretation: Since Venus, ruler of your 5th house, sits in your 9th (fortune and religion), Parashara reads: princely standing, an author of works, famous, the light of the family. Venus is strong enough by Parashara's measure to give this in full.",
+                  "source": "Parashara 24.57",
+                  "sourceUrl": "http://jyotishvidya.com/ch24.htm"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "For this topic the reading refers to the 7th house, which also covers spouse, travel and trade. Its overall house interpretation is shown below.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "Spouse, travel and trade. Cancer, ruled by the Moon, with Saturn in it. Parashara's test finds signs both ways.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "house-7-lord",
+                  "text": "A house-level interpretation: Since the Moon, ruler of your 7th house, sits in your 5th (learning and children), Parashara reads: honoured and endowed with every virtue; always cheerful; wealth of every kind. The Moon is strong enough by Parashara's measure to give this in full.",
+                  "source": "Parashara 24.77",
+                  "sourceUrl": "http://jyotishvidya.com/ch24.htm"
+                }
+              ]
+            }
+          ]
+        },
+        "kp": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected KP rules do not give a general conclusion about career and work in this comparison. A more specific rule may still appear in that school's reading.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "No promise or denial rule fires for the 10th cusp; the KP rules that do fire describe it: the main livelihood is service.",
+              "conditional": true,
+              "provisional": false
+            },
+            {
+              "topic": "authority",
+              "summary": "The entered KP rules have 2 specific interpretations in this area, including standing, public life. Each addresses its own question.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": false,
+              "details": [
+                {
+                  "id": "kp1-fame",
+                  "text": "The lagna sub lord is connected to the 10th: name and reputation come through work.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 39"
+                },
+                {
+                  "id": "kp11-election-lose",
+                  "text": "The 11th sub lord signifies 5, 8 and 12: elections and contests are lost.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 57"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "No entered topic-specific KP rule matched here; this is not a negative conclusion.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": false,
+              "details": []
+            },
+            {
+              "topic": "travel",
+              "summary": "The entered KP rules have 2 specific interpretations in this area, including foreign lands. Each addresses its own question.",
+              "stance": "silent",
+              "frame": "Birth chart · four-step KP comparison",
+              "basis": "These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.",
+              "conditional": true,
+              "provisional": false,
+              "details": [
+                {
+                  "id": "kp12-foreign",
+                  "text": "The 12th sub lord signifies 3, 9 and 12 (3 leaving home, 9 the long journey, 12 the new surroundings): foreign travel and residence, in their conjoined period.",
+                  "source": "Astro Secrets & KP Part 3, ch. 6, p. 58"
+                },
+                {
+                  "id": "kp12-settle-abroad",
+                  "text": "The 12th sub lord signifies 3, 9 and 12 with 1 and 10: settling in the foreign country itself.",
+                  "source": "Astro Secrets & KP Part 1, ch. 16, p. 208"
+                }
+              ]
+            }
+          ]
+        },
+        "jaimini": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The selected Jaimini interpretations are supportive about career and work.",
+              "stance": "supports",
+              "basis": "Jupiter is own sign in Pisces: the karaka is strong enough to deliver",
+              "conditional": false,
+              "provisional": true
+            },
+            {
+              "topic": "authority",
+              "summary": "The Jaimini reading examines career & position as a shared area. Its indicators are not a separate verdict for every subject within it.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the shared area and its original conditions; its combined notes need not describe this particular subject.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "education",
+              "summary": "The entered Jaimini reading places learning alongside children in a shared area and has 1 learning-related source finding. The shared area's overall balance is not an education verdict.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the shared area and its original conditions; its combined notes need not describe this particular subject.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "jks-5th-venus",
+                  "text": "Venus in the Karakamsa or its 5th: a poet, eloquent, a connoisseur of literature.",
+                  "source": "Jaimini Sutras 1.2.105",
+                  "sourceUrl": "https://vedichora.org/classical/jaimini-sutras"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "The existing Jaimini area reading does not separate travel into its own general interpretation.",
+              "stance": "silent",
+              "frame": "Birth chart",
+              "basis": "See the source area for its karakas, padas and individual conditions.",
+              "conditional": false,
+              "provisional": false,
+              "details": []
+            }
+          ]
+        },
+        "alp": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "No reviewed, topic-specific ALP rule matched on 29 Aug 2004. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 29 Aug 2004",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "authority",
+              "summary": "The three-ways interpretation includes standing and recognition among its themes.",
+              "stance": "silent",
+              "frame": "Progressed reading for 29 Aug 2004",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "ch17-3w-present-2-future-1",
+                  "text": "The three-ways interpretation includes standing and recognition among its themes.",
+                  "source": "Akshaya Lagna Paddhati Vol. 2, Dr. S. Pothuvudaimoorthy, p. 139",
+                  "sourceUrl": "https://www.alpastrology.org/books"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "No reviewed, topic-specific ALP rule matched on 29 Aug 2004. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 29 Aug 2004",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            },
+            {
+              "topic": "travel",
+              "summary": "No reviewed, topic-specific ALP rule matched on 29 Aug 2004. That does not rule the matter in or out.",
+              "stance": "silent",
+              "frame": "Progressed reading for 29 Aug 2004",
+              "basis": "The selected finding comes from this date's progressed lagna and is not a natal or event-specific verdict.",
+              "conditional": false,
+              "provisional": true,
+              "details": []
+            }
+          ]
+        },
+        "prasna": {
+          "topics": [
+            "career",
+            "marriage",
+            "self",
+            "authority",
+            "children",
+            "wealth",
+            "education",
+            "family",
+            "health",
+            "spirituality",
+            "travel",
+            "father",
+            "mother"
+          ],
+          "selected": [
+            {
+              "topic": "career",
+              "summary": "The 10th house includes actions, the power to command and service. The selected chart has planets in this house.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord, Venus in the 9th, and its karaka, Mercury in the 10th, are both strong and well placed. The house's promise is fully experienced.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-10",
+                  "text": "This house covers actions, the power to command and service; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 10 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "authority",
+              "summary": "The 10th house includes actions, the power to command and service. The selected chart has planets in this house.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord, Venus in the 9th, and its karaka, Mercury in the 10th, are both strong and well placed. The house's promise is fully experienced.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-10",
+                  "text": "This house covers actions, the power to command and service; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 10 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "education",
+              "summary": "The 2nd house includes family, wealth and speech. The selected chart has no planets in this house; its lord can still matter.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "Its lord, Saturn in the 7th, is weak and well placed; its karaka, Jupiter in the 3rd, is strong and neither well nor badly placed. The influence is mixed.",
+              "conditional": false,
+              "provisional": true,
+              "details": [
+                {
+                  "id": "prasna-house-2",
+                  "text": "This house covers family, wealth and speech; see the house walk for the original conditions.",
+                  "source": "Prasna Marga, chapter XIV: house 2 and verses 39–41"
+                }
+              ]
+            },
+            {
+              "topic": "travel",
+              "summary": "No separate topic-specific interpretation is included in this house-based view.",
+              "stance": "silent",
+              "frame": "Birth-chart house reading",
+              "basis": "The entered house significations do not supply a dedicated reading for this subject.",
+              "conditional": false,
+              "provisional": true
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
