@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { ChartResult } from "@shared/schema";
 import { NAKSHATRAS, SIGN_LORD, SIGNS } from "@shared/astro";
+import { GULIKA_METHODS, normaliseGulikaMethod } from "@shared/gulika-methods";
 import {
   arudhaFromHandful,
   ashtamangalaFromGroups,
@@ -256,6 +257,8 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
   const { positions, reading, now } = result;
   const plain = usePlain();
   const birthLagnaIdx = result.jaimini.lagna.signIndex;
+  const gulikaMethod = normaliseGulikaMethod(result.chart.gulikaMethod);
+  const gulikaMethodInfo = GULIKA_METHODS.find((method) => method.id === gulikaMethod)!;
   const withheld = result.sensitive?.withheld ?? sensitiveGate(result.chart, result.utc, result.now.asOf).withheld;
   const [arudhaIdx, setArudhaIdx] = useState<number | null>(null);
   const [shellCast, setShellCast] = useState<{
@@ -437,10 +440,26 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         snapshot at the birth-chart location. The birth-chart view is separate.
       </p>
       <p className="mt-2 max-w-[80ch] text-xs text-muted-foreground" data-testid="prasna-gulika-convention">
-        Gulika and points derived from it use a provisional Saturn-portion calculation. It differs
-        from the weekday-constant Mandi method described in Prasna Marga and Prashnanushthana Paddhati,
-        and their placements may change under that method.
+        Gulika / Mandi uses {gulikaMethodInfo.short}. The Kerala weekday constants are the Prasna
+        Marga default; other conventions are comparisons. Change the method in chart settings.
+        A traditional interpretation of one placement does not establish an outcome.
       </p>
+      {result.gulikaComparisons && (
+        <details className="mt-2 rounded-md border p-3 text-xs" data-testid="prasna-gulika-comparison">
+          <summary className="cursor-pointer font-medium">Compare birth-chart Gulika / Mandi conventions</summary>
+          <p className="mt-2 text-muted-foreground">Each position uses this chart's sunrise definition and ayanamsa. The same setting also selects the snapshot point and the Gulika-dependent sphutas.</p>
+          <ul className="mt-2 space-y-1">
+            {GULIKA_METHODS.map((method) => {
+              const point = result.gulikaComparisons![method.id];
+              const house = (point.signIndex - birthLagnaIdx + 12) % 12 + 1;
+              return <li key={method.id} data-testid={`prasna-gulika-${method.id}`}>
+                {method.label}: <span className="tabular">{(point.lon % 30).toFixed(2)}°</span> {SIGNS[point.signIndex]} · {ord(house)} house{method.id === gulikaMethod ? " · selected" : ""}
+              </li>;
+            })}
+          </ul>
+          <p className="mt-2 text-muted-foreground">The sources use the names differently. Prasna Marga's house interpretation is tied to its Kerala method; other selections are explicitly comparisons.</p>
+        </details>
+      )}
 
       <Chapters tab="prasna" chapters={chapterDefs} className="mt-4">
       <Chapter id="prasna">
@@ -589,7 +608,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                 data-testid="prasna-gulika-reading"
               >
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                  <span className="text-sm font-medium">Gulika</span>
+                  <span className="text-sm font-medium">Gulika / Mandi · {gulikaMethodInfo.short}</span>
                   <span className="text-xs text-muted-foreground">
                     {SIGNS[prasnaGulika.signIndex]} · {ord(prasnaGulika.house)}{" "}
                     from the Arudha
@@ -871,7 +890,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               data-testid="prasna-gulika"
             >
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                <span className="text-sm font-medium">Gulika</span>
+                <span className="text-sm font-medium">Gulika / Mandi · {gulikaMethodInfo.short}</span>
                 <span className="text-xs text-muted-foreground">
                   {SIGNS[gulika.signIndex]} · {ord(gulika.house)} house
                 </span>
@@ -1123,7 +1142,8 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
             The sphutas
           </summary>
           <p className="mt-1 text-xs text-muted-foreground">
-            Derived points read by sign and nakshatra (Prasna Marga 5.17–23).
+            The first six points use the selected birth-chart Gulika / Mandi (Prasna Marga 5.17–19).
+            The separately labelled ghati points use the stored current snapshot, not the birth instant.
           </p>
           <ul className="mt-2 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
             {(
@@ -1136,9 +1156,9 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
                 ["Mrityusphuta", sphutas.mrityusphuta, ""],
                 ...(result.timeSphutas
                   ? ([
-                      ["Pranasphuta (by ghatis)", result.timeSphutas.pranasphutaAlt, "alt"],
-                      ["Mrityusphuta (by weekday)", result.timeSphutas.mrityusphutaAlt, "alt"],
-                      ["Kalasphuta", result.timeSphutas.kalasphuta, "alt"],
+                      ["Pranasphuta (snapshot ghatis)", result.timeSphutas.pranasphutaAlt, "alt"],
+                      ["Mrityusphuta (snapshot weekday)", result.timeSphutas.mrityusphutaAlt, "alt"],
+                      ["Kalasphuta (snapshot)", result.timeSphutas.kalasphuta, "alt"],
                     ] as const)
                   : []),
               ] as ReadonlyArray<readonly [string, number, string]>

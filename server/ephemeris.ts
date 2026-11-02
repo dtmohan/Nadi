@@ -11,6 +11,7 @@ import {
   type KpStabilityPoint,
 } from "@shared/kp";
 import type { SunriseDefinition } from "@shared/schema";
+import type { GulikaComparisons, GulikaPoint } from "@shared/gulika-methods";
 import type { ShadbalaBase, Seven } from "@shared/shadbala";
 import {
   PLANETS,
@@ -987,40 +988,10 @@ export function panchangaAt(
 }
 
 /**
- * Gulika (Mandi), the upagraha. The day (or night) is divided into eight equal parts whose lords
- * cycle Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn, Rahu; the day counts from the weekday
- * lord, the night from the fifth planet from the weekday lord. Gulika is read at Saturn's portion,
- * and its longitude is the sidereal ascendant at the start of that portion. Conventions differ on
- * whether Gulika is Saturn's portion or the eighth ("no lord") portion; Saturn's portion is used
- * here (provisional).
- */
-export function gulikaLongitude(
-  jd: number,
-  latitude: number,
-  longitude: number,
-  zone: string,
-  opts: EphemerisOptions,
-): { lon: number; signIndex: number; day: boolean } {
-  const sunrise = sunriseBefore(jd, latitude, longitude, opts.sunrise);
-  const sunset = riseOrSetAfter(sunrise, latitude, longitude, C.SE_CALC_SET, opts.sunrise);
-  const nextSunrise = riseOrSetAfter(sunset, latitude, longitude, C.SE_CALC_RISE, opts.sunrise);
-  const day = jd < sunset;
-  const start = day ? sunrise : sunset;
-  const end = day ? sunset : nextSunrise;
-  const part = (end - start) / 8;
-  const weekday = weekdayOf(start, zone); // 0 = Sunday .. 6 = Saturday
-  const cycleStart = day ? weekday : (weekday + 4) % 8;
-  const saturnIdx = (6 - cycleStart + 8) % 8; // Saturn is index 6 in the eight-planet cycle
-  const gulikaTime = start + saturnIdx * part;
-  const lon = ascendantAt(gulikaTime, latitude, longitude, opts);
-  return { lon, signIndex: Math.floor(lon / 30), day };
-}
-
-/**
- * Research comparison: weekday-constant Mandi method in Prashnanushthana Paddhati 3.9–10
+ * Weekday-constant Mandi method in Prashnanushthana Paddhati 3.9–10
  * (extract pp. 54–55), also described in B.V. Raman's Prasna Marga 5.14–16 notes. Duration and
  * result use the same unit. The books treat Mandi as Gulika for this Kerala method; other authors
- * distinguish them. This is not the convention currently used by gulikaLongitude or chart output.
+ * distinguish them.
  */
 export function keralaMandiOffset(duration: number, weekday: number, day: boolean): number {
   if (!Number.isFinite(duration) || duration <= 0 || !Number.isInteger(weekday) || weekday < 0 || weekday > 6) {
@@ -1030,14 +1001,24 @@ export function keralaMandiOffset(duration: number, weekday: number, day: boolea
   return duration * constants[weekday] / 30;
 }
 
-/** Named research variant, deliberately not substituted for the production Gulika calculation. */
-export function keralaMandiLongitude(
+/** Saturn's zero-based portion, counting seven weekday lords and leaving the eighth unruled.
+ * BPHS 3.66–70 in the cited translation; for night count from the fifth weekday, inclusive. */
+export function saturnPortionIndex(weekday: number, day: boolean): number {
+  if (!Number.isInteger(weekday) || weekday < 0 || weekday > 6) {
+    throw new Error("Saturn portion requires a weekday from 0 to 6");
+  }
+  const firstLord = day ? weekday : (weekday + 4) % 7;
+  return (6 - firstLord + 7) % 7;
+}
+
+/** Calculate all source-labelled variants from the same sunrise, sunset, place and ayanamsa. */
+export function gulikaComparisons(
   jd: number,
   latitude: number,
   longitude: number,
   zone: string,
   opts: EphemerisOptions,
-): { lon: number; signIndex: number; day: boolean; risingJd: number } {
+): GulikaComparisons {
   const sunrise = sunriseBefore(jd, latitude, longitude, opts.sunrise);
   const sunset = riseOrSetAfter(sunrise, latitude, longitude, C.SE_CALC_SET, opts.sunrise);
   const nextSunrise = riseOrSetAfter(sunset, latitude, longitude, C.SE_CALC_RISE, opts.sunrise);
@@ -1045,9 +1026,34 @@ export function keralaMandiLongitude(
   const start = day ? sunrise : sunset;
   const end = day ? sunset : nextSunrise;
   // The weekday belongs to the beginning of the day/night, including a night after midnight.
-  const risingJd = start + keralaMandiOffset(end - start, weekdayOf(start, zone), day);
-  const lon = ascendantAt(risingJd, latitude, longitude, opts);
-  return { lon, signIndex: Math.floor(lon / 30), day, risingJd };
+  const weekday = weekdayOf(start, zone);
+  const duration = end - start;
+  const saturn = saturnPortionIndex(weekday, day);
+  // Poddar's published Mandi table agrees with the seven-lord midpoint by day and on
+  // Sunday–Tuesday nights, but gives a later eighth on Wednesday–Saturday nights. Keep the
+  // printed table as its own option; the source does not explain its conflict with its prose.
+  const poddarMandi = (day ? [26, 22, 18, 14, 10, 6, 2] : [10, 6, 2, 30, 26, 22, 18])[weekday] / 32;
+  const at = (risingJd: number): GulikaPoint => {
+    const lon = ascendantAt(risingJd, latitude, longitude, opts);
+    return { lon, signIndex: Math.floor(lon / 30), day, risingJd };
+  };
+  return {
+    "kerala-ghati": at(start + keralaMandiOffset(duration, weekday, day)),
+    "saturn-start": at(start + duration * saturn / 8),
+    "saturn-middle": at(start + duration * (saturn + 0.5) / 8),
+    "poddar-table": at(start + duration * poddarMandi),
+    "saturn-end": at(start + duration * (saturn + 1) / 8),
+  };
+}
+
+/** Sreenadh's start convention; kept by name for callers that request it. */
+export function gulikaLongitude(jd: number, latitude: number, longitude: number, zone: string, opts: EphemerisOptions): GulikaPoint {
+  return gulikaComparisons(jd, latitude, longitude, zone, opts)["saturn-start"];
+}
+
+/** The Kerala weekday-constant method, named separately from the start convention. */
+export function keralaMandiLongitude(jd: number, latitude: number, longitude: number, zone: string, opts: EphemerisOptions): GulikaPoint {
+  return gulikaComparisons(jd, latitude, longitude, zone, opts)["kerala-ghati"];
 }
 
 /** The time-based sphutas (Ch. V 20-23) read at the query instant `jd`, from the day's ghatis. */

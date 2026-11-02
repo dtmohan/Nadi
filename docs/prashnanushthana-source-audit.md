@@ -1,5 +1,10 @@
 # Prashnanushthana Paddhati: source and calculation audit
 
+**Historical note:** This is the initial audit. Its references below to the previous production
+Gulika calculation and the Kerala method as research describe the state at that time. The later
+[Gulika/Mandi methods review](gulika-mandi-review.md) documents the corrected night cycle, named
+conventions, new default and follow-up examples.
+
 The user supplied a text extraction of *Prashnanushthana Paddhati*, translated and annotated by K. Guru Rajesh, second edition. References below identify chapters, verses and **extraction page markers**; they are not guaranteed to match the printed page numbers. The text contains OCR errors and omits some diagrams. No book text or personal consultations are included in this repository.
 
 ## Question, Arudha and cowries

@@ -1,7 +1,7 @@
 // Reproduce the astronomical inputs and Gulika-method comparison in the source audit.
 // Run from the repository root: node --import tsx scripts/eval-prashnanushthana.ts
 import { DateTime } from "luxon";
-import { ascendantAt, gulikaLongitude, julianDay, keralaMandiLongitude, positionsAt } from "../server/ephemeris";
+import { ascendantAt, gulikaComparisons, julianDay, positionsAt } from "../server/ephemeris";
 import { ashtamangalaFromGroups } from "@shared/rules-prasna";
 
 const zone = "Asia/Kolkata";
@@ -13,7 +13,9 @@ const longitude = 76 + 13 / 60;
 const opts = { ayanamsa: "lahiri", nodeType: "mean" as const, sunrise: "edge" as const };
 const positions = positionsAt(jd, opts);
 const lon = (planet: string) => positions.find((p) => p.planet === planet)!.lon;
-const mandi = keralaMandiLongitude(jd, latitude, longitude, zone, opts);
+const variants = gulikaComparisons(jd, latitude, longitude, zone, opts);
+const mandi = variants["kerala-ghati"];
+const midpointTrueCentre = gulikaComparisons(jd, latitude, longitude, zone, { ...opts, sunrise: "centre-true" })["saturn-middle"];
 const book = { ascendant: 30 + 17 + 32 / 60, sun: 6 * 30 + 25 + 9 / 60, moon: 10 * 30 + 10 + 55 / 60, mandi: 4 * 30 + 4 + 44 / 60 };
 // A second question from ch. 13: apply the stated Yama Shukra method to the source's own
 // stated sunrise and day length, so the ephemeris sunrise convention cannot explain the discrepancy.
@@ -32,8 +34,12 @@ console.log(JSON.stringify({
     ascendant: ascendantAt(jd, latitude, longitude, opts),
     sun: lon("Sun"),
     moon: lon("Moon"),
-    currentGulika: gulikaLongitude(jd, latitude, longitude, zone, opts).lon,
-    keralaMandiResearch: mandi.lon,
+    keralaMandiDefault: mandi.lon,
+    saturnPortionStart: variants["saturn-start"].lon,
+    saturnPortionMiddle: variants["saturn-middle"].lon,
+    poddarPrintedTable: variants["poddar-table"].lon,
+    saturnPortionEnd: variants["saturn-end"].lon,
+    midpointWithAssumedTrueCentreSunrise: midpointTrueCentre.lon,
   },
   keralaMandiRising: DateTime.fromMillis((mandi.risingJd - 2440587.5) * 86400000, { zone }).toISO(),
   cowrieExample: ashtamangalaFromGroups(34, 39, 35),

@@ -305,7 +305,7 @@ test("Prasna Marga Santana Trisphuta on the reference chart", () => {
   assert.equal(t.inBadHouse, true);
 });
 
-test("Prasna Marga Gulika position on the reference chart", () => {
+test("Saturn-portion start Gulika position on the reference chart", () => {
   const g = gulikaLongitude(jd, 0, 0, "UTC", opts);
   assert.equal(g.signIndex, 0);
   assert.equal(g.day, true);
@@ -326,7 +326,7 @@ test("Kerala Mandi weekday constants, including the corrected example arithmetic
   assert.throws(() => keralaMandiOffset(30, 7, true));
 });
 
-test("Kerala Mandi research calculation retains the preceding weekday after midnight", () => {
+test("Kerala Mandi calculation retains the preceding weekday after midnight", () => {
   const question = DateTime.fromISO("1994-11-11T19:25", { zone: "Asia/Kolkata" }).toUTC();
   const afterMidnight = DateTime.fromISO("1994-11-12T01:00", { zone: "Asia/Kolkata" }).toUTC();
   const expectedRise = DateTime.fromISO("1994-11-12T01:23:14.200", { zone: "Asia/Kolkata" }).toUTC();

@@ -8,6 +8,7 @@ import {
   normaliseSunriseDef,
 } from "@shared/schema";
 import { RULES, applyBand, evaluate } from "@shared/rules";
+import { normaliseGulikaMethod } from "@shared/gulika-methods";
 import { assessNakshatraWealth } from "@shared/nakshatra-wealth";
 import {
   birthInstant,
@@ -28,7 +29,7 @@ import {
   panchangaAt,
   panchangaForDate,
   signStay,
-  gulikaLongitude,
+  gulikaComparisons,
   timeSphutas,
   type EphemerisOptions,
 } from "./ephemeris";
@@ -178,6 +179,9 @@ export function computeChart(chart: Chart): ChartResult {
     ...transitPeriods("Saturn", jd, endJd, opts),
   ];
   const nj = nowJd();
+  const gulikaMethod = normaliseGulikaMethod(chart.gulikaMethod);
+  const birthGulika = gulikaComparisons(jd, chart.latitude, chart.longitude, zone, opts);
+  const nowGulika = gulikaComparisons(nj, chart.latitude, chart.longitude, zone, opts);
   let special: { horaLagna: number; ghatikaLagna: number } | undefined;
   try {
     special = specialLagnas(jd, chart.latitude, chart.longitude, opts);
@@ -203,14 +207,16 @@ export function computeChart(chart: Chart): ChartResult {
       positions: positionsAt(nj, opts),
       asOf: DateTime.utc().toISO()!,
       lagnaLon: ascendantAt(nj, chart.latitude, chart.longitude, opts),
-      gulika: gulikaLongitude(nj, chart.latitude, chart.longitude, zone, opts),
+      gulika: nowGulika[gulikaMethod],
+      gulikaComparisons: nowGulika,
       marsStay: signStay("Mars", nj, opts),
     },
     jaimini,
     kp: kpBase(jd, chart.latitude, chart.longitude, zone, opts.nodeType),
     shadbala: shadbalaBase(jd, chart.latitude, chart.longitude, opts),
     panchanga: panchangaAt(jd, chart.latitude, chart.longitude, zone, opts),
-    gulika: gulikaLongitude(jd, chart.latitude, chart.longitude, zone, opts),
+    gulika: birthGulika[gulikaMethod],
+    gulikaComparisons: birthGulika,
     timeSphutas: timeSphutas(nowJd(), chart.latitude, chart.longitude, zone, opts),
     dasaStarts: dasaStartTransits(
       positions.find((p) => p.planet === "Moon")!.lon,

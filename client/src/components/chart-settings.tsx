@@ -1,5 +1,6 @@
 import { SlidersHorizontal } from "lucide-react";
 import type { TimeBasis } from "@shared/time-basis";
+import { GULIKA_METHODS, normaliseGulikaMethod } from "@shared/gulika-methods";
 import {
   SUNRISE_DEFINITIONS,
   normaliseSunriseDef,
@@ -141,6 +142,27 @@ export function ChartSettings({
               readings. The texts state their results by whole sign, so a chalit
               reading is marked provisional. KP keeps its Placidus cusps; the
               sign-counted yoga layers, Jaimini, BNN and ALP keep whole sign.
+            </div>
+          </dd>
+          <dt className="text-muted-foreground">Gulika / Mandi</dt>
+          <dd>
+            <select
+              className="block w-full rounded-md border bg-background px-1.5 py-0.5 text-xs"
+              value={normaliseGulikaMethod(chart.gulikaMethod)}
+              onChange={async (e) => {
+                await chartsStore.update(chart.id, { gulikaMethod: normaliseGulikaMethod(e.target.value) });
+                await queryClient.invalidateQueries({ queryKey: ["chart-result", String(chart.id)] });
+                await queryClient.invalidateQueries({ queryKey: CHARTS_QUERY_KEY });
+              }}
+              aria-label="Gulika and Mandi method"
+              data-testid="select-settings-gulika-method"
+            >
+              {GULIKA_METHODS.map((method) => <option key={method.id} value={method.id}>{method.label}</option>)}
+            </select>
+            <div className="mt-1 text-2xs text-muted-foreground" data-testid="text-gulika-method-note">
+              {GULIKA_METHODS.find((method) => method.id === normaliseGulikaMethod(chart.gulikaMethod))?.note}{" "}
+              This changes Prasna's natal and snapshot placements and their dependent sphutas.
+              It does not change KP or Parashari event scores.
             </div>
           </dd>
           <dt className="text-muted-foreground">Time band</dt>

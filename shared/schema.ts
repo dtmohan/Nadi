@@ -9,6 +9,7 @@ import type { KpBase } from "./kp";
 import type { ShadbalaBase, DasaStartTransit } from "./shadbala";
 import { chartEventsSchema, type ChartEvent } from "./events";
 import type { TimeBasis } from "./time-basis";
+import type { GulikaComparisons, GulikaPoint } from "./gulika-methods";
 
 // The chart is the request/response shape for every endpoint. The server is stateless: charts are
 // saved in the visitor's browser, so this schema exists only to validate and type the birth data,
@@ -29,6 +30,8 @@ export const insertChartSchema = z.object({
   nodeType: z.string().optional(),
   /** Which instant counts as sunrise: "edge" (upper limb, refracted), "centre" (disc centre, refracted), "edge-true" (upper limb, no refraction), "centre-true" (disc centre, no refraction). */
   sunriseDef: z.string().optional(),
+  /** Method for Gulika/Mandi in Prasna readings; defaults to the Kerala weekday constants. */
+  gulikaMethod: z.string().optional(),
   /** House placement for the Parashari house, node, house-effects and house-lord readings: "rashi" (whole sign, the default) | "sripati" | "equal" (bhava chalit). */
   parashariHouseMethod: z.string().optional(),
   notes: z.string().optional(),
@@ -57,6 +60,7 @@ export interface Chart {
   ayanamsa: string;
   nodeType: string;
   sunriseDef: string;
+  gulikaMethod?: string;
   parashariHouseMethod: string;
   notes: string;
   deathDate: string | null;
@@ -124,7 +128,8 @@ export interface ChartResult {
     positions: PlanetPosition[];
     asOf: string;
     lagnaLon?: number;
-    gulika?: { lon: number; signIndex: number; day: boolean };
+    gulika?: GulikaPoint;
+    gulikaComparisons?: GulikaComparisons;
     /** Mars's stay in its present sign, for the practitioner checks beside the gochara (Pande, ch. 6). */
     marsStay?: PlanetSignPeriod;
   };
@@ -136,8 +141,9 @@ export interface ChartResult {
   shadbala?: ShadbalaBase;
   /** The five limbs of the birth day (Surya Siddhanta 1.36, 2.64-69), read at the birth instant. */
   panchanga?: PanchangaDay;
-  /** Gulika (Mandi), the upagraha: its sidereal longitude and sign, and whether the birth was by day. */
-  gulika?: { lon: number; signIndex: number; day: boolean };
+  /** The selected, explicitly named convention for the Prasna Gulika/Mandi. */
+  gulika?: GulikaPoint;
+  gulikaComparisons?: GulikaComparisons;
   /** The time-based sphutas read at the query instant (Prasna Marga 5.20-23). */
   timeSphutas?: { pranasphutaAlt: number; mrityusphutaAlt: number; kalasphuta: number };
   /** Where each Vimshottari dasa lord stands when its dasa begins, for BPHS 48.8. */

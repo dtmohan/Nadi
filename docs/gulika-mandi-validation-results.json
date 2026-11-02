@@ -1,0 +1,1246 @@
+{
+  "protocol": "docs/gulika-mandi-validation-protocol.md",
+  "assumptions": {
+    "ayanamsa": "lahiri",
+    "nodeType": "mean",
+    "sunrise": "edge"
+  },
+  "limitations": "Parent-selected, non-random, not blind; a non-trigger is not a positive fit and ± samples do not prove the true time.",
+  "results": [
+    {
+      "name": "Nina Simone",
+      "birthData": {
+        "local": "1933-02-21T06:00:00",
+        "zone": "UTC-5",
+        "latitude": 35.2,
+        "longitude": -82.23333333333333
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "06:00",
+        "ascendant": "Capricorn",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 162.0369436871673,
+            "sign": "Virgo",
+            "house": 9,
+            "day": false
+          },
+          "saturn-start": {
+            "longitude": 149.9106463262001,
+            "sign": "Leo",
+            "house": 8,
+            "day": false
+          },
+          "saturn-middle": {
+            "longitude": 160.0160007618308,
+            "sign": "Virgo",
+            "house": 9,
+            "day": false
+          },
+          "poddar-table": {
+            "longitude": 160.0160007618308,
+            "sign": "Virgo",
+            "house": 9,
+            "day": false
+          },
+          "saturn-end": {
+            "longitude": 170.10910586934176,
+            "sign": "Virgo",
+            "house": 9,
+            "day": false
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "05:45",
+          "ascendant": "Capricorn",
+          "longitude": 162.0369436871673,
+          "sign": "Virgo",
+          "house": 9,
+          "day": false
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "05:55",
+          "ascendant": "Capricorn",
+          "longitude": 162.0369436871673,
+          "sign": "Virgo",
+          "house": 9,
+          "day": false
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "06:00",
+          "ascendant": "Capricorn",
+          "longitude": 162.0369436871673,
+          "sign": "Virgo",
+          "house": 9,
+          "day": false
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "06:05",
+          "ascendant": "Capricorn",
+          "longitude": 162.0369436871673,
+          "sign": "Virgo",
+          "house": 9,
+          "day": false
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "06:15",
+          "ascendant": "Capricorn",
+          "longitude": 162.0369436871673,
+          "sign": "Virgo",
+          "house": 9,
+          "day": false
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "Glenn T. Seaborg",
+      "birthData": {
+        "local": "1912-04-19T04:30:00",
+        "zone": "UTC-6",
+        "latitude": 46.483333333333334,
+        "longitude": -87.66666666666667
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "04:30",
+        "ascendant": "Pisces",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 288.1119605638771,
+            "sign": "Capricorn",
+            "house": 11,
+            "day": false
+          },
+          "saturn-start": {
+            "longitude": 266.43246764807384,
+            "sign": "Sagittarius",
+            "house": 10,
+            "day": false
+          },
+          "saturn-middle": {
+            "longitude": 278.22935105502813,
+            "sign": "Capricorn",
+            "house": 11,
+            "day": false
+          },
+          "poddar-table": {
+            "longitude": 308.11621877165294,
+            "sign": "Aquarius",
+            "house": 12,
+            "day": false
+          },
+          "saturn-end": {
+            "longitude": 292.004461644509,
+            "sign": "Capricorn",
+            "house": 11,
+            "day": false
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "04:15",
+          "ascendant": "Pisces",
+          "longitude": 288.1119605638771,
+          "sign": "Capricorn",
+          "house": 11,
+          "day": false
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "04:25",
+          "ascendant": "Pisces",
+          "longitude": 288.1119605638771,
+          "sign": "Capricorn",
+          "house": 11,
+          "day": false
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "04:30",
+          "ascendant": "Pisces",
+          "longitude": 288.1119605638771,
+          "sign": "Capricorn",
+          "house": 11,
+          "day": false
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "04:35",
+          "ascendant": "Pisces",
+          "longitude": 288.1119605638771,
+          "sign": "Capricorn",
+          "house": 11,
+          "day": false
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "04:45",
+          "ascendant": "Pisces",
+          "longitude": 288.1119605638771,
+          "sign": "Capricorn",
+          "house": 11,
+          "day": false
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "Terence Hill",
+      "birthData": {
+        "local": "1939-03-29T15:05:00",
+        "zone": "UTC+1",
+        "latitude": 45.45,
+        "longitude": 12.35
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "15:05",
+        "ascendant": "Leo",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 89.80846260642988,
+            "sign": "Gemini",
+            "house": 11,
+            "day": true
+          },
+          "saturn-start": {
+            "longitude": 75.66827637899212,
+            "sign": "Gemini",
+            "house": 11,
+            "day": true
+          },
+          "saturn-middle": {
+            "longitude": 85.4289148019347,
+            "sign": "Gemini",
+            "house": 11,
+            "day": true
+          },
+          "poddar-table": {
+            "longitude": 85.4289148019347,
+            "sign": "Gemini",
+            "house": 11,
+            "day": true
+          },
+          "saturn-end": {
+            "longitude": 94.71811717960429,
+            "sign": "Cancer",
+            "house": 12,
+            "day": true
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "14:50",
+          "ascendant": "Leo",
+          "longitude": 89.80846260642988,
+          "sign": "Gemini",
+          "house": 11,
+          "day": true
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "15:00",
+          "ascendant": "Leo",
+          "longitude": 89.80846260642988,
+          "sign": "Gemini",
+          "house": 11,
+          "day": true
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "15:05",
+          "ascendant": "Leo",
+          "longitude": 89.80846260642988,
+          "sign": "Gemini",
+          "house": 11,
+          "day": true
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "15:10",
+          "ascendant": "Leo",
+          "longitude": 89.80846260642988,
+          "sign": "Gemini",
+          "house": 11,
+          "day": true
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "15:20",
+          "ascendant": "Leo",
+          "longitude": 89.80846260642988,
+          "sign": "Gemini",
+          "house": 11,
+          "day": true
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "Chaka Khan",
+      "birthData": {
+        "local": "1953-03-23T21:05:00",
+        "zone": "UTC-6",
+        "latitude": 42.3,
+        "longitude": -87.83333333333333
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "21:05",
+        "ascendant": "Libra",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 188.06338681257557,
+            "sign": "Libra",
+            "house": 1,
+            "day": false
+          },
+          "saturn-start": {
+            "longitude": 177.85445808050963,
+            "sign": "Virgo",
+            "house": 12,
+            "day": false
+          },
+          "saturn-middle": {
+            "longitude": 186.36558721382562,
+            "sign": "Libra",
+            "house": 1,
+            "day": false
+          },
+          "poddar-table": {
+            "longitude": 186.36558721382562,
+            "sign": "Libra",
+            "house": 1,
+            "day": false
+          },
+          "saturn-end": {
+            "longitude": 194.84372667844002,
+            "sign": "Libra",
+            "house": 1,
+            "day": false
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "20:50",
+          "ascendant": "Libra",
+          "longitude": 188.06338681257557,
+          "sign": "Libra",
+          "house": 1,
+          "day": false
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "21:00",
+          "ascendant": "Libra",
+          "longitude": 188.06338681257557,
+          "sign": "Libra",
+          "house": 1,
+          "day": false
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "21:05",
+          "ascendant": "Libra",
+          "longitude": 188.06338681257557,
+          "sign": "Libra",
+          "house": 1,
+          "day": false
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "21:10",
+          "ascendant": "Libra",
+          "longitude": 188.06338681257557,
+          "sign": "Libra",
+          "house": 1,
+          "day": false
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "21:20",
+          "ascendant": "Libra",
+          "longitude": 188.06338681257557,
+          "sign": "Libra",
+          "house": 1,
+          "day": false
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "France Gall",
+      "birthData": {
+        "local": "1947-10-09T07:30:00",
+        "zone": "UTC+1",
+        "latitude": 48.86666666666667,
+        "longitude": 2.3333333333333335
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "07:30",
+        "ascendant": "Virgo",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 211.8312973661981,
+            "sign": "Scorpio",
+            "house": 3,
+            "day": true
+          },
+          "saturn-start": {
+            "longitude": 201.58710073303075,
+            "sign": "Libra",
+            "house": 2,
+            "day": true
+          },
+          "saturn-middle": {
+            "longitude": 209.25481292982568,
+            "sign": "Libra",
+            "house": 2,
+            "day": true
+          },
+          "poddar-table": {
+            "longitude": 209.25481292982568,
+            "sign": "Libra",
+            "house": 2,
+            "day": true
+          },
+          "saturn-end": {
+            "longitude": 217.03311391390957,
+            "sign": "Scorpio",
+            "house": 3,
+            "day": true
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "07:15",
+          "ascendant": "Virgo",
+          "longitude": 211.8312973661981,
+          "sign": "Scorpio",
+          "house": 3,
+          "day": true
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "07:25",
+          "ascendant": "Virgo",
+          "longitude": 211.8312973661981,
+          "sign": "Scorpio",
+          "house": 3,
+          "day": true
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "07:30",
+          "ascendant": "Virgo",
+          "longitude": 211.8312973661981,
+          "sign": "Scorpio",
+          "house": 3,
+          "day": true
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "07:35",
+          "ascendant": "Virgo",
+          "longitude": 211.8312973661981,
+          "sign": "Scorpio",
+          "house": 3,
+          "day": true
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "07:45",
+          "ascendant": "Virgo",
+          "longitude": 211.8312973661981,
+          "sign": "Scorpio",
+          "house": 3,
+          "day": true
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "Zoë Saldaña",
+      "birthData": {
+        "local": "1978-06-19T08:49:00",
+        "zone": "UTC-4",
+        "latitude": 40.85,
+        "longitude": -74.13333333333334
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "08:49",
+        "ascendant": "Cancer",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 196.50581054707357,
+            "sign": "Libra",
+            "house": 4,
+            "day": true
+          },
+          "saturn-start": {
+            "longitude": 177.22341901468076,
+            "sign": "Virgo",
+            "house": 3,
+            "day": true
+          },
+          "saturn-middle": {
+            "longitude": 188.36912026920504,
+            "sign": "Libra",
+            "house": 4,
+            "day": true
+          },
+          "poddar-table": {
+            "longitude": 188.36912026920504,
+            "sign": "Libra",
+            "house": 4,
+            "day": true
+          },
+          "saturn-end": {
+            "longitude": 199.4613596200502,
+            "sign": "Libra",
+            "house": 4,
+            "day": true
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "08:34",
+          "ascendant": "Cancer",
+          "longitude": 196.50581054707357,
+          "sign": "Libra",
+          "house": 4,
+          "day": true
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "08:44",
+          "ascendant": "Cancer",
+          "longitude": 196.50581054707357,
+          "sign": "Libra",
+          "house": 4,
+          "day": true
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "08:49",
+          "ascendant": "Cancer",
+          "longitude": 196.50581054707357,
+          "sign": "Libra",
+          "house": 4,
+          "day": true
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "08:54",
+          "ascendant": "Cancer",
+          "longitude": 196.50581054707357,
+          "sign": "Libra",
+          "house": 4,
+          "day": true
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "09:04",
+          "ascendant": "Cancer",
+          "longitude": 196.50581054707357,
+          "sign": "Libra",
+          "house": 4,
+          "day": true
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "Alberto Gironella",
+      "birthData": {
+        "local": "1929-09-26T20:00:00",
+        "zone": "UTC-6",
+        "latitude": 19.4,
+        "longitude": -99.15
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "20:00",
+        "ascendant": "Aries",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 115.55303833209035,
+            "sign": "Cancer",
+            "house": 4,
+            "day": false
+          },
+          "saturn-start": {
+            "longitude": 98.10734992374171,
+            "sign": "Cancer",
+            "house": 4,
+            "day": false
+          },
+          "saturn-middle": {
+            "longitude": 108.12797195401572,
+            "sign": "Cancer",
+            "house": 4,
+            "day": false
+          },
+          "poddar-table": {
+            "longitude": 128.57310404121552,
+            "sign": "Leo",
+            "house": 5,
+            "day": false
+          },
+          "saturn-end": {
+            "longitude": 118.27288437036736,
+            "sign": "Cancer",
+            "house": 4,
+            "day": false
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "19:45",
+          "ascendant": "Aries",
+          "longitude": 115.55303833209035,
+          "sign": "Cancer",
+          "house": 4,
+          "day": false
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "19:55",
+          "ascendant": "Aries",
+          "longitude": 115.55303833209035,
+          "sign": "Cancer",
+          "house": 4,
+          "day": false
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "20:00",
+          "ascendant": "Aries",
+          "longitude": 115.55303833209035,
+          "sign": "Cancer",
+          "house": 4,
+          "day": false
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "20:05",
+          "ascendant": "Aries",
+          "longitude": 115.55303833209035,
+          "sign": "Cancer",
+          "house": 4,
+          "day": false
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "20:15",
+          "ascendant": "Aries",
+          "longitude": 115.55303833209035,
+          "sign": "Cancer",
+          "house": 4,
+          "day": false
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "Aldo Miyashiro",
+      "birthData": {
+        "local": "1976-02-09T16:23:00",
+        "zone": "UTC-5",
+        "latitude": -12.116666666666667,
+        "longitude": -77.03333333333333
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "16:23",
+        "ascendant": "Gemini",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 67.56524086411815,
+            "sign": "Gemini",
+            "house": 1,
+            "day": true
+          },
+          "saturn-start": {
+            "longitude": 48.969130250588876,
+            "sign": "Taurus",
+            "house": 12,
+            "day": true
+          },
+          "saturn-middle": {
+            "longitude": 59.66133060675884,
+            "sign": "Taurus",
+            "house": 12,
+            "day": true
+          },
+          "poddar-table": {
+            "longitude": 59.66133060675884,
+            "sign": "Taurus",
+            "house": 12,
+            "day": true
+          },
+          "saturn-end": {
+            "longitude": 70.46605780741447,
+            "sign": "Gemini",
+            "house": 1,
+            "day": true
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "16:08",
+          "ascendant": "Gemini",
+          "longitude": 67.56524086411815,
+          "sign": "Gemini",
+          "house": 1,
+          "day": true
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "16:18",
+          "ascendant": "Gemini",
+          "longitude": 67.56524086411815,
+          "sign": "Gemini",
+          "house": 1,
+          "day": true
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "16:23",
+          "ascendant": "Gemini",
+          "longitude": 67.56524086411815,
+          "sign": "Gemini",
+          "house": 1,
+          "day": true
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "16:28",
+          "ascendant": "Gemini",
+          "longitude": 67.56524086411815,
+          "sign": "Gemini",
+          "house": 1,
+          "day": true
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "16:38",
+          "ascendant": "Gemini",
+          "longitude": 67.56524086411815,
+          "sign": "Gemini",
+          "house": 1,
+          "day": true
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "Penélope Cruz",
+      "birthData": {
+        "local": "1974-04-28T07:00:00",
+        "zone": "UTC+2",
+        "latitude": 40.53333333333333,
+        "longitude": -3.6333333333333333
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "07:00",
+        "ascendant": "Aries",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 254.10894124023605,
+            "sign": "Sagittarius",
+            "house": 9,
+            "day": false
+          },
+          "saturn-start": {
+            "longitude": 241.07524715703755,
+            "sign": "Sagittarius",
+            "house": 9,
+            "day": false
+          },
+          "saturn-middle": {
+            "longitude": 249.81483664241148,
+            "sign": "Sagittarius",
+            "house": 9,
+            "day": false
+          },
+          "poddar-table": {
+            "longitude": 269.53825624009914,
+            "sign": "Sagittarius",
+            "house": 9,
+            "day": false
+          },
+          "saturn-end": {
+            "longitude": 259.22354150386525,
+            "sign": "Sagittarius",
+            "house": 9,
+            "day": false
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "06:45",
+          "ascendant": "Pisces",
+          "longitude": 254.10894124023605,
+          "sign": "Sagittarius",
+          "house": 10,
+          "day": false
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "06:55",
+          "ascendant": "Aries",
+          "longitude": 254.10894124023605,
+          "sign": "Sagittarius",
+          "house": 9,
+          "day": false
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "07:00",
+          "ascendant": "Aries",
+          "longitude": 254.10894124023605,
+          "sign": "Sagittarius",
+          "house": 9,
+          "day": false
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "07:05",
+          "ascendant": "Aries",
+          "longitude": 254.10894124023605,
+          "sign": "Sagittarius",
+          "house": 9,
+          "day": false
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "07:15",
+          "ascendant": "Aries",
+          "longitude": 254.10894124023605,
+          "sign": "Sagittarius",
+          "house": 9,
+          "day": false
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "Antonio Banderas",
+      "birthData": {
+        "local": "1960-08-10T21:00:00",
+        "zone": "UTC+1",
+        "latitude": 36.71666666666667,
+        "longitude": -4.416666666666667
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "21:00",
+        "ascendant": "Aquarius",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 97.68638824426603,
+            "sign": "Cancer",
+            "house": 6,
+            "day": false
+          },
+          "saturn-start": {
+            "longitude": 82.77745762469993,
+            "sign": "Gemini",
+            "house": 5,
+            "day": false
+          },
+          "saturn-middle": {
+            "longitude": 90.83260483556904,
+            "sign": "Cancer",
+            "house": 6,
+            "day": false
+          },
+          "poddar-table": {
+            "longitude": 106.55597837944913,
+            "sign": "Cancer",
+            "house": 6,
+            "day": false
+          },
+          "saturn-end": {
+            "longitude": 98.73390218166105,
+            "sign": "Cancer",
+            "house": 6,
+            "day": false
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "20:45",
+          "ascendant": "Aquarius",
+          "longitude": 97.68638824426603,
+          "sign": "Cancer",
+          "house": 6,
+          "day": false
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "20:55",
+          "ascendant": "Aquarius",
+          "longitude": 97.68638824426603,
+          "sign": "Cancer",
+          "house": 6,
+          "day": false
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "21:00",
+          "ascendant": "Aquarius",
+          "longitude": 97.68638824426603,
+          "sign": "Cancer",
+          "house": 6,
+          "day": false
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "21:05",
+          "ascendant": "Aquarius",
+          "longitude": 97.68638824426603,
+          "sign": "Cancer",
+          "house": 6,
+          "day": false
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "21:15",
+          "ascendant": "Aquarius",
+          "longitude": 97.68638824426603,
+          "sign": "Cancer",
+          "house": 6,
+          "day": false
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "Ronaldinho",
+      "birthData": {
+        "local": "1980-03-21T03:20:00",
+        "zone": "UTC-3",
+        "latitude": -30.033055555555556,
+        "longitude": -51.230000000000004
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "03:20",
+        "ascendant": "Capricorn",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 295.4028729182262,
+            "sign": "Capricorn",
+            "house": 1,
+            "day": false
+          },
+          "saturn-start": {
+            "longitude": 279.0417330223902,
+            "sign": "Capricorn",
+            "house": 1,
+            "day": false
+          },
+          "saturn-middle": {
+            "longitude": 288.4706364128324,
+            "sign": "Capricorn",
+            "house": 1,
+            "day": false
+          },
+          "poddar-table": {
+            "longitude": 307.46643733825374,
+            "sign": "Aquarius",
+            "house": 2,
+            "day": false
+          },
+          "saturn-end": {
+            "longitude": 297.9318770119635,
+            "sign": "Capricorn",
+            "house": 1,
+            "day": false
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "03:05",
+          "ascendant": "Capricorn",
+          "longitude": 295.4028729182262,
+          "sign": "Capricorn",
+          "house": 1,
+          "day": false
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "03:15",
+          "ascendant": "Capricorn",
+          "longitude": 295.4028729182262,
+          "sign": "Capricorn",
+          "house": 1,
+          "day": false
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "03:20",
+          "ascendant": "Capricorn",
+          "longitude": 295.4028729182262,
+          "sign": "Capricorn",
+          "house": 1,
+          "day": false
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "03:25",
+          "ascendant": "Capricorn",
+          "longitude": 295.4028729182262,
+          "sign": "Capricorn",
+          "house": 1,
+          "day": false
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "03:35",
+          "ascendant": "Capricorn",
+          "longitude": 295.4028729182262,
+          "sign": "Capricorn",
+          "house": 1,
+          "day": false
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "Neymar",
+      "birthData": {
+        "local": "1992-02-05T02:15:00",
+        "zone": "UTC-2",
+        "latitude": -23.516666666666666,
+        "longitude": -46.18333333333333
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "02:15",
+        "ascendant": "Scorpio",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 126.01473150621143,
+            "sign": "Leo",
+            "house": 10,
+            "day": false
+          },
+          "saturn-start": {
+            "longitude": 112.701859420544,
+            "sign": "Cancer",
+            "house": 9,
+            "day": false
+          },
+          "saturn-middle": {
+            "longitude": 125.15766897082898,
+            "sign": "Leo",
+            "house": 10,
+            "day": false
+          },
+          "poddar-table": {
+            "longitude": 125.15766897082898,
+            "sign": "Leo",
+            "house": 10,
+            "day": false
+          },
+          "saturn-end": {
+            "longitude": 138.3149949924982,
+            "sign": "Leo",
+            "house": 10,
+            "day": false
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "02:00",
+          "ascendant": "Scorpio",
+          "longitude": 126.01473150621143,
+          "sign": "Leo",
+          "house": 10,
+          "day": false
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "02:10",
+          "ascendant": "Scorpio",
+          "longitude": 126.01473150621143,
+          "sign": "Leo",
+          "house": 10,
+          "day": false
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "02:15",
+          "ascendant": "Scorpio",
+          "longitude": 126.01473150621143,
+          "sign": "Leo",
+          "house": 10,
+          "day": false
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "02:20",
+          "ascendant": "Scorpio",
+          "longitude": 126.01473150621143,
+          "sign": "Leo",
+          "house": 10,
+          "day": false
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "02:30",
+          "ascendant": "Scorpio",
+          "longitude": 126.01473150621143,
+          "sign": "Leo",
+          "house": 10,
+          "day": false
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    },
+    {
+      "name": "Sebastián Piñera",
+      "birthData": {
+        "local": "1949-12-01T05:30:00",
+        "zone": "UTC-4",
+        "latitude": -33.45,
+        "longitude": -70.66666666666667
+      },
+      "recordedParent": true,
+      "nominal": {
+        "offsetMinutes": 0,
+        "localTime": "05:30",
+        "ascendant": "Scorpio",
+        "values": {
+          "kerala-ghati": {
+            "longitude": 288.22632977307967,
+            "sign": "Capricorn",
+            "house": 3,
+            "day": true
+          },
+          "saturn-start": {
+            "longitude": 273.49261555342457,
+            "sign": "Capricorn",
+            "house": 3,
+            "day": true
+          },
+          "saturn-middle": {
+            "longitude": 284.5536830424635,
+            "sign": "Capricorn",
+            "house": 3,
+            "day": true
+          },
+          "poddar-table": {
+            "longitude": 284.5536830424635,
+            "sign": "Capricorn",
+            "house": 3,
+            "day": true
+          },
+          "saturn-end": {
+            "longitude": 295.57697081373203,
+            "sign": "Capricorn",
+            "house": 3,
+            "day": true
+          }
+        }
+      },
+      "sensitivity": [
+        {
+          "offsetMinutes": -15,
+          "localTime": "05:15",
+          "ascendant": "Scorpio",
+          "longitude": 201.43232791754394,
+          "sign": "Libra",
+          "house": 12,
+          "day": false
+        },
+        {
+          "offsetMinutes": -5,
+          "localTime": "05:25",
+          "ascendant": "Scorpio",
+          "longitude": 201.43232791754394,
+          "sign": "Libra",
+          "house": 12,
+          "day": false
+        },
+        {
+          "offsetMinutes": 0,
+          "localTime": "05:30",
+          "ascendant": "Scorpio",
+          "longitude": 288.22632977307967,
+          "sign": "Capricorn",
+          "house": 3,
+          "day": true
+        },
+        {
+          "offsetMinutes": 5,
+          "localTime": "05:35",
+          "ascendant": "Scorpio",
+          "longitude": 288.22632977307967,
+          "sign": "Capricorn",
+          "house": 3,
+          "day": true
+        },
+        {
+          "offsetMinutes": 15,
+          "localTime": "05:45",
+          "ascendant": "Scorpio",
+          "longitude": 288.22632977307967,
+          "sign": "Capricorn",
+          "house": 3,
+          "day": true
+        }
+      ],
+      "literalFifthHouseClaim": "not triggered in the sampled times"
+    }
+  ]
+}

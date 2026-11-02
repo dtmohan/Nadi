@@ -868,15 +868,16 @@ export function computePrasnaFructification(
 
 // ───────────────────────────────────────────────────────────────────────────────────────────────
 // "Effects of Gulika" (Chapter XIV, stanzas 66–70): Gulika (Mandi), the upagraha, read by the house
-// it occupies from the ascendant. Its position is the ascendant at Saturn's portion of the day or
-// night, computed server-side (provisional; conventions differ on Saturn's vs the eighth portion).
+// it occupies from the ascendant. In Raman's Prasna Marga notes the house reading uses the Kerala
+// weekday-constant Mandi as Gulika. Other explicit calculation choices are comparisons and must
+// remain labelled; they do not establish that the source intended those other conventions.
 
 export const PRASNA_GULIKA_EFFECTS: string[] = [
   "A sickly body, suffering from sores and ailments.",
   "Untidy in dress, generally using abusive language.",
   "Hates brothers, but is valorous.",
   "Generally unhappy, and fear from enemies.",
-  "No respect for elders and preceptors, and deprived of issues.",
+  "The traditional text makes an adverse claim about children and respect for elders; this placement cannot establish whether someone has children.",
   "A tendency to find fault with relatives.",
   "Affliction to the wife, and a strong sex instinct.",
   "Short life, chronic complaints, sharp intelligence, and death from poison, weapon or fire.",
@@ -987,7 +988,7 @@ export function computeSphutas(
 }
 
 export const PRASNA_SPHUTA_NOTE =
-  "The six sphutas of Ch. V (17-19): derived points read by sign and nakshatra. The Ch. XIX progeny sphutas (Beeja, Kshetra, Santana Trisphuta) are shown under Progeny. Not applied: the alternative Pranasphuta by prasna-ghatis (20-22), the Mrityu/Kalasphuta by weekday (23), the Kundagata Sphuta of lagna rectification (8-9), and the obsolete Parahita-to-Drik Moon correction (10-13).";
+  "The six sphutas of Ch. V (17-19) are birth-chart points read by sign and nakshatra. The alternative Pranasphuta by prasna-ghatis (20-22) and Mrityu/Kalasphuta by weekday (23) use the stored snapshot, not the birth instant. The Ch. XIX progeny sphutas (Beeja, Kshetra, Santana Trisphuta) are shown under Progeny. Not applied: the Kundagata Sphuta of lagna rectification (8-9) and the obsolete Parahita-to-Drik Moon correction (10-13).";
 
 // ───────────────────────────────────────────────────────────────────────────────────────────────
 // Time-based sphutas (Ch. V, stanzas 20–23): the alternative Pranasphuta by prasna-ghatis, and the
