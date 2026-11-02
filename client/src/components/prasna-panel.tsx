@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import type { ChartResult } from "@shared/schema";
 import { NAKSHATRAS, SIGN_LORD, SIGNS } from "@shared/astro";
 import { GULIKA_METHODS, normaliseGulikaMethod } from "@shared/gulika-methods";
+import { gulikaNatalClues } from "@shared/gulika-clues";
 import {
   arudhaFromHandful,
   ashtamangalaFromGroups,
@@ -329,6 +330,13 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
         : null,
     [result.gulika, birthLagnaIdx],
   );
+  const gulikaClues = useMemo(() => {
+    if (!result.gulika) return null;
+    // An unspecified gender must not silently select Beeja as a personal association.
+    const sphuta = result.chart.gender === "male" || result.chart.gender === "female"
+      ? { kind: progeny.kind, signIndex: progeny.signIndex } : undefined;
+    return gulikaNatalClues(positions, result.gulika, birthLagnaIdx, sphuta);
+  }, [positions, result.gulika, result.chart.gender, birthLagnaIdx, progeny]);
   const sphutas = useMemo(() => {
     if (!result.gulika) return null;
     const lon = (p: string) => positions.find((x) => x.planet === p)!.lon;
@@ -825,7 +833,7 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
           <SectionTitle plain="Progeny" technical="Santhana (19)" as="h4" />
           <ModeText
             plain="Traditional chart factors relating to children. They cannot determine fertility or whether, when or how someone has children."
-            practitioner={`${progeny.kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta, the sum of the three relevant longitudes (19.6-11), and the Santana Trisphuta (19.18).`}
+            practitioner={`${progeny.kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta from the relevant planets' expired nakshatra portions (19.5-9), and the Santana Trisphuta (19.18).`}
           />
           {!plain && !withheld && <><div
             className="mt-2 rounded-md border bg-card p-3"
@@ -901,6 +909,31 @@ export function PrasnaPanel({ result }: { result: ChartResult }) {
               <p className="mt-1 text-xs leading-relaxed text-foreground/90">
                 {plain ? "The source gives a traditional interpretation for this placement; see practitioner mode for its wording." : <Soft>{withheld ? redactProse(gulika.text) : gulika.text}</Soft>}
               </p>
+              {gulikaClues && <div className="mt-3 space-y-2 border-t pt-2 text-xs leading-relaxed" data-testid="prasna-gulika-clues">
+                <p><strong>Jupiter and Gulika:</strong>{" "}
+                  Jupiter is in {SIGNS[gulikaClues.jupiter.fromSign]}; Gulika in {SIGNS[gulikaClues.jupiter.toSign]} is{" "}
+                  {gulikaClues.jupiter.sameSign ? "in the same sign (a conjunction, shown separately from aspects)" :
+                    gulikaClues.jupiterFifthOrNinthAspect ? `${ord(gulikaClues.jupiter.inclusiveSignDistance)} from Jupiter, receiving its full sign aspect` :
+                    gulikaClues.jupiter.fullAspect ? `${ord(gulikaClues.jupiter.inclusiveSignDistance)} from Jupiter, receiving its full sign aspect but not the 5th/9th trine` :
+                    `${ord(gulikaClues.jupiter.inclusiveSignDistance)} from Jupiter, without its full sign aspect`}.
+                  {" "}Prasna Marga 18.68 considers a Jupiter–Gulika trine in a question-chart discussion; this birth-chart comparison is exploratory, not an automatic cancellation.
+                </p>
+                <p><strong>Fifth-house context:</strong>{" "}
+                  Natural benefics in the fifth sign: {gulikaClues.fifth.naturalBeneficOccupants.join(", ") || "none listed"};
+                  {" "}casting a full sign aspect: {gulikaClues.fifth.naturalBeneficAspects.join(", ") || "none listed"}.
+                  {" "}Occupation and aspect are shown separately; this is a partial natal context, not a complete promise or a fertility judgment.
+                </p>
+                {gulikaClues.sphuta && !withheld && <p><strong>Gulika and {gulikaClues.sphuta.kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta:</strong>{" "}
+                  {gulikaClues.sphuta.sameSignAsGulika ? "They share a sign" : "They occupy different signs"} under the selected calculation.
+                  {" "}Prasna Marga 19.8 discusses Gulika association in its Kshetra passage;{gulikaClues.sphuta.kind === "beeja" ? " applying it to Beeja is exploratory." : " this is only the same-sign subset."} The app does not evaluate Gulika's aspects or establish an outcome.
+                </p>}
+                {!plain && <details><summary className="cursor-pointer font-medium">Planet relationships to Gulika · full sign aspects</summary>
+                  <ul className="mt-1 space-y-1">{gulikaClues.planetaryRelations.map((relation) => <li key={relation.from}>
+                    {relation.from} in {SIGNS[relation.fromSign]}: {relation.sameSign ? "same sign" : relation.fullAspect ? `${ord(relation.inclusiveSignDistance)} full aspect` : "no full aspect"}.
+                  </li>)}</ul>
+                  <p className="mt-1 text-muted-foreground">These are directional sign facts in the named convention, not interpretations shared automatically across schools. Nodes are not assigned aspects here.</p>
+                </details>}
+              </div>}
             </div>
           )}
         </div>

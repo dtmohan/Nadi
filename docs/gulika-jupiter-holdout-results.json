@@ -1,0 +1,4644 @@
+{
+  "protocol": "docs/gulika-jupiter-holdout-protocol.md",
+  "limitations": "Birth instants and time sampling are conditional; no recorded life outcome or individual prediction is inferred.",
+  "results": [
+    {
+      "name": "James Carter",
+      "selectedGroup": "aspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Scorpio",
+        "gulikaSign": "Pisces",
+        "gulikaLongitude": 358.41715314848705,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Scorpio",
+        "jupiterDistance": 5,
+        "jupiterFullAspect": true,
+        "jupiterFifthOrNinthAspect": true,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 11,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": [
+            "Jupiter",
+            "Venus"
+          ]
+        },
+        "beeja": {
+          "sign": "Leo",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Gemini",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "aspected by Jupiter and Venus"
+          ],
+          "d1Strain": [
+            "lord Jupiter with Mercury (lord of the 8th and 11th)"
+          ],
+          "divisionSupport": [
+            "Jupiter aspect D7 house 5"
+          ],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Scorpio",
+          "gulikaSign": "Pisces",
+          "gulikaLongitude": 358.41715314848705,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Scorpio",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 11,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Jupiter with Mercury (lord of the 8th and 11th)"
+            ],
+            "divisionSupport": [
+              "Mercury aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Scorpio",
+          "gulikaSign": "Pisces",
+          "gulikaLongitude": 358.41715314848705,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Scorpio",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 11,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Jupiter with Mercury (lord of the 8th and 11th)"
+            ],
+            "divisionSupport": [
+              "Mercury aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Scorpio",
+          "gulikaSign": "Pisces",
+          "gulikaLongitude": 358.41715314848705,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Scorpio",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 11,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Gemini",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Jupiter with Mercury (lord of the 8th and 11th)"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Scorpio",
+          "gulikaSign": "Pisces",
+          "gulikaLongitude": 358.41715314848705,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Scorpio",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 11,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Gemini",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Jupiter with Mercury (lord of the 8th and 11th)"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Scorpio",
+          "gulikaSign": "Pisces",
+          "gulikaLongitude": 358.41715314848705,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Scorpio",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 11,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Gemini",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Jupiter with Mercury (lord of the 8th and 11th)"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Edmond Charlot",
+      "selectedGroup": "aspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Aquarius",
+        "gulikaSign": "Gemini",
+        "gulikaLongitude": 88.94652348406458,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Aquarius",
+        "jupiterDistance": 5,
+        "jupiterFullAspect": true,
+        "jupiterFifthOrNinthAspect": true,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 2,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": [
+            "Jupiter",
+            "Venus"
+          ]
+        },
+        "beeja": {
+          "sign": "Gemini",
+          "sameSign": true
+        },
+        "kshetra": {
+          "sign": "Sagittarius",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "aspected by Jupiter and Venus"
+          ],
+          "d1Strain": [
+            "lord Mercury in the 1st does not aspect the house",
+            "lord Mercury with the malefics Sun and Rahu",
+            "lord Mercury with Moon (lord of the 6th) and Jupiter (lord of the 11th)"
+          ],
+          "divisionSupport": [
+            "Jupiter aspect D7 house 5"
+          ],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Aquarius",
+          "gulikaSign": "Gemini",
+          "gulikaLongitude": 88.94652348406458,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 2,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Gemini",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Mercury in the 1st does not aspect the house",
+              "lord Mercury with the malefics Sun and Rahu",
+              "lord Mercury with Moon (lord of the 6th) and Jupiter (lord of the 11th)"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Aquarius",
+          "gulikaSign": "Gemini",
+          "gulikaLongitude": 88.94652348406458,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 2,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Gemini",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Mercury in the 1st does not aspect the house",
+              "lord Mercury with the malefics Sun and Rahu",
+              "lord Mercury with Moon (lord of the 6th) and Jupiter (lord of the 11th)"
+            ],
+            "divisionSupport": [
+              "Moon, D7 house 5 lord, in exaltation sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Aquarius",
+          "gulikaSign": "Gemini",
+          "gulikaLongitude": 88.94652348406458,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 2,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Gemini",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Mercury in the 1st does not aspect the house",
+              "lord Mercury with the malefics Sun and Rahu",
+              "lord Mercury with Moon (lord of the 6th) and Jupiter (lord of the 11th)"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Aquarius",
+          "gulikaSign": "Gemini",
+          "gulikaLongitude": 88.94652348406458,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 2,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Gemini",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Mercury in the 1st does not aspect the house",
+              "lord Mercury with the malefics Sun and Rahu",
+              "lord Mercury with Moon (lord of the 6th) and Jupiter (lord of the 11th)"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Aquarius",
+          "gulikaSign": "Gemini",
+          "gulikaLongitude": 88.94652348406458,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 2,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Gemini",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Mercury in the 1st does not aspect the house",
+              "lord Mercury with the malefics Sun and Rahu",
+              "lord Mercury with Moon (lord of the 6th) and Jupiter (lord of the 11th)"
+            ],
+            "divisionSupport": [
+              "Venus aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Christian Cabrol",
+      "selectedGroup": "aspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Aries",
+        "gulikaSign": "Leo",
+        "gulikaLongitude": 133.444490841446,
+        "day": false,
+        "house": 5,
+        "jupiterSign": "Sagittarius",
+        "jupiterDistance": 9,
+        "jupiterFullAspect": true,
+        "jupiterFifthOrNinthAspect": true,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 4,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": [
+            "Jupiter"
+          ]
+        },
+        "beeja": {
+          "sign": "Aquarius",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Capricorn",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "aspected by Jupiter"
+          ],
+          "d1Strain": [
+            "lord Sun in the 6th does not aspect the house"
+          ],
+          "divisionSupport": [],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Pisces",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 133.444490841446,
+          "day": false,
+          "house": 6,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 3,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Moon in the 6th does not aspect the house",
+              "lord Moon with the malefics Mars and Mercury (joined by the waning Moon and Mars, 3.11)"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Moon, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 133.444490841446,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Sun in the 6th does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 133.444490841446,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Sun in the 6th does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 133.444490841446,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Sun in the 6th does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 133.444490841446,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Sun in the 6th does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Muriel Cerf",
+      "selectedGroup": "aspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Gemini",
+        "gulikaSign": "Libra",
+        "gulikaLongitude": 207.5033596964621,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Aquarius",
+        "jupiterDistance": 9,
+        "jupiterFullAspect": true,
+        "jupiterFifthOrNinthAspect": true,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 6,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": [
+            "Mercury",
+            "Jupiter",
+            "Venus"
+          ]
+        },
+        "beeja": {
+          "sign": "Pisces",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Taurus",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "aspected by Mercury, Jupiter and Venus"
+          ],
+          "d1Strain": [],
+          "divisionSupport": [
+            "Venus aspect D7 house 5"
+          ],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 207.50335908526722,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Mercury",
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Mercury, Jupiter and Venus"
+            ],
+            "d1Strain": [],
+            "divisionSupport": [
+              "Venus aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 207.5033596964621,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Mercury",
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Mercury, Jupiter and Venus"
+            ],
+            "d1Strain": [],
+            "divisionSupport": [
+              "Venus aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 207.5033596964621,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Mercury",
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Mercury, Jupiter and Venus"
+            ],
+            "d1Strain": [],
+            "divisionSupport": [
+              "Venus aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 207.5033596964621,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Mercury",
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Mercury, Jupiter and Venus"
+            ],
+            "d1Strain": [],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 207.5033596964621,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Mercury",
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Mercury, Jupiter and Venus"
+            ],
+            "d1Strain": [],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jean Castaneda",
+      "selectedGroup": "aspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Virgo",
+        "gulikaSign": "Capricorn",
+        "gulikaLongitude": 292.48286815604,
+        "day": false,
+        "house": 5,
+        "jupiterSign": "Virgo",
+        "jupiterDistance": 5,
+        "jupiterFullAspect": true,
+        "jupiterFifthOrNinthAspect": true,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 9,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": [
+            "Jupiter"
+          ]
+        },
+        "beeja": {
+          "sign": "Libra",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Capricorn",
+          "sameSign": true
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "aspected by Jupiter"
+          ],
+          "d1Strain": [
+            "lord Saturn with the malefic the Moon (waning, 3.11)"
+          ],
+          "divisionSupport": [],
+          "divisionStrain": [
+            "Venus, D7 house 5 lord, in debilitation sign"
+          ]
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Virgo",
+          "gulikaSign": "Capricorn",
+          "gulikaLongitude": 292.48286815604,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Virgo",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 9,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Saturn with the malefic the Moon (waning, 3.11)"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Venus, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Virgo",
+          "gulikaSign": "Capricorn",
+          "gulikaLongitude": 292.48286815604,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Virgo",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 9,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": true
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Saturn with the malefic the Moon (waning, 3.11)"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Venus, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Virgo",
+          "gulikaSign": "Capricorn",
+          "gulikaLongitude": 292.48286815604,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Virgo",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 9,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": true
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Saturn with the malefic the Moon (waning, 3.11)"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Venus, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Virgo",
+          "gulikaSign": "Capricorn",
+          "gulikaLongitude": 292.48286815604,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Virgo",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 9,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": true
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Saturn with the malefic the Moon (waning, 3.11)"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Virgo",
+          "gulikaSign": "Capricorn",
+          "gulikaLongitude": 292.48286815604,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Virgo",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 9,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": true
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Saturn with the malefic the Moon (waning, 3.11)"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Billy Crystal",
+      "selectedGroup": "aspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Aries",
+        "gulikaSign": "Leo",
+        "gulikaLongitude": 133.20491859250126,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Sagittarius",
+        "jupiterDistance": 9,
+        "jupiterFullAspect": true,
+        "jupiterFifthOrNinthAspect": true,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 4,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": [
+            "Mercury",
+            "Jupiter"
+          ]
+        },
+        "beeja": {
+          "sign": "Gemini",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Pisces",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "aspected by Mercury and Jupiter"
+          ],
+          "d1Strain": [
+            "lord Sun in the 12th does not aspect the house"
+          ],
+          "divisionSupport": [],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 133.20491859250126,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Mercury",
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Gemini",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Mercury and Jupiter"
+            ],
+            "d1Strain": [
+              "lord Sun in the 12th does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 133.20491859250126,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Mercury",
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Gemini",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Mercury and Jupiter"
+            ],
+            "d1Strain": [
+              "lord Sun in the 12th does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 133.20491859250126,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Mercury",
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Gemini",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Mercury and Jupiter"
+            ],
+            "d1Strain": [
+              "lord Sun in the 12th does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 133.20491859250126,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Mercury",
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Gemini",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Mercury and Jupiter"
+            ],
+            "d1Strain": [
+              "lord Sun in the 12th does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 133.20491859250126,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Mercury",
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Gemini",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Mercury and Jupiter"
+            ],
+            "d1Strain": [
+              "lord Sun in the 12th does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Mars, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "John K. Carmack",
+      "selectedGroup": "aspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Gemini",
+        "gulikaSign": "Libra",
+        "gulikaLongitude": 184.6671308964585,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Gemini",
+        "jupiterDistance": 5,
+        "jupiterFullAspect": true,
+        "jupiterFifthOrNinthAspect": true,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 6,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": [
+            "Jupiter"
+          ]
+        },
+        "beeja": {
+          "sign": "Capricorn",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Sagittarius",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "aspected by Jupiter",
+            "lord Venus in the 10th"
+          ],
+          "d1Strain": [
+            "lord Venus in the 10th does not aspect the house",
+            "lord Venus with the malefic Rahu"
+          ],
+          "divisionSupport": [
+            "Jupiter in D7 house 5"
+          ],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 184.6671308964585,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Gemini",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter",
+              "lord Venus in the 10th"
+            ],
+            "d1Strain": [
+              "lord Venus in the 10th does not aspect the house",
+              "lord Venus with the malefic Rahu"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 184.6671308964585,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Gemini",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter",
+              "lord Venus in the 10th"
+            ],
+            "d1Strain": [
+              "lord Venus in the 10th does not aspect the house",
+              "lord Venus with the malefic Rahu"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 184.6671308964585,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Gemini",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter",
+              "lord Venus in the 10th"
+            ],
+            "d1Strain": [
+              "lord Venus in the 10th does not aspect the house",
+              "lord Venus with the malefic Rahu"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 184.6671308964585,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Gemini",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter",
+              "lord Venus in the 10th"
+            ],
+            "d1Strain": [
+              "lord Venus in the 10th does not aspect the house",
+              "lord Venus with the malefic Rahu"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 184.6671308964585,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Gemini",
+          "jupiterDistance": 5,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter",
+              "lord Venus in the 10th"
+            ],
+            "d1Strain": [
+              "lord Venus in the 10th does not aspect the house",
+              "lord Venus with the malefic Rahu"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Richard Candelaria",
+      "selectedGroup": "aspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Capricorn",
+        "gulikaSign": "Taurus",
+        "gulikaLongitude": 30.402848107004843,
+        "day": false,
+        "house": 5,
+        "jupiterSign": "Virgo",
+        "jupiterDistance": 9,
+        "jupiterFullAspect": true,
+        "jupiterFifthOrNinthAspect": true,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 1,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": [
+            "Jupiter"
+          ]
+        },
+        "beeja": {
+          "sign": "Aquarius",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Pisces",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "aspected by Jupiter"
+          ],
+          "d1Strain": [
+            "lord Venus in the 8th does not aspect the house"
+          ],
+          "divisionSupport": [],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Capricorn",
+          "gulikaSign": "Taurus",
+          "gulikaLongitude": 30.402848107004843,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Virgo",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 1,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Venus in the 8th does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Capricorn",
+          "gulikaSign": "Taurus",
+          "gulikaLongitude": 30.402848107004843,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Virgo",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 1,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Venus in the 8th does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Capricorn",
+          "gulikaSign": "Taurus",
+          "gulikaLongitude": 30.402848107004843,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Virgo",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 1,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Venus in the 8th does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Capricorn",
+          "gulikaSign": "Taurus",
+          "gulikaLongitude": 30.402848107004843,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Virgo",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 1,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Venus in the 8th does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter, Venus aspect D7 house 5",
+              "Jupiter, D7 house 5 lord, in exaltation sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Capricorn",
+          "gulikaSign": "Taurus",
+          "gulikaLongitude": 30.402848107004843,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Virgo",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 1,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Venus in the 8th does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter, Venus aspect D7 house 5",
+              "Jupiter, D7 house 5 lord, in exaltation sign"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Robert Finlayson Cook",
+      "selectedGroup": "aspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Aquarius",
+        "gulikaSign": "Gemini",
+        "gulikaLongitude": 61.32144920951674,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Libra",
+        "jupiterDistance": 9,
+        "jupiterFullAspect": true,
+        "jupiterFifthOrNinthAspect": true,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 2,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": [
+            "Jupiter"
+          ]
+        },
+        "beeja": {
+          "sign": "Sagittarius",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Leo",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "aspected by Jupiter"
+          ],
+          "d1Strain": [
+            "lord Mercury in the 2nd does not aspect the house"
+          ],
+          "divisionSupport": [
+            "Jupiter in D7 house 5"
+          ],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Aquarius",
+          "gulikaSign": "Sagittarius",
+          "gulikaLongitude": 262.2582929239951,
+          "day": false,
+          "house": 11,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 3,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 2,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Sagittarius",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Mercury in the 2nd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Venus in D7 house 5",
+              "Moon, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Aquarius",
+          "gulikaSign": "Gemini",
+          "gulikaLongitude": 61.32144920951674,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 2,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Mercury in the 2nd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Mercury in D7 house 5",
+              "Mercury, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Aquarius",
+          "gulikaSign": "Gemini",
+          "gulikaLongitude": 61.32144920951674,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 2,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Mercury in the 2nd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Aquarius",
+          "gulikaSign": "Gemini",
+          "gulikaLongitude": 61.32144920951674,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 2,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Mercury in the 2nd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Aquarius",
+          "gulikaSign": "Gemini",
+          "gulikaLongitude": 61.32144920951674,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 9,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": true,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 2,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Jupiter"
+            ]
+          },
+          "beeja": {
+            "sign": "Sagittarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Jupiter"
+            ],
+            "d1Strain": [
+              "lord Mercury in the 2nd does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Curley Culp",
+      "selectedGroup": "noAspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Aries",
+        "gulikaSign": "Leo",
+        "gulikaLongitude": 127.65418497314374,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Libra",
+        "jupiterDistance": 11,
+        "jupiterFullAspect": false,
+        "jupiterFifthOrNinthAspect": false,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 4,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": []
+        },
+        "beeja": {
+          "sign": "Leo",
+          "sameSign": true
+        },
+        "kshetra": {
+          "sign": "Cancer",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [],
+          "d1Strain": [],
+          "divisionSupport": [
+            "Jupiter, Venus in D7 house 5",
+            "Venus, D7 house 5 lord, in own sign"
+          ],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 127.65418497314374,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 11,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Leo",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 127.65418497314374,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 11,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Leo",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [],
+            "divisionSupport": [
+              "Jupiter, Venus in D7 house 5",
+              "Venus, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 127.65418497314374,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 11,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Leo",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [],
+            "divisionSupport": [
+              "Jupiter, Venus in D7 house 5",
+              "Venus, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 127.65418497314374,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 11,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Leo",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [],
+            "divisionSupport": [
+              "Jupiter, Venus in D7 house 5",
+              "Venus, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 127.65418497314374,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 11,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Leo",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [],
+            "divisionSupport": [
+              "Moon aspect D7 house 5",
+              "Mars, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Keene Curtis",
+      "selectedGroup": "noAspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Leo",
+        "gulikaSign": "Sagittarius",
+        "gulikaLongitude": 241.47243868968735,
+        "day": false,
+        "house": 5,
+        "jupiterSign": "Libra",
+        "jupiterDistance": 3,
+        "jupiterFullAspect": false,
+        "jupiterFifthOrNinthAspect": false,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 8,
+          "naturalBeneficOccupants": [
+            "Venus"
+          ],
+          "naturalBeneficAspects": []
+        },
+        "beeja": {
+          "sign": "Virgo",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Taurus",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "Venus in the house"
+          ],
+          "d1Strain": [
+            "lord Jupiter in the 3rd does not aspect the house"
+          ],
+          "divisionSupport": [
+            "Mercury aspect D7 house 5"
+          ],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Leo",
+          "gulikaSign": "Sagittarius",
+          "gulikaLongitude": 241.47243868968735,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 3,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 8,
+            "naturalBeneficOccupants": [
+              "Venus"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Venus in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 3rd does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Leo",
+          "gulikaSign": "Sagittarius",
+          "gulikaLongitude": 241.47243868968735,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 3,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 8,
+            "naturalBeneficOccupants": [
+              "Venus"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Venus in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 3rd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Mercury aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Leo",
+          "gulikaSign": "Sagittarius",
+          "gulikaLongitude": 241.47243868968735,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 3,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 8,
+            "naturalBeneficOccupants": [
+              "Venus"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Venus in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 3rd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Mercury aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Leo",
+          "gulikaSign": "Sagittarius",
+          "gulikaLongitude": 241.47243868968735,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 3,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 8,
+            "naturalBeneficOccupants": [
+              "Venus"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Venus in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 3rd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Mercury aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Leo",
+          "gulikaSign": "Sagittarius",
+          "gulikaLongitude": 241.47243868968735,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 3,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 8,
+            "naturalBeneficOccupants": [
+              "Venus"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Taurus",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Venus in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 3rd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Moon, Jupiter in D7 house 5",
+              "Jupiter, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bernard Clappier",
+      "selectedGroup": "noAspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Scorpio",
+        "gulikaSign": "Pisces",
+        "gulikaLongitude": 352.53106475490495,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Sagittarius",
+        "jupiterDistance": 4,
+        "jupiterFullAspect": false,
+        "jupiterFifthOrNinthAspect": false,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 11,
+          "naturalBeneficOccupants": [
+            "Moon"
+          ],
+          "naturalBeneficAspects": []
+        },
+        "beeja": {
+          "sign": "Virgo",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Cancer",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "Moon in the house"
+          ],
+          "d1Strain": [
+            "lord Jupiter in the 2nd does not aspect the house"
+          ],
+          "divisionSupport": [
+            "Jupiter aspect D7 house 5"
+          ],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Scorpio",
+          "gulikaSign": "Pisces",
+          "gulikaLongitude": 352.53106475490495,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 4,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 11,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 2nd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Scorpio",
+          "gulikaSign": "Pisces",
+          "gulikaLongitude": 352.53106475490495,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 4,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 11,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 2nd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Scorpio",
+          "gulikaSign": "Pisces",
+          "gulikaLongitude": 352.53106475490495,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 4,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 11,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 2nd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Scorpio",
+          "gulikaSign": "Pisces",
+          "gulikaLongitude": 352.53106475490495,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 4,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 11,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 2nd does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Scorpio",
+          "gulikaSign": "Pisces",
+          "gulikaLongitude": 352.53106475490495,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Sagittarius",
+          "jupiterDistance": 4,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 11,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 2nd does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "George Chisholm",
+      "selectedGroup": "noAspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Aries",
+        "gulikaSign": "Leo",
+        "gulikaLongitude": 132.27944016280867,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Aquarius",
+        "jupiterDistance": 7,
+        "jupiterFullAspect": true,
+        "jupiterFifthOrNinthAspect": false,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 4,
+          "naturalBeneficOccupants": [
+            "Moon"
+          ],
+          "naturalBeneficAspects": [
+            "Jupiter",
+            "Venus"
+          ]
+        },
+        "beeja": {
+          "sign": "Scorpio",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Scorpio",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "Moon in the house",
+            "aspected by Jupiter and Venus"
+          ],
+          "d1Strain": [
+            "lord Sun in the 12th does not aspect the house"
+          ],
+          "divisionSupport": [],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 132.27944016280867,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 7,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Scorpio",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Scorpio",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house",
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Sun in the 12th does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Mars, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 132.27944016280867,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 7,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Scorpio",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Scorpio",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house",
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Sun in the 12th does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Moon in D7 house 5",
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 132.27944016280867,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 7,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Scorpio",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Scorpio",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house",
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Sun in the 12th does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Aries",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 132.27944016280867,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 7,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 4,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": [
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Scorpio",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Scorpio",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house",
+              "aspected by Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Sun in the 12th does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Venus in D7 house 5",
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Taurus",
+          "gulikaSign": "Leo",
+          "gulikaLongitude": 132.27944016280867,
+          "day": true,
+          "house": 4,
+          "jupiterSign": "Aquarius",
+          "jupiterDistance": 7,
+          "jupiterFullAspect": true,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 5,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Scorpio",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Scorpio",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "lord Mercury in the 10th"
+            ],
+            "d1Strain": [
+              "lord Mercury in the 10th does not aspect the house",
+              "lord Mercury with the malefics Mars and Rahu",
+              "lord Mercury with Jupiter (lord of the 8th and 11th) and Venus (lord of the 6th)"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Grant Wright Christian",
+      "selectedGroup": "noAspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Cancer",
+        "gulikaSign": "Scorpio",
+        "gulikaLongitude": 219.13610827665298,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Libra",
+        "jupiterDistance": 2,
+        "jupiterFullAspect": false,
+        "jupiterFifthOrNinthAspect": false,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 7,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": []
+        },
+        "beeja": {
+          "sign": "Virgo",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Libra",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "lord Mars in the 10th"
+          ],
+          "d1Strain": [
+            "lord Mars with the malefics Saturn and Rahu"
+          ],
+          "divisionSupport": [],
+          "divisionStrain": [
+            "Moon, D7 house 5 lord, in debilitation sign"
+          ]
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Cancer",
+          "gulikaSign": "Scorpio",
+          "gulikaLongitude": 219.13610827665298,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 2,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 7,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "lord Mars in the 10th"
+            ],
+            "d1Strain": [
+              "lord Mars with the malefics Saturn and Rahu"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Cancer",
+          "gulikaSign": "Scorpio",
+          "gulikaLongitude": 219.13610827665298,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 2,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 7,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "lord Mars in the 10th"
+            ],
+            "d1Strain": [
+              "lord Mars with the malefics Saturn and Rahu"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Cancer",
+          "gulikaSign": "Scorpio",
+          "gulikaLongitude": 219.13610827665298,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 2,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 7,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "lord Mars in the 10th"
+            ],
+            "d1Strain": [
+              "lord Mars with the malefics Saturn and Rahu"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Moon, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Cancer",
+          "gulikaSign": "Scorpio",
+          "gulikaLongitude": 219.13610827665298,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 2,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 7,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "lord Mars in the 10th"
+            ],
+            "d1Strain": [
+              "lord Mars with the malefics Saturn and Rahu"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Moon, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Cancer",
+          "gulikaSign": "Scorpio",
+          "gulikaLongitude": 219.13610827665298,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 2,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 7,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "lord Mars in the 10th"
+            ],
+            "d1Strain": [
+              "lord Mars with the malefics Saturn and Rahu"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Moon, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "David Copperfield",
+      "selectedGroup": "noAspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Virgo",
+        "gulikaSign": "Capricorn",
+        "gulikaLongitude": 292.771050630295,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Leo",
+        "jupiterDistance": 6,
+        "jupiterFullAspect": false,
+        "jupiterFifthOrNinthAspect": false,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 9,
+          "naturalBeneficOccupants": [
+            "Moon"
+          ],
+          "naturalBeneficAspects": [
+            "Venus"
+          ]
+        },
+        "beeja": {
+          "sign": "Capricorn",
+          "sameSign": true
+        },
+        "kshetra": {
+          "sign": "Libra",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "Moon in the house",
+            "aspected by Venus"
+          ],
+          "d1Strain": [
+            "lord Saturn with the malefic Rahu"
+          ],
+          "divisionSupport": [],
+          "divisionStrain": [
+            "Moon, D7 house 5 lord, in debilitation sign"
+          ]
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Virgo",
+          "gulikaSign": "Capricorn",
+          "gulikaLongitude": 292.771050630295,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Leo",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 9,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": [
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Capricorn",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house",
+              "aspected by Venus"
+            ],
+            "d1Strain": [
+              "lord Saturn with the malefic Rahu"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Moon, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Virgo",
+          "gulikaSign": "Capricorn",
+          "gulikaLongitude": 292.771050630295,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Leo",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 9,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": [
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Capricorn",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house",
+              "aspected by Venus"
+            ],
+            "d1Strain": [
+              "lord Saturn with the malefic Rahu"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Moon, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Virgo",
+          "gulikaSign": "Capricorn",
+          "gulikaLongitude": 292.771050630295,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Leo",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 9,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": [
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Capricorn",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house",
+              "aspected by Venus"
+            ],
+            "d1Strain": [
+              "lord Saturn with the malefic Rahu"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": [
+              "Moon, D7 house 5 lord, in debilitation sign"
+            ]
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Virgo",
+          "gulikaSign": "Capricorn",
+          "gulikaLongitude": 292.771050630295,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Leo",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 9,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": [
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Capricorn",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house",
+              "aspected by Venus"
+            ],
+            "d1Strain": [
+              "lord Saturn with the malefic Rahu"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Virgo",
+          "gulikaSign": "Capricorn",
+          "gulikaLongitude": 292.771050630295,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Leo",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 9,
+            "naturalBeneficOccupants": [
+              "Moon"
+            ],
+            "naturalBeneficAspects": [
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Capricorn",
+            "sameSign": true
+          },
+          "kshetra": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Moon in the house",
+              "aspected by Venus"
+            ],
+            "d1Strain": [
+              "lord Saturn with the malefic Rahu"
+            ],
+            "divisionSupport": [
+              "Jupiter aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "François Cavanna",
+      "selectedGroup": "noAspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Leo",
+        "gulikaSign": "Sagittarius",
+        "gulikaLongitude": 240.59757180731924,
+        "day": false,
+        "house": 5,
+        "jupiterSign": "Libra",
+        "jupiterDistance": 3,
+        "jupiterFullAspect": false,
+        "jupiterFifthOrNinthAspect": false,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 8,
+          "naturalBeneficOccupants": [
+            "Venus"
+          ],
+          "naturalBeneficAspects": []
+        },
+        "beeja": {
+          "sign": "Libra",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Virgo",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [
+            "Venus in the house"
+          ],
+          "d1Strain": [
+            "lord Jupiter in the 3rd does not aspect the house"
+          ],
+          "divisionSupport": [
+            "Jupiter in D7 house 5",
+            "Moon, Mercury aspect D7 house 5",
+            "Mars, D7 house 5 lord, in own sign"
+          ],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Leo",
+          "gulikaSign": "Sagittarius",
+          "gulikaLongitude": 240.59757180731924,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 3,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 8,
+            "naturalBeneficOccupants": [
+              "Venus"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Venus in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 3rd does not aspect the house"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Leo",
+          "gulikaSign": "Sagittarius",
+          "gulikaLongitude": 240.59757180731924,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 3,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 8,
+            "naturalBeneficOccupants": [
+              "Venus"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Venus in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 3rd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5",
+              "Moon, Mercury aspect D7 house 5",
+              "Mars, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Leo",
+          "gulikaSign": "Sagittarius",
+          "gulikaLongitude": 240.59757180731924,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 3,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 8,
+            "naturalBeneficOccupants": [
+              "Venus"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Venus in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 3rd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5",
+              "Moon, Mercury aspect D7 house 5",
+              "Mars, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Leo",
+          "gulikaSign": "Sagittarius",
+          "gulikaLongitude": 240.59757180731924,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 3,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 8,
+            "naturalBeneficOccupants": [
+              "Venus"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Venus in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 3rd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5",
+              "Moon, Mercury aspect D7 house 5",
+              "Mars, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Leo",
+          "gulikaSign": "Sagittarius",
+          "gulikaLongitude": 240.59757180731924,
+          "day": false,
+          "house": 5,
+          "jupiterSign": "Libra",
+          "jupiterDistance": 3,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 8,
+            "naturalBeneficOccupants": [
+              "Venus"
+            ],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Libra",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "Venus in the house"
+            ],
+            "d1Strain": [
+              "lord Jupiter in the 3rd does not aspect the house"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5",
+              "Moon, Mercury aspect D7 house 5",
+              "Mars, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ivonne Caprino",
+      "selectedGroup": "noAspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Taurus",
+        "gulikaSign": "Virgo",
+        "gulikaLongitude": 160.98249554218341,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Gemini",
+        "jupiterDistance": 4,
+        "jupiterFullAspect": false,
+        "jupiterFifthOrNinthAspect": false,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 5,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": []
+        },
+        "beeja": {
+          "sign": "Cancer",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Virgo",
+          "sameSign": true
+        },
+        "parashariSubset": {
+          "d1Support": [],
+          "d1Strain": [
+            "lord Mercury in the 12th does not aspect the house",
+            "lord Mercury with the malefic Sun",
+            "lord Mercury with Moon (lord of the 3rd)"
+          ],
+          "divisionSupport": [],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Taurus",
+          "gulikaSign": "Virgo",
+          "gulikaLongitude": 160.98249554218341,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Gemini",
+          "jupiterDistance": 4,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 5,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Mercury in the 12th does not aspect the house",
+              "lord Mercury with the malefic Sun",
+              "lord Mercury with Moon (lord of the 3rd)"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Taurus",
+          "gulikaSign": "Virgo",
+          "gulikaLongitude": 160.98249554218341,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Gemini",
+          "jupiterDistance": 4,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 5,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Leo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Mercury in the 12th does not aspect the house",
+              "lord Mercury with the malefic Sun",
+              "lord Mercury with Moon (lord of the 3rd)"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Taurus",
+          "gulikaSign": "Virgo",
+          "gulikaLongitude": 160.98249554218341,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Gemini",
+          "jupiterDistance": 4,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 5,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": true
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Mercury in the 12th does not aspect the house",
+              "lord Mercury with the malefic Sun",
+              "lord Mercury with Moon (lord of the 3rd)"
+            ],
+            "divisionSupport": [],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Taurus",
+          "gulikaSign": "Virgo",
+          "gulikaLongitude": 160.98249554218341,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Gemini",
+          "jupiterDistance": 4,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 5,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": true
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Mercury in the 12th does not aspect the house",
+              "lord Mercury with the malefic Sun",
+              "lord Mercury with Moon (lord of the 3rd)"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5",
+              "Mercury, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Taurus",
+          "gulikaSign": "Virgo",
+          "gulikaLongitude": 160.98249554218341,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Gemini",
+          "jupiterDistance": 4,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 5,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Cancer",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": true
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Mercury in the 12th does not aspect the house",
+              "lord Mercury with the malefic Sun",
+              "lord Mercury with Moon (lord of the 3rd)"
+            ],
+            "divisionSupport": [
+              "Venus aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alain Cayzac",
+      "selectedGroup": "noAspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Gemini",
+        "gulikaSign": "Libra",
+        "gulikaLongitude": 183.05790447122547,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Taurus",
+        "jupiterDistance": 6,
+        "jupiterFullAspect": false,
+        "jupiterFifthOrNinthAspect": false,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 6,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": []
+        },
+        "beeja": {
+          "sign": "Aries",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Virgo",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [],
+          "d1Strain": [
+            "lord Venus in the 12th does not aspect the house",
+            "lord Venus with the malefic Sun"
+          ],
+          "divisionSupport": [
+            "Jupiter in D7 house 5",
+            "Jupiter, D7 house 5 lord, in own sign"
+          ],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 183.05790313803755,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Taurus",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Venus in the 12th does not aspect the house",
+              "lord Venus with the malefic Sun"
+            ],
+            "divisionSupport": [
+              "Venus aspect D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 183.05790447122547,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Taurus",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Pisces",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Venus in the 12th does not aspect the house",
+              "lord Venus with the malefic Sun"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5",
+              "Jupiter, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 183.05790447122547,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Taurus",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Aries",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Venus in the 12th does not aspect the house",
+              "lord Venus with the malefic Sun"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5",
+              "Jupiter, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 183.05790447122547,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Taurus",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Aries",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Venus in the 12th does not aspect the house",
+              "lord Venus with the malefic Sun"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5",
+              "Jupiter, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Gemini",
+          "gulikaSign": "Libra",
+          "gulikaLongitude": 183.05790447122547,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Taurus",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Aries",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Virgo",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Venus in the 12th does not aspect the house",
+              "lord Venus with the malefic Sun"
+            ],
+            "divisionSupport": [
+              "Saturn, D7 house 5 lord, in exaltation sign"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "Yvette Chauviré",
+      "selectedGroup": "noAspect",
+      "nominal": {
+        "offsetMinutes": 0,
+        "ascendant": "Taurus",
+        "gulikaSign": "Virgo",
+        "gulikaLongitude": 169.8920780877878,
+        "day": true,
+        "house": 5,
+        "jupiterSign": "Aries",
+        "jupiterDistance": 6,
+        "jupiterFullAspect": false,
+        "jupiterFifthOrNinthAspect": false,
+        "jupiterSameSign": false,
+        "fifth": {
+          "signIndex": 5,
+          "naturalBeneficOccupants": [],
+          "naturalBeneficAspects": []
+        },
+        "beeja": {
+          "sign": "Aquarius",
+          "sameSign": false
+        },
+        "kshetra": {
+          "sign": "Capricorn",
+          "sameSign": false
+        },
+        "parashariSubset": {
+          "d1Support": [],
+          "d1Strain": [
+            "lord Mercury in the 12th does not aspect the house",
+            "lord Mercury with the malefic Sun",
+            "lord Mercury with Moon (lord of the 3rd), Jupiter (lord of the 8th and 11th) and Venus (lord of the 6th)"
+          ],
+          "divisionSupport": [
+            "Jupiter in D7 house 5"
+          ],
+          "divisionStrain": []
+        }
+      },
+      "samples": [
+        {
+          "offsetMinutes": -15,
+          "ascendant": "Taurus",
+          "gulikaSign": "Virgo",
+          "gulikaLongitude": 169.8920780877878,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aries",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 5,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Mercury in the 12th does not aspect the house",
+              "lord Mercury with the malefic Sun",
+              "lord Mercury with Moon (lord of the 3rd), Jupiter (lord of the 8th and 11th) and Venus (lord of the 6th)"
+            ],
+            "divisionSupport": [
+              "Moon in D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": -5,
+          "ascendant": "Taurus",
+          "gulikaSign": "Virgo",
+          "gulikaLongitude": 169.8920780877878,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aries",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 5,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Mercury in the 12th does not aspect the house",
+              "lord Mercury with the malefic Sun",
+              "lord Mercury with Moon (lord of the 3rd), Jupiter (lord of the 8th and 11th) and Venus (lord of the 6th)"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 0,
+          "ascendant": "Taurus",
+          "gulikaSign": "Virgo",
+          "gulikaLongitude": 169.8920780877878,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aries",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 5,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Mercury in the 12th does not aspect the house",
+              "lord Mercury with the malefic Sun",
+              "lord Mercury with Moon (lord of the 3rd), Jupiter (lord of the 8th and 11th) and Venus (lord of the 6th)"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 5,
+          "ascendant": "Taurus",
+          "gulikaSign": "Virgo",
+          "gulikaLongitude": 169.8920780877878,
+          "day": true,
+          "house": 5,
+          "jupiterSign": "Aries",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 5,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": []
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [],
+            "d1Strain": [
+              "lord Mercury in the 12th does not aspect the house",
+              "lord Mercury with the malefic Sun",
+              "lord Mercury with Moon (lord of the 3rd), Jupiter (lord of the 8th and 11th) and Venus (lord of the 6th)"
+            ],
+            "divisionSupport": [
+              "Jupiter in D7 house 5"
+            ],
+            "divisionStrain": []
+          }
+        },
+        {
+          "offsetMinutes": 15,
+          "ascendant": "Gemini",
+          "gulikaSign": "Virgo",
+          "gulikaLongitude": 169.8920780877878,
+          "day": true,
+          "house": 4,
+          "jupiterSign": "Aries",
+          "jupiterDistance": 6,
+          "jupiterFullAspect": false,
+          "jupiterFifthOrNinthAspect": false,
+          "jupiterSameSign": false,
+          "fifth": {
+            "signIndex": 6,
+            "naturalBeneficOccupants": [],
+            "naturalBeneficAspects": [
+              "Moon",
+              "Jupiter",
+              "Venus"
+            ]
+          },
+          "beeja": {
+            "sign": "Aquarius",
+            "sameSign": false
+          },
+          "kshetra": {
+            "sign": "Capricorn",
+            "sameSign": false
+          },
+          "parashariSubset": {
+            "d1Support": [
+              "aspected by Moon, Jupiter and Venus"
+            ],
+            "d1Strain": [
+              "lord Venus with the malefics Sun and Mercury (joined by the Sun, 3.11)"
+            ],
+            "divisionSupport": [
+              "Venus, D7 house 5 lord, in own sign"
+            ],
+            "divisionStrain": []
+          }
+        }
+      ]
+    }
+  ]
+}

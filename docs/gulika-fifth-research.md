@@ -14,7 +14,7 @@ about elders. The previous app text obscured the exact offspring claim; the revi
 text identifies it but does not present it as a prediction established by that placement.
 
 The book is a work of horary astrology, even though it also discusses birth horoscopes. Its
-[volume II, 19.68](https://studyres.com/doc/6415459/prasnamarga-ii---saptarishis-astrology)
+[volume II, 18.68](https://studyres.com/doc/6415459/prasnamarga-ii---saptarishis-astrology)
 discusses other childbearing combinations; the accompanying notes explicitly use positions in
 the *prasna* chart and treat Jupiter trine Gulika as one favourable factor. Its verse and notes
 also differ in their wording of another longitudes sum. These are reasons to distinguish an
@@ -75,7 +75,7 @@ At the reported birth times, the generated results also run the existing Parasha
 `parashariVargaEvidence` and `parashariPromiseNatal` checks. This is a retrospective descriptive
 audit, not a predeclared test of a combined Gulika rule. These checks use a limited BPHS-based D1
 house assessment and an app-selected D7 fifth-house subset, and are **different** from the
-Prasna Marga question-chart combinations in 19.68. A “none listed” result means only that this
+Prasna Marga question-chart combinations in 18.68. A “none listed” result means only that this
 subset produced no supporting indicator; it is not a denial or a complete judgment.
 
 | Case | Family observation | D1 support listed | D7 support listed |
