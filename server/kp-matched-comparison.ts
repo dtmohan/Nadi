@@ -24,7 +24,7 @@ function seedFor(events: readonly MatchedEvent[]): number {
 function shifted(date: string, days: number): string {
   return DateTime.fromISO(date, { zone: "utc" }).plus({ days }).toISODate()!;
 }
-function stats(xs: number[], actual: number): KpMatchedStat {
+export function matchedStats(xs: number[], actual: number): KpMatchedStat {
   const mean = xs.reduce((a, b) => a + b, 0) / xs.length;
   const sd = Math.sqrt(xs.reduce((a, b) => a + (b - mean) ** 2, 0) / xs.length);
   const pct = Math.round(100 * (xs.filter((x) => x < actual).length + xs.filter((x) => x === actual).length / 2) / xs.length);
@@ -100,10 +100,10 @@ export function summarizeKpMatched(events: readonly MatchedEvent[], selection: R
   const total = qualifiedTotals(aq, "kp");
   return { status: "available", trials: selection.trials.length, eligibleOffsets: selection.available,
     offsets: selection.trials.map((t) => t.offset), exampleOffsetDays: selection.trials[0].offset, exampleDates: selection.trials[0].moments.map((m) => m.date),
-    timing: stats(timing, actualTiming), timingMax: 3 * events.length,
-    transit: stats(transit, actualTransit),
-    ...(actual.some((k) => k.aurora) ? { aurora: stats(aurora, actualAurora) } : {}),
-    ...(actual.some((k) => k.auroraV2) ? { auroraV2: stats(auroraV2, actualV2) } : {}),
-    ...(total.max && comparable ? { qualified: stats(kpQualified, total.score) } : {}),
+    timing: matchedStats(timing, actualTiming), timingMax: 3 * events.length,
+    transit: matchedStats(transit, actualTransit),
+    ...(actual.some((k) => k.aurora) ? { aurora: matchedStats(aurora, actualAurora) } : {}),
+    ...(actual.some((k) => k.auroraV2) ? { auroraV2: matchedStats(auroraV2, actualV2) } : {}),
+    ...(total.max && comparable ? { qualified: matchedStats(kpQualified, total.score) } : {}),
   };
 }

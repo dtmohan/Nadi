@@ -4,7 +4,7 @@ import { EVENT_MATTERS } from "@shared/events";
 import { alpMarriageFacts } from "@shared/alp-marriage";
 import type { AlpEventEvidence } from "@shared/alp-event-evidence";
 import type { AlpMatchedComparison, AlpMatchedRow } from "@shared/alp-matched-types";
-import type { MatchedEvent, prepareKpMatchedDates } from "./kp-matched-comparison";
+import { matchedStats, type MatchedEvent, type prepareKpMatchedDates } from "./kp-matched-comparison";
 
 type Selection = ReturnType<ReturnType<typeof prepareKpMatchedDates>>;
 export function summarizeAlpMatched(events: readonly (MatchedEvent & { label?: string })[], selection: Selection,
@@ -23,13 +23,23 @@ export function summarizeAlpMatched(events: readonly (MatchedEvent & { label?: s
     const values = alpMarriageFacts(context.timing);
     return { label: e.label ?? marriage.label, date: e.date, status: "assessed", facts: Object.entries(values).map(([id, value]) => ({ id, actual: value, matchedTrials: 0 })) };
   });
-  for (const trial of selection.trials) for (let j = 0; j < eligible.length; j++) {
-    if (rows[j].status !== "assessed") continue;
-    const {e, i} = eligible[j];
-    const evidence = score(e.matter, trial.moments[i].iso);
-    if (evidence?.status !== "assessed" || !evidence.marriage) { rows[j].status = "unavailable"; rows[j].facts = []; continue; }
-    const values = alpMarriageFacts(evidence.marriage.timing);
-    for (const fact of rows[j].facts) if (values[fact.id]) fact.matchedTrials++;
+  const samples: number[] = [];
+  for (const trial of selection.trials) {
+    let pada = 0;
+    for (let j = 0; j < eligible.length; j++) {
+      if (rows[j].status !== "assessed") continue;
+      const {e, i} = eligible[j];
+      const evidence = score(e.matter, trial.moments[i].iso);
+      if (evidence?.status !== "assessed" || !evidence.marriage) { rows[j].status = "unavailable"; rows[j].facts = []; continue; }
+      const values = alpMarriageFacts(evidence.marriage.timing);
+      pada += Number(values["pada-navamsa-touches"]);
+      for (const fact of rows[j].facts) if (values[fact.id]) fact.matchedTrials++;
+    }
+    samples.push(pada);
   }
-  return { status: "available", eligibleOffsets: selection.available, trials: selection.trials.length, rows };
+  const comparable = rows.every((row) => row.status === "assessed" && row.facts.some((f) => f.id === "pada-navamsa-touches"));
+  const actualPada = rows.reduce((n, row) => n + Number(row.facts.find((f) => f.id === "pada-navamsa-touches")?.actual), 0);
+  return { status: "available", eligibleOffsets: selection.available, trials: selection.trials.length, rows,
+    offsets: selection.trials.map((trial) => trial.offset),
+    ...(comparable ? { pada: matchedStats(samples, actualPada), padaMax: rows.length } : {}) };
 }

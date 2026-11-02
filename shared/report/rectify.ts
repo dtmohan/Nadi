@@ -82,15 +82,17 @@ export const rectifyModule: ReportModule = {
     }
     const { result: scan, state } = r;
     const m = RECTIFY_METHODS.find((x) => x.id === state.method)!;
-    const withDate = (time: string, iso: string) =>
-      iso.slice(0, 10) === result.chart.birthDate ? time : `${iso.slice(0, 10)} ${time}`;
+    const withDate = (time: string, iso: string, civilDate?: string) => {
+      const date = civilDate ?? iso.slice(0, 10);
+      return date === result.chart.birthDate ? time : `${date} ${time}`;
+    };
     const windowParas = (): ReportPara[] => {
       const paras: ReportPara[] = scan.vargaWindows?.length ? [{
       kind: "table",
       head: ["Division", "Recorded-time ascendant", "Recorded-time window", "Windows in scan"],
       rows: scan.vargaWindows.map((v) => {
         const w = v.windows.find((x) => x.given);
-        return [v.division, w ? SIGNS[w.sign] : "—", w ? `${withDate(w.start, w.startIso)}–${withDate(w.end, w.endIso)}` : "—", String(v.windows.length)];
+        return [v.division, w ? SIGNS[w.sign] : "—", w ? `${withDate(w.start, w.startIso, w.startDate)}–${withDate(w.end, w.endIso, w.endDate)}` : "—", String(v.windows.length)];
       }),
       cites: [cites.add(MANLEY_SOURCE.label)],
       provisional: true,
@@ -129,7 +131,7 @@ export const rectifyModule: ReportModule = {
           ...(windows.length ? [{
             kind: "table" as const,
             head: ["From", "To", "Midpoint", "Kunda star", "Birth star", "Check"],
-            rows: shown.map((w) => [withDate(w.start, w.startIso), withDate(w.end, w.endIso), `${w.midDate !== result.chart.birthDate ? `${w.midDate} ` : ""}${w.mid}`, NAKSHATRAS[w.check.kundaNakshatra], NAKSHATRAS[w.check.birthStar], `${w.check.trine ? "matches" : "does not match"}${w.given ? "; recorded" : ""}`]),
+            rows: shown.map((w) => [withDate(w.start, w.startIso, w.startDate), withDate(w.end, w.endIso, w.endDate), `${w.midDate !== result.chart.birthDate ? `${w.midDate} ` : ""}${w.mid}`, NAKSHATRAS[w.check.kundaNakshatra], NAKSHATRAS[w.check.birthStar], `${w.check.trine ? "matches" : "does not match"}${w.given ? "; recorded" : ""}`]),
           }] : [{ kind: "note" as const, text: "No D81 intervals were supplied; run the scan again." }]),
         ],
       }];
@@ -149,11 +151,13 @@ export const rectifyModule: ReportModule = {
     }
     if (state.method === "alp-marriage") {
       const bands = scan.alpComparisonBands ?? [];
-      const ranking = alpBandRanking(bands, !!scan.baseline);
+      const comparisonsRequested = scan.segments.some((s) => s.kpMatched) || !!scan.baseline;
+      const matchedBands = bands.some((b) => b.comparisonId !== undefined);
+      const ranking = alpBandRanking(bands, comparisonsRequested);
       return [{ id: "rectify", title: "ALP · marriage pada comparison", kicker, paras: [
         { kind: "lead", text: m.short, cites: [cites.add(m.source)] },
-        { kind: "note", provisional: true, text: `Source-scoped research: this is a single ALP condition. Registered date-independent clues count once per candidate and matter; this ALP condition is event-dependent. ${scan.baseline ? "" : "Quick scan: random-date comparisons were not computed."}` },
-        { kind: "note", provisional: true, text: `Every selectable whole second was checked against the actual marriage dates${scan.baseline ? ` and ${scan.baseline.trials} random-date sets` : ""}; consecutive seconds with identical individual results are grouped. The end is exclusive. Instants between seconds are not measured. This partial rule does not establish a birth time. ${ranking.comparable ? "Highlights use the same exploratory rule as the panel." : bands.length ? "Eligibility or comparison availability differs, so the bands cannot be ranked." : "No ALP bands are available; run a new scan with a marriage event."}` },
+        { kind: "note", provisional: true, text: `Source-scoped research: this is a single ALP condition. Registered date-independent clues count once per candidate and matter; this ALP condition is event-dependent. ${comparisonsRequested ? "" : "Quick scan: random-date comparisons were not computed."}` },
+        { kind: "note", provisional: true, text: `Every selectable whole second was checked against the actual marriage dates${matchedBands ? " and the available sequence-preserving shared-offset date sets" : scan.baseline ? " and independently drawn date sets in this older result" : ""}; consecutive seconds with identical individual results are grouped. The end is exclusive. Instants between seconds are not measured. This partial rule does not establish a birth time. ${ranking.comparable ? "All bands reaching the exploratory comparison cutoff are highlighted when a comparison is available." : bands.length ? "Eligibility, comparison dates or availability differs, so the bands cannot be ranked." : "No ALP bands are available; run a new scan with a marriage event."}` },
         { kind: "note", provisional: true, text: "Additional marriage facts are evaluated at the ordinary segment midpoint containing the recorded time, not at every second in these ALP bands." },
         ...alpMatchedParas(scan.segments.find((s) => s.given)?.alpMatched),
         { kind: "table", head: ["From", "To (exclusive)", "Candidate", "Matches", "Comparison mean", "Mid-rank", ""],
@@ -193,7 +197,7 @@ export const rectifyModule: ReportModule = {
           ...(focus?.baseline?.parashari && scan.baseline ? parashariComparisonParas(focus.baseline.parashari,
             scan.baseline.trials, focus.baseline.parashariExample, result.chart.timezone) : []),
           ...(focus?.parashariHierarchy ?? []).flatMap((e) => e ? hierarchyParas(e) : []),
-          ...(anyScore ? [{ kind: "table" as const, head: ["From", "To", "Rule matches", "Recorded"], rows: scored.map(({ s, score, max }) => [withDate(s.start, s.startIso), withDate(s.end, s.endIso), `${score}/${max}${comparable && score === top ? " · highest" : ""}`, s.given ? "yes" : ""]) }] : []),
+          ...(anyScore ? [{ kind: "table" as const, head: ["From", "To", "Rule matches", "Recorded"], rows: scored.map(({ s, score, max }) => [withDate(s.start, s.startIso, s.startDate), withDate(s.end, s.endIso, s.endDate), `${score}/${max}${comparable && score === top ? " · highest" : ""}`, s.given ? "yes" : ""]) }] : []),
           ...((focus?.manley?.length ?? 0) ? [
             { kind: "note" as const, text: `Manley-style event clues below use the recorded-time interval midpoint ${focus?.midDate} ${focus?.mid}. ${v3 ? "The main and subperiod primary divisional links contribute to v3; the third period is descriptive." : "They are descriptive and do not change this score."} A repeated lord is not independent confirmation. Missing event clocks use noon, missing zones use the birth zone. Nodes receive but do not cast aspects; one-hop sign-ruler links are shown separately. The full manual funnel and fourth/fifth period levels are not automated. Admission is not necessarily the first day of study.`, provisional: true, cites: [cites.add(MANLEY_SOURCE.label)] },
             ...(focus?.manley ?? []).flatMap((e) => manleyEvidenceParas(e, cites.add(MANLEY_SOURCE.label),
@@ -217,9 +221,10 @@ export const rectifyModule: ReportModule = {
     const maxOf = Math.max(0, ...scored.map((x) => x.sc.max));
     const top = Math.max(0, ...scored.map((x) => x.sc.score));
     const qualifiedKey = QUALIFIED_RECTIFY_METHODS[state.method];
+    const eventMethod = EVENT_METHODS.includes(state.method);
     const matchedRequested = isKpMatchedMethod(state.method) && scan.segments.some((s) => s.kpMatched);
     const matchedComparable = !matchedRequested || (kpMatchedComparable(scan.segments) && scored.every((r) => !!r.b));
-    const comparable = matchedComparable && (!qualifiedKey || (maxOf > 0 && scored.every((r) => r.sc.max === maxOf) &&
+    const comparable = matchedComparable && (!eventMethod || (maxOf > 0 && scored.every((r) => r.sc.max === maxOf))) && (!qualifiedKey || (maxOf > 0 && scored.every((r) => r.sc.max === maxOf) &&
       scored.every((r) => qualifiedComparable(scored[0].seg.events.map((e) => e.qualifiedScores), r.seg.events.map((e) => e.qualifiedScores), qualifiedKey)) &&
       (!scored.some((r) => r.b) || scored.every((r) => r.b))));
     const highlighted = new Set(comparable ? highlightedCandidates(scored.map((x) => ({ score: x.sc.score, b: x.b }))) : []);
@@ -231,7 +236,6 @@ export const rectifyModule: ReportModule = {
       scan.judgedAt.timezone,
     );
     const src = cites.add(m.source);
-    const eventMethod = EVENT_METHODS.includes(state.method);
     const hasSelectedComparison = scored.some((r) => !!r.b);
 
     const paras: ReportPara[] = [
@@ -268,11 +272,17 @@ export const rectifyModule: ReportModule = {
       const matches = nemaniGroups.filter((g) => g.first.nemani?.all).length;
       paras.push({ kind: "p", text: `All three levels link in ${matches} of ${nemaniGroups.length} groups. Adjacent samples are grouped only when their rising sign, lords and displayed connections agree. A match does not establish a birth time.`, provisional: true });
     } else if (best.length) {
-      const rng = (x: { seg: RectifySegment }) =>
-        `${withDate(x.seg.start, x.seg.startIso)} to ${withDate(x.seg.end, x.seg.endIso)}`;
+      const ranges: Array<{ first: RectifySegment; last: RectifySegment }> = [];
+      for (const row of best) {
+        const previous = ranges.at(-1);
+        if (previous && previous.last.endIso === row.seg.startIso) previous.last = row.seg;
+        else ranges.push({ first: row.seg, last: row.seg });
+      }
+      const shown = ranges.slice(0, 8).map((r) =>
+        `${withDate(r.first.start, r.first.startIso, r.first.startDate)} to ${withDate(r.last.end, r.last.endIso, r.last.endDate)}`);
       paras.push({
         kind: "p",
-        text: `Highlighted candidates: ${list(best.map((x) => `${rng(x)} (${x.seg.sign}, sub lord ${x.seg.subLord}, score ${fmtScore(x.sc.score)} of ${x.sc.max}${x.seg.given ? ", holds the recorded time" : ""})`))}. ${eventMethod && hasSelectedComparison ? "Highlighting uses the difference from the comparison mean and an exploratory 95th-percentile cutoff." : `The highest raw score is ${fmtScore(top)} of ${maxOf}.`}${given ? ` The recorded time falls in ${given.start.slice(0, 5)} to ${given.end.slice(0, 5)}, scoring ${fmtScore(methodScore(given, state.method, marksCtx).score)} of ${methodScore(given, state.method, marksCtx).max}.` : ""}`,
+        text: `Highlighted intervals: ${list(shown)}${ranges.length > shown.length ? `, and ${ranges.length - shown.length} more ranges shown in the table` : ""}. ${eventMethod && hasSelectedComparison ? "Every interval reaching the exploratory 95th-percentile cutoff is highlighted; this is not a ranking by birth-time likelihood, and scores can differ within a highlighted range." : `The highest raw score is ${fmtScore(top)} of ${maxOf}.`}${given ? ` The recorded time falls in ${given.start.slice(0, 5)} to ${given.end.slice(0, 5)}, scoring ${fmtScore(methodScore(given, state.method, marksCtx).score)} of ${methodScore(given, state.method, marksCtx).max}.` : ""}`,
         tone: given && best.some((x) => x.seg.given) ? "support" : "mixed",
       });
     } else {
@@ -282,6 +292,8 @@ export const rectifyModule: ReportModule = {
       });
     }
     if (matchedRequested) paras.push(...kpMatchedParas(given?.kpMatched));
+    if (state.method === "kp-events" && matchedRequested) paras.push({ kind: "note", provisional: true,
+      text: "The score includes one fixed natal cusp point for each distinct matter and three period hits per event. The matched-date comparison measures only those period hits, excluding the fixed natal points; its actual and mean therefore use a different denominator from the displayed score." });
     if (eventMethod && scan.baseline && !matchedRequested) {
       const gb = given ? baselineFor(given, state.method) : undefined;
       paras.push({
@@ -300,7 +312,7 @@ export const rectifyModule: ReportModule = {
           "Sign / star / sub lord",
           ...firmCol,
           "Score",
-          "Comparison mean",
+          state.method === "kp-events" && matchedRequested ? "Timing-only comparison mean" : "Comparison mean",
           "Percentile",
           "",
         ]
@@ -332,8 +344,8 @@ export const rectifyModule: ReportModule = {
       kind: "table",
       head: ["From", "To", "Rising sign and lords", "Connections", "Recorded"],
       rows: nemaniGroups.map((g) => [
-        withDate(g.first.start, g.first.startIso),
-        withDate(g.last.end, g.last.endIso),
+        withDate(g.first.start, g.first.startIso, g.first.startDate),
+        withDate(g.last.end, g.last.endIso, g.last.endDate),
         `${g.first.sign} · ${g.first.signLord} / ${g.first.starLord} / ${g.first.subLord}`,
         g.first.nemani?.all ? "all three link" : "not all three link",
         g.given ? "yes" : "",
@@ -345,8 +357,8 @@ export const rectifyModule: ReportModule = {
       rows: scored.map((x, i) => {
         const st = x.seg.stability;
         const base = [
-          withDate(x.seg.start, x.seg.startIso),
-          withDate(x.seg.end, x.seg.endIso),
+          withDate(x.seg.start, x.seg.startIso, x.seg.startDate),
+          withDate(x.seg.end, x.seg.endIso, x.seg.endDate),
           x.seg.sign,
           `${x.seg.signLord} / ${x.seg.starLord} / ${x.seg.subLord}`,
           ...(hasStability
@@ -376,11 +388,11 @@ export const rectifyModule: ReportModule = {
     });
 
     const sub: ReportSection[] = [];
-    // Detail of the best interval (or the recorded one) under the method.
-    const focus = best.find((x) => x.seg.given)?.seg ?? best[0]?.seg ?? given;
+    // Comparison cutoffs do not select a birth time; show the recorded interval by default.
+    const focus = given ?? best[0]?.seg;
     if (focus) {
       const ps: ReportPara[] = [];
-      const label = `${withDate(focus.start, focus.startIso)} to ${withDate(focus.end, focus.endIso)}, ${focus.sign} rising, sub lord ${focus.subLord}`;
+      const label = `${withDate(focus.start, focus.startIso, focus.startDate)} to ${withDate(focus.end, focus.endIso, focus.endDate)}, ${focus.sign} rising, sub lord ${focus.subLord}`;
       if (eventMethod) for (const e of focus.parashariHierarchy ?? []) if (e) ps.push(...hierarchyParas(e));
       if (eventMethod && focus.manley?.length) {
         const source = cites.add(MANLEY_SOURCE.label);

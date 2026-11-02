@@ -1,0 +1,1911 @@
+{
+  "protocol": "docs/rectification-audit-followup.md",
+  "referenceCommit": "8ac60d4e99df62b68c5810213f9eb222365eb0de",
+  "note": "Existing public audit examples are a reproduction; holdout cases were used previously for transit research but not in the supplied rectification audit. Times and shifted-date controls are not verified birth-time ground truth or non-events.",
+  "before": [
+    {
+      "name": "Cindy Crawford",
+      "seconds": 3.9,
+      "segments": 76,
+      "unselectable": 1,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 11,
+            "max": 14,
+            "comparison": {
+              "actual": 9,
+              "mean": 9.1,
+              "sd": 0.6,
+              "percentile": 43,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 14,
+            "percent": 24.6,
+            "recorded": 11
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 1,
+            "max": 14,
+            "comparison": {
+              "actual": 1,
+              "mean": 1,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 8,
+            "percent": 9,
+            "recorded": 1
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 21,
+            "max": 24,
+            "comparison": {
+              "actual": 21,
+              "mean": 21.4,
+              "sd": 1,
+              "percentile": 36,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 24,
+            "percent": 24.6,
+            "recorded": 21
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 4,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 16,
+            "max": 29,
+            "comparison": {
+              "actual": 16,
+              "mean": 16,
+              "sd": 1.6,
+              "percentile": 52,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 18,
+            "percent": 45.1,
+            "recorded": 16
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 7,
+            "max": 16,
+            "comparison": {
+              "actual": 7,
+              "mean": 7.7,
+              "sd": 1.1,
+              "percentile": 28,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 9,
+            "percent": 36.1,
+            "recorded": 7
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 0,
+            "max": 2,
+            "comparison": {
+              "actual": 0,
+              "mean": 0.1,
+              "sd": 0.3,
+              "percentile": 43,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        }
+      ],
+      "alpBands": 452,
+      "alpBandsCompared": 452,
+      "matched": "available"
+    },
+    {
+      "name": "Flore Landru",
+      "seconds": 5.05,
+      "segments": 101,
+      "unselectable": 1,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 13,
+            "max": 14,
+            "comparison": {
+              "actual": 11,
+              "mean": 9.1,
+              "sd": 1,
+              "percentile": 96,
+              "verdict": "above"
+            }
+          },
+          "coverage": {
+            "top": 14,
+            "percent": 41,
+            "recorded": 13
+          },
+          "marked": 16,
+          "markedScores": [
+            13
+          ],
+          "above": 60
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 7,
+            "max": 14,
+            "comparison": {
+              "actual": 7,
+              "mean": 4.7,
+              "sd": 0.9,
+              "percentile": 96,
+              "verdict": "above"
+            }
+          },
+          "coverage": {
+            "top": 14,
+            "percent": 31.3,
+            "recorded": 7
+          },
+          "marked": 7,
+          "markedScores": [
+            7
+          ],
+          "above": 59
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 18,
+            "max": 24,
+            "comparison": {
+              "actual": 18,
+              "mean": 18.1,
+              "sd": 2.8,
+              "percentile": 44,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 20,
+            "percent": 41,
+            "recorded": 18
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 4,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 12,
+            "max": 29,
+            "comparison": {
+              "actual": 12,
+              "mean": 12.5,
+              "sd": 2.8,
+              "percentile": 43,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 14,
+            "percent": 26.1,
+            "recorded": 12
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 7,
+            "max": 16,
+            "comparison": {
+              "actual": 7,
+              "mean": 8.7,
+              "sd": 1.4,
+              "percentile": 12,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 10,
+            "percent": 26.1,
+            "recorded": 7
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 1,
+            "max": 1,
+            "comparison": {
+              "actual": 1,
+              "mean": 0.1,
+              "sd": 0.2,
+              "percentile": 97,
+              "verdict": "above"
+            }
+          },
+          "coverage": {
+            "top": 1,
+            "percent": 100,
+            "recorded": 1
+          },
+          "marked": 101,
+          "markedScores": [
+            1
+          ],
+          "above": 101
+        }
+      ],
+      "alpBands": 215,
+      "alpBandsCompared": 215,
+      "matched": "available"
+    },
+    {
+      "name": "Manuel Rodríguez Lozano",
+      "seconds": 0.65,
+      "segments": 68,
+      "unselectable": 0,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 1,
+            "max": 4,
+            "comparison": {
+              "actual": 1,
+              "mean": 0.4,
+              "sd": 0.5,
+              "percentile": 83,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 3,
+            "percent": 1.6,
+            "recorded": 1
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 0,
+            "max": 4,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 2,
+            "max": 6,
+            "comparison": {
+              "actual": 2,
+              "mean": 3.1,
+              "sd": 1,
+              "percentile": 19,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 4,
+            "percent": 13.9,
+            "recorded": 2
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 1,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 7,
+            "max": 8
+          },
+          "coverage": {
+            "top": 7,
+            "percent": 49.8,
+            "recorded": 7
+          },
+          "marked": 33,
+          "markedScores": [
+            7
+          ],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 3,
+            "max": 4
+          },
+          "coverage": {
+            "top": 3,
+            "percent": 100,
+            "recorded": 3
+          },
+          "marked": 68,
+          "markedScores": [
+            3
+          ],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 1,
+            "max": 1
+          },
+          "coverage": {
+            "top": 1,
+            "percent": 100,
+            "recorded": 1
+          },
+          "marked": 68,
+          "markedScores": [
+            1
+          ],
+          "above": 0
+        }
+      ],
+      "alpBands": 2,
+      "alpBandsCompared": 0,
+      "matched": "available"
+    }
+  ],
+  "after": [
+    {
+      "name": "Cindy Crawford",
+      "seconds": 4.16,
+      "segments": 76,
+      "unselectable": 1,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 11,
+            "max": 14,
+            "comparison": {
+              "actual": 9,
+              "mean": 9.1,
+              "sd": 0.6,
+              "percentile": 43,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 14,
+            "percent": 24.6,
+            "recorded": 11
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 1,
+            "max": 14,
+            "comparison": {
+              "actual": 1,
+              "mean": 1,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 8,
+            "percent": 9,
+            "recorded": 1
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 21,
+            "max": 24,
+            "comparison": {
+              "actual": 21,
+              "mean": 21.4,
+              "sd": 1,
+              "percentile": 36,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 24,
+            "percent": 24.6,
+            "recorded": 21
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 4,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 16,
+            "max": 29,
+            "comparison": {
+              "actual": 16,
+              "mean": 16,
+              "sd": 1.6,
+              "percentile": 52,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 18,
+            "percent": 45.1,
+            "recorded": 16
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 7,
+            "max": 16,
+            "comparison": {
+              "actual": 7,
+              "mean": 7.7,
+              "sd": 1.1,
+              "percentile": 28,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 9,
+            "percent": 36.1,
+            "recorded": 7
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 0,
+            "max": 2,
+            "comparison": {
+              "actual": 0,
+              "mean": 0.1,
+              "sd": 0.3,
+              "percentile": 43,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        }
+      ],
+      "kpGroups": 45,
+      "bnnGroups": 1,
+      "alpBands": 447,
+      "alpBandsCompared": 447,
+      "matched": "available"
+    },
+    {
+      "name": "Flore Landru",
+      "seconds": 5.41,
+      "segments": 96,
+      "unselectable": 1,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 13,
+            "max": 14,
+            "comparison": {
+              "actual": 11,
+              "mean": 9.1,
+              "sd": 1,
+              "percentile": 96,
+              "verdict": "above"
+            }
+          },
+          "coverage": {
+            "top": 14,
+            "percent": 41,
+            "recorded": 13
+          },
+          "marked": 56,
+          "markedScores": [
+            13,
+            14
+          ],
+          "above": 56
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 7,
+            "max": 14,
+            "comparison": {
+              "actual": 7,
+              "mean": 4.7,
+              "sd": 0.9,
+              "percentile": 96,
+              "verdict": "above"
+            }
+          },
+          "coverage": {
+            "top": 14,
+            "percent": 31.3,
+            "recorded": 7
+          },
+          "marked": 55,
+          "markedScores": [
+            7,
+            10,
+            14
+          ],
+          "above": 55
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 18,
+            "max": 24,
+            "comparison": {
+              "actual": 18,
+              "mean": 18.1,
+              "sd": 2.8,
+              "percentile": 44,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 20,
+            "percent": 41,
+            "recorded": 18
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 4,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 12,
+            "max": 29,
+            "comparison": {
+              "actual": 12,
+              "mean": 12.5,
+              "sd": 2.8,
+              "percentile": 43,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 14,
+            "percent": 26.1,
+            "recorded": 12
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 7,
+            "max": 16,
+            "comparison": {
+              "actual": 7,
+              "mean": 8.7,
+              "sd": 1.4,
+              "percentile": 12,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 10,
+            "percent": 26.1,
+            "recorded": 7
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 1,
+            "max": 1,
+            "comparison": {
+              "actual": 1,
+              "mean": 0.1,
+              "sd": 0.2,
+              "percentile": 97,
+              "verdict": "above"
+            }
+          },
+          "coverage": {
+            "top": 1,
+            "percent": 100,
+            "recorded": 1
+          },
+          "marked": 96,
+          "markedScores": [
+            1
+          ],
+          "above": 96
+        }
+      ],
+      "kpGroups": 54,
+      "bnnGroups": 1,
+      "alpBands": 275,
+      "alpBandsCompared": 275,
+      "matched": "available"
+    },
+    {
+      "name": "Manuel Rodríguez Lozano",
+      "seconds": 0.72,
+      "segments": 60,
+      "unselectable": 0,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 1,
+            "max": 4,
+            "comparison": {
+              "actual": 1,
+              "mean": 0.4,
+              "sd": 0.5,
+              "percentile": 83,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 3,
+            "percent": 1.6,
+            "recorded": 1
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 0,
+            "max": 4,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 2,
+            "max": 6,
+            "comparison": {
+              "actual": 2,
+              "mean": 3.1,
+              "sd": 1,
+              "percentile": 19,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 4,
+            "percent": 13.9,
+            "recorded": 2
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 1,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 7,
+            "max": 8
+          },
+          "coverage": {
+            "top": 7,
+            "percent": 49.8,
+            "recorded": 7
+          },
+          "marked": 31,
+          "markedScores": [
+            7
+          ],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 3,
+            "max": 4
+          },
+          "coverage": {
+            "top": 3,
+            "percent": 100,
+            "recorded": 3
+          },
+          "marked": 60,
+          "markedScores": [
+            3
+          ],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 1,
+            "max": 1
+          },
+          "coverage": {
+            "top": 1,
+            "percent": 100,
+            "recorded": 1
+          },
+          "marked": 60,
+          "markedScores": [
+            1
+          ],
+          "above": 0
+        }
+      ],
+      "kpGroups": 33,
+      "bnnGroups": 2,
+      "alpBands": 217,
+      "alpBandsCompared": 217,
+      "matched": "available"
+    }
+  ],
+  "otherPublicCases": [
+    {
+      "name": "Irène Joliot-Curie",
+      "seconds": 1.13,
+      "segments": 69,
+      "unselectable": 0,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 4,
+            "max": 4,
+            "comparison": {
+              "actual": 3,
+              "mean": 2.6,
+              "sd": 0.5,
+              "percentile": 70,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 4,
+            "percent": 68.6,
+            "recorded": 4
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 0,
+            "max": 4,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 4,
+            "percent": 23.5,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 6,
+            "max": 6,
+            "comparison": {
+              "actual": 6,
+              "mean": 4.9,
+              "sd": 0.7,
+              "percentile": 91,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 6,
+            "percent": 100,
+            "recorded": 6
+          },
+          "marked": 18,
+          "markedScores": [
+            6
+          ],
+          "above": 18
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 1,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 5,
+            "max": 8
+          },
+          "coverage": {
+            "top": 5,
+            "percent": 43.3,
+            "recorded": 5
+          },
+          "marked": 25,
+          "markedScores": [
+            5
+          ],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 4,
+            "max": 4
+          },
+          "coverage": {
+            "top": 4,
+            "percent": 100,
+            "recorded": 4
+          },
+          "marked": 69,
+          "markedScores": [
+            4
+          ],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 0,
+            "max": 1
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        }
+      ],
+      "kpGroups": 26,
+      "bnnGroups": 1,
+      "alpBands": 378,
+      "alpBandsCompared": 378,
+      "matched": "available"
+    },
+    {
+      "name": "Tjalling Koopmans",
+      "seconds": 0.71,
+      "segments": 52,
+      "unselectable": 0,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 3,
+            "max": 4,
+            "comparison": {
+              "actual": 2,
+              "mean": 2.5,
+              "sd": 0.6,
+              "percentile": 23,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 4,
+            "percent": 42.7,
+            "recorded": 3
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 0,
+            "max": 4,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 4,
+            "percent": 17.3,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 5,
+            "max": 6,
+            "comparison": {
+              "actual": 5,
+              "mean": 4.6,
+              "sd": 1.1,
+              "percentile": 60,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 5,
+            "percent": 100,
+            "recorded": 5
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 1,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 3,
+            "max": 8
+          },
+          "coverage": {
+            "top": 3,
+            "percent": 68.7,
+            "recorded": 3
+          },
+          "marked": 34,
+          "markedScores": [
+            3
+          ],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 2,
+            "max": 4
+          },
+          "coverage": {
+            "top": 2,
+            "percent": 100,
+            "recorded": 2
+          },
+          "marked": 52,
+          "markedScores": [
+            2
+          ],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 0,
+            "max": 1
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        }
+      ],
+      "kpGroups": 31,
+      "bnnGroups": 1,
+      "alpBands": 254,
+      "alpBandsCompared": 254,
+      "matched": "available"
+    },
+    {
+      "name": "Michiko Shoda",
+      "seconds": 0.88,
+      "segments": 62,
+      "unselectable": 0,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 6,
+            "max": 8,
+            "comparison": {
+              "actual": 4,
+              "mean": 4.4,
+              "sd": 0.5,
+              "percentile": 28,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 7,
+            "percent": 9.6,
+            "recorded": 6
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 0,
+            "max": 8,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 3,
+            "percent": 25.4,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 8,
+            "max": 12,
+            "comparison": {
+              "actual": 8,
+              "mean": 8.6,
+              "sd": 1.7,
+              "percentile": 36,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 8,
+            "percent": 100,
+            "recorded": 8
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 2,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 11,
+            "max": 17
+          },
+          "coverage": {
+            "top": 12,
+            "percent": 37,
+            "recorded": 11
+          },
+          "marked": 23,
+          "markedScores": [
+            12
+          ],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 6,
+            "max": 8
+          },
+          "coverage": {
+            "top": 6,
+            "percent": 100,
+            "recorded": 6
+          },
+          "marked": 62,
+          "markedScores": [
+            6
+          ],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 0,
+            "max": 1
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        }
+      ],
+      "kpGroups": 40,
+      "bnnGroups": 1,
+      "alpBands": 237,
+      "alpBandsCompared": 237,
+      "matched": "available"
+    },
+    {
+      "name": "Queen Maxima",
+      "seconds": 2.42,
+      "segments": 78,
+      "unselectable": 2,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 5,
+            "max": 8,
+            "comparison": {
+              "actual": 4,
+              "mean": 3.2,
+              "sd": 1.3,
+              "percentile": 66,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 8,
+            "percent": 28.9,
+            "recorded": 5
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 0,
+            "max": 8,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 5,
+            "percent": 22.2,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 11,
+            "max": 12,
+            "comparison": {
+              "actual": 11,
+              "mean": 8.3,
+              "sd": 1.6,
+              "percentile": 94,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 11,
+            "percent": 100,
+            "recorded": 11
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 2,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 10,
+            "max": 17,
+            "comparison": {
+              "actual": 10,
+              "mean": 11.1,
+              "sd": 1.4,
+              "percentile": 25,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 10,
+            "percent": 62.1,
+            "recorded": 10
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 5,
+            "max": 8,
+            "comparison": {
+              "actual": 5,
+              "mean": 5,
+              "sd": 1.2,
+              "percentile": 54,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 5,
+            "percent": 100,
+            "recorded": 5
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 0,
+            "max": 1,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        }
+      ],
+      "kpGroups": 36,
+      "bnnGroups": 1,
+      "alpBands": 242,
+      "alpBandsCompared": 242,
+      "matched": "available"
+    },
+    {
+      "name": "Gwen Stefani",
+      "seconds": 0.62,
+      "segments": 63,
+      "unselectable": 0,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 1,
+            "max": 4,
+            "comparison": {
+              "actual": 1,
+              "mean": 1,
+              "sd": 0.6,
+              "percentile": 52,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 3,
+            "percent": 3.6,
+            "recorded": 1
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 1,
+            "max": 4,
+            "comparison": {
+              "actual": 1,
+              "mean": 1,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 1,
+            "percent": 56.2,
+            "recorded": 1
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 2,
+            "max": 6,
+            "comparison": {
+              "actual": 2,
+              "mean": 3.3,
+              "sd": 1.2,
+              "percentile": 17,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 2,
+            "percent": 100,
+            "recorded": 2
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 1,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 6,
+            "max": 9
+          },
+          "coverage": {
+            "top": 6,
+            "percent": 57.1,
+            "recorded": 6
+          },
+          "marked": 28,
+          "markedScores": [
+            6
+          ],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 2,
+            "max": 4
+          },
+          "coverage": {
+            "top": 2,
+            "percent": 100,
+            "recorded": 2
+          },
+          "marked": 63,
+          "markedScores": [
+            2
+          ],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 0,
+            "max": 0
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        }
+      ],
+      "kpGroups": 25,
+      "bnnGroups": 1,
+      "alpBands": 0,
+      "alpBandsCompared": 0,
+      "matched": "none"
+    },
+    {
+      "name": "Hailee Steinfeld",
+      "seconds": 0.72,
+      "segments": 65,
+      "unselectable": 0,
+      "methods": [
+        {
+          "method": "kp-events",
+          "given": {
+            "score": 3,
+            "max": 4,
+            "comparison": {
+              "actual": 2,
+              "mean": 2.1,
+              "sd": 0.7,
+              "percentile": 43,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 3,
+            "percent": 68.9,
+            "recorded": 3
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-qualified",
+          "given": {
+            "score": 0,
+            "max": 4,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 2,
+            "percent": 34.6,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-transit",
+          "given": {
+            "score": 5,
+            "max": 6,
+            "comparison": {
+              "actual": 5,
+              "mean": 4.4,
+              "sd": 1.1,
+              "percentile": 69,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 5,
+            "percent": 100,
+            "recorded": 5
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "kp-aurora-v2",
+          "given": {
+            "score": 0,
+            "max": 1,
+            "comparison": {
+              "actual": 0,
+              "mean": 0,
+              "sd": 0,
+              "percentile": 50,
+              "verdict": "chance"
+            }
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        },
+        {
+          "method": "parashari-events-v4",
+          "given": {
+            "score": 7,
+            "max": 8
+          },
+          "coverage": {
+            "top": 7,
+            "percent": 48.9,
+            "recorded": 7
+          },
+          "marked": 30,
+          "markedScores": [
+            7
+          ],
+          "above": 0
+        },
+        {
+          "method": "jaimini-dasha",
+          "given": {
+            "score": 2,
+            "max": 4
+          },
+          "coverage": {
+            "top": 2,
+            "percent": 100,
+            "recorded": 2
+          },
+          "marked": 65,
+          "markedScores": [
+            2
+          ],
+          "above": 0
+        },
+        {
+          "method": "bnn-marriage",
+          "given": {
+            "score": 0,
+            "max": 1
+          },
+          "coverage": {
+            "top": 0,
+            "percent": 100,
+            "recorded": 0
+          },
+          "marked": 0,
+          "markedScores": [],
+          "above": 0
+        }
+      ],
+      "kpGroups": 48,
+      "bnnGroups": 1,
+      "alpBands": 236,
+      "alpBandsCompared": 236,
+      "matched": "available"
+    }
+  ]
+}

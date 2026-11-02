@@ -66,8 +66,13 @@ export function ParashariHierarchyWindows({ selections, segments, zone }: {
       if (prev && index === prev.last + 1 && segments[prev.last].endIso === segments[index].startIso) prev.last = index;
       else groups.push({ first: index, last: index });
     }
-    const fmt = (iso: string) => DateTime.fromISO(iso, { setZone: true }).setZone(zone).toFormat("d LLL HH:mm:ss");
-    return groups.map((g) => `${fmt(segments[g.first].startIso)}–${fmt(segments[g.last].endIso)}`);
+    const fmt = (s: RectifySegment, end: boolean) => {
+      const date = end ? s.endDate : s.startDate, time = end ? s.end : s.start;
+      const iso = end ? s.endIso : s.startIso;
+      return date ? DateTime.fromISO(`${date}T${time}`, { zone: "utc" }).toFormat("d LLL HH:mm:ss")
+        : DateTime.fromISO(iso, { setZone: true }).setZone(zone).toFormat("d LLL HH:mm:ss");
+    };
+    return groups.map((g) => `${fmt(segments[g.first], false)}–${fmt(segments[g.last], true)}`);
   };
   return <details className="mb-3 rounded-md border px-3 py-2 text-xs" data-testid="parashari-hierarchy-windows">
     <summary className="cursor-pointer font-medium">Earlier strict event funnel · diagnostic only</summary>

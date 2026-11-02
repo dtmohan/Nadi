@@ -4,7 +4,7 @@ import { DateTime, Settings } from "luxon";
 import { alpLonAt, alpPointAt } from "@shared/alp";
 import { matterOf } from "@shared/events";
 import { insertChartSchema, type Chart } from "@shared/schema";
-import { ascendantAt, julianDay } from "../server/ephemeris";
+import { ascendantAt, julianDay, planetLonAt } from "../server/ephemeris";
 import { rectify } from "../server/rectify";
 import { computeChart } from "../server/routes";
 import { validateEvents } from "../server/validate";
@@ -17,6 +17,15 @@ test("Julian day uses the instant rather than the caller's wall-clock fields", (
     assert.equal(julianDay(utc.setZone(zone)), julianDay(utc), zone);
   }
   assert.throws(() => julianDay(DateTime.invalid("test")), /Invalid instant/);
+});
+
+test("the natal Moon can move substantially within a half-hour birth window", () => {
+  const first = DateTime.fromISO("1990-01-01T06:30:00Z", { zone: "utc" });
+  const opts = { ayanamsa: "lahiri", nodeType: "mean" } as const;
+  const a = planetLonAt("Moon", julianDay(first), opts).lon;
+  const b = planetLonAt("Moon", julianDay(first.plus({ minutes: 30 })), opts).lon;
+  const movement = (b - a + 360) % 360;
+  assert.ok(movement > 0.2 && movement < 0.35, `30-minute Moon movement ${movement}°`);
 });
 
 test("a marriage scan splits the actual-event ALP pada change that fell inside an older interval", () => {

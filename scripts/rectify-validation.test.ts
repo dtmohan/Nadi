@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 import { matterOf, type ChartEvent } from "@shared/events";
 import { computeSignificators, houseOf, kpPoint, vimshottariLordsAt, NODES_KP, type KpPlanet } from "@shared/kp";
 import { drishtiQuarters } from "@shared/astro";
-import { baselineFor, groupNemaniSegments, highlightedCandidates, methodScore, rawScoreCoverage, RECTIFY_METHODS } from "@shared/rectify-methods";
+import { baselineFor, compareRectifyScores, groupMethodSegments, groupNemaniSegments, highlightedCandidates, methodScore, rawScoreCoverage, RECTIFY_METHODS } from "@shared/rectify-methods";
 import { buildReport } from "@shared/report";
 import { birthInstant, julianDay, utcAtJulianDay, positionsAt, positionsLite, cuspsAt, ascendantAt, planetLonAt } from "../server/ephemeris";
 import { comparisonDate, eventAtNoon, eventInstant } from "../server/event-time";
@@ -672,6 +672,34 @@ test("candidate ayanamsa, transit scores and highlighting stay method-specific",
   const stat = (actual: number, mean: number, verdict: "above" | "chance") => ({ actual, mean, sd: 1, percentile: verdict === "above" ? 98 : 50, verdict });
   assert.deepEqual(highlightedCandidates([{ score: 10, b: stat(10, 9, "chance") }, { score: 8, b: stat(8, 4, "above") }]), [1]);
   assert.deepEqual(highlightedCandidates([{ score: 10, b: stat(10, 0, "chance") }, { score: 8, b: stat(8, 4, "above") }]), [1]);
+  // A lower-score candidate with fewer active natal gates can have a larger
+  // excess. Both intervals meeting the cutoff remain visible.
+  const complete = { score: 14, b: stat(14, 12.4, "above") };
+  const partial = { score: 7, b: stat(7, 4.7, "above") };
+  assert.deepEqual(highlightedCandidates([complete, partial]), [0, 1]);
+  assert.ok(compareRectifyScores(complete, partial) < 0);
+  // A flat zero comparison must not sort ahead of a positive raw score merely
+  // because the positive score is below its own comparison mean.
+  assert.ok(compareRectifyScores({ score: 3, b: stat(3, 3.4, "chance") }, { score: 0, b: stat(0, 0, "chance") }) < 0);
+  assert.equal(scan.legacyScoreBasis, "kp-events");
+  for (const s of scan.segments) assert.equal(s.score, methodScore(s, "kp-events").score);
+  for (const method of ["kp-events", "bnn-marriage"] as const) {
+    const a = structuredClone(sample), b = structuredClone(sample);
+    a.startIso = "2000-01-01T00:00:00Z"; a.endIso = "2000-01-01T00:01:00Z"; a.given = false;
+    b.startIso = a.endIso; b.endIso = "2000-01-01T00:02:00Z"; b.given = true;
+    const groups = groupMethodSegments([a, b], method);
+    assert.equal(groups.length, 1);
+    assert.equal(groups[0].given, true);
+    assert.equal(groups[0].representativeIndex, 1);
+    b.startIso = "2000-01-01T00:01:30Z";
+    assert.equal(groupMethodSegments([a, b], method).length, 2, "a gap must not be merged");
+    b.startIso = a.endIso;
+    if (method === "kp-events") b.events[0].hits[0] = !b.events[0].hits[0];
+    else if (b.events[0].qualifiedScores?.bnn) b.events[0].qualifiedScores!.bnn!.score++;
+    else b.events[0].qualifiedScores = { ...b.events[0].qualifiedScores,
+      bnn: { score: 1, max: 1, conditions: [{ id: "test", label: "changed", status: "matched" }] } };
+    assert.equal(groupMethodSegments([a, b], method).length, 2, "different displayed evidence must not be merged");
+  }
 });
 
 test("Jaimini periods are recalculated for different birth times within one rising sign", () => {

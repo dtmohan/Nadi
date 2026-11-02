@@ -5,4 +5,8 @@ export interface AlpMatchedRow {
 }
 export type AlpMatchedComparison =
   | { status: "unavailable"; eligibleOffsets: number; reason: string }
-  | { status: "available"; eligibleOffsets: number; trials: number; rows: AlpMatchedRow[] };
+  | { status: "available"; eligibleOffsets: number; trials: number; rows: AlpMatchedRow[];
+      /** Shared offsets and the joint pada-condition comparison; absent on older results. */
+      offsets?: number[];
+      pada?: import("./rectify-types").RectifyBaselineStat;
+      padaMax?: number };

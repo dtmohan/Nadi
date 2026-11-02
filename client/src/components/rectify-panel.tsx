@@ -85,9 +85,11 @@ import {
   isKpMatchedMethod,
   kpMatchedComparable,
   highlightedCandidates,
+  compareRectifyScores,
   alpBandRanking,
   rawScoreCoverage,
   groupNemaniSegments,
+  groupMethodSegments,
   type RectifyMethod,
   type RectifyExportState,
 } from "@shared/rectify-methods";
@@ -99,7 +101,7 @@ import {
 import { cn } from "@/lib/utils";
 
 /** Excess over chance and percentile, coloured only when the interval clears the 95th or falls under the 5th. */
-function VsChance({ b }: { b: RectifyBaselineStat | undefined }) {
+function VsChance({ b, timingMax }: { b: RectifyBaselineStat | undefined; timingMax?: number }) {
   if (!b) return <span className="text-muted-foreground">—</span>;
   const excess = b.actual - b.mean;
   return (
@@ -112,7 +114,7 @@ function VsChance({ b }: { b: RectifyBaselineStat | undefined }) {
             ? "text-verdict-bad"
             : "text-muted-foreground",
       )}
-      title={`${b.actual} against a random-date mean of ${b.mean} (sd ${b.sd}); ${ordinalOf(b.percentile)} mid-rank percentile`}
+      title={`${timingMax !== undefined ? `Timing only: ${b.actual}/${timingMax} period hits; natal cusp points are excluded. ` : ""}${b.actual} against a comparison-date mean of ${b.mean} (sd ${b.sd}); ${ordinalOf(b.percentile)} mid-rank percentile`}
       data-testid="rectify-vs-chance"
     >
       {excess >= 0 ? "+" : "−"}
@@ -431,7 +433,8 @@ export function RectifyPanel({
 
   const data = scan.data;
   const alpBands = data?.alpComparisonBands ?? [];
-  const alpRanking = alpBandRanking(alpBands, !!data?.baseline);
+  const alpComparisonsRequested = !!data?.segments.some((s) => s.kpMatched) || !!data?.baseline;
+  const alpRanking = alpBandRanking(alpBands, alpComparisonsRequested);
   const alpCoverage = alpRanking.comparable ? rawScoreCoverage(alpBands) : undefined;
   const alpRecorded = alpBands.find((b) => b.given);
   const alpPageSize = 15;
@@ -475,11 +478,11 @@ export function RectifyPanel({
   );
   const bestSet = useMemo(
     () =>
-      method === "kunda" || method === "alp-marriage" || (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow || !matchedComparableWindow
+      method === "kunda" || method === "alp-marriage" || (EVENT_METHODS.includes(method) && !parashariComparable) || (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow || !matchedComparableWindow
         ? new Set<number>() : new Set(highlightedCandidates(scored)),
     [scored, method, parashariComparable, isParashariMethod, qualifiedComparableWindow, matchedComparableWindow],
   );
-  // Ranking: the method's score (or its excess over chance) first. Among equals: intervals whose matter
+  // Sorting uses the displayed raw score, not a different timing-only or gated comparison. Among equals: intervals whose matter
   // cusps keep their sub lord throughout (the cusp in question depends on the corrected time, Astro
   // Secrets Part 1 pp. 176-177, Part 3 p. 4), then more firm cusps of twelve (the app's convention), then
   // the interval nearer the recorded time (the texts correct a recorded time minimally, Part 2 pp. 60-61,
@@ -498,12 +501,10 @@ export function RectifyPanel({
   };
   const segments = useMemo(
     () =>
-      sortByScore
+      sortByScore && (!EVENT_METHODS.includes(method) || parashariComparable)
         ? [...scored].sort(
             (a, b) =>
-              (baselined
-                ? (b.excess ?? 0) - (a.excess ?? 0)
-                : b.score - a.score) ||
+              compareRectifyScores(a, b) ||
               (isParashariMethod ? 0 : matterIntact(b.s) - matterIntact(a.s)) ||
               (isParashariMethod ? 0 : firmCount(b.s) - firmCount(a.s)) ||
               distance(a.s) - distance(b.s) ||
@@ -511,8 +512,19 @@ export function RectifyPanel({
           )
         : scored,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scored, sortByScore, baselined, givenSec],
+    [scored, sortByScore, givenSec, method, parashariComparable],
   );
+  const methodGroups = useMemo(() => data && (method === "kp-events" || method === "bnn-marriage")
+    ? groupMethodSegments(data.segments, method) : [], [data, method]);
+  const methodGroupRows = useMemo(() => {
+    const rows = methodGroups.map((g) => ({ ...scored[g.representativeIndex], first: g.first, last: g.last, groupGiven: g.given }));
+    return sortByScore && parashariComparable && (method !== "bnn-marriage" || qualifiedComparableWindow) ? rows.sort((a, b) => compareRectifyScores(a, b) ||
+      matterIntact(b.s) - matterIntact(a.s) || firmCount(b.s) - firmCount(a.s) ||
+      distance(a.s) - distance(b.s) || a.i - b.i) : rows;
+    // The distance and stability helpers depend on the recorded clock.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [methodGroups, scored, sortByScore, givenSec, method, qualifiedComparableWindow, parashariComparable]);
+  const tableRows = method === "kp-events" ? methodGroupRows : segments.map((r) => ({ ...r, first: r.s, last: r.s, groupGiven: r.s.given }));
   // Group by the older score and D1/divisional evidence. Ordinary catalogue
   // observations are explicitly shown for the selected representative midpoint.
   const parashariGroups = useMemo(() => {
@@ -540,17 +552,15 @@ export function RectifyPanel({
   const hasStability = !isParashariMethod && scored.some((r) => r.s.stability);
   // Body-mark maxima can differ by candidate; the Kunda variants use separate
   // sampling rules. Do not imply their midpoint scores are comparable here.
-  const coverage = method !== "alp-marriage" && method !== "bj-marks" && method !== "kunda" && method !== "kunda-d81" && !(method === "kp-nemani-rp" && top === 0) && maxOf > 0 && (!isParashariMethod || parashariComparable) && qualifiedComparableWindow
+  const coverage = method !== "alp-marriage" && method !== "bj-marks" && method !== "kunda" && method !== "kunda-d81" && !(method === "kp-nemani-rp" && top === 0) && maxOf > 0 && (!isParashariMethod || parashariComparable) && (!EVENT_METHODS.includes(method) || parashariComparable) && qualifiedComparableWindow
     ? rawScoreCoverage(scored.map((r) => ({ score: r.score, startIso: r.s.startIso, endIso: r.s.endIso, given: r.s.given })))
     : undefined;
 
-  // Shared timeline for the event methods: the candidate under review (the opened interval, else the best), its clock, and each event tinted by how well that candidate fits it.
+  // Default to the recorded interval; a comparison cutoff does not identify a best birth time.
   const focusIdx =
     open !== null && data && data.segments[open]
       ? open
-      : bestSet.size
-        ? Math.min(...Array.from(bestSet))
-        : data ? data.segments.findIndex((s) => s.given) : null;
+      : data ? data.segments.findIndex((s) => s.given) : null;
   const focus = focusIdx !== null && data ? data.segments[focusIdx] : null;
   const focusContext = useMemo(() => focus?.candidate ? createPlanetContext(focus.candidate.positions, {
     kind: "natal", instant: focus.candidate.birthUtc, ascendant: focus.candidate.ascendantLon,
@@ -649,15 +659,12 @@ export function RectifyPanel({
     }
     return groups;
   }, [data, chart.birthDate]);
-  const groupBaselined = signGroups.some((g) => g.b !== undefined);
-  const groupTopExcess = signGroups.reduce(
-    (t, g) => Math.max(t, g.b?.verdict === "above" ? g.b.actual - g.b.mean : -Infinity),
-    -Infinity,
-  );
+  const groupComparable = !!signGroups[0]?.max && signGroups.every((g) => g.max === signGroups[0].max);
+  const groupBaselined = groupComparable && signGroups.length > 0 && signGroups.every((g) => g.b !== undefined);
+  const groupComparisonIncomplete = !!data?.baseline && !groupBaselined;
   const groupBest = (g: { score: number; b?: RectifyBaselineStat }) =>
-    groupBaselined
-      ? g.b?.verdict === "above" &&
-        Math.abs(g.b.actual - g.b.mean - groupTopExcess) < 1e-9
+    !groupComparable || groupComparisonIncomplete ? false : groupBaselined
+      ? g.b?.verdict === "above"
       : g.score === groupTop && groupTop > 0;
   const groupTop = signGroups.reduce((t, g) => Math.max(t, g.score), 0);
   // Group only identical body-mark calculations, even inside the same drekkana.
@@ -724,15 +731,10 @@ export function RectifyPanel({
   const shownMarksGroup = drekkanaGroups.find((g) => g.first === shownDrekkana);
   const sortedGroups = useMemo(
     () =>
-      sortByScore
-        ? [...signGroups].sort((a, b) =>
-            groupBaselined
-              ? (b.b ? b.b.actual - b.b.mean : 0) -
-                  (a.b ? a.b.actual - a.b.mean : 0) || a.first - b.first
-              : b.score - a.score || a.first - b.first,
-          )
+      sortByScore && groupComparable && !groupComparisonIncomplete
+        ? [...signGroups].sort((a, b) => compareRectifyScores(a, b) || a.first - b.first)
         : signGroups,
-    [signGroups, sortByScore, groupBaselined],
+    [signGroups, sortByScore, groupComparable, groupComparisonIncomplete],
   );
   const missingEvents = m.needsEvents && eventPayload.length === 0;
   const givenIndex = data?.segments.findIndex((s) => s.given) ?? -1;
@@ -1139,16 +1141,16 @@ export function RectifyPanel({
                 : method === "kunda"
                   ? `${data.segments.length} midpoint samples · Raman's arithmetic is not resolved into time intervals`
                   : method === "jaimini-dasha"
-                ? `${signGroups.length} Jaimini result ${signGroups.length === 1 ? "group" : "groups"} in ± ${data.windowMinutes} min · highest raw score ${groupTop} of ${signGroups[0]?.max ?? 0}`
+                ? `${signGroups.length} Jaimini result ${signGroups.length === 1 ? "group" : "groups"} in ± ${data.windowMinutes} min · ${groupComparable ? `highest raw score ${groupTop} of ${signGroups[0]?.max ?? 0}` : "event eligibility differs across the window"}`
                 : method === "bj-marks"
                   ? `${drekkanaGroups.length} body-mark result ${drekkanaGroups.length === 1 ? "group" : "groups"} in ± ${data.windowMinutes} min · ${confirmedMarks.size ? `highest ${drekkanaTop} confirmed` : "tick your marks above to score"}`
                   : method === "kp-nemani-rp"
                     ? `${nemaniGroups.length} groups from ${data.segments.length} sampled slices · ${top ? "some intervals match all three levels" : "no interval matches all three levels"}`
-                  : (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow
+                  : (EVENT_METHODS.includes(method) && !parashariComparable) || (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow
                   ? `${data.segments.length} slices in ± ${data.windowMinutes} min · ${anyParashariScore ? "event eligibility differs across the window" : "no eligible events to score"}`
                   : `${data.segments.length} ${plain ? "slices" : "intervals"} in ± ${data.windowMinutes} min · ${m.system} ${plain ? m.plainLabel.toLowerCase() : methodLabel(m)} · highest raw score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}${baselined ? ` · highest difference from comparison mean ${topExcess >= 0 ? "+" : "−"}${Math.abs(topExcess).toFixed(1)}` : ""}`}
             </span>
-            {method !== "alp-marriage" && method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && (!isParashariMethod || parashariComparable) && qualifiedComparableWindow && <button
+            {method !== "alp-marriage" && method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && (!isParashariMethod || parashariComparable) && (!EVENT_METHODS.includes(method) || parashariComparable) && qualifiedComparableWindow && <button
               type="button"
               className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground"
               onClick={() => setSortByScore((v) => !v)}
@@ -1211,7 +1213,7 @@ export function RectifyPanel({
             (() => {
               const isJ = method === "jaimini-dasha";
               const isAlp = method === "alp-marriage";
-              const on = isAlp ? !!data.baseline && alpRanking.comparable : isJ ? groupBaselined : baselined;
+              const on = isAlp ? alpComparisonsRequested && alpRanking.comparable : isJ ? groupBaselined : baselined;
               const above = isAlp ? alpBands.filter((b) => b.baseline?.verdict === "above").length : isJ
                 ? signGroups.filter((g) => g.b?.verdict === "above").length
                 : scored.filter((r) => r.b?.verdict === "above").length;
@@ -1228,10 +1230,11 @@ export function RectifyPanel({
                   {!on
                     ? !includeComparisons
                       ? "Quick scan skips random-date comparisons. Turn it off and scan again, or compare a candidate in Validate."
-                      : matchedRequested ? "The sequence-preserving comparison is unavailable or differs between candidates; these candidates are not ranked by it."
+                      : (matchedRequested || isAlp) ? "The sequence-preserving comparison is unavailable or differs between candidates; these candidates are not ranked by it."
                       : "A comparison needs at least two events a year apart and the same eligible checks for every sampled set."
-                    : matchedRequested ? `The same event sequence is shifted 180–365 days in each direction, retaining clocks, zones and ordering. KP period or transit checks are recalculated at each shifted date; the period comparison excludes fixed natal cusp points. ${above} ${above === 1 ? "result reaches" : "results reach"} the exploratory 95th mid-rank percentile. The dates are not verified non-events; a highlight does not establish a birth time.`
-                    : `${data.baseline?.trials ?? 200} sets of comparison dates were independently selected between ${data.baseline?.span[0]} and ${data.baseline?.span[1]}; ${isAlp ? "the progressed-lagna condition is recalculated at each sampled birth time and date" : "transits are recalculated on each date against this candidate's natal chart"}. ${above} ${above === 1 ? "result reaches" : "results reach"} the 95th mid-rank percentile. Highlighting uses that exploratory cutoff and the difference from the comparison mean; it does not account for trying multiple measures or candidates and does not establish a correct birth time. Random dates need not preserve plausible event ages or order.`}
+                    : isAlp ? `The event sequence is shifted 180–365 days in either direction, retaining clocks, zones and ordering; the ALP condition is recomputed at each birth second and shifted date. ${above} ${above === 1 ? "band reaches" : "bands reach"} the exploratory 95th mid-rank percentile. All such bands are highlighted; the dates are not verified non-events, and the highlight does not establish a birth time.`
+                    : matchedRequested ? `The same event sequence is shifted 180–365 days in each direction, retaining clocks, zones and ordering. KP period or transit checks are recalculated at each shifted date; the period comparison excludes fixed natal cusp points. ${above} ${above === 1 ? "result reaches" : "results reach"} the exploratory 95th mid-rank percentile. All such intervals are highlighted, including those with lower raw scores or unresolved natal clues. The dates are not verified non-events; a highlight does not establish a birth time.`
+                    : `${data.baseline?.trials ?? 200} sets of comparison dates were independently selected between ${data.baseline?.span[0]} and ${data.baseline?.span[1]}; ${isAlp ? "the progressed-lagna condition is recalculated at each sampled birth time and date" : "transits are recalculated on each date against this candidate's natal chart"}. ${above} ${above === 1 ? "result reaches" : "results reach"} the 95th mid-rank percentile. All such intervals are highlighted. This does not account for trying multiple measures or candidates and does not establish a correct birth time. Random dates need not preserve plausible event ages or order.`}
                 </p>
               );
             })()}
@@ -1353,7 +1356,7 @@ export function RectifyPanel({
                       : `, lagna sub lord ${focus.subLord}`}
                     {focus.given ? " (the given time)" : ""};{" "}
                     {open === null
-                      ? bestSet.size ? "a highlighted interval; open another row to compare" : "the recorded-time interval; open another row to compare"
+                      ? "the recorded-time interval; open another row to compare"
                       : "the opened row"}
                     . Green events fit fully, amber in part, red not at all.
                   </span>
@@ -1849,7 +1852,7 @@ export function RectifyPanel({
           )}
 
           {method === "alp-marriage" && <div className="mt-3 overflow-x-auto" data-testid="rectify-alp-bands">
-            <p className="text-xs text-muted-foreground">Each selectable whole second was checked for the recorded marriage dates{data.baseline ? " and every random-date set" : ""}. Adjacent seconds with the same individual results are grouped; the end time is excluded. Results between seconds are not measured. This is one partial condition, not a birth-time determination. {alpRanking.comparable ? "" : alpBands.length ? "Eligibility or comparison availability differs, so bands cannot be ranked." : "No ALP bands are available; add a marriage event and scan again."}</p>
+            <p className="text-xs text-muted-foreground">Each selectable whole second was checked for the recorded marriage dates{alpComparisonsRequested ? " and, where available, the shared-offset comparison dates" : ""}. Adjacent seconds with the same individual results are grouped; the end time is excluded. Results between seconds are not measured. This is one partial condition, not a birth-time determination. {alpRanking.comparable ? "" : alpBands.length ? "Eligibility, comparison dates or availability differ, so bands cannot be ranked." : "No ALP bands are available; add a marriage event and scan again."}</p>
             {alpRecorded && <p className="mt-2 text-xs"><strong>Recorded-time band:</strong> {alpRecorded.start}–{alpRecorded.end} (end excluded), {alpRecorded.max ? `${alpRecorded.score}/${alpRecorded.max} matches` : "unavailable"}{alpRecorded.baseline ? `; comparison mean ${alpRecorded.baseline.mean}, ${alpRecorded.baseline.percentile}% mid-rank` : ""}.</p>}
             <Table className="text-xs"><TableHeader><TableRow><TableHead>From</TableHead><TableHead>To (exclusive)</TableHead><TableHead>Matches</TableHead><TableHead>Comparison</TableHead><TableHead>Candidate</TableHead></TableRow></TableHeader>
               <TableBody>{alpBands.slice(alpPage * alpPageSize, (alpPage + 1) * alpPageSize).map((b, pageIndex) => { const i = alpPage * alpPageSize + pageIndex; return <TableRow key={b.startIso}><TableCell>{b.startDate === chart.birthDate ? "" : `${b.startDate} `}{b.start}{b.given ? " · recorded" : ""}</TableCell>
@@ -1858,13 +1861,15 @@ export function RectifyPanel({
             </Table>{alpBands.length > alpPageSize && <div className="mt-2 flex items-center gap-3 text-xs"><button type="button" className="underline disabled:opacity-40" disabled={alpPage === 0} onClick={() => setAlpPage((p) => p - 1)}>Previous</button><span>Page {alpPage + 1} of {Math.ceil(alpBands.length / alpPageSize)}</span><button type="button" className="underline disabled:opacity-40" disabled={(alpPage + 1) * alpPageSize >= alpBands.length} onClick={() => setAlpPage((p) => p + 1)}>Next</button>{alpRecorded && <button type="button" className="underline" onClick={() => setAlpPage(Math.floor(alpBands.findIndex((b) => b.given) / alpPageSize))}>Recorded-time band</button>}</div>}</div>}
           {qualifiedMethod && method !== "alp-marriage" && <div className="mt-3 overflow-x-auto" data-testid="rectify-qualified-ranking">
             <p className="text-xs text-muted-foreground">These partial matches are experimental, use the same conditions at sampled dates, and cannot establish a birth time. Registered date-independent clues count once per candidate and matter; other checks can overlap. Each row represents its midpoint; boundaries may be missed. {qualifiedComparableWindow ? "" : anyParashariScore ? "Eligibility or comparison availability differs, so totals cannot be ranked." : "No eligible events can be scored under this method."}</p>
+            {method === "bnn-marriage" && <p className="mt-1 text-xs text-muted-foreground">Adjacent slices with the same displayed BNN event evidence and comparison are grouped; Inspect uses one selectable midpoint. Other school details can change within the group.</p>}
             <Table className="text-xs"><TableHeader><TableRow><TableHead>Interval</TableHead><TableHead>Matches</TableHead><TableHead>Comparison mean</TableHead><TableHead>Candidate</TableHead></TableRow></TableHeader>
-              <TableBody>{(qualifiedComparableWindow ? segments : scored).map(({ s, i, score, max, b }) => <TableRow key={s.startIso}>
-                <TableCell>{s.start}–{s.end}{s.given ? " · recorded" : ""}</TableCell><TableCell>{max ? `${score}/${max}` : "unavailable"}{bestSet.has(i) ? " · highlighted" : ""}</TableCell><TableCell>{b ? `${b.mean} · ${b.percentile}% mid-rank` : "unavailable"}</TableCell>
+              <TableBody>{(method === "bnn-marriage" ? methodGroupRows : (qualifiedComparableWindow ? segments : scored).map((r) => ({ ...r, first: r.s, last: r.s, groupGiven: r.s.given }))).map(({ s, i, score, max, b, first, last, groupGiven }) => <TableRow key={first.startIso}>
+                <TableCell>{first.start}–{last.end}{groupGiven ? " · recorded" : ""}</TableCell><TableCell>{max ? `${score}/${max}` : "unavailable"}{bestSet.has(i) ? " · highlighted" : ""}</TableCell><TableCell>{b ? `${b.mean} · ${b.percentile}% mid-rank` : "unavailable"}</TableCell>
                 <TableCell><button type="button" className="underline" onClick={() => setOpen(open === i ? null : i)}>{open === i ? "Hide" : "Inspect"}</button></TableCell></TableRow>)}</TableBody>
             </Table></div>}
           {!qualifiedMethod && !isParashariMethod && method !== "kp-nemani-rp" && method !== "jaimini-dasha" && method !== "bj-marks" && method !== "kunda-d81" && method !== "kunda" && (
             <div className="mt-2 overflow-x-auto">
+              {method === "kp-events" && <p className="mb-2 text-xs text-muted-foreground">Adjacent slices with the same displayed KP lords, event evidence, cusp firmness and comparison are grouped. Actions, cusp details and other school details use a representative midpoint.</p>}
               <Table className="text-xs leading-5 [&_button]:[word-spacing:0.2em] [&_td]:px-2 [&_td]:py-1.5 [&_th]:h-8 [&_th]:px-2">
                 <TableHeader>
                   <TableRow>
@@ -1940,14 +1945,14 @@ export function RectifyPanel({
                     )}
                     {baselined && (
                       <TableHead className="whitespace-nowrap">
-                        Difference · percentile
+                        {method === "kp-events" && matchedRequested ? "Timing only · difference · percentile" : "Difference · percentile"}
                       </TableHead>
                     )}
                     <TableHead />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {segments.map(({ s, i, score, max, b }) => {
+                  {tableRows.map(({ s, i, score, max, b, first, last, groupGiven }) => {
                     const best = bestSet.has(i);
                     const rpMoonLink = s.dutta;
                     return (
@@ -1955,22 +1960,22 @@ export function RectifyPanel({
                         key={`${s.startIso}-${i}`}
                         className={cn(
                           best && "bg-verdict-good/10",
-                          s.given &&
+                          groupGiven &&
                             "outline outline-1 -outline-offset-1 outline-foreground/40",
                         )}
                         data-testid={`rectify-segment-${i}`}
                       >
                         <TableCell className="whitespace-nowrap tabular">
-                          {s.start.slice(0, 5)}
+                          {first.start.slice(0, 5)}
                           <span className="text-muted-foreground">
-                            :{s.start.slice(6)}
+                            :{first.start.slice(6)}
                           </span>
-                          –{s.end.slice(0, 5)}
+                          –{last.end.slice(0, 5)}
                           <span className="text-muted-foreground">
-                            :{s.end.slice(6)}
+                            :{last.end.slice(6)}
                           </span>
                           {s.midDate && s.midDate !== chart.birthDate && <span className="ml-1 text-muted-foreground">({s.midDate})</span>}
-                          {s.given && (
+                          {groupGiven && (
                             <span className="ml-1.5 rounded border px-1 text-2xs uppercase tracking-wide text-muted-foreground">
                               given
                             </span>
@@ -1978,7 +1983,7 @@ export function RectifyPanel({
                         </TableCell>
                         <TableCell className="whitespace-nowrap tabular">
                           {s.sign.slice(0, 3)}{" "}
-                          {degRange(s.lagnaFrom, s.lagnaTo)}
+                          {degRange(first.lagnaFrom, last.lagnaTo)}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
                           <ScoreBar score={score} max={max} />
@@ -2289,7 +2294,7 @@ export function RectifyPanel({
                         )}
                         {baselined && (
                           <TableCell className="whitespace-nowrap">
-                            <VsChance b={b} />
+                            <VsChance b={b} timingMax={method === "kp-events" && s.kpMatched?.status === "available" ? s.kpMatched.timingMax : undefined} />
                           </TableCell>
                         )}
                         <TableCell className="whitespace-nowrap text-right">
@@ -2301,7 +2306,7 @@ export function RectifyPanel({
                           >
                             {open === i ? "Hide" : plain ? "Houses" : "Cusps"}
                           </button>
-                          {!s.given && (
+                          {!groupGiven && (
                             <>
                               <button
                                 type="button"

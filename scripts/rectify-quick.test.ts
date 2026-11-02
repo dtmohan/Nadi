@@ -46,3 +46,10 @@ test("quick scan skips only comparisons and preserves all candidate and event re
     assert.match(JSON.stringify(report.sections), /date-independent clues count once per candidate and matter/, method);
   }
 });
+
+test("deprecated API totals use a named single-method basis without events", () => {
+  const scan = rectify({ ...request, events: [], includeComparisons: false });
+  assert.equal(scan.legacyScoreBasis, "kp-rp-basic");
+  assert.ok(scan.segments.every((s) => s.score === s.rp.score && s.max === s.rp.max));
+  assert.ok(scan.best.every((i) => scan.segments[i].score === Math.max(...scan.segments.map((s) => s.rp.score))));
+});

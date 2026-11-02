@@ -56,6 +56,25 @@ test("atomic coordinates reproduce the author's 1983 birth chart, including node
   assert.ok(auroraV2AtomicCoordinates(planets, "Rahu").agents.some((a) => a.planet === "Jupiter" && a.via.includes("full sign aspect")));
 });
 
+test("repeated star and sub can use sub-sub even when the planet is not in its own star", () => {
+  const frame = sourceChart();
+  const sun = frame.planets.find((p) => p.planet === "Sun")!;
+  sun.starLord = "Venus";
+  sun.subLord = "Venus";
+  sun.subSubLord = "Mars";
+  const getLayer = () => auroraV2Evidence({ matter: "marriage", ...frame, lords: ["Sun", "Moon", "Jupiter"], transits: [] })!
+    .layers.find((l) => l.role === "Major period")!;
+  const first = getLayer();
+  assert.equal(first.ownStar, false);
+  assert.equal(first.repeatedStarSub, true);
+  assert.equal(first.sub.planet, "Mars");
+  // A fresh candidate frame avoids the deliberately scoped evaluator cache.
+  const planets = frame.planets.map((p) => p.planet === "Sun" ? { ...p, subSubLord: "Saturn" as Planet } : { ...p });
+  const second = auroraV2Evidence({ matter: "marriage", planets, cusps: frame.cusps, lords: ["Sun", "Moon", "Jupiter"], transits: [] })!
+    .layers.find((l) => l.role === "Major period")!;
+  assert.equal(second.sub.planet, "Saturn");
+});
+
 test("the book's 2013 childbirth example carries a mixed star with a supportive sub", () => {
   const frame = sourceChart();
   const evidence = auroraV2Evidence({ matter: "child", ...frame, lords: ["Saturn", "Rahu", "Jupiter"], transits: [] })!;

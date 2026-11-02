@@ -124,7 +124,7 @@ export interface RectifySegmentStability {
   changing: number[];
   /** Length of the interval in seconds. */
   seconds: number;
-  /** Cusps the dated events name (RectifyEvent.cusp); empty when none do. */
+  /** Event target, filtered-house and applicable catalogue/Aurora cusps; empty when none are used. */
   matterCusps: number[];
   /** True when every matter cusp is firm; undefined when no event names a cusp. */
   matterFirm?: boolean;
@@ -169,6 +169,8 @@ export interface KundaCheck {
 export interface KundaD81Window {
   start: string;
   end: string;
+  startDate?: string;
+  endDate?: string;
   mid: string;
   midDate: string;
   startIso: string;
@@ -198,9 +200,13 @@ export interface RectifySegment {
   /** Local civil times in the birth zone, HH:mm:ss. */
   start: string;
   end: string;
+  /** Civil dates on the selected time basis; absent on older results. */
+  startDate?: string;
+  endDate?: string;
   mid: string;
   /** Civil date of the midpoint in the chart's display basis. */
   midDate?: string;
+  /** UTC boundaries, rounded to a second. */
   startIso: string;
   endIso: string;
   /** The rounded midpoint is inside this interval; older results may omit it. */
@@ -284,7 +290,9 @@ export interface RectifySegment {
   manley?: ManleyEvidence[];
   /** Aligned with selected events; null means this event was not assessed. */
   parashariHierarchy?: Array<HierarchyEvent | null>;
+  /** @deprecated Legacy single-method summary; use methodScore for the selected method. */
   score: number;
+  /** @deprecated Denominator for the legacy summary. */
   max: number;
   /** True when the recorded birth time falls in this interval. */
   given: boolean;
@@ -322,6 +330,9 @@ export interface AlpComparisonBand {
   max: number;
   eligibleEvents: number[];
   baseline?: RectifyBaselineStat;
+  /** Identifies the exact shared-offset sequence within this scan, if compared. */
+  comparisonId?: number;
+  comparisonTrials?: number;
   given: boolean;
   selectable: boolean;
 }
@@ -371,7 +382,7 @@ export interface RectifyResult {
   /** Independently sampled ascendant windows for the book's divisions. */
   vargaWindows?: Array<{
     division: "D1" | ManleyDivision | "D60";
-    windows: Array<{ start: string; end: string; startIso: string; endIso: string; sign: number; given: boolean }>;
+    windows: Array<{ start: string; end: string; startDate?: string; endDate?: string; startIso: string; endIso: string; sign: number; given: boolean }>;
   }>;
   /** Real event-day skies at the supplied or assumed time, shared by candidates. */
   eventTransits?: Array<{
@@ -380,7 +391,10 @@ export interface RectifyResult {
     /** The same event in the first random-date set, when a comparison was run. */
     example?: { date: string; time?: string; timezone?: string; positions: Array<Pick<PlanetPosition, "planet" | "lon">> };
   }>;
+  /** @deprecated Indices at the maximum of legacyScoreBasis, not a cross-school ranking. */
   best: number[];
+  /** Basis of the deprecated top-level best and segment scores, on newer responses. */
+  legacyScoreBasis?: "kp-events" | "kp-rp-basic";
   /** Random-date comparison; null when there are too few events or too short a span. */
   baseline: { trials: number; span: [string, string] } | null;
 }

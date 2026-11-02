@@ -332,6 +332,9 @@ export function baselineFor(
   s: RectifySegment,
   m: RectifyMethod,
 ): RectifyBaselineStat | undefined {
+  if (m === "alp-marriage" && s.alpMatched) {
+    return s.alpMatched.status === "available" ? s.alpMatched.pada : undefined;
+  }
   if (isKpMatchedMethod(m) && s.kpMatched) {
     const b = s.kpMatched;
     if (b.status !== "available") return undefined;
@@ -369,6 +372,35 @@ export function groupNemaniSegments(segments: RectifySegment[]): Array<{
   return groups;
 }
 
+/** Group adjacent slices only when this table's displayed method evidence and
+ * comparison agree. Other cross-school details remain midpoint observations. */
+export function groupMethodSegments(segments: readonly RectifySegment[], method: "kp-events" | "bnn-marriage") {
+  type Group = { first: RectifySegment; last: RectifySegment; representative: RectifySegment;
+    firstIndex: number; representativeIndex: number; given: boolean; signature: string };
+  const groups: Group[] = [];
+  segments.forEach((s, i) => {
+    const score = methodScore(s, method);
+    const evidence = method === "kp-events" ? {
+      lagna: [s.sign, s.signLord, s.starLord, s.subLord],
+      events: s.events.map((e) => [e.dasa, e.bhukti, e.antara, e.hits, e.signified, e.cuspSubLord, e.promised]),
+      firm: s.stability && [s.stability.firm, s.stability.matterFirm, s.stability.changing],
+      timingMax: s.kpMatched?.status === "available" ? s.kpMatched.timingMax : undefined,
+    } : { events: s.events.map((e) => e.qualifiedScores?.bnn) };
+    const signature = JSON.stringify([s.midDate, score, baselineFor(s, method), evidence]);
+    const previous = groups.at(-1);
+    if (previous && previous.signature === signature && previous.last.endIso === s.startIso) {
+      previous.last = s;
+      previous.given ||= s.given;
+      if (s.selectable !== false && (previous.representative.selectable === false || s.given)) {
+        previous.representative = s;
+        previous.representativeIndex = i;
+      }
+    } else groups.push({ first: s, last: s, representative: s, firstIndex: i, representativeIndex: i,
+      given: s.given, signature });
+  });
+  return groups;
+}
+
 /**
  * Fraction of the scanned duration represented by intervals whose midpoint has
  * the highest raw score. Rounded display endpoints make this an approximation;
@@ -386,19 +418,21 @@ export function rawScoreCoverage(
   return { top, percent: Math.round((topMs / total) * 1000) / 10, recorded: rows.find((r) => r.given)?.score };
 }
 
-/** Highlight the same exploratory candidates in the panel and its report. */
+/** Descending raw method score. A date-comparison excess is a different
+ * quantity and may omit fixed natal clues, so it does not rank the score. */
+export function compareRectifyScores(a: { score: number; b?: RectifyBaselineStat }, b: { score: number; b?: RectifyBaselineStat }): number {
+  return b.score - a.score;
+}
+
+/** Mark every interval reaching the exploratory cutoff, not only the largest
+ * excess. A cutoff indicates an unusual score against this candidate's dates;
+ * it does not establish a birth time or make candidates mutually comparable. */
 export function highlightedCandidates(
   rows: Array<{ score: number; b?: RectifyBaselineStat }>,
 ): number[] {
   const hasComparison = rows.some((r) => r.b !== undefined);
   if (hasComparison) {
-    // Rank only candidates that actually meet the displayed cutoff. A larger
-    // raw excess with a wider comparison distribution may fail that cutoff.
-    const top = Math.max(...rows.map((r) => r.b?.verdict === "above" ? r.b.actual - r.b.mean : -Infinity));
-    return rows.flatMap((r, i) =>
-      r.b?.verdict === "above" && Math.abs(r.b.actual - r.b.mean - top) < 1e-9
-        ? [i] : [],
-    );
+    return rows.flatMap((r, i) => r.b?.verdict === "above" ? [i] : []);
   }
   const top = Math.max(0, ...rows.map((r) => r.score));
   return rows.flatMap((r, i) => top > 0 && r.score === top ? [i] : []);
@@ -410,7 +444,7 @@ export function alpBandRanking(bands: AlpComparisonBand[], comparisonsRequested:
   const first = bands[0];
   const comparable = !!first?.max && bands.every((band) => band.max === first.max &&
     band.eligibleEvents.join(",") === first.eligibleEvents.join(",") &&
-    (!comparisonsRequested || !!band.baseline));
+    (!comparisonsRequested || (!!band.baseline && band.comparisonId === first.comparisonId)));
   return { comparable, highlighted: comparable ? highlightedCandidates(bands.map((b) => ({ score: b.score, b: b.baseline }))) : [] };
 }
 

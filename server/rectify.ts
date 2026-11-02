@@ -94,7 +94,7 @@ import { qualifiedEventEligible, qualifiedEventScores, qualifiedComparable, qual
 import { EVENT_MATTERS } from "@shared/events";
 import { dashaFitAt } from "@shared/jaimini-areas";
 import { comparisonDate, eventInstant } from "./event-time";
-import { prepareKpMatchedDates, summarizeKpMatched } from "./kp-matched-comparison";
+import { matchedStats, prepareKpMatchedDates, summarizeKpMatched } from "./kp-matched-comparison";
 import { summarizeAlpMatched } from "./alp-matched-comparison";
 import { kundaD81Check, scanKundaD81 } from "./kunda";
 import { vargaSignAt, vargaTopicFor } from "@shared/parashari-varga-evidence";
@@ -111,7 +111,7 @@ import { KP_RULES } from "@shared/rules-kp";
 import { kpLegacyTotals } from "@shared/kp-legacy-aggregation";
 import { nemaniRpMoonCheck } from "@shared/kp-nemani-rp";
 import { createPlanetContext } from "@shared/planet-context";
-import { auroraAscendantLinks, auroraMatter } from "@shared/kp-aurora";
+import { auroraAscendantLinks, auroraMatter, auroraSelfSignificators } from "@shared/kp-aurora";
 import { auroraV2StageCounts, AURORA_V2_STAGES, type AuroraV2Evidence } from "@shared/kp-aurora-v2";
 import {
   computeBodyMarks,
@@ -508,7 +508,9 @@ export function rectify(req: RectifyRequest): RectifyResult {
           const ids = new Set(KP_EVENT_NATAL_RULES.filter((r) => r.matter === e.matter).map((r) => r.id));
           const catalogueCusps = KP_RULES.filter((r) => ids.has(r.id)).flatMap((r) =>
             [r.cusp, r.when.otherCusp?.cusp, ...(r.when.everyCusps?.cusps ?? [])]);
-          return [e.cusp, ...(e.matter ? auroraMatter(e.matter)?.cusps ?? [] : []), ...catalogueCusps];
+          // The KP filter also reads sub lords of the event's signified houses,
+          // not just its main cusp. Preserve those boundaries as well.
+          return [e.cusp, ...e.houses, ...(e.matter ? auroraMatter(e.matter)?.cusps ?? [] : []), ...catalogueCusps];
         })
         .filter((c): c is number => !!c && c >= 1 && c <= 12),
     ),
@@ -528,9 +530,17 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const positions = positionsLite(jd, opts);
     const moon = positions.find((p) => p.planet === "Moon")!;
     const instantMs = utcAtJulianDay(jd).toMillis();
-    const planetFrame = positions.map((p) => {
-      const point = kpPoint(p.lon);
-      return `${point.signIndex}:${point.starLord}:${point.subLord}:${hasAuroraEvents ? `${point.subSubLord}:` : ""}${houseOf(p.lon, cusps)}`;
+    const points = positions.map((p) => ({ planet: p.planet, ...kpPoint(p.lon) }));
+    const lagnaSub = kpPoint(cusps[0]).subLord;
+    const lagnaSubPoint = points.find((p) => p.planet === lagnaSub)!;
+    const chainSub = lagnaSubPoint.subLord;
+    const selfPlanets = hasAuroraEvents ? new Set(auroraSelfSignificators(points).map((p) => p.planet)) : undefined;
+    const planetFrame = points.map((point) => {
+      // V2 also promotes a repeated star/sub, even without an own star. The
+      // lagna-sub chain is separately used by the KP Moon-lords method.
+      const useSubSub = hasAuroraEvents && (point.starLord === point.planet || point.starLord === point.subLord ||
+        point.planet === lagnaSub || point.planet === chainSub);
+      return `${point.signIndex}:${point.starLord}:${point.subLord}:${useSubSub ? `${point.subSubLord}:` : ""}${houseOf(point.lon, cusps)}`;
     });
     // A Parashari cross-check is evaluated at each candidate midpoint. Split at
     // the relevant divisional sign and period changes so a KP interval does not
@@ -562,9 +572,11 @@ export function rectify(req: RectifyRequest): RectifyResult {
       lagnaKey(cusps[0]),
       Math.floor(chartAsc / 10),
       ...cusps.map((lon) => kpPoint(lon).signLord),
-      ...(hasAuroraEvents ? cusps.map((lon) => {
+      ...(hasAuroraEvents ? cusps.map((lon, i) => {
         const p = kpPoint(lon);
-        return `${p.starLord}:${p.subLord}`;
+        // Aurora self-significators can promote *any* cusp, not just event
+        // cusps. Preserve those links and the separate ninth-cusp example.
+        return `${selfPlanets!.has(p.starLord) ? p.starLord : "-"}:${i === 8 || selfPlanets!.has(p.subLord) ? p.subLord : "-"}`;
       }) : []),
       ...matterCusps.map((c) => kpPoint(cusps[c - 1]).subLord),
       ...planetFrame,
@@ -631,26 +643,36 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const displayMs = (ms: number) => displayLocal(DateTime.fromMillis(ms, { zone: "utc" }), birth.basis, birth.basis.displayZone);
     const gateAt = (ms: number) => eventReadingAllowed("marriage", new Date(ms).toISOString(), readingAsOf, chart);
     const gateFirst = gateAt(firstMs), gateLast = gateAt(endMs - 1000);
-    type Sample = { signature: string; score: number; max: number; eligibleEvents: number[]; samples: number[]; comparable: boolean };
+    const firstMatched = selectKpMatched?.(firstMs), lastMatched = selectKpMatched?.(endMs - 1000);
+    const selectionKey = (s: typeof firstMatched) => s?.trials.map((t) => t.offset).join(",") ?? "";
+    // Birth validity is monotone across the window; identical first and last
+    // offset lists imply every intermediate second uses that same list.
+    const fixedSelection = selectionKey(firstMatched) === selectionKey(lastMatched);
+    const comparisonIds = new Map<string, number>();
+    type Sample = { signature: string; score: number; max: number; eligibleEvents: number[]; samples: number[]; comparable: boolean; comparisonId?: number };
     const sample = (ms: number): Sample => {
       const lagna = ascJ(julianDay(DateTime.fromMillis(ms, { zone: "utc" })));
       const janma = Math.floor(lagna / 30);
       const allowed = gateFirst === gateLast ? gateFirst : gateAt(ms);
-      const values = (trial: number) => alpEvents.map(({ i, e, outcome, custom }) => {
-        const date = trial < 0 ? e.date : trialDates[trial][i];
-        const eventMs = trial < 0 ? eventMilliseconds[i] : trialMilliseconds[trial][i];
+      const values = (moments?: readonly { date: string; ms: number }[]) => alpEvents.map(({ i, e, outcome, custom }) => {
+        const date = moments?.[i].date ?? e.date;
+        const eventMs = moments?.[i].ms ?? eventMilliseconds[i];
         if (!allowed || !qualifiedEventEligible({ matter: e.matter, outcome, custom,
           afterDeath: !!chart.deathDate && date > chart.deathDate, birthMs: ms, eventMs })) return -1;
         const p = alpEventPoint(lagna, ms, eventMs);
         return Number(alpMarriageTouches(p.signIndex, janma, p.navamsaSign));
       });
-      const actual = values(-1);
-      const draws = Array.from({ length: trials }, (_, t) => values(t));
+      const actual = values();
+      const matched = fixedSelection ? firstMatched : selectKpMatched?.(ms);
+      const offsets = matched && matched.trials.length >= 40 ? selectionKey(matched) : "";
+      const draws = offsets ? matched!.trials.map((trial) => values(trial.moments)) : [];
       const eligibleEvents = alpEvents.flatMap(({ i }, j) => actual[j] < 0 ? [] : [i]);
       const comparable = draws.every((row) => row.every((v, j) => (v >= 0) === (actual[j] >= 0)));
-      return { signature: [actual.join(""), ...draws.map((v) => v.join(""))].join("|"),
+      if (offsets && !comparisonIds.has(offsets)) comparisonIds.set(offsets, comparisonIds.size + 1);
+      return { signature: [offsets, actual.join(""), ...draws.map((v) => v.join(""))].join("|"),
         score: actual.reduce((s, v) => s + Math.max(0, v), 0), max: eligibleEvents.length,
-        eligibleEvents, samples: draws.map((row) => row.reduce((s, v) => s + Math.max(0, v), 0)), comparable };
+        eligibleEvents, samples: draws.map((row) => row.reduce((s, v) => s + Math.max(0, v), 0)), comparable,
+        comparisonId: offsets ? comparisonIds.get(offsets) : undefined };
     };
     let start = firstMs, state = sample(firstMs);
     const append = (end: number) => {
@@ -660,7 +682,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
         startDate: a.toISODate()!, endDate: b.toISODate()!, mid: m.toFormat("HH:mm:ss"), midDate: m.toISODate()!,
         startIso: new Date(start).toISOString(), endIso: new Date(end).toISOString(),
         score: state.score, max: state.max, eligibleEvents: state.eligibleEvents,
-        baseline: trials && state.max && state.comparable ? baselineStat(state.samples, state.score) : undefined,
+        baseline: state.samples.length >= 40 && state.max && state.comparable ? matchedStats(state.samples, state.score) : undefined,
+        comparisonId: state.comparisonId, comparisonTrials: state.samples.length || undefined,
         given: utc0.toMillis() >= start && utc0.toMillis() < end, selectable: true });
     };
     for (let ms = firstMs + 1000; ms < endMs; ms += 1000) {
@@ -681,10 +704,12 @@ export function rectify(req: RectifyRequest): RectifyResult {
   ).map((s) => ({
     start: fmtT(s.start),
     end: fmtT(s.end),
+    startDate: local(s.start).toISODate()!,
+    endDate: local(s.end).toISODate()!,
     mid: fmtT(s.mid),
     midDate: local(s.mid).toISODate()!,
-    startIso: local(s.start).toISO()!,
-    endIso: local(s.end).toISO()!,
+    startIso: roundedUtc(s.start).toISO()!,
+    endIso: roundedUtc(s.end).toISO()!,
     check: s.check,
     given: jd0 >= s.start && jd0 < s.end,
     selectable: (() => {
@@ -699,7 +724,8 @@ export function rectify(req: RectifyRequest): RectifyResult {
     division,
     windows: mappedWindows[division].map((s) => ({
       start: fmtT(s.start), end: fmtT(s.end),
-      startIso: local(s.start).toISO()!, endIso: local(s.end).toISO()!,
+      startDate: local(s.start).toISODate()!, endDate: local(s.end).toISODate()!,
+      startIso: roundedUtc(s.start).toISO()!, endIso: roundedUtc(s.end).toISO()!,
       sign: s.sign, given: jd0 >= s.start && jd0 < s.end,
     })),
   }));
@@ -1004,10 +1030,12 @@ export function rectify(req: RectifyRequest): RectifyResult {
       stability,
       start: fmtT(a),
       end: fmtT(b),
+      startDate: local(a).toISODate()!,
+      endDate: local(b).toISODate()!,
       mid: fmtT(mid),
       midDate: local(mid).toISODate()!,
-      startIso: local(a).toISO()!,
-      endIso: local(b).toISO()!,
+      startIso: roundedUtc(a).toISO()!,
+      endIso: roundedUtc(b).toISO()!,
       selectable,
       lagnaFrom: norm360(asc(a + EPS)),
       lagnaTo: norm360(asc(b - EPS)),
@@ -1058,8 +1086,10 @@ export function rectify(req: RectifyRequest): RectifyResult {
       parashariDivisional,
       manley,
       parashariHierarchy,
-      score: rpScore + evScore,
-      max: 4 + evMax,
+      // Compatibility fields have one explicit basis, never a cross-method sum.
+      // Modern clients use methodScore for the method the user selected.
+      score: req.events.length ? evScore : rpScore,
+      max: req.events.length ? evMax : 4,
       given: jd0 >= a && jd0 < b,
       baseline,
     });
@@ -1098,6 +1128,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     kundaD81,
     vargaWindows,
     best,
+    legacyScoreBasis: req.events.length ? "kp-events" : "kp-rp-basic",
     baseline: baselineOn
       ? {
           trials,

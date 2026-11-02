@@ -10,7 +10,10 @@ const SUBJECT: Record<string, string> = {
 
 /** Show the intervals without deciding which ascendant is correct. */
 export function VargaWindowsPanel({ rows, birthDate }: { rows: NonNullable<RectifyResult["vargaWindows"]>; birthDate: string }) {
-  const display = (time: string, iso: string) => iso.slice(0, 10) === birthDate ? time : `${iso.slice(0, 10)} ${time}`;
+  const display = (time: string, iso: string, civilDate?: string) => {
+    const date = civilDate ?? iso.slice(0, 10);
+    return date === birthDate ? time : `${date} ${time}`;
+  };
   return <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="manley-varga-windows">
     <summary className="cursor-pointer font-medium">Divisional ascendant windows · D1 to D60</summary>
     <div className="mt-2 space-y-2 text-muted-foreground">
@@ -18,7 +21,7 @@ export function VargaWindowsPanel({ rows, birthDate }: { rows: NonNullable<Recti
       {rows.map(({ division, windows }) => <details key={division} className="rounded border px-2 py-1.5">
         <summary className="cursor-pointer font-medium">{division} · {SUBJECT[division]} · {windows.length} {windows.length === 1 ? "window" : "windows"}</summary>
         <ul className="mt-1 space-y-1">{windows.map((w, i) => <li key={`${w.startIso}-${i}`}>
-          {display(w.start, w.startIso)}–{display(w.end, w.endIso)} · {SIGNS[w.sign]}{w.given ? " · recorded time" : ""}
+          {display(w.start, w.startIso, w.startDate)}–{display(w.end, w.endIso, w.endDate)} · {SIGNS[w.sign]}{w.given ? " · recorded time" : ""}
         </li>)}</ul>
       </details>)}
       <p><Cite>{MANLEY_SOURCE.label}</Cite></p>
