@@ -1,5 +1,10 @@
 # Reliability and audit recheck, 2 November 2026
 
+**Follow-up:** ALP comparison boundaries, the legacy KP cusp total and several
+source-scoped dignity defects were addressed after this historical recheck.
+See [the dignity audit](dignity-school-audit.md) and [the fresh-case review](alp-dignity-fresh-review.md).
+Other midpoint-sampled schools and the remaining limitations below still apply.
+
 The two external audits are useful leads, not authoritative specifications.
 This note distinguishes reproduced defects, fixes and remaining limitations.
 It contains no private chart or event data.

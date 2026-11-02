@@ -114,7 +114,7 @@ export const validateModule: ReportModule = {
       },
       {
         kind: "note",
-        text: "Hits: D, B and A mark a dasa, bhukti or antara lord that signifies one of the matter's houses by the four-step rule. Basic cusp link: the sub lord signifies at least one matter house, a partial check rather than a complete promise assessment. A KP period/cusp match requires that link and both dasa and bhukti lords to signify; it does not include antara or transit. Partial means something links, missed means nothing does. The chara dasha column gives the mahadasha and antardasha signs and Rao's fit; the Nadi column scores Jupiter's and Saturn's contacts with the matter's karakas. Timing windows are shown separately. The scoring scales are the app's, not the books'.",
+        text: "Hits: D, B and A mark a dasa, bhukti or antara lord that signifies one of the matter's houses by the four-step rule. Basic cusp link: the sub lord signifies at least one matter house, a partial check rather than a complete promise assessment. In the KP total, identical natal cusp checks count once per candidate and matter, while period checks remain per event. A KP period/cusp match requires that link and both dasa and bhukti lords to signify; it does not include antara or transit. Partial means something links, missed means nothing does. The chara dasha column gives the mahadasha and antardasha signs and Rao's fit; the Nadi column scores Jupiter's and Saturn's contacts with the matter's karakas. Timing windows are shown separately. The scoring scales are the app's, not the books'.",
         cites: [kpSrc, filterSrc],
         provisional: true,
       },

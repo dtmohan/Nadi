@@ -419,8 +419,9 @@ export const PRASNA_KARAKA_RULE =
 
 // ───────────────────────────────────────────────────────────────────────────────────────────────
 // "Fructification of Bhavas" (Chapter XIV, stanzas 37–47): whether each house's promise ripens,
-// from the house's lord and its karaka — their strength (strong = exalted, moolatrikona, own or
-// friendly; weak = debilitated or inimical) and their position counted from the lagna (favourable
+// from the house's lord and its karaka — their strength by the named sign conditions (strong =
+// exalted, moolatrikona, own or friendly; weak = debilitated; neutral and inimical = unresolved)
+// and their position counted from the lagna (favourable
 // = kendras, trines and the 11th; unfavourable = the 6th, 8th and 12th). The karaka for each house
 // is this app's mapping of the planet karakas (14.31) onto the house significations (14.3–14); the
 // text does not state it house by house, so that mapping is provisional.
@@ -463,11 +464,17 @@ export interface PrasnaBhavaFructification {
   source: string;
 }
 
-// Strength for the fructification rule (14.39-41). The text names debilitation as the weakness and
-// own/exaltation/friendly as strength; "Neutral" and "Inimical" are not named, so a planet is read
-// as strong unless it is clearly weak (debilitated or in an inimical sign). A binary keeps a
-// "Neutral" dignity from mass-producing "mixed".
+// Chapter 8's older, provisional sign-strength proxy; it is not the more
+// specific strength rule used for chapter 14's fructification test below.
 const PRASNA_WEAK = new Set(["Debilitated", "Inimical"]);
+// Raman's note to 14.40 names own, exaltation and friendly signs as strong,
+// and debilitation as weak. An enemy or neutral sign is unresolved here, not
+// automatically strong or weak. The legacy Moolatrikona label denotes an
+// owned sign in this context. Do not substitute BNN's effective dignity.
+export function prasnaFructificationStrength(dignity: string | undefined): boolean | null {
+  if (["Exalted", "Own sign", "Moolatrikona", "Friendly"].includes(dignity ?? "")) return true;
+  return dignity === "Debilitated" ? false : null;
+}
 
 const posClass = (house: number): boolean | null =>
   [1, 4, 5, 7, 9, 10, 11].includes(house)
@@ -775,7 +782,7 @@ const FRUCTIFICATION_NOTE: Record<PrasnaBhavaVerdict, string> = {
     "Strong, but in an unfavourable place: the promise exists, yet the native does not enjoy it.",
   little:
     "Weak, but favourably placed: the promise is experienced, however little.",
-  mixed: "One of the lord and karaka is strong, the other weak: the influence is mixed.",
+  mixed: "The stated strength and position conditions are mixed or unresolved; no single result is established.",
   negative:
     "Lord and karaka both weak, in unfavourable places: the house's results turn negative.",
 };
@@ -807,10 +814,9 @@ function fructificationFacts(
 /** Read "Fructification of Bhavas" for a chart: one verdict per house, from its lord and karaka. */
 export function computePrasnaFructification(
   positions: PlanetPosition[],
-  strength: PlanetStrength[],
+  _strength: PlanetStrength[],
   lagnaIdx: number,
 ): PrasnaBhavaFructification[] {
-  const byStrength = new Map(strength.map((s) => [s.planet, s]));
   const posOf = (p: Planet) => positions.find((x) => x.planet === p)!;
   const out: PrasnaBhavaFructification[] = [];
   for (let house = 1; house <= 12; house++) {
@@ -818,10 +824,8 @@ export function computePrasnaFructification(
     const lord = SIGN_LORD[signIdx];
     const karaka = PRASNA_BHAVA_KARAKA[house - 1];
 
-    const ls = byStrength.get(lord);
-    const ks = byStrength.get(karaka);
-    const lordStrong = ls ? !PRASNA_WEAK.has(ls.effectiveDignity) : null;
-    const karakaStrong = ks ? !PRASNA_WEAK.has(ks.effectiveDignity) : null;
+    const lordStrong = prasnaFructificationStrength(posOf(lord)?.dignity);
+    const karakaStrong = prasnaFructificationStrength(posOf(karaka)?.dignity);
 
     const lordHouse = houseFrom(lagnaIdx, posOf(lord).signIndex);
     const karakaHouse = houseFrom(lagnaIdx, posOf(karaka).signIndex);
@@ -830,15 +834,11 @@ export function computePrasnaFructification(
 
     let verdict: PrasnaBhavaVerdict;
     if (lordStrong === true && karakaStrong === true) {
-      verdict =
-        lordFavourable === true && karakaFavourable === true
-          ? "full"
-          : "seen-not-enjoyed";
+      verdict = lordFavourable === true && karakaFavourable === true ? "full" :
+        lordFavourable === false && karakaFavourable === false ? "seen-not-enjoyed" : "mixed";
     } else if (lordStrong === false && karakaStrong === false) {
-      verdict =
-        lordFavourable === false && karakaFavourable === false
-          ? "negative"
-          : "little";
+      verdict = lordFavourable === false && karakaFavourable === false ? "negative" :
+        lordFavourable === true && karakaFavourable === true ? "little" : "mixed";
     } else {
       verdict = "mixed";
     }

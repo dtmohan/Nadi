@@ -250,8 +250,8 @@ export const PADA_MATTERS: Record<number, string> = {
 function karakaState(ctx: Ctx, planet: Planet): string {
   const p = ctx.at(planet);
   if (planet === "Rahu" || planet === "Ketu") return "";
-  if (GOOD_DIGNITY.has(p.dignity)) return ` ${planet} is ${p.dignity.toLowerCase()} there, so they tend to prosper.`;
-  if (BAD_DIGNITY.has(p.dignity)) return ` ${planet} is ${p.dignity.toLowerCase()} there, so they come with effort or delay.`;
+  if (GOOD_DIGNITY.has(p.dignity)) return ` ${planet} is ${dignityPhrase(p.dignity)} there, which is a supportive sign-level clue.`;
+  if (BAD_DIGNITY.has(p.dignity)) return ` ${planet} is ${dignityPhrase(p.dignity)} there, a sign-level clue of possible effort or delay.`;
   return "";
 }
 
@@ -259,6 +259,9 @@ const KENDRA_TRIKONA = new Set([1, 4, 5, 7, 9, 10]);
 const DUSTHANA = new Set([6, 8, 12]);
 const GOOD_DIGNITY = new Set<Dignity>(["Exalted", "Moolatrikona", "Own sign", "Friendly"]);
 const BAD_DIGNITY = new Set<Dignity>(["Debilitated", "Inimical"]);
+const dignityPhrase = (d: Dignity) => d === "Moolatrikona" ? "in its moolatrikona sign" :
+  d === "Own sign" ? "in its own sign" : d === "Friendly" ? "in a friendly sign" :
+  d === "Inimical" ? "in an inimical sign" : `${d.toLowerCase()} by sign`;
 
 function ordinal(n: number) {
   return `${n}${n === 1 ? "st" : n === 2 ? "nd" : n === 3 ? "rd" : "th"}`;
@@ -300,10 +303,10 @@ function readKaraka(ctx: Ctx, id: CharaKarakaId): KarakaReading {
   const aspectedBy = ctx.positions.filter((x) => rasiAspects(x.signIndex, p.signIndex)).map((x) => x.planet);
   const notes: Note[] = [];
   const ak = ctx.j.karakas[0].planet;
-  if (GOOD_DIGNITY.has(p.dignity)) notes.push({ text: `${k.planet} is ${p.dignity.toLowerCase()} in ${SIGNS[p.signIndex]}: the karaka is strong enough to deliver.`, tone: "support" });
-  if (BAD_DIGNITY.has(p.dignity)) notes.push({ text: `${k.planet} is ${p.dignity.toLowerCase()} in ${SIGNS[p.signIndex]}: what it promises comes with effort or delay.`, tone: "strain" });
-  if (k.planet !== "Rahu" && GOOD_DIGNITY.has(d9Dignity) && !GOOD_DIGNITY.has(p.dignity)) notes.push({ text: `In the navamsa ${k.planet} is ${d9Dignity.toLowerCase()} in ${SIGNS[d9.signIndex]}, which repairs the rasi placement.`, tone: "support" });
-  if (k.planet !== "Rahu" && BAD_DIGNITY.has(d9Dignity) && GOOD_DIGNITY.has(p.dignity)) notes.push({ text: `In the navamsa ${k.planet} is ${d9Dignity.toLowerCase()} in ${SIGNS[d9.signIndex]}: the rasi strength is not fully backed.`, tone: "strain" });
+  if (GOOD_DIGNITY.has(p.dignity)) notes.push({ text: `${k.planet} is ${dignityPhrase(p.dignity)} in ${SIGNS[p.signIndex]}: a supportive sign-level clue to weigh with the rest of the chart.`, tone: "support" });
+  if (BAD_DIGNITY.has(p.dignity)) notes.push({ text: `${k.planet} is ${dignityPhrase(p.dignity)} in ${SIGNS[p.signIndex]}: a sign-level clue of possible effort or delay.`, tone: "strain" });
+  if (k.planet !== "Rahu" && GOOD_DIGNITY.has(d9Dignity) && !GOOD_DIGNITY.has(p.dignity)) notes.push({ text: `In the navamsa ${k.planet} is ${dignityPhrase(d9Dignity)} in ${SIGNS[d9.signIndex]}; this sign-level strength may mitigate the rasi placement, alongside other factors.`, tone: "support" });
+  if (k.planet !== "Rahu" && BAD_DIGNITY.has(d9Dignity) && GOOD_DIGNITY.has(p.dignity)) notes.push({ text: `In the navamsa ${k.planet} is ${dignityPhrase(d9Dignity)} in ${SIGNS[d9.signIndex]}; consider this sign-level strain alongside the rasi support.`, tone: "strain" });
   if ((id === "AK" || id === "AmK") && DUSTHANA.has(houseFromLagna)) notes.push({ text: `${id} in the ${ordinal(houseFromLagna)} from the lagna: position comes through struggle (Rao).`, tone: "strain" });
   if (id === "AmK") {
     const fromAK = houseFrom(ctx.at(ak).signIndex, p.signIndex);

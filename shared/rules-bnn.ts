@@ -124,11 +124,11 @@ export const EXTRA_RULES: Rule[] = [
   { id: "alone-me", area: "education", when: { subject: "Mercury", alone: true }, text: "Mercury stands alone: self-taught intellect; learning pursued independently of formal support.", weight: 1, source: NAIK },
 
   // ───────────── Dignity of the remaining planets ─────────────
-  { id: "su-exalt", area: "family", when: { subject: "Sun", subjectDignity: ["Exalted", "Own sign"] }, text: "Sun dignified: a respected father and a native with strong self-esteem and vitality.", weight: 2 },
+  { id: "su-exalt", area: "family", when: { subject: "Sun", subjectDignity: ["Exalted", "Own sign", "Moolatrikona"] }, text: "Sun dignified: a provisional Nadi interpretation connects this with the father, self-esteem and vitality; the rest of the chart can modify the indication.", weight: 2, source: "Nadi sign-dignity interpretation; specific source not verified" },
   { id: "su-debil", area: "family", when: { subject: "Sun", subjectDignity: ["Debilitated"] }, text: "Sun debilitated: the father's position is uncertain or strained; the native must build confidence independently.", weight: 2 },
   { id: "mo-exalt", area: "self", when: { subject: "Moon", subjectDignity: ["Exalted", "Own sign"] }, text: "Moon dignified: a steady, receptive mind and a supportive mother; comfort with the public.", weight: 2 },
   { id: "mo-debil", area: "self", when: { subject: "Moon", subjectDignity: ["Debilitated"] }, text: "Moon debilitated: intensity and secrecy in feeling; the mother's health or circumstances need attention.", weight: 2 },
-  { id: "ma-exalt", area: "wealth", when: { subject: "Mars", subjectDignity: ["Exalted", "Own sign"] }, text: "Mars dignified: property and technical ability come easily; siblings are capable.", weight: 2 },
+  { id: "ma-exalt", area: "wealth", when: { subject: "Mars", subjectDignity: ["Exalted", "Own sign", "Moolatrikona"] }, text: "Mars dignified: a provisional Nadi interpretation connects this with property, technical ability and siblings; other chart factors also matter.", weight: 2, source: "Nadi sign-dignity interpretation; specific source not verified" },
   { id: "ma-debil", area: "family", when: { subject: "Mars", subjectDignity: ["Debilitated"] }, text: "Mars debilitated: caution with land dealings and disputes; siblings need support.", weight: 2 },
   { id: "me-exalt", area: "education", when: { subject: "Mercury", subjectDignity: ["Exalted", "Own sign"] }, text: "Mercury dignified: excellent analysis and speech; success in examinations, trade and writing.", weight: 2 },
   { id: "me-debil", area: "education", when: { subject: "Mercury", subjectDignity: ["Debilitated"] }, text: "Mercury debilitated: intuitive rather than systematic learning; interruptions in formal study.", weight: 2 },
@@ -190,7 +190,7 @@ export const EXTRA_RULES: Rule[] = [
   pair("auth-su-ra", "authority", "Sun", "Rahu", "The Sun with Rahu: power among crowds; a rise that is public, unconventional or contested — politics, movements, mass attention. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
   pair("auth-ju-ra", "authority", "Jupiter", "Rahu", "Jupiter with Rahu: a following gathers; causes, crowds or movements look to the native, and leadership runs with the many. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
   pair("auth-su-sa", "authority", "Sun", "Saturn", "The Sun with Saturn: authority the slow way — built in institutions, service and time, and held with discipline; standing that outlasts its critics. (provisional)", 2, ALL, "General Nadi principles (Rao, Naik)"),
-  { id: "auth-su-strong", area: "authority", when: { subject: "Sun", subjectDignity: ["Own sign", "Exalted"] }, text: "the Sun in his own strength: born to authority; command sits naturally on the native and others defer. (provisional)", weight: 2, source: "General Nadi principles (Rao, Naik)" },
+  { id: "auth-su-strong", area: "authority", when: { subject: "Sun", subjectDignity: ["Own sign", "Exalted", "Moolatrikona"] }, text: "Sun dignified: a provisional sign-level clue relating to authority; it does not establish a role or status.", weight: 2, source: "Nadi sign-dignity interpretation; specific source not verified" },
 ];
 
 // Nakshatra-lord colouring for the three primary karakas. Neutral by declaration (Rule.tone): the words name the

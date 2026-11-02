@@ -600,6 +600,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
                 : ""}
             </span>
           </div>
+          <p className="mt-1 text-xs text-muted-foreground">In the KP total, a repeated natal cusp link for the same matter and houses counts once; the three period-lord checks still count for each event. Individual event rows retain their own scores.</p>
 
           <div className="mt-3 overflow-x-auto rounded-md border">
             <Table

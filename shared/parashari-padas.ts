@@ -153,7 +153,7 @@ export function computePadas(positions: PlanetPosition[], lagnaIdx: number, lagn
   const isOdd = (si: number) => si % 2 === 0;
   const exalted = (pl: Planet) => pos(pl).dignity === "Exalted";
   const debil = (pl: Planet) => pos(pl).dignity === "Debilitated";
-  const ownSign = (pl: Planet) => pos(pl).dignity === "Own sign" || pos(pl).dignity === "Moolatrikona";
+  const ownSign = (pl: Planet) => OWN_SIGNS[pl]?.includes(pos(pl).signIndex) ?? false;
   const navExalted = (pl: Planet, nav: number) => EXALTATION[pl]?.sign === nav;
   const navDebil = (pl: Planet, nav: number) => EXALTATION[pl] !== undefined && (EXALTATION[pl]!.sign + 6) % 12 === nav;
   const glossKing = "Parashara's word is king: standing among those in power.";

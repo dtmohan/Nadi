@@ -20,6 +20,13 @@ export interface QualifiedEventScore {
 }
 export type QualifiedEventScores = Partial<Record<QualifiedScoreKey, QualifiedEventScore>>;
 
+/** Common eligibility gate for qualified event readings and their scans. */
+export function qualifiedEventEligible(input: { matter?: string; outcome: EventOutcome; custom?: boolean;
+  afterDeath?: boolean; birthMs: number; eventMs: number }): boolean {
+  return input.outcome === "favourable" && !!input.matter && !input.custom && !input.afterDeath &&
+    Number.isFinite(input.birthMs) && Number.isFinite(input.eventMs) && input.eventMs >= input.birthMs;
+}
+
 /** Every caller supplies the exact same event sky, natal evidence and outcome.
  * Missing evidence, unsupported types, uncertain gender and non-favourable
  * events are unavailable, never silently treated as a zero. */
@@ -40,8 +47,7 @@ export function qualifiedEventScores(input: {
   alp?: AlpEventEvidence;
 }): QualifiedEventScores {
   const result: QualifiedEventScores = {};
-  if (input.outcome !== "favourable" || !input.matter || input.custom || input.afterDeath || !Number.isFinite(Date.parse(input.eventIso)) ||
-      !Number.isFinite(Date.parse(input.birthIso)) || Date.parse(input.eventIso) < Date.parse(input.birthIso)) return result;
+  if (!qualifiedEventEligible({ ...input, birthMs: Date.parse(input.birthIso), eventMs: Date.parse(input.eventIso) })) return result;
 
   const natal = input.kp.natalRules;
   if (natal?.status === "assessed" && natal.rules.some((r) => r.role === "promise")) {

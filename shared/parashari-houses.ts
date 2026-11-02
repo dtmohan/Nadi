@@ -3,7 +3,7 @@
  * and the stated effects of the 1st (ch. 12) and 2nd (ch. 13) houses.
  * Text: Santhanam's translation at jyotishvidya.com. Rules the text does not state as applied are marked provisional.
  */
-import { SIGNS, SIGN_LORD, houseFrom, moonWaxing, type Planet, type PlanetPosition } from "./astro";
+import { SIGNS, SIGN_LORD, OWN_SIGNS, houseFrom, moonWaxing, type Planet, type PlanetPosition } from "./astro";
 import { listJoin, ordH, thePlanet, withGloss } from "./house-gloss";
 import { BPHS_URL } from "./parashari-data";
 import { computeVargas, type VargasResult } from "./vargas";
@@ -450,7 +450,9 @@ export function houseFindings(positions: PlanetPosition[], view: HouseView, lagn
   const h5 = houseOf(l5);
   const s5 = signOfHouse(5);
   const in5 = inHouse(5);
-  const own = (pl: Planet) => ["Own sign", "Moolatrikona"].includes(pos(pl).dignity);
+  // Ownership is independent of the single display label: Mercury in Virgo
+  // is in its own sign even when that label reads "Exalted".
+  const own = (pl: Planet) => OWN_SIGNS[pl]?.includes(pos(pl).signIndex) ?? false;
   const l5Deb = pos(l5).dignity === "Debilitated";
   const mal5 = in5.filter((p) => !deps.benefic(p, positions)).map((p) => p.planet);
   if ((own(l1) || inKT(houseOf(l1))) && (own(l5) || inKT(h5))) {

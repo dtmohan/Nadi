@@ -36,6 +36,7 @@ import {
   methodLabel,
   methodScore,
   highlightedCandidates,
+  alpBandRanking,
   rawScoreCoverage,
   groupNemaniSegments,
 } from "../rectify-methods";
@@ -141,6 +142,21 @@ export const rectifyModule: ReportModule = {
           { kind: "table", head: ["Sample time", "Kunda star", "Birth star", "Check"], rows: scan.segments.map((s) => [`${s.midDate && s.midDate !== result.chart.birthDate ? `${s.midDate} ` : ""}${s.mid}`, s.kunda ? NAKSHATRAS[s.kunda.kundaNakshatra] : "—", s.kunda ? NAKSHATRAS[s.kunda.birthStar] : "—", s.kunda ? (s.kunda.trine ? "matches" : "does not match") : "—"]) },
         ],
       }];
+    }
+    if (state.method === "alp-marriage") {
+      const bands = scan.alpComparisonBands ?? [];
+      const ranking = alpBandRanking(bands, !!scan.baseline);
+      return [{ id: "rectify", title: "ALP · marriage pada comparison", kicker, paras: [
+        { kind: "lead", text: m.short, cites: [cites.add(m.source)] },
+        { kind: "note", provisional: true, text: `Source-scoped research: this is a single ALP condition. Registered date-independent clues count once per candidate and matter; this ALP condition is event-dependent. ${scan.baseline ? "" : "Quick scan: random-date comparisons were not computed."}` },
+        { kind: "note", provisional: true, text: `Every selectable whole second was checked against the actual marriage dates${scan.baseline ? ` and ${scan.baseline.trials} random-date sets` : ""}; consecutive seconds with identical individual results are grouped. The end is exclusive. Instants between seconds are not measured. This partial rule does not establish a birth time. ${ranking.comparable ? "Highlights use the same exploratory rule as the panel." : bands.length ? "Eligibility or comparison availability differs, so the bands cannot be ranked." : "No ALP bands are available; run a new scan with a marriage event."}` },
+        { kind: "table", head: ["From", "To (exclusive)", "Candidate", "Matches", "Comparison mean", "Mid-rank", ""],
+          rows: bands.map((b, i) => [`${b.startDate !== result.chart.birthDate ? `${b.startDate} ` : ""}${b.start}`, `${b.endDate !== result.chart.birthDate ? `${b.endDate} ` : ""}${b.end}`,
+            `${b.midDate !== result.chart.birthDate ? `${b.midDate} ` : ""}${b.mid}`, b.max ? `${b.score}/${b.max}` : "unavailable",
+            b.baseline ? String(b.baseline.mean) : "—", b.baseline ? `${b.baseline.percentile}%` : "—",
+            [b.given ? "recorded" : "", ranking.highlighted.includes(i) ? "highlighted" : ""].filter(Boolean).join(", ")]) },
+        ...windowParas(),
+      ] }];
     }
     if (state.method === "parashari-events" || state.method === "parashari-events-v2" || state.method === "parashari-events-v3") {
       const v3 = state.method === "parashari-events-v3";

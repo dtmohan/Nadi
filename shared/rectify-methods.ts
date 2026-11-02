@@ -5,10 +5,12 @@ import type {
   RectifySegment,
   RectifyEvent,
   JudgePlaceInput,
+  AlpComparisonBand,
 } from "./rectify-types";
 import { scoreMarks, type BodyMarksResult } from "./body-marks";
 import { qualifiedTotals, type QualifiedScoreKey } from "./qualified-event-scores";
 import { aggregateParashariLegacy, parashariLegacyScore } from "./parashari-score-aggregation";
+import { kpLegacyTotals } from "./kp-legacy-aggregation";
 
 /** Rectification methods. One at a time, never blended; each cites its own source. */
 export type RectifyMethod =
@@ -144,7 +146,7 @@ export const RECTIFY_METHODS: Array<{
     plainShort:
       "For each dated event, check whether the three planets whose periods were running relate to the houses of that matter, and whether its cusp's deciding planet promises it. The score shows the app's tally; it cannot establish the birth time on its own.",
     short:
-      "At each remembered event the dasa, bhukti and antara lords running that day are checked as significators of the matter's houses, and the matter's cusp is checked for a promise through its sub lord. The provisional tally does not establish the correct interval.",
+      "At each remembered event the dasa, bhukti and antara lords running that day are checked as significators of the matter's houses, and the matter's cusp is checked for a basic link through its sub lord. Repeated identical natal cusp checks count once per candidate and matter; period checks remain per event. The provisional tally does not establish the correct interval.",
     source: "Astro Secrets & KP Part 1, pp. 167-172; Part 2, p. 203",
     needsJudge: false,
     needsEvents: true,
@@ -294,11 +296,7 @@ export function methodScore(
     };
   if (m === "kp-moon")
     return { score: s.moonLords.score, max: s.moonLords.max };
-  if (m === "kp-events")
-    return s.events.reduce(
-      (acc, e) => ({ score: acc.score + e.score, max: acc.max + e.max }),
-      { score: 0, max: 0 },
-    );
+  if (m === "kp-events") return kpLegacyTotals(s.events.map((e) => ({ matter: e.matter, cusp: e.cusp, houses: e.houses, kp: e })));
   if (m === "jaimini-dasha")
     return s.events.reduce(
       (acc, e) => ({
@@ -382,6 +380,16 @@ export function highlightedCandidates(
   }
   const top = Math.max(0, ...rows.map((r) => r.score));
   return rows.flatMap((r, i) => top > 0 && r.score === top ? [i] : []);
+}
+
+/** Compare ALP bands only when they contain the same eligible events and,
+ * if requested, every band has a complete comparison distribution. */
+export function alpBandRanking(bands: AlpComparisonBand[], comparisonsRequested: boolean) {
+  const first = bands[0];
+  const comparable = !!first?.max && bands.every((band) => band.max === first.max &&
+    band.eligibleEvents.join(",") === first.eligibleEvents.join(",") &&
+    (!comparisonsRequested || !!band.baseline));
+  return { comparable, highlighted: comparable ? highlightedCandidates(bands.map((b) => ({ score: b.score, b: b.baseline }))) : [] };
 }
 
 export const EVENT_METHODS: RectifyMethod[] = [

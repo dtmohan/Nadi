@@ -57,6 +57,9 @@ export interface RectifyRequest {
 }
 
 export interface RectifyEventCheck extends KpEventRules {
+  /** Requested target cusp; absent in older saved scan responses. */
+  cusp?: number;
+  matter?: string;
   additionalNatal?: AdditionalSchoolNatalEvidence;
   alp?: AlpEventEvidence;
   qualifiedScores?: QualifiedEventScores;
@@ -298,6 +301,28 @@ export interface RectifyBaselineStat {
   verdict: "above" | "chance" | "below";
 }
 
+/** ALP is sampled independently at every selectable whole birth second.
+ * End is exclusive; values between sampled seconds are not asserted. */
+export interface AlpComparisonBand {
+  kind: "alp-comparison";
+  start: string;
+  end: string;
+  /** Civil dates on the chart's time basis, including local mean time. */
+  startDate: string;
+  endDate: string;
+  mid: string;
+  midDate: string;
+  /** Exact UTC instants; ISO offsets cannot represent historical offset seconds. */
+  startIso: string;
+  endIso: string;
+  score: number;
+  max: number;
+  eligibleEvents: number[];
+  baseline?: RectifyBaselineStat;
+  given: boolean;
+  selectable: boolean;
+}
+
 export interface RectifySegmentBaseline {
   /** First comparison set carries the same candidate-specific natal rule evidence. */
   catalogueExample?: Array<{ label: string; date: string; natalRules?: KpEventRules["natalRules"]; parashariOrdinary?: ParashariDatedCatalogue; additionalNatal?: AdditionalSchoolNatalEvidence; alp?: AlpEventEvidence; qualifiedScores?: QualifiedEventScores }>;
@@ -336,6 +361,8 @@ export interface RectifyResult {
   marks: Record<number, BodyMarksResult>;
   given: { time: string; lagna: number };
   segments: RectifySegment[];
+  /** Independent whole-second ALP samples, including every comparison date. */
+  alpComparisonBands?: AlpComparisonBand[];
   /** D81 is scanned independently: its boundaries need not match KP intervals. */
   kundaD81?: KundaD81Window[];
   /** Independently sampled ascendant windows for the book's divisions. */

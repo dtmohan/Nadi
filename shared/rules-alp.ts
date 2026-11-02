@@ -10,6 +10,11 @@ import { SIGNS, type Planet, type PlanetPosition } from "./astro";
 import { houseGloss, listJoin, ordH, thePlanet, withGloss, withGlossList } from "./house-gloss";
 import type { AlpHouse, AlpPlacement, AlpPoint, ArpResult } from "./alp";
 
+/** Book 2 p. 35's one pada-navamsa relationship, shared with the event scan. */
+export function alpMarriageTouches(alp: number, janma: number, navamsa: number): boolean {
+  return [alp, (alp + 6) % 12, janma, (janma + 6) % 12].includes(navamsa);
+}
+
 export interface AlpChapter {
   id: string;
   /** Book and chapter as printed. */
@@ -1166,7 +1171,7 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
     }
     if (w.activatedTouches !== undefined) {
       const nav = ctx.point.navamsaSign;
-      const touches = [ctx.alp, (ctx.alp + 6) % 12, ctx.janma, (ctx.janma + 6) % 12].includes(nav);
+      const touches = alpMarriageTouches(ctx.alp, ctx.janma, nav);
       if (touches !== w.activatedTouches) continue;
       here.push(`the activated navamsa sign, ${SIGNS[nav]}, is ${fromAlp(houseOfSign(nav))} and the ${ordH(((nav - ctx.janma + 12) % 12) + 1)} from the janma lagna`);
     }

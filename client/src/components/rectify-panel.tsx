@@ -13,6 +13,7 @@ import type {
   RectifySegmentStability,
   RectifyEvent,
   KundaD81Window,
+  AlpComparisonBand,
 } from "@shared/rectify-types";
 import { describeEventMoment, matterOf } from "@shared/events";
 import { LifeEventsEditor } from "@/components/life-events";
@@ -80,6 +81,7 @@ import {
   methodScore,
   baselineFor,
   highlightedCandidates,
+  alpBandRanking,
   rawScoreCoverage,
   groupNemaniSegments,
   type RectifyMethod,
@@ -246,6 +248,7 @@ export function RectifyPanel({
   const [includeComparisons, setIncludeComparisons] = useState(false);
   const [sortByScore, setSortByScore] = useState(false);
   const [showAllKunda, setShowAllKunda] = useState(false);
+  const [alpPage, setAlpPage] = useState(0);
   const [open, setOpen] = useState<number | null>(null);
   // Limbs the person confirms a mark on (Brihat Jataka 5.24-26); memory only, never stored.
   const [confirmedMarks, setConfirmedMarks] = useState<Set<string>>(
@@ -317,6 +320,7 @@ export function RectifyPanel({
     // Never keep displaying scores after any of their inputs have changed.
     scan.reset();
     setOpen(null);
+    setAlpPage(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scanInputsKey]);
   useEffect(() => {
@@ -341,7 +345,9 @@ export function RectifyPanel({
   }, [method, windowMinutes, eventPayload, judge, confirmedMarks, includeComparisons, scan.data?.ruling.asOf]);
 
   /** Why this interval was chosen, for the notes of the copy or of this chart. */
-  const provenance = (seg: RectifySegment | KundaD81Window) => {
+  const provenance = (seg: RectifySegment | KundaD81Window | AlpComparisonBand) => {
+    if ("kind" in seg)
+      return `by ALP marriage pada (${m.source}): whole-second samples ${seg.start} to ${seg.end} exclusive; candidate ${seg.mid}, score ${seg.score} of ${seg.max}${seg.baseline ? `, comparison mean ${seg.baseline.mean}` : ""}. This partial clue cannot establish a birth time`;
     if ("check" in seg) {
       return `by ${m.system} ${methodLabel(m)} (${m.source}): D81 interval ${seg.start} to ${seg.end}, midpoint ${seg.mid}; ${seg.check.via}`;
     }
@@ -363,7 +369,7 @@ export function RectifyPanel({
   };
 
   const saveCopy = useMutation({
-    mutationFn: async (seg: RectifySegment | KundaD81Window) => {
+    mutationFn: async (seg: RectifySegment | KundaD81Window | AlpComparisonBand) => {
       if (seg.selectable === false || (seg.midDate && seg.midDate !== chart.birthDate))
         throw new Error("This candidate cannot be saved on the recorded birth date at whole-second precision.");
       const { id: _id, ...insert } = chart;
@@ -394,7 +400,7 @@ export function RectifyPanel({
 
   /** Change this chart's birth time in place; the id, name and events stay, every tab recomputes. */
   const useHere = useMutation({
-    mutationFn: async (seg: RectifySegment | KundaD81Window) => {
+    mutationFn: async (seg: RectifySegment | KundaD81Window | AlpComparisonBand) => {
       if (seg.selectable === false || (seg.midDate && seg.midDate !== chart.birthDate))
         throw new Error("This candidate cannot be applied on the recorded birth date at whole-second precision.");
       const c = await setBirthTime(
@@ -420,6 +426,11 @@ export function RectifyPanel({
   const busy = saveCopy.isPending || useHere.isPending;
 
   const data = scan.data;
+  const alpBands = data?.alpComparisonBands ?? [];
+  const alpRanking = alpBandRanking(alpBands, !!data?.baseline);
+  const alpCoverage = alpRanking.comparable ? rawScoreCoverage(alpBands) : undefined;
+  const alpRecorded = alpBands.find((b) => b.given);
+  const alpPageSize = 15;
   const marksCtx = useMemo(
     () => (data ? { table: data.marks, confirmed: confirmedMarks } : undefined),
     [data, confirmedMarks],
@@ -458,7 +469,7 @@ export function RectifyPanel({
   );
   const bestSet = useMemo(
     () =>
-      method === "kunda" || (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow
+      method === "kunda" || method === "alp-marriage" || (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow
         ? new Set<number>() : new Set(highlightedCandidates(scored)),
     [scored, method, parashariComparable, isParashariMethod, qualifiedComparableWindow],
   );
@@ -523,7 +534,7 @@ export function RectifyPanel({
   const hasStability = !isParashariMethod && scored.some((r) => r.s.stability);
   // Body-mark maxima can differ by candidate; the Kunda variants use separate
   // sampling rules. Do not imply their midpoint scores are comparable here.
-  const coverage = method !== "bj-marks" && method !== "kunda" && method !== "kunda-d81" && !(method === "kp-nemani-rp" && top === 0) && maxOf > 0 && (!isParashariMethod || parashariComparable) && qualifiedComparableWindow
+  const coverage = method !== "alp-marriage" && method !== "bj-marks" && method !== "kunda" && method !== "kunda-d81" && !(method === "kp-nemani-rp" && top === 0) && maxOf > 0 && (!isParashariMethod || parashariComparable) && qualifiedComparableWindow
     ? rawScoreCoverage(scored.map((r) => ({ score: r.score, startIso: r.s.startIso, endIso: r.s.endIso, given: r.s.given })))
     : undefined;
 
@@ -769,9 +780,8 @@ export function RectifyPanel({
                 changes in the rising degree and the event-related KP cusps and
                 natal inputs. Each interval is scored at its midpoint; other
                 fine divisions can still change within it. D81 Kunda has its own
-                independently scanned intervals. ALP checks at actual marriage
-                dates contribute boundaries; comparison-date ALP changes are
-                sampled at each interval's midpoint. One scan serves every method;
+                independently scanned intervals. ALP also has independent whole-second
+                samples for the actual and all comparison dates. One scan serves every method;
                 switch between them without scanning again. Use
                 here moves this chart to that interval's midpoint, keeping its
                 name and events; Save makes a copy at that time and leaves this
@@ -1116,7 +1126,9 @@ export function RectifyPanel({
 
           <div className="mt-3 flex items-center justify-between text-xs">
             <span className="text-muted-foreground">
-              {method === "kunda-d81"
+              {method === "alp-marriage"
+                ? `${alpBands.length} ALP whole-second result ${alpBands.length === 1 ? "band" : "bands"} in ± ${data.windowMinutes} min`
+                : method === "kunda-d81"
                 ? `${data.kundaD81?.length ?? 0} D81 intervals · ${(data.kundaD81 ?? []).filter((s) => s.check.trine).length} match the birth star or a trine`
                 : method === "kunda"
                   ? `${data.segments.length} midpoint samples · Raman's arithmetic is not resolved into time intervals`
@@ -1130,7 +1142,7 @@ export function RectifyPanel({
                   ? `${data.segments.length} slices in ± ${data.windowMinutes} min · ${anyParashariScore ? "event eligibility differs across the window" : "no eligible events to score"}`
                   : `${data.segments.length} ${plain ? "slices" : "intervals"} in ± ${data.windowMinutes} min · ${m.system} ${plain ? m.plainLabel.toLowerCase() : methodLabel(m)} · highest raw score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}${baselined ? ` · highest difference from comparison mean ${topExcess >= 0 ? "+" : "−"}${Math.abs(topExcess).toFixed(1)}` : ""}`}
             </span>
-            {method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && (!isParashariMethod || parashariComparable) && qualifiedComparableWindow && <button
+            {method !== "alp-marriage" && method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && (!isParashariMethod || parashariComparable) && qualifiedComparableWindow && <button
               type="button"
               className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground"
               onClick={() => setSortByScore((v) => !v)}
@@ -1138,7 +1150,7 @@ export function RectifyPanel({
             >
               {sortByScore ? "Sort by time" : "Sort by score"}
             </button>}
-            {method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && hasStability && sortByScore && (
+            {method !== "alp-marriage" && method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && hasStability && sortByScore && (
               <span className="text-2xs text-muted-foreground">
                 ties broken by matter cusps intact, firm cusps, then nearness to
                 the recorded time
@@ -1161,6 +1173,7 @@ export function RectifyPanel({
               within an interval. Highlights use a separate comparison when available.
             </p>
           )}
+          {method === "alp-marriage" && alpCoverage && <p className="mt-2 rounded border px-3 py-1.5 text-xs text-muted-foreground">On the whole-second grid, the highest raw score ({alpCoverage.top} of {alpBands[0].max}) covers {alpCoverage.percent}% of the tested window. This describes ties; it does not establish a birth time.</p>}
           {method === "kp-nemani-rp" && (
             <div className="mt-3 overflow-x-auto" data-testid="rectify-nemani-groups">
               <p className="mb-2 text-xs text-muted-foreground">Adjacent slices are grouped only when their rising sign, three lords and displayed connections agree. Open a group to see its three links.</p>
@@ -1178,9 +1191,11 @@ export function RectifyPanel({
               </Table>
             </div>
           )}
-          {EVENT_METHODS.includes(method) && scored.length > 1 && scored.every((r) => r.score === scored[0].score) && (
+          {EVENT_METHODS.includes(method) && (method === "alp-marriage"
+            ? alpBands.length > 1 && alpBands.every((b) => b.score === alpBands[0].score)
+            : scored.length > 1 && scored.every((r) => r.score === scored[0].score)) && (
             <p className="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200" data-testid="rectify-flat-score-note">
-              Every sampled interval has the same raw score, so that score alone
+              Every sampled {method === "alp-marriage" ? "birth second" : "interval"} has the same raw score, so that score alone
               cannot narrow this birth-time window. The random-date comparisons
               may still differ; none establishes the correct time.
             </p>
@@ -1189,8 +1204,9 @@ export function RectifyPanel({
             eventPayload.length > 0 &&
             (() => {
               const isJ = method === "jaimini-dasha";
-              const on = isJ ? groupBaselined : baselined;
-              const above = isJ
+              const isAlp = method === "alp-marriage";
+              const on = isAlp ? !!data.baseline && alpRanking.comparable : isJ ? groupBaselined : baselined;
+              const above = isAlp ? alpBands.filter((b) => b.baseline?.verdict === "above").length : isJ
                 ? signGroups.filter((g) => g.b?.verdict === "above").length
                 : scored.filter((r) => r.b?.verdict === "above").length;
               return (
@@ -1207,7 +1223,7 @@ export function RectifyPanel({
                     ? !includeComparisons
                       ? "Quick scan skips random-date comparisons. Turn it off and scan again, or compare a candidate in Validate."
                       : "A comparison needs at least two events a year apart and the same eligible checks for every sampled set."
-                    : `${data.baseline?.trials ?? 200} sets of comparison dates were independently selected between ${data.baseline?.span[0]} and ${data.baseline?.span[1]}; transits are recalculated on each date against this candidate's natal chart. ${above} ${above === 1 ? "result reaches" : "results reach"} the 95th mid-rank percentile. Highlighting uses that exploratory cutoff and the difference from the comparison mean; it does not account for trying multiple measures or candidates and does not establish a correct birth time. Random dates need not preserve plausible event ages or order.`}
+                    : `${data.baseline?.trials ?? 200} sets of comparison dates were independently selected between ${data.baseline?.span[0]} and ${data.baseline?.span[1]}; ${isAlp ? "the progressed-lagna condition is recalculated at each sampled birth time and date" : "transits are recalculated on each date against this candidate's natal chart"}. ${above} ${above === 1 ? "result reaches" : "results reach"} the 95th mid-rank percentile. Highlighting uses that exploratory cutoff and the difference from the comparison mean; it does not account for trying multiple measures or candidates and does not establish a correct birth time. Random dates need not preserve plausible event ages or order.`}
                 </p>
               );
             })()}
@@ -1821,7 +1837,15 @@ export function RectifyPanel({
             </div>
           )}
 
-          {qualifiedMethod && <div className="mt-3 overflow-x-auto" data-testid="rectify-qualified-ranking">
+          {method === "alp-marriage" && <div className="mt-3 overflow-x-auto" data-testid="rectify-alp-bands">
+            <p className="text-xs text-muted-foreground">Each selectable whole second was checked for the recorded marriage dates{data.baseline ? " and every random-date set" : ""}. Adjacent seconds with the same individual results are grouped; the end time is excluded. Results between seconds are not measured. This is one partial condition, not a birth-time determination. {alpRanking.comparable ? "" : alpBands.length ? "Eligibility or comparison availability differs, so bands cannot be ranked." : "No ALP bands are available; add a marriage event and scan again."}</p>
+            {alpRecorded && <p className="mt-2 text-xs"><strong>Recorded-time band:</strong> {alpRecorded.start}–{alpRecorded.end} (end excluded), {alpRecorded.max ? `${alpRecorded.score}/${alpRecorded.max} matches` : "unavailable"}{alpRecorded.baseline ? `; comparison mean ${alpRecorded.baseline.mean}, ${alpRecorded.baseline.percentile}% mid-rank` : ""}.</p>}
+            <Table className="text-xs"><TableHeader><TableRow><TableHead>From</TableHead><TableHead>To (exclusive)</TableHead><TableHead>Matches</TableHead><TableHead>Comparison</TableHead><TableHead>Candidate</TableHead></TableRow></TableHeader>
+              <TableBody>{alpBands.slice(alpPage * alpPageSize, (alpPage + 1) * alpPageSize).map((b, pageIndex) => { const i = alpPage * alpPageSize + pageIndex; return <TableRow key={b.startIso}><TableCell>{b.startDate === chart.birthDate ? "" : `${b.startDate} `}{b.start}{b.given ? " · recorded" : ""}</TableCell>
+                <TableCell>{b.endDate === chart.birthDate ? "" : `${b.endDate} `}{b.end}</TableCell><TableCell>{b.max ? `${b.score}/${b.max}` : "unavailable"}{alpRanking.highlighted.includes(i) ? " · highlighted" : ""}</TableCell>
+                <TableCell>{b.baseline ? `${b.baseline.mean} · ${b.baseline.percentile}% mid-rank` : "unavailable"}</TableCell><TableCell>{b.midDate === chart.birthDate && <><button type="button" className="underline mr-2" disabled={busy} onClick={() => useHere.mutate(b)}>Use {b.mid}</button><button type="button" className="underline" disabled={busy} onClick={() => saveCopy.mutate(b)}>Save copy</button></>}</TableCell></TableRow>; })}</TableBody>
+            </Table>{alpBands.length > alpPageSize && <div className="mt-2 flex items-center gap-3 text-xs"><button type="button" className="underline disabled:opacity-40" disabled={alpPage === 0} onClick={() => setAlpPage((p) => p - 1)}>Previous</button><span>Page {alpPage + 1} of {Math.ceil(alpBands.length / alpPageSize)}</span><button type="button" className="underline disabled:opacity-40" disabled={(alpPage + 1) * alpPageSize >= alpBands.length} onClick={() => setAlpPage((p) => p + 1)}>Next</button>{alpRecorded && <button type="button" className="underline" onClick={() => setAlpPage(Math.floor(alpBands.findIndex((b) => b.given) / alpPageSize))}>Recorded-time band</button>}</div>}</div>}
+          {qualifiedMethod && method !== "alp-marriage" && <div className="mt-3 overflow-x-auto" data-testid="rectify-qualified-ranking">
             <p className="text-xs text-muted-foreground">These partial matches are experimental, use the same conditions at sampled dates, and cannot establish a birth time. Registered date-independent clues count once per candidate and matter; other checks can overlap. Each row represents its midpoint; boundaries may be missed. {qualifiedComparableWindow ? "" : anyParashariScore ? "Eligibility or comparison availability differs, so totals cannot be ranked." : "No eligible events can be scored under this method."}</p>
             <Table className="text-xs"><TableHeader><TableRow><TableHead>Interval</TableHead><TableHead>Matches</TableHead><TableHead>Comparison mean</TableHead><TableHead>Candidate</TableHead></TableRow></TableHeader>
               <TableBody>{(qualifiedComparableWindow ? segments : scored).map(({ s, i, score, max, b }) => <TableRow key={s.startIso}>

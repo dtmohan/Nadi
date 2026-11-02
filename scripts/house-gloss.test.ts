@@ -322,7 +322,7 @@ test("Prasna: the fructification names the lord and karaka, with a gentler plain
   assert.equal(fr.length, 12);
   assert.equal(
     fr[0].note,
-    "Its lord, Saturn in the 5th, is strong and well placed; its karaka, the Sun in the 1st, is weak and well placed. The influence is mixed.",
+    "Its lord, Saturn in the 5th, is strong and well placed; its karaka, the Sun in the 1st, is of unknown strength and well placed. The stated strength and position conditions are mixed or unresolved; no single result is established.",
   );
   for (const f of fr) {
     assert.ok(f.note.includes(thePlanet(f.lord)), f.note);
@@ -330,7 +330,7 @@ test("Prasna: the fructification names the lord and karaka, with a gentler plain
   }
   // A house whose lord and karaka are both weak and badly placed.
   const pos = result.positions.map((p) =>
-    p.planet === "Mars" || p.planet === "Saturn" ? { ...p, signIndex: (result.jaimini.lagna.signIndex + 5) % 12 } : p,
+    p.planet === "Mars" || p.planet === "Saturn" ? { ...p, dignity: "Debilitated" as const, signIndex: (result.jaimini.lagna.signIndex + 5) % 12 } : p,
   );
   const weak = pos.map((p) => ({ planet: p.planet, dignity: "Debilitated", effectiveDignity: "Debilitated" }));
   const neg = computePrasnaFructification(

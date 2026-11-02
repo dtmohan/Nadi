@@ -826,7 +826,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
         <SectionTitle plain="The twelve houses" technical="Bhava phala (14)" as="h3" />
         <ModeText
           plain="Each house covers several matters. Its traditional indications cannot establish a specific event."
-          practitioner={`Each house read whole-sign from the ${SIGNS[birthLagnaIdx]} ascendant: its signification (14.3-14), the planets in it (14.50-65), how the promise ripens (14.39-41) and the lord's standing (14.90-100).`}
+          practitioner={`Each house read whole-sign from the ${SIGNS[birthLagnaIdx]} ascendant: its signification (14.3-14), the planets in it (14.50-65), how the promise ripens (14.39-41) and the lord's standing (14.90-100). For 14.40 the app uses the source's named sign conditions; neutral and inimical signs remain unresolved, and this partial dignity proxy does not measure all planetary strength.`}
         />
         <div className="mt-3">
           <HouseWalk

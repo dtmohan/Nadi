@@ -31,6 +31,18 @@ interface CacheEntry {
   findings: AlpFinding[];
 }
 
+/** The same precise progressed point for normal readings and birth-time scans. */
+export function alpEventPoint(lagna: number, birthMs: number, eventMs: number) {
+  const natalLon = norm360(lagna);
+  const startLon = DEFAULT_ALP_CONFIG.start === "sign" ? Math.floor(natalLon / 30) * 30 : natalLon;
+  const quickLon = norm360(startLon + alpRate(DEFAULT_ALP_CONFIG) * Math.max(0, (eventMs - birthMs) / 86400000));
+  const pada = quickLon / (360 / 108);
+  const lon = Math.abs(pada - Math.round(pada)) < 1e-7
+    ? alpLonAt(lagna, DateTime.fromMillis(birthMs, { zone: "utc" }), DateTime.fromMillis(eventMs, { zone: "utc" }), DEFAULT_ALP_CONFIG)
+    : quickLon;
+  return alpPointAt(lon);
+}
+
 /** The cache is scoped to one natal candidate. Discrete ALP and ARP points are
  * recalculated at every instant; the stored result also cannot cross the ARP
  * dasa or bhukti boundary. No result is shared between candidates. */
@@ -38,7 +50,6 @@ export function createAlpEventScorer(context: PlanetContext, lagna: number, birt
   chart: { deathDate?: string | null }, readingAsOf: string, allowed?: (matter: string) => boolean) {
   const cache = new Map<string, CacheEntry[]>();
   const birthMs = Date.parse(birthIso);
-  const birth = DateTime.fromISO(birthIso, { setZone: true });
   const moon = context.requirePlanet("Moon").position.lon;
   const currentWithhold = sensitiveGate(chart, birthIso, readingAsOf).withheld;
   return (matter: string | undefined, asOf: string): AlpEventEvidence | undefined => {
@@ -54,13 +65,7 @@ export function createAlpEventScorer(context: PlanetContext, lagna: number, birt
     const when = () => instant ??= DateTime.fromMillis(ms, { zone: "utc" });
     // Use elapsed UTC milliseconds for the cache key; at a pada boundary use the ordinary
     // Luxon arithmetic to avoid a floating-point rounding disagreement.
-    const natalLon = norm360(lagna);
-    const startLon = DEFAULT_ALP_CONFIG.start === "sign" ? Math.floor(natalLon / 30) * 30 : natalLon;
-    const quickLon = norm360(startLon + alpRate(DEFAULT_ALP_CONFIG) * days);
-    const pada = quickLon / (360 / 108);
-    const lon = Math.abs(pada - Math.round(pada)) < 1e-7
-      ? alpLonAt(lagna, birth, when(), DEFAULT_ALP_CONFIG) : quickLon;
-    const ap = alpPointAt(lon);
+    const ap = alpEventPoint(lagna, birthMs, ms);
     const rp = alpPointAt(arpLonAt(moon, days));
     const pointKey = [ap.signIndex, ap.nakshatraIndex, ap.pada, ap.navamsaSign,
       rp.signIndex, rp.nakshatraIndex, rp.pada, rp.navamsaSign].join(":");

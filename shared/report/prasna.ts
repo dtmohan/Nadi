@@ -15,7 +15,7 @@ export const prasnaModule: ReportModule = {
     const fructification = computePrasnaFructification(result.positions, result.reading.strength, lagna);
     const paras: ReportPara[] = [
       { kind: "lead", text: "These are the birth-chart houses counted from the natal rising sign. They are not a question-time chart and do not answer a horary question." },
-      { kind: "note", text: "Each house covers several matters. The app's benefic/malefic classification and lord-and-karaka strength thresholds are provisional; empty houses are not negative conclusions.", provisional: true },
+      { kind: "note", text: "Each house covers several matters. For 14.40 the app uses a partial sign-based strength proxy: neutral and inimical signs remain unresolved. Other strength factors are not measured by this check. The house-karaka mapping and benefic/malefic classification are provisional; empty houses are not negative conclusions.", provisional: true },
     ];
     for (const sig of PRASNA_BHAVA_SIGNIFICATIONS) {
       const h = sig.house;

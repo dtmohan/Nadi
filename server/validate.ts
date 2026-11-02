@@ -77,6 +77,7 @@ import { scoreWindows } from "@shared/kp-windows";
 import { rolesFor } from "@shared/rules";
 import type { Gender } from "@shared/marriage";
 import { createKpEventScorer } from "@shared/kp-event-evidence";
+import { kpLegacyTotals } from "@shared/kp-legacy-aggregation";
 import { additionalSchoolEvents } from "./additional-school-events";
 import { createAlpEventScorer } from "@shared/alp-event-evidence";
 import { qualifiedEventScores, qualifiedComparable, qualifiedTotals, QUALIFIED_SCORE_KEYS, type QualifiedEventScores, type QualifiedScoreKey } from "@shared/qualified-event-scores";
@@ -737,8 +738,8 @@ export function validateEvents(chart: InsertChart, asOf = DateTime.utc().toISO()
       confirmed: out.filter((e) => e.kp.verdict === "confirmed").length,
       partial: out.filter((e) => e.kp.verdict === "partial").length,
       missed: out.filter((e) => e.kp.verdict === "missed").length,
-      kpScore: out.reduce((s, e) => s + e.kp.score, 0),
-      kpMax: out.reduce((s, e) => s + e.kp.max, 0),
+      kpScore: kpLegacyTotals(out).score,
+      kpMax: kpLegacyTotals(out).max,
       transitScore: out.reduce((s, e) => s + e.kp.transit.score, 0),
       transitMax: out.reduce((s, e) => s + e.kp.transit.max, 0),
       jaiminiScore: withArea.reduce((s, e) => s + (e.jaimini?.score ?? 0), 0),
@@ -802,7 +803,7 @@ function chanceBaseline(
     confirmed: (vs) => vs.filter((v) => v.kp.verdict === "confirmed").length,
     aurora: (vs) => vs.filter((v) => v.kp.aurora?.allSupported).length,
     auroraV2: (vs) => vs.filter((v) => v.kp.auroraV2?.allSupported).length,
-    kp: (vs) => vs.reduce((s, v) => s + v.kp.score, 0),
+    kp: (vs) => kpLegacyTotals(vs).score,
     transit: (vs) => vs.reduce((s, v) => s + v.kp.transit.score, 0),
     jaimini: (vs) => vs.reduce((s, v) => s + (v.jaimini?.score ?? 0), 0),
     bnn: (vs) => vs.reduce((s, v) => s + v.bnn.score, 0),

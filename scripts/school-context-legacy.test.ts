@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { DateTime } from "luxon";
 import { createPlanetContext } from "@shared/planet-context";
-import { evaluate } from "@shared/rules";
+import { evaluate, RULES } from "@shared/rules";
 import { computeJaimini } from "@shared/jaimini";
 import { computeParashari, computeParashariNatal } from "@shared/parashari";
 import { computeKp } from "@shared/kp";
@@ -25,6 +25,18 @@ const digest = (value: unknown) => createHash("sha256").update(JSON.stringify(va
   typeof v === "number" && Number.isFinite(v) ? Number(v.toPrecision(12)) : v)).digest("hex");
 const pick = (value: any, keys: string[]) => Object.fromEntries(keys.map((key) => [key, value[key]]));
 
+// Recreate the three deliberately corrected BNN rules when checking the
+// archived pre-migration hashes. Current behavior has separate counterexample
+// tests; changing an immutable historical fixture would hide regressions.
+const historicalBnnRules = RULES.map((rule) => rule.id === "su-exalt" ? { ...rule,
+  when: { ...rule.when, subjectDignity: ["Exalted", "Own sign"] as const },
+  text: "Sun dignified: a respected father and a native with strong self-esteem and vitality.", source: "General Nadi principles (Rao, Naik)" } :
+  rule.id === "ma-exalt" ? { ...rule, when: { ...rule.when, subjectDignity: ["Exalted", "Own sign"] as const },
+    text: "Mars dignified: property and technical ability come easily; siblings are capable.", source: "General Nadi principles (Rao, Naik)" } :
+  rule.id === "auth-su-strong" ? { ...rule, when: { ...rule.when, subjectDignity: ["Own sign", "Exalted"] as const },
+    text: "the Sun in his own strength: born to authority; command sits naturally on the native and others defer. (provisional)",
+    source: "General Nadi principles (Rao, Naik)" } : rule);
+
 test("school natal readings retain independent pre-migration outputs at correct UTC instants", () => {
   const asOf = "2025-01-01T00:00:00Z";
   for (let i = 0; i < examples.length; i++) {
@@ -44,7 +56,7 @@ test("school natal readings retain independent pre-migration outputs at correct 
     const kp = computeKp(base, e.birth, asOf);
     const alp = computeAlp(context, asc, e.birth, asOf);
     const output = {
-      bnn: evaluate(context, undefined, e.gender), jaimini: computeJaimini(context, asc, e.birth),
+      bnn: evaluate(context, historicalBnnRules as typeof RULES, e.gender), jaimini: computeJaimini(context, asc, e.birth),
       parashari: pick(parashari, ["aspectFloor", "houseMethod", "lagna", "bhavas", "natures", "findings", "ties", "neechaBhanga", "bhavaJudgement", "shadbala", "ashtakavarga", "bhavaPhala", "vargaPhala", "houseProse"]),
       kp: pick(kp, ["ayanamsaValue", "cusps", "planets", "significators", "houseSignificators", "badhaka", "marakas", "lagnaQuality", "ruling", "findings"]),
       alp: pick(alp, ["config", "natalLagna", "point", "houseFromJanma", "houses", "placements", "book", "findings"]),

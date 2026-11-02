@@ -1,0 +1,45 @@
+{
+  "protocol": "docs/alp-dignity-validation-protocol.md",
+  "selection": "Four previously unused people, selected from published birth and event records before evaluating the revised algorithm; times and source conflicts are not independently resolved.",
+  "cases": [
+    {
+      "name": "Bridget Fonda", "category": "American actor", "birthQuality": "Astro-Databank reports AA and a birth certificate; original not examined.",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_01_27.htm?nho2=3btyplang%3Degm%3Dpu",
+      "chart": { "name": "Bridget Fonda", "gender": "female", "birthDate": "1964-01-27", "birthTime": "03:45", "timezone": "America/Los_Angeles", "timeStandard": "auto", "place": "Los Angeles, California", "latitude": 34.05, "longitude": -118.25, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "bf-marriage", "matter": "marriage", "date": "2003-11-29", "timezone": "America/Los_Angeles", "note": "IMDb and Encyclopedia.com give Nov 29; Astro-Databank gives Nov 30. Ceremony time unknown, noon assumed.", "sources": ["https://www.imdb.com/name/nm0000403/", "https://www.encyclopedia.com/education/news-wires-white-papers-and-books/fonda-bridget-1964", "https://www.astro.com/adbvip/adbvip_01_27.htm?nho2=3btyplang%3Degm%3Dpu"] },
+        { "id": "bf-child", "matter": "child", "date": "2005-01-21", "timezone": "America/Los_Angeles", "note": "Date reported by IMDb; a crowdsourced family-tree page has an alternative Jan 23 entry. Noon assumed.", "sources": ["https://www.imdb.com/name/nm0000403/trivia/", "https://www.ancientfaces.com/directory/name/oliver-elfman"] }
+      ]
+    },
+    {
+      "name": "Alois Treindl", "category": "German-born Swiss physicist and software entrepreneur", "birthQuality": "Astro-Databank reports AA, record in hand; original not examined. Event information comes primarily from his own database and is not independently corroborated.",
+      "birthSource": "https://www.astro.com/astro-databank/Treindl%2C_Alois?nhor=802",
+      "chart": { "name": "Alois Treindl", "gender": "male", "birthDate": "1950-03-07", "birthTime": "09:15", "timezone": "Europe/Berlin", "timeStandard": "auto", "place": "Regensburg, Germany", "latitude": 49.0167, "longitude": 12.1, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "at-wedding1", "matter": "marriage", "date": "1990-09-14", "timezone": "Europe/Zurich", "note": "Swiss zone assumed; place and clock not verified.", "sources": ["https://www.astro.com/astro-databank/Treindl%2C_Alois?nhor=802"] },
+        { "id": "at-twins", "matter": "child", "date": "1991-02-22", "timezone": "Europe/Zurich", "note": "Twin daughters, Zürich. One delivery event; noon assumed.", "sources": ["https://www.astro.com/astro-databank/Treindl%2C_Alois?nhor=802"] },
+        { "id": "at-wedding2", "matter": "marriage", "date": "2024-05-23", "timezone": "Europe/Zurich", "note": "Swiss zone assumed; place and clock not verified.", "sources": ["https://www.astro.com/astro-databank/Treindl%2C_Alois?nhor=802"] }
+      ]
+    },
+    {
+      "name": "Élodie Gossuin", "category": "French presenter and former regional politician", "birthQuality": "Astrotheme reports AA and 02:00 from a birth record; Astro-Databank gives a speculative 02:30 rated C. The original record was not examined and the rounded clock is uncertain.",
+      "birthSource": "https://www.astrotheme.com/astrology/Elodie_Gossuin",
+      "chart": { "name": "Élodie Gossuin", "gender": "female", "birthDate": "1980-12-15", "birthTime": "02:00", "timezone": "Europe/Paris", "timeStandard": "auto", "place": "Reims, France", "latitude": 49.25, "longitude": 4.0333, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "events": [
+        { "id": "eg-wedding", "matter": "marriage", "date": "2006-07-01", "timezone": "Europe/Paris", "note": "Compiègne ceremony; clock unknown.", "sources": ["https://www.leparisien.fr/oise-60/elodie-gossuin-se-marie-comme-une-princesse-01-07-2006-2007122931.php", "https://www.rfm.fr/news/Elodie-Gossuin-a-renouvele-ses-voeux-de-mariage-6473"] },
+        { "id": "eg-twins1", "matter": "child", "date": "2007-12-21", "timezone": "Europe/Paris", "note": "Twin delivery; birth location and clock unverified. Some later accounts give Dec 20; noon assumed.", "sources": ["https://www.purepeople.com/article/elodie-gossuin-sa-rencontre-coup-de-foudre-avec-son-mari-bertrand-lacherie_a323318/1", "https://www.astro.com/astro-databank/Gossuin%2C_%C3%89lodie", "https://www.purepeople.com/media/les-jumeaux-rose-et-jules-d-elodie-gossuin-sur-instagram-juillet-2025_m8132451"] },
+        { "id": "eg-twins2", "matter": "child", "date": "2013-10-09", "timezone": "Europe/Paris", "note": "Twin delivery; birth location and clock unverified. Astro-Databank gives Oct 11 and another account Oct 10. Noon assumed.", "sources": ["https://www.lexpress.fr/styles/diapo-photo/styles/vip/en-images-ces-stars-parents-de-jumeaux_1630665.html", "https://www.astro.com/astro-databank/Gossuin%2C_%C3%89lodie", "https://www.parents.fr/actualites/etre-parent/jai-redit-oui-a-la-licorne-de-ma-vie-elodie-gossuin-emue-par-la-surprise-de-son-mari-1154118"] }
+      ]
+    },
+    {
+      "name": "Pedro I of Brazil", "category": "Portuguese-born Brazilian emperor", "birthQuality": "Astro-Databank reports AA from a quoted record; 06:30 is rounded and the original not examined. Lisbon local mean time used.",
+      "birthSource": "https://www.astro.com/astro-databank/Pedro_I%2C_Emperor_Brazil",
+      "chart": { "name": "Pedro I of Brazil", "gender": "male", "birthDate": "1798-10-12", "birthTime": "06:30", "timezone": "Europe/Lisbon", "timeStandard": "lmt", "place": "Lisbon, Portugal", "latitude": 38.7167, "longitude": -9.1333, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "1834-09-24" },
+      "events": [
+        { "id": "p1-wedding", "matter": "marriage", "date": "1817-11-06", "timezone": "America/Sao_Paulo", "note": "In-person Rio ceremony; wedding by proxy occurred in Vienna on May 13. Clock unknown, historical Rio zone and noon assumed.", "sources": ["https://dpedroiv.parquesdesintra.pt/en/chronology/1817/november/6/pedro-marries-leopoldine-josepha-caroline--archduc/53", "https://atom.itamaraty.gov.br/not-196-1-8-1817-09-18-01"] },
+        { "id": "p1-child1", "matter": "child", "date": "1819-04-04", "timezone": "America/Sao_Paulo", "note": "Maria da Glória, Rio; clock not used, historical zone and noon assumed.", "sources": ["https://museuimperial.museus.gov.br/wp-content/uploads/2020/09/Anuario_MIMP_Ed_2020.pdf", "https://api.pageplace.de/preview/DT0400.9781136227417_A23815819/preview-9781136227417_A23815819.pdf"] },
+        { "id": "p1-child2", "matter": "child", "date": "1822-03-11", "timezone": "America/Sao_Paulo", "note": "Januária; historical Rio zone and noon assumed. Date from the cited historical biography.", "sources": ["https://api.pageplace.de/preview/DT0400.9781136227417_A23815819/preview-9781136227417_A23815819.pdf"] }
+      ]
+    }
+  ]
+}

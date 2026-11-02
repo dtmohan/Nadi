@@ -690,15 +690,23 @@ export interface ScRajyoga {
 
 export const SC_RAJYOGAS: ScRajyoga[] = [
   { stanza: 1, when: "five planets are exalted, with Jupiter strong in the lagna", then: "becomes a king", test: (c) => c.positions.filter((p) => p.dignity === "Exalted").length >= 5 && c.strong("Jupiter") && c.houseOf("Jupiter") === 1 },
-  { stanza: 3, when: "all the planets occupy their signs of exaltation", then: "becomes a king", test: (c) => c.positions.every((p) => p.dignity === "Exalted") },
-  { stanza: 3, when: "all the planets occupy their own signs", then: "equal in status to a king", test: (c) => c.positions.every((p) => ["Own sign", "Moolatrikona", "Exalted"].includes(p.dignity)) },
-  { stanza: 4, when: "three planets are in their moolatrikona signs", then: "status equal to that of a king", test: (c) => c.positions.filter((p) => p.dignity === "Moolatrikona").length >= 3 },
+  // 9.3–4 include additional conditions and ambiguous combinations; leave
+  // these textual entries unassessed until the whole verse is implemented.
+  { stanza: 3, when: "Taurus rises with the Moon there and six planets exalted", then: "becomes a king" },
+  { stanza: 3, when: "a planet is exalted and the others occupy their own signs", then: "equal in status to a king" },
+  { stanza: 4, when: "planets are in moolatrikona or friendly signs or retrograde, with an exalted planet and the remaining planets free from debilitated divisions", then: "status equal to that of a king" },
   { stanza: 5, when: "many planets occupy inimical or debilitation signs", then: "devoid of wealth and comforts, foolish and diseased", test: (c) => c.positions.filter((p) => p.dignity === "Debilitated" || p.dignity === "Inimical").length >= 4 },
-  { stanza: 9, when: "the Moon is in the lagna, Jupiter in the 4th, Venus in the 10th, and Saturn exalted or own", then: "equal to a king", test: (c) => c.houseOf("Moon") === 1 && c.houseOf("Jupiter") === 4 && c.houseOf("Venus") === 10 && ["Exalted", "Own sign"].includes(c.positions.find((p) => p.planet === "Saturn")!.dignity) },
+  { stanza: 9, when: "the Moon is in the lagna, Jupiter in the 4th, Venus in the 10th, and Saturn exalted or own", then: "equal to a king", test: (c) => c.houseOf("Moon") === 1 && c.houseOf("Jupiter") === 4 && c.houseOf("Venus") === 10 && ["Exalted", "Own sign", "Moolatrikona"].includes(c.positions.find((p) => p.planet === "Saturn")!.dignity) },
   { stanza: 11, when: "benefics occupy kendras and trines, malefics the 3rd, 6th and 11th, and the lagna lord is strong", then: "equal to a king", test: (c) => c.strong(c.lordOf(1)) && [1, 4, 5, 7, 9, 10].every((h) => c.houseHas(h, "benefic")) && [3, 6, 11].every((h) => c.houseHas(h, "malefic")) },
-  { stanza: 20, when: "Jupiter is in the lagna and Mercury in a kendra", then: "equal in status to that of a king", test: (c) => c.houseOf("Jupiter") === 1 && c.isKendra(c.houseOf("Mercury")) },
-  { stanza: 21, when: "Jupiter is in the 7th or a trine, aspected by the lagna lord", then: "equal in status to that of a king", test: (c) => c.houseOf("Jupiter") === 7 || c.isTrine(c.houseOf("Jupiter")) },
-  { stanza: 22, when: "Saturn is in a kendra or trine, exalted or own, aspected by the 10th lord", then: "favour from the king", test: (c) => (c.isKendra(c.houseOf("Saturn")) || c.isTrine(c.houseOf("Saturn"))) && ["Exalted", "Own sign", "Moolatrikona"].includes(c.positions.find((p) => p.planet === "Saturn")!.dignity) },
+  { stanza: 20, when: "Jupiter is in the lagna and Mercury in a kendra, aspected by the 9th or lagna lord", then: "equal in status to that of a king" },
+  { stanza: 21, when: "Jupiter is in the 7th or a trine, aspected by the lagna lord", then: "equal in status to that of a king", test: (c) => {
+    const lord = c.positions.find((p) => p.planet === c.lordOf(1))!;
+    const jupiter = c.positions.find((p) => p.planet === "Jupiter")!;
+    return (c.houseOf("Jupiter") === 7 || c.isTrine(c.houseOf("Jupiter"))) && drishtiQuarters(lord.planet, lord.signIndex, jupiter.signIndex) >= 1;
+  } },
+  // The verse says moolatrikona, not merely either of Saturn's own signs.
+  // Its aspect and degree convention need a source-specific decision.
+  { stanza: 22, when: "Saturn is in a kendra or trine, exalted or in moolatrikona, aspected by the 10th lord", then: "favour from the king" },
   { stanza: 27, when: "all the planets are in houses 1 to 6 and the 9th lord is in the 2nd with the Moon", then: "becomes a king", test: (c) => c.positions.every((p) => c.houseOf(p.planet) <= 6) && c.lordHouse(9) === 2 && c.houseOf("Moon") === 2 },
   { stanza: 29, when: "the Moon with Mars is in the 2nd or 3rd, and Rahu is in the 5th", then: "king of kings", test: (c) => [2, 3].includes(c.houseOf("Moon")) && c.houseOf("Moon") === c.houseOf("Mars") && c.houseOf("Rahu") === 5 },
   { stanza: 37, when: "Rahu is in the 10th and Saturn in the 11th", then: "equal in status to that of a king", test: (c) => c.houseOf("Rahu") === 10 && c.houseOf("Saturn") === 11 },
@@ -990,7 +998,7 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   // 3rd house (ch. 4)
   "3.2": (c) => c.lordHouse(3) === 8 && c.lordHouse(8) === 8,
   "3.15": (c) => c.houseHas(3, "benefic") && c.strong(c.lordOf(3)),
-  "3.17": (c) => c.isKendra(c.lordHouse(3)) && ["Exalted", "Own sign", "Friendly"].includes(c.lordDignity(3)),
+  "3.17": (c) => c.isKendra(c.lordHouse(3)) && ["Exalted", "Own sign", "Moolatrikona", "Friendly"].includes(c.lordDignity(3)),
   "3.24": (c) => c.lordOf(1) !== c.lordOf(3),
   "3.31": (c) => c.strong(c.lordOf(3)) && (c.isKendra(c.lordHouse(3)) || c.isTrine(c.lordHouse(3))),
   "3.36": (c) => c.lordDignity(3) === "Debilitated",
@@ -1099,7 +1107,7 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "10.15": (c) => c.lordNature(10) || c.lordAspected(10, "benefic"),
   "10.16": (c) => c.houseHas(10, "Sun") && c.houseHas(10, "Mars"),
   "10.18": (c) => c.isKendra(c.lordHouse(10)) && c.lordWith(10, "benefic"),
-  "10.22": (c) => c.lordNature(10) && (c.lordDignity(10) === "Exalted" || c.lordDignity(10) === "Own sign" || c.lordDignity(10) === "Friendly"),
+  "10.22": (c) => c.lordNature(10) && ["Exalted", "Own sign", "Moolatrikona", "Friendly"].includes(c.lordDignity(10)),
   "10.24": (c) => c.lordWith(10, "malefic"),
   "10.27": (c) => c.houseHas(10, "Jupiter") || c.houseHas(10, "Venus"),
   "10.28": (c) => c.houseHas(10, "malefic"),
