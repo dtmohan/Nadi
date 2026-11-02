@@ -1809,7 +1809,7 @@ export function RectifyPanel({
           )}
 
           {qualifiedMethod && <div className="mt-3 overflow-x-auto" data-testid="rectify-qualified-ranking">
-            <p className="text-xs text-muted-foreground">These partial matches are experimental, use the same conditions at sampled dates, and cannot establish a birth time. Each row represents its midpoint; boundaries may be missed. {qualifiedComparableWindow ? "" : anyParashariScore ? "Eligibility or comparison availability differs, so totals cannot be ranked." : "No eligible events can be scored under this method."}</p>
+            <p className="text-xs text-muted-foreground">These partial matches are experimental, use the same conditions at sampled dates, and cannot establish a birth time. A natal condition may be counted again for each eligible event; repeated points are not independent evidence. Each row represents its midpoint; boundaries may be missed. {qualifiedComparableWindow ? "" : anyParashariScore ? "Eligibility or comparison availability differs, so totals cannot be ranked." : "No eligible events can be scored under this method."}</p>
             <Table className="text-xs"><TableHeader><TableRow><TableHead>Interval</TableHead><TableHead>Matches</TableHead><TableHead>Comparison mean</TableHead><TableHead>Candidate</TableHead></TableRow></TableHeader>
               <TableBody>{(qualifiedComparableWindow ? segments : scored).map(({ s, i, score, max, b }) => <TableRow key={s.startIso}>
                 <TableCell>{s.start}–{s.end}{s.given ? " · recorded" : ""}</TableCell><TableCell>{max ? `${score}/${max}` : "unavailable"}{bestSet.has(i) ? " · highlighted" : ""}</TableCell><TableCell>{b ? `${b.mean} · ${b.percentile}% mid-rank` : "unavailable"}</TableCell>

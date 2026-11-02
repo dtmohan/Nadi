@@ -213,6 +213,8 @@ export const rectifyModule: ReportModule = {
       },
     ];
     if (m.needsEvents) paras.push({ kind: "note", text: EVENT_TRANSIT_SCOPE });
+    if (qualifiedKey) paras.push({ kind: "note", provisional: true,
+      text: "A natal condition may be counted again for each eligible event; repeated points are not independent evidence." });
     if (m.needsEvents && state.includeComparisons === false) paras.push({ kind: "note", provisional: true,
       text: "Quick scan: random-date comparisons were not computed. Candidate event conditions use the same rules as the full scan; run a full scan or Validate to compare dates." });
     paras.push(...windowParas());

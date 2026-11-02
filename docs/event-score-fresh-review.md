@@ -70,7 +70,9 @@ The KP sequence tests the registered ordinary natal subset before the first thre
 periods; it does not implement all mixed-house, transit or sub-sub-lord practice.
 Parashari v4 retains the earlier v3 weights, adds one overlapping fifth-lord clue
 for children only, and can mix the selected ordinary house construction with v3's
-whole-sign frame. ALP and BNN each score one partial marriage clue, not an entire
+whole-sign frame. The same natal fifth-lord clue is counted once per eligible child
+event: two points for two children can come from the same natal condition, not two
+independent indications. ALP and BNN each score one partial marriage clue, not an entire
 system. For BNN, same-sign is a narrow interpretation of “touches”, and the
 source's Venus example also specifies a second Jupiter round that is not checked.
 Unspecified gender remains unassessed. No Prasna Marga horary score is inferred
