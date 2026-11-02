@@ -32,6 +32,7 @@ import {
   withGlossList,
 } from "@shared/house-gloss";
 import { computeChart } from "../server/routes";
+import { buildSarvarthaContext, scTrace } from "@shared/sarvartha";
 
 const SYNTHETIC: Chart = {
   id: 0,
@@ -205,9 +206,9 @@ test("Avasthas: the spoiled houses are named with what they cover", () => {
 test("Sarvartha Chintamani: each stanza says what on this chart meets it", () => {
   const sc = result.sarvartha;
   assert.ok(sc);
-  const f = sc.findings.find((x) => x.house === 1 && x.stanza === 94);
-  assert.ok(f);
-  assert.ok((f.herePlain ?? []).includes("the Sun, a harsher planet, stands in the 1st"), (f.herePlain ?? []).join(" | "));
+  // Exercise the trace directly; stanza 1.94 is reference-only until "many" is sourced.
+  const trace = scTrace((c) => c.houseHas(1, "malefic"), buildSarvarthaContext(result.positions, result.jaimini.lagna.lon));
+  assert.ok(trace.plain.includes("the Sun, a harsher planet, stands in the 1st"), trace.plain.join(" | "));
   for (const x of sc.findings) {
     for (const s of x.herePlain ?? []) assert.ok(!/malefic|undefined|NaN/.test(s), s);
     for (const s of x.here ?? []) assert.ok(!/undefined|NaN/.test(s), s);

@@ -1378,7 +1378,7 @@ export function ParashariPanel({
       count: result.sarvartha?.findings.filter(
         (f) => !sarvarthaLeftOut(f.topic, f.text, plain, withheld),
       ).length,
-      blurb: "Venkatesha's house-by-house rules, with the ones that apply to this chart first and the full text after.",
+      blurb: "Venkatesha's house-by-house rules, with checked matches first and a paraphrased reference catalogue after.",
     },
     {
       id: "bj",

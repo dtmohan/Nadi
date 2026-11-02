@@ -97,7 +97,7 @@ export const RECTIFY_METHODS: Array<{
     plainLabel: "Birth chart, division and events · v1",
     plainShort: "A provisional comparison of D1 and D9, D7 or D10 house support, the event's two main periods and Jupiter–Saturn transits. It counts documented rule matches for marriage, childbirth and a new job or promotion; it cannot confirm that an event was promised or establish the birth time.",
     short: "Up to five app-defined checks per supported event: partial D1 house support, D9/D7/D10 house support, dasa and bhukti links, and a narrow same-target Jupiter–Saturn double transit. Repeated date-independent clues count once per candidate and matter. Mixed indications are shown; equal weights are an experimental app convention.",
-    source: "BPHS 7.1–8, 11.14–16; M.S. Mehta, Analysing Horoscope Through Modern Techniques, ch. XVIII; K.N. Rao-guided Astrology and Timing of Marriage, ch. 2; Astrological Assessment of Timing of Childbirth; P.V.R. Narasimha Rao, Vedic Astrology: An Integrated Approach, §§6.3, 9.3 and 18.5. This score is Nadi's synthesis, not a published formula.",
+    source: "BPHS 7.1–8, 11.14–16; M.S. Mehta, Analysing Horoscope Through Modern Techniques, ch. XVIII; K.N. Rao-guided Astrology and Timing of Marriage, ch. 2; Astrological Assessment of Timing of Childbirth; P.V.R. Narasimha Rao, Vedic Astrology: An Integrated Approach (first published 2001, Sagar 2004 reprint), §§6.3, 9.3 and 18.5. This score is Nadi's synthesis, not a published formula.",
     needsJudge: false, needsEvents: true,
   },
   {

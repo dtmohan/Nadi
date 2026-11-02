@@ -420,7 +420,7 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
         lead={
           a.findings.length === 0
             ? "None of the rules entered so far fires for this placement; the method is still being entered chapter by chapter."
-            : `${a.findings.length} of the rules entered so far ${a.findings.length === 1 ? "fires" : "fire"} for this placement; the strongest are shown here and all are written out under Reading.`
+            : `${a.findings.length} of the rules entered so far ${a.findings.length === 1 ? "fires" : "fire"} for this placement. The examples below are ordered by Nadi's own weights, not by a validated measure of importance; all are written out under Reading.`
         }
         signatures={[...a.findings]
           .sort((x, y) => y.weight - x.weight)
@@ -1477,8 +1477,9 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
           plain={
             <>
               Rules from the published books and class notes, matched against
-              the placements under Where it stands. Dots show how much weight each carries. Only
-              some chapters are entered so far.
+              the placements under Where it stands. The one-to-three-dot weights are Nadi's
+              presentation convention, not weights assigned by the ALP books or measures of
+              predictive accuracy. Only some chapters are entered so far.
             </>
           }
           practitioner={
@@ -1486,7 +1487,8 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
               {ALP_RULES.length} rules so far: the framework from the published
               material, and Book 2 chapters 2 to 17 (pp. 32-99, 137-143), and
               the Book 1 class notes (rules 1-5). The remaining chapters are
-              entered one at a time.
+              entered one at a time. The one-to-three-dot weights are Nadi's convention,
+              not weights assigned by the source or measures of predictive accuracy.
             </>
           }
         />

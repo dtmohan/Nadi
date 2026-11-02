@@ -292,7 +292,7 @@ export const SC_BHAVA_RULES: ScHouseRules[] = [
     rules: [
       { stanza: 55, topic: "house", when: "the 4th lord is strong in kendra, aspected by benefics", then: "acquires a house without effort" },
       { stanza: 56, topic: "house", when: "the 4th lord is in Vaisheshikamsha or the navamsa of its exaltation sign", then: "acquires a house" },
-      { stanza: 57, topic: "house", when: "the navamsa dispositor of the 4th lord is in a kendra", then: "acquisition of a house" },
+      { stanza: 57, topic: "house", when: "the 4th lord's navamsa dispositor and the lord of the sign it occupies are considered; the angular placement needs interpretation across translations", then: "acquisition of a house" },
       { stanza: 58, topic: "house", when: "the 9th lord is in kendra, the 4th lord in a friendly sign, and a planet exalted in the 4th", then: "a beautiful house" },
       { stanza: 59, topic: "house", when: "a benefic is in the 3rd and the 4th and 3rd lords are strong", then: "a multi-storey building" },
       { stanza: 62, topic: "house", when: "the 4th lord with the 10th lord and Saturn are in kendra", then: "a house of many storeys built of good material" },
@@ -305,7 +305,7 @@ export const SC_BHAVA_RULES: ScHouseRules[] = [
       { stanza: 69, topic: "relatives", when: "more than two malefics are in the 4th, the 4th lord likewise afflicted, and Mercury afflicted", then: "not liked by his relatives" },
       { stanza: 73, topic: "relatives", when: "the 4th lord is afflicted by malefics, with debilitated or eclipsed planets, without benefic aspect", then: "always hates his relatives" },
       { stanza: 74, topic: "relatives", when: "a planet exalted or in a friendly sign is in the 4th under Jupiter's aspect", then: "respect from his relatives" },
-      { stanza: 75, topic: "house", when: "a movable sign is in the 4th and Mars (the karaka) is placed", then: "houses in many places" },
+      { stanza: 75, topic: "house", when: "a movable sign is in the 4th and its lord is Mars, the significator of built-up property", then: "houses in many places" },
       { stanza: 76, topic: "house", when: "a fixed sign is in the 4th and the 4th lord and Mars are in fixed signs", then: "stability of the house" },
       { stanza: 77, topic: "house", when: "malefics influence the 2nd, 12th and 4th lords", then: "destruction of that number of houses" },
       { stanza: 78, topic: "house", when: "the 2nd, 12th and 4th lords are in kendra or trine", then: "all the houses are good and safe" },
@@ -673,7 +673,7 @@ const SC_RULE_FIDELITY: Record<string, FidelityTier> = {
   "5.7": "provisional", "5.19": "provisional", "5.21": "provisional", "5.52": "provisional", "5.54": "provisional",
   "6.57": "provisional",
   "7.36": "provisional", "7.61": "provisional",
-  "9.14": "provisional", "9.16": "provisional",
+  "9.14": "provisional", "9.16": "provisional", "12.13": "provisional",
 };
 
 /** The fidelity tier of a harvested rule, defaulting to cited. */
@@ -999,6 +999,73 @@ export function scTrace(test: ScTest, ctx: SarvarthaContext): { tech: string[]; 
 
 type ScTest = (c: SarvarthaContext) => boolean;
 
+// Keep alternatives separate so the explanation traces a *complete* passing branch. Tracing the
+// combined expression records true checks from an abandoned conjunction as if they caused a match.
+const SC_RULE_BRANCHES: Record<string, ScTest[]> = {
+  "2.12": [
+    (c) => c.lordNature(2) && c.isKendra(c.lordHouse(2)),
+    (c) => c.lordNature(2) && ["Exalted", "Friendly"].includes(c.lordDignity(2)),
+  ],
+  "2.27": [
+    (c) => c.houseHas(2, "malefic") && c.lordWith(2, "malefic"),
+    (c) => c.houseHas(2, "malefic") && c.lordDignity(2) === "Debilitated",
+  ],
+  "2.36": [
+    (c) => c.houseHas(2, "Mars") && c.houseHas(2, "Moon") && c.houseAspected(2, "Mercury"),
+    (c) => c.isKendra(c.houseOf("Mercury")),
+  ],
+  "2.40": [
+    (c) => (c.lordOf(2) === "Jupiter" || c.lordOf(2) === "Venus") && c.lordDignity(2) === "Exalted" && c.lordAspected(2, "Sun") && c.lordAspected(2, "Mars"),
+    (c) => (c.lordOf(2) === "Jupiter" || c.lordOf(2) === "Venus") && c.lordMoolatrikona(2) && c.lordAspected(2, "Sun") && c.lordAspected(2, "Mars"),
+  ],
+  "5.16": [
+    (c) => c.lordDignity(5) === "Debilitated",
+    (c) => c.isBad(c.lordHouse(5)),
+  ],
+  "7.25": [
+    (c) => c.lordDignity(7) === "Debilitated",
+    (c) => c.combust(c.lordOf(7)),
+  ],
+  "7.50": [
+    (c) => c.lordOf(7) === "Mars" && c.lordDignity(7) === "Debilitated",
+    (c) => c.lordOf(7) === "Mars" && c.combust(c.lordOf(7)),
+  ],
+  "9.19": [
+    (c) => c.lordDignity(9) === "Debilitated",
+    (c) => c.lordWith(9, "malefic"),
+  ],
+  "10.2": [
+    (c) => c.lordDignity(10) === "Debilitated",
+    (c) => c.lordWith(10, "malefic"),
+  ],
+  "11.2": [
+    (c) => c.isKendra(c.lordHouse(11)),
+    (c) => c.isTrine(c.lordHouse(11)),
+    (c) => c.houseHas(11, "malefic"),
+  ],
+  "5.52": [
+    (c) => c.amsa("Jupiter") === "Gopura",
+    (c) => c.amsa(c.lordOf(5)) === "Gopura",
+  ],
+};
+
+// A subsequent catalogue-to-predicate sweep found additional conditions or outcome branches that
+// appear to be omitted. Until each passage is reconciled with the source, keep it in the reference
+// catalogue but do not fire its incomplete predicate. This is containment, not a source-level audit.
+export const SC_PENDING_SOURCE_REVIEW: ReadonlySet<string> = new Set([
+  "1.94",
+  "2.18", "2.21", "2.22", "2.53", "2.151",
+  "3.15", "3.17", "3.19", "3.31", "3.36", "3.38", "3.44", "3.47", "3.48",
+  "4.55", "4.63", "4.66", "4.68", "4.69", "4.73", "4.89", "4.97", "4.139", "4.143", "4.144", "4.152", "4.171",
+  "5.3", "5.4", "5.6", "5.7", "5.14", "5.18", "5.21", "5.33", "5.44", "5.47", "5.52", "5.54", "5.58",
+  "6.2", "6.32", "6.33", "6.44", "6.45", "6.47", "6.48", "6.53", "6.54", "6.57", "6.58",
+  "7.6", "7.10", "7.13", "7.16", "7.25", "7.39", "7.56", "7.57", "7.58", "7.68", "7.110",
+  "8.2", "8.3", "8.8", "8.15", "8.20", "8.27", "8.57",
+  "9.6", "9.8", "9.13", "9.14", "9.16", "9.17", "9.19",
+  "10.2", "10.18", "10.24", "10.27", "10.28",
+  "12.5", "12.9", "12.10", "12.11", "12.12", "12.25",
+]);
+
 /** Tests for the rules whose conditions map cleanly to chart facts; keyed "house.stanza". */
 const SC_RULE_TESTS: Record<string, ScTest> = {
   // 1st house (ch. 2)
@@ -1008,30 +1075,22 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "1.94": (c) => c.houseHas(1, "malefic"),
   "1.105": (c) => c.houseHas(1, "Venus"),
   // 2nd house (ch. 3)
-  "2.12": (c) => c.lordNature(2) && (c.isKendra(c.lordHouse(2)) || ["Exalted", "Friendly"].includes(c.lordDignity(2))),
-  "2.15": (c) => !c.lordNature(2) && c.lordWith(2, "malefic"),
+  "2.12": (c) => SC_RULE_BRANCHES["2.12"].some((branch) => branch(c)),
   "2.25": (c) => c.isKendra(c.lordHouse(2)) && c.lordAspected(2, "benefic"),
-  "2.27": (c) => c.houseHas(2, "malefic") && (c.lordWith(2, "malefic") || c.lordDignity(2) === "Debilitated"),
+  "2.27": (c) => SC_RULE_BRANCHES["2.27"].some((branch) => branch(c)),
   // 3.29 is kept in the reference catalogue, but not fired: its exaltation, aspect and male-planet
   // clauses and their alternatives need a source-level interpretation before a full test is safe.
-  "2.36": (c) => (c.houseHas(2, "Mars") && c.houseHas(2, "Moon") && c.houseAspected(2, "Mercury"))
-    || c.isKendra(c.houseOf("Mercury")),
-  "2.40": (c) => (c.lordOf(2) === "Jupiter" || c.lordOf(2) === "Venus")
-    && (c.lordDignity(2) === "Exalted" || c.lordMoolatrikona(2))
-    && c.lordAspected(2, "Sun") && c.lordAspected(2, "Mars"),
+  "2.36": (c) => SC_RULE_BRANCHES["2.36"].some((branch) => branch(c)),
+  "2.40": (c) => SC_RULE_BRANCHES["2.40"].some((branch) => branch(c)),
   "2.41": (c) => c.lordOf(2) === "Jupiter" && c.strong(c.lordOf(2))
     && c.lordAspected(2, "Sun") && c.lordAspected(2, "Venus"),
   "2.54": (c) => c.lordHouse(1) === 2 && c.lordHouse(2) === 11 && c.lordHouse(11) === 1,
-  "2.88": (c) => c.isKendra(c.lordHouse(1)) && c.isKendra(c.lordHouse(2)),
   "2.109": (c) => c.houseHas(2, "malefic") && c.lordHouse(1) === 12,
-  "2.121": (c) => c.isKendra(c.lordHouse(2)) && c.lordWith(2, "Venus"),
-  "2.149": (c) => c.houseHas(2, "Saturn") || c.houseHas(2, "Rahu"),
+  "2.121": (c) => c.isKendra(c.lordHouse(2)) && c.lordWith(2, "Venus") && c.lordWith(2, "Moon"),
   "2.151": (c) => c.houseHas(2, "Mercury") && !c.strong("Mercury"),
   // 3rd house (ch. 4)
-  "3.2": (c) => c.lordHouse(3) === 8 && c.lordHouse(8) === 8,
   "3.15": (c) => c.houseHas(3, "benefic") && c.strong(c.lordOf(3)),
   "3.17": (c) => c.isKendra(c.lordHouse(3)) && ["Exalted", "Own sign", "Moolatrikona", "Friendly"].includes(c.lordDignity(3)),
-  "3.24": (c) => c.lordOf(1) !== c.lordOf(3),
   "3.31": (c) => c.strong(c.lordOf(3)) && (c.isKendra(c.lordHouse(3)) || c.isTrine(c.lordHouse(3))),
   "3.36": (c) => c.lordDignity(3) === "Debilitated",
   "3.40": (c) => c.lordWith(3, "Sun"),
@@ -1041,23 +1100,21 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "3.48": (c) => c.houseHas(3, "Saturn"),
   // 4th house (ch. 4)
   "4.55": (c) => c.isKendra(c.lordHouse(4)) && c.lordAspected(4, "benefic"),
-  "4.57": (c) => c.isKendra(c.lordHouse(4)),
   "4.63": (c) => c.lordHouse(4) === 8,
   "4.64": (c) => c.lordWith(4, "malefic") && (c.lordDignity(4) === "Debilitated" || c.lordDignity(4) === "Inimical"),
   "4.66": (c) => (c.isKendra(c.lordHouse(4)) || c.isTrine(c.lordHouse(4))) && !c.lordWith(4, "malefic"),
   "4.68": (c) => c.houseHas(4, "benefic") && c.strong("Mercury"),
   "4.69": (c) => c.houseHas(4, "malefic") && c.lordWith(4, "malefic"),
   "4.73": (c) => c.lordWith(4, "malefic") && !c.lordAspected(4, "benefic"),
-  "4.75": (c) => c.lordHouse(4) === 4,
+  // Bhasin translation (2020 reprint), 4.75: the movable fourth's lord is Mars. It does not
+  // require Mars to occupy the fourth; see docs/sarvartha-audit-2026-11.md.
+  "4.75": (c) => [0, 3, 6, 9].includes((c.lagnaSign + 3) % 12) && c.lordOf(4) === "Mars",
   "4.79": (c) => c.lordHouse(4) === 10 && c.lordHouse(10) === 4 && c.strong("Mars"),
   "4.90": (c) => c.lordHouse(4) === 2 && c.lordWith(4, "malefic"),
   "4.97": (c) => c.lordAspected(4, "benefic") && c.houseHas(4, "benefic"),
   "4.101": (c) => c.houseHas(4, "malefic") && !c.strong("Jupiter") && !c.strong(c.lordOf(4)),
-  "4.110": (c) => c.lordHouse(4) === 4 && c.lordWith(4, "malefic"),
-  "4.135": (c) => c.houseHas(4, "Saturn") && c.houseHas(4, "benefic") === false,
   "4.139": (c) => c.houseHas(4, "malefic"),
   "4.143": (c) => c.houseHas(4, "benefic"),
-  "4.148": (c) => c.lordHouse(1) === c.lordHouse(4),
   "4.152": (c) => c.strong(c.lordOf(4)) && c.houseHas(4, "benefic"),
   "4.163": (c) => c.isKendra(c.lordHouse(4)),
   "4.168": (c) => c.lordHouse(4) === 12,
@@ -1067,7 +1124,7 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "5.5": (c) => c.lordHouse(1) === 5 && c.strong(c.lordOf(5)) && c.strong("Jupiter"),
   "5.6": (c) => c.lordOf(5) === "Jupiter" && c.strong("Jupiter"),
   "5.14": (c) => c.houseHas(5, "malefic") && c.lordWith(5, "malefic"),
-  "5.16": (c) => c.lordDignity(5) === "Debilitated" || c.isBad(c.lordHouse(5)),
+  "5.16": (c) => SC_RULE_BRANCHES["5.16"].some((branch) => branch(c)),
   "5.18": (c) => c.isBad(c.lordHouse(5)),
   "5.29": (c) => c.houseHas(5, "malefic"),
   "5.33": (c) => c.lordDignity(5) === "Exalted",
@@ -1078,9 +1135,6 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "5.65": (c) => c.houseHas(5, "malefic") && c.lordWith(5, "malefic"),
   // 6th house (ch. 5)
   "6.2": (c) => c.lordHouse(6) === 1 || c.lordHouse(6) === 8,
-  "6.9": (c) => c.lordWith(6, "Sun"),
-  "6.12": (c) => c.lordHouse(7) === 6 && c.lordHouse(7) === 6,
-  "6.13": (c) => c.isKendra(c.lordHouse(6)) || c.isTrine(c.lordHouse(6)),
   "6.32": (c) => c.houseHas(6, "Sun"),
   "6.33": (c) => c.houseHas(6, "Moon"),
   "6.36": (c) => c.houseHas(6, "Moon") && c.houseHas(6, "Mars"),
@@ -1096,21 +1150,19 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "7.3": (c) => c.houseHas(7, "Mars"),
   "7.6": (c) => c.lordWith(7, "Rahu") || c.lordWith(7, "Ketu"),
   "7.10": (c) => c.moonWeak && c.houseHas(7, "Moon"),
-  "7.12": (c) => c.houseHas(7, "Venus") && c.lordDignity(7) === "Debilitated",
   "7.13": (c) => c.lordHouse(2) === 2 && c.lordHouse(7) === 7,
   "7.15": (c) => c.lordDignity(7) === "Exalted",
   "7.16": (c) => c.lordHouse(1) === 8 && c.houseHas(7, "malefic"),
-  "7.25": (c) => c.lordDignity(7) === "Debilitated" || c.combust(c.lordOf(7)),
+  "7.25": (c) => SC_RULE_BRANCHES["7.25"].some((branch) => branch(c)),
   "7.31": (c) => c.lordHouse(7) === c.lordHouse(11),
   "7.39": (c) => c.lordDignity(7) === "Debilitated",
   "7.40": (c) => c.lordWith(7, "benefic") || c.lordAspected(7, "benefic"),
-  "7.50": (c) => c.lordOf(7) === "Mars" && (c.lordDignity(7) === "Debilitated" || c.combust(c.lordOf(7))),
+  "7.50": (c) => SC_RULE_BRANCHES["7.50"].some((branch) => branch(c)),
   "7.55": (c) => c.lordOf(7) === "Venus" && c.strong("Venus") && c.lordWith(7, "benefic"),
   "7.56": (c) => c.lordOf(7) === "Saturn" && c.lordWith(7, "malefic"),
   "7.57": (c) => c.lordOf(7) === "Saturn" && c.lordAspected(7, "benefic"),
   "7.58": (c) => c.houseHas(7, "Rahu") || c.houseHas(7, "Ketu"),
   "7.68": (c) => c.lordDignity(7) === "Debilitated" || c.lordDignity(7) === "Inimical",
-  "7.73": (c) => c.lordHouse(7) !== c.lordHouse(1),
   "7.92": (c) => c.houseHas(7, "Mars"),
   "7.110": (c) => c.lordOf(7) === "Moon" || c.lordOf(7) === "Jupiter",
   // 8th house (ch. 7)
@@ -1120,7 +1172,6 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "8.7": (c) => c.isKendra(c.lordHouse(1)) && (c.lordWith(1, "Jupiter") || c.lordWith(1, "Venus")),
   "8.8": (c) => c.isKendra(c.lordHouse(1)) && c.lordWith(1, "benefic"),
   "8.15": (c) => c.houseHas(6, "malefic") && c.houseHas(8, "malefic") && c.houseHas(12, "malefic"),
-  "8.17": (c) => c.houseHas(6, "malefic") || c.houseHas(8, "malefic"),
   "8.20": (c) => c.lordDignity(1) === "Inimical",
   "8.27": (c) => c.lordHouse(8) === 6 && c.lordHouse(1) === 6,
   "8.57": (c) => c.houseHas(8, "malefic"),
@@ -1133,20 +1184,20 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "9.11": (c) => c.lordDignity(9) === "Debilitated",
   "9.13": (c) => c.lordNature(9) && c.houseHas(9, "benefic"),
   "9.17": (c) => c.lordWith(9, "malefic"),
-  "9.19": (c) => c.lordDignity(9) === "Debilitated" || c.lordWith(9, "malefic"),
+  "9.19": (c) => SC_RULE_BRANCHES["9.19"].some((branch) => branch(c)),
   // 10th house (ch. 8)
-  "10.2": (c) => c.lordDignity(10) === "Debilitated" || c.lordWith(10, "malefic"),
+  "10.2": (c) => SC_RULE_BRANCHES["10.2"].some((branch) => branch(c)),
   "10.15": (c) => c.lordNature(10) || c.lordAspected(10, "benefic"),
-  "10.16": (c) => c.houseHas(10, "Sun") && c.houseHas(10, "Mars"),
+  "10.16": (c) => c.houseHas(10, "Sun") && c.houseHas(10, "Mars") && c.isKendra(c.lordHouse(10)),
   "10.18": (c) => c.isKendra(c.lordHouse(10)) && c.lordWith(10, "benefic"),
   "10.22": (c) => c.lordNature(10) && ["Exalted", "Own sign", "Moolatrikona", "Friendly"].includes(c.lordDignity(10)),
   "10.24": (c) => c.lordWith(10, "malefic"),
   "10.27": (c) => c.houseHas(10, "Jupiter") || c.houseHas(10, "Venus"),
   "10.28": (c) => c.houseHas(10, "malefic"),
-  "10.30": (c) => c.lordHouse(6) === 10,
+  "10.30": (c) => c.lordHouse(6) === 10 && (c.isKendra(c.lordHouse(10)) || c.isTrine(c.lordHouse(10))) && c.lordWith(10, "Saturn"),
   "10.33": (c) => c.houseHas(10, "malefic"),
   // 11th house (ch. 8)
-  "11.2": (c) => c.isKendra(c.lordHouse(11)) || c.isTrine(c.lordHouse(11)) || c.houseHas(11, "malefic"),
+  "11.2": (c) => SC_RULE_BRANCHES["11.2"].some((branch) => branch(c)),
   "11.3": (c) => c.lordHouse(2) === 11 && c.lordHouse(11) === 2,
   "11.10": (c) => c.houseHas(11, "malefic"),
   "11.11": (c) => c.lordNature(11) && c.lordAspected(11, "benefic") && c.strong(c.lordOf(11)),
@@ -1161,11 +1212,12 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "12.10": (c) => c.lordDignity(7) === "Debilitated" && c.lordWith(12, "malefic"),
   "12.11": (c) => !c.strong("Mars") && c.lordWith(12, "malefic"),
   "12.12": (c) => !c.strong(c.lordOf(5)) && c.lordWith(12, "malefic"),
-  "12.13": (c) => c.lordWith(12, "Sun"),
+  "12.13": (c) => c.lordWith(12, "Sun") || c.lordAspected(12, "Sun")
+    || c.lordWith(12, c.lordOf(9)) || c.lordAspected(12, c.lordOf(9)),
   "12.15": (c) => c.lordDignity(12) === "Debilitated",
   "12.25": (c) => c.lordWith(12, "benefic"),
   "12.26": (c) => c.lordWith(12, "malefic"),
-  "12.27": (c) => c.houseHas(12, "Jupiter") || c.houseHas(12, "Venus") || c.houseHas(12, "Mercury"),
+  "12.27": (c) => c.houseHas(12, "Jupiter") && c.houseHas(12, "Venus") && c.houseHas(12, "Mercury"),
   // Amsha-tier rules (ch. 1.25-27: the ten-fold good-varga count names the tier).
   "2.18": (c) => c.amsa(c.lordOf(2)) === "Gopura",
   "2.21": (c) => c.amsa("Moon") === "Paravata" && c.houseHas(2, "Moon"),
@@ -1185,7 +1237,7 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "5.7": (c) => c.amsa(c.lordOf(5)) === "Vaisheshika" && c.amsa("Jupiter") === "Vaisheshika",
   "5.19": (c) => c.amsa(c.lordOf(5)) === "Gopura",
   "5.21": (c) => c.amsa(c.lordOf(5)) === "Paravata",
-  "5.52": (c) => c.amsa("Jupiter") === "Gopura" || c.amsa(c.lordOf(5)) === "Gopura",
+  "5.52": (c) => SC_RULE_BRANCHES["5.52"].some((branch) => branch(c)),
   "5.54": (c) => c.amsa(c.lordOf(5)) === "Gopura",
   "6.57": (c) => c.amsa(c.lordOf(6)) === "Gopura",
   "7.36": (c) => c.amsa(c.lordOf(7)) === "Gopura",
@@ -1193,6 +1245,12 @@ const SC_RULE_TESTS: Record<string, ScTest> = {
   "9.14": (c) => c.amsa(c.lordOf(9)) === "Paravata",
   "9.16": (c) => c.amsa("Sun") === "Gopura",
 };
+
+/** Reference-only rules are not failed tests; their conditions have not been fully implemented. */
+export function sarvarthaRuleComputable(house: number, stanza: number): boolean {
+  const key = `${house}.${stanza}`;
+  return !SC_PENDING_SOURCE_REVIEW.has(key) && !!SC_RULE_TESTS[key];
+}
 
 export function computeSarvartha(positions: PlanetPosition[], lagnaLon: number, vargas?: VargasResult): SarvarthaResult {
   const ctx = buildSarvarthaContext(positions, lagnaLon, vargas);
@@ -1202,11 +1260,14 @@ export function computeSarvartha(positions: PlanetPosition[], lagnaLon: number, 
   for (const h of SC_BHAVA_RULES) {
     for (const r of h.rules) {
       total++;
-      const test = SC_RULE_TESTS[`${h.house}.${r.stanza}`];
+      const key = `${h.house}.${r.stanza}`;
+      if (!sarvarthaRuleComputable(h.house, r.stanza)) continue;
+      const test = SC_RULE_TESTS[key];
       if (!test) continue;
       computable++;
       if (test(ctx)) {
-        const tr = scTrace(test, ctx);
+        const traceTest = SC_RULE_BRANCHES[key]?.find((branch) => branch(ctx)) ?? test;
+        const tr = scTrace(traceTest, ctx);
         findings.push({
           house: h.house,
           stanza: r.stanza,

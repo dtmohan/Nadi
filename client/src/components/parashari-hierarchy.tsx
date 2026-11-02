@@ -75,7 +75,7 @@ export function ParashariHierarchyWindows({ selections, segments, zone }: {
     return groups.map((g) => `${fmt(segments[g.first], false)}–${fmt(segments[g.last], true)}`);
   };
   return <details className="mb-3 rounded-md border px-3 py-2 text-xs" data-testid="parashari-hierarchy-windows">
-    <summary className="cursor-pointer font-medium">Earlier strict event funnel · diagnostic only</summary>
+    <summary className="cursor-pointer font-medium">Earlier experimental strict event funnel · diagnostic only</summary>
     <div className="mt-2 space-y-2 text-muted-foreground">
       <p>This older experiment intersects narrow D1, relevant division and period conditions across events; it does not require D4 for a marriage event. It can stop at an incomplete D1 check before weighing a strong D1 house lord or significator in the division. Its counts are retained for research, not for excluding or selecting birth times.</p>
       <p>Every slice remains open for review when the evidence is mixed or missing. A later event should not erase an earlier contradiction, but this partial model cannot judge all the combinations needed to establish one. Boundaries come from midpoint samples and can miss shorter changes.</p>

@@ -44,6 +44,7 @@ import {
   type PrasnaVenusVedhaVariant,
 } from "@shared/rules-prasna";
 import { PlanetName } from "@/components/planet-name";
+import { PrasnaTransitModifiers } from "@/components/prasna-transit-modifiers";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Soft } from "@/lib/gentle";
 import { redactProse, sensitiveGate } from "@shared/life-stage";
@@ -769,6 +770,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
           plain="How the planets moving now touch this chart."
           practitioner="The seven planets' effects in transit, read from the natal Moon (22.1-24), with the Vedha obstructions (22.34-53)."
         />
+        <p className="mt-1 text-2xs text-muted-foreground">Card colours describe the source passage; Vedha and Vipareeta Vedha below qualify that passage and do not change its colour.</p>
         <ul className="mt-3 grid gap-2 sm:grid-cols-2">
           {transits.map((t) => (
             <li
@@ -799,6 +801,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
                   held back for a minor
                 </p>
               )}
+              {t.text && <PrasnaTransitModifiers planet={t.planet} vedha={vedha} vipareeta={vipareetaVedha} />}
             </li>
           ))}
         </ul>

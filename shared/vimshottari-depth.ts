@@ -1,4 +1,10 @@
-/** Research utility: nested Vimshottari periods, using Nadi's 365.25-day year by default. */
+/**
+ * Research utility: nested Vimshottari periods. The nine-lord order and year table
+ * are given in BPHS 46.12–16; the nested subdivision is described in 62.1 and
+ * 63.1. https://vedicpupil.in/library/books/brihat-parashara-hora-shastra/chapter-46
+ * The default 365.25-day elapsed civil-calendar year is Nadi's convention, not
+ * a year length asserted by those verses; callers may specify a different year.
+ */
 import { NAKSHATRA_LORD, type Planet } from "./astro";
 import { VIMSHOTTARI_ORDER, VIMSHOTTARI_YEARS } from "./kp";
 import { zodiacQuarter } from "./zodiac-quarter";

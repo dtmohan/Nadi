@@ -35,6 +35,7 @@ export function SchoolTopicExplanation({ brief, onOpen }: { brief: SchoolTopicBr
     <p>{brief.summary}</p>
     <p className="text-xs text-muted-foreground">{brief.limit}</p>
     {brief.conditional && <p className="text-xs text-muted-foreground">This assessment is conditional on the birth time.</p>}
+    {brief.provisional && <p className="text-xs text-muted-foreground" data-testid="school-topic-provisional">Provisional: {brief.reason || "This classification includes an app interpretation."}</p>}
     <details className="text-xs text-muted-foreground">
       <summary className="cursor-pointer font-medium">Show the basis</summary>
       <p className="mt-1"><Soft>{schoolTopicBasisPlain(brief)}</Soft></p>
@@ -42,7 +43,6 @@ export function SchoolTopicExplanation({ brief, onOpen }: { brief: SchoolTopicBr
         <p><Soft>{d.text}</Soft></p>
         <p className="mt-0.5">{d.sourceUrl ? <a className="underline" href={d.sourceUrl} target="_blank" rel="noreferrer">{d.source}</a> : d.source}</p>
       </li>)}</ul>}
-      {brief.provisional && <p className="mt-1">Provisional: {brief.reason || "This classification includes an app interpretation."}</p>}
     </details>
     {onOpen && <button type="button" onClick={onOpen} className="text-xs font-medium text-primary underline-offset-2 hover:underline">See {SCHOOL_NAME[brief.school]} details</button>}
   </div>;

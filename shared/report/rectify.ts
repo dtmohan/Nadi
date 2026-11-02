@@ -105,7 +105,7 @@ export const rectifyModule: ReportModule = {
         const funnel = hierarchyWindowStages(scan.hierarchySelections, scan.segments.map((s) => s.parashariHierarchy ?? []));
         if (funnel.stages.length) {
           paras.push({ kind: "note", provisional: true,
-            text: `Earlier strict event funnel, retained for diagnostics: its incomplete D1 condition can stop a candidate before its divisional strength is considered. These counts are not exclusions or birth-time recommendations. All slices remain unresolved when evidence is incomplete. In four fresh public cases, no slice passed the D1 gate for both selected events. ${funnel.unassessed.length ? `Unassessed events: ${funnel.unassessed.map((i) => `${scan.hierarchySelections![i].label} ${scan.hierarchySelections![i].date}`).join("; ")}.` : ""}` });
+            text: `Earlier experimental strict event funnel, retained for diagnostics: its incomplete D1 condition can stop a candidate before its divisional strength is considered. These counts are not exclusions or birth-time recommendations. All slices remain unresolved when evidence is incomplete. In four fresh public cases, no slice passed the D1 gate for both selected events. ${funnel.unassessed.length ? `Unassessed events: ${funnel.unassessed.map((i) => `${scan.hierarchySelections![i].label} ${scan.hierarchySelections![i].date}`).join("; ")}.` : ""}` });
           paras.push({ kind: "table", head: ["Older strict stage", "Midpoint slices matching subset"],
             rows: funnel.stages.map((stage) => [stage.label, `${stage.indices.length} of ${scan.segments.length}`]), provisional: true });
         }

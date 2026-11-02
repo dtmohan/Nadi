@@ -611,7 +611,7 @@ test("Sarvartha Chintamani computeSarvartha evaluates rules against a chart", ()
   const res = computeSarvartha(positions, asc);
   const total = SC_BHAVA_RULES.reduce((n, h) => n + h.rules.length, 0);
   assert.equal(res.total, total);
-  assert.ok(res.computable > 100, `computable ${res.computable}`);
+  assert.ok(res.computable > 0 && res.computable < res.total, `computable ${res.computable}`);
   assert.ok(res.findings.length > 0);
   // The synthetic chart has Venus in its Cancer lagna → 1.105 (Venus in lagna, happy first half) fires.
   const has = (house: number, stanza: number) => res.findings.some((f) => f.house === house && f.stanza === stanza);

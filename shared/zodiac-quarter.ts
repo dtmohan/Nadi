@@ -2,6 +2,9 @@
  * Shared geometry of the 27 equal nakshatras and their 108 equal quarters.
  * Each quarter is one D9 interval; an interval includes its start and excludes
  * its end. No school-specific meaning or score is assigned here.
+ * BPHS 6.12 gives the navamsa sign sequence; the identity with a nakshatra
+ * quarter follows from both divisions measuring 3°20′ from the zodiac origin.
+ * https://vedicpupil.in/library/books/brihat-parashara-hora-shastra/chapter-6
  */
 export const ZODIAC_QUARTER_DEG = 10 / 3;
 export interface ZodiacQuarter {

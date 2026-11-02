@@ -9,6 +9,7 @@ import {
   SC_METHOD_NOTE,
   SC_SOURCE,
   sarvarthaLeftOut,
+  sarvarthaRuleComputable,
   FIDELITY_LABEL,
   FIDELITY_NOTE,
   ruleFidelity,
@@ -129,7 +130,8 @@ export function SarvarthaSection({
             Parashara&apos;s house results, elaborated by Venkatesha in his
             Sarvartha Chintamani: what each house covers, read from the house,
             its lord and its significator. The rules that apply to this chart
-            come first; the author&apos;s full text follows, folded.
+            come first; a catalogue of passages follows, folded. Reference-only
+            passages have not been checked and should not be read as failed rules.
           </>
         }
         practitioner={
@@ -239,8 +241,9 @@ export function SarvarthaSection({
           {plain ? "The full text, folded" : "Reference: the harvested text"}
         </h4>
         <p className="mt-1 text-xs text-muted-foreground">
-          Every rule harvested from the book, house by house. Open a fold to
-          read it; the rules that hold for this chart are ticked.
+          Passages harvested from the book, house by house. These are paraphrases,
+          not the full text. Checked matches are ticked; reference-only passages
+          have not been evaluated for this chart.
         </p>
         <div className="mt-3 space-y-2">
           <Fold
@@ -310,7 +313,9 @@ export function SarvarthaSection({
                           <span className="ml-1 text-muted-foreground">
                             ({h.chapter}.{r.stanza})
                           </span>
-                          <FidelityDot tier={ruleFidelity(h.house, r.stanza)} />
+                          {sarvarthaRuleComputable(h.house, r.stanza)
+                            ? <FidelityDot tier={ruleFidelity(h.house, r.stanza)} />
+                            : <span className="ml-1 text-amber-700 dark:text-amber-300" data-testid={`sarvartha-reference-only-${h.house}-${r.stanza}`}>reference only · not checked</span>}
                         </span>
                       </li>
                     );

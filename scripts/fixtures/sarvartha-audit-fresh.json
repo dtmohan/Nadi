@@ -1,0 +1,29 @@
+{
+  "description": "Four public charts selected after the Sarvartha predicate audit, without selecting for a desired match. Birth times are reported inputs, not independently certified by this test. This is a calculation and false-positive check, not evidence that astrological predictions work.",
+  "cases": [
+    {
+      "chart": { "name": "Hedy Lamarr", "gender": "female", "birthDate": "1914-11-09", "birthTime": "19:30", "timezone": "Europe/Vienna", "timeStandard": "auto", "place": "Vienna, Austria", "latitude": 48.2167, "longitude": 16.3731, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "category": "Film and invention",
+      "birthSource": "https://www.astro.com/astro-databank/Lamarr%2C_Hedy",
+      "birthQuality": "A, time reported from memory; source notes conflicting birth years."
+    },
+    {
+      "chart": { "name": "Ayrton Senna", "gender": "male", "birthDate": "1960-03-21", "birthTime": "02:35", "timezone": "America/Sao_Paulo", "timeStandard": "-03:00", "place": "Sao Paulo, Brazil", "latitude": -23.5525, "longitude": -46.6247, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "category": "Motor sport",
+      "birthSource": "https://www.astro.com/astro-databank/Senna%2C_Ayrton",
+      "birthQuality": "AA, birth record quoted; fixed standard offset follows the published chart."
+    },
+    {
+      "chart": { "name": "Burna Boy", "gender": "male", "birthDate": "1991-07-02", "birthTime": "00:05", "timezone": "Africa/Lagos", "timeStandard": "auto", "place": "Port Harcourt, Nigeria", "latitude": 4.7167, "longitude": 7.0833, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "category": "Music",
+      "birthSource": "https://www.astro.com/astro-databank/Burna_Boy",
+      "birthQuality": "A, birth time from memory and very close to midnight."
+    },
+    {
+      "chart": { "name": "Jimmy Moses", "gender": "male", "birthDate": "1970-01-03", "birthTime": "21:00", "timezone": "Asia/Kolkata", "timeStandard": "auto", "place": "Mumbai, India", "latitude": 18.9667, "longitude": 72.8333, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "category": "Comedy and film",
+      "birthSource": "https://www.astro.com/astro-databank/Moses%2C_Jimmy",
+      "birthQuality": "A, time reported by the subject; rounded to the hour."
+    }
+  ]
+}
