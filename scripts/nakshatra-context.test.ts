@@ -16,7 +16,7 @@ import { alpPointAt } from "@shared/alp";
 import { kpPoint, lordsAt } from "@shared/kp";
 import { ssCombust } from "@shared/combustion";
 import { createPlanetContext, natalPlanetContext, kpPlanetContext } from "@shared/planet-context";
-import { nakshatraDisplayRows } from "@shared/nakshatra-context-display";
+import { dispositorDisplayRows, nakshatraDisplayRows } from "@shared/nakshatra-context-display";
 import { insertChartSchema } from "@shared/schema";
 import { buildReport } from "@shared/report";
 import { NakshatraContextPanel } from "../client/src/components/nakshatra-context";
@@ -102,12 +102,20 @@ test("the frozen context, display and report use the same frame-specific facts",
   const rows = nakshatraDisplayRows(natal);
   assert.equal(rows.length, 10);
   const html = renderToStaticMarkup(createElement(NakshatraContextPanel, { context: natal }));
-  const report = buildReport(chart, { plain: false, modules: ["panchanga"] });
+  const report = buildReport(chart, { plain: false, modules: ["panchanga", "kp"] });
   const allParas = (sections: typeof report.sections): typeof report.sections[number]["paras"] =>
     sections.flatMap((s) => [...s.paras, ...allParas(s.sub ?? [])]);
   const tables = allParas(report.sections).filter((p) => p.head?.includes("BNN solar quarter"));
   assert.equal(tables.length, 1);
   assert.deepEqual(tables[0].rows, rows.map((r) => [r.point, r.star, r.starLord, r.navamsa, r.qualifications, r.solar]));
+  const kpHtml = renderToStaticMarkup(createElement(NakshatraContextPanel, { context: kp }));
+  assert.match(kpHtml, /KP Placidus cusps/);
+  assert.match(kpHtml, /not KP sub-lords/);
+  assert.doesNotMatch(kpHtml, /BNN solar quarter/);
+  const kpDispositors = allParas(report.sections).find((p) => p.head?.join("|") === "Point|Sign lord|Star lord|D9 sign lord"
+    && JSON.stringify(p.rows) === JSON.stringify(dispositorDisplayRows(kp).map((r) => [r.point, r.signLord, r.starLord, r.navamsaLord])));
+  assert.ok(kpDispositors, "KP report uses the KP-frame disposer rows");
+  assert.ok(allParas(report.sections).some((p) => p.head?.includes("KP Placidus cusps house")));
   for (const row of rows) assert.ok(html.includes(`nakshatra-row-${row.point}`));
   assert.match(html, /not independent confirmation/);
 });

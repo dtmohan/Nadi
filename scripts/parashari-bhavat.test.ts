@@ -11,7 +11,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import type { Chart } from "@shared/schema";
-import { FRIENDS, SIGN_LORD, type Planet } from "@shared/astro";
+import { FRIENDS, SIGN_LORD, houseFrom, type Planet } from "@shared/astro";
 import { computeParashari, DEFAULT_ASPECT_FLOOR, type ParashariResult } from "@shared/parashari";
 import { MARAKA_CAVEATS } from "@shared/parashari-marakas";
 import {
@@ -189,7 +189,7 @@ test("in the periods by topic: 15.7 reads the same periods as 48.2-8, and the bo
         assert.deepEqual(p.delivery!.sources, [LORD_DISTANCE_SOURCE]);
         for (const h of p.houses) {
           const b = par.bhavas.find((x) => x.house === h)!;
-          const n = placesFrom(h, b.lordIn);
+          const n = houseFrom(b.signIndex, b.lordSignIndex);
           assert.ok(p.delivery!.text.includes(LORD_DISTANCE[n - 1].text), `${label} ${t.topic} ${p.lord} ${h}: ${p.delivery!.text}`);
           assert.ok(p.delivery!.textPlain.includes(LORD_DISTANCE[n - 1].plain), `${label} ${t.topic} ${p.lord} ${h}`);
         }

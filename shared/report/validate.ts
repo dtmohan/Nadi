@@ -121,7 +121,7 @@ export const validateModule: ReportModule = {
         provisional: true,
       },
     ];
-    paras.push(...nakshatraContextParas(natalPlanetContext(result), cites, "Birth-chart star and D9 context"));
+    paras.push(...nakshatraContextParas(natalPlanetContext(result), cites, "Birth-chart star and D9 context", result.shadbala));
     for (const event of v.events) paras.push(...kpCatalogueParas(event.kp.natalRules, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), ctx.plain));
     for (const event of v.events) paras.push(...parashariCatalogueParas(event.parashariOrdinary, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), ctx.plain));
     for (const event of v.events) paras.push(...additionalSchoolParas(event.additionalNatal, `${event.label} · ${event.date}`, (source, url) => cites.add(source, url), "all", ctx.plain));

@@ -22,7 +22,7 @@
 // that lord is the app's step, and §2.4 keeps it a supplement that never changes a verdict. The senses
 // below are paraphrased in a few words each, with the sections that state them; nothing is quoted.
 
-import { FRIENDS, SIGNS, SIGN_LORD, type Planet } from "./astro";
+import { FRIENDS, SIGNS, SIGN_LORD, houseFrom, type Planet } from "./astro";
 import { PHALADEEPIKA_CH15_URL } from "./chalit";
 import { listJoin, ordH, thePlanet } from "./house-gloss";
 import { shadbalaOf, type ShadbalaResult } from "./shadbala";
@@ -56,7 +56,7 @@ export interface FromHouseRow {
 
 export interface FromHouseInput {
   lagna: { signIndex: number; degree?: number };
-  bhavas: { house: number; signIndex: number; lord: Planet; lordIn: number }[];
+  bhavas: { house: number; signIndex: number; lord: Planet; lordIn: number; lordSignIndex: number }[];
   natures: { planet: Planet; house: number; naturalBenefic: boolean }[];
   shadbala?: ShadbalaResult;
 }
@@ -215,25 +215,33 @@ export interface LordDistance {
   house: number;
   lord: Planet;
   lordIn: number;
-  /** 1 = in the house itself, 2 = in the next house, and so on. */
+  /** Inclusive count of signs from the house's sign to the lord's sign. */
   places: number;
-  /** The lord as many places from its house as the house is from the lagna (§2.2), past the 1st. */
+  /** Inclusive count of selected bhavas, which can differ from the sign count. */
+  bhavaPlaces: number;
+  /** The lord as many signs from the house's sign as that sign is from lagna (§2.2), past the 1st. */
   resonance: boolean;
+  /** False when the lagna sign was not supplied, so the comparison cannot be assessed. */
+  resonanceAssessed: boolean;
   text: string;
   textPlain: string;
 }
 
 /** The book's count from a house to the sign its lord occupies, worded for the period of that lord.
  *  `again`: a second line for the same period, so the plain wording names the author once. */
-export function lordDistance(par: Pick<FromHouseInput, "bhavas">, house: number, again = false): LordDistance {
+export function lordDistance(par: Pick<FromHouseInput, "bhavas"> & { lagna?: FromHouseInput["lagna"] }, house: number, again = false): LordDistance {
   const b = par.bhavas.find((x) => x.house === house)!;
-  const places = placesFrom(house, b.lordIn);
+  const places = houseFrom(b.signIndex, b.lordSignIndex);
+  const bhavaPlaces = placesFrom(house, b.lordIn);
   const s = LORD_DISTANCE[places - 1];
-  const resonance = places === house && house !== 1;
+  const houseSignFromLagna = par.lagna ? houseFrom(par.lagna.signIndex, b.signIndex) : undefined;
+  const resonance = houseSignFromLagna !== undefined && houseSignFromLagna !== 1 && places === houseSignFromLagna;
   const P = thePlanet(b.lord);
-  const text = `Counted from the ${ordH(house)}, ${b.lord} sits ${places === 1 ? "in the house itself" : `${ordH(places)} from it, in the ${ordH(b.lordIn)}`}: Shweta reads that as ${s.text} (${s.cite})${resonance ? `, and a lord as many places from its house as the house is from the lagna as the house's fruition (§2.2)` : ""}.`;
-  const textPlain = `Counting from your ${ordH(house)} house, ${P} sits ${places === 1 ? "in that house itself" : `in the ${ordH(places)} from it, your ${ordH(b.lordIn)} house`}, which ${again ? "she" : "Shweta, a modern author,"} reads as ${s.plain}${resonance ? ", and as the house coming to fruition" : ""}.`;
-  return { house, lord: b.lord, lordIn: b.lordIn, places, resonance, text, textPlain };
+  const fromSign = SIGNS[b.signIndex];
+  const lordSign = SIGNS[b.lordSignIndex];
+  const text = `From ${fromSign}, the sign used for the ${ordH(house)} house, ${b.lord} in ${lordSign} is in the ${ordH(places)} sign; its selected house placement is the ${ordH(b.lordIn)}. Shweta reads the sign count as ${s.text} (${s.cite})${resonance ? `, and the equal sign counts from lagna and to the lord as the house's fruition (§2.2)` : ""}.`;
+  const textPlain = `From ${fromSign}, the sign used for your ${ordH(house)} house, ${P} in ${lordSign} is in the ${ordH(places)} sign; it occupies your selected ${ordH(b.lordIn)} house. ${again ? "She" : "Shweta, a modern author,"} reads the sign count as ${s.plain}${resonance ? ", and as the house coming to fruition" : ""}.`;
+  return { house, lord: b.lord, lordIn: b.lordIn, places, bhavaPlaces, resonance, resonanceAssessed: houseSignFromLagna !== undefined, text, textPlain };
 }
 
 export const BHAVAT_NOTE =

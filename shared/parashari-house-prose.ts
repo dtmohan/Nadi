@@ -30,7 +30,7 @@ import { strengthQualifierPlain } from "./shadbala";
 
 type Tone = "support" | "strain" | "mixed";
 
-export type HouseProseKey = "covers" | "lord" | "planet" | "empty" | "aspects" | "chapter" | "both" | "weighing";
+export type HouseProseKey = "covers" | "lord" | "planet" | "empty" | "aspects" | "lord-aspect" | "chapter" | "both" | "weighing";
 
 export interface HouseProsePart {
   key: HouseProseKey;
@@ -326,6 +326,9 @@ export function composeHouseProse(par: Omit<ParashariResult, "houseProse">): Hou
         : `No planet looks at your ${ordH(h)} house${FLOOR_PLAIN[floor]}.`,
       sources: [{ label: "Parashara 26.2-5", url: BPHS_URL(26) }],
     });
+    const lordAspectClue = par.bhavaJudgement.find((x) => x.house === h)?.lordAspectClue;
+    if (lordAspectClue) parts.push({ key: "lord-aspect", text: lordAspectClue.text,
+      textPlain: lordAspectClue.plain, sources: [lordAspectClue.source] });
 
     // 5. What Parashara's chapter on the house adds (ch. 12-23).
     const chapter = par.findings.filter(

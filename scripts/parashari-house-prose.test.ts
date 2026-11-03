@@ -76,7 +76,7 @@ for (const [d, t] of BIRTHS)
     RUNS.push({ label: `${d} ${t} ${method}${minor ? " minor" : ""}`, minor, par });
   }
 
-const ORDER = /^covers lord (?:(?:planet )+|empty )aspects (?:chapter )*(?:both )?weighing$/;
+const ORDER = /^covers lord (?:(?:planet )+|empty )aspects (?:lord-aspect )?(?:chapter )*(?:both )?weighing$/;
 
 test("every house is read in order, its parts in the fixed order", () => {
   for (const { label, par } of RUNS) {
@@ -85,6 +85,14 @@ test("every house is read in order, its parts in the fixed order", () => {
     for (const hp of prose) {
       const keys = hp.parts.map((p) => p.key).join(" ");
       assert.match(keys, ORDER, `${label} h${hp.house}: ${keys}`);
+      const clue = par.bhavaJudgement.find((j) => j.house === hp.house)?.lordAspectClue;
+      const part = hp.parts.find((p) => p.key === "lord-aspect");
+      assert.equal(!!part, !!clue, `${label} h${hp.house}: own-lord aspect`);
+      if (part && clue) {
+        assert.equal(part.text, clue.text);
+        assert.deepEqual(part.sources, [clue.source]);
+        assert.equal(part.tone, undefined);
+      }
       assert.equal(hp.titlePlain, `Your ${ordH(hp.house)} house`);
       assert.ok(hp.title.startsWith(`${ordH(hp.house)} house (`), hp.title);
       for (const p of hp.parts) {

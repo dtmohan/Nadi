@@ -1,0 +1,39 @@
+{
+  "selection": "Four public birth records, absent from existing Nadi fixtures, selected by profession and place before running the house/dispositor checks. Astro-Databank reports AA birth sources; the original records were not inspected and rounded clocks remain uncertain. After an initial parity run exposed the requirement for two events at least one year apart, a second public event was added for each of two cases without choosing by scores; the full parity run then used this manifest. This is a calculation and pathway check, not a predictive accuracy study.",
+  "cases": [
+    {
+      "name": "Karin Herrera", "background": "Guatemalan biologist, teacher and politician",
+      "birthSource": "https://www.astro.com/astro-databank/Herrera%2C_Karin",
+      "chart": { "name": "Karin Herrera", "gender": "female", "birthDate": "1967-07-25", "birthTime": "19:00", "timezone": "America/Guatemala", "timeStandard": "-06:00", "place": "Guatemala City, Guatemala", "latitude": 14.633333, "longitude": -90.516667, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "tropicalSun": 122.3833333333, "tropicalMoon": 354.4666666667,
+      "events": [
+        { "id": "marriage", "matter": "marriage", "date": "2001-10-19", "timezone": "America/Guatemala", "note": "Astro-Databank reports the marriage in the birth-certificate margin; the original and event location and time were not independently verified.", "sources": ["https://www.astro.com/astro-databank/Herrera%2C_Karin"] },
+        { "id": "inauguration", "matter": "job", "date": "2024-01-15", "timezone": "America/Guatemala", "note": "Swearing-in after midnight; exact clock time not established, so the app's noon default is only a sensitivity limitation.", "sources": ["https://www.congreso.gob.gt/noticias_congreso/10641/2024/", "https://vicepresidencia.gob.gt/noticias/2024-01-16/karin-herrera-asume-como-vicepresidenta-de-la-republica-de-guatemala"] }
+      ]
+    },
+    {
+      "name": "Elis Regina", "background": "Brazilian singer",
+      "birthSource": "https://www.astro.com/astro-databank/Regina%2C_Elis",
+      "chart": { "name": "Elis Regina", "gender": "female", "birthDate": "1945-03-17", "birthTime": "15:10", "timezone": "America/Sao_Paulo", "timeStandard": "-03:00", "place": "Porto Alegre, Brazil", "latitude": -30.033056, "longitude": -51.23, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "1982-01-19" },
+      "tropicalSun": 356.8, "tropicalMoon": 47.45,
+      "events": [
+        { "id": "first-child", "matter": "child", "date": "1970-06-17", "time": "07:50", "timezone": "America/Sao_Paulo", "note": "Rio de Janeiro; the cited profile gives a 07:45–08:00 interval, not an exact minute.", "sources": ["https://www.astro.com/astro-databank/B%C3%B4scoli%2C_Jo%C3%A3o_Marcello", "https://faculdadeplus.edu.br/site/wp-content/uploads/2020/04/Elis-Uma-Biografia-Musical-Arthur-de-Faria.pdf"] },
+        { "id": "daughter", "matter": "child", "date": "1977-09-09", "timezone": "America/Sao_Paulo", "note": "São Paulo; event time unknown. A 6pm time on Astro-Databank is explicitly speculative and is not used.", "sources": ["https://musica.uol.com.br/artistas/ultimas-noticias/maria-rita.jhtm", "https://repositorio.pucrs.br/dspace/bitstream/10923/26682/1/2023_2_JULIANA_FORATI_AZEVEDO_TCC.pdf", "https://www.astro.com/astro-databank/Maria_Rita"] }
+      ]
+    },
+    {
+      "name": "Buzz Aldrin", "background": "American astronaut and engineer",
+      "birthSource": "https://www.astro.com/astro-databank/Aldrin%2C_Buzz",
+      "chart": { "name": "Buzz Aldrin", "gender": "male", "birthDate": "1930-01-20", "birthTime": "14:17", "timezone": "America/New_York", "timeStandard": "-05:00", "place": "Glen Ridge, New Jersey, USA", "latitude": 40.8, "longitude": -74.2, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "tropicalSun": 300.0333333333, "tropicalMoon": 199.5666666667,
+      "events": [], "note": "NASA documents the 1969 lunar landing, but a Moon-surface event is not given a fabricated Earth event location for this test."
+    },
+    {
+      "name": "Alain Trautmann", "background": "French immunologist",
+      "birthSource": "https://www.astro.com/astro-databank/Trautman%2C_Alain",
+      "chart": { "name": "Alain Trautmann", "gender": "male", "birthDate": "1948-12-26", "birthTime": "22:40", "timezone": "Europe/Paris", "timeStandard": "+01:00", "place": "Haguenau, France", "latitude": 48.816667, "longitude": 7.783333, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "tropicalSun": 275.05, "tropicalMoon": 232.2333333333,
+      "events": [], "note": "CNRS confirms a 2010 silver medal but no day is asserted: https://www.cnrs.fr/sites/default/files/download-file/TrautmannA.pdf"
+    }
+  ]
+}

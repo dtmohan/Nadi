@@ -28,10 +28,12 @@ export function KarmajivaSection({ k }: { k: KarmajivaResult }) {
           <>
             Varahamihira reads the source of a person's living from the tenth
             house. A planet standing there, counted from the rising sign or from
-            the Moon, names the person the money comes through. Failing that,
-            the ruler of the tenth house is followed into its ninth-part chart,
-            and the planet ruling that part names the trade. Three tenth houses
-            are read: from the rising sign, from the Moon and from the Sun.
+            the Moon, names the person the money comes through. The ruler of
+            the tenth house is also followed into its ninth-part chart, and
+            the planet ruling that part names the trade. Iyer treats this as a
+            fallback when the tenth is empty; the Adyar commentary reads both
+            approaches together. Three tenth houses are read for the latter:
+            from the rising sign, from the Moon and from the Sun.
           </>
         }
         practitioner={
@@ -81,7 +83,7 @@ export function KarmajivaSection({ k }: { k: KarmajivaResult }) {
           className="mt-1 text-xs text-muted-foreground"
           data-testid="karmajiva-tenth-empty"
         >
-          None. The verse then turns to the navamsa of the 10th lord.
+          None. Iyer's fallback condition for the navamsa of the 10th lord is met.
         </p>
       )}
 

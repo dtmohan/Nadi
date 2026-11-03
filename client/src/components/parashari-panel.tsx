@@ -972,8 +972,8 @@ export function ParashariPanel({
   );
   const portions = useMemo(() => computePortions(positions), [positions]);
   const karmajiva = useMemo(
-    () => computeKarmajiva(positions, r.lagna.signIndex, r.shadbala),
-    [positions, r.lagna.signIndex, r.shadbala],
+    () => computeKarmajiva(natalPlanetContext(result), r.lagna.signIndex, r.shadbala),
+    [result, r.lagna.signIndex, r.shadbala],
   );
   const ayurdaya = useMemo(
     () =>
@@ -1932,6 +1932,9 @@ export function ParashariPanel({
                           {j.chalitNote}
                         </div>
                       )}
+                      {j.lordAspectClue && <div className="mt-1 text-2xs" data-testid={`parashari-house-lord-aspect-${j.house}`}>
+                        <Soft>{plain ? j.lordAspectClue.plain : j.lordAspectClue.text}</Soft>{" "}<SourceLink source={j.lordAspectClue.source} />
+                      </div>}
                     </TableCell>
                     <TableCell className="py-1.5 align-top text-xs">
                       {j.support.length ? (

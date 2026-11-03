@@ -3,8 +3,8 @@
  *
  * 10.1  A planet in the 10th from the lagna or from the Moon gives wealth through the person it stands for:
  *       Sun the father, Moon the mother, Mars enemies, Mercury friends, Jupiter brothers, Venus women, Saturn
- *       servants. When no planet stands there, the calling is read from the lord of the navamsa occupied by the
- *       lord of the 10th counted from the lagna, the Moon and the Sun.
+ *       servants. The calling is read from the lord of the navamsa occupied by the lord of the 10th counted
+ *       from the lagna, the Moon and the Sun. Iyer reads this as a fallback; the Adyar commentary reads both.
  * 10.2-3 What each navamsa lord gives as a calling.
  * 10.4  The livelihood planet in a friend's, an enemy's or its own sign; the strong exalted Sun; benefics in the
  *       11th, lagna or 2nd.
@@ -22,9 +22,8 @@ import {
   SIGN_LORD,
   houseFrom,
   type Planet,
-  type PlanetPosition,
 } from "./astro";
-import { navamsaOf } from "./jaimini";
+import { asPlanetContext, planetPositions, type PlanetInput } from "./planet-context";
 import { naturalBenefic, type ParashariSource } from "./parashari";
 import type { ShadbalaResult } from "./shadbala";
 
@@ -114,7 +113,7 @@ export interface ReferenceReading {
 
 export interface KarmajivaResult {
   tenthOccupants: TenthOccupant[];
-  /** No planet in the 10th from the lagna or the Moon: the verse turns to the navamsa reading. */
+  /** No planet in the 10th from lagna or Moon: Iyer's fallback condition, not a consensus reading. */
   fallbackApplies: boolean;
   references: ReferenceReading[];
   /** The stronger of the Sun and the Moon by Shadbala, when known (the commentary's first reading, provisional). */
@@ -144,10 +143,12 @@ const RELATION_NOTE: Record<SignRelation, string> = {
 };
 
 export function computeKarmajiva(
-  positions: PlanetPosition[],
+  input: PlanetInput,
   lagnaIdx: number,
   shadbala?: ShadbalaResult,
 ): KarmajivaResult {
+  const context = asPlanetContext(input);
+  const positions = planetPositions(context);
   const moon = positions.find((p) => p.planet === "Moon");
   const sun = positions.find((p) => p.planet === "Sun");
   const seven = positions.filter(
@@ -179,8 +180,8 @@ export function computeKarmajiva(
     const tenthSign = (refSign[ref] + 9) % 12;
     const tenthLord = SIGN_LORD[tenthSign];
     const lordPos = positions.find((p) => p.planet === tenthLord)!;
-    const nav = navamsaOf(lordPos.lon);
-    const navamsaLord = SIGN_LORD[nav.signIndex];
+    const nav = context.requirePlanet(tenthLord).nakshatra;
+    const navamsaLord = nav.navamsaLord;
     const relation = relationOfLord(tenthLord, lordPos.signIndex);
     const rupas =
       ref === "Lagna"
@@ -192,7 +193,7 @@ export function computeKarmajiva(
       tenthSign,
       tenthLord,
       tenthLordSign: lordPos.signIndex,
-      navamsaSign: nav.signIndex,
+      navamsaSign: nav.navamsaSign,
       navamsaLord,
       calling: NAVAMSA_CALLING[navamsaLord],
       relation,

@@ -14,6 +14,8 @@ import { kpNatalConditions } from "../natal-reading-evidence";
 import { sensitiveEventMatter } from "../events";
 import { kpNatalConditionsParas } from "./natal-reading-evidence";
 import { kpDisplayOrder, kpFindingPlain, kpHerePlain, kpUsedGloss } from "../rules-kp";
+import { kpPlanetContext } from "../planet-context";
+import { nakshatraContextParas } from "./nakshatra-context";
 import {
   endStop,
   list,
@@ -116,6 +118,7 @@ export const kpModule: ReportModule = {
         cites: [cites.add("Astro Secrets & KP, Part 3 p. 12 (uploaded PDF)")],
       },
     ];
+    paras.push(...nakshatraContextParas(kpPlanetContext(result), cites, "KP frame: house, star and dispositor context"));
     const sub: ReportSection[] = [];
     const byCusp = new Map<number, typeof kp.findings>();
     for (const f of kp.findings)

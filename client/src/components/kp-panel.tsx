@@ -83,6 +83,8 @@ import {
 import { LifeTimeline, type TlWindow } from "@/components/life-timeline";
 import { eventMarks, vimshottariBands } from "@/lib/timeline-data";
 import { Term } from "@/components/term";
+import { NakshatraContextPanel } from "@/components/nakshatra-context";
+import { kpPlanetContext } from "@shared/planet-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1077,6 +1079,7 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
 
       {/* Cusps and planets */}
       <Chapter id="cusps">
+      <NakshatraContextPanel context={kpPlanetContext(result)} label="KP frame: house, star and dispositor context" />
       <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-start">
         <section data-testid="section-kp-cusps">
           <SectionTitle

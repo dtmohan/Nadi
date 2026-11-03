@@ -1,6 +1,7 @@
 import { SIGNS } from "./astro";
 import { navamsaDignity, type NakshatraContext } from "./nakshatra-context";
 import type { PlanetContext } from "./planet-context";
+import { formatDispositorLocation, pointDispositors } from "./house-dispositor-context";
 
 /** One descriptive row, reused by the screen and report. */
 export interface NakshatraDisplayRow {
@@ -10,6 +11,17 @@ export interface NakshatraDisplayRow {
   navamsa: string;
   qualifications: string;
   solar: string;
+}
+
+export interface DispositorDisplayRow { point: string; signLord: string; starLord: string; navamsaLord: string }
+
+export function dispositorDisplayRows(context: PlanetContext): DispositorDisplayRow[] {
+  const points = [...(context.ascendantNakshatra ? ["Ascendant" as const] : []), ...context.planets.map((p) => p.planet)];
+  return points.flatMap((point) => {
+    const d = pointDispositors(context, point);
+    return d ? [{ point, signLord: formatDispositorLocation(d.lords[0]), starLord: formatDispositorLocation(d.lords[1]),
+      navamsaLord: formatDispositorLocation(d.lords[2]) }] : [];
+  });
 }
 
 export function nakshatraDisplayRows(context: PlanetContext): NakshatraDisplayRow[] {

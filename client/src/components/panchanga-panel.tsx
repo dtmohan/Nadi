@@ -678,7 +678,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
           asOfIso={lifeAt}
           withheld={withheld}
         />
-        <NakshatraContextPanel context={natalContext} />
+        <NakshatraContextPanel context={natalContext} angles={result.shadbala} />
       </Chapter>
 
       <Chapter id="day">

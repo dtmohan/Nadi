@@ -524,7 +524,7 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
         <div className="mt-6" data-testid="validate-results">
           <Chapters tab="validate" chapters={VALIDATE_CHAPTERS}>
           <Chapter id="events">
-          <NakshatraContextPanel context={natalContext} label="Birth-chart star and D9 context" />
+          <NakshatraContextPanel context={natalContext} angles={result.shadbala} label="Birth-chart star and D9 context" />
           <LifeTimeline
             className="mb-5"
             testid="validate-timeline"

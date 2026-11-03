@@ -113,7 +113,7 @@ export const panchangaModule: ReportModule = {
         for (const n of star.notes)
           paras.push({ kind: "note", text: n.text, cites: [bc(n.cite)] });
       paras.push({ kind: "note", text: BIRTH_STAR_CAVEATS[0] });
-      paras.push(...nakshatraContextParas(natalPlanetContext(result), cites, "Planet and ascendant quarters"));
+      paras.push(...nakshatraContextParas(natalPlanetContext(result), cites, "Planet and ascendant quarters", result.shadbala));
       // Each reading under its own heading, as on the screen.
       const sub: ReportSection[] = shownBirthStarItems(star, plain, ctx.inSeason("marriage")).map((i) => ({
         id: `birth-star-${i.id}`,

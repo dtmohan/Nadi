@@ -62,11 +62,18 @@ test("school natal readings retain independent pre-migration outputs at correct 
       now: { asOf, positions: positionsAt(nowJd, ko), ascendant: ascendantAt(nowJd, e.lat, e.lon, ko), weekday: 3 } };
     const shadbala = shadbalaBase(jd, e.lat, e.lon, opts);
     const parashari = computeParashari(context, asc, e.birth, asOf, shadbala, undefined, undefined, false, e.house);
+    // Restore only the historical shape: current independent tests cover the
+    // newly exposed sign and qualified own-lord-aspect clue. Do not regenerate
+    // the archived baseline or hide changes to the prior house verdict.
+    const historicalParashari = { ...parashari,
+      bhavas: parashari.bhavas.map(({ lordSignIndex: _lordSignIndex, ...b }) => b),
+      bhavaJudgement: parashari.bhavaJudgement.map(({ lordAspectClue: _clue, ...b }) => b),
+      houseProse: parashari.houseProse?.map((h) => ({ ...h, parts: h.parts.filter((p) => p.key !== "lord-aspect") })) };
     const kp = computeKp(base, e.birth, asOf);
     const alp = computeAlp(context, asc, e.birth, asOf);
     const output = {
       bnn: evaluate(context, historicalBnnRules as typeof RULES, e.gender), jaimini: computeJaimini(context, asc, e.birth),
-      parashari: pick(parashari, ["aspectFloor", "houseMethod", "lagna", "bhavas", "natures", "findings", "ties", "neechaBhanga", "bhavaJudgement", "shadbala", "ashtakavarga", "bhavaPhala", "vargaPhala", "houseProse"]),
+      parashari: pick(historicalParashari, ["aspectFloor", "houseMethod", "lagna", "bhavas", "natures", "findings", "ties", "neechaBhanga", "bhavaJudgement", "shadbala", "ashtakavarga", "bhavaPhala", "vargaPhala", "houseProse"]),
       kp: pick(kp, ["ayanamsaValue", "cusps", "planets", "significators", "houseSignificators", "badhaka", "marakas", "lagnaQuality", "ruling", "findings"]),
       alp: pick({ ...alp, findings: alp.findings.map((f) => historicalAlpText[f.ruleId] ? { ...f, text: historicalAlpText[f.ruleId] } : f) },
         ["config", "natalLagna", "point", "houseFromJanma", "houses", "placements", "book", "findings"]),

@@ -10,6 +10,7 @@ import { computeVargas, type VargasResult } from "./vargas";
 import type { ShadbalaResult } from "./shadbala";
 import type { HouseView } from "./house-view";
 import type { ParashariFinding, ParashariSource } from "./parashari";
+import { PHALADEEPIKA_CH15_URL } from "./chalit";
 
 const S = (ch: number, verse: string, provisional?: boolean): ParashariSource => ({ label: `Parashara ${ch}.${verse}`, url: BPHS_URL(ch), provisional });
 
@@ -61,10 +62,14 @@ export interface BhavaJudgement {
   strainPlain: string[];
   tone: "support" | "strain" | "mixed" | "none";
   source: ParashariSource;
+  /** A separate Phaladeepika clue, not part of the BPHS 11.14–16 tone or an event score. */
+  lordAspectClue?: { planet: Planet; text: string; plain: string; source: ParashariSource };
   /** Bhava chalit colour: planets that leave or enter this house under either construction. Annotation only. */
   chalitNote?: string;
 }
 export const BHAVA_JUDGEMENT_SOURCE = S(11, "14-16", true);
+export const LORD_ASPECT_SOURCE: ParashariSource = { label: "Phaladeepika 15.1 (Sastri translation)", url: PHALADEEPIKA_CH15_URL, provisional: true };
+export const LORD_ASPECT_QUALIFICATION = "A house lord's aspect is one condition in Phaladeepika 15.1. The verse also discusses freedom from malefic influence and the condition of the planets; this clue alone does not establish the complete rule or an event promise.";
 
 /**
  * One line for a house whose verses read both ways. The verses give no order between them; the house test of 11.14-16,
@@ -137,6 +142,11 @@ export function judgeBhavas(positions: PlanetPosition[], view: HouseView, deps: 
     const supportPlain: string[] = [];
     const strainPlain: string[] = [];
     const ruler = `its ruler, ${thePlanet(lord)},`;
+    const lordAspects = lp.signIndex !== si && deps.aspect(lord, lp.signIndex, si) > 0;
+    const lordAspectClue = lordAspects ? { planet: lord,
+      text: `${lord}, the house lord, aspects this house's sign. ${LORD_ASPECT_QUALIFICATION}`,
+      plain: `${thePlanet(lord)}, this house's ruler, looks at its sign. Mantreswara treats this as one helpful clue; his full rule also considers challenging influences and the planets' condition. This alone does not promise an event.`,
+      source: LORD_ASPECT_SOURCE } : undefined;
     const benIn = occupants.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
     if (benIn.length) {
       support.push(`${list(benIn)} in the house`);
@@ -175,7 +185,7 @@ export function judgeBhavas(positions: PlanetPosition[], view: HouseView, deps: 
       strainPlain.push(`${ruler} loses a planetary war, which takes strength away`);
     }
     const tone = support.length && strain.length ? "mixed" : support.length ? "support" : strain.length ? "strain" : "none";
-    out.push({ house: h, signIndex: si, lord, lordHouse, support, strain, supportPlain, strainPlain, tone, source: BHAVA_JUDGEMENT_SOURCE });
+    out.push({ house: h, signIndex: si, lord, lordHouse, support, strain, supportPlain, strainPlain, tone, source: BHAVA_JUDGEMENT_SOURCE, ...(lordAspectClue ? { lordAspectClue } : {}) });
   }
   return out;
 }

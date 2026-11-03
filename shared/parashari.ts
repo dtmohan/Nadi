@@ -105,8 +105,10 @@ export interface Bhava {
   signIndex: number;
   sign: Sign;
   lord: Planet;
-  /** House the lord occupies (whole sign). */
+  /** House the lord occupies in the selected construction. */
   lordIn: number;
+  /** Zodiac sign the lord occupies, independent of the selected house construction. */
+  lordSignIndex: number;
   occupants: Planet[];
   /** Planets aspecting this sign, with strength in quarters (1-4). */
   aspects: { planet: Planet; quarters: number }[];
@@ -401,6 +403,7 @@ function computeParashariInternal(
       sign: SIGNS[si],
       lord,
       lordIn: houseOf(lord),
+      lordSignIndex: pos(lord).signIndex,
       occupants: inHouse(h),
       aspects: SEVEN.map((pl) => ({
         planet: pl,

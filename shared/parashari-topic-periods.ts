@@ -201,7 +201,7 @@ interface DasaLike {
 }
 
 export interface TopicPeriodsInput {
-  bhavas: { house: number; signIndex: number; lord: Planet; lordIn: number }[];
+  bhavas: { house: number; signIndex: number; lord: Planet; lordIn: number; lordSignIndex: number }[];
   dasaReadings: DasaLike[];
   /** For Phaladeepika 15.7: the lagna (with its degree), the planets' houses and natures, and Shadbala. */
   lagna?: { signIndex: number; degree?: number };
