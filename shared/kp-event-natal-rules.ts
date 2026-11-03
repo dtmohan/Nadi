@@ -54,9 +54,52 @@ export interface KpEventNatalRules {
   convention: "four-step";
   status: "assessed" | "unmapped" | "custom-event" | "withheld";
   rules: KpRegisteredNatalRule[];
+  /** The same four-step cusp-sub-lord chain used in this frame; no extra score. */
+  cuspTrace?: KpCuspTrace;
   /** The registered promise-role clues only; never a hard event veto. */
   indication: { status: "support" | "strain" | "mixed" | "unresolved" | "context-only" | "unavailable";
     supports: string[]; strains: string[] };
+}
+
+export const KP_CUSP_TRACE_SOURCE = "Leena Aurora, The Ultimate Guide to KP Astrology Techniques (2024), supplied capture pp. 20–23; Nadi four-step convention";
+export interface KpCuspTrace {
+  cusp: number;
+  cuspSignLord: KpCusp["signLord"];
+  cuspStarLord: KpCusp["starLord"];
+  subLord: KpPlanet["planet"];
+  subLordHouse: number;
+  subLordOwns: number[];
+  subLordStarLord: KpPlanet["starLord"];
+  starLordHouse: number;
+  starLordOwns: number[];
+  starLordAgency?: KpSignificators["agentFor"];
+  /** Actual Nadi A–D levels, including node agency where the evaluator uses it. */
+  levels: Pick<KpSignificators["levels"], "A" | "B" | "C" | "D">;
+  agency: KpSignificators["agentFor"];
+  matterHouses: number[];
+  matchingHouses: number[];
+}
+
+/** Explains the already computed significators; does not reproduce Aurora's
+ * complete script, classify a planet as strong, or add another condition. */
+export function kpCuspTrace(frame: KpRuleFrame, cuspNumber: number, matterHouses: number[]): KpCuspTrace | undefined {
+  const cusp = frame.cusps.find((c) => c.house === cuspNumber);
+  const sub = cusp && frame.planets.find((p) => p.planet === cusp.subLord);
+  const star = sub && frame.planets.find((p) => p.planet === sub.starLord);
+  const significator = sub && frame.significators.find((p) => p.planet === sub.planet);
+  if (!cusp || !sub || !star || !significator) return undefined;
+  return { cusp: cuspNumber, cuspSignLord: cusp.signLord, cuspStarLord: cusp.starLord,
+    subLord: sub.planet, subLordHouse: sub.house, subLordOwns: [...sub.owns],
+    subLordStarLord: star.planet, starLordHouse: star.house, starLordOwns: [...star.owns],
+    starLordAgency: frame.significators.find((s) => s.planet === star.planet)?.agentFor?.slice(),
+    levels: { A: [...significator.levels.A], B: [...significator.levels.B], C: [...significator.levels.C], D: [...significator.levels.D] },
+    agency: significator.agentFor ? [...significator.agentFor] : undefined, matterHouses: [...matterHouses],
+    matchingHouses: significator.houses.filter((h) => matterHouses.includes(h)) };
+}
+
+export function kpCuspTraceText(trace: KpCuspTrace): string {
+  const list = (houses: number[]) => houses.join(", ") || "none";
+  return `Cusp ${trace.cusp}: sign lord ${trace.cuspSignLord}, star lord ${trace.cuspStarLord}, sub lord ${trace.subLord}. The sub lord occupies KP house ${trace.subLordHouse} and owns ${list(trace.subLordOwns)}; its star lord ${trace.subLordStarLord} occupies house ${trace.starLordHouse} and owns ${list(trace.starLordOwns)}${trace.starLordAgency?.length ? ` (star lord node agency: ${trace.starLordAgency.join(", ")})` : ""}. Four-step house links A ${list(trace.levels.A)}, B ${list(trace.levels.B)}, C ${list(trace.levels.C)}, D ${list(trace.levels.D)}${trace.agency?.length ? `; sub lord node agency ${trace.agency.join(", ")}` : ""}. Matter-house links: ${list(trace.matchingHouses)}. This trace is contextual; it does not assess the full script or add points.`;
 }
 
 /** A finding demoted by the ordinary principal-cusp precedence remains visible
@@ -101,7 +144,8 @@ export function createKpEventNatalRules(frame: KpRuleFrame, options: { withhold?
       return { id, role, source: catalog[0].source, sourceUrl: catalog[0].sourceUrl, matched: !!finding, ...(finding ? { finding } : {}) };
     }) : [];
     const indication = summarizeKpNatalIndication(status, rules);
-    const result: KpEventNatalRules = { matter, convention: "four-step", status, rules, indication };
+    const trace = status === "assessed" && known ? kpCuspTrace(frame, known.cusp, known.houses) : undefined;
+    const result: KpEventNatalRules = { matter, convention: "four-step", status, rules, indication, ...(trace ? { cuspTrace: trace } : {}) };
     cache.set(key, result);
     return result;
   };

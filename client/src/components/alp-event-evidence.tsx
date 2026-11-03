@@ -11,6 +11,9 @@ export function AlpEventEvidencePanel({ evidence }: { evidence?: AlpEventEvidenc
     <summary className="cursor-pointer font-medium">ALP · selected event instant · {evidence.findings.length} related findings</summary>
     <p className="mt-1 text-muted-foreground">The same default ALP evaluator as the chart tab is read at the event's instant, using its supplied or assumed time and zone. The tab's date picker uses the start of its selected day, so it can differ at a boundary. These topic associations are contextual and do not form an event score.</p>
     {evidence.point && <p>ALP: {evidence.point.sign}, {evidence.point.nakshatra} pada {evidence.point.pada}; Akshaya: {evidence.akshaya?.sign}, {evidence.akshaya?.nakshatra} pada {evidence.akshaya?.pada}; period {evidence.akshaya?.dasa} / {evidence.akshaya?.bhukti}.</p>}
+    {evidence.natalThreeWays && evidence.progressedThreeWays && <div className="mt-1"><p className="text-muted-foreground">Three ways of reading the birth and progressed lagnas: the point, its star lord and its sign lord. The source's past/present/future groups are interpretive context, not a literal event-date gate. <Cite>Akshaya Lagna Paddhati, vol. 2, ch. 17, pp. 137–141</Cite></p>
+      {[["Birth", evidence.natalThreeWays], ["Progressed", evidence.progressedThreeWays]].map(([label, ways]) => <p key={label as string}>{label as string}: {(ways as typeof evidence.natalThreeWays)!.map((w) => `${w.label}: ${w.detail} (${w.group})`).join("; ")}.</p>)}
+    </div>}
     <AlpMarriageContextPanel context={evidence.marriage} />
     {evidence.findings.map(({ finding, topicMeaning }, i) => <p className="mt-1" key={`${finding.ruleId}-${i}`}><strong>{topicMeaning}</strong> <Soft>{finding.text}</Soft> · <Cite href={finding.sourceUrl}>{finding.source}</Cite></p>)}
     {!evidence.findings.length && <p className="mt-1">No reviewed topic finding matched at this instant; that does not decide the event.</p>}

@@ -18,7 +18,7 @@ export const KP_EVENT_FIELDS = {
 /** New catalogue outputs require an explicit date scope before they can be
  * added; a registration alone does not authorise a score or timing rule. */
 export const KP_NATAL_CATALOGUE_FIELDS = {
-  matter: "natal", convention: "natal", status: "natal", rules: "natal", indication: "natal",
+  matter: "natal", convention: "natal", status: "natal", rules: "natal", indication: "natal", cuspTrace: "natal",
 } as const satisfies Record<keyof KpEventNatalRules, FieldScope>;
 export const PARASHARI_NATAL_CATALOGUE_FIELDS = {
   matter: "natal", status: "natal", subjectHouse: "natal", houseMethod: "natal", aspectFloor: "natal",
@@ -28,10 +28,10 @@ export const PARASHARI_DATED_CATALOGUE_FIELDS = {
   natal: "natal", periods: "dated",
 } as const satisfies Record<keyof ParashariDatedCatalogue, FieldScope>;
 export const ADDITIONAL_SCHOOL_FIELDS = {
-  matter: "natal", bnn: "natal", jaimini: "natal", prasna: "natal",
+  matter: "natal", bnn: "natal", jaimini: "natal", prasna: "natal", brihatJataka: "natal",
 } as const satisfies Record<keyof AdditionalSchoolNatalEvidence, FieldScope>;
 export const ALP_EVENT_FIELDS = {
-  matter: "natal", topic: "natal", status: "dated", asOf: "dated", point: "dated", akshaya: "dated", findings: "dated", marriage: "dated",
+  matter: "natal", topic: "natal", status: "dated", asOf: "dated", point: "dated", akshaya: "dated", findings: "dated", marriage: "dated", natalThreeWays: "natal", progressedThreeWays: "dated",
 } as const satisfies Record<keyof AlpEventEvidence, FieldScope>;
 
 /** Every current frame field must receive an explicit scope when it is added. */

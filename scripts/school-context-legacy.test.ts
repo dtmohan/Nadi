@@ -67,8 +67,8 @@ test("school natal readings retain independent pre-migration outputs at correct 
     // the archived baseline or hide changes to the prior house verdict.
     const historicalParashari = { ...parashari,
       bhavas: parashari.bhavas.map(({ lordSignIndex: _lordSignIndex, ...b }) => b),
-      bhavaJudgement: parashari.bhavaJudgement.map(({ lordAspectClue: _clue, ...b }) => b),
-      houseProse: parashari.houseProse?.map((h) => ({ ...h, parts: h.parts.filter((p) => p.key !== "lord-aspect") })) };
+      bhavaJudgement: parashari.bhavaJudgement.map(({ lordAspectClue: _clue, lordOccupancyClue: _occupancy, ...b }) => b),
+      houseProse: parashari.houseProse?.map((h) => ({ ...h, parts: h.parts.filter((p) => p.key !== "lord-aspect" && p.key !== "lord-occupancy") })) };
     const kp = computeKp(base, e.birth, asOf);
     const alp = computeAlp(context, asc, e.birth, asOf);
     const output = {

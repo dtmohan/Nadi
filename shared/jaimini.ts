@@ -66,10 +66,13 @@ export function navamsaOf(lon: number): { signIndex: number; degInSign: number }
   return { signIndex: q.navamsaSign, degInSign: q.fraction === 0 ? 0 : (degree % (30 / 9)) * 9 };
 }
 
-export function navamsaPositions(positions: PlanetPosition[]): VargaPosition[] {
+export function navamsaPositions(input: PlanetInput): VargaPosition[] {
+  const context = asPlanetContext(input);
+  const positions = planetPositions(context);
   return positions.map((p) => {
     const n = navamsaOf(p.lon);
-    return { planet: p.planet, signIndex: n.signIndex, sign: SIGNS[n.signIndex], degInSign: n.degInSign };
+    const signIndex = context.requirePlanet(p.planet).nakshatra.navamsaSign;
+    return { planet: p.planet, signIndex, sign: SIGNS[signIndex], degInSign: n.degInSign };
   });
 }
 
@@ -429,7 +432,7 @@ export function computeJaimini(input: PlanetInput, lagnaLon: number, birthIso: s
   const special = specialLons ? { horaLagna: lagnaAt(specialLons.horaLagna), ghatikaLagna: lagnaAt(specialLons.ghatikaLagna) } : undefined;
   const nl = navamsaOf(lagnaLon);
   const karakas = charaKarakas(positions);
-  const navamsa = navamsaPositions(positions);
+  const navamsa = navamsaPositions(context);
   const akD9 = navamsa.find((p) => p.planet === karakas[0].planet)!;
   const karakamsa = { signIndex: akD9.signIndex, sign: SIGNS[akD9.signIndex] };
   const arudhas = allArudhas(lagnaSign, positions);

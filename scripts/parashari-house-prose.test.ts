@@ -76,7 +76,7 @@ for (const [d, t] of BIRTHS)
     RUNS.push({ label: `${d} ${t} ${method}${minor ? " minor" : ""}`, minor, par });
   }
 
-const ORDER = /^covers lord (?:(?:planet )+|empty )aspects (?:lord-aspect )?(?:chapter )*(?:both )?weighing$/;
+const ORDER = /^covers lord (?:(?:planet )+|empty )aspects (?:lord-aspect )?(?:lord-occupancy )?(?:chapter )*(?:both )?weighing$/;
 
 test("every house is read in order, its parts in the fixed order", () => {
   for (const { label, par } of RUNS) {
@@ -90,9 +90,13 @@ test("every house is read in order, its parts in the fixed order", () => {
       assert.equal(!!part, !!clue, `${label} h${hp.house}: own-lord aspect`);
       if (part && clue) {
         assert.equal(part.text, clue.text);
-        assert.deepEqual(part.sources, [clue.source]);
+        assert.deepEqual(part.sources, [clue.source, clue.combustionSource]);
         assert.equal(part.tone, undefined);
       }
+      const occupied = par.bhavaJudgement.find((j) => j.house === hp.house)?.lordOccupancyClue;
+      const occupiedPart = hp.parts.find((p) => p.key === "lord-occupancy");
+      assert.equal(!!occupiedPart, !!occupied, `${label} h${hp.house}: own-lord occupation`);
+      if (occupiedPart && occupied) assert.equal(occupiedPart.tone, undefined);
       assert.equal(hp.titlePlain, `Your ${ordH(hp.house)} house`);
       assert.ok(hp.title.startsWith(`${ordH(hp.house)} house (`), hp.title);
       for (const p of hp.parts) {

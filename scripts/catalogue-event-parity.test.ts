@@ -4,6 +4,7 @@ import { DateTime } from "luxon";
 import { computeAlp, DEFAULT_ALP_CONFIG } from "@shared/alp";
 import { createAlpEventScorer } from "@shared/alp-event-evidence";
 import { ALP_PLAIN_TOPIC_RULES } from "@shared/school-topics-expanded";
+import { threeWaysFor } from "@shared/rules-alp";
 import { natalPlanetContext } from "@shared/planet-context";
 import { KP_EVENT_NATAL_RULES, summarizeKpNatalIndication, type KpRegisteredNatalRule } from "@shared/kp-event-natal-rules";
 import { KP_RULES } from "@shared/rules-kp";
@@ -81,6 +82,8 @@ test("ALP cached event findings equal the ordinary evaluator at many instants an
       return topicMeaning ? [{ finding, topicMeaning }] : [];
     });
     assert.deepEqual(actual.findings, expectedFindings, iso);
+    assert.deepEqual(actual.natalThreeWays, threeWaysFor(expected.natalLagna, expected.natalLagna.signIndex, context), iso);
+    assert.deepEqual(actual.progressedThreeWays, threeWaysFor(expected.point, expected.point.signIndex, context), iso);
     assert.deepEqual(actual.point, { sign: expected.point.sign, nakshatra: expected.point.nakshatra, pada: expected.point.pada,
       lord: expected.point.lord, nakshatraLord: expected.point.nakshatraLord, navamsaSign: expected.point.navamsaSign }, iso);
     assert.deepEqual(actual.akshaya, { sign: expected.arp.point.sign, nakshatra: expected.arp.point.nakshatra,
@@ -107,6 +110,8 @@ test("ALP frame reuse across different event topics preserves ordinary findings 
       const findings = ordinary.findings.flatMap((finding) => { const topicMeaning = ALP_PLAIN_TOPIC_RULES[finding.ruleId]?.[topic];
         return topicMeaning ? [{ finding, topicMeaning }] : []; });
       assert.deepEqual(scored.findings, findings, `${matter} ${iso}`);
+      assert.deepEqual(scored.natalThreeWays, threeWaysFor(ordinary.natalLagna, ordinary.natalLagna.signIndex, context), `${matter} ${iso}`);
+      assert.deepEqual(scored.progressedThreeWays, threeWaysFor(ordinary.point, ordinary.point.signIndex, context), `${matter} ${iso}`);
       assert.deepEqual(scored.akshaya, { sign: ordinary.arp.point.sign, nakshatra: ordinary.arp.point.nakshatra,
         pada: ordinary.arp.point.pada, dasa: ordinary.arp.dasa.lord, bhukti: ordinary.arp.bhukti.lord }, `${matter} ${iso}`);
     }

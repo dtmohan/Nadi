@@ -1932,9 +1932,9 @@ export function ParashariPanel({
                           {j.chalitNote}
                         </div>
                       )}
-                      {j.lordAspectClue && <div className="mt-1 text-2xs" data-testid={`parashari-house-lord-aspect-${j.house}`}>
-                        <Soft>{plain ? j.lordAspectClue.plain : j.lordAspectClue.text}</Soft>{" "}<SourceLink source={j.lordAspectClue.source} />
-                      </div>}
+                      {[j.lordAspectClue, j.lordOccupancyClue].filter((clue) => clue != null).map((clue) => <div className="mt-1 text-2xs" key={clue.kind} data-testid={`parashari-house-lord-${clue.kind === "aspects" ? "aspect" : "occupancy"}-${j.house}`}>
+                        <Soft>{plain ? clue.plain : clue.text}</Soft>{" "}<SourceLink source={clue.source} /> <SourceLink source={clue.combustionSource} />
+                      </div>)}
                     </TableCell>
                     <TableCell className="py-1.5 align-top text-xs">
                       {j.support.length ? (

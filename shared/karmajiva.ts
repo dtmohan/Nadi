@@ -125,6 +125,17 @@ export interface KarmajivaResult {
   sources: typeof KARMAJIVA_SOURCES;
 }
 
+/** The date-independent 10.1–3 career chain. Strength-dependent commentary is
+ * deliberately left in the full reading and does not become event evidence. */
+export function karmajivaCareerContext(result: KarmajivaResult) {
+  return {
+    references: result.references.map(({ rupas: _rupas, ...reference }) => reference),
+    tenthOccupants: result.tenthOccupants,
+    fallbackApplies: result.fallbackApplies,
+  };
+}
+export type KarmajivaCareerContext = ReturnType<typeof karmajivaCareerContext>;
+
 function relationOfLord(lord: Planet, sign: number): SignRelation {
   if (OWN_SIGNS[lord]?.includes(sign)) return "own";
   const owner = SIGN_LORD[sign];

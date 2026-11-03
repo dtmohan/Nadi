@@ -1,5 +1,5 @@
 import React from "react";
-import type { KpEventNatalRules } from "@shared/kp-event-natal-rules";
+import { KP_CUSP_TRACE_SOURCE, kpCuspTraceText, type KpEventNatalRules } from "@shared/kp-event-natal-rules";
 import { Cite } from "@/components/source-link";
 import { Soft } from "@/lib/gentle";
 
@@ -17,6 +17,7 @@ export function KpCatalogueEvidence({ evidence }: { evidence?: KpEventNatalRules
     <p className="mt-1 text-muted-foreground">The same four-step chart rules are evaluated for this birth time. A condition that did not match is unresolved, not the opposite conclusion. These findings are traditional interpretations; they do not establish an outcome or change the experimental point total.</p>
     {(evidence.matter === "illness" || evidence.matter === "accident") && <p className="mt-1 text-muted-foreground">These interpretations cannot diagnose a condition, assess injury risk or determine an accident's severity.</p>}
     <p className="mt-1">Qualified promise clues: <strong>{evidence.indication.status}</strong>{evidence.indication.supports.length ? ` · supporting ${evidence.indication.supports.join(", ")}` : ""}{evidence.indication.strains.length ? ` · challenging ${evidence.indication.strains.join(", ")}` : ""}. Findings set aside by principal-cusp precedence remain visible as notes and do not determine this summary. This describes registered clues, not proof of an outcome.</p>
+    {evidence.cuspTrace && <p className="mt-1" data-testid="kp-cusp-dispositor-trace">{kpCuspTraceText(evidence.cuspTrace)} · <Cite>{KP_CUSP_TRACE_SOURCE}</Cite></p>}
     {promise.length > 0 && <p className="mt-1">Registered promise conditions: {promise.map((rule) => `${rule.id} ${rule.matched ? "matched" : "not matched"}`).join(" · ")}.</p>}
     {fired.length ? fired.map((rule, i) => <p className="mt-1" key={`${rule.id}-${i}`}><strong>{rule.role} · {rule.id}:</strong> <Soft>{rule.finding!.text}</Soft> <span className="text-muted-foreground">({rule.finding!.evidence})</span> · <Cite href={rule.sourceUrl}>{rule.source}</Cite>{rule.finding!.standing && <> · {rule.finding!.standing}</>}</p>)
       : <p className="mt-1 text-muted-foreground">None of the registered conditions matched in this chart.</p>}

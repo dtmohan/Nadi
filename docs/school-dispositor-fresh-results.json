@@ -1,0 +1,649 @@
+{
+  "protocol": "docs/school-dispositor-fresh-protocol.md",
+  "cases": [
+    {
+      "name": "Tereza Cristina",
+      "tropicalErrorsArcmin": {
+        "sun": 0.08594300640197616,
+        "moon": 0.5922745990801559
+      },
+      "ascendant": "Scorpio",
+      "career": {
+        "tenthLord": "Sun",
+        "d9Sign": "Aries",
+        "d9Lord": "Mars"
+      },
+      "randomTrials": 200,
+      "events": [
+        {
+          "matter": "job",
+          "date": "2015-02-01",
+          "kp": {
+            "cusp": 10,
+            "subLord": "Mars",
+            "subLordStarLord": "Ketu",
+            "levels": {
+              "A": [
+                7
+              ],
+              "B": [
+                1
+              ],
+              "C": [
+                2,
+                5,
+                8,
+                10,
+                11
+              ],
+              "D": [
+                1,
+                6
+              ]
+            },
+            "matchingHouses": [
+              2,
+              6,
+              10,
+              11
+            ]
+          },
+          "parashari": {
+            "house": 10,
+            "lord": "Sun",
+            "ownLordOccupies": false,
+            "ownLordAspects": false
+          },
+          "alp": {
+            "natalGroups": [
+              "past",
+              "past",
+              "past"
+            ],
+            "progressedGroups": [
+              "future",
+              "present",
+              "present"
+            ]
+          },
+          "comparison": {
+            "date": "2015-09-27",
+            "replay": "identical",
+            "natalUnchanged": true,
+            "alpProgressedGroups": [
+              "future",
+              "present",
+              "present"
+            ]
+          }
+        },
+        {
+          "matter": "job",
+          "date": "2019-01-01",
+          "kp": {
+            "cusp": 10,
+            "subLord": "Mars",
+            "subLordStarLord": "Ketu",
+            "levels": {
+              "A": [
+                7
+              ],
+              "B": [
+                1
+              ],
+              "C": [
+                2,
+                5,
+                8,
+                10,
+                11
+              ],
+              "D": [
+                1,
+                6
+              ]
+            },
+            "matchingHouses": [
+              2,
+              6,
+              10,
+              11
+            ]
+          },
+          "parashari": {
+            "house": 10,
+            "lord": "Sun",
+            "ownLordOccupies": false,
+            "ownLordAspects": false
+          },
+          "alp": {
+            "natalGroups": [
+              "past",
+              "past",
+              "past"
+            ],
+            "progressedGroups": [
+              "future",
+              "present",
+              "present"
+            ]
+          },
+          "comparison": {
+            "date": "2018-05-28",
+            "replay": "identical",
+            "natalUnchanged": true,
+            "alpProgressedGroups": [
+              "future",
+              "present",
+              "present"
+            ]
+          }
+        },
+        {
+          "matter": "job",
+          "date": "2023-02-01",
+          "kp": {
+            "cusp": 10,
+            "subLord": "Mars",
+            "subLordStarLord": "Ketu",
+            "levels": {
+              "A": [
+                7
+              ],
+              "B": [
+                1
+              ],
+              "C": [
+                2,
+                5,
+                8,
+                10,
+                11
+              ],
+              "D": [
+                1,
+                6
+              ]
+            },
+            "matchingHouses": [
+              2,
+              6,
+              10,
+              11
+            ]
+          },
+          "parashari": {
+            "house": 10,
+            "lord": "Sun",
+            "ownLordOccupies": false,
+            "ownLordAspects": false
+          },
+          "alp": {
+            "natalGroups": [
+              "past",
+              "past",
+              "past"
+            ],
+            "progressedGroups": [
+              "future",
+              "present",
+              "present"
+            ]
+          },
+          "comparison": {
+            "date": "2017-11-02",
+            "replay": "identical",
+            "natalUnchanged": true,
+            "alpProgressedGroups": [
+              "future",
+              "present",
+              "present"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Louis Schweitzer",
+      "tropicalErrorsArcmin": {
+        "sun": 0.16169127902230684,
+        "moon": 0.05967760741214079
+      },
+      "ascendant": "Cancer",
+      "career": {
+        "tenthLord": "Mars",
+        "d9Sign": "Capricorn",
+        "d9Lord": "Saturn"
+      },
+      "randomTrials": 200,
+      "events": [
+        {
+          "matter": "job",
+          "date": "1992-05-27",
+          "kp": {
+            "cusp": 10,
+            "subLord": "Moon",
+            "subLordStarLord": "Venus",
+            "levels": {
+              "A": [
+                10
+              ],
+              "B": [
+                10
+              ],
+              "C": [
+                4,
+                11
+              ],
+              "D": [
+                1
+              ]
+            },
+            "matchingHouses": [
+              10,
+              11
+            ]
+          },
+          "parashari": {
+            "house": 10,
+            "lord": "Mars",
+            "ownLordOccupies": false,
+            "ownLordAspects": false
+          },
+          "alp": {
+            "natalGroups": [
+              "present",
+              "future",
+              "present"
+            ],
+            "progressedGroups": [
+              "future",
+              "present",
+              "present"
+            ]
+          },
+          "comparison": {
+            "date": "1992-06-19",
+            "replay": "identical",
+            "natalUnchanged": true,
+            "alpProgressedGroups": [
+              "future",
+              "present",
+              "present"
+            ]
+          }
+        },
+        {
+          "matter": "job",
+          "date": "2004-03-11",
+          "kp": {
+            "cusp": 10,
+            "subLord": "Moon",
+            "subLordStarLord": "Venus",
+            "levels": {
+              "A": [
+                10
+              ],
+              "B": [
+                10
+              ],
+              "C": [
+                4,
+                11
+              ],
+              "D": [
+                1
+              ]
+            },
+            "matchingHouses": [
+              10,
+              11
+            ]
+          },
+          "parashari": {
+            "house": 10,
+            "lord": "Mars",
+            "ownLordOccupies": false,
+            "ownLordAspects": false
+          },
+          "alp": {
+            "natalGroups": [
+              "present",
+              "future",
+              "present"
+            ],
+            "progressedGroups": [
+              "past",
+              "future",
+              "present"
+            ]
+          },
+          "comparison": {
+            "date": "1996-04-24",
+            "replay": "identical",
+            "natalUnchanged": true,
+            "alpProgressedGroups": [
+              "present",
+              "future",
+              "past"
+            ]
+          }
+        },
+        {
+          "matter": "job",
+          "date": "2005-01-01",
+          "kp": {
+            "cusp": 10,
+            "subLord": "Moon",
+            "subLordStarLord": "Venus",
+            "levels": {
+              "A": [
+                10
+              ],
+              "B": [
+                10
+              ],
+              "C": [
+                4,
+                11
+              ],
+              "D": [
+                1
+              ]
+            },
+            "matchingHouses": [
+              10,
+              11
+            ]
+          },
+          "parashari": {
+            "house": 10,
+            "lord": "Mars",
+            "ownLordOccupies": false,
+            "ownLordAspects": false
+          },
+          "alp": {
+            "natalGroups": [
+              "present",
+              "future",
+              "present"
+            ],
+            "progressedGroups": [
+              "past",
+              "future",
+              "present"
+            ]
+          },
+          "comparison": {
+            "date": "1993-02-01",
+            "replay": "identical",
+            "natalUnchanged": true,
+            "alpProgressedGroups": [
+              "future",
+              "present",
+              "present"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Britt Ekland",
+      "tropicalErrorsArcmin": {
+        "sun": 0.15053439568532667,
+        "moon": 0.0708791059662417
+      },
+      "ascendant": "Cancer",
+      "career": {
+        "tenthLord": "Mars",
+        "d9Sign": "Gemini",
+        "d9Lord": "Mercury"
+      },
+      "randomTrials": 200,
+      "events": [
+        {
+          "matter": "marriage",
+          "date": "1964-02-19",
+          "kp": {
+            "cusp": 7,
+            "subLord": "Rahu",
+            "subLordStarLord": "Ketu",
+            "levels": {
+              "A": [
+                7
+              ],
+              "B": [
+                1
+              ],
+              "C": [
+                7,
+                8
+              ],
+              "D": [
+                2
+              ]
+            },
+            "matchingHouses": [
+              2,
+              7
+            ]
+          },
+          "parashari": {
+            "house": 7,
+            "lord": "Saturn",
+            "ownLordOccupies": false,
+            "ownLordAspects": false
+          },
+          "alp": {
+            "natalGroups": [
+              "present",
+              "future",
+              "present"
+            ],
+            "progressedGroups": [
+              "future",
+              "present",
+              "present"
+            ]
+          },
+          "comparison": {
+            "date": "1979-06-16",
+            "replay": "identical",
+            "natalUnchanged": true,
+            "alpProgressedGroups": [
+              "past",
+              "present",
+              "past"
+            ]
+          }
+        },
+        {
+          "matter": "child",
+          "date": "1965-01-20",
+          "kp": {
+            "cusp": 5,
+            "subLord": "Rahu",
+            "subLordStarLord": "Ketu",
+            "levels": {
+              "A": [
+                7
+              ],
+              "B": [
+                1
+              ],
+              "C": [
+                7,
+                8
+              ],
+              "D": [
+                2
+              ]
+            },
+            "matchingHouses": [
+              2
+            ]
+          },
+          "parashari": {
+            "house": 5,
+            "lord": "Mars",
+            "ownLordOccupies": false,
+            "ownLordAspects": false
+          },
+          "alp": {
+            "natalGroups": [
+              "present",
+              "future",
+              "present"
+            ],
+            "progressedGroups": [
+              "present",
+              "future",
+              "future"
+            ]
+          },
+          "comparison": {
+            "date": "1968-11-11",
+            "replay": "identical",
+            "natalUnchanged": true,
+            "alpProgressedGroups": [
+              "present",
+              "past",
+              "future"
+            ]
+          }
+        },
+        {
+          "matter": "child",
+          "date": "1988-03-31",
+          "kp": {
+            "cusp": 5,
+            "subLord": "Rahu",
+            "subLordStarLord": "Ketu",
+            "levels": {
+              "A": [
+                7
+              ],
+              "B": [
+                1
+              ],
+              "C": [
+                7,
+                8
+              ],
+              "D": [
+                2
+              ]
+            },
+            "matchingHouses": [
+              2
+            ]
+          },
+          "parashari": {
+            "house": 5,
+            "lord": "Mars",
+            "ownLordOccupies": false,
+            "ownLordAspects": false
+          },
+          "alp": {
+            "natalGroups": [
+              "present",
+              "future",
+              "present"
+            ],
+            "progressedGroups": [
+              "future",
+              "future",
+              "present"
+            ]
+          },
+          "comparison": {
+            "date": "1965-04-23",
+            "replay": "identical",
+            "natalUnchanged": true,
+            "alpProgressedGroups": [
+              "present",
+              "future",
+              "future"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "João Gilberto",
+      "tropicalErrorsArcmin": {
+        "sun": 0.4107612593043086,
+        "moon": 0.508390683531843
+      },
+      "ascendant": "Gemini",
+      "career": {
+        "tenthLord": "Jupiter",
+        "d9Sign": "Gemini",
+        "d9Lord": "Mercury"
+      },
+      "randomTrials": 0,
+      "events": [
+        {
+          "matter": "child",
+          "date": "1966-05-12",
+          "kp": {
+            "cusp": 5,
+            "subLord": "Venus",
+            "subLordStarLord": "Sun",
+            "levels": {
+              "A": [
+                12
+              ],
+              "B": [
+                11
+              ],
+              "C": [
+                3
+              ],
+              "D": [
+                5,
+                12
+              ]
+            },
+            "matchingHouses": [
+              5,
+              11
+            ]
+          },
+          "parashari": {
+            "house": 5,
+            "lord": "Venus",
+            "ownLordOccupies": false,
+            "ownLordAspects": false
+          },
+          "alp": {
+            "natalGroups": [
+              "future",
+              "present",
+              "future"
+            ],
+            "progressedGroups": [
+              "future",
+              "future",
+              "future"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "rectification": [
+    {
+      "name": "Tereza Cristina",
+      "midpoint": "15:30:27",
+      "actualAndComparisonReplay": "identical",
+      "elapsedSecondsIncludingCandidateValidation": 1
+    },
+    {
+      "name": "Britt Ekland",
+      "midpoint": "00:19:56",
+      "actualAndComparisonReplay": "identical",
+      "elapsedSecondsIncludingCandidateValidation": 1.1
+    }
+  ]
+}

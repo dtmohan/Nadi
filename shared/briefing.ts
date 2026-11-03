@@ -103,7 +103,7 @@ export interface PlanetBrief {
   /** One line per system that gives the planet a role, labelled. */
   systems: { system: string; text: string }[];
   /** Practitioner-only index of explicitly attributed fired rules, not all dependencies. */
-  ruleContext?: Array<{ school: string; count: number; examples: Array<{ id: string; text: string; source?: string; chart?: "D1" | "D9"; asOf?: string }>; coverage: string }>;
+  ruleContext?: Array<{ school: string; count: number; examples: Array<{ id: string; text: string; source?: string; chart?: "D1" | "D9"; asOf?: string; attribution?: string; via?: Planet }>; coverage: string }>;
 }
 
 export interface Briefing {
@@ -914,7 +914,7 @@ function planetsInPlay(
     const ruleContext = snapshots ? (Object.entries(planetRulesBySchool(planet, snapshots)) as Array<[ContextSchool, ReturnType<typeof planetRulesBySchool>[ContextSchool]]>)
       .flatMap(([school, found]) => found.status === "evaluated" && found.rules.length
         ? [{ school: schoolNames[school], count: found.rules.length, coverage: found.coverage,
-          examples: found.rules.slice(0, 3).map((r) => ({ id: r.ruleId, text: r.text, source: r.source, chart: r.chart, asOf: r.asOf })) }]
+          examples: found.rules.slice(0, 3).map((r) => ({ id: r.ruleId, text: r.text, source: r.source, chart: r.chart, asOf: r.asOf, attribution: r.attribution, via: r.via })) }]
         : []) : undefined;
     out.push({ planet, roles: rs, place, states: states.map(cap), rules, systems, ruleContext });
   });

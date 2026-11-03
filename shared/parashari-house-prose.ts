@@ -30,7 +30,7 @@ import { strengthQualifierPlain } from "./shadbala";
 
 type Tone = "support" | "strain" | "mixed";
 
-export type HouseProseKey = "covers" | "lord" | "planet" | "empty" | "aspects" | "lord-aspect" | "chapter" | "both" | "weighing";
+export type HouseProseKey = "covers" | "lord" | "planet" | "empty" | "aspects" | "lord-aspect" | "lord-occupancy" | "chapter" | "both" | "weighing";
 
 export interface HouseProsePart {
   key: HouseProseKey;
@@ -328,7 +328,10 @@ export function composeHouseProse(par: Omit<ParashariResult, "houseProse">): Hou
     });
     const lordAspectClue = par.bhavaJudgement.find((x) => x.house === h)?.lordAspectClue;
     if (lordAspectClue) parts.push({ key: "lord-aspect", text: lordAspectClue.text,
-      textPlain: lordAspectClue.plain, sources: [lordAspectClue.source] });
+      textPlain: lordAspectClue.plain, sources: [lordAspectClue.source, lordAspectClue.combustionSource] });
+    const lordOccupancyClue = par.bhavaJudgement.find((x) => x.house === h)?.lordOccupancyClue;
+    if (lordOccupancyClue) parts.push({ key: "lord-occupancy", text: lordOccupancyClue.text,
+      textPlain: lordOccupancyClue.plain, sources: [lordOccupancyClue.source, lordOccupancyClue.combustionSource] });
 
     // 5. What Parashara's chapter on the house adds (ch. 12-23).
     const chapter = par.findings.filter(

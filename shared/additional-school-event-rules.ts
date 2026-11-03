@@ -10,6 +10,7 @@ import type { GulikaNatalClues } from "./gulika-clues";
 import { PARASHARI_EVENT_HOUSES } from "./parashari-event-natal-rules";
 import { redactSensitive } from "./life-stage";
 import type { GulikaMethod } from "./gulika-methods";
+import type { KarmajivaCareerContext } from "./karmajiva";
 
 export type EvidenceStatus = "assessed" | "unmapped" | "withheld";
 export interface AdditionalSchoolNatalEvidence {
@@ -18,6 +19,7 @@ export interface AdditionalSchoolNatalEvidence {
   jaimini: { status: EvidenceStatus; area?: JaiminiArea; findings: JaiminiFinding[] };
   prasna: { status: EvidenceStatus; subjectHouse?: number; houseReading?: PrasnaHouseReading;
     gulikaMethod?: GulikaMethod; gulika?: PrasnaGulikaReading; gulikaClues?: GulikaNatalClues };
+  brihatJataka?: { status: EvidenceStatus; career?: KarmajivaCareerContext };
 }
 export interface AdditionalSchoolSnapshots {
   bnn: Pick<Reading, "findings">;
@@ -26,6 +28,7 @@ export interface AdditionalSchoolSnapshots {
   gulika?: PrasnaGulikaReading;
   gulikaClues?: GulikaNatalClues;
   gulikaMethod?: GulikaMethod;
+  brihatJataka?: KarmajivaCareerContext;
   withhold?: boolean;
   allowed?: (matter: string) => boolean;
   areaAllowed?: (area: string) => boolean;
@@ -47,6 +50,10 @@ export function createAdditionalSchoolNatalRules(snapshots: AdditionalSchoolSnap
     const jStatus: EvidenceStatus = withheld || !!(m?.area && snapshots.areaAllowed && !snapshots.areaAllowed(m.area)) ? "withheld" : m?.area ? "assessed" : "unmapped";
     const house = PARASHARI_EVENT_HOUSES[matter];
     const pStatus: EvidenceStatus = withheld ? "withheld" : house ? "assessed" : "unmapped";
+    // This is a livelihood reading, not a timing or job-loss judgment.
+    const careerMatter = matter === "job" || matter === "business";
+    const careerStatus: EvidenceStatus = withheld || !!(careerMatter && snapshots.areaAllowed && !snapshots.areaAllowed("career"))
+      ? "withheld" : careerMatter && snapshots.brihatJataka ? "assessed" : "unmapped";
     const result: AdditionalSchoolNatalEvidence = {
       matter,
       bnn: { status: bnnStatus, area: m?.bnn.area, findings: bnnStatus === "assessed" ? bnn.filter((f) => f.area === m!.bnn.area).map(({ band: _band, ...f }) => f) : [] },
@@ -56,6 +63,7 @@ export function createAdditionalSchoolNatalRules(snapshots: AdditionalSchoolSnap
           gulikaMethod: snapshots.gulikaMethod,
           gulika: snapshots.gulika?.house === house ? snapshots.gulika : undefined,
           gulikaClues: matter === "child" ? snapshots.gulikaClues : undefined } : {}) },
+      brihatJataka: { status: careerStatus, ...(careerStatus === "assessed" ? { career: snapshots.brihatJataka } : {}) },
     };
     cache.set(matter, result);
     return result;

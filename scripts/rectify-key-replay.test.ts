@@ -26,8 +26,14 @@ test("narrower segmentation preserves the earlier KP and Aurora evidence at inte
       // seconds. Do not claim to resolve a sample on that rounded boundary.
       if (!segment || at - Date.parse(segment.startIso) <= 1000 || Date.parse(segment.endIso) - at <= 1000) continue;
       const evidence = { moonLords: segment.moonLords, auroraAscendant: segment.auroraAscendant,
-        events: segment.events.map((e) => ({ hits: e.hits, promised: e.promised, filtered: e.filtered,
-          effective: e.effective, natalRules: e.natalRules, aurora: e.aurora, auroraV2: e.auroraV2 })) };
+        events: segment.events.map((e) => {
+          // This reference predates the additive explanatory trace. Continue
+          // checking every original field, while checking the new link itself.
+          const { cuspTrace, ...legacyNatalRules } = e.natalRules ?? {};
+          if (e.natalRules?.status === "assessed") assert.equal(cuspTrace?.subLord, e.cuspSubLord);
+          return { hits: e.hits, promised: e.promised, filtered: e.filtered, effective: e.effective,
+            natalRules: e.natalRules ? legacyNatalRules : undefined, aurora: e.aurora, auroraV2: e.auroraV2 };
+        }) };
       const hash = createHash("sha256").update(JSON.stringify(evidence)).digest("hex");
       assert.equal(hash, sample.hash, `${item.name} at ${sample.birthUtc}`);
       compared++;

@@ -9,6 +9,7 @@
 import { SIGNS, type Planet, type PlanetPosition } from "./astro";
 import { houseGloss, listJoin, ordH, thePlanet, withGloss, withGlossList } from "./house-gloss";
 import type { AlpHouse, AlpPlacement, AlpPoint, ArpResult } from "./alp";
+import { asPlanetContext, type PlanetContext, type PlanetInput } from "./planet-context";
 
 /** Book 2 p. 35's one pada-navamsa relationship, shared with the event scan. */
 export function alpMarriageTouches(alp: number, janma: number, navamsa: number): boolean {
@@ -1127,6 +1128,7 @@ export const KARMA_REMEDY_NOTE =
 
 export interface AlpContext {
   positions: PlanetPosition[];
+  context?: PlanetContext;
   janma: number;
   alp: number;
   point: AlpPoint;
@@ -1228,7 +1230,7 @@ export function evaluateAlp(ctx: AlpContext): AlpFinding[] {
       here.push(`the bhukti lord, ${thePlanet(ctx.arp.bhuktiLord.planet)}, stands in ${fromAlp(ctx.arp.bhuktiLord.houseFromAlp)}`);
     }
     if (w.threeWays) {
-      const tw = threeWaysFor(ctx.natalLagna, ctx.natalLagna.signIndex, ctx.positions);
+      const tw = threeWaysFor(ctx.natalLagna, ctx.natalLagna.signIndex, ctx.context ?? ctx.positions);
       const c = threeWaysCount(tw);
       if (c.present !== w.threeWays.present || c.past !== w.threeWays.past || c.future !== w.threeWays.future) continue;
       planets.push(ctx.natalLagna.nakshatraLord, ctx.natalLagna.lord);
@@ -1404,10 +1406,11 @@ export interface ThreeWay {
  * The three ways for a lagna point: (1) the nakshatra point's bhava by the kalapurusha (its sign counted from Aries),
  * (2) the nakshatra lord's house counted from the lagna, (3) the lagna lord's house counted from the lagna.
  */
-export function threeWaysFor(point: AlpPoint, fromSign: number, positions: PlanetPosition[]): ThreeWay[] {
+export function threeWaysFor(point: AlpPoint, fromSign: number, input: PlanetInput): ThreeWay[] {
+  const context = asPlanetContext(input);
   const h = (sign: number) => ((sign - fromSign + 12) % 12) + 1;
-  const nl = positions.find((p) => p.planet === point.nakshatraLord);
-  const ll = positions.find((p) => p.planet === point.lord);
+  const nl = context.planet(point.nakshatraLord)?.position;
+  const ll = context.planet(point.lord)?.position;
   const kala = point.signIndex + 1;
   const out: ThreeWay[] = [
     { label: "Lagna nakshatra point", detail: `${point.nakshatra} ${point.pada}, in ${point.sign}: the ${kala}${["st", "nd", "rd"][kala - 1] ?? "th"} sign of the kalapurusha`, house: kala, group: timeGroupOf(kala) },

@@ -36,6 +36,7 @@ export function topicReadingSection(ctx: ReportContext, system: string): ReportS
   if (system === "alp") paras.push(...alpEventParas(e.alp, e.label, (source, url) => cites.add(source, url), ctx.plain));
   if (system === "parashari") {
     paras.push(...parashariCatalogueParas(e.parashariOrdinary, e.label, (source, url) => cites.add(source, url), ctx.plain));
+    paras.push(...additionalSchoolParas(e.additionalNatal, e.label, (source, url) => cites.add(source, url), "bj", ctx.plain));
     if (e.parashariVargas) {
       paras.push({ kind: "note", text: "The natal and divisional frames below use whole-sign houses and the chart's selected ayanamsa.",
         cites: [cites.add(PARASHARI_VARGA_SOURCE.label, PARASHARI_VARGA_SOURCE.url)], provisional: true });

@@ -22,6 +22,7 @@ import { createAdditionalSchoolNatalRules } from "./additional-school-event-rule
 import { computeGulikaReading, computePrasna, computeProgeny } from "./rules-prasna";
 import { gulikaNatalClues } from "./gulika-clues";
 import { normaliseGulikaMethod } from "./gulika-methods";
+import { computeKarmajiva, karmajivaCareerContext } from "./karmajiva";
 
 type NatalChart = Pick<ChartResult, "positions" | "jaimini" | "utc" | "chart" | "now" | "kp" | "shadbala" | "dasaStarts">;
 
@@ -31,6 +32,7 @@ export function additionalSchoolNatalConditions(result: ChartResult) {
   const gender = result.chart.gender;
   const progeny = gender === "male" || gender === "female" ? computeProgeny(result.positions, gender) : undefined;
   const catalogue = createAdditionalSchoolNatalRules({ bnn: result.reading, jaimini: result.jaimini,
+    brihatJataka: karmajivaCareerContext(computeKarmajiva(context, lagna)),
     prasnaHouses: computePrasna(context, lagna),
     gulikaMethod: normaliseGulikaMethod(result.chart.gulikaMethod),
     gulika: result.gulika ? computeGulikaReading(result.gulika, lagna) : undefined,

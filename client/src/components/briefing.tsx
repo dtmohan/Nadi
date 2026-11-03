@@ -305,11 +305,11 @@ function PlanetCard({ p }: { p: PlanetBrief }) {
       {p.ruleContext && p.ruleContext.length > 0 && (
         <details className="mt-2 text-xs leading-relaxed" data-testid={`brief-rule-context-${p.planet}`}>
           <summary className="cursor-pointer font-medium">Rule links by school</summary>
-          <p className="mt-1 text-muted-foreground">These are matched rules that explicitly link this planet in their evidence, including as a cusp sub-lord. Indirect connections and other sections may add more; the links do not change a score. KP uses its own ayanamsa.</p>
+          <p className="mt-1 text-muted-foreground">These matched rules link this planet directly or through a stated sign-lord, star-lord or cusp-sub-lord condition. Other dependencies and sections may add more; the links do not change a score. KP uses its own ayanamsa.</p>
           <ul className="mt-1 space-y-1">{p.ruleContext.map((group) => (
             <li key={group.school} title={group.coverage}>
               <strong>{group.school}</strong> · {group.count} {group.count === 1 ? "match" : "matches"}
-              <ul className="ml-3 mt-0.5 space-y-1">{group.examples.map((e) => <li key={e.id}>{e.chart ? `${e.chart} · ` : ""}<Soft>{e.text}</Soft>{e.source ? ` (${e.source})` : ""}{e.asOf ? ` · reading date ${e.asOf.slice(0, 10)}` : ""}</li>)}</ul>
+              <ul className="ml-3 mt-0.5 space-y-1">{group.examples.map((e, i) => <li key={`${e.id}-${i}`}>{e.chart ? `${e.chart} · ` : ""}{e.via ? `${e.attribution} of ${e.via} · ` : ""}<Soft>{e.text}</Soft>{e.source ? ` (${e.source})` : ""}{e.asOf ? ` · reading date ${e.asOf.slice(0, 10)}` : ""}</li>)}</ul>
               {group.count > group.examples.length && <span className="text-muted-foreground">More in the school reading.</span>}
             </li>
           ))}</ul>

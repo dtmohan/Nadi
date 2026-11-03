@@ -3,9 +3,9 @@
  * runs a rule or turns a missing finding into a denial. Attribution is deliberately limited
  * to fields in the existing results that explicitly identify a planet.
  */
-import type { Planet } from "./astro";
+import { SIGN_LORD, type Planet } from "./astro";
 import type { PlanetContext, PlanetFacts, PlanetFrame } from "./planet-context";
-import type { Reading } from "./rules";
+import { RULES, type Reading } from "./rules";
 import type { KpResult, KpPlanet, KpSignificators } from "./kp";
 import type { JaiminiResult } from "./jaimini";
 import type { ParashariResult } from "./parashari";
@@ -28,7 +28,9 @@ export interface PlanetRuleLink {
   source?: string;
   sourceUrl?: string;
   /** The explicit field by which the existing result associates this planet. */
-  attribution: "listed planet" | "cusp sub-lord" | "house occupant";
+  attribution: "listed planet" | "cusp sub-lord" | "house occupant" | "sign lord" | "star lord";
+  /** Subject of an explicit dispositor condition, when this is an indirect link. */
+  via?: Planet;
   /** A date-sensitive rule cannot be mistaken for a timeless natal rule. */
   scope: "natal" | "date-dependent" | "frame-dependent";
   asOf?: string;
@@ -74,9 +76,20 @@ export function planetRulesBySchool(planet: Planet, snapshots: SchoolRuleSnapsho
     r.findings.filter((f) => f.subLord === planet).map((f) => ({ ruleId: f.ruleId, text: f.text,
       source: f.source, sourceUrl: f.sourceUrl, attribution: "cusp sub-lord", scope: "natal" })));
   return {
-    bnn: from(snapshots.bnn, "Fired findings listing the planet; not every indirect condition.", (r) =>
-      r.findings.filter((f) => f.planets.includes(planet)).map((f) => ({ ruleId: f.ruleId, text: f.text,
-        source: f.source, attribution: "listed planet", scope: "natal" }))),
+    bnn: from(snapshots.bnn, "Fired findings listing the planet, plus explicit sign-lord and star-lord conditions; not every indirect condition.", (r) =>
+      r.findings.flatMap((f): PlanetRuleLink[] => {
+        const base = { ruleId: f.ruleId, text: f.text, source: f.source, scope: "natal" as const };
+        if (f.planets.includes(planet)) return [{ ...base, attribution: "listed planet" }];
+        const rule = RULES.find((r) => r.id === f.ruleId);
+        const subject = rule && snapshots.bnn?.context.planet(rule.when.subject);
+        if (!rule || !subject) return [];
+        const links: PlanetRuleLink[] = [];
+        if (rule.when.subjectSignLord?.includes(planet) && SIGN_LORD[subject.position.signIndex] === planet)
+          links.push({ ...base, attribution: "sign lord", via: subject.planet });
+        if (rule.when.subjectNakshatraLord?.includes(planet) && subject.nakshatra.starLord === planet)
+          links.push({ ...base, attribution: "star lord", via: subject.planet });
+        return links;
+      })),
     kp: kp.status === "evaluated" && snapshots.kp ? { ...kp, kp: kpPlanetDetail(snapshots.kp.context, snapshots.kp.result, planet) } : kp,
     jaimini: from(snapshots.jaimini, "Fired findings listing the planet; each keeps its own rasi or navamsa scope.", (r) =>
       r.findings.filter((f) => f.planets.includes(planet)).map((f) => ({ ruleId: f.id, text: f.text,

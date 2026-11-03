@@ -76,7 +76,11 @@ test("the per-planet index uses the actual school results and refuses a mismatch
     alp: { context: natal, result: alp }, prasna: { context: natal, result: prasna },
   });
   for (const entry of Object.values(index)) assert.equal(entry.status, "evaluated");
-  assert.deepEqual(index.bnn.rules.map((r) => r.ruleId), chart.reading.findings.filter((f) => f.planets.includes("Jupiter")).map((f) => f.ruleId));
+  assert.deepEqual(index.bnn.rules.filter((r) => r.attribution === "listed planet").map((r) => r.ruleId), chart.reading.findings.filter((f) => f.planets.includes("Jupiter")).map((f) => f.ruleId));
+  assert.ok(index.bnn.rules.some((r) => r.attribution === "sign lord" && r.via === "Saturn" && r.ruleId === "sa-lord-ju"));
+  assert.ok(index.bnn.rules.every((r) => chart.reading.findings.some((f) => f.ruleId === r.ruleId)));
+  const rahu = planetRulesBySchool("Rahu", { bnn: { context: natal, result: chart.reading } }).bnn;
+  assert.ok(rahu.rules.some((r) => r.attribution === "star lord" && r.via === "Jupiter" && r.ruleId === "ju-star-ra"));
   assert.deepEqual(index.kp.rules.map((r) => r.ruleId), kp.findings.filter((f) => f.subLord === "Jupiter").map((f) => f.ruleId));
   assert.equal(index.kp.status === "evaluated" ? index.kp.kp?.point.subLord : undefined,
     kp.planets.find((p) => p.planet === "Jupiter")?.subLord);

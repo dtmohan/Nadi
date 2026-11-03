@@ -3,7 +3,7 @@
  * and the stated effects of the 1st (ch. 12) and 2nd (ch. 13) houses.
  * Text: Santhanam's translation at jyotishvidya.com. Rules the text does not state as applied are marked provisional.
  */
-import { SIGNS, SIGN_LORD, OWN_SIGNS, houseFrom, moonWaxing, type Planet, type PlanetPosition } from "./astro";
+import { SIGNS, SIGN_LORD, OWN_SIGNS, dignityOf, houseFrom, moonWaxing, type Planet, type PlanetPosition } from "./astro";
 import { listJoin, ordH, thePlanet, withGloss } from "./house-gloss";
 import { BPHS_URL } from "./parashari-data";
 import { computeVargas, type VargasResult } from "./vargas";
@@ -11,6 +11,7 @@ import type { ShadbalaResult } from "./shadbala";
 import type { HouseView } from "./house-view";
 import type { ParashariFinding, ParashariSource } from "./parashari";
 import { PHALADEEPIKA_CH15_URL } from "./chalit";
+import { ssCombust } from "./combustion";
 
 const S = (ch: number, verse: string, provisional?: boolean): ParashariSource => ({ label: `Parashara ${ch}.${verse}`, url: BPHS_URL(ch), provisional });
 
@@ -48,6 +49,23 @@ export const HOUSE_MATTERS_SOURCE = S(11, "2-13");
  */
 export { HOUSE_AREAS_PLAIN } from "./house-gloss";
 
+export interface LordInfluenceClue {
+  planet: Planet;
+  kind: "occupies" | "aspects";
+  /** Partial observations, not a pass/fail implementation of the whole verse. */
+  qualifiers: {
+    otherMaleficOccupants: Planet[];
+    otherMaleficAspects: Planet[];
+    lordDebilitated: boolean;
+    lordInNaturalEnemySign: boolean;
+    lordCombustion: "combust" | "not-combust" | "not-applicable" | "unavailable";
+  };
+  text: string;
+  plain: string;
+  source: ParashariSource;
+  combustionSource: ParashariSource;
+}
+
 export interface BhavaJudgement {
   house: number;
   signIndex: number;
@@ -63,13 +81,38 @@ export interface BhavaJudgement {
   tone: "support" | "strain" | "mixed" | "none";
   source: ParashariSource;
   /** A separate Phaladeepika clue, not part of the BPHS 11.14–16 tone or an event score. */
-  lordAspectClue?: { planet: Planet; text: string; plain: string; source: ParashariSource };
+  lordAspectClue?: LordInfluenceClue;
+  /** The alternative occupation condition of the same verse, separately identified. */
+  lordOccupancyClue?: LordInfluenceClue;
   /** Bhava chalit colour: planets that leave or enter this house under either construction. Annotation only. */
   chalitNote?: string;
 }
 export const BHAVA_JUDGEMENT_SOURCE = S(11, "14-16", true);
 export const LORD_ASPECT_SOURCE: ParashariSource = { label: "Phaladeepika 15.1 (Sastri translation)", url: PHALADEEPIKA_CH15_URL, provisional: true };
-export const LORD_ASPECT_QUALIFICATION = "A house lord's aspect is one condition in Phaladeepika 15.1. The verse also discusses freedom from malefic influence and the condition of the planets; this clue alone does not establish the complete rule or an event promise.";
+export const LORD_INFLUENCE_COMBUSTION_SOURCE: ParashariSource = { label: "Surya Siddhanta 9.6–9, 10.1 (longitude convention)", url: "https://archive.org/stream/SuryaSiddhantaTranslation/surya_siddhanta_english_djvu.txt", provisional: true };
+export const LORD_ASPECT_QUALIFICATION = "A house lord's occupation or aspect is one condition in Phaladeepika 15.1. The verse also discusses freedom from malefic influence and the condition of the planets; this clue alone does not establish the complete rule or an event promise.";
+
+/** The observations below deliberately do not resolve the condition of every
+ * influencing planet, degree aspects or differing translations of the verse. */
+function ownLordInfluence(kind: LordInfluenceClue["kind"], lord: PlanetPosition, houseSign: number,
+  occupants: PlanetPosition[], positions: PlanetPosition[], deps: HouseDeps): LordInfluenceClue {
+  const otherMalefics = positions.filter((p) => p.planet !== lord.planet && !deps.benefic(p, positions));
+  const otherMaleficOccupants = occupants.filter((p) => otherMalefics.some((m) => m.planet === p.planet)).map((p) => p.planet);
+  const otherMaleficAspects = otherMalefics.filter((p) => p.signIndex !== houseSign && deps.aspect(p.planet, p.signIndex, houseSign) > 0).map((p) => p.planet);
+  const sun = positions.find((p) => p.planet === "Sun");
+  const lordCombustion = lord.planet === "Sun" ? "not-applicable" : !sun ? "unavailable" : ssCombust(lord, sun.lon) ? "combust" : "not-combust";
+  const qualifiers: LordInfluenceClue["qualifiers"] = { otherMaleficOccupants, otherMaleficAspects,
+    lordDebilitated: dignityOf(lord.planet, lord.signIndex, lord.degInSign) === "Debilitated",
+    lordInNaturalEnemySign: ENEMIES[lord.planet]?.includes(SIGN_LORD[lord.signIndex]) ?? false, lordCombustion };
+  const names = (ps: Planet[]) => ps.length ? list(ps) : "none found in this test";
+  const checks = `Other natural malefic occupants: ${names(otherMaleficOccupants)}; other natural malefic aspects at the selected floor: ${names(otherMaleficAspects)}. The lord is ${qualifiers.lordDebilitated ? "in its debilitation sign" : "not in its debilitation sign"}, ${qualifiers.lordInNaturalEnemySign ? "in a natural enemy's sign" : "not in a natural enemy's sign"}; its solar-combustion check is ${lordCombustion} (Surya Siddhanta 9.6–9, 10.1 longitude convention). These are partial checks, not the complete rule or an event promise.`;
+  const checksPlain = `Other traditionally challenging planets in this house: ${names(otherMaleficOccupants)}; looking at its sign: ${names(otherMaleficAspects)}. Its ruler is ${qualifiers.lordDebilitated ? "in a traditionally weak sign" : "not in its traditionally weak sign"} and ${qualifiers.lordInNaturalEnemySign ? "in a sign ruled by a traditional enemy" : "not in a sign ruled by a traditional enemy"}. Its proximity-to-the-Sun check is ${lordCombustion.replaceAll("-", " ")}. These are partial checks, not a complete judgment or event promise.`;
+  const condition = kind === "aspects" ? "aspects this house's sign" : "occupies this selected house";
+  return { planet: lord.planet, kind, qualifiers,
+    text: `${lord.planet}, the house lord, ${condition}. ${LORD_ASPECT_QUALIFICATION} ${checks}`,
+    plain: `${thePlanet(lord.planet)}, this house's ruler, ${kind === "aspects" ? "looks at its sign" : "is in this house"}. Mantreswara treats this as one helpful clue; his full rule also considers challenging influences and the planets' condition. ${checksPlain}`,
+    source: LORD_ASPECT_SOURCE, combustionSource: LORD_INFLUENCE_COMBUSTION_SOURCE };
+}
 
 /**
  * One line for a house whose verses read both ways. The verses give no order between them; the house test of 11.14-16,
@@ -142,11 +185,10 @@ export function judgeBhavas(positions: PlanetPosition[], view: HouseView, deps: 
     const supportPlain: string[] = [];
     const strainPlain: string[] = [];
     const ruler = `its ruler, ${thePlanet(lord)},`;
-    const lordAspects = lp.signIndex !== si && deps.aspect(lord, lp.signIndex, si) > 0;
-    const lordAspectClue = lordAspects ? { planet: lord,
-      text: `${lord}, the house lord, aspects this house's sign. ${LORD_ASPECT_QUALIFICATION}`,
-      plain: `${thePlanet(lord)}, this house's ruler, looks at its sign. Mantreswara treats this as one helpful clue; his full rule also considers challenging influences and the planets' condition. This alone does not promise an event.`,
-      source: LORD_ASPECT_SOURCE } : undefined;
+    const lordAspectClue = lp.signIndex !== si && deps.aspect(lord, lp.signIndex, si) > 0
+      ? ownLordInfluence("aspects", lp, si, occupants, positions, deps) : undefined;
+    const lordOccupancyClue = occupants.some((p) => p.planet === lord)
+      ? ownLordInfluence("occupies", lp, si, occupants, positions, deps) : undefined;
     const benIn = occupants.filter((p) => deps.benefic(p, positions)).map((p) => p.planet);
     if (benIn.length) {
       support.push(`${list(benIn)} in the house`);
@@ -185,7 +227,8 @@ export function judgeBhavas(positions: PlanetPosition[], view: HouseView, deps: 
       strainPlain.push(`${ruler} loses a planetary war, which takes strength away`);
     }
     const tone = support.length && strain.length ? "mixed" : support.length ? "support" : strain.length ? "strain" : "none";
-    out.push({ house: h, signIndex: si, lord, lordHouse, support, strain, supportPlain, strainPlain, tone, source: BHAVA_JUDGEMENT_SOURCE, ...(lordAspectClue ? { lordAspectClue } : {}) });
+    out.push({ house: h, signIndex: si, lord, lordHouse, support, strain, supportPlain, strainPlain, tone, source: BHAVA_JUDGEMENT_SOURCE,
+      ...(lordAspectClue ? { lordAspectClue } : {}), ...(lordOccupancyClue ? { lordOccupancyClue } : {}) });
   }
   return out;
 }

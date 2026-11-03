@@ -1324,7 +1324,7 @@ export function evaluate(
       continue;
     if (
       w.subjectNakshatraLord &&
-      !w.subjectNakshatraLord.includes(s.nakshatraLord)
+      !w.subjectNakshatraLord.includes(context.requirePlanet(s.planet).nakshatra.starLord)
     )
       continue;
     if (
@@ -1411,7 +1411,7 @@ export function evaluate(
     if (w.object) {
       const o = byPlanet[w.object];
       if (!o) continue;
-      if (w.exchange && !(s.signLord === o.planet && o.signLord === s.planet))
+      if (w.exchange && !(SIGN_LORD[s.signIndex] === o.planet && SIGN_LORD[o.signIndex] === s.planet))
         continue;
       const rel = context.bnnRelation(s.planet, o.planet);
       const allowed = w.exchange
@@ -1547,9 +1547,8 @@ export function evaluate(
           ? `Backed into ${SIGNS[p.signIndex]} from ${SIGNS[(p.signIndex + 1) % 12]}, so it is not read from the sign before.`
           : `Under Rahu or Ketu, so it is not read from the previous sign.`,
       );
-    parts.push(
-      `Sign lord ${SIGN_LORD[p.signIndex]}; nakshatra ${p.nakshatra} (${p.nakshatraLord}).`,
-    );
+    const star = context.requirePlanet(p.planet).nakshatra;
+    parts.push(`Sign lord ${SIGN_LORD[p.signIndex]}; nakshatra ${star.star} (${star.starLord}).`);
     return {
       sign: SIGNS[p.signIndex],
       retro: p.retrograde,

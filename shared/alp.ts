@@ -395,7 +395,7 @@ function alpRuleFrame(context: PlanetContext, natalLagnaLon: number, birth: Date
   const signEnd = (point.signIndex + 1) * 30;
   const nakStraddlesAhead = nakEnd > signEnd + 1e-9;
   const arp = computeArp(positions, birth, asOf, janma, alp, point);
-  const findings0 = evaluateAlp({ positions, janma, alp, point, natalLagna, houses, placements, nakStraddlesAhead, arp });
+  const findings0 = evaluateAlp({ positions, context, janma, alp, point, natalLagna, houses, placements, nakStraddlesAhead, arp });
   const findings = withhold ? redactSensitive(findings0) : findings0;
   const marriage = alpMarriageContext(positions, natalLagna, point, arp);
   return { natalLagna, point, janma, alp, houses, placements, arp, findings, marriage };

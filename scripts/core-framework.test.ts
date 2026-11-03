@@ -46,6 +46,33 @@ test("an own-lord aspect is a separate qualified clue even for a natural malefic
   assert.deepEqual(dateParashariNatalCatalogue(natal, ["Venus", "Moon", "Saturn"])!.natal, natal);
 });
 
+test("own-lord occupation and other malefic influences are distinct partial conditions", () => {
+  const byPlanet: Partial<Record<Planet, number>> = { Sun: 130, Mars: 135, Saturn: 40 };
+  const positions = PLANETS.map((p) => describePosition(p, byPlanet[p] ?? 65, 1));
+  const deps = { aspect: (p: Planet, from: number, to: number) => drishtiQuarters(p, from, to) === 4 ? 4 : 0, benefic: naturalBenefic };
+  const fifth = judgeBhavas(positions, rashiHouseView(0, positions), deps)[4];
+  assert.equal(fifth.lordOccupancyClue?.planet, "Sun");
+  assert.equal(fifth.lordOccupancyClue?.kind, "occupies");
+  assert.ok(fifth.lordOccupancyClue?.qualifiers.otherMaleficOccupants.includes("Mars"));
+  assert.ok(!fifth.lordOccupancyClue?.qualifiers.otherMaleficOccupants.includes("Sun"));
+  assert.equal(fifth.lordOccupancyClue?.qualifiers.lordCombustion, "not-applicable");
+  assert.match(fifth.lordOccupancyClue!.text, /partial checks/);
+  assert.equal(fifth.lordAspectClue, undefined);
+
+  const aspectPositions = PLANETS.map((p) => describePosition(p, p === "Sun" ? 310 : p === "Mars" ? 40 : 65, 1));
+  const aspected = judgeBhavas(aspectPositions, rashiHouseView(0, aspectPositions), deps)[4];
+  assert.equal(aspected.lordAspectClue?.planet, "Sun");
+  assert.ok(aspected.lordAspectClue?.qualifiers.otherMaleficAspects.includes("Mars"));
+  assert.ok(!aspected.lordAspectClue?.qualifiers.otherMaleficAspects.includes("Sun"));
+
+  // Venus owns the second and occupies it close to the Sun; the Sun is
+  // reported separately, and this is Surya Siddhanta's combustion convention.
+  const venusPositions = PLANETS.map((p) => describePosition(p, p === "Venus" ? 40 : p === "Sun" ? 41 : 95, 1));
+  const second = judgeBhavas(venusPositions, rashiHouseView(0, venusPositions), deps)[1];
+  assert.equal(second.lordOccupancyClue?.qualifiers.lordCombustion, "combust");
+  assert.ok(second.lordOccupancyClue?.qualifiers.otherMaleficOccupants.includes("Sun"));
+});
+
 test("whole-sign houses contain nine quarters with all four star-split patterns", () => {
   const context = createPlanetContext([], { kind: "natal", division: "D1", ascendant: 0 });
   const houses = houseQuarterContexts("rashi", wholeSignHouseArcs(context));

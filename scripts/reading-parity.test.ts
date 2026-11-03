@@ -11,6 +11,12 @@ import { RECTIFY_METHODS } from "@shared/rectify-methods";
 import { buildReport } from "@shared/report";
 import { insertChartSchema } from "@shared/schema";
 import { KpNatalRules, ParashariNatalRules } from "../client/src/components/natal-rule-evidence";
+import { KpCatalogueEvidence } from "../client/src/components/kp-catalogue-evidence";
+import { AdditionalSchoolEventEvidence } from "../client/src/components/additional-school-event-evidence";
+import { AlpEventEvidencePanel } from "../client/src/components/alp-event-evidence";
+import { alpEventParas } from "@shared/report/alp-event-evidence";
+import { additionalSchoolParas } from "@shared/report/additional-school-event-evidence";
+import { kpCatalogueParas } from "@shared/report/kp-catalogue-evidence";
 import { computeChart } from "../server/routes";
 import { rectify } from "../server/rectify";
 import { topicReading } from "../server/topic-reading";
@@ -30,6 +36,24 @@ const asRectifyEvent = (event: ChartEvent) => { const m = matterOf(event.matter)
 test("all scoped rectification methods are inventoried", () => {
   const expected = RECTIFY_METHODS.filter((m) => m.system === "KP" || m.system === "Parashari").map((m) => m.id).sort();
   assert.deepEqual(Object.keys(RECTIFY_RULE_SCOPE).sort(), expected);
+});
+
+test("school-specific event context renders in both screen and report, with scope and citations", () => {
+  const reading = topicReading(base, eventFor("job"), asOf);
+  const html = renderToStaticMarkup(createElement(KpCatalogueEvidence, { evidence: reading.kp.natalRules })) +
+    renderToStaticMarkup(createElement(AdditionalSchoolEventEvidence, { evidence: reading.additionalNatal, school: "bj" })) +
+    renderToStaticMarkup(createElement(AlpEventEvidencePanel, { evidence: reading.alp }));
+  assert.match(html, /Four-step house links/);
+  assert.match(html, /Brihat Jataka/);
+  assert.match(html, /Progressed.*Lagna nakshatra/);
+  assert.match(html, /not a literal event-date gate/);
+  const report = JSON.stringify([...kpCatalogueParas(reading.kp.natalRules, "job"),
+    ...additionalSchoolParas(reading.additionalNatal, "job", undefined, "bj"), ...alpEventParas(reading.alp, "job")]);
+  assert.match(report, /Leena Aurora/);
+  assert.match(report, /Brihat Jataka/);
+  assert.match(report, /pp. 137–141/);
+  assert.equal(renderToStaticMarkup(createElement(AdditionalSchoolEventEvidence, {
+    evidence: topicReading(base, eventFor("marriage"), asOf).additionalNatal, school: "bj" })), "");
 });
 
 test("natal evidence is the actual date-independent part of every registered event engine", () => {
@@ -70,6 +94,7 @@ test("natal evidence is the actual date-independent part of every registered eve
       assert.equal(f.matched, topic.specific.periodSet.some((p) => p.planet === planet));
     }
     const k = kp.find((x) => x.matter === topic.matter)!;
+    assert.deepEqual(k.natalRules, dated.kp.natalRules, `${topic.matter}: KP natal catalogue and chain`);
     assert.deepEqual([k.basic.cuspSubLord, k.basic.signified, k.basic.matched, k.basic.deniedAtCusp],
       [dated.kp.cuspSubLord, dated.kp.cuspSignified, dated.kp.promised, dated.kp.deniedAtCusp]);
     if (k.strict) assert.deepEqual(k.strict.layers, dated.kp.aurora!.layers.filter((l) => l.role.startsWith("Cusp ")));

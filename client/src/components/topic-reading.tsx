@@ -158,6 +158,7 @@ export function TopicReadingPanel({ result, system, onSelected }: {
       {system === "parashari" && <>
         <p className="text-muted-foreground">The natal, period-lord and event-specific transit observations below come from the same Parashari checks as Validate. Favourable-event checks describe that scenario; they do not predict the outcome. The points are experimental app conventions; the staged links are a partial check.</p>
         <ParashariCatalogueEvidence evidence={shown.reading.parashariOrdinary} />
+        <AdditionalSchoolEventEvidence evidence={shown.reading.additionalNatal} school="bj" />
         {shown.reading.parashariVargas && <ParashariVargaEvidencePanel evidence={shown.reading.parashariVargas} />}
         {shown.reading.parashariPromise && <ParashariPromisePanel check={shown.reading.parashariPromise} />}
         {shown.reading.parashariSpecific && <ParashariSpecificPanel check={shown.reading.parashariSpecific} />}

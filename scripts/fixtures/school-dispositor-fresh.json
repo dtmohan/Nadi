@@ -1,0 +1,47 @@
+{
+  "selection": "Four people with publicly reported birth times, from Brazil, Sweden and Switzerland, chosen before running this evaluation for different professions, places and event types. Published birth records and their quoted times are reference data, not independently verified precise truths. Event instants without an evidenced clock time use local noon. This is a pathway and diagnostic-sensitivity audit, not a predictive accuracy study.",
+  "cases": [
+    {
+      "name": "Tereza Cristina", "background": "Brazilian agronomist and politician",
+      "birthSource": "https://www.astro.com/astro-databank/Tereza_Cristina",
+      "chart": { "name": "Tereza Cristina", "gender": "female", "birthDate": "1954-07-06", "birthTime": "15:30", "timezone": "America/Campo_Grande", "timeStandard": "-04:00", "place": "Campo Grande, Brazil", "latitude": -20.442778, "longitude": -54.646389, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "tropicalSun": 104.1666667, "tropicalMoon": 180.3166667,
+      "events": [
+        { "id": "deputy", "matter": "job", "date": "2015-02-01", "timezone": "America/Sao_Paulo", "note": "Federal deputy took office in Brasilia; noon is assumed.", "sources": ["https://www.camara.leg.br/deputados/178901/biografia"] },
+        { "id": "minister", "matter": "job", "date": "2019-01-01", "timezone": "America/Sao_Paulo", "note": "Official start of the ministerial appointment; the signing ceremony is also reported on 2 January, so these should not be confused. Noon is assumed.", "sources": ["https://www.camara.leg.br/deputados/178901/biografia", "https://amazonasatual.com.br/ministra-da-agricultura-ignora-indios-e-promete-reduzir-a-burocracia/"] },
+        { "id": "senate", "matter": "job", "date": "2023-02-01", "timezone": "America/Sao_Paulo", "note": "Senate term began in Brasilia; noon is assumed, not the reported session time.", "sources": ["https://gobps.com.br/representantes/tereza-cristina/", "https://www25.senado.leg.br/web/atividade/notas-taquigraficas/-/notas/s/25345"] }
+      ]
+    },
+    {
+      "name": "Louis Schweitzer", "background": "Swiss-born French business executive",
+      "birthSource": "https://www.astro.com/astro-databank/Schweitzer%2C_Louis",
+      "chart": { "name": "Louis Schweitzer", "gender": "male", "birthDate": "1942-07-08", "birthTime": "09:03", "timezone": "Europe/Zurich", "timeStandard": "+02:00", "place": "Geneva, Switzerland", "latitude": 46.2, "longitude": 6.15, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "2025-11-06" },
+      "tropicalSun": 105.4833333, "tropicalMoon": 48.5,
+      "events": [
+        { "id": "renault", "matter": "job", "date": "1992-05-27", "timezone": "Europe/Paris", "note": "Renault chair; Paris zone and noon are assumptions.", "sources": ["https://journalauto.com/constructeurs/entretien-avec-louis-schweitzer-pdg-de-renault-une-entreprise-qui-pense-etre-installee-est-une-entreprise-dont-le-declin-a-commence/", "https://news.cision.com/astrazeneca/r/astrazeneca-board-announcement%2Cc128610"] },
+        { "id": "board", "matter": "job", "date": "2004-03-11", "timezone": "Europe/London", "note": "Joined AstraZeneca's board; London zone and noon are assumptions, not independently verified meeting details.", "sources": ["https://www.sec.gov/Archives/edgar/vprr/0403/04030197.pdf", "https://www.annualreports.co.uk/HostedData/AnnualReportArchive/a/LSE_AZN_2007.pdf"] },
+        { "id": "chair", "matter": "job", "date": "2005-01-01", "timezone": "Europe/London", "note": "AstraZeneca chair appointment effective; London zone and noon are assumptions, and this is the effective date, not the announcement date.", "sources": ["https://news.cision.com/astrazeneca/r/astrazeneca-board-announcement%2Cc128610", "https://docs.publicnow.com/viewDoc.aspx?filename=29177%5CEXT%5CDD80070057E2984D588AB1E7E7FEFD5EB4AEED47_2C1410B3AFF64D4CD690677B26557FD1950E97AA.PDF"] }
+      ]
+    },
+    {
+      "name": "Britt Ekland", "background": "Swedish actress and singer",
+      "birthSource": "https://www.astro.com/astro-databank/Ekland%2C_Britt",
+      "chart": { "name": "Britt Ekland", "gender": "female", "birthDate": "1942-10-06", "birthTime": "00:20", "timezone": "Europe/Stockholm", "timeStandard": "+01:00", "place": "Stockholm, Sweden", "latitude": 59.333333, "longitude": 18.05, "ayanamsa": "lahiri", "nodeType": "mean" },
+      "tropicalSun": 192.0833333, "tropicalMoon": 141.2,
+      "events": [
+        { "id": "marriage", "matter": "marriage", "date": "1964-02-19", "timezone": "Europe/London", "note": "Marriage to Peter Sellers; London zone and noon assumed.", "sources": ["https://www.astro.com/astro-databank/Ekland%2C_Britt", "https://www.encyclopedia.com/education/news-wires-white-papers-and-books/ekland-britt-1942-britt-marie-eklund-britt-marie-eklund"] },
+        { "id": "daughter", "matter": "child", "date": "1965-01-20", "timezone": "Europe/London", "note": "Birth of daughter Victoria; noon assumed.", "sources": ["https://www.astro.com/astro-databank/Ekland%2C_Britt", "https://www.imdb.com/name/nm0001180/trivia/"] },
+        { "id": "son", "matter": "child", "date": "1988-03-31", "timezone": "America/Los_Angeles", "note": "Birth of son T.J.; Los Angeles location is reported in a family-history page and noon assumed. A different son's year and the second wedding date conflict across sources, so neither is included.", "sources": ["https://www.astro.com/astro-databank/Ekland%2C_Britt", "https://www.imdb.com/name/nm0001180/trivia/", "https://www.ancientfaces.com/user/amelia-brock/477476"] }
+      ]
+    },
+    {
+      "name": "João Gilberto", "background": "Brazilian singer and guitarist",
+      "birthSource": "https://www.astro.com/astro-databank/Gilberto%2C_Jo%C3%A3o",
+      "chart": { "name": "João Gilberto", "gender": "male", "birthDate": "1931-06-10", "birthTime": "07:00", "timezone": "America/Bahia", "timeStandard": "-03:00", "place": "Juazeiro, Brazil", "latitude": -9.413611, "longitude": -40.503056, "ayanamsa": "lahiri", "nodeType": "mean", "deathDate": "2019-07-06" },
+      "tropicalSun": 78.5666667, "tropicalMoon": 11.9833333,
+      "events": [
+        { "id": "daughter", "matter": "child", "date": "1966-05-12", "timezone": "America/New_York", "note": "Daughter Bebel's birth in New York; noon assumed. A single dated event is not enough for the joint random-date baseline.", "sources": ["https://www.washingtonpost.com/express/wp/2007/06/21/island_princess/", "https://www.allmusic.com/artist/bebel-gilberto-mn0000163435"] }
+      ]
+    }
+  ]
+}
