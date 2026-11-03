@@ -109,9 +109,12 @@ import { SchoolTopicPanel } from "@/components/school-topic-brief";
 import { KpNatalRules } from "@/components/natal-rule-evidence";
 import { InfoBox, InfoBoxTitle, InfoBoxDescription, INFO_BOX_ROWS, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
 import { AuroraSelfPanel } from "@/components/kp-aurora-evidence";
+import { LocalizedText, useLocale } from "@/lib/i18n";
+import { kpHereMalayalam, kpTimingMalayalam } from "@shared/school-topic-malayalam";
 
 /** Per-planet trace is restricted to this KP result and its selected significator convention. */
 function KpPlanetExplanations({ kp, sixStep }: { kp: KpResult; sixStep: boolean }) {
+  const soft = useSoften();
   const stages = ["A", "B", "C", "D", ...(sixStep ? ["E", "F"] : [])] as SignificatorLevel[];
   return <InfoBox className="mt-4" data-testid="kp-planet-explanations">
     <InfoBoxTitle>What each planet signifies in KP</InfoBoxTitle>
@@ -124,7 +127,7 @@ function KpPlanetExplanations({ kp, sixStep }: { kp: KpResult; sixStep: boolean 
         <p className="mt-2">In this chart {p.planet} is in {p.sign}, in the {ordinal(p.house)} house ({houseGloss("kp", p.house)}). Its star lord is {p.starLord} and its sub-lord is {p.subLord}.</p>
         {s && <ul className="mt-2 space-y-1">{stages.flatMap((stage) => s.levels[stage].length ? [<li key={stage}>{kpStageLabel(p, stage)} the {listJoin(s.levels[stage].map((h) => withGloss("kp", h)))}.</li>] : [])}</ul>}
         {s?.agentFor?.length ? <p className="mt-1 text-muted-foreground">This node also represents {listJoin(s.agentFor)} under the app's KP node convention.</p> : null}
-        {findings.length > 0 && <div className="mt-2"><p className="font-medium">Selected cusp rules where {p.planet} is the sub-lord</p><ul className="mt-1 space-y-2">{findings.slice(0, 3).map((f) => <li key={f.ruleId}><span className="font-medium">{f.topic}:</span> <Soft>{kpFindingPlain(f)}</Soft> <span className="text-muted-foreground">{kpHerePlain(f)} {f.standing === "note" ? "This is a secondary note." : ""}</span> <Cite href={f.sourceUrl}>{f.source}</Cite></li>)}</ul></div>}
+        {findings.length > 0 && <div className="mt-2"><p className="font-medium">Selected cusp rules where {p.planet} is the sub-lord</p><ul className="mt-1 space-y-2">{findings.slice(0, 3).map((f) => <li key={f.ruleId}><span className="font-medium">{f.topic}:</span> <LocalizedText>{soft(kpFindingPlain(f))}</LocalizedText> <span className="text-muted-foreground">{kpHerePlain(f)} {f.standing === "note" ? "This is a secondary note." : ""}</span> <Cite href={f.sourceUrl}>{f.source}</Cite></li>)}</ul></div>}
         {!findings.length && <p className="mt-2 text-muted-foreground">No additional plain cusp interpretation is selected here; the house links above remain chart facts.</p>}
       </details>;
     })}</div>
@@ -470,6 +473,7 @@ function WindowDrill({
 }
 
 export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTopicSelected?: (event: ChartEvent | null) => void }) {
+  const { locale } = useLocale();
   const nowLabel = useNowLabel();
   const { chart } = result;
   const { mode } = useReadingMode();
@@ -1579,18 +1583,14 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
                               note
                             </span>
                           )}
-                          <Soft>{plain ? kpFindingPlain(f) : f.text}</Soft>
+                          <LocalizedText>{soft(plain ? kpFindingPlain(f) : f.text)}</LocalizedText>
                           {f.timing && (
                             <span
                               className="ml-1.5 text-xs text-muted-foreground"
                               data-testid={`kp-finding-timing-${f.ruleId}`}
                             >
                               {plain ? (
-                                kpTimingPlain(
-                                  f.timing,
-                                  planetsFor(f.timing),
-                                  kp.planets.length,
-                                )
+                                locale === "ml" ? <span lang="ml">{kpTimingMalayalam(f.timing, planetsFor(f.timing), kp.planets.length)}</span> : kpTimingPlain(f.timing, planetsFor(f.timing), kp.planets.length)
                               ) : (
                                 <>
                                   Timing: joint periods of {f.timing.join("-")}{" "}
@@ -1608,7 +1608,7 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
                               className="mt-0.5 block text-xs text-muted-foreground"
                               data-testid={`kp-here-${f.ruleId}`}
                             >
-                              {kpHerePlain(f)}
+                              {locale === "ml" && kpHereMalayalam(f) ? <span lang="ml">{kpHereMalayalam(f)}</span> : kpHerePlain(f)}
                             </span>
                           )}
                           {mode === "practitioner" && (

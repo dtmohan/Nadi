@@ -153,6 +153,7 @@ for (const planet of Object.keys(PLACEMENT_TABLE) as Planet[])
 // would print with a deny-listed phrase fails the test until the filter rewrites it.
 const SWEEP_EXEMPT: { file: string; test: (t: string) => boolean; why: string }[] = [
   { file: "events.ts", test: (t) => /^Loss of (father|mother|spouse)$/.test(t), why: "event types the user records, not readings" },
+  { file: "localization.ts", test: (t) => /^Loss of (father|mother|spouse)$/.test(t), why: "the same user-recorded event labels, not predictions" },
   { file: "alp-karakatwas.ts", test: (t) => t === "dead trees", why: "a signification (Saturn's), not a reading" },
   { file: "glossary.ts", test: (t) => t.startsWith("Span of life, classified as"), why: "a glossary definition" },
   { file: "life-stage.ts", test: () => true, why: "the patterns that detect sensitive text" },

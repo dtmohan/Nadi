@@ -1,0 +1,28 @@
+/** Translations of the entered BPHS ch. 24 seventh- and tenth-lord paraphrases.
+ * English source text is checked before reuse, so an edited verse cannot inherit stale wording. */
+export const MALAYALAM_PARASHARI_LORDS: Record<number, { source: string; text: string }> = {
+  73: { source: "Attraction outside the marriage; skilled but timid; wind and nerve complaints.", text: "വിവാഹത്തിന് പുറത്തുള്ള ആകർഷണം; കഴിവുണ്ടെങ്കിലും ഭീരുത്വം; വാതവും നാഡീസംബന്ധമായ പരാതികളും." },
+  74: { source: "More than one union; wealth through the spouse; a habit of putting things off.", text: "ഒന്നിലധികം ദാമ്പത്യബന്ധങ്ങൾ; പങ്കാളിയിലൂടെ ധനം; കാര്യങ്ങൾ മാറ്റിവയ്ക്കുന്ന ശീലം." },
+  75: { source: "Loss of children or a single child kept with difficulty; a daughter more likely.", text: "സന്താനനഷ്ടമോ പ്രയാസത്തോടെ നിലനിർത്തുന്ന ഒരേയൊരു സന്താനമോ; പെൺകുഞ്ഞിനുള്ള സാധ്യത കൂടുതലെന്നും ഉറവിടം പറയുന്നു." },
+  76: { source: "A spouse who will not be governed; truthful, intelligent and religious; dental trouble.", text: "നിയന്ത്രണത്തിനു വഴങ്ങാത്ത പങ്കാളി; സത്യസന്ധത, ബുദ്ധി, മതവിശ്വാസം; ദന്തസംബന്ധമായ ബുദ്ധിമുട്ട്." },
+  77: { source: "Honoured and endowed with every virtue; always cheerful; wealth of every kind.", text: "ബഹുമാനവും സദ്ഗുണങ്ങളും; എപ്പോഴും സന്തോഷം; പലതരത്തിലുള്ള ധനം." },
+  78: { source: "A sickly spouse and friction with them; anger and little happiness.", text: "പങ്കാളിയുടെ ആരോഗ്യപ്രശ്നങ്ങളും അവരുമായുള്ള അഭിപ്രായവ്യത്യാസവും; കോപവും സന്തോഷക്കുറവും." },
+  79: { source: "Happiness through the spouse; courageous, skilled and intelligent; wind complaints.", text: "പങ്കാളിയിലൂടെ സന്തോഷം; ധൈര്യവും കഴിവും ബുദ്ധിയും; വാതസംബന്ധമായ പരാതികൾ." },
+  80: { source: "Marital happiness withheld; the spouse ill, difficult and independent.", text: "ദാമ്പത്യസന്തോഷത്തിന് കുറവ്; പങ്കാളി രോഗമുള്ളതും പ്രയാസമുള്ളതും സ്വതന്ത്ര സ്വഭാവമുള്ളതുമാണെന്ന വ്യാഖ്യാനം." },
+  81: { source: "Many attachments yet well disposed to the spouse; many undertakings.", text: "അനേകം ബന്ധങ്ങളുണ്ടെങ്കിലും പങ്കാളിയോട് അനുകൂല മനോഭാവം; പല സംരംഭങ്ങൾ." },
+  82: { source: "A spouse who goes their own way; religious; wealth and children.", text: "സ്വന്തം വഴിക്ക് പോകുന്ന പങ്കാളി; മതവിശ്വാസം; ധനവും സന്താനവും." },
+  83: { source: "Wealth through the spouse; less happiness from children; daughters.", text: "പങ്കാളിയിലൂടെ ധനം; സന്താനത്തിലൂടെ സന്തോഷക്കുറവ്; പെൺമക്കൾ." },
+  84: { source: "Want and miserliness; a livelihood in cloth; a spouse who spends.", text: "ദാരിദ്ര്യവും പിശുക്കും; തുണിത്തരങ്ങളിലൂടെയുള്ള ഉപജീവനം; ചെലവഴിക്കുന്ന പങ്കാളി." },
+  109: { source: "Scholarly, famous, a poet; illness in childhood, happiness later; wealth that grows day by day.", text: "പാണ്ഡിത്യം, പ്രശസ്തി, കാവ്യരചന; ബാല്യത്തിൽ അസുഖവും പിന്നീട് സന്തോഷവും; ദിനംപ്രതി വർധിക്കുന്ന ധനം." },
+  110: { source: "Wealthy, virtuous, honoured by the state, charitable; happiness from the father.", text: "ധനവും സദ്ഗുണവും ഭരണകൂടത്തിൽനിന്നുള്ള ബഹുമാനവും ദാനശീലവും; അച്ഛനിലൂടെ സന്തോഷം." },
+  111: { source: "Happiness through siblings and helpers; brave, virtuous, eloquent and truthful.", text: "സഹോദരങ്ങളിലൂടെയും സഹായികളിലൂടെയും സന്തോഷം; ധൈര്യം, സദ്ഗുണം, വാക്ചാതുര്യം, സത്യസന്ധത." },
+  112: { source: "Happy; devoted to the mother's welfare; master of vehicles, land and houses; virtuous and wealthy.", text: "സന്തോഷം; അമ്മയുടെ ക്ഷേമത്തിൽ ശ്രദ്ധ; വാഹനങ്ങൾ, ഭൂമി, വീടുകൾ എന്നിവയുടെ ഉടമസ്ഥത; സദ്ഗുണവും ധനവും." },
+  113: { source: "Every kind of learning; always cheerful; wealth and children.", text: "പലതരം അറിവുകൾ; എപ്പോഴും സന്തോഷം; ധനവും സന്താനവും." },
+  114: { source: "No happiness from the father; skilled but without wealth; troubled by rivals.", text: "അച്ഛനിലൂടെ സന്തോഷക്കുറവ്; കഴിവുണ്ടെങ്കിലും ധനക്കുറവ്; എതിരാളികളിൽനിന്നുള്ള വിഷമം." },
+  115: { source: "Happiness through the spouse; intelligent, virtuous, eloquent, truthful and religious.", text: "പങ്കാളിയിലൂടെ സന്തോഷം; ബുദ്ധി, സദ്ഗുണം, വാക്ചാതുര്യം, സത്യസന്ധത, മതവിശ്വാസം." },
+  116: { source: "Without worthy work; long-lived; given to blaming others.", text: "യോഗ്യമായ ജോലിയില്ല; ദീർഘായുസ്സ്; മറ്റുള്ളവരെ കുറ്റപ്പെടുത്തുന്ന സ്വഭാവം." },
+  117: { source: "Rulership for the well-born, the equal of it for others; wealth and happiness through children.", text: "ഉയർന്ന കുടുംബത്തിൽ ജനിച്ചവർക്ക് ഭരണസ്ഥാനവും മറ്റുള്ളവർക്ക് അതിനു തുല്യമായ സ്ഥാനവും; സന്താനത്തിലൂടെ ധനവും സന്തോഷവും." },
+  118: { source: "Skilled in every task; brave, truthful and devoted to elders.", text: "എല്ലാ കാര്യങ്ങളിലും കഴിവ്; ധൈര്യം, സത്യസന്ധത, മുതിർന്നവരോടുള്ള ആദരവ്." },
+  119: { source: "Wealth, happiness and children.", text: "ധനം, സന്തോഷം, സന്താനം." },
+  120: { source: "Spending through the powerful; fear of rivals; worried despite skill.", text: "അധികാരമുള്ളവർ മൂലമുള്ള ചെലവ്; എതിരാളികളെക്കുറിച്ചുള്ള ഭയം; കഴിവുണ്ടെങ്കിലും ആശങ്ക." },
+};

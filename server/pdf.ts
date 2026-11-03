@@ -150,7 +150,10 @@ export function drawSouthIndianChart(doc: Doc, x: number, y: number, size: numbe
     }
   }
   // centre text
+  const markedTitle = /[\u0d00-\u0d7f]/.test(title);
+  if (markedTitle) doc.markContent("Span", { actual: title, lang: "ml" });
   doc.font("Times-Bold").fontSize(11).fillColor(INK).text(title, x + cell, y + cell + cell * 0.75, { width: cell * 2, align: "center" });
+  if (markedTitle) doc.endMarkedContent();
   doc.font("Helvetica").fontSize(7.5).fillColor(MUTED).text(subtitle, x + cell, doc.y + 2, { width: cell * 2, align: "center" });
   doc.font("Helvetica").fontSize(6.5).fillColor(MUTED).text(opts.footer ?? "Rasi · sidereal", x + cell, y + cell * 3 - 14, { width: cell * 2, align: "center" });
   doc.restore();

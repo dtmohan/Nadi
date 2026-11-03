@@ -10,6 +10,8 @@ import { useOpenLink } from "@/components/briefing";
 import type { BriefLink } from "@shared/briefing";
 import { InfoBox, InfoBoxTitle, InfoBoxDescription, INFO_BOX_INSET, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
 import { cn } from "@/lib/utils";
+import { LocalizedText, useLocale, useT } from "@/lib/i18n";
+import { kpHouseMalayalam } from "@shared/school-topic-malayalam";
 
 const KP_HOUSE: Partial<Record<SchoolTopicBrief["topic"], number>> = { career: 10, marriage: 7, children: 5, father: 9, mother: 4 };
 const PARASHARI_HOUSE: Partial<Record<SchoolTopicBrief["topic"], number>> = { career: 10, marriage: 7, children: 5, father: 10, mother: 4 };
@@ -33,26 +35,32 @@ export function schoolDetailsLink(brief: SchoolTopicBrief): BriefLink {
 }
 
 export function SchoolTopicExplanation({ brief, onOpen }: { brief: SchoolTopicBrief; onOpen?: () => void }) {
-  return <div className="space-y-1.5 text-sm leading-relaxed" data-testid={`plain-school-${brief.school}-${brief.topic}`}>
-    {brief.frame && <p className="text-xs font-medium text-muted-foreground">{brief.frame}</p>}
-    <p>{brief.summary}</p>
-    {brief.explanation?.map((line, i) => <p key={i} className="text-xs leading-relaxed" data-testid={`school-topic-context-${brief.school}-${brief.topic}-${i}`}><Soft>{line}</Soft></p>)}
-    {!!brief.explanationHouses?.length && <details className="text-xs text-muted-foreground"><summary className="cursor-pointer font-medium">What these KP houses mean</summary><ul className="mt-1 space-y-0.5">{brief.explanationHouses.map((h) => <li key={h.house}>{ordH(h.house)}: {h.meaning}.</li>)}</ul></details>}
+  const { locale } = useLocale();
+  const t = useT();
+  const line = (english: string, malayalam?: string) => locale === "ml" && malayalam
+    ? <span lang="ml">{malayalam}</span>
+    : <span lang="en"><Soft>{english}</Soft></span>;
+  const basis = schoolTopicBasisPlain(brief);
+  return <div className="space-y-1.5 text-sm leading-relaxed" lang={locale} data-testid={`plain-school-${brief.school}-${brief.topic}`}>
+    {brief.frame && <p className="text-xs font-medium text-muted-foreground">{line(brief.frame, brief.ml?.frame)}</p>}
+    <p>{line(brief.summary, brief.ml?.summary)}</p>
+    {brief.explanation?.map((text, i) => <p key={i} className="text-xs leading-relaxed" data-testid={`school-topic-context-${brief.school}-${brief.topic}-${i}`}>{line(text, brief.ml?.explanation?.[i])}</p>)}
+    {!!brief.explanationHouses?.length && <details className="text-xs text-muted-foreground"><summary className="cursor-pointer font-medium">{t("What these KP houses mean")}</summary><ul className="mt-1 space-y-0.5">{brief.explanationHouses.map((h) => <li key={h.house}>{locale === "ml" ? `${h.house}-ാം ഭാവം: ${kpHouseMalayalam[h.house]}.` : `${ordH(h.house)}: ${h.meaning}.`}</li>)}</ul></details>}
     {brief.details?.[0] && !brief.summary.includes(brief.details[0].text) && <p className="text-xs leading-relaxed" data-testid={`school-topic-source-${brief.school}-${brief.topic}`}>
-      <Soft>{brief.details[0].text}</Soft>{" "}{brief.details[0].sourceUrl ? <a className="underline" href={brief.details[0].sourceUrl} target="_blank" rel="noreferrer">{brief.details[0].source}</a> : <span className="text-muted-foreground">{brief.details[0].source}</span>}
+      {line(brief.details[0].text, brief.ml?.details?.[brief.details[0].id])}{" "}<span lang="en">{brief.details[0].sourceUrl ? <a className="underline" href={brief.details[0].sourceUrl} target="_blank" rel="noreferrer">{brief.details[0].source}</a> : <span className="text-muted-foreground">{brief.details[0].source}</span>}</span>
     </p>}
-    <p className="text-xs text-muted-foreground">{brief.limit}</p>
-    {brief.conditional && <p className="text-xs text-muted-foreground">This assessment is conditional on the birth time.</p>}
-    {brief.provisional && <p className="text-xs text-muted-foreground" data-testid="school-topic-provisional">Provisional: {brief.reason || "This classification includes an app interpretation."}</p>}
+    <p className="text-xs text-muted-foreground">{line(brief.limit, brief.ml?.limit)}</p>
+    {brief.conditional && <p className="text-xs text-muted-foreground"><LocalizedText>This assessment is conditional on the birth time.</LocalizedText></p>}
+    {brief.provisional && <p className="text-xs text-muted-foreground" data-testid="school-topic-provisional">{t("Provisional")}: {line(brief.reason || "This classification includes an app interpretation.", brief.ml?.reason)}</p>}
     <details className="text-xs text-muted-foreground">
-      <summary className="cursor-pointer font-medium">Show the basis</summary>
-      <p className="mt-1"><Soft>{schoolTopicBasisPlain(brief)}</Soft></p>
+      <summary className="cursor-pointer font-medium">{t("Show the basis")}</summary>
+      <p className="mt-1">{line(basis, basis === brief.basis ? brief.ml?.basis : undefined)}</p>
       {!!brief.details?.length && <ul className="mt-2 space-y-2">{brief.details.map((d) => <li key={d.id}>
-        <p><Soft>{d.text}</Soft></p>
-        <p className="mt-0.5">{d.sourceUrl ? <a className="underline" href={d.sourceUrl} target="_blank" rel="noreferrer">{d.source}</a> : d.source}</p>
+        <p>{line(d.text, brief.ml?.details?.[d.id])}</p>
+        <p className="mt-0.5" lang="en">{d.sourceUrl ? <a className="underline" href={d.sourceUrl} target="_blank" rel="noreferrer">{d.source}</a> : d.source}</p>
       </li>)}</ul>}
     </details>
-    {onOpen && <button type="button" onClick={onOpen} className="text-xs font-medium text-primary underline-offset-2 hover:underline">See {SCHOOL_NAME[brief.school]} details</button>}
+    {onOpen && <button type="button" onClick={onOpen} className="text-xs font-medium text-primary underline-offset-2 hover:underline">{locale === "ml" ? `${SCHOOL_NAME[brief.school]} വിശദാംശങ്ങൾ കാണുക` : `See ${SCHOOL_NAME[brief.school]} details`}</button>}
   </div>;
 }
 
@@ -62,16 +70,18 @@ export function SchoolTopicPanel({ result, school, options }: { result: ChartRes
   const input = useAgreementInput(result);
   const agreement = useAgreement(result, input);
   const open = useOpenLink();
+  const { locale } = useLocale();
+  const t = useT();
   const topics = useMemo(() => expandedSchoolTopicBriefs(result, school, input, agreement, options), [result, school, input, agreement, options]);
   if (!plain) return null;
   if (!topics.length) return null;
-  return <InfoBox className="mt-4" data-testid={`plain-school-topics-${school}`}>
-    <InfoBoxTitle>Life topics in {SCHOOL_NAME[school]}</InfoBoxTitle>
-    <InfoBoxDescription>Each summary describes selected, entered interpretations with their original scope. A house can cover several matters; a missing rule is not a negative verdict. Birth-time uncertainty can change house-based readings.</InfoBoxDescription>
-    {school === "kp" && <InfoBoxDescription>These cards use the four-step comparison. The KP table's six-step option is separate; an education sensitivity check is shown when it changes a selected rule.</InfoBoxDescription>}
+  return <InfoBox className="mt-4" lang={locale} data-testid={`plain-school-topics-${school}`}>
+    <InfoBoxTitle>{locale === "ml" ? `${SCHOOL_NAME[school]} ജീവിതവിഷയങ്ങൾ` : `Life topics in ${SCHOOL_NAME[school]}`}</InfoBoxTitle>
+    <InfoBoxDescription><LocalizedText>Each summary describes selected, entered interpretations with their original scope. A house can cover several matters; a missing rule is not a negative verdict. Birth-time uncertainty can change house-based readings.</LocalizedText></InfoBoxDescription>
+    {school === "kp" && <InfoBoxDescription><LocalizedText>These cards use the four-step comparison. The KP table's six-step option is separate; an education sensitivity check is shown when it changes a selected rule.</LocalizedText></InfoBoxDescription>}
     <div className="mt-4 grid grid-cols-2 items-start gap-2 lg:grid-cols-3">
       {topics.map((brief) => <details className={cn(INFO_BOX_INSET, "open:col-span-2 lg:open:col-span-3")} key={brief.topic}>
-        <summary className={INFO_BOX_ROW_SUMMARY}>{SCHOOL_TOPIC_LABEL[brief.topic]}</summary>
+        <summary className={INFO_BOX_ROW_SUMMARY}>{t(SCHOOL_TOPIC_LABEL[brief.topic])}</summary>
         <div className="mt-2"><SchoolTopicExplanation brief={brief} onOpen={() => open(schoolDetailsLink(brief))} /></div>
       </details>)}
     </div>

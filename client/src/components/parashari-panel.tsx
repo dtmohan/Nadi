@@ -10,6 +10,8 @@ import {
 } from "@shared/life-stage";
 import { GentleNote, Soft } from "@/lib/gentle";
 import { formationOnly } from "@shared/gentle";
+import { useLocale } from "@/lib/i18n";
+import { parashariHouseContextMalayalam, parashariLordMalayalam } from "@shared/school-topic-malayalam";
 import { natalPlanetContext } from "@shared/planet-context";
 import { BphsDignityContextPanel } from "@/components/bphs-dignity-context";
 import {
@@ -565,17 +567,20 @@ function Finding({ f }: { f: ParashariFinding }) {
 function HouseByHouse({
   prose,
   bhavas,
+  par,
   uncertainty,
   focusHouse,
   onToggle,
 }: {
   prose: HouseProse[];
   bhavas: Bhava[];
+  par: ParashariResult;
   uncertainty: number;
   focusHouse: number | null;
   onToggle: (house: number) => void;
 }) {
   const plain = usePlain();
+  const { locale } = useLocale();
   if (!prose.length) return null;
   return (
     <section className="mt-8" data-testid="parashari-house-prose">
@@ -627,7 +632,7 @@ function HouseByHouse({
                   data-testid={`house-prose-body-${hp.house}`}
                 >
                   {plain && bhavas.find((b) => b.house === hp.house) && <p className="rounded bg-muted/40 p-2 text-xs" data-testid={`house-context-${hp.house}`}>
-                    {parashariHouseContext(bhavas.find((b) => b.house === hp.house)!)}
+                    {locale === "ml" ? <span lang="ml">{parashariHouseContextMalayalam(bhavas.find((b) => b.house === hp.house)!)}</span> : parashariHouseContext(bhavas.find((b) => b.house === hp.house)!)}
                   </p>}
                   {/* The plain row already says what the house covers; the practitioner line adds 11.N's full list. */}
                   {hp.parts.filter((part) => !(plain && part.key === "covers")).map((part, i) => (
@@ -644,7 +649,9 @@ function HouseByHouse({
                       )}
                       data-testid={`house-prose-${hp.house}-${part.key}${part.planet ? `-${part.planet.toLowerCase()}` : ""}${part.key === "chapter" ? `-${i}` : ""}`}
                     >
-                      <Soft>{plain ? part.textPlain : part.text}</Soft>
+                      {plain && locale === "ml" && bhavas.find((b) => b.house === hp.house) && parashariLordMalayalam(par, bhavas.find((b) => b.house === hp.house)!, part)
+                        ? <span lang="ml">{parashariLordMalayalam(par, bhavas.find((b) => b.house === hp.house)!, part)}</span>
+                        : <Soft>{plain ? part.textPlain : part.text}</Soft>}
                       {!plain &&
                         part.sources.map((src) => (
                           <span
@@ -1676,6 +1683,7 @@ export function ParashariPanel({
           <HouseByHouse
             prose={r.houseProse ?? []}
             bhavas={r.bhavas}
+            par={r}
             uncertainty={chart.timeUncertaintyMin ?? 0}
             focusHouse={focusHouse}
             onToggle={(h) => setFocusHouse((cur) => (cur === h ? null : h))}

@@ -17,6 +17,7 @@ import {
 } from "@/lib/report-builder";
 import { downloadReportPdf } from "@/lib/report-pdf";
 import { useToast } from "@/hooks/use-toast";
+import { useLocale, useT } from "@/lib/i18n";
 
 /** The systems a reader can leave out of the report; the chart section is always present and the two tools export from their own tabs. */
 const PICKABLE = REPORT_MODULES.filter((m) => m.id !== "chart" && !m.tool);
@@ -49,6 +50,7 @@ function Cites({ ns }: { ns?: number[] }) {
 }
 
 function Para({ p }: { p: ReportPara }) {
+  const t = useT();
   if (p.kind === "table")
     return (
       <div className="my-4 overflow-x-auto print:overflow-visible">
@@ -63,7 +65,7 @@ function Para({ p }: { p: ReportPara }) {
           <thead>
             <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
               {p.head?.map((h) => (
-                <th key={h} className="py-1 pr-3 font-medium">
+                <th key={h} lang={/[\u0d00-\u0d7f]/.test(h) ? "ml" : "en"} className="py-1 pr-3 font-medium">
                   {h}
                 </th>
               ))}
@@ -73,7 +75,7 @@ function Para({ p }: { p: ReportPara }) {
             {p.rows?.map((r, i) => (
               <tr key={i} className="border-b border-border/50 align-top">
                 {r.map((c, j) => (
-                  <td key={j} className={cn("py-1 pr-3", j > 0 && "tabular")}>
+                  <td key={j} lang={/[\u0d00-\u0d7f]/.test(c) ? "ml" : "en"} className={cn("py-1 pr-3", j > 0 && "tabular")}>
                     {c}
                   </td>
                 ))}
@@ -85,7 +87,7 @@ function Para({ p }: { p: ReportPara }) {
     );
   if (p.kind === "note")
     return (
-      <p className="my-3 rounded border border-border/60 bg-muted/30 px-3 py-2 text-[0.85em] leading-relaxed text-muted-foreground print:bg-transparent">
+      <p lang={p.lang} className="my-3 rounded border border-border/60 bg-muted/30 px-3 py-2 text-[0.85em] leading-relaxed text-muted-foreground print:bg-transparent">
         {p.text}
         <Cites ns={p.cites} />
       </p>
@@ -105,10 +107,11 @@ function Para({ p }: { p: ReportPara }) {
           className="absolute -left-2 top-0 -translate-x-full text-[0.65em] uppercase tracking-wider text-amber-700 dark:text-amber-400 max-lg:hidden print:hidden"
           aria-hidden
         >
-          provisional
+          {t("Provisional")}
         </span>
       )}
       <p
+        lang={p.lang}
         className={cn(
           "leading-relaxed",
           lead && "font-display text-[1.08em] leading-relaxed",
@@ -116,14 +119,14 @@ function Para({ p }: { p: ReportPara }) {
       >
         {p.provisional && (
           <span className="mr-1.5 text-[0.7em] uppercase tracking-wider text-amber-700 dark:text-amber-400 lg:hidden print:inline">
-            provisional
+            {t("Provisional")}
           </span>
         )}
         {p.text}
         <Cites ns={p.cites} />
       </p>
       {p.aside && (
-        <p className="mt-0.5 text-[0.8em] text-muted-foreground">{p.aside}</p>
+        <p lang={/[\u0d00-\u0d7f]/.test(p.aside) ? "ml" : "en"} className="mt-0.5 text-[0.8em] text-muted-foreground">{p.aside}</p>
       )}
     </div>
   );
@@ -138,11 +141,12 @@ function Section({ s, level }: { s: ReportSection; level: 2 | 3 }) {
       data-testid={`report-section-${s.id}`}
     >
       {s.kicker && (
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">
+        <p lang="en" className="text-xs uppercase tracking-wider text-muted-foreground">
           {s.kicker}
         </p>
       )}
       <H
+        lang={s.lang}
         className={cn(
           "font-display font-semibold",
           level === 2 ? "text-xl" : "text-base",
@@ -162,6 +166,8 @@ function Section({ s, level }: { s: ReportSection; level: 2 | 3 }) {
 
 export default function ReportPage() {
   const { id } = useParams<{ id: string }>();
+  const { locale } = useLocale();
+  const t = useT();
   const { mode } = useReadingMode();
   const { data, isLoading, error } = useQuery<ChartResult>({
     queryKey: ["chart-result", id],
@@ -189,8 +195,8 @@ export default function ReportPage() {
     });
   const doc = useMemo(
     () =>
-      data ? buildReport(data, { plain: mode === "plain", modules }) : null,
-    [data, mode, modules],
+      data ? buildReport(data, { plain: mode === "plain", modules, locale }) : null,
+    [data, mode, modules, locale],
   );
   const { toast } = useToast();
   const [exporting, setExporting] = useState(false);
@@ -200,6 +206,7 @@ export default function ReportPage() {
     try {
       await downloadReportPdf(data.chart, {
         plain: mode === "plain",
+        locale,
         modules: off.size ? modules : undefined,
       });
     } catch (e: any) {
@@ -250,7 +257,7 @@ export default function ReportPage() {
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           data-testid="link-report-back"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to the chart
+          <ArrowLeft className="h-4 w-4" /> {t("Back to the chart")}
         </Link>
         {/* On a phone the export buttons wrap together under the reading-depth toggle. */}
         <div className="flex flex-wrap items-center gap-2">
@@ -264,7 +271,7 @@ export default function ReportPage() {
               data-testid="button-report-pdf"
             >
               <FileDown className="h-4 w-4" />
-              {exporting ? "Preparing PDF" : "Download PDF"}
+              {t(exporting ? "Preparing PDF" : "Download PDF")}
             </Button>
             <Button
               size="sm"
@@ -273,7 +280,7 @@ export default function ReportPage() {
               data-testid="button-report-print"
               title="Print this page from the browser"
             >
-              <Printer className="h-4 w-4" /> Print
+              <Printer className="h-4 w-4" /> {t("Print")}
             </Button>
           </div>
         </div>
@@ -285,7 +292,7 @@ export default function ReportPage() {
         aria-label="Systems in the report"
         data-testid="report-modules"
       >
-        <span className="mr-1 text-xs text-muted-foreground">Include</span>
+        <span className="mr-1 text-xs text-muted-foreground">{t("Include")}</span>
         {PICKABLE.map((m) => {
           const on = !off.has(m.id);
           return (
@@ -334,7 +341,7 @@ export default function ReportPage() {
         {doc.sections.map((s, i) => (
           <span key={s.id}>
             {i > 0 && " · "}
-            <a href={`#${s.id}`} className="hover:text-foreground">
+            <a href={`#${s.id}`} lang={s.lang} className="hover:text-foreground">
               {s.title}
             </a>
           </span>
@@ -348,8 +355,8 @@ export default function ReportPage() {
       </article>
 
       <section id="notes" className="mt-12" data-testid="report-notes">
-        <h2 className="font-display text-xl font-semibold">Notes</h2>
-        <ol className="mt-3 space-y-1 text-[0.85em] text-muted-foreground">
+        <h2 className="font-display text-xl font-semibold">{t("Notes")}</h2>
+        <ol lang="en" className="mt-3 space-y-1 text-[0.85em] text-muted-foreground">
           {doc.cites.map((c) => (
             <li key={c.n} id={`fn-${c.n}`} className="flex gap-2">
               <span className="w-6 shrink-0 text-right font-mono">{c.n}.</span>

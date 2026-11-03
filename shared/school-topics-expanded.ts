@@ -19,6 +19,8 @@ import { soften } from "./gentle";
 import { parashariHouseContext, kpHouseContext } from "./chart-explanations";
 import { KARAKA_MATTERS } from "./jaimini-areas";
 import { SIGNS } from "./astro";
+import { withSchoolMalayalam, parashariHouseGlossMalayalam } from "./school-topic-malayalam";
+import { translate } from "./localization";
 
 export const ALL_SCHOOL_TOPICS: SchoolTopic[] = [...PLAIN_TOPIC_ORDER, "father", "mother"];
 
@@ -186,7 +188,7 @@ export function expandedSchoolTopicBriefs(result: ChartResult, school: BriefScho
           b.explanation = area.karakas.map((k) => `For ${area.label.toLowerCase()}, ${k.planet} is ${k.karaka}, the movable significator for ${KARAKA_MATTERS[k.karaka]}. It is in ${SIGNS[k.sign]} in D1 and ${SIGNS[k.d9Sign]} in D9.`);
         }
       }
-      return [b];
+      return [withSchoolMalayalam(b, result, input, { ...options, alp, prasna: pm })];
     }
     // Legacy agreement intentionally suppresses some topics; never recreate a hidden row.
     if ((school === "parashari" || school === "kp" || school === "jaimini") && ["career", "marriage", "children", "father", "mother"].includes(topic)) return [];
@@ -201,6 +203,7 @@ export function expandedSchoolTopicBriefs(result: ChartResult, school: BriefScho
       if (bhava && canShowSharedHouse) b.explanation = [parashariHouseContext(bhava)];
       b.detailHouse = canShowSharedHouse ? house : undefined;
       b.summary = `For this topic the reading refers to the ${ordH(house)} house, which also covers ${HOUSE_AREAS_PLAIN[house]}. ${!canShowSharedHouse ? "The shared house interpretation is held back at this age." : h ? "Its overall house interpretation is shown below." : "No house interpretation is available here."}`;
+      b.ml = { summary: `ഈ വിഷയത്തിനായി വായന ${house}-ാം ഭാവത്തെ പരിഗണിക്കുന്നു; ആ ഭാവം ${parashariHouseGlossMalayalam(house)} എന്നിവയും ഉൾക്കൊള്ളുന്നു. ${!canShowSharedHouse ? "ഈ പ്രായത്തിൽ പങ്കുവയ്ക്കപ്പെടുന്ന ഭാവത്തിന്റെ വ്യാഖ്യാനം പിന്നീട് കാണുന്നതിനായി മാറ്റിവച്ചിരിക്കുന്നു." : h ? "ഭാവത്തിന്റെ മൊത്തത്തിലുള്ള വ്യാഖ്യാനം താഴെ കാണാം." : "ഇവിടെ ഭാവവ്യാഖ്യാനം ലഭ്യമല്ല."}` };
       const sentence = canShowSharedHouse && h ? safe(h.summaryPlain, topic) : undefined;
       b.basis = sentence ?? "See the full house reading; its several matters cannot be treated as one topic-specific verdict.";
       const part = canShowSharedHouse ? h?.parts.find((p) => p.key === "lord" && safe(p.textPlain, topic)) : undefined;
@@ -221,6 +224,8 @@ export function expandedSchoolTopicBriefs(result: ChartResult, school: BriefScho
       });
       const named = Array.from(new Set(matched.map((f) => f.topic.toLowerCase())));
       b.summary = matched.length ? `The entered KP rules have ${matched.length} specific ${matched.length === 1 ? "interpretation" : "interpretations"} in this area${named.length ? `, including ${named.join(", ")}` : ""}. Each addresses its own question.` : "No entered topic-specific KP rule matched here; this is not a negative conclusion.";
+      const topicWords: Record<string, string> = { mind: "മനസ്സ്", temperament: "സ്വഭാവം", standing: "സ്ഥാനമാനം", "public life": "പൊതുജീവിതം", finance: "ധനകാര്യം", wealth: "ധനം", "sources of income": "വരുമാനമാർഗങ്ങൾ", gains: "നേട്ടങ്ങൾ", possessions: "ഉടമസ്ഥതകൾ", property: "സ്വത്ത്", education: "വിദ്യാഭ്യാസം", learning: "പഠനം", family: "കുടുംബം", health: "ആരോഗ്യം", faith: "വിശ്വാസം", practice: "ആചരണം", travel: "യാത്ര", journeys: "യാത്രകൾ", "foreign lands": "വിദേശം" };
+      if (named.every((n) => topicWords[n])) b.ml = { summary: matched.length ? `ഉൾപ്പെടുത്തിയ KP നിയമങ്ങളിൽ ഈ മേഖലയുമായി ബന്ധപ്പെട്ട ${matched.length} പ്രത്യേക വ്യാഖ്യാന${matched.length === 1 ? "മുണ്ട്" : "ങ്ങളുണ്ട്"}${named.length ? `; അവയിൽ ${named.map((n) => topicWords[n]).join(", ")} ഉൾപ്പെടുന്നു` : ""}. ഓരോന്നും അതിന്റേതായ ചോദ്യത്തെയാണ് പരിഗണിക്കുന്നത്.` : "ഇവിടെ ഉൾപ്പെടുത്തിയ വിഷയനിർദിഷ്ട KP നിയമങ്ങളൊന്നും പൊരുത്തപ്പെട്ടില്ല; അത് പ്രതികൂല നിഗമനമല്ല." };
       b.basis = `These examples retain their source's particular scope and the KP precedence of deciding and secondary findings.${shown.length > 4 ? " More interpretations remain in the full KP reading." : ""}`;
       b.details = shown.slice(0, 4);
       b.detailHouse = matched[0]?.cusp;
@@ -252,6 +257,13 @@ export function expandedSchoolTopicBriefs(result: ChartResult, school: BriefScho
       else if (topic === "travel") b.summary = "The existing Jaimini area reading does not separate travel into its own general interpretation.";
       else if (a) b.summary = `The Jaimini reading examines ${a.label.toLowerCase()} as a shared area. Its indicators are not a separate verdict for every subject within it.`;
       else b.summary = "No separate general Jaimini reading is available for this topic.";
+      const label = a ? translate("ml", a.label) : undefined;
+      const summary = topic === "education" ? `ജൈമിനി വായന പഠനത്തെയും സന്താനത്തെയും പങ്കുവയ്ക്കുന്ന ഒരു മേഖലയിലാണ് ഉൾപ്പെടുത്തുന്നത്${findings.length ? `; പഠനവുമായി ബന്ധപ്പെട്ട ${findings.length} മൂലസൂചന${findings.length === 1 ? "യുണ്ട്" : "കളുണ്ട്"}` : "; തിരഞ്ഞെടുത്ത പഠനനിർദിഷ്ട നിയമമൊന്നും പൊരുത്തപ്പെട്ടില്ല"}. ഈ പങ്കുവയ്ക്കപ്പെട്ട മേഖലയുടെ മൊത്തത്തിലുള്ള വിലയിരുത്തൽ വിദ്യാഭ്യാസത്തെക്കുറിച്ചുള്ള തീർപ്പല്ല.`
+        : topic === "spirituality" ? findings.length ? "ഈ ജാതകത്തിൽ ഉൾപ്പെടുത്തിയ കാരകാംശ നിയമങ്ങളിൽ ആത്മീയ വിഷയങ്ങളുണ്ട്; ഓരോ മൂലവ്യാഖ്യാനവും താഴെ കാണാം." : "തിരഞ്ഞെടുത്ത ആത്മീയജീവിത നിയമമൊന്നും പൊരുത്തപ്പെട്ടില്ല. അത് വിശ്വാസത്തെയോ ആചരണത്തെയോ കുറിച്ചുള്ള നിഗമനമല്ല."
+        : topic === "travel" ? "നിലവിലെ ജൈമിനി ജീവിതമേഖല വായനയിൽ യാത്രയെ പൊതുവായ വ്യാഖ്യാനമായി വേർതിരിക്കുന്നില്ല."
+        : a && label !== a.label ? `ജൈമിനി വായന ${label} എന്ന പങ്കുവയ്ക്കപ്പെട്ട മേഖലയെയാണ് പരിശോധിക്കുന്നത്. അതിലെ സൂചനകൾ ഈ മേഖലയിലെ ഓരോ വിഷയത്തിനുമുള്ള പ്രത്യേക തീർപ്പല്ല.`
+        : !a ? "ഈ വിഷയത്തിനായി വേറിട്ട പൊതുവായ ജൈമിനി വായന ലഭ്യമല്ല." : undefined;
+      if (summary) b.ml = { summary };
       const notes = a?.karakas.flatMap((k) => k.notes.map((n) => n.text)).concat(a.padas.flatMap((p) => p.notes.map((n) => n.text))) ?? [];
       b.basis = topic === "education" || topic === "authority" || topic === "health" ? "See the shared area and its original conditions; its combined notes need not describe this particular subject." : safe(notes[0] ?? "", topic) ?? "See the source area for its karakas, padas and individual conditions.";
       b.provisional = !!a;
@@ -283,7 +295,7 @@ export function expandedSchoolTopicBriefs(result: ChartResult, school: BriefScho
         b.limit = `${topicLimit(topic)} A house-level assessment is not a verdict on this particular matter.`;
       }
     }
-    return [b];
+    return [withSchoolMalayalam(b, result, input, { ...options, alp, prasna: pm })];
   });
 }
 

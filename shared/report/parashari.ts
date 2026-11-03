@@ -30,6 +30,7 @@ import { PARASHARI_VARGA_SOURCE } from "../parashari-varga-evidence";
 import { parashariEvidenceParas } from "./parashari-varga-evidence";
 import { AREA_ONSET, HOUSE_AREA } from "../life-stage";
 import { GENTLE_NOTE } from "../gentle";
+import { parashariLordMalayalam } from "../school-topic-malayalam";
 import { antarSignifications, dasaSignifications } from "../parashari-period-significations";
 import {
   MODERN_COMBUST_NOT_COUNTED,
@@ -136,9 +137,13 @@ function housesSection(
     }
     const ps: ReportPara[] = hp.parts.map((part) => {
       const prov = part.sources.some((x) => x.provisional);
+      const text = S(endStop(ctx.plain ? part.textPlain : part.text));
+      const bhava = par.bhavas.find((b) => b.house === h);
+      const ml = ctx.plain && bhava ? parashariLordMalayalam(par, bhava, part) : undefined;
       return {
         kind: part.key === "both" ? ("note" as const) : ("p" as const),
-        text: S(endStop(ctx.plain ? part.textPlain : part.text)),
+        text,
+        ...(ml && text === part.textPlain ? { translationMl: { source: text, text: ml } } : {}),
         cites: part.sources.map((x) => cites.add(x.label, x.url)),
         ...(prov ? { provisional: true } : {}),
         ...(part.tone ? { tone: part.tone } : {}),

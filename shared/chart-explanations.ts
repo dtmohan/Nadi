@@ -8,6 +8,7 @@ import type { GocharaRow } from "./gochara";
 import type { VargaChart, VargaKey, PlanetVargas } from "./vargas";
 import type { Finding, PairRelation } from "./rules";
 import { sensitiveTags } from "./life-stage";
+import { translate } from "./localization";
 
 /** Do not surface categorical sensitive source claims as a plain planetary reading. */
 export function concealAvasthaEffect(text: string): boolean {
@@ -84,17 +85,25 @@ export function gocharaContext(r: GocharaRow, moonSign: number): string {
 }
 
 /** Trace one displayed BNN theme back to its actual finding, without inferring missing conditions. */
-export function bnnFindingContext(f: Finding, relations: readonly PairRelation[] = []): { text: string; source?: string; ruleId: string } {
+export function bnnFindingContext(f: Finding, relations: readonly PairRelation[] = []): { text: string; textMl: string; source?: string; ruleId: string } {
   const named = f.planets.length ? listJoin(f.planets) : "the chart factors named in the source finding";
   const words = { conjunct: "in the same sign", prev: "in the previous sign", next: "in the next sign", trine: "in a trine (the fifth or ninth sign, counted from it)", opposite: "in the seventh sign", none: "unrelated" } as const;
   const [subject, ...others] = f.planets;
-  const contacts = others.flatMap((other) => {
+  const relationFacts = others.flatMap((other) => {
     const recorded = relations.find((r) => r.subject === subject && r.object === other);
     const relation = f.planets.length === 2 ? f.relation : recorded?.relation;
     if (!relation || relation === "none") return [];
     const retro = f.planets.length === 2 ? f.viaRetro : recorded?.viaRetro;
-    return [`${other} is ${words[relation]}${retro ? " through the retrograde convention" : ""}`];
+    return [{ other, relation, retro }];
   });
+  const contacts = relationFacts.map(({ other, relation, retro }) => `${other} is ${words[relation]}${retro ? " through the retrograde convention" : ""}`);
   const explanation = subject && contacts.length ? ` From ${subject}, ${listJoin(contacts)}.` : "";
-  return { ruleId: f.ruleId, text: `This selected Nadi rule involves ${named}.${explanation}${f.band ? " Its connection or direction changes within the stated birth-time range." : ""}`, source: f.source };
+  const mlNames = f.planets.length ? f.planets.map((planet) => translate("ml", planet)).join(", ") : "മൂലസൂചനയിൽ പറഞ്ഞിരിക്കുന്ന ജാതകഘടകങ്ങൾ";
+  const mlRelation = { conjunct: "അതേ രാശിയിൽ", prev: "മുൻ രാശിയിൽ", next: "അടുത്ത രാശിയിൽ", trine: "ത്രികോണത്തിൽ (അഞ്ചാം അല്ലെങ്കിൽ ഒമ്പതാം രാശിയിൽ)", opposite: "ഏഴാം രാശിയിൽ" } as const;
+  const mlContacts = relationFacts.map(({ other, relation, retro }) => `${translate("ml", other)} ${mlRelation[relation]}${retro ? " (വക്രഗതി പരിഗണിക്കുന്ന രീതി പ്രകാരം)" : ""}`);
+  const mlExplanation = subject && mlContacts.length ? ` അടിസ്ഥാനഗ്രഹം: ${translate("ml", subject)}. അതിൽ നിന്ന് മറ്റ് ഗ്രഹങ്ങളുടെ സ്ഥാനം: ${mlContacts.join("; ")}.` : "";
+  return { ruleId: f.ruleId,
+    text: `This selected Nadi rule involves ${named}.${explanation}${f.band ? " Its connection or direction changes within the stated birth-time range." : ""}`,
+    textMl: `തിരഞ്ഞെടുത്ത ഈ നാഡി നിയമത്തിൽ ഉൾപ്പെടുന്നത്: ${mlNames}.${mlExplanation}${f.band ? " നൽകിയ ജനനസമയ പരിധിക്കുള്ളിൽ ഈ ബന്ധമോ ദിശയോ മാറാം." : ""}`,
+    source: f.source };
 }

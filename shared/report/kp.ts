@@ -16,6 +16,8 @@ import { kpNatalConditionsParas } from "./natal-reading-evidence";
 import { kpDisplayOrder, kpFindingPlain, kpHerePlain, kpUsedGloss } from "../rules-kp";
 import { kpPlanetContext } from "../planet-context";
 import { nakshatraContextParas } from "./nakshatra-context";
+import { translate } from "../localization";
+import { kpHereMalayalam, schoolSourceMalayalam } from "../school-topic-malayalam";
 import {
   endStop,
   list,
@@ -136,15 +138,27 @@ export const kpModule: ReportModule = {
         id: `kp-${cusp}`,
         title: `The ${ORD(cusp)} cusp`,
         paras: kpDisplayOrder(fs)
-          .map((f) => ({
-            kind: "p" as const,
-            text: S(
+          .map((f) => {
+            const text = S(
               f.standing === "note"
                 ? `${f.topic}, as a note: ${endStop(ctx.plain ? kpFindingPlain(f) : f.text)} Overruled by the ${ORD(KP_PRECEDENCE.find((p) => p.topics.includes(f.topic))?.cusp ?? cusp)} cusp sub lord, the deciding factor for this matter; not counted.`
                 : f.partOf && fs.some((x) => x.ruleId === f.partOf)
                   ? `${f.topic}, part of the mixed reading above: ${endStop(ctx.plain ? kpFindingPlain(f) : f.text)}`
                   : `${f.topic}: ${endStop(ctx.plain ? kpFindingPlain(f) : f.text)}${ctx.plain ? ` ${kpHerePlain(f)}` : ""}`,
-            ),
+            );
+            const source = schoolSourceMalayalam(S(ctx.plain ? kpFindingPlain(f) : f.text));
+            const topic = translate("ml", f.topic);
+            const part = f.partOf && fs.some((x) => x.ruleId === f.partOf);
+            const here = ctx.plain && !part && f.standing !== "note" ? kpHereMalayalam(f) : "";
+            const decision = KP_PRECEDENCE.find((p) => p.topics.includes(f.topic))?.cusp ?? cusp;
+            const ml = source && topic !== f.topic && here !== undefined
+              ? f.standing === "note" ? `${topic}, ദ്വിതീയ സൂചന: ${source} ഈ വിഷയത്തിൽ ${decision}-ാം കസ്പിന്റെ സഹാധിപനാണ് തീരുമാനിക്കുന്നത്; അതിനാൽ ഇത് എണ്ണത്തിൽ ഉൾപ്പെടുത്തുന്നില്ല.`
+                : part ? `${topic}, മുകളിലെ സമ്മിശ്ര വായനയുടെ ഭാഗം: ${source}` : `${topic}: ${source}${here ? ` ${here}` : ""}`
+              : undefined;
+            return {
+            kind: "p" as const,
+            text,
+            ...(ml ? { translationMl: { source: text, text: ml } } : {}),
             cites: [
               cites.add(f.source, f.sourceUrl),
               ...(f.standing === "note"
@@ -162,7 +176,7 @@ export const kpModule: ReportModule = {
                   : f.polarity === "bad"
                     ? ("strain" as const)
                     : ("mixed" as const),
-          })),
+          }; }),
       });
     }
     const aurora = auroraSelfSignificators(kp.planets, kp.cusps);

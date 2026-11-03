@@ -2,10 +2,13 @@
 // paragraphs and knows nothing about any astrological system: headings, lead and body text,
 // asides, tables, provisional marks, tone colour, and numbered notes with their URLs at the end.
 import PDFDocument from "pdfkit";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import type { ChartResult } from "@shared/schema";
 import type { ReportDoc, ReportPara, ReportSection } from "@shared/report";
 import { displayLocal } from "@shared/time-basis";
 import { PLANET_ABBR } from "@shared/astro";
+import { translate } from "@shared/localization";
 import {
   CONTENT_W,
   INK,
@@ -21,6 +24,43 @@ type Doc = InstanceType<typeof PDFDocument>;
 
 const GREEN = "#3d6b4a";
 const BOTTOM = PAGE.h - PAGE.m - 24;
+
+/** PDF glyph reordering is visual; ActualText keeps Malayalam searchable and copyable. */
+function actualText(doc: Doc, text: string, draw: () => void) {
+  const marked = /[\u0d00-\u0d7f]/.test(text);
+  if (marked) doc.markContent("Span", { actual: text, lang: "ml" });
+  try { draw(); } finally { if (marked) doc.endMarkedContent(); }
+}
+
+/** Keep marked content on a single page. Otherwise PDF readers can repeat the full ActualText
+ * once for every page a long paragraph spans. Split at word boundaries and preserve the words. */
+function paragraphText(doc: Doc, text: string, x: number, y: number, continued: boolean) {
+  const width = CONTENT_W - 10;
+  const opts = { width, lineGap: 1.5 };
+  const draw = (piece: string, at: number, last: boolean) => actualText(doc, piece, () => doc.text(piece, x, at, { ...opts, continued: last && continued }));
+  if (!/[\u0d00-\u0d7f]/.test(text) || doc.heightOfString(text, opts) <= BOTTOM - y - 4) {
+    draw(text, y, true);
+    return;
+  }
+  const words = text.match(/\S+\s*/g) ?? [text];
+  let start = 0;
+  doc.y = y;
+  while (start < words.length) {
+    if (BOTTOM - doc.y < 32) doc.addPage();
+    const available = BOTTOM - doc.y - 5;
+    let low = start + 1, high = words.length, end = start + 1;
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      const piece = words.slice(start, mid).join("").trimEnd();
+      if (doc.heightOfString(piece, opts) <= available) { end = mid; low = mid + 1; }
+      else high = mid - 1;
+    }
+    const piece = words.slice(start, end).join("").trimEnd();
+    draw(piece, doc.y, end === words.length);
+    start = end;
+    if (start < words.length) doc.addPage();
+  }
+}
 
 function ensureSpace(doc: Doc, needed: number) {
   if (doc.y + needed > BOTTOM) doc.addPage();
@@ -43,11 +83,11 @@ function heading(doc: Doc, sec: ReportSection, level: number) {
         .fillColor(MUTED)
         .text(sec.kicker.toUpperCase(), PAGE.m, y, { characterSpacing: 0.6 });
     }
-    doc
+    actualText(doc, sec.title, () => doc
       .font("Times-Bold")
       .fontSize(16)
       .fillColor(INK)
-      .text(sec.title, PAGE.m, sec.kicker ? doc.y + 1 : y);
+      .text(sec.title, PAGE.m, sec.kicker ? doc.y + 1 : y));
     const ly = doc.y + 4;
     doc
       .moveTo(PAGE.m, ly)
@@ -60,11 +100,11 @@ function heading(doc: Doc, sec: ReportSection, level: number) {
     ensureSpace(doc, 48);
     doc.moveDown(0.7);
     // A section's own parts (level 2 and below) a step smaller than the parts of a chapter.
-    doc
+    actualText(doc, sec.title, () => doc
       .font("Times-Bold")
       .fontSize(level >= 2 ? 10.5 : 11.5)
       .fillColor(INK)
-      .text(sec.title, PAGE.m);
+      .text(sec.title, PAGE.m));
     doc.y += level >= 2 ? 2 : 3;
   }
   doc.x = PAGE.m;
@@ -100,26 +140,20 @@ function para(doc: Doc, p: ReportPara) {
   doc.font(font).fontSize(size).fillColor(color);
   if (p.provisional) {
     // Body first, then the provisional tag continued in small caps grey.
-    doc.text(`${text}${sup(p.cites)} `, PAGE.m, y0, {
-      width: CONTENT_W - 10,
-      lineGap: 1.5,
-      continued: true,
-    });
-    doc
+    paragraphText(doc, `${text}${sup(p.cites)} `, PAGE.m, y0, true);
+    const tag = p.lang === "ml" ? translate("ml", "Provisional") : "PROVISIONAL";
+    actualText(doc, tag, () => doc
       .font("Helvetica")
       .fontSize(6.5)
       .fillColor(VERMILION)
-      .text("PROVISIONAL", { characterSpacing: 0.5 });
+      .text(tag, { characterSpacing: 0.5 }));
   } else {
-    doc.text(`${text}${sup(p.cites)}`, PAGE.m, y0, {
-      width: CONTENT_W - 10,
-      lineGap: 1.5,
-    });
+    paragraphText(doc, `${text}${sup(p.cites)}`, PAGE.m, y0, false);
   }
   if (p.aside) {
     doc.font("Helvetica").fontSize(7.5).fillColor(MUTED);
     ensureSpace(doc, 14);
-    doc.text(p.aside, PAGE.m, doc.y + 1, { width: CONTENT_W - 10 });
+    actualText(doc, p.aside, () => doc.text(p.aside!, PAGE.m, doc.y + 1, { width: CONTENT_W - 10 }));
   }
   doc.y += p.kind === "note" ? 4 : 6;
   doc.x = PAGE.m;
@@ -192,10 +226,10 @@ function table(doc: Doc, p: ReportPara) {
       .fontSize(fs)
       .fillColor(bold ? MUTED : INK);
     cells.forEach((c, i) => {
-      doc.text(c, x + pad, y + pad, {
+      actualText(doc, c, () => doc.text(c, x + pad, y + pad, {
         width: cols[i] - pad * 2,
         lineBreak: true,
-      });
+      }));
       x += cols[i];
     });
     doc.y = y + h;
@@ -244,21 +278,30 @@ export function renderReportPdf(
   result: ChartResult,
   rep: ReportDoc,
 ): PDFKit.PDFDocument {
+  // Full OpenType fonts are bundled at build time; browser WOFF2 subsets are not usable here.
+  const fontDir = existsSync(join(process.cwd(), "dist/fonts/Manjari-Regular.ttf")) ? "dist/fonts" : "server/assets/fonts";
+  const regular = join(process.cwd(), fontDir, "Manjari-Regular.ttf");
+  const bold = join(process.cwd(), fontDir, "Manjari-Bold.ttf");
   const doc = new PDFDocument({
     size: "A4",
     margins: { top: PAGE.m, bottom: 20, left: PAGE.m, right: PAGE.m },
     bufferPages: true,
     info: { Title: `${rep.title} — Nadi report`, Author: "Nadi" },
+    ...(rep.locale === "ml" ? { font: regular } : {}),
   });
+  if (rep.locale === "ml") {
+    for (const name of ["Helvetica", "Helvetica-Oblique", "Times-Roman"]) doc.registerFont(name, regular);
+    for (const name of ["Helvetica-Bold", "Times-Bold"]) doc.registerFont(name, bold);
+  }
   const { chart, positions, now } = result;
 
   // Title block.
-  doc
+  actualText(doc, rep.title, () => doc
     .font("Times-Bold")
     .fontSize(22)
     .fillColor(INK)
-    .text(rep.title, PAGE.m, PAGE.m);
-  doc.font("Helvetica").fontSize(9.5).fillColor(MUTED).text(rep.subtitle);
+    .text(rep.title, PAGE.m, PAGE.m));
+  actualText(doc, rep.subtitle, () => doc.font("Helvetica").fontSize(9.5).fillColor(MUTED).text(rep.subtitle));
   doc
     .fontSize(8)
     .text(
@@ -301,14 +344,14 @@ export function renderReportPdf(
     );
     const tx = PAGE.m + size + 16;
     const lead = first.paras.find((p) => p.kind === "lead");
-    doc
+    actualText(doc, lead?.text ?? "", () => doc
       .font("Times-Roman")
       .fontSize(10)
       .fillColor(INK)
       .text(lead?.text ?? "", tx, y0 + 2, {
         width: PAGE.w - PAGE.m - tx,
         lineGap: 1.5,
-      });
+      }));
     doc
       .font("Helvetica")
       .fontSize(6.5)
@@ -330,7 +373,7 @@ export function renderReportPdf(
 
   // Notes.
   if (rep.cites.length) {
-    heading(doc, { id: "notes", title: "Notes", paras: [] }, 0);
+    heading(doc, { id: "notes", title: translate(rep.locale ?? "en", "Notes"), paras: [] }, 0);
     doc.font("Helvetica").fontSize(7.5).fillColor(INK);
     for (const c of rep.cites) {
       ensureSpace(doc, 14);
@@ -353,12 +396,13 @@ export function renderReportPdf(
   for (let i = range.start; i < range.start + range.count; i++) {
     doc.switchToPage(i);
     doc.font("Helvetica").fontSize(7).fillColor(MUTED);
-    doc.text(
-      `${rep.title} · Nadi report · ${rep.modules.join(", ")}`,
+    const footer = `${rep.title} · Nadi report · ${rep.modules.join(", ")}`;
+    actualText(doc, footer, () => doc.text(
+      footer,
       PAGE.m,
       PAGE.h - 36,
       { lineBreak: false },
-    );
+    ));
     doc.text(`${i + 1} / ${range.count}`, PAGE.m, PAGE.h - 36, {
       width: CONTENT_W,
       align: "right",

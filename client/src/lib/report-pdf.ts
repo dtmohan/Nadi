@@ -3,9 +3,11 @@ import { apiRequest } from "@/lib/queryClient";
 import type { Chart } from "@shared/schema";
 import type { RectifyExportState } from "@shared/rectify-methods";
 import type { ChartEvent } from "@shared/events";
+import type { Locale } from "@shared/localization";
 
 export interface ReportPdfOptions {
   plain: boolean;
+  locale?: Locale;
   /** Module ids to include (shared/report REPORT_MODULE_IDS); the whole report when omitted. */
   modules?: string[];
   /** Inputs the tool modules need: the Rectify tab's current scan. Validate needs only the chart's events. */
@@ -16,6 +18,7 @@ export async function downloadReportPdf(chart: Chart, opts: ReportPdfOptions) {
   const res = await apiRequest("POST", "/api/report.pdf", {
     ...chart,
     plain: opts.plain,
+    locale: opts.locale,
     modules: opts.modules,
     tools: opts.tools,
   });

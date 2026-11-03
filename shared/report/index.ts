@@ -39,6 +39,8 @@ import { validateModule } from "./validate";
 import { topicReadingSection } from "./topic-reading";
 import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL, type BriefSchool } from "../school-topic-brief";
 import { defaultAlpForTopics, expandedSchoolTopicBriefs } from "../school-topics-expanded";
+import { kpHouseMalayalam } from "../school-topic-malayalam";
+import { translate, type Locale } from "../localization";
 import {
   AGREEMENT_METHOD,
   AGREEMENT_NOTE,
@@ -91,6 +93,7 @@ export const READING_MODULE_IDS = REPORT_MODULES.filter((m) => !m.tool).map(
 
 export interface BuildReportOptions {
   plain: boolean;
+  locale?: Locale;
   /** Module ids to include; all when omitted. The chart and closing sections are always present. */
   modules?: string[];
   /** Server-computed tool results for the rectify and validate modules. */
@@ -151,12 +154,17 @@ export function buildReport(
         id: `${school}-plain-topics`, title: `Life topics in ${SCHOOL_NAME[school]}`,
         paras: [
           { kind: "note", text: "Selected interpretations keep their original scope. House-level assessments cover several matters. ALP uses the date shown; Prasna Marga here reads the birth chart, not a question chart. Birth-time uncertainty can change house-based readings." },
-          ...topics.flatMap((t): ReportPara[] => [
-            { kind: "p", text: `${SCHOOL_TOPIC_LABEL[t.topic]}${t.frame ? ` (${t.frame})` : ""}: ${t.summary} ${t.limit}${t.conditional ? " This assessment is conditional on the birth time." : ""}${t.provisional ? " This classification is provisional." : ""}`, provisional: t.provisional },
-            ...(t.explanation ?? []).map((text): ReportPara => ({ kind: "p", text })),
-            ...(t.explanationHouses?.length ? [{ kind: "note" as const, text: `KP house meanings: ${t.explanationHouses.map((h) => `${h.house}: ${h.meaning}`).join("; ")}.` }] : []),
-            ...(t.details ?? []).map((d): ReportPara => ({ kind: "p", text: d.text, cites: [ctx.cites.add(d.source, d.sourceUrl)], provisional: t.provisional })),
-          ]),
+          ...topics.flatMap((t): ReportPara[] => {
+            const text = `${SCHOOL_TOPIC_LABEL[t.topic]}${t.frame ? ` (${t.frame})` : ""}: ${t.summary} ${t.limit}${t.conditional ? " This assessment is conditional on the birth time." : ""}${t.provisional ? " This classification is provisional." : ""}`;
+            const translated = t.ml?.summary && t.ml.limit && (!t.frame || t.ml.frame)
+              ? `${translate("ml", SCHOOL_TOPIC_LABEL[t.topic])}${t.frame ? ` (${t.ml.frame})` : ""}: ${t.ml.summary} ${t.ml.limit}${t.conditional ? ` ${translate("ml", "This assessment is conditional on the birth time.")}` : ""}${t.provisional ? ` ${translate("ml", "This classification is provisional.")}` : ""}` : undefined;
+            return [
+              { kind: "p", text, provisional: t.provisional, ...(translated ? { translationMl: { source: text, text: translated } } : {}) },
+              ...(t.explanation ?? []).map((text, i): ReportPara => ({ kind: "p", text, ...(t.ml?.explanation?.[i] ? { translationMl: { source: text, text: t.ml.explanation[i]! } } : {}) })),
+              ...(t.explanationHouses?.length ? [{ kind: "note" as const, text: `KP house meanings: ${t.explanationHouses.map((h) => `${h.house}: ${h.meaning}`).join("; ")}.`, translationMl: { source: `KP house meanings: ${t.explanationHouses.map((h) => `${h.house}: ${h.meaning}`).join("; ")}.`, text: `KP ഭാവങ്ങളുടെ അർഥം: ${t.explanationHouses.map((h) => `${h.house}: ${kpHouseMalayalam[h.house]}`).join("; ")}.` } }] : []),
+              ...(t.details ?? []).map((d): ReportPara => ({ kind: "p", text: d.text, cites: [ctx.cites.add(d.source, d.sourceUrl)], provisional: t.provisional, ...(t.ml?.details?.[d.id] ? { translationMl: { source: d.text, text: t.ml.details[d.id] } } : {}) })),
+            ];
+          }),
           ...(school === "kp" || school === "parashari" || school === "jaimini" ? [{ kind: "note" as const, text: AGREEMENT_METHOD[school] }] : []),
         ],
       });
@@ -200,7 +208,7 @@ export function buildReport(
   const { sections, cites } = renumberCites(gated, ctx.cites.list);
 
   const { chart } = result;
-  return {
+  const doc: ReportDoc = {
     title: chart.name,
     subtitle: `${ctx.birthLocal.toFormat("d LLLL yyyy, HH:mm")} · ${chart.place}`,
     meta: [
@@ -215,6 +223,30 @@ export function buildReport(
     sections,
     cites,
   };
+  return opts.locale === "ml" ? localizeReportMalayalam(doc) : doc;
+}
+
+/** Apply translations only after age gating and citation numbering. A stale or redacted source
+ * never picks up a translation from the original text. Untranslated material remains English. */
+export function localizeReportMalayalam(doc: ReportDoc): ReportDoc {
+  const walk = (s: ReportSection): ReportSection => {
+    const names: Record<string, string> = { "parashari-plain-topics": "പരാശരിയിലെ ജീവിതവിഷയങ്ങൾ", "kp-plain-topics": "KP ജീവിതവിഷയങ്ങൾ", "jaimini-plain-topics": "ജൈമിനിയിലെ ജീവിതവിഷയങ്ങൾ", "alp-plain-topics": "ALP ജീവിതവിഷയങ്ങൾ", "prasna-plain-topics": "പ്രശ്ന മാർഗത്തിലെ ജീവിതവിഷയങ്ങൾ" };
+    const title = names[s.id] ?? translate("ml", s.title);
+    return { ...s, title, lang: title !== s.title ? "ml" : "en", paras: s.paras.map((p) => {
+      const original = p.text;
+      const value = original && p.translationMl?.source === original ? p.translationMl.text : original ? translate("ml", original) : original;
+      const { translationMl: _translation, ...safePara } = p;
+      return { ...safePara, text: value, lang: value && value !== original ? "ml" as const : "en" as const,
+        ...(p.aside ? { aside: translate("ml", p.aside) } : {}),
+        ...(p.head ? { head: p.head.map((h) => translate("ml", h)) } : {}),
+        ...(p.rows ? { rows: p.rows.map((row) => row.map((cell) => translate("ml", cell))) } : {}) };
+    }), ...(s.sub ? { sub: s.sub.map(walk) } : {}) };
+  };
+  const note: ReportSection = { id: "translation-notice", title: "ഭാഷയെക്കുറിച്ച്", lang: "ml", paras: [{ kind: "note", lang: "ml", text: "മലയാള പരിഭാഷ പുരോഗമിക്കുന്നു. പരിഭാഷ പൂർത്തിയാകാത്ത ഭാഗങ്ങളും ഉറവിടങ്ങളും ഇംഗ്ലീഷിൽ തുടരും." }] };
+  const sections = doc.sections.map(walk);
+  // Keep the chart first: the PDF renderer gives it a special layout.
+  sections.splice(sections[0]?.id === "chart" ? 1 : 0, 0, note);
+  return { ...doc, locale: "ml", sections };
 }
 
 /**
@@ -377,12 +409,13 @@ function withholdSections(sections: ReportSection[]): ReportSection[] {
   return sections.map((sec) => ({
     ...sec,
     paras: sec.paras
-      .map((p) => ({
-        ...p,
-        text: p.text === undefined ? undefined : redactProse(p.text),
-        aside: p.aside === undefined ? undefined : redactProse(p.aside),
-        rows: p.rows?.map((r) => r.map((c) => redactProse(c) || "—")),
-      }))
+      .map((p) => {
+        const text = p.text === undefined ? undefined : redactProse(p.text);
+        const { translationMl, ...safePara } = p;
+        return { ...safePara, text, aside: p.aside === undefined ? undefined : redactProse(p.aside),
+          rows: p.rows?.map((r) => r.map((c) => redactProse(c) || "—")),
+          ...(translationMl?.source === text ? { translationMl } : {}) };
+      })
       .filter((p) => p.kind === "table" || (p.text ?? "") !== ""),
     sub: sec.sub ? withholdSections(sec.sub) : undefined,
   }));

@@ -9,7 +9,7 @@ import { vimshottari, type KpPeriod } from "../kp";
 import { AREA_ONSET, lifePeriods, periodStateLabel } from "../life-stage";
 import { agreementInput, computeAgreement } from "../agreement";
 import { briefingFor } from "../briefing";
-import { plainTopicBriefs, type PlainTopicBrief } from "../topic-brief";
+import { plainTopicBriefs, malayalamTopicWindow, type PlainTopicBrief } from "../topic-brief";
 import {
   endStop,
   fmtMonth,
@@ -30,11 +30,12 @@ export const bnnModule: ReportModule = {
     const roles = reading.roles;
     const areas = synthesize(reading, roles.gender);
     const briefInput = plain ? agreementInput(result, true) : undefined;
+    const briefing = briefInput ? briefingFor(result, briefInput) : undefined;
     const topicBriefs = briefInput ? plainTopicBriefs({
       reading,
       areas,
       agreement: computeAgreement(briefInput),
-      brief: briefingFor(result, briefInput),
+      brief: briefing!,
       zone: result.chart.timezone || "UTC",
       inSeason,
     }) : [];
@@ -46,13 +47,18 @@ export const bnnModule: ReportModule = {
         const detail = simple.details![i];
         const evidence = simple.detailEvidence?.[i];
         ps.push({ kind: "p", text: S(detail) });
-        if (evidence) ps.push({ kind: "p", text: S(evidence.text), cites: evidence.source ? [rao(evidence.source)] : undefined });
+        if (evidence) ps.push({ kind: "p", text: S(evidence.text), cites: evidence.source ? [rao(evidence.source)] : undefined,
+          ...(S(evidence.text) === evidence.text ? { translationMl: { source: evidence.text, text: evidence.textMl } } : {}) });
       }
       ps.push({ kind: "note", text: simple.limit });
       if (simple.contrast) ps.push({ kind: "p", text: simple.contrast });
       if (simple.comparison) ps.push({ kind: "p", text: simple.comparison });
       if (deceased && simple.windows.length) ps.push({ kind: "note", text: "The following passages were running at the recorded date of passing; they are not future forecasts." });
-      for (const w of simple.windows) ps.push({ kind: "p", text: `${w.when}: ${w.statement} ${w.reason}` });
+      for (const w of simple.windows) {
+        const text = `${w.when}: ${w.statement} ${w.reason}`;
+        const ml = briefing && malayalamTopicWindow(simple.topic, w, briefing, result.chart.timezone || "UTC");
+        ps.push({ kind: "p", text, ...(ml ? { translationMl: { source: text, text: `${ml.when}: ${ml.statement} ${ml.reason}` } } : {}) });
+      }
       ps.push({ kind: "note", text: simple.topic === "health" || simple.windows.length
         ? simple.timingNote
         : "No matching Nadi passage is shown in this briefing. That is not a conclusion about whether an event can occur." });

@@ -2101,6 +2101,7 @@ export default function ChartPage() {
     try {
       await downloadReportPdf(data.chart, {
         plain: readingMode === "plain",
+        locale,
         modules,
         tools: { ...(modules?.includes("rectify") ? { rectify: rectifyState.current! } : {}), topicReadings: topicState.current, alpAsOf },
       });

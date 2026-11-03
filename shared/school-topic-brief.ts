@@ -36,6 +36,8 @@ export interface SchoolTopicBrief {
   detailHouse?: number;
   detailArea?: string;
   frame?: string;
+  /** Display-only translations of the same selected facts; source and selection remain unchanged. */
+  ml?: { summary?: string; frame?: string; explanation?: Array<string | undefined>; details?: Record<string, string>; limit?: string; basis?: string; reason?: string };
 }
 
 /** Keep the traditional source text accessible in the school detail without making it a plain claim. */

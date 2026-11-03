@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { vimshottari } from "@shared/kp";
 import { ageYears, lifeAsOf, areaSeason, heldAreasAt, mentionsHeldArea } from "@shared/life-stage";
@@ -28,7 +27,7 @@ import { briefingFor, type BriefLink, type Briefing } from "@shared/briefing";
 import { BriefingBefore, BriefingNow, BriefingPlanets, useOpenLink } from "@/components/briefing";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { cn } from "@/lib/utils";
-import { PLAIN_TOPIC_LABEL, plainTopicBriefs, planetTopicExamples, type PlainTopicBrief } from "@shared/topic-brief";
+import { PLAIN_TOPIC_LABEL, plainTopicBriefs, planetTopicExamples, malayalamTopicWindow, type PlainTopicBrief } from "@shared/topic-brief";
 import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL, type BriefSchool, type SchoolTopicBrief } from "@shared/school-topic-brief";
 import { defaultAlpForTopics, expandedSchoolTopicBriefs } from "@shared/school-topics-expanded";
 import { schoolDetailsLink, SchoolTopicExplanation } from "@/components/school-topic-brief";
@@ -87,19 +86,12 @@ function PlainTopicContent({ topic, brief, zone, past, onOpen, comparisons }: { 
   const { locale } = useLocale();
   const soften = useSoften();
   const passage = (w: PlainTopicBrief["windows"][number]) => {
-    const row = [...brief.now, ...brief.next].find((item) => item.id === w.id);
-    const touched = row?.nadiPlanets?.[topic.topic];
-    const planet = w.id.includes("jupiter") ? "Jupiter" : w.id.includes("saturn") ? "Saturn" : undefined;
-    const day = (iso: string) => {
-      const value = DateTime.fromISO(iso, { zone }).setLocale("ml-IN");
-      return value.isValid ? value.toFormat("d LLL yyyy") : iso.slice(0, 10);
-    };
-    const translated = locale === "ml" && planet && touched?.length;
+    const translated = locale === "ml" ? malayalamTopicWindow(topic.topic, w, brief, zone) : undefined;
     return (
     <li key={w.id} data-testid={`plain-topic-window-${topic.topic}-${w.id}`}>
-      <p className="text-sm font-medium tabular">{locale === "ml" ? `${day(w.start)} – ${day(w.end)}` : w.when}</p>
-      <p className="mt-0.5 text-sm leading-relaxed">{translated ? `ഈ കാലയളവിനെ നാഡി ഗോചര വായന ഈ വിഷയവുമായി ബന്ധിപ്പിക്കുന്നു: ${t(PLAIN_TOPIC_LABEL[topic.topic])}.` : <LocalizedText>{w.statement}</LocalizedText>}</p>
-      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t("Why")}: {translated ? `${planet === "Jupiter" ? "വ്യാഴത്തിന്റെ" : "ശനിയുടെ"} ഗോചാരം, ഈ വിഷയത്തിനായി തിരഞ്ഞെടുത്ത ജനനജാതക സൂചനകളിലെ ${touched.map(t).join(", ")} ${touched.length === 1 ? "എന്ന ഗ്രഹവുമായി" : "എന്നീ ഗ്രഹങ്ങളുമായി"} ബന്ധപ്പെടുത്തി വായിക്കുന്നു.` : <LocalizedText>{w.reason}</LocalizedText>}</p>
+      <p className="text-sm font-medium tabular">{translated?.when ?? w.when}</p>
+      <p className="mt-0.5 text-sm leading-relaxed">{translated ? translated.statement : <LocalizedText>{w.statement}</LocalizedText>}</p>
+      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t("Why")}: {translated ? translated.reason : <LocalizedText>{w.reason}</LocalizedText>}</p>
       <button type="button" className="mt-1 text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => onOpen(w.link)}>{t("See the transit details")}</button>
     </li>
     );

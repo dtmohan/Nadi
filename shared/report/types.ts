@@ -38,6 +38,9 @@ export interface ReportPara {
   rows?: string[][];
   /** A data table: moved to the practitioner appendix, left out of the plain report (index.ts). */
   appendix?: boolean;
+  /** Translation is usable only while its source still matches, including after redaction. */
+  translationMl?: { source: string; text: string };
+  lang?: "en" | "ml";
 }
 
 export interface ReportSection {
@@ -49,6 +52,7 @@ export interface ReportSection {
   sub?: ReportSection[];
   /** A section of data tables: moved whole to the practitioner appendix, left out of the plain report. */
   appendix?: boolean;
+  lang?: "en" | "ml";
 }
 
 export interface ReportDoc {
@@ -61,6 +65,7 @@ export interface ReportDoc {
   modules: string[];
   sections: ReportSection[];
   cites: ReportCite[];
+  locale?: "en" | "ml";
 }
 
 /** Numbered notes, one per distinct label and URL. */

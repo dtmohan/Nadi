@@ -322,10 +322,11 @@ export async function registerRoutes(
   // The report PDF: the same sections the Report page shows, one module per system.
   // Body: the chart fields plus optional `plain` (reading mode) and `modules` (ids to include).
   app.post("/api/report.pdf", async (req, res) => {
-    const { plain, modules, tools, ...body } = (req.body ?? {}) as Record<
+    const { plain, modules, tools, locale, ...body } = (req.body ?? {}) as Record<
       string,
       unknown
     >;
+    if (locale !== undefined && locale !== "en" && locale !== "ml") return res.status(400).json({ message: "Invalid report language" });
     const parsed = insertChartSchema.safeParse(body);
     if (!parsed.success)
       return res
@@ -385,6 +386,7 @@ export async function registerRoutes(
       }
       const rep = buildReport(result, {
         plain: plain !== false,
+        locale,
         modules: ids,
         tools: toolResults,
       });

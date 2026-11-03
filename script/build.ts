@@ -1,6 +1,6 @@
 import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
-import { rm, readFile } from "node:fs/promises";
+import { rm, readFile, mkdir, copyFile } from "node:fs/promises";
 
 // server deps to bundle to reduce openat(2) syscalls
 // which helps cold start times
@@ -57,6 +57,8 @@ async function buildAll() {
     external: externals,
     logLevel: "info",
   });
+  await mkdir("dist/fonts", { recursive: true });
+  await Promise.all(["Manjari-Regular.ttf", "Manjari-Bold.ttf", "OFL-Manjari.txt"].map((f) => copyFile(`server/assets/fonts/${f}`, `dist/fonts/${f}`)));
 }
 
 buildAll().catch((err) => {

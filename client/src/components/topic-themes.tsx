@@ -13,8 +13,8 @@ export function TopicThemes({ topic }: { topic: PlainTopicNatal }) {
       const evidence = topic.detailEvidence?.[i];
       return <li key={`${detail}-${i}`}>
         <LocalizedText>{soften(detail)}</LocalizedText>
-        {evidence && <span className="mt-0.5 block text-xs text-muted-foreground" lang={locale === "ml" ? "en" : undefined} data-testid={`theme-basis-${evidence.ruleId}`}>
-          {evidence.text} {evidence.source && <Cite>{evidence.source}</Cite>}
+        {evidence && <span className="mt-0.5 block text-xs text-muted-foreground" lang={locale} data-testid={`theme-basis-${evidence.ruleId}`}>
+          {locale === "ml" ? evidence.textMl : evidence.text} {evidence.source && <span lang="en"><Cite>{evidence.source}</Cite></span>}
         </span>}
       </li>;
     })}

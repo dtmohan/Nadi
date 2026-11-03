@@ -8,6 +8,8 @@ import { transitDay } from "./transit-date";
 import { mentionsHeldArea, sensitiveTags } from "./life-stage";
 import { bnnFindingContext } from "./chart-explanations";
 import type { Planet } from "./astro";
+import { DateTime } from "luxon";
+import { translate } from "./localization";
 
 export type PlainTopic = LifeArea;
 
@@ -54,6 +56,20 @@ export interface PlainTopicBrief extends PlainTopicNatal {
   windows: PlainTopicWindow[];
   timingNote: string;
   comparison?: string;
+}
+
+/** The same date and activated planets as the selected window, for screen and report. */
+export function malayalamTopicWindow(topic: PlainTopic, w: PlainTopicWindow, brief: Briefing, zone: string) {
+  const row = [...brief.now, ...brief.next].find((item) => item.id === w.id);
+  const touched = row?.nadiPlanets?.[topic];
+  const planet = w.id.includes("jupiter") ? "Jupiter" : w.id.includes("saturn") ? "Saturn" : undefined;
+  if (!planet || !touched?.length) return undefined;
+  const day = (iso: string) => { const date = DateTime.fromISO(iso, { zone }).setLocale("ml-IN"); return date.isValid ? date.toFormat("d LLL yyyy") : iso.slice(0, 10); };
+  return {
+    when: `${day(w.start)} – ${day(w.end)}`,
+    statement: `ഈ കാലയളവിനെ നാഡി ഗോചര വായന ഈ വിഷയവുമായി ബന്ധിപ്പിക്കുന്നു: ${translate("ml", PLAIN_TOPIC_LABEL[topic])}.`,
+    reason: `${planet === "Jupiter" ? "വ്യാഴത്തിന്റെ" : "ശനിയുടെ"} ഗോചാരം, ഈ വിഷയത്തിനായി തിരഞ്ഞെടുത്ത ജനനജാതക സൂചനകളിലെ ${touched.map((p) => translate("ml", p)).join(", ")} ${touched.length === 1 ? "എന്ന ഗ്രഹവുമായി" : "എന്നീ ഗ്രഹങ്ങളുമായി"} ബന്ധപ്പെടുത്തി വായിക്കുന്നു.`,
+  };
 }
 
 export interface PlanetTopicExample {
