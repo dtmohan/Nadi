@@ -69,7 +69,7 @@ function Limb({
   adverse?: string;
 }) {
   return (
-    <div className="rounded-md border bg-card p-3 text-xs" data-testid={id}>
+    <div className="nadi-info-card text-xs" data-testid={id}>
       <div className="text-2xs uppercase tracking-wide text-muted-foreground">
         {title}
       </div>
@@ -172,7 +172,7 @@ function DayGrid({
       </div>
       <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(12.5rem,100%),1fr))] gap-3">
         <div
-          className="rounded-md border bg-card p-3 text-xs"
+          className="nadi-info-card text-xs"
           data-testid={`${idPrefix}-vara`}
         >
           <div className="text-2xs uppercase tracking-wide text-muted-foreground">

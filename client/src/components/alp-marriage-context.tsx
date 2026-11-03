@@ -5,8 +5,8 @@ import { Cite } from "@/components/source-link";
 export function AlpMarriageContextPanel({ context }: { context?: AlpMarriageContext }) {
   if (!context) return null;
   const n = context.natal, t = context.timing;
-  return <details className="mt-2 rounded border px-2 py-2 text-xs" data-testid="alp-marriage-context">
-    <summary className="cursor-pointer font-medium">Marriage: birth-chart context and ALP timing clues</summary>
+  return <details className="nadi-info-disclosure mt-2" data-testid="alp-marriage-context">
+    <summary className="nadi-info-summary">Marriage: birth-chart context and ALP timing clues</summary>
     <p className="mt-1">At birth, the seventh sign is {n.seventhSign}, ruled by {n.lord}; that lord is in {n.lordSign}, house {n.lordHouse}, and {n.lordNavamsaSign} in D9. The natal D9 ascendant is {n.navamsaAscendant}. Seventh-sign occupants: {n.occupants.join(", ") || "none"}.</p>
     <p className="mt-1">Parashari's separate seventh-lord own/exaltation-sign clue for happiness through a spouse is {n.classicalSpouseHappinessClue ? "present" : "not identified"}. This is a sign-level clue about quality, not a complete natal promise or proof that a marriage will or will not occur. <Cite href={BPHS_MARRIAGE_SOURCE}>BPHS 18.1</Cite></p>
     <p className="mt-1">The seventh lords from birth and progressed lagna are {t.janmaSeventhLord} and {t.alpSeventhLord}; they {t.lordIdentity ? "are the same planet" : t.lordsShareNatalSign ? "share a natal sign" : "do not share a natal sign"}. The ALP pada-navamsa condition is {t.padaNavamsaTouches ? "present" : "not identified"}.</p>

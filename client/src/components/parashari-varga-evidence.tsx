@@ -17,8 +17,8 @@ export function ParashariVargaEvidencePanel({ evidence, natalOnly = false }: { e
   const natal = evidence.rashiLordInVarga;
   const rising = evidence.vargaLagnaLord;
   return (
-    <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="parashari-varga-evidence">
-      <summary className="cursor-pointer font-medium">
+    <details className="nadi-info-disclosure mt-2" data-testid="parashari-varga-evidence">
+      <summary className="nadi-info-summary">
         Parashari cross-check · {evidence.label}{natalOnly ? " · natal" : ` · ${evidence.date}`} · D1 and {evidence.division}
       </summary>
       <div className="mt-2 space-y-1.5 text-muted-foreground">

@@ -188,7 +188,7 @@ function PlanetCard({
   );
   return (
     <li
-      className="rounded-md border bg-card px-3 py-2"
+      className="nadi-info-card"
       data-testid={`special-stars-${planet}`}
     >
       <div className="flex items-center gap-2 text-sm font-medium">

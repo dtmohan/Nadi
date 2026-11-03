@@ -14,8 +14,8 @@ export function VargaWindowsPanel({ rows, birthDate }: { rows: NonNullable<Recti
     const date = civilDate ?? iso.slice(0, 10);
     return date === birthDate ? time : `${date} ${time}`;
   };
-  return <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="manley-varga-windows">
-    <summary className="cursor-pointer font-medium">Divisional ascendant windows · D1 to D60</summary>
+  return <details className="nadi-info-disclosure mt-3" data-testid="manley-varga-windows">
+    <summary className="nadi-info-summary">Divisional ascendant windows · D1 to D60</summary>
     <div className="mt-2 space-y-2 text-muted-foreground">
       <p>These show where each ascendant changes within the scanned window, following the sequence in Manley's book. They do not select or confirm a birth time. Planetary divisional positions and period lords can also change within one ascendant window. Windows are clipped to the scan and use the chart's selected ayanamsa and divisional conventions. Boundaries are sampled and rounded to seconds; very rapid motion at extreme latitudes can be missed. D60 is especially sensitive.</p>
       {rows.map(({ division, windows }) => <details key={division} className="rounded border px-2 py-1.5">

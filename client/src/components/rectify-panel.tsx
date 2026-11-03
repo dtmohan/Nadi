@@ -1202,7 +1202,7 @@ export function RectifyPanel({
           {EVENT_METHODS.includes(method) && (method === "alp-marriage"
             ? alpBands.length > 1 && alpBands.every((b) => b.score === alpBands[0].score)
             : scored.length > 1 && scored.every((r) => r.score === scored[0].score)) && (
-            <p className="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200" data-testid="rectify-flat-score-note">
+            <p className="mt-2 nadi-info-warning" data-testid="rectify-flat-score-note">
               Every sampled {method === "alp-marriage" ? "birth second" : "interval"} has the same raw score, so that score alone
               cannot narrow this birth-time window. The random-date comparisons
               may still differ; none establishes the correct time.
@@ -1256,8 +1256,8 @@ export function RectifyPanel({
             </div>
           )}
 
-          {(isParashariMethod || EVENT_METHODS.includes(method)) && !!focus?.manley?.length && <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="rectify-manley-clues">
-            <summary className="cursor-pointer font-medium">Manley event clues and functional lordship · candidate midpoint {focus.midDate} {focus.mid}</summary>
+          {(isParashariMethod || EVENT_METHODS.includes(method)) && !!focus?.manley?.length && <details className="nadi-info-disclosure mt-3" data-testid="rectify-manley-clues">
+            <summary className="nadi-info-summary">Manley event clues and functional lordship · candidate midpoint {focus.midDate} {focus.mid}</summary>
             {(focus.manley ?? []).map((e, i) => <ManleyEvidencePanel key={`${e.matter}-${e.date}-${i}`} evidence={e} />)}
           </details>}
           {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.parashariHierarchy?.map((e, i) => e && <ParashariHierarchyEvent key={`hierarchy-${i}`} event={e} />)}
@@ -1278,8 +1278,8 @@ export function RectifyPanel({
           {method === "alp-marriage" && <><p className="mt-1 text-xs text-muted-foreground">Additional marriage facts below use the selected ordinary interval midpoint, not every second in the ALP bands.</p><AlpMatchedComparisonPanel comparison={focus?.alpMatched} /></>}
           {(isParashariMethod || EVENT_METHODS.includes(method)) && <CatalogueComparisonPanel rows={focus?.baseline?.catalogueComparison} />}
 
-          {method.startsWith("kp-") && focus && focus.events.length > 0 && <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="rectify-kp-event-evidence">
-            <summary className="cursor-pointer font-medium">KP event cusp filters and event-day luminaries · candidate midpoint</summary>
+          {method.startsWith("kp-") && focus && focus.events.length > 0 && <details className="nadi-info-disclosure mt-3" data-testid="rectify-kp-event-evidence">
+            <summary className="nadi-info-summary">KP event cusp filters and event-day luminaries · candidate midpoint</summary>
             <p className="mt-2 text-muted-foreground">The same four-step event evidence appears in the chart's Matter and date reading and Validate. The cusp filters and luminary observations are descriptive; they do not change the existing event or transit score.</p>
             {focus.events.map((e, i) => <div key={`${e.label}-${e.date}-${i}`} className="mt-2">
               <p className="font-medium">{e.label} · {e.date} · {describeEventMoment(e, chart.timezone)}</p>
@@ -1305,7 +1305,7 @@ export function RectifyPanel({
               {!parashariComparable && anyParashariScore && <p className="mt-2 text-xs text-muted-foreground">
                 The eligible events differ across candidate times, so their totals cannot be ranked. Check event dates and times relative to birth.
               </p>}
-              <p className="mt-2 rounded border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+              <p className="mt-2 nadi-info-warning">
                 Before the correction to repeated natal clues, {method === "parashari-events" ? "an initial eight-person public-case test found v1's highest scores missed the ±5-minute band around the reported birth time in all eight cases. " : method === "parashari-events-v2" ? "nine public cases had v2's highest intervals touch the reported-time ±5-minute band in eight but cover 35% of the hour on average. At the reported birth times, held-out event scores were nearly the same on nearby comparison dates. " : "ten public cases had v3's highest intervals come within five minutes of the reported time in four cases and cover 29% of the hour on average. Held-out event scores resembled nearby dates. The added links can overlap and equal weights are app choices. "}
                 Those historical results do not validate the revised totals.
                 The ranking should not be used on its own to change a birth time.
@@ -1340,7 +1340,7 @@ export function RectifyPanel({
             tlBands.length > 0 &&
             eventPayload.length > 0 && (
               <div
-                className="mt-3 rounded-md border bg-card p-3"
+                className="mt-3 nadi-info-card"
                 data-testid="rectify-timeline-card"
               >
                 <p className="text-xs">
@@ -1385,8 +1385,8 @@ export function RectifyPanel({
                 return sky ? <KpTransitEvidencePanel key={`${e.label}-${e.date}-${i}`} label={e.label} date={e.date} when={describeEventMoment(e, chart.timezone)} evidence={kpTransitEvidence(sky.positions, focus.candidate!.kpPlanets, focus.candidate!.kpCusps, e.houses)} /> : null;
               })}
               {data.baseline && (
-                <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="rectify-comparison-example">
-                  <summary className="cursor-pointer font-medium">Inspect one randomly selected comparison set</summary>
+                <details className="nadi-info-disclosure mt-2" data-testid="rectify-comparison-example">
+                  <summary className="nadi-info-summary">Inspect one randomly selected comparison set</summary>
                   <p className="mt-2 text-muted-foreground">
                     These are the first dates in the reproducible comparison,
                     using this candidate's natal chart and each selected date's sky.

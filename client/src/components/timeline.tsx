@@ -72,7 +72,7 @@ function NowCard({ r, birth, zone }: { r: TransitReading; birth: DateTime; zone:
   const age = Math.floor(DateTime.utc().diff(birth, "years").years);
   return (
     <div
-      className="rounded-lg border bg-card p-4"
+      className="nadi-info-card p-4"
       data-testid={`now-${t.planet.toLowerCase()}`}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">

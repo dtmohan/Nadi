@@ -50,6 +50,7 @@ import { TopicReadingPanel } from "@/components/topic-reading";
 import { SchoolTopicPanel } from "@/components/school-topic-brief";
 import { PvrKalachakraResearch } from "@/components/pvr-kalachakra-research";
 import { ParashariNatalRules } from "@/components/natal-rule-evidence";
+import { InfoBox, InfoBoxTitle, InfoBoxDescription, INFO_BOX_ROWS, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
 import { concealAvasthaEffect, parashariHouseContext, parashariPlanetContext, plainNatalStar } from "@shared/chart-explanations";
 import { PLANET_ABBR, SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "@shared/astro";
 import {
@@ -667,19 +668,19 @@ function HouseByHouse({
 
 /** Existing planet checks and house passages, brought together without recalculating their verdicts. */
 function ParashariPlanetExplanations({ reading, uncertainty, positions }: { reading: ParashariResult; uncertainty: number; positions: PlanetPosition[] }) {
-  return <section className="mt-5" data-testid="parashari-planet-explanations">
-    <h3 className="text-sm font-semibold">Your planets, one by one</h3>
-    <p className="mt-1 text-xs text-muted-foreground">Each planet's house roles and condition come from the selected Parashari house view. Source passages are separate indications; a role alone does not decide an outcome.{uncertainty > 0 && ` The stated ±${uncertainty}-minute birth-time range may change the house roles or placements.`}</p>
-    <div className="mt-2 divide-y rounded-md border">{reading.natures.map((n) => {
+  return <InfoBox className="mt-5" data-testid="parashari-planet-explanations">
+    <InfoBoxTitle>Your planets, one by one</InfoBoxTitle>
+    <InfoBoxDescription>Each planet's house roles and condition come from the selected Parashari house view. Source passages are separate indications; a role alone does not decide an outcome.{uncertainty > 0 && ` The stated ±${uncertainty}-minute birth-time range may change the house roles or placements.`}</InfoBoxDescription>
+    <div className={INFO_BOX_ROWS}>{reading.natures.map((n) => {
       const passages = reading.withheld ? [] : (reading.houseProse ?? []).flatMap((h) => h.parts.filter((p) =>
         (p.key === "planet" && p.planet === n.planet || p.key === "lord" && n.owns.includes(h.house)) &&
         !sensitiveTags(p.textPlain).length && !withholdText(p.textPlain) && !/\b(ruin|penury|destitution|disease|illness|death|fertil|pregnan)\b/i.test(p.textPlain))
         .map((p) => ({ ...p, house: h.house })));
       const checks = parashariPlanetContext(n, reading.checks[n.planet] ?? []);
       const position = positions.find((p) => p.planet === n.planet);
-      return <details key={n.planet} className="px-3 py-2" data-testid={`parashari-planet-explanation-${n.planet}`}>
-        <summary className="cursor-pointer text-sm font-medium">{n.planet} · house {n.house}{n.owns.length ? ` · rules ${n.owns.join(", ")}` : ""}</summary>
-        <div className="mt-2 space-y-2 text-xs leading-relaxed">
+      return <details key={n.planet} className="px-4 py-3" data-testid={`parashari-planet-explanation-${n.planet}`}>
+        <summary className={INFO_BOX_ROW_SUMMARY}>{n.planet} · house {n.house}{n.owns.length ? ` · rules ${n.owns.join(", ")}` : ""}</summary>
+        <div className="mt-2 space-y-2 text-sm leading-relaxed">
           <p>{checks[0]}</p>
           {position && <p>{plainNatalStar(position)}</p>}
           {checks.length > 1 && <p className="text-muted-foreground">{checks.slice(1).join(" ")}</p>}
@@ -687,7 +688,7 @@ function ParashariPlanetExplanations({ reading, uncertainty, positions }: { read
         </div>
       </details>;
     })}</div>
-  </section>;
+  </InfoBox>;
 }
 
 /**
@@ -2603,7 +2604,7 @@ export function ParashariPanel({
             {combinations.map((c) => (
               <li
                 key={c.signIndex}
-                className="rounded-md border bg-card p-3 text-xs"
+                className="nadi-info-card text-xs"
               >
                 <span className="font-medium">
                   {c.count} planets in the {ord(c.house)} house ({c.sign})
@@ -2671,7 +2672,7 @@ export function ParashariPanel({
             {firedYogas.map((y) => (
               <li
                 key={y.id}
-                className="rounded-md border bg-card p-3 text-xs"
+                className="nadi-info-card text-xs"
               >
                 <span className="font-medium">{y.name}</span>{" "}
                 <span className="text-muted-foreground">
@@ -2984,7 +2985,7 @@ function KalachakraSection({ k, moonLon, birthIso, asOfIso, birthZone }: {
         className="mt-3"
         contentClassName=""
       >
-        <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        <p className="mt-2 nadi-info-note">
           <Soft>{k.caveats.join(" ")}</Soft>
         </p>
       </Expander>
@@ -3112,7 +3113,7 @@ function PadasSection({
       </p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <div
-          className="rounded-md border bg-card p-3"
+          className="nadi-info-card"
           data-testid="padas-constants"
         >
           <div className="text-sm font-medium">
@@ -3154,7 +3155,7 @@ function PadasSection({
           ) : null}
         </div>
         <div
-          className="rounded-md border bg-card p-3"
+          className="nadi-info-card"
           data-testid="padas-yogakarakas"
         >
           <div className="text-sm font-medium">
@@ -3423,7 +3424,7 @@ function PadasSection({
         className="mt-3"
         contentClassName=""
       >
-        <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        <div className="mt-2 space-y-1 nadi-info-note">
           {p.caveats.map((c, i) => (
             <p key={i}><Soft>{c}</Soft></p>
           ))}
@@ -3574,7 +3575,7 @@ function MarakasSection({
       </Table>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <div
-          className="rounded-md border bg-card p-3"
+          className="nadi-info-card"
           data-testid="marakas-stars"
         >
           <div className="text-sm font-medium">
@@ -3619,7 +3620,7 @@ function MarakasSection({
           </p>
         </div>
         <div
-          className="rounded-md border bg-card p-3"
+          className="nadi-info-card"
           data-testid="marakas-moon"
         >
           <div className="text-sm font-medium">
@@ -3692,7 +3693,7 @@ function MarakasSection({
         className="mt-3"
         contentClassName=""
       >
-        <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        <div className="mt-2 space-y-1 nadi-info-note">
           {m.caveats.map((c, i) => (
             <p key={i}><Soft>{c}</Soft></p>
           ))}
@@ -4017,7 +4018,7 @@ function AvasthasSection({
         className="mt-3"
         contentClassName=""
       >
-        <div className="mt-2 space-y-1 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        <div className="mt-2 space-y-1 nadi-info-note">
           {a.caveats.map((c, i) => (
             <p key={i}><Soft>{c}</Soft></p>
           ))}
@@ -4253,7 +4254,7 @@ function RasiDasasSection({ d }: { d: RasiDasasResult }) {
         className="mt-2"
         contentClassName=""
       >
-        <div className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        <div className="mt-2 nadi-info-note">
           <p><Soft>{d.caveats.join(" ")}</Soft></p>
           <p className="mt-1"><Soft>{d.notComputed.join(" ")}</Soft></p>
         </div>
@@ -4542,7 +4543,7 @@ function ConditionalDasasSection({ cd }: { cd: ConditionalDasasResult }) {
         className="mt-3"
         contentClassName=""
       >
-        <p className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        <p className="mt-2 nadi-info-note">
           <Soft>{cd.caveats.join(" ")}</Soft>
         </p>
       </Expander>
@@ -5711,7 +5712,7 @@ function DasaEffects({
         className="mt-2 grid gap-2 sm:grid-cols-2"
         data-testid="parashari-dasa-timing"
       >
-        <div className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        <div className="nadi-info-note">
           <p className="font-medium text-foreground">
             {plainDE
               ? `By the planet's degree: mainly at the ${w47}`
@@ -5722,7 +5723,7 @@ function DasaEffects({
           </p>
         </div>
         {note88 && (
-          <div className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          <div className="nadi-info-note">
             <p className="font-medium text-foreground">
               {plainDE
                 ? `By how its sign rises: ${w50 === "middle" ? "in the middle" : `towards the ${w50}`}`
@@ -5735,7 +5736,7 @@ function DasaEffects({
         )}
         {note2057 && (
           <div
-            className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground"
+            className="nadi-info-note"
             data-testid="parashari-dasa-timing-2057"
           >
             <p className="font-medium text-foreground">

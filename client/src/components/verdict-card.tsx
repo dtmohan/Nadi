@@ -8,6 +8,7 @@ import {
 } from "@/components/planet-name";
 import { Expander, HOW_FOUND } from "@/components/working";
 import { cn } from "@/lib/utils";
+import { InfoBox, INFO_BOX_EYEBROW } from "@/components/info-box";
 
 export type VerdictTone = "good" | "mixed" | "bad" | "neutral";
 
@@ -75,12 +76,12 @@ export function VerdictCard({
 }) {
   const sigs = (signatures ?? []).slice(0, 3);
   return (
-    <section
-      className={cn("rounded-lg border bg-card p-5 sm:p-6", className)}
+    <InfoBox
+      className={className}
       data-testid={testid}
       aria-label={`${system} verdict`}
     >
-      <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+      <p className={INFO_BOX_EYEBROW}>
         {system} · the reading in brief
       </p>
       <h2
@@ -168,6 +169,6 @@ export function VerdictCard({
       {caveat && (
         <p className="mt-3 text-2xs text-muted-foreground">{caveat}</p>
       )}
-    </section>
+    </InfoBox>
   );
 }

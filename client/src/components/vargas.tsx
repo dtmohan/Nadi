@@ -360,7 +360,7 @@ export function VargasSection({
       <VargaHouses varga={varga} chart={chart} withheld={withheld} />
       {plain && <VargaPlanetExplanations varga={varga} chart={chart} planets={v.planets} />}
       <div
-        className="mt-4 rounded-md border bg-card p-3 text-xs"
+        className="mt-4 nadi-info-card text-xs"
         data-testid="varga-spouse"
       >
         <SectionTitle
@@ -408,7 +408,7 @@ export function VargasSection({
       </div>
       {windows && (
         <div
-          className="mt-4 rounded-md border bg-card p-3 text-xs"
+          className="mt-4 nadi-info-card text-xs"
           data-testid="varga-time-windows"
         >
           <SectionTitle

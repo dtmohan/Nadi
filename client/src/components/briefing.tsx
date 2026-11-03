@@ -14,6 +14,7 @@ import { openExpander } from "@/components/working";
 import { Soft } from "@/lib/gentle";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { InfoBox, INFO_BOX_EYEBROW, INFO_BOX_INSET } from "@/components/info-box";
 
 const TAB_NAME: Record<BriefLink["tab"], string> = {
   parashari: "Parashari",
@@ -31,8 +32,8 @@ const LEAN_PILL: Record<string, string> = {
   unfavourable: "bg-verdict-bad/10 text-verdict-bad",
 };
 
-const card = "mt-4 scroll-mt-4 rounded-lg border bg-card p-5 sm:p-6";
-const label = "text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground";
+const card = "mt-4 scroll-mt-4";
+const label = INFO_BOX_EYEBROW;
 
 /** Open a tab at a chapter, then bring the section into view once the tab has drawn it. */
 export function useOpenLink(onOpenTab?: (tab: BriefLink["tab"]) => void) {
@@ -94,7 +95,7 @@ export function BriefingBefore({
   const t = useT();
   if (!notes.length) return null;
   return (
-    <section className={card} data-testid="brief-before">
+    <InfoBox className={card} data-testid="brief-before">
       <p className={label}>{t("Before you read")}</p>
       <ul className="mt-3 space-y-4">
         {notes.map((n) => (
@@ -113,7 +114,7 @@ export function BriefingBefore({
           </li>
         ))}
       </ul>
-    </section>
+    </InfoBox>
   );
 }
 
@@ -249,7 +250,7 @@ export function BriefingNow({
 }) {
   const t = useT();
   return (
-    <section className={card} data-testid="brief-now">
+    <InfoBox className={card} data-testid="brief-now">
       <p className={label}>{heading}</p>
       {plain && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">A planetary period is a traditional time cycle calculated from the birth chart. A long period contains shorter periods, each associated with a planet. Transits are the planets' positions on the reading date; the different schools interpret these cycles separately.</p>}
       {brief.pastEnd && (
@@ -283,7 +284,7 @@ export function BriefingNow({
         {plain ? "Each line names the school that produced it. The area labels suggest related topics using a provisional app rule; dashed labels are suggested from the period's planet alone and do not mean an event is predicted." : "Each line is read by its own system and labelled; nothing here is weighed across systems. Area tags follow a fixed rule of the app (provisional); dashed tags rest on the period lord alone."}
       </p>
       {children}
-    </section>
+    </InfoBox>
   );
 }
 
@@ -302,7 +303,7 @@ function PlanetTechnical({ p }: { p: PlanetBrief }) {
 
 function PlanetCard({ p, example }: { p: PlanetBrief; example?: PlanetTopicExample }) {
   return (
-    <li className="rounded-md border bg-card p-3" data-testid={`brief-planet-${p.planet}`}>
+    <li className={INFO_BOX_INSET} data-testid={`brief-planet-${p.planet}`}>
       <p className="text-sm font-medium">
         <PlanetName planet={p.planet} />
       </p>
@@ -335,7 +336,7 @@ export function BriefingPlanets({ planets, plain, uncertainty, examples }: { pla
   const t = useT();
   if (!planets.length) return null;
   return (
-    <section className={card} data-testid="brief-planets">
+    <InfoBox className={card} data-testid="brief-planets">
       <p className={label}>{t("Planets in play")}</p>
       <p className="mt-1 text-xs text-muted-foreground">
         {plain ? "These are the planets associated with the current time cycles, the next long cycle, or the current positions of Jupiter and Saturn. Each card distinguishes the birth chart from the sky on the reading date." : "The lords of the running periods, the slow planets in transit and the next dasa lord, with their state in the birth chart."}
@@ -347,6 +348,6 @@ export function BriefingPlanets({ planets, plain, uncertainty, examples }: { pla
           <PlanetCard key={p.planet} p={p} example={examples?.[p.planet]} />
         ))}
       </ul>
-    </section>
+    </InfoBox>
   );
 }

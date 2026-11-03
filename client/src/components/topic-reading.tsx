@@ -29,6 +29,8 @@ import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evi
 import { AdditionalSchoolEventEvidence } from "@/components/additional-school-event-evidence";
 import { AlpEventEvidencePanel } from "@/components/alp-event-evidence";
 import { QualifiedEventScoresPanel } from "@/components/qualified-event-scores";
+import { InfoBox, InfoBoxDisclosure, INFO_BOX_DESCRIPTION, INFO_BOX_INSET, INFO_BOX_TITLE } from "@/components/info-box";
+import { cn } from "@/lib/utils";
 
 export type TopicReadingSystem = "kp" | "parashari" | "jaimini" | "bnn" | "alp" | "prasna";
 
@@ -92,18 +94,17 @@ export function TopicReadingPanel({ result, system, onSelected }: {
   const disabled = read.isPending;
   const stage = stagedObservation(shown?.reading.manley);
 
-  return <section className="mt-6 max-w-4xl space-y-3" data-testid={`topic-reading-${system}`}>
+  return <InfoBox className="mt-6 space-y-4" data-testid={`topic-reading-${system}`}>
     <div>
-      <h2 className="text-lg font-semibold">Explore a matter and date</h2>
-      <p className="mt-1 text-sm text-muted-foreground">Choose a saved event or investigate a possible date. This uses the same event conditions as Validate; a match does not mean the event happened or will happen. The chosen date is not saved.</p>
+      <h2 className={INFO_BOX_TITLE}>Explore a matter and date</h2>
+      <p className={INFO_BOX_DESCRIPTION}>Choose a saved event or investigate a possible date. This uses the same event conditions as Validate; a match does not mean the event happened or will happen. The chosen date is not saved.</p>
       <p className="mt-1 text-xs text-muted-foreground" data-testid="topic-transit-scope">{EVENT_TRANSIT_SCOPE}</p>
     </div>
-    {system === "parashari" && natal.length > 0 && <details className="rounded-md border px-3 py-2 text-xs" data-testid="topic-reading-natal">
-      <summary className="cursor-pointer font-medium">Natal foundations · D1 and the relevant divisional charts</summary>
+    {system === "parashari" && natal.length > 0 && <InfoBoxDisclosure data-testid="topic-reading-natal" label="Natal foundations · D1 and the relevant divisional charts">
       <p className="mt-2 text-muted-foreground">These are the same partial house factors used in the dated checks, before adding periods or transits. They use whole-sign houses, including when another house view is selected for the main reading.</p>
       {natal.map((e) => <ParashariVargaEvidencePanel key={e.matter} evidence={e} natalOnly />)}
-    </details>}
-    {topics.length === 0 ? <p className="text-sm text-muted-foreground">No supported matter is available in this reading.</p> : <form className="space-y-3 rounded-md border px-3 py-3" onSubmit={(e) => { e.preventDefault(); read.mutate({ event: draft, generation: generation.current }); }}>
+    </InfoBoxDisclosure>}
+    {topics.length === 0 ? <p className="text-sm text-muted-foreground">No supported matter is available in this reading.</p> : <form className={cn(INFO_BOX_INSET, "space-y-3")} onSubmit={(e) => { e.preventDefault(); read.mutate({ event: draft, generation: generation.current }); }}>
       {savedEvents.length > 0 && <label className="block text-xs font-medium" htmlFor={`${system}-topic-saved`}>
         Saved event (optional)
         <select id={`${system}-topic-saved`} className="mt-1 block h-9 w-full rounded-md border bg-background px-2 text-sm" value={saved} disabled={disabled}
@@ -150,7 +151,7 @@ export function TopicReadingPanel({ result, system, onSelected }: {
       <Button type="submit" size="sm" disabled={disabled || !draft.date}>{disabled ? "Checking…" : "Check this date"}</Button>
       {read.isError && <p role="alert" className="text-xs text-destructive">{read.error instanceof Error ? read.error.message : "Could not check this date."}</p>}
     </form>}
-    {shown && <div className="space-y-2 rounded-md border px-3 py-3 text-xs" data-testid={`topic-reading-result-${system}`}>
+    {shown && <div className={cn(INFO_BOX_INSET, "space-y-2")} data-testid={`topic-reading-result-${system}`}>
       <p className="font-medium">{shown.reading.label} · {shown.reading.date} · {describeEventMoment(shown.event, chart.timezone)}</p>
       <QualifiedEventScoresPanel scores={shown.reading.qualifiedScores} school={system} />
       {system === "alp" && <AlpEventEvidencePanel evidence={shown.reading.alp} />}
@@ -207,5 +208,5 @@ export function TopicReadingPanel({ result, system, onSelected }: {
       {shown.reading.moonTransit && <MoonTransitContextPanel context={shown.reading.moonTransit} label={shown.reading.label}
         date={shown.reading.date} when={describeEventMoment(shown.event, chart.timezone)} />}
     </div>}
-  </section>;
+  </InfoBox>;
 }

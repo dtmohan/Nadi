@@ -10,8 +10,8 @@ export function ParashariCatalogueEvidence({ evidence }: { evidence?: ParashariD
   const natal = "natal" in evidence ? evidence.natal : evidence;
   const periods = "natal" in evidence ? evidence.periods : [];
   if (natal.status !== "assessed") return <p className="mt-1 text-muted-foreground">{natal.status === "withheld" ? "Natal rule context is withheld under the reading policy." : "Natal rule context has not been mapped for this event."}</p>;
-  return <details className="mt-2 rounded border px-2 py-2" data-testid="parashari-catalogue-event-evidence">
-    <summary className="cursor-pointer font-medium">Ordinary Parashari house and related yoga context · house {natal.subjectHouse}</summary>
+  return <details className="nadi-info-disclosure mt-2" data-testid="parashari-catalogue-event-evidence">
+    <summary className="nadi-info-summary">Ordinary Parashari house and related yoga context · house {natal.subjectHouse}</summary>
     <p className="mt-1 text-muted-foreground">The main chart's {natal.houseMethod} construction and aspect floor {natal.aspectFloor}/4 are used here. The separate D1/divisional research checks use whole signs and full aspects. A house covers several subjects; a yoga involving its lord is related context, not an event prediction. These findings do not add points or impose a hard gate.</p>
     {natal.houseMethodNote && <p className="mt-1 text-muted-foreground">{natal.houseMethodNote}</p>}
     {natal.assessment && <p className="mt-1">House assessment: {natal.assessment.tone}; support: <Soft>{natal.assessment.support.join("; ") || "none listed"}</Soft>; strain: <Soft>{natal.assessment.strain.join("; ") || "none listed"}</Soft>.</p>}

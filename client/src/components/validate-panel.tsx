@@ -845,8 +845,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             <ParashariVargaEvidencePanel key={`parashari-${e.id}`} evidence={e.parashariVargas} />
           ))}
           {v.events.map((e) => e.parashariHierarchy && <ParashariHierarchyEvent key={`hierarchy-${e.id}`} event={e.parashariHierarchy} />)}
-          {v.events.some((e) => e.manley) && <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="validate-manley-clues">
-            <summary className="cursor-pointer font-medium">Manley event clues and functional lordship · recorded birth time</summary>
+          {v.events.some((e) => e.manley) && <details className="nadi-info-disclosure mt-3" data-testid="validate-manley-clues">
+            <summary className="nadi-info-summary">Manley event clues and functional lordship · recorded birth time</summary>
             {v.events.map((e) => e.manley && <ManleyEvidencePanel key={`manley-${e.id}`} evidence={e.manley} />)}
           </details>}
           {v.events.map((e) => e.kp.transit.evidence && (
@@ -862,8 +862,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
           {v.baseline?.aurora && <p className="mt-2 text-xs text-muted-foreground">Aurora full chains: {v.baseline.aurora.actual} on recorded dates; random-date mean {v.baseline.aurora.mean} across {v.baseline.trials} trials. Comparison dates are not known non-events.</p>}
           {v.baseline?.auroraV2 && <p className="mt-2 text-xs text-muted-foreground">Aurora v2 full chains: {v.baseline.auroraV2.actual} on recorded dates; random-date mean {v.baseline.auroraV2.mean} across {v.baseline.trials} trials. {v.baseline.auroraV2.sd === 0 && v.baseline.auroraV2.actual === v.baseline.auroraV2.mean ? "The comparison scores show no spread and match the events, so this comparison does not distinguish the dates. " : ""}Comparison dates are not known non-events.</p>}
           {v.baseline?.example && (
-            <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="validate-comparison-example">
-              <summary className="cursor-pointer font-medium">Inspect one randomly selected comparison set</summary>
+            <details className="nadi-info-disclosure mt-2" data-testid="validate-comparison-example">
+              <summary className="nadi-info-summary">Inspect one randomly selected comparison set</summary>
               <p className="mt-2 text-muted-foreground">
                 These are the first dates in the reproducible comparison. Each
                 sky is recalculated for its selected date against this same natal chart.

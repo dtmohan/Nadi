@@ -13,8 +13,8 @@ const labels: Record<string, string> = {
 export function AlpMatchedComparisonPanel({ comparison }: { comparison?: AlpMatchedComparison }) {
   if (!comparison) return null;
   if (comparison.status === "unavailable") return <p className="mt-2 text-xs text-muted-foreground">ALP shifted-date context unavailable: {comparison.reason}</p>;
-  return <details className="mt-2 rounded border px-3 py-2 text-xs" data-testid="alp-matched-comparison">
-    <summary className="cursor-pointer font-medium">ALP marriage facts on shifted dates</summary>
+  return <details className="nadi-info-disclosure mt-2" data-testid="alp-matched-comparison">
+    <summary className="nadi-info-summary">ALP marriage facts on shifted dates</summary>
     <p className="mt-1 text-muted-foreground">The same {comparison.trials} sequence-preserving shifts used for KP are applied to each marriage. Facts are shown separately and do not add to the ALP pada score. The natal seventh lord at the natal D9 ascendant is fixed for a birth chart; the progressed seventh lord can change with the event date. Shifted dates are not verified non-events.</p>
     {comparison.rows.map((row, i) => <div className="mt-2" key={`${row.date}-${i}`}><p className="font-medium">{row.label} · {row.date}</p>
       {row.status === "unavailable" ? <p>Context unavailable.</p> : row.facts.map((fact) => <p key={fact.id}>{labels[fact.id] ?? fact.id}: {fact.actual ? "present" : "not identified"} at the event; present on {fact.matchedTrials}/{comparison.trials} shifted dates.</p>)}

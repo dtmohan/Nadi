@@ -21,8 +21,8 @@ export function ParashariComparisonPanel({ comparison, example, trials, birthZon
     { label: "Version 2", stat: comparison.v2 },
     { label: "Version 3", stat: comparison.v3 },
   ].filter((x): x is { label: string; stat: ComparisonStat } => !!x.stat);
-  return <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="parashari-comparison">
-    <summary className="cursor-pointer font-medium">Parashari · compare the same checks on random dates</summary>
+  return <details className="nadi-info-disclosure mt-3" data-testid="parashari-comparison">
+    <summary className="nadi-info-summary">Parashari · compare the same checks on random dates</summary>
     <div className="mt-2 space-y-2 text-muted-foreground">
       <p>Each of {trials} comparison sets keeps the same eligible events, outcomes, natal candidate, event clock and time zone. Period lords and any transits required by that version are recalculated on each sampled date. Missing event clocks use noon; missing event zones use the birth zone. These comparisons do not change the ranking.</p>
       {versions.map(({ label, stat }) => <p key={label} data-testid={`parashari-comparison-${label.replace(" ", "-").toLowerCase()}`}><strong>{label}:</strong> {show(stat)}.</p>)}

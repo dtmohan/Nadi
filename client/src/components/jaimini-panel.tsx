@@ -11,6 +11,7 @@ import type { ChartResult } from "@shared/schema";
 import type { ChartEvent } from "@shared/events";
 import { TopicReadingPanel } from "@/components/topic-reading";
 import { SchoolTopicPanel } from "@/components/school-topic-brief";
+import { InfoBox, InfoBoxTitle, INFO_BOX_ROWS, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
 import {
   PLANET_ABBR,
   SIGNS,
@@ -804,17 +805,20 @@ export function JaiminiPanel({ result, onTopicSelected }: { result: ChartResult;
           }
         />
         {plain && (chart.timeUncertaintyMin ?? 0) > 0 && <p className="mt-2 text-xs text-muted-foreground">The stated ±{chart.timeUncertaintyMin}-minute birth-time range may change sensitive placements or house-based readings.</p>}
-        {plain && <div className="mt-3 divide-y rounded-md border" data-testid="jaimini-planet-explanations">
+        {plain && <InfoBox as="div" className="mt-4" data-testid="jaimini-planet-explanations">
+          <InfoBoxTitle>Your planets and their roles</InfoBoxTitle>
+          <div className={INFO_BOX_ROWS}>
           {j.karakas.map((k) => {
             const rp = positions.find((p) => p.planet === k.planet);
             const dp = j.navamsa.find((p) => p.planet === k.planet);
-            return <details key={k.karaka} className="px-3 py-2 text-xs" data-testid={`jaimini-planet-explanation-${k.planet}`}>
-              <summary className="cursor-pointer text-sm font-medium">{k.planet} · {k.karaka} · {CHARA_KARAKA_INFO[k.karaka].name}</summary>
+            return <details key={k.karaka} className="px-4 py-3 text-sm leading-relaxed" data-testid={`jaimini-planet-explanation-${k.planet}`}>
+              <summary className={INFO_BOX_ROW_SUMMARY}>{k.planet} · {k.karaka} · {CHARA_KARAKA_INFO[k.karaka].name}</summary>
               <p className="mt-1.5">In this chart {k.planet}'s degree rank gives it the {k.karaka} role. This role concerns {CHARA_KARAKA_INFO[k.karaka].meaning}. It is in {rp?.sign ?? "an unavailable sign"} in D1 and {dp?.sign ?? "an unavailable sign"} in D9. The life-area reading adds the applicable source conditions; the role alone is not an outcome.</p>
             </details>;
           })}
-          <p className="px-3 py-2 text-xs text-muted-foreground">Ketu is not assigned one of these eight movable roles in this convention; its other Jaimini rules remain in the relevant reading.</p>
-        </div>}
+          <p className="px-4 py-3 text-sm leading-relaxed text-muted-foreground">Ketu is not assigned one of these eight movable roles in this convention; its other Jaimini rules remain in the relevant reading.</p>
+          </div>
+        </InfoBox>}
         <Working id="karakas" label="Show the ranking table" className="mt-3">
           <Table className="tabular mt-3" cards>
             <TableHeader>
@@ -1629,7 +1633,7 @@ export function JaiminiPanel({ result, onTopicSelected }: { result: ChartResult;
             {rajaYogas.map((y) => (
               <li
                 key={y.id}
-                className="rounded-md border bg-card p-3 text-xs leading-5"
+                className="nadi-info-card text-xs leading-5"
                 data-testid={`jaimini-yoga-${y.id}`}
               >
                 <span className="font-medium">{y.name}</span>{" "}

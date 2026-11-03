@@ -11,8 +11,8 @@ export function AdditionalSchoolEventEvidence({ evidence, school = "all" }: {
   if (school === "bj" && (!evidence.brihatJataka || evidence.brihatJataka.status === "unmapped")) return null;
   const show = (name: string) => school === "all" || school === name;
   const b = evidence.bnn, j = evidence.jaimini, p = evidence.prasna;
-  return <details className="mt-2 rounded border px-2 py-2" data-testid="additional-school-event-evidence">
-    <summary className="cursor-pointer font-medium">Related natal findings from {school === "all" ? `BNN, Jaimini${evidence.brihatJataka && evidence.brihatJataka.status !== "unmapped" ? ", Brihat Jataka" : ""} and Prasna Marga` : school === "bnn" ? "BNN" : school === "jaimini" ? "Jaimini" : school === "bj" ? "Brihat Jataka" : "Prasna Marga"}</summary>
+  return <details className="nadi-info-disclosure mt-2" data-testid="additional-school-event-evidence">
+    <summary className="nadi-info-summary">Related natal findings from {school === "all" ? `BNN, Jaimini${evidence.brihatJataka && evidence.brihatJataka.status !== "unmapped" ? ", Brihat Jataka" : ""} and Prasna Marga` : school === "bnn" ? "BNN" : school === "jaimini" ? "Jaimini" : school === "bj" ? "Brihat Jataka" : "Prasna Marga"}</summary>
     <p className="mt-1 text-muted-foreground">These are the ordinary chart's broad area or house findings. They provide context; inclusion does not make each finding an event promise or change an event score.</p>
     {show("bnn") && <div className="mt-2"><p className="font-medium">BNN · {b.area ?? "no mapped area"} · {b.status}</p>
       {b.findings.map((f, i) => <p key={`${f.ruleId}-${i}`}><strong>{f.ruleId}:</strong> <Soft>{f.text}</Soft>{f.source && <> · <Cite>{f.source}</Cite></>}</p>)}

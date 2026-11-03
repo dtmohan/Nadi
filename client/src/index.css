@@ -319,6 +319,47 @@
 }
 
 @layer components {
+  /* Reading surfaces: one palette and type scale for summaries and their supporting details. */
+  .nadi-info-box {
+    @apply min-w-0 w-full rounded-lg border border-border bg-card p-5 text-card-foreground sm:p-6;
+  }
+  .nadi-info-title {
+    @apply text-lg font-semibold leading-snug text-card-foreground;
+    font-family: var(--font-serif);
+    letter-spacing: -0.012em;
+  }
+  .nadi-info-description {
+    @apply mt-2 text-sm leading-relaxed text-muted-foreground;
+  }
+  .nadi-info-eyebrow {
+    @apply text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground;
+  }
+  .nadi-info-inset,
+  .nadi-info-disclosure {
+    @apply min-w-0 rounded-md border border-border bg-background/30 p-3 text-sm leading-relaxed text-card-foreground;
+  }
+  .nadi-info-card {
+    @apply min-w-0 rounded-md border border-border bg-card p-3 text-sm leading-relaxed text-card-foreground;
+  }
+  .nadi-info-note {
+    @apply rounded-md border border-border bg-muted/40 px-3 py-2 text-xs leading-relaxed text-muted-foreground;
+  }
+  .nadi-info-warning {
+    @apply rounded-md border border-verdict-mixed/40 bg-verdict-mixed/[0.08] px-3 py-2 text-xs leading-relaxed text-foreground;
+  }
+  .nadi-info-rows {
+    @apply mt-4 divide-y divide-border rounded-md border border-border bg-background/30;
+  }
+  .nadi-info-row {
+    @apply grid gap-1 px-4 py-3 text-sm leading-relaxed sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-4;
+  }
+  .nadi-info-summary {
+    @apply cursor-pointer rounded-sm text-sm font-semibold text-card-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  }
+  .nadi-info-summary::marker {
+    color: hsl(var(--muted-foreground));
+  }
+
   /* Citation chip: a source reference set apart from the prose it supports. */
   .cite {
     @apply inline-flex items-baseline gap-1 rounded-sm border border-border/80 bg-muted/50 px-1.5 py-px align-baseline font-mono text-2xs font-medium leading-4 tracking-tight text-muted-foreground no-underline;

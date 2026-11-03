@@ -8,6 +8,8 @@ import { usePlain } from "@/components/mode-text";
 import { Soft } from "@/lib/gentle";
 import { useOpenLink } from "@/components/briefing";
 import type { BriefLink } from "@shared/briefing";
+import { InfoBox, InfoBoxTitle, InfoBoxDescription, INFO_BOX_INSET, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
+import { cn } from "@/lib/utils";
 
 const KP_HOUSE: Partial<Record<SchoolTopicBrief["topic"], number>> = { career: 10, marriage: 7, children: 5, father: 9, mother: 4 };
 const PARASHARI_HOUSE: Partial<Record<SchoolTopicBrief["topic"], number>> = { career: 10, marriage: 7, children: 5, father: 10, mother: 4 };
@@ -63,15 +65,15 @@ export function SchoolTopicPanel({ result, school, options }: { result: ChartRes
   const topics = useMemo(() => expandedSchoolTopicBriefs(result, school, input, agreement, options), [result, school, input, agreement, options]);
   if (!plain) return null;
   if (!topics.length) return null;
-  return <section className="mt-4 rounded-lg border bg-card p-4" data-testid={`plain-school-topics-${school}`}>
-    <h3 className="font-display text-base font-semibold">Life topics in {SCHOOL_NAME[school]}</h3>
-    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Each summary describes selected, entered interpretations with their original scope. A house can cover several matters; a missing rule is not a negative verdict. Birth-time uncertainty can change house-based readings.</p>
-    {school === "kp" && <p className="mt-1 text-xs leading-relaxed text-muted-foreground">These cards use the four-step comparison. The KP table's six-step option is separate; an education sensitivity check is shown when it changes a selected rule.</p>}
-    <div className="mt-3 grid grid-cols-2 items-start gap-2 lg:grid-cols-3">
-      {topics.map((brief) => <details className="rounded-md border p-3 open:col-span-2 lg:open:col-span-3" key={brief.topic}>
-        <summary className="cursor-pointer text-sm font-semibold">{SCHOOL_TOPIC_LABEL[brief.topic]}</summary>
+  return <InfoBox className="mt-4" data-testid={`plain-school-topics-${school}`}>
+    <InfoBoxTitle>Life topics in {SCHOOL_NAME[school]}</InfoBoxTitle>
+    <InfoBoxDescription>Each summary describes selected, entered interpretations with their original scope. A house can cover several matters; a missing rule is not a negative verdict. Birth-time uncertainty can change house-based readings.</InfoBoxDescription>
+    {school === "kp" && <InfoBoxDescription>These cards use the four-step comparison. The KP table's six-step option is separate; an education sensitivity check is shown when it changes a selected rule.</InfoBoxDescription>}
+    <div className="mt-4 grid grid-cols-2 items-start gap-2 lg:grid-cols-3">
+      {topics.map((brief) => <details className={cn(INFO_BOX_INSET, "open:col-span-2 lg:open:col-span-3")} key={brief.topic}>
+        <summary className={INFO_BOX_ROW_SUMMARY}>{SCHOOL_TOPIC_LABEL[brief.topic]}</summary>
         <div className="mt-2"><SchoolTopicExplanation brief={brief} onOpen={() => open(schoolDetailsLink(brief))} /></div>
       </details>)}
     </div>
-  </section>;
+  </InfoBox>;
 }

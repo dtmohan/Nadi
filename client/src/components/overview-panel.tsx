@@ -35,6 +35,7 @@ import { gocharaContext } from "@shared/chart-explanations";
 import { AGREEMENT_SYSTEM_LABEL } from "@shared/agreement";
 import type { Stance } from "@shared/kernel";
 import { plainSarvarthaHighlights } from "@shared/sarvartha-plain";
+import { InfoBox, INFO_BOX_EYEBROW, INFO_BOX_INSET, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
 
 const VERDICT_PILL: Record<GocharaVerdict, string> = {
   favourable: "bg-verdict-good/15 text-verdict-good",
@@ -264,8 +265,8 @@ export function OverviewPanel({
       aria-label="Overview"
     >
       {/* Identity and the glance sentence */}
-      <div className="rounded-lg border bg-card p-5 sm:p-6">
-        <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+      <InfoBox as="div">
+        <p className={INFO_BOX_EYEBROW}>
           {t("Overview · the chart in a minute")}
         </p>
         <h2
@@ -349,13 +350,13 @@ export function OverviewPanel({
             )}
           </div>
         )}
-      </div>
+      </InfoBox>
 
       <BriefingBefore notes={brief.before} onOpen={openLink} />
 
       {plain && topics.length > 0 && (
-        <section className="mt-4 rounded-lg border bg-card p-5 sm:p-6" aria-label="Life topics" data-testid="plain-topic-briefs">
-          <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{t("Life topics")}</p>
+        <InfoBox className="mt-4" aria-label="Life topics" data-testid="plain-topic-briefs">
+          <p className={INFO_BOX_EYEBROW}>{t("Life topics")}</p>
           <p className="mt-1 text-sm text-muted-foreground">These short readings use the Nadi method. Other schools have their own readings.</p>
           <p className="mt-1 text-xs text-muted-foreground">Open a topic to compare selected interpretations from the other schools. Their coverage differs; ALP is date-specific and Prasna Marga here uses the birth chart.</p>
           {(chart.timeUncertaintyMin ?? 0) > 0 && (
@@ -363,7 +364,7 @@ export function OverviewPanel({
           )}
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             {topics.filter((topic) => topic.topic === "career" || topic.topic === "marriage").map((topic) => (
-              <article key={topic.topic} className="min-w-0 scroll-mt-4 rounded-md border p-4" data-testid={`overview-area-${topic.topic}`}>
+              <article key={topic.topic} className={cn(INFO_BOX_INSET, "scroll-mt-4 p-4")} data-testid={`overview-area-${topic.topic}`}>
                 <h3 className="font-display text-lg font-semibold">{t(PLAIN_TOPIC_LABEL[topic.topic])}</h3>
                 <PlainTopicContent topic={topic} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} />
               </article>
@@ -374,15 +375,15 @@ export function OverviewPanel({
               <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">{t("More life topics")}</summary>
               <div className="grid grid-cols-1 items-start gap-2 border-t p-3 md:grid-cols-2 xl:grid-cols-3">
                 {topics.filter((topic) => topic.topic !== "career" && topic.topic !== "marriage").map((topic) => (
-                  <details key={topic.topic} className="min-w-0 scroll-mt-24 rounded-md border p-3" data-testid={`overview-area-${topic.topic}`}>
-                    <summary className="cursor-pointer text-sm font-semibold">{t(PLAIN_TOPIC_LABEL[topic.topic])}</summary>
+                  <details key={topic.topic} className={cn(INFO_BOX_INSET, "scroll-mt-24")} data-testid={`overview-area-${topic.topic}`}>
+                    <summary className={INFO_BOX_ROW_SUMMARY}>{t(PLAIN_TOPIC_LABEL[topic.topic])}</summary>
                     <PlainTopicContent topic={topic} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} />
                   </details>
                 ))}
               </div>
             </details>
           )}
-        </section>
+        </InfoBox>
       )}
 
       {/* Now and next: each system's clock side by side, built in shared/briefing.ts */}
@@ -428,7 +429,7 @@ export function OverviewPanel({
               {[jupRow, satRow].filter(Boolean).map((r) => (
                 <li
                   key={r!.planet}
-                  className="rounded-md border bg-card p-3 text-xs"
+                  className="nadi-info-card text-xs"
                   data-testid={`overview-weather-${r!.planet}`}
                   data-verdict={r!.verdict}
                 >
@@ -493,7 +494,7 @@ export function OverviewPanel({
         {areas.filter(() => !plain).map((a) => (
           <li
             key={a.area}
-            className="scroll-mt-4 rounded-md border bg-card p-3"
+            className="scroll-mt-4 nadi-info-card"
             data-testid={`overview-area-${a.area}`}
             data-tone={a.tone}
           >
@@ -546,11 +547,11 @@ export function OverviewPanel({
 
       {/* Sarvartha Chintamani highlights (Parashari-lineage) */}
       {result.sarvartha && scShown.length > 0 && (
-        <div
-          className="mt-4 rounded-lg border bg-card p-5 sm:p-6"
+        <InfoBox as="div"
+          className="mt-4"
           data-testid="overview-sarvartha"
         >
-          <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <p className={INFO_BOX_EYEBROW}>
             Parashari · Sarvartha Chintamani
           </p>
           {plain ? <div className="mt-2 space-y-2 text-sm leading-relaxed">
@@ -580,7 +581,7 @@ export function OverviewPanel({
             Parashari tab.
           </p>
           </>}
-        </div>
+        </InfoBox>
       )}
 
     </section>

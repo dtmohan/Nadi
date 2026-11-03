@@ -4,8 +4,8 @@ import type { PlanetContext } from "@shared/planet-context";
 /** BPHS degree facts are descriptive until a rule explicitly selects them. */
 export function BphsDignityContextPanel({ context }: { context: PlanetContext }) {
   const planets = context.planets.filter((p) => p.bphsDignity);
-  return <details className="mt-4 rounded-md border bg-card px-3 py-2 text-xs" data-testid="bphs-dignity-context">
-    <summary className="cursor-pointer font-medium">Sign and degree dignity · BPHS</summary>
+  return <details className="nadi-info-card mt-4 text-xs" data-testid="bphs-dignity-context">
+    <summary className="nadi-info-summary">Sign and degree dignity · BPHS</summary>
     <p className="mt-2 text-muted-foreground">BPHS identifies exaltation signs and specific moolatrikona degree ranges. These facts can overlap; for example, the Moon can be in its exaltation sign and in the moolatrikona range. <a href="https://vedic-astro.s3.amazonaws.com/books/bhrihat_parasara_hora_shastra.pdf" target="_blank" rel="noreferrer" className="underline">BPHS 3.49–54</a>.</p>
     <div className="mt-2 overflow-x-auto"><table className="w-full min-w-[32rem] text-left">
       <thead><tr className="border-b text-muted-foreground"><th>Planet</th><th>Sign · degree</th><th>Existing sign label</th><th>BPHS facts</th></tr></thead>

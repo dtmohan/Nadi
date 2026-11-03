@@ -69,6 +69,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 import { SchoolTopicPanel } from "@/components/school-topic-brief";
+import { InfoBox, InfoBoxTitle, InfoBoxDescription, INFO_BOX_ROWS, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
 
 const ord = (h: number) =>
   h === 1 ? "1st" : h === 2 ? "2nd" : h === 3 ? "3rd" : `${h}th`;
@@ -129,7 +130,7 @@ function HouseEffectsList({ readings, withheld }: { readings: PrasnaHouseReading
       {readings.map((r) => (
         <li
           key={r.house}
-          className="rounded-md border bg-card p-3"
+          className="nadi-info-card"
           data-testid={`prasna-house-${r.house}`}
         >
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -198,7 +199,7 @@ function HouseWalk({
         return (
           <li
             key={house}
-            className="rounded-md border bg-card p-3"
+            className="nadi-info-card"
             data-testid={`prasna-house-walk-${house}`}
           >
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -493,7 +494,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
       <Chapter id="prasna">
 
       {/* Prasna (query) */}
-      <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
+      <div className="mt-4 nadi-info-box">
         <SectionTitle plain="Cast a prasna" technical="Prasna kriya" as="h3" />
         <ModeText
           plain="Choose an Arudha and explore the stored sky snapshot. Verify the question's actual time and place before treating it as a horary chart."
@@ -603,7 +604,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
             <SchoolTopicPanel result={result} school="prasna" options={{ prasna: { readings: prasna, frame: "question", arudha: SIGNS[arudhaIdx], asOf: now.asOf } }} />
             {arudhaReading && (
               <div
-                className="mt-3 rounded-md border bg-card p-3"
+                className="mt-3 nadi-info-card"
                 data-testid="prasna-arudha-reading"
                 data-verdict={arudhaReading.verdict}
               >
@@ -632,7 +633,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
             )}
             {prasnaGulika && (
               <div
-                className="mt-3 rounded-md border bg-card p-3"
+                className="mt-3 nadi-info-card"
                 data-testid="prasna-gulika-reading"
               >
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -691,7 +692,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
 
       {/* Registered prasnas: confirmed later against what actually happened */}
       {savedPrasnas.data && savedPrasnas.data.length > 0 && (
-        <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
+        <div className="mt-4 nadi-info-box">
           <h3 className="text-base font-semibold">Registered prasnas</h3>
           <p className="mt-1 text-xs text-muted-foreground">
             Kept on this device. The recorded time is the stored sky snapshot,
@@ -767,7 +768,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
 
       <Chapter id="transits">
       {/* Transits now, from the natal Moon */}
-      <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
+      <div className="mt-4 nadi-info-box">
         <SectionTitle plain="Transits now" technical="Gochara (22)" as="h3" />
         <ModeText
           plain="How the planets moving now touch this chart."
@@ -866,25 +867,25 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
             withheld={withheld}
           />
         </div>
-        {plain && <section className="mt-5" data-testid="prasna-planet-explanations">
-          <h3 className="text-sm font-semibold">Planets in this birth-chart view</h3>
-          <p className="mt-1 text-xs text-muted-foreground">These are whole-sign natal houses, not the question-time chart. The occupant and condition classifications are provisional app conventions.{(result.chart.timeUncertaintyMin ?? 0) > 0 && ` The stated ±${result.chart.timeUncertaintyMin}-minute birth-time range may change these houses or their rulers.`}</p>
-          <div className="mt-2 divide-y rounded-md border">{positions.map((p) => {
+        {plain && <InfoBox className="mt-5" data-testid="prasna-planet-explanations">
+          <InfoBoxTitle>Planets in this birth-chart view</InfoBoxTitle>
+          <InfoBoxDescription>These are whole-sign natal houses, not the question-time chart. The occupant and condition classifications are provisional app conventions.{(result.chart.timeUncertaintyMin ?? 0) > 0 && ` The stated ±${result.chart.timeUncertaintyMin}-minute birth-time range may change these houses or their rulers.`}</InfoBoxDescription>
+          <div className={INFO_BOX_ROWS}>{positions.map((p) => {
             const house = ((p.signIndex - birthLagnaIdx + 12) % 12) + 1;
             const owned = Array.from({ length: 12 }, (_, i) => i + 1).filter((h) => SIGN_LORD[(birthLagnaIdx + h - 1) % 12] === p.planet);
             const row = natal.find((r) => r.house === house);
             const type = row?.benefics.some((x) => x.planet === p.planet) ? "benefic" : row?.malefics.some((x) => x.planet === p.planet) ? "malefic" : undefined;
             const disposition = dispositions.find((d) => d.planet === p.planet);
             const strength = reading.strength.find((s) => s.planet === p.planet);
-            return <details key={p.planet} className="px-3 py-2 text-xs" data-testid={`prasna-planet-explanation-${p.planet}`}>
-              <summary className="cursor-pointer text-sm font-medium">{p.planet} · {p.sign} · {ordH(house)} house</summary>
+            return <details key={p.planet} className="px-4 py-3 text-sm leading-relaxed" data-testid={`prasna-planet-explanation-${p.planet}`}>
+              <summary className={INFO_BOX_ROW_SUMMARY}>{p.planet} · {p.sign} · {ordH(house)} house</summary>
               <p className="mt-1.5">{p.planet} occupies the {withGloss("prasna", house)} house. {owned.length ? `It rules the ${listJoin(owned.map((h) => withGloss("prasna", h)))} ${owned.length === 1 ? "house" : "houses"}.` : "It is not assigned sign ownership in this convention."}</p>
               {type && row && <p className="mt-1">For this house, the app classifies {p.planet} as {type}. {withheld && house === 5 ? "The sensitive source passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[house][type]} <span className="text-muted-foreground">Prasna Marga 14.{row.stanza}; the passage concerns the whole house.</span></p>}
               {disposition && strength && <p className="mt-1 text-muted-foreground">The separate planetary-condition proxy is {disposition.disposition}: it uses Nadi-derived effective sign condition ({strength.effectiveDignity}), solar-contact status ({strength.effectiveCombust ? "present" : "not present"}) and hemming ({strength.hemmed ?? "none"}). This partial, provisional app proxy is not a complete Prasna planetary judgment. {disposition.source}.</p>}
               {!disposition && <p className="mt-1 text-muted-foreground">The entered condition proxy does not assign this planet a favourable or unfavourable condition.</p>}
             </details>;
           })}</div>
-        </section>}
+        </InfoBox>}
 
         <div className="mt-6" aria-label="Progeny">
           <SectionTitle plain="Progeny" technical="Santhana (19)" as="h4" />
@@ -893,7 +894,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
             practitioner={`${progeny.kind === "beeja" ? "Beeja" : "Kshetra"} Sphuta from the relevant planets' expired nakshatra portions (19.5-9), and the Santana Trisphuta (19.18).`}
           />
           {!plain && !withheld && <><div
-            className="mt-2 rounded-md border bg-card p-3"
+            className="mt-2 nadi-info-card"
             data-testid="prasna-progeny"
             data-verdict={progeny.verdict}
           >
@@ -924,7 +925,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
           </div>
 
           <div
-            className="mt-2 rounded-md border bg-card p-3"
+            className="mt-2 nadi-info-card"
             data-testid="prasna-trisphuta"
             data-afflicted={trisphuta.afflicted}
           >
@@ -952,7 +953,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
           {!gulika && <p className="mt-2 text-xs text-muted-foreground">Natal Gulika / Mandi is unavailable when the required sunrise or sunset cannot be computed.</p>}
           {gulika && (
             <div
-              className="mt-2 rounded-md border bg-card p-3"
+              className="mt-2 nadi-info-card"
               data-testid="prasna-gulika"
             >
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -1001,7 +1002,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
 
       <Chapter id="marriage">
       {/* Marriage compatibility: Rasi agreement + kootas */}
-      <div className="mt-4 rounded-lg border bg-card p-4 sm:p-5">
+      <div className="mt-4 nadi-info-box">
         <SectionTitle plain="Marriage compatibility" technical="Vivaha (21)" as="h3" />
         <ModeText
           plain="How well two charts agree."
@@ -1032,7 +1033,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
         </div>
         {agreement && (
           <div
-            className="mt-3 rounded-md border bg-card p-3"
+            className="mt-3 nadi-info-card"
             data-testid="prasna-rasi-agreement"
             data-verdict={agreement.verdict}
           >
@@ -1059,7 +1060,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
         )}
         {kootas && (
           <div
-            className="mt-3 rounded-md border bg-card p-3"
+            className="mt-3 nadi-info-card"
             data-testid="prasna-kootas"
           >
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">

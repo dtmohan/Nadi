@@ -12,8 +12,8 @@ export function NakshatraContextPanel({ context, angles, label = "Planet and asc
   const dispositors = dispositorDisplayRows(context);
   const frames = houseQuarterFrames(context, angles);
   const kpFrame = context.frame.houseMethod === "placidus";
-  return <details className="mt-3 rounded-md border bg-card px-3 py-2 text-xs" data-testid="nakshatra-context">
-    <summary className="cursor-pointer font-medium">{label}</summary>
+  return <details className="nadi-info-card mt-3 text-xs" data-testid="nakshatra-context">
+    <summary className="nadi-info-summary">{label}</summary>
     <p className="mt-2 text-muted-foreground">
       Selected {context.frame.ayanamsa ?? "unspecified"} ayanamsa. Each quarter is one D9 interval, so its D9 sign is the same placement viewed another way; it is not independent confirmation. Close boundaries depend on the birth time and calculation settings.
     </p>

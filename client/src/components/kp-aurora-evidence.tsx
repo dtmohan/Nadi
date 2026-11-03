@@ -18,7 +18,7 @@ export function AuroraV2StagesPanel({ evidence, comparison, trials }: {
     { key: "third" as const, label: "Then third period" },
   ];
   const comparable = comparison?.eligibleEvents === counts.eligibleEvents ? comparison : undefined;
-  return <div className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="aurora-v2-stage-counts">
+  return <div className="nadi-info-disclosure mt-3" data-testid="aurora-v2-stage-counts">
     <p className="font-medium">Where events stop in the staged check</p>
     <p className="mt-1 text-muted-foreground">Counts are cumulative: an event reaches the next row only after all earlier rows pass. Supported-with-caution is included; a mixed sub or other unresolved stage stops that event.</p>
     <p className="mt-1 text-muted-foreground">These rows are nested period lords, not the positional star, sub and sub-sub of a planet or cusp. V2 uses a planet's positional sub-sub in its own-star and repeated-star/sub conventions; it does not separately apply the book's repeated-star/sub cusp exception.</p>
@@ -38,8 +38,8 @@ const reason: Record<string, string> = {
 
 export function AuroraSelfPanel({ planets, cusps }: { planets: KpPlanet[]; cusps: KpCusp[] }) {
   const entries = auroraSelfSignificators(planets, cusps);
-  return <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="aurora-self-significators">
-    <summary className="cursor-pointer font-medium">Aurora's self-significators · research</summary>
+  return <details className="nadi-info-disclosure mt-3" data-testid="aurora-self-significators">
+    <summary className="nadi-info-summary">Aurora's self-significators · research</summary>
     <p className="mt-2 text-muted-foreground">This is a separately attributed interpretation. The empty-star wording is read as no natal planet occupying a star ruled by that planet, as illustrated by the author's examples.</p>
     <ul className="mt-2 space-y-1">{entries.map((entry) => <li key={entry.planet}>
       <strong>{entry.planet}</strong>: {entry.reasons.map((r) => reason[r]).join("; ")}
@@ -62,8 +62,8 @@ export function AuroraLinkDetail({ links }: { links: AuroraAscendantLinks }) {
 }
 
 export function AuroraEventPanel({ evidence, label }: { evidence: AuroraEventEvidence; label: string }) {
-  return <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="aurora-event-evidence">
-    <summary className="cursor-pointer font-medium">Aurora staged scripts · {label} · {evidence.allSupported ? "all stages supported" : "unresolved"}</summary>
+  return <details className="nadi-info-disclosure mt-2" data-testid="aurora-event-evidence">
+    <summary className="nadi-info-summary">Aurora staged scripts · {label} · {evidence.allSupported ? "all stages supported" : "unresolved"}</summary>
     <p className="mt-2 text-muted-foreground">Experimental adapter: Nadi's four-step houses plus Aurora's self-significator cusp links and own-star adjustment. Both layers must have a supporting house and no adverse house to pass; this strict rule is an app convention. Mixed, adverse and silent stages remain unresolved. Later stages cannot pass the chain after a predecessor fails. A small fresh-case check produced no complete chains and did not narrow the sampled birth times.</p>
     <p className="mt-1">Supporting houses: {evidence.supporting.join(", ")}; adverse houses: {evidence.adverse.join(", ")}.</p>
     <div className="mt-2 overflow-x-auto"><table className="w-full text-left">
@@ -81,8 +81,8 @@ export function AuroraEventPanel({ evidence, label }: { evidence: AuroraEventEvi
 }
 
 export function AuroraV2Panel({ evidence, label }: { evidence: AuroraV2Evidence; label: string }) {
-  return <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="aurora-v2-event-evidence">
-    <summary className="cursor-pointer font-medium">Aurora mixed scripts · v2 · {label} · {evidence.allSupported ? "chain supported" : "unresolved"}</summary>
+  return <details className="nadi-info-disclosure mt-2" data-testid="aurora-v2-event-evidence">
+    <summary className="nadi-info-summary">Aurora mixed scripts · v2 · {label} · {evidence.allSupported ? "chain supported" : "unresolved"}</summary>
     <p className="mt-2 text-muted-foreground">V2 reads each planet's own occupied and owned houses, with explicit node agents. A mixed star may proceed with caution when the sub supports and has no adverse houses. A mixed sub remains unresolved. Later stages cannot pass after an unresolved predecessor. Node aspects, self-significator promotion and repeated star/sub handling are provisional app conventions.</p>
     <p className="mt-1">Supporting houses: {evidence.supporting.join(", ")}; adverse houses: {evidence.adverse.join(", ")}.</p>
     <div className="mt-2 overflow-x-auto"><table className="w-full text-left"><thead><tr><th>Stage</th><th>Planet</th><th>Star layer</th><th>Sub layer</th><th>Chain</th></tr></thead>

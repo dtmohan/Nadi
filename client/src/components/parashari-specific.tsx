@@ -5,8 +5,8 @@ import { MANLEY_SOURCE } from "@shared/manley-evidence";
 export function ParashariSpecificPanel({ check }: { check: ParashariSpecificCheck | ParashariDivisionalCheck }) {
   const show = (items: string[]) => items.length ? items.join("; ") : "none found in this partial check";
   return (
-    <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="parashari-specific-check">
-      <summary className="cursor-pointer font-medium">Version {check.version} · {check.label} · {check.date} · {check.score} of {check.max} event-specific matches</summary>
+    <details className="nadi-info-disclosure mt-2" data-testid="parashari-specific-check">
+      <summary className="nadi-info-summary">Version {check.version} · {check.label} · {check.date} · {check.score} of {check.max} event-specific matches</summary>
       <div className="mt-2 space-y-1.5 text-muted-foreground">
         {check.factors.map((f) => <p key={f.id}><strong>{f.matched ? "Match" : "No match"}:</strong> {f.label}. {show(f.details)}.{f.id === "vivah-saham" && " This check counts full aspects; Jupiter occupying the same sign is not counted."}</p>)}
         <p>D1 difficult factors: {show(check.d1Strain)}. {check.division} difficult factors: {show(check.divisionStrain)}.</p>

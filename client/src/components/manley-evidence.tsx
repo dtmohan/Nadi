@@ -21,8 +21,8 @@ export function ManleyEvidencePanel({ evidence }: { evidence: ManleyEvidence }) 
     {f.nodeDispositor && <p data-testid={`node-dispositor-${f.chart}`}>Node's sign ruler {f.nodeDispositor.planet}: {SIGNS[f.nodeDispositor.sign]}, house {f.nodeDispositor.house}, owns houses {f.nodeDispositor.owns.join(", ")}. One-hop event links: {show(f.nodeDispositor.links)}. These are indirect; its other lordships also matter.</p>}
     {f.eventCombination?.matched && <p data-testid={`event-combination-${f.chart}`}>Same-frame event combination: {show(f.eventCombination.explanations)}.</p>}
   </div>;
-  return <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="manley-evidence">
-    <summary className="cursor-pointer font-medium">Manley event clues and functional lordship · {evidence.label} · {evidence.date} · D1 and {evidence.division}</summary>
+  return <details className="nadi-info-disclosure mt-2" data-testid="manley-evidence">
+    <summary className="nadi-info-summary">Manley event clues and functional lordship · {evidence.label} · {evidence.date} · D1 and {evidence.division}</summary>
     <div className="mt-2 space-y-2 text-muted-foreground">
       <p>For {evidence.subject}, the book highlights house {evidence.house}, its lord and {evidence.karakas.join(", ")} as the primary clues. These are partial, unweighted observations, not a promise or birth-time verdict. Whole-sign conjunctions and full sign-based planetary aspects are shown; lunar nodes receive aspects but do not cast them in this app convention. The selected ayanamsa and node setting apply.</p>
       <p>Each period lord's owned houses, sign and functional classification are shown for D1 and the relevant division. Applying the natal rising-sign classification table to a divisional ascendant is Nadi's provisional convention. Functional nature and sign dignity are not complete strength, event quality or a verdict. <Cite href={FUNCTIONAL_SOURCE.url}>{FUNCTIONAL_SOURCE.label}</Cite></p>

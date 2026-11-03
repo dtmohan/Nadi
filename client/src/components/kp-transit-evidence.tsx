@@ -18,8 +18,8 @@ export function KpTransitEvidencePanel({
 }) {
   const houses = (xs: number[]) => xs.length ? xs.join(", ") : "—";
   return (
-    <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="kp-transit-evidence">
-      <summary className="cursor-pointer font-medium">
+    <details className="nadi-info-disclosure mt-2" data-testid="kp-transit-evidence">
+      <summary className="nadi-info-summary">
         Event-day sky against the natal chart · {label} · {date} · {when}
       </summary>
       <p className="mt-2 max-w-4xl text-muted-foreground">

@@ -8,6 +8,7 @@ import {
   type PlanetVargas,
 } from "@shared/vargas";
 import { divisionalPlanetContext } from "@shared/chart-explanations";
+import { InfoBox, InfoBoxTitle, InfoBoxDescription, INFO_BOX_ROWS, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
 import {
   VARGA_MEANING_BY_KEY,
   VARGA_MEANING_NOTES,
@@ -73,7 +74,7 @@ export function VargaMeaningBox({
   const pande = soft(gateLine(m.pande?.text, withheld));
   return (
     <div
-      className="mt-3 rounded-md border bg-card p-3 text-xs"
+      className="mt-3 nadi-info-card text-xs"
       data-testid="varga-meaning"
     >
       <p className="text-sm font-medium">
@@ -143,7 +144,7 @@ export function VargaHouses({
   });
   return (
     <div
-      className="mt-4 rounded-md border bg-card p-3 text-xs"
+      className="mt-4 nadi-info-card text-xs"
       data-testid="varga-houses"
     >
       <SectionTitle
@@ -237,20 +238,20 @@ export function VargaHouses({
 /** Each of the nine planets in the selected division, using that division's cited method. */
 export function VargaPlanetExplanations({ varga, chart, planets }: { varga: VargaKey; chart: VargaChart; planets: PlanetVargas[] }) {
   const m = VARGA_MEANING_BY_KEY[varga];
-  return <section className="mt-4 rounded-md border bg-card p-3" data-testid="varga-planet-explanations">
-    <h3 className="text-sm font-semibold">What the planets show in this chart</h3>
-    <p className="mt-1 text-xs text-muted-foreground">A divisional chart is another view calculated from the same birth positions, used to explore a particular topic. Each house is a chart area counted from that view's own rising sign. The explanations below use the cited focus of this division; a placement alone is not an event prediction. Finer charts can change with the birth time, and the score above covers the selected scheme, not just this division.</p>
-    <div className="mt-2 divide-y">{planets.map((p) => {
+  return <InfoBox className="mt-4" data-testid="varga-planet-explanations">
+    <InfoBoxTitle>What the planets show in this chart</InfoBoxTitle>
+    <InfoBoxDescription>A divisional chart is another view calculated from the same birth positions, used to explore a particular topic. Each house is a chart area counted from that view's own rising sign. The explanations below use the cited focus of this division; a placement alone is not an event prediction. Finer charts can change with the birth time, and the score above covers the selected scheme, not just this division.</InfoBoxDescription>
+    <div className={INFO_BOX_ROWS}>{planets.map((p) => {
       const lines = divisionalPlanetContext(p, chart, varga, m);
       const house = ((p.signs[varga] - chart.lagnaSign + 12) % 12) + 1;
       const cited = m.notByHouses ? m.notByHouses.cites : m.houses.find((h) => h.house === house)?.cites;
       const lordCites = m.houses.filter((h) => h.withLord && SIGN_LORD[(chart.lagnaSign + h.house - 1) % 12] === p.planet).flatMap((h) => h.cites).filter((c, i, all) => all.findIndex((other) => other.voice === c.voice && other.ref === c.ref) === i);
-      return <details key={p.planet} className="py-2 text-xs" data-testid={`varga-planet-explanation-${p.planet}`}>
-        <summary className="cursor-pointer text-sm font-medium">{p.planet} · {varga} <SignName signIndex={p.signs[varga]} /></summary>
+      return <details key={p.planet} className="px-4 py-3 text-sm leading-relaxed" data-testid={`varga-planet-explanation-${p.planet}`}>
+        <summary className={INFO_BOX_ROW_SUMMARY}>{p.planet} · {varga} <SignName signIndex={p.signs[varga]} /></summary>
         <div className="mt-1.5 space-y-1">{lines.map((line, i) => <p key={i}>{line}{i === 0 && <> <SourceLink source={VARGA_SOURCES.uses} mark={false} /></>}{i === 1 && cited && <Cites cites={cited} />}{line.startsWith("It also rules") && lordCites.length > 0 && <Cites cites={lordCites} />}</p>)}</div>
       </details>;
     })}</div>
-  </section>;
+  </InfoBox>;
 }
 
 /** All sixteen charts at a glance; a row picks its chart. */
@@ -273,7 +274,7 @@ export function VargaOverview({
         contentClassName=""
       >
         <div
-          className="mt-2 rounded-md border bg-card p-3 text-xs"
+          className="mt-2 nadi-info-card text-xs"
           data-testid="varga-overview"
         >
           <p>

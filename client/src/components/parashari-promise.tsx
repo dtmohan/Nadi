@@ -4,8 +4,8 @@ import type { ParashariPromiseCheck } from "@shared/parashari-promise";
 export function ParashariPromisePanel({ check }: { check: ParashariPromiseCheck }) {
   const show = (items: string[]) => items.length ? items.join("; ") : "none found in this partial check";
   return (
-    <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="parashari-promise-check">
-      <summary className="cursor-pointer font-medium">
+    <details className="nadi-info-disclosure mt-2" data-testid="parashari-promise-check">
+      <summary className="nadi-info-summary">
         Version 1 · {check.label} · {check.date} · {check.score} of 5 rule matches
       </summary>
       <div className="mt-2 space-y-1.5 text-muted-foreground">

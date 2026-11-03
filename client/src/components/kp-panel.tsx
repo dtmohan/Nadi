@@ -107,19 +107,20 @@ import type { ChartEvent } from "@shared/events";
 import { TopicReadingPanel } from "@/components/topic-reading";
 import { SchoolTopicPanel } from "@/components/school-topic-brief";
 import { KpNatalRules } from "@/components/natal-rule-evidence";
+import { InfoBox, InfoBoxTitle, InfoBoxDescription, INFO_BOX_ROWS, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
 import { AuroraSelfPanel } from "@/components/kp-aurora-evidence";
 
 /** Per-planet trace is restricted to this KP result and its selected significator convention. */
 function KpPlanetExplanations({ kp, sixStep }: { kp: KpResult; sixStep: boolean }) {
   const stages = ["A", "B", "C", "D", ...(sixStep ? ["E", "F"] : [])] as SignificatorLevel[];
-  return <section className="mt-4" data-testid="kp-planet-explanations">
-    <h3 className="text-sm font-semibold">What each planet signifies in KP</h3>
-    <p className="mt-1 text-xs text-muted-foreground">KP uses its own ayanamsa and Placidus houses. These are house links in the selected {sixStep ? "six" : "four"}-step table; a specific cusp rule and periods are still needed for a dated question.</p>
-    <div className="mt-2 divide-y rounded-md border">{kp.planets.map((p) => {
+  return <InfoBox className="mt-4" data-testid="kp-planet-explanations">
+    <InfoBoxTitle>What each planet signifies in KP</InfoBoxTitle>
+    <InfoBoxDescription>KP uses its own ayanamsa and Placidus houses. These are house links in the selected {sixStep ? "six" : "four"}-step table; a specific cusp rule and periods are still needed for a dated question.</InfoBoxDescription>
+    <div className={INFO_BOX_ROWS}>{kp.planets.map((p) => {
       const s = kp.significators.find((x) => x.planet === p.planet);
       const findings = kp.withheld ? [] : kp.findings.filter((f) => f.subLord === p.planet && !sensitiveTags(f.text).length && !/\b(health|illness|disease|death|fertil|pregnan|ruin|accident|suicid\w*|self[- ]destruct\w*|self[- ]harm)\b/i.test(f.text));
-      return <details key={p.planet} className="px-3 py-2 text-xs" data-testid={`kp-planet-explanation-${p.planet}`}>
-        <summary className="cursor-pointer text-sm font-medium">{p.planet} · house {p.house} · star lord {p.starLord}</summary>
+      return <details key={p.planet} className="px-4 py-3 text-sm leading-relaxed" data-testid={`kp-planet-explanation-${p.planet}`}>
+        <summary className={INFO_BOX_ROW_SUMMARY}>{p.planet} · house {p.house} · star lord {p.starLord}</summary>
         <p className="mt-2">In this chart {p.planet} is in {p.sign}, in the {ordinal(p.house)} house ({houseGloss("kp", p.house)}). Its star lord is {p.starLord} and its sub-lord is {p.subLord}.</p>
         {s && <ul className="mt-2 space-y-1">{stages.flatMap((stage) => s.levels[stage].length ? [<li key={stage}>{kpStageLabel(p, stage)} the {listJoin(s.levels[stage].map((h) => withGloss("kp", h)))}.</li>] : [])}</ul>}
         {s?.agentFor?.length ? <p className="mt-1 text-muted-foreground">This node also represents {listJoin(s.agentFor)} under the app's KP node convention.</p> : null}
@@ -127,7 +128,7 @@ function KpPlanetExplanations({ kp, sixStep }: { kp: KpResult; sixStep: boolean 
         {!findings.length && <p className="mt-2 text-muted-foreground">No additional plain cusp interpretation is selected here; the house links above remain chart facts.</p>}
       </details>;
     })}</div>
-  </section>;
+  </InfoBox>;
 }
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");

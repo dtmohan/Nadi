@@ -168,7 +168,7 @@ export function SarvarthaSection({
               return (
                 <div
                   key={h.house}
-                  className="rounded-md border bg-card p-3"
+                  className="nadi-info-card"
                   data-testid={`sarvartha-house-${h.house}`}
                 >
                   <div className="text-sm font-medium">

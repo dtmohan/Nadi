@@ -10,8 +10,8 @@ export function MoonTransitContextPanel({ context, label, date, when }: {
   context: MoonTransitContext; label: string; date: string; when: string;
 }) {
   const slow = context.rows.filter((r) => r.planet === "Jupiter" || r.planet === "Saturn");
-  return <details className="mt-2 rounded-md border px-3 py-2 text-xs" data-testid="moon-transit-context">
-    <summary className="cursor-pointer font-medium">Moon-based transit context · {label} · {date} · {when}</summary>
+  return <details className="nadi-info-disclosure mt-2" data-testid="moon-transit-context">
+    <summary className="nadi-info-summary">Moon-based transit context · {label} · {date} · {when}</summary>
     <p className="mt-2 max-w-4xl text-muted-foreground">{EVENT_MOON_TRANSIT_NOTE} <SourceLink source={PD("1-2")} /></p>
     <p className="mt-2 font-medium" data-testid="moon-transit-slow-summary">{slow.map((r) => `${r.planet}: house ${r.moonHouse} from the Moon, ${r.verdict}`).join(" · ")}.</p>
     {context.periodLordFromMoon && <p className="mt-2 text-muted-foreground" data-testid="period-lord-from-moon">{periodLordMoonHouseText(context.periodLordFromMoon)}</p>}

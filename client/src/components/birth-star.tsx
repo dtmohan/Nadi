@@ -93,7 +93,7 @@ export function BirthStarSection({
         }
       />
       <div
-        className="mt-3 rounded-md border bg-card px-3 py-3"
+        className="nadi-info-card mt-3"
         data-testid="birth-star-card"
       >
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">

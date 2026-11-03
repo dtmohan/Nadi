@@ -9,6 +9,7 @@ import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
 import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
 import { FUNCTIONAL_SOURCE } from "@shared/parashari-functional";
 import { Cite } from "@/components/source-link";
+import { InfoBox, InfoBoxTitle, InfoBoxDescription, InfoBoxDisclosure, INFO_BOX_ROW, INFO_BOX_ROWS } from "@/components/info-box";
 
 const shown = (xs: string[]) => xs.length ? xs.join(". ") : "none listed in this subset";
 
@@ -16,15 +17,13 @@ const shown = (xs: string[]) => xs.length ? xs.join(". ") : "none listed in this
 export function ParashariNatalRules({ result }: { result: ChartResult }) {
   const topics = useMemo(() => parashariNatalConditions(result), [result]);
   if (!topics.length) return null;
-  return <section className="mt-4 max-w-4xl rounded-md border px-3 py-3" data-testid="parashari-natal-summary">
-    <h3 className="text-sm font-semibold">What the birth chart shows</h3>
-    <p className="mt-1 text-xs text-muted-foreground">These are partial D1 and divisional clues, before a date or running periods are chosen. Support and strain can coexist; a missing clue does not settle an outcome. The event checks use whole-sign houses and full aspects.</p>
-    <ul className="mt-2 space-y-2 text-xs">{parashariQualifiedSummary(topics).map((row) => <li key={row.matter}><strong>{row.label}:</strong> {row.text}</li>)}</ul>
-    <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="parashari-natal-rules">
-    <summary className="cursor-pointer font-medium">Natal event foundations · D1 and divisions</summary>
+  return <InfoBox className="mt-4" data-testid="parashari-natal-summary">
+    <InfoBoxTitle>What the birth chart shows</InfoBoxTitle>
+    <InfoBoxDescription>These are partial D1 and divisional clues, before a date or running periods are chosen. Support and strain can coexist; a missing clue does not settle an outcome. The event checks use whole-sign houses and full aspects.</InfoBoxDescription>
+    <ul className={INFO_BOX_ROWS}>{parashariQualifiedSummary(topics).map((row) => <li key={row.matter} className={INFO_BOX_ROW}><strong>{row.label}</strong><span className="min-w-0 text-foreground/90">{row.text}</span></li>)}</ul>
+    <InfoBoxDisclosure className="mt-4" data-testid="parashari-natal-rules" label="Natal event foundations · D1 and divisions">
     <p className="mt-2 text-muted-foreground">These are the same yoga-pair, node and matter-house combinations used in dated checks, before choosing an event or period. They use whole-sign houses and full aspects even if the main chart uses a different house view. They supplement the existing overview; they do not automatically change its verdict. The D1 table applied to divisional ascendants is provisional; these observations do not promise an outcome. <Cite href={FUNCTIONAL_SOURCE.url}>{FUNCTIONAL_SOURCE.label}</Cite></p>
-    {topics.map((topic) => <details key={topic.matter} className="mt-2 rounded border px-2 py-2" data-testid={`parashari-natal-${topic.matter}`}>
-      <summary className="cursor-pointer font-medium">{topic.subject} · D1 and {topic.division}</summary>
+    {topics.map((topic) => <InfoBoxDisclosure key={topic.matter} className="mt-2" data-testid={`parashari-natal-${topic.matter}`} label={`${topic.subject} · D1 and ${topic.division}`}>
       <ParashariCatalogueEvidence evidence={topic.ordinary} />
       {topic.support && <div className="mt-2 space-y-1 text-muted-foreground"><p>Partial D1 support: {shown(topic.support.d1Support)}; strain: {shown(topic.support.d1Strain)}.</p>
         <p>Partial {topic.division} support: {shown(topic.support.divisionSupport)}; strain: {shown(topic.support.divisionStrain)}.</p></div>}
@@ -48,25 +47,23 @@ export function ParashariNatalRules({ result }: { result: ChartResult }) {
         const links = [...frame.primary.house, ...frame.primary.houseLord];
         return links.length ? [`${planet}: ${links.join("; ")}`] : [];
       }))}. Rao's fourth house is not added to Manley's fifth-house comparison.</p>}
-    </details>)}
+    </InfoBoxDisclosure>)}
     <p className="mt-2 text-muted-foreground">Period and transit evidence needs a chosen date; open Matter and date to see those checks. A missing natal clue is unresolved, not an event denial.</p>
-    </details>
-  </section>;
+    </InfoBoxDisclosure>
+  </InfoBox>;
 }
 
 export function KpNatalRules({ result, plain = false }: { result: ChartResult; plain?: boolean }) {
   const topics = useMemo(() => kpNatalConditions(result).filter((topic) => !plain || !sensitiveEventMatter(topic.matter)), [result, plain]);
   if (!topics.length) return null;
-  return <section className="mt-4 max-w-4xl rounded-md border px-3 py-3" data-testid="kp-natal-summary">
-    <h3 className="text-sm font-semibold">What the birth chart shows</h3>
-    <p className="mt-1 text-xs text-muted-foreground">These are partial cusp links for common topics. The two script checks are research interpretations of the natal stages; a date, its periods and the event sky still need their own assessment.</p>
-    <ul className="mt-2 space-y-2 text-xs">{kpQualifiedSummary(topics).map((row) => <li key={row.matter}><strong>{row.label}:</strong> {row.text}</li>)}</ul>
-    <details className="mt-3 rounded-md border px-3 py-2 text-xs" data-testid="kp-natal-rules">
-    <summary className="cursor-pointer font-medium">Natal event foundations · KP cusp scripts</summary>
+  return <InfoBox className="mt-4" data-testid="kp-natal-summary">
+    <InfoBoxTitle>What the birth chart shows</InfoBoxTitle>
+    <InfoBoxDescription>These are partial cusp links for common topics. The two script checks are research interpretations of the natal stages; a date, its periods and the event sky still need their own assessment.</InfoBoxDescription>
+    <ul className={INFO_BOX_ROWS}>{kpQualifiedSummary(topics).map((row) => <li key={row.matter} className={INFO_BOX_ROW}><strong>{row.label}</strong><span className="min-w-0 text-foreground/90">{row.text}</span></li>)}</ul>
+    <InfoBoxDisclosure className="mt-4" data-testid="kp-natal-rules" label="Natal event foundations · KP cusp scripts">
     <p className="mt-2 text-muted-foreground">The four-step cusp links and the separate Aurora research scripts below are the same natal stages used in event checks. They supplement the existing overview; they do not automatically change its verdict. They do not assume a date or running periods. Aurora's mixed and unresolved stages are not event denials. The optional six-step chart view is a different convention; these event checks use four steps.</p>
     {plain && <p className="mt-1 text-muted-foreground">Additional sensitive matters, when available, are in Practitioner view or can be selected under Matter and date.</p>}
-    {topics.map((topic) => <details key={topic.matter} className="mt-2 rounded border px-2 py-2" data-testid={`kp-natal-${topic.matter}`}>
-      <summary className="cursor-pointer font-medium">{topic.label}</summary>
+    {topics.map((topic) => <InfoBoxDisclosure key={topic.matter} className="mt-2" data-testid={`kp-natal-${topic.matter}`} label={topic.label}>
       <p className="mt-2">Basic four-step cusp {topic.basic.cusp}: {topic.basic.cuspSubLord} signifies {topic.basic.signified.join(", ") || "none of the listed matter houses"} (matter houses {topic.basic.matterHouses.join(", ")}).{topic.basic.deniedAtCusp ? " The app's separate twelfth-from-cusp condition is also present." : ""}</p>
       <KpCatalogueEvidence evidence={topic.natalRules} />
       {([ ["Strict script", topic.strict?.layers], ["Mixed script v2", topic.mixed?.layers] ] as const).map(([label, layers]) => layers && <div key={label} className="mt-2">
@@ -74,7 +71,7 @@ export function KpNatalRules({ result, plain = false }: { result: ChartResult; p
         {layers.map((l) => <p key={l.role}>{l.role}, {l.planet}: star layer {l.star.planet} ({l.star.houses.join(", ") || "none"}), sub layer {l.sub.planet} ({l.sub.houses.join(", ") || "none"}); {l.eligible ? l.status.replaceAll("-", " ") : `not counted after earlier stage (raw: ${l.status.replaceAll("-", " ")})`}.</p>)}
       </div>)}
       {topic.strict && <p className="mt-1 text-muted-foreground">Aurora, <em>The Ultimate Guide to KP Astrology Techniques</em> (2024), supplied capture pp. 252–261, 360–365, 462–474 and 582–599. The staged thresholds and node conventions are provisional.</p>}
-    </details>)}
-    </details>
-  </section>;
+    </InfoBoxDisclosure>)}
+    </InfoBoxDisclosure>
+  </InfoBox>;
 }

@@ -323,7 +323,7 @@ function Timeline({
 
   return (
     <div
-      className="rounded-md border bg-card p-3"
+      className="nadi-info-card"
       data-testid="gochara-calendar-timeline"
     >
       <div className="grid grid-cols-[4.5rem_1fr] gap-x-3">
@@ -862,7 +862,7 @@ export function GocharaCalendarSection({
 
             {upcoming.length > 0 && (
               <div
-                className="rounded-md border bg-card p-3 text-xs"
+                className="nadi-info-card text-xs"
                 data-testid="gochara-calendar-upcoming"
               >
                 <div className="font-medium">Next changes</div>

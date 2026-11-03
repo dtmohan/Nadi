@@ -22,7 +22,7 @@ export function GocharaPracticeCard({ checks }: { checks: PracticeCheck[] }) {
   if (!checks.length) return null;
   return (
     <div
-      className="mt-6 rounded-md border border-dashed bg-card p-3 text-xs"
+      className="nadi-info-card mt-6 border-dashed text-xs"
       data-testid="gochara-practice"
     >
       <div className="flex flex-wrap items-center gap-2">

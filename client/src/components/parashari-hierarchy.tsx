@@ -8,8 +8,8 @@ import { SIGNS } from "@shared/astro";
 const facts = (xs: string[]) => xs.length ? xs.join("; ") : "none in this subset";
 
 export function ParashariHierarchyEvent({ event }: { event: HierarchyEvent }) {
-  return <details className="mt-2 rounded border px-2 py-2 text-xs" data-testid="parashari-hierarchy-event">
-    <summary className="cursor-pointer font-medium">D1 and {event.division} together · {event.label} · {event.date}</summary>
+  return <details className="nadi-info-disclosure mt-2" data-testid="parashari-hierarchy-event">
+    <summary className="nadi-info-summary">D1 and {event.division} together · {event.label} · {event.date}</summary>
     <div className="mt-2 space-y-2 text-muted-foreground">
       <p>Whole-sign house {event.d1.house}. Read the natal house, its lord, the division's house and lord, and the natural significators together. No single placement determines whether the event occurs.</p>
       {event.moment && <p>Event clock: {event.moment.time}{event.moment.timeAssumed ? " (noon assumed)" : ""}; zone: {event.moment.timezone ?? "not supplied"}{event.moment.timezoneAssumed ? " (birth zone assumed)" : ""}.</p>}
@@ -33,7 +33,7 @@ export function ParashariHierarchyEvent({ event }: { event: HierarchyEvent }) {
         <p>These timing clues include the divisional ascendant, the natal house lord and the secondary house, in addition to the primary house, lord and significator. The first two period links are {event.crossChart.timing.first ? "both present" : "unresolved"}; the third is {event.crossChart.timing.first ? (event.crossChart.timing.third ? "also present" : "unresolved") : "not counted before the first two"}. This is not a complete promise or a tested forecast.</p>
         <p><Cite>Paul Manley, Birth Time Rectification (2022), pp. 64–67, 123–133</Cite> <Cite href={CROSS_CHART_SOURCE.url}>{CROSS_CHART_SOURCE.label}</Cite> <Cite href="https://www.vedicastrologer.org/articles/vedic_astro_textbook.pdf#page=513">Rao, worked example 5</Cite></p>
       </div>}
-      <details className="rounded border px-2 py-1"><summary className="cursor-pointer font-medium">Earlier strict gate · research comparison only</summary>
+      <details className="rounded border px-2 py-1"><summary className="nadi-info-summary">Earlier strict gate · research comparison only</summary>
       <p>That older gate can stop at D1 before considering these divisional clues. It is not suitable for ruling out a candidate.</p>
       {[["D1", event.d1], [event.division, event.divisionCheck]].map(([name, check]) => {
         const c = check as HierarchyEvent["d1"];
@@ -74,12 +74,12 @@ export function ParashariHierarchyWindows({ selections, segments, zone }: {
     };
     return groups.map((g) => `${fmt(segments[g.first], false)}–${fmt(segments[g.last], true)}`);
   };
-  return <details className="mb-3 rounded-md border px-3 py-2 text-xs" data-testid="parashari-hierarchy-windows">
-    <summary className="cursor-pointer font-medium">Earlier experimental strict event funnel · diagnostic only</summary>
+  return <details className="nadi-info-disclosure mb-3" data-testid="parashari-hierarchy-windows">
+    <summary className="nadi-info-summary">Earlier experimental strict event funnel · diagnostic only</summary>
     <div className="mt-2 space-y-2 text-muted-foreground">
       <p>This older experiment intersects narrow D1, relevant division and period conditions across events; it does not require D4 for a marriage event. It can stop at an incomplete D1 check before weighing a strong D1 house lord or significator in the division. Its counts are retained for research, not for excluding or selecting birth times.</p>
       <p>Every slice remains open for review when the evidence is mixed or missing. A later event should not erase an earlier contradiction, but this partial model cannot judge all the combinations needed to establish one. Boundaries come from midpoint samples and can miss shorter changes.</p>
-      <p className="rounded border border-amber-300 bg-amber-50 px-2 py-1 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">In a preliminary test on four fresh public cases, no slice passed the D1 gate for both selected events within the scanned hour. This screen has not shown it can select a birth time; use its results as diagnostics only.</p>
+      <p className="nadi-info-warning">In a preliminary test on four fresh public cases, no slice passed the D1 gate for both selected events within the scanned hour. This screen has not shown it can select a birth time; use its results as diagnostics only.</p>
       {!!result.unassessed.length && <p>Not assessed by this favourable-event subset: {result.unassessed.map((i) => `${selections[i].label} ${selections[i].date}`).join("; ")}. The windows below cover only the {result.eligible.length} assessed events.</p>}
       {!result.eligible.length && <p>No selected event is eligible for this screen.</p>}
       {!!result.eligible.length && <details><summary className="cursor-pointer">See each event separately</summary>

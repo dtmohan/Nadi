@@ -287,7 +287,7 @@ export function TimingNowPanel({
     .map(([level, lord]) => ({ level, lord: lord!, line: states?.find((l) => l.planet === lord) }));
   return (
     <section
-      className="mt-4 scroll-mt-24 rounded-md border bg-card px-4 py-3"
+      className="nadi-info-card mt-4 scroll-mt-24 px-4"
       data-testid="parashari-timing-now"
     >
       <SectionTitle
