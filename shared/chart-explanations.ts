@@ -85,7 +85,7 @@ export function gocharaContext(r: GocharaRow, moonSign: number): string {
 }
 
 /** Trace one displayed BNN theme back to its actual finding, without inferring missing conditions. */
-export function bnnFindingContext(f: Finding, relations: readonly PairRelation[] = []): { text: string; textMl: string; source?: string; ruleId: string } {
+export function bnnFindingContext(f: Finding, relations: readonly PairRelation[] = []): { text: string; textMl: string; source?: string; ruleId: string; provisional: boolean; timeSensitive: boolean; sourceUnverified: boolean } {
   const named = f.planets.length ? listJoin(f.planets) : "the chart factors named in the source finding";
   const words = { conjunct: "in the same sign", prev: "in the previous sign", next: "in the next sign", trine: "in a trine (the fifth or ninth sign, counted from it)", opposite: "in the seventh sign", none: "unrelated" } as const;
   const [subject, ...others] = f.planets;
@@ -105,5 +105,8 @@ export function bnnFindingContext(f: Finding, relations: readonly PairRelation[]
   return { ruleId: f.ruleId,
     text: `This selected Nadi rule involves ${named}.${explanation}${f.band ? " Its connection or direction changes within the stated birth-time range." : ""}`,
     textMl: `തിരഞ്ഞെടുത്ത ഈ നാഡി നിയമത്തിൽ ഉൾപ്പെടുന്നത്: ${mlNames}.${mlExplanation}${f.band ? " നൽകിയ ജനനസമയ പരിധിക്കുള്ളിൽ ഈ ബന്ധമോ ദിശയോ മാറാം." : ""}`,
-    source: f.source };
+    source: f.source,
+    provisional: /\bprovisional\b/i.test(`${f.text} ${f.source ?? ""}`),
+    timeSensitive: !!f.band,
+    sourceUnverified: /\b(?:not verified|unverified)\b/i.test(f.source ?? "") };
 }

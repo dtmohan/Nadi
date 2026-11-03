@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
 import {
@@ -102,10 +102,11 @@ export function AgreementPanel({
   /** Over a system tab: one summary line until opened, so the tab's own reading starts near the top. */
   compact?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(!compact);
+  useEffect(() => setOpen(!compact), [compact]);
   const tr = useT();
   const { locale } = useLocale();
-  const rows = !compact || open;
+  const rows = open;
   const topics = useAgreement(result);
 
   if (!topics.length) return null;
@@ -133,7 +134,7 @@ export function AgreementPanel({
         </span>
         {!rows && (
           <span
-            className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs"
+            className="hidden min-w-0 flex-wrap items-center gap-x-2.5 gap-y-0.5 text-xs sm:flex"
             data-testid="agreement-summary"
           >
             {topics.map((t) => (

@@ -57,6 +57,12 @@ test("BNN evidence retains actual relation, retrograde convention, and time unce
   const e = bnnFindingContext(f);
   assert.match(e.textMl, /ശനി/); assert.match(e.textMl, /ബുധൻ/); assert.match(e.textMl, /അഞ്ചാം അല്ലെങ്കിൽ ഒമ്പതാം/);
   assert.match(e.textMl, /വക്രഗതി/); assert.match(e.textMl, /ജനനസമയ പരിധി/); assert.equal(e.source, "Example source");
+  assert.equal(e.timeSensitive, true);
+  assert.equal(e.provisional, false);
+  const tentative = bnnFindingContext({ ...f, text: "A provisional interpretation.", source: "Specific source not verified", band: undefined });
+  assert.equal(tentative.provisional, true);
+  assert.equal(tentative.sourceUnverified, true);
+  assert.equal(tentative.timeSensitive, false);
 });
 
 test("all five schools localize their actual career and marriage brief without changing evidence or inputs", () => {

@@ -12,6 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import type { Chart } from "@shared/schema";
@@ -60,6 +61,8 @@ export function AppSidebar() {
   const [location] = useLocation();
   const { data: charts } = useSavedCharts();
   const { theme, toggle } = useTheme();
+  const { isMobile, setOpenMobile } = useSidebar();
+  const closeMobile = () => { if (isMobile) setOpenMobile(false); };
   const t = useT();
 
   return (
@@ -67,6 +70,7 @@ export function AppSidebar() {
       <SidebarHeader className="px-4 pt-5 pb-3">
         <Link
           href="/"
+          onClick={closeMobile}
           className="flex items-center gap-3"
           data-testid="link-home"
         >
@@ -87,7 +91,7 @@ export function AppSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={location === "/"}>
-                  <Link href="/" data-testid="link-new-chart">
+                  <Link href="/" onClick={closeMobile} data-testid="link-new-chart">
                     <PlusCircle />
                     <span>{t("New chart")}</span>
                   </Link>
@@ -95,7 +99,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={location === "/rules"}>
-                  <Link href="/rules" data-testid="link-rules">
+                  <Link href="/rules" onClick={closeMobile} data-testid="link-rules">
                     <BookOpen />
                     <span>{t("Rule book")}</span>
                   </Link>
@@ -103,7 +107,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={location === "/about"}>
-                  <Link href="/about" data-testid="link-about">
+                  <Link href="/about" onClick={closeMobile} data-testid="link-about">
                     <Info />
                     <span>{t("Method")}</span>
                   </Link>
@@ -126,10 +130,11 @@ export function AppSidebar() {
                 <SidebarMenuItem key={c.id}>
                   <SidebarMenuButton
                     asChild
-                    isActive={location === `/chart/${c.id}`}
+                    isActive={location === `/chart/${c.id}` || location.startsWith(`/chart/${c.id}/`)}
                   >
                     <Link
                       href={`/chart/${c.id}`}
+                      onClick={closeMobile}
                       data-testid={`link-chart-${c.id}`}
                     >
                       <span className="truncate">{c.name}</span>

@@ -95,7 +95,10 @@ export function TranslationNotice() {
   const { locale } = useLocale();
   if (locale !== "ml") return null;
   return <div className="mx-auto max-w-6xl px-5 pt-4 md:px-10" lang="ml" data-testid="translation-notice">
-    <p className="nadi-info-note text-sm" role="status">മലയാള പരിഭാഷ വികസിപ്പിച്ചുകൊണ്ടിരിക്കുന്നു. വിശദവായനകളിലെയും റിപ്പോർട്ടുകളിലെയും PDF ഫയലുകളിലെയും പരിഭാഷ പൂർത്തിയാകാത്ത ഭാഗങ്ങളും ചില നിയന്ത്രണങ്ങളും ഉറവിടങ്ങളും ഇംഗ്ലീഷിൽ കാണിക്കും.</p>
+    <details className="nadi-info-note text-sm">
+      <summary className="cursor-pointer">മലയാള പരിഭാഷ പുരോഗമിക്കുന്നു; ചില ഭാഗങ്ങൾ ഇംഗ്ലീഷിലാണ്.</summary>
+      <p className="mt-2">വിശദവായനകളിലെയും റിപ്പോർട്ടുകളിലെയും PDF ഫയലുകളിലെയും പരിഭാഷ പൂർത്തിയാകാത്ത ഭാഗങ്ങളും ചില നിയന്ത്രണങ്ങളും ഉറവിടങ്ങളും ഇംഗ്ലീഷിൽ കാണിക്കും.</p>
+    </details>
   </div>;
 }
 
@@ -103,7 +106,7 @@ export function TranslationNotice() {
 export function LanguageToggle({ className }: { className?: string }) {
   const { locale, setLocale } = useLocale();
   const btn = (active: boolean) =>
-    `rounded px-1.5 py-0.5 text-xs ${active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`;
+    `min-h-10 rounded px-2 py-1 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`;
   return (
     <div
       className={`flex items-center rounded-md border p-0.5 ${className ?? ""}`}

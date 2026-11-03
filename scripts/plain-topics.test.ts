@@ -167,6 +167,25 @@ test("age gates apply before the new topic cards are built", () => {
     assert.ok(schoolTopicBriefs(minorAgreement, school).every((b) => b.topic !== "career" && b.topic !== "marriage" && b.topic !== "children"));
 });
 
+test("a younger reader's eligible topic does not surface a held career theme", () => {
+  const mk = (id: string, text: string): Finding => ({
+    ruleId: id, area: "self", score: 2, planets: ["Jupiter"], relation: "conjunct", viaRetro: false, text,
+  });
+  const self = synthesizeArea("self", [
+    mk("held-work", "Life is organised around work, duty and responsibility."),
+    mk("retained", "An interest in art and learning."),
+  ], result.reading, "male");
+  const out = plainTopicBriefs({
+    reading: result.reading, areas: [self], agreement: [], brief: briefing, zone: "UTC",
+    inSeason: (topic) => !["career", "wealth", "marriage", "children"].includes(topic),
+  });
+  const personal = out.find((item) => item.topic === "self")!;
+  assert.ok(personal.details?.some((text) => /art and learning/i.test(text)));
+  assert.ok(!personal.details?.some((text) => /work/i.test(text)));
+  assert.equal(personal.details?.length, personal.detailEvidence?.length);
+  assert.equal(personal.detailEvidence?.[0]?.ruleId, "retained");
+});
+
 test("all BNN topics have a plain explanation without changing their source findings", () => {
   const out = topics();
   assert.deepEqual(out.map((t) => t.topic), PLAIN_TOPIC_ORDER);

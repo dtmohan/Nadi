@@ -5,8 +5,8 @@ import { insertChartSchema, normaliseSunriseDef, normaliseParashariHouseMethod, 
 import { queryClient } from "@/lib/queryClient";
 
 /**
- * Saved charts live in this browser only. Nothing personal is sent to the server except the
- * birth data needed to compute a reading or a PDF, and the server keeps none of it.
+ * Saved charts live in this browser. Chart data, including any saved events, is sent to the
+ * server when computing readings or PDFs; local chart storage is not a claim of offline processing.
  *
  * Persistence uses the browser's Cache Storage (origin-scoped, survives reloads and restarts).
  * Where that is unavailable (for example inside a sandboxed preview frame) the list is held in

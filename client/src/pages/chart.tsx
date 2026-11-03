@@ -2,8 +2,8 @@ import { displayLocal } from "@shared/time-basis";
 import { LocalizedText, useLocale, useT } from "@/lib/i18n";
 import { DeceasedProvider } from "@/components/mode-text";
 import { Soft } from "@/lib/gentle";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { useParams, Link } from "wouter";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useLocation, useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import {
@@ -20,8 +20,6 @@ import {
   CheckCheck,
   CalendarDays,
   FileText,
-  ChevronLeft,
-  ChevronRight,
   HelpCircle,
 } from "lucide-react";
 import type { ChartResult } from "@shared/schema";
@@ -1932,127 +1930,28 @@ function ModeBar({
   onPick: (m: SystemMode) => void;
 }) {
   const t = useT();
-  const { locale } = useLocale();
-  const listRef = useRef<HTMLUListElement>(null);
-  const [edges, setEdges] = useState({ left: false, right: false });
-  useEffect(() => {
-    const el = listRef.current;
-    if (!el) return;
-    const measure = () => {
-      const max = el.scrollWidth - el.clientWidth;
-      setEdges({ left: el.scrollLeft > 4, right: el.scrollLeft < max - 4 });
-    };
-    measure();
-    el.addEventListener("scroll", measure, { passive: true });
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => {
-      el.removeEventListener("scroll", measure);
-      ro.disconnect();
-    };
-  }, []);
-  // Keep the active system visible when the strip scrolls on narrow screens.
-  useEffect(() => {
-    const el = listRef.current;
-    const active = el?.querySelector<HTMLElement>(
-      `[data-testid="mode-bar-${mode}"]`,
-    );
-    const item = active?.closest("li");
-    if (!el || !item) return;
-    const left = item.offsetLeft - el.offsetLeft;
-    if (
-      left < el.scrollLeft ||
-      left + item.offsetWidth > el.scrollLeft + el.clientWidth
-    )
-      el.scrollTo({ left: Math.max(0, left - 16), behavior: "smooth" });
-  }, [mode]);
-  const nudge = (dir: 1 | -1) => {
-    const el = listRef.current;
-    if (el)
-      el.scrollBy({ left: (dir * el.clientWidth) / 1.6, behavior: "smooth" });
-  };
   return (
     <nav
       aria-label={t("Reading system")}
-      className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-sm md:hidden"
       data-testid="mode-bar"
     >
-      <div className="relative mx-auto max-w-md">
-        <ul
-          ref={listRef}
-          className="flex items-stretch overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      <div className="mx-auto flex max-w-md items-center gap-3">
+        <label htmlFor="mobile-reading-system" className="shrink-0 text-sm font-medium">{t("Reading system")}</label>
+        <select
+          id="mobile-reading-system"
+          value={mode}
+          onChange={(event) => onPick(event.target.value as SystemMode)}
+          className="min-h-11 min-w-0 flex-1 rounded-md border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          data-testid="mode-picker"
         >
-          {MODES.map((m) => (
-            <li
-              key={m.id}
-              className={cn(
-                "relative min-w-[3.5rem] shrink-0 grow",
-                m.id === "rectify" &&
-                  "before:absolute before:inset-y-2 before:left-0 before:w-px before:bg-border",
-              )}
-            >
-              <button
-                type="button"
-                aria-current={mode === m.id ? "page" : undefined}
-                onClick={() => onPick(m.id)}
-                className={cn(
-                  "flex w-full flex-col items-center gap-0.5 px-1 pb-2 pt-2 text-[10px] leading-none transition-colors",
-                  locale === "ml" && "text-xs leading-tight",
-                  mode === m.id ? "text-primary" : "text-muted-foreground",
-                )}
-                data-testid={`mode-bar-${m.id}`}
-                title={m.title}
-              >
-                <m.Icon
-                  className="h-4 w-4"
-                  strokeWidth={mode === m.id ? 2.2 : 1.7}
-                />
-                <span
-                  className={cn(
-                    "whitespace-nowrap",
-                    mode === m.id && "font-semibold",
-                  )}
-                >
-                  {t(m.short)}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-        {edges.left && (
-          <div
-            className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-background to-transparent"
-            data-testid="mode-bar-fade-left"
-          />
-        )}
-        {edges.left && (
-          <button
-            type="button"
-            onClick={() => nudge(-1)}
-            aria-label="Scroll the system bar to the left"
-            className="absolute inset-y-0 left-0 flex w-7 items-center justify-center text-muted-foreground"
-            data-testid="mode-bar-nudge-left"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-        )}
-        {edges.right && (
-          <div
-            className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-background to-transparent"
-            data-testid="mode-bar-fade-right"
-          />
-        )}
-        {edges.right && (
-          <button
-            type="button"
-            onClick={() => nudge(1)}
-            aria-label="Scroll the system bar to the right"
-            className="absolute inset-y-0 right-0 flex w-7 items-center justify-center text-muted-foreground"
-            data-testid="mode-bar-nudge-right"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        )}
+          <optgroup label={t("Readings")}>
+            {MODES.filter((m) => !m.tool).map((m) => <option key={m.id} value={m.id}>{t(m.label)}</option>)}
+          </optgroup>
+          <optgroup label={t("Chart tools")}>
+            {MODES.filter((m) => m.tool).map((m) => <option key={m.id} value={m.id}>{t(m.label)}</option>)}
+          </optgroup>
+        </select>
       </div>
     </nav>
   );
@@ -2062,7 +1961,12 @@ export default function ChartPage() {
   const t = useT();
   const { locale } = useLocale();
   const englishFallback = locale === "ml" ? "en" : undefined;
-  const { id } = useParams<{ id: string }>();
+  const { id, mode: routeMode } = useParams<{ id: string; mode?: string }>();
+  const [, navigate] = useLocation();
+  const mode = MODES.find((m) => m.id === routeMode)?.id ?? "overview";
+  const setMode = (next: SystemMode) => {
+    if (next !== mode) navigate(`/chart/${id}${next === "overview" ? "" : `/${next}`}`);
+  };
   const { data, isLoading, error } = useQuery<ChartResult>({
     queryKey: ["chart-result", id],
     queryFn: async () => {
@@ -2118,20 +2022,18 @@ export default function ChartPage() {
   const [selected, setSelected] = useState<Planet | null>(null);
   const [showTransit, setShowTransit] = useState(true);
   const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
-  const [mode, setMode] = useState<SystemMode>("overview");
   const tablistRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    // Keep the selected system tab in view when the strip scrolls horizontally on narrow screens.
-    const list = tablistRef.current;
-    const el = list?.querySelector<HTMLElement>(`[data-testid="mode-${mode}"]`);
-    if (!list || !el) return;
-    const left = el.offsetLeft - list.offsetLeft;
-    if (
-      left < list.scrollLeft ||
-      left + el.offsetWidth > list.scrollLeft + list.clientWidth
-    )
-      list.scrollTo({ left: Math.max(0, left - 16), behavior: "smooth" });
-  }, [mode]);
+  const onSystemKey = (event: KeyboardEvent<HTMLDivElement>) => {
+    const index = MODES.findIndex((item) => item.id === mode);
+    const next = event.key === "ArrowRight" ? MODES[(index + 1) % MODES.length]
+      : event.key === "ArrowLeft" ? MODES[(index - 1 + MODES.length) % MODES.length]
+        : event.key === "Home" ? MODES[0]
+          : event.key === "End" ? MODES[MODES.length - 1] : undefined;
+    if (!next) return;
+    event.preventDefault();
+    setMode(next.id);
+    requestAnimationFrame(() => document.getElementById(`system-tab-${next.id}`)?.focus());
+  };
   if (isLoading) {
     return (
       <div className="mx-auto max-w-6xl px-5 py-8 md:px-10">
@@ -2347,8 +2249,6 @@ export default function ChartPage() {
           </div>
         </header>
 
-        <LifeEventsSection chart={chart} />
-
         <AgreementPanel
           className="mt-4"
           compact={mode !== "overview" || readingMode === "plain"}
@@ -2365,7 +2265,8 @@ export default function ChartPage() {
           <div
             role="tablist"
             aria-label={t("Reading system")}
-            className="hidden max-w-full overflow-x-auto whitespace-nowrap rounded-md border p-0.5 text-sm md:inline-flex"
+            onKeyDown={onSystemKey}
+            className="hidden max-w-full flex-wrap whitespace-nowrap rounded-md border p-0.5 text-sm md:inline-flex"
             ref={tablistRef}
           >
             {MODES.map((m) => (
@@ -2373,10 +2274,13 @@ export default function ChartPage() {
                 key={m.id}
                 type="button"
                 role="tab"
+                id={`system-tab-${m.id}`}
                 aria-selected={mode === m.id}
+                aria-controls="system-panel"
+                tabIndex={mode === m.id ? 0 : -1}
                 onClick={() => setMode(m.id)}
                 className={cn(
-                  "rounded px-3 py-1 transition-colors",
+                  "min-h-10 rounded px-2 py-1 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring lg:px-3",
                   m.id === "rectify" && "ml-1 border-l",
                   mode === m.id
                     ? "bg-primary text-primary-foreground"
@@ -2385,8 +2289,8 @@ export default function ChartPage() {
                 data-testid={`mode-${m.id}`}
                 title={m.title}
               >
-                <span className="sm:hidden">{t(m.short)}</span>
-                <span className="hidden sm:inline">{t(m.label)}</span>
+                <span className="lg:hidden">{t(m.short)}</span>
+                <span className="hidden lg:inline">{t(m.label)}</span>
               </button>
             ))}
           </div>
@@ -2395,9 +2299,9 @@ export default function ChartPage() {
               MODES.find((m) => m.id === mode)?.label}
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <p className="text-xs text-muted-foreground">
+            <p className={cn("text-xs text-muted-foreground", mode === "overview" && "hidden md:block")}>
               <LocalizedText>{mode === "overview"
-                ? "The whole chart in a minute: what rests on firm ground, what asks for care, and the period and slow planets running now."
+                ? "An introduction to this chart's life topics, timing and the different schools' readings."
                 : mode === "bnn"
                   ? "Planet-to-planet reading, no ascendant or houses."
                   : mode === "jaimini"
@@ -2454,6 +2358,7 @@ export default function ChartPage() {
           </div>
         </div>
 
+        <div id="system-panel" role="tabpanel" aria-labelledby={`system-tab-${mode}`} tabIndex={0}>
         {mode === "overview" && (
           <div className="mt-8 animate-in fade-in-0 duration-300">
             <OverviewPanel
@@ -2492,13 +2397,11 @@ export default function ChartPage() {
               onTopicSelected={(event) => rememberTopic("parashari", event)}
               onOpenOverview={() => {
                 setMode("overview");
-                window.setTimeout(
-                  () =>
-                    document
-                      .querySelector('[data-testid="brief-now"]')
-                      ?.scrollIntoView({ block: "start" }),
-                  150,
-                );
+                window.setTimeout(() => {
+                  const details = document.querySelector<HTMLDetailsElement>('[data-testid="overview-timing-details"]');
+                  if (details) details.open = true;
+                  document.querySelector('[data-testid="brief-now"]')?.scrollIntoView({ block: "start" });
+                }, 150);
               }}
             />
           </div>
@@ -2611,6 +2514,8 @@ export default function ChartPage() {
           </div>
         )}
 
+        </div>
+        <LifeEventsSection chart={chart} />
         <footer className="mt-12 border-t pt-4 text-xs text-muted-foreground" lang={englishFallback}>
           {mode === "bnn"
             ? "Interpretive text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik. It is a starting set of rules meant to be extended, not a verdict."

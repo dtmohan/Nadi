@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useLocale, useT, LanguageToggle } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/i18n";
 import {
   AYANAMSAS,
   SUNRISE_DEFINITIONS,
@@ -335,18 +335,13 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-6xl px-5 py-8 md:px-10 md:py-12">
-      <div className="mb-6 flex justify-end">
-        <LanguageToggle />
-      </div>
       {charts?.length === 0 && (
-        <section
-          className="mb-10 rounded-md border bg-muted/30 p-4"
+        <details
+          className="mb-6 rounded-md border bg-muted/30 p-4"
           data-testid="card-start-here"
           aria-labelledby="start-heading"
         >
-          <h2 id="start-heading" className="text-lg font-semibold">
-            {t("Start here")}
-          </h2>
+          <summary className="cursor-pointer"><h2 id="start-heading" className="inline text-base font-semibold">{t("Start here")}</h2></summary>
           <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm text-muted-foreground">
             <li>
               {t("Cast a chart — a name, a date, a time and a place are enough — or import a backup file under Saved charts.")}
@@ -371,7 +366,7 @@ export default function Home() {
             </Link>{" "}
             {t("explains what each system reads and where its rules come from.")}
           </p>
-        </section>
+        </details>
       )}
       <div className="grid gap-10 lg:grid-cols-[minmax(0,26rem)_1fr] lg:gap-16">
         <section aria-labelledby="cast-heading">
@@ -733,8 +728,8 @@ export default function Home() {
             data-testid="text-storage-note"
           >
             {t(storageKind === "memory"
-              ? "This preview cannot keep charts between reloads; the published site saves them on your device. Nothing is stored online."
-              : "Saved on this device only. Nothing is stored online; export a backup to keep them or move them to another device.")}
+              ? "This preview cannot keep charts between reloads. Birth details and any saved events are sent to the server for calculations."
+              : "Charts are saved in this browser. Birth details and any saved events are sent to the server for calculations. Export a backup to keep them or move them to another device.")}
           </p>
 
           {isLoading && (

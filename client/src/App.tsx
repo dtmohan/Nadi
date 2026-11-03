@@ -1,4 +1,5 @@
-import { Switch, Route, Router } from "wouter";
+import { useEffect } from "react";
+import { Switch, Route, Router, useLocation } from "wouter";
 import { useHashLocation } from "wouter/use-hash-location";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -29,14 +30,23 @@ function AppRouter() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/chart/:id" component={ChartPage} />
       <Route path="/chart/:id/report" component={EnglishReport} />
+      <Route path="/chart/:id/:mode?" component={ChartPage} />
       <Route path="/rules" component={EnglishRules} />
       <Route path="/sutras/:ref?" component={EnglishRules} />
       <Route path="/about" component={EnglishAbout} />
       <Route component={NotFound} />
     </Switch>
   );
+}
+
+/** The app scrolls inside main, so browser navigation alone cannot reset its position. */
+function RouteScrollReset() {
+  const [location] = useLocation();
+  useEffect(() => {
+    document.querySelector("main[data-app-scroll]")?.scrollTo({ top: 0 });
+  }, [location]);
+  return null;
 }
 
 function App() {
@@ -59,14 +69,15 @@ function App() {
                   <div className="flex h-full min-h-0 w-full">
                     <AppSidebar />
                     <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
-                      <header className="flex h-12 shrink-0 items-center gap-2 border-b px-3 md:hidden">
-                        <SidebarTrigger data-testid="button-sidebar-toggle" />
+                      <header className="flex min-h-14 shrink-0 items-center gap-2 border-b px-3 lg:hidden">
+                        <SidebarTrigger className="h-11 w-11" data-testid="button-sidebar-toggle" />
                         <span className="font-display text-base font-bold">
                           Nadi
                         </span>
                         <LanguageToggle className="ml-auto" />
                       </header>
-                      <main className="min-h-0 flex-1 overflow-y-auto [overscroll-behavior:contain]">
+                      <main data-app-scroll className="min-h-0 flex-1 overflow-y-auto [overscroll-behavior:contain]">
+                        <RouteScrollReset />
                         <TranslationNotice />
                         <AppRouter />
                       </main>

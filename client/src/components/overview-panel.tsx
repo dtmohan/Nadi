@@ -76,12 +76,18 @@ const PLAIN_SCHOOL_STANCE: Record<Stance, string> = {
 function glanceSentence(areas: AreaSynthesis[]): string {
   const clauses = nadiAreasClauses(areas);
   return clauses
-    ? `In the Nadi reading, ${clauses}.`
-    : "The Nadi rules mark nothing in this chart strongly one way or the other; it is a quiet chart.";
+    ? `In the Nadi reading, ${clauses
+        .replace(/\brests on firm ground/g, "shows supportive indications")
+        .replace(/\brest on firm ground/g, "show supportive indications")
+        .replace(/\bneeds care/g, "has indications that may need care")
+        .replace(/\bneed care/g, "have indications that may need care")
+        .replace(/\bis in dispute, with strong rules both ways/g, "has differing indications")
+        .replace(/\bare in dispute, with strong rules both ways/g, "have differing indications")}.`
+    : "The selected Nadi rules do not give a clear direction for these topics.";
 }
 
 /** The same source-grounded card is used for the two featured topics and the compact disclosures. */
-function PlainTopicContent({ topic, brief, zone, past, onOpen, comparisons }: { topic: PlainTopicBrief; brief: Briefing; zone: string; past: boolean; onOpen: (link: BriefLink) => void; comparisons: SchoolTopicBrief[] }) {
+function PlainTopicContent({ topic, brief, zone, past, onOpen, comparisons, compact = false }: { topic: PlainTopicBrief; brief: Briefing; zone: string; past: boolean; onOpen: (link: BriefLink) => void; comparisons: SchoolTopicBrief[]; compact?: boolean }) {
   const t = useT();
   const { locale } = useLocale();
   const soften = useSoften();
@@ -96,14 +102,7 @@ function PlainTopicContent({ topic, brief, zone, past, onOpen, comparisons }: { 
     </li>
     );
   };
-  return (
-    <>
-      <p className="mt-2 text-sm leading-relaxed"><LocalizedText>{soften(topic.summary)}</LocalizedText></p>
-      {topic.detailIntro && <p className="mt-2 text-sm leading-relaxed"><LocalizedText>{topic.detailIntro}</LocalizedText></p>}
-      <TopicThemes topic={topic} />
-      {topic.contrast && <p className="mt-2 text-sm leading-relaxed text-muted-foreground"><LocalizedText>{topic.contrast}</LocalizedText></p>}
-      <p className="mt-2 text-xs leading-relaxed text-muted-foreground"><LocalizedText>{topic.limit}</LocalizedText></p>
-      {topic.comparison && <p className="mt-2 text-xs leading-relaxed text-muted-foreground"><LocalizedText>{topic.comparison}</LocalizedText></p>}
+  const more = <>
       <div className="mt-4 border-t pt-3">
         <p className="text-xs font-semibold">{t(topic.topic === "health" ? "About timing" : past ? "At passing" : "Periods to explore")}</p>
         {topic.windows.length ? (
@@ -128,6 +127,19 @@ function PlainTopicContent({ topic, brief, zone, past, onOpen, comparisons }: { 
           </div>)}
         </div>
       </details>}
+  </>;
+  return (
+    <>
+      <p className="mt-2 text-sm leading-relaxed"><LocalizedText>{soften(topic.summary)}</LocalizedText></p>
+      {topic.detailIntro && <p className="mt-2 text-sm leading-relaxed"><LocalizedText>{topic.detailIntro}</LocalizedText></p>}
+      <TopicThemes topic={topic} compact={compact} />
+      {topic.contrast && <p className="mt-2 text-sm leading-relaxed text-muted-foreground"><LocalizedText>{topic.contrast}</LocalizedText></p>}
+      <p className="mt-2 text-xs leading-relaxed text-muted-foreground"><LocalizedText>{topic.limit}</LocalizedText></p>
+      {topic.comparison && <p className="mt-2 text-xs leading-relaxed text-muted-foreground"><LocalizedText>{topic.comparison}</LocalizedText></p>}
+      {compact ? <details className="mt-3" data-testid={`plain-topic-more-${topic.topic}`}>
+        <summary className="cursor-pointer text-sm font-medium text-primary">{t("Explore timing and other schools")}</summary>
+        {more}
+      </details> : more}
     </>
   );
 }
@@ -224,6 +236,10 @@ export function OverviewPanel({
   const comparisonsFor = (topic: PlainTopicBrief) => schoolBriefs.filter((b) =>
     b.topic === topic.topic || (topic.topic === "family" && (b.topic === "father" || b.topic === "mother")),
   );
+  // The first eligible topics are shown without an extra click. For children the age gate may
+  // withhold career and marriage, so choose from the already-filtered list rather than hardcoding them.
+  const featuredTopics = topics.slice(0, 2);
+  const otherTopics = topics.slice(2);
   const deferred = allAreas.filter(
     (a) => !areaSeason(a.area, result.utc, lifeAt).inSeason,
   );
@@ -269,12 +285,12 @@ export function OverviewPanel({
     <section
       className="animate-in fade-in-0 duration-300"
       data-testid="overview-panel"
-      aria-label="Overview"
+      aria-label={t("Overview")}
     >
       {/* Identity and the glance sentence */}
       <InfoBox as="div">
         <p className={INFO_BOX_EYEBROW}>
-          {t("Overview · the chart in a minute")}
+          {t("Overview · your reading")}
         </p>
         <h2
           className="font-display mt-2 max-w-[40ch] text-xl font-semibold leading-snug"
@@ -289,6 +305,8 @@ export function OverviewPanel({
           {deceased ? t("Read at age ") : t("Age ")}
           {Math.floor(age)}
         </p>
+        <details className="mt-3" open={!plain} data-testid="overview-chart-basics">
+          <summary className="cursor-pointer text-sm font-medium text-primary">{t("Birth chart basics")}</summary>
         <dl className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
@@ -328,8 +346,9 @@ export function OverviewPanel({
             {noteParts.join(" · ")}
           </p>
         )}
+        </details>
 
-        {(firm.length > 0 || watch.length > 0) && (
+        {!plain && (firm.length > 0 || watch.length > 0) && (
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {firm.length > 0 && (
               <div
@@ -364,26 +383,26 @@ export function OverviewPanel({
       <BriefingBefore notes={brief.before} onOpen={openLink} />
 
       {plain && topics.length > 0 && (
-        <InfoBox className="mt-4" aria-label="Life topics" data-testid="plain-topic-briefs">
-          <p className={INFO_BOX_EYEBROW}>{t("Life topics")}</p>
+        <InfoBox className="mt-4" aria-label={t("Life topics")} data-testid="plain-topic-briefs">
+          <h2 className={INFO_BOX_EYEBROW}>{t("Life topics")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{t("These short readings use the Nadi method. Other schools have their own readings.")}</p>
           <p className="mt-1 text-xs text-muted-foreground">{t("Open a topic to compare selected interpretations from the other schools. Their coverage differs; ALP is date-specific and Prasna Marga here uses the birth chart.")}</p>
           {(chart.timeUncertaintyMin ?? 0) > 0 && (
             <p className="mt-2 text-xs text-muted-foreground">{locale === "ml" ? `നൽകിയ ജനനസമയത്തിൽ ±${chart.timeUncertaintyMin} മിനിറ്റിന്റെ അനിശ്ചിതത്വമുണ്ട്. ഈ പരിധിക്കുള്ളിൽ ചില വിശദാംശങ്ങൾ മാറാം.` : `The entered birth time has an uncertainty of ±${chart.timeUncertaintyMin} minutes. Some details can change within that range.`}</p>
           )}
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
-            {topics.filter((topic) => topic.topic === "career" || topic.topic === "marriage").map((topic) => (
+            {featuredTopics.map((topic) => (
               <article key={topic.topic} className={cn(INFO_BOX_INSET, "scroll-mt-4 p-4")} data-testid={`overview-area-${topic.topic}`}>
                 <h3 className="font-display text-lg font-semibold">{t(PLAIN_TOPIC_LABEL[topic.topic])}</h3>
-                <PlainTopicContent topic={topic} brief={brief} zone={chart.timezone || "UTC"} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} />
+                <PlainTopicContent topic={topic} brief={brief} zone={chart.timezone || "UTC"} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} compact />
               </article>
             ))}
           </div>
-          {topics.some((topic) => topic.topic !== "career" && topic.topic !== "marriage") && (
+          {otherTopics.length > 0 && (
             <details className="mt-4 rounded-md border" data-testid="plain-more-topics">
               <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">{t("More life topics")}</summary>
               <div className="grid grid-cols-1 items-start gap-2 border-t p-3 md:grid-cols-2 xl:grid-cols-3">
-                {topics.filter((topic) => topic.topic !== "career" && topic.topic !== "marriage").map((topic) => (
+                {otherTopics.map((topic) => (
                   <details key={topic.topic} className={cn(INFO_BOX_INSET, "scroll-mt-24")} data-testid={`overview-area-${topic.topic}`}>
                     <summary className={INFO_BOX_ROW_SUMMARY}>{t(PLAIN_TOPIC_LABEL[topic.topic])}</summary>
                     <PlainTopicContent topic={topic} brief={brief} zone={chart.timezone || "UTC"} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} />
@@ -395,7 +414,10 @@ export function OverviewPanel({
         </InfoBox>
       )}
 
-      {/* Now and next: each system's clock side by side, built in shared/briefing.ts */}
+      {/* The full timing and planet detail remains available, with each school's clock separate. */}
+      <details className="mt-4 rounded-md border" open={!plain} data-testid="overview-timing-details">
+        <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">{t("Timing, transits and planets")}</summary>
+        <div className="px-3 pb-3">
       <BriefingNow
         brief={brief}
         plain={plain}
@@ -497,6 +519,8 @@ export function OverviewPanel({
       </BriefingNow>
 
       <BriefingPlanets planets={brief.planets} plain={plain} uncertainty={chart.timeUncertaintyMin ?? 0} examples={plain ? planetTopicExamples(topics, reading, heldAreasAt(result.utc, lifeAt)) : undefined} />
+        </div>
+      </details>
 
       {/* The life areas as plain cards */}
       <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

@@ -298,6 +298,13 @@ export function plainTopicBriefs(args: {
   return PLAIN_TOPIC_ORDER.filter(args.inSeason).map((topic) => {
     const area = args.areas.find((a) => a.area === topic);
     const natal = plainTopicNatal(topic, area, args.reading);
+    // A finding filed under an eligible topic can still discuss an age-held topic. Keep the
+    // displayed theme and its evidence paired while applying the same gate used by planet examples.
+    const held = (area: "career" | "wealth" | "marriage" | "children") => !args.inSeason(area);
+    const retained = (natal.details ?? []).flatMap((text, index) =>
+      mentionsHeldArea(text, held) ? [] : [{ text, evidence: natal.detailEvidence?.[index] }],
+    );
+    const removedAllThemes = !!natal.details?.length && retained.length === 0;
     const verdicts = args.agreement.filter((a) => a.topic === topic || (topic === "family" && (a.topic === "father" || a.topic === "mother"))).map((a) => a.verdict);
     const comparison = verdicts.some((verdict) => ["disagree", "mixed", "lean"].includes(verdict))
       ? "Other methods read this topic differently. Their findings remain separate in the comparison."
@@ -306,6 +313,11 @@ export function plainTopicBriefs(args: {
       topic,
       hasArea: !!area,
       ...natal,
+      ...(natal.details ? {
+        details: retained.map((entry) => entry.text),
+        detailEvidence: natal.detailEvidence ? retained.map((entry) => entry.evidence) : undefined,
+        ...(removedAllThemes ? { summary: "No age-appropriate plain-language theme is available here.", detailIntro: undefined } : {}),
+      } : {}),
       comparison,
       windows: (topic === "health" ? [] : [...args.brief.now, ...args.brief.next])
         .map((row) => windowFor(topic, row, args.zone))
