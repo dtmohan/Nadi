@@ -326,7 +326,7 @@ export function OverviewPanel({
           </div>
         </dl>
         {plain && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{locale === "ml"
-          ? `ജനനസമയത്ത് കിഴക്കൻ ചക്രവാളത്തിൽ ഉദിച്ചിരുന്ന രാശിയാണ് ലഗ്നം: ${t(rising)}. അപ്പോൾ സൂര്യനും ചന്ദ്രനും നിന്ന രാശികളാണ് മുകളിൽ കാണുന്നത്. ജന്മനക്ഷത്രം, ${t(moon.nakshatra)}, ജനനസമയത്ത് ചന്ദ്രൻ നിന്ന നക്ഷത്രമാണ്. അതിന്റെ ${moon.pada}-ാം പാദത്തിലാണ് ചന്ദ്രൻ; നക്ഷത്രാധിപൻ ${t(moon.nakshatraLord)} ആണ്.`
+          ? `ജനനസമയത്ത് കിഴക്കൻ ചക്രവാളത്തിൽ ഉദിച്ചിരുന്ന രാശിയാണ് ലഗ്നം: ${t(rising)}. അപ്പോൾ സൂര്യനും ചന്ദ്രനും നിന്ന രാശികളാണ് മുകളിൽ കാണുന്നത്. ജന്മനക്ഷത്രം, ${t(moon.nakshatra)}, ജനനസമയത്ത് ചന്ദ്രൻ നിന്ന നക്ഷത്രമാണ്. അതിന്റെ ${moon.pada}-ാം പാദത്തിലാണ് ചന്ദ്രൻ. നക്ഷത്രാധിപൻ: ${t(moon.nakshatraLord)}.`
           : `The rising sign, ${rising}, was on the eastern horizon at birth. The Sun and Moon entries show their signs at that moment. The birth star, ${moon.nakshatra}, is the zodiac section occupied by the Moon; it is in quarter ${moon.pada}, and its traditional star ruler is ${moon.nakshatraLord}.`}</p>}
         {noteParts.length > 0 && (
           plain ? <details className="mt-2 text-xs text-muted-foreground" data-testid="overview-notable"><summary className="cursor-pointer font-medium text-primary">{t("Other birth-chart conditions")}</summary><p className="mt-1">{noteParts.join(" · ")}</p><p className="mt-1" lang="en">Retrograde means a planet appears to move backward as seen from Earth. A planet's own or enemy sign describes traditional relationships between planets and signs, not relationships between people.</p></details> : <p
