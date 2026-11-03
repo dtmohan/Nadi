@@ -5,8 +5,9 @@ import type { Briefing, BriefLink, BriefRow } from "./briefing";
 import type { LifeArea, Reading } from "./rules";
 import { gist, toneOf, type AreaSynthesis } from "./synthesis";
 import { transitDay } from "./transit-date";
-import { sensitiveTags } from "./life-stage";
+import { mentionsHeldArea, sensitiveTags } from "./life-stage";
 import { bnnFindingContext } from "./chart-explanations";
+import type { Planet } from "./astro";
 
 export type PlainTopic = LifeArea;
 
@@ -53,6 +54,32 @@ export interface PlainTopicBrief extends PlainTopicNatal {
   windows: PlainTopicWindow[];
   timingNote: string;
   comparison?: string;
+}
+
+export interface PlanetTopicExample {
+  topic: PlainTopic;
+  text: string;
+  ruleId: string;
+  source?: string;
+}
+
+/** Select an existing, visible topic interpretation that actually names the planet in its finding. */
+export function planetTopicExamples(topics: readonly PlainTopicBrief[], reading: Reading, held: (area: string) => boolean): Partial<Record<Planet, PlanetTopicExample>> {
+  const examples: Partial<Record<Planet, PlanetTopicExample>> = {};
+  for (const topic of topics) {
+    if (held(topic.topic) || topic.topic === "health" || topic.topic === "family") continue;
+    for (let i = 0; i < (topic.details?.length ?? 0); i++) {
+      const text = topic.details![i];
+      const evidence = topic.detailEvidence?.[i];
+      if (!evidence || sensitiveTags(text).length) continue;
+      // Even a finding filed under an allowed area can mention another area held back by age.
+      if (mentionsHeldArea(text, held)) continue;
+      const finding = reading.findings.find((f) => f.area === topic.topic && f.ruleId === evidence.ruleId);
+      if (!finding) continue;
+      for (const planet of finding.planets) if (!examples[planet]) examples[planet] = { topic: topic.topic, text, ruleId: finding.ruleId, source: evidence.source };
+    }
+  }
+  return examples;
 }
 
 /** Summarize sensitive relationship claims without presenting them as facts about a partner. */

@@ -14,6 +14,8 @@ import { PRASNA_HOUSE_EFFECT_PLAIN } from "../shared/prasna-plain";
 import { concealAvasthaEffect, divisionalPlanetContext, gocharaContext, kpHouseContext, kpStageLabel, parashariHouseContext, parashariPlanetContext } from "../shared/chart-explanations";
 import { buildReport } from "../shared/report";
 import { kpFindingPlain } from "../shared/rules-kp";
+import { plainSarvarthaHighlights } from "../shared/sarvartha-plain";
+import { SC_BHAVA_RULES } from "../shared/sarvartha";
 
 // A synthetic chart, not a personal case or an assertion of predictive validity.
 const chart = { id: 0, name: "Synthetic explanation", gender: "male", birthDate: "1990-01-01", birthTime: "12:00", timezone: "Asia/Kolkata", timeStandard: "auto", place: "Bengaluru", latitude: 12.97, longitude: 77.59, ayanamsa: "lahiri", nodeType: "mean", sunriseDef: "edge", parashariHouseMethod: "rashi", timeUncertaintyMin: 5, notes: "", deathDate: null, events: [] } as Chart;
@@ -89,6 +91,21 @@ test("each displayed Nadi theme retains the identity and source of its own evalu
       for (const p of f.planets) assert.ok(evidence.text.includes(p));
     }
   }
+});
+
+test("plain Sarvartha highlights only paraphrase matched, identifiable source rules", () => {
+  const actual = result.sarvartha?.findings ?? [];
+  for (const f of plainSarvarthaHighlights(actual)) {
+    const match = actual.find((x) => x.house === f.house && x.stanza === f.stanza)!;
+    const chapter = SC_BHAVA_RULES.find((x) => x.house === f.house)!;
+    assert.ok(match && chapter.rules.some((r) => r.stanza === f.stanza));
+    assert.equal(f.ref, `${chapter.chapter}.${f.stanza}`);
+    assert.equal(f.provisional, match.fidelity === "provisional");
+  }
+  assert.deepEqual(plainSarvarthaHighlights([{ house: 2, stanza: 15, topic: "support", text: "no one to help him in his living", fidelity: "cited" }]), []);
+  const family = plainSarvarthaHighlights([{ house: 2, stanza: 12, topic: "support", text: "protects and rears his family and many others, with very nice speech", fidelity: "cited" }]);
+  assert.equal(family[0].ref, "3.12");
+  assert.match(family[0].text, /family.*speech/);
 });
 
 test("school contexts and report expose the same facts without changing stances or scored inputs", () => {

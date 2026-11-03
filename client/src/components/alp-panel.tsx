@@ -1048,7 +1048,7 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
           </Working>
           {plain && <section className="mt-4" data-testid="alp-house-explanations">
             <h3 className="text-sm font-semibold">Houses and planets from the moving point</h3>
-            <p className="mt-1 text-xs text-muted-foreground">These houses are counted from the ALP position on the selected date. Their topics and rulers describe this progressed frame; they do not replace the natal chart or establish that an event must occur.{(chart.timeUncertaintyMin ?? 0) > 0 && ` The stated ±${chart.timeUncertaintyMin}-minute birth-time range may change the progressed point or its house frame.`}</p>
+            <p className="mt-1 text-xs text-muted-foreground">ALP follows a moving point calculated from the birth chart to explore themes for a selected date. Its houses are chart areas counted from that point, not physical houses. A house ruler is the planet traditionally assigned to its sign. These links describe the ALP view; they do not replace the birth chart or establish that an event must occur.{(chart.timeUncertaintyMin ?? 0) > 0 && ` The stated ±${chart.timeUncertaintyMin}-minute birth-time range may change the moving point or its house frame.`}</p>
             <div className="mt-2 divide-y rounded-md border">{a.houses.map((h) => {
               const lordHouse = a.houses.find((x) => x.planets.includes(h.lord));
               const group = KARMA_BHAVAS.find((x) => x.house === h.house);

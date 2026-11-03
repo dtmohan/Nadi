@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { ChartResult } from "@shared/schema";
 import { vimshottari } from "@shared/kp";
-import { ageYears, lifeAsOf, areaSeason } from "@shared/life-stage";
+import { ageYears, lifeAsOf, areaSeason, heldAreasAt, mentionsHeldArea } from "@shared/life-stage";
 import { areaNoun, nadiAreasClauses } from "@shared/life-areas";
 import type { Gender } from "@shared/marriage";
 import {
@@ -26,11 +26,15 @@ import { briefingFor, type BriefLink } from "@shared/briefing";
 import { BriefingBefore, BriefingNow, BriefingPlanets, useOpenLink } from "@/components/briefing";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { cn } from "@/lib/utils";
-import { PLAIN_TOPIC_LABEL, plainTopicBriefs, type PlainTopicBrief } from "@shared/topic-brief";
+import { PLAIN_TOPIC_LABEL, plainTopicBriefs, planetTopicExamples, type PlainTopicBrief } from "@shared/topic-brief";
 import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL, type BriefSchool, type SchoolTopicBrief } from "@shared/school-topic-brief";
 import { defaultAlpForTopics, expandedSchoolTopicBriefs } from "@shared/school-topics-expanded";
 import { schoolDetailsLink, SchoolTopicExplanation } from "@/components/school-topic-brief";
 import { TopicThemes } from "@/components/topic-themes";
+import { gocharaContext } from "@shared/chart-explanations";
+import { AGREEMENT_SYSTEM_LABEL } from "@shared/agreement";
+import type { Stance } from "@shared/kernel";
+import { plainSarvarthaHighlights } from "@shared/sarvartha-plain";
 
 const VERDICT_PILL: Record<GocharaVerdict, string> = {
   favourable: "bg-verdict-good/15 text-verdict-good",
@@ -55,6 +59,16 @@ const joinList = (xs: string[]) =>
   xs.length <= 1
     ? xs.join("")
     : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
+
+const PLAIN_SCHOOL_STANCE: Record<Stance, string> = {
+  supports: "supportive indications",
+  "leans-supports": "indications leaning supportive",
+  mixed: "mixed indications",
+  contested: "conflicting indications",
+  "leans-strains": "indications leaning challenging",
+  strains: "challenging indications",
+  silent: "no conclusion in this comparison",
+};
 
 /** The Nadi verdict across the areas, named as Nadi's: the other systems are weighed under Across the systems. */
 function glanceSentence(areas: AreaSynthesis[]): string {
@@ -145,6 +159,7 @@ export function OverviewPanel({
     (f) =>
       !sarvarthaLeftOut(f.topic, f.text, plain, result.sensitive?.withheld ?? false),
   );
+  const scPlain = plainSarvarthaHighlights(scShown);
   const crossSchool = agreement.filter(
     (a) => a.verdict === "disagree" || a.verdict === "lean" || a.verdict === "mixed",
   );
@@ -294,8 +309,9 @@ export function OverviewPanel({
             </dd>
           </div>
         </dl>
+        {plain && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">The rising sign, {rising}, was on the eastern horizon at birth. The Sun and Moon entries show their signs at that moment. The birth star, {moon.nakshatra}, is the zodiac section occupied by the Moon; it is in quarter {moon.pada}, and its traditional star ruler is {moon.nakshatraLord}.</p>}
         {noteParts.length > 0 && (
-          <p
+          plain ? <details className="mt-2 text-xs text-muted-foreground" data-testid="overview-notable"><summary className="cursor-pointer font-medium text-primary">Other birth-chart conditions</summary><p className="mt-1">{noteParts.join(" · ")}</p><p className="mt-1">Retrograde means a planet appears to move backward as seen from Earth. A planet's own or enemy sign describes traditional relationships between planets and signs, not relationships between people.</p></details> : <p
             className="mt-2 text-xs text-muted-foreground"
             data-testid="overview-notable"
           >
@@ -380,7 +396,11 @@ export function OverviewPanel({
         <div className="mt-4 border-t pt-3" data-testid="overview-from-moon">
           <p className="text-xs font-medium text-muted-foreground">{t("From the Moon")}</p>
           {/* The adverse tara: the 3rd, 5th and 7th stars from the birth star, and the dasa lords they name. */}
-          <p
+          {plain ? <div className="mt-3 space-y-1.5 text-xs leading-relaxed" data-testid="overview-tara">
+            <p>The Moon's birth star is {moon.nakshatra}. A birth star, or nakshatra, is the section of the zodiac where the Moon was at birth. One traditional method compares other stars with it and treats three of them as more challenging.</p>
+            <p>{adverseNow ? `The planet assigned to the current long period, ${vim.current.dasa.lord}, is associated with one of those stars in this comparison.` : "The planet assigned to the current long period is not associated with any of those three stars in this comparison."} This is one indication to consider alongside the rest of the reading.</p>
+            <details className="text-muted-foreground"><summary className="cursor-pointer font-medium text-primary">Show the star comparison</summary><p className="mt-1">{adverse.map((a) => `${a.name} ${a.nakshatraName} (${a.lord})`).join(" · ")}{adverseNow ? ` · current ${vim.current.dasa.lord} dasa: ${adverseNow.name}-tara lord.` : "."}</p></details>
+          </div> : <p
             className="mt-3 text-xs text-muted-foreground"
             data-testid="overview-tara"
           >
@@ -400,7 +420,7 @@ export function OverviewPanel({
                 the current dasa.
               </span>
             )}
-          </p>
+          </p>}
 
           {/* Transit weather: the slow planets read against the natal Moon (today's sky; the deceased are read at passing, not against it). */}
           {!deceased && (jupRow || satRow) && (
@@ -429,6 +449,7 @@ export function OverviewPanel({
                       {r!.verdict}
                     </span>
                   </div>
+                  {plain && <p className="mt-2 leading-relaxed" data-testid={`overview-weather-explanation-${r!.planet}`}>{gocharaContext(r!, moon.signIndex)}</p>}
                   {plain && r!.voided ? (
                     <p
                       className="mt-1.5 leading-relaxed text-foreground/90"
@@ -437,9 +458,9 @@ export function OverviewPanel({
                       {gocharaPlainEffect(r!)}
                     </p>
                   ) : (
-                    r!.effect.pd && (
+                    r!.effect.pd && (!plain || !mentionsHeldArea(r!.effect.pd.text, heldAreasAt(result.utc, lifeAt))) && (
                       <p className="mt-1.5 leading-relaxed text-foreground/90">
-                        <Soft>{r!.effect.pd.text}</Soft>
+                        {plain && "The source associates this position with: "}<Soft>{r!.effect.pd.text}</Soft>
                         {r!.voided && (
                           <span className="block text-muted-foreground">
                             {gocharaPlainEffect(r!)}
@@ -459,14 +480,13 @@ export function OverviewPanel({
           )}
           {!deceased && (
             <p className="mt-3 text-2xs text-muted-foreground">
-              Moon-based gochara, counted from the natal Moon (Phaladeepika 26.1). Its verdict can differ
-              from the sign-based Ashtakavarga transit grade above; the full gochara, with vedha, is on the Panchanga tab.
+              {plain ? "This is a Moon-based transit reading: it compares today's positions with the Moon's position at birth. It uses a different method from the Ashtakavarga grades above, so their indications can differ. More detail is in Panchanga." : "Moon-based gochara, counted from the natal Moon (Phaladeepika 26.1). Its verdict can differ from the sign-based Ashtakavarga transit grade above; the full gochara, with vedha, is on the Panchanga tab."}
             </p>
           )}
         </div>
       </BriefingNow>
 
-      <BriefingPlanets planets={brief.planets} />
+      <BriefingPlanets planets={brief.planets} plain={plain} uncertainty={chart.timeUncertaintyMin ?? 0} examples={plain ? planetTopicExamples(topics, reading, heldAreasAt(result.utc, lifeAt)) : undefined} />
 
       {/* The life areas as plain cards */}
       <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -498,9 +518,7 @@ export function OverviewPanel({
       </ul>
       {deferred.length > 0 && (
         <p className="mt-3 text-xs text-muted-foreground">
-          {joinList(deferred.map((a) => t(areaNoun(a.area))))} is held back for
-          later: {deferred.length === 1 ? "it is" : "they are"} not a present
-          matter at this age.
+          {plain ? <>For younger readers, the app holds back {joinList(deferred.map((a) => t(areaNoun(a.area))))} until later. This is an app setting, not a prediction of when these areas will matter.</> : <>{joinList(deferred.map((a) => t(areaNoun(a.area))))} is held back for later: {deferred.length === 1 ? "it is" : "they are"} not a present matter at this age.</>}
         </p>
       )}
 
@@ -513,19 +531,14 @@ export function OverviewPanel({
           <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
             {t("Across the systems")}
           </p>
-          <div className="mt-1 space-y-1">
+          {plain && <p className="mt-1 text-xs leading-relaxed text-muted-foreground">These traditions use different rules to interpret the same birth chart. Their labels describe chart indications, not established facts about a person or their family.</p>}
+          <div className="mt-2 space-y-2">
             {crossSchool.map((a) => (
-              <p
-                key={a.topic}
-                className={cn(
-                  "text-xs leading-relaxed",
-                  a.verdict === "disagree"
-                    ? "text-verdict-bad"
-                    : "text-verdict-mixed",
-                )}
-              >
-                {a.sentence}
-              </p>
+              plain ? <div key={a.topic} className="text-xs leading-relaxed">
+                <p><strong>{a.label}:</strong> {a.verdict === "disagree" ? "The schools give differing indications, so the app cannot combine them into a single conclusion." : a.verdict === "mixed" ? "The combined indications are mixed, without a clear overall direction." : `The combined indications lean ${a.stance === "leans-supports" ? "supportive" : a.stance === "leans-strains" ? "challenging" : "in one direction"}, but the schools do not all agree.`}</p>
+                <p className="mt-1 text-muted-foreground">{a.stances.map((s) => `${AGREEMENT_SYSTEM_LABEL[s.system]}: ${PLAIN_SCHOOL_STANCE[s.stance]}`).join("; ")}.</p>
+                <details className="mt-1 text-muted-foreground"><summary className="cursor-pointer font-medium text-primary">See the schools' labels</summary><p className="mt-1">{a.sentence}</p><p className="mt-1">“Supported” and “strained” are shorthand for the rules each school found; they do not prove an outcome.</p></details>
+              </div> : <p key={a.topic} className={cn("text-xs leading-relaxed", a.verdict === "disagree" ? "text-verdict-bad" : "text-verdict-mixed")}>{a.sentence}</p>
             ))}
           </div>
         </div>
@@ -540,6 +553,13 @@ export function OverviewPanel({
           <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Parashari · Sarvartha Chintamani
           </p>
+          {plain ? <div className="mt-2 space-y-2 text-sm leading-relaxed">
+            <p>Sarvartha Chintamani is a classical text that connects chart placements with different areas of life. The app found {scShown.length} matching {scShown.length === 1 ? "rule" : "rules"} in its current selection; some rules use provisional interpretations.</p>
+            {scPlain.length ? <ul className="list-disc space-y-1 pl-5">{scPlain.slice(0, 2).map((f) => <li key={`${f.house}.${f.stanza}`}>{f.text} <span className="text-xs text-muted-foreground">(Sarvartha Chintamani {f.ref}{f.provisional ? "; provisional" : ""})</span></li>)}</ul> : <p>No reviewed everyday-language highlight is available for these matches yet.</p>}
+            <p>These passages use the language and assumptions of their time. They are traditional interpretations, not guarantees or assessments of anyone's health.</p>
+            <button type="button" className="text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => openLink({ tab: "parashari", chapter: "sarvartha" })}>Explore the source readings in Parashari</button>
+            {!agreementIn.withheld && <details className="text-xs"><summary className="cursor-pointer font-medium text-primary">See the original highlights</summary><div className="mt-2 space-y-1">{scShown.slice(0, 3).map((f) => <p key={`${f.house}.${f.stanza}`}><strong>{f.topic}:</strong> <Soft>{f.text}</Soft>{f.herePlain?.length ? ` Chart factors: ${f.herePlain.join("; ")}.` : ""}</p>)}{result.sarvartha.rajyogas.length > 0 && <p><strong>Rajyoga (a traditional status combination):</strong> {result.sarvartha.rajyogas.map((r) => r.text).join("; ")}.</p>}</div></details>}
+          </div> : <>
           <p className="mt-2 text-sm leading-relaxed">
             {scShown.slice(0, 3).map((f) => (
               <span key={`${f.house}.${f.stanza}`} className="block">
@@ -559,6 +579,7 @@ export function OverviewPanel({
             computable rules apply to this chart — the full house-walk is in the
             Parashari tab.
           </p>
+          </>}
         </div>
       )}
 

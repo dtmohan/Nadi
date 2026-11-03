@@ -239,7 +239,7 @@ export function VargaPlanetExplanations({ varga, chart, planets }: { varga: Varg
   const m = VARGA_MEANING_BY_KEY[varga];
   return <section className="mt-4 rounded-md border bg-card p-3" data-testid="varga-planet-explanations">
     <h3 className="text-sm font-semibold">What the planets show in this chart</h3>
-    <p className="mt-1 text-xs text-muted-foreground">These are placements and the cited focus of this division. A placement alone is not an event prediction. The finer charts can change with the birth time; the score above covers the selected scheme, not just this division.</p>
+    <p className="mt-1 text-xs text-muted-foreground">A divisional chart is another view calculated from the same birth positions, used to explore a particular topic. Each house is a chart area counted from that view's own rising sign. The explanations below use the cited focus of this division; a placement alone is not an event prediction. Finer charts can change with the birth time, and the score above covers the selected scheme, not just this division.</p>
     <div className="mt-2 divide-y">{planets.map((p) => {
       const lines = divisionalPlanetContext(p, chart, varga, m);
       const house = ((p.signs[varga] - chart.lagnaSign + 12) % 12) + 1;

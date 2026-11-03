@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { LifeArea } from "@shared/rules";
 import type { AreaTag, BeforeNote, BriefLink, BriefRow, Briefing, PlanetBrief } from "@shared/briefing";
 import type { GocharaRow } from "@shared/gochara";
+import { PLAIN_TOPIC_LABEL, type PlanetTopicExample } from "@shared/topic-brief";
 import { areaNoun } from "@shared/life-areas";
 import { PlanetName } from "@/components/planet-name";
 import { DasaCombinationsBody } from "@/components/dasa-combinations";
@@ -169,7 +170,7 @@ function Row({
     <li className="border-t py-3 first:border-t-0 first:pt-0" data-testid={`brief-row-${row.id}`}>
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <span className="w-full text-xs tabular text-muted-foreground sm:w-auto">{row.when}</span>
-        <span className="text-sm font-medium">{row.what}</span>
+        <span className="text-sm font-medium">{plain && row.plainSummary ? row.plainSummary.title : row.what}</span>
         <span className="text-xs text-muted-foreground" data-testid={`brief-system-${row.id}`}>
           {row.system}
         </span>
@@ -177,10 +178,22 @@ function Row({
           <span className={cn("rounded px-1.5 py-0.5 text-xs font-medium", LEAN_PILL[row.lean])}>{row.system === "Ashtakavarga transit" ? "Ashtakavarga: " : ""}{row.lean}</span>
         )}
         {moonRow && <span className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium" data-testid={`brief-moon-${row.id}`}>
-          Moon gochara: {moonRow.verdict} · house {moonRow.house} from Moon
+          {plain ? "Moon-based transit" : "Moon gochara"}: {moonRow.verdict}{!plain && ` · house ${moonRow.house} from Moon`}
         </span>}
       </div>
-      {row.line && (
+      {plain && row.plainMoon ? <div className="mt-1.5 space-y-1.5 text-sm leading-relaxed" data-testid="brief-moon-plain-explanation">
+        <p>{row.plainMoon.reading}</p>
+        <p>{row.plainMoon.why}</p>
+        {row.plainMoon.comparison && <p>{row.plainMoon.comparison}</p>}
+        <details className="text-xs text-muted-foreground">
+          <summary className="cursor-pointer font-medium text-primary">How this was worked out</summary>
+          <p className="mt-1.5">{row.plainMoon.basis}</p>
+          <a className="mt-1 inline-block text-primary underline" href="https://vedicpupil.in/library/books/phaladipika/chapter-20" target="_blank" rel="noreferrer">Phaladeepika, chapter 20</a>
+        </details>
+      </div> : plain && row.plainSummary ? <div className="mt-1.5 space-y-1 text-sm leading-relaxed" data-testid={`brief-plain-${row.id}`}>
+        <p>{row.plainSummary.text}</p>
+        {row.plainSummary.basis && <details className="text-xs text-muted-foreground"><summary className="cursor-pointer font-medium text-primary">Show the calculation</summary><p className="mt-1">{row.what}. <Soft>{row.plainSummary.basis}</Soft></p></details>}
+      </div> : row.line && (
         <p className="mt-1 text-sm leading-relaxed text-foreground/90">
           {plain ? <Soft>{row.line}</Soft> : row.line}
         </p>
@@ -238,6 +251,7 @@ export function BriefingNow({
   return (
     <section className={card} data-testid="brief-now">
       <p className={label}>{heading}</p>
+      {plain && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">A planetary period is a traditional time cycle calculated from the birth chart. A long period contains shorter periods, each associated with a planet. Transits are the planets' positions on the reading date; the different schools interpret these cycles separately.</p>}
       {brief.pastEnd && (
         <p className="mt-3 text-sm text-muted-foreground">The 120-year Vimshottari sequence has run its course.</p>
       )}
@@ -266,8 +280,7 @@ export function BriefingNow({
         </>
       )}
       <p className="mt-3 text-xs text-muted-foreground">
-        Each line is read by its own system and labelled; nothing here is weighed across systems. Area tags follow
-        a fixed rule of the app (provisional); dashed tags rest on the period lord alone.
+        {plain ? "Each line names the school that produced it. The area labels suggest related topics using a provisional app rule; dashed labels are suggested from the period's planet alone and do not mean an event is predicted." : "Each line is read by its own system and labelled; nothing here is weighed across systems. Area tags follow a fixed rule of the app (provisional); dashed tags rest on the period lord alone."}
       </p>
       {children}
     </section>
@@ -276,32 +289,31 @@ export function BriefingNow({
 
 // ---- Planets in play -----------------------------------------------------------------------------
 
-function PlanetCard({ p }: { p: PlanetBrief }) {
+function PlanetTechnical({ p }: { p: PlanetBrief }) {
+  return <>
+    <p className="mt-0.5 text-xs text-muted-foreground">{p.roles.join(" · ")}</p>
+    <p className="mt-2 text-sm">{p.place}</p>
+    {p.states.length > 0 && <ul className="mt-1.5 space-y-0.5 text-xs leading-relaxed text-foreground/90">{p.states.map((s) => <li key={s}>{s}</li>)}</ul>}
+    <p className="mt-1.5 text-xs text-muted-foreground">{p.rules}</p>
+    {p.systems.length > 0 && !p.plainReading?.withheld && <dl className="mt-1.5 space-y-0.5 text-xs">{p.systems.map((s) => <div key={s.system} className="flex gap-1.5"><dt className="shrink-0 font-medium text-muted-foreground">{s.system}</dt><dd>{s.text}</dd></div>)}</dl>}
+    {p.plainReading?.withheld && <p className="mt-1.5 text-xs text-muted-foreground">Some school-specific roles are held back here for younger readers. Available technical details are in the practitioner view.</p>}
+  </>;
+}
+
+function PlanetCard({ p, example }: { p: PlanetBrief; example?: PlanetTopicExample }) {
   return (
     <li className="rounded-md border bg-card p-3" data-testid={`brief-planet-${p.planet}`}>
       <p className="text-sm font-medium">
         <PlanetName planet={p.planet} />
       </p>
-      <p className="mt-0.5 text-xs text-muted-foreground">{p.roles.join(" · ")}</p>
-      <p className="mt-2 text-sm">{p.place}</p>
-      {p.states.length > 0 && (
-        <ul className="mt-1.5 space-y-0.5 text-xs leading-relaxed text-foreground/90">
-          {p.states.map((s) => (
-            <li key={s}>{s}</li>
-          ))}
-        </ul>
-      )}
-      <p className="mt-1.5 text-xs text-muted-foreground">{p.rules}</p>
-      {p.systems.length > 0 && (
-        <dl className="mt-1.5 space-y-0.5 text-xs">
-          {p.systems.map((s) => (
-            <div key={s.system} className="flex gap-1.5">
-              <dt className="shrink-0 font-medium text-muted-foreground">{s.system}</dt>
-              <dd>{s.text}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
+      {p.plainReading ? <div className="mt-2 space-y-2 text-sm leading-relaxed" data-testid={`brief-planet-explanation-${p.planet}`}>
+        <p>{p.plainReading.meaning}</p>
+        {example ? <div data-testid={`brief-planet-example-${p.planet}`}><p className="text-xs font-semibold">One interpretation in this chart</p><p className="mt-1">A Nadi rule involving {p.planet} describes this possible theme: <Soft>{example.text}</Soft>{example.source && <span className="text-xs text-muted-foreground"> ({example.source})</span>}</p><button type="button" className="mt-1 text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => scrollToArea(example.topic)}>Explore {PLAIN_TOPIC_LABEL[example.topic]}</button></div> : <p className="text-xs text-muted-foreground">No separate plain-language interpretation involving this planet was selected in the life topics.</p>}
+        <div><p className="text-xs font-semibold">Why it appears here</p>{p.plainReading.whyNow.map((line) => <p className="mt-1" key={line}>{line}</p>)}</div>
+        <div><p className="text-xs font-semibold">In the birth chart</p><p className="mt-1">{p.plainReading.birth}</p></div>
+        <details className="border-t pt-2"><summary className="cursor-pointer text-xs font-medium text-primary">Explore its houses, star and condition</summary><div className="mt-2 space-y-2"><p>{p.plainReading.houses}</p><p>{p.plainReading.star}</p>{p.plainReading.conditions.length > 0 && <div><p className="text-xs font-semibold">How the placement is assessed</p>{p.plainReading.conditions.map((line) => <p className="mt-1" key={line}>{line}</p>)}</div>}</div></details>
+        <details className="border-t pt-2"><summary className="cursor-pointer text-xs font-medium text-primary">Show the technical details</summary><PlanetTechnical p={p} /></details>
+      </div> : <PlanetTechnical p={p} />}
       {p.ruleContext && p.ruleContext.length > 0 && (
         <details className="mt-2 text-xs leading-relaxed" data-testid={`brief-rule-context-${p.planet}`}>
           <summary className="cursor-pointer font-medium">Rule links by school</summary>
@@ -319,19 +331,20 @@ function PlanetCard({ p }: { p: PlanetBrief }) {
   );
 }
 
-export function BriefingPlanets({ planets }: { planets: PlanetBrief[] }) {
+export function BriefingPlanets({ planets, plain, uncertainty, examples }: { planets: PlanetBrief[]; plain: boolean; uncertainty: number; examples?: Partial<Record<string, PlanetTopicExample>> }) {
   const t = useT();
   if (!planets.length) return null;
   return (
     <section className={card} data-testid="brief-planets">
       <p className={label}>{t("Planets in play")}</p>
       <p className="mt-1 text-xs text-muted-foreground">
-        The lords of the running periods, the slow planets in transit and the next dasa lord, with their state in
-        the birth chart.
+        {plain ? "These are the planets associated with the current time cycles, the next long cycle, or the current positions of Jupiter and Saturn. Each card distinguishes the birth chart from the sky on the reading date." : "The lords of the running periods, the slow planets in transit and the next dasa lord, with their state in the birth chart."}
       </p>
-      <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      {plain && <p className="mt-1 text-xs leading-relaxed text-muted-foreground">In a birth chart, houses are twelve chart areas associated with life topics. The whole-sign view starts with the sign rising on the eastern horizon at birth; each sign has a traditionally assigned ruler. The themes below are traditional possibilities, not facts about the person or guaranteed events.</p>}
+      {plain && uncertainty > 0 && <p className="mt-1 text-xs text-muted-foreground">The entered birth time has an uncertainty of ±{uncertainty} minutes; some house, star-quarter and timing details may change within that range.</p>}
+      <ul className={cn("mt-3 grid items-start gap-2", planets.length === 2 ? "sm:grid-cols-2" : planets.length > 2 ? "sm:grid-cols-2 lg:grid-cols-3" : "")}>
         {planets.map((p) => (
-          <PlanetCard key={p.planet} p={p} />
+          <PlanetCard key={p.planet} p={p} example={examples?.[p.planet]} />
         ))}
       </ul>
     </section>

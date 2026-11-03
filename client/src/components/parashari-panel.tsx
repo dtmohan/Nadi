@@ -50,7 +50,7 @@ import { TopicReadingPanel } from "@/components/topic-reading";
 import { SchoolTopicPanel } from "@/components/school-topic-brief";
 import { PvrKalachakraResearch } from "@/components/pvr-kalachakra-research";
 import { ParashariNatalRules } from "@/components/natal-rule-evidence";
-import { concealAvasthaEffect, parashariHouseContext, parashariPlanetContext } from "@shared/chart-explanations";
+import { concealAvasthaEffect, parashariHouseContext, parashariPlanetContext, plainNatalStar } from "@shared/chart-explanations";
 import { PLANET_ABBR, SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "@shared/astro";
 import {
   computeParashari,
@@ -666,7 +666,7 @@ function HouseByHouse({
 }
 
 /** Existing planet checks and house passages, brought together without recalculating their verdicts. */
-function ParashariPlanetExplanations({ reading, uncertainty }: { reading: ParashariResult; uncertainty: number }) {
+function ParashariPlanetExplanations({ reading, uncertainty, positions }: { reading: ParashariResult; uncertainty: number; positions: PlanetPosition[] }) {
   return <section className="mt-5" data-testid="parashari-planet-explanations">
     <h3 className="text-sm font-semibold">Your planets, one by one</h3>
     <p className="mt-1 text-xs text-muted-foreground">Each planet's house roles and condition come from the selected Parashari house view. Source passages are separate indications; a role alone does not decide an outcome.{uncertainty > 0 && ` The stated ±${uncertainty}-minute birth-time range may change the house roles or placements.`}</p>
@@ -676,10 +676,12 @@ function ParashariPlanetExplanations({ reading, uncertainty }: { reading: Parash
         !sensitiveTags(p.textPlain).length && !withholdText(p.textPlain) && !/\b(ruin|penury|destitution|disease|illness|death|fertil|pregnan)\b/i.test(p.textPlain))
         .map((p) => ({ ...p, house: h.house })));
       const checks = parashariPlanetContext(n, reading.checks[n.planet] ?? []);
+      const position = positions.find((p) => p.planet === n.planet);
       return <details key={n.planet} className="px-3 py-2" data-testid={`parashari-planet-explanation-${n.planet}`}>
         <summary className="cursor-pointer text-sm font-medium">{n.planet} · house {n.house}{n.owns.length ? ` · rules ${n.owns.join(", ")}` : ""}</summary>
         <div className="mt-2 space-y-2 text-xs leading-relaxed">
           <p>{checks[0]}</p>
+          {position && <p>{plainNatalStar(position)}</p>}
           {checks.length > 1 && <p className="text-muted-foreground">{checks.slice(1).join(" ")}</p>}
           {passages.length ? <><p className="font-medium">Selected source interpretations</p><ul className="space-y-2">{passages.slice(0, 3).map((p, i) => <li key={`${p.house}-${p.key}-${i}`}><Soft>{p.textPlain}</Soft>{p.sources.map((source) => <span key={source.label} className="ml-1"><SourceLink source={source} /></span>)}</li>)}</ul>{passages.length > 3 && <p className="text-muted-foreground">More passages are in the house readings.</p>}</> : <p className="text-muted-foreground">No additional plain source passage is selected here; see the house reading for its full conditions.</p>}
         </div>
@@ -1793,7 +1795,7 @@ export function ParashariPanel({
             ))}
           </TableBody>
         </Table>
-        {plain && <ParashariPlanetExplanations reading={r} uncertainty={chart.timeUncertaintyMin ?? 0} />}
+        {plain && <ParashariPlanetExplanations reading={r} uncertainty={chart.timeUncertaintyMin ?? 0} positions={positions} />}
       </div>
 
       </Chapter>

@@ -139,6 +139,14 @@ export function heldAreasAt(birthIso: string, asOfIso: string): (area: string) =
   return (area) => !areaSeason(area, birthIso, asOfIso).inSeason;
 }
 
+/** Conservative display gate for a prose excerpt that may mention more than its primary topic. */
+export function mentionsHeldArea(text: string, held: (area: "career" | "wealth" | "marriage" | "children") => boolean): boolean {
+  return (held("career") && /\b(careers?|work|employment|jobs?|professions?|business|livelihood|occupations?|promotions?)\b/i.test(text)) ||
+    (held("wealth") && /\b(wealth\w*|money|income|prosper\w*|financ\w*|propert\w*|invest\w*|assets?|rich\w*)\b/i.test(text)) ||
+    (held("marriage") && /\b(marri\w*|spouses?|partners?|romanc\w*|relationships?|weddings?|husbands?|wif(?:e|ves))\b/i.test(text)) ||
+    (held("children") && /\b(child\w*|fertil\w*|pregnan\w*)\b/i.test(text));
+}
+
 /** Earliest date from which a timed window for the area should be searched: today, or the onset if that is later. */
 export function seasonStart(
   area: string,

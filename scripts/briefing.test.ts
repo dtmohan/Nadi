@@ -7,10 +7,15 @@ import type { Chart } from "@shared/schema";
 import type { LifeArea } from "@shared/rules";
 import { computeChart } from "../server/routes";
 import { agreementInput } from "@shared/agreement";
-import { briefingFor, housesRuled, lagnaEdge, tagsFor, LAGNA_EDGE_MINUTES, TAG_CAP } from "@shared/briefing";
+import { briefingFor, housesRuled, lagnaEdge, plainMoonExplanation, tagsFor, LAGNA_EDGE_MINUTES, TAG_CAP } from "@shared/briefing";
 import { AREA_ORDER, houseAreas } from "@shared/life-areas";
 import { plainViolations, soften } from "@shared/gentle";
-import { houseFrom } from "@shared/astro";
+import { houseFrom, SIGNS } from "@shared/astro";
+import { moonFromDasaLord } from "@shared/period-lord-transits";
+import { planetTopicExamples, plainTopicBriefs } from "@shared/topic-brief";
+import { computeAgreement } from "@shared/agreement";
+import { synthesize } from "@shared/synthesis";
+import { heldAreasAt, mentionsHeldArea } from "@shared/life-stage";
 import { ordH } from "@shared/house-gloss";
 
 const chart = (
@@ -72,6 +77,127 @@ test("the planet rule index is practitioner-only and is withheld for a minor", (
     sensitive: { withheld: true, ageYears: 7, minAge: 18 } };
   const held = briefingFor(minor, agreementInput(minor, false));
   assert.ok(held.planets.every((p) => p.ruleContext === undefined));
+});
+
+test("plain planet explanations use this chart's birth positions, star rulers and current roles", () => {
+  const result = resultOf(LAGOS);
+  const input = agreementInput(result, true);
+  const before = JSON.stringify({ positions: result.positions, parashari: input.parashari, kp: input.kp, reading: result.reading });
+  const b = briefingFor(result, input);
+  for (const card of b.planets) {
+    const p = result.positions.find((x) => x.planet === card.planet)!;
+    const text = card.plainReading!;
+    assert.ok(text.birth.includes(p.sign), card.planet);
+    assert.ok(text.birth.includes(ordH(houseFrom(input.parashari.lagna.signIndex, p.signIndex))), card.planet);
+    assert.ok(text.star.includes(p.nakshatra) && text.star.includes(`quarter ${p.pada}`) && text.star.includes(p.nakshatraLord), card.planet);
+    assert.ok(text.whyNow.length > 0, card.planet);
+    for (const role of card.roles.filter((r) => r.startsWith("In transit through"))) {
+      const sign = SIGNS.find((s) => role.includes(s));
+      assert.ok(sign && text.whyNow.some((line) => line.includes(sign) && line.includes("transit")), card.planet);
+    }
+  }
+  assert.equal(JSON.stringify({ positions: result.positions, parashari: input.parashari, kp: input.kp, reading: result.reading }), before, "reader explanations do not alter the calculated chart or its scores");
+  const technical = briefingFor(result, agreementInput(result, false));
+  assert.ok(technical.planets.every((p) => !p.plainReading && p.place && p.roles.length));
+});
+
+test("plain explanations hold back adult life-area themes on a synthetic child's chart", () => {
+  const result = resultOf(MINOR);
+  const child = { ...result, now: { ...result.now, asOf: "2024-01-01T12:00:00Z" }, sensitive: { withheld: true, ageYears: 7, minAge: 18 } };
+  const b = briefingFor(child, agreementInput(child, true));
+  for (const card of b.planets) {
+    const p = card.plainReading!;
+    assert.equal(p.withheld, true);
+    assert.doesNotMatch([p.meaning, p.birth, p.houses, p.star, ...p.conditions].join(" "), /\b(marriage|spouse|children|wealth|income|expenses|inheritance|profession|career)\b/i, card.planet);
+  }
+});
+
+test("planet examples come from the same visible life-topic finding and respect the age gate", () => {
+  for (const [chart, asOf] of [[LAGOS, "2026-01-01T12:00:00Z"], [MINOR, "2024-01-01T12:00:00Z"]] as const) {
+    const original = resultOf(chart);
+    const result = { ...original, now: { ...original.now, asOf } };
+    const input = agreementInput(result, true);
+    const held = heldAreasAt(result.utc, asOf);
+    const topics = plainTopicBriefs({ reading: result.reading, areas: synthesize(result.reading, result.reading.roles.gender), agreement: computeAgreement(input), brief: briefingFor(result, input), zone: chart.timezone, inSeason: (t) => !held(t) });
+    const examples = planetTopicExamples(topics, result.reading, held);
+    assert.ok(Object.keys(examples).length, "the synthetic chart has an example");
+    for (const [planet, e] of Object.entries(examples)) {
+      assert.ok(e && !held(e.topic));
+      const f = result.reading.findings.find((item) => item.ruleId === e.ruleId && item.area === e.topic);
+      assert.ok(f?.planets.includes(planet as typeof f.planets[number]));
+      const displayed = topics.find((t) => t.topic === e.topic)!;
+      const index = displayed.details?.indexOf(e.text) ?? -1;
+      assert.ok(index >= 0 && displayed.detailEvidence?.[index]?.ruleId === e.ruleId);
+      if (chart === MINOR) assert.doesNotMatch(e.text, /\b(marriage|children|career|wealth|work|profession|business)\b/i);
+    }
+  }
+});
+
+test("a multi-topic transit excerpt is held back when it includes an age-held matter", () => {
+  const child = heldAreasAt("2016-03-02T17:40:00Z", "2024-01-01T12:00:00Z");
+  const youth = heldAreasAt("2007-03-02T17:40:00Z", "2024-10-01T12:00:00Z");
+  const adult = heldAreasAt("1990-01-01T00:00:00Z", "2024-01-01T12:00:00Z");
+  assert.equal(mentionsHeldArea("trouble to wealth and children", child), true);
+  assert.equal(mentionsHeldArea("learning and travel", child), false);
+  assert.equal(mentionsHeldArea("learning and wealth", youth), false);
+  assert.equal(mentionsHeldArea("learning and marriage", youth), true);
+  assert.equal(mentionsHeldArea("trouble to wealth and children", adult), false);
+});
+
+test("plain timing summaries preserve their schools and withhold an ALP house's adult topics", () => {
+  for (const chart of [LAGOS, MINOR]) {
+    const original = resultOf(chart);
+    const result = chart === MINOR ? { ...original, now: { ...original.now, asOf: "2024-01-01T12:00:00Z" }, sensitive: { withheld: true, ageYears: 7, minAge: 18 } } : original;
+    const plain = briefingFor(result, agreementInput(result, true));
+    const technical = briefingFor(result, agreementInput(result, false));
+    for (const row of [...plain.now, ...plain.next]) {
+      if (row.system === "Ashtakavarga transit") {
+        assert.match(row.plainSummary!.text, /chart-based points/);
+        assert.ok(row.plainSummary!.basis?.includes(row.line!.split(";")[0]));
+      }
+      if (row.id.startsWith("nadi-")) {
+        assert.match(row.plainSummary!.text, /Nadi method/);
+        assert.equal(row.plainSummary!.basis, row.line);
+      }
+      if (chart === MINOR && row.system === "ALP" && row.plainSummary) {
+        const held = heldAreasAt(result.utc, result.now.asOf);
+        assert.equal(mentionsHeldArea(row.plainSummary.text, held), false);
+        assert.equal(mentionsHeldArea(row.plainSummary.basis ?? "", held), false);
+      }
+    }
+    assert.ok([...technical.now, ...technical.next].every((row) => !row.plainSummary));
+  }
+});
+
+test("daily Moon language follows each calculated tone and keeps the birth-Moon check separate", () => {
+  const result = resultOf(LAGOS);
+  const sky = (moonSign: number, lordSign: number) => result.now.positions.map((p) => {
+    const signIndex = p.planet === "Moon" ? moonSign : p.planet === "Rahu" ? lordSign : p.signIndex;
+    return { ...p, signIndex, sign: SIGNS[signIndex] };
+  });
+  for (const [moon, tone, phrase] of [[2, "good", "supportive"], [0, "both", "different indications"], [1, "trouble", "more challenging"]] as const) {
+    const now = sky(moon, 0);
+    const original = moonFromDasaLord("Rahu", now, result.positions, true)!;
+    const technical = moonFromDasaLord("Rahu", now, result.positions, false)!;
+    assert.equal(original.tone, tone);
+    const explanation = plainMoonExplanation(original, technical, "Rahu");
+    assert.ok(explanation.reading.includes(phrase));
+    assert.match(explanation.comparison!, /separate comparison.*Moon.*birth/i);
+    assert.match(explanation.comparison!, /does not grade this planet/);
+    assert.ok(explanation.basis.includes(technical.line));
+  }
+  const selfSky = sky(7, 0);
+  const own = moonFromDasaLord("Moon", selfSky, result.positions, true)!;
+  const ownTechnical = moonFromDasaLord("Moon", selfSky, result.positions, false)!;
+  assert.equal(own.tone, "open");
+  assert.match(plainMoonExplanation(own, ownTechnical, "Moon").why, /does not count the Moon from itself/);
+  const base = moonFromDasaLord("Mercury", result.now.positions, result.positions, true)!;
+  const tech = moonFromDasaLord("Mercury", result.now.positions, result.positions, false)!;
+  for (const favourable of [true, false] as const) {
+    const x = { ...base, fromNatalMoon: { lord: "Mercury" as const, house: 8, favourableByHouse: favourable } };
+    const text = plainMoonExplanation(x, tech, "Mercury").comparison!;
+    assert.ok(text.includes(favourable ? "calls that position favourable" : "does not list that position as favourable"));
+  }
 });
 
 test("the lagna-edge note fires within five minutes of a sign change and stays silent mid-sign", () => {
@@ -222,7 +348,9 @@ test("the plain briefing prints none of the deny-listed phrasings (shared/gentle
       ...b.before.map((n) => `${n.title} ${n.text}`),
       // Row lines are shown through <Soft>, as every plain reading line is.
       ...[...b.now, ...b.next].flatMap((r) => [r.what, r.line ? soften(r.line) : ""]),
+      ...[...b.now, ...b.next].flatMap((r) => [r.plainSummary?.title ?? "", r.plainSummary?.text ?? "", r.plainMoon?.reading ?? "", r.plainMoon?.why ?? "", r.plainMoon?.comparison ?? ""]),
       ...b.planets.flatMap((p) => [p.place, p.rules, ...p.roles, ...p.states, ...p.systems.map((s) => s.text)]),
+      ...b.planets.flatMap((p) => p.plainReading ? [p.plainReading.meaning, ...p.plainReading.whyNow, p.plainReading.birth, p.plainReading.houses, p.plainReading.star, ...p.plainReading.conditions] : []),
     ];
     for (const t of texts) assert.deepEqual(plainViolations(t), [], t);
   }

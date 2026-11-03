@@ -16,10 +16,10 @@ import { houseFrom, SIGNS, type Planet, type PlanetPosition } from "./astro";
 import type { ChartResult } from "./schema";
 import type { LifeArea } from "./rules";
 import type { AgreementInput } from "./agreement";
-import { heldAreasAt, lifeAsOf, redactSensitive } from "./life-stage";
+import { heldAreasAt, lifeAsOf, mentionsHeldArea, redactSensitive } from "./life-stage";
 import { DEFAULT_ASPECT_FLOOR } from "./parashari";
 import { dasaCombinations, timingNow, levelName, type DasaCombinations, type TimingChange, type TimingNow } from "./timing-now";
-import { moonFromDasaLord } from "./period-lord-transits";
+import { moonFromDasaLord, type MoonToday } from "./period-lord-transits";
 import { periodLordMoonHouseText } from "./transit-context";
 import { computeSudarshana } from "./sudarshana";
 import { computeAvTimeline, type AvTimeline, type AvTransitRow } from "./av-transit";
@@ -33,8 +33,9 @@ import { VARGA_BY_KEY, type VargaKey } from "./vargas";
 import type { LagnaWindows } from "./time-windows";
 import { CHARA_KARAKA_INFO } from "./jaimini";
 import { saturnPracticeName, saturnShortName } from "./gochara";
-import { AREA_HOUSES, AREA_ORDER, AREA_TAG_KARAKA, houseAreas } from "./life-areas";
+import { AREA_HOUSES, AREA_ORDER, AREA_TAG_KARAKA, areaNoun, houseAreas } from "./life-areas";
 import { ALP_HOUSE_GLOSS, listJoin, ordH, thePlanet } from "./house-gloss";
+import { plainNatalStar } from "./chart-explanations";
 
 // ---- Shapes --------------------------------------------------------------------------------------
 
@@ -91,6 +92,21 @@ export interface BriefRow {
   link: BriefLink;
   /** The running dasa row carries its lord, so the Overview can fold the period's combinations under it. */
   dasaLord?: Planet;
+  /** Reader-facing explanation and original calculation for the daily Moon comparison. */
+  plainMoon?: { reading: string; why: string; comparison?: string; basis: string };
+  /** Optional plain-language translation of a timing row; the original calculation remains accessible. */
+  plainSummary?: { title: string; text: string; basis?: string };
+}
+
+export interface PlainPlanetBrief {
+  meaning: string;
+  whyNow: string[];
+  birth: string;
+  houses: string;
+  star: string;
+  conditions: string[];
+  /** Avoid surfacing the adult-specific school roles in a child's plain view. */
+  withheld: boolean;
 }
 
 export interface PlanetBrief {
@@ -102,6 +118,7 @@ export interface PlanetBrief {
   rules: string;
   /** One line per system that gives the planet a role, labelled. */
   systems: { system: string; text: string }[];
+  plainReading?: PlainPlanetBrief;
   /** Practitioner-only index of explicitly attributed fired rules, not all dependencies. */
   ruleContext?: Array<{ school: string; count: number; examples: Array<{ id: string; text: string; source?: string; chart?: "D1" | "D9"; asOf?: string; attribution?: string; via?: Planet }>; coverage: string }>;
 }
@@ -141,6 +158,25 @@ const dms = (deg: number) => {
   return `${d}°${String(m).padStart(2, "0")}'${String(s).padStart(2, "0")}"`;
 };
 const ordList = (hs: number[]) => listJoin([...hs].sort((a, b) => a - b).map(ordH));
+
+/** Paraphrase the daily condition and the distinct birth-Moon comparison without combining them. */
+export function plainMoonExplanation(t: MoonToday, technical: MoonToday, lord: Planet): NonNullable<BriefRow["plainMoon"]> {
+  const daily: Record<MoonToday["tone"], string> = {
+    good: "This traditional rule describes today's combination as supportive.",
+    trouble: "This traditional rule describes today's combination as more challenging.",
+    both: "Two passages in the source give different indications for today's combination, so this app does not choose between them.",
+    open: "The source's conditions for a supportive day are not met, and this rule gives no simple conclusion today.",
+  };
+  const comparison = t.fromNatalMoon && `A separate comparison looks at where ${thePlanet(lord)} is now, counting from the sign the Moon occupied at birth. ${t.fromNatalMoon.favourableByHouse === null ? "The basic table does not grade this planet." : t.fromNatalMoon.favourableByHouse ? "The basic table calls that position favourable." : "The basic table does not list that position as favourable."} This is a different check, without its additional modifying conditions.`;
+  return {
+    reading: `${daily[t.tone]} It is a general timing indication, not a prediction of a specific event.`,
+    why: lord === "Moon"
+      ? "In this timing method the Moon is assigned to the current long period. The daily rule considers the Moon's current sign; it does not count the Moon from itself."
+      : `In this timing method ${thePlanet(lord)} is assigned to the current long period. This daily rule compares where the Moon and ${thePlanet(lord)} are in the sky on the reading date.`,
+    comparison: comparison || undefined,
+    basis: [technical.line, technical.detail, technical.fromNatalMoon ? periodLordMoonHouseText(technical.fromNatalMoon) : undefined].filter(Boolean).join(" "),
+  };
+}
 
 function fmt(iso: string, zone: string, f: string): string {
   const d = DateTime.fromISO(iso, { zone });
@@ -302,10 +338,13 @@ function lagnaEdgeNote(result: ChartResult, plain: boolean): BeforeNote | null {
     const days = ((Math.abs(moon.speed) * e.minutes) / 1440) * (years / (40 / 3)) * 365.25;
     dasa = days < 1 ? "the dasa dates by less than a day" : `the dasa dates by about ${Math.round(days)} day${Math.round(days) === 1 ? "" : "s"}`;
   }
-  const text =
+  const technicalText =
     `Your rising degree is ${dm(e.degInSign)} ${SIGNS[e.sign]}, ${e.arcMin}' from ${SIGNS[e.signThen]}. ` +
     `A birth ${mins} ${e.later ? "later" : "earlier"} than ${time} would make ${SIGNS[e.signThen]} the rising sign and move the navamsa lagna from ${SIGNS[e.d9]} to ${SIGNS[e.d9Then]}. ` +
     `House-based readings would change; planet signs would not, and the change would move ${dasa || "the dasa dates very little"}.`;
+  const text = plain
+    ? `The rising sign is the sign on the eastern horizon at birth. At ${time} it is ${SIGNS[e.sign]}, close to the boundary with ${SIGNS[e.signThen]}. A birth ${mins} ${e.later ? "later" : "earlier"} would make ${SIGNS[e.signThen]} the rising sign and change the rising sign in D9, a second view calculated from the birth chart, from ${SIGNS[e.d9]} to ${SIGNS[e.d9Then]}. House-based readings could change; in this calculation the timing-period dates would also shift.`
+    : technicalText;
   const perDeg = e.minutes / (e.arcMin / 60);
   const detail = plain
     ? undefined
@@ -335,8 +374,10 @@ function kpNote(input: AgreementInput, result: ChartResult, plain: boolean): Bef
   const ords = listJoin(cusps.map((p) => ordH(p.house!)));
   return {
     id: "kp-cusps",
-    title: `${cap(num(n))} KP cusp${n === 1 ? " is" : "s are"} time-sensitive`,
-    text: `The ${ords} ${n === 1 ? "cusp changes" : "cusps change"} sub lord within ${within} of ${result.chart.birthTime}, so KP lines for ${n === 1 ? "that house are" : "those houses are"} provisional.`,
+    title: plain ? `${cap(num(n))} KP house ${n === 1 ? "reading depends" : "readings depend"} closely on birth time` : `${cap(num(n))} KP cusp${n === 1 ? " is" : "s are"} time-sensitive`,
+    text: plain
+      ? `KP considers the starting point of each house, an area of the chart, and assigns a planet to a small subdivision at that point. For the ${ords} ${n === 1 ? "house, that planet changes" : "houses, those assigned planets change"} within ${within} of ${result.chart.birthTime}. A small difference in birth time may therefore change ${n === 1 ? "this reading" : "these readings"}; the app treats ${n === 1 ? "it" : "them"} as provisional.`
+      : `The ${ords} ${n === 1 ? "cusp changes" : "cusps change"} sub lord within ${within} of ${result.chart.birthTime}, so KP lines for ${n === 1 ? "that house are" : "those houses are"} provisional.`,
     detail: plain
       ? undefined
       : `${cap(cusps.map((p) => `the ${ordH(p.house!)} (sub lord ${p.subLord}) ${nearestChangeText(p)}`).join("; "))}. ` +
@@ -365,7 +406,9 @@ function bhavaNote(result: ChartResult, chalit: ChalitResult | undefined, plain:
     const verb = moves.length ? "" : g.names.length === 1 ? " moves" : " move";
     moves.push(`${listJoin(g.names)}${verb} from ${moves.length ? "the" : "your"} ${ordH(g.from)} to the ${ordH(g.to)}`);
   });
-  if (moves.length) sentences.push(`By bhava, in both constructions, ${moves.join("; ")}.`);
+  if (moves.length) sentences.push(plain
+    ? `Using two other ways to divide the birth chart into houses, ${Array.from(groups.values()).map((g) => `${listJoin(g.names)} ${g.names.length === 1 ? "is" : "are"} assigned to the ${ordH(g.to)} house instead of the ${ordH(g.from)}`).join("; ")}. The birth positions stay the same; the house boundaries differ.`
+    : `By bhava, in both constructions, ${moves.join("; ")}.`);
   if (junction.length) {
     const byPair = new Map<string, string[]>();
     for (const c of junction) {
@@ -377,13 +420,13 @@ function bhavaNote(result: ChartResult, chalit: ChalitResult | undefined, plain:
     byPair.forEach((names, pair) =>
       parts.push(parts.length ? `${listJoin(names)} on the ${pair}` : `${cap(listJoin(names))} ${names.length === 1 ? "sits" : "sit"} on the ${pair} junction`),
     );
-    sentences.push(`${listJoin(parts)}; Phaladeepika reads a planet on a junction as giving little in its own periods.`);
+    sentences.push(plain ? `${listJoin(parts)}. A junction is a boundary between two house areas. Phaladeepika interprets a planet there as having less scope to express its themes during its own periods.` : `${listJoin(parts)}; Phaladeepika reads a planet on a junction as giving little in its own periods.`);
   }
   const method = result.chart.parashariHouseMethod;
   sentences.push(
     method === "sripati" || method === "equal"
-      ? `This chart is set to read houses by the ${method === "sripati" ? "Sripati" : "equal-house"} bhava.`
-      : "The app reads houses by sign and notes the bhava house beside each reading.",
+      ? plain ? `The selected Parashari house reading uses the ${method === "sripati" ? "Sripati" : "equal-house"} method.` : `This chart is set to read houses by the ${method === "sripati" ? "Sripati" : "equal-house"} bhava.`
+      : plain ? "The main house reading uses whole signs; the alternative house placements are shown alongside it." : "The app reads houses by sign and notes the bhava house beside each reading.",
   );
   const n = moved.length || junction.length;
   const pct = (x: number) => `${Math.round(x * 100)}%`;
@@ -427,16 +470,17 @@ function lordLine(
   held: (a: LifeArea) => boolean,
 ): string {
   const hs = housesRuled(lord, lagnaSign);
-  if (!hs.length) return `${cap(thePlanet(lord))} rules no house.`;
+  if (!hs.length) return plain ? `In this house system ${thePlanet(lord)} is not assigned as a sign ruler; its position and other connections can still be considered.` : `${cap(thePlanet(lord))} rules no house.`;
   // A karaka of an area held back for a minor is not named ("stands for marriage" at ten).
   const kk = AREA_TAG_KARAKA[lord];
   const k = kk && !held(kk.area) ? kk : undefined;
   const extra: string[] = [];
   if (plain) {
     if (k) extra.push(k.plain);
-    const base = `${cap(thePlanet(lord))} rules your ${ordList(hs)}${extra.length ? ` and ${listJoin(extra)}` : ""}`;
+    const areas = hs.map((h) => { const meaning = overviewHouseMeaning(h, held); return `the ${ordH(h)}${meaning ? ` (${meaning})` : ""}`; });
+    const base = `In the whole-sign birth chart, ${thePlanet(lord)} is the traditional ruler of ${listJoin(areas)}${extra.length ? ` and ${listJoin(extra)}` : ""}. A ruler is the planet assigned to the sign of a house, linking it to those life topics`;
     return yogakaraka
-      ? `${base}; ruling an angle and a trine together, it is the planet Parashara counts as a giver of good results for your rising sign (a yogakaraka).`
+      ? `${base}. Parashari also gives it the traditionally supportive role called yogakaraka because of the houses it rules.`
       : `${base}.`;
   }
   if (yogakaraka) extra.push("is your yogakaraka, owning an angle and a trine");
@@ -513,6 +557,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
       what: `${d.lord} ${levelName("dasa", plain)}`,
       lean: d.tone,
       line: lean ? `The app's lines for this period run ${num(lean.favour)} favourable to ${num(lean.against)} trying.` : undefined,
+      plainSummary: plain ? { title: `${d.lord} long planetary period`, text: `Parashari assigns ${thePlanet(d.lord)} to this long time cycle. The reading considers the planet's birth-chart conditions together with the shorter periods inside it.${lean ? ` The app counts ${num(lean.favour)} supportive and ${num(lean.against)} challenging selected interpretations; these counts describe its rule results, not the likelihood of an event.` : ""}`, basis: `${d.lord} dasa (main period)${lean ? `; ${lean.favour} favourable and ${lean.against} trying selected lines` : ""}.` } : undefined,
       detail: plain || !lean ? undefined : `Lean ${lean.step}: ${lean.favour} for, ${lean.against} against (the app's count, provisional).`,
       tags: tagsFor({ attached: topicAttachments(topics, d.lord), lord: d.lord }, lagnaSign, held),
       link: periodLink,
@@ -539,7 +584,9 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
   // only, and read at the reading instant, so there is no such line for a recorded passing.
   if (tn.dasa && !past) {
     const t = moonFromDasaLord(tn.dasa.lord, result.now.positions, positions, plain);
-    if (t)
+    if (t) {
+      const technical = plain ? moonFromDasaLord(tn.dasa.lord, result.now.positions, positions, false) : undefined;
+      const lord = tn.dasa.lord;
       now.push({
         id: "pa-moon-today",
         group: "now",
@@ -549,9 +596,11 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
         what: t.what,
         line: [t.line, plain && t.fromNatalMoon ? periodLordMoonHouseText(t.fromNatalMoon, true) : undefined].filter(Boolean).join(" "),
         detail: plain ? undefined : [t.detail, t.fromNatalMoon ? periodLordMoonHouseText(t.fromNatalMoon) : undefined].filter(Boolean).join(" ") || undefined,
+        plainMoon: plain && technical ? plainMoonExplanation(t, technical, lord) : undefined,
         tags: [],
         link: periodLink,
       });
+    }
   }
   if (tn.year) {
     const y = tn.year;
@@ -565,6 +614,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
       what: plain ? `The ${ordH(y.house)} house takes ${past ? "that" : "this"} year of life` : `Sudarshana year-lagna in the ${ordH(y.house)} bhava`,
       lean: y.tone,
       line: plain ? `${cap(num(y.plus))} placements for it, ${num(y.minus)} against.` : `Tally +${y.plus} −${y.minus} (BPHS ch. 74).`,
+      plainSummary: plain ? { title: `A yearly focus: the ${ordH(y.house)} house`, text: `One Parashari method uses a different house as a focus for each year of life.${overviewHouseMeaning(y.house, held) ? ` In the birth chart this house is associated with ${overviewHouseMeaning(y.house, held)}.` : ""} The app counts ${num(y.plus)} supportive and ${num(y.minus)} challenging placements for this year's focus.`, basis: `Sudarshana year-lagna in the ${ordH(y.house)} bhava; tally +${y.plus} −${y.minus} (BPHS ch. 74).` } : undefined,
       tags: tagsFor({ house: y.house }, lagnaSign, held),
       link: { tab: "parashari", chapter: "timing", target: YEAR_TARGET },
     });
@@ -583,6 +633,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
       what: `${t.planet} in ${SIGNS[t.signIndex]} · ${transitPlace(t.signIndex, t.house, moonSign)}`,
       lean: t.tone,
       line: plain ? [transitLine(row, t.points, true), moonNote].filter(Boolean).join(" ") : transitLine(row, t.points, false),
+      plainSummary: plain ? { title: `${t.planet} passing through ${SIGNS[t.signIndex]}`, text: `Ashtakavarga is a traditional method that counts chart-based points for a planet's passage through a sign. The app rates this passage as ${t.tone}. The separate Moon-based transit reading uses a different comparison, so its indication can differ.`, basis: [transitLine(row, t.points, true), moonNote].filter(Boolean).join(" ") } : undefined,
       detail: plain ? undefined : moonNote,
       tags: tagsFor({ house: t.house }, lagnaSign, held),
       link: { tab: "parashari", chapter: "timing", target: AV_TARGET },
@@ -622,6 +673,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
           id: "next-year",
           system: "Parashari",
           what: plain ? `The ${ordH(c.house!)} house takes the next year of life` : `Year-lagna moves to the ${ordH(c.house!)} bhava`,
+          plainSummary: plain ? { title: `Next year's focus: the ${ordH(c.house!)} house`, text: `One Parashari method uses a different house as a focus for each year of life.${overviewHouseMeaning(c.house!, held) ? ` This house is associated with ${overviewHouseMeaning(c.house!, held)} in the birth chart.` : ""}`, basis: `Year-lagna moves to the ${ordH(c.house!)} bhava.` } : undefined,
           tags: tagsFor({ house: c.house }, lagnaSign, held),
           link: { tab: "parashari", chapter: "timing", target: YEAR_TARGET },
         };
@@ -635,6 +687,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
           system: "Ashtakavarga transit",
           what: `${t.planet} enters ${SIGNS[t.signIndex]} · ${transitPlace(t.signIndex, t.house, moonSign)}`,
           line: plain ? [transitLine(row, t.points, true), moonNote].filter(Boolean).join(" ") : transitLine(row, t.points, false),
+          plainSummary: plain ? { title: `${t.planet} begins passing through ${SIGNS[t.signIndex]}`, text: `Ashtakavarga is a traditional method that counts chart-based points for a planet's passage through a sign. The app rates this coming passage as ${t.tone}.`, basis: [transitLine(row, t.points, true), moonNote].filter(Boolean).join(" ") } : undefined,
           detail: plain ? undefined : moonNote,
           tags: tagsFor({ house: t.house }, lagnaSign, held),
           link: { tab: "parashari", chapter: "timing", target: AV_TARGET },
@@ -659,6 +712,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
       system: "Jaimini",
       what: `Chara dasha of ${p.signName}`,
       line: `${notes ? `${notes} ` : ""}The app ties no topic to this period yet.`,
+      plainSummary: plain ? { title: `Jaimini sign period: ${p.signName}`, text: `Jaimini uses a different time cycle that assigns periods to signs rather than planets.${notes ? ` ${notes}` : ""} The app does not yet connect this period to a particular life topic.`, basis: `Chara dasha of ${p.signName}.` } : undefined,
       detail: plain || !antar ? undefined : `${antar.signName} antardasha, ${spanD(antar.start, antar.end, zone)}.`,
       tags: [],
       link: { tab: "jaimini", chapter: "dashas" },
@@ -683,6 +737,8 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
   {
     const sp = alp.signPeriods.find((s) => s.start <= lifeAt && lifeAt < s.end);
     const nakP = alp.placements.find((p) => p.role === "Lord of the ALP nakshatra");
+    const alpGloss = nakP ? plainAlpHouseMeaning(nakP.houseFromAlp, held) : undefined;
+    const alpLine = nakP ? `The point is crossing ${alp.point.nakshatra}, ruled by ${nakP.planet}, which stands in the ${ordH(nakP.houseFromAlp)} house from it, so the questions of the ${ordH(nakP.houseFromAlp)} house (${ALP_HOUSE_GLOSS[nakP.houseFromAlp]}) come to the front.` : undefined;
     const attached = nakP ? houseAreas(nakP.houseFromAlp).map((area) => ({ area, why: `the ALP reading (the ${ordH(nakP.houseFromAlp)} house's questions)` })) : [];
     now.push({
       id: "alp",
@@ -697,6 +753,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
           ? `The point is crossing ${alp.point.nakshatra}, ruled by ${nakP.planet}, which stands in the ${ordH(nakP.houseFromAlp)} house from it, so the questions of the ${ordH(nakP.houseFromAlp)} house (${ALP_HOUSE_GLOSS[nakP.houseFromAlp]}) come to the front.`
           : `${alp.point.nakshatra}, the point's star, is ruled by ${nakP.planet}, in the ${ordH(nakP.houseFromAlp)} from the ALP lagna: the questions of the ${ordH(nakP.houseFromAlp)} house (${ALP_HOUSE_THEMES[nakP.houseFromAlp]}) come to the front.`
         : undefined,
+      plainSummary: plain && nakP ? { title: `The ALP moving point in ${alp.point.sign}`, text: `ALP follows a point calculated from the birth chart to explore changing themes. On the reading date it is in ${alp.point.nakshatra}, one of the 27 star sections of the zodiac. This star's assigned planet is ${nakP.planet}; in this ALP view the planet connects the point with the ${ordH(nakP.houseFromAlp)} chart area${alpGloss ? `, associated with ${alpGloss}` : ""}. The method treats that area as a theme to explore, not a guaranteed event.`, basis: alpLine && !mentionsHeldArea(alpLine, held) ? alpLine : undefined } : undefined,
       detail: plain
         ? undefined
         : `ALP lagna ${dm(alp.point.degInSign)} ${alp.point.sign}, ${alp.point.nakshatra} pada ${alp.point.pada}${nakP ? "" : `; nakshatra lord ${alp.point.nakshatraLord}`}.`,
@@ -713,6 +770,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
         when: day(alp.nextSignChange, zone),
         system: "ALP",
         what: `Progressed lagna enters ${SIGNS[nextSign]}, your ${ordH(h)}`,
+        plainSummary: plain ? { title: `The ALP moving point enters ${SIGNS[nextSign]}`, text: `ALP follows a point calculated from the birth chart to explore changing themes. In this calculation it will move into ${SIGNS[nextSign]}, the ${ordH(h)} sign counted from the birth rising sign; that change is not a prediction of a particular event.`, basis: `Progressed lagna enters ${SIGNS[nextSign]}, the ${ordH(h)} from the birth rising sign.` } : undefined,
         tags: tagsFor({ house: h }, lagnaSign, held),
         link: { tab: "alp", chapter: "timeline" },
       });
@@ -753,6 +811,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
       system: "Nadi",
       what: group === "now" ? `${x.period.planet} through ${SIGNS[x.period.signIndex]}` : `${x.period.planet} enters ${SIGNS[x.period.signIndex]}`,
       line: x.headline,
+      plainSummary: plain ? { title: group === "now" ? `${x.period.planet} passing through ${SIGNS[x.period.signIndex]}` : `${x.period.planet} begins passing through ${SIGNS[x.period.signIndex]}`, text: `In this Nadi method, the planet's passage is compared with positions in the birth chart.${touched.size ? ` Here it has a calculated relationship with ${listJoin(Array.from(touched).map(thePlanet))} at birth.` : ""}${areas.length ? ` The selected chart findings connect this passage with ${listJoin(areas.map((a) => areaNoun(a.area).toLowerCase()))}.` : ""} These are themes to explore, not dates of promised events.`, basis: x.headline } : undefined,
       nadiPlanets,
       detail: plain ? undefined : `Weight ${x.weight} of 3 (Rao and Naik: Jupiter from the native, Saturn from karma).`,
       tags: tagsFor({ attached: areas }, lagnaSign, held),
@@ -799,6 +858,48 @@ const DIGNITY_WORD: Record<string, string> = {
   Inimical: "in an enemy's sign",
   Debilitated: "debilitated",
 };
+
+// General associations in the app's Nadi karaka catalogue (astro.ts). These describe a
+// tradition's vocabulary, not a personality assessment or an event prediction.
+const PLAIN_PLANET_MEANING: Record<Planet, string> = {
+  Sun: "authority and vitality",
+  Moon: "the mind and emotions",
+  Mars: "courage and energy",
+  Mercury: "learning, speech and writing",
+  Jupiter: "wisdom and guidance",
+  Venus: "arts and comforts",
+  Saturn: "work and discipline",
+  Rahu: "foreign places and unconventional paths",
+  Ketu: "spirituality and detachment",
+};
+
+/** A short BPHS-based house gloss, omitting topics held back at the reading date. */
+function overviewHouseMeaning(house: number, held: (area: LifeArea) => boolean): string | undefined {
+  const topics: Record<number, Array<[string, LifeArea?]>> = {
+    1: [["body and nature"]], 2: [["family"], ["wealth", "wealth"]],
+    3: [["courage and siblings"]], 4: [["home and the mother"]],
+    5: [["learning"], ["children", "children"]], 6: [["difficulties and maternal relatives"]],
+    7: [["travel"], ["marriage and partnerships", "marriage"]], 8: [["conflict"], ["inheritance", "wealth"]],
+    9: [["religion and fortune"]], 10: [["work and recognition", "career"]],
+    11: [["income and prosperity", "wealth"]], 12: [["expenses", "wealth"]],
+  };
+  const allowed = (topics[house] ?? []).filter(([, area]) => !area || !held(area)).map(([topic]) => topic);
+  return allowed.length ? listJoin(allowed) : undefined;
+}
+
+/** Age-aware selections from the ALP book's own house glossary. */
+function plainAlpHouseMeaning(house: number, held: (area: LifeArea) => boolean): string | undefined {
+  const topics: Record<number, Array<[string, LifeArea?]>> = {
+    1: [["the self"]], 2: [["education, family and speech"], ["income", "wealth"]],
+    3: [["effort, communication and younger siblings"]], 4: [["home, vehicles and the mother"]],
+    5: [["the mind"], ["love", "marriage"], ["children", "children"]], 6: [["enemies and disputes"], ["short-term debts", "wealth"]],
+    7: [["marriage and partnership", "marriage"]], 8: [["disputes"], ["long-term debts", "wealth"]],
+    9: [["the father and spiritual travel"]], 10: [["work and profession", "career"]],
+    11: [["elder siblings"], ["gains", "wealth"], ["promotion", "career"]], 12: [["travel and foreign lands"], ["expenses and investments", "wealth"]],
+  };
+  const allowed = (topics[house] ?? []).filter(([, area]) => !area || !held(area)).map(([topic]) => topic);
+  return allowed.length ? listJoin(allowed) : undefined;
+}
 
 /** Within this share of the requirement either way, a strength reads as borderline (the app's convention). */
 export const STRENGTH_BORDER = 0.05;
@@ -916,7 +1017,41 @@ function planetsInPlay(
         ? [{ school: schoolNames[school], count: found.rules.length, coverage: found.coverage,
           examples: found.rules.slice(0, 3).map((r) => ({ id: r.ruleId, text: r.text, source: r.source, chart: r.chart, asOf: r.asOf, attribution: r.attribution, via: r.via })) }]
         : []) : undefined;
-    out.push({ planet, roles: rs, place, states: states.map(cap), rules, systems, ruleContext });
+    const held = heldAreasAt(result.utc, lifeAsOf(result.chart, result.now.asOf));
+    const plainWhy: string[] = [];
+    if (tn.dasa?.lord === planet) plainWhy.push(`It is associated with the current long period, ${spanM(tn.dasa.start, tn.dasa.end, zone)}.`);
+    if (tn.antar?.lord === planet) plainWhy.push(`It is associated with a shorter period within the long period, ${spanD(tn.antar.start, tn.antar.end, zone)}.`);
+    if (tn.pratyantar?.lord === planet) plainWhy.push(`It is associated with a still shorter period, ${spanD(tn.pratyantar.start, tn.pratyantar.end, zone)}.`);
+    for (const transit of [tn.saturn, tn.jupiter]) if (transit?.planet === planet) plainWhy.push(`On the reading date it is moving through ${SIGNS[transit.signIndex]}. This current position is called a transit and is separate from its position at birth.`);
+    if (nextPeriod?.lord === planet) plainWhy.push(`It is assigned to the next long period, beginning ${day(nextPeriod.date, zone)}.`);
+    const houseMeaning = overviewHouseMeaning(house, held);
+    const relatedHouses = hs.map((h) => {
+      const meaning = overviewHouseMeaning(h, held);
+      return meaning ? `the ${ordH(h)} (${meaning})` : `the ${ordH(h)}`;
+    });
+    const conditions: string[] = [];
+    if (dig && pos.dignity !== "Neutral") {
+      const setAside = nadi && nadi.effectiveDignity !== nadi.dignity && (pos.dignity === "Exalted" || pos.dignity === "Debilitated");
+      conditions.push(setAside
+        ? `The placement table calls this ${dig}; the Nadi reading sets that label aside under an additional condition. The full detail explains the distinction.`
+        : `In the placement table, ${thePlanet(planet)} is ${dig}. This traditional classification is one part of a reading.`);
+      if (pos.dignity === "Friendly" || pos.dignity === "Inimical") conditions.push("The words friend and enemy refer to a traditional relationship between planets, not to people in your life.");
+    }
+    if (sb) {
+      const border = Math.abs(sb.ratio - 1) <= STRENGTH_BORDER;
+      conditions.push(`A Parashari strength calculation places it ${border ? "close to" : sb.ratio > 1 ? "above" : "below"} its reference value. This measures chart factors, not a person's ability.`);
+    }
+    if (line?.combust) conditions.push("Parashari also notes its calculated closeness to the Sun, called combustion.");
+    const plainReading: PlainPlanetBrief | undefined = plain ? {
+      meaning: `In the app's Nadi vocabulary, ${thePlanet(planet)} is traditionally associated with ${planet === "Saturn" && held("career") ? "discipline" : PLAIN_PLANET_MEANING[planet]}.`,
+      whyNow: plainWhy,
+      birth: `At birth, ${thePlanet(planet)} was in ${pos.sign}, in the ${ordH(house)} house of the whole-sign chart${houseMeaning ? `, which Parashari associates with ${houseMeaning}` : ""}.${withP.length ? ` ${cap(listJoin(withP))} ${withP.length === 1 ? "was" : "were"} in the same sign.` : ""}`,
+      houses: hs.length ? `In this house system, ${thePlanet(planet)} is the ruler of ${listJoin(relatedHouses)}, connecting those chart areas to the planet.` : `In this house system, ${thePlanet(planet)} is not assigned as a sign ruler; schools can still consider its position and other connections.`,
+      star: plainNatalStar(pos),
+      conditions,
+      withheld: input.withheld,
+    } : undefined;
+    out.push({ planet, roles: rs, place, states: states.map(cap), rules, systems, ruleContext, plainReading });
   });
   return out;
 }
