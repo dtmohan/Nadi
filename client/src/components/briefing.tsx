@@ -99,7 +99,7 @@ export function BriefingBefore({
       <p className={label}>{t("Before you read")}</p>
       <ul className="mt-3 space-y-4">
         {notes.map((n) => (
-          <li key={n.id} data-testid={`brief-before-${n.id}`}>
+          <li key={n.id} data-testid={`brief-before-${n.id}`} lang="en">
             <p className="text-sm font-medium">{n.title}</p>
             <p className="mt-1 text-sm leading-relaxed text-foreground/90">{n.text}</p>
             {n.detail && <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{n.detail}</p>}
@@ -168,7 +168,7 @@ function Row({
   const combos = row.dasaLord && brief.dasaCombos ? brief.dasaCombos : undefined;
   const moonRow = row.id === "tr-jupiter" ? moonWeather?.Jupiter : row.id === "tr-saturn" ? moonWeather?.Saturn : undefined;
   return (
-    <li className="border-t py-3 first:border-t-0 first:pt-0" data-testid={`brief-row-${row.id}`}>
+    <li className="border-t py-3 first:border-t-0 first:pt-0" data-testid={`brief-row-${row.id}`} lang="en">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
         <span className="w-full text-xs tabular text-muted-foreground sm:w-auto">{row.when}</span>
         <span className="text-sm font-medium">{plain && row.plainSummary ? row.plainSummary.title : row.what}</span>
@@ -252,7 +252,7 @@ export function BriefingNow({
   return (
     <InfoBox className={card} data-testid="brief-now">
       <p className={label}>{heading}</p>
-      {plain && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">A planetary period is a traditional time cycle calculated from the birth chart. A long period contains shorter periods, each associated with a planet. Transits are the planets' positions on the reading date; the different schools interpret these cycles separately.</p>}
+      {plain && <p className="mt-2 text-sm leading-relaxed text-muted-foreground" lang="en">A planetary period is a traditional time cycle calculated from the birth chart. A long period contains shorter periods, each associated with a planet. Transits are the planets' positions on the reading date; the different schools interpret these cycles separately.</p>}
       {brief.pastEnd && (
         <p className="mt-3 text-sm text-muted-foreground">The 120-year Vimshottari sequence has run its course.</p>
       )}
@@ -280,7 +280,7 @@ export function BriefingNow({
           </ul>
         </>
       )}
-      <p className="mt-3 text-xs text-muted-foreground">
+      <p className="mt-3 text-xs text-muted-foreground" lang="en">
         {plain ? "Each line names the school that produced it. The area labels suggest related topics using a provisional app rule; dashed labels are suggested from the period's planet alone and do not mean an event is predicted." : "Each line is read by its own system and labelled; nothing here is weighed across systems. Area tags follow a fixed rule of the app (provisional); dashed tags rest on the period lord alone."}
       </p>
       {children}
@@ -338,12 +338,12 @@ export function BriefingPlanets({ planets, plain, uncertainty, examples }: { pla
   return (
     <InfoBox className={card} data-testid="brief-planets">
       <p className={label}>{t("Planets in play")}</p>
-      <p className="mt-1 text-xs text-muted-foreground">
+      <p className="mt-1 text-xs text-muted-foreground" lang="en">
         {plain ? "These are the planets associated with the current time cycles, the next long cycle, or the current positions of Jupiter and Saturn. Each card distinguishes the birth chart from the sky on the reading date." : "The lords of the running periods, the slow planets in transit and the next dasa lord, with their state in the birth chart."}
       </p>
-      {plain && <p className="mt-1 text-xs leading-relaxed text-muted-foreground">In a birth chart, houses are twelve chart areas associated with life topics. The whole-sign view starts with the sign rising on the eastern horizon at birth; each sign has a traditionally assigned ruler. The themes below are traditional possibilities, not facts about the person or guaranteed events.</p>}
+      {plain && <p className="mt-1 text-xs leading-relaxed text-muted-foreground" lang="en">In a birth chart, houses are twelve chart areas associated with life topics. The whole-sign view starts with the sign rising on the eastern horizon at birth; each sign has a traditionally assigned ruler. The themes below are traditional possibilities, not facts about the person or guaranteed events.</p>}
       {plain && uncertainty > 0 && <p className="mt-1 text-xs text-muted-foreground">The entered birth time has an uncertainty of ±{uncertainty} minutes; some house, star-quarter and timing details may change within that range.</p>}
-      <ul className={cn("mt-3 grid items-start gap-2", planets.length === 2 ? "sm:grid-cols-2" : planets.length > 2 ? "sm:grid-cols-2 lg:grid-cols-3" : "")}>
+      <ul className={cn("mt-3 grid items-start gap-2", planets.length === 2 ? "sm:grid-cols-2" : planets.length > 2 ? "sm:grid-cols-2 lg:grid-cols-3" : "")} lang="en">
         {planets.map((p) => (
           <PlanetCard key={p.planet} p={p} example={examples?.[p.planet]} />
         ))}

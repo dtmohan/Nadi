@@ -389,6 +389,20 @@
   }
 }
 
+/* A bundled Malayalam typeface makes shaping and line spacing consistent across devices. */
+html[lang="ml"] {
+  --font-sans: "Manjari", "General Sans", "Inter", system-ui, sans-serif;
+  --font-serif: "Manjari", "Fraunces Variable", Georgia, serif;
+}
+
+html[lang="ml"] :where(.uppercase, .tracking-tight, .font-display, .nadi-info-eyebrow, .nadi-info-title) {
+  letter-spacing: normal;
+}
+
+html[lang="ml"] :where(.text-2xs) { font-size: 0.8125rem; line-height: 1.25rem; }
+html[lang="ml"] :where(.text-xs) { font-size: 0.875rem; line-height: 1.35rem; }
+html[lang="ml"] :where(.text-sm) { font-size: 0.975rem; line-height: 1.5rem; }
+
 /**
  * Using the elevate system.
  * Automatic contrast adjustment.

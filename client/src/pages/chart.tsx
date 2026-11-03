@@ -1,4 +1,5 @@
 import { displayLocal } from "@shared/time-basis";
+import { LocalizedText, useLocale, useT } from "@/lib/i18n";
 import { DeceasedProvider } from "@/components/mode-text";
 import { Soft } from "@/lib/gentle";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -1930,6 +1931,8 @@ function ModeBar({
   mode: SystemMode;
   onPick: (m: SystemMode) => void;
 }) {
+  const t = useT();
+  const { locale } = useLocale();
   const listRef = useRef<HTMLUListElement>(null);
   const [edges, setEdges] = useState({ left: false, right: false });
   useEffect(() => {
@@ -1970,7 +1973,7 @@ function ModeBar({
   };
   return (
     <nav
-      aria-label="Reading system"
+      aria-label={t("Reading system")}
       className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm md:hidden"
       data-testid="mode-bar"
     >
@@ -1994,6 +1997,7 @@ function ModeBar({
                 onClick={() => onPick(m.id)}
                 className={cn(
                   "flex w-full flex-col items-center gap-0.5 px-1 pb-2 pt-2 text-[10px] leading-none transition-colors",
+                  locale === "ml" && "text-xs leading-tight",
                   mode === m.id ? "text-primary" : "text-muted-foreground",
                 )}
                 data-testid={`mode-bar-${m.id}`}
@@ -2009,7 +2013,7 @@ function ModeBar({
                     mode === m.id && "font-semibold",
                   )}
                 >
-                  {m.short}
+                  {t(m.short)}
                 </span>
               </button>
             </li>
@@ -2055,6 +2059,9 @@ function ModeBar({
 }
 
 export default function ChartPage() {
+  const t = useT();
+  const { locale } = useLocale();
+  const englishFallback = locale === "ml" ? "en" : undefined;
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = useQuery<ChartResult>({
     queryKey: ["chart-result", id],
@@ -2143,13 +2150,13 @@ export default function ChartPage() {
   if (error || !data) {
     return (
       <div className="mx-auto max-w-3xl px-5 py-8 md:px-10">
-        <h1 className="text-lg font-semibold">Chart unavailable</h1>
+        <h1 className="text-lg font-semibold">{t("Chart unavailable")}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {(error as Error)?.message ?? "Not found."}
+          <LocalizedText>{(error as Error)?.message ?? "Not found."}</LocalizedText>
         </p>
         <Button asChild variant="outline" className="mt-4">
           <Link href="/">
-            <ArrowLeft /> Back
+            <ArrowLeft /> {t("Back")}
           </Link>
         </Button>
       </div>
@@ -2323,7 +2330,7 @@ export default function ChartPage() {
                 title="The whole reading as one prose document, printable"
               >
                 <FileText className="h-4 w-4" />
-                Report
+                {t("Report")}
               </Link>
             </Button>
             <Button
@@ -2334,7 +2341,7 @@ export default function ChartPage() {
               data-testid="button-export-pdf"
             >
               <FileDown className="h-4 w-4" />
-              {exporting === "all" ? "Preparing PDF" : "Export PDF"}
+              {t(exporting === "all" ? "Preparing PDF" : "Export PDF")}
             </Button>
           </div>
         </header>
@@ -2356,7 +2363,7 @@ export default function ChartPage() {
         <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-b pb-3">
           <div
             role="tablist"
-            aria-label="Reading system"
+            aria-label={t("Reading system")}
             className="hidden max-w-full overflow-x-auto whitespace-nowrap rounded-md border p-0.5 text-sm md:inline-flex"
             ref={tablistRef}
           >
@@ -2377,8 +2384,8 @@ export default function ChartPage() {
                 data-testid={`mode-${m.id}`}
                 title={m.title}
               >
-                <span className="sm:hidden">{m.short}</span>
-                <span className="hidden sm:inline">{m.label}</span>
+                <span className="sm:hidden">{t(m.short)}</span>
+                <span className="hidden sm:inline">{t(m.label)}</span>
               </button>
             ))}
           </div>
@@ -2388,7 +2395,7 @@ export default function ChartPage() {
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <p className="text-xs text-muted-foreground">
-              {mode === "overview"
+              <LocalizedText>{mode === "overview"
                 ? "The whole chart in a minute: what rests on firm ground, what asks for care, and the period and slow planets running now."
                 : mode === "bnn"
                   ? "Planet-to-planet reading, no ascendant or houses."
@@ -2418,7 +2425,7 @@ export default function ChartPage() {
                             ? "Saved life events read back at their dates: KP period lords and cusp promise, Jaimini chara dasha, Jupiter's transit, and how each planet's periods turned out. Not a reading."
                             : readingMode === "plain"
                               ? "Krishnamurti's method: each house has a deciding planet, houses are promised or denied, and timing comes from the planetary periods. Kept separate from the other readings. First pass."
-                              : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}
+                              : "Stellar method: Placidus cusps, star and sub lords, significators and Vimshottari timing. KP ayanamsa. First pass."}</LocalizedText>
             </p>
             <ReadingModeToggle />
             {TAB_MODULE[mode] && (
@@ -2438,9 +2445,9 @@ export default function ChartPage() {
                 data-testid="button-export-tab-pdf"
               >
                 <FileDown className="h-3.5 w-3.5" />
-                {exporting === TAB_MODULE[mode]
+                {t(exporting === TAB_MODULE[mode]
                   ? "Preparing PDF"
-                  : "This tab as PDF"}
+                  : "This tab as PDF")}
               </Button>
             )}
           </div>
@@ -2460,25 +2467,25 @@ export default function ChartPage() {
         )}
 
         {mode === "jaimini" && (
-          <div className="mt-8 animate-in fade-in-0 duration-300">
+          <div className="mt-8 animate-in fade-in-0 duration-300" lang={englishFallback}>
             <JaiminiPanel result={data} onTopicSelected={(event) => rememberTopic("jaimini", event)} />
           </div>
         )}
 
         {mode === "alp" && (
-          <div className="mt-8 animate-in fade-in-0 duration-300">
+          <div className="mt-8 animate-in fade-in-0 duration-300" lang={englishFallback}>
             <AlpPanel result={data} initialAsOf={alpAsOf} onAsOfChange={setAlpAsOf} onTopicSelected={(event) => rememberTopic("alp", event)} />
           </div>
         )}
 
         {mode === "kp" && (
-          <div className="mt-8 animate-in fade-in-0 duration-300">
+          <div className="mt-8 animate-in fade-in-0 duration-300" lang={englishFallback}>
             <KpPanel result={data} onTopicSelected={(event) => rememberTopic("kp", event)} />
           </div>
         )}
 
         {mode === "parashari" && (
-          <div className="mt-8 animate-in fade-in-0 duration-300">
+          <div className="mt-8 animate-in fade-in-0 duration-300" lang={englishFallback}>
             <ParashariPanel
               result={data}
               onTopicSelected={(event) => rememberTopic("parashari", event)}
@@ -2497,19 +2504,19 @@ export default function ChartPage() {
         )}
 
         {mode === "prasna" && (
-          <div className="mt-8 animate-in fade-in-0 duration-300">
+          <div className="mt-8 animate-in fade-in-0 duration-300" lang={englishFallback}>
             <PrasnaPanel result={data} onTopicSelected={(event) => rememberTopic("prasna", event)} />
           </div>
         )}
 
         {mode === "panchanga" && (
-          <div className="mt-8 animate-in fade-in-0 duration-300">
+          <div className="mt-8 animate-in fade-in-0 duration-300" lang={englishFallback}>
             <PanchangaPanel result={data} />
           </div>
         )}
 
         {mode === "rectify" && (
-          <div className="mt-8 animate-in fade-in-0 duration-300">
+          <div className="mt-8 animate-in fade-in-0 duration-300" lang={englishFallback}>
             <RectifyPanel
               result={data}
               onExportState={(s) => {
@@ -2520,13 +2527,13 @@ export default function ChartPage() {
         )}
 
         {mode === "validate" && (
-          <div className="mt-8 animate-in fade-in-0 duration-300">
+          <div className="mt-8 animate-in fade-in-0 duration-300" lang={englishFallback}>
             <ValidatePanel result={data} />
           </div>
         )}
 
         {mode === "bnn" && (
-          <div className="mt-6 animate-in fade-in-0 duration-300">
+          <div className="mt-6 animate-in fade-in-0 duration-300" lang={englishFallback}>
             <Chapters tab="bnn" chapters={bnnChapters}>
               <Chapter id="topic-check"><TopicReadingPanel result={data} system="bnn" onSelected={(event) => rememberTopic("bnn", event)} /></Chapter>
               <Chapter id="brief">
@@ -2603,7 +2610,7 @@ export default function ChartPage() {
           </div>
         )}
 
-        <footer className="mt-12 border-t pt-4 text-xs text-muted-foreground">
+        <footer className="mt-12 border-t pt-4 text-xs text-muted-foreground" lang={englishFallback}>
           {mode === "bnn"
             ? "Interpretive text follows the general principles of Bhrigu Nandi Nadi as taught by R.G. Rao and Satyanarayana Naik. It is a starting set of rules meant to be extended, not a verdict."
             : mode === "alp"

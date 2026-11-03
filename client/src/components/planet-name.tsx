@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { PLANET_ABBR, SIGNS, SIGN_ABBR, type Planet } from "@shared/astro";
 import { cn } from "@/lib/utils";
 import { useChartFocus } from "@/components/chart-focus";
+import { useT } from "@/lib/i18n";
 
 /** CSS colour for a planet: identity colour, used consistently across every panel. */
 export function planetColor(p: Planet) {
@@ -51,14 +52,17 @@ export function PlanetName({
   planet,
   abbr,
   tone,
+  localized = false,
   className,
 }: {
   planet: Planet;
   abbr?: boolean;
   tone?: boolean;
+  localized?: boolean;
   className?: string;
 }) {
   const { hovered, setHovered } = useChartFocus();
+  const t = useT();
   const lit = hovered === planet;
   return (
     <span
@@ -77,7 +81,7 @@ export function PlanetName({
       data-planet={planet}
     >
       <PlanetDot planet={planet} />
-      {abbr ? PLANET_ABBR[planet] : planet}
+      {abbr ? PLANET_ABBR[planet] : localized ? t(planet) : planet}
     </span>
   );
 }

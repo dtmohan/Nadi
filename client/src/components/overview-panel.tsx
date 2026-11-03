@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import { vimshottari } from "@shared/kp";
 import { ageYears, lifeAsOf, areaSeason, heldAreasAt, mentionsHeldArea } from "@shared/life-stage";
@@ -17,12 +18,13 @@ import {
   type GocharaVerdict,
 } from "@shared/gochara";
 import { adverseTara } from "@shared/tara";
-import { Soft } from "@/lib/gentle";
+import { Soft, useSoften } from "@/lib/gentle";
 import { usePlain } from "@/components/mode-text";
 import { sarvarthaLeftOut } from "@/components/sarvartha-section";
-import { useT } from "@/lib/i18n";
+import { LocalizedText, useLocale, useT } from "@/lib/i18n";
+import { malayalamNadiGlance } from "@/lib/overview-locale";
 import { useAgreement, useAgreementInput } from "@/lib/use-agreement";
-import { briefingFor, type BriefLink } from "@shared/briefing";
+import { briefingFor, type BriefLink, type Briefing } from "@shared/briefing";
 import { BriefingBefore, BriefingNow, BriefingPlanets, useOpenLink } from "@/components/briefing";
 import { PlanetName, SignName } from "@/components/planet-name";
 import { cn } from "@/lib/utils";
@@ -56,10 +58,10 @@ const TONE_CLASS: Record<AreaTone, string> = {
   quiet: "border-border text-muted-foreground",
 };
 
-const joinList = (xs: string[]) =>
+const joinList = (xs: string[], locale: "en" | "ml" = "en") =>
   xs.length <= 1
     ? xs.join("")
-    : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
+    : locale === "ml" ? xs.join(", ") : `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}`;
 
 const PLAIN_SCHOOL_STANCE: Record<Stance, string> = {
   supports: "supportive indications",
@@ -80,26 +82,38 @@ function glanceSentence(areas: AreaSynthesis[]): string {
 }
 
 /** The same source-grounded card is used for the two featured topics and the compact disclosures. */
-function PlainTopicContent({ topic, past, onOpen, comparisons }: { topic: PlainTopicBrief; past: boolean; onOpen: (link: BriefLink) => void; comparisons: SchoolTopicBrief[] }) {
+function PlainTopicContent({ topic, brief, zone, past, onOpen, comparisons }: { topic: PlainTopicBrief; brief: Briefing; zone: string; past: boolean; onOpen: (link: BriefLink) => void; comparisons: SchoolTopicBrief[] }) {
   const t = useT();
-  const passage = (w: PlainTopicBrief["windows"][number]) => (
+  const { locale } = useLocale();
+  const soften = useSoften();
+  const passage = (w: PlainTopicBrief["windows"][number]) => {
+    const row = [...brief.now, ...brief.next].find((item) => item.id === w.id);
+    const touched = row?.nadiPlanets?.[topic.topic];
+    const planet = w.id.includes("jupiter") ? "Jupiter" : w.id.includes("saturn") ? "Saturn" : undefined;
+    const day = (iso: string) => {
+      const value = DateTime.fromISO(iso, { zone }).setLocale("ml-IN");
+      return value.isValid ? value.toFormat("d LLL yyyy") : iso.slice(0, 10);
+    };
+    const translated = locale === "ml" && planet && touched?.length;
+    return (
     <li key={w.id} data-testid={`plain-topic-window-${topic.topic}-${w.id}`}>
-      <p className="text-sm font-medium tabular">{w.when}</p>
-      <p className="mt-0.5 text-sm leading-relaxed">{w.statement}</p>
-      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t("Why")}: {w.reason}</p>
+      <p className="text-sm font-medium tabular">{locale === "ml" ? `${day(w.start)} – ${day(w.end)}` : w.when}</p>
+      <p className="mt-0.5 text-sm leading-relaxed">{translated ? `ഈ കാലയളവിനെ നാഡി ഗോചര വായന ഈ വിഷയവുമായി ബന്ധിപ്പിക്കുന്നു: ${t(PLAIN_TOPIC_LABEL[topic.topic])}.` : <LocalizedText>{w.statement}</LocalizedText>}</p>
+      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{t("Why")}: {translated ? `${planet === "Jupiter" ? "വ്യാഴത്തിന്റെ" : "ശനിയുടെ"} ഗോചാരം, ഈ വിഷയത്തിനായി തിരഞ്ഞെടുത്ത ജനനജാതക സൂചനകളിലെ ${touched.map(t).join(", ")} ${touched.length === 1 ? "എന്ന ഗ്രഹവുമായി" : "എന്നീ ഗ്രഹങ്ങളുമായി"} ബന്ധപ്പെടുത്തി വായിക്കുന്നു.` : <LocalizedText>{w.reason}</LocalizedText>}</p>
       <button type="button" className="mt-1 text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => onOpen(w.link)}>{t("See the transit details")}</button>
     </li>
-  );
+    );
+  };
   return (
     <>
-      <p className="mt-2 text-sm leading-relaxed"><Soft>{topic.summary}</Soft></p>
-      {topic.detailIntro && <p className="mt-2 text-sm leading-relaxed">{topic.detailIntro}</p>}
+      <p className="mt-2 text-sm leading-relaxed"><LocalizedText>{soften(topic.summary)}</LocalizedText></p>
+      {topic.detailIntro && <p className="mt-2 text-sm leading-relaxed"><LocalizedText>{topic.detailIntro}</LocalizedText></p>}
       <TopicThemes topic={topic} />
-      {topic.contrast && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{topic.contrast}</p>}
-      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.limit}</p>
-      {topic.comparison && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.comparison}</p>}
+      {topic.contrast && <p className="mt-2 text-sm leading-relaxed text-muted-foreground"><LocalizedText>{topic.contrast}</LocalizedText></p>}
+      <p className="mt-2 text-xs leading-relaxed text-muted-foreground"><LocalizedText>{topic.limit}</LocalizedText></p>
+      {topic.comparison && <p className="mt-2 text-xs leading-relaxed text-muted-foreground"><LocalizedText>{topic.comparison}</LocalizedText></p>}
       <div className="mt-4 border-t pt-3">
-        <p className="text-xs font-semibold">{topic.topic === "health" ? "About timing" : t(past ? "At passing" : "Periods to explore")}</p>
+        <p className="text-xs font-semibold">{t(topic.topic === "health" ? "About timing" : past ? "At passing" : "Periods to explore")}</p>
         {topic.windows.length ? (
           <>
             <ul className="mt-2 space-y-3">{topic.windows.slice(0, 1).map(passage)}</ul>
@@ -108,17 +122,17 @@ function PlainTopicContent({ topic, past, onOpen, comparisons }: { topic: PlainT
               <ul className="mt-2 space-y-3">{topic.windows.slice(1).map(passage)}</ul>
             </details>}
           </>
-        ) : topic.topic !== "health" && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">No matching Nadi passage is shown in this briefing. That is not a conclusion about whether an event can occur.</p>}
-        {(topic.windows.length > 0 || topic.topic === "health") && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.timingNote}</p>}
+        ) : topic.topic !== "health" && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t("No matching Nadi passage is shown in this briefing. That is not a conclusion about whether an event can occur.")}</p>}
+        {(topic.windows.length > 0 || topic.topic === "health") && <p className="mt-2 text-xs leading-relaxed text-muted-foreground"><LocalizedText>{topic.timingNote}</LocalizedText></p>}
       </div>
       <button type="button" className="mt-3 text-xs font-medium text-primary underline-offset-2 hover:underline" onClick={() => onOpen(topic.hasArea ? { tab: "bnn", chapter: "areas", target: `[data-testid="section-area-${topic.topic}"]` } : { tab: "bnn", chapter: "karakas" })}>{t("See Nadi details")}</button>
       {comparisons.length > 0 && <details className="mt-3 border-t pt-3" data-testid={`plain-topic-schools-${topic.topic}`}>
-        <summary className="cursor-pointer text-xs font-semibold">See other schools</summary>
-        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">Each school is shown separately. ALP is a progressed reading for the date shown; Prasna Marga here uses the birth chart, not a question chart. Specific questions can use additional rules.</p>
+        <summary className="cursor-pointer text-xs font-semibold">{t("See other schools")}</summary>
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t("Each school is shown separately. ALP is a progressed reading for the date shown; Prasna Marga here uses the birth chart, not a question chart. Specific questions can use additional rules.")}</p>
         <div className="mt-2 space-y-3">
           {comparisons.map((b) => <div key={`${b.school}-${b.topic}`} className="rounded-md bg-muted/40 p-2">
-            <p className="mb-1 text-xs font-semibold">{SCHOOL_NAME[b.school]}{topic.topic === "family" ? ` · ${SCHOOL_TOPIC_LABEL[b.topic]}` : ""}</p>
-            <SchoolTopicExplanation brief={b} onOpen={() => onOpen(schoolDetailsLink(b))} />
+            <p className="mb-1 text-xs font-semibold">{t(SCHOOL_NAME[b.school])}{topic.topic === "family" ? ` · ${t(SCHOOL_TOPIC_LABEL[b.topic])}` : ""}</p>
+            <div lang={locale === "ml" ? "en" : undefined}><SchoolTopicExplanation brief={b} onOpen={() => onOpen(schoolDetailsLink(b))} /></div>
           </div>)}
         </div>
       </details>}
@@ -142,6 +156,7 @@ export function OverviewPanel({
   onOpenTab?: (tab: BriefLink["tab"]) => void;
 }) {
   const t = useT();
+  const { locale } = useLocale();
   const { reading, chart, now, positions } = result;
   const gender = chart.gender as Gender;
   const moon = positions.find((p) => p.planet === "Moon")!;
@@ -189,15 +204,15 @@ export function OverviewPanel({
           ? "in the moolatrikona sign"
           : d.toLowerCase();
   const noteParts: string[] = [];
-  if (retro.length) noteParts.push(`${joinList(retro)} ${t("retrograde")}`);
+  if (retro.length) noteParts.push(`${joinList(retro.map(t), locale)} ${t("retrograde")}`);
   for (const s of reading.strength) {
     if (NOTABLE_DIGNITY.has(s.effectiveDignity)) {
-      noteParts.push(`${s.planet} ${t(dignityPhrase(s.effectiveDignity))}`);
+      noteParts.push(`${t(s.planet)} ${t(dignityPhrase(s.effectiveDignity))}`);
     } else if (
       NOTABLE_DIGNITY.has(s.dignity) &&
       s.dignity !== s.effectiveDignity
     ) {
-      noteParts.push(`${s.planet} ${t(dignityPhrase(s.dignity))} ${t("(set aside)")}`);
+      noteParts.push(`${t(s.planet)} ${t(dignityPhrase(s.dignity))} ${t("(set aside)")}`);
     }
   }
 
@@ -221,7 +236,7 @@ export function OverviewPanel({
     (a) => !areaSeason(a.area, result.utc, lifeAt).inSeason,
   );
 
-  const glance = glanceSentence(areas);
+  const glance = locale === "ml" ? malayalamNadiGlance(areas) : glanceSentence(areas);
   const firm = areas
     .filter((a) => a.tone === "supportive")
     .sort((x, y) => y.balance - x.balance);
@@ -287,32 +302,34 @@ export function OverviewPanel({
             <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
               {t("Rising")}
             </dt>
-            <dd className="text-sm font-medium">{rising}</dd>
+            <dd className="text-sm font-medium">{t(rising)}</dd>
           </div>
           <div>
             <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
               {t("Sun")}
             </dt>
-            <dd className="text-sm font-medium">{sun.sign}</dd>
+            <dd className="text-sm font-medium">{t(sun.sign)}</dd>
           </div>
           <div>
             <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
               {t("Moon")}
             </dt>
-            <dd className="text-sm font-medium">{moon.sign}</dd>
+            <dd className="text-sm font-medium">{t(moon.sign)}</dd>
           </div>
           <div>
             <dt className="text-2xs uppercase tracking-wide text-muted-foreground">
               {t("Birth star")}
             </dt>
             <dd className="text-sm font-medium">
-              {moon.nakshatra} · {moon.nakshatraLord}, p{moon.pada}
+              {locale === "ml" ? `${t(moon.nakshatra)} · ${moon.pada}-ാം പാദം · നക്ഷത്രാധിപൻ ${t(moon.nakshatraLord)}` : `${moon.nakshatra} · ${moon.nakshatraLord}, p${moon.pada}`}
             </dd>
           </div>
         </dl>
-        {plain && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">The rising sign, {rising}, was on the eastern horizon at birth. The Sun and Moon entries show their signs at that moment. The birth star, {moon.nakshatra}, is the zodiac section occupied by the Moon; it is in quarter {moon.pada}, and its traditional star ruler is {moon.nakshatraLord}.</p>}
+        {plain && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{locale === "ml"
+          ? `ജനനസമയത്ത് കിഴക്കൻ ചക്രവാളത്തിൽ ഉദിച്ചിരുന്ന രാശിയാണ് ലഗ്നം: ${t(rising)}. അപ്പോൾ സൂര്യനും ചന്ദ്രനും നിന്ന രാശികളാണ് മുകളിൽ കാണുന്നത്. ജന്മനക്ഷത്രം, ${t(moon.nakshatra)}, ജനനസമയത്ത് ചന്ദ്രൻ നിന്ന നക്ഷത്രമാണ്. അതിന്റെ ${moon.pada}-ാം പാദത്തിലാണ് ചന്ദ്രൻ; നക്ഷത്രാധിപൻ ${t(moon.nakshatraLord)} ആണ്.`
+          : `The rising sign, ${rising}, was on the eastern horizon at birth. The Sun and Moon entries show their signs at that moment. The birth star, ${moon.nakshatra}, is the zodiac section occupied by the Moon; it is in quarter ${moon.pada}, and its traditional star ruler is ${moon.nakshatraLord}.`}</p>}
         {noteParts.length > 0 && (
-          plain ? <details className="mt-2 text-xs text-muted-foreground" data-testid="overview-notable"><summary className="cursor-pointer font-medium text-primary">Other birth-chart conditions</summary><p className="mt-1">{noteParts.join(" · ")}</p><p className="mt-1">Retrograde means a planet appears to move backward as seen from Earth. A planet's own or enemy sign describes traditional relationships between planets and signs, not relationships between people.</p></details> : <p
+          plain ? <details className="mt-2 text-xs text-muted-foreground" data-testid="overview-notable"><summary className="cursor-pointer font-medium text-primary">{t("Other birth-chart conditions")}</summary><p className="mt-1">{noteParts.join(" · ")}</p><p className="mt-1" lang="en">Retrograde means a planet appears to move backward as seen from Earth. A planet's own or enemy sign describes traditional relationships between planets and signs, not relationships between people.</p></details> : <p
             className="mt-2 text-xs text-muted-foreground"
             data-testid="overview-notable"
           >
@@ -331,7 +348,7 @@ export function OverviewPanel({
                   {t("Firm ground")} · {t("Nadi")}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed">
-                  {joinList(firm.map((a) => t(areaNoun(a.area))))}
+                  {joinList(firm.map((a) => t(areaNoun(a.area))), locale)}
                 </p>
               </div>
             )}
@@ -344,7 +361,7 @@ export function OverviewPanel({
                   {t("Asks for care")} · {t("Nadi")}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed">
-                  {joinList(watch.map((a) => t(areaNoun(a.area))))}
+                  {joinList(watch.map((a) => t(areaNoun(a.area))), locale)}
                 </p>
               </div>
             )}
@@ -357,16 +374,16 @@ export function OverviewPanel({
       {plain && topics.length > 0 && (
         <InfoBox className="mt-4" aria-label="Life topics" data-testid="plain-topic-briefs">
           <p className={INFO_BOX_EYEBROW}>{t("Life topics")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">These short readings use the Nadi method. Other schools have their own readings.</p>
-          <p className="mt-1 text-xs text-muted-foreground">Open a topic to compare selected interpretations from the other schools. Their coverage differs; ALP is date-specific and Prasna Marga here uses the birth chart.</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("These short readings use the Nadi method. Other schools have their own readings.")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("Open a topic to compare selected interpretations from the other schools. Their coverage differs; ALP is date-specific and Prasna Marga here uses the birth chart.")}</p>
           {(chart.timeUncertaintyMin ?? 0) > 0 && (
-            <p className="mt-2 text-xs text-muted-foreground">The entered birth time has an uncertainty of ±{chart.timeUncertaintyMin} minutes. Some details can change within that range.</p>
+            <p className="mt-2 text-xs text-muted-foreground">{locale === "ml" ? `നൽകിയ ജനനസമയത്തിൽ ±${chart.timeUncertaintyMin} മിനിറ്റിന്റെ അനിശ്ചിതത്വമുണ്ട്. ഈ പരിധിക്കുള്ളിൽ ചില വിശദാംശങ്ങൾ മാറാം.` : `The entered birth time has an uncertainty of ±${chart.timeUncertaintyMin} minutes. Some details can change within that range.`}</p>
           )}
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             {topics.filter((topic) => topic.topic === "career" || topic.topic === "marriage").map((topic) => (
               <article key={topic.topic} className={cn(INFO_BOX_INSET, "scroll-mt-4 p-4")} data-testid={`overview-area-${topic.topic}`}>
                 <h3 className="font-display text-lg font-semibold">{t(PLAIN_TOPIC_LABEL[topic.topic])}</h3>
-                <PlainTopicContent topic={topic} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} />
+                <PlainTopicContent topic={topic} brief={brief} zone={chart.timezone || "UTC"} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} />
               </article>
             ))}
           </div>
@@ -377,7 +394,7 @@ export function OverviewPanel({
                 {topics.filter((topic) => topic.topic !== "career" && topic.topic !== "marriage").map((topic) => (
                   <details key={topic.topic} className={cn(INFO_BOX_INSET, "scroll-mt-24")} data-testid={`overview-area-${topic.topic}`}>
                     <summary className={INFO_BOX_ROW_SUMMARY}>{t(PLAIN_TOPIC_LABEL[topic.topic])}</summary>
-                    <PlainTopicContent topic={topic} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} />
+                    <PlainTopicContent topic={topic} brief={brief} zone={chart.timezone || "UTC"} past={!!brief.past} onOpen={openLink} comparisons={comparisonsFor(topic)} />
                   </details>
                 ))}
               </div>
@@ -394,8 +411,8 @@ export function OverviewPanel({
         moonWeather={deceased ? undefined : { Jupiter: jupRow, Saturn: satRow }}
         heading={deceased ? t("At passing") : pastEnd ? t("Past the periods") : t("Now and next")}
       >
-        <div className="mt-4 border-t pt-3" data-testid="overview-from-moon">
-          <p className="text-xs font-medium text-muted-foreground">{t("From the Moon")}</p>
+        <div className="mt-4 border-t pt-3" data-testid="overview-from-moon" lang={locale === "ml" ? "en" : undefined}>
+          <p className="text-xs font-medium text-muted-foreground" lang={locale}>{t("From the Moon")}</p>
           {/* The adverse tara: the 3rd, 5th and 7th stars from the birth star, and the dasa lords they name. */}
           {plain ? <div className="mt-3 space-y-1.5 text-xs leading-relaxed" data-testid="overview-tara">
             <p>The Moon's birth star is {moon.nakshatra}. A birth star, or nakshatra, is the section of the zodiac where the Moon was at birth. One traditional method compares other stars with it and treats three of them as more challenging.</p>
@@ -519,7 +536,7 @@ export function OverviewPanel({
       </ul>
       {deferred.length > 0 && (
         <p className="mt-3 text-xs text-muted-foreground">
-          {plain ? <>For younger readers, the app holds back {joinList(deferred.map((a) => t(areaNoun(a.area))))} until later. This is an app setting, not a prediction of when these areas will matter.</> : <>{joinList(deferred.map((a) => t(areaNoun(a.area))))} is held back for later: {deferred.length === 1 ? "it is" : "they are"} not a present matter at this age.</>}
+          {locale === "ml" ? `പ്രായം കുറഞ്ഞ വായനക്കാർക്കായി ${joinList(deferred.map((a) => t(areaNoun(a.area))), locale)} എന്നീ വിഷയങ്ങൾ ആപ്പ് പിന്നീട് കാണിക്കുന്നതിനായി മാറ്റിവയ്ക്കുന്നു. ഇത് ആപ്പിന്റെ ക്രമീകരണമാണ്; ഈ വിഷയങ്ങൾ എപ്പോൾ പ്രസക്തമാകുമെന്ന പ്രവചനമല്ല.` : plain ? <>For younger readers, the app holds back {joinList(deferred.map((a) => t(areaNoun(a.area))))} until later. This is an app setting, not a prediction of when these areas will matter.</> : <>{joinList(deferred.map((a) => t(areaNoun(a.area))))} is held back for later: {deferred.length === 1 ? "it is" : "they are"} not a present matter at this age.</>}
         </p>
       )}
 
@@ -532,13 +549,13 @@ export function OverviewPanel({
           <p className="text-2xs font-semibold uppercase tracking-wide text-muted-foreground">
             {t("Across the systems")}
           </p>
-          {plain && <p className="mt-1 text-xs leading-relaxed text-muted-foreground">These traditions use different rules to interpret the same birth chart. Their labels describe chart indications, not established facts about a person or their family.</p>}
+          {plain && <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("These traditions use different rules to interpret the same birth chart. Their labels describe chart indications, not established facts about a person or their family.")}</p>}
           <div className="mt-2 space-y-2">
             {crossSchool.map((a) => (
               plain ? <div key={a.topic} className="text-xs leading-relaxed">
-                <p><strong>{a.label}:</strong> {a.verdict === "disagree" ? "The schools give differing indications, so the app cannot combine them into a single conclusion." : a.verdict === "mixed" ? "The combined indications are mixed, without a clear overall direction." : `The combined indications lean ${a.stance === "leans-supports" ? "supportive" : a.stance === "leans-strains" ? "challenging" : "in one direction"}, but the schools do not all agree.`}</p>
-                <p className="mt-1 text-muted-foreground">{a.stances.map((s) => `${AGREEMENT_SYSTEM_LABEL[s.system]}: ${PLAIN_SCHOOL_STANCE[s.stance]}`).join("; ")}.</p>
-                <details className="mt-1 text-muted-foreground"><summary className="cursor-pointer font-medium text-primary">See the schools' labels</summary><p className="mt-1">{a.sentence}</p><p className="mt-1">“Supported” and “strained” are shorthand for the rules each school found; they do not prove an outcome.</p></details>
+                <p><strong>{t(a.label)}:</strong> {t(a.verdict === "disagree" ? "The schools give differing indications, so the app cannot combine them into a single conclusion." : a.verdict === "mixed" ? "The combined indications are mixed, without a clear overall direction." : `The combined indications lean ${a.stance === "leans-supports" ? "supportive" : a.stance === "leans-strains" ? "challenging" : "in one direction"}, but the schools do not all agree.`)}</p>
+                <p className="mt-1 text-muted-foreground">{a.stances.map((s) => `${t(AGREEMENT_SYSTEM_LABEL[s.system])}: ${t(PLAIN_SCHOOL_STANCE[s.stance])}`).join("; ")}.</p>
+                <details className="mt-1 text-muted-foreground"><summary className="cursor-pointer font-medium text-primary">{t("See the schools' labels")}</summary><p className="mt-1" lang="en">{a.sentence}</p><p className="mt-1" lang="en">“Supported” and “strained” are shorthand for the rules each school found; they do not prove an outcome.</p></details>
               </div> : <p key={a.topic} className={cn("text-xs leading-relaxed", a.verdict === "disagree" ? "text-verdict-bad" : "text-verdict-mixed")}>{a.sentence}</p>
             ))}
           </div>

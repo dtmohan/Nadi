@@ -836,7 +836,7 @@ export function RectifyPanel({
       </p>
       {m.needsEvents && <p className="mt-1 text-xs text-muted-foreground" data-testid="rectify-transit-scope">{EVENT_TRANSIT_SCOPE}</p>}
       {locale === "ml" && (
-        <p className="mt-1 text-xs text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground" lang="ml">
           പദങ്ങൾ: രാശ്യാധിപൻ (sign lord), ഭാവാധിപൻ (house lord), നക്ഷത്രാധിപൻ
           (star lord), സഹാധിപൻ (sub-lord; നിർദ്ദേശിച്ച പദം).
         </p>

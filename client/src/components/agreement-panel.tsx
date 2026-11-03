@@ -14,6 +14,7 @@ import {
 import { useAgreement } from "@/lib/use-agreement";
 import { Soft } from "@/lib/gentle";
 import { cn } from "@/lib/utils";
+import { useLocale, useT } from "@/lib/i18n";
 
 const VERDICT_LABEL: Record<AgreementVerdict, string> = {
   agree: "agree",
@@ -102,6 +103,8 @@ export function AgreementPanel({
   compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const tr = useT();
+  const { locale } = useLocale();
   const rows = !compact || open;
   const topics = useAgreement(result);
 
@@ -113,7 +116,7 @@ export function AgreementPanel({
     <section
       className={cn("rounded-md border bg-card", className)}
       data-testid="agreement-panel"
-      aria-label="Where the systems agree or differ"
+      aria-label={tr("Where the systems agree or differ")}
     >
       <button
         type="button"
@@ -123,12 +126,10 @@ export function AgreementPanel({
         data-testid="agreement-toggle"
       >
         <span className="text-sm font-medium">
-          Where the systems agree or differ
+          {tr("Where the systems agree or differ")}
         </span>
         <span className="text-xs text-muted-foreground">
-          {topics.length} {topics.length === 1 ? "topic" : "topics"}
-          {agree ? `, ${agree} in agreement` : ""}
-          {disagree ? `, ${disagree} in dispute` : ""}
+          {locale === "ml" ? `${topics.length} ${topics.length === 1 ? "വിഷയം" : "വിഷയങ്ങൾ"}${agree ? `, ${agree} എണ്ണത്തിൽ യോജിക്കുന്നു` : ""}${disagree ? `, ${disagree} എണ്ണത്തിൽ വ്യത്യാസമുണ്ട്` : ""}` : <>{topics.length} {topics.length === 1 ? "topic" : "topics"}{agree ? `, ${agree} in agreement` : ""}{disagree ? `, ${disagree} in dispute` : ""}</>}
         </span>
         {!rows && (
           <span
@@ -137,9 +138,9 @@ export function AgreementPanel({
           >
             {topics.map((t) => (
               <span key={t.topic} className="whitespace-nowrap">
-                {t.label}{" "}
+                {tr(t.label)}{" "}
                 <span className={VERDICT_TEXT[t.verdict]}>
-                  {VERDICT_LABEL[t.verdict]}
+                  {tr(VERDICT_LABEL[t.verdict])}
                 </span>
               </span>
             ))}
@@ -164,7 +165,7 @@ export function AgreementPanel({
           >
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <span className="w-20 shrink-0 text-sm font-medium">
-                {t.label}
+                {tr(t.label)}
               </span>
               <span
                 className={cn(
@@ -172,7 +173,7 @@ export function AgreementPanel({
                   VERDICT_CLASS[t.verdict],
                 )}
               >
-                {VERDICT_LABEL[t.verdict]}
+                {tr(VERDICT_LABEL[t.verdict])}
               </span>
               <span className="flex flex-wrap items-center gap-1.5 text-xs">
                 {t.stances.map((s) => (
@@ -194,8 +195,8 @@ export function AgreementPanel({
                         STANCE_DOT[s.stance],
                       )}
                     />
-                    {AGREEMENT_SYSTEM_LABEL[s.system]}
-                    <span className="text-muted-foreground">{s.word}</span>
+                    {tr(AGREEMENT_SYSTEM_LABEL[s.system])}
+                    <span className="text-muted-foreground" lang={locale === "ml" ? "en" : undefined}>{s.word}</span>
                   </button>
                 ))}
               </span>
@@ -203,11 +204,12 @@ export function AgreementPanel({
             <p
               className="mt-1 text-xs"
               data-testid={`agreement-sentence-${t.topic}`}
+              lang={locale === "ml" ? "en" : undefined}
             >
               <Soft>{t.sentence}</Soft>
             </p>
             {open && (
-              <ul className="mt-1.5 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2">
+              <ul className="mt-1.5 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2" lang={locale === "ml" ? "en" : undefined}>
                 {t.stances.map((s) => (
                   <li key={s.system} data-testid={`agreement-note-${t.topic}-${s.system}`}>
                     <span className="font-medium text-foreground">
@@ -228,6 +230,7 @@ export function AgreementPanel({
         <div
           className="space-y-1.5 border-t px-3 py-2 text-2xs text-muted-foreground"
           data-testid="agreement-note"
+          lang={locale === "ml" ? "en" : undefined}
         >
           <ul className="space-y-0.5" data-testid="agreement-method">
             {SYSTEMS.map((s) => (

@@ -60,7 +60,7 @@ import {
 } from "@/components/ui/table";
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
-import { useT } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/i18n";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 
 function Mark({ on, title }: { on: boolean; title?: string }) {
@@ -85,6 +85,7 @@ function BaselineLine({
   hasJaimini: boolean;
 }) {
   const t = useT();
+  const { locale } = useLocale();
   const cells: Array<{ key: string; label: string; s: BaselineStat }> = [
     { key: "confirmed", label: "period/cusp matches", s: b.confirmed },
     { key: "kp", label: "KP", s: b.kp },
@@ -108,7 +109,7 @@ function BaselineLine({
       data-testid="validate-baseline"
       title={`Each matter is rescored at ${b.trials} sets of dates selected independently between ${b.span[0]} and ${b.span[1]}. The mid-rank percentile counts lower scores plus half of tied scores. This describes these samples and is not a probability that a birth time is correct.`}
     >
-      {t("Randomly selected comparison dates")} ({b.trials} sets):{" "}
+      <span lang={locale}>{t("Randomly selected comparison dates")}</span> ({b.trials} sets):{" "}
       {cells.map((c, i) => (
         <span key={c.key} data-testid={`validate-baseline-${c.key}`}>
           {i > 0 && " · "}

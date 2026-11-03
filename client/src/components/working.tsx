@@ -6,6 +6,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useReadingMode } from "@/lib/reading-mode";
+import { useLocale, useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /** The method, the same for every chart. */
@@ -146,6 +147,8 @@ export function Working({
 
 export function ReadingModeToggle() {
   const { mode, setMode } = useReadingMode();
+  const t = useT();
+  const { locale } = useLocale();
   const opt = (m: typeof mode, label: string) => (
     <button
       type="button"
@@ -160,13 +163,14 @@ export function ReadingModeToggle() {
       )}
       data-testid={`reading-mode-${m}`}
     >
-      {label}
+      {t(label)}
     </button>
   );
   return (
     <div
       role="radiogroup"
-      aria-label="Reading depth"
+      aria-label={t("Reading depth")}
+      lang={locale}
       className="inline-flex rounded-md border p-0.5 text-xs"
       title="Plain reading: everyday words and a summary first. Practitioner: the same layout with the technical names, every rule, weight, degree and verse reference, and the verse wording that the plain reading softens. Tables and method notes stay folded in both."
     >

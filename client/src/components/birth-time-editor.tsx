@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { chartsStore, CHARTS_QUERY_KEY } from "@/lib/charts-store";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocale, useT } from "@/lib/i18n";
 
 /** "14:05" or "14:05:30" for display; the stored value may carry seconds. */
 export function fmtBirthTime(t: string): string {
@@ -49,6 +50,8 @@ export function BirthTimeEditor({
   birthLocal: DateTime;
 }) {
   const { toast } = useToast();
+  const { locale } = useLocale();
+  const t = useT();
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(pad(chart.birthTime));
   const [saving, setSaving] = useState(false);
@@ -57,7 +60,7 @@ export function BirthTimeEditor({
   const save = async () => {
     if (!/^\d\d:\d\d(:\d\d)?$/.test(value)) {
       toast({
-        title: "Enter a time as HH:MM or HH:MM:SS",
+        title: t("Enter a time as HH:MM or HH:MM:SS"),
         variant: "destructive",
       });
       return;
@@ -66,13 +69,13 @@ export function BirthTimeEditor({
     try {
       await setBirthTime(chart, value, "edited on the chart page");
       toast({
-        title: "Birth time updated",
-        description: `${chart.name} now reads from ${fmtBirthTime(value)}; every tab has been recomputed.`,
+        title: t("Birth time updated"),
+        description: locale === "ml" ? `${chart.name} എന്ന ജാതകത്തിന് ഇപ്പോൾ ${fmtBirthTime(value)} ആണ് സമയം. എല്ലാ ഭാഗങ്ങളും വീണ്ടും കണക്കാക്കിയിട്ടുണ്ട്.` : `${chart.name} now reads from ${fmtBirthTime(value)}; every tab has been recomputed.`,
       });
       setEditing(false);
     } catch (e: any) {
       toast({
-        title: "Could not change the birth time",
+        title: t("Could not change the birth time"),
         description: e.message,
         variant: "destructive",
       });
@@ -88,7 +91,7 @@ export function BirthTimeEditor({
         data-testid="text-birth-details"
       >
         <span>
-          {birthLocal.toFormat("d LLLL yyyy")}, {fmtBirthTime(chart.birthTime)}{" "}
+          {(locale === "ml" ? birthLocal.setLocale("ml-IN") : birthLocal).toFormat("d LLLL yyyy")}, {fmtBirthTime(chart.birthTime)}{" "}
           · {chart.place}
         </span>
         <button
@@ -100,7 +103,7 @@ export function BirthTimeEditor({
           }}
           data-testid="button-edit-birth-time"
         >
-          <Pencil className="h-3 w-3" /> Edit time
+          <Pencil className="h-3 w-3" /> {t("Edit time")}
         </button>
       </p>
     );
@@ -111,14 +114,14 @@ export function BirthTimeEditor({
       className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground"
       data-testid="birth-time-editor"
     >
-      <span className="tabular">{birthLocal.toFormat("d LLLL yyyy")},</span>
+      <span className="tabular">{(locale === "ml" ? birthLocal.setLocale("ml-IN") : birthLocal).toFormat("d LLLL yyyy")},</span>
       <Input
         type="time"
         step={1}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className="tabular h-8 w-36 text-sm"
-        aria-label="Birth time"
+        aria-label={t("Birth time")}
         data-testid="input-edit-birth-time"
       />
       <span className="tabular">· {chart.place}</span>
@@ -129,7 +132,7 @@ export function BirthTimeEditor({
         disabled={!dirty || saving}
         data-testid="button-save-birth-time"
       >
-        {saving ? "Saving…" : "Save time"}
+        {t(saving ? "Saving…" : "Save time")}
       </Button>
       <Button
         size="sm"
@@ -139,11 +142,10 @@ export function BirthTimeEditor({
         disabled={saving}
         data-testid="button-cancel-birth-time"
       >
-        Cancel
+        {t("Cancel")}
       </Button>
       <span className="basis-full text-xs">
-        The chart keeps its name and life events; every reading recomputes from
-        the new time, and the change is added to the notes.
+        {t("The chart keeps its name and life events; every reading recomputes from the new time, and the change is added to the notes.")}
       </span>
     </div>
   );

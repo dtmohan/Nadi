@@ -4,6 +4,7 @@ import { MapPin, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { GeoHit } from "@shared/schema";
+import { useT } from "@/lib/i18n";
 
 function useDebounced<T>(value: T, ms: number): T {
   const [v, setV] = useState(value);
@@ -22,7 +23,7 @@ export function PlaceSearch({
   value,
   onPick,
   onEdit,
-  placeholder = "City of birth",
+  placeholder,
   className,
   inputClassName,
   id = "place",
@@ -37,6 +38,7 @@ export function PlaceSearch({
   id?: string;
   testId?: string;
 }) {
+  const t = useT();
   const [q, setQ] = useState(value);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1);
@@ -89,7 +91,7 @@ export function PlaceSearch({
           }}
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
-          placeholder={placeholder}
+          placeholder={placeholder ?? t("City of birth")}
           className={cn("pl-9", inputClassName)}
           autoComplete="off"
           data-testid={testId}
@@ -123,7 +125,7 @@ export function PlaceSearch({
       )}
       {open && q.trim().length >= 2 && dq === q && !isFetching && (isError || (hits && hits.length === 0)) && (
         <p className="mt-1 text-xs text-muted-foreground" role="status">
-          {isError ? "Place search is unavailable. Try again or enter coordinates manually." : "No matching places found. Try another name or enter coordinates manually."}
+          {t(isError ? "Place search is unavailable. Try again or enter coordinates manually." : "No matching places found. Try another name or enter coordinates manually.")}
         </p>
       )}
     </div>

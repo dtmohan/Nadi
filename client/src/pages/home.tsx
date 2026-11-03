@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { useT, LanguageToggle } from "@/lib/i18n";
+import { useLocale, useT, LanguageToggle } from "@/lib/i18n";
 import {
   AYANAMSAS,
   SUNRISE_DEFINITIONS,
@@ -83,6 +83,7 @@ function ChartCard({
   onDelete: () => void;
 }) {
   const t = useT();
+  const { locale } = useLocale();
   const { id, ...body } = chart;
   const summary = useQuery<ChartSummary>({
     queryKey: [
@@ -137,7 +138,7 @@ function ChartCard({
             )}
           </div>
           <div className="mt-0.5 truncate text-xs text-muted-foreground tabular">
-            {born.isValid ? born.toFormat("d LLL yyyy") : chart.birthDate} ·{" "}
+            {born.isValid ? born.setLocale(locale === "ml" ? "ml-IN" : "en").toFormat("d LLL yyyy") : chart.birthDate} ·{" "}
             {chart.birthTime} · {chart.place}
           </div>
         </Link>
@@ -145,7 +146,7 @@ function ChartCard({
           variant="ghost"
           size="icon"
           className="self-start"
-          aria-label={`Delete ${chart.name}`}
+          aria-label={locale === "ml" ? `${chart.name} നീക്കുക` : `Delete ${chart.name}`}
           onClick={onDelete}
           data-testid={`button-delete-${id}`}
         >
@@ -165,19 +166,18 @@ function ChartCard({
                 <dt className="w-14 shrink-0 text-2xs uppercase tracking-wide text-muted-foreground">
                   {t("Rising")}
                 </dt>
-                <dd>{SIGNS[s.lagnaIdx]}</dd>
+                <dd>{t(SIGNS[s.lagnaIdx])}</dd>
               </div>
               <div className="flex items-baseline gap-2">
                 <dt className="w-14 shrink-0 text-2xs uppercase tracking-wide text-muted-foreground">
                   {t("Period")}
                 </dt>
                 <dd className="flex flex-wrap items-baseline gap-x-1.5">
-                  <PlanetName planet={s.dasa.lord} />
-                  <span className="text-muted-foreground">dasa,</span>
-                  <PlanetName planet={s.bhukti.lord} />
+                  <PlanetName planet={s.dasa.lord} localized />
+                  <span className="text-muted-foreground">{t("dasa")},</span>
+                  <PlanetName planet={s.bhukti.lord} localized />
                   <span className="whitespace-nowrap text-muted-foreground tabular">
-                    bhukti to{" "}
-                    {DateTime.fromISO(s.bhukti.end).toFormat("LLL yyyy")}
+                    {locale === "ml" ? `ഭുക്തി ${DateTime.fromISO(s.bhukti.end).setLocale("ml-IN").toFormat("LLL yyyy")} വരെ` : `bhukti to ${DateTime.fromISO(s.bhukti.end).toFormat("LLL yyyy")}`}
                   </span>
                 </dd>
               </div>
@@ -186,27 +186,27 @@ function ChartCard({
                   {t("Today")}
                 </dt>
                 <dd className="text-muted-foreground">
-                  Jupiter in {SIGNS[s.transit.jupiter]}
+                  {locale === "ml" ? `${t("Jupiter")}: ${t(SIGNS[s.transit.jupiter])}` : `Jupiter in ${SIGNS[s.transit.jupiter]}`}
                   {s.positions.some(
                     (p) =>
                       p.planet === "Jupiter" &&
                       p.signIndex === s.transit.jupiter,
                   )
-                    ? " (its natal sign)"
+                    ? ` ${t("(its natal sign)")}`
                     : ""}
-                  , Saturn in {SIGNS[s.transit.saturn]}
+                  {locale === "ml" ? ` · ${t("Saturn")}: ${t(SIGNS[s.transit.saturn])}` : `, Saturn in ${SIGNS[s.transit.saturn]}`}
                   {s.positions.some(
                     (p) =>
                       p.planet === "Saturn" && p.signIndex === s.transit.saturn,
                   )
-                    ? " (its natal sign)"
+                    ? ` ${t("(its natal sign)")}`
                     : ""}
                 </dd>
               </div>
             </dl>
           ) : summary.isError ? (
             <p className="text-xs text-muted-foreground">
-              Summary unavailable; open the chart to read it.
+              {t("Summary unavailable; open the chart to read it.")}
             </p>
           ) : (
             <div className="space-y-1.5">
@@ -349,35 +349,27 @@ export default function Home() {
           </h2>
           <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm text-muted-foreground">
             <li>
-              Cast a chart — a name, a date, a time and a place are enough — or
-              import a backup file under Saved charts.
+              {t("Cast a chart — a name, a date, a time and a place are enough — or import a backup file under Saved charts.")}
             </li>
             <li>
-              Read the Nadi tab first: the planets read against each other by
-              sign, with no houses. Every other tab is one more system and each
-              is kept separate; none is blended into another.
+              {t("Read the Nadi tab first: the planets read against each other by sign, with no houses. Every other tab is one more system and each is kept separate; none is blended into another.")}
             </li>
             <li>
-              Compare the systems in “Where the systems agree or differ”, above
-              the tabs on the chart page: each gives its own verdict on
-              marriage, children, career and parents.
+              {t("Compare the systems in “Where the systems agree or differ”, above the tabs on the chart page: each gives its own verdict on marriage, children, career and parents.")}
             </li>
             <li>
-              Test it: add dated life events to the chart, then let Rectify
-              check a birth time and Validate read the events back at their
-              dates. Checks, not readings.
+              {t("Test it: add dated life events to the chart, then let Rectify check a birth time and Validate read the events back at their dates. Checks, not readings.")}
             </li>
           </ol>
           <p className="mt-3 text-xs text-muted-foreground">
-            The{" "}
             <Link
               href="/about"
               className="underline decoration-muted-foreground/40 underline-offset-2 hover:decoration-current"
               data-testid="link-start-method"
             >
-              Method page
+              {t("Method page")}
             </Link>{" "}
-            explains what each system reads and where its rules come from.
+            {t("explains what each system reads and where its rules come from.")}
           </p>
         </section>
       )}
@@ -416,7 +408,7 @@ export default function Home() {
               <div className="field-stack">
                 <Label
                   htmlFor="gender"
-                  title="Female charts are read with Venus as the native and Mars as the husband (Rao). Unspecified reads as male."
+                  title={t("Female charts are read with Venus as the native and Mars as the husband (Rao). Unspecified reads as male.")}
                 >
                   {t("Gender")}
                 </Label>
@@ -463,7 +455,7 @@ export default function Home() {
             <div className="field-stack">
               <Label
                 htmlFor="death-date"
-                title="Optional. Fixes the age the readings use and lets the lifespan methods be checked against a life that has run its course. Never used to compute or show a forecast."
+                title={t("Optional. Fixes the age the readings use and lets the lifespan methods be checked against a life that has run its course. Never used to compute or show a forecast.")}
               >
                 {t("Date of passing")}{" "}
                 <span className="font-normal text-muted-foreground">
@@ -508,7 +500,7 @@ export default function Home() {
                 </p>
               )}
               {form.place && !form.timezone && (
-                <p className="text-xs text-muted-foreground">Select a place from the suggestions, or enter its coordinates and time zone in the advanced settings.</p>
+                <p className="text-xs text-muted-foreground">{t("Select a place from the suggestions, or enter its coordinates and time zone in the advanced settings.")}</p>
               )}
             </div>
 
@@ -597,9 +589,9 @@ export default function Home() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {TIME_STANDARDS.map((t) => (
-                        <SelectItem key={t.id} value={t.id}>
-                          {t.label}
+                      {TIME_STANDARDS.map((standard) => (
+                        <SelectItem key={standard.id} value={standard.id}>
+                          {t(standard.label)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -619,7 +611,7 @@ export default function Home() {
                     className="text-2xs text-muted-foreground"
                     data-testid="text-time-basis"
                   >
-                    {TIME_STANDARDS.find((t) => t.id === standardMode)?.help}
+                    {t(TIME_STANDARDS.find((standard) => standard.id === standardMode)?.help ?? "")}
                     {basis && (
                       <>
                         {" "}
@@ -710,7 +702,7 @@ export default function Home() {
                 size="sm"
                 onClick={() => fileInput.current?.click()}
                 data-testid="button-import-charts"
-                title="Import charts from a backup file"
+                title={t("Import charts from a backup file")}
               >
                 <Upload className="h-4 w-4" />
                 {t("Import")}
@@ -721,7 +713,7 @@ export default function Home() {
                 onClick={exportCharts}
                 disabled={!charts?.length}
                 data-testid="button-export-charts"
-                title="Download every saved chart as a backup file"
+                title={t("Download every saved chart as a backup file")}
               >
                 <Download className="h-4 w-4" />
                 {t("Export")}
@@ -740,9 +732,9 @@ export default function Home() {
             className="mt-1 text-xs text-muted-foreground"
             data-testid="text-storage-note"
           >
-            {storageKind === "memory"
+            {t(storageKind === "memory"
               ? "This preview cannot keep charts between reloads; the published site saves them on your device. Nothing is stored online."
-              : "Saved on this device only. Nothing is stored online; export a backup to keep them or move them to another device."}
+              : "Saved on this device only. Nothing is stored online; export a backup to keep them or move them to another device.")}
           </p>
 
           {isLoading && (
@@ -760,10 +752,7 @@ export default function Home() {
             <div className="mt-4 rounded-md border border-dashed border-border p-6 text-sm text-muted-foreground">
               <p>{t("No charts saved yet.")}</p>
               <p className="mt-2">
-                Once you cast one, you will see Jupiter as the Jeeva karaka (the
-                native), Saturn as the Karma karaka (the profession), and how
-                the other planets sit with them by sign, adjacency, trine and
-                opposition.
+                {t("Once you cast one, you will see Jupiter as the Jeeva karaka (the native), Saturn as the Karma karaka (the profession), and how the other planets sit with them by sign, adjacency, trine and opposition.")}
               </p>
             </div>
           )}

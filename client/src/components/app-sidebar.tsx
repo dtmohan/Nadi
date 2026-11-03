@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import type { Chart } from "@shared/schema";
 import { useTheme } from "@/components/theme";
+import { LanguageToggle, useT } from "@/lib/i18n";
 
 export function Logo({ size = 28 }: { size?: number }) {
   // South Indian chart mark: outer ring of twelve houses around a still centre.
@@ -59,6 +60,7 @@ export function AppSidebar() {
   const [location] = useLocation();
   const { data: charts } = useSavedCharts();
   const { theme, toggle } = useTheme();
+  const t = useT();
 
   return (
     <Sidebar>
@@ -74,7 +76,7 @@ export function AppSidebar() {
               Nadi
             </div>
             <div className="text-xs text-muted-foreground">
-              Bhrigu Nandi reader
+              {t("Bhrigu Nandi reader")}
             </div>
           </div>
         </Link>
@@ -87,7 +89,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild isActive={location === "/"}>
                   <Link href="/" data-testid="link-new-chart">
                     <PlusCircle />
-                    <span>New chart</span>
+                    <span>{t("New chart")}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -95,7 +97,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild isActive={location === "/rules"}>
                   <Link href="/rules" data-testid="link-rules">
                     <BookOpen />
-                    <span>Rule book</span>
+                    <span>{t("Rule book")}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -103,7 +105,7 @@ export function AppSidebar() {
                 <SidebarMenuButton asChild isActive={location === "/about"}>
                   <Link href="/about" data-testid="link-about">
                     <Info />
-                    <span>Method</span>
+                    <span>{t("Method")}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -112,12 +114,12 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Saved charts</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("Saved charts")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {charts?.length === 0 && (
                 <div className="px-2 py-1 text-xs text-muted-foreground">
-                  None yet. Cast one to begin.
+                  {t("None yet. Cast one to begin.")}
                 </div>
               )}
               {charts?.map((c) => (
@@ -143,6 +145,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="p-3">
+        <LanguageToggle className="self-start" />
         <Button
           variant="ghost"
           size="sm"
@@ -151,7 +154,7 @@ export function AppSidebar() {
           data-testid="button-theme"
         >
           {theme === "dark" ? <Sun /> : <Moon />}
-          <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+          <span>{t(theme === "dark" ? "Light mode" : "Dark mode")}</span>
         </Button>
       </SidebarFooter>
     </Sidebar>

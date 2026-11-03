@@ -29,6 +29,7 @@ import { queryClient } from "@/lib/queryClient";
 import { chartsStore } from "@/lib/charts-store";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { translate, useLocale, useT, type Locale } from "@/lib/i18n";
 
 const OUTCOME_LABEL: Record<EventOutcome, string> = {
   favourable: "Favourable",
@@ -367,22 +368,24 @@ export function LifeEventsEditor({
 }
 
 /** One-line summary of the saved events, for the chart header. */
-export function eventsSummary(events: ChartEvent[], zone: string): string {
-  if (!events.length) return "none saved";
+export function eventsSummary(events: ChartEvent[], zone: string, locale: Locale = "en"): string {
+  if (!events.length) return translate(locale, "none saved");
   return (
     events
       .slice(0, 4)
       .map(
         (e) =>
-          `${matterOf(e.matter).label} ${DateTime.fromISO(e.date, { zone }).toFormat("LLL yyyy")}`,
+          `${translate(locale, matterOf(e.matter).label)} ${DateTime.fromISO(e.date, { zone }).setLocale(locale === "ml" ? "ml-IN" : "en").toFormat("LLL yyyy")}`,
       )
-      .join(" · ") + (events.length > 4 ? ` · ${events.length - 4} more` : "")
+      .join(" · ") + (events.length > 4 ? locale === "ml" ? ` · ${events.length - 4} എണ്ണം കൂടി` : ` · ${events.length - 4} more` : "")
   );
 }
 
 /** Folded Life events block for the chart page: a summary line that opens into the editor. */
 export function LifeEventsSection({ chart }: { chart: Chart }) {
   const [open, setOpen] = useState(false);
+  const { locale } = useLocale();
+  const t = useT();
   const events = chart.events ?? [];
   return (
     <Collapsible
@@ -405,7 +408,7 @@ export function LifeEventsSection({ chart }: { chart: Chart }) {
             )}
           />
           <span className="font-medium">
-            Life events{" "}
+            {t("Life events")}{" "}
             <span className="tabular text-muted-foreground">
               ({events.length})
             </span>
@@ -414,14 +417,14 @@ export function LifeEventsSection({ chart }: { chart: Chart }) {
             className="text-muted-foreground"
             data-testid="text-life-events-summary"
           >
-            {eventsSummary(events, chart.timezone)}
+            {eventsSummary(events, chart.timezone, locale)}
             {events.length === 0
-              ? " · dated events let Validate read each system's timing against what happened"
+              ? locale === "ml" ? " · തീയതികൾ ചേർത്താൽ ഓരോ രീതിയുടെയും സമയസൂചനകൾ സംഭവങ്ങളുമായി താരതമ്യം ചെയ്യാം" : " · dated events let Validate read each system's timing against what happened"
               : ""}
           </span>
         </button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="mt-3">
+      <CollapsibleContent className="mt-3" lang={locale === "ml" ? "en" : undefined}>
         <p className="mb-2 text-xs text-muted-foreground">
           Dated events the native remembers. Rectification scores candidate
           birth times by them; they will also serve to check predictions and to
