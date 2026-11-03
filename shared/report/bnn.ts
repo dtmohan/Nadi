@@ -42,7 +42,12 @@ export const bnnModule: ReportModule = {
     const simpleAdditions = (simple: PlainTopicBrief): ReportPara[] => {
       const ps: ReportPara[] = [];
       if (simple.detailIntro) ps.push({ kind: "p", text: simple.detailIntro });
-      for (const detail of simple.details ?? []) ps.push({ kind: "p", text: S(detail) });
+      for (let i = 0; i < (simple.details?.length ?? 0); i++) {
+        const detail = simple.details![i];
+        const evidence = simple.detailEvidence?.[i];
+        ps.push({ kind: "p", text: S(detail) });
+        if (evidence) ps.push({ kind: "p", text: S(evidence.text), cites: evidence.source ? [rao(evidence.source)] : undefined });
+      }
       ps.push({ kind: "note", text: simple.limit });
       if (simple.contrast) ps.push({ kind: "p", text: simple.contrast });
       if (simple.comparison) ps.push({ kind: "p", text: simple.comparison });

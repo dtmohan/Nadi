@@ -803,6 +803,18 @@ export function JaiminiPanel({ result, onTopicSelected }: { result: ChartResult;
             </>
           }
         />
+        {plain && (chart.timeUncertaintyMin ?? 0) > 0 && <p className="mt-2 text-xs text-muted-foreground">The stated ±{chart.timeUncertaintyMin}-minute birth-time range may change sensitive placements or house-based readings.</p>}
+        {plain && <div className="mt-3 divide-y rounded-md border" data-testid="jaimini-planet-explanations">
+          {j.karakas.map((k) => {
+            const rp = positions.find((p) => p.planet === k.planet);
+            const dp = j.navamsa.find((p) => p.planet === k.planet);
+            return <details key={k.karaka} className="px-3 py-2 text-xs" data-testid={`jaimini-planet-explanation-${k.planet}`}>
+              <summary className="cursor-pointer text-sm font-medium">{k.planet} · {k.karaka} · {CHARA_KARAKA_INFO[k.karaka].name}</summary>
+              <p className="mt-1.5">In this chart {k.planet}'s degree rank gives it the {k.karaka} role. This role concerns {CHARA_KARAKA_INFO[k.karaka].meaning}. It is in {rp?.sign ?? "an unavailable sign"} in D1 and {dp?.sign ?? "an unavailable sign"} in D9. The life-area reading adds the applicable source conditions; the role alone is not an outcome.</p>
+            </details>;
+          })}
+          <p className="px-3 py-2 text-xs text-muted-foreground">Ketu is not assigned one of these eight movable roles in this convention; its other Jaimini rules remain in the relevant reading.</p>
+        </div>}
         <Working id="karakas" label="Show the ranking table" className="mt-3">
           <Table className="tabular mt-3" cards>
             <TableHeader>

@@ -46,6 +46,17 @@ const historicalAlpText: Record<string, string> = {
   "b2c3-nak-lord-past": "The lord of the ALP nakshatra stands in the 2nd, 5th, 8th or 11th from the ALP lagna: what the period brings is rooted in the past; the native lives out the fruit of earlier deeds rather than starting new ones.",
 };
 
+// Plain Shadbala wording was qualified for readers after this historical capture.
+// Restore only those three phrases when comparing the immutable old hashes;
+// the strength numbers and all current source passages remain under test.
+const historicalStrengthWording = (value: unknown) => JSON.parse(JSON.stringify(value, (_key, v) => {
+  if (typeof v !== "string") return v;
+  const planet = "((?:The |the )?(?:Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn))";
+  return v.replace(new RegExp(`${planet} meets the app's strength threshold; the source associates greater strength with fuller results, but this check alone does not establish an outcome`, "g"), "$1 is strong enough by Parashara's measure to give this in full")
+    .replace(new RegExp(`${planet} has (\\d+)% of the stated strength requirement; the app provisionally places this in the source's middle-strength band`, "g"), "$1 has $2% of the strength Parashara asks for; short of full strength, expect about half of this")
+    .replace(new RegExp(`${planet} has (\\d+)% of the stated strength requirement; the app provisionally places this in the source's lower-strength band`, "g"), "$1 has $2% of the strength Parashara asks for, well short of it, so expect only a little of this");
+}));
+
 test("school natal readings retain independent pre-migration outputs at correct UTC instants", () => {
   const asOf = "2025-01-01T00:00:00Z";
   for (let i = 0; i < examples.length; i++) {
@@ -73,7 +84,7 @@ test("school natal readings retain independent pre-migration outputs at correct 
     const alp = computeAlp(context, asc, e.birth, asOf);
     const output = {
       bnn: evaluate(context, historicalBnnRules as typeof RULES, e.gender), jaimini: computeJaimini(context, asc, e.birth),
-      parashari: pick(historicalParashari, ["aspectFloor", "houseMethod", "lagna", "bhavas", "natures", "findings", "ties", "neechaBhanga", "bhavaJudgement", "shadbala", "ashtakavarga", "bhavaPhala", "vargaPhala", "houseProse"]),
+      parashari: pick(historicalStrengthWording(historicalParashari), ["aspectFloor", "houseMethod", "lagna", "bhavas", "natures", "findings", "ties", "neechaBhanga", "bhavaJudgement", "shadbala", "ashtakavarga", "bhavaPhala", "vargaPhala", "houseProse"]),
       kp: pick(kp, ["ayanamsaValue", "cusps", "planets", "significators", "houseSignificators", "badhaka", "marakas", "lagnaQuality", "ruling", "findings"]),
       alp: pick({ ...alp, findings: alp.findings.map((f) => historicalAlpText[f.ruleId] ? { ...f, text: historicalAlpText[f.ruleId] } : f) },
         ["config", "natalLagna", "point", "houseFromJanma", "houses", "placements", "book", "findings"]),

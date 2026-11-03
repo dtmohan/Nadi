@@ -1116,6 +1116,12 @@ export function kpHerePlain(f: Pick<KpFinding, "cusp" | "subLord" | "used" | "in
 /** Keep traditional child-sex and family-size rules available to practitioners without
  * presenting them as individual predictions in the plain reading. */
 export function kpFindingPlain(f: Pick<KpFinding, "ruleId" | "text">): string {
+  if (["kp1-suicidal", "kp8-self-harm-list", "kp12-self-harm"].includes(f.ruleId))
+    return "The source makes a sensitive claim about mental health. A chart cannot assess a person's mental state or risk.";
+  if (f.ruleId === "kp7-marriage")
+    return "The source treats a 2–7–11 connection with a Venus condition as supportive of marriage. The app's Venus test is provisional; the condition and any period links do not guarantee an outcome or date.";
+  if (["kp7-no-marriage", "kp7-star-in-12", "kp7-denied-by-6"].includes(f.ruleId))
+    return "The source treats this house combination as a caution for marriage. It is one traditional rule and cannot establish whether marriage will occur.";
   if (["kp5-child-male", "kp5-child-female"].includes(f.ruleId))
     return "The source describes a traditional classification involving the first child. It cannot determine a child's sex.";
   if (f.ruleId === "kp5-twins")

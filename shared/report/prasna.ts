@@ -4,6 +4,8 @@ import { computePrasna, computePrasnaFructification, PRASNA_BHAVA_SIGNIFICATIONS
 import { natalPlanetContext } from "../planet-context";
 import { HOUSE_AREA, redactProse } from "../life-stage";
 import { PRASNA_HOUSE_GLOSS } from "../house-gloss";
+import { PRASNA_HOUSE_EFFECT_PLAIN } from "../prasna-plain";
+import { firstClause } from "../synthesis";
 import { ORD, type ReportModule, type ReportPara } from "./types";
 
 export const prasnaModule: ReportModule = {
@@ -23,9 +25,10 @@ export const prasnaModule: ReportModule = {
       const r = readings.find((x) => x.house === h);
       const f = fructification.find((x) => x.house === h);
       const clean = (s: string) => withheld ? redactProse(s) : s;
-      const effects = ctx.plain ? [] : [r?.beneficText, r?.maleficText].filter((x): x is string => !!x).map(clean).filter(Boolean);
+      const effects = ctx.plain ? [r?.beneficText && PRASNA_HOUSE_EFFECT_PLAIN[h].benefic, r?.maleficText && PRASNA_HOUSE_EFFECT_PLAIN[h].malefic].filter((x): x is string => !!x)
+        : [r?.beneficText, r?.maleficText].filter((x): x is string => !!x).map(clean).filter(Boolean);
       paras.push({
-        kind: "p", text: S(`${ORD(h)} house: ${ctx.plain ? PRASNA_HOUSE_GLOSS[h] : clean(sig.text)}. ${r ? `Occupants: ${r.occupants.map((p) => p.planet).join(", ")}.` : "No planet occupies this house."} ${effects.join(" ")} ${f ? ctx.plain ? "The ruler and significator are assessed for the whole house; this does not establish a specific outcome." : clean(f.note) : ""}`),
+        kind: "p", text: S(`${ORD(h)} house: ${ctx.plain ? PRASNA_HOUSE_GLOSS[h] : clean(sig.text)}. ${r ? `Occupants: ${r.occupants.map((p) => p.planet).join(", ")}.` : "No planet occupies this house."} ${effects.join(" ")} ${f ? ctx.plain ? `${firstClause(f.notePlain)}. This partial assessment covers the whole house, not a specific outcome.` : clean(f.note) : ""}`),
         cites: [cites.add(`Prasna Marga, B.V. Raman translation, ch. XIV, verses ${sig.stanza}, 39–41${r ? `, ${r.stanza}` : ""}`)], provisional: true,
       });
     }

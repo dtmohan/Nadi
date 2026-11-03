@@ -6,6 +6,7 @@ import type { ChartResult } from "@shared/schema";
 import { SIGNS, SIGN_ABBR } from "@shared/astro";
 import {
   JAIMINI_AREAS,
+  KARAKA_MATTERS,
   RAO_SOURCE,
   RAO_NOTES_SOURCE,
   currentFor,
@@ -357,6 +358,9 @@ function AreaCard({
                     {k.d9Dignity !== "—"
                       ? ` (${k.d9Dignity.toLowerCase()})`
                       : ""}
+                  </span>
+                  <span className="w-full text-muted-foreground" data-testid={`jarea-karaka-context-${a.area}-${k.karaka}`}>
+                    In this method {k.karaka} is read for {KARAKA_MATTERS[k.karaka]}; {k.planet} carries that role in this chart. The D9 placement refines the same birth-chart longitude and is not an independent observation.
                   </span>
                 </li>
               ))}

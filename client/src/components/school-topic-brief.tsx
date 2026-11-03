@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import type { ChartResult } from "@shared/schema";
 import { schoolTopicBasisPlain, SCHOOL_NAME, SCHOOL_TOPIC_LABEL, type BriefSchool, type SchoolTopicBrief } from "@shared/school-topic-brief";
 import { expandedSchoolTopicBriefs, type TopicBuildOptions } from "@shared/school-topics-expanded";
+import { ordH } from "@shared/house-gloss";
 import { useAgreement, useAgreementInput } from "@/lib/use-agreement";
 import { usePlain } from "@/components/mode-text";
 import { Soft } from "@/lib/gentle";
@@ -33,6 +34,11 @@ export function SchoolTopicExplanation({ brief, onOpen }: { brief: SchoolTopicBr
   return <div className="space-y-1.5 text-sm leading-relaxed" data-testid={`plain-school-${brief.school}-${brief.topic}`}>
     {brief.frame && <p className="text-xs font-medium text-muted-foreground">{brief.frame}</p>}
     <p>{brief.summary}</p>
+    {brief.explanation?.map((line, i) => <p key={i} className="text-xs leading-relaxed" data-testid={`school-topic-context-${brief.school}-${brief.topic}-${i}`}><Soft>{line}</Soft></p>)}
+    {!!brief.explanationHouses?.length && <details className="text-xs text-muted-foreground"><summary className="cursor-pointer font-medium">What these KP houses mean</summary><ul className="mt-1 space-y-0.5">{brief.explanationHouses.map((h) => <li key={h.house}>{ordH(h.house)}: {h.meaning}.</li>)}</ul></details>}
+    {brief.details?.[0] && !brief.summary.includes(brief.details[0].text) && <p className="text-xs leading-relaxed" data-testid={`school-topic-source-${brief.school}-${brief.topic}`}>
+      <Soft>{brief.details[0].text}</Soft>{" "}{brief.details[0].sourceUrl ? <a className="underline" href={brief.details[0].sourceUrl} target="_blank" rel="noreferrer">{brief.details[0].source}</a> : <span className="text-muted-foreground">{brief.details[0].source}</span>}
+    </p>}
     <p className="text-xs text-muted-foreground">{brief.limit}</p>
     {brief.conditional && <p className="text-xs text-muted-foreground">This assessment is conditional on the birth time.</p>}
     {brief.provisional && <p className="text-xs text-muted-foreground" data-testid="school-topic-provisional">Provisional: {brief.reason || "This classification includes an app interpretation."}</p>}

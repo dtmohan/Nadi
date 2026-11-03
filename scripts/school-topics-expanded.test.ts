@@ -77,9 +77,10 @@ test("a documented education case exposes the four-step versus six-step limitati
   assert.ok(learning.provisional);
 });
 
-test("birth-time uncertainty remains visible even where a KP comparison was otherwise unqualified", () => {
+test("birth-time uncertainty remains visible in KP and Parashari house comparisons", () => {
   const uncertain = { ...result, chart: { ...result.chart, timeUncertaintyMin: 10 } };
   assert.ok(expandedSchoolTopicBriefs(uncertain, "kp", input, agreement).every((b) => b.conditional));
+  assert.ok(expandedSchoolTopicBriefs(uncertain, "parashari", input, agreement).every((b) => b.conditional));
 });
 
 test("ALP shows only reviewed rules that actually fired at the selected date", () => {

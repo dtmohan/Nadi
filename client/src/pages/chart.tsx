@@ -26,10 +26,14 @@ import {
 import type { ChartResult } from "@shared/schema";
 import type { ChartEvent } from "@shared/events";
 import { TopicReadingPanel, type TopicReadingSystem } from "@/components/topic-reading";
+import { TopicThemes } from "@/components/topic-themes";
+import { natalPlanetContext } from "@shared/planet-context";
+import { sensitiveTags } from "@shared/life-stage";
 import {
   PLANETS,
   PLANET_ABBR,
   SIGNS,
+  SIGN_LORD,
   fmtDeg,
   fmtDegShort,
   houseFrom,
@@ -321,6 +325,36 @@ function KarakaCard({
       </CardContent>
     </Card>
   );
+}
+
+/** A planet-centred view of the same gated Nadi findings used by the life-area reading. */
+function BnnPlanetExplanations({ result }: { result: ChartResult }) {
+  const { positions, reading, chart } = result;
+  const context = useMemo(() => natalPlanetContext(result), [result]);
+  const views = useMemo(() => positions.map((p) => {
+    const findings = reading.findings.filter((f) => f.planets.includes(p.planet));
+    const areas = synthesize(reading, chart.gender as Gender, findings)
+      .filter((a) => a.area !== "health" && a.area !== "children" && areaSeason(a.area, result.utc, result.now.asOf).inSeason)
+      .map((a) => ({ area: a.area, topic: plainTopicNatal(a.area, a, reading) }))
+      .filter((a) => a.topic.details?.length);
+    return { p, areas };
+  }), [positions, reading, chart.gender, result.utc, result.now.asOf]);
+  return <section data-testid="bnn-planet-explanations">
+    <h3 className="text-base font-semibold">Your planets, one by one</h3>
+    <p className="mt-1 text-xs text-muted-foreground">These are Bhrigu Nandi Nadi significators and evaluated planet-to-planet rules. The same planet can take part in different subjects; the selected themes below are possibilities, with their individual source connections.{(chart.timeUncertaintyMin ?? 0) > 0 && ` A stated ±${chart.timeUncertaintyMin}-minute birth-time range can affect positions near a boundary.`}</p>
+    <div className="mt-2 divide-y rounded-md border">{views.map(({ p, areas }) => {
+      const fact = context.planet(p.planet);
+      const matters = KARAKA[p.planet].significations.filter((s) => !sensitiveTags(s).length).slice(0, 3);
+      return <details key={p.planet} className="px-3 py-2" data-testid={`bnn-planet-explanation-${p.planet}`}>
+        <summary className="cursor-pointer text-sm font-medium">{p.planet} · {p.sign} · {p.nakshatra}, quarter {p.pada}</summary>
+        <div className="mt-2 space-y-2 text-xs leading-relaxed">
+          <p>In Nadi, {p.planet} is associated with {matters.join(", ")}. Here it is in {p.sign}, whose ruler is {SIGN_LORD[p.signIndex]}; its star lord is {fact?.nakshatra.starLord ?? "not available"}. These are different roles, not a prediction by themselves.</p>
+          {areas.map(({ area, topic }) => <div key={area}><p className="font-medium">{LIFE_AREAS[area].label}</p><TopicThemes topic={topic} /></div>)}
+          {!areas.length && <p className="text-muted-foreground">No additional non-sensitive life-area theme is selected for this planet here. Its detailed findings remain in the relevant life-area view.</p>}
+        </div>
+      </details>;
+    })}</div>
+  </section>;
 }
 
 const PROMISE_LABEL: Record<MarriageReading["promised"], string> = {
@@ -1007,7 +1041,7 @@ function AreaSection({
         <Soft>{plainTopic?.summary ?? s.headline}</Soft>
       </p>
       {plainTopic?.detailIntro && <p className="mt-2 text-sm leading-relaxed">{plainTopic.detailIntro}</p>}
-      {!!plainTopic?.details?.length && <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed">{plainTopic.details.map((detail, i) => <li key={i}><Soft>{detail}</Soft></li>)}</ul>}
+      {plainTopic && <TopicThemes topic={plainTopic} />}
       {plainTopic && <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{plainTopic.limit}</p>}
       {plainTopic?.contrast && <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{plainTopic.contrast}</p>}
       {s.reconciliation && (
@@ -1340,6 +1374,8 @@ function Reading({
         )}
       </div>
       )}
+
+      {part !== "areas" && mode === "plain" && <BnnPlanetExplanations result={result} />}
 
       {part !== "karakas" && (
       <>

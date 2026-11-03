@@ -121,10 +121,19 @@ export function gist(text: string): string {
   return g.replace(/\.$/, "");
 }
 
-/** Up to the first full stop or semicolon, so two gists join into one readable sentence. */
+/** Up to the first sentence or semicolon outside parentheses, preserving source references. */
 export function firstClause(g: string): string {
-  const m = g.match(/^[^.;]+/);
-  return (m ? m[0] : g).trim();
+  let depth = 0;
+  for (let i = 0; i < g.length; i++) {
+    const c = g[i];
+    if (c === "(") depth++;
+    else if (c === ")") depth = Math.max(0, depth - 1);
+    else if (!depth && (c === "." || c === ";")) {
+      if (c === "." && (/\d/.test(g[i - 1] ?? "") && /\d/.test(g[i + 1] ?? "") || /\b(?:p|pp|ch|vol|no)\.$/i.test(g.slice(0, i + 1)))) continue;
+      return g.slice(0, i).trim();
+    }
+  }
+  return g.trim();
 }
 
 const lc = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);

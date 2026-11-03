@@ -4,7 +4,7 @@ import { Soft } from "@/lib/gentle";
 import { AlpMarriageContextPanel } from "@/components/alp-marriage-context";
 import { useMemo, useState } from "react";
 import { SchoolTopicPanel } from "@/components/school-topic-brief";
-import { defaultAlpDay } from "@shared/school-topics-expanded";
+import { alpHouseLordInterpretations, defaultAlpDay } from "@shared/school-topics-expanded";
 import { Cite } from "@/components/source-link";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
@@ -54,6 +54,8 @@ import {
   type VerdictTiming,
 } from "@/components/verdict-card";
 import { toneOfText, gist, firstClause } from "@shared/synthesis";
+import { houseGloss, listJoin, ordH } from "@shared/house-gloss";
+import { sensitiveTags } from "@shared/life-stage";
 import {
   ModeText,
   SectionTitle,
@@ -1044,6 +1046,25 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
               ))}
             </ul>
           </Working>
+          {plain && <section className="mt-4" data-testid="alp-house-explanations">
+            <h3 className="text-sm font-semibold">Houses and planets from the moving point</h3>
+            <p className="mt-1 text-xs text-muted-foreground">These houses are counted from the ALP position on the selected date. Their topics and rulers describe this progressed frame; they do not replace the natal chart or establish that an event must occur.{(chart.timeUncertaintyMin ?? 0) > 0 && ` The stated ±${chart.timeUncertaintyMin}-minute birth-time range may change the progressed point or its house frame.`}</p>
+            <div className="mt-2 divide-y rounded-md border">{a.houses.map((h) => {
+              const lordHouse = a.houses.find((x) => x.planets.includes(h.lord));
+              const group = KARMA_BHAVAS.find((x) => x.house === h.house);
+              const lordRules = a.ageYears >= 18 ? alpHouseLordInterpretations(h.house, a.findings) : [];
+              return <details key={h.house} className="px-3 py-2 text-xs" data-testid={`alp-house-context-${h.house}`}>
+                <summary className="cursor-pointer text-sm font-medium">{ordH(h.house)} · {h.sign} · {houseGloss("alp", h.house)}</summary>
+                <p className="mt-1.5">The {ordH(h.house)} from the moving point covers {houseGloss("alp", h.house)}. {h.lord} rules this sign{lordHouse ? ` and is in the ${ordH(lordHouse.house)} from the moving point (${houseGloss("alp", lordHouse.house)})` : ""}. {h.planets.length ? `${listJoin(h.planets)} ${h.planets.length === 1 ? "occupies" : "occupy"} this sign` : "No planet occupies this sign"}. The same sign is the {ordH(h.houseFromJanma)} from the birth rising sign.</p>
+                {group && <p className="mt-1 text-muted-foreground">Book 2 places this house in its {group.group} group. This traditional grouping does not by itself determine when an event can happen. <Cite>ALP Book 2, ch. 3–5</Cite></p>}
+                {lordRules.map((f) => <p key={f.ruleId} className="mt-2">A selected rule about this house's ruler: {f.text} <Cite href={f.sourceUrl}>{f.source}</Cite>{f.here?.length && !sensitiveTags(f.here.join(" ")).length ? ` Here: ${f.here.join("; ")}.` : ""}</p>)}
+                {h.planets.map((planet) => {
+                  const notes = a.ageYears >= 18 ? a.findings.filter((f) => f.planets.includes(planet) && !sensitiveTags(f.text).length && !/\b(health|illness|disease|death|fertil|pregnan|ruin|accident|suicid\w*|self[- ]destruct\w*|self[- ]harm)\b/i.test(f.text)).slice(0, 2) : [];
+                  return <div key={planet} className="mt-2"><p className="font-medium">{planet}</p>{notes.length ? notes.map((f) => <p key={f.ruleId} className="mt-1">A selected ALP rule involving this planet: <Soft>{f.text}</Soft> <Cite href={f.sourceUrl}>{f.source}</Cite>{f.here?.length && !sensitiveTags(f.here.join(" ")).length ? ` Here: ${f.here.join("; ")}.` : ""}</p>) : <p className="text-muted-foreground">No additional plain rule involving this planet is selected here.</p>}</div>;
+                })}
+              </details>;
+            })}</div>
+          </section>}
         </div>
 
         <div>

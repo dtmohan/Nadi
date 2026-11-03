@@ -63,13 +63,13 @@ test("the strength qualifier gives the percentage and owns its cut-off as the ap
   const full = { total: 355, required: 330, effect: "full" as const };
   assert.equal(
     strengthQualifierPlain("Mars", half),
-    "Mars has 97% of the strength Parashara asks for; short of full strength, expect about half of this",
+    "Mars has 97% of the stated strength requirement; the app provisionally places this in the source's middle-strength band",
   );
   assert.equal(
     strengthQualifierPlain("Mars", quarter),
-    "Mars has 60% of the strength Parashara asks for, well short of it, so expect only a little of this",
+    "Mars has 60% of the stated strength requirement; the app provisionally places this in the source's lower-strength band",
   );
-  assert.equal(strengthQualifierPlain("Venus", full), "Venus is strong enough by Parashara's measure to give this in full");
+  assert.match(strengthQualifierPlain("Venus", full), /app's strength threshold.*does not establish an outcome/);
   assert.match(strengthQualifier("Mars", half), /292 of the 300 virupas .*97%, so expect about half the effect: medium strength, which the app takes as 75-99% .*\(provisional\)\.$/);
   assert.match(strengthQualifier("Mars", quarter), /under 75% of the requirement.*\(provisional\)\.$/);
   assert.doesNotMatch(strengthQualifier("Venus", full), /provisional/);

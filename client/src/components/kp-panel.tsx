@@ -5,6 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
 import type { KpBase } from "@shared/kp";
+import type { KpResult } from "@shared/kp";
+import { kpHouseContext, kpStageLabel } from "@shared/chart-explanations";
+import { houseGloss, listJoin, withGloss } from "@shared/house-gloss";
 import { apiRequest } from "@/lib/queryClient";
 import { useJudgePlace } from "@/lib/judge-place";
 import { JudgePlaceControl } from "@/components/judge-place";
@@ -39,6 +42,7 @@ import {
   isDeceased,
   sensitiveGate,
   redactProse,
+  sensitiveTags,
 } from "@shared/life-stage";
 import {
   scoreWindows,
@@ -104,6 +108,27 @@ import { TopicReadingPanel } from "@/components/topic-reading";
 import { SchoolTopicPanel } from "@/components/school-topic-brief";
 import { KpNatalRules } from "@/components/natal-rule-evidence";
 import { AuroraSelfPanel } from "@/components/kp-aurora-evidence";
+
+/** Per-planet trace is restricted to this KP result and its selected significator convention. */
+function KpPlanetExplanations({ kp, sixStep }: { kp: KpResult; sixStep: boolean }) {
+  const stages = ["A", "B", "C", "D", ...(sixStep ? ["E", "F"] : [])] as SignificatorLevel[];
+  return <section className="mt-4" data-testid="kp-planet-explanations">
+    <h3 className="text-sm font-semibold">What each planet signifies in KP</h3>
+    <p className="mt-1 text-xs text-muted-foreground">KP uses its own ayanamsa and Placidus houses. These are house links in the selected {sixStep ? "six" : "four"}-step table; a specific cusp rule and periods are still needed for a dated question.</p>
+    <div className="mt-2 divide-y rounded-md border">{kp.planets.map((p) => {
+      const s = kp.significators.find((x) => x.planet === p.planet);
+      const findings = kp.withheld ? [] : kp.findings.filter((f) => f.subLord === p.planet && !sensitiveTags(f.text).length && !/\b(health|illness|disease|death|fertil|pregnan|ruin|accident|suicid\w*|self[- ]destruct\w*|self[- ]harm)\b/i.test(f.text));
+      return <details key={p.planet} className="px-3 py-2 text-xs" data-testid={`kp-planet-explanation-${p.planet}`}>
+        <summary className="cursor-pointer text-sm font-medium">{p.planet} · house {p.house} · star lord {p.starLord}</summary>
+        <p className="mt-2">In this chart {p.planet} is in {p.sign}, in the {ordinal(p.house)} house ({houseGloss("kp", p.house)}). Its star lord is {p.starLord} and its sub-lord is {p.subLord}.</p>
+        {s && <ul className="mt-2 space-y-1">{stages.flatMap((stage) => s.levels[stage].length ? [<li key={stage}>{kpStageLabel(p, stage)} the {listJoin(s.levels[stage].map((h) => withGloss("kp", h)))}.</li>] : [])}</ul>}
+        {s?.agentFor?.length ? <p className="mt-1 text-muted-foreground">This node also represents {listJoin(s.agentFor)} under the app's KP node convention.</p> : null}
+        {findings.length > 0 && <div className="mt-2"><p className="font-medium">Selected cusp rules where {p.planet} is the sub-lord</p><ul className="mt-1 space-y-2">{findings.slice(0, 3).map((f) => <li key={f.ruleId}><span className="font-medium">{f.topic}:</span> <Soft>{kpFindingPlain(f)}</Soft> <span className="text-muted-foreground">{kpHerePlain(f)} {f.standing === "note" ? "This is a secondary note." : ""}</span> <Cite href={f.sourceUrl}>{f.source}</Cite></li>)}</ul></div>}
+        {!findings.length && <p className="mt-2 text-muted-foreground">No additional plain cusp interpretation is selected here; the house links above remain chart facts.</p>}
+      </details>;
+    })}</div>
+  </section>;
+}
 
 const fmt = (iso: string) => DateTime.fromISO(iso).toFormat("d LLL yyyy");
 const fmtMonth = (iso: string) => DateTime.fromISO(iso).toFormat("LLL yyyy");
@@ -1259,6 +1284,7 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
               </TableBody>
             </Table>
           </Working>
+          {plain && <KpPlanetExplanations kp={kp} sixStep={sixStep} />}
         </section>
       </div>
 
@@ -1503,6 +1529,10 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
                     />
                   </span>
                 </div>
+                {plain && <p className="mt-2 text-xs leading-relaxed text-muted-foreground" data-testid={`kp-cusp-context-${c.house}`}>
+                  {kpHouseContext(c, sl, houses, sixStep)}
+                </p>}
+                {plain && houses.length > 0 && <details className="mt-1 text-xs text-muted-foreground"><summary className="cursor-pointer font-medium">What the linked houses mean</summary><ul className="mt-1 space-y-0.5">{houses.map((h) => <li key={h}>{ordinal(h)}: {houseGloss("kp", h)}.</li>)}</ul></details>}
                 {main.length ? (
                   <ul className="mt-3 space-y-2">
                     {main.map((f) => (

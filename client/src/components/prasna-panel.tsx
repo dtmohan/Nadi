@@ -57,6 +57,9 @@ import {
 } from "@shared/prasna-deities";
 import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 import { houseGloss } from "@shared/house-gloss";
+import { listJoin, ordH, withGloss } from "@shared/house-gloss";
+import { PRASNA_HOUSE_EFFECT_PLAIN } from "@shared/prasna-plain";
+import { firstClause } from "@shared/synthesis";
 import { Button } from "@/components/ui/button";
 import {
   prasnaStore,
@@ -147,7 +150,7 @@ function HouseEffectsList({ readings, withheld }: { readings: PrasnaHouseReading
               <span className="font-medium text-verdict-bad">
                 {r.malefics.map((p) => p.planet).join(", ")} ·{" "}
               </span>
-              {plain ? "The app has a challenging house-effects line; the source may require additional conditions." : <Soft>{withheld ? redactProse(r.maleficText) : r.maleficText}</Soft>}
+              {plain ? withheld && r.house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[r.house].malefic : <Soft>{withheld ? redactProse(r.maleficText) : r.maleficText}</Soft>}
             </p>
           )}
           {r.beneficText && (
@@ -155,7 +158,7 @@ function HouseEffectsList({ readings, withheld }: { readings: PrasnaHouseReading
               <span className="font-medium text-verdict-good">
                 {r.benefics.map((p) => p.planet).join(", ")} ·{" "}
               </span>
-              {plain ? "The source associates these occupants with supportive themes for this house as a whole." : <Soft>{withheld ? redactProse(r.beneficText) : r.beneficText}</Soft>}
+              {plain ? withheld && r.house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[r.house].benefic : <Soft>{withheld ? redactProse(r.beneficText) : r.beneficText}</Soft>}
             </p>
           )}
         </li>
@@ -217,7 +220,7 @@ function HouseWalk({
                     <span className="font-medium text-verdict-bad">
                       {r.malefics.map((p) => p.planet).join(", ")} ·{" "}
                     </span>
-                    {plain ? "The app has a challenging house-effects line; the source may require additional conditions." : <Soft>{withheld ? redactProse(r.maleficText) : r.maleficText}</Soft>}
+                    {plain ? withheld && house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[house].malefic : <Soft>{withheld ? redactProse(r.maleficText) : r.maleficText}</Soft>}
                   </p>
                 )}
                 {r.beneficText && (
@@ -225,7 +228,7 @@ function HouseWalk({
                     <span className="font-medium text-verdict-good">
                       {r.benefics.map((p) => p.planet).join(", ")} ·{" "}
                     </span>
-                    {plain ? "The source associates these occupants with supportive themes for this whole house." : <Soft>{withheld ? redactProse(r.beneficText) : r.beneficText}</Soft>}
+                    {plain ? withheld && house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[house].benefic : <Soft>{withheld ? redactProse(r.beneficText) : r.beneficText}</Soft>}
                   </p>
                 )}
               </>
@@ -238,7 +241,7 @@ function HouseWalk({
               <p className="mt-1.5 text-xs leading-relaxed text-foreground/90">
                 {!plain && <><span className="font-medium">{FRUCT_LABEL[f.verdict]}.</span>{" "}</>}
                 <span data-testid={`prasna-fruct-note-${house}`}>
-                  {plain ? "The ruler and significator are assessed for this entire house; this is not a verdict on any one of its matters." : f.note}
+                  {plain ? `${firstClause(f.notePlain)}. These are the ruler and significator used in the source's house-wide assessment; their classifications include app conventions and do not settle a particular outcome.` : f.note}
                 </span>
               </p>
             )}
@@ -863,6 +866,25 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
             withheld={withheld}
           />
         </div>
+        {plain && <section className="mt-5" data-testid="prasna-planet-explanations">
+          <h3 className="text-sm font-semibold">Planets in this birth-chart view</h3>
+          <p className="mt-1 text-xs text-muted-foreground">These are whole-sign natal houses, not the question-time chart. The occupant and condition classifications are provisional app conventions.{(result.chart.timeUncertaintyMin ?? 0) > 0 && ` The stated ±${result.chart.timeUncertaintyMin}-minute birth-time range may change these houses or their rulers.`}</p>
+          <div className="mt-2 divide-y rounded-md border">{positions.map((p) => {
+            const house = ((p.signIndex - birthLagnaIdx + 12) % 12) + 1;
+            const owned = Array.from({ length: 12 }, (_, i) => i + 1).filter((h) => SIGN_LORD[(birthLagnaIdx + h - 1) % 12] === p.planet);
+            const row = natal.find((r) => r.house === house);
+            const type = row?.benefics.some((x) => x.planet === p.planet) ? "benefic" : row?.malefics.some((x) => x.planet === p.planet) ? "malefic" : undefined;
+            const disposition = dispositions.find((d) => d.planet === p.planet);
+            const strength = reading.strength.find((s) => s.planet === p.planet);
+            return <details key={p.planet} className="px-3 py-2 text-xs" data-testid={`prasna-planet-explanation-${p.planet}`}>
+              <summary className="cursor-pointer text-sm font-medium">{p.planet} · {p.sign} · {ordH(house)} house</summary>
+              <p className="mt-1.5">{p.planet} occupies the {withGloss("prasna", house)} house. {owned.length ? `It rules the ${listJoin(owned.map((h) => withGloss("prasna", h)))} ${owned.length === 1 ? "house" : "houses"}.` : "It is not assigned sign ownership in this convention."}</p>
+              {type && row && <p className="mt-1">For this house, the app classifies {p.planet} as {type}. {withheld && house === 5 ? "The sensitive source passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[house][type]} <span className="text-muted-foreground">Prasna Marga 14.{row.stanza}; the passage concerns the whole house.</span></p>}
+              {disposition && strength && <p className="mt-1 text-muted-foreground">The separate planetary-condition proxy is {disposition.disposition}: it uses Nadi-derived effective sign condition ({strength.effectiveDignity}), solar-contact status ({strength.effectiveCombust ? "present" : "not present"}) and hemming ({strength.hemmed ?? "none"}). This partial, provisional app proxy is not a complete Prasna planetary judgment. {disposition.source}.</p>}
+              {!disposition && <p className="mt-1 text-muted-foreground">The entered condition proxy does not assign this planet a favourable or unfavourable condition.</p>}
+            </details>;
+          })}</div>
+        </section>}
 
         <div className="mt-6" aria-label="Progeny">
           <SectionTitle plain="Progeny" technical="Santhana (19)" as="h4" />

@@ -38,6 +38,7 @@ import {
   VargaHouses,
   VargaMeaningBox,
   VargaOverview,
+  VargaPlanetExplanations,
 } from "@/components/varga-meanings";
 import { Expander, HOW_COMPUTED } from "@/components/working";
 
@@ -357,6 +358,7 @@ export function VargasSection({
         </div>
       </div>
       <VargaHouses varga={varga} chart={chart} withheld={withheld} />
+      {plain && <VargaPlanetExplanations varga={varga} chart={chart} planets={v.planets} />}
       <div
         className="mt-4 rounded-md border bg-card p-3 text-xs"
         data-testid="varga-spouse"

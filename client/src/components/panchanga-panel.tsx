@@ -40,6 +40,7 @@ import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 import { BirthStarSection } from "@/components/birth-star";
 import { NakshatraContextPanel } from "@/components/nakshatra-context";
 import { natalPlanetContext } from "@shared/planet-context";
+import { gocharaContext } from "@shared/chart-explanations";
 
 const fmtT = (iso: string, zone: string) =>
   DateTime.fromISO(iso).setZone(zone).toFormat("HH:mm");
@@ -265,7 +266,7 @@ const BORDER: Record<GocharaVerdict, string> = {
 const ORD = (h: number) =>
   `${h}${h === 1 ? "st" : h === 2 ? "nd" : h === 3 ? "rd" : "th"}`;
 
-function GocharaRowView({ r }: { r: GocharaRow }) {
+function GocharaRowView({ r, moonSign }: { r: GocharaRow; moonSign: number }) {
   const plain = usePlain();
   return (
     <li
@@ -311,6 +312,9 @@ function GocharaRowView({ r }: { r: GocharaRow }) {
           </span>
         </span>
       </div>
+      {plain && <p className="mt-2 text-xs leading-relaxed" data-testid={`gochara-context-${r.planet}`}>
+        {gocharaContext(r, moonSign)}
+      </p>}
       {plain && r.voided ? (
         <p className="mt-2" data-testid={`gochara-voided-${r.planet}`}>
           {gocharaPlainEffect(r)}
@@ -840,7 +844,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         />
         <ul className="mt-3 space-y-2" data-testid="gochara-list">
           {gochara.rows.map((r) => (
-            <GocharaRowView key={r.planet} r={r} />
+            <GocharaRowView key={r.planet} r={r} moonSign={natalMoon.signIndex} />
           ))}
         </ul>
         <div className="mt-3 flex flex-wrap gap-2">

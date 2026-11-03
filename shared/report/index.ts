@@ -153,6 +153,8 @@ export function buildReport(
           { kind: "note", text: "Selected interpretations keep their original scope. House-level assessments cover several matters. ALP uses the date shown; Prasna Marga here reads the birth chart, not a question chart. Birth-time uncertainty can change house-based readings." },
           ...topics.flatMap((t): ReportPara[] => [
             { kind: "p", text: `${SCHOOL_TOPIC_LABEL[t.topic]}${t.frame ? ` (${t.frame})` : ""}: ${t.summary} ${t.limit}${t.conditional ? " This assessment is conditional on the birth time." : ""}${t.provisional ? " This classification is provisional." : ""}`, provisional: t.provisional },
+            ...(t.explanation ?? []).map((text): ReportPara => ({ kind: "p", text })),
+            ...(t.explanationHouses?.length ? [{ kind: "note" as const, text: `KP house meanings: ${t.explanationHouses.map((h) => `${h.house}: ${h.meaning}`).join("; ")}.` }] : []),
             ...(t.details ?? []).map((d): ReportPara => ({ kind: "p", text: d.text, cites: [ctx.cites.add(d.source, d.sourceUrl)], provisional: t.provisional })),
           ]),
           ...(school === "kp" || school === "parashari" || school === "jaimini" ? [{ kind: "note" as const, text: AGREEMENT_METHOD[school] }] : []),

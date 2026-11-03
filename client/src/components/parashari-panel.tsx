@@ -4,6 +4,8 @@ import {
   sensitiveGate,
   redactSensitive,
   redactProse,
+  sensitiveTags,
+  withholdText,
   SENSITIVE_WITHHELD_NOTE,
 } from "@shared/life-stage";
 import { GentleNote, Soft } from "@/lib/gentle";
@@ -48,6 +50,7 @@ import { TopicReadingPanel } from "@/components/topic-reading";
 import { SchoolTopicPanel } from "@/components/school-topic-brief";
 import { PvrKalachakraResearch } from "@/components/pvr-kalachakra-research";
 import { ParashariNatalRules } from "@/components/natal-rule-evidence";
+import { concealAvasthaEffect, parashariHouseContext, parashariPlanetContext } from "@shared/chart-explanations";
 import { PLANET_ABBR, SIGNS, SIGN_LORD, type Planet, type PlanetPosition } from "@shared/astro";
 import {
   computeParashari,
@@ -62,6 +65,8 @@ import {
   type AspectFloor,
   type ParashariFinding,
   type DashaGloss,
+  type Bhava,
+  type ParashariResult,
 } from "@shared/parashari";
 import {
   Select,
@@ -558,10 +563,14 @@ function Finding({ f }: { f: ParashariFinding }) {
  */
 function HouseByHouse({
   prose,
+  bhavas,
+  uncertainty,
   focusHouse,
   onToggle,
 }: {
   prose: HouseProse[];
+  bhavas: Bhava[];
+  uncertainty: number;
   focusHouse: number | null;
   onToggle: (house: number) => void;
 }) {
@@ -575,6 +584,7 @@ function HouseByHouse({
         data-testid="text-house-prose-note"
       >
         {plain ? HOUSE_PROSE_NOTE_PLAIN : HOUSE_PROSE_NOTE}
+        {plain && uncertainty > 0 && ` The stated ±${uncertainty}-minute birth-time range may change the house, its ruler or its occupants.`}
       </p>
       <div className="mt-3 divide-y rounded-md border">
         {prose.map((hp) => {
@@ -615,6 +625,9 @@ function HouseByHouse({
                   className="space-y-2 px-3 pb-3 pl-9 text-sm leading-relaxed"
                   data-testid={`house-prose-body-${hp.house}`}
                 >
+                  {plain && bhavas.find((b) => b.house === hp.house) && <p className="rounded bg-muted/40 p-2 text-xs" data-testid={`house-context-${hp.house}`}>
+                    {parashariHouseContext(bhavas.find((b) => b.house === hp.house)!)}
+                  </p>}
                   {/* The plain row already says what the house covers; the practitioner line adds 11.N's full list. */}
                   {hp.parts.filter((part) => !(plain && part.key === "covers")).map((part, i) => (
                     <p
@@ -650,6 +663,29 @@ function HouseByHouse({
       </div>
     </section>
   );
+}
+
+/** Existing planet checks and house passages, brought together without recalculating their verdicts. */
+function ParashariPlanetExplanations({ reading, uncertainty }: { reading: ParashariResult; uncertainty: number }) {
+  return <section className="mt-5" data-testid="parashari-planet-explanations">
+    <h3 className="text-sm font-semibold">Your planets, one by one</h3>
+    <p className="mt-1 text-xs text-muted-foreground">Each planet's house roles and condition come from the selected Parashari house view. Source passages are separate indications; a role alone does not decide an outcome.{uncertainty > 0 && ` The stated ±${uncertainty}-minute birth-time range may change the house roles or placements.`}</p>
+    <div className="mt-2 divide-y rounded-md border">{reading.natures.map((n) => {
+      const passages = reading.withheld ? [] : (reading.houseProse ?? []).flatMap((h) => h.parts.filter((p) =>
+        (p.key === "planet" && p.planet === n.planet || p.key === "lord" && n.owns.includes(h.house)) &&
+        !sensitiveTags(p.textPlain).length && !withholdText(p.textPlain) && !/\b(ruin|penury|destitution|disease|illness|death|fertil|pregnan)\b/i.test(p.textPlain))
+        .map((p) => ({ ...p, house: h.house })));
+      const checks = parashariPlanetContext(n, reading.checks[n.planet] ?? []);
+      return <details key={n.planet} className="px-3 py-2" data-testid={`parashari-planet-explanation-${n.planet}`}>
+        <summary className="cursor-pointer text-sm font-medium">{n.planet} · house {n.house}{n.owns.length ? ` · rules ${n.owns.join(", ")}` : ""}</summary>
+        <div className="mt-2 space-y-2 text-xs leading-relaxed">
+          <p>{checks[0]}</p>
+          {checks.length > 1 && <p className="text-muted-foreground">{checks.slice(1).join(" ")}</p>}
+          {passages.length ? <><p className="font-medium">Selected source interpretations</p><ul className="space-y-2">{passages.slice(0, 3).map((p, i) => <li key={`${p.house}-${p.key}-${i}`}><Soft>{p.textPlain}</Soft>{p.sources.map((source) => <span key={source.label} className="ml-1"><SourceLink source={source} /></span>)}</li>)}</ul>{passages.length > 3 && <p className="text-muted-foreground">More passages are in the house readings.</p>}</> : <p className="text-muted-foreground">No additional plain source passage is selected here; see the house reading for its full conditions.</p>}
+        </div>
+      </details>;
+    })}</div>
+  </section>;
 }
 
 /**
@@ -1636,6 +1672,8 @@ export function ParashariPanel({
           )}
           <HouseByHouse
             prose={r.houseProse ?? []}
+            bhavas={r.bhavas}
+            uncertainty={chart.timeUncertaintyMin ?? 0}
             focusHouse={focusHouse}
             onToggle={(h) => setFocusHouse((cur) => (cur === h ? null : h))}
           />
@@ -1755,6 +1793,7 @@ export function ParashariPanel({
             ))}
           </TableBody>
         </Table>
+        {plain && <ParashariPlanetExplanations reading={r} uncertainty={chart.timeUncertaintyMin ?? 0} />}
       </div>
 
       </Chapter>
@@ -3831,7 +3870,9 @@ function AvasthasSection({
                       {plain ? x.sayanadi.plain : x.sayanadi.name}
                     </span>
                     <span className="mt-0.5 block text-xs text-muted-foreground">
-                      <Soft>{x.sayanadi.effect}</Soft>{" "}
+                      {plain && concealAvasthaEffect(x.sayanadi.effect)
+                        ? "The historical passage contains sensitive personal claims; its original wording is available in Practitioner. This planetary state cannot establish those outcomes."
+                        : <>{plain && "The historical passage describes: "}<Soft>{x.sayanadi.effect}</Soft>{plain && " This is a source interpretation, not a conclusion about a person."}</>}{" "}
                       <SourceLink
                         source={{
                           label: `45.${x.sayanadi.verse}`,

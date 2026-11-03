@@ -30,6 +30,7 @@ import { PLAIN_TOPIC_LABEL, plainTopicBriefs, type PlainTopicBrief } from "@shar
 import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL, type BriefSchool, type SchoolTopicBrief } from "@shared/school-topic-brief";
 import { defaultAlpForTopics, expandedSchoolTopicBriefs } from "@shared/school-topics-expanded";
 import { schoolDetailsLink, SchoolTopicExplanation } from "@/components/school-topic-brief";
+import { TopicThemes } from "@/components/topic-themes";
 
 const VERDICT_PILL: Record<GocharaVerdict, string> = {
   favourable: "bg-verdict-good/15 text-verdict-good",
@@ -78,7 +79,7 @@ function PlainTopicContent({ topic, past, onOpen, comparisons }: { topic: PlainT
     <>
       <p className="mt-2 text-sm leading-relaxed"><Soft>{topic.summary}</Soft></p>
       {topic.detailIntro && <p className="mt-2 text-sm leading-relaxed">{topic.detailIntro}</p>}
-      {!!topic.details?.length && <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed">{topic.details.map((detail, i) => <li key={i}><Soft>{detail}</Soft></li>)}</ul>}
+      <TopicThemes topic={topic} />
       {topic.contrast && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{topic.contrast}</p>}
       <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.limit}</p>
       {topic.comparison && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{topic.comparison}</p>}

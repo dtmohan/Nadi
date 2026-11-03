@@ -69,7 +69,7 @@ export const GLOSSARY: Record<string, GlossaryEntry> = {
   putra: {
     term: "Putra karaka",
     short:
-      "Jupiter read for children; the 5th sign from it gives their count and sex.",
+      "Jupiter is a traditional indicator of children. Some Nadi readings also examine the fifth sign from Jupiter; these placements cannot determine family size or a child's sex.",
     system: "bnn",
   },
   vidya: {

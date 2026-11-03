@@ -26,6 +26,10 @@ export interface SchoolTopicBrief {
   conditional: boolean;
   provisional: boolean;
   reason?: string;
+  /** Chart facts and their school-specific roles, separate from the stance. */
+  explanation?: string[];
+  /** Optional house glossary for the selected KP significations, in KP's own frame. */
+  explanationHouses?: Array<{ house: number; meaning: string }>;
   /** Selected, scoped source findings, not a combined verdict. */
   details?: Array<{ text: string; source: string; sourceUrl?: string; id: string }>;
   /** The relevant house/area for the details link. */

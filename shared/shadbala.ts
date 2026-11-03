@@ -621,8 +621,8 @@ export function strengthQualifier(lord: string, sb: { total: number; required: n
 
 /** The plain wording of the same qualifier, with the real percentage; the caller adds the verse tag if it uses one. */
 export function strengthQualifierPlain(lord: string, sb: { total: number; required: number; effect: "full" | "half" | "quarter" }): string {
-  if (sb.effect === "full") return `${lord} is strong enough by Parashara's measure to give this in full`;
+  if (sb.effect === "full") return `${lord} meets the app's strength threshold; the source associates greater strength with fuller results, but this check alone does not establish an outcome`;
   return sb.effect === "half"
-    ? `${lord} has ${strengthPct(sb)}% of the strength Parashara asks for; short of full strength, expect about half of this`
-    : `${lord} has ${strengthPct(sb)}% of the strength Parashara asks for, well short of it, so expect only a little of this`;
+    ? `${lord} has ${strengthPct(sb)}% of the stated strength requirement; the app provisionally places this in the source's middle-strength band`
+    : `${lord} has ${strengthPct(sb)}% of the stated strength requirement; the app provisionally places this in the source's lower-strength band`;
 }

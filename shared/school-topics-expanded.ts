@@ -9,12 +9,16 @@ import type { AgreementInput, TopicAgreement } from "./agreement";
 import { PLAIN_TOPIC_ORDER } from "./topic-brief";
 import { type BriefSchool, type SchoolTopic, type SchoolTopicBrief, schoolTopicBriefs } from "./school-topic-brief";
 import { computeAlp, DEFAULT_ALP_CONFIG, type AlpResult } from "./alp";
+import { ALP_RULES, type AlpFinding } from "./rules-alp";
 import { computePrasna, computePrasnaFructification, type PrasnaHouseReading, type PrasnaBhavaFructification } from "./rules-prasna";
-import { HOUSE_AREAS_PLAIN, PRASNA_HOUSE_GLOSS, ordH } from "./house-gloss";
+import { HOUSE_AREAS_PLAIN, PRASNA_HOUSE_GLOSS, houseGloss, ordH } from "./house-gloss";
 import { areaSeason, lifeAsOf, sensitiveGate, sensitiveTags } from "./life-stage";
 import { computeKp, isConditional } from "./kp";
 import { kpFindingPlain } from "./rules-kp";
 import { soften } from "./gentle";
+import { parashariHouseContext, kpHouseContext } from "./chart-explanations";
+import { KARAKA_MATTERS } from "./jaimini-areas";
+import { SIGNS } from "./astro";
 
 export const ALL_SCHOOL_TOPICS: SchoolTopic[] = [...PLAIN_TOPIC_ORDER, "father", "mother"];
 
@@ -84,7 +88,20 @@ export const ALP_PLAIN_TOPIC_RULES: Record<string, Partial<Record<SchoolTopic, s
   "ch17-dasa-1-bhukti-9": { father: "The source links the native's and father's experiences in this period.", family: "The source links the native's and father's experiences in this period." },
 };
 
+/** Only already-fired, reviewed rules explicitly testing this ALP house's own lord. */
+export function alpHouseLordInterpretations(house: number, findings: AlpFinding[]) {
+  const topics: Partial<Record<number, SchoolTopic[]>> = { 4: ["family", "mother", "wealth"], 7: ["marriage"], 10: ["career", "authority"] };
+  const topicNames = topics[house] ?? [];
+  return findings.flatMap((finding) => {
+    const rule = ALP_RULES.find((r) => r.id === finding.ruleId);
+    if (rule?.when.lordOf !== house) return [];
+    const text = topicNames.map((topic) => ALP_PLAIN_TOPIC_RULES[finding.ruleId]?.[topic]).find(Boolean);
+    return text ? [{ ruleId: finding.ruleId, text, source: finding.source, sourceUrl: finding.sourceUrl, here: finding.here }] : [];
+  });
+}
+
 const JAIMINI_AREA: Partial<Record<SchoolTopic, string>> = {
+  career: "career", marriage: "marriage", children: "children", father: "family", mother: "family",
   self: "self", authority: "career", wealth: "wealth", education: "children", family: "family", health: "health",
 };
 const JAIMINI_SPECIFIC: Partial<Record<SchoolTopic, string[]>> = {
@@ -94,7 +111,7 @@ const JAIMINI_SPECIFIC: Partial<Record<SchoolTopic, string[]>> = {
 
 function safe(text: string, topic: SchoolTopic): string | undefined {
   if (!text || sensitiveTags(text).length || topic === "health" || topic === "children") return undefined;
-  if (/\b(health|illness|disease|fertil|pregnan|surgery|injur|medical|death|dies|lifespan)\b/i.test(text)) return undefined;
+  if (/\b(health|illness|disease|fertil|pregnan|surgery|injur|medical|death|dies|lifespan|suicid\w*|self[- ]destruct\w*|self[- ]harm)\b/i.test(text)) return undefined;
   return soften(text);
 }
 function base(school: BriefSchool, topic: SchoolTopic): SchoolTopicBrief {
@@ -141,15 +158,47 @@ export function expandedSchoolTopicBriefs(result: ChartResult, school: BriefScho
   } : undefined;
   return ALL_SCHOOL_TOPICS.filter(allowed).flatMap((topic) => {
     const prior = legacy.find((b) => b.topic === topic);
-    if (prior) return [{ ...prior, ...(school === "kp" ? { frame: "Birth chart · four-step KP comparison" } : {}), conditional: prior.conditional || (school === "kp" && (result.chart.timeUncertaintyMin ?? 0) > 0) }];
+    if (prior) {
+      const b: SchoolTopicBrief = { ...prior, ...(school === "kp" ? { frame: "Birth chart · four-step KP comparison" } : {}), conditional: prior.conditional || ((school === "kp" || school === "parashari") && (result.chart.timeUncertaintyMin ?? 0) > 0) };
+      if (school === "parashari") {
+        const house = PAR_HOUSE[topic];
+        const bhava = input.parashari.bhavas.find((h) => h.house === house);
+        const prose = input.parashari.houseProse?.find((h) => h.house === house);
+        if (bhava) b.explanation = [parashariHouseContext(bhava), "The house's source passages also address other matters, so its overall balance is not a separate conclusion about this topic."];
+        b.detailHouse = house;
+        const part = prose?.parts.find((p) => p.key === "lord" && safe(p.textPlain, topic));
+        if (part?.sources[0]) b.details = [{ id: `house-${house}-lord`, text: `House-level source interpretation: ${safe(part.textPlain, topic)}`, source: part.sources[0].label, sourceUrl: part.sources[0].url }];
+      } else if (school === "kp") {
+        const house = ({ career: 10, marriage: 7, children: 5 } as Partial<Record<SchoolTopic, number>>)[topic];
+        const c = input.kp.cusps.find((x) => x.house === house);
+        const sl = c && input.kp.planets.find((p) => p.planet === c.subLord);
+        const s = c && input.kp.significators.find((p) => p.planet === c.subLord);
+        if (c && sl && s) { b.explanation = [kpHouseContext(c, sl, s.houses, false)]; b.explanationHouses = s.houses.map((house) => ({ house, meaning: houseGloss("kp", house) })); b.detailHouse = c.house; }
+        const labels = topic === "career" ? ["Career", "Employment", "Profession"] : topic === "marriage" ? ["Marriage", "Married life", "Partner", "Love"] : topic === "children" ? ["Children"] : [];
+        b.details = input.kp.findings.filter((f) => labels.includes(f.topic) && f.cusp === house).flatMap((f) => {
+          const text = safe(kpFindingPlain(f), topic);
+          return text ? [{ id: f.ruleId, text: `${f.standing === "note" ? "Secondary note: " : ""}${text}`, source: f.source, sourceUrl: f.sourceUrl }] : [];
+        }).slice(0, 2);
+      } else if (school === "jaimini") {
+        const area = input.jaimini.find((a) => a.area === JAIMINI_AREA[topic]);
+        if (area) {
+          b.detailArea = area.area;
+          b.explanation = area.karakas.map((k) => `For ${area.label.toLowerCase()}, ${k.planet} is ${k.karaka}, the movable significator for ${KARAKA_MATTERS[k.karaka]}. It is in ${SIGNS[k.sign]} in D1 and ${SIGNS[k.d9Sign]} in D9.`);
+        }
+      }
+      return [b];
+    }
     // Legacy agreement intentionally suppresses some topics; never recreate a hidden row.
     if ((school === "parashari" || school === "kp" || school === "jaimini") && ["career", "marriage", "children", "father", "mother"].includes(topic)) return [];
     const b = base(school, topic);
     b.limit = topicLimit(topic);
     if (school === "parashari") {
+      b.conditional = (result.chart.timeUncertaintyMin ?? 0) > 0;
       const house = PAR_HOUSE[topic];
       const h = input.parashari.houseProse?.find((p) => p.house === house);
+      const bhava = input.parashari.bhavas.find((p) => p.house === house);
       const canShowSharedHouse = house !== 5 || input.inSeason("children");
+      if (bhava && canShowSharedHouse) b.explanation = [parashariHouseContext(bhava)];
       b.detailHouse = canShowSharedHouse ? house : undefined;
       b.summary = `For this topic the reading refers to the ${ordH(house)} house, which also covers ${HOUSE_AREAS_PLAIN[house]}. ${!canShowSharedHouse ? "The shared house interpretation is held back at this age." : h ? "Its overall house interpretation is shown below." : "No house interpretation is available here."}`;
       const sentence = canShowSharedHouse && h ? safe(h.summaryPlain, topic) : undefined;
@@ -162,6 +211,10 @@ export function expandedSchoolTopicBriefs(result: ChartResult, school: BriefScho
     } else if (school === "kp") {
       const labels = KP_TOPICS[topic] ?? [];
       const matched = input.kp.findings.filter((f) => labels.includes(f.topic) && !(KP_EXCLUDED[topic] ?? []).includes(f.ruleId));
+      const firstCusp = input.kp.cusps.find((c) => c.house === matched[0]?.cusp);
+      const firstPlanet = firstCusp && input.kp.planets.find((p) => p.planet === firstCusp.subLord);
+      const firstSig = firstCusp && input.kp.significators.find((p) => p.planet === firstCusp.subLord);
+      if (firstCusp && firstPlanet && firstSig) { b.explanation = [kpHouseContext(firstCusp, firstPlanet, firstSig.houses, false)]; b.explanationHouses = firstSig.houses.map((house) => ({ house, meaning: houseGloss("kp", house) })); }
       const shown = matched.flatMap((f) => {
         const text = safe(kpFindingPlain(f), topic);
         return text ? [{ id: f.ruleId, text: `${f.standing === "note" ? "Secondary note, not the deciding result: " : ""}${text}`, source: f.source, sourceUrl: f.sourceUrl }] : [];
@@ -190,6 +243,7 @@ export function expandedSchoolTopicBriefs(result: ChartResult, school: BriefScho
     } else if (school === "jaimini") {
       const area = JAIMINI_AREA[topic];
       const a = input.jaimini.find((x) => x.area === area);
+      if (a) b.explanation = a.karakas.map((k) => `${k.planet} is ${k.karaka}, the movable significator for ${KARAKA_MATTERS[k.karaka]}; it is in ${SIGNS[k.sign]} in D1 and ${SIGNS[k.d9Sign]} in D9.`);
       const findings = result.jaimini.findings.filter((f) => (JAIMINI_SPECIFIC[topic] ?? []).includes(f.id));
       b.detailArea = area ?? (topic === "spirituality" ? "self" : undefined);
       b.details = findings.flatMap((f) => { const text = safe(f.text, topic); return text ? [{ id: f.id, text, source: f.source.label, sourceUrl: f.source.url }] : []; }).slice(0, 3);
@@ -223,6 +277,7 @@ export function expandedSchoolTopicBriefs(result: ChartResult, school: BriefScho
         const occupants = pm.readings.find((r) => r.house === house);
         const f = pm.fructification?.find((r) => r.house === house);
         b.summary = `The ${ordH(house)} house includes ${PRASNA_HOUSE_GLOSS[house]}. ${occupants ? "The selected chart has planets in this house." : "The selected chart has no planets in this house; its lord can still matter."}`;
+        if (occupants) b.explanation = [`The selected ${pm.frame === "natal" ? "birth" : "question"} chart has ${occupants.occupants.map((p) => p.planet).join(", ")} in this house. The source's occupant readings concern the whole house, not every matter individually.`];
         b.basis = f && topic !== "health" && topic !== "children" ? safe(f.notePlain, topic) ?? "See the house walk for the lord and karaka assessment." : "See the house walk for the individual source conditions. This house covers several matters.";
         b.details = [{ id: `prasna-house-${house}`, text: `This house covers ${PRASNA_HOUSE_GLOSS[house]}; see the house walk for the original conditions.`, source: `Prasna Marga, chapter XIV: house ${house} and ${f ? "verses 39–41" : "occupied-house effects"}` }];
         b.limit = `${topicLimit(topic)} A house-level assessment is not a verdict on this particular matter.`;

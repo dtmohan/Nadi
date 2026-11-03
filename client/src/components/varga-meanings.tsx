@@ -5,7 +5,9 @@ import {
   VARGA_SOURCES,
   type VargaChart,
   type VargaKey,
+  type PlanetVargas,
 } from "@shared/vargas";
+import { divisionalPlanetContext } from "@shared/chart-explanations";
 import {
   VARGA_MEANING_BY_KEY,
   VARGA_MEANING_NOTES,
@@ -230,6 +232,25 @@ export function VargaHouses({
       )}
     </div>
   );
+}
+
+/** Each of the nine planets in the selected division, using that division's cited method. */
+export function VargaPlanetExplanations({ varga, chart, planets }: { varga: VargaKey; chart: VargaChart; planets: PlanetVargas[] }) {
+  const m = VARGA_MEANING_BY_KEY[varga];
+  return <section className="mt-4 rounded-md border bg-card p-3" data-testid="varga-planet-explanations">
+    <h3 className="text-sm font-semibold">What the planets show in this chart</h3>
+    <p className="mt-1 text-xs text-muted-foreground">These are placements and the cited focus of this division. A placement alone is not an event prediction. The finer charts can change with the birth time; the score above covers the selected scheme, not just this division.</p>
+    <div className="mt-2 divide-y">{planets.map((p) => {
+      const lines = divisionalPlanetContext(p, chart, varga, m);
+      const house = ((p.signs[varga] - chart.lagnaSign + 12) % 12) + 1;
+      const cited = m.notByHouses ? m.notByHouses.cites : m.houses.find((h) => h.house === house)?.cites;
+      const lordCites = m.houses.filter((h) => h.withLord && SIGN_LORD[(chart.lagnaSign + h.house - 1) % 12] === p.planet).flatMap((h) => h.cites).filter((c, i, all) => all.findIndex((other) => other.voice === c.voice && other.ref === c.ref) === i);
+      return <details key={p.planet} className="py-2 text-xs" data-testid={`varga-planet-explanation-${p.planet}`}>
+        <summary className="cursor-pointer text-sm font-medium">{p.planet} · {varga} <SignName signIndex={p.signs[varga]} /></summary>
+        <div className="mt-1.5 space-y-1">{lines.map((line, i) => <p key={i}>{line}{i === 0 && <> <SourceLink source={VARGA_SOURCES.uses} mark={false} /></>}{i === 1 && cited && <Cites cites={cited} />}{line.startsWith("It also rules") && lordCites.length > 0 && <Cites cites={lordCites} />}</p>)}</div>
+      </details>;
+    })}</div>
+  </section>;
 }
 
 /** All sixteen charts at a glance; a row picks its chart. */

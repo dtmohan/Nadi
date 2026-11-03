@@ -6,6 +6,7 @@ import type { LifeArea, Reading } from "./rules";
 import { gist, toneOf, type AreaSynthesis } from "./synthesis";
 import { transitDay } from "./transit-date";
 import { sensitiveTags } from "./life-stage";
+import { bnnFindingContext } from "./chart-explanations";
 
 export type PlainTopic = LifeArea;
 
@@ -30,6 +31,8 @@ export interface PlainTopicNatal {
   summary: string;
   detailIntro?: string;
   details?: string[];
+  /** Exact evaluated finding behind each displayed theme, in the same order. */
+  detailEvidence?: Array<ReturnType<typeof bnnFindingContext> | undefined>;
   limit: string;
   contrast?: string;
 }
@@ -105,15 +108,15 @@ function otherNatal(topic: Exclude<PlainTopic, "career" | "marriage">, area: Are
     const findings = area ? [...area.key, ...area.rest] : [];
     const subjects: Array<[string, RegExp]> = [["Father", /\bfather\b/i], ["Mother", /\bmother\b/i],
       ["Siblings", /\b(sibling|siblings|brother|sister)\b/i], ["Family", /\b(parents|family|home)\b/i]];
-    const details = subjects.flatMap(([label, pattern]) => {
+    const entries = subjects.flatMap(([label, pattern]) => {
       const finding = findings.find((f) => pattern.test(gist(f.text)) &&
         (label !== "Family" || !/\b(father|mother|sibling|siblings|brother|sister)\b/i.test(gist(f.text))) &&
         generalTheme("family", f.text));
       const theme = finding && generalTheme("family", finding.text);
-      return theme ? [`${label}: ${theme}`] : [];
+      return theme && finding ? [{ text: `${label}: ${theme}`, evidence: bnnFindingContext(finding, reading.relations) }] : [];
     });
     return { summary: findings.length ? "The selected Nadi rules discuss different family members separately."
-      : "The selected Nadi rules do not provide a family interpretation here.", details,
+      : "The selected Nadi rules do not provide a family interpretation here.", details: entries.map((x) => x.text), detailEvidence: entries.map((x) => x.evidence),
       limit: "These are traditional possibilities in individual findings, not a combined verdict about your family." };
   }
   if (topic === "children") {
@@ -143,7 +146,9 @@ function otherNatal(topic: Exclude<PlainTopic, "career" | "marriage">, area: Are
     };
   }
   const selected = (area?.key ?? []).slice(0, 3);
-  const details = Array.from(new Set(selected.map((f) => generalTheme(topic, f.text)).filter((d): d is string => !!d)));
+  const entries = selected.flatMap((f) => { const text = generalTheme(topic, f.text); return text ? [{ text, evidence: bnnFindingContext(f, reading.relations) }] : []; })
+    .filter((entry, i, all) => all.findIndex((other) => other.text === entry.text) === i);
+  const details = entries.map((entry) => entry.text);
   const hasWithheldTheme = selected.some((f) => sensitiveTags(f.text).length);
   const all = area ? [...area.key, ...area.rest] : [];
   const good = all.some((f) => toneOf(f) === "good");
@@ -159,6 +164,7 @@ function otherNatal(topic: Exclude<PlainTopic, "career" | "marriage">, area: Are
       ? `The selected Nadi rules describe these possible themes about ${TOPIC_WORD[topic]}:`
       : `The selected Nadi rules do not give a clear plain-language theme about ${TOPIC_WORD[topic]} here.`,
     details,
+    detailEvidence: entries.map((entry) => entry.evidence),
     contrast,
     limit,
   };
@@ -169,7 +175,7 @@ export function plainTopicNatal(topic: PlainTopic, area: AreaSynthesis | undefin
   if (topic !== "career" && topic !== "marriage") return otherNatal(topic, area, reading);
   if (topic === "career") {
     const findings = area ? [...area.key.slice(0, area.careerAlternative ? 2 : 3), ...(area.careerAlternative ? [area.careerAlternative] : [])] : [];
-    const details = findings.map((f) => {
+    const entries = findings.flatMap((f) => {
       const clauses = gist(f.text).split(/[.;]/).map((s) => s.trim()).filter(Boolean);
       // Some combination rules start with a general trait before naming work. Prefer the
       // work clause, exactly as the rule describes it, without guessing a person's occupation.
@@ -178,14 +184,16 @@ export function plainTopicNatal(topic: PlainTopic, area: AreaSynthesis | undefin
         ?.replace(/^Livelihood takes the colour of .*? significations \(([^)]+)\)$/i, "Livelihood linked to $1")
         .replace(/^The native and the profession are bound together$/i, "Work and personal identity may be closely linked")
         .replace(/\bis the life's work$/i, "may be a work theme");
-      return plain ? `${plain.charAt(0).toUpperCase()}${plain.slice(1)}.` : "";
-    }).filter(Boolean);
+      return plain ? [{ text: `${plain.charAt(0).toUpperCase()}${plain.slice(1)}.`, evidence: bnnFindingContext(f, reading.relations) }] : [];
+    });
+    const details = entries.map((entry) => entry.text);
     const difficult = findings.flatMap((f) => gist(f.text).split(/[.;]/).slice(1))
       .map((s) => s.trim())
       .find((s) => /\b(breaks?|restarts?|interrupt\w*|setbacks?|delay\w*|friction|loss\w*|unrecognised)\b/i.test(s));
     return {
       summary: details.length ? "The selected Nadi rules describe these possible work themes or experiences:" : "The Nadi rules selected here do not give a specific work theme.",
       details,
+      detailEvidence: entries.map((entry) => entry.evidence),
       contrast: difficult ? `Another part of a selected rule mentions ${difficult.charAt(0).toLowerCase()}${difficult.slice(1)}.` : undefined,
       limit: "These are alternative interpretations, not a prediction of a particular occupation, promotion or job change. The full reading shows the other findings.",
     };
@@ -202,7 +210,8 @@ export function plainTopicNatal(topic: PlainTopic, area: AreaSynthesis | undefin
   const findings = area ? [...area.key, ...area.rest, ...(area.careerAlternative ? [area.careerAlternative] : [])] : [];
   // Keep the selected source interpretations visible, including conflicting themes. The
   // introductory label and limit frame them as possibilities, not facts about a partner.
-  const details = (area?.key ?? []).slice(0, 3).map(marriageTheme).filter(Boolean);
+  const entries = (area?.key ?? []).slice(0, 3).flatMap((f) => { const text = marriageTheme(f); return text ? [{ text, evidence: bnnFindingContext(f, reading.relations) }] : []; });
+  const details = entries.map((entry) => entry.text);
   const contrast = findings.some((f) => toneOf(f) === "good") && findings.some((f) => toneOf(f) === "hard")
     ? "Other Nadi findings describe both supportive and difficult relationship themes; their details are available in the Nadi reading."
     : undefined;
@@ -210,6 +219,7 @@ export function plainTopicNatal(topic: PlainTopic, area: AreaSynthesis | undefin
     summary,
     detailIntro: details.length ? "Other selected Nadi rules describe these possible relationship themes:" : undefined,
     details,
+    detailEvidence: entries.map((entry) => entry.evidence),
     limit: "This is a traditional indication, not a guarantee of marriage, its timing or the quality of a relationship.",
     contrast,
   };
