@@ -8,7 +8,7 @@ const show = (xs: string[]) => xs.length ? xs.join("; ") : "none found in this p
 /** A source-specific explanation, not a score or a conclusion about the event. */
 export function ManleyEvidencePanel({ evidence }: { evidence: ManleyEvidence }) {
   const periods = [...evidence.periods, ...(evidence.antara ? [evidence.antara] : [])];
-  const frame = (f: ManleyFrame) => <div key={f.chart} className="rounded border px-2 py-2">
+  const frame = (f: ManleyFrame) => <div key={f.chart} className="nadi-info-inset">
     <p className="font-medium text-foreground">{f.chart} · {SIGNS[f.ascendant]} rising · house {f.house} {SIGNS[f.houseSign]}, lord {f.houseLord}</p>
     {f.functional && <p data-testid={`functional-${f.chart}`}><strong>{f.functional.planet}:</strong> {SIGNS[f.functional.sign]}, house {f.functional.house}, {f.functional.dignity === "other" ? "no listed sign dignity" : f.functional.dignity}; owns {f.functional.owns.length ? `house${f.functional.owns.length > 1 ? "s" : ""} ${f.functional.owns.join(", ")}` : "no houses in this convention"}; functional classification: {f.functional.classification}{f.functional.directMatterLord ? ` · direct house ${f.house} lord` : ""}.
       {f.functional.yogaPair && ` Named pair with ${f.functional.yogaPair.partner} (owns ${f.functional.yogaPair.partnerOwns?.join(", ")}): ${show(f.functional.yogaPair.links)}. App relationship filter: ${show(f.functional.yogaPair.formation ?? [])}; one-way aspect alone does not pass. This filter does not assess every placement or adverse-lordship condition; it is not a complete yoga judgment.`}</p>}
@@ -34,7 +34,7 @@ export function ManleyEvidencePanel({ evidence }: { evidence: ManleyEvidence }) 
         return <div key={p.level} className="space-y-1.5">
           <p className="font-medium text-foreground">{p.level === "antara" ? "Third period (pratyantardasha)" : p.level}: {p.planet}{repeated ? " · same lord as an earlier period" : ""}</p>
           {p.frames.map(frame)}
-          {fourth && <div className="rounded border px-2 py-2" data-testid={`education-fourth-${p.level}`}>
+          {fourth && <div className="nadi-info-inset" data-testid={`education-fourth-${p.level}`}>
             <p className="font-medium text-foreground">D24 fourth house · {SIGNS[fourth.houseSign]}, lord {fourth.houseLord}</p>
             <p>House: {show(fourth.house)}. House lord: {show(fourth.houseLordLinks)}.</p>
           </div>}

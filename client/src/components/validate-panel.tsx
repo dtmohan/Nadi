@@ -818,8 +818,8 @@ export function ValidatePanel({ result }: { result: ChartResult }) {
             </Table>
           </div>
 
-          {v.events.map((e) => <details key={`catalogue-${e.id}`} className="mt-2 rounded border px-2 py-2 text-xs">
-            <summary className="cursor-pointer font-medium">Related school rules · {e.label} · {e.date}</summary>
+          {v.events.map((e) => <details key={`catalogue-${e.id}`} className="nadi-info-disclosure mt-2">
+            <summary className="nadi-info-summary">Related school rules · {e.label} · {e.date}</summary>
             <KpCatalogueEvidence evidence={e.kp.natalRules} /><ParashariCatalogueEvidence evidence={e.parashariOrdinary} />
             <AdditionalSchoolEventEvidence evidence={e.additionalNatal} /><AlpEventEvidencePanel evidence={e.alp} />
             <QualifiedEventScoresPanel scores={e.qualifiedScores} />

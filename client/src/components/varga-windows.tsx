@@ -18,8 +18,8 @@ export function VargaWindowsPanel({ rows, birthDate }: { rows: NonNullable<Recti
     <summary className="nadi-info-summary">Divisional ascendant windows · D1 to D60</summary>
     <div className="mt-2 space-y-2 text-muted-foreground">
       <p>These show where each ascendant changes within the scanned window, following the sequence in Manley's book. They do not select or confirm a birth time. Planetary divisional positions and period lords can also change within one ascendant window. Windows are clipped to the scan and use the chart's selected ayanamsa and divisional conventions. Boundaries are sampled and rounded to seconds; very rapid motion at extreme latitudes can be missed. D60 is especially sensitive.</p>
-      {rows.map(({ division, windows }) => <details key={division} className="rounded border px-2 py-1.5">
-        <summary className="cursor-pointer font-medium">{division} · {SUBJECT[division]} · {windows.length} {windows.length === 1 ? "window" : "windows"}</summary>
+      {rows.map(({ division, windows }) => <details key={division} className="nadi-info-disclosure">
+        <summary className="nadi-info-summary">{division} · {SUBJECT[division]} · {windows.length} {windows.length === 1 ? "window" : "windows"}</summary>
         <ul className="mt-1 space-y-1">{windows.map((w, i) => <li key={`${w.startIso}-${i}`}>
           {display(w.start, w.startIso, w.startDate)}–{display(w.end, w.endIso, w.endDate)} · {SIGNS[w.sign]}{w.given ? " · recorded time" : ""}
         </li>)}</ul>

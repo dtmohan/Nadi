@@ -165,7 +165,7 @@ export function TopicReadingPanel({ result, system, onSelected }: {
         {shown.reading.parashariSpecific && <ParashariSpecificPanel check={shown.reading.parashariSpecific} />}
         {shown.reading.parashariDivisional && <ParashariSpecificPanel check={shown.reading.parashariDivisional} />}
         {shown.reading.parashariVargas && !shown.reading.parashariPromise && <p className="text-muted-foreground">The favourable-event score is not applied to this matter or recorded outcome. The displayed placements remain descriptive and do not decide the outcome.</p>}
-        {stage && <p data-testid="topic-reading-stage" className="rounded border px-2 py-2 text-muted-foreground">Earlier divisional-only experiment: {stage.first ? "both initial links found" : "unresolved"}. Third period: {stage.first ? (stage.third ? "a primary link was found" : "unresolved") : "blocked by the earlier stage"}. This older experiment does not require D1 and is retained for comparison with previous research.</p>}
+        {stage && <p data-testid="topic-reading-stage" className="nadi-info-note">Earlier divisional-only experiment: {stage.first ? "both initial links found" : "unresolved"}. Third period: {stage.first ? (stage.third ? "a primary link was found" : "unresolved") : "blocked by the earlier stage"}. This older experiment does not require D1 and is retained for comparison with previous research.</p>}
         {shown.reading.parashariHierarchy && <ParashariHierarchyEvent event={shown.reading.parashariHierarchy} />}
         {shown.reading.manley && <ManleyEvidencePanel evidence={shown.reading.manley} />}
         {!shown.reading.parashariVargas && !shown.reading.manley && <p>No Parashari rule in this subset covers the selected matter.</p>}
@@ -176,7 +176,7 @@ export function TopicReadingPanel({ result, system, onSelected }: {
         <KpCatalogueEvidence evidence={shown.reading.kp.natalRules} />
         {shown.reading.kp.deniedAtCusp && <p className="text-muted-foreground">The app's twelfth-from-cusp condition is also present. This limited filter is not proof that an event cannot occur.</p>}
         <p>{(["dasa", "bhukti", "antara"] as const).map((level, i) => `${level} ${shown.reading.kp[level]}: ${shown.reading.kp.signified[i].join(", ") || "no selected house"}`).join(" · ")}.</p>
-        <details className="rounded border px-2 py-2"><summary className="cursor-pointer font-medium">Cusp filters and the two period-lord transits</summary>
+        <details className="nadi-info-disclosure"><summary className="nadi-info-summary">Cusp filters and the two period-lord transits</summary>
           {(["dasa", "bhukti", "antara"] as const).map((level, i) => <p key={level} className="mt-1">{level} {shown.reading.kp[level]}: {shown.reading.kp.filtered[i].length ? shown.reading.kp.filtered[i].map((f) => `house ${f.house} via cusp sub lord ${f.cuspSubLord}: ${f.denied ? "denied in this filter" : f.kept ? "kept" : "directed elsewhere"}`).join("; ") : "no selected house to filter"}.</p>)}
           {(["dasa", "bhukti"] as const).map((level) => { const t = shown.reading.kp.transit[level]; return <p key={level} className="mt-1">{level} {t.planet} in the sign, star and sub of {t.signLord}, {t.starLord}, {t.subLord}; matter-house links {t.hits.map((hit) => hit ? "yes" : "no").join(" / ")}.</p>; })}
           <p className="mt-1">Sun / Moon linked to a running period lord on this date: {shown.reading.kp.transit.luminary.sun ? "yes" : "no"} / {shown.reading.kp.transit.luminary.moon ? "yes" : "no"}. This is descriptive, not an extra score.</p>

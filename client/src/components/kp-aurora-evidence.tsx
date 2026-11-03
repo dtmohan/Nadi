@@ -52,7 +52,7 @@ export function AuroraSelfPanel({ planets, cusps }: { planets: KpPlanet[]; cusps
 }
 
 export function AuroraLinkDetail({ links }: { links: AuroraAscendantLinks }) {
-  return <div className="mt-2 rounded border px-2 py-1" data-testid="aurora-ascendant-links">
+  return <div className="nadi-info-inset mt-2" data-testid="aurora-ascendant-links">
     <p className="font-medium">First and ninth cusp links · descriptive</p>
     <p>First cusp star/sub: {links.firstStar}/{links.firstSub}; ninth cusp sub: {links.ninthSub}.
       {` Same sub: ${links.sameSub ? "yes" : "no"}; first star equals ninth sub: ${links.firstStarMatchesNinthSub ? "yes" : "no"}.`}</p>

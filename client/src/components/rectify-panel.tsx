@@ -1261,14 +1261,14 @@ export function RectifyPanel({
             {(focus.manley ?? []).map((e, i) => <ManleyEvidencePanel key={`${e.matter}-${e.date}-${i}`} evidence={e} />)}
           </details>}
           {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.parashariHierarchy?.map((e, i) => e && <ParashariHierarchyEvent key={`hierarchy-${i}`} event={e} />)}
-          {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.events.map((e, i) => <details key={`school-context-${i}`} className="mt-2 rounded border px-2 py-2 text-xs">
-            <summary className="cursor-pointer font-medium">Related school rules · {e.label} · {e.date} · candidate midpoint</summary>
+          {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.events.map((e, i) => <details key={`school-context-${i}`} className="nadi-info-disclosure mt-2">
+            <summary className="nadi-info-summary">Related school rules · {e.label} · {e.date} · candidate midpoint</summary>
             <KpCatalogueEvidence evidence={e.natalRules} /><ParashariCatalogueEvidence evidence={focus.parashariOrdinary?.[i]} />
             <AdditionalSchoolEventEvidence evidence={e.additionalNatal} /><AlpEventEvidencePanel evidence={e.alp} />
             <QualifiedEventScoresPanel scores={e.qualifiedScores} />
           </details>)}
-          {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.baseline?.catalogueExample && <details className="mt-2 rounded border px-2 py-2 text-xs">
-            <summary className="cursor-pointer font-medium">School rules in the first comparison set</summary>
+          {(isParashariMethod || EVENT_METHODS.includes(method)) && focus?.baseline?.catalogueExample && <details className="nadi-info-disclosure mt-2">
+            <summary className="nadi-info-summary">School rules in the first comparison set</summary>
             <p className="mt-1 text-muted-foreground">These are contextual findings for the sampled dates. They do not add points to the comparison statistics.</p>
             {focus.baseline.catalogueExample.map((e, i) => <div key={`${e.label}-${e.date}-${i}`}><p className="mt-2 font-medium">{e.label} · {e.date}</p><KpCatalogueEvidence evidence={e.natalRules} /><ParashariCatalogueEvidence evidence={e.parashariOrdinary} /><AdditionalSchoolEventEvidence evidence={e.additionalNatal} /><AlpEventEvidencePanel evidence={e.alp} /><QualifiedEventScoresPanel scores={e.qualifiedScores} /></div>)}
           </details>}
