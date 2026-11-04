@@ -54,7 +54,7 @@ export function ChartSettings({
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="w-72 text-sm"
+        className="max-h-[65svh] w-72 overflow-y-auto text-sm [overscroll-behavior:contain]"
         data-testid="popover-chart-settings"
       >
         <dl className="grid grid-cols-[6rem_1fr] gap-y-1.5 text-xs">

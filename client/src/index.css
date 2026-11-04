@@ -7,6 +7,11 @@
 /* The About page's prose blocks (prose, prose-sm, prose-invert). */
 @plugin "@tailwindcss/typography";
 
+/* The wide chart rail replaces the floating trigger at the same breakpoint. */
+@media (min-width: 1400px) {
+  .reference-floating-trigger { display: none; }
+}
+
 /* A form label over its control. Tailwind 3's space-y put the gap above the control, which is where it has to go
    when the label is an inline element; Tailwind 4's space-y puts it under the label, where an inline box ignores it. */
 @utility field-stack {

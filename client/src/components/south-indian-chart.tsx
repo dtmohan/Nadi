@@ -9,6 +9,7 @@ import {
   type Planet,
 } from "@shared/astro";
 import { useChartFocus, type ChartLayout } from "@/components/chart-focus";
+import { useLocale, useT } from "@/lib/i18n";
 import { planetColor } from "@/components/planet-name";
 
 const CELL = 100;
@@ -130,6 +131,11 @@ interface Props {
   secondarySigns?: number[];
   /** Force a layout; otherwise the user's preference from the chart settings applies. */
   layout?: ChartLayout;
+  /** A sign-only reference can mark the rising sign without assigning whole-sign houses. */
+  showHouseNumbers?: boolean;
+  ariaLabel?: string;
+  /** Use larger abbreviations without degrees in a small reference chart. */
+  compactPlanets?: boolean;
 }
 
 interface Entry {
@@ -148,11 +154,13 @@ function PlanetEntry({
   bold,
   hovered,
   onHover,
+  showDegrees = true,
 }: Entry & {
   tag?: string;
   bold: boolean;
   hovered: boolean;
   onHover: (p: Planet | null) => void;
+  showDegrees?: boolean;
 }) {
   const color = planetColor(p.planet);
   const fs = size; // abbreviation size; glyph and degree scale from it
@@ -203,7 +211,7 @@ function PlanetEntry({
           >
             {tag}
           </tspan>
-        ) : (
+        ) : showDegrees ? (
           <tspan
             fontSize={fs * 0.68}
             className="fill-muted-foreground tabular"
@@ -217,7 +225,7 @@ function PlanetEntry({
           >
             {Math.floor(p.degInSign)}°
           </tspan>
-        )}
+        ) : null}
       </text>
     </g>
   );
@@ -287,6 +295,8 @@ function SouthLayout(
     footer,
     secondarySigns,
     houseKaraka,
+    showHouseNumbers = true,
+    compactPlanets = false,
     hovered,
     onHover,
     refSign,
@@ -314,7 +324,7 @@ function SouthLayout(
       viewBox={`0 0 ${SIZE + PAD * 2} ${SIZE + PAD * 2}`}
       className="h-auto w-full"
       role="img"
-      aria-label="South Indian chart"
+      aria-label={props.ariaLabel ?? "South Indian chart"}
     >
       <rect
         x={PAD}
@@ -331,7 +341,7 @@ function SouthLayout(
         const tr = transitBySign.get(signIndex) ?? [];
         const active = highlightSign === signIndex;
         const aspected = !active && secondarySigns?.includes(signIndex);
-        const houseNo = refSign !== null ? houseFrom(refSign, signIndex) : null;
+        const houseNo = showHouseNumbers && refSign !== null ? houseFrom(refSign, signIndex) : null;
         return (
           <g
             key={signIndex}
@@ -379,7 +389,7 @@ function SouthLayout(
               x={x + 7}
               y={y + 14}
               className="fill-muted-foreground select-none"
-              fontSize={10.5}
+              fontSize={compactPlanets ? 14 : 10.5}
               fontWeight={500}
               letterSpacing={0.3}
             >
@@ -432,7 +442,8 @@ function SouthLayout(
                   p={p}
                   x={px}
                   y={py}
-                  size={13}
+                  size={compactPlanets ? 16 : 13}
+                  showDegrees={!compactPlanets}
                   tag={tags?.[p.planet]}
                   bold={bold(p.planet)}
                   hovered={hovered === p.planet}
@@ -680,6 +691,7 @@ function NorthLayout(
     onHover,
     refSign,
     bold,
+    compactPlanets = false,
   } = props;
   const bySign = new Map<number, ChartPlanet[]>();
   for (const p of positions)
@@ -703,7 +715,7 @@ function NorthLayout(
     highlightSign !== null &&
     highlightSign !== undefined &&
     (secondarySigns?.length ?? 0) > 0;
-  const FS = 12;
+  const FS = compactPlanets ? 14 : 12;
   const ROW = 19;
 
   return (
@@ -711,7 +723,7 @@ function NorthLayout(
       viewBox={`0 0 ${SIZE + PAD * 2} ${SIZE + PAD * 2}`}
       className="h-auto w-full"
       role="img"
-      aria-label="North Indian chart"
+      aria-label={props.ariaLabel ?? "North Indian chart"}
     >
       <rect
         x={PAD}
@@ -728,13 +740,13 @@ function NorthLayout(
         const active = highlightSign === signIndex;
         const aspected = !active && secondarySigns?.includes(signIndex);
         const pts = h.poly.map(([x, y]) => `${x + PAD},${y + PAD}`).join(" ");
-        const cols =
+        const cols = Math.max(1,
           natal.length <= 3 && h.cols === 1
             ? 1
             : natal.length <= 2
               ? Math.min(natal.length, 2)
-              : 2;
-        const rows = Math.ceil(natal.length / cols);
+              : 2);
+        const rows = Math.max(1, Math.ceil(natal.length / cols));
         const colW = cols === 1 ? 0 : 42;
         const blockW = cols === 1 ? 36 : 42 * cols;
         const x0 = PAD + h.anchor[0] - blockW / 2 + 2;
@@ -792,6 +804,7 @@ function NorthLayout(
                   x={x0 + c * colW}
                   y={y0 + r * ROW}
                   size={FS}
+                  showDegrees={!compactPlanets}
                   tag={tags?.[p.planet]}
                   bold={bold(p.planet)}
                   hovered={hovered === p.planet}
@@ -861,6 +874,8 @@ function NorthLayout(
  */
 export function SouthIndianChart(props: Props) {
   const focus = useChartFocus();
+  const { locale } = useLocale();
+  const t = useT();
   const layout = props.layout ?? focus.layout;
   const {
     positions,
@@ -906,7 +921,9 @@ export function SouthIndianChart(props: Props) {
             <span className="block text-2xs">
               {props.footer ??
                 `Rasi · sidereal${houseKaraka ? ` · houses from ${houseKaraka}` : ""}`}{" "}
-              · first house {SIGNS[refSign]} at the top
+              {props.showHouseNumbers === false
+                ? locale === "ml" ? ` · ${t(SIGNS[refSign])} മുകളിൽ` : ` · ${SIGNS[refSign]} at the top`
+                : ` · first house ${SIGNS[refSign]} at the top`}
             </span>
           </p>
         )}

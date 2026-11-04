@@ -2,7 +2,7 @@ import { displayLocal } from "@shared/time-basis";
 import { LocalizedText, useLocale, useT } from "@/lib/i18n";
 import { DeceasedProvider } from "@/components/mode-text";
 import { Soft } from "@/lib/gentle";
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEventHandler, type ReactNode } from "react";
 import { useLocation, useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { DateTime } from "luxon";
@@ -25,6 +25,8 @@ import {
 import type { ChartResult } from "@shared/schema";
 import type { ChartEvent } from "@shared/events";
 import { TopicReadingPanel, type TopicReadingSystem } from "@/components/topic-reading";
+import { ReferenceChart } from "@/components/reference-chart";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { TopicThemes } from "@/components/topic-themes";
 import { natalPlanetContext } from "@shared/planet-context";
 import { sensitiveTags } from "@shared/life-stage";
@@ -127,6 +129,7 @@ import {
   type HouseClass,
 } from "@shared/houses";
 import { SouthIndianChart } from "@/components/south-indian-chart";
+import { useChartLayout } from "@/components/chart-focus";
 import { PlanetName, planetColor } from "@/components/planet-name";
 import { ChartSettings } from "@/components/chart-settings";
 import { OverviewPanel } from "@/components/overview-panel";
@@ -1299,6 +1302,8 @@ function Reading({
 }) {
   const { reading, positions, chart } = result;
   const { mode } = useReadingMode();
+  const { locale } = useLocale();
+  const t = useT();
   const areas = useMemo(() => {
     const findings = selected
       ? reading.findings.filter((f) => f.planets.includes(selected))
@@ -1389,9 +1394,7 @@ function Reading({
 
       {selected && (
         <p className="text-sm text-muted-foreground">
-          Showing findings that involve{" "}
-          <span className="font-medium text-foreground">{selected}</span>. Click
-          the row again to clear.
+          {locale === "ml" ? <>{t(selected)} ഉൾപ്പെടുന്ന സൂചനകളാണ് കാണിക്കുന്നത്. ഗ്രഹ തിരഞ്ഞെടുപ്പ് ഒഴിവാക്കുകയോ പട്ടികയിലെ അതേ വരി വീണ്ടും തിരഞ്ഞെടുക്കുകയോ ചെയ്യാം.</> : <>Showing findings that involve <span className="font-medium text-foreground">{selected}</span>. Clear the planet selector or select its row again to show all findings.</>}
         </p>
       )}
 
@@ -1925,9 +1928,11 @@ const MODES: {
 function ModeBar({
   mode,
   onPick,
+  onOpenChart,
 }: {
   mode: SystemMode;
   onPick: (m: SystemMode) => void;
+  onOpenChart: MouseEventHandler<HTMLButtonElement>;
 }) {
   const t = useT();
   return (
@@ -1937,7 +1942,7 @@ function ModeBar({
       data-testid="mode-bar"
     >
       <div className="mx-auto flex max-w-md items-center gap-3">
-        <label htmlFor="mobile-reading-system" className="shrink-0 text-sm font-medium">{t("Reading system")}</label>
+        <label htmlFor="mobile-reading-system" className="sr-only sm:not-sr-only sm:shrink-0 sm:text-sm sm:font-medium">{t("Reading system")}</label>
         <select
           id="mobile-reading-system"
           value={mode}
@@ -1952,6 +1957,7 @@ function ModeBar({
             {MODES.filter((m) => m.tool).map((m) => <option key={m.id} value={m.id}>{t(m.label)}</option>)}
           </optgroup>
         </select>
+        <button type="button" aria-haspopup="dialog" onClick={onOpenChart} className="min-h-11 shrink-0 rounded-md border px-3 text-sm font-medium hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" data-testid="reference-mobile-open">{t("Chart")}</button>
       </div>
     </nav>
   );
@@ -1982,7 +1988,33 @@ export default function ChartPage() {
   const [exporting, setExporting] = useState<string | null>(null);
   const [alpAsOf, setAlpAsOf] = useState<string | undefined>();
   useEffect(() => setAlpAsOf(undefined), [id]);
+  const [selected, setSelected] = useState<Planet | null>(null);
+  const [referenceOpen, setReferenceOpen] = useState(false);
+  const [referencePlanet, setReferencePlanet] = useState<Planet | null>(null);
+  const [referenceTransits, setReferenceTransits] = useState(false);
+  const [wideReference, setWideReference] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(min-width: 1400px)").matches,
+  );
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1400px)");
+    const update = () => setWideReference(media.matches);
+    media.addEventListener("change", update);
+    update();
+    return () => media.removeEventListener("change", update);
+  }, []);
+  const referenceTrigger = useRef<HTMLButtonElement | null>(null);
+  const openReference: MouseEventHandler<HTMLButtonElement> = (event) => {
+    referenceTrigger.current = event.currentTarget;
+    if (mode === "bnn") setReferencePlanet(selected);
+    setReferenceOpen(true);
+  };
+  useEffect(() => {
+    setReferenceOpen(false);
+    setReferencePlanet(null);
+    setReferenceTransits(false);
+  }, [id]);
   const { mode: readingMode } = useReadingMode();
+  const { layout: chartLayout } = useChartLayout();
   // The report PDF: the same sections as the Report page, one module per system, in the current
   // reading mode. With no modules the whole report; with one, that tab's section alone.
   // The Rectify tab reports what it is looking at, so its export reruns the same scan on the server.
@@ -2019,7 +2051,6 @@ export default function ChartPage() {
       setExporting(null);
     }
   };
-  const [selected, setSelected] = useState<Planet | null>(null);
   const [showTransit, setShowTransit] = useState(true);
   const [houseKaraka, setHouseKaraka] = useState<Planet | null>(null);
   const tablistRef = useRef<HTMLDivElement>(null);
@@ -2074,17 +2105,20 @@ export default function ChartPage() {
   const transitNow = now.positions.filter(
     (p) => p.planet === "Jupiter" || p.planet === "Saturn",
   );
+  const transitInstant = DateTime.fromISO(now.asOf, { setZone: true }).setZone(chart.timezone || "UTC").setLocale(locale === "ml" ? "ml-IN" : "en");
+  const transitSnapshot = transitInstant.isValid ? transitInstant.toFormat("d LLL yyyy, HH:mm ZZZZ") : now.asOf;
 
   // The Nadi tab in chapters: the sticky rasi chart stays beside every chapter after the brief.
   const bnnChartColumn = (
         <div
-          className="lg:sticky lg:top-14 lg:max-h-[calc(100svh-4.5rem)] lg:overflow-y-auto lg:pr-1"
+          className={cn(!wideReference && "lg:sticky lg:top-14 lg:max-h-[calc(100svh-4.5rem)] lg:overflow-y-auto lg:pr-1")}
           data-testid="bnn-chart-column"
         >
           <SouthIndianChart
             positions={positions}
             transit={showTransit ? transitNow : []}
-            title="Rasi"
+            title={t("Nadi chart")}
+            compactPlanets={wideReference}
             subtitle={`${PLANET_ABBR[data.reading.roles.native]} Jeeva · Sa Karma${data.reading.roles.deha !== data.reading.roles.native ? ` · ${PLANET_ABBR[data.reading.roles.deha]} Deha` : ""}`}
             highlightSign={selectedSign}
             secondarySigns={
@@ -2110,6 +2144,14 @@ export default function ChartPage() {
               );
             }}
           />
+          <label className="mt-3 block text-sm font-medium">
+            {t("Focus on a planet")}
+            <select value={selected ?? ""} onChange={(event) => setSelected((event.target.value || null) as Planet | null)} className="mt-1 min-h-11 w-full rounded-md border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" data-testid="bnn-chart-planet-select">
+              <option value="">{t("Choose a planet")}</option>
+              {positions.map((p) => <option key={p.planet} value={p.planet}>{t(p.planet)}</option>)}
+            </select>
+          </label>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("In some Nadi chapters, choosing a planet also filters the displayed findings.")}</p>
           <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
             <span>
               <span
@@ -2118,14 +2160,14 @@ export default function ChartPage() {
               >
                 {PLANET_ABBR[data.reading.roles.native]}
               </span>{" "}
-              Jeeva ·{" "}
+              {locale === "ml" ? "ജീവകാരകൻ" : "Jeeva"} ·{" "}
               <span
                 className="font-semibold"
                 style={{ color: planetColor("Saturn") }}
               >
                 Sa
               </span>{" "}
-              Karma
+              {locale === "ml" ? "കർമ്മകാരകൻ" : "Karma"}
               {data.reading.roles.deha !== data.reading.roles.native && (
                 <>
                   {" · "}
@@ -2137,20 +2179,21 @@ export default function ChartPage() {
                   >
                     {PLANET_ABBR[data.reading.roles.deha]}
                   </span>{" "}
-                  Deha (female chart)
+                  {locale === "ml" ? "ദേഹകാരകൻ (സ്ത്രീജാതകം)" : "Deha (female chart)"}
                 </>
               )}{" "}
-              · R retrograde · <span className="italic">tJu tSa</span>{" "}
-              transits today · click a sign for its trines and 7th
+              · R {locale === "ml" ? "വക്രഗതി" : "retrograde"} · <span className="italic">tJu tSa</span>{" "}
+              {locale === "ml" ? `ഗോചര ആകാശനില: ${transitSnapshot}. ഒരു രാശി തിരഞ്ഞെടുക്കുമ്പോൾ അതിന്റെ ത്രികോണവും ഏഴാം രാശിയും കാണാം.` : `sky snapshot: ${transitSnapshot}. Choose a sign to see its trines and seventh.`}
             </span>
             <Button
               variant="ghost"
               size="sm"
+              aria-pressed={showTransit}
               onClick={() => setShowTransit((v) => !v)}
               data-testid="button-toggle-transit"
             >
               {showTransit ? <EyeOff /> : <Eye />}
-              Transits
+              {t("Transits")}
             </Button>
           </div>
           <Working
@@ -2170,8 +2213,8 @@ export default function ChartPage() {
         </div>
   );
   const bnnGrid = (content: ReactNode) => (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,20rem)_1fr] lg:items-start xl:grid-cols-[minmax(0,27rem)_1fr]">
-      {bnnChartColumn}
+    <div className={cn("grid gap-8 lg:items-start", !wideReference && "lg:grid-cols-[minmax(0,20rem)_1fr] xl:grid-cols-[minmax(0,27rem)_1fr]")}>
+      {!wideReference && bnnChartColumn}
       <div className="min-w-0 max-w-[76ch]">{content}</div>
     </div>
   );
@@ -2209,7 +2252,7 @@ export default function ChartPage() {
       deceased={!!data && isDeceased(data.chart, new Date().toISOString())}
     >
       <ChapterMemoryProvider key={chart.id}>
-      <div className="mx-auto max-w-6xl px-5 py-8 pb-24 md:px-10 md:pb-8">
+      <div className="mx-auto max-w-6xl px-5 py-8 pb-24 md:px-10 min-[1400px]:pb-8">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1
@@ -2249,6 +2292,20 @@ export default function ChartPage() {
           </div>
         </header>
 
+        <div className="min-[1400px]:grid min-[1400px]:grid-cols-[minmax(0,1fr)_18rem] min-[1400px]:gap-6">
+        <aside className="hidden self-start min-[1400px]:sticky min-[1400px]:top-4 min-[1400px]:col-start-2 min-[1400px]:row-start-1 min-[1400px]:block min-[1400px]:max-h-[calc(100svh-2rem)] min-[1400px]:overflow-y-auto" aria-label={t(mode === "bnn" ? "Nadi chart" : "Birth chart reference")}>
+          <div className="mt-8 rounded-lg border bg-card p-4">
+            {mode === "bnn" && wideReference ? <div data-testid="nadi-reference-chart">
+              <h2 className="font-display text-base font-semibold">{t("Nadi chart")}</h2>
+              <p className="mb-3 mt-1 text-xs leading-relaxed text-muted-foreground">{locale === "ml"
+                ? `നാഡി രാശികൾ താരതമ്യം ചെയ്യുന്ന ആധാരഗ്രഹം: ${t(houseKaraka ?? data.reading.roles.native)}.${chartLayout === "north" ? " വടക്കേ ഇന്ത്യൻ ദൃശ്യത്തിലും ക്രമീകരണം ഈ ഗ്രഹത്തിൽ നിന്നാണ്." : ""}`
+                : `Nadi compares signs from ${houseKaraka ?? data.reading.roles.native}, the reference planet.${chartLayout === "north" ? " The North Indian layout is also oriented from that planet." : ""}`}</p>
+              <button type="button" aria-haspopup="dialog" onClick={openReference} className="mb-3 min-h-11 w-full rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring" data-testid="reference-enlarge">{t("Open birth chart")}</button>
+              {bnnChartColumn}
+            </div> : <ReferenceChart result={data} mode={mode} selected={referencePlanet} onSelect={setReferencePlanet} showTransits={referenceTransits} onToggleTransits={() => setReferenceTransits((v) => !v)} instance="rail" onEnlarge={openReference} />}
+          </div>
+        </aside>
+        <div className="min-w-0 min-[1400px]:col-start-1 min-[1400px]:row-start-1">
         <AgreementPanel
           className="mt-4"
           compact={mode !== "overview" || readingMode === "plain"}
@@ -2535,6 +2592,8 @@ export default function ChartPage() {
                           ? "The panchanga follows Surya Siddhanta (tr. Burgess) with ending times from the ephemeris; transits from the birth Moon follow Brihat Samhita 104 and Phaladeepika 26. These are day-and-transit tables, not a reading of the chart."
                           : "Jaimini text follows the Jaimini Sutras and the Upapada chapter of Brihat Parashara Hora Sastra; Chara dasha follows K.N. Rao's method. It is a starting set of rules meant to be extended, not a verdict."}
         </footer>
+        </div>
+        </div>
 
         <ModeBar
           mode={mode}
@@ -2542,7 +2601,30 @@ export default function ChartPage() {
             setMode(m);
             document.querySelector("main")?.scrollTo({ top: 0 });
           }}
+          onOpenChart={openReference}
         />
+        <button type="button" aria-haspopup="dialog" onClick={openReference} className="reference-floating-trigger fixed bottom-4 right-4 z-40 hidden min-h-11 rounded-full border bg-card px-4 text-sm font-medium shadow-md hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:block" data-testid="reference-floating-open">{t("Open birth chart")}</button>
+        <Dialog open={referenceOpen} onOpenChange={setReferenceOpen}>
+          <DialogContent
+            closeLabel={t("Close chart")}
+            closeClassName="right-2 top-2 flex h-11 w-11 items-center justify-center"
+            className="max-h-[90svh] w-[min(94vw,42rem)] max-w-none overflow-y-auto p-5 sm:p-6"
+            onCloseAutoFocus={(event) => {
+              const candidates = [referenceTrigger.current, ...Array.from(document.querySelectorAll<HTMLButtonElement>('[data-testid="reference-mobile-open"], [data-testid="reference-floating-open"], [data-testid="reference-enlarge"]'))];
+              const trigger = candidates.find((candidate) => candidate?.isConnected && candidate.getClientRects().length);
+              if (trigger) {
+                event.preventDefault();
+                trigger.focus();
+              }
+            }}
+          >
+            <DialogHeader className="pr-12 text-left">
+              <DialogTitle>{t("Birth chart reference")}</DialogTitle>
+              <DialogDescription>{t("Explore the positions at the entered birth time.")}</DialogDescription>
+            </DialogHeader>
+            <ReferenceChart result={data} mode={mode} selected={referencePlanet} onSelect={setReferencePlanet} showTransits={referenceTransits} onToggleTransits={() => setReferenceTransits((v) => !v)} instance="dialog" />
+          </DialogContent>
+        </Dialog>
       </div>
       </ChapterMemoryProvider>
     </DeceasedProvider>
