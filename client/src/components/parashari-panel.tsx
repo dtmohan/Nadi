@@ -14,6 +14,7 @@ import { useLocale } from "@/lib/i18n";
 import { parashariHouseContextMalayalam, parashariLordMalayalam } from "@shared/school-topic-malayalam";
 import { natalPlanetContext } from "@shared/planet-context";
 import { BphsDignityContextPanel } from "@/components/bphs-dignity-context";
+import { JupiterRelationshipsPanel } from "@/components/jupiter-relationships";
 import {
   ALL_CHAPTERS,
   Chapter,
@@ -2450,6 +2451,7 @@ export function ParashariPanel({
       </Chapter>
 
       <Chapter id="planets">
+      <JupiterRelationshipsPanel result={result} />
       <BphsDignityContextPanel context={natalPlanetContext(result)} />
       {!r.shadbala && <p className="mt-8 text-sm text-muted-foreground">Shadbala is unavailable when the required sunrise or sunset cannot be computed.</p>}
       {r.shadbala && (

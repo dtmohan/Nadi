@@ -2271,6 +2271,16 @@ export default function ChartPage() {
             />
             <Button size="sm" variant="outline" asChild>
               <Link
+                href={`/chart/${chart.id}/reading`}
+                data-testid="link-reading-experience"
+                title={locale === "ml" ? "ലളിതമായ പുതിയ വായന തുറക്കുക" : "Open the new guided reading"}
+              >
+                <BookOpen className="h-4 w-4" />
+                {locale === "ml" ? "പുതിയ വായന" : "New reading"}
+              </Link>
+            </Button>
+            <Button size="sm" variant="outline" asChild>
+              <Link
                 href={`/chart/${chart.id}/report`}
                 data-testid="link-report"
                 title="The whole reading as one prose document, printable"

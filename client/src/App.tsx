@@ -14,6 +14,7 @@ import { ChartFocusProvider } from "@/components/chart-focus";
 import Home from "@/pages/home";
 import ChartPage from "@/pages/chart";
 import ReportPage from "@/pages/report";
+import ReaderPage from "@/pages/reader";
 import RulesPage from "@/pages/rules";
 import AboutPage from "@/pages/about";
 import NotFound from "@/pages/not-found";
@@ -31,6 +32,7 @@ function AppRouter() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/chart/:id/report" component={EnglishReport} />
+      <Route path="/chart/:id/reading" component={ReaderPage} />
       <Route path="/chart/:id/:mode?" component={ChartPage} />
       <Route path="/rules" component={EnglishRules} />
       <Route path="/sutras/:ref?" component={EnglishRules} />

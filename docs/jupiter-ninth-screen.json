@@ -1,0 +1,1152 @@
+{
+  "protocol": "docs/jupiter-ninth-research-protocol.md",
+  "inputCount": 1735,
+  "priorCorpusSha256": "6cb9104a966062562fdedc03e33e12fea978d2dc14eab8286afe9a4e39ced454",
+  "excludedPrior": 46,
+  "nominalFifth": 144,
+  "stableFifth": 134,
+  "errors": 0,
+  "available": {
+    "classical": 42,
+    "node_only": 19,
+    "empty": 73
+  },
+  "selected": {
+    "classical": [
+      {
+        "id": "68316",
+        "name": "Herry Caouissin",
+        "date": "1913-09-07T04:00:00",
+        "jd": 2420017.666667,
+        "zone": "UTC+0:00",
+        "offsetMinutes": 0,
+        "latitude": 48.50555555555555,
+        "longitude": -3.8741666666666665,
+        "place": "Pleyber-Christ",
+        "country": "France",
+        "countryKey": "France",
+        "adb": "https://www.astro.com/astro-databank/Caouissin,_Herry",
+        "wikipedia": "https://fr.wikipedia.org/wiki/Herry_Caouissin",
+        "group": "classical",
+        "priority": "02fd10998b4a1c5f63b8380988e047f21a6ad1a2213df2b713c6f0c9de559f61",
+        "nominal": {
+          "risingSign": "Leo",
+          "jupiterSign": "Sagittarius",
+          "jupiterHouse": 5,
+          "ninthSign": "Leo",
+          "classical": [
+            "Sun",
+            "Mercury"
+          ],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Cancer",
+            "jupiterHouse": 6,
+            "ninthSign": "Leo",
+            "classical": [
+              "Sun",
+              "Mercury"
+            ],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Leo",
+            "jupiterHouse": 5,
+            "ninthSign": "Leo",
+            "classical": [
+              "Sun",
+              "Mercury"
+            ],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Leo",
+            "jupiterHouse": 5,
+            "ninthSign": "Leo",
+            "classical": [
+              "Sun",
+              "Mercury"
+            ],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Leo",
+            "jupiterHouse": 5,
+            "ninthSign": "Leo",
+            "classical": [
+              "Sun",
+              "Mercury"
+            ],
+            "nodes": []
+          }
+        }
+      },
+      {
+        "id": "53254",
+        "name": "Cesarino Cervellati",
+        "date": "1930-02-15T06:00:00",
+        "jd": 2426022.708333,
+        "zone": "UTC+1:00",
+        "offsetMinutes": 60,
+        "latitude": 44.65,
+        "longitude": 11.533333333333333,
+        "place": "Baricella",
+        "country": "Italy",
+        "countryKey": "Italy",
+        "adb": "https://www.astro.com/astro-databank/Cervellati,_Cesarino",
+        "wikipedia": "https://en.wikipedia.org/wiki/Cesarino_Cervellati",
+        "group": "classical",
+        "priority": "1231782faa8048dd2b7d8fd72c365da1c8b26acdabcb4a8d120b68b83e9d6e93",
+        "nominal": {
+          "risingSign": "Capricorn",
+          "jupiterSign": "Taurus",
+          "jupiterHouse": 5,
+          "ninthSign": "Capricorn",
+          "classical": [
+            "Mars",
+            "Mercury"
+          ],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Sagittarius",
+            "jupiterHouse": 6,
+            "ninthSign": "Capricorn",
+            "classical": [
+              "Mars",
+              "Mercury"
+            ],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Capricorn",
+            "jupiterHouse": 5,
+            "ninthSign": "Capricorn",
+            "classical": [
+              "Mars",
+              "Mercury"
+            ],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Capricorn",
+            "jupiterHouse": 5,
+            "ninthSign": "Capricorn",
+            "classical": [
+              "Mars",
+              "Mercury"
+            ],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Capricorn",
+            "jupiterHouse": 5,
+            "ninthSign": "Capricorn",
+            "classical": [
+              "Mars",
+              "Mercury"
+            ],
+            "nodes": []
+          }
+        }
+      },
+      {
+        "id": "3962",
+        "name": "Federico Chabod",
+        "date": "1901-02-23T17:45:00",
+        "jd": 2415439.197917,
+        "zone": "UTC+1:00",
+        "offsetMinutes": 60,
+        "latitude": 45.733333333333334,
+        "longitude": 7.333333333333333,
+        "place": "Aosta",
+        "country": "Italy",
+        "countryKey": "Italy",
+        "adb": "https://www.astro.com/astro-databank/Chabod,_Federico",
+        "wikipedia": "https://en.wikipedia.org/wiki/Federico_Chabod",
+        "group": "classical",
+        "priority": "13b9526b4c3ce118b8042a574564c32969280c581afb841f86ec419f880f40d9",
+        "nominal": {
+          "risingSign": "Leo",
+          "jupiterSign": "Sagittarius",
+          "jupiterHouse": 5,
+          "ninthSign": "Leo",
+          "classical": [
+            "Mars"
+          ],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Leo",
+            "jupiterHouse": 5,
+            "ninthSign": "Leo",
+            "classical": [
+              "Mars"
+            ],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Leo",
+            "jupiterHouse": 5,
+            "ninthSign": "Leo",
+            "classical": [
+              "Mars"
+            ],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Leo",
+            "jupiterHouse": 5,
+            "ninthSign": "Leo",
+            "classical": [
+              "Mars"
+            ],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Leo",
+            "jupiterHouse": 5,
+            "ninthSign": "Leo",
+            "classical": [
+              "Mars"
+            ],
+            "nodes": []
+          }
+        }
+      },
+      {
+        "id": "87337",
+        "name": "David Cushman",
+        "date": "1939-11-15T07:23:00",
+        "jd": 2429583.057639,
+        "zone": "UTC-6:00",
+        "offsetMinutes": -360,
+        "latitude": 39.766666666666666,
+        "longitude": -86.15,
+        "place": "Indianapolis",
+        "country": "Indiana",
+        "countryKey": "United States",
+        "adb": "https://www.astro.com/astro-databank/Cushman,_David",
+        "wikipedia": "https://en.wikipedia.org/wiki/David_Cushman",
+        "group": "classical",
+        "priority": "17f4b12735a1c4bc50001893472ed94bafa8f4e80cf641c806a70ccde24844cb",
+        "nominal": {
+          "risingSign": "Scorpio",
+          "jupiterSign": "Pisces",
+          "jupiterHouse": 5,
+          "ninthSign": "Scorpio",
+          "classical": [
+            "Mercury",
+            "Venus"
+          ],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Scorpio",
+            "jupiterHouse": 5,
+            "ninthSign": "Scorpio",
+            "classical": [
+              "Mercury",
+              "Venus"
+            ],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Scorpio",
+            "jupiterHouse": 5,
+            "ninthSign": "Scorpio",
+            "classical": [
+              "Mercury",
+              "Venus"
+            ],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Scorpio",
+            "jupiterHouse": 5,
+            "ninthSign": "Scorpio",
+            "classical": [
+              "Mercury",
+              "Venus"
+            ],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Scorpio",
+            "jupiterHouse": 5,
+            "ninthSign": "Scorpio",
+            "classical": [
+              "Mercury",
+              "Venus"
+            ],
+            "nodes": []
+          }
+        }
+      },
+      {
+        "id": "7752",
+        "name": "Jim Clark",
+        "date": "1936-03-04T15:25:00",
+        "jd": 2428232.142361,
+        "zone": "UTC+0:00",
+        "offsetMinutes": 0,
+        "latitude": 56.4,
+        "longitude": -3.033333333333333,
+        "place": "Balmerino",
+        "country": "Scotland",
+        "countryKey": "Scotland",
+        "adb": "https://www.astro.com/astro-databank/Clark,_Jim",
+        "wikipedia": "https://en.wikipedia.org/wiki/Jim_Clark",
+        "group": "classical",
+        "priority": "2aa45c3b81d890565fc3e03a32fb75c636bd5cc91f691c2a8f6bb93ce3399cfa",
+        "nominal": {
+          "risingSign": "Cancer",
+          "jupiterSign": "Scorpio",
+          "jupiterHouse": 5,
+          "ninthSign": "Cancer",
+          "classical": [
+            "Moon"
+          ],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Cancer",
+            "jupiterHouse": 5,
+            "ninthSign": "Cancer",
+            "classical": [
+              "Moon"
+            ],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Cancer",
+            "jupiterHouse": 5,
+            "ninthSign": "Cancer",
+            "classical": [
+              "Moon"
+            ],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Cancer",
+            "jupiterHouse": 5,
+            "ninthSign": "Cancer",
+            "classical": [
+              "Moon"
+            ],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Leo",
+            "jupiterHouse": 4,
+            "ninthSign": "Cancer",
+            "classical": [
+              "Moon"
+            ],
+            "nodes": []
+          }
+        }
+      },
+      {
+        "id": "68330",
+        "name": "Anne-Marie Comparini",
+        "date": "1947-07-11T04:00:00",
+        "jd": 2432377.625,
+        "zone": "UTC+1:00",
+        "offsetMinutes": 60,
+        "latitude": 44.13333333333333,
+        "longitude": 4.8,
+        "place": "Orange",
+        "country": "France",
+        "countryKey": "France",
+        "adb": "https://www.astro.com/astro-databank/Comparini,_Anne-Marie",
+        "wikipedia": "https://en.wikipedia.org/wiki/Anne-Marie_Comparini",
+        "group": "classical",
+        "priority": "2ec7ef637e04f7ca3abc584344220734eb8411271d1d5753051a4f37fa7d2da0",
+        "nominal": {
+          "risingSign": "Gemini",
+          "jupiterSign": "Libra",
+          "jupiterHouse": 5,
+          "ninthSign": "Gemini",
+          "classical": [
+            "Sun",
+            "Venus"
+          ],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [
+              "Sun",
+              "Venus"
+            ],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [
+              "Sun",
+              "Venus"
+            ],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [
+              "Sun",
+              "Venus"
+            ],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [
+              "Sun",
+              "Venus"
+            ],
+            "nodes": []
+          }
+        }
+      }
+    ],
+    "node_only": [
+      {
+        "id": "90338",
+        "name": "Walker Cress",
+        "date": "1917-03-06T02:15:00",
+        "jd": 2421293.84375,
+        "zone": "UTC-6:00",
+        "offsetMinutes": -360,
+        "latitude": 36.733333333333334,
+        "longitude": -83.08333333333333,
+        "place": "Ben Hur",
+        "country": "Virginia",
+        "countryKey": "United States",
+        "adb": "https://www.astro.com/astro-databank/Cress,_Walker",
+        "wikipedia": "https://en.wikipedia.org/wiki/Walker_Cress",
+        "group": "node_only",
+        "priority": "24935077b0d2d2700ddb0f6dd332d46d1ba74a423948432dbfeca5a5586a21b1",
+        "nominal": {
+          "risingSign": "Sagittarius",
+          "jupiterSign": "Aries",
+          "jupiterHouse": 5,
+          "ninthSign": "Sagittarius",
+          "classical": [],
+          "nodes": [
+            "Rahu"
+          ]
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Sagittarius",
+            "jupiterHouse": 5,
+            "ninthSign": "Sagittarius",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "minus5": {
+            "risingSign": "Sagittarius",
+            "jupiterHouse": 5,
+            "ninthSign": "Sagittarius",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "plus5": {
+            "risingSign": "Sagittarius",
+            "jupiterHouse": 5,
+            "ninthSign": "Sagittarius",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "plus15": {
+            "risingSign": "Sagittarius",
+            "jupiterHouse": 5,
+            "ninthSign": "Sagittarius",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          }
+        }
+      },
+      {
+        "id": "10238",
+        "name": "Fabio Capello",
+        "date": "1946-06-18T05:00:00",
+        "jd": 2431989.625,
+        "zone": "UTC+2:00",
+        "offsetMinutes": 120,
+        "latitude": 45.96666666666667,
+        "longitude": 13.466666666666667,
+        "place": "Cormons",
+        "country": "Italy",
+        "countryKey": "Italy",
+        "adb": "https://www.astro.com/astro-databank/Capello,_Fabio",
+        "wikipedia": "https://en.wikipedia.org/wiki/Fabio_Capello",
+        "group": "node_only",
+        "priority": "29770d33110823085c0761891af50054472fb10ad6024d6af8bec76406af1803",
+        "nominal": {
+          "risingSign": "Taurus",
+          "jupiterSign": "Virgo",
+          "jupiterHouse": 5,
+          "ninthSign": "Taurus",
+          "classical": [],
+          "nodes": [
+            "Rahu"
+          ]
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Taurus",
+            "jupiterHouse": 5,
+            "ninthSign": "Taurus",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "minus5": {
+            "risingSign": "Taurus",
+            "jupiterHouse": 5,
+            "ninthSign": "Taurus",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "plus5": {
+            "risingSign": "Taurus",
+            "jupiterHouse": 5,
+            "ninthSign": "Taurus",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "plus15": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 4,
+            "ninthSign": "Taurus",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          }
+        }
+      },
+      {
+        "id": "47844",
+        "name": "Sergio Castellitto",
+        "date": "1953-08-18T18:20:00",
+        "jd": 2434608.222222,
+        "zone": "UTC+1:00",
+        "offsetMinutes": 60,
+        "latitude": 41.9,
+        "longitude": 12.483333333333333,
+        "place": "Rome",
+        "country": "Italy",
+        "countryKey": "Italy",
+        "adb": "https://www.astro.com/astro-databank/Castellitto,_Sergio",
+        "wikipedia": "https://en.wikipedia.org/wiki/Sergio_Castellitto",
+        "group": "node_only",
+        "priority": "2a4c022f4407d29add79c1e3c62ac2e43b38264d85aa8d56d0979bc37000cc7d",
+        "nominal": {
+          "risingSign": "Capricorn",
+          "jupiterSign": "Taurus",
+          "jupiterHouse": 5,
+          "ninthSign": "Capricorn",
+          "classical": [],
+          "nodes": [
+            "Rahu"
+          ]
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Capricorn",
+            "jupiterHouse": 5,
+            "ninthSign": "Capricorn",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "minus5": {
+            "risingSign": "Capricorn",
+            "jupiterHouse": 5,
+            "ninthSign": "Capricorn",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "plus5": {
+            "risingSign": "Capricorn",
+            "jupiterHouse": 5,
+            "ninthSign": "Capricorn",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "plus15": {
+            "risingSign": "Capricorn",
+            "jupiterHouse": 5,
+            "ninthSign": "Capricorn",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          }
+        }
+      },
+      {
+        "id": "86882",
+        "name": "Mae Clarke",
+        "date": "1910-08-16T00:00:00",
+        "jd": 2418899.708333,
+        "zone": "UTC-5:00",
+        "offsetMinutes": -300,
+        "latitude": 39.95,
+        "longitude": -75.16666666666667,
+        "place": "Philadelphia",
+        "country": "Pennsylvania",
+        "countryKey": "United States",
+        "adb": "https://www.astro.com/astro-databank/Clarke,_Mae",
+        "wikipedia": "https://en.wikipedia.org/wiki/Mae_Clarke",
+        "group": "node_only",
+        "priority": "36de075add0745ca7527db95885c23c1bf326302f432ab1260975516ae970c58",
+        "nominal": {
+          "risingSign": "Taurus",
+          "jupiterSign": "Virgo",
+          "jupiterHouse": 5,
+          "ninthSign": "Taurus",
+          "classical": [],
+          "nodes": [
+            "Rahu"
+          ]
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Taurus",
+            "jupiterHouse": 5,
+            "ninthSign": "Taurus",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "minus5": {
+            "risingSign": "Taurus",
+            "jupiterHouse": 5,
+            "ninthSign": "Taurus",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "plus5": {
+            "risingSign": "Taurus",
+            "jupiterHouse": 5,
+            "ninthSign": "Taurus",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "plus15": {
+            "risingSign": "Taurus",
+            "jupiterHouse": 5,
+            "ninthSign": "Taurus",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          }
+        }
+      },
+      {
+        "id": "60127",
+        "name": "Maurice Careme",
+        "date": "1899-05-12T07:30:00",
+        "jd": 2414786.8125,
+        "zone": "UTC+0:00",
+        "offsetMinutes": 0,
+        "latitude": 50.71666666666667,
+        "longitude": 4.616666666666667,
+        "place": "Wavre",
+        "country": "Belgium",
+        "countryKey": "Belgium",
+        "adb": "https://www.astro.com/astro-databank/Careme,_Maurice",
+        "wikipedia": "https://en.wikipedia.org/wiki/Maurice_Carême",
+        "group": "node_only",
+        "priority": "66bbf4da354d38e68db069cc29c8cd65451ec9fc413ddb564f5bf3cb1a295b4e",
+        "nominal": {
+          "risingSign": "Gemini",
+          "jupiterSign": "Libra",
+          "jupiterHouse": 5,
+          "ninthSign": "Gemini",
+          "classical": [],
+          "nodes": [
+            "Ketu"
+          ]
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": [
+              "Ketu"
+            ]
+          },
+          "minus5": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": [
+              "Ketu"
+            ]
+          },
+          "plus5": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": [
+              "Ketu"
+            ]
+          },
+          "plus15": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": [
+              "Ketu"
+            ]
+          }
+        }
+      },
+      {
+        "id": "104253",
+        "name": "John Charles",
+        "date": "1931-12-27T12:00:00",
+        "jd": 2426703,
+        "zone": "UTC+0:00",
+        "offsetMinutes": 0,
+        "latitude": 51.63333333333333,
+        "longitude": -3.95,
+        "place": "Swansea",
+        "country": "Wales (UK)",
+        "countryKey": "Wales (UK)",
+        "adb": "https://www.astro.com/astro-databank/Charles,_John",
+        "wikipedia": "https://en.wikipedia.org/wiki/John_Charles",
+        "group": "node_only",
+        "priority": "687d133d140c50e8513ca4c6a8e26b4d8b00130cd30776e3921a6c97f464678e",
+        "nominal": {
+          "risingSign": "Pisces",
+          "jupiterSign": "Cancer",
+          "jupiterHouse": 5,
+          "ninthSign": "Pisces",
+          "classical": [],
+          "nodes": [
+            "Rahu"
+          ]
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Pisces",
+            "jupiterHouse": 5,
+            "ninthSign": "Pisces",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "minus5": {
+            "risingSign": "Pisces",
+            "jupiterHouse": 5,
+            "ninthSign": "Pisces",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "plus5": {
+            "risingSign": "Pisces",
+            "jupiterHouse": 5,
+            "ninthSign": "Pisces",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          },
+          "plus15": {
+            "risingSign": "Pisces",
+            "jupiterHouse": 5,
+            "ninthSign": "Pisces",
+            "classical": [],
+            "nodes": [
+              "Rahu"
+            ]
+          }
+        }
+      }
+    ],
+    "empty": [
+      {
+        "id": "49433",
+        "name": "Darby Crash",
+        "date": "1958-09-26T23:00:00",
+        "jd": 2436473.75,
+        "zone": "UTC-7:00",
+        "offsetMinutes": -420,
+        "latitude": 34.05,
+        "longitude": -118.25,
+        "place": "Los Angeles",
+        "country": "California",
+        "countryKey": "United States",
+        "adb": "https://www.astro.com/astro-databank/Crash,_Darby",
+        "wikipedia": "https://en.wikipedia.org/wiki/Darby_Crash",
+        "group": "empty",
+        "priority": "011832da6ccadcc677ab151c770a065536c1d4f2bd0be21799b1458b422df7f6",
+        "nominal": {
+          "risingSign": "Gemini",
+          "jupiterSign": "Libra",
+          "jupiterHouse": 5,
+          "ninthSign": "Gemini",
+          "classical": [],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Taurus",
+            "jupiterHouse": 6,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": []
+          }
+        }
+      },
+      {
+        "id": "92750",
+        "name": "Santiago Carrillo",
+        "date": "1915-01-18T02:30:00",
+        "jd": 2420515.604167,
+        "zone": "UTC+0:00",
+        "offsetMinutes": 0,
+        "latitude": 43.53333333333333,
+        "longitude": -5.666666666666667,
+        "place": "Gijón",
+        "country": "Spain",
+        "countryKey": "Spain",
+        "adb": "https://www.astro.com/astro-databank/Carrillo,_Santiago",
+        "wikipedia": "https://en.wikipedia.org/wiki/Santiago_Carrillo",
+        "group": "empty",
+        "priority": "03db7e89481a37f1a6dfee8346af69c71372b10e1381114652df6a6963b1434d",
+        "nominal": {
+          "risingSign": "Libra",
+          "jupiterSign": "Aquarius",
+          "jupiterHouse": 5,
+          "ninthSign": "Libra",
+          "classical": [],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Libra",
+            "jupiterHouse": 5,
+            "ninthSign": "Libra",
+            "classical": [],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Libra",
+            "jupiterHouse": 5,
+            "ninthSign": "Libra",
+            "classical": [],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Libra",
+            "jupiterHouse": 5,
+            "ninthSign": "Libra",
+            "classical": [],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Libra",
+            "jupiterHouse": 5,
+            "ninthSign": "Libra",
+            "classical": [],
+            "nodes": []
+          }
+        }
+      },
+      {
+        "id": "65813",
+        "name": "Pierre Chany",
+        "date": "1922-12-16T16:00:00",
+        "jd": 2423405.166667,
+        "zone": "UTC+0:00",
+        "offsetMinutes": 0,
+        "latitude": 45.1,
+        "longitude": 3.5,
+        "place": "Langeac",
+        "country": "France",
+        "countryKey": "France",
+        "adb": "https://www.astro.com/astro-databank/Chany,_Pierre",
+        "wikipedia": "https://en.wikipedia.org/wiki/Pierre_Chany",
+        "group": "empty",
+        "priority": "06f5618e29e49191949b25e2ad517f935600a3aac507ed39ec73b4c5d26f3e1a",
+        "nominal": {
+          "risingSign": "Gemini",
+          "jupiterSign": "Libra",
+          "jupiterHouse": 5,
+          "ninthSign": "Gemini",
+          "classical": [],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Taurus",
+            "jupiterHouse": 6,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Gemini",
+            "jupiterHouse": 5,
+            "ninthSign": "Gemini",
+            "classical": [],
+            "nodes": []
+          }
+        }
+      },
+      {
+        "id": "82999",
+        "name": "Stu Clarkson",
+        "date": "1919-07-04T01:00:00",
+        "jd": 2422143.75,
+        "zone": "UTC-5:00",
+        "offsetMinutes": -300,
+        "latitude": 27.8,
+        "longitude": -97.4,
+        "place": "Corpus Christi",
+        "country": "Texas",
+        "countryKey": "United States",
+        "adb": "https://www.astro.com/astro-databank/Clarkson,_Stu",
+        "wikipedia": "https://en.wikipedia.org/wiki/Stu_Clarkson",
+        "group": "empty",
+        "priority": "0c5f0b48e7971f8a8fa7dd705fb705cbb3c0ec735b77a9565fe501d6154797ee",
+        "nominal": {
+          "risingSign": "Pisces",
+          "jupiterSign": "Cancer",
+          "jupiterHouse": 5,
+          "ninthSign": "Pisces",
+          "classical": [],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Pisces",
+            "jupiterHouse": 5,
+            "ninthSign": "Pisces",
+            "classical": [],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Pisces",
+            "jupiterHouse": 5,
+            "ninthSign": "Pisces",
+            "classical": [],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Pisces",
+            "jupiterHouse": 5,
+            "ninthSign": "Pisces",
+            "classical": [],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Pisces",
+            "jupiterHouse": 5,
+            "ninthSign": "Pisces",
+            "classical": [],
+            "nodes": []
+          }
+        }
+      },
+      {
+        "id": "65074",
+        "name": "Jean-Paul Costa",
+        "date": "1941-11-03T13:15:00",
+        "jd": 2430302.010417,
+        "zone": "UTC+1:00",
+        "offsetMinutes": 60,
+        "latitude": 36.8,
+        "longitude": 10.183333333333334,
+        "place": "Tunis",
+        "country": "Tunisia",
+        "countryKey": "Tunisia",
+        "adb": "https://www.astro.com/astro-databank/Costa,_Jean-Paul",
+        "wikipedia": "https://en.wikipedia.org/wiki/Jean-Paul_Costa",
+        "group": "empty",
+        "priority": "15283d22074d5dfdd60c03ef2cf3cf7dec57d2e2e1e4c7a2ad0caf3391757010",
+        "nominal": {
+          "risingSign": "Capricorn",
+          "jupiterSign": "Taurus",
+          "jupiterHouse": 5,
+          "ninthSign": "Capricorn",
+          "classical": [],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Capricorn",
+            "jupiterHouse": 5,
+            "ninthSign": "Capricorn",
+            "classical": [],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Capricorn",
+            "jupiterHouse": 5,
+            "ninthSign": "Capricorn",
+            "classical": [],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Capricorn",
+            "jupiterHouse": 5,
+            "ninthSign": "Capricorn",
+            "classical": [],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Capricorn",
+            "jupiterHouse": 5,
+            "ninthSign": "Capricorn",
+            "classical": [],
+            "nodes": []
+          }
+        }
+      },
+      {
+        "id": "68160",
+        "name": "Charles de Courson",
+        "date": "1952-04-02T03:00:00",
+        "jd": 2434104.583333,
+        "zone": "UTC+1:00",
+        "offsetMinutes": 60,
+        "latitude": 48.86666666666667,
+        "longitude": 2.3333333333333335,
+        "place": "Paris",
+        "country": "France",
+        "countryKey": "France",
+        "adb": "https://www.astro.com/astro-databank/Courson,_Charles_de",
+        "wikipedia": "https://en.wikipedia.org/wiki/Charles_de_Courson",
+        "group": "empty",
+        "priority": "18ba3bcf2894e88e32e4aaf57712fa283bb5b94ba3a1ebfffe4e01b68c68cff8",
+        "nominal": {
+          "risingSign": "Sagittarius",
+          "jupiterSign": "Aries",
+          "jupiterHouse": 5,
+          "ninthSign": "Sagittarius",
+          "classical": [],
+          "nodes": []
+        },
+        "sensitivity": {
+          "minus15": {
+            "risingSign": "Sagittarius",
+            "jupiterHouse": 5,
+            "ninthSign": "Sagittarius",
+            "classical": [],
+            "nodes": []
+          },
+          "minus5": {
+            "risingSign": "Sagittarius",
+            "jupiterHouse": 5,
+            "ninthSign": "Sagittarius",
+            "classical": [],
+            "nodes": []
+          },
+          "plus5": {
+            "risingSign": "Sagittarius",
+            "jupiterHouse": 5,
+            "ninthSign": "Sagittarius",
+            "classical": [],
+            "nodes": []
+          },
+          "plus15": {
+            "risingSign": "Sagittarius",
+            "jupiterHouse": 5,
+            "ninthSign": "Sagittarius",
+            "classical": [],
+            "nodes": []
+          }
+        }
+      }
+    ]
+  }
+}
