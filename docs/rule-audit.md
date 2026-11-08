@@ -90,19 +90,18 @@ These are **lost edges**, not wording problems. Either the engine should encode 
 
 `BNN_RELATION_STRENGTH.prev = 0.7` is a relation weight. `shared/grade.ts` says the sign relation is **weight** and does not set the grade. The “supports” in the strength line is a separate Nadi strength note.
 
-The `supportAxisNote` in `shared/rules.ts` is note-only. It does not change the weight or the score.
+The 12th-support note is now derived in `shared/reading-prose.ts`; it is note-only. It does not change the weight or the score.
 
-## What the reading currently smooths
+## What the audit found
 
-1. **Extension becomes rule.** The adjacent 12th/2nd connection is printed as “linked by sign,” indistinguishable from a source trine.
-2. **Support becomes cancellation.** A friendly 12th in the Nadi strength layer sets effective dignity to Neutral even though it is not Neecha Bhanga.
-3. **Exception disappears.** A rule’s “unless Jupiter” or “if the Moon is weak” is not encoded and not always repeated in the prose.
-4. **Weight becomes support.** The 0.7 relation weight is read as if it were the 12th-support rule.
+1. **Extension becomes rule.** The adjacent 12th/2nd connection was printed as “linked by sign,” indistinguishable from a source trine. The reading now labels the extension/mixed provenance.
+2. **Support becomes cancellation.** A friendly 12th in the Nadi strength layer sets effective dignity to Neutral even though it is not Neecha Bhanga. **Open.**
+3. **Exception disappears.** A rule’s “unless Jupiter” or “if the Moon is weak” is not encoded. The reading now carries the qualifier and says the app does not test it.
+4. **Weight becomes support.** The 0.7 relation weight is now kept separate from the reading’s support note.
 
 ## Next slices
 
-- Encode or carry the four lost exceptions.
-- Add `extension` provenance to trio findings and the reading.
+- Encode the four lost exceptions in the engine, or suppress the unqualified rule when the condition cannot be tested.
 - Separate `nadiSupport` from `effectiveDignity`; no 12th-only cancellation.
 - Audit the house rules, Parashari findings, Jaimini and KP with the same three questions.
 - Audit source paraphrases against the cited texts, starting with the Naik 12th-support passage and Rao’s trio statement.
@@ -114,5 +113,14 @@ npx tsx scripts/rule-audit.ts
 ```
 
 The output is JSON: `totalRules`, `flags`, `byKind`, and the flagged rows with the rule text, the encoded `when`, and the source.
+
+## Fixes in this pass
+
+- **Provenance is derived in `shared/reading-prose.ts`**, not stored on `Finding`, so historical grade outputs stay unchanged. The marriage area says when a rule fires through a source conjunction/trine plus an adjacent extension, and when it fires through the extension alone.
+- **Qualifiers are derived in the reading** from the rule text: “unless Jupiter joins”, “Jupiter’s aspect …” and “if the Moon is weak.” The reading says the app does not test the condition; it is no longer silently dropped.
+- **The Nadi support note is labelled in the reading**: “Nadi support: … this is not a Neecha Bhanga cancellation.” `effectiveDignity` is still set to Neutral by the Nadi strength layer; the separation remains open.
+- **The 12th support note is in the reading**, not in the grade reasons, so it does not alter the historical grade snapshots.
+
+The audit flags remain in the script because the rule text still says “linked by sign” and the `when` still includes the extension. The reading now carries the provenance that the text alone does not.
 
 The first pass is not a verdict on the 420 rules. It is a map of where to look.

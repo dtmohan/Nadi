@@ -13,8 +13,6 @@ import {
   SIGN_ELEMENT,
   KARAKA,
   SIGNS,
-  FRIENDS,
-  ENEMIES,
   houseFrom,
 } from "./astro";
 import { EXTRA_RULES } from "./rules-bnn";
@@ -1070,29 +1068,25 @@ const listOf = (ps: string[]) =>
 /** "the Sun", "the Moon"; other planets by name. */
 const nm = (p: string): string => (p === "Sun" || p === "Moon" ? `the ${p}` : p);
 
-/** Natural benefics for the provisional 12th-support note; not a functional-benefic test. */
-const SUPPORT_BENEFICS = new Set<Planet>(["Jupiter", "Venus", "Mercury", "Moon"]);
+/** Which link actually fired: the source's conjunction/trine, the app's adjacent extension, or both. */
+export function provenanceOf(
+  source: string | undefined,
+  relations: Array<{ relation: Relation }>,
+): "source" | "mixed" | "extension" {
+  if (!/adjacent-sign extension provisional/i.test(source ?? "")) return "source";
+  const adjacent = relations.some((r) => r.relation === "prev" || r.relation === "next");
+  const sanctioned = relations.some((r) => r.relation === "conjunct" || r.relation === "trine");
+  if (!adjacent) return "source";
+  return sanctioned ? "mixed" : "extension";
+}
 
-/**
- * Naik, Naadi Jyotisha, ch. 2: the 12th from a planet indicates whether it is supported.
- * This note is the app's provisional reading of that indicator: friend/benefic supports,
- * enemy/malefic obstructs, a benefic that is neither is mixed. It never moves the score.
- */
-function supportAxisNote(planet: Planet, subject: Planet): GradeReason | null {
-  if (planet === subject) return null;
-  const friend = FRIENDS[subject]?.includes(planet) ?? false;
-  const enemy = ENEMIES[subject]?.includes(planet) ?? false;
-  const benefic = SUPPORT_BENEFICS.has(planet);
-  const support = friend && benefic
-    ? "a friend and a natural benefic — supportive"
-    : enemy || !benefic
-      ? "an enemy or natural malefic — obstructive"
-      : "a natural benefic but not a friend — mixed support";
-  return {
-    text: `${nm(planet)} in the 12th from ${nm(subject)}: the Nadi support axis; ${support} (provisional).`,
-    effect: "note",
-    source: "S. Naik, Naadi Jyotisha, ch. 2",
-  };
+/** The rule-text edges that are not encoded in `when`; carried into the reading, not ignored. */
+export function qualifiersOf(text: string): string[] {
+  const out: string[] = [];
+  if (/unless Jupiter joins/i.test(text)) out.push("The source adds: unless Jupiter joins.");
+  if (/Jupiter'?s aspect[^.]*?(minimis|compromise)/i.test(text)) out.push("The source adds a Jupiter-aspect qualifier.");
+  if (/if the Moon is weak/i.test(text)) out.push("The source adds: if the Moon is weak.");
+  return out;
 }
 
 function gradeFinding(g: GradeInput, strengthOf: Record<Planet, PlanetStrength>): void {
@@ -1108,13 +1102,8 @@ function gradeFinding(g: GradeInput, strengthOf: Record<Planet, PlanetStrength>)
     if (w.exchange) reasons.push({ text: `${nm(subject)} and ${nm(object)} exchange signs`, effect: "note" });
     else if (f.relation === "conjunct")
       reasons.push({ text: `${nm(object)} in the same sign as ${nm(subject)}`, effect: "note" });
-    else if (f.relation && g.relFactor < 1) {
+    else if (f.relation && g.relFactor < 1)
       reasons.push({ text: `${nm(object)} ${REL_FROM[f.relation]} ${nm(subject)}`, effect: "weight", factor: g.relFactor });
-      if (f.relation === "prev") {
-        const support = supportAxisNote(object, subject);
-        if (support) reasons.push(support);
-      }
-    }
   }
   if (kind === "house" && object && f.house)
     reasons.push({ text: `${nm(object)} in the ${ordinalOf(f.house)} from ${nm(subject)}`, effect: "note" });
@@ -1125,11 +1114,6 @@ function gradeFinding(g: GradeInput, strengthOf: Record<Planet, PlanetStrength>)
       effect: "weight",
       factor: g.extraFactor,
     });
-  for (const c of apart) {
-    if (c.relation !== "prev") continue;
-    const support = supportAxisNote(c.planet, subject);
-    if (support) reasons.push(support);
-  }
   if (f.viaRetro && g.retroFactor < 1)
     reasons.push({
       text: "read from the previous sign by retrogression, at reduced strength",

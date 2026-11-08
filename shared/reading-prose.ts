@@ -12,8 +12,8 @@
 import type { ChartResult } from "./schema";
 import type { Gender } from "./marriage";
 import { AYANAMSAS } from "./schema";
-import { houseFrom, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
-import { LIFE_AREAS, type Finding, type LifeArea } from "./rules";
+import { ENEMIES, FRIENDS, PLANETS, houseFrom, SIGN_LORD, SIGNS, type Planet, type PlanetPosition, type Relation } from "./astro";
+import { LIFE_AREAS, provenanceOf, qualifiersOf, type Finding, type LifeArea } from "./rules";
 import type { AreaSynthesis } from "./synthesis";
 import { synthesize } from "./synthesis";
 import { agreementInput, computeAgreement, type AgreementTopic, type SystemStance, type TopicAgreement } from "./agreement";
@@ -875,7 +875,8 @@ class Writer {
           ? "only provisional Neecha Bhanga conditions apply"
           : "no classical Neecha Bhanga is reported";
     const strength = this.result.reading.strength.find((s) => s.planet === lord);
-    const note = strength?.dignityNote ?? strength?.notes?.[0];
+    const rawNote = strength?.dignityNote ?? strength?.notes?.[0];
+    const note = rawNote ? this.nadiNote(rawNote) : undefined;
     return `${lord}, the lagna lord, is in the ${ORD_WORDS[house]} in ${pos.sign}${company.length ? `, with ${list(company)}` : ""}, ${flags.join(" and ")}; ${status}.${note ? ` ${note}.` : ""}`;
   }
 
@@ -915,7 +916,8 @@ class Writer {
     const p = this.position(planet);
     if (!p) return "";
     const strength = this.result.reading.strength.find((x) => x.planet === planet);
-    const note = strength?.dignityNote ?? strength?.notes?.[0];
+    const rawNote = strength?.dignityNote ?? strength?.notes?.[0];
+    const note = rawNote ? this.nadiNote(rawNote) : undefined;
     const brief = this.briefing.planets.find((x) => x.planet === planet);
     const pct = brief?.states.find((s) => /%/.test(s));
     if (!note && !pct) return "";
@@ -1012,6 +1014,71 @@ class Writer {
     return structure.anchor(this.config(a.key[0]));
   }
 
+  private findingProvenance(f: Finding): "source" | "mixed" | "extension" {
+    const relations: Array<{ relation: Relation }> = [];
+    if (f.relation) relations.push({ relation: f.relation });
+    for (const r of f.grade?.reasons ?? []) {
+      if (/in the 12th from/i.test(r.text)) relations.push({ relation: "prev" });
+      else if (/in the 2nd from/i.test(r.text)) relations.push({ relation: "next" });
+      else if (/in trine to/i.test(r.text)) relations.push({ relation: "trine" });
+      else if (/in the same sign as/i.test(r.text)) relations.push({ relation: "conjunct" });
+    }
+    return provenanceOf(f.source, relations);
+  }
+
+  private nadiNote(note: string): string {
+    return /^Debilitation softened/i.test(note)
+      ? `Nadi support: ${lc(note)}; this is not a Neecha Bhanga cancellation`
+      : note;
+  }
+
+  private supportAxisNotes(findings: Finding[]): string[] {
+    const out = new Set<string>();
+    for (const f of findings) {
+      for (const r of f.grade?.reasons ?? []) {
+        const m = r.text.match(/(?:with )?(?:the )?([A-Z][a-z]+) in the 12th from (?:the )?([A-Z][a-z]+)/);
+        if (!m) continue;
+        const planet = m[1] as Planet;
+        const subject = m[2] as Planet;
+        if (!PLANETS.includes(planet) || !PLANETS.includes(subject)) continue;
+        const friend = FRIENDS[subject]?.includes(planet) ?? false;
+        const enemy = ENEMIES[subject]?.includes(planet) ?? false;
+        const benefic = ["Jupiter", "Venus", "Mercury", "Moon"].includes(planet);
+        const support = friend && benefic
+          ? "a friend and a natural benefic — supportive"
+          : enemy || !benefic
+            ? "an enemy or natural malefic — obstructive"
+            : "a natural benefic but not a friend — mixed support";
+        out.add(`${planet} in the 12th from ${subject}: ${support} (provisional).`);
+      }
+    }
+    return Array.from(out);
+  }
+
+  private edgeNote(a: AreaSynthesis): string | null {
+    const findings = [a.contest?.good, a.contest?.hard, ...a.key]
+      .filter((f): f is Finding => Boolean(f));
+    const seen = new Set<string>();
+    const unique = findings.filter((f) => (seen.has(f.ruleId) ? false : (seen.add(f.ruleId), true)));
+    const extension = unique.filter((f) => this.findingProvenance(f) === "extension").length;
+    const mixed = unique.filter((f) => this.findingProvenance(f) === "mixed").length;
+    const qualifiers = Array.from(new Set(unique.flatMap((f) => qualifiersOf(f.text))));
+    const support = this.supportAxisNotes(unique);
+    const notes: string[] = [];
+    if (extension && mixed) {
+      notes.push("One rule here fires through a source conjunction or trine and an adjacent-sign extension; the other through the adjacent-sign extension alone. The extension is the app's provisional reading, not the source's stated combination.");
+    } else if (extension) {
+      notes.push("The link that carries this reading is the app's adjacent-sign extension, not a source conjunction or trine.");
+    } else if (mixed) {
+      notes.push("The link has a source conjunction or trine and an adjacent-sign extension; the app marks the extension provisional.");
+    }
+    if (qualifiers.length) {
+      notes.push(`${qualifiers.join(" ")} The app does not test ${qualifiers.length > 1 ? "these conditions" : "this condition"}; it remains a qualifier from the source, not a result.`);
+    }
+    if (support.length) notes.push(support.join(" "));
+    return notes.length ? notes.join(" ") : null;
+  }
+
   private areaParagraph(topic: PlainTopic): ProseParagraph {
     const a = this.areas.find((x) => x.area === topic);
     const rt = this.topicFor(topic);
@@ -1069,6 +1136,11 @@ class Writer {
       if (rt?.natal.limit && (topic === "marriage" || topic === "wealth" || topic === "education" || topic === "spirituality" || topic === "travel")) {
         sentences.push(rt.natal.limit);
       }
+    }
+
+    if (a) {
+      const edge = this.edgeNote(a);
+      if (edge) sentences.push(edge);
     }
 
     return {
