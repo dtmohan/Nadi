@@ -35,10 +35,10 @@ export interface VerdictLine {
 }
 
 const TONE_TILE: Record<VerdictTone, string> = {
-  good: "border-l-verdict-good bg-verdict-good/[0.08]",
-  mixed: "border-l-verdict-mixed bg-verdict-mixed/[0.08]",
-  bad: "border-l-verdict-bad bg-verdict-bad/[0.08]",
-  neutral: "border-l-border bg-muted/40",
+  good: "border-verdict-good/70",
+  mixed: "border-verdict-mixed/70",
+  bad: "border-verdict-bad/70",
+  neutral: "border-border",
 };
 
 const TONE_WORD: Record<VerdictTone, string> = {
@@ -98,14 +98,14 @@ export function VerdictCard({
 
       {sigs.length > 0 && (
         <ul
-          className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3"
+          className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
           data-testid={`${testid}-signatures`}
         >
           {sigs.map((s, i) => (
             <li
               key={i}
               className={cn(
-                "rounded-md border border-l-[3px] px-3 py-2 text-xs leading-snug",
+                "min-w-0 border-t-2 pb-1 pt-3 text-sm leading-relaxed",
                 TONE_TILE[s.tone],
               )}
               data-tone={s.tone}
@@ -115,7 +115,7 @@ export function VerdictCard({
                   <PlanetDot key={p} planet={p} />
                 ))}
                 <span className="font-semibold text-foreground">{s.label}</span>
-                <span className="ml-auto whitespace-nowrap text-2xs text-muted-foreground">
+                <span className="ml-auto whitespace-nowrap text-xs text-muted-foreground">
                   {TONE_WORD[s.tone]}
                 </span>
               </div>

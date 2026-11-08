@@ -77,11 +77,11 @@ function heading(doc: Doc, sec: ReportSection, level: number) {
     doc.moveDown(1);
     const y = doc.y;
     if (sec.kicker) {
-      doc
+      actualText(doc, sec.kicker, () => doc
         .font("Helvetica")
         .fontSize(7.5)
         .fillColor(MUTED)
-        .text(sec.kicker.toUpperCase(), PAGE.m, y, { characterSpacing: 0.6 });
+        .text(sec.kicker!.toUpperCase(), PAGE.m, y, { characterSpacing: 0.6 }));
     }
     actualText(doc, sec.title, () => doc
       .font("Times-Bold")
@@ -159,16 +159,16 @@ function para(doc: Doc, p: ReportPara) {
   doc.x = PAGE.m;
 }
 
-/** Column widths from content: measure each column's widest cell; narrow columns keep their natural width, the rest share what is left. */
-function widths(
+/** Measure columns before splitting a wide table. Long words may wrap within a column. */
+function columnMetrics(
   doc: Doc,
   head: string[],
   rows: string[][],
   fontSize: number,
-): number[] {
+) {
   doc.font("Helvetica").fontSize(fontSize);
   const pad = 9;
-  const raw = head.map((h, i) => {
+  return head.map((h, i) => {
     let w = doc.widthOfString(h);
     let word = 0;
     for (const part of h.split(/\s+/))
@@ -179,22 +179,38 @@ function widths(
       for (const part of c.split(/\s+/))
         word = Math.max(word, doc.widthOfString(part));
     }
+    const min = Math.min(Math.max(word, 18) + pad, CONTENT_W * 0.4);
     return {
-      full: Math.min(w, CONTENT_W * 0.5) + pad,
-      min: Math.max(word, 18) + pad,
+      full: Math.max(min, Math.min(w, CONTENT_W * 0.5) + pad),
+      min,
     };
   });
-  const total = raw.reduce((a, b) => a + b.full, 0);
-  if (Math.abs(total - CONTENT_W) < 1) return raw.map((r) => r.full);
-  // Columns narrower than 48pt keep their natural width; the others scale to fill the page,
-  // never below the widest single word so nothing breaks mid-word.
-  const fixed = raw.map((r) => r.full < 48 + pad);
-  const fixedW = raw.reduce((a, r, i) => a + (fixed[i] ? r.full : 0), 0);
-  const flexW = total - fixedW;
-  if (flexW <= 0)
-    return raw.map((r) => r.full + (CONTENT_W - total) / raw.length);
-  const k = (CONTENT_W - fixedW) / flexW;
-  return raw.map((r, i) => (fixed[i] ? r.full : Math.max(r.min, r.full * k)));
+}
+
+/** Keep the first column in each continuation, so each row remains identifiable. */
+function columnGroups(metrics: ReturnType<typeof columnMetrics>): number[][] {
+  if (!metrics.length) return [];
+  const groups: number[][] = [];
+  let group = [0], used = metrics[0].min;
+  for (let i = 1; i < metrics.length; i++) {
+    if (group.length > 1 && used + metrics[i].min > CONTENT_W) {
+      groups.push(group);
+      group = [0];
+      used = metrics[0].min;
+    }
+    group.push(i);
+    used += metrics[i].min;
+  }
+  groups.push(group);
+  return groups;
+}
+
+function widths(metrics: ReturnType<typeof columnMetrics>): number[] {
+  const minimum = metrics.reduce((sum, m) => sum + m.min, 0);
+  if (minimum >= CONTENT_W) return metrics.map((m) => m.min * CONTENT_W / minimum);
+  const extra = metrics.reduce((sum, m) => sum + m.full - m.min, 0);
+  const remaining = CONTENT_W - minimum;
+  return metrics.map((m) => m.min + remaining * (extra ? (m.full - m.min) / extra : 1 / metrics.length));
 }
 
 function table(doc: Doc, p: ReportPara) {
@@ -203,7 +219,18 @@ function table(doc: Doc, p: ReportPara) {
   if (!head.length || !rows.length) return;
   const dense = head.length > 8;
   const fs = dense ? 6.5 : head.length > 5 ? 7.5 : 8.5;
-  const cols = widths(doc, head, rows, fs);
+  const metrics = columnMetrics(doc, head, rows, fs);
+  const groups = columnGroups(metrics);
+  if (groups.length > 1) {
+    groups.forEach((group, i) => table(doc, {
+      ...p,
+      head: group.map((index) => head[index]),
+      rows: rows.map((row) => group.map((index) => row[index] ?? "")),
+      ...(i < groups.length - 1 ? { text: undefined, cites: undefined } : {}),
+    }));
+    return;
+  }
+  const cols = widths(metrics);
   const pad = 3;
   const rowH = (cells: string[], bold = false) => {
     doc.font(bold ? "Helvetica-Bold" : "Helvetica").fontSize(fs);

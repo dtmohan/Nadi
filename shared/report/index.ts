@@ -41,6 +41,14 @@ import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL, type BriefSchool } from "../school-top
 import { defaultAlpForTopics, expandedSchoolTopicBriefs } from "../school-topics-expanded";
 import { kpHouseMalayalam } from "../school-topic-malayalam";
 import { translate, type Locale } from "../localization";
+import { reportMalayalamLabel } from "../malayalam-report-labels";
+import { MALAYALAM_REPORT_SENTENCES } from "../malayalam-report-sentences";
+import { MALAYALAM_KP_REPORT_NOTES } from "../malayalam-kp-report-notes";
+import { MALAYALAM_PERIOD_REPORT_NOTES } from "../malayalam-period-report-notes";
+import { chartTableRowMalayalam } from "../malayalam-chart-table";
+import { agreementNoteMalayalam } from "../malayalam-agreement-notes";
+import { kpTableRowMalayalam } from "../malayalam-kp-table";
+import { agreementSentenceMalayalam } from "../malayalam-agreement";
 import {
   AGREEMENT_METHOD,
   AGREEMENT_NOTE,
@@ -231,15 +239,16 @@ export function buildReport(
 export function localizeReportMalayalam(doc: ReportDoc): ReportDoc {
   const walk = (s: ReportSection): ReportSection => {
     const names: Record<string, string> = { "parashari-plain-topics": "പരാശരിയിലെ ജീവിതവിഷയങ്ങൾ", "kp-plain-topics": "KP ജീവിതവിഷയങ്ങൾ", "jaimini-plain-topics": "ജൈമിനിയിലെ ജീവിതവിഷയങ്ങൾ", "alp-plain-topics": "ALP ജീവിതവിഷയങ്ങൾ", "prasna-plain-topics": "പ്രശ്ന മാർഗത്തിലെ ജീവിതവിഷയങ്ങൾ" };
-    const title = names[s.id] ?? translate("ml", s.title);
-    return { ...s, title, lang: title !== s.title ? "ml" : "en", paras: s.paras.map((p) => {
+    const title = names[s.id] ?? reportMalayalamLabel(s.title) ?? translate("ml", s.title);
+    const kicker = s.kicker ? reportMalayalamLabel(s.kicker) ?? translate("ml", s.kicker) : undefined;
+    return { ...s, title, ...(kicker ? { kicker } : {}), lang: title !== s.title ? "ml" : "en", paras: s.paras.map((p) => {
       const original = p.text;
-      const value = original && p.translationMl?.source === original ? p.translationMl.text : original ? translate("ml", original) : original;
-      const { translationMl: _translation, ...safePara } = p;
+      const value = original && p.translationMl?.source === original ? p.translationMl.text : original ? agreementNoteMalayalam(original) ?? MALAYALAM_REPORT_SENTENCES[original] ?? MALAYALAM_KP_REPORT_NOTES[original] ?? MALAYALAM_PERIOD_REPORT_NOTES[original] ?? translate("ml", original) : original;
+      const { translationMl: _translation, asideTranslationMl: _asideTranslation, ...safePara } = p;
       return { ...safePara, text: value, lang: value && value !== original ? "ml" as const : "en" as const,
-        ...(p.aside ? { aside: translate("ml", p.aside) } : {}),
-        ...(p.head ? { head: p.head.map((h) => translate("ml", h)) } : {}),
-        ...(p.rows ? { rows: p.rows.map((row) => row.map((cell) => translate("ml", cell))) } : {}) };
+        ...(p.aside ? { aside: p.asideTranslationMl?.source === p.aside ? p.asideTranslationMl.text : translate("ml", p.aside) } : {}),
+        ...(p.head ? { head: p.head.map((h) => reportMalayalamLabel(h) ?? translate("ml", h)) } : {}),
+        ...(p.rows ? { rows: p.rows.map((row) => (s.id === "chart" ? chartTableRowMalayalam(p.head, row) : s.id === "kp-tables" ? kpTableRowMalayalam(p.head, row) : undefined) ?? row.map((cell) => translate("ml", cell))) } : {}) };
     }), ...(s.sub ? { sub: s.sub.map(walk) } : {}) };
   };
   const note: ReportSection = { id: "translation-notice", title: "ഭാഷയെക്കുറിച്ച്", lang: "ml", paras: [{ kind: "note", lang: "ml", text: "മലയാള പരിഭാഷ പുരോഗമിക്കുന്നു. പരിഭാഷ പൂർത്തിയാകാത്ത ഭാഗങ്ങളും ഉറവിടങ്ങളും ഇംഗ്ലീഷിൽ തുടരും." }] };
@@ -337,6 +346,7 @@ function agreementSection(
       ...topics.map((t): ReportPara => ({
         kind: "p",
         text: S(t.sentence),
+        ...(agreementSentenceMalayalam(t, S(t.sentence)) ? { translationMl: { source: S(t.sentence), text: agreementSentenceMalayalam(t, S(t.sentence))! } } : {}),
         tone:
           t.verdict === "agree"
             ? "support"
@@ -355,6 +365,12 @@ function agreementSection(
       {
         kind: "note",
         text: AGREEMENT_SYSTEMS.map((s) => `${AGREEMENT_SYSTEM_LABEL[s]}: ${AGREEMENT_METHOD[s]}`).join(" "),
+        ...(AGREEMENT_SYSTEMS.every((s) => agreementNoteMalayalam(AGREEMENT_METHOD[s])) ? {
+          translationMl: {
+            source: AGREEMENT_SYSTEMS.map((s) => `${AGREEMENT_SYSTEM_LABEL[s]}: ${AGREEMENT_METHOD[s]}`).join(" "),
+            text: AGREEMENT_SYSTEMS.map((s) => `${AGREEMENT_SYSTEM_LABEL[s]}: ${agreementNoteMalayalam(AGREEMENT_METHOD[s])}`).join(" "),
+          },
+        } : {}),
       },
       ...(topics.some((t) => t.topic === "father" || t.topic === "mother")
         ? [{ kind: "note" as const, text: AGREEMENT_PARENTS_NOTE, provisional: true }]
@@ -411,10 +427,12 @@ function withholdSections(sections: ReportSection[]): ReportSection[] {
     paras: sec.paras
       .map((p) => {
         const text = p.text === undefined ? undefined : redactProse(p.text);
-        const { translationMl, ...safePara } = p;
-        return { ...safePara, text, aside: p.aside === undefined ? undefined : redactProse(p.aside),
+        const aside = p.aside === undefined ? undefined : redactProse(p.aside);
+        const { translationMl, asideTranslationMl, ...safePara } = p;
+        return { ...safePara, text, aside,
           rows: p.rows?.map((r) => r.map((c) => redactProse(c) || "—")),
-          ...(translationMl?.source === text ? { translationMl } : {}) };
+          ...(translationMl?.source === text ? { translationMl } : {}),
+          ...(asideTranslationMl?.source === aside ? { asideTranslationMl } : {}) };
       })
       .filter((p) => p.kind === "table" || (p.text ?? "") !== ""),
     sub: sec.sub ? withholdSections(sec.sub) : undefined,

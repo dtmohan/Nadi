@@ -47,6 +47,7 @@ import { PlanetName } from "@/components/planet-name";
 import { PrasnaTransitModifiers } from "@/components/prasna-transit-modifiers";
 import { SouthIndianChart } from "@/components/south-indian-chart";
 import { Soft } from "@/lib/gentle";
+import { LocalizedText, useLocale } from "@/lib/i18n";
 import { redactProse, sensitiveGate } from "@shared/life-stage";
 import { computeKootas } from "@shared/prasna-kootas";
 import { PRASNA_DISEASE_REMEDIES, PRASNA_DISEASE_NOTES, diseaseCauses } from "@shared/prasna-diseases";
@@ -151,7 +152,7 @@ function HouseEffectsList({ readings, withheld }: { readings: PrasnaHouseReading
               <span className="font-medium text-verdict-bad">
                 {r.malefics.map((p) => p.planet).join(", ")} ·{" "}
               </span>
-              {plain ? withheld && r.house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[r.house].malefic : <Soft>{withheld ? redactProse(r.maleficText) : r.maleficText}</Soft>}
+              {plain ? <LocalizedText>{withheld && r.house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[r.house].malefic}</LocalizedText> : <Soft>{withheld ? redactProse(r.maleficText) : r.maleficText}</Soft>}
             </p>
           )}
           {r.beneficText && (
@@ -159,7 +160,7 @@ function HouseEffectsList({ readings, withheld }: { readings: PrasnaHouseReading
               <span className="font-medium text-verdict-good">
                 {r.benefics.map((p) => p.planet).join(", ")} ·{" "}
               </span>
-              {plain ? withheld && r.house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[r.house].benefic : <Soft>{withheld ? redactProse(r.beneficText) : r.beneficText}</Soft>}
+              {plain ? <LocalizedText>{withheld && r.house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[r.house].benefic}</LocalizedText> : <Soft>{withheld ? redactProse(r.beneficText) : r.beneficText}</Soft>}
             </p>
           )}
         </li>
@@ -221,7 +222,7 @@ function HouseWalk({
                     <span className="font-medium text-verdict-bad">
                       {r.malefics.map((p) => p.planet).join(", ")} ·{" "}
                     </span>
-                    {plain ? withheld && house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[house].malefic : <Soft>{withheld ? redactProse(r.maleficText) : r.maleficText}</Soft>}
+                    {plain ? <LocalizedText>{withheld && house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[house].malefic}</LocalizedText> : <Soft>{withheld ? redactProse(r.maleficText) : r.maleficText}</Soft>}
                   </p>
                 )}
                 {r.beneficText && (
@@ -229,7 +230,7 @@ function HouseWalk({
                     <span className="font-medium text-verdict-good">
                       {r.benefics.map((p) => p.planet).join(", ")} ·{" "}
                     </span>
-                    {plain ? withheld && house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[house].benefic : <Soft>{withheld ? redactProse(r.beneficText) : r.beneficText}</Soft>}
+                    {plain ? <LocalizedText>{withheld && house === 5 ? "The source discusses several fifth-house matters; its sensitive passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[house].benefic}</LocalizedText> : <Soft>{withheld ? redactProse(r.beneficText) : r.beneficText}</Soft>}
                   </p>
                 )}
               </>
@@ -267,6 +268,8 @@ function HouseWalk({
 export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; onTopicSelected?: (event: ChartEvent | null) => void }) {
   const { positions, reading, now } = result;
   const plain = usePlain();
+  const { locale } = useLocale();
+  const ml = locale === "ml";
   const birthLagnaIdx = result.jaimini.lagna.signIndex;
   const gulikaMethod = normaliseGulikaMethod(result.chart.gulikaMethod);
   const gulikaMethodInfo = GULIKA_METHODS.find((method) => method.id === gulikaMethod)!;
@@ -461,21 +464,21 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
 
   return (
     <section data-testid="prasna-panel" aria-label="Prasna Marga">
-      <h2 className="text-xl font-semibold">Prasna Marga</h2>
+      <h2 className="text-xl font-semibold">{ml ? "പ്രശ്ന മാർഗം" : "Prasna Marga"}</h2>
       <p className="mt-1 max-w-[68ch] text-sm text-muted-foreground">
-        The Kerala horary classic. A genuine query needs its question time,
+        {ml ? "കേരളത്തിലെ പ്രശ്നജ്യോതിഷ ഗ്രന്ഥം. യഥാർത്ഥ പ്രശ്നവായനയ്ക്ക് ചോദ്യം ചോദിച്ച സമയവും സ്ഥലവും ആരൂഢവും ആവശ്യമാണ്. ആപ്പിലെ പ്രശ്നദൃശ്യം ഇപ്പോൾ ജനനജാതകത്തിന്റെ സ്ഥലത്ത് സൂക്ഷിച്ച ഗ്രഹനിലയാണ് ഉപയോഗിക്കുന്നത്. ജനനജാതക വായന വേറെയാണ്." : <>The Kerala horary classic. A genuine query needs its question time,
         location and Arudha; this app's query view currently uses a stored sky
-        snapshot at the birth-chart location. The birth-chart view is separate.
+        snapshot at the birth-chart location. The birth-chart view is separate.</>}
       </p>
       <p className="mt-2 max-w-[80ch] text-xs text-muted-foreground" data-testid="prasna-gulika-convention">
-        Gulika / Mandi uses {gulikaMethodInfo.short}. The Kerala weekday constants are the Prasna
+        {ml ? <>ഗുളിക / മാണ്ഡി കണക്കാക്കാൻ {gulikaMethodInfo.short} ഉപയോഗിക്കുന്നു. പ്രശ്നമാർഗത്തിലെ സ്വതവേയുള്ള രീതി കേരളത്തിലെ വാരദിന സ്ഥിരാങ്കങ്ങളാണ്; മറ്റു രീതികൾ താരതമ്യത്തിനാണ്. ജാതക ക്രമീകരണങ്ങളിൽ രീതി മാറ്റാം. ഒരു സ്ഥാനം സംബന്ധിച്ച പരമ്പരാഗത വ്യാഖ്യാനം ഒരു ഫലം സ്ഥാപിക്കുന്നില്ല.</> : <>Gulika / Mandi uses {gulikaMethodInfo.short}. The Kerala weekday constants are the Prasna
         Marga default; other conventions are comparisons. Change the method in chart settings.
-        A traditional interpretation of one placement does not establish an outcome.
+        A traditional interpretation of one placement does not establish an outcome.</>}
       </p>
       {result.gulikaComparisons && (
         <details className="mt-2 rounded-md border p-3 text-xs" data-testid="prasna-gulika-comparison">
-          <summary className="cursor-pointer font-medium">Compare birth-chart Gulika / Mandi conventions</summary>
-          <p className="mt-2 text-muted-foreground">Each position uses this chart's sunrise definition and ayanamsa. The same setting also selects the snapshot point and the Gulika-dependent sphutas.</p>
+          <summary className="cursor-pointer font-medium">{ml ? "ജനനജാതകത്തിലെ ഗുളിക / മാണ്ഡി രീതികൾ താരതമ്യം ചെയ്യുക" : "Compare birth-chart Gulika / Mandi conventions"}</summary>
+          <p className="mt-2 text-muted-foreground">{ml ? "ഓരോ സ്ഥാനവും ഈ ജാതകത്തിന്റെ സൂര്യോദയ നിർവചനവും അയനാംശവും ഉപയോഗിക്കുന്നു. അതേ ക്രമീകരണം ഗ്രഹനിലയിലെ ബിന്ദുവിനെയും ഗുളികയെ ആശ്രയിച്ചുള്ള സ്ഫുടങ്ങളെയും തിരഞ്ഞെടുക്കുന്നു." : "Each position uses this chart's sunrise definition and ayanamsa. The same setting also selects the snapshot point and the Gulika-dependent sphutas."}</p>
           <ul className="mt-2 space-y-1">
             {GULIKA_METHODS.map((method) => {
               const point = result.gulikaComparisons![method.id];
@@ -485,7 +488,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
               </li>;
             })}
           </ul>
-          <p className="mt-2 text-muted-foreground">The sources use the names differently. Prasna Marga's house interpretation is tied to its Kerala method; other selections are explicitly comparisons.</p>
+          <p className="mt-2 text-muted-foreground">{ml ? "ഉറവിടങ്ങൾ ഈ പേരുകൾ വ്യത്യസ്തമായി ഉപയോഗിക്കുന്നു. പ്രശ്നമാർഗത്തിന്റെ ഭാവവ്യാഖ്യാനം അതിന്റെ കേരളരീതിയോടാണ് ബന്ധപ്പെട്ടത്; മറ്റു തിരഞ്ഞെടുപ്പുകൾ താരതമ്യങ്ങൾ മാത്രമാണ്." : "The sources use the names differently. Prasna Marga's house interpretation is tied to its Kerala method; other selections are explicitly comparisons."}</p>
         </details>
       )}
 
@@ -495,10 +498,10 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
 
       {/* Prasna (query) */}
       <div className="mt-4 nadi-info-box">
-        <SectionTitle plain="Cast a prasna" technical="Prasna kriya" as="h3" />
+        <SectionTitle plain={ml ? "പ്രശ്നം പരിശോധിക്കുക" : "Cast a prasna"} technical={ml ? "പ്രശ്നക്രിയ" : "Prasna kriya"} as="h3" />
         <ModeText
-          plain="Choose an Arudha and explore the stored sky snapshot. Verify the question's actual time and place before treating it as a horary chart."
-          practitioner="The selected Arudha (4.51-55) is read against the stored sky snapshot at the birth-chart location, not a separately cast question time and place."
+          plain={ml ? "ആരൂഢം തിരഞ്ഞെടുത്ത് സൂക്ഷിച്ച ഗ്രഹനില പരിശോധിക്കുക. ഇതിനെ പ്രശ്നജാതകമായി കാണുന്നതിന് മുമ്പ് ചോദ്യത്തിന്റെ യഥാർത്ഥ സമയവും സ്ഥലവും ഉറപ്പാക്കുക." : "Choose an Arudha and explore the stored sky snapshot. Verify the question's actual time and place before treating it as a horary chart."}
+          practitioner={ml ? "തിരഞ്ഞെടുത്ത ആരൂഢം (4.51–55) ജനനജാതകത്തിന്റെ സ്ഥലത്ത് സൂക്ഷിച്ച ഗ്രഹനിലയുമായി താരതമ്യം ചെയ്യുന്നു; ചോദ്യത്തിന്റെ സമയത്തും സ്ഥലത്തും പ്രത്യേകം കണക്കാക്കിയ ജാതകമല്ല ഇത്." : "The selected Arudha (4.51-55) is read against the stored sky snapshot at the birth-chart location, not a separately cast question time and place."}
         />
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <Button
@@ -506,7 +509,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
             onClick={castShells}
             data-testid="prasna-generate-arudha"
           >
-            Cast shells
+            {ml ? "കവടികൾ ഇടുക" : "Cast shells"}
           </Button>
           <select
             value={arudhaIdx ?? ""}
@@ -655,13 +658,13 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
         )}
         {arudhaIdx === null && (
           <p className="mt-3 text-xs text-muted-foreground">
-            Cast shells, or pick a sign, to read the query chart.
+            {ml ? "പ്രശ്നജാതകം വായിക്കാൻ കവടികൾ ഇടുകയോ ഒരു രാശി തിരഞ്ഞെടുക്കുകയോ ചെയ്യുക." : "Cast shells, or pick a sign, to read the query chart."}
           </p>
         )}
         <p className="mt-3 text-2xs text-muted-foreground" data-testid="prasna-arudha-caveat">
-          “Cast shells” is an exploratory simulation that divides a random handful by 12.
+          {ml ? "‘കവടികൾ ഇടുക’ എന്നത് ക്രമരഹിതമായ ഒരു പിടി 12 കൊണ്ട് ഹരിക്കുന്ന പരീക്ഷണാനുകരണമാണ്. ഉദാഹരിച്ച പ്രശ്നമാർഗ ഭാഗങ്ങൾ പകരം ആരൂഢത്തിന് സ്വർണം വയ്ക്കുന്നതും (4.51–53) അഷ്ടമംഗലത്തിന് മൂന്നു കവടിക്കൂട്ടങ്ങൾ ഉപയോഗിക്കുന്നതും (4.54–55) വിവരിക്കുന്നു. ഈ അനുകരണം ആ ചടങ്ങ് പുനഃസൃഷ്ടിക്കുന്നില്ല." : <>“Cast shells” is an exploratory simulation that divides a random handful by 12.
           The cited Prasna Marga passages instead describe gold placement for Arudha (4.51–53)
-          and three cowrie heaps for Ashtamangala (4.54–55). The simulation does not recreate that ritual.
+          and three cowrie heaps for Ashtamangala (4.54–55). The simulation does not recreate that ritual.</>}
         </p>
         {prasna && arudhaIdx !== null && (
           <div className="mt-3 space-y-2">
@@ -811,7 +814,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
         </ul>
         <ul className="mt-2 space-y-0.5 text-2xs text-muted-foreground">
           {PRASNA_TRANSIT_NOTES.map((n, i) => (
-            <li key={i}>{n}</li>
+            <li key={i}><LocalizedText>{n}</LocalizedText></li>
           ))}
         </ul>
         <label className="mt-3 flex flex-wrap items-center gap-2 text-xs" htmlFor="prasna-venus-vedha-variant">
@@ -880,7 +883,7 @@ export function PrasnaPanel({ result, onTopicSelected }: { result: ChartResult; 
             return <details key={p.planet} className="px-4 py-3 text-sm leading-relaxed" data-testid={`prasna-planet-explanation-${p.planet}`}>
               <summary className={INFO_BOX_ROW_SUMMARY}>{p.planet} · {p.sign} · {ordH(house)} house</summary>
               <p className="mt-1.5">{p.planet} occupies the {withGloss("prasna", house)} house. {owned.length ? `It rules the ${listJoin(owned.map((h) => withGloss("prasna", h)))} ${owned.length === 1 ? "house" : "houses"}.` : "It is not assigned sign ownership in this convention."}</p>
-              {type && row && <p className="mt-1">For this house, the app classifies {p.planet} as {type}. {withheld && house === 5 ? "The sensitive source passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[house][type]} <span className="text-muted-foreground">Prasna Marga 14.{row.stanza}; the passage concerns the whole house.</span></p>}
+              {type && row && <p className="mt-1">For this house, the app classifies {p.planet} as {type}. <LocalizedText>{withheld && house === 5 ? "The sensitive source passage is held back." : PRASNA_HOUSE_EFFECT_PLAIN[house][type]}</LocalizedText> <span className="text-muted-foreground">Prasna Marga 14.{row.stanza}; the passage concerns the whole house.</span></p>}
               {disposition && strength && <p className="mt-1 text-muted-foreground">The separate planetary-condition proxy is {disposition.disposition}: it uses Nadi-derived effective sign condition ({strength.effectiveDignity}), solar-contact status ({strength.effectiveCombust ? "present" : "not present"}) and hemming ({strength.hemmed ?? "none"}). This partial, provisional app proxy is not a complete Prasna planetary judgment. {disposition.source}.</p>}
               {!disposition && <p className="mt-1 text-muted-foreground">The entered condition proxy does not assign this planet a favourable or unfavourable condition.</p>}
             </details>;

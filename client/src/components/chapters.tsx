@@ -14,6 +14,7 @@ import {
 } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useReadingMode } from "@/lib/reading-mode";
+import { LocalizedText, useT, useLocale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /**
@@ -117,8 +118,10 @@ export function Chapters({
   className?: string;
 }) {
   const { mode } = useReadingMode();
+  const t = useT();
+  const { locale } = useLocale();
   const plain = mode === "plain";
-  const label = (c: ChapterDef) => (plain ? c.plain : (c.technical ?? c.plain));
+  const label = (c: ChapterDef) => <LocalizedText>{plain ? c.plain : (c.technical ?? c.plain)}</LocalizedText>;
 
   const parts = new Map<string, ReactNode[]>();
   collect(children, parts);
@@ -182,7 +185,7 @@ export function Chapters({
       left < strip.scrollLeft ||
       left + el.offsetWidth > strip.scrollLeft + strip.clientWidth
     )
-      strip.scrollTo({ left: Math.max(0, left - 24), behavior: "smooth" });
+      strip.scrollTo({ left: Math.max(0, left - 24), behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }, [active, mode]);
 
   const ids = [...list.map((c) => c.id), ALL_CHAPTERS];
@@ -225,7 +228,7 @@ export function Chapters({
       data-chapter={id}
       onClick={() => open(id)}
       className={cn(
-        "relative shrink-0 whitespace-nowrap px-3 py-2.5 text-sm outline-hidden transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+        "relative min-h-11 shrink-0 whitespace-nowrap px-3 py-2.5 text-sm outline-hidden transition-colors motion-reduce:transition-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
         selected
           ? "font-medium text-foreground after:absolute after:inset-x-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary"
           : "text-muted-foreground hover:text-foreground",
@@ -244,14 +247,14 @@ export function Chapters({
     >
       <div ref={anchorRef} aria-hidden />
       <nav
-        aria-label="Chapters in this tab"
+        aria-label={t("Chapters in this tab")}
         className="sticky top-0 z-20 border-b bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80"
         data-testid={`chapter-bar-${tab}`}
       >
         <div
           ref={listRef}
           role="tablist"
-          aria-label="Chapters"
+          aria-label={t("Chapters")}
           onKeyDown={onKey}
           className="flex items-stretch"
         >
@@ -289,7 +292,7 @@ export function Chapters({
             )}
           </div>
           <span aria-hidden className="mx-1 my-2.5 w-px shrink-0 bg-border" />
-          {tabBtn(ALL_CHAPTERS, plain ? "Everything" : "All", all)}
+          {tabBtn(ALL_CHAPTERS, <LocalizedText>{plain ? "Everything" : "All"}</LocalizedText>, all)}
         </div>
       </nav>
 
@@ -329,12 +332,12 @@ export function Chapters({
 
           {contents && at === 0 && list.length > 2 && (
             <nav
-              aria-label="In this tab"
+              aria-label={t("In this tab")}
               className="mt-10"
               data-testid={`chapter-contents-${tab}`}
             >
               <h3 className="text-sm font-semibold">
-                {plain ? "Also in this tab" : "Chapters"}
+                <LocalizedText>{plain ? "Also in this tab" : "Chapters"}</LocalizedText>
               </h3>
               <ul className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                 {list.slice(1).map((c) => (
@@ -355,7 +358,7 @@ export function Chapters({
                       </span>
                       {c.blurb && (
                         <span className="mt-1 text-xs leading-5 text-muted-foreground">
-                          {c.blurb}
+                          <LocalizedText>{c.blurb}</LocalizedText>
                         </span>
                       )}
                     </button>
@@ -391,7 +394,7 @@ export function Chapters({
                   data-testid={`chapter-next-${tab}`}
                 >
                   <span className="truncate">
-                    {plain ? "Next: " : ""}
+                    {plain ? (locale === "ml" ? "അടുത്തത്: " : "Next: ") : ""}
                     {label(next)}
                   </span>
                   <ChevronRight className="h-4 w-4 shrink-0" />

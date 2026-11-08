@@ -12,7 +12,9 @@ import {
   type SystemStance,
 } from "@shared/agreement";
 import { useAgreement } from "@/lib/use-agreement";
-import { Soft } from "@/lib/gentle";
+import { Soft, useSoften } from "@/lib/gentle";
+import { agreementSentenceMalayalam } from "@shared/malayalam-agreement";
+import { agreementNoteMalayalam } from "@shared/malayalam-agreement-notes";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n";
 
@@ -106,6 +108,7 @@ export function AgreementPanel({
   useEffect(() => setOpen(!compact), [compact]);
   const tr = useT();
   const { locale } = useLocale();
+  const soften = useSoften();
   const rows = open;
   const topics = useAgreement(result);
 
@@ -205,9 +208,9 @@ export function AgreementPanel({
             <p
               className="mt-1 text-xs"
               data-testid={`agreement-sentence-${t.topic}`}
-              lang={locale === "ml" ? "en" : undefined}
+              lang={locale === "ml" ? (agreementSentenceMalayalam(t, soften(t.sentence)) ? "ml" : "en") : undefined}
             >
-              <Soft>{t.sentence}</Soft>
+              {locale === "ml" ? agreementSentenceMalayalam(t, soften(t.sentence)) ?? soften(t.sentence) : <Soft>{t.sentence}</Soft>}
             </p>
             {open && (
               <ul className="mt-1.5 grid gap-1 text-xs text-muted-foreground sm:grid-cols-2" lang={locale === "ml" ? "en" : undefined}>
@@ -231,22 +234,21 @@ export function AgreementPanel({
         <div
           className="space-y-1.5 border-t px-3 py-2 text-2xs text-muted-foreground"
           data-testid="agreement-note"
-          lang={locale === "ml" ? "en" : undefined}
         >
           <ul className="space-y-0.5" data-testid="agreement-method">
             {SYSTEMS.map((s) => (
-              <li key={s}>
+              <li key={s} lang={locale === "ml" ? (agreementNoteMalayalam(AGREEMENT_METHOD[s]) ? "ml" : "en") : undefined}>
                 <span className="font-medium text-foreground">
                   {AGREEMENT_SYSTEM_LABEL[s]}
                 </span>
-                : {AGREEMENT_METHOD[s]}
+                : {locale === "ml" ? agreementNoteMalayalam(AGREEMENT_METHOD[s]) ?? AGREEMENT_METHOD[s] : AGREEMENT_METHOD[s]}
               </li>
             ))}
           </ul>
           {topics.some((t) => t.topic === "father" || t.topic === "mother") && (
-            <p>{AGREEMENT_PARENTS_NOTE}</p>
+            <p lang={locale === "ml" ? (agreementNoteMalayalam(AGREEMENT_PARENTS_NOTE) ? "ml" : "en") : undefined}>{locale === "ml" ? agreementNoteMalayalam(AGREEMENT_PARENTS_NOTE) ?? AGREEMENT_PARENTS_NOTE : AGREEMENT_PARENTS_NOTE}</p>
           )}
-          <p>{AGREEMENT_NOTE}</p>
+          <p lang={locale === "ml" ? (agreementNoteMalayalam(AGREEMENT_NOTE) ? "ml" : "en") : undefined}>{locale === "ml" ? agreementNoteMalayalam(AGREEMENT_NOTE) ?? AGREEMENT_NOTE : AGREEMENT_NOTE}</p>
         </div>
       )}
     </section>

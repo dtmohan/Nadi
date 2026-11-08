@@ -110,11 +110,14 @@ import { KpNatalRules } from "@/components/natal-rule-evidence";
 import { InfoBox, InfoBoxTitle, InfoBoxDescription, INFO_BOX_ROWS, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
 import { AuroraSelfPanel } from "@/components/kp-aurora-evidence";
 import { LocalizedText, useLocale } from "@/lib/i18n";
-import { kpHereMalayalam, kpTimingMalayalam } from "@shared/school-topic-malayalam";
+import { kpHereMalayalam, kpEvidenceMalayalam, kpTimingMalayalam } from "@shared/school-topic-malayalam";
+import { kpPlanetDetailMalayalam, kpStageDetailMalayalam } from "@shared/kp-technical-malayalam";
+import { translate } from "@shared/localization";
 
 /** Per-planet trace is restricted to this KP result and its selected significator convention. */
 function KpPlanetExplanations({ kp, sixStep }: { kp: KpResult; sixStep: boolean }) {
   const soft = useSoften();
+  const { locale } = useLocale();
   const stages = ["A", "B", "C", "D", ...(sixStep ? ["E", "F"] : [])] as SignificatorLevel[];
   return <InfoBox className="mt-4" data-testid="kp-planet-explanations">
     <InfoBoxTitle>What each planet signifies in KP</InfoBoxTitle>
@@ -122,12 +125,14 @@ function KpPlanetExplanations({ kp, sixStep }: { kp: KpResult; sixStep: boolean 
     <div className={INFO_BOX_ROWS}>{kp.planets.map((p) => {
       const s = kp.significators.find((x) => x.planet === p.planet);
       const findings = kp.withheld ? [] : kp.findings.filter((f) => f.subLord === p.planet && !sensitiveTags(f.text).length && !/\b(health|illness|disease|death|fertil|pregnan|ruin|accident|suicid\w*|self[- ]destruct\w*|self[- ]harm)\b/i.test(f.text));
+      const detail = `In this chart ${p.planet} is in ${p.sign}, in the ${ordinal(p.house)} house (${houseGloss("kp", p.house)}). Its star lord is ${p.starLord} and its sub-lord is ${p.subLord}.`;
+      const detailMl = locale === "ml" ? kpPlanetDetailMalayalam(p, detail) : undefined;
       return <details key={p.planet} className="px-4 py-3 text-sm leading-relaxed" data-testid={`kp-planet-explanation-${p.planet}`}>
         <summary className={INFO_BOX_ROW_SUMMARY}>{p.planet} · house {p.house} · star lord {p.starLord}</summary>
-        <p className="mt-2">In this chart {p.planet} is in {p.sign}, in the {ordinal(p.house)} house ({houseGloss("kp", p.house)}). Its star lord is {p.starLord} and its sub-lord is {p.subLord}.</p>
-        {s && <ul className="mt-2 space-y-1">{stages.flatMap((stage) => s.levels[stage].length ? [<li key={stage}>{kpStageLabel(p, stage)} the {listJoin(s.levels[stage].map((h) => withGloss("kp", h)))}.</li>] : [])}</ul>}
+        <p className="mt-2" lang={detailMl ? "ml" : "en"}>{detailMl ?? detail}</p>
+        {s && <ul className="mt-2 space-y-1">{stages.flatMap((stage) => { const houses = s.levels[stage]; if (!houses.length) return []; const line = `${kpStageLabel(p, stage)} the ${listJoin(houses.map((h) => withGloss("kp", h)))}.`; const lineMl = locale === "ml" ? kpStageDetailMalayalam(p, stage, houses, line) : undefined; return [<li key={stage} lang={lineMl ? "ml" : "en"}>{lineMl ?? line}</li>]; })}</ul>}
         {s?.agentFor?.length ? <p className="mt-1 text-muted-foreground">This node also represents {listJoin(s.agentFor)} under the app's KP node convention.</p> : null}
-        {findings.length > 0 && <div className="mt-2"><p className="font-medium">Selected cusp rules where {p.planet} is the sub-lord</p><ul className="mt-1 space-y-2">{findings.slice(0, 3).map((f) => <li key={f.ruleId}><span className="font-medium">{f.topic}:</span> <LocalizedText>{soft(kpFindingPlain(f))}</LocalizedText> <span className="text-muted-foreground">{kpHerePlain(f)} {f.standing === "note" ? "This is a secondary note." : ""}</span> <Cite href={f.sourceUrl}>{f.source}</Cite></li>)}</ul></div>}
+        {findings.length > 0 && <div className="mt-2"><p className="font-medium">{locale === "ml" ? `${translate("ml", p.planet)} സഹാധിപനായ തിരഞ്ഞെടുത്ത കസ്പ് നിയമങ്ങൾ` : `Selected cusp rules where ${p.planet} is the sub-lord`}</p><ul className="mt-1 space-y-2">{findings.slice(0, 3).map((f) => { const here = locale === "ml" ? kpHereMalayalam(f) : undefined; return <li key={f.ruleId}><span className="font-medium">{locale === "ml" ? translate("ml", f.topic) : f.topic}:</span> <LocalizedText>{soft(kpFindingPlain(f))}</LocalizedText> <span className="text-muted-foreground" lang={here ? "ml" : "en"}>{here ?? kpHerePlain(f)} {f.standing === "note" ? (locale === "ml" ? "ഇത് ഒരു അനുബന്ധ കുറിപ്പാണ്." : "This is a secondary note.") : ""}</span> <Cite href={f.sourceUrl}>{f.source}</Cite></li>; })}</ul></div>}
         {!findings.length && <p className="mt-2 text-muted-foreground">No additional plain cusp interpretation is selected here; the house links above remain chart facts.</p>}
       </details>;
     })}</div>
@@ -1613,8 +1618,7 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
                           )}
                           {mode === "practitioner" && (
                             <span className="ml-1.5 text-xs text-muted-foreground">
-                              {f.evidence}
-                              {f.used?.length ? ` (${kpUsedGloss(f.used)})` : ""}.{" "}
+                              {(() => { const evidence = `${f.evidence}${f.used?.length ? ` (${kpUsedGloss(f.used)})` : ""}`; const translated = locale === "ml" ? kpEvidenceMalayalam(f, evidence) : undefined; return <span lang={translated ? "ml" : "en"}>{translated ?? `${evidence}.`}</span>; })()}{" "}
                               {f.sourceUrl ? (
                                 <Cite href={f.sourceUrl}>{f.source}</Cite>
                               ) : (

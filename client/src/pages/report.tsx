@@ -8,6 +8,7 @@ import { chartsStore } from "@/lib/charts-store";
 import { useReadingMode } from "@/lib/reading-mode";
 import { ReadingModeToggle } from "@/components/working";
 import { Button } from "@/components/ui/button";
+import { Table } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import {
   buildReport,
@@ -28,6 +29,15 @@ const TONE_RULE: Record<NonNullable<ReportPara["tone"]>, string> = {
   mixed: "border-border",
 };
 
+/** Report anchors must not replace the app's hash route. */
+function jumpToReportTarget(event: React.MouseEvent<HTMLAnchorElement>, target: string) {
+  event.preventDefault();
+  const element = document.getElementById(target);
+  if (!element) return;
+  element.scrollIntoView({ block: "start" });
+  element.focus({ preventScroll: true });
+}
+
 function Cites({ ns }: { ns?: number[] }) {
   if (!ns?.length) return null;
   return (
@@ -40,7 +50,7 @@ function Cites({ ns }: { ns?: number[] }) {
               ,<wbr />
             </>
           )}
-          <a href={`#fn-${n}`} className="hover:text-foreground">
+          <a href={`#fn-${n}`} onClick={(event) => jumpToReportTarget(event, `fn-${n}`)} className="hover:text-foreground">
             {n}
           </a>
         </span>
@@ -53,19 +63,18 @@ function Para({ p }: { p: ReportPara }) {
   const t = useT();
   if (p.kind === "table")
     return (
-      <div className="my-4 overflow-x-auto print:overflow-visible">
-        <table
+        <Table wrapperClassName="report-table-scroll my-5 print:overflow-visible"
           className={cn(
-            "w-full",
+            "report-data-table w-full",
             (p.head?.length ?? 0) > 8
               ? "text-[0.72em] whitespace-nowrap"
               : "text-[0.85em]",
           )}
         >
           <thead>
-            <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-              {p.head?.map((h) => (
-                <th key={h} lang={/[\u0d00-\u0d7f]/.test(h) ? "ml" : "en"} className="py-1 pr-3 font-medium">
+            <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+              {p.head?.map((h, i) => (
+                <th key={i} scope="col" lang={/[\u0d00-\u0d7f]/.test(h) ? "ml" : "en"} className="py-2.5 pr-4 font-medium">
                   {h}
                 </th>
               ))}
@@ -73,21 +82,21 @@ function Para({ p }: { p: ReportPara }) {
           </thead>
           <tbody>
             {p.rows?.map((r, i) => (
-              <tr key={i} className="border-b border-border/50 align-top">
+              <tr key={i} className="align-top">
                 {r.map((c, j) => (
-                  <td key={j} lang={/[\u0d00-\u0d7f]/.test(c) ? "ml" : "en"} className={cn("py-1 pr-3", j > 0 && "tabular")}>
+                  <td key={j} lang={/[\u0d00-\u0d7f]/.test(c) ? "ml" : "en"} className={cn("py-2.5 pr-4", j > 0 && "tabular")}>
                     {c}
                   </td>
                 ))}
               </tr>
             ))}
           </tbody>
-        </table>
-      </div>
+        </Table>
     );
   if (p.kind === "note")
     return (
-      <p lang={p.lang} className="my-3 rounded border border-border/60 bg-muted/30 px-3 py-2 text-[0.85em] leading-relaxed text-muted-foreground print:bg-transparent">
+      <p lang={p.lang} className="report-note my-4 text-[0.85em] leading-relaxed text-muted-foreground">
+        {p.provisional && <span className="mr-1.5 text-[0.8em] font-semibold text-amber-700 dark:text-amber-400">{t("Provisional")}</span>}
         {p.text}
         <Cites ns={p.cites} />
       </p>
@@ -102,14 +111,6 @@ function Para({ p }: { p: ReportPara }) {
         !p.provisional && p.tone && TONE_RULE[p.tone],
       )}
     >
-      {p.provisional && (
-        <span
-          className="absolute -left-2 top-0 -translate-x-full text-[0.65em] uppercase tracking-wider text-amber-700 dark:text-amber-400 max-lg:hidden print:hidden"
-          aria-hidden
-        >
-          {t("Provisional")}
-        </span>
-      )}
       <p
         lang={p.lang}
         className={cn(
@@ -118,7 +119,7 @@ function Para({ p }: { p: ReportPara }) {
         )}
       >
         {p.provisional && (
-          <span className="mr-1.5 text-[0.7em] uppercase tracking-wider text-amber-700 dark:text-amber-400 lg:hidden print:inline">
+          <span className="mr-1.5 text-[0.7em] uppercase tracking-wider text-amber-700 dark:text-amber-400">
             {t("Provisional")}
           </span>
         )}
@@ -137,11 +138,12 @@ function Section({ s, level }: { s: ReportSection; level: 2 | 3 }) {
   return (
     <section
       id={s.id}
-      className={cn(level === 2 ? "mt-12 break-before-auto" : "mt-6")}
+      tabIndex={-1}
+      className={cn("scroll-mt-6", level === 2 ? "report-section mt-12 break-before-auto" : "mt-8")}
       data-testid={`report-section-${s.id}`}
     >
       {s.kicker && (
-        <p lang="en" className="text-xs uppercase tracking-wider text-muted-foreground">
+        <p lang={/[\u0d00-\u0d7f]/.test(s.kicker) ? "ml" : "en"} className="text-xs uppercase tracking-wider text-muted-foreground">
           {s.kicker}
         </p>
       )}
@@ -149,7 +151,7 @@ function Section({ s, level }: { s: ReportSection; level: 2 | 3 }) {
         lang={s.lang}
         className={cn(
           "font-display font-semibold",
-          level === 2 ? "text-xl" : "text-base",
+          level === 2 ? "text-2xl" : "text-lg",
         )}
       >
         {s.title}
@@ -248,7 +250,7 @@ export default function ReportPage() {
 
   return (
     <div
-      className="mx-auto max-w-3xl px-6 pb-16 pt-6 lg:pl-28"
+      className="mx-auto max-w-3xl px-5 pb-16 pt-6 sm:px-8"
       data-testid="report"
     >
       <div className="mb-6 flex flex-wrap items-center justify-between gap-2 print:hidden">
@@ -302,7 +304,7 @@ export default function ReportPage() {
               aria-pressed={on}
               onClick={() => toggle(m.id)}
               className={cn(
-                "rounded-full border px-2.5 py-0.5 text-xs transition-colors",
+                "min-h-9 rounded-full border px-3 py-1 text-xs transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                 on
                   ? "border-primary/40 bg-primary/10 text-foreground"
                   : "border-border text-muted-foreground line-through hover:text-foreground",
@@ -316,12 +318,12 @@ export default function ReportPage() {
         })}
       </div>
 
-      <header>
+      <header className="report-hero">
         <p className="text-xs uppercase tracking-wider text-muted-foreground">
           Nadi · reading report · {doc.generated}
         </p>
         <h1
-          className="mt-1 font-display text-xl font-bold"
+          className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl"
           data-testid="report-title"
         >
           {doc.title}
@@ -334,18 +336,18 @@ export default function ReportPage() {
       </header>
 
       <nav
-        className="mt-6 text-sm text-muted-foreground print:hidden"
-        aria-label="Contents"
+        className="report-contents mt-8 print:hidden"
+        aria-label={locale === "ml" ? "ഈ റിപ്പോർട്ടിൽ" : "In this report"}
         data-testid="report-contents"
       >
-        {doc.sections.map((s, i) => (
-          <span key={s.id}>
-            {i > 0 && " · "}
-            <a href={`#${s.id}`} lang={s.lang} className="hover:text-foreground">
-              {s.title}
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{locale === "ml" ? "ഈ റിപ്പോർട്ടിൽ" : "In this report"}</p>
+        <ol className="flex flex-wrap gap-x-5 gap-y-2">
+          {doc.sections.map((s, i) => <li key={s.id}>
+            <a href={`#${s.id}`} onClick={(event) => jumpToReportTarget(event, s.id)} lang={s.lang} className="inline-flex items-baseline gap-2 text-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
+              <span aria-hidden className="font-mono text-xs text-primary/75">{String(i + 1).padStart(2, "0")}</span>{s.title}
             </a>
-          </span>
-        ))}
+          </li>)}
+        </ol>
       </nav>
 
       <article className="text-[15px]">
@@ -358,7 +360,7 @@ export default function ReportPage() {
         <h2 className="font-display text-xl font-semibold">{t("Notes")}</h2>
         <ol lang="en" className="mt-3 space-y-1 text-[0.85em] text-muted-foreground">
           {doc.cites.map((c) => (
-            <li key={c.n} id={`fn-${c.n}`} className="flex gap-2">
+            <li key={c.n} id={`fn-${c.n}`} tabIndex={-1} className="flex scroll-mt-6 gap-2">
               <span className="w-6 shrink-0 text-right font-mono">{c.n}.</span>
               <span>
                 {c.url ? (

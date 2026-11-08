@@ -11,7 +11,7 @@ import {
 import { GentleNote, Soft } from "@/lib/gentle";
 import { formationOnly } from "@shared/gentle";
 import { useLocale } from "@/lib/i18n";
-import { parashariHouseContextMalayalam, parashariLordMalayalam } from "@shared/school-topic-malayalam";
+import { parashariHouseContextMalayalam, parashariLordMalayalam, parashariLordPractitionerMalayalam } from "@shared/school-topic-malayalam";
 import { natalPlanetContext } from "@shared/planet-context";
 import { BphsDignityContextPanel } from "@/components/bphs-dignity-context";
 import { JupiterRelationshipsPanel } from "@/components/jupiter-relationships";
@@ -652,6 +652,8 @@ function HouseByHouse({
                     >
                       {plain && locale === "ml" && bhavas.find((b) => b.house === hp.house) && parashariLordMalayalam(par, bhavas.find((b) => b.house === hp.house)!, part)
                         ? <span lang="ml">{parashariLordMalayalam(par, bhavas.find((b) => b.house === hp.house)!, part)}</span>
+                        : !plain && locale === "ml" && bhavas.find((b) => b.house === hp.house) && parashariLordPractitionerMalayalam(par, bhavas.find((b) => b.house === hp.house)!, part)
+                        ? <span lang="ml">{parashariLordPractitionerMalayalam(par, bhavas.find((b) => b.house === hp.house)!, part)}</span>
                         : <Soft>{plain ? part.textPlain : part.text}</Soft>}
                       {!plain &&
                         part.sources.map((src) => (

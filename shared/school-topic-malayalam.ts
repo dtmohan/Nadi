@@ -13,8 +13,8 @@ import { ordH, thePlanet, HOUSE_AREAS_PLAIN } from "./house-gloss";
 import { toYou } from "./parashari-house-prose";
 import { soften } from "./gentle";
 import { redactProse } from "./life-stage";
-import { strengthQualifierPlain } from "./shadbala";
-import type { KpFinding } from "./rules-kp";
+import { strengthQualifier, strengthQualifierPlain } from "./shadbala";
+import { kpUsedGloss, type KpFinding } from "./rules-kp";
 import type { Planet } from "./astro";
 import type { Bhava, ParashariResult } from "./parashari";
 import type { HouseProsePart } from "./parashari-house-prose";
@@ -28,13 +28,48 @@ const names: Record<SchoolTopicBrief["school"], string> = { parashari: "പര�
 const karaka: Record<string, string> = { AK: "സ്വയം, ജീവിതലക്ഷ്യം, സ്ഥാനം", AmK: "ജോലി, പദവി, ഉപദേശകർ, സമൂഹത്തിലെ പങ്ക്", BK: "സഹോദരങ്ങൾ, ഗുരു, സ്വന്തം പരിശ്രമം", MK: "അമ്മ, വീട്, സ്വത്ത്, മനസ്സുഖം", PiK: "അച്ഛൻ, പാരമ്പര്യം, ധർമം, സംരക്ഷണം", PK: "സന്താനം, വിദ്യാർഥികൾ, സർഗാത്മകത, പുണ്യം", GK: "ബന്ധുക്കൾ, എതിരാളികൾ, തർക്കങ്ങൾ, രോഗം", DK: "ജീവിതപങ്കാളി, പങ്കാളിത്തം, അടുത്ത ബന്ധങ്ങൾ" };
 const tr = (text: string) => translate("ml", text);
 const translated = (text: string | undefined) => text && tr(text) !== text ? tr(text) : undefined;
+/** Softened variants are checked separately; never restore the stronger source wording. */
+const softenedLordEffects: Record<number, { source: string; text: string }> = {
+  75: { source: "Worry over children or a single child kept with difficulty; a daughter more likely.",
+    text: "സന്താനത്തെക്കുറിച്ചുള്ള ആശങ്കയോ പ്രയാസത്തോടെ നിലനിർത്തുന്ന ഒരേയൊരു സന്താനമോ; പെൺസന്താനത്തിന് കൂടുതൽ സാധ്യതയെന്നും ഉറവിടം പറയുന്നു." },
+};
+
+/** Translate only the closed set of extra facts emitted by the KP evaluator. */
+function kpFactsMalayalam(facts: string[]): string[] | undefined {
+  const planets: Planet[] = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"];
+  const possessive: Record<Planet, string> = { Sun: "സൂര്യന്റെ", Moon: "ചന്ദ്രന്റെ", Mars: "ചൊവ്വയുടെ", Mercury: "ബുധന്റെ", Jupiter: "വ്യാഴത്തിന്റെ", Venus: "ശുക്രന്റെ", Saturn: "ശനിയുടെ", Rahu: "രാഹുവിന്റെ", Ketu: "കേതുവിന്റെ" };
+  const quality: Record<string, string> = { "in a movable sign": "ചരരാശിയിലാണ്", "in a fixed sign": "സ്ഥിരരാശിയിലാണ്", "in a dual sign": "ഉഭയരാശിയിലാണ്" };
+  const out: string[] = [];
+  for (const fact of facts) {
+    if (quality[fact]) { out.push(quality[fact]); continue; }
+    const planet = planets.find((p) => fact === `in the star of ${thePlanet(p)}` || fact === `in the sub of ${thePlanet(p)}`);
+    if (!planet) return undefined;
+    out.push(fact.startsWith("in the star") ? `${possessive[planet]} നക്ഷത്രത്തിലാണ്` : `${possessive[planet]} ഉപവിഭാഗത്തിലാണ്`);
+  }
+  return out;
+}
 
 /** Don't drop a rule's extra facts: keep the English line when they lack a translation. */
 export function kpHereMalayalam(f: Pick<KpFinding, "cusp" | "subLord" | "used" | "inHouse" | "facts">): string | undefined {
-  if (f.facts?.length) return undefined;
+  if (!kpHouseMalayalam[f.cusp] || f.used?.some((h) => !kpHouseMalayalam[h]) || (f.inHouse && !kpHouseMalayalam[f.inHouse])) return undefined;
+  const facts = kpFactsMalayalam(f.facts ?? []);
+  if (!facts || tr(f.subLord) === f.subLord) return undefined;
   const where = f.inHouse ? ` ${f.inHouse}-ാം ഭാവത്തിലാണ് (${kpHouseMalayalam[f.inHouse]}).` : "";
   const used = f.used?.length ? ` ഈ നിയമത്തിൽ ${f.used.map((h) => `${h}-ാം ഭാവം (${kpHouseMalayalam[h]})`).join(", ")} സൂചിപ്പിക്കുന്നു.` : "";
-  return `ഇവിടെ ${f.cusp}-ാം ഭാവത്തിന്റെ തീരുമാനഗ്രഹം ${tr(f.subLord)} ആണ്.${where}${used}`;
+  const extra = facts.length ? ` ആ ഗ്രഹം ${facts.join(", ")}.` : "";
+  return `ഇവിടെ ${f.cusp}-ാം ഭാവത്തിന്റെ തീരുമാനഗ്രഹം ${tr(f.subLord)} ആണ്.${where}${extra}${used}`;
+}
+
+/** Practitioner evidence is translated only when every generated token matches the stored line. */
+export function kpEvidenceMalayalam(f: KpFinding, aside: string): string | undefined {
+  const line = kpHereMalayalam(f);
+  if (!line) return undefined;
+  const parts = [`${f.subLord} is the sub lord of cusp ${f.cusp}`];
+  if (f.used?.length) parts.push(`signifies ${f.used.join(", ")}`);
+  for (const fact of f.facts ?? []) parts.push(fact.replace(/^(in the (?:star|sub) of) the (Sun|Moon)$/, "$1 $2"));
+  if (f.inHouse) parts.push(`posited in the ${ordH(f.inHouse)}`);
+  const expected = `${parts.join("; ")}${f.used?.length ? ` (${kpUsedGloss(f.used)})` : ""}`;
+  return aside === expected ? line : undefined;
 }
 
 export function kpTimingMalayalam(houses: number[], planets: Planet[], all: number): string {
@@ -51,26 +86,55 @@ export function parashariHouseContextMalayalam(bhava: Bhava): string {
   return `${bhava.house}-ാം ഭാവം ${parH[bhava.house]} എന്നീ ജീവിതവിഷയങ്ങളുമായി ബന്ധപ്പെടുത്തുന്ന ജാതകഭാഗമാണ്; ഇത് ഒരു കെട്ടിടമല്ല. ഈ ജാതകത്തിൽ ആ ഭാവം ${tr(bhava.sign)} രാശിയിലാണ്. ഈ രാശിയുടെ പരമ്പരാഗത അധിപൻ ${tr(bhava.lord)} ആണ്; ഇവിടെ ആ ഗ്രഹം ${bhava.lordIn}-ാം ഭാവത്തിലാണ് (${parH[bhava.lordIn]}). ${occupants}`;
 }
 
-/** Translate a complete, unchanged seventh- or tenth-lord paragraph, including its strength
+/** Translate a complete, unchanged house-lord paragraph, including its strength
  * qualification. Untranslated cancellations, redaction or changed wording fall back to English. */
 export function parashariLordMalayalam(par: ParashariResult, bhava: Bhava, part: HouseProsePart): string | undefined {
-  if (part.key !== "lord" || (bhava.house !== 7 && bhava.house !== 10)) return undefined;
+  if (part.key !== "lord" || bhava.house < 1 || bhava.house > 12) return undefined;
   const e = LORD_IN_HOUSE[bhava.house - 1][bhava.lordIn - 1];
   const translatedEffect = MALAYALAM_PARASHARI_LORDS[e.verse];
   const card = par.findings.find((f) => f.id === `pa-lord-${bhava.house}-${bhava.lordIn}`);
   const sb = par.shadbala?.planets.find((p) => p.planet === bhava.lord);
   const Lord = thePlanet(bhava.lord).replace(/^./, (c) => c.toUpperCase());
   const where = bhava.lordIn === bhava.house ? "in the house itself" : `in your ${ordH(bhava.lordIn)} (${HOUSE_AREAS_PLAIN[bhava.lordIn]})`;
+  if (card?.nullified) {
+    const other = Number(card.nullified.with.split("-")[2]);
+    if (!Number.isInteger(other) || other < 1 || other > 12) return undefined;
+    const expected = `${Lord}, ruler of your ${ordH(bhava.house)} house, sits ${where}. ${Lord} also rules your ${ordH(other)} house, and from where it sits Parashara's readings for its two houses run opposite ways; he sets such contrary readings aside, so neither is counted here.`;
+    if (part.textPlain !== expected || soften(expected) !== expected || redactProse(expected) !== expected) return undefined;
+    const place = bhava.lordIn === bhava.house ? "അതേ ഭാവത്തിൽ" : `${bhava.lordIn}-ാം ഭാവത്തിൽ (${parH[bhava.lordIn]})`;
+    return `${bhava.house}-ാം ഭാവാധിപനായ ${tr(bhava.lord)} ${place} നിൽക്കുന്നു. ${tr(bhava.lord)} ${other}-ാം ഭാവത്തിന്റെയും അധിപനാണ്; ഈ സ്ഥാനത്തുനിന്ന് ആ രണ്ടു ഭാവങ്ങളുടെ പരാശരി വായനകൾ പരസ്പരവിരുദ്ധമാകുന്നു. അത്തരം വിരുദ്ധവായനകൾ പരാശരി മാറ്റിവയ്ക്കുന്നതിനാൽ ഇവിടെ രണ്ടും കണക്കാക്കുന്നില്ല.`;
+  }
   const qualifier = sb ? ` ${strengthQualifierPlain(Lord, sb)}.` : "";
-  const effect = toYou(soften(e.text));
+  const softenedEffect = soften(e.text);
+  const effect = toYou(softenedEffect);
   const lower = /^(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu|Parashara|Mantreswara)\b/.test(effect) ? effect : effect.charAt(0).toLowerCase() + effect.slice(1);
   const expected = `Since ${thePlanet(bhava.lord)}, ruler of your ${ordH(bhava.house)} house, sits ${where}, Parashara reads: ${lower}${qualifier}`;
-  if (card?.nullified || card?.debilityCancelled || translatedEffect?.source !== e.text || soften(e.text) !== e.text || redactProse(e.text) !== e.text || part.textPlain !== expected || soften(expected) !== expected) return undefined;
+  const mlEffect = softenedEffect === e.text ? translatedEffect?.text : softenedLordEffects[e.verse]?.source === softenedEffect ? softenedLordEffects[e.verse].text : undefined;
+  if (card?.nullified || card?.debilityCancelled || translatedEffect?.source !== e.text || !mlEffect || redactProse(softenedEffect) !== softenedEffect || part.textPlain !== expected || soften(expected) !== expected) return undefined;
   const place = bhava.lordIn === bhava.house ? "അതേ ഭാവത്തിൽ" : `${bhava.lordIn}-ാം ഭാവത്തിൽ (${parH[bhava.lordIn]})`;
   const strength = !sb ? "" : sb.effect === "full"
     ? ` ${tr(bhava.lord)} ആപ്പിന്റെ ബലമാനദണ്ഡം കൈവരിക്കുന്നു. കൂടുതൽ ബലം കൂടുതൽ പൂർണഫലവുമായി ഉറവിടം ബന്ധിപ്പിക്കുന്നു; ഈ പരിശോധന മാത്രം ഫലം സ്ഥാപിക്കുന്നില്ല.`
     : ` ${tr(bhava.lord)} പറഞ്ഞിരിക്കുന്ന ബലാവശ്യത്തിന്റെ ${Math.round(sb.total / sb.required * 100)}% കൈവരിക്കുന്നു; ആപ്പ് താൽക്കാലികമായി ഇതിനെ ഉറവിടത്തിലെ ${sb.effect === "half" ? "മധ്യമബല" : "കുറഞ്ഞബല"} വിഭാഗത്തിൽ ഉൾപ്പെടുത്തുന്നു.`;
-  return `${bhava.house}-ാം ഭാവാധിപനായ ${tr(bhava.lord)} ${place} നിൽക്കുന്നതിനാൽ പരാശരി പറയുന്നത്: ${translatedEffect.text}${strength}`;
+  return `${bhava.house}-ാം ഭാവാധിപനായ ${tr(bhava.lord)} ${place} നിൽക്കുന്നതിനാൽ പരാശരി പറയുന്നത്: ${mlEffect}${strength}`;
+}
+
+/** Practitioner wording is translated only when the complete source sentence and every
+ * strength qualification match. Bhava annotations and cancellations require their own translation. */
+export function parashariLordPractitionerMalayalam(par: ParashariResult, bhava: Bhava, part: HouseProsePart): string | undefined {
+  if (part.key !== "lord" || par.withheld || bhava.house < 1 || bhava.house > 12) return undefined;
+  const card = par.findings.find((f) => f.id === `pa-lord-${bhava.house}-${bhava.lordIn}`);
+  if (!card || card.nullified || card.debilityCancelled) return undefined;
+  const source = LORD_IN_HOUSE[bhava.house - 1][bhava.lordIn - 1];
+  const ml = MALAYALAM_PARASHARI_LORDS[source.verse];
+  const destination = par.bhavas.find((h) => h.house === bhava.lordIn);
+  if (!destination || ml?.source !== source.text) return undefined;
+  const sb = par.shadbala?.planets.find((p) => p.planet === bhava.lord);
+  const at = bhava.lordIn === bhava.house ? `${ordH(bhava.lordIn)}, its own house` : `${ordH(bhava.lordIn)} (${destination.sign}: ${HOUSE_AREAS_PLAIN[bhava.lordIn]})`;
+  const expected = `${bhava.lord}, lord of the ${ordH(bhava.house)} (${bhava.sign}: ${HOUSE_AREAS_PLAIN[bhava.house]}), stands in the ${at}. ${source.text}${sb ? strengthQualifier(bhava.lord, sb) : ""}`;
+  if (part.text !== expected || card.text !== expected) return undefined;
+  const location = bhava.lordIn === bhava.house ? `${bhava.lordIn}-ാം ഭാവമായ സ്വന്തം ഭാവത്തിൽ` : `${bhava.lordIn}-ാം ഭാവത്തിൽ (${tr(destination.sign)}: ${parH[bhava.lordIn]})`;
+  const strength = !sb ? "" : ` ബലത്തിന്റെ വ്യവസ്ഥ (24.145): പരാശരി ആവശ്യപ്പെടുന്ന ${sb.required} വിരൂപങ്ങളിൽ ${tr(bhava.lord)} ${sb.total.toFixed(0)} വിരൂപം നേടുന്നു (27.32–33), അതായത് ${Math.round(sb.total / sb.required * 100)}%. ${sb.effect === "full" ? "അതുകൊണ്ട് പൂർണഫലം പ്രതീക്ഷിക്കുന്നു." : sb.effect === "half" ? "മധ്യമബലമായതിനാൽ ഏകദേശം പകുതിഫലം പ്രതീക്ഷിക്കുന്നു; ഉറവിടം കൃത്യമായ സംഖ്യ നൽകാത്തതിനാൽ ആവശ്യത്തിന്റെ 75–99% എന്നത് ആപ്പിന്റെ താൽക്കാലിക രീതിയാണ്." : "ബലം വളരെ കുറവായതിനാൽ ഏകദേശം കാൽഫലം പ്രതീക്ഷിക്കുന്നു; ഉറവിടം കൃത്യമായ സംഖ്യ നൽകാത്തതിനാൽ ആവശ്യത്തിന്റെ 75%-ൽ താഴെ എന്നത് ആപ്പിന്റെ താൽക്കാലിക രീതിയാണ്."}`;
+  return `${bhava.house}-ാം ഭാവാധിപനായ ${tr(bhava.lord)} (${tr(bhava.sign)}: ${parH[bhava.house]}) ${location} നിൽക്കുന്നു. ${ml.text}${strength}`;
 }
 
 /** Only return a translation when its exact original is known. */

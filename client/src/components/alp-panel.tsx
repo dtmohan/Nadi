@@ -4,6 +4,11 @@ import { Soft } from "@/lib/gentle";
 import { AlpMarriageContextPanel } from "@/components/alp-marriage-context";
 import { useMemo, useState } from "react";
 import { SchoolTopicPanel } from "@/components/school-topic-brief";
+import { AlpHere } from "@/components/alp-here";
+import { LocalizedText, useLocale } from "@/lib/i18n";
+import { alpHouseDetailMalayalam } from "@shared/alp-technical-malayalam";
+import { alpHouseGlossMalayalam } from "@shared/malayalam-alp-evidence";
+import { translate } from "@shared/localization";
 import { InfoBox, InfoBoxTitle, InfoBoxDescription, INFO_BOX_ROWS, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
 import { alpHouseLordInterpretations, defaultAlpDay } from "@shared/school-topics-expanded";
 import { Cite } from "@/components/source-link";
@@ -166,6 +171,7 @@ function fmtLon360(lon: number): string {
 
 export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }: { result: ChartResult; initialAsOf?: string; onAsOfChange?: (day: string) => void; onTopicSelected?: (event: ChartEvent | null) => void }) {
   const nowLabel = useNowLabel();
+  const { locale } = useLocale();
   const { chart, positions } = result;
   // "As of" opens on today, or on the recorded date of passing.
   const [asOf, setAsOf] = useState(() =>
@@ -1048,20 +1054,23 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
             </ul>
           </Working>
           {plain && <InfoBox className="mt-4" data-testid="alp-house-explanations">
-            <InfoBoxTitle>Houses and planets from the moving point</InfoBoxTitle>
-            <InfoBoxDescription>ALP follows a moving point calculated from the birth chart to explore themes for a selected date. Its houses are chart areas counted from that point, not physical houses. A house ruler is the planet traditionally assigned to its sign. These links describe the ALP view; they do not replace the birth chart or establish that an event must occur.{(chart.timeUncertaintyMin ?? 0) > 0 && ` The stated ±${chart.timeUncertaintyMin}-minute birth-time range may change the moving point or its house frame.`}</InfoBoxDescription>
+            <InfoBoxTitle>{locale === "ml" ? "മുന്നോട്ടു നീങ്ങുന്ന ബിന്ദുവിൽനിന്നുള്ള ഭാവങ്ങളും ഗ്രഹങ്ങളും" : "Houses and planets from the moving point"}</InfoBoxTitle>
+            <InfoBoxDescription>{locale === "ml" ? <>തിരഞ്ഞെടുത്ത തീയതിയിലെ വിഷയങ്ങൾ പരിശോധിക്കാൻ ALP ജനനജാതകത്തിൽനിന്ന് കണക്കാക്കിയ ഒരു ചലിക്കുന്ന ബിന്ദു ഉപയോഗിക്കുന്നു. അതിൽനിന്ന് എണ്ണുന്ന ജാതകഭാഗങ്ങളാണ് ഭാവങ്ങൾ; കെട്ടിടങ്ങളല്ല. ഒരു ഭാവത്തിന്റെ രാശിക്ക് പരമ്പരാഗതമായി നിശ്ചയിച്ച ഗ്രഹമാണ് അതിന്റെ അധിപൻ. ഈ ബന്ധങ്ങൾ ALP രീതിയെയാണ് വിവരിക്കുന്നത്; ഇവ ജനനജാതകത്തിനു പകരമല്ല, ഒരു സംഭവം തീർച്ചയായും നടക്കുമെന്ന് സ്ഥാപിക്കുന്നുമില്ല.{(chart.timeUncertaintyMin ?? 0) > 0 && ` പറഞ്ഞിരിക്കുന്ന ജനനസമയത്തിന്റെ ±${chart.timeUncertaintyMin} മിനിറ്റ് പരിധി ചലിക്കുന്ന ബിന്ദുവിനെയോ ഭാവങ്ങളുടെ ക്രമത്തെയോ മാറ്റാം.`}</> : <>ALP follows a moving point calculated from the birth chart to explore themes for a selected date. Its houses are chart areas counted from that point, not physical houses. A house ruler is the planet traditionally assigned to its sign. These links describe the ALP view; they do not replace the birth chart or establish that an event must occur.{(chart.timeUncertaintyMin ?? 0) > 0 && ` The stated ±${chart.timeUncertaintyMin}-minute birth-time range may change the moving point or its house frame.`}</>}</InfoBoxDescription>
             <div className={INFO_BOX_ROWS}>{a.houses.map((h) => {
               const lordHouse = a.houses.find((x) => x.planets.includes(h.lord));
               const group = KARMA_BHAVAS.find((x) => x.house === h.house);
               const lordRules = a.ageYears >= 18 ? alpHouseLordInterpretations(h.house, a.findings) : [];
+              const line = `The ${ordH(h.house)} from the moving point covers ${houseGloss("alp", h.house)}. ${h.lord} rules this sign${lordHouse ? ` and is in the ${ordH(lordHouse.house)} from the moving point (${houseGloss("alp", lordHouse.house)})` : ""}. ${h.planets.length ? `${listJoin(h.planets)} ${h.planets.length === 1 ? "occupies" : "occupy"} this sign` : "No planet occupies this sign"}. The same sign is the ${ordH(h.houseFromJanma)} from the birth rising sign.`;
+              const lineMl = locale === "ml" ? alpHouseDetailMalayalam(h, lordHouse, line) : undefined;
+              const glossMl = locale === "ml" ? alpHouseGlossMalayalam(h.house) : undefined;
               return <details key={h.house} className="px-4 py-3 text-sm leading-relaxed" data-testid={`alp-house-context-${h.house}`}>
-                <summary className={INFO_BOX_ROW_SUMMARY}>{ordH(h.house)} · {h.sign} · {houseGloss("alp", h.house)}</summary>
-                <p className="mt-1.5">The {ordH(h.house)} from the moving point covers {houseGloss("alp", h.house)}. {h.lord} rules this sign{lordHouse ? ` and is in the ${ordH(lordHouse.house)} from the moving point (${houseGloss("alp", lordHouse.house)})` : ""}. {h.planets.length ? `${listJoin(h.planets)} ${h.planets.length === 1 ? "occupies" : "occupy"} this sign` : "No planet occupies this sign"}. The same sign is the {ordH(h.houseFromJanma)} from the birth rising sign.</p>
-                {group && <p className="mt-1 text-muted-foreground">Book 2 places this house in its {group.group} group. This traditional grouping does not by itself determine when an event can happen. <Cite>ALP Book 2, ch. 3–5</Cite></p>}
-                {lordRules.map((f) => <p key={f.ruleId} className="mt-2">A selected rule about this house's ruler: {f.text} <Cite href={f.sourceUrl}>{f.source}</Cite>{f.here?.length && !sensitiveTags(f.here.join(" ")).length ? ` Here: ${f.here.join("; ")}.` : ""}</p>)}
+                <summary className={INFO_BOX_ROW_SUMMARY}>{locale === "ml" && glossMl ? `${h.house}-ാം · ${translate("ml", h.sign)} · ${glossMl}` : `${ordH(h.house)} · ${h.sign} · ${houseGloss("alp", h.house)}`}</summary>
+                <p className="mt-1.5" lang={lineMl ? "ml" : "en"}>{lineMl ?? line}</p>
+                {group && <p className="mt-1 text-muted-foreground">{locale === "ml" ? `പുസ്തകം 2 ഈ ഭാവത്തെ ${group.group === "past" ? "ഭൂതം" : group.group === "present" ? "വർത്തമാനം" : "ഭാവി"} വിഭാഗത്തിൽ ഉൾപ്പെടുത്തുന്നു. ഈ പരമ്പരാഗത വിഭാഗീകരണം മാത്രം ഒരു സംഭവം എപ്പോൾ നടക്കുമെന്ന് നിർണയിക്കുന്നില്ല.` : `Book 2 places this house in its ${group.group} group. This traditional grouping does not by itself determine when an event can happen.`} <Cite>ALP Book 2, ch. 3–5</Cite></p>}
+                {lordRules.map((f) => <p key={f.ruleId} className="mt-2">{locale === "ml" ? "ഈ ഭാവാധിപനെക്കുറിച്ചുള്ള തിരഞ്ഞെടുത്ത നിയമം:" : "A selected rule about this house's ruler:"} <LocalizedText>{f.text}</LocalizedText> <Cite href={f.sourceUrl}>{f.source}</Cite>{f.here?.length && !sensitiveTags(f.here.join(" ")).length ? <> <AlpHere clauses={f.here} /></> : ""}</p>)}
                 {h.planets.map((planet) => {
                   const notes = a.ageYears >= 18 ? a.findings.filter((f) => f.planets.includes(planet) && !sensitiveTags(f.text).length && !/\b(health|illness|disease|death|fertil|pregnan|ruin|accident|suicid\w*|self[- ]destruct\w*|self[- ]harm)\b/i.test(f.text)).slice(0, 2) : [];
-                  return <div key={planet} className="mt-2"><p className="font-medium">{planet}</p>{notes.length ? notes.map((f) => <p key={f.ruleId} className="mt-1">A selected ALP rule involving this planet: <Soft>{f.text}</Soft> <Cite href={f.sourceUrl}>{f.source}</Cite>{f.here?.length && !sensitiveTags(f.here.join(" ")).length ? ` Here: ${f.here.join("; ")}.` : ""}</p>) : <p className="text-muted-foreground">No additional plain rule involving this planet is selected here.</p>}</div>;
+                  return <div key={planet} className="mt-2"><p className="font-medium">{locale === "ml" ? translate("ml", planet) : planet}</p>{notes.length ? notes.map((f) => <p key={f.ruleId} className="mt-1">{locale === "ml" ? "ഈ ഗ്രഹത്തെ ഉൾക്കൊള്ളുന്ന തിരഞ്ഞെടുത്ത ALP നിയമം:" : "A selected ALP rule involving this planet:"} <Soft>{f.text}</Soft> <Cite href={f.sourceUrl}>{f.source}</Cite>{f.here?.length && !sensitiveTags(f.here.join(" ")).length ? <> <AlpHere clauses={f.here} /></> : ""}</p>) : <p className="text-muted-foreground">{locale === "ml" ? "ഈ ഗ്രഹത്തെ ഉൾക്കൊള്ളുന്ന മറ്റൊരു ലളിതനിയമം ഇവിടെ തിരഞ്ഞെടുത്തിട്ടില്ല." : "No additional plain rule involving this planet is selected here."}</p>}</div>;
                 })}
               </details>;
             })}</div>
@@ -1550,7 +1559,7 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
                       className="mt-0.5 block text-xs text-muted-foreground"
                       data-testid={`alp-here-${f.ruleId}`}
                     >
-                      Here: {f.here.join("; ")}.
+                      <AlpHere clauses={f.here} />
                     </span>
                   ) : null}
                 </span>

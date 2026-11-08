@@ -15,6 +15,7 @@ import { displayLocal } from "../time-basis";
 import { PANCHANGA_SOURCES } from "../panchanga";
 import { computeGochara, gocharaPlainEffect, GOCHARA_CAVEATS, natalOwnMarks } from "../gochara";
 import { gocharaPractice, GOCHARA_PRACTICE_NOTES } from "../gochara-practice";
+import { birthStarLeadMalayalam, moonSkyMalayalam, nadiSkyMalayalam, panchangaDayMalayalam, PANCHANGA_REPORT_NOTES } from "../malayalam-panchanga-report";
 import {
   cap,
   endStop,
@@ -52,6 +53,8 @@ export const panchangaModule: ReportModule = {
         result.timeBasis,
         chart.timezone,
       ).toFormat("HH:mm");
+      const dayText = `The birth fell on a ${p.vara.name}, the day of ${p.vara.lord}, counted from the sunrise at ${rise} (sunset ${set}; sunrise taken as the ${(SUNRISE_DEFINITIONS.find((d) => d.id === (p.sunriseDef ?? "edge"))?.label ?? "upper limb, with refraction").toLowerCase()}). The Moon stood ${Math.round(p.tithi.elapsed * 100)}% through ${p.tithi.name} of the ${p.tithi.paksha === "Shukla" ? "bright" : "dark"} fortnight, in ${p.nakshatra.name} (pada ${p.nakshatra.pada}, lord ${p.nakshatra.lord}); the yoga was ${p.yoga.name} and the karana ${p.karana.name}.`;
+      const dayMl = panchangaDayMalayalam(p, rise, set, dayText);
       out.push({
         id: "day",
         title: "The day of birth",
@@ -59,7 +62,8 @@ export const panchangaModule: ReportModule = {
         paras: [
           {
             kind: "p",
-            text: `The birth fell on a ${p.vara.name}, the day of ${p.vara.lord}, counted from the sunrise at ${rise} (sunset ${set}; sunrise taken as the ${(SUNRISE_DEFINITIONS.find((d) => d.id === (p.sunriseDef ?? "edge"))?.label ?? "upper limb, with refraction").toLowerCase()}). The Moon stood ${Math.round(p.tithi.elapsed * 100)}% through ${p.tithi.name} of the ${p.tithi.paksha === "Shukla" ? "bright" : "dark"} fortnight, in ${p.nakshatra.name} (pada ${p.nakshatra.pada}, lord ${p.nakshatra.lord}); the yoga was ${p.yoga.name} and the karana ${p.karana.name}.`,
+            text: dayText,
+            ...(dayMl ? { translationMl: { source: dayText, text: dayMl } } : {}),
             cites: [
               src("day"),
               src("tithi"),
@@ -93,6 +97,9 @@ export const panchangaModule: ReportModule = {
         },
       ];
       const facts = star.facts.filter((f) => !plain || !f.practitionerOnly);
+      const starLead = paras[0].text!;
+      const starMl = birthStarLeadMalayalam(star, plain, starLead);
+      if (starMl) paras[0].translationMl = { source: starLead, text: starMl };
       if (plain)
         paras.push({
           kind: "p",
@@ -115,17 +122,13 @@ export const panchangaModule: ReportModule = {
       paras.push({ kind: "note", text: BIRTH_STAR_CAVEATS[0] });
       paras.push(...nakshatraContextParas(natalPlanetContext(result), cites, "Planet and ascendant quarters", result.shadbala));
       // Each reading under its own heading, as on the screen.
-      const sub: ReportSection[] = shownBirthStarItems(star, plain, ctx.inSeason("marriage")).map((i) => ({
-        id: `birth-star-${i.id}`,
-        title: plain ? i.title : (i.technical ?? i.title),
-        paras: [
-          {
-            kind: "p",
-            text: S(endStop(plain ? i.plain : i.text)) + (i.early && !plain ? " (for the adult years)" : ""),
-            cites: [bc(i.cite)],
-          },
-        ],
-      }));
+      const sub: ReportSection[] = shownBirthStarItems(star, plain, ctx.inSeason("marriage")).map((i) => {
+        const text = S(endStop(plain ? i.plain : i.text)) + (i.early && !plain ? " (for the adult years)" : "");
+        const ml = PANCHANGA_REPORT_NOTES[text];
+        return { id: `birth-star-${i.id}`, title: plain ? i.title : (i.technical ?? i.title),
+          paras: [{ kind: "p", text, ...(ml ? { translationMl: { source: text, text: ml } } : {}), cites: [bc(i.cite)] }] };
+      });
+      for (const p of paras) if (p.text && PANCHANGA_REPORT_NOTES[p.text]) p.translationMl = { source: p.text, text: PANCHANGA_REPORT_NOTES[p.text] };
       out.push({
         id: "birth-star",
         title: "The birth star",
@@ -156,6 +159,9 @@ export const panchangaModule: ReportModule = {
           cites: [cites.add("R.G. Rao, Bhrigu Nandi Nadi")],
         },
       ];
+      const skyLead = paras[0].text!;
+      const skyMl = nadiSkyMalayalam(ju.sign, sa.sign, jeeva.sign, hj, hs, skyLead);
+      if (skyMl) paras[0].translationMl = { source: skyLead, text: skyMl };
       // Gochara from the natal Moon, Brihat Samhita 104 and Phaladeepika 26.
       const moon = pos("Moon");
       const g = computeGochara(
@@ -247,6 +253,10 @@ export const panchangaModule: ReportModule = {
           ]),
         });
         paras.push({ kind: "note", text: GOCHARA_PRACTICE_NOTES[5] });
+      }
+      for (const p of paras) if (p.text) {
+        const ml = PANCHANGA_REPORT_NOTES[p.text] ?? moonSkyMalayalam(SIGNS[moon.signIndex], p.text);
+        if (ml) p.translationMl = { source: p.text, text: ml };
       }
       out.push({
         id: "now",

@@ -103,13 +103,15 @@ function TopicStory({ topic, chartId }: { topic: ReaderTopic; chartId: string })
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">{ml ? "സമയം" : "Timing"}</p>
       <h3 className="mt-2 font-display text-2xl font-semibold">{ml ? "പരിശോധിക്കാവുന്ന കാലയളവുകൾ" : "Periods to explore"}</h3>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{ml ? "നാഡിയിലെ തിരഞ്ഞെടുത്ത ഗോചരബന്ധങ്ങൾ ഈ വിഷയവുമായി ബന്ധപ്പെട്ടേക്കാവുന്ന സമയങ്ങളാണിവ. ഇവ സംഭവത്തീയതികളല്ല." : "These are selected Nadi transit connections to this topic, offered as periods to explore—not dates of promised events."}</p>
-      <ol className="mt-4 grid gap-3 sm:grid-cols-2">
+      <ol className="reader-timeline mt-6">
         {n.windows.slice(0, 2).map((w) => {
           const translated = ml ? topic.malayalamWindows[w.id] : undefined;
-          return <li key={w.id} className="rounded-lg border bg-card/50 px-4 py-4" data-testid={`reader-window-${w.id}`}>
-            <p className="text-sm font-semibold tabular-nums" lang={translated ? "ml" : "en"}>{translated?.when ?? w.when}</p>
-            <p className="mt-2 text-sm leading-relaxed">{translated ? translated.statement : <LocalizedText>{w.statement}</LocalizedText>}</p>
-            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{translated ? translated.reason : <LocalizedText>{w.reason}</LocalizedText>}</p>
+          return <li key={w.id} className="reader-timeline-entry" data-testid={`reader-window-${w.id}`}>
+            <p className="text-sm font-semibold tabular-nums text-primary" lang={translated ? "ml" : "en"}>{translated?.when ?? w.when}</p>
+            <div>
+              <p className="text-sm leading-7">{translated ? translated.statement : <LocalizedText>{w.statement}</LocalizedText>}</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{translated ? translated.reason : <LocalizedText>{w.reason}</LocalizedText>}</p>
+            </div>
           </li>;
         })}
       </ol>
@@ -122,17 +124,17 @@ function TopicStory({ topic, chartId }: { topic: ReaderTopic; chartId: string })
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{ml
         ? "ഓരോ രീതിയും സ്വന്തം നിയമങ്ങൾ ഉപയോഗിക്കുന്നു. ALP തീയതി അനുസരിച്ചുള്ള പുരോഗമനവായനയാണ്; ഇവിടെ പ്രശ്നമാർഗം ജനനജാതകമാണ് വായിക്കുന്നത്."
         : "Each school uses its own rules. ALP is a date-specific progressed reading; Prasna Marga here reads the birth chart, not a question chart."}</p>
-      <div className="mt-5 grid items-start gap-3 sm:grid-cols-2">
-        {topic.visibleSchools.map((b, index) => <article key={`${b.school}-${b.topic}`} className="min-w-0 rounded-lg border bg-card/50 p-4" data-testid={`reader-school-${b.school}-${b.topic}`}>
+      <div className="reader-perspectives mt-6">
+        {topic.visibleSchools.map((b, index) => <article key={`${b.school}-${b.topic}`} className="reader-perspective min-w-0" data-testid={`reader-school-${b.school}-${b.topic}`}>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h4 className="font-display text-lg font-semibold">{t(SCHOOL_NAME[b.school])}{b.topic !== n.topic ? ` · ${t(SCHOOL_TOPIC_LABEL[b.topic])}` : ""}</h4>
             {b.provisional && <span className="text-xs font-medium text-muted-foreground">{t("Provisional")}</span>}
           </div>
           {b.frame && <p className="mt-1 text-xs text-muted-foreground">{ml && b.ml?.frame ? <span lang="ml">{b.ml.frame}</span> : <span lang="en">{b.frame}</span>}</p>}
-          <p className="mt-3 text-sm leading-relaxed">{ml && b.ml?.summary ? <span lang="ml">{b.ml.summary}</span> : <span lang="en">{b.summary}</span>}</p>
-          {topic.schoolContexts[index]?.map((p, i) => <p key={`${p.kind}-${i}`} className="mt-3 text-sm leading-relaxed text-foreground/85" data-testid={`reader-school-context-${b.school}-${b.topic}-${i}`}>{ml ? p.ml : p.en}</p>)}
+          <p className="mt-3 max-w-3xl text-base leading-7">{ml && b.ml?.summary ? <span lang="ml">{b.ml.summary}</span> : <span lang="en">{b.summary}</span>}</p>
+          {topic.schoolContexts[index]?.map((p, i) => <p key={`${p.kind}-${i}`} className="mt-3 max-w-3xl text-sm leading-7 text-foreground/80" data-testid={`reader-school-context-${b.school}-${b.topic}-${i}`}>{ml ? p.ml : p.en}</p>)}
           {b.conditional && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{ml ? "ഈ വിലയിരുത്തൽ ജനനസമയത്തെ ആശ്രയിക്കുന്നു." : "This assessment is conditional on the birth time."}</p>}
-          <details className="mt-3 border-t pt-3">
+          <details className="mt-4">
             <summary className="cursor-pointer text-sm font-medium text-primary">{ml ? "അടിസ്ഥാനവും ഉറവിടവും" : "See the basis and source"}</summary>
             <div className="mt-3"><SchoolTopicExplanation brief={b} /></div>
             <Link href={`/chart/${chartId}/${ROUTE[b.school]}`} className="mt-3 inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary hover:underline">
@@ -159,7 +161,7 @@ export function ReaderContent({ result, experience, chartId }: { result: ChartRe
     <Link href={`/chart/${chartId}`} className="inline-flex min-h-11 items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
       <ArrowLeft className="h-4 w-4" aria-hidden /> {ml ? "ജാതകത്തിലേക്ക് മടങ്ങുക" : "Back to the chart"}
     </Link>
-    <header className="relative mt-5 overflow-hidden rounded-2xl border bg-card px-6 py-8 sm:px-10 sm:py-11">
+    <header className="reader-hero relative mt-5 overflow-hidden px-6 py-9 sm:px-10 sm:py-12">
       <div aria-hidden className="pointer-events-none absolute -right-8 -top-10 h-44 w-44 rounded-full border border-primary/15 sm:h-64 sm:w-64">
         <div className="absolute inset-5 rounded-full border border-primary/15" />
         <div className="absolute inset-10 rounded-full border border-primary/15" />
@@ -174,7 +176,7 @@ export function ReaderContent({ result, experience, chartId }: { result: ChartRe
       </div>
     </header>
 
-    <section className="mt-6 rounded-xl border px-5 py-4 sm:px-6" data-testid="reader-chart-context">
+    <section className="reader-chart-note mt-8 px-5 py-1 sm:px-6" data-testid="reader-chart-context">
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">{ml ? "ആദ്യം ജാതകം" : "First, the chart"}</p>
       <p className="mt-2 max-w-4xl text-sm leading-7 text-muted-foreground">{moon && (ml
         ? `നൽകിയ ജനനസമയത്ത് ${t(result.jaimini.lagna.sign)} ലഗ്നമായിരുന്നു; ചന്ദ്രൻ ${t(moon.sign)} രാശിയിലും ${t(moon.nakshatra)} നക്ഷത്രത്തിലുമായിരുന്നു. വ്യത്യസ്ത രീതികൾ ഈ സ്ഥാനങ്ങളെ സ്വന്തം നിയമങ്ങൾ പ്രകാരം വായിക്കുന്നു.`
@@ -192,15 +194,15 @@ export function ReaderContent({ result, experience, chartId }: { result: ChartRe
       </details>}
     </section>
 
-    {active ? <div className="mt-10 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-10">
+    {active ? <div className="mt-12 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-14">
       <nav aria-label={ml ? "ജീവിതവിഷയങ്ങൾ" : "Life themes"} className="min-w-0 lg:sticky lg:top-5 lg:self-start">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{ml ? "ഒരു വിഷയം തിരഞ്ഞെടുക്കുക" : "Choose a theme"}</p>
         <div className="flex gap-2 overflow-x-auto pb-3 lg:flex-col lg:overflow-visible">
-          {experience.topics.map(({ natal }) => <button key={natal.topic} type="button" onClick={() => setSelected(natal.topic)}
+          {experience.topics.map(({ natal }, index) => <button key={natal.topic} type="button" onClick={() => setSelected(natal.topic)}
             aria-pressed={active.natal.topic === natal.topic}
-            className={cn("min-h-11 shrink-0 rounded-md border px-3 py-2 text-left text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-              active.natal.topic === natal.topic ? "border-primary/40 bg-primary/10 text-foreground" : "border-transparent text-muted-foreground hover:bg-muted hover:text-foreground")}
-            data-testid={`reader-select-${natal.topic}`}>{t(PLAIN_TOPIC_LABEL[natal.topic])}</button>)}
+            className={cn("reader-theme-button min-h-11 shrink-0 text-left text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+              active.natal.topic === natal.topic ? "is-active text-foreground" : "text-muted-foreground hover:text-foreground")}
+            data-testid={`reader-select-${natal.topic}`}><span aria-hidden className="reader-theme-number">{String(index + 1).padStart(2, "0")}</span>{t(PLAIN_TOPIC_LABEL[natal.topic])}</button>)}
         </div>
       </nav>
       <div className="mt-5 min-w-0 lg:mt-0" aria-live="polite">
@@ -219,12 +221,12 @@ export function ReaderContent({ result, experience, chartId }: { result: ChartRe
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">{ml ? "കാലവും ഗോചരവും" : "Time and movement"}</p>
       <h2 className="mt-2 font-display text-3xl font-semibold">{experience.past ? (ml ? "രേഖപ്പെടുത്തിയ സമയത്തെ കാലയളവുകൾ" : "At the recorded date") : (ml ? "ഇപ്പോൾ പരിശോധിക്കാവുന്നത്" : "The present, in context")}</h2>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{ml ? "ഓരോ കാലയളവും അതതു രീതി പ്രകാരമാണ്. ഇവ പ്രത്യേക സംഭവങ്ങളുടെ ഉറപ്പായ സമയങ്ങളല്ല." : "Each passage is described by the method that uses it. These are not guaranteed dates for an event."}</p>
-      <div className="mt-5 grid gap-3 md:grid-cols-3">
+      <div className="mt-6 grid gap-7 md:grid-cols-3 md:gap-8">
         {experience.present.map((row) => {
           const translated = ml ? row.plainSummary?.ml : undefined;
           const date = (iso: string) => DateTime.fromISO(iso, { setZone: true }).setZone(result.chart.timezone).setLocale("ml-IN").toFormat("LLL yyyy");
           const when = translated && row.end ? `${date(row.start)} – ${date(row.end)}` : row.when;
-          return <article key={row.id} className="rounded-lg border bg-card/50 p-4">
+          return <article key={row.id} className="reader-present-entry">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t(row.system)} · <span lang={translated ? "ml" : "en"}>{when}</span></p>
             <h3 className="mt-2 font-display text-lg font-semibold">{translated ? translated.title : <LocalizedText>{row.plainSummary!.title}</LocalizedText>}</h3>
             <p className="mt-2 text-sm leading-relaxed">{translated ? translated.text : <LocalizedText>{row.plainSummary!.text}</LocalizedText>}</p>

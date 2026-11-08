@@ -1,5 +1,6 @@
 import { sensitiveGate } from "@shared/life-stage";
 import { Soft } from "@/lib/gentle";
+import { LocalizedText } from "@/lib/i18n";
 import { useMemo, useState } from "react";
 import { DateTime } from "luxon";
 import type { ChartResult } from "@shared/schema";
@@ -326,7 +327,7 @@ function AreaCard({
             </span>
           )}
         </div>
-        <p className="mt-1 text-xs text-muted-foreground">{spec.blurb}</p>
+        <p className="mt-1 text-xs text-muted-foreground"><LocalizedText>{spec.blurb}</LocalizedText></p>
         {!season.inSeason && (
           <p
             className="mt-1 text-xs text-muted-foreground"

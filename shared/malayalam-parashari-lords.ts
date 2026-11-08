@@ -1,6 +1,11 @@
-/** Translations of the entered BPHS ch. 24 seventh- and tenth-lord paraphrases.
+/** Translations of the entered BPHS ch. 24 house-lord paraphrases.
  * English source text is checked before reuse, so an edited verse cannot inherit stale wording. */
+import { MALAYALAM_PARASHARI_EXPANDED } from "./malayalam-parashari-expanded";
+import { PARASHARI_LORD_SOURCE_SNAPSHOT } from "./malayalam-parashari-snapshot";
+
 export const MALAYALAM_PARASHARI_LORDS: Record<number, { source: string; text: string }> = {
+  ...Object.fromEntries(Object.entries(MALAYALAM_PARASHARI_EXPANDED).map(([verse, text]) =>
+    [Number(verse), { source: PARASHARI_LORD_SOURCE_SNAPSHOT[Number(verse)], text }])),
   73: { source: "Attraction outside the marriage; skilled but timid; wind and nerve complaints.", text: "വിവാഹത്തിന് പുറത്തുള്ള ആകർഷണം; കഴിവുണ്ടെങ്കിലും ഭീരുത്വം; വാതവും നാഡീസംബന്ധമായ പരാതികളും." },
   74: { source: "More than one union; wealth through the spouse; a habit of putting things off.", text: "ഒന്നിലധികം ദാമ്പത്യബന്ധങ്ങൾ; പങ്കാളിയിലൂടെ ധനം; കാര്യങ്ങൾ മാറ്റിവയ്ക്കുന്ന ശീലം." },
   75: { source: "Loss of children or a single child kept with difficulty; a daughter more likely.", text: "സന്താനനഷ്ടമോ പ്രയാസത്തോടെ നിലനിർത്തുന്ന ഒരേയൊരു സന്താനമോ; പെൺകുഞ്ഞിനുള്ള സാധ്യത കൂടുതലെന്നും ഉറവിടം പറയുന്നു." },

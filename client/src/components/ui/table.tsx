@@ -1,6 +1,7 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/lib/i18n"
 
 /** Copies each header's text onto the body cells (data-label) so the phone stylesheet can lay rows out as labelled cards. */
 function labelCells(table: HTMLTableElement) {
@@ -22,9 +23,12 @@ function labelCells(table: HTMLTableElement) {
 
 const Table = React.forwardRef<
   HTMLTableElement,
-  React.HTMLAttributes<HTMLTableElement> & { cards?: boolean }
->(({ className, cards, ...props }, ref) => {
+  React.HTMLAttributes<HTMLTableElement> & { cards?: boolean; wrapperClassName?: string }
+>(({ className, cards, wrapperClassName, ...props }, ref) => {
   const inner = React.useRef<HTMLTableElement | null>(null)
+  const scroll = React.useRef<HTMLDivElement | null>(null)
+  const [overflow, setOverflow] = React.useState(false)
+  const { locale } = useLocale()
   const setRef = React.useCallback(
     (el: HTMLTableElement | null) => {
       inner.current = el
@@ -41,11 +45,25 @@ const Table = React.forwardRef<
     mo.observe(el, { childList: true, subtree: true, characterData: true })
     return () => mo.disconnect()
   }, [cards])
+  React.useEffect(() => {
+    const wrapper = scroll.current
+    const table = inner.current
+    if (!wrapper || !table) return
+    const measure = () => setOverflow(wrapper.scrollWidth > wrapper.clientWidth + 1)
+    measure()
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure)
+    observer?.observe(wrapper)
+    observer?.observe(table)
+    window.addEventListener("resize", measure)
+    return () => { observer?.disconnect(); window.removeEventListener("resize", measure) }
+  }, [])
   return (
-    <div className="relative w-full overflow-auto">
+    <div ref={scroll} className={cn("relative w-full overflow-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring", wrapperClassName)}
+      role={overflow ? "region" : undefined} tabIndex={overflow ? 0 : undefined}
+      aria-label={overflow ? (locale === "ml" ? "നീക്കി വായിക്കാവുന്ന പട്ടിക" : "Scrollable table") : undefined}>
       <table
         ref={setRef}
-        className={cn("w-full caption-bottom text-sm", cards && "table-cards", className)}
+        className={cn("nadi-technical-table w-full caption-bottom text-sm", cards && "table-cards", className)}
         {...props}
       />
     </div>

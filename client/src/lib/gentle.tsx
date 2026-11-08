@@ -1,6 +1,7 @@
 import React, { useCallback, type ReactNode } from "react";
 import { GENTLE_NOTE, soften } from "@shared/gentle";
 import { useReadingMode } from "@/lib/reading-mode";
+import { LocalizedText } from "@/lib/i18n";
 
 /**
  * The gentle register for sensitive results. In the plain reading every sentence about
@@ -18,7 +19,7 @@ export function useSoften(): (text: string) => string {
 
 export function Soft({ children }: { children: ReactNode }) {
   const s = useSoften();
-  return <>{typeof children === "string" ? s(children) : children}</>;
+  return <>{typeof children === "string" ? <LocalizedText>{s(children)}</LocalizedText> : children}</>;
 }
 
 /** One-line content note for blocks that reproduce classical rules on length of life or loss. */

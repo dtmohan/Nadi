@@ -8,7 +8,7 @@ import { usePlain } from "@/components/mode-text";
 import { Soft } from "@/lib/gentle";
 import { useOpenLink } from "@/components/briefing";
 import type { BriefLink } from "@shared/briefing";
-import { InfoBox, InfoBoxTitle, InfoBoxDescription, INFO_BOX_INSET, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
+import { InfoBox, InfoBoxTitle, InfoBoxDescription, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
 import { cn } from "@/lib/utils";
 import { LocalizedText, useLocale, useT } from "@/lib/i18n";
 import { kpHouseMalayalam } from "@shared/school-topic-malayalam";
@@ -80,10 +80,10 @@ export function SchoolTopicPanel({ result, school, options }: { result: ChartRes
     <InfoBoxTitle>{locale === "ml" ? `${SCHOOL_NAME[school]} ജീവിതവിഷയങ്ങൾ` : `Life topics in ${SCHOOL_NAME[school]}`}</InfoBoxTitle>
     <InfoBoxDescription><LocalizedText>Each summary describes selected, entered interpretations with their original scope. A house can cover several matters; a missing rule is not a negative verdict. Birth-time uncertainty can change house-based readings.</LocalizedText></InfoBoxDescription>
     {school === "kp" && <InfoBoxDescription><LocalizedText>These cards use the four-step comparison. The KP table's six-step option is separate; an education sensitivity check is shown when it changes a selected rule.</LocalizedText></InfoBoxDescription>}
-    <div className="mt-4 grid grid-cols-2 items-start gap-2 lg:grid-cols-3">
-      {topics.map((brief) => <details className={cn(INFO_BOX_INSET, "open:col-span-2 lg:open:col-span-3")} key={brief.topic}>
-        <summary className={INFO_BOX_ROW_SUMMARY}>{t(SCHOOL_TOPIC_LABEL[brief.topic])}</summary>
-        <div className="mt-2"><SchoolTopicExplanation brief={brief} onOpen={() => open(schoolDetailsLink(brief))} /></div>
+    <div className="mt-5 grid grid-cols-1 items-start gap-x-8 sm:grid-cols-2">
+      {topics.map((brief) => <details className={cn("min-w-0 border-b border-border/70", "sm:open:col-span-2")} key={brief.topic}>
+        <summary className={cn(INFO_BOX_ROW_SUMMARY, "min-h-11 py-3")}>{t(SCHOOL_TOPIC_LABEL[brief.topic])}</summary>
+        <div className="max-w-3xl pb-5"><SchoolTopicExplanation brief={brief} onOpen={() => open(schoolDetailsLink(brief))} /></div>
       </details>)}
     </div>
   </InfoBox>;

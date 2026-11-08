@@ -30,7 +30,15 @@ import { PARASHARI_VARGA_SOURCE } from "../parashari-varga-evidence";
 import { parashariEvidenceParas } from "./parashari-varga-evidence";
 import { AREA_ONSET, HOUSE_AREA } from "../life-stage";
 import { GENTLE_NOTE } from "../gentle";
-import { parashariLordMalayalam } from "../school-topic-malayalam";
+import { translate } from "../localization";
+import { parashariLordMalayalam, parashariLordPractitionerMalayalam } from "../school-topic-malayalam";
+import { parashariBasicHouseMalayalam, parashariHouseNoteMalayalam } from "../malayalam-parashari-house-basics";
+import { parashariYogaMalayalam } from "../malayalam-parashari-yogas";
+import { parashariDasaGlossMalayalam, parashariDasaSummaryMalayalam } from "../malayalam-parashari-dasa-gloss";
+import { parashariDrekkanaMalayalam } from "../malayalam-parashari-drekkana";
+import { parashariPeriodLineMalayalam } from "../malayalam-parashari-period-lines";
+import { parashariWeighingMalayalam } from "../malayalam-parashari-weighing";
+import { parashariPractitionerWeighingMalayalam } from "../malayalam-parashari-weighing-practitioner";
 import { antarSignifications, dasaSignifications } from "../parashari-period-significations";
 import {
   MODERN_COMBUST_NOT_COUNTED,
@@ -112,7 +120,9 @@ function housesSection(
   ];
   // The house-by-house reading (shared/parashari-house-prose.ts): the same parts, in the same order, as
   // the Houses chapter on screen. The plain parts are already in the second person and softened.
-  paras.push({ kind: "note", text: ctx.plain ? HOUSE_PROSE_NOTE_PLAIN : HOUSE_PROSE_NOTE });
+  const note = ctx.plain ? HOUSE_PROSE_NOTE_PLAIN : HOUSE_PROSE_NOTE;
+  const noteMl = parashariHouseNoteMalayalam(note);
+  paras.push({ kind: "note", text: note, ...(noteMl ? { translationMl: { source: note, text: noteMl } } : {}) });
   const sub: ReportSection[] = [];
   for (const hp of par.houseProse ?? []) {
     const h = hp.house;
@@ -139,11 +149,12 @@ function housesSection(
       const prov = part.sources.some((x) => x.provisional);
       const text = S(endStop(ctx.plain ? part.textPlain : part.text));
       const bhava = par.bhavas.find((b) => b.house === h);
-      const ml = ctx.plain && bhava ? parashariLordMalayalam(par, bhava, part) : undefined;
+      const judgement = par.bhavaJudgement.find((j) => j.house === h);
+      const ml = bhava ? (parashariBasicHouseMalayalam(par, bhava, part, ctx.plain) ?? (ctx.plain ? parashariLordMalayalam(par, bhava, part) : parashariLordPractitionerMalayalam(par, bhava, part)) ?? (part.key === "weighing" ? ctx.plain ? parashariWeighingMalayalam(text) : judgement ? parashariPractitionerWeighingMalayalam(judgement, text) : undefined : undefined)) : undefined;
       return {
         kind: part.key === "both" ? ("note" as const) : ("p" as const),
         text,
-        ...(ml && text === part.textPlain ? { translationMl: { source: text, text: ml } } : {}),
+        ...(ml && text === (ctx.plain ? part.textPlain : part.text) ? { translationMl: { source: text, text: ml } } : {}),
         cites: part.sources.map((x) => cites.add(x.label, x.url)),
         ...(prov ? { provisional: true } : {}),
         ...(part.tone ? { tone: part.tone } : {}),
@@ -158,9 +169,12 @@ function housesSection(
       title: "Yogas",
       paras: yogas.map((f) => {
         const c = cite(f);
+        const text = S(findingText(f));
+        const ml = parashariYogaMalayalam(text);
         return {
           kind: "p" as const,
-          text: S(findingText(f)),
+          text,
+          ...(ml ? { translationMl: { source: text, text: ml } } : {}),
           cites: findingCites(f, c.n),
           provisional: c.prov,
           tone: f.tone,
@@ -217,10 +231,19 @@ function timingSection(
   const { S, cites, deceased, age, pos } = ctx;
   const v = par.vimshottari;
   const cur = v.current;
+  const firstStar = pos("Moon").nakshatra;
+  const lead = `The Vimshottari dasa runs from the Moon's nakshatra, ${firstStar}, whose lord ${v.dasas[0].lord} opened the life with ${v.balanceYears.toFixed(1)} years remaining.${deceased ? "" : ` The running period is the ${cur.dasa.lord} dasa (${fmtDate(cur.dasa.start)} to ${fmtDate(cur.dasa.end)}), ${cur.bhukti.lord} bhukti (${fmtDate(cur.bhukti.start)} to ${fmtDate(cur.bhukti.end)}), ${cur.antara.lord} antara.`}`;
+  // This independent English snapshot makes a changed report sentence fall back to English.
+  const expectedLead = `The Vimshottari dasa runs from the Moon's nakshatra, ${firstStar}, whose lord ${v.dasas[0].lord} opened the life with ${v.balanceYears.toFixed(1)} years remaining.${deceased ? "" : ` The running period is the ${cur.dasa.lord} dasa (${fmtDate(cur.dasa.start)} to ${fmtDate(cur.dasa.end)}), ${cur.bhukti.lord} bhukti (${fmtDate(cur.bhukti.start)} to ${fmtDate(cur.bhukti.end)}), ${cur.antara.lord} antara.`}`;
+  const sourceNames = [firstStar, v.dasas[0].lord, ...(!deceased ? [cur.dasa.lord, cur.bhukti.lord, cur.antara.lord] : [])];
+  const names = sourceNames.map((name) => translate("ml", name));
+  const leadMl = lead === expectedLead && names.every((name, i) => name !== sourceNames[i])
+    ? `വിമ്ശോത്തരി ദശ ചന്ദ്രന്റെ നക്ഷത്രമായ ${names[0]}-യിൽനിന്നാണ് തുടങ്ങുന്നത്. അതിന്റെ അധിപനായ ${names[1]}-ന്റെ ദശയിൽ ${v.balanceYears.toFixed(1)} വർഷം ശേഷിക്കെയാണ് ജീവിതം ആരംഭിച്ചത്.${deceased ? "" : ` ഇപ്പോൾ നടക്കുന്നത് ${names[2]} ദശ (${fmtDate(cur.dasa.start)} മുതൽ ${fmtDate(cur.dasa.end)} വരെ), ${names[3]} ഭുക്തി (${fmtDate(cur.bhukti.start)} മുതൽ ${fmtDate(cur.bhukti.end)} വരെ), ${names[4]} അന്തരം എന്നിവയാണ്.`}` : undefined;
   const paras: ReportPara[] = [
     {
       kind: "lead",
-      text: `The Vimshottari dasa runs from the Moon's nakshatra, ${pos("Moon").nakshatra}, whose lord ${v.dasas[0].lord} opened the life with ${v.balanceYears.toFixed(1)} years remaining.${deceased ? "" : ` The running period is the ${cur.dasa.lord} dasa (${fmtDate(cur.dasa.start)} to ${fmtDate(cur.dasa.end)}), ${cur.bhukti.lord} bhukti (${fmtDate(cur.bhukti.start)} to ${fmtDate(cur.bhukti.end)}), ${cur.antara.lord} antara.`}`,
+      text: lead,
+      ...(leadMl ? { translationMl: { source: lead, text: leadMl } } : {}),
       cites: [cites.add("Parashara 46.12-14", BPHS_URL(46))],
     },
     {
@@ -332,16 +355,25 @@ function timingSection(
     const gloss = par.dashas.find(
       (g) => g.lord === d.lord && g.start === d.start,
     );
-    if (gloss) ps.push({ kind: "p", text: S(endStop(ctx.plain ? gloss.plain : gloss.summary)) });
+    if (gloss) {
+      const text = S(endStop(ctx.plain ? gloss.plain : gloss.summary));
+      const ml = ctx.withheld ? undefined : ctx.plain
+        ? parashariDasaGlossMalayalam(gloss, ctx.result.positions, ctx.lagnaIdx, text)
+        : parashariDasaSummaryMalayalam(gloss, ctx.result.positions, ctx.lagnaIdx, text);
+      ps.push({ kind: "p", text, ...(ml ? { translationMl: { source: text, text: ml } } : {}) });
+    }
     const notes = reportPeriodLines(d);
-    for (const n of notes)
+    for (const n of notes) {
+      const text = S(
+        endStop(
+          `${n.detail && !ctx.plain ? `${n.text} ${n.detail}` : n.text}${n.debilityCancelled ? ` ${ctx.plain ? n.debilityCancelled.plain : n.debilityCancelled.text}` : ""}${n.notCounted ? ` Shown, not counted: ${n.notCounted.charAt(0).toLowerCase()}${n.notCounted.slice(1)}` : ""}`,
+        ),
+      );
+      const ml = !ctx.withheld ? parashariPeriodLineMalayalam(text) : undefined;
       ps.push({
         kind: "p",
-        text: S(
-          endStop(
-            `${n.detail && !ctx.plain ? `${n.text} ${n.detail}` : n.text}${n.debilityCancelled ? ` ${ctx.plain ? n.debilityCancelled.plain : n.debilityCancelled.text}` : ""}${n.notCounted ? ` Shown, not counted: ${n.notCounted.charAt(0).toLowerCase()}${n.notCounted.slice(1)}` : ""}`,
-          ),
-        ),
+        text,
+        ...(ml ? { translationMl: { source: text, text: ml } } : {}),
         cites: [
           cites.add(n.source.label, n.source.url),
           ...(n.sourceAlso ? [cites.add(n.sourceAlso.label, n.sourceAlso.url)] : []),
@@ -350,9 +382,13 @@ function timingSection(
         // A line shown but not counted carries no tone, so it does not read as a vote.
         tone: n.notCounted ? undefined : n.tone,
       });
+    }
+    const timingText = S(endStop(d.timing.text));
+    const timingMl = !ctx.withheld ? parashariDrekkanaMalayalam(d, ctx.result.positions, timingText) : undefined;
     ps.push({
       kind: "p",
-      text: S(endStop(d.timing.text)),
+      text: timingText,
+      ...(timingMl ? { translationMl: { source: timingText, text: timingMl } } : {}),
       cites: [cites.add(d.timing.source.label, d.timing.source.url)],
       provisional: d.timing.source.provisional,
     });

@@ -1,0 +1,39 @@
+# Malayalam technical-translation coverage review
+
+This review checks that translated text is connected to the existing source and conditions, and that report sections, citations, paragraph kinds and provisional labels agree with the English report. It does not test the truth or predictive accuracy of astrological claims. Where a full source or generated evidence clause is unknown, changed, or redacted, the matching translation falls back to English rather than reconstructing potentially inappropriate text.
+
+## Catalogue coverage
+
+- All 144 entered BPHS chapter 24 house-lord source effects, all 44 entered Jaimini Sutra catalogue sentences and all 52 entered Jaimini core rules have exact-source Malayalam translations. Their use in a generated reading is subject to separate source, wording and redaction checks. These are not the entire Parashari or Jaimini catalogues.
+- All 463 entered KP rule instances have Malayalam for their original practitioner and softened plain wording. Repeated source wording counts once for every rule using it. KP topic labels and recognized evidence about star, sub, sign quality, house and significations are translated separately, with a full-line check before using the translation.
+- All 420 entered BNN rule texts and their softened variants have a Malayalam match. This includes generated sign-lord and star-lord families, with translations tied to the original English significations. Generated chart-specific material remains incomplete.
+- All 108 entered ALP source rules have exact-source Malayalam, including the known softened variant. The report translates a rule and its chart-specific evidence only if every printed evidence clause is recognized; unknown evidence remains in English. Catalogue coverage is not complete ALP interface or report coverage.
+- The 24 entered Prasna Marga plain occupant paraphrases and 24 corresponding original house passages, twelve house descriptions, twelve Gulika house passages and 84 transit passages have exact-source Malayalam. The transit catalogue includes separate softer wording for the passages whose plain text differs. Other Prasna source material and generated interpretations remain incomplete; the general report does not currently include the Prasna transit catalogue.
+- These figures do not represent full BNN, KP, ALP, Prasna Marga, Jaimini, Parashari, event-check, rectification, validation or report coverage. Each includes further generated facts, source interpretations, tables, caveats and conditions.
+
+## Public cases and reported results
+
+The first three cases in [cases.json](cases.json) were selected before their outputs were inspected and were used during development. Barbara Abramo, Rashida Jones, Rafael Nadal, Rod Suskin, Evelyn Glennie, Diego Maradona, Maya Angelou, Sally Ride, Toni Morrison and Kanaka Srinivasan were added in later stages; some earlier outputs informed later report-label work. P. T. Usha was selected before her output was inspected, but her report then informed later translations. Serena Williams was selected after those changes and before her output was inspected. Selection was a convenience sample, not random or blinded. Each person has a separately cited birth-data source and an independent career reference in the fixture; birth records were not independently authenticated. Jones's date differs between public sources. Nadal's two reported times are both tested, and neither is adjudicated. Glennie's birthplace is described differently by some biographies; this exercise uses the coordinates of the published chart. Morrison's reported time is rounded to the hour. Srinivasan's birth time is a self-report to the collector rather than an independently inspected record; the test assumes no recorded date of passing. Usha's time and astrological date were reported by her husband to a collector, who notes that the official school-registration date differs; this test does not adjudicate them. Williams's birth time is attributed to a quoted birth record; the WTA separately confirms the date and birthplace, not the time.
+
+At `2026-11-08T12:00:00Z`, English and Malayalam report section IDs, paragraph counts and kinds, citation assignments and provisional flags matched in every public chart, including two reported birth-time alternatives. This verifies structural parity, not semantic accuracy or predictive validity.
+
+In the Serena Williams holdout, selected school-card source details had Malayalam for KP 16/16, Parashari 11/11, Jaimini 3/3, ALP 5/5 and Prasna 12/12. These counts cover only details selected for the cards; they are not catalogue-wide or report-wide measures.
+
+The full reports expose substantial remaining work. Williams's plain report had 570 of 836 text-bearing paragraphs marked Malayalam and her practitioner report 327 of 640. These counts include repeated paragraphs and technical notes and are not a quality score. English fallback remains necessary and is identified as English for assistive technology.
+
+The audit reports headings, evidence lines, table headers and cells, and citation labels separately. In Williams's practitioner report, 106 of 107 English-bearing headings or source captions, 86 of 144 evidence lines and 144 of 168 table headers had Malayalam. Citation identifiers and titles remain as printed in the original source; the citation-label count includes names and titles that do not necessarily need translation. Counts based on Malayalam characters do not establish that a translation is complete or linguistically correct.
+
+The report exercise builds the default reading and its practitioner appendix. It does not supply rectification scans, validation results or event-specific tool exports, so it does not measure the translation of those reports. Private chart fixtures used for local comparison are intentionally not included in the repository.
+
+The largest remaining report gaps in this holdout include generated Parashari house and yoga paragraphs, Vimshottari period prose, BNN practitioner findings and the practitioner appendix's generated table cells. The audit now reports paragraph coverage by section, so future work can be prioritized without treating one sample as complete coverage. The KP, Jaimini and ALP technical-page improvements cover selected chart-specific explanations rather than every chapter or control. Prasna transit method notes and selected modifier evidence are translated, but not the entire question interface.
+
+The PDF renderer has a regression check for wide Malayalam tables. Browser print preview remains unverified: on a synthetic chart the Print action timed out and the browser's native control service could not start. The PDF check does not establish the browser's pagination or clipping behavior.
+
+Reproduce the public audit with:
+
+```sh
+node --import tsx scripts/eval-malayalam-technical.ts
+node --import tsx scripts/eval-reader-expansion.ts research/malayalam-technical/cases.json
+```
+
+The translations have not received an independent native-speaker or traditional-text editorial review. Proper names, school terminology, sensitive claims, and the relationship between a source's language and the app's softened language need continued review.

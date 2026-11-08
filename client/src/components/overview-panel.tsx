@@ -34,6 +34,7 @@ import { schoolDetailsLink, SchoolTopicExplanation } from "@/components/school-t
 import { TopicThemes } from "@/components/topic-themes";
 import { gocharaContext } from "@shared/chart-explanations";
 import { AGREEMENT_SYSTEM_LABEL } from "@shared/agreement";
+import { agreementSentenceMalayalam } from "@shared/malayalam-agreement";
 import type { Stance } from "@shared/kernel";
 import { plainSarvarthaHighlights } from "@shared/sarvartha-plain";
 import { InfoBox, INFO_BOX_EYEBROW, INFO_BOX_INSET, INFO_BOX_ROW_SUMMARY } from "@/components/info-box";
@@ -574,8 +575,8 @@ export function OverviewPanel({
               plain ? <div key={a.topic} className="text-xs leading-relaxed">
                 <p><strong>{t(a.label)}:</strong> {t(a.verdict === "disagree" ? "The schools give differing indications, so the app cannot combine them into a single conclusion." : a.verdict === "mixed" ? "The combined indications are mixed, without a clear overall direction." : `The combined indications lean ${a.stance === "leans-supports" ? "supportive" : a.stance === "leans-strains" ? "challenging" : "in one direction"}, but the schools do not all agree.`)}</p>
                 <p className="mt-1 text-muted-foreground">{a.stances.map((s) => `${t(AGREEMENT_SYSTEM_LABEL[s.system])}: ${t(PLAIN_SCHOOL_STANCE[s.stance])}`).join("; ")}.</p>
-                <details className="mt-1 text-muted-foreground"><summary className="cursor-pointer font-medium text-primary">{t("See the schools' labels")}</summary><p className="mt-1" lang="en">{a.sentence}</p><p className="mt-1" lang="en">“Supported” and “strained” are shorthand for the rules each school found; they do not prove an outcome.</p></details>
-              </div> : <p key={a.topic} className={cn("text-xs leading-relaxed", a.verdict === "disagree" ? "text-verdict-bad" : "text-verdict-mixed")}>{a.sentence}</p>
+                <details className="mt-1 text-muted-foreground"><summary className="cursor-pointer font-medium text-primary">{t("See the schools' labels")}</summary><p className="mt-1" lang={locale === "ml" && agreementSentenceMalayalam(a, a.sentence) ? "ml" : "en"}>{locale === "ml" ? agreementSentenceMalayalam(a, a.sentence) ?? a.sentence : a.sentence}</p><p className="mt-1" lang="en">“Supported” and “strained” are shorthand for the rules each school found; they do not prove an outcome.</p></details>
+              </div> : <p key={a.topic} lang={locale === "ml" ? (agreementSentenceMalayalam(a, a.sentence) ? "ml" : "en") : undefined} className={cn("text-xs leading-relaxed", a.verdict === "disagree" ? "text-verdict-bad" : "text-verdict-mixed")}>{locale === "ml" ? agreementSentenceMalayalam(a, a.sentence) ?? a.sentence : a.sentence}</p>
             ))}
           </div>
         </div>

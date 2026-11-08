@@ -5,6 +5,8 @@ import { ALP_SOURCE_SITE, ALP_SOURCE_BOOKS } from "../rules-alp";
 import { defaultAlpForTopics } from "../school-topics-expanded";
 import { alpMarriageParas } from "./alp-marriage-context";
 import { DateTime } from "luxon";
+import { translate } from "../localization";
+import { alpEvidenceClauseMalayalam } from "../malayalam-alp-evidence";
 import {
   endStop,
   fmtDate,
@@ -27,15 +29,24 @@ export const alpModule: ReportModule = {
     const p = alp.point;
     const arp = alp.arp;
     const dayLabel = DateTime.fromISO(alp.asOf, { setZone: true }).setZone(result.chart.timezone).toFormat("d LLL yyyy");
+    const lead = `Astro Lagna Paddhati moves the lagna forward at ${config.yearsPerSign} years per sign from its natal degree. On ${dayLabel} it stands at ${fmtDeg(p.lon)} ${p.sign} (lord ${p.lord}), in ${p.nakshatra} pada ${p.pada} (lord ${p.nakshatraLord}), the ${ORD(alp.houseFromJanma)} sign from the natal lagna. The Akshaya rasi, the Moon progressed the same way, is in ${arp.point.sign}, ${arp.point.nakshatra} pada ${arp.point.pada}; its nakshatra lord ${arp.dasa.lord} names the running ALP dasa (${fmtDate(arp.dasa.start)} to ${fmtDate(arp.dasa.end)}), with ${arp.bhukti.lord} bhukti to ${fmtDate(arp.bhukti.end)}.`;
+    const names = [p.sign, p.lord, p.nakshatra, p.nakshatraLord, arp.point.sign, arp.point.nakshatra, arp.dasa.lord, arp.bhukti.lord];
+    const mlNames = names.map((name) => translate("ml", name));
+    const leadMl = mlNames.every((name, i) => name !== names[i])
+      ? `ആസ്ട്രോ ലഗ്ന പദ്ധതിയിൽ ജനനസമയത്തെ അംശത്തിൽനിന്ന് ഒരു രാശിക്ക് ${config.yearsPerSign} വർഷം എന്ന നിരക്കിൽ ലഗ്നം മുന്നോട്ടു നീങ്ങുന്നു. ${dayLabel} തീയതിയിൽ അത് ${fmtDeg(p.lon)} ${mlNames[0]} രാശിയിൽ (${mlNames[1]} അധിപൻ), ${mlNames[2]} നക്ഷത്രത്തിന്റെ ${p.pada}-ാം പാദത്തിലാണ് (${mlNames[3]} അധിപൻ); ജന്മലഗ്നത്തിൽനിന്ന് ${alp.houseFromJanma}-ാം രാശിയാണിത്. അതേ രീതിയിൽ മുന്നോട്ടു നീക്കിയ ചന്ദ്രന്റെ സ്ഥാനമായ അക്ഷയരാശി ${mlNames[4]} രാശിയിൽ ${mlNames[5]} നക്ഷത്രത്തിന്റെ ${arp.point.pada}-ാം പാദത്തിലാണ്. അതിന്റെ നക്ഷത്രാധിപനായ ${mlNames[6]} ആണ് നിലവിലെ ALP ദശയുടെ അധിപൻ (${fmtDate(arp.dasa.start)} മുതൽ ${fmtDate(arp.dasa.end)} വരെ); ${mlNames[7]} ഭുക്തി ${fmtDate(arp.bhukti.end)} വരെ.` : undefined;
+    const bookText = `By the book's whole-degree count (completed years times three, one degree per four months), the point is ${fmtDeg(alp.book.point.lon)} ${alp.book.point.sign}, ${alp.book.agreesWithContinuous ? "the same pada as the continuous count" : "a different pada from the continuous count; the continuous figure is used above"}.`;
+    const bookSign = translate("ml", alp.book.point.sign);
     const paras: ReportPara[] = [
       {
         kind: "lead",
-        text: `Astro Lagna Paddhati moves the lagna forward at ${config.yearsPerSign} years per sign from its natal degree. On ${dayLabel} it stands at ${fmtDeg(p.lon)} ${p.sign} (lord ${p.lord}), in ${p.nakshatra} pada ${p.pada} (lord ${p.nakshatraLord}), the ${ORD(alp.houseFromJanma)} sign from the natal lagna. The Akshaya rasi, the Moon progressed the same way, is in ${arp.point.sign}, ${arp.point.nakshatra} pada ${arp.point.pada}; its nakshatra lord ${arp.dasa.lord} names the running ALP dasa (${fmtDate(arp.dasa.start)} to ${fmtDate(arp.dasa.end)}), with ${arp.bhukti.lord} bhukti to ${fmtDate(arp.bhukti.end)}.`,
+        text: lead,
+        ...(leadMl ? { translationMl: { source: lead, text: leadMl } } : {}),
         cites: [site],
       },
       {
         kind: "note",
-        text: `By the book's whole-degree count (completed years times three, one degree per four months), the point is ${fmtDeg(alp.book.point.lon)} ${alp.book.point.sign}, ${alp.book.agreesWithContinuous ? "the same pada as the continuous count" : "a different pada from the continuous count; the continuous figure is used above"}.`,
+        text: bookText,
+        ...(bookSign !== alp.book.point.sign ? { translationMl: { source: bookText, text: `പുസ്തകത്തിലെ പൂർണ അംശക്കണക്കനുസരിച്ച് (പൂർത്തിയായ വർഷങ്ങൾ മൂന്നുകൊണ്ട് ഗുണിക്കുന്നു; നാലു മാസത്തിന് ഒരു അംശം) ബിന്ദു ${fmtDeg(alp.book.point.lon)} ${bookSign} രാശിയിലാണ്. ${alp.book.agreesWithContinuous ? "തുടർച്ചയായ കണക്കിലെ അതേ പാദമാണിത്" : "തുടർച്ചയായ കണക്കിൽനിന്ന് വ്യത്യസ്ത പാദമാണിത്; മുകളിൽ തുടർച്ചയായ കണക്കാണ് ഉപയോഗിച്ചത്"}.` } } : {}),
         cites: [cites.add("ALP books (publisher's list)", ALP_SOURCE_BOOKS)],
         provisional: true,
       },
@@ -80,14 +91,27 @@ export const alpModule: ReportModule = {
       });
     const fs = alp.findings;
     if (fs.length) {
-      for (const f of fs)
+      for (const f of fs) {
+        const source = S(endStop(f.text));
+        const text = S(`${endStop(f.text)}${f.here?.length ? ` Here: ${f.here.join("; ")}.` : ""}`);
+        const translatedSource = translate("ml", source);
+        const evidence = (f.here ?? []).map(alpEvidenceClauseMalayalam);
+        const expected = `${source}${f.here?.length ? ` Here: ${f.here.join("; ")}.` : ""}`;
+        const ml = text === expected && translatedSource !== source && evidence.every(Boolean)
+          ? `${translatedSource}${evidence.length ? ` ഇവിടെ: ${evidence.join("; ")}.` : ""}` : undefined;
+        const aside = f.planets.length ? list(f.planets) : undefined;
+        const translatedPlanets = f.planets.map((p) => translate("ml", p));
+        const asideMl = aside && translatedPlanets.every((p, i) => p !== f.planets[i]) ? translatedPlanets.join(", ") : undefined;
         paras.push({
           kind: "p",
-          text: S(`${endStop(f.text)}${f.here?.length ? ` Here: ${f.here.join("; ")}.` : ""}`),
+          text,
+          ...(ml ? { translationMl: { source: text, text: ml } } : {}),
           cites: [cites.add(f.source, f.sourceUrl)],
-          aside: f.planets.length ? list(f.planets) : undefined,
+          aside,
+          ...(aside && asideMl ? { asideTranslationMl: { source: aside, text: asideMl } } : {}),
           provisional: /notes|example|magazine/i.test(f.source),
         });
+      }
     } else {
       paras.push({
         kind: "note",

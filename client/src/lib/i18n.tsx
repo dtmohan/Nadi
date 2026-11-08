@@ -87,7 +87,7 @@ export function useT() {
 export function LocalizedText({ children }: { children: string }) {
   const { locale } = useLocale();
   const value = translate(locale, children);
-  return <span lang={locale === "ml" && value === children ? "en" : locale}>{value}</span>;
+  return <span lang={locale === "ml" && !/[\u0d00-\u0d7f]/.test(value) ? "en" : locale}>{value}</span>;
 }
 
 /** Be explicit about the scope until each reading and export has been reviewed. */

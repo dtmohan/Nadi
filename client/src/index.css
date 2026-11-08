@@ -326,7 +326,7 @@
 @layer components {
   /* Reading surfaces: one palette and type scale for summaries and their supporting details. */
   .nadi-info-box {
-    @apply min-w-0 w-full rounded-lg border border-border bg-card p-5 text-card-foreground sm:p-6;
+    @apply min-w-0 w-full rounded-xl border border-border/70 bg-card px-5 py-6 text-card-foreground sm:px-7 sm:py-7;
   }
   .nadi-info-title {
     @apply text-lg font-semibold leading-snug text-card-foreground;
@@ -339,9 +339,11 @@
   .nadi-info-eyebrow {
     @apply text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground;
   }
-  .nadi-info-inset,
-  .nadi-info-disclosure {
+  .nadi-info-inset {
     @apply min-w-0 rounded-md border border-border bg-background/30 p-3 text-sm leading-relaxed text-card-foreground;
+  }
+  .nadi-info-disclosure {
+    @apply min-w-0 border-t border-border/70 pb-1 pt-4 text-sm leading-relaxed text-card-foreground;
   }
   .nadi-info-card {
     @apply min-w-0 rounded-md border border-border bg-card p-3 text-sm leading-relaxed text-card-foreground;
@@ -353,10 +355,22 @@
     @apply rounded-md border border-verdict-mixed/40 bg-verdict-mixed/[0.08] px-3 py-2 text-xs leading-relaxed text-foreground;
   }
   .nadi-info-rows {
-    @apply mt-4 divide-y divide-border rounded-md border border-border bg-background/30;
+    @apply mt-4 divide-y divide-border/70 border-y border-border/70;
   }
   .nadi-info-row {
-    @apply grid gap-1 px-4 py-3 text-sm leading-relaxed sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-4;
+    @apply grid gap-1 py-4 text-sm leading-relaxed sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-6;
+  }
+  .nadi-topic-list {
+    @apply mt-6 grid gap-6;
+  }
+  .nadi-topic-entry {
+    @apply min-w-0 border-l-2 border-primary/30 pl-4;
+  }
+  .nadi-topic-label {
+    @apply block text-sm font-semibold text-card-foreground;
+  }
+  .nadi-topic-copy {
+    @apply mt-1 max-w-4xl text-sm leading-7 text-foreground/85;
   }
   .nadi-info-summary {
     @apply cursor-pointer rounded-sm text-sm font-semibold text-card-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
@@ -364,6 +378,11 @@
   .nadi-info-summary::marker {
     color: hsl(var(--muted-foreground));
   }
+  .nadi-working-toggle { color: hsl(var(--muted-foreground)); }
+  .nadi-working-toggle:hover { color: hsl(var(--primary)); }
+  .nadi-technical-table thead { border-bottom: 1px solid hsl(var(--border)); }
+  .nadi-technical-table th { font-weight: 600; }
+  .nadi-technical-table tbody tr { border-color: hsl(var(--border) / .65); }
 
   /* Citation chip: a source reference set apart from the prose it supports. */
   .cite {
@@ -392,6 +411,64 @@
   .cite-mark {
     @apply text-muted-foreground;
   }
+}
+
+/* Reports use the reader's editorial rhythm while retaining real tables for data. */
+@layer components {
+  .report-hero {
+    @apply border-y border-border/70 px-4 py-7 sm:px-7 sm:py-9;
+    background: linear-gradient(110deg, hsl(var(--primary) / .08), hsl(var(--card) / .55) 60%, transparent);
+  }
+  .report-contents { @apply border-b border-border/70 pb-6; }
+  .report-section { @apply border-t border-border/70 pt-7; }
+  .report-note { @apply border-l-2 border-primary/30 pl-4; }
+  .report-table-scroll { @apply rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring; }
+  .report-data-table thead { border-bottom: 1px solid hsl(var(--primary) / .4); }
+  .report-data-table tbody tr { border-bottom: 1px solid hsl(var(--border) / .65); }
+  .report-data-table tbody tr:nth-child(even) { background: hsl(var(--muted) / .16); }
+  @media print {
+    .report-hero { background: none; }
+    .report-data-table tbody tr:nth-child(even) { background: none; }
+    .report-data-table { table-layout: fixed; white-space: normal !important; overflow-wrap: anywhere; }
+    .report-data-table th, .report-data-table td { padding-right: .35rem; }
+  }
+}
+
+/* Reader: editorial hierarchy for narrative content; calculation tables keep their own layout. */
+@layer components {
+  .reader-hero {
+    border-block: 1px solid hsl(var(--border) / .75);
+    background: linear-gradient(110deg, hsl(var(--primary) / .08), hsl(var(--card) / .55) 58%, transparent);
+  }
+  .reader-chart-note { border-left: 2px solid hsl(var(--primary) / .5); }
+  .reader-theme-button {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .55rem .75rem;
+    border-bottom: 2px solid transparent;
+    transition: color .15s ease, background-color .15s ease, border-color .15s ease;
+  }
+  .reader-theme-button:hover { background: hsl(var(--muted) / .4); }
+  .reader-theme-button.is-active { border-color: hsl(var(--primary)); background: hsl(var(--primary) / .07); }
+  .reader-theme-number { color: hsl(var(--primary) / .75); font: 500 .7rem/1 var(--font-mono); }
+  .reader-timeline { border-left: 1px solid hsl(var(--primary) / .35); margin-left: .4rem; }
+  .reader-timeline-entry { position: relative; display: grid; gap: .5rem; padding: 0 0 1.6rem 1.4rem; }
+  .reader-timeline-entry:last-child { padding-bottom: .15rem; }
+  .reader-timeline-entry::before {
+    content: ""; position: absolute; top: .45rem; left: -.3rem; width: .55rem; height: .55rem;
+    border: 1px solid hsl(var(--primary)); border-radius: 50%; background: hsl(var(--background));
+  }
+  .reader-perspective { border-top: 1px solid hsl(var(--border) / .75); padding: 1.5rem 0; }
+  .reader-perspective:first-child { border-top-color: hsl(var(--primary) / .45); }
+  .reader-present-entry { border-top: 2px solid hsl(var(--primary) / .45); padding-top: 1rem; }
+  @media (min-width: 640px) {
+    .reader-timeline-entry { grid-template-columns: minmax(9rem, 12rem) minmax(0, 1fr); gap: 1.5rem; }
+  }
+  @media (min-width: 1024px) {
+    .reader-theme-button { border-bottom: 0; border-left: 2px solid transparent; }
+  }
+  @media (prefers-reduced-motion: reduce) { .reader-theme-button { transition: none; } }
 }
 
 /* A bundled Malayalam typeface makes shaping and line spacing consistent across devices. */

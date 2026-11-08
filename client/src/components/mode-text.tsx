@@ -2,6 +2,7 @@ import { ReactNode, createContext, useContext } from "react";
 import { useReadingMode } from "@/lib/reading-mode";
 import { Term } from "@/components/term";
 import { cn } from "@/lib/utils";
+import { LocalizedText } from "@/lib/i18n";
 
 /** One of two wordings for the same idea: everyday language in the plain reading, the technical text for practitioners. */
 export function ModeText({
@@ -22,7 +23,7 @@ export function ModeText({
       data-testid={testId}
       data-mode={mode}
     >
-      {mode === "plain" ? plain : practitioner}
+      {(() => { const current = mode === "plain" ? plain : practitioner; return typeof current === "string" ? <LocalizedText>{current}</LocalizedText> : current; })()}
     </p>
   );
 }
@@ -49,7 +50,7 @@ export function SectionTitle({
   const { mode } = useReadingMode();
   const lead = mode === "plain" ? plain : technical;
   const trail = mode === "plain" ? technical : plain;
-  const trailNode = term ? <Term k={term}>{trail}</Term> : trail;
+  const trailNode = term ? <Term k={term}><LocalizedText>{trail}</LocalizedText></Term> : <LocalizedText>{trail}</LocalizedText>;
   return (
     <Tag
       className={cn(
@@ -57,7 +58,7 @@ export function SectionTitle({
         className,
       )}
     >
-      <span>{lead}</span>
+      <LocalizedText>{lead}</LocalizedText>
       <span className="text-xs font-normal text-muted-foreground">
         {trailNode}
       </span>

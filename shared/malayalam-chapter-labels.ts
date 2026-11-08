@@ -1,0 +1,20 @@
+/** Exact chapter-navigation labels shared by school panels. */
+export const MALAYALAM_CHAPTER_LABELS: Record<string, string> = {
+  "In brief": "ചുരുക്കത്തിൽ", "Summary": "സംഗ്രഹം", "Houses": "ഭാവങ്ങൾ", "Bhavas": "ഭാവങ്ങൾ",
+  "Planets": "ഗ്രഹങ്ങൾ", "Grahas": "ഗ്രഹങ്ങൾ", "Combinations": "ഗ്രഹയോഗങ്ങൾ", "Yogas": "യോഗങ്ങൾ",
+  "Timing": "സമയം", "Dasas": "ദശകൾ", "Dashas": "ദശകൾ", "Matter and date": "വിഷയവും തീയതിയും",
+  "Finer charts": "വിഭജനജാതകങ്ങൾ", "Vargas": "വർഗങ്ങൾ", "Points table": "ബിന്ദുപട്ടിക", "Ashtakavarga": "അഷ്ടകവർഗം",
+  "Padas": "പദങ്ങൾ", "Padas and Karakamsa": "പദങ്ങളും കാരകാംശവും", "Trials": "പ്രയാസസൂചനകൾ", "Arishta and marakas": "അരിഷ്ടവും മാരകങ്ങളും",
+  "Sarvartha": "സർവാർഥ", "Sarvartha Chintamani": "സർവാർഥ ചിന്താമണി", "Brihat Jataka": "ബൃഹജ്ജാതകം",
+  "House readings": "ഭാവവായനകൾ", "Cuspal sub lords": "കസ്പുകളുടെ സഹാധിപന്മാർ", "Significators": "സൂചകഗ്രഹങ്ങൾ",
+  "Cusps and planets": "കസ്പുകളും ഗ്രഹങ്ങളും", "Ruling planets": "റൂളിങ് പ്ലാനറ്റുകൾ", "Method": "രീതി", "Method and sources": "രീതിയും ഉറവിടങ്ങളും",
+  "Life areas": "ജീവിതവിഷയങ്ങൾ", "Periods": "കാലയളവുകൾ", "Chart and roles": "ജാതകവും കാരകങ്ങളും", "Karakas, padas, drishti": "കാരകങ്ങൾ, പദങ്ങൾ, ദൃഷ്ടി",
+  "Raja yogas": "രാജയോഗങ്ങൾ", "The sutras": "സൂത്രങ്ങൾ", "Sutras": "സൂത്രങ്ങൾ", "Span of life": "ആയുർദൈർഘ്യം", "Ayurdaya": "ആയുർദായം",
+  "Where it stands": "ബിന്ദുവിന്റെ സ്ഥാനം", "Placements": "സ്ഥാനങ്ങൾ", "What the rules say": "നിയമങ്ങൾ പറയുന്നത്", "Reading": "വായന",
+  "Decade by decade": "ഓരോ ദശകത്തിലും", "Progression": "മുന്നേറ്റം", "Event context": "സംഭവത്തിന്റെ പശ്ചാത്തലം",
+  "The twelve houses": "പന്ത്രണ്ടു ഭാവങ്ങൾ", "Bhava phala": "ഭാവഫലം", "Matter and natal context": "വിഷയവും ജനനജാതക പശ്ചാത്തലവും",
+  "Ask a question": "ഒരു ചോദ്യം ചോദിക്കുക", "Prasna": "പ്രശ്നം", "Transits now": "ഇപ്പോഴത്തെ ഗോചാരം", "Gochara": "ഗോചാരം",
+  "Marriage": "വിവാഹം", "Vivaha": "വിവാഹം", "Reference": "അവലംബം", "Everything": "എല്ലാം", "All": "എല്ലാം",
+  "Also in this tab": "ഈ ഭാഗത്തിൽ വേറെയും", "Chapters": "അധ്യായങ്ങൾ", "In this tab": "ഈ ഭാഗത്തിൽ", "Chapters in this tab": "ഈ ഭാഗത്തിലെ അധ്യായങ്ങൾ",
+  "How this is computed": "ഇത് എങ്ങനെ കണക്കാക്കുന്നു", "How this was found": "ഇത് എങ്ങനെ കണ്ടെത്തി",
+};

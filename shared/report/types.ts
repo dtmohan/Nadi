@@ -40,6 +40,8 @@ export interface ReportPara {
   appendix?: boolean;
   /** Translation is usable only while its source still matches, including after redaction. */
   translationMl?: { source: string; text: string };
+  /** The accompanying evidence can be translated independently, under the same source guard. */
+  asideTranslationMl?: { source: string; text: string };
   lang?: "en" | "ml";
 }
 

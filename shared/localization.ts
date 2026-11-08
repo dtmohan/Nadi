@@ -1,7 +1,20 @@
 // Shared UI and report translations. Never infer a translation for unknown text.
 import { MALAYALAM_BNN_THEMES } from "./malayalam-bnn-themes";
 import { MALAYALAM_READER_THEMES } from "./malayalam-reader-themes";
+import { MALAYALAM_JAIMINI_SOURCES, jaiminiGeneratedMalayalam } from "./malayalam-jaimini-sources";
 import { MALAYALAM_SCHOOL_SOURCES } from "./malayalam-school-sources";
+import { MALAYALAM_KP_TECHNICAL } from "./malayalam-kp-technical";
+import { MALAYALAM_KP_SIXTH } from "./malayalam-kp-sixth";
+import { MALAYALAM_KP_TENTH } from "./malayalam-kp-tenth";
+import { MALAYALAM_KP_ELEVENTH } from "./malayalam-kp-eleventh";
+import { MALAYALAM_KP_TWELFTH } from "./malayalam-kp-twelfth";
+import { MALAYALAM_KP_EIGHTH } from "./malayalam-kp-eighth";
+import { MALAYALAM_PRASNA_TECHNICAL } from "./malayalam-prasna-technical";
+import { MALAYALAM_PRASNA_TRANSITS } from "./malayalam-prasna-transits";
+import { MALAYALAM_ALP_SOURCES } from "./malayalam-alp-rules";
+import { MALAYALAM_BNN_GENERATED } from "./malayalam-bnn-generated";
+import { MALAYALAM_BNN_SOURCES } from "./malayalam-bnn-rules";
+import { MALAYALAM_CHAPTER_LABELS } from "./malayalam-chapter-labels";
 export type Locale = "en" | "ml";
 
 const ML: Record<string, string> = {
@@ -433,5 +446,5 @@ const ML: Record<string, string> = {
 
 /** Unknown content remains in English until a reviewed translation is available. */
 export function translate(locale: Locale, text: string): string {
-  return locale === "ml" ? (ML[text] ?? MALAYALAM_BNN_THEMES[text] ?? MALAYALAM_READER_THEMES[text] ?? MALAYALAM_SCHOOL_SOURCES[text] ?? text) : text;
+  return locale === "ml" ? (ML[text] ?? MALAYALAM_CHAPTER_LABELS[text] ?? MALAYALAM_BNN_THEMES[text] ?? MALAYALAM_READER_THEMES[text] ?? MALAYALAM_SCHOOL_SOURCES[text] ?? MALAYALAM_KP_TECHNICAL[text] ?? MALAYALAM_KP_SIXTH[text] ?? MALAYALAM_KP_TENTH[text] ?? MALAYALAM_KP_ELEVENTH[text] ?? MALAYALAM_KP_TWELFTH[text] ?? MALAYALAM_KP_EIGHTH[text] ?? MALAYALAM_PRASNA_TECHNICAL[text] ?? MALAYALAM_PRASNA_TRANSITS[text] ?? MALAYALAM_ALP_SOURCES[text] ?? MALAYALAM_BNN_SOURCES[text] ?? MALAYALAM_BNN_GENERATED[text] ?? MALAYALAM_JAIMINI_SOURCES[text] ?? jaiminiGeneratedMalayalam(text) ?? text) : text;
 }

@@ -1,0 +1,84 @@
+{
+  "selection": "Three public figures with varied occupations and places were selected before inspecting reader and report outputs; the catalogue was then expanded using their gaps. Barbara Abramo and Rashida Jones were added later. Rafael Nadal, Rod Suskin and Evelyn Glennie were added before inspecting their outputs, but their report labels were subsequently included in a shared label inventory. Diego Maradona was added after that label work; his results were inspected before another catalogue-wide BNN expansion. Maya Angelou, Sally Ride, Toni Morrison, Kanaka Srinivasan and P. T. Usha were each selected before inspecting their outputs, but Usha's output informed later translation work. Serena Williams was selected after that work, before inspecting her output. These are convenience cases, not random or blinded. Birth-source reports were not independently authenticated. This evaluates translation and presentation parity, not predictive validity.",
+  "asOf": "2026-11-08T12:00:00Z",
+  "cases": [
+    {
+      "name": "Pina Bausch", "gender": "female", "birthDate": "1940-07-27", "birthTime": "06:45", "timeStandard": "+02:00", "timezone": "Europe/Berlin", "place": "Solingen, Germany", "latitude": 51.166667, "longitude": 7.083333, "deathDate": "2009-06-30",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_07_27.htm?nhor=6475205B4pa%3Dnmobtyp%3Datxlang%3De", "birthSourceNote": "Astro-Databank reports birth record in hand, AA; collector Steinbrecher. Not independently checked.",
+      "careerReference": "Dancer and choreographer", "careerSource": "https://www.pinabausch.org/page/about"
+    },
+    {
+      "name": "John Michael Kosterlitz", "gender": "male", "birthDate": "1943-06-22", "birthTime": "05:40", "timeStandard": "+02:00", "timezone": "Europe/London", "place": "Aberdeen, Scotland", "latitude": 57.166667, "longitude": -2.066667, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Kosterlitz%2C_John_Michael", "birthSourceNote": "Astro-Databank reports birth record in hand, AA; collector Starkman. British double summer time is used as listed; not independently checked.",
+      "careerReference": "Physicist and Nobel laureate", "careerSource": "https://www.nobelprize.org/prizes/physics/2016/kosterlitz/biographical/"
+    },
+    {
+      "name": "Adriana Lima", "gender": "female", "birthDate": "1981-06-12", "birthTime": "16:50", "timeStandard": "-03:00", "timezone": "America/Bahia", "place": "Salvador, Bahia, Brazil", "latitude": -12.971111, "longitude": -38.510833, "deathDate": null,
+      "birthSource": "https://www.astro.com/adbvip/adbvip_06_12.htm?lang=r&nho2=432380&nhor=1", "birthSourceNote": "Astro-Databank reports birth record in hand, AA; collector Astrodienst. Not independently checked.",
+      "careerReference": "Fashion model", "careerSource": "https://www.victoriassecret.com/us/adriana-lima-model-bio"
+    },
+    {
+      "name": "Barbara Abramo", "gender": "female", "birthDate": "1954-01-20", "birthTime": "01:03", "timeStandard": "-03:00", "timezone": "America/Sao_Paulo", "place": "São Paulo, Brazil", "latitude": -23.5525, "longitude": -46.624722, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Abramo%2C_Barbara", "birthSourceNote": "Astro-Databank reports 01:03 from a hospital record, collector Borges, and separately 01:00 from a birth certificate. Neither was independently checked.",
+      "careerReference": "Astrologer and writer", "careerSource": "https://www.barbarabramo.com.br/bio/",
+      "alternatives": [{ "label": "Birth-certificate time also reported by Astro-Databank", "birthTime": "01:00" }]
+    },
+    {
+      "name": "Rashida Jones", "gender": "female", "birthDate": "1976-02-25", "birthTime": "03:36", "timeStandard": "-08:00", "timezone": "America/Los_Angeles", "place": "Los Angeles, California, United States", "latitude": 34.096111, "longitude": -118.294444, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Jones%2C_Rashida", "birthSourceNote": "Astro-Databank reports birth record in hand, AA, collector Viktor; not independently checked. IMDb also gives 25 February, while Golden Globes gives 26 February. This test uses the Astro-Databank report, not an adjudicated date.",
+      "careerReference": "Actress, writer and producer", "careerSource": "https://snapshot.apple.com/us/person/6621228752",
+      "dateConflictSource": "https://goldenglobes.com/person/rashida-jones/"
+    },
+    {
+      "name": "Rafael Nadal", "gender": "male", "birthDate": "1986-06-03", "birthTime": "18:20", "timeStandard": "+02:00", "timezone": "Europe/Madrid", "place": "Manacor, Mallorca, Spain", "latitude": 39.566667, "longitude": 3.2, "deathDate": null,
+      "birthSource": "https://www.astro.com/adbvip/adbvip_06_03.htm?lang=s&nho2=40&nhor=1", "birthSourceNote": "Astro-Databank quotes an 18:20 birth-certificate report, AA, collector Rodriguez, and separately reports that Nadal said 19:00 on television. Neither source was independently checked.",
+      "careerReference": "Professional tennis player", "careerSource": "https://www.atptour.com/en/players/rafael-nadal/n409/overview",
+      "alternatives": [{ "label": "19:00 time also reported by Astro-Databank", "birthTime": "19:00" }]
+    },
+    {
+      "name": "Rod Suskin", "gender": "male", "birthDate": "1963-01-01", "birthTime": "09:40", "timeStandard": "+02:00", "timezone": "Africa/Johannesburg", "place": "Johannesburg, South Africa", "latitude": -26.25, "longitude": 28, "deathDate": "2026-07-18",
+      "birthSource": "https://www.astro.com/astro-databank/Suskin%2C_Rod", "birthSourceNote": "Astro-Databank quotes Suskin's account of a physician's note, AA, collector Scholfield. The record was not independently checked.",
+      "careerReference": "Astrologer, author and teacher", "careerSource": "https://www.dailymaverick.co.za/article/2026-07-22-rod-suskin-the-man-who-brought-the-stars-down-to-earth/"
+    },
+    {
+      "name": "Evelyn Glennie", "gender": "female", "birthDate": "1965-07-19", "birthTime": "12:41", "timeStandard": "+01:00", "timezone": "Europe/London", "place": "Aberdeen, Scotland", "latitude": 57.166667, "longitude": -2.066667, "deathDate": null,
+      "birthSource": "https://www.astro.com/adbvip/adbvip_07_19.htm?nhor=15&pa=nmo", "birthSourceNote": "Astro-Databank quotes a birth record, AA, collector Gerard; not independently checked. Other biographies describe her birthplace as Methlick, Aberdeenshire; this test uses the published chart's Aberdeen coordinates.",
+      "careerReference": "Percussionist and composer", "careerSource": "https://www.evelyn.co.uk/about/"
+    },
+    {
+      "name": "Diego Maradona", "gender": "male", "birthDate": "1960-10-30", "birthTime": "07:05", "timeStandard": "-03:00", "timezone": "America/Argentina/Buenos_Aires", "place": "Lanús, Buenos Aires, Argentina", "latitude": -34.716667, "longitude": -58.4, "deathDate": "2020-11-25",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_10_30.htm?lang=r&nho2=860650&nhor=2590158", "birthSourceNote": "Astro-Databank reports a birth certificate, AA, collector Scholfield; not independently inspected. Lanús municipality independently publishes the same date, hospital and time.",
+      "birthConfirmation": "https://www.lanus.gob.ar/diego-armando-maradona", "careerReference": "Football player and coach", "careerSource": "https://publications.fifa.com/en/annual-report-2020/obituaries-20/"
+    },
+    {
+      "name": "Maya Angelou", "gender": "female", "birthDate": "1928-04-04", "birthTime": "14:10", "timeStandard": "-06:00", "timezone": "America/Chicago", "place": "St. Louis, Missouri, United States", "latitude": 38.633333, "longitude": -90.2, "deathDate": "2014-05-28",
+      "birthSource": "https://www.astro.com/astro-databank/Angelou%2C_Maya", "birthSourceNote": "Astro-Databank lists quoted birth record, AA, and Contemporary American Horoscopes as its source; the underlying record was not independently checked.",
+      "careerReference": "Poet, memoirist, educator and civil rights activist", "careerSource": "https://www.mayaangelou.com/biography/"
+    },
+    {
+      "name": "Sally Ride", "gender": "female", "birthDate": "1951-05-26", "birthTime": "08:11", "timeStandard": "-07:00", "timezone": "America/Los_Angeles", "place": "Los Angeles, California, United States", "latitude": 34.05, "longitude": -118.25, "deathDate": "2012-07-23",
+      "birthSource": "https://www.astro.com/astro-databank/Ride%2C_Sally", "birthSourceNote": "Astro-Databank reports birth record in hand, AA, collector Rodden; the record was not independently inspected.",
+      "careerReference": "Physicist, astronaut and educator", "careerSource": "https://www.nasa.gov/wp-content/uploads/2015/05/ride_sally.pdf"
+    },
+    {
+      "name": "Toni Morrison", "gender": "female", "birthDate": "1931-02-18", "birthTime": "11:00", "timeStandard": "-05:00", "timezone": "America/New_York", "place": "Lorain, Ohio, United States", "latitude": 41.45, "longitude": -82.183333, "deathDate": "2019-08-05",
+      "birthSource": "https://www.astro.com/astro-databank/Morrison%2C_Toni", "birthSourceNote": "Astro-Databank lists a quoted birth record, AA, collector Gauquelin; the underlying record was not independently checked and the recorded time is rounded to the hour.",
+      "careerReference": "Novelist, editor and Nobel laureate", "careerSource": "https://www.nobelprize.org/prizes/literature/1993/morrison/biographical/"
+    },
+    {
+      "name": "Kanaka Srinivasan", "gender": "female", "birthDate": "1947-12-07", "birthTime": "02:45", "timeStandard": "+05:30", "timezone": "Asia/Kolkata", "place": "Chennai, India", "latitude": 13.083333, "longitude": 80.283333, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Srinivasan%2C_Kanaka", "birthSourceNote": "Astro-Databank reports details she gave a collector by phone, Rodden A; the time was not independently confirmed. This rendering assumes no recorded date of passing.",
+      "careerReference": "Bharatanatyam dancer and teacher", "careerSource": "https://www.sangeetnatak.gov.in/public/uploads/awardees/docs/Kanaka_Srinivasan.pdf", "dateSource": "https://www.iccr.gov.in/sites/default/files/Basic%20Page/Genre_Wise_List_Received-Revised_Updated_Reference_list_2019_%28Recovered%291.pdf"
+    },
+    {
+      "name": "P. T. Usha", "gender": "female", "birthDate": "1964-06-27", "birthTime": "03:54", "timeStandard": "+05:30", "timezone": "Asia/Kolkata", "place": "Kozhikode, Kerala, India", "latitude": 11.25, "longitude": 75.766667, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Usha%2C_P._T.", "birthSourceNote": "Astro-Databank reports this astrological date and time through her husband, collector Seth, Rodden A, and notes that an official school-registration date differs. Neither record was independently checked; this fixture does not adjudicate them.",
+      "careerReference": "Track and field athlete", "careerSource": "https://www.olympics.com/ioc/news/pt-usha-medals-list-record-india-athletics"
+    },
+    {
+      "name": "Serena Williams", "gender": "female", "birthDate": "1981-09-26", "birthTime": "20:28", "timeStandard": "-04:00", "timezone": "America/Detroit", "place": "Saginaw, Michigan, United States", "latitude": 43.416667, "longitude": -83.95, "deathDate": null,
+      "birthSource": "https://www.astro.com/adbvip/adbvip_09_26.htm?nho2=860301nhor%3D860301lang%3Degm%3Da3&pa=nmo", "birthSourceNote": "Astro-Databank lists a quoted birth record, Rodden AA, collector Ackerman; the underlying record was not independently checked.",
+      "careerReference": "Professional tennis player", "careerSource": "https://www.wtatennis.com/legends/230234/serena-williams"
+    }
+  ]
+}

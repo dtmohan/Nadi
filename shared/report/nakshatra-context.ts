@@ -4,10 +4,11 @@ import { formatHouseQuarters, houseQuarterFrames } from "../house-dispositor-con
 import type { ShadbalaBase } from "../shadbala";
 import { NAIK_PADA_SOURCE, SUTTON_QUARTER_SOURCE } from "../nakshatra-context";
 import type { Cites, ReportPara } from "./types";
+import { nakshatraFrameNoteMalayalam, NAKSHATRA_REPORT_NOTES } from "../malayalam-nakshatra-report";
 
 export function nakshatraContextParas(context: PlanetContext, cites: Cites, label: string, angles?: Pick<ShadbalaBase, "asc" | "mc">): ReportPara[] {
   const kpFrame = context.frame.houseMethod === "placidus";
-  return [
+  const paras: ReportPara[] = [
     { kind: "note", text: `${label}: selected ${context.frame.ayanamsa ?? "unspecified"} ayanamsa. A star quarter is one D9 interval; the two descriptions are not independent confirmations. Boundaries depend on the birth time and calculation settings.`,
       cites: [cites.add(SUTTON_QUARTER_SOURCE.label, SUTTON_QUARTER_SOURCE.url)] },
     { kind: "table", head: ["Point", "Star · quarter", "Star lord", "D9 sign", "Qualifications", ...(!kpFrame ? ["BNN solar quarter"] : [])],
@@ -23,4 +24,8 @@ export function nakshatraContextParas(context: PlanetContext, cites: Cites, labe
       head: [`${frame.label} house`, "Intersecting stars and quarters (partial where marked)"],
       rows: frame.houses.map((house) => [`H${house.house}`, formatHouseQuarters(house)]) })),
   ];
+  return paras.map((p, i) => {
+    const ml = p.text && (i === 0 ? nakshatraFrameNoteMalayalam(label, context.frame.ayanamsa, p.text) : NAKSHATRA_REPORT_NOTES[p.text]);
+    return ml ? { ...p, translationMl: { source: p.text!, text: ml } } : p;
+  });
 }

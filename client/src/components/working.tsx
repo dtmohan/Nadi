@@ -6,7 +6,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useReadingMode } from "@/lib/reading-mode";
-import { useLocale, useT } from "@/lib/i18n";
+import { LocalizedText, useLocale, useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 /** The method, the same for every chart. */
@@ -76,18 +76,18 @@ export function Expander({
       <CollapsibleTrigger asChild>
         <button
           type="button"
-          className="inline-flex items-start gap-1 text-left text-xs font-medium text-muted-foreground hover:text-foreground"
+          className="nadi-working-toggle inline-flex min-h-9 items-center gap-2 text-left text-sm font-medium text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           data-testid={testId ?? (id ? `toggle-${id}` : undefined)}
           aria-expanded={open}
         >
           <ChevronDown
             className={cn(
-              "mt-px h-3.5 w-3.5 shrink-0 transition-transform",
+              "h-4 w-4 shrink-0 transition-transform motion-reduce:transition-none",
               open && "rotate-180",
             )}
           />
           <span>
-            {open && openLabel ? openLabel : label}
+            {(() => { const current = open && openLabel ? openLabel : label; return typeof current === "string" ? <LocalizedText>{current}</LocalizedText> : current; })()}
             {count !== undefined ? (
               <span className="tabular font-normal text-muted-foreground">
                 {" "}

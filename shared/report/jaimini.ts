@@ -4,6 +4,7 @@ import { CHARA_KARAKA_INFO } from "../jaimini";
 import { readAreas } from "../jaimini-areas";
 import { vimshottari, type KpPeriod } from "../kp";
 import { lifePeriods } from "../life-stage";
+import { jaiminiInduMalayalam, jaiminiLeadMalayalam, jaiminiPeriodMalayalam } from "../malayalam-jaimini-report";
 import {
   endStop,
   fmtDate,
@@ -27,14 +28,13 @@ export const jaiminiModule: ReportModule = {
     const { positions } = result;
     const j = result.jaimini;
     const ak = j.karakas[0];
+    const lead = `Jaimini ranks the planets by their degrees. ${ak.planet} is the Atmakaraka, the self; ${list(j.karakas.slice(1).map((k) => `${k.planet} the ${CHARA_KARAKA_INFO[k.karaka].name}`))}. The Karakamsa, ${ak.planet}'s navamsa sign, is ${j.karakamsa.sign}; the Arudha Lagna is ${j.arudhas[0].sign} and the Upapada ${j.arudhas[11].sign}.`;
+    const leadMl = jaiminiLeadMalayalam(j, lead);
     const paras: ReportPara[] = [
       {
         kind: "lead",
-        text: `Jaimini ranks the planets by their degrees. ${ak.planet} is the Atmakaraka, the self; ${list(
-          j.karakas
-            .slice(1)
-            .map((k) => `${k.planet} the ${CHARA_KARAKA_INFO[k.karaka].name}`),
-        )}. The Karakamsa, ${ak.planet}'s navamsa sign, is ${j.karakamsa.sign}; the Arudha Lagna is ${j.arudhas[0].sign} and the Upapada ${j.arudhas[11].sign}.`,
+        text: lead,
+        ...(leadMl ? { translationMl: { source: lead, text: leadMl } } : {}),
         cites: [cites.add("Jaimini Sutras 1.1", SUTRAS_URL)],
       },
       {
@@ -72,11 +72,15 @@ export const jaiminiModule: ReportModule = {
       const next = j.charaDasha.periods
         .filter((p) => p.start > lifeAt)
         .slice(0, 3);
+      const period = `${deceased ? "At the date of passing the" : "The"} Chara dasha ${deceased ? "was" : "is"} ${md.signName} (${fmtDate(md.start)} to ${fmtDate(md.end)}, ${md.years} years)${ad ? `, ${ad.signName} antardasha` : ""}.${next.length && !deceased ? ` Next come ${list(next.map((p) => `${p.signName} (${fmtMonth(p.start)} to ${fmtMonth(p.end)})`))}.` : ""}`;
+      const periodMl = jaiminiPeriodMalayalam(j, lifeAt, deceased, period);
+      const periodAside = "Chara dasha by K.N. Rao's method: forward when the ninth from the lagna is a savya sign, twelve equal antardashas.";
       paras.push({
         kind: "p",
-        text: `${deceased ? "At the date of passing the" : "The"} Chara dasha ${deceased ? "was" : "is"} ${md.signName} (${fmtDate(md.start)} to ${fmtDate(md.end)}, ${md.years} years)${ad ? `, ${ad.signName} antardasha` : ""}.${next.length && !deceased ? ` Next come ${list(next.map((p) => `${p.signName} (${fmtMonth(p.start)} to ${fmtMonth(p.end)})`))}.` : ""}`,
-        aside:
-          "Chara dasha by K.N. Rao's method: forward when the ninth from the lagna is a savya sign, twelve equal antardashas.",
+        text: period,
+        ...(periodMl ? { translationMl: { source: period, text: periodMl } } : {}),
+        aside: periodAside,
+        asideTranslationMl: { source: periodAside, text: "കെ. എൻ. റാവുവിന്റെ ചരദശാ രീതി: ലഗ്നത്തിൽനിന്നുള്ള ഒമ്പതാം രാശി സവ്യരാശിയാണെങ്കിൽ മുന്നോട്ട് എണ്ണുന്നു; തുല്യമായ പന്ത്രണ്ട് അന്തർദശകൾ." },
       });
     }
     paras.push({
@@ -161,12 +165,17 @@ export const jaiminiModule: ReportModule = {
         dasas = [];
       }
       const timingIds = ["il-ben-dasha", "il-ben-trine", "il-ben-kendra", "il-second"];
+      const induText = `The Indu Lagna, the wealth ascendant: the 9th from the lagna is ${i.ninthFromLagna.sign} (${i.ninthFromLagna.lord}, ${i.ninthFromLagna.kala} kalas) and the 9th from the Moon in ${moon.sign} is ${i.ninthFromMoon.sign} (${i.ninthFromMoon.lord}, ${i.ninthFromMoon.kala} kalas). Their sum ${i.sum} leaves a remainder of ${i.remainder} modulo twelve, so the ${ORD(i.remainder)} sign from the Moon is the Indu Lagna: ${i.sign}.${i.sameLord ? ` ${i.ninthFromLagna.lord} rules both ninths and its kalas are counted twice.` : ""}`;
+      const induMl = jaiminiInduMalayalam(i, moon.sign, induText);
+      const induAside = "a Parashari-lineage special lagna; it feeds nothing in the Nadi reading";
       const induParas: ReportPara[] = [
         {
           kind: "p",
-          text: `The Indu Lagna, the wealth ascendant: the 9th from the lagna is ${i.ninthFromLagna.sign} (${i.ninthFromLagna.lord}, ${i.ninthFromLagna.kala} kalas) and the 9th from the Moon in ${moon.sign} is ${i.ninthFromMoon.sign} (${i.ninthFromMoon.lord}, ${i.ninthFromMoon.kala} kalas). Their sum ${i.sum} leaves a remainder of ${i.remainder} modulo twelve, so the ${ORD(i.remainder)} sign from the Moon is the Indu Lagna: ${i.sign}.${i.sameLord ? ` ${i.ninthFromLagna.lord} rules both ninths and its kalas are counted twice.` : ""}`,
+          text: induText,
+          ...(induMl ? { translationMl: { source: induText, text: induMl } } : {}),
           cites: [uk],
-          aside: "a Parashari-lineage special lagna; it feeds nothing in the Nadi reading",
+          aside: induAside,
+          asideTranslationMl: { source: induAside, text: "പരാശരി പാരമ്പര്യത്തിലെ പ്രത്യേക ലഗ്നം; ഇത് നാഡി വായനയിലേക്ക് ഒന്നും ചേർക്കുന്നില്ല" },
         },
         ...[...i.classical, ...i.findings].map(
           (f): ReportPara => ({

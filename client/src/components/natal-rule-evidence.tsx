@@ -9,7 +9,7 @@ import { KpCatalogueEvidence } from "@/components/kp-catalogue-evidence";
 import { ParashariCatalogueEvidence } from "@/components/parashari-catalogue-evidence";
 import { FUNCTIONAL_SOURCE } from "@shared/parashari-functional";
 import { Cite } from "@/components/source-link";
-import { InfoBox, InfoBoxTitle, InfoBoxDescription, InfoBoxDisclosure, INFO_BOX_ROW, INFO_BOX_ROWS } from "@/components/info-box";
+import { InfoBox, InfoBoxTitle, InfoBoxDescription, InfoBoxDisclosure } from "@/components/info-box";
 
 const shown = (xs: string[]) => xs.length ? xs.join(". ") : "none listed in this subset";
 
@@ -20,7 +20,7 @@ export function ParashariNatalRules({ result }: { result: ChartResult }) {
   return <InfoBox className="mt-4" data-testid="parashari-natal-summary">
     <InfoBoxTitle>What the birth chart shows</InfoBoxTitle>
     <InfoBoxDescription>These are partial D1 and divisional clues, before a date or running periods are chosen. Support and strain can coexist; a missing clue does not settle an outcome. The event checks use whole-sign houses and full aspects.</InfoBoxDescription>
-    <ul className={INFO_BOX_ROWS}>{parashariQualifiedSummary(topics).map((row) => <li key={row.matter} className={INFO_BOX_ROW}><strong>{row.label}</strong><span className="min-w-0 text-foreground/90">{row.text}</span></li>)}</ul>
+    <ul className="nadi-topic-list">{parashariQualifiedSummary(topics).map((row) => <li key={row.matter} className="nadi-topic-entry"><strong className="nadi-topic-label">{row.label}</strong><p className="nadi-topic-copy">{row.text}</p></li>)}</ul>
     <InfoBoxDisclosure className="mt-4" data-testid="parashari-natal-rules" label="Natal event foundations · D1 and divisions">
     <p className="mt-2 text-muted-foreground">These are the same yoga-pair, node and matter-house combinations used in dated checks, before choosing an event or period. They use whole-sign houses and full aspects even if the main chart uses a different house view. They supplement the existing overview; they do not automatically change its verdict. The D1 table applied to divisional ascendants is provisional; these observations do not promise an outcome. <Cite href={FUNCTIONAL_SOURCE.url}>{FUNCTIONAL_SOURCE.label}</Cite></p>
     {topics.map((topic) => <InfoBoxDisclosure key={topic.matter} className="mt-2" data-testid={`parashari-natal-${topic.matter}`} label={`${topic.subject} · D1 and ${topic.division}`}>
@@ -59,7 +59,7 @@ export function KpNatalRules({ result, plain = false }: { result: ChartResult; p
   return <InfoBox className="mt-4" data-testid="kp-natal-summary">
     <InfoBoxTitle>What the birth chart shows</InfoBoxTitle>
     <InfoBoxDescription>These are partial cusp links for common topics. The two script checks are research interpretations of the natal stages; a date, its periods and the event sky still need their own assessment.</InfoBoxDescription>
-    <ul className={INFO_BOX_ROWS}>{kpQualifiedSummary(topics).map((row) => <li key={row.matter} className={INFO_BOX_ROW}><strong>{row.label}</strong><span className="min-w-0 text-foreground/90">{row.text}</span></li>)}</ul>
+    <ul className="nadi-topic-list">{kpQualifiedSummary(topics).map((row) => <li key={row.matter} className="nadi-topic-entry"><strong className="nadi-topic-label">{row.label}</strong><p className="nadi-topic-copy">{row.text}</p></li>)}</ul>
     <InfoBoxDisclosure className="mt-4" data-testid="kp-natal-rules" label="Natal event foundations · KP cusp scripts">
     <p className="mt-2 text-muted-foreground">The four-step cusp links and the separate Aurora research scripts below are the same natal stages used in event checks. They supplement the existing overview; they do not automatically change its verdict. They do not assume a date or running periods. Aurora's mixed and unresolved stages are not event denials. The optional six-step chart view is a different convention; these event checks use four steps.</p>
     {plain && <p className="mt-1 text-muted-foreground">Additional sensitive matters, when available, are in Practitioner view or can be selected under Matter and date.</p>}

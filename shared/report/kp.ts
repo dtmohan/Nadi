@@ -15,9 +15,10 @@ import { sensitiveEventMatter } from "../events";
 import { kpNatalConditionsParas } from "./natal-reading-evidence";
 import { kpDisplayOrder, kpFindingPlain, kpHerePlain, kpUsedGloss } from "../rules-kp";
 import { kpPlanetContext } from "../planet-context";
+import { kpStabilityMalayalam } from "../malayalam-kp-stability";
 import { nakshatraContextParas } from "./nakshatra-context";
 import { translate } from "../localization";
-import { kpHereMalayalam, schoolSourceMalayalam } from "../school-topic-malayalam";
+import { kpEvidenceMalayalam, kpHereMalayalam, schoolSourceMalayalam } from "../school-topic-malayalam";
 import {
   endStop,
   list,
@@ -39,10 +40,17 @@ export const kpModule: ReportModule = {
     const conditional = (kp.stability?.cusps ?? []).filter((p) =>
       isConditional(p),
     );
+    const lead = `Krishnamurti Paddhati divides each nakshatra into nine subs and judges a house by the sub lord of its cusp. The lagna cusp at ${fmtDeg(lagna.lon)} ${lagna.sign} falls in ${lagna.nakshatra}, star lord ${lagna.starLord}, sub lord ${lagna.subLord}.`;
+    const expectedLead = `Krishnamurti Paddhati divides each nakshatra into nine subs and judges a house by the sub lord of its cusp. The lagna cusp at ${fmtDeg(lagna.lon)} ${lagna.sign} falls in ${lagna.nakshatra}, star lord ${lagna.starLord}, sub lord ${lagna.subLord}.`;
+    const names = [lagna.sign, lagna.nakshatra, lagna.starLord, lagna.subLord];
+    const namesMl = names.map((name) => translate("ml", name));
+    const leadMl = lead === expectedLead && namesMl.every((value, i) => value !== names[i])
+      ? `കൃഷ്ണമൂർത്തി പദ്ധതിയിൽ ഓരോ നക്ഷത്രത്തെയും ഒമ്പത് ഉപവിഭാഗങ്ങളായി തിരിക്കുകയും ഒരു ഭാവത്തെ അതിന്റെ കസ്പിന്റെ സഹാധിപൻ അനുസരിച്ച് വിലയിരുത്തുകയും ചെയ്യുന്നു. ലഗ്നകസ്പ് ${fmtDeg(lagna.lon)} ${namesMl[0]} രാശിയിൽ ${namesMl[1]} നക്ഷത്രത്തിലാണ്; നക്ഷത്രാധിപൻ ${namesMl[2]}, സഹാധിപൻ ${namesMl[3]}.` : undefined;
     const paras: ReportPara[] = [
       {
         kind: "lead",
-        text: `Krishnamurti Paddhati divides each nakshatra into nine subs and judges a house by the sub lord of its cusp. The lagna cusp at ${fmtDeg(lagna.lon)} ${lagna.sign} falls in ${lagna.nakshatra}, star lord ${lagna.starLord}, sub lord ${lagna.subLord}.`,
+        text: lead,
+        ...(leadMl ? { translationMl: { source: lead, text: leadMl } } : {}),
         cites: [cites.add("Astro Secrets & KP, Part 1 (uploaded PDF)")],
       },
       {
@@ -76,7 +84,7 @@ export const kpModule: ReportModule = {
         ? [
             {
               kind: "note" as const,
-              text: `A cusp moves about a degree every four minutes and a sub spans 46' to 2°13', so a cusp sub lord holds for minutes; the books make a correct birth time the first condition of a reading. ${conditional.length ? `${conditional.length === 1 ? "One cusp" : `${conditional.length} cusps`} (${conditional.map((p) => ORD(p.house!)).join(", ")}) ${conditional.length === 1 ? "changes its" : "change their"} sub lord within ${KP_CONDITIONAL_SECONDS / 60} minutes of the recorded time, so ${conditional.length === 1 ? "its verdict is" : "their verdicts are"} conditional on the minute.` : `No cusp sub lord changes within ${KP_CONDITIONAL_SECONDS / 60} minutes of the recorded time.`} The Moon's sub lord ${nearestChangeText(kp.stability.moon)}. The two-minute margin is the app's convention.`,
+              ...(() => { const text = `A cusp moves about a degree every four minutes and a sub spans 46' to 2°13', so a cusp sub lord holds for minutes; the books make a correct birth time the first condition of a reading. ${conditional.length ? `${conditional.length === 1 ? "One cusp" : `${conditional.length} cusps`} (${conditional.map((p) => ORD(p.house!)).join(", ")}) ${conditional.length === 1 ? "changes its" : "change their"} sub lord within ${KP_CONDITIONAL_SECONDS / 60} minutes of the recorded time, so ${conditional.length === 1 ? "its verdict is" : "their verdicts are"} conditional on the minute.` : `No cusp sub lord changes within ${KP_CONDITIONAL_SECONDS / 60} minutes of the recorded time.`} The Moon's sub lord ${nearestChangeText(kp.stability.moon)}. The two-minute margin is the app's convention.`; const ml = kpStabilityMalayalam(kp.stability!, text); return { text, ...(ml ? { translationMl: { source: text, text: ml } } : {}) }; })(),
               provisional: true,
               cites: [
                 cites.add(
@@ -151,6 +159,8 @@ export const kpModule: ReportModule = {
             const part = f.partOf && fs.some((x) => x.ruleId === f.partOf);
             const here = ctx.plain && !part && f.standing !== "note" ? kpHereMalayalam(f) : "";
             const decision = KP_PRECEDENCE.find((p) => p.topics.includes(f.topic))?.cusp ?? cusp;
+            const aside = ctx.plain ? undefined : `${f.evidence}${f.used?.length ? ` (${kpUsedGloss(f.used)})` : ""}`;
+            const asideMl = aside ? kpEvidenceMalayalam(f, aside) : undefined;
             const ml = source && topic !== f.topic && here !== undefined
               ? f.standing === "note" ? `${topic}, ദ്വിതീയ സൂചന: ${source} ഈ വിഷയത്തിൽ ${decision}-ാം കസ്പിന്റെ സഹാധിപനാണ് തീരുമാനിക്കുന്നത്; അതിനാൽ ഇത് എണ്ണത്തിൽ ഉൾപ്പെടുത്തുന്നില്ല.`
                 : part ? `${topic}, മുകളിലെ സമ്മിശ്ര വായനയുടെ ഭാഗം: ${source}` : `${topic}: ${source}${here ? ` ${here}` : ""}`
@@ -165,9 +175,8 @@ export const kpModule: ReportModule = {
                 ? [cites.add("Astro Secrets & KP, Part 3 p. 12 (uploaded PDF)")]
                 : []),
             ],
-            aside: ctx.plain
-              ? undefined
-              : `${f.evidence}${f.used?.length ? ` (${kpUsedGloss(f.used)})` : ""}`,
+            aside,
+            ...(aside && asideMl ? { asideTranslationMl: { source: aside, text: asideMl } } : {}),
             tone:
               f.standing === "note"
                 ? ("mixed" as const)

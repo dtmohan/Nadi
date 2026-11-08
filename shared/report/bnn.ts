@@ -10,6 +10,9 @@ import { AREA_ONSET, lifePeriods, periodStateLabel } from "../life-stage";
 import { agreementInput, computeAgreement } from "../agreement";
 import { briefingFor } from "../briefing";
 import { plainTopicBriefs, malayalamTopicWindow, type PlainTopicBrief } from "../topic-brief";
+import { translate } from "../localization";
+import { bnnRoleSummaryMalayalam } from "../malayalam-bnn-role-summary";
+import { lakshmiFormMalayalam, lakshmiHeadlineMalayalam, lakshmiNotesMalayalam, lakshmiPeriodMalayalam } from "../malayalam-lakshmi-report";
 import {
   endStop,
   fmtMonth,
@@ -82,19 +85,30 @@ export const bnnModule: ReportModule = {
         .map((x) => `${x.pl} ${RELATION_LABEL[x.r!.relation]}`);
       return apart.length ? apart.join(", ") : undefined;
     };
+    const lead = `Bhrigu Nandi Nadi reads no houses. Jupiter is the Jeeva, the life itself${female ? ", and in a woman's chart Venus is the Deha, her person" : ""}; Saturn is the Karma, the work; the other planets are read by where they stand from these two, in the same sign, in trine, in the seventh, or in the signs before and behind. ${roles.spouse} stands for the ${female ? "husband" : "wife"}.`;
+    // Independent snapshot stops this translation being applied after a source change.
+    const expectedLead = `Bhrigu Nandi Nadi reads no houses. Jupiter is the Jeeva, the life itself${female ? ", and in a woman's chart Venus is the Deha, her person" : ""}; Saturn is the Karma, the work; the other planets are read by where they stand from these two, in the same sign, in trine, in the seventh, or in the signs before and behind. ${roles.spouse} stands for the ${female ? "husband" : "wife"}.`;
+    const spouse = translate("ml", roles.spouse);
+    const leadMl = lead === expectedLead && spouse !== roles.spouse ? `ഭൃഗു നന്ദി നാഡി ഭാവങ്ങൾ ഉപയോഗിക്കുന്നില്ല. വ്യാഴം ജീവൻ, അതായത് ജീവിതത്തെ തന്നെയാണ് സൂചിപ്പിക്കുന്നത്${female ? "; സ്ത്രീയുടെ ജാതകത്തിൽ ശുക്രൻ അവളുടെ വ്യക്തിത്വത്തെ സൂചിപ്പിക്കുന്ന ദേഹമാണ്" : ""}. ശനി കർമം, അതായത് തൊഴിലാണ്. മറ്റു ഗ്രഹങ്ങളെ ഈ രണ്ടിൽനിന്നുള്ള സ്ഥാനമനുസരിച്ച്—ഒരേ രാശിയിലോ ത്രികോണത്തിലോ ഏഴാം രാശിയിലോ, മുന്നിലോ പിന്നിലോ ഉള്ള രാശികളിലോ—വായിക്കുന്നു. ${spouse} ${female ? "ഭർത്താവിനെ" : "ഭാര്യയെ"} സൂചിപ്പിക്കുന്നു.` : undefined;
+    const rolePara = (planet: typeof roles.native, role: "Jeeva karaka" | "Karma karaka" | "Deha karaka", summary: string): ReportPara => {
+      const text = S(summary);
+      const ml = bnnRoleSummaryMalayalam(result, planet, role, text);
+      return { kind: "p", text, ...(ml ? { translationMl: { source: text, text: ml } } : {}) };
+    };
     const paras: ReportPara[] = [
       {
         kind: "lead",
-        text: `Bhrigu Nandi Nadi reads no houses. Jupiter is the Jeeva, the life itself${female ? ", and in a woman's chart Venus is the Deha, her person" : ""}; Saturn is the Karma, the work; the other planets are read by where they stand from these two, in the same sign, in trine, in the seventh, or in the signs before and behind. ${roles.spouse} stands for the ${female ? "husband" : "wife"}.`,
+        text: lead,
+        ...(leadMl ? { translationMl: { source: lead, text: leadMl } } : {}),
         cites: [
           rao(),
           cites.add("S. Naik, Prediction Secrets: Naadi Astrology"),
         ],
       },
-      { kind: "p", text: S(reading.jeeva.summary) },
-      { kind: "p", text: S(reading.karma.summary) },
+      rolePara(roles.native, "Jeeva karaka", reading.jeeva.summary),
+      rolePara("Saturn", "Karma karaka", reading.karma.summary),
     ];
-    if (reading.deha) paras.push({ kind: "p", text: S(reading.deha.summary) });
+    if (reading.deha) paras.push(rolePara(roles.deha, "Deha karaka", reading.deha.summary));
     paras.push({
       kind: "note",
       text: `${GRADE_NOTE} ${DIRECTION_NOTE}`,
@@ -226,22 +240,25 @@ export const bnnModule: ReportModule = {
         {
           kind: "p",
           text: S(l.headline),
+          ...(lakshmiHeadlineMalayalam(l, S(l.headline)) ? { translationMl: { source: S(l.headline), text: lakshmiHeadlineMalayalam(l, S(l.headline))! } } : {}),
           cites: [book],
         },
         ...l.forms.map((f): ReportPara => {
           const d = dasas.find((x) => x.lord === f.planet);
+          const text = S(`${f.planet} in the ${f.house}${["th", "st", "nd", "rd"][f.house % 10 < 4 && (f.house < 11 || f.house > 13) ? f.house % 10 : 0]} from Venus — ${f.form}: ${f.domain}.${f.via === "case-study" ? " Read in the book's case studies, beyond the chapter diagrams." : ""}`);
+          const ml = lakshmiFormMalayalam(f, text);
+          const aside = d ? `Mahadasha ${fmtMonth(d.start)} to ${fmtMonth(d.end)}${periodStateLabel(d, lifeAt, deceased)}` : undefined;
+          const asideMl = d && aside ? lakshmiPeriodMalayalam(d, lifeAt, deceased, aside) : undefined;
           return {
             kind: "p",
-            text: S(
-              `${f.planet} in the ${f.house}${["th", "st", "nd", "rd"][f.house % 10 < 4 && (f.house < 11 || f.house > 13) ? f.house % 10 : 0]} from Venus — ${f.form}: ${f.domain}.${f.via === "case-study" ? " Read in the book's case studies, beyond the chapter diagrams." : ""}`,
-            ),
+            text,
+            ...(ml ? { translationMl: { source: text, text: ml } } : {}),
             cites: [book],
-            aside: d
-              ? `Mahadasha ${fmtMonth(d.start)} to ${fmtMonth(d.end)}${periodStateLabel(d, lifeAt, deceased)}`
-              : undefined,
+            aside,
+            ...(aside && asideMl ? { asideTranslationMl: { source: aside, text: asideMl } } : {}),
           };
         }),
-        { kind: "note", text: l.notes.join(" ") },
+        ...((): ReportPara[] => { const text = l.notes.join(" "), ml = lakshmiNotesMalayalam(l, text); return [{ kind: "note", text, ...(ml ? { translationMl: { source: text, text: ml } } : {}) }]; })(),
       ];
       sub.push({
         id: "bnn-lakshmi",

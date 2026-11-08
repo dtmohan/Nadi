@@ -11,7 +11,7 @@ type Case = Pick<Chart, "name" | "gender" | "birthDate" | "birthTime" | "timeSta
   birthSource: string; birthSourceNote: string; careerReference: string; careerSource: string;
   alternatives?: Array<{ label: string; birthTime?: string; timeStandard?: string }>;
 };
-const manifest = JSON.parse(readFileSync("research/reader-expansion/cases.json", "utf8")) as { selection: string; asOf: string; cases: Case[] };
+const manifest = JSON.parse(readFileSync(process.argv[2] ?? "research/reader-expansion/cases.json", "utf8")) as { selection: string; asOf: string; cases: Case[] };
 Settings.now = () => Date.parse(manifest.asOf);
 const chartDefaults = { id: 0, ayanamsa: "lahiri", nodeType: "mean", sunriseDef: "edge", parashariHouseMethod: "rashi", notes: "", timeUncertaintyMin: 0, events: [] } as const;
 
