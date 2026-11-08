@@ -55,8 +55,8 @@ The conditions chapter is not written with the area structures. It uses one fixe
 <first sentence of the rule>
 Result: <the rule's gist>.
 D9: <planet sign (house from D9 lagna); ...>.
-D10: <planet sign (house from D10 lagna); ...>.
-Cross-check: D9 <count>/<total>; D10 <count>/<total> in angles or trines.
+<D10 | D2 | D24>, lagna <sign>: <planet sign (house from that varga lagna); ...>.
+Test: <count>/<total> in angles or trines.
 Period: <lord, years> (current | next | last).
 ```
 

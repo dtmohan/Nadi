@@ -36,7 +36,7 @@ The first release read five areas. V2 reads the whole life without becoming elev
 | **Work & means** | career, authority, wealth | The working life, public standing and money as separate questions. |
 | **Bonds** | marriage, children, family | The chapter where disagreement is the finding; family is read member by member. |
 | **Mind & meaning** | education, spirituality, travel | The descriptive areas: learning, inner life and distance. |
-| **The conditions** | — | Six selected Parashari yogas, their D9/D10 positions, an angular cross-check and the period that carries each. A condition ledger, not the full yoga corpus. |
+| **The conditions** | — | Six selected Parashari yogas, their D9 positions, the varga that governs each condition, and the period that carries each. A condition ledger, not the full yoga corpus. |
 | **Time** | — | The Vimshottari period, the sub-period and the slow sky, as clocks rather than events. |
 | **The schools** | — | The comparison of bases: five general topics × four schools, no vote. |
 | **The apparatus** | — | Sources, caveats, provenance, school cards, marks and citation. |
@@ -53,11 +53,22 @@ Each paragraph is a fixed ledger, not a free paragraph:
 
 1. the first sentence of the rule;
 2. `Result:` the rule's gist;
-3. `D9:` and `D10:` the navamsa and dasamsa positions of the condition's planets;
-4. `Cross-check:` how many of those planets fall in the angles or trines from each varga lagna;
+3. `D9:` the navamsa positions of the condition's planets;
+4. the **governing varga** — `D10` for career and standing, `D2` for wealth, `D24` for learning, `D7` for children, `D4` for home, `D9` for spouse and self — with its positions and a test;
 5. `Period:` the Vimshottari period that carries it — current, next, or last.
 
-The D9/D10 lines are positions, not verdicts. The cross-check is an **app convention**: it counts the condition's planets in the 1st, 4th, 5th, 7th, 9th and 10th from the varga lagna. It is not a classical varga-confirmation rule. For Einstein, Malavya is 0/1 in both vargas, while the Kendra-trikona exchange is 2/2 in D10; the chapter prints both counts rather than smoothing them. The period line is current when the running lord is one of the condition's planets; for a recorded death it uses the last period before the reading date, never a future period to imply posthumous activation. That activation test is the **app's own simplification**, not a classical dasha-activation rule; the condition is a named yoga, and the period is a reading aid. For the Einstein chart the running Rahu period carries none of the six, and the chapter says so. The full rule text is in Why this; the chapter is not the complete yoga ledger.
+The governing varga is the correction to the first cross-check. The test counts the condition's planets in the 1st, 4th, 5th, 7th, 9th and 10th from that varga lagna, and it is an **app convention**, not a classical varga-confirmation rule. The positions are printed so the reader can disagree. For Einstein:
+
+| Condition | Governing varga | Test |
+|---|---|---|
+| Malavya | D10 | 0/1 |
+| Kalpadruma | D10 | 2/4 |
+| Neechabhanga: Mercury | D24 | 1/2 |
+| Neechabhanga: Moon | D10 | 0/3 |
+| Kendra-trikona raja | D10 | 2/2 |
+| Wealth-giving periods | D2 | 3/4 |
+
+The wealth condition is the clearest argument for the layer: under a generic D10 count it was 1/4; in its own D2 it is 3/4. The chapter prints the governing count, not the flattering one. The period line is current when the running lord is one of the condition's planets; for a recorded death it uses the last period before the reading date, never a future period to imply posthumous activation. That activation test is the **app's own simplification**, not a classical dasha-activation rule. For the Einstein chart the running Rahu period carries none of the six, and the chapter says so. The full rule text is in Why this; the chapter is not the complete yoga ledger.
 
 
 The **chapter preamble** is now the technical frame in the reading: the lagna and relevant houses, their lords and occupants, degrees, dignities and strength, the Jaimini karakas (with D9), and the KP cusp and sub-lord. It assumes the reader knows **lagna, bhava, lord, karaka, D9, dasha, bhukti, pratyantar, bindus and cusp sub-lord**. It does not gloss them. The per-area Parashari frame remains in Working.
@@ -119,7 +130,7 @@ For the Einstein chart the reading is about 2,350 words and twelve minutes, with
 - **The marginal spine.** At wide widths, a vertical folio runs down the outer margin — the room's signature, not an app chrome.
 - **In brief and the contents rail.** The summary is a run-in epigraph; the eleven areas are nested in the contents rail, not in a card grid. The rail is also the chapter navigation.
 - **The preamble and the frames.** Each life chapter opens with the technical preamble; every area still carries its Parashari house frame in Working, and each chapter carries the Jaimini and KP lines.
-- **The conditions.** Six named Parashari yogas are selected, each with the first sentence of its rule, its result, its D9 and D10 positions, an angular cross-check and the Vimshottari period that carries it. The running Rahu period carries none of the six; the chapter says so rather than inventing an activation. The full rule text is in Why this.
+- **The conditions.** Six named Parashari yogas are selected, each with the first sentence of its rule, its result, its D9 positions, the varga that governs its matter with a test, and the Vimshottari period that carries it. The running Rahu period carries none of the six; the chapter says so rather than inventing an activation. The full rule text is in Why this.
 - **Why this.** Every paragraph with evidence carries the mark types and a button that opens the exact rule text, source and grade.
 - **The comparison.** Five general topics × four schools. Each cell is the school's own verdict and the object it judged; the row carries the combined reading. No vote is counted. Life span is a separate, gated topic and is not folded in.
 - **Time.** The Vimshottari period, the sub-period, the third-level period, and the slow sky, as a structured timeline, not forty pages of paryanthar prose.
@@ -169,7 +180,7 @@ npx tsx --test scripts/reading-prose.test.ts
 npm run build
 ```
 
-The three prose tests check the chapter shape, the four preambles and codas, the six conditions and their period, D9/D10 and cross-check fields, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, the lexicon lint (no "clearest line", no universal "The line is", small allowances for repeated tone words), unique area claims, and the presence of source, provisional and calculation marks.
+The three prose tests check the chapter shape, the four preambles and codas, the six conditions and their period, D9 and governing-varga fields, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, the lexicon lint (no "clearest line", no universal "The line is", small allowances for repeated tone words), unique area claims, and the presence of source, provisional and calculation marks.
 
 A teardown of a mainstream 108-page Parashari report, and what to borrow or avoid, is in [mainstream-reference.md](mainstream-reference.md).
 
