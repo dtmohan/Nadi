@@ -2281,6 +2281,16 @@ export default function ChartPage() {
             </Button>
             <Button size="sm" variant="outline" asChild>
               <Link
+                href={`/chart/${chart.id}/room`}
+                data-testid="link-reading-room"
+                title="The reading room: an editorial reading in three layers"
+              >
+                <BookOpen className="h-4 w-4" />
+                {t("Reading room")}
+              </Link>
+            </Button>
+            <Button size="sm" variant="outline" asChild>
+              <Link
                 href={`/chart/${chart.id}/report`}
                 data-testid="link-report"
                 title="The whole reading as one prose document, printable"

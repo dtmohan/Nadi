@@ -4,6 +4,14 @@ Nadi is a web workbench for Vedic astrology. It casts a sidereal chart with the 
 
 A published snapshot runs at [astroengine.pplx.app](https://astroengine.pplx.app). It is updated by hand and can lag behind this repository.
 
+## Reading room (design fork)
+
+This branch adds an editorial reading surface at `#/chart/:id/room`, with **Reading / Working / Critical** layers, a deterministic prose layer over the existing computed readings, a school-aware chart card, the evidence drawer, a comparison-basis table, timing, provenance and citation. The workbench is unchanged; the link sits in the chart header.
+
+The prose layer lives in [`shared/reading-prose.ts`](shared/reading-prose.ts); the page is [`client/src/pages/reading-room.tsx`](client/src/pages/reading-room.tsx); the design notes and screenshots are in [`docs/reading-room.md`](docs/reading-room.md). It adds no astrology and no LLM: it paraphrases the app's rules and keeps the exact text, source and grade one click away.
+
+Run it with `npm run dev`, open a saved chart, and choose **Reading room**.
+
 ![A chart page: the cross-system agreement panel, the system tabs and the Nadi reading in brief](docs/chart-overview.png)
 
 ## Principles
