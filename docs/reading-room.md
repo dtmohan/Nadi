@@ -26,7 +26,7 @@ The three layers are explicit:
 
 The layer lives in the URL, so a reader can link to a working paragraph or a critical view.
 
-## V2: four chapters, eleven areas
+## V2: four chapters, eleven areas, six conditions
 
 The first release read five areas. V2 reads the whole life without becoming eleven equal sections.
 
@@ -36,13 +36,28 @@ The first release read five areas. V2 reads the whole life without becoming elev
 | **Work & means** | career, authority, wealth | The working life, public standing and money as separate questions. |
 | **Bonds** | marriage, children, family | The chapter where disagreement is the finding; family is read member by member. |
 | **Mind & meaning** | education, spirituality, travel | The descriptive areas: learning, inner life and distance. |
+| **The conditions** | — | Six selected Parashari yogas, their D9 facts and the period that carries each. A condition ledger, not the full yoga corpus. |
 | **Time** | — | The Vimshottari period, the sub-period and the slow sky, as clocks rather than events. |
 | **The schools** | — | The comparison of bases: five general topics × four schools, no vote. |
 | **The apparatus** | — | Sources, caveats, provenance, school cards, marks and citation. |
 
 Every one of the eleven areas sits in the **contents rail**, nested under its chapter, with a small tone mark. The rail jumps to the area's paragraph. The chapter is the argument; the contents rail is the completeness.
 
-**In brief** is a run-in epigraph under the standfirst: one sentence per chapter, generated from the same tones and period. It is part of the header, not a card. The five-line summary survives as the data behind it.
+**In brief** is a five-line run-in under the standfirst: one line for each life chapter and one for Time. It is part of the header, not a card. Conditions, schools and apparatus live in the contents, not in the brief.
+
+## The condition layer
+
+The conditions chapter is a selection, not a corpus. It reads the Parashari findings of kind `yoga`, drops strain and nullified combinations, ranks the named families — Mahapurusha, Kalpadruma, Neechabhanga, Kendra-trikona raja, wealth-giving, the Moon's place, Vosi, the karakas in angles — and takes six, deduplicated by title.
+
+Each paragraph is a fixed ledger, not a free paragraph:
+
+1. the first sentence of the rule;
+2. `Result:` the rule's gist;
+3. `D9:` the navamsa positions of the condition's planets;
+4. `Period:` the Vimshottari period that carries it — current, next, or last.
+
+The D9 line is a set of positions, not a verdict. The period line is current when the running lord is one of the condition's planets; for a recorded death it uses the last period before the reading date, never a future period to imply posthumous activation. That activation test is the **app's own simplification**, not a classical dasha-activation rule; the condition is a named yoga, and the period is a reading aid. For the Einstein chart the running Rahu period carries none of the six, and the chapter says so. The full rule text is in Why this; the chapter is not the complete yoga ledger.
+
 
 The **chapter preamble** is now the technical frame in the reading: the lagna and relevant houses, their lords and occupants, degrees, dignities and strength, the Jaimini karakas (with D9), and the KP cusp and sub-lord. It assumes the reader knows **lagna, bhava, lord, karaka, D9, dasha, bhukti, pratyantar, bindus and cusp sub-lord**. It does not gloss them. The per-area Parashari frame remains in Working.
 
@@ -61,7 +76,7 @@ Each chapter now has three registers:
 2. **The area paragraphs** — the human argument: claim, the area's fixed structure anchor, the reviewed Nadi lines, bridge, limit.
 3. **The coda** — a short closing paragraph, marked with a vermilion square, that states the chapter's pattern across its areas.
 
-The reading is longer because it is no longer a trailer. The Einstein chart runs to roughly 1,900 words and nine or ten minutes; the preambles carry the facts a practitioner would otherwise look up in the tabs, and every area names its configuration in its own fixed form.
+The reading is longer because it is no longer a trailer. The Einstein chart runs to roughly 2,200 words and eleven minutes; the preambles carry the facts a practitioner would otherwise look up in the tabs, every area names its configuration in its own fixed form, and the conditions chapter adds the named yogas the tab engine already found.
 
 ## The prose layer
 
@@ -92,7 +107,7 @@ The details that make it read like English rather than a table:
 - **Uncertainty in the grammar.** A contested area is allowed to be an argument; a provisional rule keeps its mark; a calculation's grade is in the working, not hidden in a footnote.
 - **No forecast.** The timing section names the period and the sky and says, in the same breath, that the app does not turn them into an event.
 
-For the Einstein chart the reading is about 1,900 words and nine or ten minutes, with eleven area paragraphs, four technical preambles and four chapter codas. The lead is:
+For the Einstein chart the reading is about 2,200 words and eleven minutes, with eleven area paragraphs, four technical preambles, four chapter codas and six condition paragraphs. The lead is:
 
 > Albert Einstein was born on 14 March 1879 at 11:30 local time in Ulm, Baden-Wurttemberg, Germany, with Gemini rising at 19°28′. The chart's centre of gravity is Jupiter, the Jeeva, standing alone in Aquarius at 5°19′. Pisces — the tenth sign from the rising — gathers the Sun, Mercury, Saturn, and Venus, which is where the work theme begins. The Moon is in Scorpio, Jyeshtha 2, the sixth house from the rising.
 
@@ -102,12 +117,15 @@ For the Einstein chart the reading is about 1,900 words and nine or ten minutes,
 - **Chapters with a spine.** The chart, the native, work & means, bonds, mind & meaning, the schools, time, the apparatus. Each chapter has a number and a rule above it; each area has a subheading.
 - **The marginal spine.** At wide widths, a vertical folio runs down the outer margin — the room's signature, not an app chrome.
 - **In brief and the contents rail.** The summary is a run-in epigraph; the eleven areas are nested in the contents rail, not in a card grid. The rail is also the chapter navigation.
-- **The preamble and the frames.** Each chapter opens with the technical preamble; every area still carries its Parashari house frame in Working, and each chapter carries the Jaimini and KP lines.
+- **The preamble and the frames.** Each life chapter opens with the technical preamble; every area still carries its Parashari house frame in Working, and each chapter carries the Jaimini and KP lines.
+- **The conditions.** Six named Parashari yogas are selected, each with the first sentence of its rule, its result, its D9 positions and the Vimshottari period that carries it. The running Rahu period carries none of the six; the chapter says so rather than inventing an activation. The full rule text is in Why this.
 - **Why this.** Every paragraph with evidence carries the mark types and a button that opens the exact rule text, source and grade.
 - **The comparison.** Five general topics × four schools. Each cell is the school's own verdict and the object it judged; the row carries the combined reading. No vote is counted. Life span is a separate, gated topic and is not folded in.
 - **Time.** The Vimshottari period, the sub-period, the third-level period, and the slow sky, as a structured timeline, not forty pages of paryanthar prose.
 - **The apparatus.** The sources with citation counts, the caveats, the provenance, the school cards, the evidence legend, and a copyable citation.
 - **The fingerprint.** A local checksum of the birth data and ayanamsa, so the same reading can be recognised. It is explicitly not a cryptographic manifest.
+
+![The conditions ledger](reading-room/conditions.png)
 
 ![The chapter preamble in the practitioner register](reading-room/chapter.png)
 
@@ -150,7 +168,7 @@ npx tsx --test scripts/reading-prose.test.ts
 npm run build
 ```
 
-The three prose tests check the chapter shape, the four preambles and codas, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, the lexicon lint (no "clearest line", no universal "The line is", small allowances for repeated tone words), unique area claims, and the presence of source, provisional and calculation marks.
+The three prose tests check the chapter shape, the four preambles and codas, the six conditions and their period/D9 fields, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, the lexicon lint (no "clearest line", no universal "The line is", small allowances for repeated tone words), unique area claims, and the presence of source, provisional and calculation marks.
 
 A teardown of a mainstream 108-page Parashari report, and what to borrow or avoid, is in [mainstream-reference.md](mainstream-reference.md).
 

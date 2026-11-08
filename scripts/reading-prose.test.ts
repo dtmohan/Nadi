@@ -18,10 +18,13 @@ const areas = doc.sections.flatMap((s) => s.paragraphs).filter((p) => p.id.start
 test("the reading has the agreed chapter shape", () => {
   assert.deepEqual(
     doc.sections.map((s) => s.id),
-    ["chart", "native", "work", "bonds", "mind", "schools", "time", "sources"],
+    ["chart", "native", "work", "bonds", "mind", "conditions", "schools", "time", "sources"],
   );
   assert.equal(areas.length, 11, "every life area has one paragraph");
   assert.equal(doc.summary.length, 5);
+  assert.equal(doc.conditions.length, 6);
+  assert.ok(doc.conditions.every((c) => c.period.startsWith("Period:")), "every condition states its period");
+  assert.ok(doc.conditions.every((c) => c.d9.startsWith("D9:")), "every condition states its D9 positions");
   assert.equal(doc.index.length, 11);
   assert.deepEqual(
     doc.index.map((e) => e.topic),
@@ -67,7 +70,7 @@ test("the prose is clean, complete and deterministic", () => {
   const claims = areas.map((p) => p.text.split(/(?<=[.?!])\s/)[0]);
   assert.equal(new Set(claims).size, claims.length, "every area needs its own opening claim");
   assert.ok(prose.split(/\s+/).length > 1000, "the reading should cover the life areas");
-  assert.ok(prose.split(/\s+/).length < 2100, "the reading should not become a rule dump");
+  assert.ok(prose.split(/\s+/).length < 3000, "the reading should not become a rule dump");
 
   for (const section of doc.sections) {
     for (const p of section.paragraphs) {

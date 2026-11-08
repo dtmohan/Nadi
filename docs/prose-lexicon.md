@@ -46,3 +46,16 @@ The code is [`shared/reading-lexicon.ts`](../shared/reading-lexicon.ts); the lin
 ## The test
 
 `scripts/reading-prose.test.ts` runs `lintProse` over the full reading. It also checks that every area's opening claim is unique. The current allowances are intentionally small: "well supported" ≤ 2, "asks for care" ≤ 2, "It holds" ≤ 1, and the banned forms at zero.
+
+## The condition ledger
+
+The conditions chapter is not written with the area structures. It uses one fixed ledger per named yoga:
+
+```
+<first sentence of the rule>
+Result: <the rule's gist>.
+D9: <planet sign; planet sign>.
+Period: <lord, years> (current | next | last).
+```
+
+The labels are functional, so they repeat. This is the one place where the room deliberately sounds like an apparatus: the reader is meant to compare conditions, not to be carried by a metaphor. The selection is fixed by rule family; there is no random choice.

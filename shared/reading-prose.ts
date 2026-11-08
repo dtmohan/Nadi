@@ -16,10 +16,11 @@ import { houseFrom, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from ".
 import { LIFE_AREAS, type Finding, type LifeArea } from "./rules";
 import type { AreaSynthesis } from "./synthesis";
 import { synthesize } from "./synthesis";
-import { agreementFor, agreementInput, type AgreementTopic, type SystemStance, type TopicAgreement } from "./agreement";
+import { agreementInput, computeAgreement, type AgreementTopic, type SystemStance, type TopicAgreement } from "./agreement";
 import { briefingFor, type Briefing, type BriefRow } from "./briefing";
 import { readerExperience, type ReaderExperience, type ReaderTopic } from "./reader-experience";
 import { PLAIN_TOPIC_LABEL, PLAIN_TOPIC_ORDER, type PlainTopic } from "./topic-brief";
+import type { ParashariFinding, ParashariResult } from "./parashari";
 import { AREA_STRUCTURES } from "./reading-lexicon";
 
 // ── Public shapes ───────────────────────────────────────────────────────────────────────────────
@@ -71,6 +72,23 @@ export interface AreaIndexEntry {
   tone: AreaSynthesis["tone"];
   chapter: string;
   id: string;
+}
+
+/** A selected named Parashari condition, with its period and D9 facts. */
+export interface ReadingCondition {
+  id: string;
+  title: string;
+  tone: "support" | "strain" | "mixed";
+  planets: Planet[];
+  source: string;
+  /** True when the running Vimshottari period carries one of the condition's planets. */
+  active: boolean;
+  /** "Period: Venus, 1895–1915 (last)." */
+  period: string;
+  /** "D9: Venus Aquarius; Mercury Libra." */
+  d9: string;
+  /** The first sentence of the rule and its gist. */
+  text: string;
 }
 
 export interface ComparisonCell {
@@ -144,6 +162,8 @@ export interface ReadingDoc {
   sections: ProseSection[];
   /** The five-line map above the full reading. */
   summary: SummaryLine[];
+  /** The six named conditions selected for the Conditions chapter. */
+  conditions: ReadingCondition[];
   /** All eleven life areas, each pointing to its place in a chapter. */
   index: AreaIndexEntry[];
   comparison: ComparisonRow[];
@@ -160,6 +180,7 @@ export interface ReadingInput {
   agreement: TopicAgreement[];
   briefing: Briefing;
   experience: ReaderExperience;
+  parashari: ParashariResult;
 }
 
 // ── Small deterministic helpers ────────────────────────────────────────────────────────────────
@@ -513,6 +534,7 @@ class Writer {
   get areas() { return this.input.areas; }
   get agreement() { return this.input.agreement; }
   get briefing() { return this.input.briefing; }
+  get parashari() { return this.input.parashari; }
   get chart() { return this.input.result.chart; }
   get positions() { return this.input.result.positions; }
   get lagna() { return this.input.result.jaimini.lagna; }
@@ -1054,6 +1076,147 @@ class Writer {
     return "life with two strong readings";
   }
 
+  private conditionFindings(): ParashariFinding[] {
+    const rank = (f: ParashariFinding) => {
+      if (/Mahapurusha/.test(f.text)) return 10;
+      if (/Kalpadruma/.test(f.title)) return 9;
+      if (/^Neechabhanga/.test(f.title)) return 8;
+      if (/Kendra-trikona raja yoga/.test(f.title)) return 7;
+      if (/Wealth-giving/.test(f.title)) return 6;
+      if (/Moon's place/.test(f.title)) return 5;
+      if (/Vosi/.test(f.title)) return 4;
+      if (/Karakas in angles/.test(f.title)) return 4;
+      if (/5th lord joined/.test(f.title)) return 3;
+      return 1;
+    };
+    const tone = (f: ParashariFinding) => f.tone === "support" ? 2 : f.tone === "mixed" ? 1 : 0;
+    const sorted = this.parashari.findings
+      .filter((f) => f.kind === "yoga" && f.tone !== "strain" && !f.nullified)
+      .sort((a, b) => rank(b) - rank(a) || tone(b) - tone(a) || a.planets.length - b.planets.length || a.id.localeCompare(b.id));
+    const seen = new Set<string>();
+    const chosen: ParashariFinding[] = [];
+    for (const f of sorted) {
+      if (seen.has(f.title)) continue;
+      seen.add(f.title);
+      chosen.push(f);
+      if (chosen.length === 6) break;
+    }
+    return chosen;
+  }
+
+  private conditionActive(f: ParashariFinding): boolean {
+    const current = this.parashari.dasaReadings.find((d) => d.current);
+    return !!(current && f.planets.includes(current.lord));
+  }
+
+  private conditionPeriod(f: ParashariFinding): string {
+    const readings = this.parashari.dasaReadings;
+    const asOf = this.chart.deathDate ?? this.result.now.asOf;
+    const current = readings.find((d) => d.current);
+    const year = (iso: string) => iso.slice(0, 4);
+    if (current && f.planets.includes(current.lord)) {
+      return `Period: ${current.lord}, ${year(current.start)}–${year(current.end)} (current).`;
+    }
+    const past = readings.filter((d) => d.end <= asOf && f.planets.includes(d.lord)).at(-1);
+    if (this.chart.deathDate) {
+      return past
+        ? `Period: ${past.lord}, ${year(past.start)}–${year(past.end)} (last).`
+        : "Period: none before the reading date.";
+    }
+    const next = readings.find((d) => d.start > asOf && f.planets.includes(d.lord));
+    if (next) return `Period: ${next.lord}, ${year(next.start)}–${year(next.end)} (next).`;
+    if (past) return `Period: ${past.lord}, ${year(past.start)}–${year(past.end)} (last).`;
+    return "Period: none in the sequence.";
+  }
+
+  private conditionD9(f: ParashariFinding): string {
+    const navamsa = new Map(this.result.jaimini.navamsa.map((p) => [p.planet, p.sign]));
+    const parts = f.planets.map((p) => `${p} ${navamsa.get(p) ?? ""}`.trim()).filter(Boolean);
+    return parts.length ? `D9: ${parts.join("; ")}.` : "";
+  }
+
+  private conditionText(f: ParashariFinding): string {
+    const first = firstSentence(f.text);
+    const result = f.gist
+      ? ` Result: ${lc(f.gist)}.`
+      : f.plain
+        ? ` Result: ${lc(firstSentence(f.plain))}.`
+        : "";
+    return tidy(`${first}${result}`);
+  }
+
+  private conditionArea(f: ParashariFinding): LifeArea {
+    if (/Neechabhanga: Moon/.test(f.title)) return "health";
+    if (/Neechabhanga: Mercury/.test(f.title)) return "education";
+    if (/Wealth-giving|Moon's place/.test(f.title)) return "wealth";
+    if (/Karakas in angles/.test(f.title)) return "authority";
+    if (/Malavya|Kalpadruma|Kendra-trikona|5th lord/.test(f.title)) return "career";
+    return "self";
+  }
+
+  private parashariEvidence(f: ParashariFinding): EvidenceRef {
+    const finding: Finding = {
+      ruleId: f.id,
+      area: this.conditionArea(f),
+      text: f.text,
+      score: 0,
+      planets: f.planets,
+      relation: null,
+      viaRetro: false,
+      source: f.source.label,
+      tone: f.tone === "support" ? "good" : f.tone === "strain" ? "hard" : "neutral",
+    };
+    return { id: `parashari:${f.id}`, finding, mark: markFor(finding) };
+  }
+
+  private conditionPreamble(rows: ReadingCondition[]): string {
+    const current = this.parashari.dasaReadings.find((d) => d.current);
+    const total = rows.length;
+    const count = total === 1 ? "one" : total === 2 ? "two" : total === 3 ? "three" : total === 4 ? "four" : total === 5 ? "five" : "six";
+    const active = rows.filter((r) => r.active).length;
+    const running = current
+      ? `The running period is ${current.lord}, ${current.start.slice(0, 4)}–${current.end.slice(0, 4)}. ${active
+        ? `${active} of the ${count} conditions below ${active === 1 ? "is" : "are"} carried by it.`
+        : `None of the ${count} conditions below is carried by it.`}`
+      : "No Vimshottari period is running at the reading date.";
+    const d9 = this.result.jaimini.navamsaLagna?.sign ? `The D9 lagna is ${this.result.jaimini.navamsaLagna.sign}.` : "";
+    return tidy(`${running} ${d9} The chapter selects the named Parashari conditions; each rule text is in Working.`);
+  }
+
+  conditionSection(): { section: ProseSection; conditions: ReadingCondition[] } {
+    const findings = this.conditionFindings();
+    const conditions = findings.map((f) => ({
+      id: f.id,
+      title: f.title,
+      tone: f.tone,
+      planets: f.planets,
+      source: f.source.label,
+      active: this.conditionActive(f),
+      period: this.conditionPeriod(f),
+      d9: this.conditionD9(f),
+      text: this.conditionText(f),
+    }));
+    const paragraphs = findings.length
+      ? findings.map((f) => ({
+          id: `condition-${f.id}`,
+          subhead: f.title,
+          text: tidy(`${this.conditionText(f)} ${this.conditionD9(f)} ${this.conditionPeriod(f)}`),
+          evidence: [this.parashariEvidence(f)],
+        }))
+      : [{ id: "conditions-empty", text: "The Parashari engine reports no named yoga for this chart.", evidence: [] }];
+    return {
+      section: {
+        id: "conditions",
+        kicker: "06 · The conditions",
+        title: "The conditions",
+        preamble: conditions.length ? this.conditionPreamble(conditions) : undefined,
+        paragraphs,
+        note: `The chapter selects ${conditions.length} named conditions, not the full yoga ledger. The period test is the app's own: the running lord must be one of the condition's planets; it is not a classical dasha-activation rule. Each rule text is in Why this.`,
+      },
+      conditions,
+    };
+  }
+
   comparisonProse(): string {
     const label = (s: SystemStance) => SYSTEM_LABEL[s.system];
     const phrase = (s: SystemStance, i: number) =>
@@ -1294,10 +1457,11 @@ const SCHOOLS: SchoolCard[] = [
 
 export function buildReadingInput(result: ChartResult): ReadingInput {
   const areas = synthesize(result.reading, result.chart.gender as Gender, result.reading.findings);
-  const agreement = agreementFor(result, true);
-  const briefing = briefingFor(result, agreementInput(result, true));
+  const agreementIn = agreementInput(result, true);
+  const agreement = computeAgreement(agreementIn);
+  const briefing = briefingFor(result, agreementIn);
   const experience = readerExperience(result);
-  return { result, areas, agreement, briefing, experience };
+  return { result, areas, agreement, briefing, experience, parashari: agreementIn.parashari };
 }
 
 export function composeReading(input: ReadingInput): ReadingDoc {
@@ -1324,6 +1488,9 @@ export function composeReading(input: ReadingInput): ReadingDoc {
   sections.push(w.chapterSection("bonds", "04 · Bonds", "Bonds", ["marriage", "children", "family"]));
   sections.push(w.chapterSection("mind", "05 · Mind & meaning", "Mind & meaning", ["education", "spirituality", "travel"]));
 
+  const condition = w.conditionSection();
+  sections.push(condition.section);
+
   const strongest = ["career", "wealth", "authority", "self"]
     .map((area) => input.areas.find((a) => a.area === area && a.tone === "supportive"))
     .find(Boolean) ?? input.areas[0];
@@ -1336,14 +1503,14 @@ export function composeReading(input: ReadingInput): ReadingDoc {
 
   sections.push({
     id: "schools",
-    kicker: "06 · The schools",
+    kicker: "07 · The schools",
     title: "Where the schools differ",
     paragraphs: [{ id: "schools-1", text: w.comparisonProse(), evidence: [] }],
     note: "The table below shows each school’s verdict and the object it judged. No vote is counted.",
   });
 
-  sections.push({ ...w.timingSection(), kicker: "07 · Time", title: "Time" });
-  sections.push({ ...w.sourceSection(), kicker: "08 · The apparatus" });
+  sections.push({ ...w.timingSection(), kicker: "08 · Time", title: "Time" });
+  sections.push({ ...w.sourceSection(), kicker: "09 · The apparatus" });
 
   const comparison = w.comparisonRows();
   const timing = input.briefing.now.map((row: BriefRow) => ({
@@ -1371,6 +1538,7 @@ export function composeReading(input: ReadingInput): ReadingDoc {
     },
     sections,
     summary: w.summary(),
+    conditions: condition.conditions,
     index: w.index(),
     comparison,
     timing,
