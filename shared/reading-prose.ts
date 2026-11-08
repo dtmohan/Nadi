@@ -18,6 +18,8 @@ import type { AreaSynthesis } from "./synthesis";
 import { synthesize } from "./synthesis";
 import { agreementFor, agreementInput, type AgreementTopic, type SystemStance, type TopicAgreement } from "./agreement";
 import { briefingFor, type Briefing, type BriefRow } from "./briefing";
+import { readerExperience, type ReaderExperience, type ReaderTopic } from "./reader-experience";
+import { PLAIN_TOPIC_LABEL, PLAIN_TOPIC_ORDER, type PlainTopic } from "./topic-brief";
 
 // ── Public shapes ───────────────────────────────────────────────────────────────────────────────
 
@@ -36,6 +38,10 @@ export interface ProseParagraph {
   id: string;
   text: string;
   evidence: EvidenceRef[];
+  /** A subheading inside a chapter: "The person", "The work", "Money". */
+  subhead?: string;
+  /** The Parashari house frame, shown in Working and Critical. */
+  frame?: string;
 }
 
 export interface ProseSection {
@@ -43,8 +49,23 @@ export interface ProseSection {
   kicker: string;
   title: string;
   paragraphs: ProseParagraph[];
+  /** The chapter's other-school lines, shown in Working and Critical. */
+  working?: Array<{ label: string; text: string }>;
   /** A line that belongs under the section, in the reading voice. */
   note?: string;
+}
+
+export interface SummaryLine {
+  label: string;
+  text: string;
+}
+
+export interface AreaIndexEntry {
+  topic: PlainTopic;
+  label: string;
+  tone: AreaSynthesis["tone"];
+  chapter: string;
+  id: string;
 }
 
 export interface ComparisonCell {
@@ -116,6 +137,10 @@ export interface ReadingDoc {
     sun: string;
   };
   sections: ProseSection[];
+  /** The five-line map above the full reading. */
+  summary: SummaryLine[];
+  /** All eleven life areas, each pointing to its place in a chapter. */
+  index: AreaIndexEntry[];
   comparison: ComparisonRow[];
   timing: TimingFact[];
   caveats: string[];
@@ -129,6 +154,7 @@ export interface ReadingInput {
   areas: AreaSynthesis[];
   agreement: TopicAgreement[];
   briefing: Briefing;
+  experience: ReaderExperience;
 }
 
 // ── Small deterministic helpers ────────────────────────────────────────────────────────────────
@@ -356,6 +382,92 @@ const SYSTEM_LABEL: Record<"bnn" | "parashari" | "jaimini" | "kp", string> = {
   kp: "KP",
 };
 
+const TOPIC_CHAPTER: Record<PlainTopic, "native" | "work" | "bonds" | "mind"> = {
+  self: "native",
+  health: "native",
+  career: "work",
+  authority: "work",
+  wealth: "work",
+  marriage: "bonds",
+  children: "bonds",
+  family: "bonds",
+  education: "mind",
+  spirituality: "mind",
+  travel: "mind",
+};
+
+const SUBHEAD: Record<PlainTopic, string> = {
+  self: "The person",
+  health: "The body",
+  career: "The work",
+  authority: "Standing",
+  wealth: "Money",
+  marriage: "Marriage",
+  children: "Children",
+  family: "Family",
+  education: "Learning",
+  spirituality: "The inner life",
+  travel: "Travel",
+};
+
+const AREA_NOUN: Record<PlainTopic, string> = {
+  self: "The self",
+  health: "The body",
+  career: "Work",
+  authority: "Standing",
+  wealth: "Money",
+  marriage: "Marriage",
+  children: "Children",
+  family: "Family",
+  education: "Learning",
+  spirituality: "The inner life",
+  travel: "Travel",
+};
+
+const CHAPTER_NOTE: Record<"native" | "work" | "bonds" | "mind", string> = {
+  native: "The self and the body are read together; the body section is a traditional indication, not a diagnosis.",
+  work: "Career, standing and money are separate questions; the chapter keeps them separate.",
+  bonds: "Marriage, children and family are not one verdict.",
+  mind: "Learning, spiritual life and travel are descriptive areas; the chart gives directions, not achievements.",
+};
+
+const STATUS: Record<AreaSynthesis["tone"], string> = {
+  supportive: "well supported",
+  mixed: "mixed",
+  care: "a caution",
+  contested: "contested",
+  quiet: "lightly marked",
+  descriptive: "descriptive",
+};
+
+function firstSentence(text: string): string {
+  return text.split(/(?<=\.)\s+/)[0] ?? text;
+}
+
+function ordinalWords(text: string): string {
+  return text.replace(/\b(\d+)(?:st|nd|rd|th)\b/g, (_, n) => ORD_WORDS[Number(n)] ?? `${n}th`);
+}
+
+function cleanParashari(text: string): string {
+  return tidy(
+    ordinalWords(
+      text
+        .replace(/^In the selected Parashari house scheme,\s*/i, "")
+        .replace(/\s*This position is part of the house reading; the house also covers other matters\.?$/i, ""),
+    ),
+  );
+}
+
+function cleanJaimini(text: string): string {
+  return tidy(firstSentence(text.replace(/^For this shared Jaimini area,\s*/i, "")));
+}
+
+function cleanKp(text: string): string {
+  const m = text.match(/(\d+)(?:st|nd|rd|th) house cusp.*?falls in ([A-Z][a-z]+)\. Its sub-lord is ([A-Z][a-z]+)/i);
+  if (m) return `The ${ORD_WORDS[Number(m[1])] ?? m[1]} house cusp falls in ${m[2]}; its sub-lord is ${m[3]}.`;
+  return tidy(firstSentence(text));
+}
+
 // ── The writer ─────────────────────────────────────────────────────────────────────────────────
 
 class Writer {
@@ -488,6 +600,8 @@ class Writer {
     if (a.area === "wealth" && a.tone === "supportive") return "Money follows the work.";
     if (a.area === "self" && a.tone === "supportive") return "The native is warmly marked.";
     if (a.area === "health" && a.tone === "care") return "The body asks for care rather than confidence.";
+    if (a.area === "children" && a.tone === "quiet") return "Children are lightly marked.";
+    if (a.area === "family" && a.tone === "descriptive") return "Family is a set of separate lines, not one verdict.";
     if (a.tone === "contested") {
       return this.take(key, [
         `${noun} is where the chart becomes an argument.`,
@@ -599,11 +713,205 @@ class Writer {
     };
   }
 
+  // ── v2: the eleven areas, the chapter frames, the summary ──────────────────────────────
+
+  get experience() { return this.input.experience; }
+
+  topicFor(topic: PlainTopic): ReaderTopic | undefined {
+    return this.experience.topics.find((t) => t.natal.topic === topic);
+  }
+
+  private topicEvidence(rt: ReaderTopic | undefined, a: AreaSynthesis): EvidenceRef[] {
+    const refs: EvidenceRef[] = [];
+    for (const d of rt?.natal.detailEvidence ?? []) {
+      if (!d?.ruleId) continue;
+      const f = this.result.reading.findings.find((x) => x.ruleId === d.ruleId);
+      if (!f || refs.some((r) => r.finding.ruleId === f.ruleId)) continue;
+      refs.push({ id: `${f.area}:${f.ruleId}`, finding: f, mark: markFor(f) });
+    }
+    if (refs.length) return refs;
+    return this.evidenceFor(a.key.slice(0, 2));
+  }
+
+  private parashariFrame(rt: ReaderTopic | undefined): string | undefined {
+    if (!rt) return undefined;
+    const index = rt.visibleSchools.findIndex((s) => s.school === "parashari");
+    const ctx = rt.schoolContexts[index]?.find((c) => c.kind === "parashari-house");
+    return ctx ? cleanParashari(ctx.en) : undefined;
+  }
+
+  private jaiminiFrame(rt: ReaderTopic | undefined): string | undefined {
+    if (!rt) return undefined;
+    const index = rt.visibleSchools.findIndex((s) => s.school === "jaimini");
+    const ctx = rt.schoolContexts[index]?.find((c) => c.kind === "jaimini-karaka");
+    return ctx ? cleanJaimini(ctx.en) : undefined;
+  }
+
+  private kpFrame(rt: ReaderTopic | undefined): string | undefined {
+    if (!rt) return undefined;
+    const index = rt.visibleSchools.findIndex((s) => s.school === "kp");
+    const ctx = rt.schoolContexts[index]?.find((c) => c.kind === "kp-cusp");
+    if (!ctx) return undefined;
+    const line = cleanKp(ctx.en);
+    const stance = this.agreement
+      .find((a) => a.topic === (rt.natal.topic as AgreementTopic))
+      ?.stances.find((s) => s.system === "kp");
+    const verdict = stance?.word === "no verdict"
+      ? " No general verdict fires."
+      : stance?.word === "not read" ? " KP does not read it." : "";
+    return `${line}${verdict}`;
+  }
+
+  private chapterWorking(topics: PlainTopic[]): Array<{ label: string; text: string }> {
+    const primary = this.topicFor(topics[0]);
+    const out: Array<{ label: string; text: string }> = [];
+    const jaimini = this.jaiminiFrame(primary);
+    const kp = this.kpFrame(primary);
+    if (jaimini) out.push({ label: "Jaimini", text: jaimini });
+    if (kp) out.push({ label: "KP", text: kp });
+    return out;
+  }
+
+  private familySentences(rt: ReaderTopic | undefined, sentences: string[]): void {
+    if (!rt) return;
+    const details = rt.natal.details ?? [];
+    const father = rt.prose?.[0]?.en;
+    if (father) sentences.push(father);
+    const rest = details
+      .filter((d) => !(father && d.startsWith("Father:")))
+      .map((d) => {
+        const value = d.replace(/^[A-Z][a-z]+:\s*/, "");
+        return /^Parents\b/.test(value) ? `The parents are ${lc(value.slice("Parents ".length))}` : value;
+      });
+    if (rest.length) sentences.push(`The other family lines are separate: ${rest.join(" ")}`);
+    if (!father && !rest.length) sentences.push(rt.natal.summary);
+    if (rt.natal.limit) sentences.push(rt.natal.limit);
+  }
+
+  private careClose(topic: PlainTopic): string {
+    if (topic === "health") return "This is a traditional indication, not a diagnosis; it names where the chart asks for attention, not what will happen.";
+    if (topic === "education") return "The chart names directions, not a degree.";
+    return "The chart asks for care here; it does not predict an outcome.";
+  }
+
+  private areaParagraph(topic: PlainTopic, first: boolean): ProseParagraph {
+    const a = this.areas.find((x) => x.area === topic);
+    const rt = this.topicFor(topic);
+    const frame = this.parashariFrame(rt);
+    const evidence = a
+      ? a.tone === "contested" && a.contest
+        ? this.evidenceFor([a.contest.good, a.contest.hard])
+        : this.topicEvidence(rt, a)
+      : [];
+    const sentences: string[] = [];
+    if (a) sentences.push(this.areaClaim(a));
+    else sentences.push(`${AREA_NOUN[topic]} is not read in this chart.`);
+    if (first && frame) sentences.push(`In Parashari, ${lc(frame)}`);
+
+    if (topic === "family" && rt) {
+      this.familySentences(rt, sentences);
+    } else if (a?.tone === "contested" && a.contest) {
+      sentences.push(this.evidenceSentence(a.contest.good, 0, "contested"));
+      sentences.push(this.evidenceSentence(a.contest.hard, 1, "contested"));
+      sentences.push("The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a partnership with weight and distance in it; the chart is not offering a promise or a denial.");
+      if (rt?.natal.limit) sentences.push(rt.natal.limit);
+    } else if (topic === "health") {
+      const details = rt?.natal.details ?? [];
+      if (details.length) {
+        sentences.push(`The selected Nadi lines speak of ${list(details.map((d) => lc(d.replace(/\.$/, ""))))} rather than a named condition.`);
+      } else if (a?.key[0]) {
+        sentences.push(this.evidenceSentence(a.key[0], 0, a.tone));
+      }
+      if (rt?.natal.limit) sentences.push(rt.natal.limit);
+    } else if (topic === "children") {
+      sentences.push("The Nadi rules describe a traditional link between Jupiter and Venus, but not an individual outcome.");
+      if (rt?.natal.limit) sentences.push(rt.natal.limit);
+    } else if (a) {
+      const reviewed = (rt?.prose ?? []).map((p) => p?.en).filter(Boolean) as string[];
+      if (reviewed[0]) sentences.push(reviewed[0]);
+      else if (a.key[0]) sentences.push(this.evidenceSentence(a.key[0], 0, a.tone));
+      if (reviewed[1]) sentences.push(reviewed[1]);
+      else if (!reviewed.length && a.key[1]) sentences.push(this.evidenceSentence(a.key[1], 1, a.tone));
+      const bridge = this.areaBridge(a);
+      if (bridge) sentences.push(bridge);
+
+      if (a.tone === "care") sentences.push(this.careClose(topic));
+      else if (a.tone === "quiet") sentences.push("The chart is not making an individual claim here; it is describing a traditional link, and the difference matters.");
+      else if (a.tone === "descriptive") sentences.push("These are separate lines, not a combined verdict.");
+      else if (a.tone === "supportive") sentences.push(this.supportImage(a));
+      else sentences.push("The chart gives these as directions, not a verdict.");
+
+      if (rt?.natal.limit && (topic === "marriage" || topic === "wealth" || topic === "education" || topic === "spirituality" || topic === "travel")) {
+        sentences.push(rt.natal.limit);
+      }
+    }
+
+    return {
+      id: `area-${topic}`,
+      text: tidy(sentences.join(" ")),
+      evidence,
+      subhead: SUBHEAD[topic],
+      frame,
+    };
+  }
+
+  chapterSection(
+    id: "native" | "work" | "bonds" | "mind",
+    kicker: string,
+    title: string,
+    topics: PlainTopic[],
+  ): ProseSection {
+    return {
+      id,
+      kicker,
+      title,
+      paragraphs: topics.map((topic, i) => this.areaParagraph(topic, i === 0)),
+      working: this.chapterWorking(topics),
+      note: CHAPTER_NOTE[id],
+    };
+  }
+
+  summary(): SummaryLine[] {
+    const status = (topic: PlainTopic, plural = false) => {
+      const a = this.areas.find((x) => x.area === topic);
+      if (!a) return "not read";
+      if (a.tone === "care") return "asks for care";
+      const verb = plural ? "are" : "is";
+      if (a.tone === "descriptive") return `${verb} read separately`;
+      return `${verb} ${STATUS[a.tone]}`;
+    };
+    const native = `The self ${status("self")}; the body ${status("health")}.`;
+    const work = ["career", "authority", "wealth"].every((a) => this.areas.find((x) => x.area === a)?.tone === "supportive")
+      ? "Work, money and standing are all well supported."
+      : `Work ${status("career")}; money ${status("wealth")}; standing ${status("authority")}.`;
+    const bonds = `Marriage ${status("marriage")}; children ${status("children", true)}; family ${status("family")}.`;
+    const mind = `Learning ${status("education")}; the inner life ${status("spirituality")}; travel ${status("travel")}.`;
+    const first = this.briefing.now[0];
+    const time = `The reading is set at ${this.chart.deathDate ? "the recorded date" : "the present"}${first ? `, in ${cleanPeriod(first.what)}` : ""}.`;
+    return [
+      { label: "The native", text: native },
+      { label: "Work & means", text: work },
+      { label: "Bonds", text: bonds },
+      { label: "Mind & meaning", text: mind },
+      { label: "Time", text: time },
+    ];
+  }
+
+  index(): AreaIndexEntry[] {
+    const order: PlainTopic[] = ["self", "health", "career", "authority", "wealth", "marriage", "children", "family", "education", "spirituality", "travel"];
+    return order.map((topic) => ({
+      topic,
+      label: PLAIN_TOPIC_LABEL[topic],
+      tone: this.areas.find((a) => a.area === topic)?.tone ?? "quiet",
+      chapter: TOPIC_CHAPTER[topic],
+      id: `area-${topic}`,
+    }));
+  }
+
   private areaBridge(a: AreaSynthesis): string | null {
     if (a.tone === "contested") return null;
     if (a.area === "career") return "The two lines do not compete: analytical method and public form are two sides of the same working life.";
     if (a.area === "self") return "The warmth and the unconventional edge sit together without cancelling each other.";
-    if (a.area === "wealth") return "The two lines agree on the route: money is a by-product of the profession, and the unexpected gain is a possibility, not a plan.";
     if (a.area === "health") return "The two lines agree on the same advice: protect the reserves, and do not mistake endurance for health.";
     return null;
   }
@@ -700,7 +1008,7 @@ class Writer {
       "The tradition reads the period and the sky together; the app does not turn them into an event.",
     ].filter(Boolean);
     return {
-      id: "timing",
+      id: "time",
       kicker: "",
       title: "The timing",
       paragraphs: [{ id: "timing-1", text: tidy(sentences.join(" ")), evidence: [] }],
@@ -855,7 +1163,8 @@ export function buildReadingInput(result: ChartResult): ReadingInput {
   const areas = synthesize(result.reading, result.chart.gender as Gender, result.reading.findings);
   const agreement = agreementFor(result, true);
   const briefing = briefingFor(result, agreementInput(result, true));
-  return { result, areas, agreement, briefing };
+  const experience = readerExperience(result);
+  return { result, areas, agreement, briefing, experience };
 }
 
 export function composeReading(input: ReadingInput): ReadingDoc {
@@ -877,18 +1186,10 @@ export function composeReading(input: ReadingInput): ReadingDoc {
     },
   ];
 
-  const self = input.areas.find((a) => a.area === "self");
-  if (self) {
-    sections.push({ ...w.areaSection(self), kicker: "02 · The native", title: "The native" });
-  }
-
-  const chosen: LifeArea[] = ["career", "marriage", "wealth", "health"];
-  const kickers = ["03 · The work", "04 · The marriage", "05 · Money", "06 · The body"];
-  chosen.forEach((area, i) => {
-    const a = input.areas.find((x) => x.area === area);
-    if (!a) return;
-    sections.push({ ...w.areaSection(a), kicker: kickers[i], title: areaTitle(area) });
-  });
+  sections.push(w.chapterSection("native", "02 · The native", "The native", ["self", "health"]));
+  sections.push(w.chapterSection("work", "03 · Work & means", "Work & means", ["career", "authority", "wealth"]));
+  sections.push(w.chapterSection("bonds", "04 · Bonds", "Bonds", ["marriage", "children", "family"]));
+  sections.push(w.chapterSection("mind", "05 · Mind & meaning", "Mind & meaning", ["education", "spirituality", "travel"]));
 
   const strongest = ["career", "wealth", "authority", "self"]
     .map((area) => input.areas.find((a) => a.area === area && a.tone === "supportive"))
@@ -902,14 +1203,14 @@ export function composeReading(input: ReadingInput): ReadingDoc {
 
   sections.push({
     id: "schools",
-    kicker: "07 · The schools",
+    kicker: "06 · The schools",
     title: "Where the schools differ",
     paragraphs: [{ id: "schools-1", text: w.comparisonProse(), evidence: [] }],
     note: "The table below shows each school’s verdict and the object it judged. No vote is counted.",
   });
 
-  sections.push({ ...w.timingSection(), kicker: "08 · The timing" });
-  sections.push({ ...w.sourceSection(), kicker: "09 · The apparatus" });
+  sections.push({ ...w.timingSection(), kicker: "07 · Time", title: "Time" });
+  sections.push({ ...w.sourceSection(), kicker: "08 · The apparatus" });
 
   const comparison = w.comparisonRows();
   const timing = input.briefing.now.map((row: BriefRow) => ({
@@ -936,6 +1237,8 @@ export function composeReading(input: ReadingInput): ReadingDoc {
       sun: sun ? `${sun.sign} · ${sun.nakshatra} ${sun.pada}` : "",
     },
     sections,
+    summary: w.summary(),
+    index: w.index(),
     comparison,
     timing,
     caveats: [

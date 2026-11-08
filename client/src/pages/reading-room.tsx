@@ -25,7 +25,9 @@ import {
   type ReadingDoc,
   type ReadingLayer,
   type SchoolCard,
+  type SummaryLine,
   type TimingFact,
+  type AreaIndexEntry,
 } from "@shared/reading-prose";
 import "@/reading-room.css";
 
@@ -120,14 +122,15 @@ function WhyThis({ evidence, onOpen }: { evidence: EvidenceRef[]; onOpen: () => 
   );
 }
 
-function Working({ evidence, critical }: { evidence: EvidenceRef[]; critical: boolean }) {
-  if (!evidence.length) return null;
+function Working({ evidence, critical, frame }: { evidence: EvidenceRef[]; critical: boolean; frame?: string }) {
+  if (!evidence.length && !frame) return null;
   return (
     <div className="room-working">
       <div className="room-working-head">
         <span>Working</span>
         <span className="room-working-note">the rule text behind the paragraph</span>
       </div>
+      {frame ? <div className="room-frame"><span>Parashari frame</span><p>{frame.charAt(0).toUpperCase() + frame.slice(1)}</p></div> : null}
       {evidence.map((e) => (
         <div className="room-rule" key={e.id}>
           <div className="room-rule-top">
@@ -172,11 +175,82 @@ function Paragraph({
   onOpen: (evidence: EvidenceRef[]) => void;
 }) {
   return (
-    <div className={`room-p${lead ? " room-p-lead" : ""}`}>
+    <div className={`room-p${lead ? " room-p-lead" : ""}`} id={p.id}>
+      {p.subhead ? <h3 className="room-subhead">{p.subhead}</h3> : null}
       <p>{p.text}</p>
       <WhyThis evidence={p.evidence} onOpen={() => onOpen(p.evidence)} />
-      {layer !== "reading" ? <Working evidence={p.evidence} critical={layer === "critical"} /> : null}
+      {layer !== "reading" ? <Working evidence={p.evidence} critical={layer === "critical"} frame={p.frame} /> : null}
     </div>
+  );
+}
+
+function ChapterWorking({ items }: { items?: Array<{ label: string; text: string }> }) {
+  if (!items?.length) return null;
+  return (
+    <div className="room-chapter-working">
+      <div className="room-working-head">
+        <span>The chapter’s other schools</span>
+        <span className="room-working-note">one line each; the full reading stays in its own tab</span>
+      </div>
+      {items.map((item) => (
+        <div className="room-chapter-line" key={item.label}>
+          <b>{item.label}</b>
+          <p>{item.text}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SummaryPanel({ summary }: { summary: SummaryLine[] }) {
+  return (
+    <details className="room-summary">
+      <summary>
+        <span>In two minutes</span>
+        <span>{summary.length} lines · the whole chart</span>
+      </summary>
+      <ol>
+        {summary.map((line) => (
+          <li key={line.label}>
+            <b>{line.label}</b>
+            <span>{line.text}</span>
+          </li>
+        ))}
+      </ol>
+    </details>
+  );
+}
+
+const CHAPTER_LABEL: Record<string, string> = {
+  native: "The native",
+  work: "Work & means",
+  bonds: "Bonds",
+  mind: "Mind & meaning",
+};
+
+function LifeIndex({ entries, onJump }: { entries: AreaIndexEntry[]; onJump: (id: string) => void }) {
+  return (
+    <section className="room-index" aria-labelledby="room-index-title">
+      <div className="room-index-head">
+        <h2 id="room-index-title">The life areas</h2>
+        <p>Eleven areas, four chapters. Choose one to go straight to its paragraph.</p>
+      </div>
+      <div className="room-index-grid">
+        {entries.map((entry) => (
+          <button
+            key={entry.topic}
+            type="button"
+            className="room-index-item"
+            onClick={() => onJump(entry.id)}
+            title={`${entry.label} — ${entry.tone}`}
+          >
+            <span className={`room-tone tone-${entry.tone}`} aria-hidden="true" />
+            <b>{entry.label}</b>
+            <span>{CHAPTER_LABEL[entry.chapter] ?? entry.chapter}</span>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -625,6 +699,9 @@ export default function ReadingRoom() {
             <em>Reading room</em>
           </Link>
           <div className="room-top-actions">
+            <Link href={`/chart/${id}/reading`} className="room-top-link">
+              Guided reading
+            </Link>
             <Link href={`/chart/${id}`} className="room-top-link">
               Workbench <ArrowUpRight size={13} aria-hidden="true" />
             </Link>
@@ -703,9 +780,18 @@ export default function ReadingRoom() {
                   onOpen={setDrawer}
                 />
               ))}
+              {section.id === "chart" ? (
+                <>
+                  <SummaryPanel summary={doc.summary} />
+                  <LifeIndex entries={doc.index} onJump={jump} />
+                </>
+              ) : null}
+              {section.id !== "chart" && layer !== "reading" ? (
+                <ChapterWorking items={section.working} />
+              ) : null}
               {section.note ? <p className="room-note">{section.note}</p> : null}
               {section.id === "schools" ? <Comparison rows={doc.comparison} /> : null}
-              {section.id === "timing" ? <Timing facts={doc.timing} /> : null}
+              {section.id === "time" ? <Timing facts={doc.timing} /> : null}
               {section.id === "sources" ? (
                 <Apparatus doc={doc} layer={layer} copied={copied} onCopy={copyCitation} />
               ) : null}

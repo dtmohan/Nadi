@@ -194,6 +194,10 @@ export function ReaderContent({ result, experience, chartId }: { result: ChartRe
       </details>}
     </section>
 
+    <Link href={`/chart/${chartId}/room`} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline" data-testid="reader-full-edition">
+      {ml ? "പൂർണവായന തുറക്കുക" : "Read the full edition"} <ArrowRight className="h-4 w-4" aria-hidden />
+    </Link>
+
     {active ? <div className="mt-12 lg:grid lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-14">
       <nav aria-label={ml ? "ജീവിതവിഷയങ്ങൾ" : "Life themes"} className="min-w-0 lg:sticky lg:top-5 lg:self-start">
         <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{ml ? "ഒരു വിഷയം തിരഞ്ഞെടുക്കുക" : "Choose a theme"}</p>

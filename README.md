@@ -6,9 +6,9 @@ A published snapshot runs at [astroengine.pplx.app](https://astroengine.pplx.app
 
 ## Reading room (design fork)
 
-This branch adds an editorial reading surface at `#/chart/:id/room`, with **Reading / Working / Critical** layers, a deterministic prose layer over the existing computed readings, a school-aware chart card, the evidence drawer, a comparison-basis table, timing, provenance and citation. The workbench is unchanged; the link sits in the chart header.
+This branch adds an editorial reading surface at `#/chart/:id/room`, with **Reading / Working / Critical** layers, **four life chapters plus Time**, all eleven areas in an index, a five-line summary, a deterministic prose layer over the existing readings, a school-aware chart card, the evidence drawer, a comparison-basis table, a timeline, provenance and citation. The workbench is unchanged; the link sits in the chart header, and the guided reader links to the full edition.
 
-The prose layer lives in [`shared/reading-prose.ts`](shared/reading-prose.ts); the page is [`client/src/pages/reading-room.tsx`](client/src/pages/reading-room.tsx); the design notes and screenshots are in [`docs/reading-room.md`](docs/reading-room.md). It adds no astrology and no LLM: it paraphrases the app's rules and keeps the exact text, source and grade one click away.
+The prose layer lives in [`shared/reading-prose.ts`](shared/reading-prose.ts); the page is [`client/src/pages/reading-room.tsx`](client/src/pages/reading-room.tsx); the design notes and screenshots are in [`docs/reading-room.md`](docs/reading-room.md). It adds no astrology and no LLM: it uses the app's reviewed Nadi prose and school chart contexts, and keeps the exact rule text, source and grade one click away.
 
 Run it with `npm run dev`, open a saved chart, and choose **Reading room**.
 

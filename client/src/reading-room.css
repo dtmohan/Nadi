@@ -369,6 +369,20 @@
 
 .room-p {
   margin: 0 0 30px;
+  scroll-margin-top: 28px;
+}
+
+.room-subhead {
+  margin: 34px 0 10px;
+  font-family: var(--font-serif);
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+
+.room-subhead:first-child {
+  margin-top: 0;
 }
 
 .room-p > p {
@@ -503,6 +517,229 @@
   font-family: var(--font-sans);
   font-size: 12px;
   line-height: 1.6;
+}
+
+.room-frame {
+  margin: 0 0 11px;
+  padding: 0 0 9px;
+  border-bottom: 1px dotted color-mix(in srgb, var(--room-rule) 70%, transparent);
+}
+
+.room-frame span {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--room-accent);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.room-frame p {
+  margin: 0;
+  color: var(--room-muted);
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.room-chapter-working {
+  margin: 4px 0 28px;
+  padding: 14px 16px;
+  border-left: 2px solid color-mix(in srgb, var(--room-accent) 38%, transparent);
+  background: color-mix(in srgb, var(--room-card) 55%, transparent);
+  font-family: var(--font-sans);
+}
+
+.room-chapter-line {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  padding: 8px 0;
+  border-top: 1px solid color-mix(in srgb, var(--room-rule) 45%, transparent);
+}
+
+.room-chapter-line:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.room-chapter-line b {
+  color: var(--room-accent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.room-chapter-line p {
+  margin: 0;
+  color: var(--room-ink);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+/* The two-minute map */
+.room-summary {
+  margin: 24px 0 12px;
+  border: 1px solid color-mix(in srgb, var(--room-rule) 85%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--room-card) 48%, transparent);
+}
+
+.room-summary summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 15px;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-sans);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.room-summary summary::-webkit-details-marker {
+  display: none;
+}
+
+.room-summary summary span:first-child {
+  color: var(--room-accent);
+}
+
+.room-summary summary span:last-child {
+  color: var(--room-muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.room-summary ol {
+  margin: 0;
+  padding: 5px 18px 15px 33px;
+  border-top: 1px solid color-mix(in srgb, var(--room-rule) 55%, transparent);
+}
+
+.room-summary li {
+  margin: 9px 0;
+  padding-left: 2px;
+  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+
+.room-summary li b {
+  display: block;
+  margin-bottom: 1px;
+  color: var(--room-muted);
+  font-family: var(--font-sans);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* The eleven-area index */
+.room-index {
+  margin: 22px 0 32px;
+  padding-top: 18px;
+  border-top: 1px solid color-mix(in srgb, var(--room-rule) 60%, transparent);
+}
+
+.room-index-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1.5fr;
+  gap: 18px;
+  align-items: baseline;
+}
+
+.room-index-head h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.room-index-head p {
+  margin: 0;
+  color: var(--room-muted);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  line-height: 1.5;
+}
+
+.room-index-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 12px;
+}
+
+.room-index-item {
+  display: grid;
+  grid-template-columns: 7px minmax(0, 1fr);
+  column-gap: 7px;
+  align-items: start;
+  min-height: 44px;
+  padding: 8px 9px;
+  border: 1px solid color-mix(in srgb, var(--room-rule) 75%, transparent);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--room-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.room-index-item:hover {
+  border-color: color-mix(in srgb, var(--room-ink) 55%, transparent);
+  background: color-mix(in srgb, var(--room-card) 55%, transparent);
+}
+
+.room-index-item b {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.room-index-item span:last-child {
+  grid-column: 2;
+  margin-top: 1px;
+  color: var(--room-muted);
+  font-size: 8.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.room-tone {
+  width: 6px;
+  height: 6px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--room-muted);
+}
+
+.tone-supportive {
+  background: var(--room-good);
+}
+
+.tone-care,
+.tone-contested {
+  background: var(--room-bad);
+}
+
+.tone-mixed {
+  background: var(--room-lean);
+}
+
+.tone-quiet,
+.tone-descriptive {
+  background: color-mix(in srgb, var(--room-muted) 65%, transparent);
 }
 
 /* ── Working ───────────────────────────────────────────────────────────────── */
@@ -1502,6 +1739,20 @@
   .room-p-lead > p::first-letter {
     font-size: 3.2em;
   }
+  .room-subhead {
+    margin-top: 28px;
+    font-size: 22px;
+  }
+  .room-index-head {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  .room-index-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .room-chapter-line {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
   .room-p {
     margin-bottom: 26px;
   }
@@ -1598,6 +1849,8 @@
   .room-controls,
   .room-evidence,
   .room-working,
+  .room-chapter-working,
+  .room-index,
   .room-jump-wrap,
   .room-drawer-wrap,
   .room-modal,
