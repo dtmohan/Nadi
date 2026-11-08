@@ -78,7 +78,11 @@ function formatDate(iso: string): string {
 }
 
 function wordsIn(doc: ReadingDoc): number {
-  return doc.sections.flatMap((s) => s.paragraphs.map((p) => p.text)).join(" ").split(/\s+/).filter(Boolean).length;
+  return doc.sections
+    .flatMap((s) => [s.preamble ?? "", ...s.paragraphs.map((p) => p.text)])
+    .join(" ")
+    .split(/\s+/)
+    .filter(Boolean).length;
 }
 
 function shortSource(source: string | undefined): string {
@@ -172,8 +176,9 @@ function Paragraph({
   lead?: boolean;
   onOpen: (evidence: EvidenceRef[]) => void;
 }) {
+  const closing = p.id.startsWith("close-");
   return (
-    <div className={`room-p${lead ? " room-p-lead" : ""}`} id={p.id}>
+    <div className={`room-p${lead ? " room-p-lead" : ""}${closing ? " room-p-close" : ""}`} id={p.id}>
       {p.subhead ? <h3 className="room-subhead">{p.subhead}</h3> : null}
       <p>{p.text}</p>
       <WhyThis evidence={p.evidence} onOpen={() => onOpen(p.evidence)} />
@@ -743,6 +748,7 @@ export default function ReadingRoom() {
           {doc.sections.map((section) => (
             <section className="room-section" id={section.id} key={section.id}>
               <SectionHead section={section} />
+              {section.preamble ? <p className="room-chapter-preamble">{section.preamble}</p> : null}
               {section.paragraphs.map((p, i) => (
                 <Paragraph
                   key={p.id}

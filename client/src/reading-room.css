@@ -478,6 +478,35 @@
   scroll-margin-top: 28px;
 }
 
+.room-chapter-preamble {
+  max-width: 52em;
+  margin: 0 0 30px;
+  padding: 0 0 18px;
+  border-bottom: 1px dotted color-mix(in srgb, var(--room-rule) 78%, transparent);
+  color: var(--room-muted);
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  font-size: 15.5px;
+  line-height: 1.66;
+  letter-spacing: -0.001em;
+  text-wrap: pretty;
+}
+
+.room-p-close {
+  margin-top: 30px;
+  padding-top: 22px;
+  border-top: 1px solid color-mix(in srgb, var(--room-rule) 72%, transparent);
+}
+
+.room-p-close > p::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 9px;
+  transform: translateY(-3px);
+  background: var(--room-accent);
+}
+
 .room-subhead {
   margin: 34px 0 10px;
   font-family: var(--font-serif);
@@ -1798,6 +1827,10 @@
     margin-top: 12px;
     font-size: 14.5px;
     line-height: 1.55;
+  }
+  .room-chapter-preamble {
+    font-size: 14.5px;
+    line-height: 1.6;
   }
   .room-meta {
     display: grid;

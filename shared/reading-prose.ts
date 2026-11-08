@@ -12,7 +12,7 @@
 import type { ChartResult } from "./schema";
 import type { Gender } from "./marriage";
 import { AYANAMSAS } from "./schema";
-import { houseFrom, SIGNS, type Planet, type PlanetPosition } from "./astro";
+import { houseFrom, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
 import { LIFE_AREAS, type Finding, type LifeArea } from "./rules";
 import type { AreaSynthesis } from "./synthesis";
 import { synthesize } from "./synthesis";
@@ -48,6 +48,8 @@ export interface ProseSection {
   id: string;
   kicker: string;
   title: string;
+  /** The chapter frame in its own technical register: houses, lords, karakas, KP. */
+  preamble?: string;
   paragraphs: ProseParagraph[];
   /** The chapter's other-school lines, shown in Working and Critical. */
   working?: Array<{ label: string; text: string }>;
@@ -618,6 +620,9 @@ class Writer {
     if (a.area === "health" && a.tone === "care") return "The body asks for care rather than confidence.";
     if (a.area === "children" && a.tone === "quiet") return "Children are lightly marked.";
     if (a.area === "family" && a.tone === "descriptive") return "Family is a set of separate lines, not one verdict.";
+    if (a.area === "education" && a.tone === "care") return "Learning asks for care rather than confidence.";
+    if (a.area === "spirituality" && a.tone === "supportive") return "The inner life is well supported.";
+    if (a.area === "travel" && a.tone === "supportive") return "Travel is well supported.";
     if (a.tone === "contested") {
       return this.take(key, [
         `${noun} is where the chart becomes an argument.`,
@@ -788,6 +793,149 @@ class Writer {
     return out;
   }
 
+  private houseFacts(house: number): string {
+    const lagna = this.lagna.signIndex;
+    const signIndex = (lagna + house - 1) % 12;
+    const lord = SIGN_LORD[signIndex];
+    const lordPos = this.position(lord);
+    const lordHouse = lordPos ? houseFrom(lagna, lordPos.signIndex) : house;
+    const occupants = this.positions
+      .filter((p) => houseFrom(lagna, p.signIndex) === house)
+      .sort((a, b) => a.degInSign - b.degInSign);
+    const occ = occupants.map((p) => {
+      const dignity = p.dignity === "Exalted" ? " (exalted)" : p.dignity === "Debilitated" ? " (debilitated)" : "";
+      const retro = p.retrograde ? " R" : "";
+      const name = p.planet === "Sun" || p.planet === "Moon" ? `the ${p.planet}` : p.planet;
+      return `${name} ${formatDegree(p.degInSign)}${dignity}${retro}`;
+    });
+    const held = occ.length ? `holds ${list(occ)}` : "has no planet";
+    const lordName = lord === "Sun" || lord === "Moon" ? `, the ${lord},` : ` ${lord}`;
+    return `The ${ORD_WORDS[house]} is ${SIGNS[signIndex]} and ${held}; its lord${lordName} is in the ${ORD_WORDS[lordHouse]}.`;
+  }
+
+  private lordOf(house: number): { lord: Planet; at: number } {
+    const signIndex = (this.lagna.signIndex + house - 1) % 12;
+    const lord = SIGN_LORD[signIndex];
+    const pos = this.position(lord);
+    return { lord, at: pos ? houseFrom(this.lagna.signIndex, pos.signIndex) : house };
+  }
+
+  private chapterClose(chapter: "native" | "work" | "bonds" | "mind"): string {
+    const status = (topic: PlainTopic) => {
+      const a = this.areas.find((x) => x.area === topic);
+      if (!a) return "not read";
+      return a.tone === "descriptive" ? "read separately" : STATUS[a.tone];
+    };
+    if (chapter === "native") {
+      const l1 = this.lordOf(1);
+      return `The 1st lord ${l1.lord} is in the ${ORD_WORDS[l1.at]}; the self is ${status("self")} and the body is ${status("health")}. The chart reads the person through that house first, and the body as its qualification.`;
+    }
+    if (chapter === "work") {
+      const l10 = this.lordOf(10);
+      const l2 = this.lordOf(2);
+      const l11 = this.lordOf(11);
+      const allSupported = ["career", "wealth", "authority"].every((topic) => this.areas.find((x) => x.area === topic)?.tone === "supportive");
+      const line = allSupported
+        ? "Work, money and standing are all well supported"
+        : `The work is ${status("career")}, the money ${status("wealth")}, the standing ${status("authority")}`;
+      return `The 10th lord ${l10.lord} is in the ${ORD_WORDS[l10.at]}; money is read from the 2nd (${l2.lord} in the ${ORD_WORDS[l2.at]}) and the 11th (${l11.lord} in the ${ORD_WORDS[l11.at]}). ${line}; the chapter keeps the three separate.`;
+    }
+    if (chapter === "bonds") {
+      const l7 = this.lordOf(7);
+      const l5 = this.lordOf(5);
+      const l4 = this.lordOf(4);
+      const l9 = this.lordOf(9);
+      return `The 7th lord ${l7.lord} is in the ${ORD_WORDS[l7.at]}; the 5th lord ${l5.lord} in the ${ORD_WORDS[l5.at]}; the 4th lord ${l4.lord} in the ${ORD_WORDS[l4.at]}; the 9th lord ${l9.lord} in the ${ORD_WORDS[l9.at]}. Marriage is ${status("marriage")}, children are ${status("children")}, family is ${status("family")}; the chapter does not combine them.`;
+    }
+    const l5 = this.lordOf(5);
+    const l9 = this.lordOf(9);
+    const l12 = this.lordOf(12);
+    return `The 5th lord ${l5.lord} is in the ${ORD_WORDS[l5.at]}; the 9th lord ${l9.lord} in the ${ORD_WORDS[l9.at]}; the 12th lord ${l12.lord} in the ${ORD_WORDS[l12.at]}. Learning is ${status("education")}, the inner life is ${status("spirituality")}, travel is ${status("travel")}; the chapter reads all three through the public houses.`;
+  }
+
+  private jaiminiFacts(chapter: "native" | "work" | "bonds" | "mind"): string {
+    const karakas = new Map<string, Planet>(this.result.jaimini.karakas.map((k) => [k.karaka, k.planet]));
+    const navamsa = new Map(this.result.jaimini.navamsa.map((p) => [p.planet, p.sign]));
+    const fact = (label: string) => {
+      const planet = karakas.get(label);
+      if (!planet) return "";
+      const pos = this.position(planet);
+      if (!pos) return "";
+      const house = houseFrom(this.lagna.signIndex, pos.signIndex);
+      const d9 = navamsa.get(planet);
+      return `${label} ${planet} in ${pos.sign} (${ORD_WORDS[house]})${d9 ? `, D9 ${d9}` : ""}`;
+    };
+    const labels = chapter === "native" ? ["AK"]
+      : chapter === "work" ? ["AmK"]
+        : chapter === "bonds" ? ["DK", "PK"]
+          : ["AK", "PK"];
+    return labels.map(fact).filter(Boolean).join("; ");
+  }
+
+  private planetCondition(planet: Planet): string {
+    const p = this.position(planet);
+    if (!p) return "";
+    const strength = this.result.reading.strength.find((x) => x.planet === planet);
+    const note = strength?.dignityNote ?? strength?.notes?.[0];
+    const brief = this.briefing.planets.find((x) => x.planet === planet);
+    const pct = brief?.states.find((s) => /%/.test(s));
+    if (!note && !pct) return "";
+    const suffix = pct ? ` It holds ${pct}.` : "";
+    const subject = planet === "Sun" || planet === "Moon" ? `The ${planet}` : planet;
+    const withArticle = (value: string) => value.replace(/^Sun\b/, "the Sun").replace(/^Moon\b/, "the Moon");
+    const lowerUnlessPlanet = (value: string) => /^(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu|The )/.test(value) ? value : lc(value);
+    if (!note) return `${subject} holds ${pct}.`;
+    const body = note
+      .replace(/^[^:]+:\s*/, "")
+      .replace(/^friend /, "the ")
+      .replace(/^enemy /, "")
+      .replace(/\b(sun|moon|mars|mercury|jupiter|venus|saturn|rahu|ketu)\b/gi, (m) => cap(m.toLowerCase()));
+    if (/softened|blunted/i.test(note)) {
+      return `${subject} is ${p.dignity.toLowerCase()}, but ${withArticle(lowerUnlessPlanet(body))}.${suffix}`;
+    }
+    if (/^Leads/i.test(note)) {
+      const led = note.match(/^Leads (\w+)/)?.[1] ?? "Sun";
+      return `${subject} leads ${led === "Sun" ? "the Sun" : led} by degree.${suffix}`;
+    }
+    if (/^Behind/i.test(note)) {
+      const m = note.match(/^Behind (.+?) by degree: (.+)$/);
+      return m ? `${subject} is behind ${m[1]} by degree and ${lc(m[2])}.${suffix}` : `${subject}: ${lowerUnlessPlanet(body)}.${suffix}`;
+    }
+    if (/^Flanked/i.test(note)) {
+      const [head, tail] = note.split(": ");
+      const list = head.replace(/^Flanked by /, "").replace(/^Sun\b/, "the Sun");
+      return `${subject} is flanked by ${list}; ${lc(tail)}.${suffix}`;
+    }
+    return `${subject}: ${lowerUnlessPlanet(body)}.${suffix}`;
+  }
+
+  private chapterPreamble(chapter: "native" | "work" | "bonds" | "mind"): string {
+    const houses: Record<typeof chapter, number[]> = {
+      native: [6],
+      work: [10, 2, 11],
+      bonds: [7, 5, 4, 9],
+      mind: [5, 9, 12],
+    };
+    const lagnaSign = SIGNS[this.lagna.signIndex];
+    const l1 = this.lordOf(1);
+    const opening = chapter === "native"
+      ? `Lagna ${lagnaSign}; the 1st lord ${l1.lord} is in the ${ORD_WORDS[l1.at]}.`
+      : `Lagna ${lagnaSign}.`;
+    const primary = this.topicFor(chapter === "native" ? "self" : chapter === "work" ? "career" : chapter === "bonds" ? "marriage" : "education");
+    const jaimini = this.jaiminiFacts(chapter);
+    const kp = this.kpFrame(primary);
+    return tidy([
+      opening,
+      ...houses[chapter].map((house) => this.houseFacts(house)),
+      ...(chapter === "native" ? [this.planetCondition("Moon"), this.planetCondition("Mars")]
+        : chapter === "work" ? [this.planetCondition("Saturn"), this.planetCondition("Mercury")]
+          : chapter === "bonds" ? [this.planetCondition("Venus"), this.planetCondition("Sun")]
+            : [this.planetCondition("Mercury"), this.planetCondition("Jupiter")]),
+      jaimini ? `Jaimini: ${jaimini}.` : "",
+      kp ? `KP: ${kp}` : "",
+    ].filter(Boolean).join(" "));
+  }
+
   private familySentences(rt: ReaderTopic | undefined, sentences: string[]): void {
     if (!rt) return;
     const details = rt.natal.details ?? [];
@@ -810,7 +958,18 @@ class Writer {
     return "The chart asks for care here; it does not predict an outcome.";
   }
 
-  private areaParagraph(topic: PlainTopic, first: boolean): ProseParagraph {
+  private configAnchor(f: Finding): string {
+    const label = this.config(f);
+    const inline = /^(The|A|An)\b/.test(label) ? lc(label) : label;
+    return this.take(`${f.ruleId}|anchor`, [
+      `The line is ${inline}.`,
+      `The combination is ${inline}.`,
+      `It turns on ${inline}.`,
+      `The chart's line is ${inline}.`,
+    ]);
+  }
+
+  private areaParagraph(topic: PlainTopic): ProseParagraph {
     const a = this.areas.find((x) => x.area === topic);
     const rt = this.topicFor(topic);
     const frame = this.parashariFrame(rt);
@@ -822,7 +981,7 @@ class Writer {
     const sentences: string[] = [];
     if (a) sentences.push(this.areaClaim(a));
     else sentences.push(`${AREA_NOUN[topic]} is not read in this chart.`);
-    if (first && frame) sentences.push(`In Parashari, ${lc(frame)}`);
+    if (a && a.tone !== "contested" && a.key[0]) sentences.push(this.configAnchor(a.key[0]));
 
     if (topic === "family" && rt) {
       this.familySentences(rt, sentences);
@@ -844,10 +1003,12 @@ class Writer {
       if (rt?.natal.limit) sentences.push(rt.natal.limit);
     } else if (a) {
       const reviewed = (rt?.prose ?? []).map((p) => p?.en).filter(Boolean) as string[];
-      if (reviewed[0]) sentences.push(reviewed[0]);
-      else if (a.key[0]) sentences.push(this.evidenceSentence(a.key[0], 0, a.tone));
-      if (reviewed[1]) sentences.push(reviewed[1]);
-      else if (!reviewed.length && a.key[1]) sentences.push(this.evidenceSentence(a.key[1], 1, a.tone));
+      if (reviewed.length) {
+        for (const line of reviewed) sentences.push(line);
+      } else {
+        if (a.key[0]) sentences.push(this.evidenceSentence(a.key[0], 0, a.tone));
+        if (a.key[1]) sentences.push(this.evidenceSentence(a.key[1], 1, a.tone));
+      }
       const bridge = this.areaBridge(a);
       if (bridge) sentences.push(bridge);
 
@@ -881,7 +1042,11 @@ class Writer {
       id,
       kicker,
       title,
-      paragraphs: topics.map((topic, i) => this.areaParagraph(topic, i === 0)),
+      preamble: this.chapterPreamble(id),
+      paragraphs: [
+        ...topics.map((topic) => this.areaParagraph(topic)),
+        { id: `close-${id}`, text: this.chapterClose(id), evidence: [] },
+      ],
       working: this.chapterWorking(topics),
       note: CHAPTER_NOTE[id],
     };
@@ -1010,18 +1175,32 @@ class Writer {
     const periodRows = rows.filter((r) => r.system === "Parashari").slice(0, 3);
     const skyRows = rows.filter((r) => r.system === "Ashtakavarga transit").slice(0, 2);
     const periods = periodRows.map((r) => `${cleanPeriod(r.what)}, ${r.when}`).join("; ");
+    const periodLords = periodRows.map((r) => {
+      const lord = r.what.split(" ")[0] as Planet;
+      const pos = this.position(lord);
+      if (!pos) return "";
+      const house = houseFrom(this.lagna.signIndex, pos.signIndex);
+      const role = /\bdasa\b/i.test(r.what) ? "dasa" : /\bantar\b/i.test(r.what) ? "bhukti" : "pratyantar";
+      const dignity = pos.dignity === "Exalted" ? ", exalted" : pos.dignity === "Debilitated" ? ", debilitated" : "";
+      return `${lord}, the ${role} lord, is in ${pos.sign}, the ${ORD_WORDS[house]}${dignity}${pos.retrograde ? ", retrograde" : ""}`;
+    }).filter(Boolean).join("; ");
     const sky = skyRows.map((r) => {
       const [place, houses = ""] = r.what.split(" · ");
       const houseWords = houses
         .split(", ")
         .map((h) => h.replace(/^(\d+)(st|nd|rd|th)\b/, (_, n) => `the ${ORD_WORDS[Number(n)]}`))
         .join(" and ");
-      return `${place} — ${houseWords} — ${r.when}`;
+      const marks = r.line?.match(/(\d+) of 8/)?.[1];
+      const points = r.line?.match(/(\d+) points/)?.[1];
+      return `${place} — ${houseWords} — ${r.when}${marks ? `, ${marks} of 8 bindus${points ? ` and ${points} points` : ""}` : ""}`;
     }).join("; ");
+    const jaimini = rows.find((r) => r.system === "Jaimini");
     const sentences = [
       dateLine,
       periods ? `The Vimshottari sequence reads ${periods}.` : "",
+      periodLords ? `The period lords: ${periodLords}.` : "",
       sky ? `In the sky, ${sky}.` : "",
+      jaimini ? `Jaimini’s Chara dasha is ${jaimini.what.replace(/^Chara dasha of /, "")}, ${jaimini.when}.` : "",
       "The tradition reads the period and the sky together; the app does not turn them into an event.",
     ].filter(Boolean);
     return {

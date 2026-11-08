@@ -10,7 +10,7 @@ const result = JSON.parse(
 const input = buildReadingInput(result);
 const doc = composeReading(input);
 const prose = doc.sections
-  .flatMap((s) => s.paragraphs.map((p) => p.text))
+  .flatMap((s) => [s.preamble ?? "", ...s.paragraphs.map((p) => p.text)])
   .join("\n\n");
 const areas = doc.sections.flatMap((s) => s.paragraphs).filter((p) => p.id.startsWith("area-"));
 
@@ -42,6 +42,13 @@ test("the reading has the agreed chapter shape", () => {
   assert.ok(work.working?.some((w) => w.label === "Jaimini"));
   assert.ok(work.working?.some((w) => w.label === "KP"));
   assert.ok(doc.sections.find((s) => s.id === "native")?.working?.some((w) => w.label === "Jaimini"));
+  for (const id of ["native", "work", "bonds", "mind"]) {
+    const section = doc.sections.find((s) => s.id === id)!;
+    assert.match(section.preamble ?? "", /Lagna Gemini/);
+    assert.match(section.preamble ?? "", /Jaimini:/);
+    assert.match(section.preamble ?? "", /KP:/);
+    assert.ok(section.paragraphs.some((p) => p.id === `close-${id}`), `${id} should have a closing paragraph`);
+  }
 
   assert.equal(doc.comparison.find((r) => r.topic === "marriage")?.cells.length, 4);
   assert.ok(doc.comparison.every((r) => r.cells.length === 4));
@@ -55,7 +62,7 @@ test("the prose is clean, complete and deterministic", () => {
   assert.doesNotMatch(prose, /\.\./);
   assert.doesNotMatch(prose, /Saturn, the Saturn|The native is one of|the 1 house|the 1st house/i);
   assert.ok(prose.split(/\s+/).length > 1000, "the reading should cover the life areas");
-  assert.ok(prose.split(/\s+/).length < 1900, "the reading should not become a rule dump");
+  assert.ok(prose.split(/\s+/).length < 2100, "the reading should not become a rule dump");
 
   for (const section of doc.sections) {
     for (const p of section.paragraphs) {

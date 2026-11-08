@@ -44,7 +44,24 @@ Every one of the eleven areas sits in the **contents rail**, nested under its ch
 
 **In brief** is a run-in epigraph under the standfirst: one sentence per chapter, generated from the same tones and period. It is part of the header, not a card. The five-line summary survives as the data behind it.
 
-The **Parashari spine** comes from the upstream reader's own chart contexts: each area carries its whole-sign house frame, e.g. “the tenth house falls in Pisces; its ruler is Jupiter, placed in the ninth house.” The frame appears once in the reading and again, with the other schools, in Working. **Jaimini** contributes the chara-karaka line; **KP** contributes the cusp sub-lord and its verdict — often “no general verdict fires.” ALP is still not mapped, and Prasna Marga is not a natal voice; both stay out of the prose rather than being forced in.
+The **chapter preamble** is now the technical frame in the reading: the lagna and relevant houses, their lords and occupants, degrees, dignities and strength, the Jaimini karakas (with D9), and the KP cusp and sub-lord. It assumes the reader knows **lagna, bhava, lord, karaka, D9, dasha, bhukti, pratyantar, bindus and cusp sub-lord**. It does not gloss them. The per-area Parashari frame remains in Working.
+
+**Jaimini** contributes AK/AmK/DK/PK and their D9 signs; **KP** contributes the cusp sub-lord and its verdict — often “no general verdict fires.” ALP is still not mapped, and Prasna Marga is not a natal voice; both stay out of the prose rather than being forced in.
+
+## The practitioner register
+
+This is the deliberate split:
+
+- The **guided reader** (`#/chart/:id/reading`) is the plain, bilingual, one-theme-at-a-time entry.
+- The **full room** is the practitioner edition. It assumes the terms; it gives the chart facts before the interpretation; the glossary is for the app's own conventions, not for the tradition's vocabulary.
+
+Each chapter now has three registers:
+
+1. **The preamble** — technical, muted, at the top of the chapter: houses, lords, degrees, dignities, strength, Jaimini, KP.
+2. **The area paragraphs** — the human argument: claim, reviewed Nadi line, bridge, limit.
+3. **The coda** — a short closing paragraph, marked with a vermilion square, that states the chapter's pattern across its areas.
+
+The reading is longer because it is no longer a trailer. The Einstein chart runs to roughly 1,900 words and nine or ten minutes; the preambles carry the facts a practitioner would otherwise look up in the tabs, and every area names its line.
 
 ## The prose layer
 
@@ -55,13 +72,15 @@ const input = buildReadingInput(result); // synthesise + agreementFor + briefing
 const doc = composeReading(input);       // chapters, summary, index, comparison, timing, provenance
 ```
 
-Each area paragraph follows the same underlying movement:
+Each chapter follows the same movement:
 
-1. **Claim** — what the chart says about the area: "Work is the chart's clearest line", "Marriage is where the chart becomes an argument", "The body asks for care rather than confidence."
-2. **Reviewed Nadi line** — the upstream reader's selected paraphrase, not a rule dump: "Another source names computing, coding, statistics and research…"
-3. **The frame** — on the first area of a chapter, the Parashari house-lord fact: "In Parashari, the tenth house falls in Pisces. Its ruler is Jupiter, placed in the ninth house."
-4. **Bridge** — the writer's sentence that says what the lines mean together, where the sources support one: "The two lines do not compete: analytical method and public form are two sides of the same working life."
-5. **Limit** — what the reading will not claim: "The app does not average the two", "This is a traditional indication, not a diagnosis", "The chart offers them as directions, not a job title."
+1. **Technical preamble** — the houses, lords, degrees, dignities, strength, Jaimini and KP facts, in the reader's own vocabulary.
+2. **Area claim** — what the chart says about the area: "Work is the chart's clearest line", "Marriage is where the chart becomes an argument", "The body asks for care rather than confidence."
+3. **Line anchor** — the combination, named before it is interpreted: "The line is Saturn, Mercury and Ketu linked by sign."
+4. **Reviewed Nadi lines** — every selected paraphrase from the upstream reader, not just the first: "Another source names computing, coding, statistics and research…"
+5. **Bridge** — the writer's sentence that says what the lines mean together, where the sources support one.
+6. **Limit** — what the reading will not claim: "The app does not average the two", "This is a traditional indication, not a diagnosis", "The chart offers them as directions, not a job title."
+7. **Coda** — a short closing paragraph that states the chapter's pattern: the 10th lord in the ninth, the 2nd lord in the sixth, the 11th lord in the eighth. It is marked with a vermilion square.
 
 The details that make it read like English rather than a table:
 
@@ -72,7 +91,7 @@ The details that make it read like English rather than a table:
 - **Uncertainty in the grammar.** A contested area is allowed to be an argument; a provisional rule keeps its mark; a calculation's grade is in the working, not hidden in a footnote.
 - **No forecast.** The timing section names the period and the sky and says, in the same breath, that the app does not turn them into an event.
 
-For the Einstein chart the reading is about 1,200 words and six minutes, with eleven area paragraphs. The lead is:
+For the Einstein chart the reading is about 1,900 words and nine or ten minutes, with eleven area paragraphs, four technical preambles and four chapter codas. The lead is:
 
 > Albert Einstein was born on 14 March 1879 at 11:30 local time in Ulm, Baden-Wurttemberg, Germany, with Gemini rising at 19°28′. The chart's centre of gravity is Jupiter, the Jeeva, standing alone in Aquarius at 5°19′. Pisces — the tenth sign from the rising — gathers the Sun, Mercury, Saturn, and Venus, which is where the work theme begins. The Moon is in Scorpio, Jyeshtha 2, the sixth house from the rising.
 
@@ -82,14 +101,18 @@ For the Einstein chart the reading is about 1,200 words and six minutes, with el
 - **Chapters with a spine.** The chart, the native, work & means, bonds, mind & meaning, the schools, time, the apparatus. Each chapter has a number and a rule above it; each area has a subheading.
 - **The marginal spine.** At wide widths, a vertical folio runs down the outer margin — the room's signature, not an app chrome.
 - **In brief and the contents rail.** The summary is a run-in epigraph; the eleven areas are nested in the contents rail, not in a card grid. The rail is also the chapter navigation.
-- **The frames.** Every area carries its Parashari house frame in Working; each chapter carries the Jaimini karaka and KP cusp lines.
+- **The preamble and the frames.** Each chapter opens with the technical preamble; every area still carries its Parashari house frame in Working, and each chapter carries the Jaimini and KP lines.
 - **Why this.** Every paragraph with evidence carries the mark types and a button that opens the exact rule text, source and grade.
 - **The comparison.** Five general topics × four schools. Each cell is the school's own verdict and the object it judged; the row carries the combined reading. No vote is counted. Life span is a separate, gated topic and is not folded in.
 - **Time.** The Vimshottari period, the sub-period, the third-level period, and the slow sky, as a structured timeline, not forty pages of paryanthar prose.
 - **The apparatus.** The sources with citation counts, the caveats, the provenance, the school cards, the evidence legend, and a copyable citation.
 - **The fingerprint.** A local checksum of the birth data and ayanamsa, so the same reading can be recognised. It is explicitly not a cryptographic manifest.
 
+![The chapter preamble in the practitioner register](reading-room/chapter.png)
+
 ![The contents rail doubles as the eleven-area index](reading-room/contents.png)
+
+![A practitioner chapter on a phone](reading-room/mobile-chapter.png)
 
 ![Working layer: the frame, the rule text and the source](reading-room/working.png)
 
@@ -126,7 +149,7 @@ npx tsx --test scripts/reading-prose.test.ts
 npm run build
 ```
 
-The three prose tests check the chapter shape, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, and the presence of source, provisional and calculation marks.
+The three prose tests check the chapter shape, the four preambles and codas, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, and the presence of source, provisional and calculation marks.
 
 A teardown of a mainstream 108-page Parashari report, and what to borrow or avoid, is in [mainstream-reference.md](mainstream-reference.md).
 
@@ -135,7 +158,7 @@ A teardown of a mainstream 108-page Parashari report, and what to borrow or avoi
 - It is not an LLM. The prose is deterministic and source-bound; there is no free-form generation.
 - It is not a new astrology engine. Every claim comes from the existing `synthesize`, `agreementFor`, `briefingFor` and `readerExperience` outputs; the upstream guided reader supplies the reviewed Nadi prose and the school chart contexts.
 - It is not the final critical edition. Edition, page, Sanskrit variant and the app's decision are still not attached to each sentence in a formal apparatus; the drawer is the first layer of that.
-- It is English-only. The upstream guided reader is bilingual; the full room does not yet carry Malayalam through its prose.
+- It is English-only. The upstream guided reader is bilingual and plain; the full room is the English practitioner edition and does not yet carry Malayalam through its prose.
 - It is not tested with readers. The prose is a design hypothesis about how this data can be made human; the next test is a reading group, not another screen.
 - It does not include remedies, Prasna, or an ALP life reading. Those are separate tools, not natal voices, and forcing them into the prose would repeat the mainstream report's mistake.
 
