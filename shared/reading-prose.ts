@@ -53,6 +53,8 @@ export interface ProseSection {
   title: string;
   /** The chapter frame in its own technical register: houses, lords, karakas, KP. */
   preamble?: string;
+  /** The complete ledger behind a selected chapter; rendered only in Working/Critical. */
+  ledger?: ConditionLedgerRow[];
   paragraphs: ProseParagraph[];
   /** The chapter's other-school lines, shown in Working and Critical. */
   working?: Array<{ label: string; text: string }>;
@@ -76,6 +78,16 @@ export interface AreaIndexEntry {
 }
 
 /** A selected named Parashari condition, with its period and D9 facts. */
+export interface ConditionLedgerRow {
+  id: string;
+  title: string;
+  tone: "support" | "strain" | "mixed";
+  planets: Planet[];
+  source: string;
+  selected: boolean;
+  status?: string;
+}
+
 export interface ReadingCondition {
   id: string;
   title: string;
@@ -472,7 +484,7 @@ const AREA_NOUN: Record<PlainTopic, string> = {
 const CHAPTER_NOTE: Record<"native" | "work" | "bonds" | "mind", string> = {
   native: "The self and the body are read together; the body section is a traditional indication, not a diagnosis.",
   work: "Career, standing and money are separate questions; the chapter keeps them separate.",
-  bonds: "Marriage, children and family are not one verdict.",
+  bonds: "Marriage, children and family are not one verdict. The marriage and family frames compare D1 with D9, D7 and D4; they do not average the sources.",
   mind: "Learning, spiritual life and travel are descriptive areas; the chart gives directions, not achievements.",
 };
 
@@ -704,7 +716,6 @@ class Writer {
 
     if (a.tone === "contested") {
       sentences.push(`The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a ${this.contestedImage(a)}; ${lc(AREA_STRUCTURES.marriage.close)} A contested chart is not a prediction of separation: it says the sources disagree, and a long marriage can hold both support and strain.`);
-      if (a.area === "marriage") sentences.push(this.d9MarriageNote());
     } else if (a.tone === "care") {
       sentences.push("This is a traditional indication, not a diagnosis. It names where the chart asks for attention, not what will happen.");
     } else if (a.tone === "supportive") {
@@ -868,17 +879,6 @@ class Writer {
     return `${lord}, the lagna lord, is in the ${ORD_WORDS[house]} in ${pos.sign}${company.length ? `, with ${list(company)}` : ""}, ${flags.join(" and ")}; ${status}.${note ? ` ${note}.` : ""}`;
   }
 
-  private d9MarriageNote(): string {
-    const s = this.vargas.spouse;
-    const house = s.lordHouse;
-    const strength = house === 7
-      ? "the 7th lord is in the 7th, a position of strength"
-      : [1, 4, 5, 9, 10].includes(house)
-        ? `the 7th lord is in the ${ORD_WORDS[house]}, an angle or trine`
-        : `the 7th lord is in the ${ORD_WORDS[house]}, not an angle or trine`;
-    return `In D9, the 7th is ${SIGNS[s.seventhSign]} and its lord ${s.seventhLord} is in ${SIGNS[s.lordSign]} (the ${ORD_WORDS[house]}); ${strength}. It does not cancel the D1 contest; it is a second frame.`;
-  }
-
   private d9SpouseLine(): string {
     const s = this.vargas.spouse;
     const names = s.occupants.filter((p) => p !== s.seventhLord).map((p) => (p === "Sun" ? "the Sun" : p === "Moon" ? "the Moon" : p));
@@ -1036,7 +1036,6 @@ class Writer {
       sentences.push(this.evidenceSentence(a.contest.good, 0, "contested"));
       sentences.push(this.evidenceSentence(a.contest.hard, 1, "contested"));
       sentences.push(`The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a ${this.contestedImage(a)}; ${lc(AREA_STRUCTURES.marriage.close)} A contested chart is not a prediction of separation: it says the sources disagree, and a long marriage can hold both support and strain.`);
-      if (topic === "marriage") sentences.push(this.d9MarriageNote());
       if (rt?.natal.limit) sentences.push(rt.natal.limit);
     } else if (topic === "health") {
       const details = rt?.natal.details ?? [];
@@ -1081,6 +1080,103 @@ class Writer {
     };
   }
 
+  private vargaHouse(key: "D4" | "D7", house: number): {
+    signIndex: number;
+    lord: Planet;
+    lordSign: number;
+    lordHouse: number;
+    occupants: Planet[];
+  } {
+    const lagna = this.vargas.lagna[key];
+    const signIndex = (lagna + house - 1) % 12;
+    const lord = SIGN_LORD[signIndex];
+    const lordPos = this.vargas.planets.find((p) => p.planet === lord);
+    const lordSign = lordPos?.signs[key] ?? signIndex;
+    const lordHouse = houseFrom(lagna, lordSign);
+    const occupants = this.vargas.planets
+      .filter((p) => p.signs[key] === signIndex)
+      .map((p) => p.planet);
+    return { signIndex, lord, lordSign, lordHouse, occupants };
+  }
+
+  private houseLeans(house: number): "supported" | "strained" | "mixed" {
+    if ([6, 8, 12].includes(house)) return "strained";
+    if ([1, 4, 5, 7, 9, 10].includes(house)) return "supported";
+    return "mixed";
+  }
+
+  private d1Seventh(): { signIndex: number; lord: Planet; lordSign: number; lordHouse: number; occupants: Planet[] } {
+    const lagna = this.lagna.signIndex;
+    const signIndex = (lagna + 6) % 12;
+    const lord = SIGN_LORD[signIndex];
+    const pos = this.position(lord);
+    const lordHouse = pos ? houseFrom(lagna, pos.signIndex) : 0;
+    const occupants = this.positions.filter((p) => p.signIndex === signIndex).map((p) => p.planet);
+    return { signIndex, lord, lordSign: pos?.signIndex ?? signIndex, lordHouse, occupants };
+  }
+
+  private thePlanet(p: Planet): string {
+    return p === "Sun" ? "the Sun" : p === "Moon" ? "the Moon" : p;
+  }
+
+  private marriageFrame(): ProseParagraph {
+    const d1 = this.d1Seventh();
+    const s = this.vargas.spouse;
+    const ul = this.result.jaimini.arudhas?.find((a) => a.label === "UL");
+    const ulSignLord = ul ? SIGN_LORD[ul.signIndex] : undefined;
+    const dk = this.result.jaimini.karakas?.find((k) => k.karaka === "DK");
+    const dkPos = dk ? this.position(dk.planet) : undefined;
+    const d1Occ = d1.occupants.length ? `, with ${list(d1.occupants.map((p) => this.thePlanet(p)))}` : "";
+    const ulLine = ul ? ` The Upapada is in ${ul.sign} (the ${ORD_WORDS[houseFrom(this.lagna.signIndex, ul.signIndex)]}).` : "";
+    const dkLine = dk && dkPos ? ` The DK ${dk.planet} is in ${dkPos.sign} (the ${ORD_WORDS[houseFrom(this.lagna.signIndex, dkPos.signIndex)]}).` : "";
+    const current = this.parashari.dasaReadings.find((x) => x.current);
+    const roles = new Map<Planet, string>();
+    roles.set(d1.lord, "the D1 7th lord");
+    roles.set("Venus", "Venus");
+    if (!roles.has(s.seventhLord)) roles.set(s.seventhLord, "the D9 7th lord");
+    if (ulSignLord && !roles.has(ulSignLord)) roles.set(ulSignLord, "the Upapada sign lord");
+    if (dk && !roles.has(dk.planet)) roles.set(dk.planet, "the DK");
+    const active = current ? roles.get(current.lord) : undefined;
+    const period = current
+      ? active
+        ? ` The running ${current.lord} period is ${active}; the period test is the app's own.`
+        : ` The running ${current.lord} period is none of the marriage lords; the period test is the app's own.`
+      : "";
+    const d1Lean = this.houseLeans(d1.lordHouse);
+    const d9Lean = this.houseLeans(s.lordHouse);
+    const contrast = d1Lean === "strained" && d9Lean === "supported"
+      ? "D1 describes the friction, D9 the structure."
+      : d1Lean === "supported" && d9Lean === "strained"
+        ? "D1 describes the support, D9 the qualification."
+        : "The two frames are not averaged.";
+    return {
+      id: "marriage-frame",
+      subhead: "The marriage frame",
+      text: tidy(
+        `D1: the 7th is ${SIGNS[d1.signIndex]}, its lord ${d1.lord} in ${SIGNS[d1.lordSign]} (the ${ORD_WORDS[d1.lordHouse]})${d1Occ}; the D1 frame leans ${d1Lean}. ` +
+        `D9: the 7th is ${SIGNS[s.seventhSign]}, its lord ${s.seventhLord} in ${SIGNS[s.lordSign]} (the ${ORD_WORDS[s.lordHouse]}); the D9 frame leans ${d9Lean}.` +
+        ulLine + dkLine + period + ` ${contrast}`,
+      ),
+      evidence: [],
+    };
+  }
+
+  private familyFrame(): ProseParagraph {
+    const d7 = this.vargaHouse("D7", 5);
+    const d4 = this.vargaHouse("D4", 4);
+    const occ = (xs: Planet[]) => xs.length ? `, with ${list(xs.map((p) => this.thePlanet(p)))}` : "";
+    return {
+      id: "family-frame",
+      subhead: "The family frame",
+      text: tidy(
+        `In D7, the 5th is ${SIGNS[d7.signIndex]}, its lord ${d7.lord} in ${SIGNS[d7.lordSign]} (the ${ORD_WORDS[d7.lordHouse]})${occ(d7.occupants)}; the D7 frame leans ${this.houseLeans(d7.lordHouse)}. ` +
+        `In D4, the 4th is ${SIGNS[d4.signIndex]}, its lord ${d4.lord} in ${SIGNS[d4.lordSign]} (the ${ORD_WORDS[d4.lordHouse]})${occ(d4.occupants)}; the D4 frame leans ${this.houseLeans(d4.lordHouse)}. ` +
+        "D7 adds children; D4 adds home; neither is a guarantee.",
+      ),
+      evidence: [],
+    };
+  }
+
   chapterSection(
     id: "native" | "work" | "bonds" | "mind",
     kicker: string,
@@ -1093,7 +1189,12 @@ class Writer {
       title,
       preamble: this.chapterPreamble(id),
       paragraphs: [
-        ...topics.map((topic) => this.areaParagraph(topic)),
+        ...topics.flatMap((topic) => {
+          const paragraphs = [this.areaParagraph(topic)];
+          if (topic === "marriage") paragraphs.push(this.marriageFrame());
+          if (topic === "family") paragraphs.push(this.familyFrame());
+          return paragraphs;
+        }),
         { id: `close-${id}`, text: this.chapterClose(id), evidence: [] },
       ],
       working: this.chapterWorking(topics),
@@ -1310,14 +1411,29 @@ class Writer {
           evidence: [this.parashariEvidence(f)],
         }))
       : [{ id: "conditions-empty", text: "The Parashari engine reports no named yoga for this chart.", evidence: [] }];
+    const selected = new Set(findings.map((f) => f.id));
+    const toneRank = (t: ConditionLedgerRow["tone"]) => t === "support" ? 2 : t === "mixed" ? 1 : 0;
+    const ledger: ConditionLedgerRow[] = this.parashari.findings
+      .filter((f) => f.kind === "yoga")
+      .map((f) => ({
+        id: f.id,
+        title: f.title,
+        tone: f.tone,
+        planets: f.planets,
+        source: f.source.label,
+        selected: selected.has(f.id),
+        status: f.nullified ? "nullified" : f.debilityCancelled ? "debility cancelled" : undefined,
+      }))
+      .sort((a, b) => Number(b.selected) - Number(a.selected) || toneRank(b.tone) - toneRank(a.tone) || a.title.localeCompare(b.title));
     return {
       section: {
         id: "conditions",
         kicker: "06 · The conditions",
         title: "The conditions",
         preamble: conditions.length ? this.conditionPreamble(conditions) : undefined,
+        ledger,
         paragraphs,
-        note: `The chapter selects ${conditions.length} named conditions, not the full yoga ledger. The period test is the app's own: the running lord must be one of the condition's planets; it is not a classical dasha-activation rule. The governing varga is chosen by the condition's matter (career and standing D10, wealth D2, learning D24); its test counts the condition's planets in angles or trines from that varga lagna. It is an app cross-check, not a classical confirmation. Each rule text is in Why this.`,
+        note: `The chapter selects ${conditions.length} named conditions; the full yoga ledger is in Working. The period test is the app's own: the running lord must be one of the condition's planets; it is not a classical dasha-activation rule. The governing varga is chosen by the condition's matter (career and standing D10, wealth D2, learning D24); its test counts the condition's planets in angles or trines from that varga lagna. It is an app cross-check, not a classical confirmation. Each rule text is in Why this.`,
       },
       conditions,
     };

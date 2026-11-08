@@ -497,6 +497,109 @@
   border-top: 1px solid color-mix(in srgb, var(--room-rule) 72%, transparent);
 }
 
+.room-ledger {
+  margin: 26px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in srgb, var(--room-rule) 72%, transparent);
+}
+
+.room-ledger summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+  cursor: pointer;
+  color: var(--room-muted);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  list-style: none;
+  text-transform: uppercase;
+}
+
+.room-ledger summary::-webkit-details-marker {
+  display: none;
+}
+
+.room-ledger-list {
+  margin-top: 12px;
+}
+
+.room-ledger-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  padding: 8px 0;
+  border-top: 1px dotted color-mix(in srgb, var(--room-rule) 62%, transparent);
+  color: var(--room-muted);
+  font-size: 11px;
+}
+
+.room-ledger-row.is-selected {
+  color: var(--room-ink);
+}
+
+.room-ledger-title b {
+  display: block;
+  color: var(--room-ink);
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 650;
+}
+
+.room-ledger-title span {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+}
+
+.room-ledger-tone {
+  justify-self: end;
+  font-family: var(--font-sans);
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.room-ledger-tone.is-support {
+  color: var(--room-good);
+}
+
+.room-ledger-tone.is-mixed {
+  color: var(--room-lean);
+}
+
+.room-ledger-tone.is-strain {
+  color: var(--room-bad);
+}
+
+.room-ledger-source {
+  font-family: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  font-size: 10px;
+}
+
+.room-ledger-picked {
+  grid-column: 2;
+  justify-self: end;
+  padding: 1px 5px;
+  border: 1px solid color-mix(in srgb, var(--room-accent) 45%, transparent);
+  color: var(--room-accent);
+  font-family: var(--font-sans);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 560px) {
+  .room-ledger-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .room-ledger-picked {
+    grid-column: 2;
+  }
+}
+
 .room-p-close > p::before {
   content: "";
   display: inline-block;

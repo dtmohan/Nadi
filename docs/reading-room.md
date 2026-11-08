@@ -77,7 +77,7 @@ The native preamble now marks every occupant with dignity, Parashari combustion 
 
 The Bonds preamble now carries **D9**: the seventh from the navamsa lagna, its lord and house, its occupants, Venus and the Upapada. This is the marriage varga. D7 is children and D4 is home; they add granularity there, not to the marriage headline.
 
-The headline no longer says "and marriage is not." It says "X is unusually clear; Y is where the sources disagree." The marriage paragraph says contested is not separation: a long marriage can hold both support and strain. The area now also adds the D9 seventh lord's house; when the D9 seventh lord is in the seventh, it says so as a position of strength, while keeping the D1 contest. The brief and coda say "contested in D1", not "contested" full stop. The room still does not predict duration or outcome.
+The headline no longer says "and marriage is not." It says "X is unusually clear; Y is where the sources disagree." The marriage paragraph says contested is not separation: a long marriage can hold both support and strain. The marriage frame then compares D1, D9, the Upapada and the DK, and names the running period; the family frame does the same for D7 and D4. The period test uses the Upapada's **sign lord** (the lord of the sign the pada falls in), not the house lord of the 7th. The brief and coda say "contested in D1", not "contested" full stop. The room still does not predict duration or outcome, and the frames are not averaged.
 
 The **chapter preamble** is now the technical frame in the reading: the lagna and relevant houses, their lords and occupants, degrees, dignities and strength, the Jaimini karakas (with D9), and the KP cusp and sub-lord. It assumes the reader knows **lagna, bhava, lord, karaka, D9, dasha, bhukti, pratyantar, bindus and cusp sub-lord**. It does not gloss them. The per-area Parashari frame remains in Working.
 
@@ -96,7 +96,7 @@ Each chapter now has three registers:
 2. **The area paragraphs** — the human argument: claim, the area's fixed structure anchor, the reviewed Nadi lines, bridge, limit.
 3. **The coda** — a short closing paragraph, marked with a vermilion square, that states the chapter's pattern across its areas.
 
-The reading is longer because it is no longer a trailer. The Einstein chart runs to roughly 2,500 words and twelve minutes; the preambles carry the facts a practitioner would otherwise look up in the tabs, every area names its configuration in its own fixed form, and the conditions chapter adds the named yogas the tab engine already found.
+The reading is longer because it is no longer a trailer. The Einstein chart runs to roughly 2,600 words and thirteen minutes; the preambles carry the facts a practitioner would otherwise look up in the tabs, every area names its configuration in its own fixed form, and the conditions chapter adds the named yogas the tab engine already found.
 
 ## The prose layer
 
@@ -127,7 +127,7 @@ The details that make it read like English rather than a table:
 - **Uncertainty in the grammar.** A contested area is allowed to be an argument; a provisional rule keeps its mark; a calculation's grade is in the working, not hidden in a footnote.
 - **No forecast.** The timing section names the period and the sky and says, in the same breath, that the app does not turn them into an event.
 
-For the Einstein chart the reading is about 2,500 words and twelve minutes, with eleven area paragraphs, four technical preambles, four chapter codas and six condition paragraphs. The lead is:
+For the Einstein chart the reading is about 2,600 words and thirteen minutes, with eleven area paragraphs, four technical preambles, four chapter codas and six condition paragraphs. The lead is:
 
 > Albert Einstein was born on 14 March 1879 at 11:30 local time in Ulm, Baden-Wurttemberg, Germany, with Gemini rising at 19°28′. The chart's centre of gravity is Jupiter, the Jeeva, standing alone in Aquarius at 5°19′. Pisces — the tenth sign from the rising — gathers the Sun, Mercury, Saturn, and Venus, which is where the work theme begins. The Moon is in Scorpio, Jyeshtha 2, the sixth house from the rising.
 
@@ -139,6 +139,7 @@ For the Einstein chart the reading is about 2,500 words and twelve minutes, with
 - **In brief and the contents rail.** The summary is a run-in epigraph; the eleven areas are nested in the contents rail, not in a card grid. The rail is also the chapter navigation.
 - **The preamble and the frames.** Each life chapter opens with the technical preamble; every area still carries its Parashari house frame in Working, and each chapter carries the Jaimini and KP lines.
 - **The conditions.** Six named Parashari yogas are selected, each with the first sentence of its rule, its result, its D9 positions, the varga that governs its matter with a test, and the Vimshottari period that carries it. The running Rahu period carries none of the six; the chapter says so rather than inventing an activation. The full rule text is in Why this.
+- **The full ledger.** Working carries every named yoga finding, including the unselected and the nullified, with its planets, tone and source. The reading keeps six; the ledger keeps the rest.
 - **Why this.** Every paragraph with evidence carries the mark types and a button that opens the exact rule text, source and grade.
 - **The comparison.** Five general topics × four schools. Each cell is the school's own verdict and the object it judged; the row carries the combined reading. No vote is counted. Life span is a separate, gated topic and is not folded in.
 - **Time.** The Vimshottari period, the sub-period, the third-level period, and the slow sky, as a structured timeline, not forty pages of paryanthar prose.
@@ -148,6 +149,8 @@ For the Einstein chart the reading is about 2,500 words and twelve minutes, with
 ![The Bonds preamble with the D9 seventh and the Upapada](reading-room/bonds.png)
 
 ![The conditions ledger](reading-room/conditions.png)
+
+![The full yoga ledger in Working](reading-room/ledger.png)
 
 ![The chapter preamble in the practitioner register](reading-room/chapter.png)
 
@@ -190,7 +193,7 @@ npx tsx --test scripts/reading-prose.test.ts
 npm run build
 ```
 
-The three prose tests check the chapter shape, the four preambles and codas, the lagna-lord note, the D9 seventh, the marriage sentence that keeps contested from becoming a verdict, the six conditions and their period, D9 and governing-varga fields, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, the lexicon lint (no "clearest line", no universal "The line is", small allowances for repeated tone words), unique area claims, and the presence of source, provisional and calculation marks.
+The three prose tests check the chapter shape, the four preambles and codas, the lagna-lord note, the D9 seventh, the marriage frame and family frame, the marriage sentence that keeps contested from becoming a verdict, the six conditions and their period, D9 and governing-varga fields, the full Working ledger, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, the lexicon lint (no "clearest line", no universal "The line is", small allowances for repeated tone words), unique area claims, and the presence of source, provisional and calculation marks.
 
 A teardown of a mainstream 108-page Parashari report, and what to borrow or avoid, is in [mainstream-reference.md](mainstream-reference.md).
 

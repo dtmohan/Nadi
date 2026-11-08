@@ -23,6 +23,10 @@ test("the reading has the agreed chapter shape", () => {
   assert.equal(areas.length, 11, "every life area has one paragraph");
   assert.equal(doc.summary.length, 5);
   assert.equal(doc.conditions.length, 6);
+  const conditionsSection = doc.sections.find((s) => s.id === "conditions")!;
+  assert.ok((conditionsSection.ledger?.length ?? 0) > 6, "Working carries the full yoga ledger");
+  assert.equal(conditionsSection.ledger?.filter((r) => r.selected).length, 6);
+  assert.ok(conditionsSection.ledger?.every((r) => r.source), "every ledger row names its source");
   assert.ok(doc.conditions.every((c) => c.period.startsWith("Period:")), "every condition states its period");
   assert.ok(doc.conditions.every((c) => c.d9.startsWith("D9:")), "every condition states its D9 positions");
   assert.ok(doc.conditions.every((c) => c.vargaLine.startsWith(c.varga)), "every condition names its governing varga");
@@ -44,7 +48,13 @@ test("the reading has the agreed chapter shape", () => {
   assert.match(bonds.preamble ?? "", /In D9, the 7th/);
   const marriage = bonds.paragraphs.find((p) => p.id === "area-marriage")!;
   assert.match(marriage.text, /A contested chart is not a prediction of separation/);
-  assert.match(marriage.text, /In D9, the 7th is/);
+  const marriageFrame = bonds.paragraphs.find((p) => p.id === "marriage-frame")!;
+  assert.match(marriageFrame.text, /^D1: the 7th is/);
+  assert.match(marriageFrame.text, /D9: the 7th is/);
+  assert.match(marriageFrame.text, /The two frames are not averaged|D1 describes the (friction|support)/);
+  const familyFrame = bonds.paragraphs.find((p) => p.id === "family-frame")!;
+  assert.match(familyFrame.text, /^In D7, the 5th is/);
+  assert.match(familyFrame.text, /In D4, the 4th is/);
   assert.match(marriage.text, /does not average/);
   assert.match(marriage.text, /Venus with the Sun/);
   assert.match(marriage.text, /Venus, Saturn and Ketu/);

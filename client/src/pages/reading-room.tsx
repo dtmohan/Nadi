@@ -18,6 +18,7 @@ import {
   buildReadingInput,
   composeReading,
   type ComparisonRow,
+  type ConditionLedgerRow,
   type EvidenceMark,
   type EvidenceRef,
   type ProseParagraph,
@@ -202,6 +203,32 @@ function ChapterWorking({ items }: { items?: Array<{ label: string; text: string
         </div>
       ))}
     </div>
+  );
+}
+
+function ConditionLedger({ rows }: { rows: ConditionLedgerRow[] }) {
+  if (!rows.length) return null;
+  const selected = rows.filter((r) => r.selected).length;
+  return (
+    <details className="room-ledger">
+      <summary>
+        <span>The full yoga ledger</span>
+        <span className="room-working-note">{rows.length} named findings · {selected} selected in the reading</span>
+      </summary>
+      <div className="room-ledger-list">
+        {rows.map((r) => (
+          <div className={`room-ledger-row${r.selected ? " is-selected" : ""}`} key={r.id}>
+            <div className="room-ledger-title">
+              <b>{r.title}</b>
+              <span>{r.planets.join(", ")}{r.status ? ` · ${r.status}` : ""}</span>
+            </div>
+            <span className={`room-ledger-tone is-${r.tone}`}>{r.tone}</span>
+            <span className="room-ledger-source">{r.source}</span>
+            {r.selected ? <span className="room-ledger-picked">Selected</span> : null}
+          </div>
+        ))}
+      </div>
+    </details>
   );
 }
 
@@ -761,6 +788,7 @@ export default function ReadingRoom() {
               {section.id !== "chart" && layer !== "reading" ? (
                 <ChapterWorking items={section.working} />
               ) : null}
+              {layer !== "reading" && section.ledger?.length ? <ConditionLedger rows={section.ledger} /> : null}
               {section.note ? <p className="room-note">{section.note}</p> : null}
               {section.id === "schools" ? <Comparison rows={doc.comparison} /> : null}
               {section.id === "time" ? <Timing facts={doc.timing} /> : null}
