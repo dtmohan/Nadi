@@ -21,7 +21,7 @@ import { briefingFor, type Briefing, type BriefRow } from "./briefing";
 import { readerExperience, type ReaderExperience, type ReaderTopic } from "./reader-experience";
 import { PLAIN_TOPIC_LABEL, PLAIN_TOPIC_ORDER, type PlainTopic } from "./topic-brief";
 import type { ParashariFinding, ParashariResult } from "./parashari";
-import { computeVargas, type VargaKey, type VargasResult } from "./vargas";
+import { computeVargas, parashariCombust, type VargaKey, type VargasResult } from "./vargas";
 import { AREA_STRUCTURES } from "./reading-lexicon";
 
 // ── Public shapes ───────────────────────────────────────────────────────────────────────────────
@@ -703,7 +703,7 @@ class Writer {
     if (bridge) sentences.push(bridge);
 
     if (a.tone === "contested") {
-      sentences.push(`The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a ${this.contestedImage(a)}; ${lc(AREA_STRUCTURES.marriage.close)}`);
+      sentences.push(`The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a ${this.contestedImage(a)}; ${lc(AREA_STRUCTURES.marriage.close)} A contested chart is not a prediction of separation: it says the sources disagree, and a long marriage can hold both support and strain.`);
     } else if (a.tone === "care") {
       sentences.push("This is a traditional indication, not a diagnosis. It names where the chart asks for attention, not what will happen.");
     } else if (a.tone === "supportive") {
@@ -791,11 +791,19 @@ class Writer {
     const occupants = this.positions
       .filter((p) => houseFrom(lagna, p.signIndex) === house)
       .sort((a, b) => a.degInSign - b.degInSign);
+    const sun = this.position("Sun");
     const occ = occupants.map((p) => {
-      const dignity = p.dignity === "Exalted" ? " (exalted)" : p.dignity === "Debilitated" ? " (debilitated)" : "";
+      const flags: string[] = [];
+      if (p.dignity === "Exalted") flags.push("exalted");
+      if (p.dignity === "Debilitated") flags.push("debilitated");
+      if (sun && parashariCombust(p, sun.lon)) flags.push("combust");
+      const nb = this.parashari.neechaBhanga?.find((n) => n.planet === p.planet);
+      if (nb?.cancelled) flags.push("Neecha Bhanga");
+      else if (nb?.provisionalOnly) flags.push("Neecha Bhanga (provisional)");
       const retro = p.retrograde ? " R" : "";
       const name = p.planet === "Sun" || p.planet === "Moon" ? `the ${p.planet}` : p.planet;
-      return `${name} ${formatDegree(p.degInSign)}${dignity}${retro}`;
+      const note = flags.length ? ` (${flags.join("; ")})` : "";
+      return `${name} ${formatDegree(p.degInSign)}${note}${retro}`;
     });
     const held = occ.length ? `holds ${list(occ)}` : "has no planet";
     const lordName = lord === "Sun" || lord === "Moon" ? `, the ${lord},` : ` ${lord}`;
@@ -835,6 +843,37 @@ class Writer {
     return `The 5th lord ${l5.lord} is in the ${ORD_WORDS[l5.at]}; the 9th lord ${l9.lord} in the ${ORD_WORDS[l9.at]}; the 12th lord ${l12.lord} in the ${ORD_WORDS[l12.at]}. Learning is ${status("education")}, the inner life is ${status("spirituality")}, travel is ${status("travel")}; the chapter reads all three through the public houses.`;
   }
 
+  private lagnaLordNote(): string {
+    const lord = SIGN_LORD[this.lagna.signIndex];
+    const pos = this.position(lord);
+    if (!pos || pos.dignity !== "Debilitated") return "";
+    const sun = this.position("Sun");
+    const house = houseFrom(this.lagna.signIndex, pos.signIndex);
+    const company = this.positions
+      .filter((p) => p.planet !== lord && p.signIndex === pos.signIndex)
+      .map((p) => (p.planet === "Sun" ? "the Sun" : p.planet === "Moon" ? "the Moon" : p.planet));
+    const flags = ["debilitated"];
+    if (sun && parashariCombust(pos, sun.lon)) flags.push("combust");
+    const nb = this.parashari.neechaBhanga?.find((n) => n.planet === lord);
+    const status = !nb
+      ? "no Neecha Bhanga is calculated"
+      : nb.cancelled
+        ? `Neecha Bhanga applies${nb.verses ? ` (${nb.verses})` : ""}`
+        : nb.provisionalOnly
+          ? "only provisional Neecha Bhanga conditions apply"
+          : "no classical Neecha Bhanga is reported";
+    const strength = this.result.reading.strength.find((s) => s.planet === lord);
+    const note = strength?.dignityNote ?? strength?.notes?.[0];
+    return `${lord}, the lagna lord, is in the ${ORD_WORDS[house]} in ${pos.sign}${company.length ? `, with ${list(company)}` : ""}, ${flags.join(" and ")}; ${status}.${note ? ` ${note}.` : ""}`;
+  }
+
+  private d9SpouseLine(): string {
+    const s = this.vargas.spouse;
+    const names = s.occupants.map((p) => (p === "Sun" ? "the Sun" : p === "Moon" ? "the Moon" : p));
+    const occ = names.length ? `, with ${list(names)}` : "";
+    return `In D9, the 7th is ${SIGNS[s.seventhSign]}, its lord ${s.seventhLord} in ${SIGNS[s.lordSign]} (the ${ORD_WORDS[s.lordHouse]})${occ}; Venus is in ${SIGNS[s.venusSign]} (${s.venusRelation}).`;
+  }
+
   private jaiminiFacts(chapter: "native" | "work" | "bonds" | "mind"): string {
     const karakas = new Map<string, Planet>(this.result.jaimini.karakas.map((k) => [k.karaka, k.planet]));
     const navamsa = new Map(this.result.jaimini.navamsa.map((p) => [p.planet, p.sign]));
@@ -851,7 +890,12 @@ class Writer {
       : chapter === "work" ? ["AmK"]
         : chapter === "bonds" ? ["DK", "PK"]
           : ["AK", "PK"];
-    return labels.map(fact).filter(Boolean).join("; ");
+    const facts = labels.map(fact).filter(Boolean);
+    if (chapter === "bonds") {
+      const ul = this.result.jaimini.arudhas?.find((a) => a.label === "UL");
+      if (ul) facts.push(`UL in ${ul.sign} (the ${ORD_WORDS[houseFrom(this.lagna.signIndex, ul.signIndex)]})`);
+    }
+    return facts.join("; ");
   }
 
   private planetCondition(planet: Planet): string {
@@ -910,9 +954,9 @@ class Writer {
     return tidy([
       opening,
       ...houses[chapter].map((house) => this.houseFacts(house)),
-      ...(chapter === "native" ? [this.planetCondition("Moon"), this.planetCondition("Mars")]
+      ...(chapter === "native" ? [this.lagnaLordNote(), this.planetCondition("Moon"), this.planetCondition("Mars")]
         : chapter === "work" ? [this.planetCondition("Saturn"), this.planetCondition("Mercury")]
-          : chapter === "bonds" ? [this.planetCondition("Venus"), this.planetCondition("Sun")]
+          : chapter === "bonds" ? [this.d9SpouseLine(), this.planetCondition("Venus"), this.planetCondition("Sun")]
             : [this.planetCondition("Mercury"), this.planetCondition("Jupiter")]),
       jaimini ? `Jaimini: ${jaimini}.` : "",
       kp ? `KP: ${kp}` : "",
@@ -975,7 +1019,7 @@ class Writer {
     } else if (a?.tone === "contested" && a.contest) {
       sentences.push(this.evidenceSentence(a.contest.good, 0, "contested"));
       sentences.push(this.evidenceSentence(a.contest.hard, 1, "contested"));
-      sentences.push("The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a partnership with weight and distance in it; the chart is not offering a promise or a denial.");
+      sentences.push(`The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a ${this.contestedImage(a)}; ${lc(AREA_STRUCTURES.marriage.close)} A contested chart is not a prediction of separation: it says the sources disagree, and a long marriage can hold both support and strain.`);
       if (rt?.natal.limit) sentences.push(rt.natal.limit);
     } else if (topic === "health") {
       const details = rt?.natal.details ?? [];
@@ -1084,7 +1128,9 @@ class Writer {
   }
 
   private conditionFindings(): ParashariFinding[] {
+    const lagnaLord = SIGN_LORD[this.lagna.signIndex];
     const rank = (f: ParashariFinding) => {
+      if (/^Neechabhanga/.test(f.title) && f.planets.includes(lagnaLord)) return 11;
       if (/Mahapurusha/.test(f.text)) return 10;
       if (/Kalpadruma/.test(f.title)) return 9;
       if (/^Neechabhanga/.test(f.title)) return 8;
@@ -1539,7 +1585,7 @@ export function composeReading(input: ReadingInput): ReadingDoc {
     .find(Boolean) ?? input.areas[0];
   const contested = input.areas.find((a) => a.tone === "contested");
   const standfirst = contested && strongest
-    ? `${cap(areaTheme(strongest.area))} is unusually clear in this chart — and ${areaTheme(contested.area)} is not.`
+    ? `${cap(areaTheme(strongest.area))} is unusually clear in this chart; ${areaTheme(contested.area)} is where the sources disagree.`
     : strongest
       ? `${cap(areaTheme(strongest.area))} is the chart’s clearest line.`
       : "A chart read in layers.";

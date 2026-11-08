@@ -71,6 +71,14 @@ The governing varga is the correction to the first cross-check. The test counts 
 The wealth condition is the clearest argument for the layer: under a generic D10 count it was 1/4; in its own D2 it is 3/4. The chapter prints the governing count, not the flattering one. The period line is current when the running lord is one of the condition's planets; for a recorded death it uses the last period before the reading date, never a future period to imply posthumous activation. That activation test is the **app's own simplification**, not a classical dasha-activation rule. For the Einstein chart the running Rahu period carries none of the six, and the chapter says so. The full rule text is in Why this; the chapter is not the complete yoga ledger.
 
 
+## The lagna lord and the marriage frame
+
+The native preamble now marks every occupant with dignity, Parashari combustion and Neecha Bhanga. If the lagna lord is debilitated, a dedicated sentence gives its house, sign, company, combustion, cancellation status and the Nadi strength note. The condition selection puts the lagna lord's Neecha Bhanga first.
+
+The Bonds preamble now carries **D9**: the seventh from the navamsa lagna, its lord and house, its occupants, Venus and the Upapada. This is the marriage varga. D7 is children and D4 is home; they add granularity there, not to the marriage headline.
+
+The headline no longer says "and marriage is not." It says "X is unusually clear; Y is where the sources disagree." The marriage paragraph says contested is not separation: a long marriage can hold both support and strain. The room still does not predict duration or outcome.
+
 The **chapter preamble** is now the technical frame in the reading: the lagna and relevant houses, their lords and occupants, degrees, dignities and strength, the Jaimini karakas (with D9), and the KP cusp and sub-lord. It assumes the reader knows **lagna, bhava, lord, karaka, D9, dasha, bhukti, pratyantar, bindus and cusp sub-lord**. It does not gloss them. The per-area Parashari frame remains in Working.
 
 **Jaimini** contributes AK/AmK/DK/PK and their D9 signs; **KP** contributes the cusp sub-lord and its verdict — often “no general verdict fires.” ALP is still not mapped, and Prasna Marga is not a natal voice; both stay out of the prose rather than being forced in.
@@ -88,7 +96,7 @@ Each chapter now has three registers:
 2. **The area paragraphs** — the human argument: claim, the area's fixed structure anchor, the reviewed Nadi lines, bridge, limit.
 3. **The coda** — a short closing paragraph, marked with a vermilion square, that states the chapter's pattern across its areas.
 
-The reading is longer because it is no longer a trailer. The Einstein chart runs to roughly 2,350 words and twelve minutes; the preambles carry the facts a practitioner would otherwise look up in the tabs, every area names its configuration in its own fixed form, and the conditions chapter adds the named yogas the tab engine already found.
+The reading is longer because it is no longer a trailer. The Einstein chart runs to roughly 2,450 words and twelve minutes; the preambles carry the facts a practitioner would otherwise look up in the tabs, every area names its configuration in its own fixed form, and the conditions chapter adds the named yogas the tab engine already found.
 
 ## The prose layer
 
@@ -119,7 +127,7 @@ The details that make it read like English rather than a table:
 - **Uncertainty in the grammar.** A contested area is allowed to be an argument; a provisional rule keeps its mark; a calculation's grade is in the working, not hidden in a footnote.
 - **No forecast.** The timing section names the period and the sky and says, in the same breath, that the app does not turn them into an event.
 
-For the Einstein chart the reading is about 2,350 words and twelve minutes, with eleven area paragraphs, four technical preambles, four chapter codas and six condition paragraphs. The lead is:
+For the Einstein chart the reading is about 2,450 words and twelve minutes, with eleven area paragraphs, four technical preambles, four chapter codas and six condition paragraphs. The lead is:
 
 > Albert Einstein was born on 14 March 1879 at 11:30 local time in Ulm, Baden-Wurttemberg, Germany, with Gemini rising at 19°28′. The chart's centre of gravity is Jupiter, the Jeeva, standing alone in Aquarius at 5°19′. Pisces — the tenth sign from the rising — gathers the Sun, Mercury, Saturn, and Venus, which is where the work theme begins. The Moon is in Scorpio, Jyeshtha 2, the sixth house from the rising.
 
@@ -136,6 +144,8 @@ For the Einstein chart the reading is about 2,350 words and twelve minutes, with
 - **Time.** The Vimshottari period, the sub-period, the third-level period, and the slow sky, as a structured timeline, not forty pages of paryanthar prose.
 - **The apparatus.** The sources with citation counts, the caveats, the provenance, the school cards, the evidence legend, and a copyable citation.
 - **The fingerprint.** A local checksum of the birth data and ayanamsa, so the same reading can be recognised. It is explicitly not a cryptographic manifest.
+
+![The Bonds preamble with the D9 seventh and the Upapada](reading-room/bonds.png)
 
 ![The conditions ledger](reading-room/conditions.png)
 
@@ -180,7 +190,7 @@ npx tsx --test scripts/reading-prose.test.ts
 npm run build
 ```
 
-The three prose tests check the chapter shape, the four preambles and codas, the six conditions and their period, D9 and governing-varga fields, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, the lexicon lint (no "clearest line", no universal "The line is", small allowances for repeated tone words), unique area claims, and the presence of source, provisional and calculation marks.
+The three prose tests check the chapter shape, the four preambles and codas, the lagna-lord note, the D9 seventh, the marriage sentence that keeps contested from becoming a verdict, the six conditions and their period, D9 and governing-varga fields, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, the lexicon lint (no "clearest line", no universal "The line is", small allowances for repeated tone words), unique area claims, and the presence of source, provisional and calculation marks.
 
 A teardown of a mainstream 108-page Parashari report, and what to borrow or avoid, is in [mainstream-reference.md](mainstream-reference.md).
 

@@ -34,11 +34,16 @@ test("the reading has the agreed chapter shape", () => {
   );
   assert.ok(doc.index.every((e) => e.short), "every area needs a contents-rail label");
   assert.match(doc.standfirst, /^Work is unusually clear/);
+  assert.doesNotMatch(doc.standfirst, /and marriage is not/);
   assert.match(doc.sections[0].paragraphs[0].text, /Gemini rising at 19°28′/);
   assert.match(doc.sections[0].paragraphs[0].text, /Jupiter, the Jeeva, standing alone in Aquarius/);
 
   const bonds = doc.sections.find((s) => s.id === "bonds")!;
+  const native = doc.sections.find((s) => s.id === "native")!;
+  assert.match(native.preamble ?? "", /the lagna lord/);
+  assert.match(bonds.preamble ?? "", /In D9, the 7th/);
   const marriage = bonds.paragraphs.find((p) => p.id === "area-marriage")!;
+  assert.match(marriage.text, /A contested chart is not a prediction of separation/);
   assert.match(marriage.text, /does not average/);
   assert.match(marriage.text, /Venus with the Sun/);
   assert.match(marriage.text, /Venus, Saturn and Ketu/);
