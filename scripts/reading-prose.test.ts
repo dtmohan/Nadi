@@ -25,6 +25,8 @@ test("the reading has the agreed chapter shape", () => {
   assert.equal(doc.conditions.length, 6);
   assert.ok(doc.conditions.every((c) => c.period.startsWith("Period:")), "every condition states its period");
   assert.ok(doc.conditions.every((c) => c.d9.startsWith("D9:")), "every condition states its D9 positions");
+  assert.ok(doc.conditions.every((c) => c.d10.startsWith("D10:")), "every condition states its D10 positions");
+  assert.ok(doc.conditions.every((c) => c.crossCheck.startsWith("Cross-check:")), "every condition carries the angular cross-check");
   assert.equal(doc.index.length, 11);
   assert.deepEqual(
     doc.index.map((e) => e.topic),

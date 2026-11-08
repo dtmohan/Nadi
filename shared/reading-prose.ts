@@ -21,6 +21,7 @@ import { briefingFor, type Briefing, type BriefRow } from "./briefing";
 import { readerExperience, type ReaderExperience, type ReaderTopic } from "./reader-experience";
 import { PLAIN_TOPIC_LABEL, PLAIN_TOPIC_ORDER, type PlainTopic } from "./topic-brief";
 import type { ParashariFinding, ParashariResult } from "./parashari";
+import { computeVargas, type VargaKey, type VargasResult } from "./vargas";
 import { AREA_STRUCTURES } from "./reading-lexicon";
 
 // ── Public shapes ───────────────────────────────────────────────────────────────────────────────
@@ -85,8 +86,12 @@ export interface ReadingCondition {
   active: boolean;
   /** "Period: Venus, 1895–1915 (last)." */
   period: string;
-  /** "D9: Venus Aquarius; Mercury Libra." */
+  /** "D9: Venus Aquarius (12th); Mercury Libra (8th)." */
   d9: string;
+  /** "D10: Venus Leo (8th); Mercury Virgo (3rd)." */
+  d10: string;
+  /** "Cross-check: D9 0/1; D10 0/1 in angles or trines." */
+  crossCheck: string;
   /** The first sentence of the rule and its gist. */
   text: string;
 }
@@ -535,6 +540,8 @@ class Writer {
   get agreement() { return this.input.agreement; }
   get briefing() { return this.input.briefing; }
   get parashari() { return this.input.parashari; }
+  private vargaCache?: VargasResult;
+  get vargas() { return (this.vargaCache ??= computeVargas(this.positions, this.lagna.lon)); }
   get chart() { return this.input.result.chart; }
   get positions() { return this.input.result.positions; }
   get lagna() { return this.input.result.jaimini.lagna; }
@@ -1129,10 +1136,37 @@ class Writer {
     return "Period: none in the sequence.";
   }
 
+  private vargaLine(key: Extract<VargaKey, "D9" | "D10">, f: ParashariFinding): string {
+    const lagna = this.vargas.lagna[key];
+    const signs = new Map(this.vargas.planets.map((p) => [p.planet, p.signs[key]]));
+    const parts = f.planets.map((planet) => {
+      const sign = signs.get(planet);
+      if (sign === undefined) return "";
+      return `${planet} ${SIGNS[sign]} (the ${ORD_WORDS[houseFrom(lagna, sign)]})`;
+    }).filter(Boolean);
+    return parts.length ? `${key}: ${parts.join("; ")}.` : "";
+  }
+
   private conditionD9(f: ParashariFinding): string {
-    const navamsa = new Map(this.result.jaimini.navamsa.map((p) => [p.planet, p.sign]));
-    const parts = f.planets.map((p) => `${p} ${navamsa.get(p) ?? ""}`.trim()).filter(Boolean);
-    return parts.length ? `D9: ${parts.join("; ")}.` : "";
+    return this.vargaLine("D9", f);
+  }
+
+  private conditionD10(f: ParashariFinding): string {
+    return this.vargaLine("D10", f);
+  }
+
+  private conditionCrossCheck(f: ParashariFinding): string {
+    const angles = new Set([1, 4, 5, 7, 9, 10]);
+    const count = (key: Extract<VargaKey, "D9" | "D10">) => {
+      const lagna = this.vargas.lagna[key];
+      const signs = new Map(this.vargas.planets.map((p) => [p.planet, p.signs[key]]));
+      return f.planets.filter((planet) => {
+        const sign = signs.get(planet);
+        return sign !== undefined && angles.has(houseFrom(lagna, sign));
+      }).length;
+    };
+    const total = f.planets.length;
+    return `Cross-check: D9 ${count("D9")}/${total}; D10 ${count("D10")}/${total} in angles or trines.`;
   }
 
   private conditionText(f: ParashariFinding): string {
@@ -1180,7 +1214,8 @@ class Writer {
         : `None of the ${count} conditions below is carried by it.`}`
       : "No Vimshottari period is running at the reading date.";
     const d9 = this.result.jaimini.navamsaLagna?.sign ? `The D9 lagna is ${this.result.jaimini.navamsaLagna.sign}.` : "";
-    return tidy(`${running} ${d9} The chapter selects the named Parashari conditions; each rule text is in Working.`);
+    const d10 = this.vargas.lagna.D10 !== undefined ? `The D10 lagna is ${SIGNS[this.vargas.lagna.D10]}.` : "";
+    return tidy(`${running} ${d9} ${d10} The chapter selects the named Parashari conditions; each rule text is in Working.`);
   }
 
   conditionSection(): { section: ProseSection; conditions: ReadingCondition[] } {
@@ -1194,13 +1229,15 @@ class Writer {
       active: this.conditionActive(f),
       period: this.conditionPeriod(f),
       d9: this.conditionD9(f),
+      d10: this.conditionD10(f),
+      crossCheck: this.conditionCrossCheck(f),
       text: this.conditionText(f),
     }));
     const paragraphs = findings.length
       ? findings.map((f) => ({
           id: `condition-${f.id}`,
           subhead: f.title,
-          text: tidy(`${this.conditionText(f)} ${this.conditionD9(f)} ${this.conditionPeriod(f)}`),
+          text: tidy(`${this.conditionText(f)} ${this.conditionD9(f)} ${this.conditionD10(f)} ${this.conditionCrossCheck(f)} ${this.conditionPeriod(f)}`),
           evidence: [this.parashariEvidence(f)],
         }))
       : [{ id: "conditions-empty", text: "The Parashari engine reports no named yoga for this chart.", evidence: [] }];
@@ -1211,7 +1248,7 @@ class Writer {
         title: "The conditions",
         preamble: conditions.length ? this.conditionPreamble(conditions) : undefined,
         paragraphs,
-        note: `The chapter selects ${conditions.length} named conditions, not the full yoga ledger. The period test is the app's own: the running lord must be one of the condition's planets; it is not a classical dasha-activation rule. Each rule text is in Why this.`,
+        note: `The chapter selects ${conditions.length} named conditions, not the full yoga ledger. The period test is the app's own: the running lord must be one of the condition's planets; it is not a classical dasha-activation rule. The D9/D10 cross-check counts the condition's planets in angles or trines from each varga lagna; it is an app cross-check, not a classical confirmation. Each rule text is in Why this.`,
       },
       conditions,
     };
