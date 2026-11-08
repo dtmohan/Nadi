@@ -103,6 +103,8 @@ npm run build
 
 The three prose tests check the shape of the reading, the absence of broken/duplicated prose, determinism across two compositions, and the presence of source, provisional and calculation marks.
 
+A teardown of a mainstream 108-page Parashari report, and what to borrow or avoid, is in [mainstream-reference.md](mainstream-reference.md).
+
 ## What this is not
 
 - It is not an LLM. The prose is deterministic and source-bound; there is no free-form generation.
