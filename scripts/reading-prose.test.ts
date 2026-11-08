@@ -44,6 +44,7 @@ test("the reading has the agreed chapter shape", () => {
   assert.match(bonds.preamble ?? "", /In D9, the 7th/);
   const marriage = bonds.paragraphs.find((p) => p.id === "area-marriage")!;
   assert.match(marriage.text, /A contested chart is not a prediction of separation/);
+  assert.match(marriage.text, /In D9, the 7th is/);
   assert.match(marriage.text, /does not average/);
   assert.match(marriage.text, /Venus with the Sun/);
   assert.match(marriage.text, /Venus, Saturn and Ketu/);

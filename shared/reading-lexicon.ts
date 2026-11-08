@@ -71,7 +71,7 @@ export const AREA_STRUCTURES: Record<StructureTopic, AreaStructure> = {
   marriage: {
     claim: "Marriage is where the chart becomes an argument.",
     close: "It is a contested reading, not a verdict on the marriage.",
-    status: "contested",
+    status: "contested in D1",
   },
   children: {
     claim: "Children are lightly marked.",

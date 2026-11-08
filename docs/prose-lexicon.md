@@ -23,7 +23,7 @@ The code is [`shared/reading-lexicon.ts`](../shared/reading-lexicon.ts); the lin
 | Career | Work is the chart's most public fact. | The configuration is … | It names a direction, not an appointment. | a strength |
 | Authority | Standing is unusually clear. | The weight sits in … | It describes a public weight, not an office. | clear |
 | Wealth | Money follows the work. | It turns on … | It is a reading of means, not a promise of gain. | supported |
-| Marriage | Marriage is where the chart becomes an argument. | — (two rules) | It is a contested reading, not a verdict on the marriage. | contested |
+| Marriage | Marriage is where the chart becomes an argument. | — (two rules) | It is a contested reading, not a verdict on the marriage. | contested in D1 |
 | Children | Children are lightly marked. | The mark is small: … | It is a light mark, not a claim about children. | lightly marked |
 | Family | Family is a set of separate testimonies, not one verdict. | One testimony reads: … | It keeps the testimonies separate. | read separately |
 | Education | Learning asks for care rather than confidence. | The strain shows in … | It is a caution about the instrument, not a limit on the mind. | a caution |

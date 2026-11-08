@@ -704,6 +704,7 @@ class Writer {
 
     if (a.tone === "contested") {
       sentences.push(`The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a ${this.contestedImage(a)}; ${lc(AREA_STRUCTURES.marriage.close)} A contested chart is not a prediction of separation: it says the sources disagree, and a long marriage can hold both support and strain.`);
+      if (a.area === "marriage") sentences.push(this.d9MarriageNote());
     } else if (a.tone === "care") {
       sentences.push("This is a traditional indication, not a diagnosis. It names where the chart asks for attention, not what will happen.");
     } else if (a.tone === "supportive") {
@@ -867,9 +868,20 @@ class Writer {
     return `${lord}, the lagna lord, is in the ${ORD_WORDS[house]} in ${pos.sign}${company.length ? `, with ${list(company)}` : ""}, ${flags.join(" and ")}; ${status}.${note ? ` ${note}.` : ""}`;
   }
 
+  private d9MarriageNote(): string {
+    const s = this.vargas.spouse;
+    const house = s.lordHouse;
+    const strength = house === 7
+      ? "the 7th lord is in the 7th, a position of strength"
+      : [1, 4, 5, 9, 10].includes(house)
+        ? `the 7th lord is in the ${ORD_WORDS[house]}, an angle or trine`
+        : `the 7th lord is in the ${ORD_WORDS[house]}, not an angle or trine`;
+    return `In D9, the 7th is ${SIGNS[s.seventhSign]} and its lord ${s.seventhLord} is in ${SIGNS[s.lordSign]} (the ${ORD_WORDS[house]}); ${strength}. It does not cancel the D1 contest; it is a second frame.`;
+  }
+
   private d9SpouseLine(): string {
     const s = this.vargas.spouse;
-    const names = s.occupants.map((p) => (p === "Sun" ? "the Sun" : p === "Moon" ? "the Moon" : p));
+    const names = s.occupants.filter((p) => p !== s.seventhLord).map((p) => (p === "Sun" ? "the Sun" : p === "Moon" ? "the Moon" : p));
     const occ = names.length ? `, with ${list(names)}` : "";
     return `In D9, the 7th is ${SIGNS[s.seventhSign]}, its lord ${s.seventhLord} in ${SIGNS[s.lordSign]} (the ${ORD_WORDS[s.lordHouse]})${occ}; Venus is in ${SIGNS[s.venusSign]} (${s.venusRelation}).`;
   }
@@ -949,12 +961,16 @@ class Writer {
       ? `Lagna ${lagnaSign}; the 1st lord ${l1.lord} is in the ${ORD_WORDS[l1.at]}.`
       : `Lagna ${lagnaSign}.`;
     const primary = this.topicFor(chapter === "native" ? "self" : chapter === "work" ? "career" : chapter === "bonds" ? "marriage" : "education");
+    const lagnaLord = SIGN_LORD[this.lagna.signIndex];
+    const nativeConditions = ["Moon", "Mars"]
+      .filter((p) => p !== lagnaLord)
+      .map((p) => this.planetCondition(p as Planet));
     const jaimini = this.jaiminiFacts(chapter);
     const kp = this.kpFrame(primary);
     return tidy([
       opening,
       ...houses[chapter].map((house) => this.houseFacts(house)),
-      ...(chapter === "native" ? [this.lagnaLordNote(), this.planetCondition("Moon"), this.planetCondition("Mars")]
+      ...(chapter === "native" ? [this.lagnaLordNote(), ...nativeConditions]
         : chapter === "work" ? [this.planetCondition("Saturn"), this.planetCondition("Mercury")]
           : chapter === "bonds" ? [this.d9SpouseLine(), this.planetCondition("Venus"), this.planetCondition("Sun")]
             : [this.planetCondition("Mercury"), this.planetCondition("Jupiter")]),
@@ -1020,6 +1036,7 @@ class Writer {
       sentences.push(this.evidenceSentence(a.contest.good, 0, "contested"));
       sentences.push(this.evidenceSentence(a.contest.hard, 1, "contested"));
       sentences.push(`The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a ${this.contestedImage(a)}; ${lc(AREA_STRUCTURES.marriage.close)} A contested chart is not a prediction of separation: it says the sources disagree, and a long marriage can hold both support and strain.`);
+      if (topic === "marriage") sentences.push(this.d9MarriageNote());
       if (rt?.natal.limit) sentences.push(rt.natal.limit);
     } else if (topic === "health") {
       const details = rt?.natal.details ?? [];

@@ -77,7 +77,7 @@ The native preamble now marks every occupant with dignity, Parashari combustion 
 
 The Bonds preamble now carries **D9**: the seventh from the navamsa lagna, its lord and house, its occupants, Venus and the Upapada. This is the marriage varga. D7 is children and D4 is home; they add granularity there, not to the marriage headline.
 
-The headline no longer says "and marriage is not." It says "X is unusually clear; Y is where the sources disagree." The marriage paragraph says contested is not separation: a long marriage can hold both support and strain. The room still does not predict duration or outcome.
+The headline no longer says "and marriage is not." It says "X is unusually clear; Y is where the sources disagree." The marriage paragraph says contested is not separation: a long marriage can hold both support and strain. The area now also adds the D9 seventh lord's house; when the D9 seventh lord is in the seventh, it says so as a position of strength, while keeping the D1 contest. The brief and coda say "contested in D1", not "contested" full stop. The room still does not predict duration or outcome.
 
 The **chapter preamble** is now the technical frame in the reading: the lagna and relevant houses, their lords and occupants, degrees, dignities and strength, the Jaimini karakas (with D9), and the KP cusp and sub-lord. It assumes the reader knows **lagna, bhava, lord, karaka, D9, dasha, bhukti, pratyantar, bindus and cusp sub-lord**. It does not gloss them. The per-area Parashari frame remains in Working.
 
@@ -96,7 +96,7 @@ Each chapter now has three registers:
 2. **The area paragraphs** — the human argument: claim, the area's fixed structure anchor, the reviewed Nadi lines, bridge, limit.
 3. **The coda** — a short closing paragraph, marked with a vermilion square, that states the chapter's pattern across its areas.
 
-The reading is longer because it is no longer a trailer. The Einstein chart runs to roughly 2,450 words and twelve minutes; the preambles carry the facts a practitioner would otherwise look up in the tabs, every area names its configuration in its own fixed form, and the conditions chapter adds the named yogas the tab engine already found.
+The reading is longer because it is no longer a trailer. The Einstein chart runs to roughly 2,500 words and twelve minutes; the preambles carry the facts a practitioner would otherwise look up in the tabs, every area names its configuration in its own fixed form, and the conditions chapter adds the named yogas the tab engine already found.
 
 ## The prose layer
 
@@ -127,7 +127,7 @@ The details that make it read like English rather than a table:
 - **Uncertainty in the grammar.** A contested area is allowed to be an argument; a provisional rule keeps its mark; a calculation's grade is in the working, not hidden in a footnote.
 - **No forecast.** The timing section names the period and the sky and says, in the same breath, that the app does not turn them into an event.
 
-For the Einstein chart the reading is about 2,450 words and twelve minutes, with eleven area paragraphs, four technical preambles, four chapter codas and six condition paragraphs. The lead is:
+For the Einstein chart the reading is about 2,500 words and twelve minutes, with eleven area paragraphs, four technical preambles, four chapter codas and six condition paragraphs. The lead is:
 
 > Albert Einstein was born on 14 March 1879 at 11:30 local time in Ulm, Baden-Wurttemberg, Germany, with Gemini rising at 19°28′. The chart's centre of gravity is Jupiter, the Jeeva, standing alone in Aquarius at 5°19′. Pisces — the tenth sign from the rising — gathers the Sun, Mercury, Saturn, and Venus, which is where the work theme begins. The Moon is in Scorpio, Jyeshtha 2, the sixth house from the rising.
 
