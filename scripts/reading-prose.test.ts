@@ -26,6 +26,7 @@ test("the reading has the agreed chapter shape", () => {
     doc.index.map((e) => e.topic),
     ["self", "health", "career", "authority", "wealth", "marriage", "children", "family", "education", "spirituality", "travel"],
   );
+  assert.ok(doc.index.every((e) => e.short), "every area needs a contents-rail label");
   assert.match(doc.standfirst, /^Work is unusually clear/);
   assert.match(doc.sections[0].paragraphs[0].text, /Gemini rising at 19°28′/);
   assert.match(doc.sections[0].paragraphs[0].text, /Jupiter, the Jeeva, standing alone in Aquarius/);

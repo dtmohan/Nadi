@@ -2,7 +2,7 @@
 
 A design fork of Nadi: a new editorial surface over the same computed chart, and a deterministic prose layer that turns the rule engine's fragments into a reading a person can follow.
 
-The workbench stays where it was. A **Reading room** link sits in the chart header; the room lives at:
+The workbench stays where it was. The room is the **primary entry after casting**: the chart header makes **Reading room** primary, the saved-chart card opens it, and the guided reader links across. The room lives at:
 
 ```
 /#/chart/:id/room
@@ -40,9 +40,9 @@ The first release read five areas. V2 reads the whole life without becoming elev
 | **The schools** | — | The comparison of bases: five general topics × four schools, no vote. |
 | **The apparatus** | — | Sources, caveats, provenance, school cards, marks and citation. |
 
-Every one of the eleven areas is in the **life-area index**, with its tone and its chapter. The index jumps to the area's paragraph. The chapter is the argument; the index is the completeness.
+Every one of the eleven areas sits in the **contents rail**, nested under its chapter, with a small tone mark. The rail jumps to the area's paragraph. The chapter is the argument; the contents rail is the completeness.
 
-The **two-minute summary** is five lines — one per chapter — generated from the same tones and period as the full reading. It sits under the lead and opens on demand.
+**In brief** is a run-in epigraph under the standfirst: one sentence per chapter, generated from the same tones and period. It is part of the header, not a card. The five-line summary survives as the data behind it.
 
 The **Parashari spine** comes from the upstream reader's own chart contexts: each area carries its whole-sign house frame, e.g. “the tenth house falls in Pisces; its ruler is Jupiter, placed in the ninth house.” The frame appears once in the reading and again, with the other schools, in Working. **Jaimini** contributes the chara-karaka line; **KP** contributes the cusp sub-lord and its verdict — often “no general verdict fires.” ALP is still not mapped, and Prasna Marga is not a natal voice; both stay out of the prose rather than being forced in.
 
@@ -80,7 +80,8 @@ For the Einstein chart the reading is about 1,200 words and six minutes, with el
 
 - **The chart card.** The South Indian D1 stays beside the prose at wide widths; below 900px it becomes a Chart button and a focused modal. It is the same chart as the workbench, not a decorative ring.
 - **Chapters with a spine.** The chart, the native, work & means, bonds, mind & meaning, the schools, time, the apparatus. Each chapter has a number and a rule above it; each area has a subheading.
-- **The two-minute summary and the life-area index.** The summary is five lines; the index holds all eleven areas and jumps to the paragraph.
+- **The marginal spine.** At wide widths, a vertical folio runs down the outer margin — the room's signature, not an app chrome.
+- **In brief and the contents rail.** The summary is a run-in epigraph; the eleven areas are nested in the contents rail, not in a card grid. The rail is also the chapter navigation.
 - **The frames.** Every area carries its Parashari house frame in Working; each chapter carries the Jaimini karaka and KP cusp lines.
 - **Why this.** Every paragraph with evidence carries the mark types and a button that opens the exact rule text, source and grade.
 - **The comparison.** Five general topics × four schools. Each cell is the school's own verdict and the object it judged; the row carries the combined reading. No vote is counted. Life span is a separate, gated topic and is not folded in.
@@ -88,9 +89,7 @@ For the Einstein chart the reading is about 1,200 words and six minutes, with el
 - **The apparatus.** The sources with citation counts, the caveats, the provenance, the school cards, the evidence legend, and a copyable citation.
 - **The fingerprint.** A local checksum of the birth data and ayanamsa, so the same reading can be recognised. It is explicitly not a cryptographic manifest.
 
-![The two-minute summary](reading-room/summary.png)
-
-![The eleven-area index](reading-room/index.png)
+![The contents rail doubles as the eleven-area index](reading-room/contents.png)
 
 ![Working layer: the frame, the rule text and the source](reading-room/working.png)
 
@@ -127,7 +126,7 @@ npx tsx --test scripts/reading-prose.test.ts
 npm run build
 ```
 
-The three prose tests check the chapter shape, all eleven area paragraphs and their frames, the five-line summary and eleven-area index, determinism across two compositions, and the presence of source, provisional and calculation marks.
+The three prose tests check the chapter shape, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, and the presence of source, provisional and calculation marks.
 
 A teardown of a mainstream 108-page Parashari report, and what to borrow or avoid, is in [mainstream-reference.md](mainstream-reference.md).
 

@@ -2269,24 +2269,24 @@ export default function ChartPage() {
               ayanamsaValue={data.ayanamsaValue}
               timeBasis={data.timeBasis}
             />
-            <Button size="sm" variant="outline" asChild>
+            <Button size="sm" asChild>
               <Link
-                href={`/chart/${chart.id}/reading`}
-                data-testid="link-reading-experience"
-                title={locale === "ml" ? "ലളിതമായ പുതിയ വായന തുറക്കുക" : "Open the new guided reading"}
+                href={`/chart/${chart.id}/room`}
+                data-testid="link-reading-room"
+                title="The reading room: the full editorial reading"
               >
                 <BookOpen className="h-4 w-4" />
-                {locale === "ml" ? "പുതിയ വായന" : "New reading"}
+                {t("Reading room")}
               </Link>
             </Button>
             <Button size="sm" variant="outline" asChild>
               <Link
-                href={`/chart/${chart.id}/room`}
-                data-testid="link-reading-room"
-                title="The reading room: an editorial reading in three layers"
+                href={`/chart/${chart.id}/reading`}
+                data-testid="link-reading-experience"
+                title={locale === "ml" ? "ലളിതമായ പുതിയ വായന തുറക്കുക" : "Open the guided reading, one theme at a time"}
               >
                 <BookOpen className="h-4 w-4" />
-                {t("Reading room")}
+                {locale === "ml" ? "പുതിയ വായന" : "New reading"}
               </Link>
             </Button>
             <Button size="sm" variant="outline" asChild>

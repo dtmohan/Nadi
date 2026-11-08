@@ -107,7 +107,7 @@ function ChartCard({
     <Card className="hover-elevate">
       <CardContent className="grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-4 gap-y-3 p-4">
         <Link
-          href={`/chart/${id}`}
+          href={`/chart/${id}/room`}
           className="shrink-0 sm:row-span-2"
           aria-hidden
           tabIndex={-1}
@@ -123,7 +123,7 @@ function ChartCard({
           )}
         </Link>
         <Link
-          href={`/chart/${id}`}
+          href={`/chart/${id}/room`}
           className="min-w-0 self-center"
           data-testid={`card-chart-${id}`}
         >
@@ -153,7 +153,7 @@ function ChartCard({
           <Trash2 />
         </Button>
         <Link
-          href={`/chart/${id}`}
+          href={`/chart/${id}/room`}
           className="col-span-3 min-w-0 sm:col-span-2 sm:col-start-2"
           tabIndex={-1}
         >
@@ -244,9 +244,13 @@ export default function Home() {
         ...result,
         chart,
       });
+      queryClient.setQueryData(["reading-room", String(chart.id)], {
+        ...result,
+        chart,
+      });
       return chart;
     },
-    onSuccess: (chart: Chart) => navigate(`/chart/${chart.id}`),
+    onSuccess: (chart: Chart) => navigate(`/chart/${chart.id}/room`),
     onError: (e: Error) =>
       toast({
         title: "Could not cast chart",

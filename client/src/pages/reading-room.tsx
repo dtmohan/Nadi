@@ -25,9 +25,7 @@ import {
   type ReadingDoc,
   type ReadingLayer,
   type SchoolCard,
-  type SummaryLine,
   type TimingFact,
-  type AreaIndexEntry,
 } from "@shared/reading-prose";
 import "@/reading-room.css";
 
@@ -199,58 +197,6 @@ function ChapterWorking({ items }: { items?: Array<{ label: string; text: string
         </div>
       ))}
     </div>
-  );
-}
-
-function SummaryPanel({ summary }: { summary: SummaryLine[] }) {
-  return (
-    <details className="room-summary">
-      <summary>
-        <span>In two minutes</span>
-        <span>{summary.length} lines · the whole chart</span>
-      </summary>
-      <ol>
-        {summary.map((line) => (
-          <li key={line.label}>
-            <b>{line.label}</b>
-            <span>{line.text}</span>
-          </li>
-        ))}
-      </ol>
-    </details>
-  );
-}
-
-const CHAPTER_LABEL: Record<string, string> = {
-  native: "The native",
-  work: "Work & means",
-  bonds: "Bonds",
-  mind: "Mind & meaning",
-};
-
-function LifeIndex({ entries, onJump }: { entries: AreaIndexEntry[]; onJump: (id: string) => void }) {
-  return (
-    <section className="room-index" aria-labelledby="room-index-title">
-      <div className="room-index-head">
-        <h2 id="room-index-title">The life areas</h2>
-        <p>Eleven areas, four chapters. Choose one to go straight to its paragraph.</p>
-      </div>
-      <div className="room-index-grid">
-        {entries.map((entry) => (
-          <button
-            key={entry.topic}
-            type="button"
-            className="room-index-item"
-            onClick={() => onJump(entry.id)}
-            title={`${entry.label} — ${entry.tone}`}
-          >
-            <span className={`room-tone tone-${entry.tone}`} aria-hidden="true" />
-            <b>{entry.label}</b>
-            <span>{CHAPTER_LABEL[entry.chapter] ?? entry.chapter}</span>
-          </button>
-        ))}
-      </div>
-    </section>
   );
 }
 
@@ -690,6 +636,11 @@ export default function ReadingRoom() {
 
   return (
     <div className="room">
+      <div className="room-spine" aria-hidden="true">
+        <span>Nadi</span>
+        <span>Reading room</span>
+        <span>{doc.meta.name}</span>
+      </div>
       <a href="#room-main" className="room-skip">Skip to the reading</a>
       <header className="room-head">
         <div className="room-topbar">
@@ -715,6 +666,10 @@ export default function ReadingRoom() {
           <p className="room-kicker">A reading room · {doc.provenance.ayanamsaLine.split(" · ")[0]}</p>
           <h1>{doc.meta.name}</h1>
           <p className="room-standfirst">{doc.standfirst}</p>
+          <p className="room-brief">
+            <span>In brief</span>{" "}
+            {doc.summary.map((line) => line.text).join(" ")}
+          </p>
           <div className="room-meta">
             <span>Born {formatDate(doc.meta.birthDate)} · {doc.meta.birthTime} · {doc.meta.place}</span>
             <span>Read {doc.meta.past ? "at passing" : "on"} {formatDate(doc.meta.asOf)} · age {doc.meta.age}</span>
@@ -738,9 +693,14 @@ export default function ReadingRoom() {
             </div>
             <span className="room-time">{wordCount.toLocaleString()} words · {minutes} min</span>
             <label className="room-jump-wrap">
-              <span className="sr-only">Jump to a section</span>
-              <select className="room-jump" value={active} onChange={(e) => jump(e.target.value)}>
-                {doc.sections.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+              <span className="sr-only">Jump to a chapter or life area</span>
+              <select className="room-jump" defaultValue="chart" onChange={(e) => jump(e.target.value)}>
+                <optgroup label="Chapters">
+                  {doc.sections.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+                </optgroup>
+                <optgroup label="Life areas">
+                  {doc.index.map((entry) => <option key={entry.topic} value={entry.id}>{entry.label}</option>)}
+                </optgroup>
               </select>
             </label>
           </div>
@@ -751,15 +711,27 @@ export default function ReadingRoom() {
         <nav className="room-toc" aria-label="Contents">
           <p className="room-toc-title">Contents</p>
           {doc.sections.map((s) => (
-            <button
-              key={s.id}
-              type="button"
-              className={`room-toc-item${active === s.id ? " is-active" : ""}`}
-              onClick={() => jump(s.id)}
-            >
-              <span>{s.kicker.split(" · ")[0] || "—"}</span>
-              {s.title}
-            </button>
+            <div className="room-toc-group" key={s.id}>
+              <button
+                type="button"
+                className={`room-toc-item${active === s.id ? " is-active" : ""}`}
+                onClick={() => jump(s.id)}
+              >
+                <span>{s.kicker.split(" · ")[0] || "—"}</span>
+                {s.title}
+              </button>
+              {doc.index.filter((entry) => entry.chapter === s.id).map((entry) => (
+                <button
+                  key={entry.topic}
+                  type="button"
+                  className="room-toc-area"
+                  onClick={() => jump(entry.id)}
+                >
+                  <span className={`room-tone tone-${entry.tone}`} aria-hidden="true" />
+                  {entry.short}
+                </button>
+              ))}
+            </div>
           ))}
           <div className="room-toc-foot">
             <p>{layer === "reading" ? "The argument" : layer === "working" ? "Argument + working" : "Argument + working + apparatus"}</p>
@@ -780,12 +752,6 @@ export default function ReadingRoom() {
                   onOpen={setDrawer}
                 />
               ))}
-              {section.id === "chart" ? (
-                <>
-                  <SummaryPanel summary={doc.summary} />
-                  <LifeIndex entries={doc.index} onJump={jump} />
-                </>
-              ) : null}
               {section.id !== "chart" && layer !== "reading" ? (
                 <ChapterWorking items={section.working} />
               ) : null}
@@ -800,6 +766,7 @@ export default function ReadingRoom() {
           <footer className="room-footer">
             <p><b>Nadi</b> · Reading room · {doc.provenance.fingerprint}</p>
             <p>The rules are the reading. The prose is a paraphrase, and the source text is one click away.</p>
+            <p className="room-colophon">A reading room, not a report. Set in Fraunces and Iowan; rules paraphrased, sources in the margin.</p>
             <Link href={`/chart/${id}`}>Open the classic workbench <ArrowUpRight size={13} /></Link>
           </footer>
         </main>

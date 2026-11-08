@@ -63,6 +63,8 @@ export interface SummaryLine {
 export interface AreaIndexEntry {
   topic: PlainTopic;
   label: string;
+  /** A short label for the contents rail. */
+  short: string;
   tone: AreaSynthesis["tone"];
   chapter: string;
   id: string;
@@ -394,6 +396,20 @@ const TOPIC_CHAPTER: Record<PlainTopic, "native" | "work" | "bonds" | "mind"> = 
   education: "mind",
   spirituality: "mind",
   travel: "mind",
+};
+
+const SHORT: Record<PlainTopic, string> = {
+  self: "Self",
+  health: "Body",
+  career: "Career",
+  authority: "Standing",
+  wealth: "Money",
+  marriage: "Marriage",
+  children: "Children",
+  family: "Family",
+  education: "Learning",
+  spirituality: "Inner life",
+  travel: "Travel",
 };
 
 const SUBHEAD: Record<PlainTopic, string> = {
@@ -902,6 +918,7 @@ class Writer {
     return order.map((topic) => ({
       topic,
       label: PLAIN_TOPIC_LABEL[topic],
+      short: SHORT[topic],
       tone: this.areas.find((a) => a.area === topic)?.tone ?? "quiet",
       chapter: TOPIC_CHAPTER[topic],
       id: `area-${topic}`,
