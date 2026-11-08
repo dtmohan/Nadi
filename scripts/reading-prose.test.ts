@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { buildReadingInput, composeReading } from "../shared/reading-prose";
+import { lintProse } from "../shared/reading-lint";
 import type { ChartResult } from "../shared/schema";
 
 const result = JSON.parse(
@@ -61,6 +62,10 @@ test("the prose is clean, complete and deterministic", () => {
   assert.doesNotMatch(prose, / {2,}/);
   assert.doesNotMatch(prose, /\.\./);
   assert.doesNotMatch(prose, /Saturn, the Saturn|The native is one of|the 1 house|the 1st house/i);
+  assert.doesNotMatch(prose, /\bThe (Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu)\b/, "only the Sun and Moon take 'the'");
+  assert.deepEqual(lintProse(prose), [], "the lexicon's prose lint should be clean");
+  const claims = areas.map((p) => p.text.split(/(?<=[.?!])\s/)[0]);
+  assert.equal(new Set(claims).size, claims.length, "every area needs its own opening claim");
   assert.ok(prose.split(/\s+/).length > 1000, "the reading should cover the life areas");
   assert.ok(prose.split(/\s+/).length < 2100, "the reading should not become a rule dump");
 

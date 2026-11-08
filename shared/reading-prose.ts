@@ -20,6 +20,7 @@ import { agreementFor, agreementInput, type AgreementTopic, type SystemStance, t
 import { briefingFor, type Briefing, type BriefRow } from "./briefing";
 import { readerExperience, type ReaderExperience, type ReaderTopic } from "./reader-experience";
 import { PLAIN_TOPIC_LABEL, PLAIN_TOPIC_ORDER, type PlainTopic } from "./topic-brief";
+import { AREA_STRUCTURES } from "./reading-lexicon";
 
 // ── Public shapes ───────────────────────────────────────────────────────────────────────────────
 
@@ -449,14 +450,7 @@ const CHAPTER_NOTE: Record<"native" | "work" | "bonds" | "mind", string> = {
   mind: "Learning, spiritual life and travel are descriptive areas; the chart gives directions, not achievements.",
 };
 
-const STATUS: Record<AreaSynthesis["tone"], string> = {
-  supportive: "well supported",
-  mixed: "mixed",
-  care: "a caution",
-  contested: "contested",
-  quiet: "lightly marked",
-  descriptive: "descriptive",
-};
+
 
 function firstSentence(text: string): string {
   return text.split(/(?<=\.)\s+/)[0] ?? text;
@@ -612,41 +606,7 @@ class Writer {
   }
 
   private areaClaim(a: AreaSynthesis): string {
-    const key = `${a.area}|${a.tone}`;
-    const noun = a.area === "marriage" ? "Marriage" : a.area === "career" ? "Work" : a.area === "health" ? "Health" : areaTitle(a.area);
-    if (a.area === "career" && a.tone === "supportive") return "Work is the chart’s clearest line.";
-    if (a.area === "wealth" && a.tone === "supportive") return "Money follows the work.";
-    if (a.area === "self" && a.tone === "supportive") return "The native is warmly marked.";
-    if (a.area === "health" && a.tone === "care") return "The body asks for care rather than confidence.";
-    if (a.area === "children" && a.tone === "quiet") return "Children are lightly marked.";
-    if (a.area === "family" && a.tone === "descriptive") return "Family is a set of separate lines, not one verdict.";
-    if (a.area === "education" && a.tone === "care") return "Learning asks for care rather than confidence.";
-    if (a.area === "spirituality" && a.tone === "supportive") return "The inner life is well supported.";
-    if (a.area === "travel" && a.tone === "supportive") return "Travel is well supported.";
-    if (a.tone === "contested") {
-      return this.take(key, [
-        `${noun} is where the chart becomes an argument.`,
-        `${noun} is the chart’s open question.`,
-        `The chart does not settle ${LC_AREA[a.area]}.`,
-      ]);
-    }
-    if (a.tone === "care") {
-      return this.take(key, [
-        `${noun} is the chart’s caution.`,
-        `${noun} asks for care rather than confidence.`,
-        `${noun} carries a warning the chart does not soften.`,
-      ]);
-    }
-    if (a.tone === "supportive") {
-      return this.take(key, [
-        `${noun} is one of the chart’s stronger lines.`,
-        `${noun} is unusually clear.`,
-        `The reading for ${LC_AREA[a.area]} carries more support than caution.`,
-      ]);
-    }
-    if (a.tone === "quiet") return `${noun} is lightly marked.`;
-    if (a.tone === "mixed") return `${noun} is mixed, and the chart says so.`;
-    return `${noun} is descriptive rather than verdictive.`;
+    return AREA_STRUCTURES[a.area as keyof typeof AREA_STRUCTURES].claim;
   }
 
   private config(f: Finding): string {
@@ -714,7 +674,7 @@ class Writer {
     if (bridge) sentences.push(bridge);
 
     if (a.tone === "contested") {
-      sentences.push(`The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a ${this.contestedImage(a)}; the chart is not offering a promise or a denial.`);
+      sentences.push(`The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a ${this.contestedImage(a)}; ${lc(AREA_STRUCTURES.marriage.close)}`);
     } else if (a.tone === "care") {
       sentences.push("This is a traditional indication, not a diagnosis. It names where the chart asks for attention, not what will happen.");
     } else if (a.tone === "supportive") {
@@ -821,11 +781,7 @@ class Writer {
   }
 
   private chapterClose(chapter: "native" | "work" | "bonds" | "mind"): string {
-    const status = (topic: PlainTopic) => {
-      const a = this.areas.find((x) => x.area === topic);
-      if (!a) return "not read";
-      return a.tone === "descriptive" ? "read separately" : STATUS[a.tone];
-    };
+    const status = (topic: PlainTopic) => AREA_STRUCTURES[topic].status;
     if (chapter === "native") {
       const l1 = this.lordOf(1);
       return `The 1st lord ${l1.lord} is in the ${ORD_WORDS[l1.at]}; the self is ${status("self")} and the body is ${status("health")}. The chart reads the person through that house first, and the body as its qualification.`;
@@ -834,10 +790,7 @@ class Writer {
       const l10 = this.lordOf(10);
       const l2 = this.lordOf(2);
       const l11 = this.lordOf(11);
-      const allSupported = ["career", "wealth", "authority"].every((topic) => this.areas.find((x) => x.area === topic)?.tone === "supportive");
-      const line = allSupported
-        ? "Work, money and standing are all well supported"
-        : `The work is ${status("career")}, the money ${status("wealth")}, the standing ${status("authority")}`;
+      const line = `Work is ${status("career")}, money is ${status("wealth")}, standing is ${status("authority")}`;
       return `The 10th lord ${l10.lord} is in the ${ORD_WORDS[l10.at]}; money is read from the 2nd (${l2.lord} in the ${ORD_WORDS[l2.at]}) and the 11th (${l11.lord} in the ${ORD_WORDS[l11.at]}). ${line}; the chapter keeps the three separate.`;
     }
     if (chapter === "bonds") {
@@ -873,6 +826,7 @@ class Writer {
   }
 
   private planetCondition(planet: Planet): string {
+    const strengthVerb: Record<string, string> = { Moon: "carries", Saturn: "has", Mercury: "stands at", Jupiter: "measures" };
     const p = this.position(planet);
     if (!p) return "";
     const strength = this.result.reading.strength.find((x) => x.planet === planet);
@@ -880,11 +834,11 @@ class Writer {
     const brief = this.briefing.planets.find((x) => x.planet === planet);
     const pct = brief?.states.find((s) => /%/.test(s));
     if (!note && !pct) return "";
-    const suffix = pct ? ` It holds ${pct}.` : "";
+    const suffix = pct ? ` It ${strengthVerb[planet] ?? "holds"} ${pct}.` : "";
     const subject = planet === "Sun" || planet === "Moon" ? `The ${planet}` : planet;
     const withArticle = (value: string) => value.replace(/^Sun\b/, "the Sun").replace(/^Moon\b/, "the Moon");
     const lowerUnlessPlanet = (value: string) => /^(Sun|Moon|Mars|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu|The )/.test(value) ? value : lc(value);
-    if (!note) return `${subject} holds ${pct}.`;
+    if (!note) return `${subject} ${strengthVerb[planet] ?? "holds"} ${pct}.`;
     const body = note
       .replace(/^[^:]+:\s*/, "")
       .replace(/^friend /, "the ")
@@ -947,26 +901,26 @@ class Writer {
         const value = d.replace(/^[A-Z][a-z]+:\s*/, "");
         return /^Parents\b/.test(value) ? `The parents are ${lc(value.slice("Parents ".length))}` : value;
       });
-    if (rest.length) sentences.push(`The other family lines are separate: ${rest.join(" ")}`);
+    if (rest.length) {
+      const other = rest.map((d, i) => (i === 0 ? d.replace(/\.$/, "") : lc(d.replace(/\.$/, ""))));
+      sentences.push(`The other family testimonies are: ${other.join("; ")}.`);
+    }
     if (!father && !rest.length) sentences.push(rt.natal.summary);
     if (rt.natal.limit) sentences.push(rt.natal.limit);
   }
 
   private careClose(topic: PlainTopic): string {
-    if (topic === "health") return "This is a traditional indication, not a diagnosis; it names where the chart asks for attention, not what will happen.";
-    if (topic === "education") return "The chart names directions, not a degree.";
-    return "The chart asks for care here; it does not predict an outcome.";
+    return AREA_STRUCTURES[topic].close;
   }
 
-  private configAnchor(f: Finding): string {
-    const label = this.config(f);
-    const inline = /^(The|A|An)\b/.test(label) ? lc(label) : label;
-    return this.take(`${f.ruleId}|anchor`, [
-      `The line is ${inline}.`,
-      `The combination is ${inline}.`,
-      `It turns on ${inline}.`,
-      `The chart's line is ${inline}.`,
-    ]);
+  private supportImage(a: AreaSynthesis): string {
+    return AREA_STRUCTURES[a.area as keyof typeof AREA_STRUCTURES].close;
+  }
+
+  private structureAnchor(a: AreaSynthesis): string | null {
+    const structure = AREA_STRUCTURES[a.area as keyof typeof AREA_STRUCTURES];
+    if (!structure.anchor || !a.key[0]) return null;
+    return structure.anchor(this.config(a.key[0]));
   }
 
   private areaParagraph(topic: PlainTopic): ProseParagraph {
@@ -981,10 +935,14 @@ class Writer {
     const sentences: string[] = [];
     if (a) sentences.push(this.areaClaim(a));
     else sentences.push(`${AREA_NOUN[topic]} is not read in this chart.`);
-    if (a && a.tone !== "contested" && a.key[0]) sentences.push(this.configAnchor(a.key[0]));
+    if (a && a.tone !== "contested") {
+      const anchor = this.structureAnchor(a);
+      if (anchor) sentences.push(anchor);
+    }
 
     if (topic === "family" && rt) {
       this.familySentences(rt, sentences);
+      sentences.push(AREA_STRUCTURES.family.close);
     } else if (a?.tone === "contested" && a.contest) {
       sentences.push(this.evidenceSentence(a.contest.good, 0, "contested"));
       sentences.push(this.evidenceSentence(a.contest.hard, 1, "contested"));
@@ -1001,6 +959,7 @@ class Writer {
     } else if (topic === "children") {
       sentences.push("The Nadi rules describe a traditional link between Jupiter and Venus, but not an individual outcome.");
       if (rt?.natal.limit) sentences.push(rt.natal.limit);
+      sentences.push(AREA_STRUCTURES.children.close);
     } else if (a) {
       const reviewed = (rt?.prose ?? []).map((p) => p?.en).filter(Boolean) as string[];
       if (reviewed.length) {
@@ -1014,9 +973,9 @@ class Writer {
 
       if (a.tone === "care") sentences.push(this.careClose(topic));
       else if (a.tone === "quiet") sentences.push("The chart is not making an individual claim here; it is describing a traditional link, and the difference matters.");
-      else if (a.tone === "descriptive") sentences.push("These are separate lines, not a combined verdict.");
+      else if (a.tone === "descriptive") sentences.push(AREA_STRUCTURES.family.close);
       else if (a.tone === "supportive") sentences.push(this.supportImage(a));
-      else sentences.push("The chart gives these as directions, not a verdict.");
+      else sentences.push(AREA_STRUCTURES[a.area as keyof typeof AREA_STRUCTURES].close);
 
       if (rt?.natal.limit && (topic === "marriage" || topic === "wealth" || topic === "education" || topic === "spirituality" || topic === "travel")) {
         sentences.push(rt.natal.limit);
@@ -1053,20 +1012,11 @@ class Writer {
   }
 
   summary(): SummaryLine[] {
-    const status = (topic: PlainTopic, plural = false) => {
-      const a = this.areas.find((x) => x.area === topic);
-      if (!a) return "not read";
-      if (a.tone === "care") return "asks for care";
-      const verb = plural ? "are" : "is";
-      if (a.tone === "descriptive") return `${verb} read separately`;
-      return `${verb} ${STATUS[a.tone]}`;
-    };
-    const native = `The self ${status("self")}; the body ${status("health")}.`;
-    const work = ["career", "authority", "wealth"].every((a) => this.areas.find((x) => x.area === a)?.tone === "supportive")
-      ? "Work, money and standing are all well supported."
-      : `Work ${status("career")}; money ${status("wealth")}; standing ${status("authority")}.`;
-    const bonds = `Marriage ${status("marriage")}; children ${status("children", true)}; family ${status("family")}.`;
-    const mind = `Learning ${status("education")}; the inner life ${status("spirituality")}; travel ${status("travel")}.`;
+    const status = (topic: PlainTopic) => AREA_STRUCTURES[topic].status;
+    const native = `The self is ${status("self")}; the body is ${status("health")}.`;
+    const work = `Work is ${status("career")}; money is ${status("wealth")}; standing is ${status("authority")}.`;
+    const bonds = `Marriage is ${status("marriage")}; children are ${status("children")}; family is ${status("family")}.`;
+    const mind = `Learning is ${status("education")}; the inner life is ${status("spirituality")}; travel is ${status("travel")}.`;
     const first = this.briefing.now[0];
     const time = `The reading is set at ${this.chart.deathDate ? "the recorded date" : "the present"}${first ? `, in ${cleanPeriod(first.what)}` : ""}.`;
     return [
@@ -1092,9 +1042,9 @@ class Writer {
 
   private areaBridge(a: AreaSynthesis): string | null {
     if (a.tone === "contested") return null;
-    if (a.area === "career") return "The two lines do not compete: analytical method and public form are two sides of the same working life.";
+    if (a.area === "career") return "The two testimonies do not compete: analytical method and public form are two sides of the same working life.";
     if (a.area === "self") return "The warmth and the unconventional edge sit together without cancelling each other.";
-    if (a.area === "health") return "The two lines agree on the same advice: protect the reserves, and do not mistake endurance for health.";
+    if (a.area === "health") return "The two testimonies agree on the same advice: protect the reserves, and do not mistake endurance for health.";
     return null;
   }
 
@@ -1102,19 +1052,6 @@ class Writer {
     if (a.area === "marriage") return "partnership with weight and distance in it";
     if (a.area === "career") return "working life pulled in two directions";
     return "life with two strong readings";
-  }
-
-  private supportImage(a: AreaSynthesis): string {
-    if (a.area === "career") {
-      return "The chart offers them as directions, not a job title.";
-    }
-    if (a.area === "wealth") {
-      return "The chart gives a route, not an amount.";
-    }
-    if (a.area === "self") {
-      return `The chart gives this as a temperament to work with, not a fate to obey.`;
-    }
-    return `The chart offers these as directions, not a prediction.`;
   }
 
   comparisonProse(): string {

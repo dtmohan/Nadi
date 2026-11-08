@@ -58,14 +58,14 @@ This is the deliberate split:
 Each chapter now has three registers:
 
 1. **The preamble** — technical, muted, at the top of the chapter: houses, lords, degrees, dignities, strength, Jaimini, KP.
-2. **The area paragraphs** — the human argument: claim, reviewed Nadi line, bridge, limit.
+2. **The area paragraphs** — the human argument: claim, the area's fixed structure anchor, the reviewed Nadi lines, bridge, limit.
 3. **The coda** — a short closing paragraph, marked with a vermilion square, that states the chapter's pattern across its areas.
 
-The reading is longer because it is no longer a trailer. The Einstein chart runs to roughly 1,900 words and nine or ten minutes; the preambles carry the facts a practitioner would otherwise look up in the tabs, and every area names its line.
+The reading is longer because it is no longer a trailer. The Einstein chart runs to roughly 1,900 words and nine or ten minutes; the preambles carry the facts a practitioner would otherwise look up in the tabs, and every area names its configuration in its own fixed form.
 
 ## The prose layer
 
-`shared/reading-prose.ts` is the enrichment module. It is pure and deterministic: the same chart always produces the same prose, and the prose never adds a rule that the engine did not compute.
+`shared/reading-prose.ts` is the enrichment module. It is pure and deterministic: the same chart always produces the same prose, and the prose never adds a rule that the engine did not compute. The fixed structures live in [`shared/reading-lexicon.ts`](../shared/reading-lexicon.ts); the editorial rules are in [prose-lexicon.md](prose-lexicon.md).
 
 ```ts
 const input = buildReadingInput(result); // synthesise + agreementFor + briefingFor + readerExperience
@@ -75,18 +75,19 @@ const doc = composeReading(input);       // chapters, summary, index, comparison
 Each chapter follows the same movement:
 
 1. **Technical preamble** — the houses, lords, degrees, dignities, strength, Jaimini and KP facts, in the reader's own vocabulary.
-2. **Area claim** — what the chart says about the area: "Work is the chart's clearest line", "Marriage is where the chart becomes an argument", "The body asks for care rather than confidence."
-3. **Line anchor** — the combination, named before it is interpreted: "The line is Saturn, Mercury and Ketu linked by sign."
+2. **Area claim** — what the chart says about the area: "Work is the chart's most public fact", "Marriage is where the chart becomes an argument", "The body asks for care rather than confidence."
+3. **Structure anchor** — the combination in the form fixed for that area: "The configuration is Saturn, Mercury and Ketu linked by sign"; "The weight sits in the Sun with Saturn."
 4. **Reviewed Nadi lines** — every selected paraphrase from the upstream reader, not just the first: "Another source names computing, coding, statistics and research…"
-5. **Bridge** — the writer's sentence that says what the lines mean together, where the sources support one.
-6. **Limit** — what the reading will not claim: "The app does not average the two", "This is a traditional indication, not a diagnosis", "The chart offers them as directions, not a job title."
+5. **Bridge** — the writer's sentence that says what the testimonies mean together, where the sources support one.
+6. **Limit** — what the reading will not claim: "The app does not average the two", "It is a traditional indication, not a diagnosis", "It names a direction, not an appointment."
 7. **Coda** — a short closing paragraph that states the chapter's pattern: the 10th lord in the ninth, the 2nd lord in the sixth, the 11th lord in the eighth. It is marked with a vermilion square.
 
 The details that make it read like English rather than a table:
 
 - **Role-aware naming.** Jupiter is "the Jeeva", Saturn "the Karma", Venus "the Kalatra" in a male chart and the spouse karaka in the app's frame. The writer expands the rule's shorthand without overloading the sentence.
-- **Stable variation.** Frames for the first and second evidence rotate deterministically, so adjacent paragraphs do not open the same way. The content stays fixed.
+- **Fixed structures, controlled variation.** Every area's claim, anchor form and limit are fixed in the lexicon; no structural choice is random. Only the evidence frames vary deterministically, and the variation never changes the argument.
 - **Given/new.** The lead starts with the birth, the rising sign and the chart's centre of gravity; later sections refer back to "the tenth" and "the same working signature" instead of re-listing positions.
+- **A lexicon, not a phrase picker.** The eleven claims are unique; the anchor forms are distinct; the tone words are topic-specific. "Clearest line", "The line is" and the generic "The chart offers these as directions" are banned by the lint, and "well supported" is allowed once, not six times.
 - **Source fidelity.** The rule text is never rewritten into a stronger claim. The prose paraphrases the gist and leaves the exact sentence in the evidence drawer.
 - **Uncertainty in the grammar.** A contested area is allowed to be an argument; a provisional rule keeps its mark; a calculation's grade is in the working, not hidden in a footnote.
 - **No forecast.** The timing section names the period and the sky and says, in the same breath, that the app does not turn them into an event.
@@ -149,7 +150,7 @@ npx tsx --test scripts/reading-prose.test.ts
 npm run build
 ```
 
-The three prose tests check the chapter shape, the four preambles and codas, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, and the presence of source, provisional and calculation marks.
+The three prose tests check the chapter shape, the four preambles and codas, all eleven area paragraphs and their frames, the five-line summary and the eleven-area contents, determinism across two compositions, the lexicon lint (no "clearest line", no universal "The line is", small allowances for repeated tone words), unique area claims, and the presence of source, provisional and calculation marks.
 
 A teardown of a mainstream 108-page Parashari report, and what to borrow or avoid, is in [mainstream-reference.md](mainstream-reference.md).
 
