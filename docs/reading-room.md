@@ -79,6 +79,8 @@ The Bonds preamble now carries **D9**: the seventh from the navamsa lagna, its l
 
 The headline no longer says "and marriage is not." It says "X is unusually clear; Y is where the sources disagree." The marriage paragraph says contested is not separation: a long marriage can hold both support and strain. The marriage frame then compares D1, D9, the Upapada and the DK, and names the running period; the family frame does the same for D7 and D4. The period test uses the Upapada's **sign lord** (the lord of the sign the pada falls in), not the house lord of the 7th. The brief and coda say "contested in D1", not "contested" full stop. The room still does not predict duration or outcome, and the frames are not averaged.
 
+The Nadi 12th-support rule and the app’s separate support note are documented in [nadi-12th-support.md](nadi-12th-support.md). It is a note, not a score; the 0.7 relation weight is not the support test.
+
 The **chapter preamble** is now the technical frame in the reading: the lagna and relevant houses, their lords and occupants, degrees, dignities and strength, the Jaimini karakas (with D9), and the KP cusp and sub-lord. It assumes the reader knows **lagna, bhava, lord, karaka, D9, dasha, bhukti, pratyantar, bindus and cusp sub-lord**. It does not gloss them. The per-area Parashari frame remains in Working.
 
 **Jaimini** contributes AK/AmK/DK/PK and their D9 signs; **KP** contributes the cusp sub-lord and its verdict — often “no general verdict fires.” ALP is still not mapped, and Prasna Marga is not a natal voice; both stay out of the prose rather than being forced in.

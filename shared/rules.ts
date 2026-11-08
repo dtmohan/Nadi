@@ -13,6 +13,8 @@ import {
   SIGN_ELEMENT,
   KARAKA,
   SIGNS,
+  FRIENDS,
+  ENEMIES,
   houseFrom,
 } from "./astro";
 import { EXTRA_RULES } from "./rules-bnn";
@@ -1068,6 +1070,31 @@ const listOf = (ps: string[]) =>
 /** "the Sun", "the Moon"; other planets by name. */
 const nm = (p: string): string => (p === "Sun" || p === "Moon" ? `the ${p}` : p);
 
+/** Natural benefics for the provisional 12th-support note; not a functional-benefic test. */
+const SUPPORT_BENEFICS = new Set<Planet>(["Jupiter", "Venus", "Mercury", "Moon"]);
+
+/**
+ * Naik, Naadi Jyotisha, ch. 2: the 12th from a planet indicates whether it is supported.
+ * This note is the app's provisional reading of that indicator: friend/benefic supports,
+ * enemy/malefic obstructs, a benefic that is neither is mixed. It never moves the score.
+ */
+function supportAxisNote(planet: Planet, subject: Planet): GradeReason | null {
+  if (planet === subject) return null;
+  const friend = FRIENDS[subject]?.includes(planet) ?? false;
+  const enemy = ENEMIES[subject]?.includes(planet) ?? false;
+  const benefic = SUPPORT_BENEFICS.has(planet);
+  const support = friend && benefic
+    ? "a friend and a natural benefic — supportive"
+    : enemy || !benefic
+      ? "an enemy or natural malefic — obstructive"
+      : "a natural benefic but not a friend — mixed support";
+  return {
+    text: `${nm(planet)} in the 12th from ${nm(subject)}: the Nadi support axis; ${support} (provisional).`,
+    effect: "note",
+    source: "S. Naik, Naadi Jyotisha, ch. 2",
+  };
+}
+
 function gradeFinding(g: GradeInput, strengthOf: Record<Planet, PlanetStrength>): void {
   const { f, rule, kind } = g;
   const w = rule.when;
@@ -1081,8 +1108,13 @@ function gradeFinding(g: GradeInput, strengthOf: Record<Planet, PlanetStrength>)
     if (w.exchange) reasons.push({ text: `${nm(subject)} and ${nm(object)} exchange signs`, effect: "note" });
     else if (f.relation === "conjunct")
       reasons.push({ text: `${nm(object)} in the same sign as ${nm(subject)}`, effect: "note" });
-    else if (f.relation && g.relFactor < 1)
+    else if (f.relation && g.relFactor < 1) {
       reasons.push({ text: `${nm(object)} ${REL_FROM[f.relation]} ${nm(subject)}`, effect: "weight", factor: g.relFactor });
+      if (f.relation === "prev") {
+        const support = supportAxisNote(object, subject);
+        if (support) reasons.push(support);
+      }
+    }
   }
   if (kind === "house" && object && f.house)
     reasons.push({ text: `${nm(object)} in the ${ordinalOf(f.house)} from ${nm(subject)}`, effect: "note" });
@@ -1093,6 +1125,11 @@ function gradeFinding(g: GradeInput, strengthOf: Record<Planet, PlanetStrength>)
       effect: "weight",
       factor: g.extraFactor,
     });
+  for (const c of apart) {
+    if (c.relation !== "prev") continue;
+    const support = supportAxisNote(c.planet, subject);
+    if (support) reasons.push(support);
+  }
   if (f.viaRetro && g.retroFactor < 1)
     reasons.push({
       text: "read from the previous sign by retrogression, at reduced strength",
