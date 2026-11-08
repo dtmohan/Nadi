@@ -1,0 +1,39 @@
+{
+  "selection": "Five-case convenience sample selected for varied occupations and birthplaces before inspecting their reader outputs; translations were subsequently expanded against the full plain-theme catalogue and these cases. Theodore Maiman was added after that work, before inspecting his reader output, as a presentation holdout. Selection was not blinded, random or representative; this is not a prediction-accuracy study. Birth details are reported sources, not independently authenticated records.",
+  "asOf": "2026-11-07T12:00:00Z",
+  "cases": [
+    {
+      "name": "Julia Child", "gender": "female", "birthDate": "1912-08-15", "birthTime": "23:30", "timeStandard": "-08:00", "timezone": "America/Los_Angeles", "place": "Pasadena, California", "latitude": 34.15, "longitude": -118.15, "deathDate": "2004-08-13",
+      "birthSource": "https://www.astro.com/astro-databank/Child%2C%20Julia", "birthSourceNote": "Astro-Databank says birth record quoted, AA, collector CAH; not independently checked.",
+      "careerReference": "Chef, cookbook author, cooking teacher and television presenter", "careerSource": "https://hollisarchives.lib.harvard.edu/catalog/sch00222"
+    },
+    {
+      "name": "Catherine Deneuve", "gender": "female", "birthDate": "1943-10-22", "birthTime": "13:35", "timeStandard": "+01:00", "timezone": "Europe/Paris", "place": "Paris, France", "latitude": 48.866667, "longitude": 2.333333, "deathDate": null,
+      "birthSource": "https://www.astro.com/adbvip/adbvip_10_22.htm?nhor=1%20target&pa=nmo", "birthSourceNote": "Astro-Databank says birth record quoted, AA, collector Bordoni; not independently checked.",
+      "careerReference": "Film actor", "careerSource": "https://www.festival-cannes.com/p/catherine-deneuve/"
+    },
+    {
+      "name": "Evelyn Glennie", "gender": "female", "birthDate": "1965-07-19", "birthTime": "12:41", "timeStandard": "+01:00", "timezone": "Europe/London", "place": "Aberdeen, Scotland", "latitude": 57.166667, "longitude": -2.066667, "deathDate": null,
+      "birthSource": "https://www.astro.com/adbvip/adbvip_07_19.htm?lang=h&nho2=20&pa=nmo", "birthSourceNote": "Astro-Databank reports a quoted birth record, AA, collector Gerard, and also a conflicting previous report of approximately 17:30; neither was independently checked.",
+      "careerReference": "Solo percussionist and composer", "careerSource": "https://www.evelyn.co.uk/about/",
+      "alternatives": [{ "label": "Previously reported approximate time", "birthTime": "17:30" }]
+    },
+    {
+      "name": "Rajiv Gandhi", "gender": "male", "birthDate": "1944-08-20", "birthTime": "06:34", "timeStandard": "lmt", "timezone": "Asia/Kolkata", "place": "Bombay, India", "latitude": 18.966667, "longitude": 72.833333, "deathDate": "1991-05-21",
+      "birthSource": "https://www.astro.com/adbvip/adbvip_08_20.htm?lang=r&nho2=10793172&nhor=12", "birthSourceNote": "Astro-Databank, collector Clifford, reports a birth record showing Bombay local time and another national standard time; the time basis is uncertain and not independently checked.",
+      "careerReference": "Airline pilot and Indian prime minister", "careerSource": "https://cms.rajyasabha.nic.in/UploadedFiles/ElectronicPublications/Rajiv.pdf",
+      "alternatives": [{ "label": "Record's approximate 08:11 national standard time at UTC+06:30", "birthTime": "08:11", "timeStandard": "+06:30" }]
+    },
+    {
+      "name": "César Chávez", "gender": "male", "birthDate": "1927-03-31", "birthTime": "15:00", "timeStandard": "-08:00", "timezone": "America/Phoenix", "place": "Yuma, Arizona", "latitude": 32.733333, "longitude": -114.616667, "deathDate": "1993-04-23",
+      "birthSource": "https://www.astro.com/astro-databank/Ch%C3%A1vez%2C_C%C3%A9sar", "birthSourceNote": "Astro-Databank, collector Rodden, lists a birth record in hand and UTC-08:00; another publisher lists UTC-07:00 for the same clock time. The offset has not been independently resolved.",
+      "careerReference": "Farmworker and labor organizer", "careerSource": "https://www.nps.gov/articles/000/new-era-of-farm-worker-organizing.htm",
+      "alternatives": [{ "label": "Other publisher's UTC-07:00", "timeStandard": "-07:00" }]
+    },
+    {
+      "name": "Theodore Maiman", "gender": "male", "birthDate": "1927-07-11", "birthTime": "08:17", "timeStandard": "-08:00", "timezone": "America/Los_Angeles", "place": "Los Angeles, California", "latitude": 34.05, "longitude": -118.25, "deathDate": "2007-05-05",
+      "birthSource": "https://www.astro.com/astro-databank/Maiman%2C_Theodore", "birthSourceNote": "Astro-Databank reports a birth certificate in hand, AA, collector Scholfield; not independently checked. This case was added after the presentation translations were written.",
+      "careerReference": "Physicist and inventor of the first working laser", "careerSource": "https://engineering.stanford.edu/about/history/heroes/2012-heroes/theodore-maiman"
+    }
+  ]
+}

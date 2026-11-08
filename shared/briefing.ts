@@ -36,6 +36,7 @@ import { saturnPracticeName, saturnShortName } from "./gochara";
 import { AREA_HOUSES, AREA_ORDER, AREA_TAG_KARAKA, areaNoun, houseAreas } from "./life-areas";
 import { ALP_HOUSE_GLOSS, listJoin, ordH, thePlanet } from "./house-gloss";
 import { plainNatalStar } from "./chart-explanations";
+import { translate } from "./localization";
 
 // ---- Shapes --------------------------------------------------------------------------------------
 
@@ -95,7 +96,7 @@ export interface BriefRow {
   /** Reader-facing explanation and original calculation for the daily Moon comparison. */
   plainMoon?: { reading: string; why: string; comparison?: string; basis: string };
   /** Optional plain-language translation of a timing row; the original calculation remains accessible. */
-  plainSummary?: { title: string; text: string; basis?: string };
+  plainSummary?: { title: string; text: string; basis?: string; ml?: { title: string; text: string; basis?: string } };
 }
 
 export interface PlainPlanetBrief {
@@ -143,6 +144,12 @@ export const BRIEF_HORIZON_MONTHS = 18;
 
 const NUM = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
 const num = (n: number) => NUM[n] ?? String(n);
+const mlArea: Record<LifeArea, string> = {
+  career: "തൊഴിൽ", marriage: "വിവാഹം", self: "സ്വയം", authority: "സ്ഥാനമാനം", children: "സന്താനം",
+  wealth: "ധനവും സ്വത്തും", education: "പഠനം", family: "കുടുംബം", health: "ആരോഗ്യവും ക്ഷേമവും",
+  spirituality: "ആത്മീയജീവിതം", travel: "യാത്രയും വിദേശബന്ധങ്ങളും",
+};
+const ml = (text: string) => translate("ml", text);
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const norm360 = (x: number) => ((x % 360) + 360) % 360;
 const dm = (deg: number) => {
@@ -557,7 +564,10 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
       what: `${d.lord} ${levelName("dasa", plain)}`,
       lean: d.tone,
       line: lean ? `The app's lines for this period run ${num(lean.favour)} favourable to ${num(lean.against)} trying.` : undefined,
-      plainSummary: plain ? { title: `${d.lord} long planetary period`, text: `Parashari assigns ${thePlanet(d.lord)} to this long time cycle. The reading considers the planet's birth-chart conditions together with the shorter periods inside it.${lean ? ` The app counts ${num(lean.favour)} supportive and ${num(lean.against)} challenging selected interpretations; these counts describe its rule results, not the likelihood of an event.` : ""}`, basis: `${d.lord} dasa (main period)${lean ? `; ${lean.favour} favourable and ${lean.against} trying selected lines` : ""}.` } : undefined,
+      plainSummary: plain ? { title: `${d.lord} long planetary period`, text: `Parashari assigns ${thePlanet(d.lord)} to this long time cycle. The reading considers the planet's birth-chart conditions together with the shorter periods inside it.${lean ? ` The app counts ${num(lean.favour)} supportive and ${num(lean.against)} challenging selected interpretations; these counts describe its rule results, not the likelihood of an event.` : ""}`, basis: `${d.lord} dasa (main period)${lean ? `; ${lean.favour} favourable and ${lean.against} trying selected lines` : ""}.`,
+        ml: { title: `${ml(d.lord)} പ്രധാന ദശ`,
+          text: `പരാശരി പ്രകാരം ഈ ദീർഘകാല ചക്രത്തിന്റെ മുഖ്യഗ്രഹം ${ml(d.lord)} ആണ്. ജനനജാതകത്തിലെ ഗ്രഹസ്ഥിതിയും ഇതിനുള്ളിലെ ചെറുകാലങ്ങളും ചേർത്താണ് വായിക്കുന്നത്.${lean ? ` തിരഞ്ഞെടുത്ത വ്യാഖ്യാനങ്ങളിൽ ആപ്പ് ${lean.favour} അനുകൂല സൂചനകളും ${lean.against} ശ്രദ്ധാസൂചനകളും എണ്ണുന്നു; ഇത് നിയമങ്ങളുടെ എണ്ണമാണ്, ഒരു സംഭവം നടക്കാനുള്ള സാധ്യതയല്ല.` : ""}`,
+          basis: `${ml(d.lord)} ദശ (പ്രധാന കാലം)${lean ? `; തിരഞ്ഞെടുത്തവയിൽ ${lean.favour} അനുകൂലവും ${lean.against} ശ്രദ്ധ ആവശ്യപ്പെടുന്നതുമാണ്` : ""}.` } } : undefined,
       detail: plain || !lean ? undefined : `Lean ${lean.step}: ${lean.favour} for, ${lean.against} against (the app's count, provisional).`,
       tags: tagsFor({ attached: topicAttachments(topics, d.lord), lord: d.lord }, lagnaSign, held),
       link: periodLink,
@@ -811,7 +821,9 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
       system: "Nadi",
       what: group === "now" ? `${x.period.planet} through ${SIGNS[x.period.signIndex]}` : `${x.period.planet} enters ${SIGNS[x.period.signIndex]}`,
       line: x.headline,
-      plainSummary: plain ? { title: group === "now" ? `${x.period.planet} passing through ${SIGNS[x.period.signIndex]}` : `${x.period.planet} begins passing through ${SIGNS[x.period.signIndex]}`, text: `In this Nadi method, the planet's passage is compared with positions in the birth chart.${touched.size ? ` Here it has a calculated relationship with ${listJoin(Array.from(touched).map(thePlanet))} at birth.` : ""}${areas.length ? ` The selected chart findings connect this passage with ${listJoin(areas.map((a) => areaNoun(a.area).toLowerCase()))}.` : ""} These are themes to explore, not dates of promised events.`, basis: x.headline } : undefined,
+      plainSummary: plain ? { title: group === "now" ? `${x.period.planet} passing through ${SIGNS[x.period.signIndex]}` : `${x.period.planet} begins passing through ${SIGNS[x.period.signIndex]}`, text: `In this Nadi method, the planet's passage is compared with positions in the birth chart.${touched.size ? ` Here it has a calculated relationship with ${listJoin(Array.from(touched).map(thePlanet))} at birth.` : ""}${areas.length ? ` The selected chart findings connect this passage with ${listJoin(areas.map((a) => areaNoun(a.area).toLowerCase()))}.` : ""} These are themes to explore, not dates of promised events.`, basis: x.headline,
+        ml: { title: `${ml(x.period.planet)} ${ml(SIGNS[x.period.signIndex])} രാശിയിലൂടെ ${group === "now" ? "സഞ്ചരിക്കുന്നു" : "സഞ്ചാരം തുടങ്ങുന്നു"}`,
+          text: `ഈ നാഡി രീതിയിൽ ഗ്രഹത്തിന്റെ സഞ്ചാരം ജനനജാതകത്തിലെ സ്ഥാനങ്ങളുമായി താരതമ്യം ചെയ്യുന്നു.${touched.size ? ` ഇവിടെ ജനനജാതകത്തിലെ ${Array.from(touched).map(ml).join(", ")} ${touched.size === 1 ? "എന്ന ഗ്രഹവുമായി" : "എന്നീ ഗ്രഹങ്ങളുമായി"} കണക്കാക്കിയ ബന്ധമുണ്ട്.` : ""}${areas.length ? ` തിരഞ്ഞെടുത്ത ജാതകസൂചനകൾ ഈ സഞ്ചാരത്തെ ${areas.map((a) => mlArea[a.area]).join(", ")} ${areas.length === 1 ? "എന്ന വിഷയവുമായി" : "എന്നീ വിഷയങ്ങളുമായി"} ബന്ധിപ്പിക്കുന്നു.` : ""} ഇവ പരിശോധിക്കാവുന്ന വിഷയങ്ങളാണ്; സംഭവങ്ങൾ ഉറപ്പിക്കുന്ന തീയതികളല്ല.` } } : undefined,
       nadiPlanets,
       detail: plain ? undefined : `Weight ${x.weight} of 3 (Rao and Naik: Jupiter from the native, Saturn from karma).`,
       tags: tagsFor({ attached: areas }, lagnaSign, held),

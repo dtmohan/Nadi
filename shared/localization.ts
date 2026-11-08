@@ -1,5 +1,6 @@
 // Shared UI and report translations. Never infer a translation for unknown text.
 import { MALAYALAM_BNN_THEMES } from "./malayalam-bnn-themes";
+import { MALAYALAM_READER_THEMES } from "./malayalam-reader-themes";
 import { MALAYALAM_SCHOOL_SOURCES } from "./malayalam-school-sources";
 export type Locale = "en" | "ml";
 
@@ -432,5 +433,5 @@ const ML: Record<string, string> = {
 
 /** Unknown content remains in English until a reviewed translation is available. */
 export function translate(locale: Locale, text: string): string {
-  return locale === "ml" ? (ML[text] ?? MALAYALAM_BNN_THEMES[text] ?? MALAYALAM_SCHOOL_SOURCES[text] ?? text) : text;
+  return locale === "ml" ? (ML[text] ?? MALAYALAM_BNN_THEMES[text] ?? MALAYALAM_READER_THEMES[text] ?? MALAYALAM_SCHOOL_SOURCES[text] ?? text) : text;
 }

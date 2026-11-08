@@ -9,7 +9,7 @@ import { PLAIN_TOPIC_LABEL, type PlainTopic } from "@shared/topic-brief";
 import { SCHOOL_NAME, SCHOOL_TOPIC_LABEL } from "@shared/school-topic-brief";
 import { apiRequest } from "@/lib/queryClient";
 import { chartsStore } from "@/lib/charts-store";
-import { LocalizedText, useLocale, useT } from "@/lib/i18n";
+import { LocalizedText, translate, useLocale, useT } from "@/lib/i18n";
 import { SchoolTopicExplanation } from "@/components/school-topic-brief";
 import { TopicThemes } from "@/components/topic-themes";
 import { cn } from "@/lib/utils";
@@ -28,6 +28,28 @@ const TOPIC_LEAD: Record<PlainTopic, { en: string; ml: string }> = {
   travel: { en: "A closer look at travel and distant places", ml: "യാത്രയെയും വിദേശബന്ധങ്ങളെയും കുറിച്ച്" },
 };
 const ROUTE: Record<string, string> = { parashari: "parashari", kp: "kp", jaimini: "jaimini", alp: "alp", prasna: "prasna" };
+const AREA_WORDS: Record<PlainTopic, { en: string; ml: string }> = {
+  career: { en: "work", ml: "തൊഴിലിനെക്കുറിച്ച്" }, marriage: { en: "partnership", ml: "പങ്കാളിത്തത്തെക്കുറിച്ച്" },
+  children: { en: "children and family", ml: "സന്താനത്തെയും കുടുംബത്തെയും കുറിച്ച്" },
+  self: { en: "your approach to life", ml: "ജീവിതത്തെ സമീപിക്കുന്ന രീതിയെക്കുറിച്ച്" },
+  authority: { en: "standing and responsibility", ml: "സ്ഥാനത്തെയും ഉത്തരവാദിത്തത്തെയും കുറിച്ച്" },
+  wealth: { en: "money and assets", ml: "ധനത്തെയും സ്വത്തിനെയും കുറിച്ച്" },
+  education: { en: "learning", ml: "പഠനത്തെക്കുറിച്ച്" },
+  family: { en: "family", ml: "കുടുംബത്തെക്കുറിച്ച്" },
+  health: { en: "well-being", ml: "ക്ഷേമത്തെക്കുറിച്ച്" },
+  spirituality: { en: "spiritual life", ml: "ആത്മീയജീവിതത്തെക്കുറിച്ച്" },
+  travel: { en: "travel and distant places", ml: "യാത്രയെയും വിദേശബന്ധങ്ങളെയും കുറിച്ച്" },
+};
+
+/** Family theme labels are separate from the selected source sentence. */
+function ThemeText({ text }: { text: string }) {
+  const { locale } = useLocale();
+  const match = /^(Father|Mother|Siblings|Family): (.+)$/.exec(text);
+  if (locale !== "ml" || !match) return <LocalizedText>{text}</LocalizedText>;
+  const value = translate("ml", match[2]);
+  const labels: Record<string, string> = { Father: "അച്ഛൻ", Mother: "അമ്മ", Siblings: "സഹോദരങ്ങൾ", Family: "കുടുംബം" };
+  return <><span lang="ml">{labels[match[1]]}: </span><span lang={value === match[2] ? "en" : "ml"}>{value}</span></>;
+}
 
 /** Texts are kept as independent source selections, so an editor cannot silently merge or strengthen them. */
 function TopicStory({ topic, chartId }: { topic: ReaderTopic; chartId: string }) {
@@ -46,15 +68,18 @@ function TopicStory({ topic, chartId }: { topic: ReaderTopic; chartId: string })
     </h2>
     <p className="mt-5 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{ml ? "നാഡി · ജനനജാതകം" : "Nadi · the birth chart"}</p>
     <div className="mt-3 max-w-3xl space-y-4 text-base leading-8 text-foreground/90 sm:text-lg">
-      <p>{n.topic === "career" && !!n.details?.length
-        ? (ml ? "നാഡി വായന തൊഴിൽജീവിതത്തിലെ സാധ്യതകൾ പരിശോധിക്കുന്നു." : "The Nadi reading explores possible themes in your work.")
+      <p>{!["marriage", "children", "family", "health"].includes(n.topic)
+        ? n.details?.length
+          ? (ml ? `തിരഞ്ഞെടുത്ത നാഡി സൂചനകൾ ${AREA_WORDS[n.topic].ml} ചില സാധ്യതകൾ പരിശോധിക്കുന്നു.` : `The selected Nadi interpretations explore possible themes in ${AREA_WORDS[n.topic].en}.`)
+          : (ml ? `തിരഞ്ഞെടുത്ത നാഡി സൂചനകളിൽ ${AREA_WORDS[n.topic].ml} വ്യക്തമായ ലളിതവായന ലഭ്യമല്ല.` : `The selected Nadi rules do not give a clear plain-language theme about ${AREA_WORDS[n.topic].en} here.`)
         : <LocalizedText>{n.summary}</LocalizedText>}</p>
+      {topic.nadiContext && <p data-testid="reader-nadi-context">{ml ? topic.nadiContext.ml : topic.nadiContext.en}</p>}
       {!!n.details?.length && <div className="space-y-4" data-testid="reader-nadi-themes">
         {n.details.map((detail, index) => {
           const prose = topic.prose[index];
           return <p key={`${detail}-${index}`}>{prose
             ? (ml ? prose.ml : prose.en)
-            : <>{ml ? "തിരഞ്ഞെടുത്ത മറ്റൊരു വ്യാഖ്യാനം: " : "Another selected interpretation: "}<LocalizedText>{detail}</LocalizedText></>}</p>;
+            : <>{ml ? "തിരഞ്ഞെടുത്ത മറ്റൊരു വ്യാഖ്യാനം: " : "Another selected interpretation: "}<ThemeText text={detail} /></>}</p>;
         })}
         <details className="mt-3 border-l-2 border-primary/40 pl-4">
           <summary className="cursor-pointer text-sm font-medium text-primary">{ml ? "ഓരോ സൂചനയുടെയും അടിസ്ഥാനം" : "Why these themes?"}</summary>
@@ -91,20 +116,21 @@ function TopicStory({ topic, chartId }: { topic: ReaderTopic; chartId: string })
       <p className="mt-3 text-xs leading-relaxed text-muted-foreground"><LocalizedText>{n.timingNote}</LocalizedText></p>
     </section>}
 
-    {topic.schools.length > 0 && <section className="mt-10 border-t pt-7" data-testid="reader-school-comparison">
+    {topic.visibleSchools.length > 0 && <section className="mt-10 border-t pt-7" data-testid="reader-school-comparison">
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">{ml ? "മറ്റു കാഴ്ചപ്പാടുകൾ" : "Other perspectives"}</p>
       <h3 className="mt-2 font-display text-2xl font-semibold">{ml ? "മറ്റു രീതികൾ എന്തു പറയുന്നു" : "What the other schools see"}</h3>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{ml
         ? "ഓരോ രീതിയും സ്വന്തം നിയമങ്ങൾ ഉപയോഗിക്കുന്നു. ALP തീയതി അനുസരിച്ചുള്ള പുരോഗമനവായനയാണ്; ഇവിടെ പ്രശ്നമാർഗം ജനനജാതകമാണ് വായിക്കുന്നത്."
         : "Each school uses its own rules. ALP is a date-specific progressed reading; Prasna Marga here reads the birth chart, not a question chart."}</p>
       <div className="mt-5 grid items-start gap-3 sm:grid-cols-2">
-        {topic.schools.map((b) => <article key={`${b.school}-${b.topic}`} className="min-w-0 rounded-lg border bg-card/50 p-4" data-testid={`reader-school-${b.school}-${b.topic}`}>
+        {topic.visibleSchools.map((b, index) => <article key={`${b.school}-${b.topic}`} className="min-w-0 rounded-lg border bg-card/50 p-4" data-testid={`reader-school-${b.school}-${b.topic}`}>
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h4 className="font-display text-lg font-semibold">{t(SCHOOL_NAME[b.school])}{b.topic !== n.topic ? ` · ${t(SCHOOL_TOPIC_LABEL[b.topic])}` : ""}</h4>
             {b.provisional && <span className="text-xs font-medium text-muted-foreground">{t("Provisional")}</span>}
           </div>
           {b.frame && <p className="mt-1 text-xs text-muted-foreground">{ml && b.ml?.frame ? <span lang="ml">{b.ml.frame}</span> : <span lang="en">{b.frame}</span>}</p>}
           <p className="mt-3 text-sm leading-relaxed">{ml && b.ml?.summary ? <span lang="ml">{b.ml.summary}</span> : <span lang="en">{b.summary}</span>}</p>
+          {topic.schoolContexts[index]?.map((p, i) => <p key={`${p.kind}-${i}`} className="mt-3 text-sm leading-relaxed text-foreground/85" data-testid={`reader-school-context-${b.school}-${b.topic}-${i}`}>{ml ? p.ml : p.en}</p>)}
           {b.conditional && <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{ml ? "ഈ വിലയിരുത്തൽ ജനനസമയത്തെ ആശ്രയിക്കുന്നു." : "This assessment is conditional on the birth time."}</p>}
           <details className="mt-3 border-t pt-3">
             <summary className="cursor-pointer text-sm font-medium text-primary">{ml ? "അടിസ്ഥാനവും ഉറവിടവും" : "See the basis and source"}</summary>
@@ -157,8 +183,8 @@ export function ReaderContent({ result, experience, chartId }: { result: ChartRe
       <details className="mt-3 text-sm text-muted-foreground">
         <summary className="cursor-pointer font-medium text-primary">{ml ? "ഈ വായന എങ്ങനെ എഴുതുന്നു" : "How this reading is written"}</summary>
         <p className="mt-2 max-w-3xl leading-relaxed">{ml
-          ? "നിലവിലുള്ള കണക്കുകളിലെ തിരഞ്ഞെടുത്ത സൂചനകളാണ് ഇവിടെ ഉപയോഗിക്കുന്നത്. പരിശോധിച്ച ചില നാഡി തൊഴിൽ–വിവാഹ സൂചനകൾ കൂടുതൽ വിശദമായി എഴുതിയിരിക്കുന്നു; മറ്റുള്ളവ നിലവിലുള്ള ലളിതവായനയിൽ നിന്നാണ്. ഓരോ രീതിയുടെയും ഉറവിടം പ്രത്യേകം കാണാം."
-          : "This page uses selected findings from the existing calculations. Reviewed prose expands some Nadi career and marriage findings; other passages use the existing plain summaries. Each school's basis remains separate."}</p>
+          ? "നിലവിലുള്ള കണക്കുകളിലെ തിരഞ്ഞെടുത്ത സൂചനകളാണ് ഇവിടെ ഉപയോഗിക്കുന്നത്. പല ജീവിതവിഷയങ്ങളിലെയും പരിശോധിച്ച നാഡി സൂചനകൾ കൂടുതൽ വിശദമായി എഴുതിയിരിക്കുന്നു; മറ്റുള്ളവ നിലവിലുള്ള ലളിതവായനയിൽ നിന്നാണ്. മറ്റു രീതികളുടെ ജാതകസന്ദർഭവും ഉറവിടവും പ്രത്യേകം കാണാം."
+          : "This page uses selected findings from the existing calculations. Reviewed prose expands selected Nadi findings across life topics; other passages use existing plain summaries. Each school's chart context and source remain separate."}</p>
       </details>
       {experience.before.length > 0 && <details className="mt-3 text-sm text-muted-foreground">
         <summary className="cursor-pointer font-medium text-primary">{ml ? "ഈ ജാതകത്തിന്റെ സമയപരിധി അറിയുക" : "What to know about this chart"}</summary>
@@ -194,12 +220,17 @@ export function ReaderContent({ result, experience, chartId }: { result: ChartRe
       <h2 className="mt-2 font-display text-3xl font-semibold">{experience.past ? (ml ? "രേഖപ്പെടുത്തിയ സമയത്തെ കാലയളവുകൾ" : "At the recorded date") : (ml ? "ഇപ്പോൾ പരിശോധിക്കാവുന്നത്" : "The present, in context")}</h2>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">{ml ? "ഓരോ കാലയളവും അതതു രീതി പ്രകാരമാണ്. ഇവ പ്രത്യേക സംഭവങ്ങളുടെ ഉറപ്പായ സമയങ്ങളല്ല." : "Each passage is described by the method that uses it. These are not guaranteed dates for an event."}</p>
       <div className="mt-5 grid gap-3 md:grid-cols-3">
-        {experience.present.map((row) => <article key={row.id} className="rounded-lg border bg-card/50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{row.system} · <span lang="en">{row.when}</span></p>
-          <h3 className="mt-2 font-display text-lg font-semibold"><LocalizedText>{row.plainSummary!.title}</LocalizedText></h3>
-          <p className="mt-2 text-sm leading-relaxed"><LocalizedText>{row.plainSummary!.text}</LocalizedText></p>
-          {row.plainSummary?.basis && <details className="mt-3 text-xs text-muted-foreground"><summary className="cursor-pointer font-medium text-primary">{ml ? "കണക്കിന്റെ അടിസ്ഥാനം" : "Calculation basis"}</summary><p className="mt-2" lang="en">{row.plainSummary.basis}</p></details>}
-        </article>)}
+        {experience.present.map((row) => {
+          const translated = ml ? row.plainSummary?.ml : undefined;
+          const date = (iso: string) => DateTime.fromISO(iso, { setZone: true }).setZone(result.chart.timezone).setLocale("ml-IN").toFormat("LLL yyyy");
+          const when = translated && row.end ? `${date(row.start)} – ${date(row.end)}` : row.when;
+          return <article key={row.id} className="rounded-lg border bg-card/50 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t(row.system)} · <span lang={translated ? "ml" : "en"}>{when}</span></p>
+            <h3 className="mt-2 font-display text-lg font-semibold">{translated ? translated.title : <LocalizedText>{row.plainSummary!.title}</LocalizedText>}</h3>
+            <p className="mt-2 text-sm leading-relaxed">{translated ? translated.text : <LocalizedText>{row.plainSummary!.text}</LocalizedText>}</p>
+            {row.plainSummary?.basis && <details className="mt-3 text-xs text-muted-foreground"><summary className="cursor-pointer font-medium text-primary">{ml ? "കണക്കിന്റെ അടിസ്ഥാനം" : "Calculation basis"}</summary><p className="mt-2" lang={translated?.basis ? "ml" : "en"}>{translated?.basis ?? row.plainSummary.basis}</p></details>}
+          </article>;
+        })}
       </div>
     </section>}
     <footer className="mt-12 flex items-center gap-2 border-t pt-5 text-xs text-muted-foreground"><BookOpen className="h-4 w-4" aria-hidden /> {ml ? "ഒരേ കണക്ക് · ഓരോ രീതിക്കും സ്വന്തം വായന" : "One chart · each tradition in its own voice"}</footer>

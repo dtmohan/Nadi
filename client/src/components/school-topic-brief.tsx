@@ -41,6 +41,7 @@ export function SchoolTopicExplanation({ brief, onOpen }: { brief: SchoolTopicBr
     ? <span lang="ml">{malayalam}</span>
     : <span lang="en"><Soft>{english}</Soft></span>;
   const basis = schoolTopicBasisPlain(brief);
+  const basisTranslation = basis === brief.basis ? brief.ml?.basis : t(basis) !== basis ? t(basis) : undefined;
   return <div className="space-y-1.5 text-sm leading-relaxed" lang={locale} data-testid={`plain-school-${brief.school}-${brief.topic}`}>
     {brief.frame && <p className="text-xs font-medium text-muted-foreground">{line(brief.frame, brief.ml?.frame)}</p>}
     <p>{line(brief.summary, brief.ml?.summary)}</p>
@@ -54,7 +55,7 @@ export function SchoolTopicExplanation({ brief, onOpen }: { brief: SchoolTopicBr
     {brief.provisional && <p className="text-xs text-muted-foreground" data-testid="school-topic-provisional">{t("Provisional")}: {line(brief.reason || "This classification includes an app interpretation.", brief.ml?.reason)}</p>}
     <details className="text-xs text-muted-foreground">
       <summary className="cursor-pointer font-medium">{t("Show the basis")}</summary>
-      <p className="mt-1">{line(basis, basis === brief.basis ? brief.ml?.basis : undefined)}</p>
+      <p className="mt-1">{line(basis, basisTranslation)}</p>
       {!!brief.details?.length && <ul className="mt-2 space-y-2">{brief.details.map((d) => <li key={d.id}>
         <p>{line(d.text, brief.ml?.details?.[d.id])}</p>
         <p className="mt-0.5" lang="en">{d.sourceUrl ? <a className="underline" href={d.sourceUrl} target="_blank" rel="noreferrer">{d.source}</a> : d.source}</p>

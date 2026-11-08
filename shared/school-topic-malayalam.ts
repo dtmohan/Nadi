@@ -117,7 +117,7 @@ export function withSchoolMalayalam(b: SchoolTopicBrief, result: ChartResult, in
     const d = b.details?.find((v) => v.id === `house-${b.detailHouse}-lord`);
     const part = input.parashari.houseProse?.find((h) => h.house === b.detailHouse)?.parts.find((p) => p.key === "lord");
     const sourceMl = bhava && part ? parashariLordMalayalam(input.parashari, bhava, part) : undefined;
-    if (d && part && sourceMl && d.text === `House-level source interpretation: ${soften(part.textPlain)}`)
+    if (d && part && sourceMl && ["House-level source interpretation: ", "A house-level interpretation: "].some((prefix) => d.text === `${prefix}${soften(part.textPlain)}`))
       ml.details = { ...ml.details, [d.id]: `ഭാവത്തെക്കുറിച്ചുള്ള ഉറവിടവ്യാഖ്യാനം: ${sourceMl}` };
   }
   if (b.school === "kp" && b.detailHouse && b.explanation?.length) {
