@@ -25,6 +25,25 @@ test("editorial translations preserve the complete reviewed source, including co
   assert.equal(workThemeMalayalam(id, source, passage.en + " Extra assertion."), undefined);
 });
 
+test("basic and element career paraphrases stay tied to complete source snapshots", () => {
+  for (const id of ["sa-me", "sa-su", "sa-fire", "sa-earth", "sa-water"]) {
+    const source = BNN_SOURCE_SNAPSHOT[id];
+    const finding: Finding = { ruleId: id, area: "career", text: source, score: 0, planets: [], relation: null, viaRetro: false };
+    const passage = readerPassage("career", id, [finding]);
+    assert.ok(passage, `${id}: reviewed prose`);
+    assert.equal(workThemeMalayalam(id, source, passage.en), passage.ml);
+    assert.equal(workThemeMalayalam(id, `${source} An extra condition.`, passage.en), undefined);
+  }
+});
+
+test("a complete selected source translates only from its exact reviewed catalogue text", () => {
+  const source = BNN_SOURCE_SNAPSHOT["sa-su"];
+  const translated = workThemeMalayalam("sa-su", source, source);
+  assert.match(translated ?? "", /സർക്കാർ/);
+  assert.equal(workThemeMalayalam("sa-su", source + " Added condition.", source + " Added condition."), undefined);
+  assert.equal(workThemeMalayalam("sa-su", source, source + " Added words."), undefined);
+});
+
 test("only reviewed exact contrast lines get Malayalam", () => {
   const original = "Another part of a selected rule mentions breaks and restarts in the career line.";
   assert.match(workContrastMalayalam(original) ?? "", /തൊഴിൽ/);

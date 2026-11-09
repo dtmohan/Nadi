@@ -1,0 +1,26 @@
+{
+  "selection": "Selected on 2026-11-09 before inspecting prototype outputs or finalizing the selection algorithm. Convenience sample spanning occupations and places; not random, blinded, or representative. Birth sources are reported, not independently authenticated. This tests presentation and examples, not predictive accuracy.",
+  "asOf": "2026-11-09T12:00:00Z",
+  "cases": [
+    {
+      "name": "Tadanobu Asano", "gender": "male", "birthDate": "1973-11-27", "birthTime": "12:01", "timeStandard": "+09:00", "timezone": "Asia/Tokyo", "place": "Yokohama, Japan", "latitude": 35.45, "longitude": 139.65, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Asano%2C_Tadanobu", "birthSourceNote": "Astro-Databank quotes a social-media self-report, Rodden A; the original report was not independently inspected.",
+      "careerReference": "Actor and musician", "careerSource": "https://goldenglobes.com/person/tadanobu-asano/"
+    },
+    {
+      "name": "Paulo Davim", "gender": "male", "birthDate": "1959-10-25", "birthTime": "20:38", "timeStandard": "-03:00", "timezone": "America/Fortaleza", "place": "Natal, Brazil", "latitude": -5.795, "longitude": -35.209444, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Davim%2C_Paulo", "birthSourceNote": "Astro-Databank reports a civil registry entry in the collector's possession, Rodden AA; the underlying record was not independently inspected.",
+      "careerReference": "Physician and Brazilian senator", "careerSource": "https://www25.senado.leg.br/web/senadores/senador/-/perfil/5020"
+    },
+    {
+      "name": "François Roche", "gender": "male", "birthDate": "1961-02-25", "birthTime": "22:00", "timeStandard": "+01:00", "timezone": "Europe/Paris", "place": "Paris, France", "latitude": 48.866667, "longitude": 2.333333, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Roche%2C_Fran%C3%A7ois", "birthSourceNote": "Astro-Databank cites a birth record in a named archive, Rodden AA; the underlying record was not independently inspected.",
+      "careerReference": "Architect and founder of R&Sie(n)", "careerSource": "https://www.cca.qc.ca/fr/archives/464863/document-darchives-des-projets-de-rsienfa-ls-500348"
+    },
+    {
+      "name": "Beatrice Worsley", "gender": "female", "birthDate": "1921-10-18", "birthTime": "10:25", "timeStandard": "lmt", "timezone": "America/Mexico_City", "place": "Querétaro, Mexico", "latitude": 20.6, "longitude": -100.383333, "deathDate": "1972-05-08",
+      "birthSource": "https://www.astro.com/astro-databank/Worsley%2C_Beatrice", "birthSourceNote": "Astro-Databank reports a birth certificate in the collector's possession and uses local mean time, Rodden AA; neither the record nor local-time convention was independently inspected. Some published sources give 1922 rather than 1921.",
+      "careerReference": "Computer scientist and educator", "careerSource": "https://www.artsci.utoronto.ca/node/2931", "deathSource": "https://www.ebsco.com/research-starters/history/beatrice-worsley/"
+    }
+  ]
+}

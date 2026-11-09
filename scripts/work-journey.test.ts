@@ -2,9 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { Settings } from "luxon";
 import { computeChart } from "../server/routes";
-import { buildWorkJourney, workConnections, type WorkTheme } from "../shared/work-journey";
+import { buildWorkJourney, completeSimpleWorkTheme, selectWorkThemes, workConnections, type WorkTheme } from "../shared/work-journey";
 import { mentionsHeldArea, withholdText } from "../shared/life-stage";
 import type { Chart } from "../shared/schema";
+import type { Finding } from "../shared/rules";
 import { BNN_SOURCE_SNAPSHOT } from "../shared/malayalam-bnn-snapshot";
 
 const synthetic = (birthDate: string, deathDate: string | null = null, birthTime = "12:00") => ({
@@ -33,6 +34,90 @@ test("work themes retain their evaluated source and do not mutate chart findings
   assert.equal(JSON.stringify(result.reading.findings), before);
 });
 
+test("career journey retains different pair and trio readings, even when they share planets", () => {
+  const result = computeChart(synthetic("1990-02-01"));
+  const common = { area: "career" as const, relation: "conjunct" as const, viaRetro: false, source: "Synthetic test source" };
+  result.reading.findings = [
+    { ...common, ruleId: "sa-ma", planets: ["Saturn", "Mars"], score: 1, text: BNN_SOURCE_SNAPSHOT["sa-ma"] },
+    { ...common, ruleId: "t-sa-ma-me", planets: ["Saturn", "Mars", "Mercury"], score: 5, text: BNN_SOURCE_SNAPSHOT["t-sa-ma-me"] },
+  ];
+  const journey = buildWorkJourney(result);
+  const shown = [...journey.themes, ...journey.additionalThemes];
+  assert.deepEqual(new Set(shown.map((theme) => theme.evidence.ruleId)), new Set(["sa-ma", "t-sa-ma-me"]));
+  assert.notEqual(shown[0].evidence.sourceText, shown[1].evidence.sourceText);
+});
+
+test("featured career sample includes distinct rule families and leaves alternatives accessible", () => {
+  const make = (id: string): WorkTheme => ({ id, text: { en: id }, evidence: {
+    ruleId: id, en: id, ml: id, sourceText: id, planets: [], provisional: false,
+    timeSensitive: false, sourceUnverified: false, provenance: "source", testedQualifiers: [], untestedQualifiers: [],
+  } });
+  const ids = ["t-sa-ma-me", "t-ju-sa-ma", "sa-ma", "sa-ra", "sa-star-me", "sa-air", "ju-prev-sa", "sa-ve"];
+  const themes = ids.map(make);
+  const findings = ids.map((id) => ({ area: "career", ruleId: id, text: BNN_SOURCE_SNAPSHOT[id], planets: [], score: 1, relation: null, viaRetro: false } as Finding));
+  const featured = selectWorkThemes(themes, findings).map((t) => t.id);
+  assert.deepEqual(featured, ["sa-ma", "t-sa-ma-me", "sa-air", "ju-prev-sa"]);
+  assert.equal(themes.filter((t) => !featured.includes(t.id)).length, 4);
+});
+
+test("reviewed earlier lead passages retain their order when a diverse alternative is added", () => {
+  const result = computeChart(synthetic("1990-02-01"));
+  const common = { area: "career" as const, relation: "conjunct" as const, viaRetro: false, source: "Synthetic source" };
+  result.reading.findings = [
+    { ...common, ruleId: "t-ju-ve-me", planets: ["Jupiter", "Venus", "Mercury"], score: 5, text: BNN_SOURCE_SNAPSHOT["t-ju-ve-me"] },
+    { ...common, ruleId: "t-sa-ma-me", planets: ["Saturn", "Mars", "Mercury"], score: 4, text: BNN_SOURCE_SNAPSHOT["t-sa-ma-me"] },
+    { ...common, ruleId: "sa-air", planets: ["Saturn"], score: 1, text: BNN_SOURCE_SNAPSHOT["sa-air"] },
+  ];
+  const previous = ["t-ju-ve-me", "t-sa-ma-me"];
+  const journey = buildWorkJourney(result);
+  const pool = [...journey.themes, ...journey.additionalThemes];
+  const featured = selectWorkThemes(pool, result.reading.findings, previous);
+  assert.deepEqual(featured.map((theme) => theme.evidence.ruleId), [...previous, "sa-air"]);
+  for (const theme of featured) assert.ok(result.reading.findings.some((f) => f.ruleId === theme.evidence.ruleId && f.text === theme.evidence.sourceText));
+});
+
+test("simple pair wording is displayed only when it preserves a complete unchanged source effect", () => {
+  const result = computeChart(synthetic("1990-02-01"));
+  const original: Finding = { ruleId: "sa-ve", area: "career", text: BNN_SOURCE_SNAPSHOT["sa-ve"],
+    score: 3, planets: ["Saturn", "Venus"], relation: "trine", viaRetro: false, source: "Synthetic source" };
+  const text = completeSimpleWorkTheme(original, result.reading);
+  assert.equal(text, "Profession linked to finance, arts, luxury goods, vehicles, hospitality or women-centred fields.");
+  result.reading.findings = [original];
+  const journey = buildWorkJourney(result);
+  assert.equal(journey.themes[0]?.text.en, text);
+  assert.ok(journey.themes[0]?.text.ml);
+  assert.equal(journey.themes[0]?.evidence.sourceText, original.text);
+  const multiClause: Finding = { ...original, ruleId: "sa-ma", text: BNN_SOURCE_SNAPSHOT["sa-ma"] };
+  assert.equal(completeSimpleWorkTheme(multiClause, result.reading), undefined);
+  for (const suffix of ["; only when a condition is met.", " If another condition is met.", "\nAdditional meaning."]) {
+    assert.equal(completeSimpleWorkTheme({ ...original, text: `${original.text}${suffix}` }, result.reading), undefined);
+  }
+  const held = buildWorkJourney(computeChart(synthetic("2018-01-01")));
+  assert.deepEqual(held.themes, []);
+  assert.deepEqual(held.additionalThemes, []);
+});
+
+test("a finding without a listed source is unresolved and visibly unverified", () => {
+  const result = computeChart(synthetic("1990-02-01"));
+  result.reading.findings = [{ ruleId: "sa-ve", area: "career", text: BNN_SOURCE_SNAPSHOT["sa-ve"],
+    score: 1, planets: ["Saturn", "Venus"], relation: "trine", viaRetro: false }];
+  const journey = buildWorkJourney(result);
+  const theme = [...journey.themes, ...journey.additionalThemes][0];
+  assert.equal(theme.evidence.source, undefined);
+  assert.equal(theme.evidence.provenance, "unresolved");
+  assert.equal(theme.evidence.sourceUnverified, true);
+});
+
+test("a book citation alone does not establish source provenance for a pair condition", () => {
+  const result = computeChart(synthetic("1990-02-01"));
+  result.reading.findings = [{ ruleId: "sa-ve", area: "career", text: BNN_SOURCE_SNAPSHOT["sa-ve"],
+    score: 1, planets: ["Saturn", "Venus"], relation: "trine", viaRetro: false, source: "Rao (catalogue citation)" }];
+  const journey = buildWorkJourney(result);
+  const theme = [...journey.themes, ...journey.additionalThemes][0];
+  assert.equal(theme.evidence.source, "Rao (catalogue citation)");
+  assert.equal(theme.evidence.provenance, "unresolved");
+});
+
 test("shared themes require two distinct explicit sources, and do not turn negation into agreement", () => {
   const make = (id: string, en: string): WorkTheme => ({ id, text: { en }, evidence: {
     ruleId: id, en: "source context", ml: "ഉറവിടം", sourceText: en, planets: [], provisional: false,
@@ -53,6 +138,7 @@ test("held careers expose no themes, timing or school evidence", () => {
     const journey = buildWorkJourney(computeChart(synthetic(birth, passing)));
     assert.equal(journey.state, "held");
     assert.deepEqual(journey.themes, []);
+    assert.deepEqual(journey.additionalThemes, []);
     assert.deepEqual(journey.windows, []);
     assert.deepEqual(journey.schools, []);
   }
@@ -63,7 +149,7 @@ test("eligible work source evidence never exposes another held or sensitive topi
     const journey = buildWorkJourney(computeChart(synthetic("2009-01-01", null, birthTime)));
     assert.equal(journey.state, "available");
     const held = (area: string) => area === "marriage" || area === "children";
-    for (const theme of journey.themes) {
+    for (const theme of [...journey.themes, ...journey.additionalThemes]) {
       for (const value of [theme.text.en, theme.evidence.en, theme.evidence.sourceText ?? "", ...theme.evidence.testedQualifiers, ...theme.evidence.untestedQualifiers]) {
         assert.equal(mentionsHeldArea(value, held), false);
         assert.equal(withholdText(value), false);
@@ -99,7 +185,8 @@ test("changed source conditions cannot reuse an old editorial paraphrase", () =>
     score: 5, planets: ["Saturn", "Mercury", "Ketu"], relation: "conjunct", viaRetro: false,
     source: "Synthetic test source",
   }];
-  const theme = buildWorkJourney(result).themes.find((t) => t.evidence.ruleId === "t-sa-me-ke");
+  const journey = buildWorkJourney(result);
+  const theme = [...journey.themes, ...journey.additionalThemes].find((t) => t.evidence.ruleId === "t-sa-me-ke");
   assert.ok(theme);
   assert.doesNotMatch(theme.text.en, /^Another source names computing/);
   assert.match(theme.text.en, /added condition/);
@@ -122,7 +209,7 @@ test("only the exact reviewed break-and-return contrast is omitted when its mean
   const changed = structuredClone(result);
   changed.reading.findings[0].text = original.replace("or a late spiritual turn", "or a late spiritual turn with an added qualification");
   const revised = buildWorkJourney(changed);
-  assert.match(revised.contrast ?? "", /added qualification/);
+  assert.match(revised.additionalThemes[0]?.text.en ?? "", /added qualification/);
 });
 
 test("ambiguous duplicate finding ids do not produce untraceable themes", () => {

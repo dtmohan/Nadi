@@ -4,7 +4,8 @@
  * 10.1  A planet in the 10th from the lagna or from the Moon gives wealth through the person it stands for:
  *       Sun the father, Moon the mother, Mars enemies, Mercury friends, Jupiter brothers, Venus women, Saturn
  *       servants. The calling is read from the lord of the navamsa occupied by the lord of the 10th counted
- *       from the lagna, the Moon and the Sun. Iyer reads this as a fallback; the Adyar commentary reads both.
+ *       from the lagna, the Moon and the Sun. Aiyar's 1885 translation describes all three;
+ *       it does not state that the navamsa method requires an empty tenth house.
  * 10.2-3 What each navamsa lord gives as a calling.
  * 10.4  The livelihood planet in a friend's, an enemy's or its own sign; the strong exalted Sun; benefics in the
  *       11th, lagna or 2nd.
@@ -113,7 +114,7 @@ export interface ReferenceReading {
 
 export interface KarmajivaResult {
   tenthOccupants: TenthOccupant[];
-  /** No planet in the 10th from lagna or Moon: Iyer's fallback condition, not a consensus reading. */
+  /** No classical planet in the 10th from lagna or Moon; legacy field name, not a source-backed fallback. */
   fallbackApplies: boolean;
   references: ReferenceReading[];
   /** The stronger of the Sun and the Moon by Shadbala, when known (the commentary's first reading, provisional). */
@@ -232,7 +233,7 @@ export function computeKarmajiva(
     .map((p) => p.planet);
 
   const caveats: string[] = [
-    "10.1 names the 10th from the lagna and from the Moon for the planet-in-the-10th rule; the navamsa rule that follows names the lagna, the Moon and the Sun. Iyer reads the navamsa rule as the fallback when the 10th is empty; the Adyar commentary reads both halves together.",
+    "10.1 names the 10th from the lagna and from the Moon for the planet-in-the-10th rule; the navamsa rule names the lagna, the Moon and the Sun. Aiyar's translation reads all three navamsa references without an empty-tenth requirement. The app records whether the two tenth houses are empty as a separate calculation, not a prerequisite from that source.",
     "Which of the three references decides: the commentary (Adyar p. 446) first gives only the strongest of the lagna, the Moon and the Sun, citing Jataka Parijata, then (p. 447) allows all three, citing Garga, several planets giving several callings each in its own period. Both readings are the commentator's, so they are provisional; the table shows all three and marks the stronger luminary by Shadbala when the base is known.",
     "Neely renders the Moon's person in 10.1 as the father's wife; the Adyar text reads janani, the mother, which Iyer also has. The mother is shown.",
     "The Sun's self-effort clause in 10.4 requires the Sun exalted and strong; strength is taken as Shadbala at or above the required rupas when the base is known, else exaltation alone.",

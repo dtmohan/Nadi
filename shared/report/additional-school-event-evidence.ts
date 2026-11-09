@@ -20,7 +20,7 @@ export function additionalSchoolParas(e: AdditionalSchoolNatalEvidence | undefin
       ...(cite ? { cites: [cite(f.source.label, f.source.url)] } : {}) });
   }
   if (show("bj") && e.brihatJataka && e.brihatJataka.status !== "unmapped") {
-    result.push({ kind: "note", provisional: true, text: `Brihat Jataka livelihood · ${e.brihatJataka.status}. The tenth lord's D9 and its lord describe historical career themes, not a dated promise. Iyer treats this as a fallback for an empty tenth from the ascendant or Moon; another commentary reads both rules together.`, ...(cite ? { cites: [cite(KARMAJIVA_SOURCES.v1.label, KARMAJIVA_SOURCES.v1.url), cite(KARMAJIVA_SOURCES.v2.label, KARMAJIVA_SOURCES.v2.url), cite(KARMAJIVA_SOURCES.v3.label, KARMAJIVA_SOURCES.v3.url)] } : {}) });
+    result.push({ kind: "note", provisional: true, text: `Brihat Jataka livelihood · ${e.brihatJataka.status}. The tenth lord's D9 and its lord describe historical career themes, not a dated promise. Aiyar's translation reads all three reference chains without requiring an empty tenth house.`, ...(cite ? { cites: [cite(KARMAJIVA_SOURCES.v1.label, KARMAJIVA_SOURCES.v1.url), cite(KARMAJIVA_SOURCES.v2.label, KARMAJIVA_SOURCES.v2.url), cite(KARMAJIVA_SOURCES.v3.label, KARMAJIVA_SOURCES.v3.url), cite(KARMAJIVA_SOURCES.iyer.label, KARMAJIVA_SOURCES.iyer.url)] } : {}) });
     for (const r of e.brihatJataka.career?.references ?? []) result.push({ kind: "p", provisional: true, text: `${r.reference}: tenth lord ${r.tenthLord} → ${signName(r.navamsaSign)} D9 → ${r.navamsaLord}. Traditional themes: ${r.calling}.` });
   }
   if (show("prasna")) {

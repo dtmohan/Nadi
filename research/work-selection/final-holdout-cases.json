@@ -1,0 +1,21 @@
+{
+  "selection": "Selected on 2026-11-09 after the selection policy was fixed and before these outputs were inspected. Convenience cases, not random or blinded, with reported birth sources and separately cited careers; original birth records were not independently inspected. This is a small exploratory comparison, not a predictive-accuracy study.",
+  "asOf": "2026-11-09T12:00:00Z",
+  "cases": [
+    {
+      "name": "Bernice Durand", "gender": "female", "birthDate": "1942-12-28", "birthTime": "17:38", "timeStandard": "-05:00", "timezone": "America/Chicago", "place": "Clarion, Iowa, USA", "latitude": 42.733333, "longitude": -93.733333, "deathDate": "2022-02-07",
+      "birthSource": "https://www.astro.com/astro-databank/Durand%2C_Bernice", "birthSourceNote": "Astro-Databank reports a birth record in a collector's possession and Central War Time, Rodden AA; the underlying record was not independently inspected.",
+      "careerReference": "Particle physicist, educator and university administrator", "careerSource": "https://www.physics.wisc.edu/department/alumni-friends/remembering-bernice-durand/"
+    },
+    {
+      "name": "Drake", "gender": "male", "birthDate": "1986-10-24", "birthTime": "02:31", "timeStandard": "-04:00", "timezone": "America/Toronto", "place": "Toronto, Ontario, Canada", "latitude": 43.65, "longitude": -79.383333, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Drake", "birthSourceNote": "Astro-Databank attributes the time to an image of a birth record shared by the subject, Rodden AA; the record was not independently inspected.",
+      "careerReference": "Rapper, recording artist and actor", "careerSource": "https://www.grammy.com/artists/drake/12370/"
+    },
+    {
+      "name": "Keith Livingstone", "gender": "male", "birthDate": "1958-10-18", "birthTime": "10:00", "timeStandard": "+03:00", "timezone": "Africa/Nairobi", "place": "Nairobi, Kenya", "latitude": -1.283333, "longitude": 36.816667, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Livingstone%2C_Keith", "birthSourceNote": "Astro-Databank quotes an autobiography, Rodden B. The stated 10:00 is rounded and the book was not independently inspected; no date of passing is assumed.",
+      "careerReference": "Running coach, runner and chiropractor", "careerSource": "https://athleticsillustrated.com/livingstone-keith/"
+    }
+  ]
+}

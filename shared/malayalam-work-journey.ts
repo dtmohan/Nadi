@@ -6,6 +6,7 @@ import { MALAYALAM_BNN_THEMES } from "./malayalam-bnn-themes";
 import { MALAYALAM_READER_THEMES } from "./malayalam-reader-themes";
 import { plainTopicNatal } from "./topic-brief";
 import { readerPassage } from "./reader-prose";
+import { translate } from "./localization";
 import type { Finding, Reading } from "./rules";
 import type { AreaSynthesis } from "./synthesis";
 
@@ -33,6 +34,12 @@ export function workThemeMalayalam(ruleId: string, sourceFindingText: string, pl
   // Plain themes are translated only for an unmodified, reviewed source and the
   // exact theme that the existing career summarizer derives from that source.
   if (!sourceMatches) return undefined;
+  // A broader selection can show a full source passage. Accept only an exact
+  // catalogue match for that same source, never an edited or shortened clause.
+  if (plainThemeText === sourceFindingText) {
+    const translated = translate("ml", sourceFindingText);
+    return translated !== sourceFindingText ? translated : undefined;
+  }
   const area: AreaSynthesis = { area: "career", tone: "descriptive", headline: "", key: [finding], rest: [], coveredBy: {}, balance: 0, total: 0 };
   const derived = plainTopicNatal("career", area, { relations: [] } as unknown as Reading).details?.[0];
   if (derived !== plainThemeText) return undefined;

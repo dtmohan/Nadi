@@ -30,9 +30,9 @@ export function KarmajivaSection({ k }: { k: KarmajivaResult }) {
             house. A planet standing there, counted from the rising sign or from
             the Moon, names the person the money comes through. The ruler of
             the tenth house is also followed into its ninth-part chart, and
-            the planet ruling that part names the trade. Iyer treats this as a
-            fallback when the tenth is empty; the Adyar commentary reads both
-            approaches together. Three tenth houses are read for the latter:
+            the planet ruling that part names traditional livelihood examples.
+            Aiyar's translation does not require an empty tenth house for this
+            reading. Three tenth houses are read for the latter:
             from the rising sign, from the Moon and from the Sun.
           </>
         }
@@ -83,7 +83,7 @@ export function KarmajivaSection({ k }: { k: KarmajivaResult }) {
           className="mt-1 text-xs text-muted-foreground"
           data-testid="karmajiva-tenth-empty"
         >
-          None. Iyer's fallback condition for the navamsa of the 10th lord is met.
+          No classical planets occupy either tenth house. The navamsa references below are shown whether or not these houses are occupied.
         </p>
       )}
 

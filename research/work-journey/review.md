@@ -1,5 +1,7 @@
 # Work and direction prototype: validation notes
 
+This records the original three-finding prototype at `27a3643`. For the subsequent selection changes and fresh comparisons, see [Work selection and career-context evaluation](../work-selection/review.md).
+
 ## Selection and scope
 
 The public cases in `cases.json` were selected before viewing this prototype's outputs: a US composer and performer, a US gymnast, and a Brazilian clinician-scientist. Independent career sources and published birth-data citations are in the fixture. Birth certificates and family statements were not independently inspected. Several reported times for the performer are tested separately rather than treated as an exact time. The cases are a convenience sample, not random or blinded; this assessment is not a measure of predictive validity.

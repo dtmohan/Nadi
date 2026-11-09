@@ -1,0 +1,21 @@
+{
+  "selection": "Selected after reviewing the initial comparison sets and deciding on a generic exact-source continuity adapter, but before inspecting these cases. Convenience sample, not random, representative or blinded; birth records and recollections were not independently inspected. This is exploratory, not predictive validation.",
+  "asOf": "2026-11-09T12:00:00Z",
+  "cases": [
+    {
+      "name": "Claire Keim", "gender": "female", "birthDate": "1975-07-08", "birthTime": "18:30", "timeStandard": "+01:00", "timezone": "Europe/Paris", "place": "Senlis, France", "latitude": 49.2, "longitude": 2.583333, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Keim%2C_Claire", "birthSourceNote": "Astro-Databank reports a quoted birth certificate, Rodden AA; the record was not independently inspected.",
+      "careerReference": "Actor and singer", "careerSource": "https://snapshot.apple.com/us/person/6621218666"
+    },
+    {
+      "name": "Venus Williams", "gender": "female", "birthDate": "1980-06-17", "birthTime": "14:12", "timeStandard": "-07:00", "timezone": "America/Los_Angeles", "place": "Lynwood, California, USA", "latitude": 33.933333, "longitude": -118.216667, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Williams%2C_Venus", "birthSourceNote": "Astro-Databank reports a quoted birth certificate, Rodden AA; the record was not independently inspected.",
+      "careerReference": "Professional tennis player", "careerSource": "https://www.wtatennis.com/players/230220/venus-williams"
+    },
+    {
+      "name": "Paul Terasaki", "gender": "male", "birthDate": "1929-09-10", "birthTime": "05:00", "timeStandard": "-08:00", "timezone": "America/Los_Angeles", "place": "Los Angeles, California, USA", "latitude": 34.05, "longitude": -118.25, "deathDate": "2016-01-25",
+      "birthSource": "https://www.astro.com/astro-databank/Terasaki%2C_Paul", "birthSourceNote": "Astro-Databank reports a birth record in the collector's possession, Rodden AA; the record was not independently inspected.",
+      "careerReference": "Scientist in organ transplantation and professor of surgery", "careerSource": "https://newsroom.ucla.edu/dept/faculty/specialist-in-organ-transplantation-appointed-inaugural-paul-i-terasaki-chair-in-surgery"
+    }
+  ]
+}

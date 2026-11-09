@@ -24,7 +24,7 @@ export function AdditionalSchoolEventEvidence({ evidence, school = "all" }: {
     </div>}
     {show("bj") && evidence.brihatJataka && evidence.brihatJataka.status !== "unmapped" && <div className="mt-2"><p className="font-medium">Brihat Jataka · livelihood · {evidence.brihatJataka.status}</p>
       {evidence.brihatJataka.career && <>
-        <p className="text-muted-foreground">The tenth lord's D9 sign and its lord provide historical livelihood themes, not a date-specific promise. Iyer treats this as a fallback when the tenth from the ascendant or Moon is empty; another commentary reads both rules together. These themes do not change the score. <Cite href={KARMAJIVA_SOURCES.v1.url}>{KARMAJIVA_SOURCES.v1.label}</Cite> · <Cite href={KARMAJIVA_SOURCES.v2.url}>{KARMAJIVA_SOURCES.v2.label}</Cite> · <Cite href={KARMAJIVA_SOURCES.v3.url}>{KARMAJIVA_SOURCES.v3.label}</Cite></p>
+        <p className="text-muted-foreground">The tenth lord's D9 sign and its lord provide historical livelihood themes, not a date-specific promise. Aiyar's translation reads all three reference chains without requiring an empty tenth house. These themes do not change the score. <Cite href={KARMAJIVA_SOURCES.v1.url}>{KARMAJIVA_SOURCES.v1.label}</Cite> · <Cite href={KARMAJIVA_SOURCES.v2.url}>{KARMAJIVA_SOURCES.v2.label}</Cite> · <Cite href={KARMAJIVA_SOURCES.v3.url}>{KARMAJIVA_SOURCES.v3.label}</Cite> · <Cite href={KARMAJIVA_SOURCES.iyer.url}>{KARMAJIVA_SOURCES.iyer.label}</Cite></p>
         {evidence.brihatJataka.career.references.map((r) => <p key={r.reference}>{r.reference}: tenth lord {r.tenthLord} → {signName(r.navamsaSign)} D9 → {r.navamsaLord}. Traditional themes: {r.calling}.</p>)}
       </>}
     </div>}
