@@ -305,6 +305,14 @@ export function plainTopicBriefs(args: {
       mentionsHeldArea(text, held) ? [] : [{ text, evidence: natal.detailEvidence?.[index] }],
     );
     const removedAllThemes = !!natal.details?.length && retained.length === 0;
+    // A secondary clause can name a held area even when the main topic is eligible:
+    // for example, a career finding can separately mention a delayed marriage.
+    // Check the original English before localization, and retain each safe theme's
+    // source evidence in its original position.
+    const safeSummary = mentionsHeldArea(natal.summary, held)
+      ? "No age-appropriate plain-language theme is available here." : natal.summary;
+    const safeIntro = natal.detailIntro && !mentionsHeldArea(natal.detailIntro, held) ? natal.detailIntro : undefined;
+    const safeContrast = natal.contrast && !mentionsHeldArea(natal.contrast, held) ? natal.contrast : undefined;
     const verdicts = args.agreement.filter((a) => a.topic === topic || (topic === "family" && (a.topic === "father" || a.topic === "mother"))).map((a) => a.verdict);
     const comparison = verdicts.some((verdict) => ["disagree", "mixed", "lean"].includes(verdict))
       ? "Other methods read this topic differently. Their findings remain separate in the comparison."
@@ -313,6 +321,9 @@ export function plainTopicBriefs(args: {
       topic,
       hasArea: !!area,
       ...natal,
+      summary: safeSummary,
+      detailIntro: safeIntro,
+      contrast: safeContrast,
       ...(natal.details ? {
         details: retained.map((entry) => entry.text),
         detailEvidence: natal.detailEvidence ? retained.map((entry) => entry.evidence) : undefined,

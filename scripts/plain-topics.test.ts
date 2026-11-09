@@ -186,6 +186,23 @@ test("a younger reader's eligible topic does not surface a held career theme", (
   assert.equal(personal.detailEvidence?.[0]?.ruleId, "retained");
 });
 
+test("an eligible career card does not surface a held marriage in its secondary clause", () => {
+  const finding: Finding = {
+    ruleId: "synthetic-career-marriage", area: "career", score: 2,
+    planets: ["Saturn", "Mercury"], relation: "conjunct", viaRetro: false,
+    text: "Work: technical or research work; delays in marriage.",
+  };
+  const career = synthesizeArea("career", [finding], result.reading, "male");
+  const build = (inSeason: (topic: typeof PLAIN_TOPIC_ORDER[number]) => boolean) =>
+    plainTopicBriefs({ reading: result.reading, areas: [career], agreement: [], brief: briefing, zone: "UTC", inSeason })
+      .find((item) => item.topic === "career")!;
+  const younger = build((topic) => topic !== "marriage" && topic !== "children");
+  assert.ok(younger.details?.some((text) => /technical or research/i.test(text)));
+  assert.equal(younger.detailEvidence?.[0]?.ruleId, finding.ruleId);
+  assert.doesNotMatch([younger.summary, younger.detailIntro, younger.contrast, ...(younger.details ?? [])].join(" "), /marriage/i);
+  assert.match(build(() => true).contrast ?? "", /delays in marriage/i);
+});
+
 test("all BNN topics have a plain explanation without changing their source findings", () => {
   const out = topics();
   assert.deepEqual(out.map((t) => t.topic), PLAIN_TOPIC_ORDER);

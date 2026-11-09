@@ -2331,7 +2331,7 @@ export default function ChartPage() {
           </div>
         </aside>
         <div className="min-w-0 min-[1400px]:col-start-1 min-[1400px]:row-start-1">
-        <AgreementPanel
+        {(mode !== "overview" || readingMode !== "plain") && <AgreementPanel
           className="mt-4"
           compact={mode !== "overview" || readingMode === "plain"}
           result={data}
@@ -2341,7 +2341,7 @@ export default function ChartPage() {
               tablistRef.current.scrollIntoView({ block: "nearest" });
             else document.querySelector("main")?.scrollTo({ top: 0 });
           }}
-        />
+        />}
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-2 border-b pb-3">
           <div
@@ -2446,6 +2446,15 @@ export default function ChartPage() {
             <OverviewPanel
               result={data}
               alpAsOf={alpAsOf}
+              schoolComparison={readingMode === "plain" ? <AgreementPanel
+                className="mt-4"
+                compact
+                result={data}
+                onOpenTab={(t) => {
+                  setMode(t);
+                  document.querySelector("main")?.scrollTo({ top: 0 });
+                }}
+              /> : undefined}
               onOpenTab={(t) => {
                 setMode(t);
                 document.querySelector("main")?.scrollTo({ top: 0 });

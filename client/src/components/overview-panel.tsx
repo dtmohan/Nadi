@@ -1,13 +1,12 @@
-import { useMemo } from "react";
+import { useMemo, type ReactNode } from "react";
 import type { ChartResult } from "@shared/schema";
 import { vimshottari } from "@shared/kp";
 import { calendarAge, lifeAsOf, areaSeason, heldAreasAt, mentionsHeldArea } from "@shared/life-stage";
-import { areaNoun, nadiAreasClauses } from "@shared/life-areas";
+import { areaNoun } from "@shared/life-areas";
 import type { Gender } from "@shared/marriage";
 import {
   synthesize,
   AREA_TONE_LABEL,
-  type AreaSynthesis,
   type AreaTone,
 } from "@shared/synthesis";
 import {
@@ -22,6 +21,7 @@ import { usePlain } from "@/components/mode-text";
 import { sarvarthaLeftOut } from "@/components/sarvartha-section";
 import { LocalizedText, useLocale, useT } from "@/lib/i18n";
 import { malayalamNadiGlance } from "@/lib/overview-locale";
+import { glanceSentence } from "@/lib/overview-glance";
 import { useAgreement, useAgreementInput } from "@/lib/use-agreement";
 import { briefingFor, type BriefLink, type Briefing } from "@shared/briefing";
 import { BriefingBefore, BriefingNow, BriefingPlanets, useOpenLink } from "@/components/briefing";
@@ -72,20 +72,6 @@ const PLAIN_SCHOOL_STANCE: Record<Stance, string> = {
   strains: "challenging indications",
   silent: "no conclusion in this comparison",
 };
-
-/** The Nadi verdict across the areas, named as Nadi's: the other systems are weighed under Across the systems. */
-function glanceSentence(areas: AreaSynthesis[]): string {
-  const clauses = nadiAreasClauses(areas);
-  return clauses
-    ? `In the Nadi reading, ${clauses
-        .replace(/\brests on firm ground/g, "shows supportive indications")
-        .replace(/\brest on firm ground/g, "show supportive indications")
-        .replace(/\bneeds care/g, "has indications that may need care")
-        .replace(/\bneed care/g, "have indications that may need care")
-        .replace(/\bis in dispute, with strong rules both ways/g, "has differing indications")
-        .replace(/\bare in dispute, with strong rules both ways/g, "have differing indications")}.`
-    : "The selected Nadi rules do not give a clear direction for these topics.";
-}
 
 /** The same source-grounded card is used for the two featured topics and the compact disclosures. */
 function PlainTopicContent({ topic, brief, zone, past, onOpen, comparisons, compact = false }: { topic: PlainTopicBrief; brief: Briefing; zone: string; past: boolean; onOpen: (link: BriefLink) => void; comparisons: SchoolTopicBrief[]; compact?: boolean }) {
@@ -154,9 +140,11 @@ export function OverviewPanel({
   result,
   onOpenTab,
   alpAsOf,
+  schoolComparison,
 }: {
   result: ChartResult;
   alpAsOf?: string;
+  schoolComparison?: ReactNode;
   /** Switch the reading tab; the briefing's links open a tab at the line they summarise. */
   onOpenTab?: (tab: BriefLink["tab"]) => void;
 }) {
@@ -294,7 +282,7 @@ export function OverviewPanel({
           {t("Overview · your reading")}
         </p>
         <h2
-          className="font-display mt-2 max-w-[40ch] text-xl font-semibold leading-snug"
+          className={cn("font-display mt-2 max-w-[55ch] font-semibold leading-snug", plain ? "text-base" : "text-xl")}
           data-testid="overview-glance"
         >
           {glance}
@@ -384,13 +372,13 @@ export function OverviewPanel({
         )}
       </InfoBox>
 
-      <BriefingBefore notes={brief.before} onOpen={openLink} />
-
       {plain && topics.length > 0 && (
         <InfoBox className="mt-4" aria-label={t("Life topics")} data-testid="plain-topic-briefs">
           <h2 className={INFO_BOX_EYEBROW}>{t("Life topics")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{t("These short readings use the Nadi method. Other schools have their own readings.")}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{t("Open a topic to compare selected interpretations from the other schools. Their coverage differs; ALP is date-specific and Prasna Marga here uses the birth chart.")}</p>
+          {brief.before.some((note) => note.id === "lagna-edge" || note.id === "kp-cusps") && (
+            <p className="mt-2 text-xs text-muted-foreground" data-testid="overview-time-sensitive-note">{locale === "ml" ? "ജനനസമയത്തിൽ ചെറിയ മാറ്റമുണ്ടായാലും ചില ജാതകവിവരങ്ങൾ മാറാം. വിശദാംശങ്ങൾ താഴെയുള്ള ജാതക കുറിപ്പുകളിൽ കാണാം." : "Some chart details can change with a small shift in birth time. See the chart notes below."}</p>
+          )}
           {(chart.timeUncertaintyMin ?? 0) > 0 && (
             <p className="mt-2 text-xs text-muted-foreground">{locale === "ml" ? `നൽകിയ ജനനസമയത്തിൽ ±${chart.timeUncertaintyMin} മിനിറ്റിന്റെ അനിശ്ചിതത്വമുണ്ട്. ഈ പരിധിക്കുള്ളിൽ ചില വിശദാംശങ്ങൾ മാറാം.` : `The entered birth time has an uncertainty of ±${chart.timeUncertaintyMin} minutes. Some details can change within that range.`}</p>
           )}
@@ -417,6 +405,9 @@ export function OverviewPanel({
           )}
         </InfoBox>
       )}
+
+      {plain && schoolComparison}
+      <BriefingBefore notes={brief.before} onOpen={openLink} />
 
       {/* The full timing and planet detail remains available, with each school's clock separate. */}
       <details className="mt-4 rounded-md border" open={!plain} data-testid="overview-timing-details">
