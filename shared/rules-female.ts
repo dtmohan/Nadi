@@ -19,6 +19,11 @@ const ALL: Relation[] = ["conjunct", "prev", "next", "trine", "opposite"];
 
 const f = (r: Rule): Rule => ({ ...r, frame: "female" });
 
+const unless = (rule: Rule, planet: Planet, relation: Relation[] = ["conjunct"]): Rule => ({
+  ...rule,
+  when: { ...rule.when, without: { planet, relation } },
+});
+
 const pair = (id: string, area: LifeArea, subject: Planet, object: Planet, text: string, weight: 1 | 2 | 3 = 2, relation: Relation[] = ALL, source = RAO): Rule =>
   f({ id, area, when: { subject, object, relation }, text, weight, source });
 
@@ -78,7 +83,7 @@ export const FEMALE_RULES: Rule[] = [
   pair("f-ma-ve", "marriage", "Mars", "Venus", "Husband (Mars) with the Deha (Venus): union of husband and wife promised from a previous birth; strong attraction, with Mars's heat bringing temporary separations.", 3),
   pair("f-ma-sa", "marriage", "Mars", "Saturn", "Husband (Mars) with Saturn: delayed marriage, generally in Saturn's second round; a hard-working, older or duty-bound husband.", 3, ALL, SAKURKAR),
   pair("f-ma-ra", "marriage", "Mars", "Rahu", "Husband (Mars) with Rahu: a very short-tempered husband, possibly from another community or country; late marriage and obstacles before it.", 3),
-  pair("f-ma-ke", "marriage", "Mars", "Ketu", "Husband (Mars) with Ketu: a husband in an ordinary job or one given to detachment; misunderstandings between the couple unless Jupiter joins.", 3),
+  unless(pair("f-ma-ke", "marriage", "Mars", "Ketu", "Husband (Mars) with Ketu: a husband in an ordinary job or one given to detachment; misunderstandings between the couple unless Jupiter joins.", 3), "Jupiter"),
   f({ id: "f-ma-retro", area: "marriage", when: { subject: "Mars", subjectRetro: true }, text: "Retrograde Mars, the husband's karaka: a relationship that returns or is reconsidered; the husband also carries qualities of the previous sign.", weight: 2, source: NAIK }),
   f({ id: "f-alone-ma", area: "marriage", when: { subject: "Mars", alone: true }, text: "Mars, the husband's karaka, stands alone: the husband comes from outside the family's circle; the marriage is her own choice and responsibility.", weight: 1, source: NAIK }),
   f({ id: "f-ma-combust", area: "marriage", when: { subject: "Mars", subjectCombust: true }, text: "Mars within the Sun's pada: the husband lives in the shadow of his father or an authority; marriage arranged around status.", weight: 2, source: NAIK }),

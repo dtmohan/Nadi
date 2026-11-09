@@ -83,6 +83,8 @@ export interface RuleCondition {
   alone?: boolean;
   /** Object sits in one of these whole-sign houses counted from the subject (1 = same sign). Replaces `relation`. */
   house?: number[];
+  /** A planet that, if related to the subject or object, prevents the rule from firing. */
+  without?: { planet: Planet; relation?: Relation[] };
   subjectRetro?: boolean;
   subjectDignity?: Dignity[];
   subjectSign?: number[]; // 0 = Aries
@@ -1362,6 +1364,17 @@ export function evaluate(
           ),
       );
       if (neighbours.length > 0) continue;
+    }
+
+    if (w.without) {
+      const p = byPlanet[w.without.planet];
+      if (p) {
+        const allowed = w.without.relation ?? ["conjunct"];
+        const withSubject = context.bnnRelation(s.planet, p.planet);
+        const objectPos = w.object ? byPlanet[w.object] : undefined;
+        const withObject = objectPos ? context.bnnRelation(objectPos.planet, p.planet) : null;
+        if ((withSubject && allowed.includes(withSubject.relation)) || (withObject && allowed.includes(withObject.relation))) continue;
+      }
     }
 
     // Extra companions (three- and four-planet combinations)

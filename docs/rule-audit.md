@@ -12,13 +12,13 @@ The first pass covers the 420 rules in the Nadi/BNN layer. It is deliberately au
 
 The first two are machine-assisted in [`scripts/rule-audit.ts`](../scripts/rule-audit.ts). The third is a manual read of the prose.
 
-## First pass: 420 rules, 92 flags
+## First pass: 420 rules, 90 flags
 
 | Flag | Count | Meaning |
 |---|---:|---|
 | **Silent extension** | 43 | The sentence says “linked by sign”; `when` includes the 2nd/12th adjacent-sign extension. |
 | **Provenance** | 44 | The source field marks the adjacent-sign extension provisional; the sentence does not. |
-| **Lost exception** | 4 | The text names Jupiter or “unless”; Jupiter is not in `when`. |
+| **Lost exception** | 2 | The text gives Jupiter a qualifying role; Jupiter is not in `when`. |
 | **Conditional text** | 1 | The text says “if the Moon is weak”; no strength condition is encoded. |
 
 The same rule can carry both a silent-extension and a provenance flag, so the counts overlap.
@@ -116,9 +116,11 @@ The output is JSON: `totalRules`, `flags`, `byKind`, and the flagged rows with t
 
 ## Fixes in this pass
 
+- **`f-ma-ke` now encodes “unless Jupiter joins”** as `when.without = { planet: "Jupiter", relation: ["conjunct"] }`. If Jupiter conjoins Mars or Ketu, the rule no longer fires. The immutable historical snapshot strips this new condition before hashing.
+- **`PlanetStrength` now has a separate `nadiSupport` field.** A friendly 12th is recorded there, not called Neecha Bhanga. `effectiveDignity` still becomes Neutral for the historical snapshot; the score split remains a model-version decision. The reading labels the note “Nadi support; not a Neecha Bhanga cancellation.”
 - **Provenance is derived in `shared/reading-prose.ts`**, not stored on `Finding`, so historical grade outputs stay unchanged. The marriage area says when a rule fires through a source conjunction/trine plus an adjacent extension, and when it fires through the extension alone.
-- **Qualifiers are derived in the reading** from the rule text: “unless Jupiter joins”, “Jupiter’s aspect …” and “if the Moon is weak.” The reading says the app does not test the condition; it is no longer silently dropped.
-- **The Nadi support note is labelled in the reading**: “Nadi support: … this is not a Neecha Bhanga cancellation.” `effectiveDignity` is still set to Neutral by the Nadi strength layer; the separation remains open.
+- **Qualifiers are derived in the reading** from the rule text: “unless Jupiter joins”, “Jupiter’s aspect …” and “if the Moon is weak.” The Jupiter-joins case is now encoded; the aspect and weak-Moon cases are still reading-only. The reading says the app does not test the condition; it is not silently dropped.
+- **The Nadi support note is labelled in the reading**: “Nadi support: … this is not a Neecha Bhanga cancellation.” `effectiveDignity` is still set to Neutral by the Nadi strength layer; the split is not a score change yet.
 - **The 12th support note is in the reading**, not in the grade reasons, so it does not alter the historical grade snapshots.
 
 The audit flags remain in the script because the rule text still says “linked by sign” and the `when` still includes the extension. The reading now carries the provenance that the text alone does not.

@@ -15,6 +15,8 @@ export interface PlanetStrength {
   effectiveDignity: Dignity;
   /** Why an exaltation or debilitation was set aside. */
   dignityNote: string | null;
+  /** Friends in the Nadi neighbour set; support, not a Neecha Bhanga cancellation. */
+  nadiSupport: Planet[];
   /** In the same nakshatra quarter as the Sun under the app's BNN convention. */
   combust: boolean;
   /** Combustion neutralised by a friendly association or exchange. */
@@ -87,6 +89,7 @@ export function assessStrength(positions: PlanetPosition[]): PlanetStrength[] {
     // Dignity cancellation (Rao rules 5 and 8; Naik on exchange and friendly neighbours).
     let effectiveDignity: Dignity = s.dignity;
     let dignityNote: string | null = null;
+    let nadiSupport: Planet[] = [];
     if (!NODES.has(planet)) {
       const enemyNeighbours = [...conj, ...second, ...twelfth].filter((o) => isEnemy(planet, o));
       const friendNeighbours = [...conj, ...second, ...twelfth, ...seventh, ...trines].filter((o) => isFriend(planet, o));
@@ -107,6 +110,7 @@ export function assessStrength(positions: PlanetPosition[]): PlanetStrength[] {
           effectiveDignity = "Neutral";
           dignityNote = `Debilitation cancelled by the exchange with ${exchangeWith}; results follow ${exchangeWith}`;
         } else if (friendNeighbours.length) {
+          nadiSupport = friendNeighbours;
           effectiveDignity = "Neutral";
           dignityNote = `Debilitation softened: friend ${list(friendNeighbours)} ${friendNeighbours.length > 1 ? "support" : "supports"} it`;
         }
@@ -129,6 +133,7 @@ export function assessStrength(positions: PlanetPosition[]): PlanetStrength[] {
       dignity: s.dignity,
       effectiveDignity,
       dignityNote,
+      nadiSupport,
       combust: s.combust,
       combustNote,
       effectiveCombust: s.combust && !combustNote,

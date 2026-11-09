@@ -28,7 +28,12 @@ const pick = (value: any, keys: string[]) => Object.fromEntries(keys.map((key) =
 // Recreate the three deliberately corrected BNN rules when checking the
 // archived pre-migration hashes. Current behavior has separate counterexample
 // tests; changing an immutable historical fixture would hide regressions.
-const historicalBnnRules = RULES.map((rule) => rule.id === "su-exalt" ? { ...rule,
+const withoutNewExceptions = (rule: (typeof RULES)[number]) => {
+  if (rule.id !== "f-ma-ke" || !rule.when.without) return rule;
+  const { without: _without, ...when } = rule.when;
+  return { ...rule, when };
+};
+const historicalBnnRules = RULES.map(withoutNewExceptions).map((rule) => rule.id === "su-exalt" ? { ...rule,
   when: { ...rule.when, subjectDignity: ["Exalted", "Own sign"] as const },
   text: "Sun dignified: a respected father and a native with strong self-esteem and vitality.", source: "General Nadi principles (Rao, Naik)" } :
   rule.id === "ma-exalt" ? { ...rule, when: { ...rule.when, subjectDignity: ["Exalted", "Own sign"] as const },
@@ -82,8 +87,10 @@ test("school natal readings retain independent pre-migration outputs at correct 
       houseProse: parashari.houseProse?.map((h) => ({ ...h, parts: h.parts.filter((p) => p.key !== "lord-aspect" && p.key !== "lord-occupancy") })) };
     const kp = computeKp(base, e.birth, asOf);
     const alp = computeAlp(context, asc, e.birth, asOf);
+    const liveBnn = evaluate(context, historicalBnnRules as typeof RULES, e.gender);
+    const bnn = { ...liveBnn, strength: liveBnn.strength.map(({ nadiSupport: _nadiSupport, ...rest }) => rest) };
     const output = {
-      bnn: evaluate(context, historicalBnnRules as typeof RULES, e.gender), jaimini: computeJaimini(context, asc, e.birth),
+      bnn, jaimini: computeJaimini(context, asc, e.birth),
       parashari: pick(historicalStrengthWording(historicalParashari), ["aspectFloor", "houseMethod", "lagna", "bhavas", "natures", "findings", "ties", "neechaBhanga", "bhavaJudgement", "shadbala", "ashtakavarga", "bhavaPhala", "vargaPhala", "houseProse"]),
       kp: pick(kp, ["ayanamsaValue", "cusps", "planets", "significators", "houseSignificators", "badhaka", "marakas", "lagnaQuality", "ruling", "findings"]),
       alp: pick({ ...alp, findings: alp.findings.map((f) => historicalAlpText[f.ruleId] ? { ...f, text: historicalAlpText[f.ruleId] } : f) },
