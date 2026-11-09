@@ -667,6 +667,9 @@ export default function ReadingRoom() {
           </Link>
           <div className="room-top-actions">
             <LanguageToggle />
+            <Link href={`/chart/${id}/work`} className="room-top-link" data-testid="link-work-journey">
+              Work & direction
+            </Link>
             <Link href={`/chart/${id}/reading`} className="room-top-link">
               Guided reading
             </Link>

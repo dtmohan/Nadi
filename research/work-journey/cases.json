@@ -1,0 +1,22 @@
+{
+  "selection": "Selected before inspecting the prototype readings. A convenience sample across occupations and countries; birth documents and family statements were not independently inspected. The assessment checks representation and presentation, not predictive accuracy.",
+  "asOf": "2026-11-08T12:00:00Z",
+  "cases": [
+    {
+      "name": "Lin-Manuel Miranda", "gender": "male", "birthDate": "1980-01-16", "birthTime": "11:10", "timeStandard": "-05:00", "timezone": "America/New_York", "place": "Manhattan, New York, USA", "latitude": 40.766667, "longitude": -73.983333, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Miranda%2C_Lin_Manuel", "birthSourceNote": "Astro-Databank reports a father's approximate 11:10 statement, a self-report of 11:00 and other family estimates around 11:15 and 11:30; Rodden A. These are alternatives, not verified exact times.",
+      "careerReference": "Composer, lyricist and actor, creator of Hamilton", "careerSource": "https://www.pulitzer.org/winners/lin-manuel-miranda",
+      "alternatives": [{"label": "Self-reported approximate time", "birthTime": "11:00"}, {"label": "Family estimate 11:15", "birthTime": "11:15"}, {"label": "Family estimate 11:30", "birthTime": "11:30"}]
+    },
+    {
+      "name": "Alicia Sacramone", "gender": "female", "birthDate": "1987-12-03", "birthTime": "18:39", "timeStandard": "-05:00", "timezone": "America/New_York", "place": "Boston, Massachusetts, USA", "latitude": 42.366667, "longitude": -71.066667, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Sacramone%2C_Alicia", "birthSourceNote": "Astro-Databank attributes the time to a quoted birth certificate, Rodden AA; the document was not independently inspected.",
+      "careerReference": "Artistic gymnast and 2008 Olympic team silver medalist", "careerSource": "https://usagym.org/halloffame/inductee/sacramone-alicia/"
+    },
+    {
+      "name": "Ana Bedran-Russo", "gender": "female", "birthDate": "1975-11-28", "birthTime": "18:10", "timeStandard": "-03:00", "timezone": "America/Sao_Paulo", "place": "Araçatuba, São Paulo, Brazil", "latitude": -21.208889, "longitude": -50.432778, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Bedran-Russo%2C_Ana", "birthSourceNote": "Astro-Databank reports a civil birth registry entry in the collector's possession, Rodden AA; the document was not independently inspected.",
+      "careerReference": "Clinician-scientist and dental biomaterials researcher", "careerSource": "https://dentistry.uic.edu/profiles/bedran-russo-ana/"
+    }
+  ]
+}

@@ -194,6 +194,9 @@ export function ReaderContent({ result, experience, chartId }: { result: ChartRe
       </details>}
     </section>
 
+    <Link href={`/chart/${chartId}/work`} className="mt-4 mr-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline" data-testid="reader-work-journey">
+      {ml ? "തൊഴിൽ വായന തുറക്കുക" : "Explore work and direction"}
+    </Link>
     <Link href={`/chart/${chartId}/room`} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary underline-offset-4 hover:underline" data-testid="reader-full-edition">
       {ml ? "പൂർണവായന തുറക്കുക" : "Read the full edition"} <ArrowRight className="h-4 w-4" aria-hidden />
     </Link>

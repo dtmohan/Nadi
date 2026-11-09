@@ -2274,6 +2274,11 @@ export default function ChartPage() {
               ayanamsaValue={data.ayanamsaValue}
               timeBasis={data.timeBasis}
             />
+            <Button size="sm" variant="outline" asChild>
+              <Link href={`/chart/${chart.id}/work`} data-testid="link-work-journey">
+                {locale === "ml" ? "തൊഴിൽ വായന" : "Work & direction"}
+              </Link>
+            </Button>
             <Button size="sm" asChild>
               <Link
                 href={`/chart/${chart.id}/room`}

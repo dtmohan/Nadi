@@ -14,6 +14,7 @@ import { ChartFocusProvider } from "@/components/chart-focus";
 import Home from "@/pages/home";
 import ChartPage from "@/pages/chart";
 import ReadingRoom from "@/pages/reading-room";
+import WorkJourneyPage from "@/pages/work-journey";
 import ReportPage from "@/pages/report";
 import ReaderPage from "@/pages/reader";
 import RulesPage from "@/pages/rules";
@@ -34,6 +35,7 @@ function AppRouter() {
       <Route path="/" component={Home} />
       <Route path="/chart/:id/report" component={EnglishReport} />
       <Route path="/chart/:id/reading" component={ReaderPage} />
+      <Route path="/chart/:id/work" component={WorkJourneyPage} />
       <Route path="/chart/:id/room/:view?" component={ReadingRoom} />
       <Route path="/chart/:id/:mode?" component={ChartPage} />
       <Route path="/rules" component={EnglishRules} />
@@ -56,7 +58,7 @@ function RouteScrollReset() {
 function AppFrame() {
   const [location] = useLocation();
   // The reading room is a focused editorial surface: no sidebar, no app header, no duplicate brand.
-  const isRoom = /^\/chart\/[^/]+\/room(?:\/|$)/.test(location);
+  const isRoom = /^\/chart\/[^/]+\/(?:room(?:\/|$)|work$)/.test(location);
   const style = {
     "--sidebar-width": "16rem",
     "--sidebar-width-icon": "3.5rem",
