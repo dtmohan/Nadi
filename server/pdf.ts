@@ -951,7 +951,7 @@ export function buildChartPdf(result: ChartResult): PDFKit.PDFDocument {
   const nowDt = DateTime.fromISO(now.asOf);
   // A minor's held-back areas are named nowhere in the passages (life-stage.ts heldAreasAt, read at the date
   // of passing when one is recorded), as on the Nadi tab.
-  const timing = readTransits(transits, positions, reading.findings, result.utc, reading.roles, heldAreasAt(result.utc, lifeAsOf(chart, now.asOf)));
+  const timing = readTransits(transits, positions, reading.findings, result.utc, reading.roles, heldAreasAt(result.utc, lifeAsOf(chart, now.asOf), chart));
 
   // Current passages first.
   const currentReadings = (["Jupiter", "Saturn"] as const)

@@ -12,6 +12,11 @@ import { briefingFor } from "../briefing";
 import { plainTopicBriefs, malayalamTopicWindow, type PlainTopicBrief } from "../topic-brief";
 import { translate } from "../localization";
 import { bnnRoleSummaryMalayalam } from "../malayalam-bnn-role-summary";
+import { bnnDirectionMalayalam } from "../malayalam-bnn-direction";
+import { bnnChildrenNotesMalayalam } from "../malayalam-bnn-children-notes";
+import { bnnMarriageNotesMalayalam, bnnMarriageWindowMalayalam } from "../malayalam-bnn-marriage-notes";
+import { bnnGradeNoteMalayalam } from "../malayalam-bnn-grade-note";
+import { nakshatraWealthAsideMalayalam, nakshatraWealthHeadlineMalayalam, nakshatraWealthHitMalayalam, nakshatraWealthNotesMalayalam } from "../malayalam-nakshatra-wealth";
 import { lakshmiFormMalayalam, lakshmiHeadlineMalayalam, lakshmiNotesMalayalam, lakshmiPeriodMalayalam } from "../malayalam-lakshmi-report";
 import {
   endStop,
@@ -109,9 +114,12 @@ export const bnnModule: ReportModule = {
       rolePara("Saturn", "Karma karaka", reading.karma.summary),
     ];
     if (reading.deha) paras.push(rolePara(roles.deha, "Deha karaka", reading.deha.summary));
+    const gradeNote = `${GRADE_NOTE} ${DIRECTION_NOTE}`;
+    const gradeNoteMl = bnnGradeNoteMalayalam(gradeNote);
     paras.push({
       kind: "note",
-      text: `${GRADE_NOTE} ${DIRECTION_NOTE}`,
+      text: gradeNote,
+      ...(gradeNoteMl ? { translationMl: { source: gradeNote, text: gradeNoteMl } } : {}),
       cites: [rao(), cites.add("S. Naik, Prediction Secrets: Naadi Astrology")],
       provisional: true,
     });
@@ -163,9 +171,12 @@ export const bnnModule: ReportModule = {
         // Direction is part of the reading: the planet ahead by degree gives to the one behind.
         if (f.flow) {
           const band = bandSentence(f, female);
+          const text = S(`Direction: ${directionClause(f.flow, female)}.${band ? ` ${band}` : ""}`);
+          const ml = bnnDirectionMalayalam(f, female, text);
           ps.push({
             kind: "p",
-            text: S(`Direction: ${directionClause(f.flow, female)}.${band ? ` ${band}` : ""}`),
+            text,
+            ...(ml ? { translationMl: { source: text, text: ml } } : {}),
             cites: [rao(), cites.add("S. Naik, Prediction Secrets: Naadi Astrology")],
             provisional: true,
           });
@@ -175,26 +186,29 @@ export const bnnModule: ReportModule = {
       if (a.area === "marriage") {
         const m = reading.marriage;
         const win = nextMarriageWindow(m, transits, asOf.slice(0, 10));
+        const text = S(m.notes.join(" ").trim() || "The headline above is the whole of what the karakas say; no further note applies.");
+        const ml = bnnMarriageNotesMalayalam(m, text);
+        const aside = `Jupiter over ${m.spouseSign} or its trines brings the matter forward${win && !deceased ? `; next: Jupiter ${win.kind === "over" ? "over" : "in trine from"} ${win.period.sign}, ${fmtMonth(win.period.start)} to ${fmtMonth(win.period.end)}` : ""}.`;
+        const asideMl = bnnMarriageWindowMalayalam(m, win, deceased, aside);
         ps.push({
           kind: "p",
-          text: S(
-            m.notes.join(" ").trim() ||
-              "The headline above is the whole of what the karakas say; no further note applies.",
-          ),
+          text,
+          ...(ml ? { translationMl: { source: text, text: ml } } : {}),
           cites: [rao()],
-          aside: `Jupiter over ${m.spouseSign} or its trines brings the matter forward${win && !deceased ? `; next: Jupiter ${win.kind === "over" ? "over" : "in trine from"} ${win.period.sign}, ${fmtMonth(win.period.start)} to ${fmtMonth(win.period.end)}` : ""}.`,
+          aside,
+          ...(asideMl ? { asideTranslationMl: { source: aside, text: asideMl } } : {}),
         });
       }
       }
       if (a.area === "children" && !simple) {
         const c = reading.children;
         const win = nextChildWindow(c, transits, asOf.slice(0, 10), result.utc);
+        const text = S(c.notes.join(" ").trim() || "The headline above is the whole of what the karaka says; no further note applies.");
+        const ml = bnnChildrenNotesMalayalam(c, text);
         ps.push({
           kind: "p",
-          text: S(
-            c.notes.join(" ").trim() ||
-              "The headline above is the whole of what the karaka says; no further note applies.",
-          ),
+          text,
+          ...(ml ? { translationMl: { source: text, text: ml } } : {}),
           cites: [rao()],
           aside:
             win && !deceased
@@ -273,17 +287,18 @@ export const bnnModule: ReportModule = {
       const book2 = cites.add(
         "S. Prakash, DNA Astrology of Wealth (2022), pp. 96-169",
       );
+      const headline = S(nw.headline), headlineMl = nakshatraWealthHeadlineMalayalam(nw, headline);
+      const notes = nw.notes.join(" "), notesMl = nakshatraWealthNotesMalayalam(notes);
       const nwParas: ReportPara[] = [
-        { kind: "p", text: S(nw.headline), cites: [book2] },
-        ...nw.hits.map(
-          (h): ReportPara => ({
-            kind: "p",
-            text: S(h.text),
-            cites: [book2],
-            aside: `${h.nakshatra} · ${h.pages.replace("DNA Astrology of Wealth, ", "")}`,
-          }),
-        ),
-        { kind: "note", text: nw.notes.join(" ") },
+        { kind: "p", text: headline, ...(headlineMl ? { translationMl: { source: headline, text: headlineMl } } : {}), cites: [book2] },
+        ...nw.hits.map((h): ReportPara => {
+          const text = S(h.text), ml = nakshatraWealthHitMalayalam(h, text);
+          const aside = `${h.nakshatra} · ${h.pages.replace("DNA Astrology of Wealth, ", "")}`;
+          const asideMl = nakshatraWealthAsideMalayalam(h, aside);
+          return { kind: "p", text, ...(ml ? { translationMl: { source: text, text: ml } } : {}),
+            cites: [book2], aside, ...(asideMl ? { asideTranslationMl: { source: aside, text: asideMl } } : {}) };
+        }),
+        { kind: "note", text: notes, ...(notesMl ? { translationMl: { source: notes, text: notesMl } } : {}) },
       ];
       sub.push({
         id: "bnn-nakshatra-wealth",

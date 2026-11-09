@@ -25,7 +25,7 @@ export function topicReading(chart: InsertChart, event: ChartEvent, asOf = DateT
   if (!result) throw new Error("This matter could not be evaluated.");
   // A mapped area may be broader than the topic label (e.g. education is
   // mapped to Jaimini's children area); keep the ordinary reading's age gate.
-  if (result.jaimini && !areaSeason(result.jaimini.area, birth.toISO()!, lifeAsOf(chart, asOf)).inSeason)
+  if (result.jaimini && !areaSeason(result.jaimini.area, birth.toISO()!, lifeAsOf(chart, asOf), chart).inSeason)
     result = { ...result, jaimini: null };
   if (sensitiveGate(chart, birth.toISO()!, asOf).withheld) result = redactSensitive(result);
   return result;

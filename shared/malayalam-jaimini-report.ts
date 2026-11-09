@@ -10,6 +10,17 @@ const names: Record<CharaKarakaId, [string, string]> = {
 };
 const translated = (s: string) => { const m = translate("ml", s); return m !== s ? m : undefined; };
 
+/** Only translate the exact list already withheld by the age gate. */
+export function jaiminiHeldMalayalam(held: string[], source: string): string | undefined {
+  const labels: Record<string, string> = {
+    "self & purpose": "സ്വയവും ജീവിതലക്ഷ്യവും", "career & position": "തൊഴിലും സ്ഥാനവും", "wealth & gains": "ധനവും നേട്ടങ്ങളും",
+    "marriage & partnership": "വിവാഹവും പങ്കാളിത്തവും", "children & learning": "സന്താനവും പഠനവും",
+    "parents, siblings & home": "മാതാപിതാക്കളും സഹോദരങ്ങളും വീടും", "health & conflict": "ആരോഗ്യവും സംഘർഷവും",
+  };
+  if (!held.length || held.some((x) => !labels[x]) || source !== `Held for later at this age: ${list(held)}.`) return undefined;
+  return `ഈ പ്രായത്തിൽ പിന്നീട് കാണിക്കാൻ മാറ്റിവച്ച വിഷയങ്ങൾ: ${held.map((x) => labels[x]).join(", ")}.`;
+}
+
 /** All roles, planets and signs must match the whole source paragraph. */
 export function jaiminiLeadMalayalam(j: JaiminiResult, source: string): string | undefined {
   const ak = j.karakas[0];

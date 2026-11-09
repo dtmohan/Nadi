@@ -26,6 +26,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useLocale, useT } from "@/lib/i18n";
+import { readingEntryPath } from "@/lib/reading-entry";
 import {
   AYANAMSAS,
   SUNRISE_DEFINITIONS,
@@ -107,7 +108,7 @@ function ChartCard({
     <Card className="hover-elevate">
       <CardContent className="grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-4 gap-y-3 p-4">
         <Link
-          href={`/chart/${id}/room`}
+          href={readingEntryPath(id, locale)}
           className="shrink-0 sm:row-span-2"
           aria-hidden
           tabIndex={-1}
@@ -123,7 +124,7 @@ function ChartCard({
           )}
         </Link>
         <Link
-          href={`/chart/${id}/room`}
+          href={readingEntryPath(id, locale)}
           className="min-w-0 self-center"
           data-testid={`card-chart-${id}`}
         >
@@ -153,7 +154,7 @@ function ChartCard({
           <Trash2 />
         </Button>
         <Link
-          href={`/chart/${id}/room`}
+          href={readingEntryPath(id, locale)}
           className="col-span-3 min-w-0 sm:col-span-2 sm:col-start-2"
           tabIndex={-1}
         >
@@ -224,6 +225,7 @@ export default function Home() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const t = useT();
+  const { locale } = useLocale();
   const [form, setForm] = useState<InsertChart>(EMPTY);
   const set = <K extends keyof InsertChart>(k: K, v: InsertChart[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -244,13 +246,9 @@ export default function Home() {
         ...result,
         chart,
       });
-      queryClient.setQueryData(["reading-room", String(chart.id)], {
-        ...result,
-        chart,
-      });
       return chart;
     },
-    onSuccess: (chart: Chart) => navigate(`/chart/${chart.id}/room`),
+    onSuccess: (chart: Chart) => navigate(readingEntryPath(chart.id, locale)),
     onError: (e: Error) =>
       toast({
         title: "Could not cast chart",

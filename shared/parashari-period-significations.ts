@@ -20,7 +20,7 @@ import { BPHS_URL } from "./parashari-data";
 import type { AntarReading, DasaReading, DasaSource } from "./parashari-dasa";
 import { PARASHARI_SIGNIFICATIONS, significationView, type Signification } from "./parashari-significations";
 import { parashariCombust } from "./vargas";
-import { AREA_ONSET, heldAreasAt } from "./life-stage";
+import { AREA_ONSET, heldAreasAt, type AgeGateContext } from "./life-stage";
 import { thePlanet } from "./house-gloss";
 
 const cap = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
@@ -80,6 +80,7 @@ export interface PeriodSignificationOptions {
   /** Birth instant (ISO) and reading instant (lifeAsOf), for the minor's area holds. */
   birthIso: string;
   asOfIso: string;
+  ageGateContext?: AgeGateContext;
   /** The sensitive gate (sensitiveGate().withheld): drops tagged entries for a minor. */
   withheld: boolean;
 }
@@ -284,7 +285,7 @@ function build(
   const withheldCount = opts.withheld
     ? PARASHARI_SIGNIFICATIONS.filter((s) => s.tier === "classical" && s.planet === lord && s.tags?.length).length
     : 0;
-  const isHeld = heldAreasAt(opts.birthIso, opts.asOfIso);
+  const isHeld = heldAreasAt(opts.birthIso, opts.asOfIso, opts.ageGateContext);
   const seen = new Set<string>();
   const entries = all.map((s) => gateEntry(s, isHeld, seen)).filter((s): s is Signification => s !== null);
   const held = Array.from(seen)

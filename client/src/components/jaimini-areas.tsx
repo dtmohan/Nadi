@@ -264,7 +264,7 @@ function AreaCard({
     ...a.padas.flatMap((p) => p.notes),
   ];
   const shownNotes = open ? notes : notes.slice(0, 4);
-  const season = areaSeason(a.area, result.utc, result.now.asOf);
+  const season = areaSeason(a.area, result.utc, result.now.asOf, result.chart);
   const [showEarly, setShowEarly] = useState(false);
   // The Jaimini "children" area also carries learning (PK), so it stays open with a note rather than being held back.
   const held = !season.inSeason && a.area !== "children";

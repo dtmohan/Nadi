@@ -4,6 +4,7 @@ import { SourceLink } from "@/components/source-link";
 import { ModeText, SectionTitle, usePlain } from "@/components/mode-text";
 import { Expander, HOW_COMPUTED, HOW_FOUND } from "@/components/working";
 import { areaSeason } from "@shared/life-stage";
+import type { ChartResult } from "@shared/schema";
 import { SIGNS, fmtDeg, fmtDegShort } from "@shared/astro";
 import {
   BIRTH_STAR_CAVEATS,
@@ -45,19 +46,21 @@ export function BirthStarSection({
   birthIso,
   asOfIso,
   withheld,
+  chart,
 }: {
   moonLon: number;
   birthIso: string;
   /** The reading date, or the recorded date of passing. */
   asOfIso: string;
   withheld: boolean;
+  chart: ChartResult["chart"];
 }) {
   const plain = usePlain();
   const s = useMemo(
     () => birthStarReading(moonLon, { withhold: withheld }),
     [moonLon, withheld],
   );
-  const relationshipsInSeason = areaSeason("marriage", birthIso, asOfIso).inSeason;
+  const relationshipsInSeason = areaSeason("marriage", birthIso, asOfIso, chart).inSeason;
   if (!s) return null;
   const items = shownBirthStarItems(s, plain, relationshipsInSeason);
   const facts = s.facts.filter((f) => !plain || !f.practitionerOnly);

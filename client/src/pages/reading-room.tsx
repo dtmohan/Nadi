@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -12,8 +13,10 @@ import {
 } from "lucide-react";
 import { chartsStore } from "@/lib/charts-store";
 import { apiRequest } from "@/lib/queryClient";
+import { LanguageToggle, useLocale } from "@/lib/i18n";
+import { readingRoomChartKey } from "@/lib/reading-entry";
 import { SouthIndianChart } from "@/components/south-indian-chart";
-import type { ChartResult } from "@shared/schema";
+import { AYANAMSAS, type ChartResult } from "@shared/schema";
 import {
   buildReadingInput,
   composeReading,
@@ -460,29 +463,20 @@ function ChartCard({ result, onOpen }: { result: ChartResult; onOpen: () => void
 }
 
 function ChartDialog({ result, onClose }: { result: ChartResult; onClose: () => void }) {
-  const ref = useRef<HTMLButtonElement | null>(null);
-  useEffect(() => {
-    ref.current?.focus();
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [onClose]);
+  const [returnFocus] = useState(() => typeof document !== "undefined" && document.activeElement instanceof HTMLElement ? document.activeElement : null);
+  const ayanamsa = AYANAMSAS.find((a) => a.id === result.chart.ayanamsa)?.label ?? result.chart.ayanamsa;
   return (
-    <div className="room-modal" role="dialog" aria-modal="true" aria-label="Birth chart" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="room-modal-card">
+    <DialogPrimitive.Root open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogPrimitive.Portal><DialogPrimitive.Overlay className="room room-modal" lang="en">
+      <DialogPrimitive.Content className="room-modal-card" aria-describedby={undefined} onCloseAutoFocus={(e) => { if (returnFocus?.isConnected) { e.preventDefault(); returnFocus.focus(); } }}>
         <div className="room-modal-head">
           <div>
-            <b>Birth chart</b>
-            <span>South Indian D1 · Lahiri</span>
+            <DialogPrimitive.Title asChild><b>Birth chart</b></DialogPrimitive.Title>
+            <span>South Indian D1 · {ayanamsa}</span>
           </div>
-          <button type="button" ref={ref} className="room-icon-btn" onClick={onClose} aria-label="Close chart">
+          <DialogPrimitive.Close asChild><button type="button" className="room-icon-btn" aria-label="Close chart">
             <X size={18} />
-          </button>
+          </button></DialogPrimitive.Close>
         </div>
         <div className="room-modal-chart">
           <SouthIndianChart
@@ -496,35 +490,26 @@ function ChartDialog({ result, onClose }: { result: ChartResult; onClose: () => 
           />
         </div>
         <p className="room-small">The birth chart at the entered time. It is not a divisional, event or question chart.</p>
-      </div>
-    </div>
+      </DialogPrimitive.Content>
+      </DialogPrimitive.Overlay></DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }
 
 function Drawer({ evidence, onClose }: { evidence: EvidenceRef[]; onClose: () => void }) {
-  const closeRef = useRef<HTMLButtonElement | null>(null);
-  useEffect(() => {
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", onKey);
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [onClose]);
+  const [returnFocus] = useState(() => typeof document !== "undefined" && document.activeElement instanceof HTMLElement ? document.activeElement : null);
   return (
-    <div className="room-drawer-wrap" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <aside className="room-drawer" role="dialog" aria-modal="true" aria-label="Evidence for this paragraph">
+    <DialogPrimitive.Root open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogPrimitive.Portal><DialogPrimitive.Overlay className="room room-drawer-wrap" lang="en">
+      <DialogPrimitive.Content className="room-drawer" aria-describedby={undefined} onCloseAutoFocus={(e) => { if (returnFocus?.isConnected) { e.preventDefault(); returnFocus.focus(); } }}>
         <header className="room-drawer-head">
           <div>
             <span className="room-drawer-kicker">The apparatus</span>
-            <h2>Evidence for this paragraph</h2>
+            <DialogPrimitive.Title asChild><h2>Evidence for this paragraph</h2></DialogPrimitive.Title>
           </div>
-          <button type="button" ref={closeRef} className="room-icon-btn" onClick={onClose} aria-label="Close evidence">
+          <DialogPrimitive.Close asChild><button type="button" className="room-icon-btn" aria-label="Close evidence">
             <X size={18} />
-          </button>
+          </button></DialogPrimitive.Close>
         </header>
         <p className="room-drawer-intro">
           The reading paraphrases these rules; the text below is unchanged. The mark says what kind of claim it is.
@@ -555,14 +540,15 @@ function Drawer({ evidence, onClose }: { evidence: EvidenceRef[]; onClose: () =>
             ) : null}
           </article>
         ))}
-      </aside>
-    </div>
+      </DialogPrimitive.Content>
+      </DialogPrimitive.Overlay></DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }
 
 function Loading() {
   return (
-    <div className="room room-loading" aria-busy="true" aria-live="polite">
+    <div className="room room-loading" lang="en" aria-busy="true" aria-live="polite">
       <div className="room-loading-bar" />
       <div className="room-loading-title" />
       <div className="room-loading-deck" />
@@ -575,7 +561,7 @@ function Loading() {
 
 function ErrorState({ message }: { message: string }) {
   return (
-    <div className="room room-error">
+    <div className="room room-error" lang="en">
       <p className="room-kicker">Reading room</p>
       <h1>The chart could not be opened.</h1>
       <p>{message}</p>
@@ -586,34 +572,32 @@ function ErrorState({ message }: { message: string }) {
 
 export default function ReadingRoom() {
   const { id, view } = useParams<{ id: string; view?: string }>();
+  const { locale } = useLocale();
   const [, navigate] = useLocation();
   const layer: ReadingLayer = view === "working" || view === "critical" ? view : "reading";
-  const [doc, setDoc] = useState<ReadingDoc | null>(null);
-  const [buildError, setBuildError] = useState<string | null>(null);
   const [drawer, setDrawer] = useState<EvidenceRef[] | null>(null);
   const [chartOpen, setChartOpen] = useState(false);
   const [active, setActive] = useState("chart");
   const [copied, setCopied] = useState(false);
 
-  const { data, isLoading, error } = useQuery<ChartResult>({
-    queryKey: ["reading-room", id],
+  const { data, isLoading, isFetching, error } = useQuery<ChartResult>({
+    queryKey: readingRoomChartKey(id),
     enabled: !!id,
     staleTime: Infinity,
     queryFn: async () => {
       const chart = await chartsStore.get(Number(id));
       if (!chart) throw new Error("Chart not found in this browser. It may have been cast in another browser.");
       const res = await apiRequest("POST", "/api/compute", chart);
-      return (await res.json()) as ChartResult;
+      return { ...((await res.json()) as ChartResult), chart };
     },
   });
 
-  useEffect(() => {
-    if (!data) return;
+  const { doc, buildError } = useMemo(() => {
+    if (!data) return { doc: null, buildError: null };
     try {
-      setDoc(composeReading(buildReadingInput(data)));
-      setBuildError(null);
+      return { doc: composeReading(buildReadingInput(data)), buildError: null };
     } catch (e) {
-      setBuildError(e instanceof Error ? e.message : "The prose layer could not compose this chart.");
+      return { doc: null, buildError: e instanceof Error ? e.message : "The prose layer could not compose this chart." };
     }
   }, [data]);
 
@@ -658,7 +642,7 @@ export default function ReadingRoom() {
     }
   };
 
-  if (isLoading) return <Loading />;
+  if (isLoading || isFetching) return <Loading />;
   if (error) return <ErrorState message={error instanceof Error ? error.message : "The chart could not be loaded."} />;
   if (buildError) return <ErrorState message={buildError} />;
   if (!doc || !data) return <Loading />;
@@ -667,7 +651,7 @@ export default function ReadingRoom() {
   const minutes = Math.max(1, Math.ceil(wordCount / 210));
 
   return (
-    <div className="room">
+    <div className="room" lang="en">
       <div className="room-spine" aria-hidden="true">
         <span>Nadi</span>
         <span>Reading room</span>
@@ -682,6 +666,7 @@ export default function ReadingRoom() {
             <em>Reading room</em>
           </Link>
           <div className="room-top-actions">
+            <LanguageToggle />
             <Link href={`/chart/${id}/reading`} className="room-top-link">
               Guided reading
             </Link>
@@ -693,6 +678,8 @@ export default function ReadingRoom() {
             </button>
           </div>
         </div>
+
+        {locale === "ml" && <p className="room-language-note" lang="ml">ഈ വായനാമുറി ഇപ്പോൾ ഇംഗ്ലീഷിലാണ്. <Link href={`/chart/${id}/reading`}>മലയാളത്തിലുള്ള വായന തുറക്കുക</Link>.</p>}
 
         <div className="room-title">
           <p className="room-kicker">A reading room · {doc.provenance.ayanamsaLine.split(" · ")[0]}</p>

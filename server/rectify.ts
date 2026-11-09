@@ -29,6 +29,7 @@
  * Nothing here is stored; the caller sends the chart and the events with each request.
  */
 import { displayLocal } from "@shared/time-basis";
+import { rectificationCandidateChart } from "./rectify-age-context";
 import { comparisonSeed, seeded } from "./validate";
 import type {
   RectifyBaselineStat,
@@ -530,6 +531,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const positions = positionsLite(jd, opts);
     const moon = positions.find((p) => p.planet === "Moon")!;
     const instantMs = utcAtJulianDay(jd).toMillis();
+    const candidateDay = rectificationCandidateChart(chart, utcAtJulianDay(jd), birth.basis).birthDate;
     const points = positions.map((p) => ({ planet: p.planet, ...kpPoint(p.lon) }));
     const lagnaSub = kpPoint(cusps[0]).subLord;
     const lagnaSubPoint = points.find((p) => p.planet === lagnaSub)!;
@@ -569,6 +571,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
       return `${point.signIndex}:${point.nakshatraIndex}:${point.pada}:${point.navamsaSign}`;
     });
     return [
+      candidateDay,
       lagnaKey(cusps[0]),
       Math.floor(chartAsc / 10),
       ...cusps.map((lon) => kpPoint(lon).signLord),
@@ -641,7 +644,10 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const firstMs = Math.ceil((utc0.toMillis() - windowMinutes * 60000) / 1000) * 1000;
     const endMs = Math.ceil((utc0.toMillis() + windowMinutes * 60000) / 1000) * 1000;
     const displayMs = (ms: number) => displayLocal(DateTime.fromMillis(ms, { zone: "utc" }), birth.basis, birth.basis.displayZone);
-    const gateAt = (ms: number) => eventReadingAllowed("marriage", new Date(ms).toISOString(), readingAsOf, chart);
+    const gateAt = (ms: number) => {
+      const utc = DateTime.fromMillis(ms, { zone: "utc" });
+      return eventReadingAllowed("marriage", utc.toISO()!, readingAsOf, rectificationCandidateChart(chart, utc, birth.basis));
+    };
     const gateFirst = gateAt(firstMs), gateLast = gateAt(endMs - 1000);
     const firstMatched = selectKpMatched?.(firstMs), lastMatched = selectKpMatched?.(endMs - 1000);
     const selectionKey = (s: typeof firstMatched) => s?.trials.map((t) => t.offset).join(",") ?? "";
@@ -745,13 +751,14 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const positions = positionsLite(mid, opts);
     const cuspLons = cuspsAt(mid, chart.latitude, chart.longitude, opts);
     const birthIso = utcAtJulianDay(mid).toUTC().toISO()!;
+    const candidateChart = rectificationCandidateChart(chart, utcAtJulianDay(mid), birth.basis);
     const kpContext = createPlanetContext(positions, { kind: "natal", instant: birthIso,
       latitude: chart.latitude, longitude: chart.longitude, timezone: zone, timeStandard: chart.timeStandard,
       ayanamsa: "kp", nodeType: opts.nodeType, houseMethod: "placidus", cusps: cuspLons, ascendant: cuspLons[0], division: "D1", precision: "lite" });
     const { cusps, planets, significators: sigs } = kpNatalFrame(kpContext, cuspLons);
     const scoreKp = createKpEventScorer(cusps, sigs, planets, {
-      withhold: sensitiveGate(chart, birthIso, readingAsOf).withheld,
-      allowed: (matter) => eventReadingAllowed(matter, birthIso, readingAsOf, chart),
+      withhold: sensitiveGate(candidateChart, birthIso, readingAsOf).withheld,
+      allowed: (matter) => eventReadingAllowed(matter, birthIso, readingAsOf, candidateChart),
     });
     const lagna = cusps[0];
     const moon = planets.find((p) => p.planet === "Moon")!;
@@ -769,9 +776,9 @@ export function rectify(req: RectifyRequest): RectifyResult {
       houseMethod: chart.parashariHouseMethod || "rashi", ascendant: lagnaJ, division: "D1", precision: "full" });
     const parashariNatal = computeParashariNatal(natalContext, lagnaJ, birthIso, lifeAsOf(chart, readingAsOf),
       whenSolarEventAvailable(() => shadbalaBase(mid, chart.latitude, chart.longitude, optsJ)), DEFAULT_ASPECT_FLOOR,
-      sensitiveGate(chart, birthIso, readingAsOf).withheld, normaliseParashariHouseMethod(chart.parashariHouseMethod));
+      sensitiveGate(candidateChart, birthIso, readingAsOf).withheld, normaliseParashariHouseMethod(chart.parashariHouseMethod));
     const ordinary = createParashariNatalCatalogue(parashariNatal,
-      (matter) => eventReadingAllowed(matter, birthIso, readingAsOf, chart));
+      (matter) => eventReadingAllowed(matter, birthIso, readingAsOf, candidateChart));
     const scoreParashari = createParashariEventScorer(natalContext, lagnaJ, birthIso, zone, { natalCatalogue: ordinary });
     const parashariByEvent = req.events.map((e, ei) => scoreParashari(e, e.date, eventInstants[ei], eventPositionsJ[ei]));
     const parashariVargas = parashariByEvent.flatMap((p) => p.varga ? [p.varga] : []);
@@ -781,9 +788,9 @@ export function rectify(req: RectifyRequest): RectifyResult {
     const parashariDivisional = parashariByEvent.flatMap((p) => p.divisional ? [p.divisional] : []);
     const manley = parashariByEvent.flatMap((p) => p.manley ? [p.manley] : []);
     const parashariHierarchy = parashariByEvent.map((p) => p.hierarchy ?? null);
-    const school = additionalSchoolEvents(natalContext, chart, mid, lagnaJ, birthIso, readingAsOf, optsJ);
-    const scoreAlp = createAlpEventScorer(natalContext, lagnaJ, birthIso, chart, readingAsOf,
-      (matter) => eventReadingAllowed(matter, birthIso, readingAsOf, chart));
+    const school = additionalSchoolEvents(natalContext, candidateChart, mid, lagnaJ, birthIso, readingAsOf, optsJ);
+    const scoreAlp = createAlpEventScorer(natalContext, lagnaJ, birthIso, candidateChart, readingAsOf,
+      (matter) => eventReadingAllowed(matter, birthIso, readingAsOf, candidateChart));
     const jai = { j: school.jaimini, positions: posJ };
     // The result is constant within a Chara maha/antar period for this
     // candidate and area. Cache only inside this candidate so another birth

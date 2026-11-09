@@ -23,12 +23,10 @@ export async function setBirthTime(
   birthTime: string,
   reason?: string,
 ): Promise<Chart | undefined> {
-  const latest = (await chartsStore.get(chart.id)) ?? chart;
-  const stamp = DateTime.now().toFormat("d LLL yyyy");
-  const line = `Birth time changed from ${latest.birthTime} to ${birthTime} on ${stamp}${reason ? ` (${reason})` : ""}.`;
-  const updated = await chartsStore.update(chart.id, {
-    birthTime,
-    notes: `${latest.notes ? latest.notes + "\n" : ""}${line}`,
+  const updated = await chartsStore.update(chart.id, (latest) => {
+    const stamp = DateTime.now().toFormat("d LLL yyyy");
+    const line = `Birth time changed from ${latest.birthTime} to ${birthTime} on ${stamp}${reason ? ` (${reason})` : ""}.`;
+    return { birthTime, notes: `${latest.notes ? latest.notes + "\n" : ""}${line}` };
   });
   await queryClient.invalidateQueries({
     queryKey: ["chart-result", String(chart.id)],

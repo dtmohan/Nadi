@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { ChartResult } from "@shared/schema";
 import { vimshottari } from "@shared/kp";
-import { ageYears, lifeAsOf, areaSeason, heldAreasAt, mentionsHeldArea } from "@shared/life-stage";
+import { calendarAge, lifeAsOf, areaSeason, heldAreasAt, mentionsHeldArea } from "@shared/life-stage";
 import { areaNoun, nadiAreasClauses } from "@shared/life-areas";
 import type { Gender } from "@shared/marriage";
 import {
@@ -168,7 +168,7 @@ export function OverviewPanel({
   const rising = result.jaimini.lagna.sign;
 
   const lifeAt = lifeAsOf(chart, now.asOf);
-  const age = ageYears(result.utc, lifeAt);
+  const age = calendarAge(result.utc, lifeAt, chart) ?? 0;
   const deceased = lifeAt !== now.asOf;
   const agreementIn = useAgreementInput(result);
   const agreement = useAgreement(result, agreementIn);
@@ -223,7 +223,7 @@ export function OverviewPanel({
 
   const allAreas = useMemo(() => synthesize(reading, gender), [reading, gender]);
   const areas = allAreas.filter((a) =>
-    areaSeason(a.area, result.utc, lifeAt).inSeason,
+    areaSeason(a.area, result.utc, lifeAt, result.chart).inSeason,
   );
   const topics = plainTopicBriefs({
     reading,
@@ -231,7 +231,7 @@ export function OverviewPanel({
     agreement,
     brief,
     zone: chart.timezone || "UTC",
-    inSeason: (topic) => areaSeason(topic, result.utc, lifeAt).inSeason,
+    inSeason: (topic) => areaSeason(topic, result.utc, lifeAt, result.chart).inSeason,
   });
   const schoolBriefs = useMemo(() => (["parashari", "kp", "jaimini", "alp", "prasna"] as BriefSchool[]).flatMap((s) => expandedSchoolTopicBriefs(result, s, agreementIn, agreement, s === "alp" ? { alp: defaultAlpForTopics(result, agreementIn.withheld, alpAsOf) } : undefined)), [result, agreementIn, agreement, alpAsOf]);
   const comparisonsFor = (topic: PlainTopicBrief) => schoolBriefs.filter((b) =>
@@ -242,7 +242,7 @@ export function OverviewPanel({
   const featuredTopics = topics.slice(0, 2);
   const otherTopics = topics.slice(2);
   const deferred = allAreas.filter(
-    (a) => !areaSeason(a.area, result.utc, lifeAt).inSeason,
+    (a) => !areaSeason(a.area, result.utc, lifeAt, result.chart).inSeason,
   );
 
   const glance = locale === "ml" ? malayalamNadiGlance(areas) : glanceSentence(areas);
@@ -494,7 +494,7 @@ export function OverviewPanel({
                       {gocharaPlainEffect(r!)}
                     </p>
                   ) : (
-                    r!.effect.pd && (!plain || !mentionsHeldArea(r!.effect.pd.text, heldAreasAt(result.utc, lifeAt))) && (
+                    r!.effect.pd && (!plain || !mentionsHeldArea(r!.effect.pd.text, heldAreasAt(result.utc, lifeAt, result.chart))) && (
                       <p className="mt-1.5 leading-relaxed text-foreground/90">
                         {plain && "The source associates this position with: "}<Soft>{r!.effect.pd.text}</Soft>
                         {r!.voided && (
@@ -522,7 +522,7 @@ export function OverviewPanel({
         </div>
       </BriefingNow>
 
-      <BriefingPlanets planets={brief.planets} plain={plain} uncertainty={chart.timeUncertaintyMin ?? 0} examples={plain ? planetTopicExamples(topics, reading, heldAreasAt(result.utc, lifeAt)) : undefined} />
+      <BriefingPlanets planets={brief.planets} plain={plain} uncertainty={chart.timeUncertaintyMin ?? 0} examples={plain ? planetTopicExamples(topics, reading, heldAreasAt(result.utc, lifeAt, result.chart)) : undefined} />
         </div>
       </details>
 

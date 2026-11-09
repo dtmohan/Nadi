@@ -679,6 +679,7 @@ export function PanchangaPanel({ result }: { result: ChartResult }) {
         <BirthStarSection
           moonLon={natalMoon.lon}
           birthIso={result.utc}
+          chart={chart}
           asOfIso={lifeAt}
           withheld={withheld}
         />

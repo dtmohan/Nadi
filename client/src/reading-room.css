@@ -100,7 +100,20 @@
 .room-top-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
+}
+
+.room-language-note {
+  margin: 14px 0 0;
+  color: var(--room-ink);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.room-language-note a {
+  color: var(--room-accent);
+  text-decoration: underline;
 }
 
 .room-top-link,

@@ -26,6 +26,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { queryClient } from "@/lib/queryClient";
+import { patchChartEvents } from "@/lib/chart-events-cache";
 import { chartsStore } from "@/lib/charts-store";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -55,9 +56,7 @@ export function saveEvents(
       (await chartsStore.get(chart.id))?.events ?? chart.events ?? [];
     const clean = sanitiseEvents(change(latest));
     await chartsStore.update(chart.id, { events: clean });
-    queryClient.setQueryData(["chart-result", String(chart.id)], (old: any) =>
-      old ? { ...old, chart: { ...old.chart, events: clean } } : old,
-    );
+    patchChartEvents(queryClient, chart.id, clean, async () => (await chartsStore.get(chart.id))?.events);
     return clean;
   };
   const next = queue.then(run, run);
@@ -77,6 +76,8 @@ export function LifeEventsEditor({
   className?: string;
 }) {
   const { toast } = useToast();
+  const { locale } = useLocale();
+  const t = useT();
   const events = chart.events ?? [];
   // Rows being typed: a date input emits partial values while the user types, and those must not be saved.
   const [drafts, setDrafts] = useState<Record<string, string>>({});
@@ -90,7 +91,7 @@ export function LifeEventsEditor({
       await saveEvents(chart, change);
     } catch (e: any) {
       toast({
-        title: "Could not save the events",
+        title: locale === "ml" ? "സംഭവങ്ങൾ സൂക്ഷിക്കാനായില്ല" : "Could not save the events",
         description: e.message,
         variant: "destructive",
       });
@@ -203,10 +204,10 @@ export function LifeEventsEditor({
   return (
     <div className={className} data-testid="life-events">
       {rows.length === 0 && (
-        <p className="text-xs text-muted-foreground">
-          No events saved yet. Add the dated events the native remembers; they
+        <p className="text-xs text-muted-foreground" lang={locale}>
+          {locale === "ml" ? "സംഭവങ്ങളൊന്നും ഇതുവരെ സൂക്ഷിച്ചിട്ടില്ല. ഓർമ്മയിലുള്ള സംഭവങ്ങളും അവയുടെ തീയതികളും ചേർക്കുക; അവ ഈ ഉപകരണത്തിൽ ജാതകത്തോടൊപ്പം സൂക്ഷിക്കുകയും ബാക്കപ്പ് ഫയലിൽ ഉൾപ്പെടുത്തുകയും ചെയ്യും." : <>No events saved yet. Add the dated events the native remembers; they
           are kept with the chart on this device and travel with the backup
-          file.
+          file.</>}
         </p>
       )}
       {rows.length > 0 && (
@@ -224,13 +225,14 @@ export function LifeEventsEditor({
                 <SelectTrigger
                   className="h-8 w-auto min-w-56 max-w-full text-xs"
                   data-testid={`select-event-matter-${e.id}`}
+                  lang={locale === "ml" && t(matterOf(e.matter).label) === matterOf(e.matter).label ? "en" : locale}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {EVENT_MATTERS.map((m) => (
-                    <SelectItem key={m.id} value={m.id} className="text-xs">
-                      {m.label}{" "}
+                    <SelectItem key={m.id} value={m.id} className="text-xs" lang={locale === "ml" && t(m.label) === m.label ? "en" : locale}>
+                      {t(m.label)}{" "}
                       <span className="text-muted-foreground">
                         ({m.houses.join(", ")})
                       </span>
@@ -251,15 +253,16 @@ export function LifeEventsEditor({
               <details
                 className="rounded border px-2 py-1 text-muted-foreground"
               >
-                <summary className="cursor-pointer">
-                  Time and zone (optional){e.time || e.timezone ? ` · ${e.time ?? "noon"}, ${e.timezone ?? chart.timezone}` : ""}
+                <summary className="cursor-pointer" lang={locale}>
+                  {locale === "ml" ? "സമയവും സമയമേഖലയും (നിർബന്ധമല്ല)" : "Time and zone (optional)"}{e.time || e.timezone ? ` · ${e.time ?? (locale === "ml" ? "ഉച്ച" : "noon")}, ${e.timezone ?? chart.timezone}` : ""}
                 </summary>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <label className="flex items-center gap-1 text-muted-foreground">
-                    Time
+                    <span lang={locale}>{locale === "ml" ? "സമയം" : "Time"}</span>
                     <Input
                       type="time"
-                      aria-label="Event local time (optional)"
+                      aria-label={locale === "ml" ? "സംഭവത്തിന്റെ പ്രാദേശിക സമയം (നിർബന്ധമല്ല)" : "Event local time (optional)"}
+                      lang={locale}
                       value={timeDrafts[e.id] ?? e.time ?? ""}
                       onChange={(ev) => setTimeDrafts((d) => ({ ...d, [e.id]: ev.target.value }))}
                       onBlur={(ev) => {
@@ -271,16 +274,17 @@ export function LifeEventsEditor({
                     />
                   </label>
                   <label className="flex items-center gap-1 text-muted-foreground">
-                    Time zone
+                    <span lang={locale}>{locale === "ml" ? "സമയമേഖല" : "Time zone"}</span>
                     <Input
-                      aria-label="Event time zone (optional)"
+                      aria-label={locale === "ml" ? "സംഭവത്തിന്റെ സമയമേഖല (നിർബന്ധമല്ല)" : "Event time zone (optional)"}
+                      lang={locale}
                       placeholder={chart.timezone}
                       value={zoneDrafts[e.id] ?? e.timezone ?? ""}
                       onChange={(ev) => setZoneDrafts((d) => ({ ...d, [e.id]: ev.target.value }))}
                       onBlur={(ev) => {
                         const zone = ev.target.value.trim();
                         if (zone && !DateTime.now().setZone(zone).isValid) {
-                          toast({ title: "Unknown time zone", description: "Use an IANA name such as Asia/Kolkata, or a fixed offset such as UTC-04:00.", variant: "destructive" });
+                          toast({ title: locale === "ml" ? "തിരിച്ചറിയാത്ത സമയമേഖല" : "Unknown time zone", description: locale === "ml" ? "Asia/Kolkata പോലുള്ള IANA പേര് അല്ലെങ്കിൽ UTC-04:00 പോലുള്ള സ്ഥിരമായ സമയവ്യത്യാസം ഉപയോഗിക്കുക." : "Use an IANA name such as Asia/Kolkata, or a fixed offset such as UTC-04:00.", variant: "destructive" });
                         } else {
                           void update(e.id, { timezone: zone || undefined });
                         }
@@ -303,23 +307,24 @@ export function LifeEventsEditor({
                 <SelectTrigger
                   className="h-8 w-36 text-xs"
                   data-testid={`select-event-outcome-${e.id}`}
+                  lang={locale}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NONE} className="text-xs">
-                    Outcome as usual
+                  <SelectItem value={NONE} className="text-xs" lang={locale}>
+                    {locale === "ml" ? "വിഷയത്തിന്റെ സാധാരണ ഫലം" : "Outcome as usual"}
                   </SelectItem>
                   {EVENT_OUTCOMES.map((o) => (
-                    <SelectItem key={o} value={o} className="text-xs">
-                      {OUTCOME_LABEL[o]}
+                    <SelectItem key={o} value={o} className="text-xs" lang={locale}>
+                      {t(OUTCOME_LABEL[o])}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               <Input
                 value={noteDrafts[e.id] ?? e.note ?? ""}
-                placeholder="Note (optional)"
+                placeholder={locale === "ml" ? "കുറിപ്പ് (നിർബന്ധമല്ല)" : "Note (optional)"}
                 maxLength={300}
                 onChange={(ev) => typeNote(e.id, ev.target.value)}
                 onBlur={(ev) =>
@@ -336,7 +341,7 @@ export function LifeEventsEditor({
                 onClick={() => remove(e.id)}
                 data-testid={`button-event-remove-${e.id}`}
               >
-                Remove
+                <span lang={locale}>{locale === "ml" ? "നീക്കുക" : "Remove"}</span>
               </Button>
             </div>
           ))}
@@ -350,16 +355,16 @@ export function LifeEventsEditor({
           onClick={add}
           data-testid="button-event-add"
         >
-          Add an event
+          <span lang={locale}>{locale === "ml" ? "ഒരു സംഭവം ചേർക്കുക" : "Add an event"}</span>
         </Button>
         {rows.length > 0 && (
-          <span className="text-muted-foreground">
-            Saved as you type; a row is kept once it has a full date. "Outcome
+          <span className="text-muted-foreground" lang={locale}>
+            {locale === "ml" ? <>ടൈപ്പ് ചെയ്യുമ്പോൾ സൂക്ഷിക്കുന്നു; പൂർണ തീയതി നൽകിയാൽ ആ വരി നിലനിർത്തും. “വിഷയത്തിന്റെ സാധാരണ ഫലം” എന്നത് ആ വിഷയത്തിന്റെ സ്വഭാവമാണ് (വിവാഹം അനുകൂലം, രോഗം പ്രതികൂലം). സമയശുദ്ധീകരണവും സ്ഥിരീകരണവും ഐച്ഛികമായ സംഭവസമയവും സമയമേഖലയും ഉപയോഗിക്കുന്നു: സമയം നൽകാതിരുന്നാൽ ഉച്ചയും സമയമേഖല നൽകാതിരുന്നാൽ {chart.timezone}-ഉം ഉപയോഗിക്കുന്നു. തീയതി അടിസ്ഥാനമാക്കിയ മറ്റു പരിശോധനകൾ തീയതി മാത്രം ഉപയോഗിച്ചേക്കാം. സംഭവം മറ്റൊരു സ്ഥലത്തായിരുന്നെങ്കിൽ Asia/Kolkata പോലുള്ള IANA സമയമേഖല ഉപയോഗിക്കുക.</> : <>Saved as you type; a row is kept once it has a full date. "Outcome
             as usual" means the matter's own nature (marriage favourable,
             illness unfavourable). Rectify and Validate use the optional event
             time and time zone: an empty time uses noon; an empty zone uses
             {" "}{chart.timezone}. Other date-based tools may still use the date only.
-            Use an IANA zone such as Asia/Kolkata when the event was elsewhere.
+            Use an IANA zone such as Asia/Kolkata when the event was elsewhere.</>}
           </span>
         )}
       </div>
@@ -407,7 +412,7 @@ export function LifeEventsSection({ chart }: { chart: Chart }) {
               open && "rotate-180",
             )}
           />
-          <span className="font-medium">
+          <span className="font-medium" lang={locale}>
             {t("Life events")}{" "}
             <span className="tabular text-muted-foreground">
               ({events.length})
@@ -425,10 +430,10 @@ export function LifeEventsSection({ chart }: { chart: Chart }) {
         </button>
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-3" lang={locale === "ml" ? "en" : undefined}>
-        <p className="mb-2 text-xs text-muted-foreground">
-          Dated events the native remembers. Rectification scores candidate
+        <p className="mb-2 text-xs text-muted-foreground" lang={locale}>
+          {locale === "ml" ? "ഓർമ്മയിലുള്ള സംഭവങ്ങളും തീയതികളും. സമയശുദ്ധീകരണം ഇവ ഉപയോഗിച്ച് സാധ്യമായ ജനനസമയങ്ങൾക്ക് സ്കോർ നൽകുന്നു; പ്രവചനങ്ങൾ പരിശോധിക്കാനും ഓരോ ഗ്രഹത്തിന്റെയും കാലഘട്ടങ്ങൾ എങ്ങനെയായിരുന്നെന്ന് കണക്കാക്കാനും ഇവ ഉപയോഗിക്കും." : <>Dated events the native remembers. Rectification scores candidate
           birth times by them; they will also serve to check predictions and to
-          tally how each planet's periods turned out.
+          tally how each planet's periods turned out.</>}
         </p>
         <LifeEventsEditor chart={chart} />
       </CollapsibleContent>

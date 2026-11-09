@@ -1239,7 +1239,7 @@ export function ParashariPanel({
     }
     // Each period's matters, as the Timing chapter's line gives them (47.2; Phaladeepika 21.1), with the same holds for
     // a minor: display only, so they change no colour.
-    const kwOpts: PeriodSignificationOptions = { birthIso: result.utc, asOfIso, withheld };
+    const kwOpts: PeriodSignificationOptions = { birthIso: result.utc, asOfIso, withheld, ageGateContext: chart };
     // The period lords' own transits, as thin strips under the Dasa and Bhukti bands once the server has walked them.
     const strips = new Map<string, TlBand>();
     const pt = lordTransits.data;
@@ -1257,6 +1257,7 @@ export function ParashariPanel({
             natalOf,
             birthIso: result.utc,
             asOfIso,
+            ageGateContext: chart,
             plain,
           }),
           {
@@ -1319,7 +1320,7 @@ export function ParashariPanel({
       avTransitBand(avTimelineShown.saturn, "Saturn", plain),
       avTransitBand(avTimelineShown.jupiter, "Jupiter", plain),
     ];
-  }, [r.vimshottari, r.dasaReadings, r.lagna.signIndex, avTimelineShown, plain, result.utc, result.positions, result.transits, asOfIso, withheld, lordSpans, lordTransits.data]);
+  }, [r.vimshottari, r.dasaReadings, r.lagna.signIndex, avTimelineShown, plain, result.utc, result.positions, result.transits, asOfIso, withheld, lordSpans, lordTransits.data, chart]);
   const tlWindows = useMemo<TlWindow[]>(
     () =>
       r.dasaReadings.map((d) => {
@@ -2164,6 +2165,7 @@ export function ParashariPanel({
                 birthIso: result.utc,
                 asOfIso,
                 deceased,
+                ageGateContext: chart,
               })}
             />
             <div
@@ -2347,6 +2349,7 @@ export function ParashariPanel({
                 setOpen={setAntarOpen}
                 birthIso={result.utc}
                 asOfIso={asOfIso}
+                chart={chart}
                 withheld={withheld}
                 positions={result.positions}
                 sunCancelled={r.neechaBhanga.find((n) => n.planet === "Sun" && n.cancelled)?.verses}
@@ -2380,6 +2383,7 @@ export function ParashariPanel({
                 s={stars}
                 asOfIso={asOfIso}
                 birthIso={result.utc}
+                chart={result.chart}
               />
             </div>
             <div
@@ -5502,6 +5506,7 @@ function DasaEffects({
   setOpen,
   birthIso,
   asOfIso,
+  chart,
   withheld,
   positions,
   sunCancelled,
@@ -5513,6 +5518,7 @@ function DasaEffects({
   setOpen: (k: string | null) => void;
   birthIso: string;
   asOfIso: string;
+  chart: ChartResult["chart"];
   withheld: boolean;
   /** Natal positions, for the lord's condition in the karakatwa line. */
   positions: PlanetPosition[];
@@ -5521,8 +5527,8 @@ function DasaEffects({
 }) {
   const plainDE = usePlain();
   const kwOpts: PeriodSignificationOptions = useMemo(
-    () => ({ birthIso, asOfIso, withheld }),
-    [birthIso, asOfIso, withheld],
+    () => ({ birthIso, asOfIso, withheld, ageGateContext: chart }),
+    [birthIso, asOfIso, withheld, chart],
   );
   const kw = useMemo(
     () => dasaSignifications(d, positions, kwOpts),

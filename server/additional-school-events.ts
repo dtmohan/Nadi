@@ -31,7 +31,7 @@ export function additionalSchoolEvents(context: PlanetContext, chart: InsertChar
     gulikaClues: gulika ? gulikaNatalClues(context, gulika, house, progeny ? { kind: progeny.kind, signIndex: progeny.signIndex } : undefined) : undefined,
     withhold: sensitiveGate(chart, birthIso, asOf).withheld,
     allowed: (matter) => eventReadingAllowed(matter, birthIso, asOf, chart),
-    areaAllowed: (area) => areaSeason(area, birthIso, lifeAsOf(chart, asOf)).inSeason,
+    areaAllowed: (area) => areaSeason(area, birthIso, lifeAsOf(chart, asOf), chart).inSeason,
   });
   return { reading, jaimini, catalogue };
 }

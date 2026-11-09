@@ -43,7 +43,7 @@ import {
 } from "./astro";
 import { SS_COMBUST_ORB, SS_ORB_CITE, type CombustPlanet } from "./combustion";
 import { HOUSE_AREAS_PLAIN, listJoin, ordH, thePlanet } from "./house-gloss";
-import { AREA_ONSET, HOUSE_AREA, heldAreasAt } from "./life-stage";
+import { AREA_ONSET, HOUSE_AREA, heldAreasAt, type AgeGateContext } from "./life-stage";
 import { periodLordMoonHouse, type PeriodLordMoonHouse } from "./transit-context";
 
 export const PHALADIPIKA_CH20_VEDICPUPIL_URL = "https://vedicpupil.in/library/books/phaladipika/chapter-20";
@@ -556,12 +556,13 @@ export function dasaLordStrip(
     natalOf: (lord: Planet) => NatalCondition | undefined;
     birthIso: string;
     asOfIso: string;
+    ageGateContext?: AgeGateContext;
     plain: boolean;
   },
 ): Strip {
   const pieces: StripPiece[] = [];
   const marks: StripMark[] = [];
-  const held = heldAreasAt(opts.birthIso, opts.asOfIso);
+  const held = heldAreasAt(opts.birthIso, opts.asOfIso, opts.ageGateContext);
   const from = Date.parse(opts.birthIso);
   const to = from + PERIOD_TRANSIT_YEARS * YEAR_MS;
   for (const d of opts.dasas) {

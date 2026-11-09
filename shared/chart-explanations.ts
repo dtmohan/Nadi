@@ -102,9 +102,20 @@ export function bnnFindingContext(f: Finding, relations: readonly PairRelation[]
   const mlRelation = { conjunct: "അതേ രാശിയിൽ", prev: "മുൻ രാശിയിൽ", next: "അടുത്ത രാശിയിൽ", trine: "ത്രികോണത്തിൽ (അഞ്ചാം അല്ലെങ്കിൽ ഒമ്പതാം രാശിയിൽ)", opposite: "ഏഴാം രാശിയിൽ" } as const;
   const mlContacts = relationFacts.map(({ other, relation, retro }) => `${translate("ml", other)} ${mlRelation[relation]}${retro ? " (വക്രഗതി പരിഗണിക്കുന്ന രീതി പ്രകാരം)" : ""}`);
   const mlExplanation = subject && mlContacts.length ? ` അടിസ്ഥാനഗ്രഹം: ${translate("ml", subject)}. അതിൽ നിന്ന് മറ്റ് ഗ്രഹങ്ങളുടെ സ്ഥാനം: ${mlContacts.join("; ")}.` : "";
+  const edges = f.band ? [f.band.earlier, f.band.later].filter(Boolean) : [];
+  const conditionChanges = edges.some((edge) => edge?.interpretationChanged);
+  const relationChanges = edges.some((edge) => edge && (!edge.interpretationChanged || !edge.fires || edge.flow || edge.relation || edge.house));
+  const bandEn = !f.band ? "" : conditionChanges && relationChanges
+    ? " Its connection, direction or conditional interpretation changes within the stated birth-time range."
+    : conditionChanges ? " Its conditional interpretation changes within the stated birth-time range."
+      : " Its connection or direction changes within the stated birth-time range.";
+  const bandMl = !f.band ? "" : conditionChanges && relationChanges
+    ? " നൽകിയ ജനനസമയ പരിധിക്കുള്ളിൽ ഈ ബന്ധമോ ദിശയോ വ്യവസ്ഥയെ ആശ്രയിച്ച വ്യാഖ്യാനമോ മാറാം."
+    : conditionChanges ? " നൽകിയ ജനനസമയ പരിധിക്കുള്ളിൽ വ്യവസ്ഥയെ ആശ്രയിച്ച വ്യാഖ്യാനം മാറാം."
+      : " നൽകിയ ജനനസമയ പരിധിക്കുള്ളിൽ ഈ ബന്ധമോ ദിശയോ മാറാം.";
   return { ruleId: f.ruleId,
-    text: `This selected Nadi rule involves ${named}.${explanation}${f.band ? " Its connection or direction changes within the stated birth-time range." : ""}`,
-    textMl: `തിരഞ്ഞെടുത്ത ഈ നാഡി നിയമത്തിൽ ഉൾപ്പെടുന്നത്: ${mlNames}.${mlExplanation}${f.band ? " നൽകിയ ജനനസമയ പരിധിക്കുള്ളിൽ ഈ ബന്ധമോ ദിശയോ മാറാം." : ""}`,
+    text: `This selected Nadi rule involves ${named}.${explanation}${bandEn}`,
+    textMl: `തിരഞ്ഞെടുത്ത ഈ നാഡി നിയമത്തിൽ ഉൾപ്പെടുന്നത്: ${mlNames}.${mlExplanation}${bandMl}`,
     source: f.source,
     provisional: /\bprovisional\b/i.test(`${f.text} ${f.source ?? ""}`),
     timeSensitive: !!f.band,

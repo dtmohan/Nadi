@@ -23,8 +23,14 @@ test("chart and Nadi introductions preserve their facts, source citations and li
       for (const fact of [input.name, input.place, "12:00", result.timeBasis.label, result.ayanamsaValue.toFixed(3), String(result.positions.find((p) => p.planet === "Moon")!.pada)]) assert.ok(chartMl.text!.includes(fact), fact);
       if (input.deathDate) assert.match(chartMl.text!, /വിയോഗത്തീയതി.*ഭാവിപ്രവചനമല്ല/);
       assert.equal(nadiMl.lang, "ml");
-      assert.match(nadiMl.text!, /വ്യാഴം.*ശനി/);
-      assert.equal(nadiMl.text!.includes("ദേഹമാണ്"), input.gender === "female");
+      if (result.sensitive?.withheld) {
+        // The general introduction names work and a spouse; the age-held pass
+        // omits that mixed-topic paragraph before selecting its translation.
+        assert.notEqual(nadiEn.kind, "lead");
+      } else {
+        assert.match(nadiMl.text!, /വ്യാഴം.*ശനി/);
+        assert.equal(nadiMl.text!.includes("ദേഹമാണ്"), input.gender === "female");
+      }
       assert.deepEqual(chartMl.cites, chartEn.cites);
       assert.deepEqual(nadiMl.cites, nadiEn.cites);
     }

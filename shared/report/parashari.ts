@@ -37,8 +37,16 @@ import { parashariYogaMalayalam } from "../malayalam-parashari-yogas";
 import { parashariDasaGlossMalayalam, parashariDasaSummaryMalayalam } from "../malayalam-parashari-dasa-gloss";
 import { parashariDrekkanaMalayalam } from "../malayalam-parashari-drekkana";
 import { parashariPeriodLineMalayalam } from "../malayalam-parashari-period-lines";
+import { parashariTopicPeriodMalayalam } from "../malayalam-parashari-topic-period";
+import { bhavatDeliveryMalayalam, bhavatPairMalayalam } from "../malayalam-parashari-bhavat-period";
+import { phaladeepikaFromHouseMalayalam } from "../malayalam-parashari-from-house";
 import { parashariWeighingMalayalam } from "../malayalam-parashari-weighing";
 import { parashariPractitionerWeighingMalayalam } from "../malayalam-parashari-weighing-practitioner";
+import { parashariLordInfluenceMalayalam } from "../malayalam-parashari-lord-influence";
+import { parashariLagnaNatureMalayalam } from "../malayalam-parashari-lagna-nature";
+import { parashariPlainSignificationsMalayalam } from "../malayalam-plain-period-karaka";
+import { parashariPractitionerSignificationsMalayalam } from "../malayalam-parashari-significations-practitioner";
+import { parashariHouseChapterMalayalam } from "../malayalam-parashari-house-chapters";
 import { antarSignifications, dasaSignifications } from "../parashari-period-significations";
 import {
   MODERN_COMBUST_NOT_COUNTED,
@@ -111,10 +119,13 @@ function housesSection(
   const findingCites = (f: Finding, n: number) =>
     f.sourceAlso ? [n, cites.add(f.sourceAlso.label, f.sourceAlso.url)] : [n];
   const nature = LAGNA_NATURE[lagnaIdx];
+  const natureText = `Parashara reads from the rising sign. With ${SIGNS[lagnaIdx]} rising, ${list(nature.auspicious)} ${nature.auspicious.length === 1 ? "is" : "are"} auspicious and ${list(nature.malefic)} ${nature.malefic.length === 1 ? "is" : "are"} not${nature.yogakaraka.length ? `; ${list(nature.yogakaraka)} can give yoga alone, owning an angle and a trine` : ""}${nature.yogaPair ? `; ${nature.yogaPair[0]} and ${nature.yogaPair[1]} give the raja yoga only as a pair, the verse naming the two in the dual` : ""}. ${S(nature.note)}`;
+  const natureMl = parashariLagnaNatureMalayalam(lagnaIdx, natureText, ctx.plain);
   const paras: ReportPara[] = [
     {
       kind: "lead",
-      text: `Parashara reads from the rising sign. With ${SIGNS[lagnaIdx]} rising, ${list(nature.auspicious)} ${nature.auspicious.length === 1 ? "is" : "are"} auspicious and ${list(nature.malefic)} ${nature.malefic.length === 1 ? "is" : "are"} not${nature.yogakaraka.length ? `; ${list(nature.yogakaraka)} can give yoga alone, owning an angle and a trine` : ""}${nature.yogaPair ? `; ${nature.yogaPair[0]} and ${nature.yogaPair[1]} give the raja yoga only as a pair, the verse naming the two in the dual` : ""}. ${S(nature.note)}`,
+      text: natureText,
+      ...(natureMl ? { translationMl: { source: natureText, text: natureMl } } : {}),
       cites: [cites.add(`Parashara ${nature.verses}`, BPHS_URL(34))],
     },
   ];
@@ -150,7 +161,8 @@ function housesSection(
       const text = S(endStop(ctx.plain ? part.textPlain : part.text));
       const bhava = par.bhavas.find((b) => b.house === h);
       const judgement = par.bhavaJudgement.find((j) => j.house === h);
-      const ml = bhava ? (parashariBasicHouseMalayalam(par, bhava, part, ctx.plain) ?? (ctx.plain ? parashariLordMalayalam(par, bhava, part) : parashariLordPractitionerMalayalam(par, bhava, part)) ?? (part.key === "weighing" ? ctx.plain ? parashariWeighingMalayalam(text) : judgement ? parashariPractitionerWeighingMalayalam(judgement, text) : undefined : undefined)) : undefined;
+      const influence = part.key === "lord-aspect" ? judgement?.lordAspectClue : part.key === "lord-occupancy" ? judgement?.lordOccupancyClue : undefined;
+      const ml = bhava ? (parashariBasicHouseMalayalam(par, bhava, part, ctx.plain) ?? (ctx.plain ? parashariLordMalayalam(par, bhava, part) : parashariLordPractitionerMalayalam(par, bhava, part)) ?? (!ctx.withheld && part.key === "chapter" ? parashariHouseChapterMalayalam(text, ctx.plain) : undefined) ?? (influence ? parashariLordInfluenceMalayalam(influence, text, ctx.plain) : undefined) ?? (part.key === "weighing" ? ctx.plain ? parashariWeighingMalayalam(text) : judgement ? parashariPractitionerWeighingMalayalam(judgement, text) : undefined : undefined)) : undefined;
       return {
         kind: part.key === "both" ? ("note" as const) : ("p" as const),
         text,
@@ -274,7 +286,7 @@ function timingSection(
   });
   // Periods by topic (shared/parashari-topic-periods.ts): first, as the question a reader asks; then the
   // periods in date order.
-  const topics = topicPeriods(par, { birthIso: ctx.result.utc, asOfIso: ctx.lifeAt, deceased });
+  const topics = topicPeriods(par, { birthIso: ctx.result.utc, asOfIso: ctx.lifeAt, deceased, ageGateContext: ctx.result.chart });
   const sub: ReportSection[] = [
     {
       id: "periods-by-topic",
@@ -308,10 +320,12 @@ function timingSection(
                 (p): ReportPara => ({
                   kind: "p",
                   text: S(ctx.plain ? p.textPlain : p.text),
+                  ...(!ctx.withheld && parashariTopicPeriodMalayalam(p, t.topic, S(ctx.plain ? p.textPlain : p.text), ctx.plain) ? { translationMl: { source: S(ctx.plain ? p.textPlain : p.text), text: parashariTopicPeriodMalayalam(p, t.topic, S(ctx.plain ? p.textPlain : p.text), ctx.plain)! } } : {}),
                   cites: [...p.sources, ...(p.delivery?.sources ?? [])].map((x) => cites.add(x.label, x.url)),
                   provisional: true,
                   tone: p.tone,
                   ...(p.delivery ? { aside: S(ctx.plain ? p.delivery.textPlain : p.delivery.text) } : {}),
+                  ...(!ctx.withheld && p.delivery && bhavatDeliveryMalayalam(par, p, S(ctx.plain ? p.delivery.textPlain : p.delivery.text), ctx.plain) ? { asideTranslationMl: { source: S(ctx.plain ? p.delivery.textPlain : p.delivery.text), text: bhavatDeliveryMalayalam(par, p, S(ctx.plain ? p.delivery.textPlain : p.delivery.text), ctx.plain)! } } : {}),
                 }),
               )
             : [{ kind: "note" as const, text: S(ctx.plain ? t.summaryPlain : t.summary) }]),
@@ -322,6 +336,7 @@ function timingSection(
                   (p): ReportPara => ({
                     kind: "p",
                     text: S(ctx.plain ? p.textPlain : p.text),
+                    ...(!ctx.withheld && phaladeepikaFromHouseMalayalam(p, S(ctx.plain ? p.textPlain : p.text), ctx.plain) ? { translationMl: { source: S(ctx.plain ? p.textPlain : p.text), text: phaladeepikaFromHouseMalayalam(p, S(ctx.plain ? p.textPlain : p.text), ctx.plain)! } } : {}),
                     cites: p.sources.map((x) => cites.add(x.label, x.url)),
                     provisional: true,
                     tone: p.tone,
@@ -337,6 +352,7 @@ function timingSection(
                   (p): ReportPara => ({
                     kind: "p",
                     text: S(ctx.plain ? p.textPlain : p.text),
+                    ...(!ctx.withheld && t.pair && bhavatPairMalayalam(p, t.pair, S(ctx.plain ? p.textPlain : p.text), ctx.plain) ? { translationMl: { source: S(ctx.plain ? p.textPlain : p.text), text: bhavatPairMalayalam(p, t.pair, S(ctx.plain ? p.textPlain : p.text), ctx.plain)! } } : {}),
                     cites: p.sources.map((x) => cites.add(x.label, x.url)),
                     provisional: true,
                   }),
@@ -393,14 +409,17 @@ function timingSection(
       provisional: d.timing.source.provisional,
     });
     // The lord's own significations (Parashara 47.2; Phaladeepika 21.1): shown, not counted, so no tone.
-    const kwOpts = { birthIso: ctx.result.utc, asOfIso: ctx.lifeAt, withheld: ctx.withheld };
+    const kwOpts = { birthIso: ctx.result.utc, asOfIso: ctx.lifeAt, withheld: ctx.withheld, ageGateContext: ctx.result.chart };
     const kw = dasaSignifications(d, ctx.result.positions, kwOpts);
     const kwTail = ctx.plain
       ? "Shown for context, not counted."
       : `Shown, not counted: ${kw.notCounted.charAt(0).toLowerCase()}${kw.notCounted.slice(1)}`;
+    const kwText = S(endStop(`${ctx.plain ? kw.textPlain : kw.text} ${kwTail}`));
+    const kwMl = !ctx.withheld ? ctx.plain ? parashariPlainSignificationsMalayalam(kw, kwText) : parashariPractitionerSignificationsMalayalam(kw, kwText) : undefined;
     ps.push({
       kind: "p",
-      text: S(endStop(`${ctx.plain ? kw.textPlain : kw.text} ${kwTail}`)),
+      text: kwText,
+      ...(kwMl ? { translationMl: { source: kwText, text: kwMl } } : {}),
       cites: kw.sources.map((x) => cites.add(x.label, x.url)),
       provisional: true,
     });

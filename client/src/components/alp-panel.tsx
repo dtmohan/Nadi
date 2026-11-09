@@ -1,5 +1,6 @@
-import { sensitiveGate, lifeAsOf } from "@shared/life-stage";
+import { mentionsHeldArea, sensitiveGate, lifeAsOf } from "@shared/life-stage";
 import { natalPlanetContext } from "@shared/planet-context";
+import { alpHeldAreas, visibleAlpFindings } from "@/lib/alp-visible-findings";
 import { Soft } from "@/lib/gentle";
 import { AlpMarriageContextPanel } from "@/components/alp-marriage-context";
 import { useMemo, useState } from "react";
@@ -204,6 +205,11 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
   ]);
 
   const alpLord = a.point.lord;
+  // A future selection must not reveal an adult-only reading for a present-day minor.
+  const held = alpHeldAreas(result.utc, asOf, result.now.asOf, chart);
+  const adultReading = !held("marriage");
+  // The evidence clauses can name a held subject even when the rule headline does not.
+  const visibleFindings = visibleAlpFindings(a.findings, held);
   const plain = usePlain();
   const curSign = a.signPeriods.find((p) => p.current);
   const badges: Record<number, string[]> = {};
@@ -249,6 +255,8 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
   const lordP = roleLine("ALP lagna lord");
   const janmaP = roleLine("Janma lagna lord");
   const nakP = roleLine("Lord of the ALP nakshatra");
+  const headlineThemes = ALP_HOUSE_THEMES[nakP.houseFromAlp]
+    ?.split(", ").filter((theme) => !mentionsHeldArea(theme, held)).slice(0, 3) ?? [];
   const navP = roleLine("Lord of the activated navamsa sign");
   const activatedHouse =
     ((a.point.navamsaSign - a.point.signIndex + 12) % 12) + 1;
@@ -418,20 +426,15 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
             At age {a.ageYears.toFixed(1)} the moving point stands in{" "}
             {a.point.sign}, the {ordinal(a.houseFromJanma)} sign from the birth
             rising sign, and the decade is read from there; the questions of the{" "}
-            {ordinal(nakP.houseFromAlp)} house (
-            {ALP_HOUSE_THEMES[nakP.houseFromAlp]
-              .split(", ")
-              .slice(0, 3)
-              .join(", ")}
-            ) come to the front.
+            {ordinal(nakP.houseFromAlp)} house{headlineThemes.length > 0 ? ` (${headlineThemes.join(", ")})` : ""} come to the front.
           </>
         }
         lead={
-          a.findings.length === 0
-            ? "None of the rules entered so far fires for this placement; the method is still being entered chapter by chapter."
-            : `${a.findings.length} of the rules entered so far ${a.findings.length === 1 ? "fires" : "fire"} for this placement. The examples below are ordered by Nadi's own weights, not by a validated measure of importance; all are written out under Reading.`
+          visibleFindings.length === 0
+            ? "No applicable rule is shown for this placement; the method is still being entered chapter by chapter, and some topics may be held for later."
+            : `${visibleFindings.length} applicable ${visibleFindings.length === 1 ? "rule is" : "rules are"} shown for this placement. The examples below are ordered by Nadi's own weights, not by a validated measure of importance; all shown rules are written out under Reading.`
         }
-        signatures={[...a.findings]
+        signatures={[...visibleFindings]
           .sort((x, y) => y.weight - x.weight)
           .slice(0, 3)
           .map((f) => {
@@ -1059,7 +1062,7 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
             <div className={INFO_BOX_ROWS}>{a.houses.map((h) => {
               const lordHouse = a.houses.find((x) => x.planets.includes(h.lord));
               const group = KARMA_BHAVAS.find((x) => x.house === h.house);
-              const lordRules = a.ageYears >= 18 ? alpHouseLordInterpretations(h.house, a.findings) : [];
+              const lordRules = adultReading ? alpHouseLordInterpretations(h.house, visibleFindings) : [];
               const line = `The ${ordH(h.house)} from the moving point covers ${houseGloss("alp", h.house)}. ${h.lord} rules this sign${lordHouse ? ` and is in the ${ordH(lordHouse.house)} from the moving point (${houseGloss("alp", lordHouse.house)})` : ""}. ${h.planets.length ? `${listJoin(h.planets)} ${h.planets.length === 1 ? "occupies" : "occupy"} this sign` : "No planet occupies this sign"}. The same sign is the ${ordH(h.houseFromJanma)} from the birth rising sign.`;
               const lineMl = locale === "ml" ? alpHouseDetailMalayalam(h, lordHouse, line) : undefined;
               const glossMl = locale === "ml" ? alpHouseGlossMalayalam(h.house) : undefined;
@@ -1069,7 +1072,7 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
                 {group && <p className="mt-1 text-muted-foreground">{locale === "ml" ? `പുസ്തകം 2 ഈ ഭാവത്തെ ${group.group === "past" ? "ഭൂതം" : group.group === "present" ? "വർത്തമാനം" : "ഭാവി"} വിഭാഗത്തിൽ ഉൾപ്പെടുത്തുന്നു. ഈ പരമ്പരാഗത വിഭാഗീകരണം മാത്രം ഒരു സംഭവം എപ്പോൾ നടക്കുമെന്ന് നിർണയിക്കുന്നില്ല.` : `Book 2 places this house in its ${group.group} group. This traditional grouping does not by itself determine when an event can happen.`} <Cite>ALP Book 2, ch. 3–5</Cite></p>}
                 {lordRules.map((f) => <p key={f.ruleId} className="mt-2">{locale === "ml" ? "ഈ ഭാവാധിപനെക്കുറിച്ചുള്ള തിരഞ്ഞെടുത്ത നിയമം:" : "A selected rule about this house's ruler:"} <LocalizedText>{f.text}</LocalizedText> <Cite href={f.sourceUrl}>{f.source}</Cite>{f.here?.length && !sensitiveTags(f.here.join(" ")).length ? <> <AlpHere clauses={f.here} /></> : ""}</p>)}
                 {h.planets.map((planet) => {
-                  const notes = a.ageYears >= 18 ? a.findings.filter((f) => f.planets.includes(planet) && !sensitiveTags(f.text).length && !/\b(health|illness|disease|death|fertil|pregnan|ruin|accident|suicid\w*|self[- ]destruct\w*|self[- ]harm)\b/i.test(f.text)).slice(0, 2) : [];
+                  const notes = adultReading ? visibleFindings.filter((f) => f.planets.includes(planet) && !sensitiveTags(f.text).length && !/\b(health|illness|disease|death|fertil|pregnan|ruin|accident|suicid\w*|self[- ]destruct\w*|self[- ]harm)\b/i.test(f.text)).slice(0, 2) : [];
                   return <div key={planet} className="mt-2"><p className="font-medium">{locale === "ml" ? translate("ml", planet) : planet}</p>{notes.length ? notes.map((f) => <p key={f.ruleId} className="mt-1">{locale === "ml" ? "ഈ ഗ്രഹത്തെ ഉൾക്കൊള്ളുന്ന തിരഞ്ഞെടുത്ത ALP നിയമം:" : "A selected ALP rule involving this planet:"} <Soft>{f.text}</Soft> <Cite href={f.sourceUrl}>{f.source}</Cite>{f.here?.length && !sensitiveTags(f.here.join(" ")).length ? <> <AlpHere clauses={f.here} /></> : ""}</p>) : <p className="text-muted-foreground">{locale === "ml" ? "ഈ ഗ്രഹത്തെ ഉൾക്കൊള്ളുന്ന മറ്റൊരു ലളിതനിയമം ഇവിടെ തിരഞ്ഞെടുത്തിട്ടില്ല." : "No additional plain rule involving this planet is selected here."}</p>}</div>;
                 })}
               </details>;
@@ -1495,7 +1498,7 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
       </Chapter>
 
       <Chapter id="reading">
-      {a.ageYears >= 18 && <AlpMarriageContextPanel context={a.marriage} />}
+      {adultReading && <AlpMarriageContextPanel context={a.marriage} />}
       <section className="mt-10" data-testid="section-alp-findings">
         <SectionTitle
           as="h2"
@@ -1523,9 +1526,9 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
             </>
           }
         />
-        {a.findings.length ? (
+        {visibleFindings.length ? (
           <ul className="mt-3 space-y-3">
-            {a.findings.map((f) => (
+            {visibleFindings.map((f) => (
               <li
                 key={f.ruleId}
                 className="flex gap-3 text-sm"
@@ -1571,7 +1574,7 @@ export function AlpPanel({ result, initialAsOf, onAsOfChange, onTopicSelected }:
             className="mt-3 rounded-md border border-dashed p-4 text-sm text-muted-foreground"
             data-testid="text-alp-empty"
           >
-            None of the starting rules fire for this placement. The placements
+            No applicable rules are shown for this placement; some topics may be held for later. The placements
             under {plain ? "Where it stands" : "Placements"} are what a rule
             from the books would be written against.
           </p>

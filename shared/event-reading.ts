@@ -10,7 +10,7 @@ export function eventReadingAllowed(matter: string, birthIso: string, asOf: stri
   if (!EVENT_MATTERS.some((m) => m.id === matter)) return false;
   if (sensitiveGate(chart, birthIso, asOf).withheld && sensitiveEventMatter(matter)) return false;
   const area = eventReadingArea(matter);
-  return !area || areaSeason(area, birthIso, lifeAsOf(chart, asOf)).inSeason;
+  return !area || areaSeason(area, birthIso, lifeAsOf(chart, asOf), chart).inSeason;
 }
 
 /** The same D1/divisional natal frames used by the event scorer, without inventing a date or period. */

@@ -16,6 +16,7 @@ import { PANCHANGA_SOURCES } from "../panchanga";
 import { computeGochara, gocharaPlainEffect, GOCHARA_CAVEATS, natalOwnMarks } from "../gochara";
 import { gocharaPractice, GOCHARA_PRACTICE_NOTES } from "../gochara-practice";
 import { birthStarLeadMalayalam, moonSkyMalayalam, nadiSkyMalayalam, panchangaDayMalayalam, PANCHANGA_REPORT_NOTES } from "../malayalam-panchanga-report";
+import { birthStarPlainFactsMalayalam } from "../malayalam-birth-star-facts";
 import {
   cap,
   endStop,
@@ -100,12 +101,15 @@ export const panchangaModule: ReportModule = {
       const starLead = paras[0].text!;
       const starMl = birthStarLeadMalayalam(star, plain, starLead);
       if (starMl) paras[0].translationMl = { source: starLead, text: starMl };
-      if (plain)
+      if (plain) {
+        const text = S(facts.map((f) => endStop(`${f.label}: ${f.plain}`)).join(" "));
+        const ml = birthStarPlainFactsMalayalam(star, text);
         paras.push({
-          kind: "p",
-          text: S(facts.map((f) => endStop(`${f.label}: ${f.plain}`)).join(" ")),
+          kind: "p", text,
+          ...(ml ? { translationMl: { source: text, text: ml } } : {}),
           cites: Array.from(new Set(facts.map((f) => bc(f.cite)))),
         });
+      }
       else
         paras.push({
           kind: "table",

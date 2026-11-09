@@ -56,6 +56,7 @@ function isChart(c: any): c is Chart {
 
 let backendPromise: Promise<Backend> | null = null;
 let cached: Chart[] | null = null;
+let loading: Promise<Chart[]> | null = null;
 const listeners = new Set<() => void>();
 
 async function backend(): Promise<Backend> {
@@ -77,15 +78,36 @@ export function onStorageKind(listener: () => void) {
 
 async function read(): Promise<Chart[]> {
   if (cached) return cached;
-  // Charts saved before events existed get an empty list.
-  cached = (await (await backend()).load()).map((c) => ({ ...c, timeStandard: (c as Partial<Chart>).timeStandard || "auto", events: sanitiseEvents((c as Partial<Chart>).events) }));
-  return cached;
+  if (!loading) {
+    // Share the first load so a later stale load cannot overwrite a completed edit.
+    loading = (async () => {
+      // Charts saved before events existed get an empty list.
+      cached = (await (await backend()).load()).map((c) => ({ ...c, timeStandard: (c as Partial<Chart>).timeStandard || "auto", events: sanitiseEvents((c as Partial<Chart>).events) }));
+      return cached;
+    })();
+  }
+  const pending = loading;
+  try {
+    return await pending;
+  } finally {
+    // A failed load can be retried; completed loads are held by cached.
+    if (loading === pending) loading = null;
+  }
 }
 
 async function write(charts: Chart[]) {
   cached = charts;
   await (await backend()).save(charts);
   await queryClient.invalidateQueries({ queryKey: CHARTS_QUERY_KEY });
+}
+
+// Every change reads and then replaces the saved list. Serialize the whole operation,
+// so simultaneous event and birth-detail edits cannot each write an older snapshot.
+let mutations: Promise<unknown> = Promise.resolve();
+function mutate<T>(operation: () => Promise<T>): Promise<T> {
+  const next = mutations.then(operation, operation);
+  mutations = next.catch(() => undefined);
+  return next;
 }
 
 function nextId(charts: Chart[], offset = 0): number {
@@ -101,24 +123,34 @@ export const chartsStore = {
     return (await read()).find((c) => c.id === id);
   },
   async create(data: InsertChart): Promise<Chart> {
-    const charts = await read();
-    const chart: Chart = { ...normalise(data), id: nextId(charts) };
-    await write([...charts, chart]);
-    return chart;
+    return mutate(async () => {
+      const charts = await read();
+      const chart: Chart = { ...normalise(data), id: nextId(charts) };
+      await write([...charts, chart]);
+      return chart;
+    });
   },
-  async update(id: number, data: Partial<InsertChart>): Promise<Chart | undefined> {
-    const charts = [...(await read())];
-    const i = charts.findIndex((c) => c.id === id);
-    if (i < 0) return undefined;
-    charts[i] = { ...charts[i], ...data };
-    await write(charts);
-    return charts[i];
+  async update(id: number, data: Partial<InsertChart> | ((current: Chart) => Partial<InsertChart>)): Promise<Chart | undefined> {
+    return mutate(async () => {
+      const charts = [...(await read())];
+      const i = charts.findIndex((c) => c.id === id);
+      if (i < 0) return undefined;
+      charts[i] = { ...charts[i], ...(typeof data === "function" ? data(charts[i]) : data) };
+      await write(charts);
+      return charts[i];
+    });
   },
   async remove(id: number): Promise<boolean> {
-    const charts = await read();
-    const next = charts.filter((c) => c.id !== id);
-    await write(next);
-    return next.length !== charts.length;
+    return mutate(async () => {
+      const charts = await read();
+      const next = charts.filter((c) => c.id !== id);
+      await write(next);
+      if (next.length !== charts.length) {
+        // Removing the query also cancels its pending fetch so it cannot revive a deleted chart.
+        queryClient.removeQueries({ queryKey: ["chart-result", String(id)], exact: true });
+      }
+      return next.length !== charts.length;
+    });
   },
   /** JSON text of every saved chart, for backup or moving to another device. */
   async exportJson(): Promise<string> {
@@ -128,19 +160,21 @@ export const chartsStore = {
   async importJson(text: string): Promise<number> {
     const parsed = JSON.parse(text);
     const incoming: unknown[] = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.charts) ? parsed.charts : [];
-    const charts = [...(await read())];
-    let added = 0;
-    for (const raw of incoming) {
-      const r = insertChartSchema.safeParse(raw);
-      if (!r.success) continue;
-      const data = normalise(r.data);
-      const dup = charts.some((c) => c.name === data.name && c.birthDate === data.birthDate && c.birthTime === data.birthTime && c.place === data.place);
-      if (dup) continue;
-      charts.push({ ...data, id: nextId(charts, added) });
-      added++;
-    }
-    if (added) await write(charts);
-    return added;
+    return mutate(async () => {
+      const charts = [...(await read())];
+      let added = 0;
+      for (const raw of incoming) {
+        const r = insertChartSchema.safeParse(raw);
+        if (!r.success) continue;
+        const data = normalise(r.data);
+        const dup = charts.some((c) => c.name === data.name && c.birthDate === data.birthDate && c.birthTime === data.birthTime && c.place === data.place);
+        if (dup) continue;
+        charts.push({ ...data, id: nextId(charts, added) });
+        added++;
+      }
+      if (added) await write(charts);
+      return added;
+    });
   },
 };
 

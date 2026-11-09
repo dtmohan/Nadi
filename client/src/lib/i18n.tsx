@@ -86,6 +86,11 @@ export function useT() {
 /** Mark an English fallback for assistive technology when a sentence is not translated yet. */
 export function LocalizedText({ children }: { children: string }) {
   const { locale } = useLocale();
+  return <LocalizedTextValue locale={locale}>{children}</LocalizedTextValue>;
+}
+
+/** Render a label with its actual language, including an untranslated English fallback. */
+export function LocalizedTextValue({ locale, children }: { locale: Locale; children: string }) {
   const value = translate(locale, children);
   return <span lang={locale === "ml" && !/[\u0d00-\u0d7f]/.test(value) ? "en" : locale}>{value}</span>;
 }

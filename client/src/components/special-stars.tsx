@@ -13,6 +13,7 @@ import {
 import { Expander, HOW_COMPUTED, Working } from "@/components/working";
 import { cn } from "@/lib/utils";
 import { areaSeason } from "@shared/life-stage";
+import type { ChartResult } from "@shared/schema";
 import {
   MARS_MIN_DAYS,
   STAR_PLANETS,
@@ -65,8 +66,8 @@ function ordinal(n: number): string {
 
 /** The readings shown for a passage in the current mode. The plain reading has no line for the
  * quoted Sarvatobhadra verses, and holds back a career reading before the working years. */
-function shownReadings(p: ShownStarPassage, plain: boolean, birthIso: string) {
-  const early = !areaSeason("career", birthIso, p.start).inSeason;
+function shownReadings(p: ShownStarPassage, plain: boolean, birthIso: string, chart: ChartResult["chart"]) {
+  const early = !areaSeason("career", birthIso, p.start, chart).inSeason;
   return p.readings
     .filter((r) => !plain || (r.plain && !(r.area === "career" && early)))
     .map((r) => ({ r, early: r.area === "career" && early }));
@@ -90,13 +91,15 @@ function Passage({
   p,
   label,
   birthIso,
+  chart,
 }: {
   p: ShownStarPassage;
   label: string;
   birthIso: string;
+  chart: ChartResult["chart"];
 }) {
   const plain = usePlain();
-  const items = shownReadings(p, plain, birthIso);
+  const items = shownReadings(p, plain, birthIso, chart);
   const tone = toneOf(items.map((x) => x.r));
   const tones = new Set(items.map((x) => x.r.tone));
   const differ = !plain && tones.has("strain") && tones.has("support");
@@ -167,11 +170,13 @@ function PlanetCard({
   s,
   asOfIso,
   birthIso,
+  chart,
 }: {
   planet: StarPlanet;
   s: SpecialStars;
   asOfIso: string;
   birthIso: string;
+  chart: ChartResult["chart"];
 }) {
   const plain = usePlain();
   const deceased = useDeceased();
@@ -182,9 +187,9 @@ function PlanetCard({
         s.passages,
         planet,
         asOfIso,
-        (p) => shownReadings(p, plain, birthIso).length > 0,
+        (p) => shownReadings(p, plain, birthIso, chart).length > 0,
       ),
-    [s.passages, planet, asOfIso, plain, birthIso],
+    [s.passages, planet, asOfIso, plain, birthIso, chart],
   );
   return (
     <li
@@ -202,7 +207,7 @@ function PlanetCard({
         )}
       </div>
       {now ? (
-        <Passage p={now} label={nowLabel} birthIso={birthIso} />
+        <Passage p={now} label={nowLabel} birthIso={birthIso} chart={chart} />
       ) : (
         <p className="mt-1 text-xs text-muted-foreground">
           {deceased
@@ -212,7 +217,7 @@ function PlanetCard({
       )}
       {!deceased &&
         (next ? (
-          <Passage p={next} label="Next" birthIso={birthIso} />
+          <Passage p={next} label="Next" birthIso={birthIso} chart={chart} />
         ) : (
           <p className="mt-1 text-xs text-muted-foreground">
             No later reading within a hundred years of birth.
@@ -222,7 +227,7 @@ function PlanetCard({
   );
 }
 
-function AllPassages({ s, birthIso }: { s: SpecialStars; birthIso: string }) {
+function AllPassages({ s, birthIso, chart }: { s: SpecialStars; birthIso: string; chart: ChartResult["chart"] }) {
   const [planet, setPlanet] = useState<StarPlanet>("Saturn");
   const rows = s.passages.filter((p) => p.planet === planet);
   return (
@@ -253,6 +258,7 @@ function AllPassages({ s, birthIso }: { s: SpecialStars; birthIso: string }) {
               p={p}
               label={p.current ? "Running" : ""}
               birthIso={birthIso}
+              chart={chart}
             />
           </li>
         ))}
@@ -270,10 +276,12 @@ export function SpecialStarsSection({
   s,
   asOfIso,
   birthIso,
+  chart,
 }: {
   s: SpecialStars;
   asOfIso: string;
   birthIso: string;
+  chart: ChartResult["chart"];
 }) {
   const plain = usePlain();
   const deceased = useDeceased();
@@ -324,6 +332,7 @@ export function SpecialStarsSection({
               s={s}
               asOfIso={asOfIso}
               birthIso={birthIso}
+              chart={chart}
             />
           ))}
         </ul>
@@ -335,7 +344,7 @@ export function SpecialStarsSection({
           count={s.passages.length}
           className="mt-4"
         >
-          <AllPassages s={s} birthIso={birthIso} />
+          <AllPassages s={s} birthIso={birthIso} chart={chart} />
         </Working>
       )}
       {!plain && (

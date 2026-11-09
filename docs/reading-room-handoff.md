@@ -2,7 +2,7 @@
 
 Branch: `reading-room-v2`
 Base: upstream `6a6274f` (Expand Malayalam reports and technical readings)
-This branch contains the reading-room work and the rule audit. It is not a proposal to merge into `main` without review.
+This branch contains the reading-room work and the rule audit. The integration review has addressed the issues described below while preserving the constraints in this handoff.
 
 ## Please preserve these decisions
 
@@ -10,7 +10,7 @@ This branch contains the reading-room work and the rule audit. It is not a propo
 
 2. **Nadi support is a separate layer.** `PlanetStrength.nadiSupport` records friends in the 2nd/12th/7th/trines. The reading calls this “Nadi support; not a Neecha Bhanga cancellation.” `effectiveDignity` still becomes Neutral for the historical snapshot; a score split needs a model-version migration, not a silent hash rewrite.
 
-3. **`unless Jupiter joins` is encoded.** `f-ma-ke` has `when.without = { planet: "Jupiter", relation: ["conjunct"] }`. The immutable school-context snapshot strips this new condition before hashing. Do not remove that strip; the live rule keeps it.
+3. **`unless Jupiter joins` is encoded.** `f-ma-ke` has `when.without = { planet: "Jupiter", relation: ["conjunct"] }`. When Jupiter joins, the evaluator suppresses the conditional relationship warning but retains the separately stated job/detachment finding once, at its existing app-defined weight; this can change live scores relative to the earlier all-or-nothing implementation. The immutable school-context snapshot strips the new condition before hashing. Do not remove that strip; the live rule keeps it.
 
 4. **The trio’s 12th/2nd connection is an app extension.** `NEAR` in `rules-female.ts` and `rules-bnn.ts` includes `prev`/`next`; Rao’s stated trio is one sign, 5th or 9th. The reading derives `source` / `mixed` / `extension` provenance and says when a rule fires only through the adjacent extension. Do not print “linked by sign” as if the extension were source.
 
@@ -20,13 +20,9 @@ This branch contains the reading-room work and the rule audit. It is not a propo
 
 7. **The historical school-context fixture is immutable.** `scripts/school-context-legacy.test.ts` strips new fields/conditions to compare the old baseline. Do not regenerate its hashes to make a semantic change pass.
 
-## Verification
+## Integration review
 
-- `npx tsc --noEmit`
-- `npm test` — 692 tests on this rebase
-- `npm run build`
-
-The build is about 5.0 MB because of the Malayalam catalogues.
+The room now shares the chart-result cache with the workbench, applies life-stage and historical-snapshot gates consistently, and derives its conclusions from the calculated findings. Malayalam users are directed to the existing Malayalam guided reading; the editorial room itself remains English. The concurrent chart-store changes are covered separately by regression tests. See `research/reading-room-validation/` for the public-case and private-candidate validation scope and limitations.
 
 ## Open work
 

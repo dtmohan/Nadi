@@ -4,13 +4,14 @@
 import { SIGNS, type Planet } from "../astro";
 import { displayLocal } from "../time-basis";
 import {
-  ageYears,
+  calendarAge,
   areaSeason,
   lifeAsOf,
   sensitiveGate,
   AREA_ONSET,
   SENSITIVE_WITHHELD_NOTE,
   redactProse,
+  mentionsHeldArea,
 } from "../life-stage";
 import { soften } from "../gentle";
 import type { ChartResult } from "../schema";
@@ -46,6 +47,7 @@ import { MALAYALAM_REPORT_SENTENCES } from "../malayalam-report-sentences";
 import { MALAYALAM_KP_REPORT_NOTES } from "../malayalam-kp-report-notes";
 import { MALAYALAM_PERIOD_REPORT_NOTES } from "../malayalam-period-report-notes";
 import { chartTableRowMalayalam } from "../malayalam-chart-table";
+import { appendixTableHeadMalayalam, appendixTableRowMalayalam } from "../malayalam-appendix-tables";
 import { agreementNoteMalayalam } from "../malayalam-agreement-notes";
 import { kpTableRowMalayalam } from "../malayalam-kp-table";
 import { agreementSentenceMalayalam } from "../malayalam-agreement";
@@ -125,11 +127,11 @@ export function buildContext(
     asOf,
     lifeAt,
     deceased,
-    age: ageYears(result.utc, lifeAt),
+    age: calendarAge(result.utc, lifeAt, chart) ?? 0,
     withheld:
       result.sensitive?.withheld ??
       sensitiveGate(chart, result.utc, asOf).withheld,
-    inSeason: (area: string) => areaSeason(area, result.utc, lifeAt).inSeason,
+    inSeason: (area: string) => areaSeason(area, result.utc, lifeAt, chart).inSeason,
     female: reading.roles.gender === "female",
     pos: (p: Planet) => positions.find((x) => x.planet === p)!,
     lagnaIdx: result.jaimini.lagna.signIndex,
@@ -211,7 +213,20 @@ export function buildReport(
       : []),
   ];
   // The sensitive-content gate: for a native under 18 every statement on length of life, marakas, arishta or the loss of a parent is removed, in either reading mode.
-  const gated = ctx.withheld ? withholdSections(ordered) : ordered;
+  const selectedAlpAt = ctx.tools.alpAsOf ? defaultAlpForTopics(result, ctx.withheld, ctx.tools.alpAsOf).asOf : undefined;
+  const selectedHeld = (area: "career" | "wealth" | "marriage" | "children") =>
+    !ctx.inSeason(area) || (!!selectedAlpAt && !areaSeason(area, result.utc, selectedAlpAt, result.chart).inSeason);
+  const selectedAlpSections = (sections: ReportSection[]): ReportSection[] => sections.flatMap((section) => {
+    if (section.id === "alp" || section.id === "alp-plain-topics" || section.id === "alp-tables")
+      return withholdAgeHeldSections([section], selectedHeld);
+    return [{ ...section, ...(section.sub ? { sub: selectedAlpSections(section.sub) } : {}) }];
+  });
+  const selectedGated = selectedAlpAt ? selectedAlpSections(ordered) : ordered;
+  const sensitiveGated = ctx.withheld ? withholdSections(selectedGated) : selectedGated;
+  // A finding can cover several subjects even when its section itself is in season.
+  // Apply the same conservative cross-topic check to prose, evidence and tables in
+  // both report modes, before translations are selected and citations numbered.
+  const gated = withholdAgeHeldSections(sensitiveGated, (area) => !ctx.inSeason(area));
   // Notes are numbered by first appearance in the final order; a note no paragraph cites is dropped.
   const { sections, cites } = renumberCites(gated, ctx.cites.list);
 
@@ -234,6 +249,32 @@ export function buildReport(
   return opts.locale === "ml" ? localizeReportMalayalam(doc) : doc;
 }
 
+/** Drop whole findings, not individual phrases, so their source meaning cannot be changed. */
+function withholdAgeHeldSections(
+  sections: ReportSection[],
+  held: (area: "career" | "wealth" | "marriage" | "children") => boolean,
+): ReportSection[] {
+  if (!("career wealth marriage children".split(" ") as Array<"career" | "wealth" | "marriage" | "children">).some(held)) return sections;
+  const mentions = (text?: string) => !!text && mentionsHeldArea(text, held);
+  const clean = (section: ReportSection): ReportSection | undefined => {
+    const paras = section.paras.flatMap((para): ReportPara[] => {
+      // The closing policy explains the gate itself; it contains no chart finding.
+      const policy = (section.id === "reading" && para.text?.startsWith("Matters not yet in season at ")) ||
+        (section.id === "jaimini" && /^Held for later at this age: [^.]+\.$/.test(para.text ?? ""));
+      if (!policy && (mentions(para.text) || mentions(para.aside))) return [];
+      if (para.kind !== "table") return [para];
+      if (para.head?.some(mentions)) return [];
+      const rows = para.rows?.filter((row) => !row.some(mentions));
+      if (para.rows?.length && !rows?.length) return [];
+      return [{ ...para, ...(rows ? { rows } : {}) }];
+    });
+    const sub = section.sub?.map(clean).filter((s): s is ReportSection => !!s);
+    if (!paras.length && !sub?.length) return undefined;
+    return { ...section, paras, ...(section.sub ? { sub } : {}) };
+  };
+  return sections.map(clean).filter((section): section is ReportSection => !!section);
+}
+
 /** Apply translations only after age gating and citation numbering. A stale or redacted source
  * never picks up a translation from the original text. Untranslated material remains English. */
 export function localizeReportMalayalam(doc: ReportDoc): ReportDoc {
@@ -247,8 +288,8 @@ export function localizeReportMalayalam(doc: ReportDoc): ReportDoc {
       const { translationMl: _translation, asideTranslationMl: _asideTranslation, ...safePara } = p;
       return { ...safePara, text: value, lang: value && value !== original ? "ml" as const : "en" as const,
         ...(p.aside ? { aside: p.asideTranslationMl?.source === p.aside ? p.asideTranslationMl.text : translate("ml", p.aside) } : {}),
-        ...(p.head ? { head: p.head.map((h) => reportMalayalamLabel(h) ?? translate("ml", h)) } : {}),
-        ...(p.rows ? { rows: p.rows.map((row) => (s.id === "chart" ? chartTableRowMalayalam(p.head, row) : s.id === "kp-tables" ? kpTableRowMalayalam(p.head, row) : undefined) ?? row.map((cell) => translate("ml", cell))) } : {}) };
+        ...(p.head ? { head: appendixTableHeadMalayalam(p.head) ?? p.head.map((h) => reportMalayalamLabel(h) ?? translate("ml", h)) } : {}),
+        ...(p.rows ? { rows: p.rows.map((row) => (s.id === "chart" ? chartTableRowMalayalam(p.head, row) : s.id === "kp-tables" ? kpTableRowMalayalam(p.head, row) : undefined) ?? appendixTableRowMalayalam(p.head, row) ?? row.map((cell) => translate("ml", cell))) } : {}) };
     }), ...(s.sub ? { sub: s.sub.map(walk) } : {}) };
   };
   const note: ReportSection = { id: "translation-notice", title: "ഭാഷയെക്കുറിച്ച്", lang: "ml", paras: [{ kind: "note", lang: "ml", text: "മലയാള പരിഭാഷ പുരോഗമിക്കുന്നു. പരിഭാഷ പൂർത്തിയാകാത്ത ഭാഗങ്ങളും ഉറവിടങ്ങളും ഇംഗ്ലീഷിൽ തുടരും." }] };

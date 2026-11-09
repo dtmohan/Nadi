@@ -40,7 +40,7 @@ export function additionalSchoolNatalConditions(result: ChartResult) {
       progeny ? { kind: progeny.kind, signIndex: progeny.signIndex } : undefined) : undefined,
     withhold: sensitiveGate(result.chart, result.utc, result.now.asOf).withheld,
     allowed: (matter) => eventReadingAllowed(matter, result.utc, result.now.asOf, result.chart),
-    areaAllowed: (area) => areaSeason(area, result.utc, lifeAsOf(result.chart, result.now.asOf)).inSeason,
+    areaAllowed: (area) => areaSeason(area, result.utc, lifeAsOf(result.chart, result.now.asOf), result.chart).inSeason,
   });
   return EVENT_MATTERS.flatMap(({ id }) => { const evidence = catalogue(id); return evidence ? [evidence] : []; });
 }

@@ -2,11 +2,32 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { computeChart } from "../server/routes";
 import { buildReport, buildContext } from "../shared/report";
-import { jaiminiInduMalayalam, jaiminiLeadMalayalam, jaiminiPeriodMalayalam } from "../shared/malayalam-jaimini-report";
+import { jaiminiHeldMalayalam, jaiminiInduMalayalam, jaiminiLeadMalayalam, jaiminiPeriodMalayalam } from "../shared/malayalam-jaimini-report";
+import { Settings } from "luxon";
 import { translate } from "../shared/localization";
 import type { Chart } from "../shared/schema";
 
 const chart: Chart = { id: 0, name: "Synthetic", gender: "female", birthDate: "1990-01-01", birthTime: "12:00", timezone: "Asia/Kolkata", timeStandard: "auto", place: "Bengaluru", latitude: 12.97, longitude: 77.59, ayanamsa: "lahiri", nodeType: "mean", sunriseDef: "edge", parashariHouseMethod: "rashi", notes: "", deathDate: null, timeUncertaintyMin: 0, events: [] } as Chart;
+
+test("minor report translates only the already-held Jaimini topics", () => {
+  const oldNow = Settings.now;
+  Settings.now = () => Date.parse("2026-11-08T12:00:00Z");
+  try {
+    const result = computeChart({ ...chart, birthDate: "2020-01-01" });
+    assert.equal(result.sensitive?.withheld, true);
+    const en = buildReport(result, { plain: true, modules: ["jaimini"], locale: "en" });
+    const ml = buildReport(result, { plain: true, modules: ["jaimini"], locale: "ml" });
+    const a = en.sections.find((s) => s.id === "jaimini")!;
+    const b = ml.sections.find((s) => s.id === "jaimini")!;
+    const n = a.paras.findIndex((p) => p.text?.startsWith("Held for later at this age:"));
+    assert.ok(n >= 0);
+    assert.equal(b.paras[n].lang, "ml");
+    assert.match(b.paras[n].text!, /പിന്നീട് കാണിക്കാൻ മാറ്റിവച്ച/);
+    assert.deepEqual(a.sub?.map((s) => s.id), b.sub?.map((s) => s.id));
+    assert.equal(jaiminiHeldMalayalam(["wealth & gains"], "Held for later at this age: wealth & gains. Extra."), undefined);
+    assert.equal(jaiminiHeldMalayalam(["unknown"], "Held for later at this age: unknown."), undefined);
+  } finally { Settings.now = oldNow; }
+});
 
 for (const deathDate of [null, "2020-01-01"]) test(`Jaimini report translation retains roles, dates and the recorded life stage (${deathDate ?? "living"})`, () => {
   const result = computeChart({ ...chart, deathDate });

@@ -9,6 +9,7 @@ import type { ReportDoc, ReportPara, ReportSection } from "@shared/report";
 import { displayLocal } from "@shared/time-basis";
 import { PLANET_ABBR } from "@shared/astro";
 import { translate } from "@shared/localization";
+import { isDeceased } from "@shared/life-stage";
 import {
   CONTENT_W,
   INK,
@@ -332,7 +333,7 @@ export function renderReportPdf(
   doc
     .fontSize(8)
     .text(
-      `${rep.meta.join("  ·  ")}  ·  ${rep.plain ? "plain reading" : "practitioner reading"}  ·  as of ${rep.generated}`,
+      `${rep.meta.join("  ·  ")}  ·  ${rep.plain ? "plain reading" : "practitioner reading"}  ·  ${isDeceased(chart, now.asOf) ? "generated" : "as of"} ${rep.generated}`,
     );
   doc.moveDown(0.6);
   doc
@@ -353,7 +354,8 @@ export function renderReportPdf(
       result.timeBasis,
       chart.timezone,
     );
-    const transit = now.positions.filter(
+    // Today’s planetary positions are not the sky at a recorded passing.
+    const transit = isDeceased(chart, now.asOf) ? [] : now.positions.filter(
       (p) => p.planet === "Jupiter" || p.planet === "Saturn",
     );
     drawSouthIndianChart(
@@ -384,7 +386,7 @@ export function renderReportPdf(
       .fontSize(6.5)
       .fillColor(MUTED)
       .text(
-        `${PLANET_ABBR[result.reading.roles.native]} Jeeva · Sa Karma · tJu tSa transits as of ${rep.generated}`,
+        `${PLANET_ABBR[result.reading.roles.native]} Jeeva · Sa Karma${transit.length ? ` · tJu tSa transits as of ${rep.generated}` : ""}`,
         PAGE.m,
         y0 + size + 6,
         { width: size },

@@ -83,7 +83,7 @@ export interface RuleCondition {
   alone?: boolean;
   /** Object sits in one of these whole-sign houses counted from the subject (1 = same sign). Replaces `relation`. */
   house?: number[];
-  /** A planet that, if related to the subject or object, prevents the rule from firing. */
+  /** A planet that prevents the rule from firing, or selects its explicit unqualified replacement text. */
   without?: { planet: Planet; relation?: Relation[] };
   subjectRetro?: boolean;
   subjectDignity?: Dignity[];
@@ -99,6 +99,9 @@ export interface Rule {
   area: LifeArea;
   when: RuleCondition;
   text: string;
+  /** When `without` is defeated, retain this separate, unqualified part of the same rule.
+   * This is a replacement finding, not an additional scored rule. */
+  whenExcludedText?: string;
   weight: 1 | 2 | 3;
   source?: string;
   /**
@@ -187,6 +190,8 @@ export interface BandEdge {
   relation?: Relation | null;
   /** For house-count lines, the house at this end, when it differs. */
   house?: number;
+  /** The same rule still fires, but an encoded exception changes its interpretation. */
+  interpretationChanged?: boolean;
 }
 export interface FlowBand {
   /** Half-width of the band in minutes. */
@@ -1224,12 +1229,14 @@ export function applyBand(
       if (!g) return { fires: false };
       const relChanged = g.relation !== f.relation;
       const houseChanged = g.house !== f.house;
-      if (sameFlow(f.flow, g.flow) && !relChanged && !houseChanged) return undefined;
+      const interpretationChanged = g.text !== f.text;
+      if (sameFlow(f.flow, g.flow) && !relChanged && !houseChanged && !interpretationChanged) return undefined;
       return {
         fires: true,
-        flow: g.flow,
+        flow: interpretationChanged && sameFlow(f.flow, g.flow) ? undefined : g.flow,
         relation: relChanged ? g.relation : undefined,
         house: houseChanged ? g.house : undefined,
+        ...(interpretationChanged ? { interpretationChanged: true } : {}),
       };
     };
     const e = edge(E);
@@ -1256,16 +1263,23 @@ export function bandSentence(f: Finding, female = false): string | null {
   const part = (label: string, e?: BandEdge) => {
     if (!e) return null;
     if (!e.fires) return `at the ${label} end this line does not fire`;
-    if (e.flow && f.flow && e.flow.from === f.flow.from && e.flow.to === f.flow.to) {
-      const move = TIER_RANK[e.flow.tier] > TIER_RANK[f.flow.tier] ? "tightens" : TIER_RANK[e.flow.tier] < TIER_RANK[f.flow.tier] ? "loosens" : "changes";
-      return `at the ${label} end the bond ${move} from ${BOND_PHRASE[f.flow.tier]} to ${BOND_PHRASE[e.flow.tier]}`;
-    }
-    if (e.flow)
-      return `at the ${label} end the order ${f.flow ? "reverses" : "is"}: ${directionClause(e.flow, female)}`;
-    if (e.relation && object) return `at the ${label} end ${object} is ${REL_FROM[e.relation]} ${subject}`;
-    if (e.house && object) return `at the ${label} end ${object} is in the ${ordinalOf(e.house)} from ${subject}`;
-    if (f.flow) return `at the ${label} end the two no longer share a direction`;
-    return null;
+    const movement = () => {
+      if (e.interpretationChanged && !e.flow && !e.relation && !e.house) return null;
+      if (e.flow && f.flow && e.flow.from === f.flow.from && e.flow.to === f.flow.to) {
+        const move = TIER_RANK[e.flow.tier] > TIER_RANK[f.flow.tier] ? "tightens" : TIER_RANK[e.flow.tier] < TIER_RANK[f.flow.tier] ? "loosens" : "changes";
+        return `at the ${label} end the bond ${move} from ${BOND_PHRASE[f.flow.tier]} to ${BOND_PHRASE[e.flow.tier]}`;
+      }
+      if (e.flow)
+        return `at the ${label} end the order ${f.flow ? "reverses" : "is"}: ${directionClause(e.flow, female)}`;
+      if (e.relation && object) return `at the ${label} end ${object} is ${REL_FROM[e.relation]} ${subject}`;
+      if (e.house && object) return `at the ${label} end ${object} is in the ${ordinalOf(e.house)} from ${subject}`;
+      if (f.flow) return `at the ${label} end the two no longer share a direction`;
+      return null;
+    };
+    const change = movement();
+    return e.interpretationChanged
+      ? `${change ? `${change}; ` : `at the ${label} end `}the source's conditional interpretation changes`
+      : change;
   };
   const bits = [part("earlier", band.earlier), part("later", band.later)].filter(Boolean);
   if (!bits.length) return null;
@@ -1366,6 +1380,7 @@ export function evaluate(
       if (neighbours.length > 0) continue;
     }
 
+    let findingText = rule.text;
     if (w.without) {
       const p = byPlanet[w.without.planet];
       if (p) {
@@ -1373,7 +1388,10 @@ export function evaluate(
         const withSubject = context.bnnRelation(s.planet, p.planet);
         const objectPos = w.object ? byPlanet[w.object] : undefined;
         const withObject = objectPos ? context.bnnRelation(objectPos.planet, p.planet) : null;
-        if ((withSubject && allowed.includes(withSubject.relation)) || (withObject && allowed.includes(withObject.relation))) continue;
+        if ((withSubject && allowed.includes(withSubject.relation)) || (withObject && allowed.includes(withObject.relation))) {
+          if (!rule.whenExcludedText) continue;
+          findingText = rule.whenExcludedText;
+        }
       }
     }
 
@@ -1423,7 +1441,7 @@ export function evaluate(
       push({
         ruleId: rule.id,
         area: rule.area,
-        text: rule.text,
+        text: findingText,
         score: Math.round(score * 100) / 100,
         planets: [s.planet, o.planet, ...extra],
         relation: null,
@@ -1478,7 +1496,7 @@ export function evaluate(
       push({
         ruleId: rule.id,
         area: rule.area,
-        text: rule.text,
+        text: findingText,
         score: Math.round(score * 100) / 100,
         planets: [s.planet, o.planet, ...extra],
         relation: w.exchange && relation === "none" ? null : relation,
@@ -1504,7 +1522,7 @@ export function evaluate(
       push({
         ruleId: rule.id,
         area: rule.area,
-        text: rule.text,
+        text: findingText,
         score: Math.round(score * 100) / 100,
         planets: [s.planet, ...extra],
         relation: null,
@@ -1523,7 +1541,7 @@ export function evaluate(
       push({
         ruleId: rule.id,
         area: rule.area,
-        text: rule.text,
+        text: findingText,
         score: rule.weight,
         planets: [s.planet],
         relation: null,

@@ -33,7 +33,7 @@ import {
   type SignificatorLevel,
 } from "@shared/kp";
 import {
-  ageYears,
+  calendarAge,
   areaSeason,
   seasonStart,
   HOUSE_AREA,
@@ -492,7 +492,7 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
   const [sixStep, setSixStep] = useState(false);
   // Default to the first matter that is in season at the native's age; a child's chart opens on education, not marriage.
   const [event, setEvent] = useState<string>(() =>
-    areaSeason("marriage", result.utc, DateTime.local().toISO()!).inSeason
+    areaSeason("marriage", result.utc, lifeAsOf(chart, DateTime.local().toISO()!), chart).inSeason
       ? "marriage"
       : "education",
   );
@@ -550,17 +550,17 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
   const ev = EVENTS.find((e) => e.id === event) ?? EVENTS[0];
   const evArea = KP_EVENT_AREA[ev.id];
   const evSeason = evArea
-    ? areaSeason(evArea, result.utc, asOfIso)
+    ? areaSeason(evArea, result.utc, asOfIso, chart)
     : { inSeason: true as const };
   // For a matter not yet in season the conjoined periods are searched from the onset age, not from today.
   const searchFrom = useMemo(
     () =>
       evArea
-        ? DateTime.fromISO(seasonStart(evArea, result.utc, asOfIso), {
+        ? DateTime.fromISO(seasonStart(evArea, result.utc, asOfIso, chart), {
             zone: chart.timezone,
           }).toISO()!
         : asOfIso,
-    [evArea, result.utc, asOfIso, chart.timezone],
+    [evArea, result.utc, asOfIso, chart],
   );
   const rawWindows = useMemo(() => {
     const ws = jointPeriods(
@@ -721,9 +721,9 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
   const badSet = new Set(
     tallied.filter((f) => f.polarity === "bad").map((f) => f.cusp),
   );
-  const age = ageYears(result.utc, lifeAsOf(result.chart, asOfIso));
+  const age = calendarAge(result.utc, lifeAsOf(result.chart, asOfIso), chart) ?? 0;
   const heldHouses = Object.entries(HOUSE_AREA)
-    .filter(([, area]) => !areaSeason(area, result.utc, asOfIso).inSeason)
+    .filter(([, area]) => !areaSeason(area, result.utc, asOfIso, chart).inSeason)
     .map(([h]) => Number(h));
   const activeReadings = tallied.filter((f) => f.polarity !== "neutral" && !heldHouses.includes(f.cusp));
   const heldWithVerdict = heldHouses
@@ -1733,14 +1733,14 @@ export function KpPanel({ result, onTopicSelected }: { result: ChartResult; onTo
               className={cn(
                 "h-7 px-2 text-xs",
                 KP_EVENT_AREA[e.id] &&
-                  !areaSeason(KP_EVENT_AREA[e.id], result.utc, asOfIso)
+                  !areaSeason(KP_EVENT_AREA[e.id], result.utc, asOfIso, chart)
                     .inSeason &&
                   "text-muted-foreground",
               )}
               title={
                 KP_EVENT_AREA[e.id] &&
-                !areaSeason(KP_EVENT_AREA[e.id], result.utc, asOfIso).inSeason
-                  ? `Not yet in season; read from age ${areaSeason(KP_EVENT_AREA[e.id], result.utc, asOfIso).from}`
+                !areaSeason(KP_EVENT_AREA[e.id], result.utc, asOfIso, chart).inSeason
+                  ? `Not yet in season; read from age ${areaSeason(KP_EVENT_AREA[e.id], result.utc, asOfIso, chart).from}`
                   : undefined
               }
               onClick={() => setEvent(e.id)}

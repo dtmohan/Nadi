@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { computeChart } from "../server/routes";
+import { Settings } from "luxon";
 import { buildReport } from "../shared/report";
 import { birthStarReading } from "../shared/birth-star";
 import { birthStarLeadMalayalam, moonSkyMalayalam, nadiSkyMalayalam, panchangaDayMalayalam, PANCHANGA_REPORT_NOTES } from "../shared/malayalam-panchanga-report";
@@ -20,6 +21,11 @@ test("public reports translate birth-day, star and sky paragraphs with citations
       assert.ok(day.paras[0].cites?.length);
       assert.equal(star.paras[0].lang, "ml");
       assert.ok(star.paras[0].cites?.length);
+      if (plain) {
+        assert.equal(star.paras[1].lang, "ml");
+        assert.ok(star.paras[1].text?.includes("നക്ഷത്രാധിപൻ"));
+        assert.ok(star.paras[1].cites?.length);
+      }
       const sky = report.sections.find((s) => s.id === "now");
       if (sky) {
         assert.equal(sky.paras[0].lang, "ml");
@@ -27,6 +33,26 @@ test("public reports translate birth-day, star and sky paragraphs with citations
       }
     }
   }
+});
+
+test("birth-star fact translations respect the minor gate and preserve citations", () => {
+  const previousNow = Settings.now;
+  Settings.now = () => Date.parse("2026-11-08T12:00:00Z");
+  try {
+    const person = JSON.parse(readFileSync("research/malayalam-technical/cases.json", "utf8")).cases[0];
+    for (const birthDate of ["2020-01-01", "1980-01-01"]) {
+      const chart = computeChart({ id: 0, ayanamsa: "lahiri", nodeType: "mean", sunriseDef: "edge", parashariHouseMethod: "rashi", notes: "", timeUncertaintyMin: 0, events: [], ...person, birthDate, deathDate: null } as Chart);
+      if (birthDate.startsWith("2020")) assert.equal(chart.sensitive?.withheld, true);
+      const en = buildReport(chart, { plain: true, modules: ["panchanga"], locale: "en" });
+      const ml = buildReport(chart, { plain: true, modules: ["panchanga"], locale: "ml" });
+      const a = en.sections.find((s) => s.id === "birth-star")!.paras[1];
+      const b = ml.sections.find((s) => s.id === "birth-star")!.paras[1];
+      assert.deepEqual(b.cites, a.cites);
+      assert.equal(b.lang, "ml");
+      assert.ok(b.text?.includes("നക്ഷത്രാധിപൻ"));
+      assert.ok(!a.text?.includes("Animal emblem"));
+    }
+  } finally { Settings.now = previousNow; }
 });
 
 test("generated clauses reject changed source, unknown names and preserve quadrants", () => {

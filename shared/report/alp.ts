@@ -7,6 +7,7 @@ import { alpMarriageParas } from "./alp-marriage-context";
 import { DateTime } from "luxon";
 import { translate } from "../localization";
 import { alpEvidenceClauseMalayalam } from "../malayalam-alp-evidence";
+import { areaSeason, mentionsHeldArea } from "../life-stage";
 import {
   endStop,
   fmtDate,
@@ -25,6 +26,8 @@ export const alpModule: ReportModule = {
     const { result, S, cites, asOf, lifeAt, deceased, withheld } = ctx;
     const config = DEFAULT_ALP_CONFIG;
     const alp = defaultAlpForTopics(result, withheld, ctx.tools.alpAsOf);
+    const allowed = (area: "career" | "wealth" | "marriage" | "children") =>
+      ctx.inSeason(area) && areaSeason(area, result.utc, alp.asOf, result.chart).inSeason;
     const site = cites.add("ALP astrology, introduction", ALP_SOURCE_SITE);
     const p = alp.point;
     const arp = alp.arp;
@@ -76,7 +79,7 @@ export const alpModule: ReportModule = {
           ]),
       },
     ];
-    if (alp.ageYears >= 18) paras.push(...alpMarriageParas(alp.marriage, (source, url) => cites.add(source, url)));
+    if (allowed("marriage")) paras.push(...alpMarriageParas(alp.marriage, (source, url) => cites.add(source, url)));
     if (!deceased && alp.nakshatraPeriods.length)
       paras.push({
         kind: "table",
@@ -89,7 +92,11 @@ export const alpModule: ReportModule = {
           fmtDate(n.end),
         ]),
       });
-    const fs = alp.findings;
+    // Findings and their supporting clauses can mention several life areas at once.
+    // Withhold the whole finding if any of those areas is not yet in season.
+    const fs = alp.findings.filter((f) => !mentionsHeldArea(
+      [f.text, ...(f.here ?? [])].join(" "), (area) => !allowed(area),
+    ));
     if (fs.length) {
       for (const f of fs) {
         const source = S(endStop(f.text));
@@ -112,7 +119,7 @@ export const alpModule: ReportModule = {
           provisional: /notes|example|magazine/i.test(f.source),
         });
       }
-    } else {
+    } else if (!alp.findings.length) {
       paras.push({
         kind: "note",
         text: "No entered ALP rule fires on this progressed lagna at the reading date.",

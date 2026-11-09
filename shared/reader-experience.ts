@@ -75,7 +75,7 @@ export function readerExperience(result: ChartResult): ReaderExperience {
   const topics = plainTopicBriefs({
     reading: result.reading, areas, agreement, brief: briefing,
     zone: result.chart.timezone || "UTC",
-    inSeason: (topic) => areaSeason(topic, result.utc, lifeAt).inSeason,
+    inSeason: (topic) => areaSeason(topic, result.utc, lifeAt, result.chart).inSeason,
   });
   const alp = defaultAlpForTopics(result, input.withheld);
   const prasna = { frame: "natal" as const, readings: computePrasna(natalPlanetContext(result), result.jaimini.lagna.signIndex),

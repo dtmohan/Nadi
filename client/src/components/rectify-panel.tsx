@@ -842,10 +842,10 @@ export function RectifyPanel({
         </p>
       )}
       {m.needsEvents && (
-        <p className="mt-1 text-xs text-muted-foreground">
-          Without an event time, both tabs use noon; without an event time zone,
+        <p className="mt-1 text-xs text-muted-foreground" lang={locale}>
+          {locale === "ml" ? <>സംഭവസമയം നൽകിയില്ലെങ്കിൽ രണ്ടു ടാബുകളും ഉച്ചസമയം ഉപയോഗിക്കുന്നു; സംഭവത്തിന്റെ സമയമേഖല നൽകിയില്ലെങ്കിൽ ജനനസ്ഥലത്തിന്റെ സമയമേഖല ({chart.timezone}) ഉപയോഗിക്കുന്നു. ഒരു ദിവസത്തിനുള്ളിൽ കാലഘട്ടങ്ങളും ഗോചരസ്ഥാനങ്ങളും മാറാം. ക്രമരഹിതമായി തിരഞ്ഞെടുത്ത തീയതികൾക്കും അതേ പ്രാദേശിക സമയവും സമയമേഖലയും ഉപയോഗിക്കുന്നു.</> : <>Without an event time, both tabs use noon; without an event time zone,
           they use the birth time zone ({chart.timezone}). Periods and transits
-          can change during the day. Random dates keep the same local time and zone.
+          can change during the day. Random dates keep the same local time and zone.</>}
         </p>
       )}
       {m.needsJudge && (
@@ -865,7 +865,7 @@ export function RectifyPanel({
 
       <div className="mt-3 flex flex-wrap items-end gap-x-4 gap-y-2 text-xs">
         <label className="inline-flex items-center gap-2 text-muted-foreground">
-          Window
+          <span lang={locale}>{locale === "ml" ? "സമയപരിധി" : "Window"}</span>
           <Select
             value={String(windowMinutes)}
             onValueChange={(v) => setWindowMinutes(Number(v))}
@@ -878,8 +878,8 @@ export function RectifyPanel({
             </SelectTrigger>
             <SelectContent>
               {WINDOWS.map((w) => (
-                <SelectItem key={w} value={String(w)} className="text-xs">
-                  ± {w} min
+                <SelectItem key={w} value={String(w)} className="text-xs" lang={locale}>
+                  ± {w} {locale === "ml" ? "മിനിറ്റ്" : "min"}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -888,11 +888,11 @@ export function RectifyPanel({
         <label className="inline-flex items-center gap-2 text-muted-foreground">
           <input type="checkbox" checked={!includeComparisons} onChange={(e) => setIncludeComparisons(!e.target.checked)}
             data-testid="rectify-quick-scan" />
-          Quick scan: skip random-date comparisons
+          <span lang={locale}>{locale === "ml" ? "വേഗത്തിലുള്ള പരിശോധന: ക്രമരഹിത തീയതികളുമായുള്ള താരതമ്യം ഒഴിവാക്കുക" : "Quick scan: skip random-date comparisons"}</span>
         </label>
         {missingEvents && (
-          <span className="text-muted-foreground">
-            This method needs at least one dated event; add one below.
+          <span className="text-muted-foreground" lang={locale}>
+            {locale === "ml" ? "ഈ രീതിക്ക് തീയതി നൽകിയ ഒരു സംഭവമെങ്കിലും ആവശ്യമാണ്; താഴെ ചേർക്കുക." : "This method needs at least one dated event; add one below."}
           </span>
         )}
         <Button
@@ -902,28 +902,28 @@ export function RectifyPanel({
           disabled={scan.isPending}
           data-testid="button-rectify-scan"
         >
-          {scan.isPending
+          <span lang={locale}>{locale === "ml" ? (scan.isPending ? "പരിശോധിക്കുന്നു…" : data ? "വീണ്ടും പരിശോധിക്കുക" : "സമയപരിധി പരിശോധിക്കുക") : scan.isPending
             ? "Scanning…"
             : data
               ? "Scan again"
-              : "Scan the window"}
+              : "Scan the window"}</span>
         </Button>
       </div>
 
       {!includeComparisons && (
-        <p className="mt-2 text-xs text-muted-foreground" data-testid="rectify-quick-scan-note">
-          Candidate and event checks stay the same. The 200 random-date comparison sets are skipped;
-          run a full scan or use Validate for a candidate to compare dates.
+        <p className="mt-2 text-xs text-muted-foreground" data-testid="rectify-quick-scan-note" lang={locale}>
+          {locale === "ml" ? "സാധ്യമായ സമയങ്ങളുടെയും സംഭവങ്ങളുടെയും പരിശോധനകൾ അതേപടി തുടരും. ക്രമരഹിത തീയതികളുമായുള്ള 200 താരതമ്യ സെറ്റുകൾ ഒഴിവാക്കുന്നു; തീയതികൾ താരതമ്യം ചെയ്യാൻ പൂർണ പരിശോധന നടത്തുകയോ ഒരു സമയത്തിന് സ്ഥിരീകരണ ടാബ് ഉപയോഗിക്കുകയോ ചെയ്യുക." : <>Candidate and event checks stay the same. The 200 random-date comparison sets are skipped;
+          run a full scan or use Validate for a candidate to compare dates.</>}
         </p>
       )}
 
       <div className="mt-3" data-testid="rectify-events">
-        <p className="mb-1.5 text-xs font-medium">
-          {plain ? "Dated life events" : "Life events"}{" "}
+        <p className="mb-1.5 text-xs font-medium" lang={locale}>
+          {locale === "ml" ? (plain ? "തീയതി നൽകിയ ജീവിതസംഭവങ്ങൾ" : "ജീവിതസംഭവങ്ങൾ") : plain ? "Dated life events" : "Life events"}{" "}
           <span className="text-muted-foreground">
-            saved with the chart
+            {locale === "ml" ? "ജാതകത്തോടൊപ്പം സൂക്ഷിക്കുന്നു" : "saved with the chart"}
             {data && eventPayload.length
-              ? "; scan again after changing them"
+              ? (locale === "ml" ? "; മാറ്റിയശേഷം വീണ്ടും പരിശോധിക്കുക" : "; scan again after changing them")
               : ""}
           </span>
         </p>
@@ -936,12 +936,10 @@ export function RectifyPanel({
           aria-busy="true"
           data-testid="rectify-skeleton"
         >
-          <p className="text-xs text-muted-foreground">
-            Scanning the window: casting each candidate time and scoring it
-            {method === "kp-events" || method === "jaimini-dasha"
-              ? " against every dated event"
-              : ""}
-            . Larger event lists or wider windows can take longer.
+          <p className="text-xs text-muted-foreground" lang={locale}>
+            {locale === "ml" ? <>സമയപരിധി പരിശോധിക്കുന്നു: സാധ്യമായ ഓരോ സമയത്തിനും ജാതകം കണക്കാക്കി{method === "kp-events" || method === "jaimini-dasha" ? " തീയതി നൽകിയ എല്ലാ സംഭവങ്ങളുമായും" : ""} സ്കോർ ചെയ്യുന്നു. കൂടുതൽ സംഭവങ്ങളോ വലിയ സമയപരിധിയോ ആണെങ്കിൽ കൂടുതൽ സമയമെടുക്കാം.</> : <>Scanning the window: casting each candidate time and scoring it
+            {method === "kp-events" || method === "jaimini-dasha" ? " against every dated event" : ""}
+            . Larger event lists or wider windows can take longer.</>}
           </p>
           <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
           <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />

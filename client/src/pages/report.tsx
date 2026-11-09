@@ -18,7 +18,7 @@ import {
 } from "@/lib/report-builder";
 import { downloadReportPdf } from "@/lib/report-pdf";
 import { useToast } from "@/hooks/use-toast";
-import { useLocale, useT } from "@/lib/i18n";
+import { LocalizedText, useLocale } from "@/lib/i18n";
 
 /** The systems a reader can leave out of the report; the chart section is always present and the two tools export from their own tabs. */
 const PICKABLE = REPORT_MODULES.filter((m) => m.id !== "chart" && !m.tool);
@@ -60,7 +60,6 @@ function Cites({ ns }: { ns?: number[] }) {
 }
 
 function Para({ p }: { p: ReportPara }) {
-  const t = useT();
   if (p.kind === "table")
     return (
         <Table wrapperClassName="report-table-scroll my-5 print:overflow-visible"
@@ -96,7 +95,7 @@ function Para({ p }: { p: ReportPara }) {
   if (p.kind === "note")
     return (
       <p lang={p.lang} className="report-note my-4 text-[0.85em] leading-relaxed text-muted-foreground">
-        {p.provisional && <span className="mr-1.5 text-[0.8em] font-semibold text-amber-700 dark:text-amber-400">{t("Provisional")}</span>}
+        {p.provisional && <span className="mr-1.5 text-[0.8em] font-semibold text-amber-700 dark:text-amber-400"><LocalizedText>Provisional</LocalizedText></span>}
         {p.text}
         <Cites ns={p.cites} />
       </p>
@@ -120,7 +119,7 @@ function Para({ p }: { p: ReportPara }) {
       >
         {p.provisional && (
           <span className="mr-1.5 text-[0.7em] uppercase tracking-wider text-amber-700 dark:text-amber-400">
-            {t("Provisional")}
+            <LocalizedText>Provisional</LocalizedText>
           </span>
         )}
         {p.text}
@@ -169,7 +168,6 @@ function Section({ s, level }: { s: ReportSection; level: 2 | 3 }) {
 export default function ReportPage() {
   const { id } = useParams<{ id: string }>();
   const { locale } = useLocale();
-  const t = useT();
   const { mode } = useReadingMode();
   const { data, isLoading, error } = useQuery<ChartResult>({
     queryKey: ["chart-result", id],
@@ -259,7 +257,7 @@ export default function ReportPage() {
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
           data-testid="link-report-back"
         >
-          <ArrowLeft className="h-4 w-4" /> {t("Back to the chart")}
+          <ArrowLeft className="h-4 w-4" /> <LocalizedText>Back to the chart</LocalizedText>
         </Link>
         {/* On a phone the export buttons wrap together under the reading-depth toggle. */}
         <div className="flex flex-wrap items-center gap-2">
@@ -273,7 +271,7 @@ export default function ReportPage() {
               data-testid="button-report-pdf"
             >
               <FileDown className="h-4 w-4" />
-              {t(exporting ? "Preparing PDF" : "Download PDF")}
+              <LocalizedText>{exporting ? "Preparing PDF" : "Download PDF"}</LocalizedText>
             </Button>
             <Button
               size="sm"
@@ -282,7 +280,7 @@ export default function ReportPage() {
               data-testid="button-report-print"
               title="Print this page from the browser"
             >
-              <Printer className="h-4 w-4" /> {t("Print")}
+              <Printer className="h-4 w-4" /> <LocalizedText>Print</LocalizedText>
             </Button>
           </div>
         </div>
@@ -294,7 +292,7 @@ export default function ReportPage() {
         aria-label="Systems in the report"
         data-testid="report-modules"
       >
-        <span className="mr-1 text-xs text-muted-foreground">{t("Include")}</span>
+        <span className="mr-1 text-xs text-muted-foreground"><LocalizedText>Include</LocalizedText></span>
         {PICKABLE.map((m) => {
           const on = !off.has(m.id);
           return (
@@ -331,12 +329,13 @@ export default function ReportPage() {
         <p className="text-sm text-muted-foreground">{doc.subtitle}</p>
         <p className="mt-1 text-xs text-muted-foreground">
           {doc.meta.join(" · ")} ·{" "}
-          {doc.plain ? "plain reading" : "practitioner reading"}
+          <LocalizedText>{doc.plain ? "Plain reading" : "Practitioner reading"}</LocalizedText>
         </p>
       </header>
 
       <nav
         className="report-contents mt-8 print:hidden"
+        lang={locale}
         aria-label={locale === "ml" ? "ഈ റിപ്പോർട്ടിൽ" : "In this report"}
         data-testid="report-contents"
       >
@@ -357,7 +356,7 @@ export default function ReportPage() {
       </article>
 
       <section id="notes" className="mt-12" data-testid="report-notes">
-        <h2 className="font-display text-xl font-semibold">{t("Notes")}</h2>
+        <h2 className="font-display text-xl font-semibold"><LocalizedText>Notes</LocalizedText></h2>
         <ol lang="en" className="mt-3 space-y-1 text-[0.85em] text-muted-foreground">
           {doc.cites.map((c) => (
             <li key={c.n} id={`fn-${c.n}`} tabIndex={-1} className="flex scroll-mt-6 gap-2">

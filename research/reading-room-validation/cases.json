@@ -1,0 +1,17 @@
+{
+  "selection": "Selected before inspecting the combined reading-room output. Convenience cases, not random or blinded; reported birth records and times were not independently authenticated. This checks consistency and presentation, not whether astrology predicts events.",
+  "asOf": "2026-11-08T12:00:00Z",
+  "cases": [
+    {
+      "name": "Gabriela Mistral", "gender": "female", "birthDate": "1889-04-07", "birthTime": "04:00", "timeStandard": "lmt", "timezone": "America/Santiago", "place": "Vicuña, Chile", "latitude": -30.033333, "longitude": -70.733333, "deathDate": "1957-01-10",
+      "birthSource": "https://www.astro.com/astro-databank/Mistral%2C_Gabriela", "birthSourceNote": "Astro-Databank reports a birth certificate, Rodden AA, supplied by Scholfield; the underlying record was not independently inspected. Local mean time follows the published chart.",
+      "careerReference": "Chilean poet, educator and Nobel laureate", "careerSource": "https://www.nobelprize.org/prizes/literature/1945/summary/"
+    },
+    {
+      "name": "Malala Yousafzai", "gender": "female", "birthDate": "1997-07-12", "birthTime": "08:30", "timeStandard": "+05:00", "timezone": "Asia/Karachi", "place": "Mingora, Pakistan", "latitude": 34.783333, "longitude": 72.366667, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Yousafzai%2C_Malala", "birthSourceNote": "Astro-Databank reports a family estimate between 08:00 and 09:00 and uses 08:30; Rodden C. These times are alternatives for a consistency check, not verified exact birth times.",
+      "careerReference": "Education activist and Nobel laureate", "careerSource": "https://www.nobelprize.org/prizes/peace/2014/yousafzai/facts/",
+      "alternatives": [{ "label": "Earlier end of family estimate", "birthTime": "08:00" }, { "label": "Later end of family estimate", "birthTime": "09:00" }]
+    }
+  ]
+}

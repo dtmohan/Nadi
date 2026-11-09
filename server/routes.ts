@@ -64,7 +64,7 @@ import { topicReading } from "./topic-reading";
 import { z } from "zod";
 import { chartEventSchema } from "@shared/events";
 import { createHash } from "node:crypto";
-import { sensitiveGate, redactSensitive, withholdText } from "@shared/life-stage";
+import { sensitiveGate, redactSensitive, withholdText, heldAreasAt, isDeceased } from "@shared/life-stage";
 import { starPassages, janmaIndexOf, isNamedNakshatra } from "@shared/special-stars";
 import { searchPlaces } from "./geocode";
 
@@ -313,7 +313,18 @@ export async function registerRoutes(
         "Content-Disposition",
         `attachment; filename="nadi-${safe}.pdf"`,
       );
-      buildChartPdf(result).pipe(res);
+      // The legacy renderer prints whole Nadi/Jaimini passages and uses current
+      // timings without cross-topic or historical gating. For a young or deceased
+      // native use the shared report pipeline, which has both safeguards; keep the
+      // established filename, content type, and school coverage of this endpoint.
+      const held = heldAreasAt(result.utc, result.now.asOf, chart);
+      const gated = ["career", "wealth", "marriage", "children"].some(held);
+      if (gated || isDeceased(chart, result.now.asOf)) {
+        const report = buildReport(result, { plain: true, modules: ["bnn", "jaimini", "panchanga"] });
+        renderReportPdf(result, report).pipe(res);
+      } else {
+        buildChartPdf(result).pipe(res);
+      }
     } catch (e: any) {
       res.status(400).json({ message: e.message });
     }

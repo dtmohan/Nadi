@@ -6,7 +6,8 @@ import { effectiveOutcome, matterOf, type ChartEvent } from "@shared/events";
 import type { AvTransitRow } from "@shared/av-transit";
 import { LIFE_AREAS, type LifeArea } from "@shared/rules";
 import { areaTouches, type AreaTouch, type TransitReading } from "@shared/timing";
-import { AREA_ONSET, dateAtAge } from "@shared/life-stage";
+import { AREA_ONSET, calendarDateAtAge } from "@shared/life-stage";
+import type { ChartResult } from "@shared/schema";
 import type { Strip, StripState } from "@shared/period-lord-transits";
 import { elementColor, planetColor } from "@/components/planet-name";
 import { markTone, type TlBand, type TlMark, type TlRow, type TlWindow } from "@/components/life-timeline";
@@ -272,9 +273,14 @@ export function bnnAreaRows(
   birthIso: string,
   plain: boolean,
   soften: (t: string) => string = (t) => t,
+  chart?: ChartResult["chart"],
 ): TlRow[] {
   return areas.map((area) => {
-    const onset = AREA_ONSET[area] !== undefined ? Date.parse(dateAtAge(birthIso, AREA_ONSET[area])) : -Infinity;
+    const onsetDay = AREA_ONSET[area] !== undefined ? calendarDateAtAge(birthIso, AREA_ONSET[area], chart) : undefined;
+    // Onset is a civil date in the birth-place zone, not midnight UTC. If the zone
+    // is unknown, use the latest possible local midnight so it cannot open early.
+    const localOnset = onsetDay && chart?.timezone ? DateTime.fromISO(onsetDay, { zone: chart.timezone }).startOf("day") : undefined;
+    const onset = AREA_ONSET[area] === undefined ? -Infinity : !onsetDay ? Infinity : localOnset?.isValid ? localOnset.toMillis() : Date.parse(onsetDay) + 12 * 3600e3;
     const windows: TlWindow[] = [];
     for (const r of readings) {
       const planet = r.period.planet;

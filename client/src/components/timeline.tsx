@@ -26,7 +26,8 @@ import {
   eventMarks,
 } from "@/lib/timeline-data";
 import type { ChartEvent } from "@shared/events";
-import { AREA_ONSET, heldAreasAt, lifeAsOf } from "@shared/life-stage";
+import type { ChartResult } from "@shared/schema";
+import { AREA_ONSET, calendarAge, heldAreasAt, lifeAsOf } from "@shared/life-stage";
 import { transitDay } from "@shared/transit-date";
 
 const fmt = transitDay;
@@ -67,9 +68,9 @@ function Activated({
   );
 }
 
-function NowCard({ r, birth, zone }: { r: TransitReading; birth: DateTime; zone: string }) {
+function NowCard({ r, birthIso, asOfIso, chart, zone }: { r: TransitReading; birthIso: string; asOfIso: string; chart: ChartResult["chart"]; zone: string }) {
   const t = r.period;
-  const age = Math.floor(DateTime.utc().diff(birth, "years").years);
+  const age = calendarAge(birthIso, asOfIso, chart);
   return (
     <div
       className="nadi-info-card p-4"
@@ -79,7 +80,7 @@ function NowCard({ r, birth, zone }: { r: TransitReading; birth: DateTime; zone:
         <div className="text-sm">
           <span className={planetTone(t.planet)}>{t.planet}</span> in{" "}
           <span className="font-medium">{t.sign}</span>
-          <span className="text-muted-foreground"> · age {age}</span>
+          {age !== undefined && <span className="text-muted-foreground"> · age {age}</span>}
         </div>
         <div className="tabular text-xs text-muted-foreground">
           {fmt(t.start, zone)} – {fmt(t.end, zone)}
@@ -101,6 +102,7 @@ export function Timeline({
   positions,
   findings,
   birthIso,
+  chart,
   selected,
   roles,
   asOfIso,
@@ -110,6 +112,7 @@ export function Timeline({
   positions: PlanetPosition[];
   findings: Finding[];
   birthIso: string;
+  chart: ChartResult["chart"];
   selected: Planet | null;
   roles?: Roles;
   /** Reading instant; the date of passing for a deceased native, else today. */
@@ -124,8 +127,8 @@ export function Timeline({
 
   // A minor's held-back areas are named nowhere in the list (life-stage.ts heldAreasAt).
   const held = useMemo(
-    () => heldAreasAt(birthIso, asOfIso ?? new Date().toISOString()),
-    [birthIso, asOfIso],
+    () => heldAreasAt(birthIso, asOfIso ?? new Date().toISOString(), chart),
+    [birthIso, asOfIso, chart],
   );
   const readings = useMemo(
     () => readTransits(transits, positions, findings, birthIso, roles, held),
@@ -154,6 +157,7 @@ export function Timeline({
           start,
           end,
           age: start.diff(birth, "years").years,
+          calendarAge: calendarAge(birthIso, r.period.start, chart),
           current: now >= start && now < end,
           past: end < now,
           days: end.diff(start, "days").days,
@@ -169,7 +173,7 @@ export function Timeline({
           x.r.trine.includes(selected) ||
           x.r.opposite.includes(selected),
       );
-  }, [readings, track, onlyTouches, birth, now, selected, zone]);
+  }, [readings, track, onlyTouches, birth, birthIso, chart, now, selected, zone]);
 
   const next = useMemo(() => {
     return readings.find(
@@ -194,8 +198,8 @@ export function Timeline({
           </p>
           <p className="mt-1 text-xs text-muted-foreground">Passage dates use the birth-place time zone ({zone}); a transition can occur during the displayed day.</p>
           <div className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(15rem,100%),1fr))] gap-3">
-            {current.Jupiter && <NowCard r={current.Jupiter} birth={birth} zone={zone} />}
-            {current.Saturn && <NowCard r={current.Saturn} birth={birth} zone={zone} />}
+            {current.Jupiter && <NowCard r={current.Jupiter} birthIso={birthIso} asOfIso={asOfIso ?? now.toISO()!} chart={chart} zone={zone} />}
+            {current.Saturn && <NowCard r={current.Saturn} birthIso={birthIso} asOfIso={asOfIso ?? now.toISO()!} chart={chart} zone={zone} />}
           </div>
         </section>
       )}
@@ -252,7 +256,7 @@ export function Timeline({
 
       <ol className="mt-5 space-y-1">
         {rows.map(
-          ({ r, start, end, age, current: isCurrent, past, days }, i) => (
+          ({ r, start, end, age, calendarAge: ageAtStart, current: isCurrent, past, days }, i) => (
             <li
               key={`${r.period.planet}-${r.period.start}`}
               className={cn(
@@ -267,7 +271,7 @@ export function Timeline({
             >
               <div className="tabular text-sm">
                 <div className="font-medium">
-                  {age <= 0.02 ? "Birth" : `Age ${Math.floor(age)}`}
+                  {age <= 0.02 ? "Birth" : ageAtStart === undefined ? "Age unavailable" : `Age ${ageAtStart}`}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {start.year}
@@ -367,6 +371,7 @@ export function BnnLifeTimeline({
   positions,
   findings,
   birthIso,
+  chart,
   roles,
   asOfIso,
   events,
@@ -379,6 +384,7 @@ export function BnnLifeTimeline({
   positions: PlanetPosition[];
   findings: Finding[];
   birthIso: string;
+  chart: ChartResult["chart"];
   roles?: Roles;
   asOfIso: string;
   events?: ChartEvent[];
@@ -387,8 +393,8 @@ export function BnnLifeTimeline({
 }) {
   // Read at the date of passing when one is recorded; a minor's held-back areas get no row and no line.
   const held = useMemo(
-    () => heldAreasAt(birthIso, lifeAsOf({ deathDate: deathIso }, asOfIso)),
-    [birthIso, asOfIso, deathIso],
+    () => heldAreasAt(birthIso, lifeAsOf({ deathDate: deathIso }, asOfIso), chart),
+    [birthIso, asOfIso, deathIso, chart],
   );
   const readings = useMemo(
     () => readTransits(transits, positions, findings, birthIso, roles, held),
@@ -408,8 +414,8 @@ export function BnnLifeTimeline({
     [readings, asOfIso, soften],
   );
   const tlRows = useMemo(
-    () => bnnAreaRows(readings, lineAreas, birthIso, plain, soften),
-    [readings, lineAreas, birthIso, plain, soften],
+    () => bnnAreaRows(readings, lineAreas, birthIso, plain, soften, chart),
+    [readings, lineAreas, birthIso, plain, soften, chart],
   );
   const tlWindows = useMemo<TlWindow[]>(() => {
     const out: TlWindow[] = [];

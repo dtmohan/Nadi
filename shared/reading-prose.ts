@@ -12,8 +12,9 @@
 import type { ChartResult } from "./schema";
 import type { Gender } from "./marriage";
 import { AYANAMSAS } from "./schema";
-import { ENEMIES, FRIENDS, PLANETS, houseFrom, SIGN_LORD, SIGNS, type Planet, type PlanetPosition, type Relation } from "./astro";
-import { LIFE_AREAS, provenanceOf, qualifiersOf, type Finding, type LifeArea } from "./rules";
+import { ENEMIES, FRIENDS, PLANETS, houseFrom, SIGN_LORD, SIGNS, type Planet, type PlanetPosition } from "./astro";
+import { LIFE_AREAS, type Finding, type LifeArea } from "./rules";
+import { findingProvenance, findingQualifiers } from "./reading-rule-audit";
 import type { AreaSynthesis } from "./synthesis";
 import { synthesize } from "./synthesis";
 import { agreementInput, computeAgreement, type AgreementTopic, type SystemStance, type TopicAgreement } from "./agreement";
@@ -23,6 +24,7 @@ import { PLAIN_TOPIC_LABEL, PLAIN_TOPIC_ORDER, type PlainTopic } from "./topic-b
 import type { ParashariFinding, ParashariResult } from "./parashari";
 import { computeVargas, parashariCombust, type VargaKey, type VargasResult } from "./vargas";
 import { AREA_STRUCTURES } from "./reading-lexicon";
+import { areaSeason, isDeceased, lifeAsOf, mentionsHeldArea, sensitiveGate, withholdText } from "./life-stage";
 
 // ── Public shapes ───────────────────────────────────────────────────────────────────────────────
 
@@ -557,6 +559,28 @@ class Writer {
   get chart() { return this.input.result.chart; }
   get positions() { return this.input.result.positions; }
   get lagna() { return this.input.result.jaimini.lagna; }
+  get lifeAt() { return lifeAsOf(this.chart, this.result.now.asOf); }
+  get past() { return isDeceased(this.chart, this.result.now.asOf); }
+  canRead(topic: PlainTopic): boolean {
+    // Standing is a work topic and follows the same onset as career.
+    return areaSeason(topic === "authority" ? "career" : topic, this.result.utc, this.lifeAt, this.chart).inSeason;
+  }
+  get hasHeld() { return (["career", "wealth", "marriage", "children"] as const).some((topic) => !this.canRead(topic)); }
+  private held = (topic: "career" | "wealth" | "marriage" | "children") => !this.canRead(topic);
+  private safeMinorText(text: string): boolean {
+    const withheld = this.result.sensitive?.withheld ?? sensitiveGate(this.chart, this.result.utc, this.result.now.asOf).withheld;
+    return !mentionsHeldArea(text, this.held) && !(withheld && withholdText(text));
+  }
+  private status(topic: PlainTopic): string {
+    if (!this.canRead(topic)) return "held for later";
+    if (topic === "children") return "read as traditional links, without an individual outcome";
+    const tone = this.areas.find((a) => a.area === topic)?.tone;
+    const words: Record<AreaSynthesis["tone"], string> = {
+      supportive: "supportive", care: "challenging", mixed: "mixed", contested: "contested",
+      descriptive: "descriptive", quiet: "without a clear overall direction",
+    };
+    return tone ? words[tone] : "not read";
+  }
 
   position(p: Planet): PlanetPosition | undefined {
     return this.positions.find((x) => x.planet === p);
@@ -579,7 +603,7 @@ class Writer {
       ? ` The chart’s centre of gravity is ${this.native}, the Jeeva, ${this.describePlacement(native)}.`
       : "";
     const tenthNames = tenth.map((p) => (p === "Sun" ? "the Sun" : p));
-    const tenthLine = tenth.length
+    const tenthLine = tenth.length && this.canRead("career")
       ? ` ${SIGNS[(lagnaSign + 9) % 12]} — the tenth sign from the rising — gathers ${list(tenthNames)}, which is where the work theme begins.`
       : "";
     const moonLine = moon
@@ -626,7 +650,7 @@ class Writer {
     const alone = jupiter && !this.positions.some((p) => p.signIndex === jupiter.signIndex && p.planet !== jupiter.planet);
 
     const opening = alone
-      ? `The solitude of ${this.native} is the first thing to notice. In Nadi the native is read through the company the Jeeva keeps; here there is none, so the life is carried by the work itself.`
+      ? `${this.native}, the Jeeva, has no other planet in its sign in this chart.`
       : `The company ${this.native} keeps is the first thing to notice: the Jeeva is read through the planets that share its sign.`;
 
     const tenthBits = [
@@ -635,19 +659,24 @@ class Writer {
       hasVenus ? "Venus for form and value" : "",
     ].filter(Boolean);
 
-    const second = hasSaturn || hasMercury || hasVenus
-      ? `${cap(list(tenthBits))} gather in the tenth; that is the chart’s working signature, and it returns in almost every area below.`
+    const second = this.canRead("career") && (hasSaturn || hasMercury || hasVenus)
+      ? `${cap(list(tenthBits))} ${tenthBits.length === 1 ? "is" : "are"} in the tenth; the work reading considers these placements.`
       : "";
 
     const moonLine = moon && sun
-      ? ` The Moon in ${moon.sign} and the Sun in ${sun.sign} give the reading its double register: one inward, one outward.`
+      ? ` The Moon is in ${moon.sign} and the Sun is in ${sun.sign}.`
       : "";
 
     return tidy([opening, second, moonLine].filter(Boolean).join(" "));
   }
 
   private areaClaim(a: AreaSynthesis): string {
-    return AREA_STRUCTURES[a.area as keyof typeof AREA_STRUCTURES].claim;
+    if (a.area === "children") return "For children, the selected Nadi rules describe traditional links, not an individual outcome.";
+    const lead: Record<AreaSynthesis["tone"], string> = {
+      supportive: "supportive indications", care: "challenging indications", mixed: "mixed indications",
+      contested: "indications that disagree", descriptive: "separate indications", quiet: "no clear overall direction",
+    };
+    return `${AREA_NOUN[a.area as PlainTopic]} has ${lead[a.tone]} in the selected Nadi rules.`;
   }
 
   private config(f: Finding): string {
@@ -715,13 +744,13 @@ class Writer {
     if (bridge) sentences.push(bridge);
 
     if (a.tone === "contested") {
-      sentences.push(`The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a ${this.contestedImage(a)}; ${lc(AREA_STRUCTURES.marriage.close)} A contested chart is not a prediction of separation: it says the sources disagree, and a long marriage can hold both support and strain.`);
+      sentences.push(`The app does not average the two indications. It keeps both in view, neither cancelling the other. Read together, they suggest ${this.contestedImage(a)}; they do not establish a specific outcome.`);
     } else if (a.tone === "care") {
       sentences.push("This is a traditional indication, not a diagnosis. It names where the chart asks for attention, not what will happen.");
     } else if (a.tone === "supportive") {
       sentences.push(this.supportImage(a));
     } else if (a.tone === "quiet") {
-      sentences.push("The chart is not making an individual claim here; it is describing a traditional link, and the difference matters.");
+      sentences.push("The selected indications do not give a clear overall direction; they do not establish an outcome.");
     } else {
       sentences.push("The chart gives these as directions, not as a verdict.");
     }
@@ -785,6 +814,7 @@ class Writer {
   }
 
   private chapterWorking(topics: PlainTopic[]): Array<{ label: string; text: string }> {
+    if (this.hasHeld) return [];
     const primary = this.topicFor(topics[0]);
     const out: Array<{ label: string; text: string }> = [];
     const jaimini = this.jaiminiFrame(primary);
@@ -830,7 +860,8 @@ class Writer {
   }
 
   private chapterClose(chapter: "native" | "work" | "bonds" | "mind"): string {
-    const status = (topic: PlainTopic) => AREA_STRUCTURES[topic].status;
+    if (this.hasHeld) return "The app holds some life areas for later under its age setting.";
+    const status = (topic: PlainTopic) => this.status(topic);
     if (chapter === "native") {
       const l1 = this.lordOf(1);
       return `The 1st lord ${l1.lord} is in the ${ORD_WORDS[l1.at]}; the self is ${status("self")} and the body is ${status("health")}. The chart reads the person through that house first, and the body as its qualification.`;
@@ -839,7 +870,7 @@ class Writer {
       const l10 = this.lordOf(10);
       const l2 = this.lordOf(2);
       const l11 = this.lordOf(11);
-      const line = `Work is ${status("career")}, money is ${status("wealth")}, standing is ${status("authority")}`;
+      const line = `In the selected Nadi indications, work is ${status("career")}, money is ${status("wealth")}, standing is ${status("authority")}`;
       return `The 10th lord ${l10.lord} is in the ${ORD_WORDS[l10.at]}; money is read from the 2nd (${l2.lord} in the ${ORD_WORDS[l2.at]}) and the 11th (${l11.lord} in the ${ORD_WORDS[l11.at]}). ${line}; the chapter keeps the three separate.`;
     }
     if (chapter === "bonds") {
@@ -852,7 +883,7 @@ class Writer {
     const l5 = this.lordOf(5);
     const l9 = this.lordOf(9);
     const l12 = this.lordOf(12);
-    return `The 5th lord ${l5.lord} is in the ${ORD_WORDS[l5.at]}; the 9th lord ${l9.lord} in the ${ORD_WORDS[l9.at]}; the 12th lord ${l12.lord} in the ${ORD_WORDS[l12.at]}. Learning is ${status("education")}, the inner life is ${status("spirituality")}, travel is ${status("travel")}; the chapter reads all three through the public houses.`;
+    return `The 5th lord ${l5.lord} is in the ${ORD_WORDS[l5.at]}; the 9th lord ${l9.lord} in the ${ORD_WORDS[l9.at]}; the 12th lord ${l12.lord} in the ${ORD_WORDS[l12.at]}. Learning is ${status("education")}, the inner life is ${status("spirituality")}, travel is ${status("travel")}; the chapter keeps these topics separate.`;
   }
 
   private lagnaLordNote(): string {
@@ -951,6 +982,7 @@ class Writer {
   }
 
   private chapterPreamble(chapter: "native" | "work" | "bonds" | "mind"): string {
+    if (this.hasHeld) return "";
     const houses: Record<typeof chapter, number[]> = {
       native: [6],
       work: [10, 2, 11],
@@ -1014,18 +1046,6 @@ class Writer {
     return structure.anchor(this.config(a.key[0]));
   }
 
-  private findingProvenance(f: Finding): "source" | "mixed" | "extension" {
-    const relations: Array<{ relation: Relation }> = [];
-    if (f.relation) relations.push({ relation: f.relation });
-    for (const r of f.grade?.reasons ?? []) {
-      if (/in the 12th from/i.test(r.text)) relations.push({ relation: "prev" });
-      else if (/in the 2nd from/i.test(r.text)) relations.push({ relation: "next" });
-      else if (/in trine to/i.test(r.text)) relations.push({ relation: "trine" });
-      else if (/in the same sign as/i.test(r.text)) relations.push({ relation: "conjunct" });
-    }
-    return provenanceOf(f.source, relations);
-  }
-
   private nadiNote(note: string): string {
     return /^Debilitation softened/i.test(note)
       ? `Nadi support: ${lc(note)}; this is not a Neecha Bhanga cancellation`
@@ -1060,20 +1080,24 @@ class Writer {
       .filter((f): f is Finding => Boolean(f));
     const seen = new Set<string>();
     const unique = findings.filter((f) => (seen.has(f.ruleId) ? false : (seen.add(f.ruleId), true)));
-    const extension = unique.filter((f) => this.findingProvenance(f) === "extension").length;
-    const mixed = unique.filter((f) => this.findingProvenance(f) === "mixed").length;
-    const qualifiers = Array.from(new Set(unique.flatMap((f) => qualifiersOf(f.text))));
+    const provenance = unique.map((f) => findingProvenance(f, this.result.reading.relations));
+    const extension = provenance.includes("extension"), mixed = provenance.includes("mixed");
+    const qualifiers = unique.map((f) => findingQualifiers(f, this.positions));
+    const tested = Array.from(new Set(qualifiers.flatMap((q) => q.tested)));
+    const untested = Array.from(new Set(qualifiers.flatMap((q) => q.untested)));
     const support = this.supportAxisNotes(unique);
     const notes: string[] = [];
     if (extension && mixed) {
-      notes.push("One rule here fires through a source conjunction or trine and an adjacent-sign extension; the other through the adjacent-sign extension alone. The extension is the app's provisional reading, not the source's stated combination.");
+      notes.push("Some rules combine a source conjunction or trine with an adjacent-sign extension; others use the extension alone. The extension is the app's provisional reading, not the source's stated combination.");
     } else if (extension) {
-      notes.push("The link that carries this reading is the app's adjacent-sign extension, not a source conjunction or trine.");
+      notes.push("At least one selected rule uses the app's adjacent-sign extension, not a source conjunction or trine.");
     } else if (mixed) {
       notes.push("The link has a source conjunction or trine and an adjacent-sign extension; the app marks the extension provisional.");
     }
-    if (qualifiers.length) {
-      notes.push(`${qualifiers.join(" ")} The app does not test ${qualifiers.length > 1 ? "these conditions" : "this condition"}; it remains a qualifier from the source, not a result.`);
+    if (provenance.includes("unresolved")) notes.push("The source and extension provenance could not be resolved for a selected rule.");
+    if (tested.length) notes.push(`${tested.join(" ")} The app checks ${tested.length > 1 ? "these conditions" : "this condition"}.`);
+    if (untested.length) {
+      notes.push(`${untested.join(" ")} The app does not test ${untested.length > 1 ? "these conditions" : "this condition"}; ${untested.length > 1 ? "they remain qualifiers" : "it remains a qualifier"} from the source, not a result.`);
     }
     if (support.length) notes.push(support.join(" "));
     return notes.length ? notes.join(" ") : null;
@@ -1082,6 +1106,16 @@ class Writer {
   private areaParagraph(topic: PlainTopic): ProseParagraph {
     const a = this.areas.find((x) => x.area === topic);
     const rt = this.topicFor(topic);
+    // The source/evidence drawers can contain cross-topic text. While an age gate is
+    // active, show only an already-selected safe summary and omit raw evidence.
+    if (this.hasHeld) {
+      const summary = rt?.natal.summary;
+      return {
+        id: `area-${topic}`,
+        text: summary && this.safeMinorText(summary) ? summary : "No age-appropriate reading is available for this topic.",
+        evidence: [], subhead: SUBHEAD[topic],
+      };
+    }
     const frame = this.parashariFrame(rt);
     const evidence = a
       ? a.tone === "contested" && a.contest
@@ -1102,7 +1136,7 @@ class Writer {
     } else if (a?.tone === "contested" && a.contest) {
       sentences.push(this.evidenceSentence(a.contest.good, 0, "contested"));
       sentences.push(this.evidenceSentence(a.contest.hard, 1, "contested"));
-      sentences.push(`The app does not average the two. It keeps support and delay in view, neither cancelling the other. Read together, they describe a ${this.contestedImage(a)}; ${lc(AREA_STRUCTURES.marriage.close)} A contested chart is not a prediction of separation: it says the sources disagree, and a long marriage can hold both support and strain.`);
+      sentences.push(`The app does not average the two indications. It keeps both in view, neither cancelling the other. Read together, they suggest ${this.contestedImage(a)}; they do not establish a specific outcome.`);
       if (rt?.natal.limit) sentences.push(rt.natal.limit);
     } else if (topic === "health") {
       const details = rt?.natal.details ?? [];
@@ -1113,7 +1147,7 @@ class Writer {
       }
       if (rt?.natal.limit) sentences.push(rt.natal.limit);
     } else if (topic === "children") {
-      sentences.push("The Nadi rules describe a traditional link between Jupiter and Venus, but not an individual outcome.");
+      sentences.push(rt?.natal.summary ?? "The Nadi Jupiter–Venus check is unavailable for this chart.");
       if (rt?.natal.limit) sentences.push(rt.natal.limit);
       sentences.push(AREA_STRUCTURES.children.close);
     } else if (a) {
@@ -1128,7 +1162,7 @@ class Writer {
       if (bridge) sentences.push(bridge);
 
       if (a.tone === "care") sentences.push(this.careClose(topic));
-      else if (a.tone === "quiet") sentences.push("The chart is not making an individual claim here; it is describing a traditional link, and the difference matters.");
+      else if (a.tone === "quiet") sentences.push("The selected indications do not give a clear overall direction; they do not establish an outcome.");
       else if (a.tone === "descriptive") sentences.push(AREA_STRUCTURES.family.close);
       else if (a.tone === "supportive") sentences.push(this.supportImage(a));
       else sentences.push(AREA_STRUCTURES[a.area as keyof typeof AREA_STRUCTURES].close);
@@ -1216,11 +1250,7 @@ class Writer {
       : "";
     const d1Lean = this.houseLeans(d1.lordHouse);
     const d9Lean = this.houseLeans(s.lordHouse);
-    const contrast = d1Lean === "strained" && d9Lean === "supported"
-      ? "D1 describes the friction, D9 the structure."
-      : d1Lean === "supported" && d9Lean === "strained"
-        ? "D1 describes the support, D9 the qualification."
-        : "The two frames are not averaged.";
+    const contrast = "These house-only leans are an app convention, not a complete chart judgment. The two frames are not averaged.";
     return {
       id: "marriage-frame",
       subhead: "The marriage frame",
@@ -1243,7 +1273,7 @@ class Writer {
       text: tidy(
         `In D7, the 5th is ${SIGNS[d7.signIndex]}, its lord ${d7.lord} in ${SIGNS[d7.lordSign]} (the ${ORD_WORDS[d7.lordHouse]})${occ(d7.occupants)}; the D7 frame leans ${this.houseLeans(d7.lordHouse)}. ` +
         `In D4, the 4th is ${SIGNS[d4.signIndex]}, its lord ${d4.lord} in ${SIGNS[d4.lordSign]} (the ${ORD_WORDS[d4.lordHouse]})${occ(d4.occupants)}; the D4 frame leans ${this.houseLeans(d4.lordHouse)}. ` +
-        "D7 adds children; D4 adds home; neither is a guarantee.",
+        "D7 adds children; D4 adds home. These house-only leans are an app convention, not a complete chart judgment or a guarantee.",
       ),
       evidence: [],
     };
@@ -1255,33 +1285,35 @@ class Writer {
     title: string,
     topics: PlainTopic[],
   ): ProseSection {
+    const visibleTopics = topics.filter((topic) => this.canRead(topic));
     return {
       id,
       kicker,
       title,
       preamble: this.chapterPreamble(id),
       paragraphs: [
-        ...topics.flatMap((topic) => {
+        ...visibleTopics.flatMap((topic) => {
           const paragraphs = [this.areaParagraph(topic)];
           if (topic === "marriage") paragraphs.push(this.marriageFrame());
-          if (topic === "family") paragraphs.push(this.familyFrame());
+          if (topic === "family" && this.canRead("children")) paragraphs.push(this.familyFrame());
           return paragraphs;
         }),
         { id: `close-${id}`, text: this.chapterClose(id), evidence: [] },
       ],
-      working: this.chapterWorking(topics),
-      note: CHAPTER_NOTE[id],
+      working: this.chapterWorking(visibleTopics),
+      note: this.hasHeld ? "Some life areas are held for later under the app's age setting." : CHAPTER_NOTE[id],
     };
   }
 
   summary(): SummaryLine[] {
-    const status = (topic: PlainTopic) => AREA_STRUCTURES[topic].status;
-    const native = `The self is ${status("self")}; the body is ${status("health")}.`;
+    if (this.hasHeld) return [{ label: "Age setting", text: "The app holds some topics for later at this age; the available topics are shown below." }];
+    const status = (topic: PlainTopic) => this.status(topic);
+    const native = `In the selected Nadi indications, the self is ${status("self")}; the body is ${status("health")}.`;
     const work = `Work is ${status("career")}; money is ${status("wealth")}; standing is ${status("authority")}.`;
     const bonds = `Marriage is ${status("marriage")}; children are ${status("children")}; family is ${status("family")}.`;
     const mind = `Learning is ${status("education")}; the inner life is ${status("spirituality")}; travel is ${status("travel")}.`;
     const first = this.briefing.now[0];
-    const time = `The reading is set at ${this.chart.deathDate ? "the recorded date" : "the present"}${first ? `, in ${cleanPeriod(first.what)}` : ""}.`;
+    const time = `The reading is set at ${this.past ? "the recorded date" : "the present"}${first ? `, in ${cleanPeriod(first.what)}` : ""}.`;
     return [
       { label: "The native", text: native },
       { label: "Work & means", text: work },
@@ -1293,7 +1325,7 @@ class Writer {
 
   index(): AreaIndexEntry[] {
     const order: PlainTopic[] = ["self", "health", "career", "authority", "wealth", "marriage", "children", "family", "education", "spirituality", "travel"];
-    return order.map((topic) => ({
+    return order.filter((topic) => this.canRead(topic)).map((topic) => ({
       topic,
       label: PLAIN_TOPIC_LABEL[topic],
       short: SHORT[topic],
@@ -1304,10 +1336,7 @@ class Writer {
   }
 
   private areaBridge(a: AreaSynthesis): string | null {
-    if (a.tone === "contested") return null;
-    if (a.area === "career") return "The two testimonies do not compete: analytical method and public form are two sides of the same working life.";
-    if (a.area === "self") return "The warmth and the unconventional edge sit together without cancelling each other.";
-    if (a.area === "health") return "The two testimonies agree on the same advice: protect the reserves, and do not mistake endurance for health.";
+    // No relationship between two findings is asserted solely from their area.
     return null;
   }
 
@@ -1354,14 +1383,14 @@ class Writer {
 
   private conditionPeriod(f: ParashariFinding): string {
     const readings = this.parashari.dasaReadings;
-    const asOf = this.chart.deathDate ?? this.result.now.asOf;
+    const asOf = this.lifeAt;
     const current = readings.find((d) => d.current);
     const year = (iso: string) => iso.slice(0, 4);
     if (current && f.planets.includes(current.lord)) {
       return `Period: ${current.lord}, ${year(current.start)}–${year(current.end)} (current).`;
     }
     const past = readings.filter((d) => d.end <= asOf && f.planets.includes(d.lord)).at(-1);
-    if (this.chart.deathDate) {
+    if (this.past) {
       return past
         ? `Period: ${past.lord}, ${year(past.start)}–${year(past.end)} (last).`
         : "Period: none before the reading date.";
@@ -1461,6 +1490,13 @@ class Writer {
   }
 
   conditionSection(): { section: ProseSection; conditions: ReadingCondition[] } {
+    if (this.hasHeld) return {
+      section: {
+        id: "conditions", kicker: "06 · The conditions", title: "The conditions",
+        paragraphs: [{ id: "conditions-held", text: "This analysis is held for later under the app's age setting.", evidence: [] }],
+      },
+      conditions: [],
+    };
     const findings = this.conditionFindings();
     const conditions = findings.map((f) => ({
       id: f.id,
@@ -1512,6 +1548,7 @@ class Writer {
   }
 
   comparisonProse(): string {
+    if (this.hasHeld) return "The school comparison is held for later under the app's age setting.";
     const label = (s: SystemStance) => SYSTEM_LABEL[s.system];
     const phrase = (s: SystemStance, i: number) =>
       `${label(s)} ${i === 0 ? "reads it as" : "as"} ${s.word}`;
@@ -1528,19 +1565,21 @@ class Writer {
     const cSpeaks = speaks(c);
     const quietM = quiet(m);
     const quietC = quiet(c);
+    const verdict = (a: TopicAgreement) => ({ agree: "in agreement", disagree: "in disagreement", lean: "leaning in one direction", mixed: "mixed", quiet: "too quiet to compare" } as const)[a.verdict];
     const quietLine = quietM && quietC && quietM === quietC ? "KP has no verdict on either question." : [quietM, quietC].filter(Boolean).join(" ");
     return tidy([
       "The schools do not answer the same question.",
       m && mSpeaks.length ? `On marriage, ${list(mSpeaks.map(phrase))}.` : "",
       c && cSpeaks.length ? `On career, ${list(cSpeaks.map(phrase))}.` : "",
       quietLine,
-      m && c ? `Marriage is a ${m.verdict === "disagree" ? "disagreement" : m.verdict}; career is a ${c.verdict}. Neither is a consensus.` : "",
+      m && c ? `Marriage is ${verdict(m)}; career is ${verdict(c)}. Each result remains separate.` : "",
       "Nadi reads a karaka and a sign relation; Jaimini reads the chara karakas and the padas; Parashari reads the bhava and its lord; KP reads the sub-lord of a cusp. The app keeps those objects apart.",
-      "The disagreement is the finding, not a defect to be averaged away.",
+      "Any disagreement remains visible rather than being averaged away.",
     ].filter(Boolean).join(" "));
   }
 
   comparisonRows(): ComparisonRow[] {
+    if (this.hasHeld) return [];
     return this.agreement.map((a) => ({
       topic: a.topic,
       label: a.label,
@@ -1558,10 +1597,10 @@ class Writer {
   }
 
   timingSection(): ProseSection {
-    const rows = [...this.briefing.now];
-    const date = this.chart.deathDate ? this.chart.deathDate : this.result.now.asOf;
+    const rows = this.hasHeld ? [] : [...this.briefing.now];
+    const date = this.lifeAt;
     const age = ageOn(this.chart.birthDate, date);
-    const past = !!this.chart.deathDate;
+    const past = this.past;
     const dateLine = past
       ? `The reading is set at the date of passing, ${formatDate(date)}, when the chart had run ${age} years.`
       : `The reading is set on ${formatDate(date)}, at age ${age}.`;
@@ -1640,7 +1679,7 @@ class Writer {
       houseLine: cleanHouseMethod(c.parashariHouseMethod),
       sunriseLine: cleanSunrise(c.sunriseDef),
       ephemerisLine: "Swiss Ephemeris",
-      readingLine: `Read ${formatDate(this.chart.deathDate ?? r.now.asOf)} · ascendant ${SIGNS[r.jaimini.lagna.signIndex]} ${formatDegree(r.jaimini.lagna.degInSign)}`,
+      readingLine: `Read ${formatDate(this.lifeAt)} · ascendant ${SIGNS[r.jaimini.lagna.signIndex]} ${formatDegree(r.jaimini.lagna.degInSign)}`,
       fingerprint: fingerprint(r),
     };
   }
@@ -1765,7 +1804,7 @@ export function composeReading(input: ReadingInput): ReadingDoc {
   const lagna = r.jaimini.lagna;
   const moon = findPlanet(r, "Moon");
   const sun = findPlanet(r, "Sun");
-  const date = chart.deathDate ? chart.deathDate : r.now.asOf;
+  const date = lifeAsOf(chart, r.now.asOf);
 
   const sections: ProseSection[] = [
     {
@@ -1786,14 +1825,15 @@ export function composeReading(input: ReadingInput): ReadingDoc {
   sections.push(condition.section);
 
   const strongest = ["career", "wealth", "authority", "self"]
-    .map((area) => input.areas.find((a) => a.area === area && a.tone === "supportive"))
-    .find(Boolean) ?? input.areas[0];
-  const contested = input.areas.find((a) => a.tone === "contested");
-  const standfirst = contested && strongest
-    ? `${cap(areaTheme(strongest.area))} is unusually clear in this chart; ${areaTheme(contested.area)} is where the sources disagree.`
-    : strongest
-      ? `${cap(areaTheme(strongest.area))} is the chart’s clearest line.`
-      : "A chart read in layers.";
+    .map((area) => input.areas.find((a) => a.area === area && a.tone === "supportive" && w.canRead(a.area as PlainTopic)))
+    .find(Boolean);
+  const contested = input.areas.find((a) => a.tone === "contested" && w.canRead(a.area as PlainTopic));
+  const standfirst = w.hasHeld ? "Some topics are held for later under the app's age setting."
+    : contested && strongest
+      ? `${cap(areaTheme(strongest.area))} has supportive indications in the selected Nadi rules; ${areaTheme(contested.area)} has conflicting indications.`
+      : strongest
+        ? `${cap(areaTheme(strongest.area))} has supportive indications in the selected Nadi rules.`
+        : contested ? `${cap(areaTheme(contested.area))} has conflicting indications in the selected Nadi rules.` : "A chart read in layers.";
 
   sections.push({
     id: "schools",
@@ -1807,7 +1847,7 @@ export function composeReading(input: ReadingInput): ReadingDoc {
   sections.push({ ...w.sourceSection(), kicker: "09 · The apparatus" });
 
   const comparison = w.comparisonRows();
-  const timing = input.briefing.now.map((row: BriefRow) => ({
+  const timing = (w.hasHeld ? [] : input.briefing.now).map((row: BriefRow) => ({
     label: `${row.system} · ${cleanPeriod(row.what)}`,
     when: row.when,
     line: row.line,
@@ -1824,7 +1864,7 @@ export function composeReading(input: ReadingInput): ReadingDoc {
       place: chart.place,
       asOf: date,
       age: ageOn(chart.birthDate, date),
-      past: !!chart.deathDate,
+      past: isDeceased(chart, r.now.asOf),
       lagna: SIGNS[lagna.signIndex],
       lagnaDegree: formatDegree(lagna.degInSign),
       moon: moonLabel(moon),

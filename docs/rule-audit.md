@@ -2,7 +2,7 @@
 
 This audit exists because the reading can be faithful to the rule **text** and still be wrong about the rule **condition**. The prose inherits the sentence; the engine inherits `when`. Where those diverge, the edge is smoothed.
 
-The first pass covers the 420 rules in the Nadi/BNN layer. It is deliberately audit-only: no score or reading text has been changed.
+The original audit-only pass covered the 420 rules in the Nadi/BNN layer. Subsequent fixes to the reading and the Jupiter-joins exception are described below; the latter can change live scores.
 
 ## Three questions per rule
 
@@ -96,12 +96,12 @@ The 12th-support note is now derived in `shared/reading-prose.ts`; it is note-on
 
 1. **Extension becomes rule.** The adjacent 12th/2nd connection was printed as “linked by sign,” indistinguishable from a source trine. The reading now labels the extension/mixed provenance.
 2. **Support becomes cancellation.** A friendly 12th in the Nadi strength layer sets effective dignity to Neutral even though it is not Neecha Bhanga. **Open.**
-3. **Exception disappears.** A rule’s “unless Jupiter” or “if the Moon is weak” is not encoded. The reading now carries the qualifier and says the app does not test it.
+3. **Exception disappears.** The Jupiter-joins exception is now encoded and labelled as tested. Jupiter-aspect and weak-Moon qualifiers remain untested and are labelled accordingly.
 4. **Weight becomes support.** The 0.7 relation weight is now kept separate from the reading’s support note.
 
 ## Next slices
 
-- Encode the four lost exceptions in the engine, or suppress the unqualified rule when the condition cannot be tested.
+- Decide whether and how to encode the two Jupiter-aspect qualifiers and the weak-Moon qualifier; until then, the reading explicitly marks them untested.
 - Separate `nadiSupport` from `effectiveDignity`; no 12th-only cancellation.
 - Audit the house rules, Parashari findings, Jaimini and KP with the same three questions.
 - Audit source paraphrases against the cited texts, starting with the Naik 12th-support passage and Rao’s trio statement.
@@ -116,10 +116,10 @@ The output is JSON: `totalRules`, `flags`, `byKind`, and the flagged rows with t
 
 ## Fixes in this pass
 
-- **`f-ma-ke` now encodes “unless Jupiter joins”** as `when.without = { planet: "Jupiter", relation: ["conjunct"] }`. If Jupiter conjoins Mars or Ketu, the rule no longer fires. The immutable historical snapshot strips this new condition before hashing.
+- **`f-ma-ke` encodes “unless Jupiter joins”** as `when.without = { planet: "Jupiter", relation: ["conjunct"] }`. The source line also contains a separate job/detachment statement. When Jupiter conjoins Mars or Ketu, the evaluator retains that unqualified statement once, with the same base rule weight, and explicitly notes the tested exception to the relationship warning. This deliberately restores one finding when the earlier all-or-nothing implementation suppressed it; it does not add a second score. The existing weight of 3 is an app scoring convention, not a number stated by the source; retaining that full weight can change live marriage synthesis and event scores compared with the earlier all-or-nothing implementation. The immutable historical snapshot strips the new condition before hashing and its stored hashes are not regenerated.
 - **`PlanetStrength` now has a separate `nadiSupport` field.** A friendly 12th is recorded there, not called Neecha Bhanga. `effectiveDignity` still becomes Neutral for the historical snapshot; the score split remains a model-version decision. The reading labels the note “Nadi support; not a Neecha Bhanga cancellation.”
-- **Provenance is derived in `shared/reading-prose.ts`**, not stored on `Finding`, so historical grade outputs stay unchanged. The marriage area says when a rule fires through a source conjunction/trine plus an adjacent extension, and when it fires through the extension alone.
-- **Qualifiers are derived in the reading** from the rule text: “unless Jupiter joins”, “Jupiter’s aspect …” and “if the Moon is weak.” The Jupiter-joins case is now encoded; the aspect and weak-Moon cases are still reading-only. The reading says the app does not test the condition; it is not silently dropped.
+- **Provenance is derived from the structured directed planetary relations**, not from grade-explanation text, and is not stored on `Finding`, so historical grade outputs stay unchanged. This retains conjunct extra companions as well as adjacent edges. When an edge cannot be recovered, its provenance is marked unresolved rather than guessed.
+- **Qualifiers are derived in the reading** from the rule text: “unless Jupiter joins”, “Jupiter’s aspect …” and “if the Moon is weak.” The Jupiter-joins case is encoded and identified as checked; the aspect and weak-Moon cases remain reading-only and are identified as untested.
 - **The Nadi support note is labelled in the reading**: “Nadi support: … this is not a Neecha Bhanga cancellation.” `effectiveDignity` is still set to Neutral by the Nadi strength layer; the split is not a score change yet.
 - **The 12th support note is in the reading**, not in the grade reasons, so it does not alter the historical grade snapshots.
 

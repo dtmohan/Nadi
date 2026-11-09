@@ -152,7 +152,10 @@ export function expandedSchoolTopicBriefs(result: ChartResult, school: BriefScho
   const legacy = school === "parashari" || school === "kp" || school === "jaimini" ? schoolTopicBriefs(agreement, school) : [];
   const alp = school === "alp" ? options.alp ?? defaultAlpForTopics(result, input.withheld) : undefined;
   const topicAt = alp ? lifeAsOf(result.chart, alp.asOf) : lifeAt;
-  const allowed = (topic: SchoolTopic) => areaSeason(topic, result.utc, topicAt).inSeason;
+  // A selected past or future ALP day must not expose a topic unless it is in
+  // season both on that day and at the native's present (or final) life date.
+  const allowed = (topic: SchoolTopic) => areaSeason(topic, result.utc, topicAt, result.chart).inSeason &&
+    areaSeason(topic, result.utc, lifeAt, result.chart).inSeason;
   const pm = school === "prasna" ? options.prasna ?? {
     frame: "natal" as const,
     readings: computePrasna(natalPlanetContext(result), result.jaimini.lagna.signIndex),

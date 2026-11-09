@@ -1,6 +1,7 @@
 import { displayLocal } from "@shared/time-basis";
 import { LocalizedText, useLocale, useT } from "@/lib/i18n";
 import { DeceasedProvider } from "@/components/mode-text";
+import { bnnGradeNoteMalayalam } from "@shared/malayalam-bnn-grade-note";
 import { Soft } from "@/lib/gentle";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEventHandler, type ReactNode } from "react";
 import { useLocation, useParams, Link } from "wouter";
@@ -74,7 +75,7 @@ import { type LakshmiReading } from "@shared/lakshmi";
 import { type NakshatraWealthReading, NAKSHATRA_WEALTH_THEMES } from "@shared/nakshatra-wealth";
 import { vimshottari, type KpPeriod } from "@shared/kp";
 import {
-  ageYears,
+  calendarAge,
   areaSeason,
   lifeStage,
   seasonStart,
@@ -336,11 +337,11 @@ function BnnPlanetExplanations({ result }: { result: ChartResult }) {
   const views = useMemo(() => positions.map((p) => {
     const findings = reading.findings.filter((f) => f.planets.includes(p.planet));
     const areas = synthesize(reading, chart.gender as Gender, findings)
-      .filter((a) => a.area !== "health" && a.area !== "children" && areaSeason(a.area, result.utc, result.now.asOf).inSeason)
+      .filter((a) => a.area !== "health" && a.area !== "children" && areaSeason(a.area, result.utc, result.now.asOf, result.chart).inSeason)
       .map((a) => ({ area: a.area, topic: plainTopicNatal(a.area, a, reading) }))
       .filter((a) => a.topic.details?.length);
     return { p, areas };
-  }), [positions, reading, chart.gender, result.utc, result.now.asOf]);
+  }), [positions, reading, chart, result.utc, result.now.asOf]);
   return <section data-testid="bnn-planet-explanations">
     <h3 className="text-base font-semibold">Your planets, one by one</h3>
     <p className="mt-1 text-xs text-muted-foreground">These are Bhrigu Nandi Nadi significators and evaluated planet-to-planet rules. The same planet can take part in different subjects; the selected themes below are possibilities, with their individual source connections.{(chart.timeUncertaintyMin ?? 0) > 0 && ` A stated ±${chart.timeUncertaintyMin}-minute birth-time range can affect positions near a boundary.`}</p>
@@ -374,18 +375,20 @@ function MarriageCard({
   transits,
   asOf,
   birthIso,
+  chart,
 }: {
   m: MarriageReading;
   positions: PlanetPosition[];
   transits: ChartResult["transits"];
   asOf: string;
   birthIso: string;
+  chart: ChartResult["chart"];
 }) {
   const sp = positions.find((x) => x.planet === m.spouse)!;
   const win = nextMarriageWindow(
     m,
     transits,
-    seasonStart("marriage", birthIso, asOf),
+    seasonStart("marriage", birthIso, asOf, chart),
   );
   const lastWin = lastMarriageWindow(m, transits, asOf, birthIso);
   const gender =
@@ -445,7 +448,7 @@ function MarriageCard({
             ? ` Last: Jupiter ${lastWin.kind === "over" ? "over" : "in trine from"} ${lastWin.period.sign}, ${DateTime.fromISO(lastWin.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(lastWin.period.end).toFormat("LLL yyyy")} (passed).`
             : ""}
           {win
-            ? ` Next${ageYears(birthIso, asOf) < 18 ? " (from age 18, provisional onset)" : ""}: Jupiter ${win.kind === "over" ? "over" : "in trine from"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.`
+            ? ` Next${!areaSeason("marriage", birthIso, asOf, chart).inSeason ? " (from age 18, provisional onset)" : ""}: Jupiter ${win.kind === "over" ? "over" : "in trine from"} ${win.period.sign}, ${DateTime.fromISO(win.period.start).toFormat("LLL yyyy")} – ${DateTime.fromISO(win.period.end).toFormat("LLL yyyy")}.`
             : ""}
         </p>
       </CardContent>
@@ -1101,11 +1104,11 @@ function BnnVerdict({ result }: { result: ChartResult }) {
   const lifeAt = lifeAsOf(result.chart, now.asOf);
   const deceased = lifeAt !== now.asOf;
   const asOf = lifeAt.slice(0, 10);
-  const age = ageYears(result.utc, lifeAt);
+  const age = calendarAge(result.utc, lifeAt, chart) ?? 0;
   const stage = lifeStage(age);
   const deferred = allAreas
     .map((a) => a.area)
-    .filter((a) => !areaSeason(a, result.utc, lifeAt).inSeason);
+    .filter((a) => !areaSeason(a, result.utc, lifeAt, result.chart).inSeason);
   // Areas not yet in season are held back from the verdict; a child is not told about marriage.
   const areas = allAreas.filter((a) => !deferred.includes(a.area));
 
@@ -1271,7 +1274,7 @@ function BnnVerdict({ result }: { result: ChartResult }) {
     },
     {
       label: "Rules",
-      text: `${reading.findings.length} Nadi rules fire on this chart across ${allAreas.filter((a) => a.total > 0).length} life areas; each area below opens with its balance, then the signatures that carry it.${deferred.length ? ` Onset ages (${deferred.map((a) => `${areaWord(a)} ${areaSeason(a, result.utc, now.asOf).from}`).join(", ")}) are practical conventions, provisional; BPHS has no chapter assigning ages to planets or matters.` : ""}`,
+      text: `${reading.findings.length} Nadi rules fire on this chart across ${allAreas.filter((a) => a.total > 0).length} life areas; each area below opens with its balance, then the signatures that carry it.${deferred.length ? ` Onset ages (${deferred.map((a) => `${areaWord(a)} ${areaSeason(a, result.utc, now.asOf, result.chart).from}`).join(", ")}) are practical conventions, provisional; BPHS has no chapter assigning ages to planets or matters.` : ""}`,
     },
   ];
 
@@ -1304,6 +1307,9 @@ function Reading({
   const { mode } = useReadingMode();
   const { locale } = useLocale();
   const t = useT();
+  const uncertainty = chart.timeUncertaintyMin ?? 0;
+  const gradeNote = `${GRADE_NOTE} ${DIRECTION_NOTE}${uncertainty > 0 ? ` The birth time is taken as ±${uncertainty} minutes; lines whose direction or bond changes inside that band say so.` : ""}`;
+  const gradeNoteMl = locale === "ml" ? bnnGradeNoteMalayalam(gradeNote, uncertainty) : undefined;
   const areas = useMemo(() => {
     const findings = selected
       ? reading.findings.filter((f) => f.planets.includes(selected))
@@ -1351,6 +1357,7 @@ function Reading({
             transits={result.transits}
             asOf={result.now.asOf}
             birthIso={result.utc}
+            chart={result.chart}
           />
         </div>
         <div className="lg:col-span-2">
@@ -1408,11 +1415,9 @@ function Reading({
         </p>
       )}
       <details className="text-xs leading-relaxed text-muted-foreground" open={mode !== "plain"}>
-        <summary className="cursor-pointer font-medium">How the grades and directions work</summary>
-        <p className="mt-2" data-testid="text-grade-note">
-          {GRADE_NOTE} {DIRECTION_NOTE}
-          {(chart.timeUncertaintyMin ?? 0) > 0 &&
-            ` The birth time is taken as ±${chart.timeUncertaintyMin} minutes; lines whose direction or bond changes inside that band say so.`}
+        <summary className="cursor-pointer font-medium" lang={locale}>{locale === "ml" ? "നിലയും ദിശയും എങ്ങനെ കണക്കാക്കുന്നു" : "How the grades and directions work"}</summary>
+        <p className="mt-2" data-testid="text-grade-note" lang={locale === "ml" && gradeNoteMl ? "ml" : "en"}>
+          {gradeNoteMl ?? gradeNote}
         </p>
       </details>
 
@@ -1422,7 +1427,7 @@ function Reading({
           s={s}
           reading={reading}
           gender={chart.gender as Gender}
-          season={areaSeason(s.area, result.utc, result.now.asOf)}
+          season={areaSeason(s.area, result.utc, result.now.asOf, result.chart)}
         />
       ))}
       </>
@@ -2525,6 +2530,7 @@ export default function ChartPage() {
                   positions={positions}
                   findings={data.reading.findings}
                   birthIso={data.utc}
+                  chart={data.chart}
                   roles={data.reading.roles}
                   asOfIso={data.now.asOf}
                   deathIso={data.chart.deathDate}
@@ -2572,6 +2578,7 @@ export default function ChartPage() {
                     positions={positions}
                     findings={data.reading.findings}
                     birthIso={data.utc}
+                    chart={data.chart}
                     selected={selected}
                     roles={data.reading.roles}
                     asOfIso={lifeAsOf(data.chart, new Date().toISOString())}

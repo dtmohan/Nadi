@@ -46,7 +46,7 @@ import {
 } from "@/components/mode-text";
 import { readAreas, currentFor, isHot } from "@shared/jaimini-areas";
 import {
-  ageYears,
+  calendarAge,
   areaSeason,
   lifeStage,
   STAGE_LABEL,
@@ -113,10 +113,10 @@ function JaiminiVerdict({ result }: { result: ChartResult }) {
   const deferred = allAreas
     .map((a) => a.area)
     .filter(
-      (a) => a !== "children" && !areaSeason(a, result.utc, asOf).inSeason,
+      (a) => a !== "children" && !areaSeason(a, result.utc, asOf, result.chart).inSeason,
     );
   const areas = allAreas.filter((a) => !deferred.includes(a.area));
-  const age = ageYears(result.utc, lifeAsOf(result.chart, asOf));
+  const age = calendarAge(result.utc, lifeAsOf(result.chart, asOf), result.chart) ?? 0;
   const ak = j.karakas[0];
   const dk = j.karakas.find((k) => k.karaka === "DK");
   const amk = j.karakas.find((k) => k.karaka === "AmK");
@@ -605,6 +605,7 @@ export function JaiminiPanel({ result, onTopicSelected }: { result: ChartResult;
         "years",
       ).years
     : null;
+  const displayAge = calendarAge(result.utc, lifeNow, result.chart);
   const rasiInfluence = (sign: number) => influencesOn(sign, positions);
   const dashaSignNotes = (p: CharaDashaPeriod) => {
     const notes: string[] = [];
@@ -1415,9 +1416,9 @@ export function JaiminiPanel({ result, onTopicSelected }: { result: ChartResult;
               <div className="font-medium">
                 {currentMd.signName} mahadasha
                 {currentAd ? `, ${currentAd.signName} antardasha` : ""}{" "}
-                <span className="text-muted-foreground">
-                  (age {Math.floor(now.diff(birth, "years").years)})
-                </span>
+                {displayAge !== undefined && <span className="text-muted-foreground">
+                  (age {displayAge})
+                </span>}
               </div>
               <ul className="mt-1 list-disc pl-5 text-xs text-muted-foreground">
                 {dashaSignNotes(currentMd).map((n, i) => (

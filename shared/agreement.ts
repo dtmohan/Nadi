@@ -990,6 +990,6 @@ export function agreementInput(result: ChartResult, plain: boolean): AgreementIn
     plain,
     // The life span row is shown only against a recorded date of passing.
     deceased: lifeAt !== asOf,
-    inSeason: (area) => areaSeason(area, result.utc, lifeAt).inSeason,
+    inSeason: (area) => areaSeason(area, result.utc, lifeAt, result.chart).inSeason,
   };
 }

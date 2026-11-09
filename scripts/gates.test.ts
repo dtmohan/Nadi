@@ -80,6 +80,13 @@ test("calendar: a minor's danger houses are withheld before rendering; Saturn's 
   assert.equal(saturnShortName(gated.saturnPassages[0]!.house), "Sade Sati, first phase");
 });
 
+test("calendar API honors the chart's local birthday and recorded date of death", () => {
+  const body = { birthUtc: "2008-02-29T18:30:00.000Z", birthDate: "2008-03-01", timezone: "Asia/Kolkata" };
+  assert.equal(calendarWithhold(body, "2026-02-28T18:29:59.000Z"), true);
+  assert.equal(calendarWithhold(body, "2026-02-28T18:30:00.000Z"), false);
+  assert.equal(calendarWithhold({ ...body, timezone: "Pacific/Kiritimati", deathDate: "2026-02-28" }, "2026-03-05T00:00:00.000Z"), true);
+});
+
 test("calendar gate: decided on the server from the birth instant, withheld by default, never loosened by the caller", () => {
   const now = "2026-10-08T12:00:00.000Z";
   assert.equal(calendarWithhold({}, now), true);

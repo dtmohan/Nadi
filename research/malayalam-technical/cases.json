@@ -1,5 +1,5 @@
 {
-  "selection": "Three public figures with varied occupations and places were selected before inspecting reader and report outputs; the catalogue was then expanded using their gaps. Barbara Abramo and Rashida Jones were added later. Rafael Nadal, Rod Suskin and Evelyn Glennie were added before inspecting their outputs, but their report labels were subsequently included in a shared label inventory. Diego Maradona was added after that label work; his results were inspected before another catalogue-wide BNN expansion. Maya Angelou, Sally Ride, Toni Morrison, Kanaka Srinivasan and P. T. Usha were each selected before inspecting their outputs, but Usha's output informed later translation work. Serena Williams was selected after that work, before inspecting her output. These are convenience cases, not random or blinded. Birth-source reports were not independently authenticated. This evaluates translation and presentation parity, not predictive validity.",
+  "selection": "Three public figures with varied occupations and places were selected before inspecting reader and report outputs; the catalogue was then expanded using their gaps. Barbara Abramo and Rashida Jones were added later. Rafael Nadal, Rod Suskin and Evelyn Glennie were added before inspecting their outputs, but their report labels were subsequently included in a shared label inventory. Diego Maradona was added after that label work; his results were inspected before another catalogue-wide BNN expansion. Maya Angelou, Sally Ride, Toni Morrison, Kanaka Srinivasan and P. T. Usha were each selected before inspecting their outputs, but Usha's output informed later translation work. Serena Williams and Xuxa were selected before inspecting their outputs for subsequent expansions; Xuxa's output informed the appendix expansion. Glenn Seaborg was selected before his output was inspected; subsequent work was guided by its section coverage. Julia Petit was selected after that work, before inspecting her output. These are convenience cases, not random or blinded. Birth-source reports were not independently authenticated. This evaluates translation and presentation parity, not predictive validity.",
   "asOf": "2026-11-08T12:00:00Z",
   "cases": [
     {
@@ -79,6 +79,21 @@
       "name": "Serena Williams", "gender": "female", "birthDate": "1981-09-26", "birthTime": "20:28", "timeStandard": "-04:00", "timezone": "America/Detroit", "place": "Saginaw, Michigan, United States", "latitude": 43.416667, "longitude": -83.95, "deathDate": null,
       "birthSource": "https://www.astro.com/adbvip/adbvip_09_26.htm?nho2=860301nhor%3D860301lang%3Degm%3Da3&pa=nmo", "birthSourceNote": "Astro-Databank lists a quoted birth record, Rodden AA, collector Ackerman; the underlying record was not independently checked.",
       "careerReference": "Professional tennis player", "careerSource": "https://www.wtatennis.com/legends/230234/serena-williams"
+    },
+    {
+      "name": "Xuxa", "gender": "female", "birthDate": "1963-03-27", "birthTime": "15:30", "timeStandard": "-03:00", "timezone": "America/Sao_Paulo", "place": "Santa Rosa, Rio Grande do Sul, Brazil", "latitude": -27.870833, "longitude": -54.481389, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Xuxa?lang=e&nho2=44&nhor=1", "birthSourceNote": "Astro-Databank quotes a birth certificate and reports Rodden AA; the record was not independently checked. The entry also mentions an alternative 15:39 time and an earlier corrected birthplace.",
+      "careerReference": "Television presenter and singer", "careerSource": "https://memoriaglobo.globo.com/perfil/xuxa-meneghel/noticia/xuxa-meneghel.ghtml"
+    },
+    {
+      "name": "Glenn Seaborg", "gender": "male", "birthDate": "1912-04-19", "birthTime": "04:30", "timeStandard": "-06:00", "timezone": "America/Detroit", "place": "Ishpeming, Michigan, United States", "latitude": 46.483333, "longitude": -87.666667, "deathDate": "1999-02-25",
+      "birthSource": "https://www.astro.com/astro-databank/Seaborg%2C_Glenn", "birthSourceNote": "Astro-Databank lists a birth record in hand, Rodden AA, collector Scholfield, with CST UTC−06:00. The underlying record was not independently checked; the explicit birth offset follows the published chart.",
+      "careerReference": "Nuclear chemist and Nobel laureate", "careerSource": "https://chemistry.berkeley.edu/node/1797", "deathSource": "https://newsarchive.berkeley.edu/news/media/releases/99legacy/2-26-1999a.html"
+    },
+    {
+      "name": "Julia Petit", "gender": "female", "birthDate": "1972-06-23", "birthTime": "08:05", "timeStandard": "-03:00", "timezone": "America/Sao_Paulo", "place": "São Paulo, Brazil", "latitude": -23.5525, "longitude": -46.624722, "deathDate": null,
+      "birthSource": "https://www.astro.com/astro-databank/Petit%2C_Julia", "birthSourceNote": "Astro-Databank lists a birth record in hand, Rodden AA, collector Scholfield, with UTC−03:00. The underlying record was not independently checked.",
+      "careerReference": "Publicist, entrepreneur and presenter", "careerSource": "https://www.museudatv.com.br/biografia/julia-petit-2/"
     }
   ]
 }

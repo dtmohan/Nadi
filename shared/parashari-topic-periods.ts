@@ -24,7 +24,7 @@ import { DateTime } from "luxon";
 import type { Planet } from "./astro";
 import { BPHS_URL } from "./parashari-data";
 import { HOUSE_LORD_DASA, LEAN_CLAUSE, verdictOfLean, type DasaLean, type DasaSource, type Tone } from "./parashari-dasa";
-import { AREA_ONSET, areaSeason } from "./life-stage";
+import { AREA_ONSET, areaSeason, type AgeGateContext } from "./life-stage";
 import { listJoin, ordH, thePlanet } from "./house-gloss";
 import type { ShadbalaResult } from "./shadbala";
 import {
@@ -213,6 +213,7 @@ export interface TopicPeriodsOptions {
   birthIso: string;
   /** "Now": today for the living, the date of death for the deceased. */
   asOfIso: string;
+  ageGateContext?: AgeGateContext;
   deceased: boolean;
   /** How many periods after the running one to read (default 3). */
   ahead?: number;
@@ -257,7 +258,7 @@ export function topicPeriods(par: TopicPeriodsInput, o: TopicPeriodsOptions): To
   const rules = (p: Planet) => par.bhavas.filter((b) => b.lord === p).map((b) => b.house);
   const dasas = periodsToRead(par.dasaReadings, o);
   return PERIOD_TOPICS.map((t): TopicPeriods => {
-    if (t.area && !areaSeason(t.area, o.birthIso, o.asOfIso).inSeason) {
+    if (t.area && !areaSeason(t.area, o.birthIso, o.asOfIso, o.ageGateContext).inSeason) {
       const held = `Held for later: read from age ${AREA_ONSET[t.area]}.`;
       return { topic: t.topic, label: t.label, labelPlain: t.labelPlain, held, periods: [], summary: held, summaryPlain: held };
     }

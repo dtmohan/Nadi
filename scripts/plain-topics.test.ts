@@ -159,9 +159,9 @@ test("age gates apply before the new topic cards are built", () => {
   const out = plainTopicBriefs({
     reading: minor.reading, areas: synthesize(minor.reading, minor.reading.roles.gender),
     agreement: computeAgreement(minorInput), brief: briefingFor(minor, minorInput),
-    zone: "Asia/Kolkata", inSeason: (t) => areaSeason(t, minor.utc, lifeAt).inSeason,
+    zone: "Asia/Kolkata", inSeason: (t) => areaSeason(t, minor.utc, lifeAt, minor.chart).inSeason,
   });
-  assert.deepEqual(out.map((t) => t.topic), PLAIN_TOPIC_ORDER.filter((t) => !["career", "marriage", "children", "wealth"].includes(t)));
+  assert.deepEqual(out.map((t) => t.topic), PLAIN_TOPIC_ORDER.filter((t) => !["career", "authority", "marriage", "children", "wealth"].includes(t)));
   const minorAgreement = computeAgreement(minorInput);
   for (const school of ["parashari", "kp", "jaimini"] as BriefSchool[])
     assert.ok(schoolTopicBriefs(minorAgreement, school).every((b) => b.topic !== "career" && b.topic !== "marriage" && b.topic !== "children"));

@@ -528,7 +528,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
   const past = lifeAt !== asOf;
   const withheld = input.withheld;
   const lagnaSign = par.lagna.signIndex;
-  const held: (a: LifeArea) => boolean = heldAreasAt(result.utc, lifeAt);
+  const held: (a: LifeArea) => boolean = heldAreasAt(result.utc, lifeAt, result.chart);
   const horizonEnd = DateTime.fromISO(lifeAt).plus({ months: horizonMonths }).toISO()!;
   const moonSign = positions.find((p) => p.planet === "Moon")?.signIndex;
   const yk = (p: Planet) => par.natures.some((n) => n.planet === p && n.functional === "yogakaraka");
@@ -545,7 +545,7 @@ export function briefingFor(result: ChartResult, input: AgreementInput, horizonM
   const avAll = computeAvTimeline(par.ashtakavarga, lagnaSign, result.transits, result.saturnNakshatras, result.utc, lifeAt);
   const av = withheld ? redactSensitive(avAll) : avAll;
   const tn: TimingNow = timingNow({ dasaReadings: par.dasaReadings, dashas: par.dashas, sudarshana, av, asOfIso: lifeAt, past });
-  const topics = topicPeriods(par, { birthIso: result.utc, asOfIso: lifeAt, deceased: past });
+  const topics = topicPeriods(par, { birthIso: result.utc, asOfIso: lifeAt, deceased: past, ageGateContext: result.chart });
 
   const now: BriefRow[] = [];
   const next: BriefRow[] = [];
@@ -1029,7 +1029,7 @@ function planetsInPlay(
         ? [{ school: schoolNames[school], count: found.rules.length, coverage: found.coverage,
           examples: found.rules.slice(0, 3).map((r) => ({ id: r.ruleId, text: r.text, source: r.source, chart: r.chart, asOf: r.asOf, attribution: r.attribution, via: r.via })) }]
         : []) : undefined;
-    const held = heldAreasAt(result.utc, lifeAsOf(result.chart, result.now.asOf));
+    const held = heldAreasAt(result.utc, lifeAsOf(result.chart, result.now.asOf), result.chart);
     const plainWhy: string[] = [];
     if (tn.dasa?.lord === planet) plainWhy.push(`It is associated with the current long period, ${spanM(tn.dasa.start, tn.dasa.end, zone)}.`);
     if (tn.antar?.lord === planet) plainWhy.push(`It is associated with a shorter period within the long period, ${spanD(tn.antar.start, tn.antar.end, zone)}.`);

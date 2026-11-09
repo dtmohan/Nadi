@@ -668,6 +668,8 @@ export function GocharaCalendarSection({
       chart.nodeType,
       JSON.stringify(ownMarks),
       result.utc,
+      chart.birthDate,
+      chart.timezone,
       chart.deathDate ?? null,
     ],
     enabled: validFrom,
@@ -681,6 +683,8 @@ export function GocharaCalendarSection({
           // The birth instant and any date of passing: the server decides the minor gate from them and withholds
           // the danger houses before anything is rendered (it withholds them when no birth instant is sent).
           birthUtc: result.utc,
+          birthDate: chart.birthDate,
+          timezone: chart.timezone,
           deathDate: chart.deathDate ?? null,
           // The natal positions, for the practitioner's exact-aspect marker only; not stored.
           natal: result.positions.map((p) => ({ planet: p.planet, lon: p.lon })),

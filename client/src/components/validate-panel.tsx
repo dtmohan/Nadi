@@ -61,17 +61,20 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import { useLocale, useT } from "@/lib/i18n";
+import { BASELINE_LABEL_ML, baselineExplanation } from "@/lib/validation-localization";
 import { Chapter, Chapters, type ChapterDef } from "@/components/chapters";
 
 function Mark({ on, title }: { on: boolean; title?: string }) {
+  const { locale } = useLocale();
   return (
     <span
       title={title}
+      lang={locale}
       className={cn(
         "inline-block h-2.5 w-2.5 rounded-full align-middle",
         on ? "bg-verdict-good" : "bg-muted-foreground/25",
       )}
-      aria-label={on ? "agrees" : "does not agree"}
+      aria-label={locale === "ml" ? (on ? "യോജിക്കുന്നു" : "യോജിക്കുന്നില്ല") : on ? "agrees" : "does not agree"}
     />
   );
 }
@@ -86,6 +89,7 @@ function BaselineLine({
 }) {
   const t = useT();
   const { locale } = useLocale();
+  const explanation = baselineExplanation(b, locale);
   const cells: Array<{ key: string; label: string; s: BaselineStat }> = [
     { key: "confirmed", label: "period/cusp matches", s: b.confirmed },
     { key: "kp", label: "KP", s: b.kp },
@@ -107,25 +111,23 @@ function BaselineLine({
     <span
       className="basis-full text-muted-foreground"
       data-testid="validate-baseline"
-      title={`Each matter is rescored at ${b.trials} sets of dates selected independently between ${b.span[0]} and ${b.span[1]}. The mid-rank percentile counts lower scores plus half of tied scores. This describes these samples and is not a probability that a birth time is correct.`}
+      title={explanation.title}
+      lang={locale}
     >
-      <span lang={locale}>{t("Randomly selected comparison dates")}</span> ({b.trials} sets):{" "}
+      <span lang={locale}>{t("Randomly selected comparison dates")}</span> ({b.trials} {explanation.sets}):{" "}
       {cells.map((c, i) => (
         <span key={c.key} data-testid={`validate-baseline-${c.key}`}>
           {i > 0 && " · "}
-          {c.label}{" "}
+          {locale === "ml" ? BASELINE_LABEL_ML[c.key] : c.label}{" "}
           <span className="tabular">
             {c.s.percentile}
-            {ordinal(c.s.percentile)}
+            {locale === "ml" ? ` ${explanation.percentile}` : ordinal(c.s.percentile)}
           </span>
-          <span className="tabular"> (comparison mean {c.s.mean})</span>
+          <span className="tabular"> ({explanation.mean} {c.s.mean})</span>
         </span>
       ))}
       <span className="block" data-testid="validate-baseline-family">
-        Each date uses its own transit positions against the same natal chart.
-        Percentiles count ties halfway and are descriptive, with no adjustment
-        for the related measures or for choosing among birth times. Random dates
-        need not preserve plausible event ages or order.
+        {explanation.family}
       </span>
     </span>
   );
@@ -161,8 +163,11 @@ const NATURE_LABEL: Record<Nature, string> = {
 };
 
 function OutcomeBadge({ outcome }: { outcome: EventOutcome }) {
+  const { locale } = useLocale();
+  const ml: Record<EventOutcome, string> = { favourable: "അനുകൂലം", unfavourable: "പ്രതികൂലം", mixed: "സമ്മിശ്രം" };
   return (
     <Badge
+      lang={locale}
       variant="outline"
       className={cn(
         "no-default-hover-elevate font-normal",
@@ -173,7 +178,7 @@ function OutcomeBadge({ outcome }: { outcome: EventOutcome }) {
             : "",
       )}
     >
-      {OUTCOME_LABEL[outcome]}
+      {locale === "ml" ? ml[outcome] : OUTCOME_LABEL[outcome]}
     </Badge>
   );
 }
@@ -183,8 +188,11 @@ function VerdictBadge({
 }: {
   verdict: EventValidation["kp"]["verdict"];
 }) {
+  const { locale } = useLocale();
+  const ml = { confirmed: "കാലഘട്ട/ഭാവസ്ഫുട പൊരുത്തം", partial: "ഭാഗികം", missed: "പൊരുത്തമില്ല" } as const;
   return (
     <Badge
+      lang={locale}
       variant={verdict === "confirmed" ? "default" : "outline"}
       className={cn(
         "no-default-hover-elevate font-normal",
@@ -196,14 +204,17 @@ function VerdictBadge({
       )}
       data-testid={`validate-verdict-${verdict}`}
     >
-      {verdict === "confirmed" ? "period/cusp match" : verdict}
+      {locale === "ml" ? ml[verdict] : verdict === "confirmed" ? "period/cusp match" : verdict}
     </Badge>
   );
 }
 
 function NatureBadge({ nature }: { nature: Nature }) {
+  const { locale } = useLocale();
+  const ml: Record<Nature, string> = { benefic: "അനുകൂല സ്വഭാവം", malefic: "പ്രതികൂല സ്വഭാവം", mixed: "സമ്മിശ്രം", unknown: "തെളിവില്ല" };
   return (
     <Badge
+      lang={locale}
       variant="outline"
       className={cn(
         "no-default-hover-elevate font-normal",
@@ -214,7 +225,7 @@ function NatureBadge({ nature }: { nature: Nature }) {
             : "text-muted-foreground",
       )}
     >
-      {NATURE_LABEL[nature]}
+      {locale === "ml" ? ml[nature] : NATURE_LABEL[nature]}
     </Badge>
   );
 }

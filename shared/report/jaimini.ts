@@ -4,7 +4,7 @@ import { CHARA_KARAKA_INFO } from "../jaimini";
 import { readAreas } from "../jaimini-areas";
 import { vimshottari, type KpPeriod } from "../kp";
 import { lifePeriods } from "../life-stage";
-import { jaiminiInduMalayalam, jaiminiLeadMalayalam, jaiminiPeriodMalayalam } from "../malayalam-jaimini-report";
+import { jaiminiHeldMalayalam, jaiminiInduMalayalam, jaiminiLeadMalayalam, jaiminiPeriodMalayalam } from "../malayalam-jaimini-report";
 import {
   endStop,
   fmtDate,
@@ -136,11 +136,15 @@ export const jaiminiModule: ReportModule = {
         });
       sub.push({ id: `jaimini-${a.area}`, title: a.label, paras: ps });
     }
-    if (held.length)
+    if (held.length) {
+      const text = `Held for later at this age: ${list(held)}.`;
+      const ml = jaiminiHeldMalayalam(held, text);
       paras.push({
         kind: "note",
-        text: `Held for later at this age: ${list(held)}.`,
+        text,
+        ...(ml ? { translationMl: { source: text, text: ml } } : {}),
       });
+    }
     {
       // Indu Lagna (Uttara Kalamrita IV.27): calculation classical, reading rules
       // from the DNA Astrology of Wealth book, pp. 92-93. Its own subsection.

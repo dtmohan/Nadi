@@ -21,14 +21,16 @@ interface State {
  * withheld: gentle by default. A caller may ask for more withholding (withhold: true), never for less.
  */
 export function calendarWithhold(
-  body: { birthUtc?: unknown; deathDate?: unknown; withhold?: unknown },
+  body: { birthUtc?: unknown; birthDate?: unknown; timezone?: unknown; deathDate?: unknown; withhold?: unknown },
   asOfIso: string,
 ): boolean {
   if (body.withhold === true) return true;
   const birth = typeof body.birthUtc === "string" ? body.birthUtc : "";
   if (!birth || Number.isNaN(Date.parse(birth))) return true;
   const deathDate = typeof body.deathDate === "string" ? body.deathDate : null;
-  return sensitiveGate({ deathDate }, birth, asOfIso).withheld;
+  const birthDate = typeof body.birthDate === "string" ? body.birthDate : undefined;
+  const timezone = typeof body.timezone === "string" ? body.timezone : undefined;
+  return sensitiveGate({ birthDate, timezone, deathDate }, birth, asOfIso).withheld;
 }
 
 /** The Moon is left out as an obstructor and as an aspecting planet here; see GOCHARA_CALENDAR_NOTES. */

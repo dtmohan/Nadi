@@ -9,7 +9,80 @@
 // and is not used here. The onset ages below are practical conventions and are marked
 // provisional in the interface.
 
+import { DateTime } from "luxon";
+
 export type LifeStage = "child" | "youth" | "adult" | "elder";
+
+/** Civil birth information used for display-policy age gates, not for astrological timing. */
+export interface AgeGateContext {
+  birthDate?: string;
+  timezone?: string;
+  deathDate?: string | null;
+}
+
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+const validDay = (s: string | null | undefined): string | undefined => {
+  if (!s || !ISO_DAY.test(s)) return undefined;
+  const d = DateTime.fromISO(s, { zone: "UTC" });
+  return d.isValid && d.toISODate() === s ? s : undefined;
+};
+
+/**
+ * Resolve a birth day and reading day without exposing an under-age reader early.
+ * The saved civil birth date is authoritative (including for LMT/fixed-offset births).
+ * When a timezone is unknown, use the latest possible birth date and earliest possible
+ * reading date among UTC+14 and UTC−12; the resulting short delay is intentional.
+ */
+function ageGateDays(birthIso: string, asOfIso: string, context?: AgeGateContext): { birth: string; asOf: string } | undefined {
+  asOfIso = context ? lifeAsOf(context, asOfIso) : asOfIso;
+  const birthInstant = DateTime.fromISO(birthIso, { setZone: true, zone: "UTC" });
+  const asOfInstant = DateTime.fromISO(asOfIso, { setZone: true, zone: "UTC" });
+  if (!birthInstant.isValid || !asOfInstant.isValid) return undefined;
+  const zone = context?.timezone;
+  const zoneValid = !!zone && asOfInstant.setZone(zone).isValid;
+  const birth = validDay(context?.birthDate) ?? validDay(birthIso) ??
+    (zoneValid ? birthInstant.setZone(zone!).toISODate() : birthInstant.toUTC().plus({ hours: 14 }).toISODate());
+  // lifeAsOf encodes a recorded calendar date as noon UTC for period calculations.
+  // Do not convert that artificial noon to another local day, especially in UTC+14.
+  const passingDay = validDay(context?.deathDate);
+  const passingSentinel = passingDay && asOfIso === `${passingDay}T12:00:00.000Z` ? passingDay : undefined;
+  const asOf = passingSentinel ?? validDay(asOfIso) ??
+    (zoneValid ? asOfInstant.setZone(zone!).toISODate() : asOfInstant.toUTC().minus({ hours: 12 }).toISODate());
+  return birth && asOf ? { birth, asOf } : undefined;
+}
+
+/** Birthday at an integer age; February 29 is March 1 in non-leap years. */
+function birthdayFor(birthDay: string, years: number): string | undefined {
+  if (!Number.isInteger(years) || years < 0) return undefined;
+  const d = DateTime.fromISO(birthDay, { zone: "UTC" });
+  if (!d.isValid) return undefined;
+  const year = d.year + years;
+  if (year > 9999) return undefined;
+  if (d.month === 2 && d.day === 29 && !DateTime.utc(year).isInLeapYear) return `${year}-03-01`;
+  return DateTime.utc(year, d.month, d.day).toISODate() ?? undefined;
+}
+
+/** Earliest civil calendar date at which the age gate may open; undefined if not determinable. */
+export function calendarDateAtAge(birthIso: string, years: number, context?: AgeGateContext): string | undefined {
+  // A fixed date-only second argument is used only to obtain the birth day.
+  const days = ageGateDays(birthIso, "2000-01-01", context);
+  return days && birthdayFor(days.birth, years);
+}
+
+/** Completed civil years for display. Undefined means the birth/reading day cannot be determined. */
+export function calendarAge(birthIso: string, asOfIso: string, context?: AgeGateContext): number | undefined {
+  const days = ageGateDays(birthIso, asOfIso, context);
+  if (!days || days.asOf < days.birth) return undefined;
+  const difference = Number(days.asOf.slice(0, 4)) - Number(days.birth.slice(0, 4));
+  const birthday = birthdayFor(days.birth, difference);
+  return birthday ? difference - Number(days.asOf < birthday) : undefined;
+}
+
+function hasReachedCalendarAge(birthIso: string, asOfIso: string, years: number, context?: AgeGateContext): boolean {
+  const days = ageGateDays(birthIso, asOfIso, context);
+  const birthday = days && birthdayFor(days.birth, years);
+  return !!(days && birthday && days.asOf >= birthday);
+}
 
 /** Age in years (decimal) at `asOfIso`. */
 export function ageYears(birthIso: string, asOfIso: string): number {
@@ -87,6 +160,8 @@ export const AREA_ONSET: Record<string, number> = {
   marriage: 18,
   children: 18,
   career: 16,
+  // Standing/authority is the same work-related topic under its other school name.
+  authority: 16,
   wealth: 16,
 };
 
@@ -119,14 +194,14 @@ export function areaSeason(
   area: string,
   birthIso: string,
   asOfIso: string,
+  context?: AgeGateContext,
 ): AreaSeason {
   const from = AREA_ONSET[area];
   if (from === undefined) return { inSeason: true };
-  const age = ageYears(birthIso, asOfIso);
   return {
-    inSeason: age >= from,
+    inSeason: hasReachedCalendarAge(birthIso, asOfIso, from, context),
     from,
-    fromDate: dateAtAge(birthIso, from),
+    fromDate: calendarDateAtAge(birthIso, from, context),
   };
 }
 
@@ -135,8 +210,8 @@ export function areaSeason(
  * career and wealth before 16; nothing for an adult. Pass the reading instant (lifeAsOf), so a native who
  * died young is read at the date of passing.
  */
-export function heldAreasAt(birthIso: string, asOfIso: string): (area: string) => boolean {
-  return (area) => !areaSeason(area, birthIso, asOfIso).inSeason;
+export function heldAreasAt(birthIso: string, asOfIso: string, context?: AgeGateContext): (area: string) => boolean {
+  return (area) => !areaSeason(area, birthIso, asOfIso, context).inSeason;
 }
 
 /** Conservative display gate for a prose excerpt that may mention more than its primary topic. */
@@ -152,9 +227,11 @@ export function seasonStart(
   area: string,
   birthIso: string,
   asOfIso: string,
+  context?: AgeGateContext,
 ): string {
-  const s = areaSeason(area, birthIso, asOfIso);
-  const today = asOfIso.slice(0, 10);
+  const s = areaSeason(area, birthIso, asOfIso, context);
+  const today = ageGateDays(birthIso, asOfIso, context)?.asOf ?? "9999-12-31";
+  if (!s.inSeason && !s.fromDate) return "9999-12-31";
   return s.fromDate && s.fromDate > today ? s.fromDate : today;
 }
 
@@ -173,17 +250,17 @@ export interface SensitiveGate {
   /** True when sensitive statements are withheld for this native. */
   withheld: boolean;
   /** Age at the reading instant (the date of passing when recorded and past). */
-  ageYears: number;
+  ageYears: number | null;
   minAge: number;
 }
 
 export function sensitiveGate(
-  chart: { deathDate?: string | null },
+  chart: AgeGateContext,
   birthIso: string,
   asOfIso: string,
 ): SensitiveGate {
-  const age = ageYears(birthIso, lifeAsOf(chart, asOfIso));
-  return { withheld: age < SENSITIVE_MIN_AGE, ageYears: age, minAge: SENSITIVE_MIN_AGE };
+  const age = calendarAge(birthIso, asOfIso, chart);
+  return { withheld: age === undefined || age < SENSITIVE_MIN_AGE, ageYears: age ?? null, minAge: SENSITIVE_MIN_AGE };
 }
 
 export const SENSITIVE_WITHHELD_NOTE = `Length-of-life, maraka and arishta statements, those on the loss of a parent, spouse, child or sibling or on danger to life and limb, and those on sexual matters (the classical reading of potency among them) are not shown for a native under ${SENSITIVE_MIN_AGE}. The combinations remain in the chart and are read when the native comes of age (a policy of this app, provisional).`;
