@@ -12,6 +12,9 @@ import { qualifiedTotals, type QualifiedScoreKey } from "./qualified-event-score
 import { aggregateParashariLegacy, parashariLegacyScore } from "./parashari-score-aggregation";
 import { kpLegacyTotals } from "./kp-legacy-aggregation";
 
+/** Scope of the app's interpretation of Nataraj's judgment-day Sun-sub hint. */
+export const NATARAJ_SUN_HINT_SCOPE = "Nataraj says to consider the Sun's sub when rectifying; the equality test and 2:1 weights are the app's interpretation, not a formula stated on that page. This hint is separate from the event-transit score and comparison.";
+
 /** Rectification methods. One at a time, never blended; each cites its own source. */
 export type RectifyMethod =
   | "kp-rp"
@@ -157,9 +160,9 @@ export const RECTIFY_METHODS: Array<{
     label: "Period-lord transits",
     plainLabel: "Period planets and the sky",
     plainShort:
-      "The event-day check compares the transits of the period and sub-period planets with that candidate's natal significators. The Sun's current sub is shown separately as a judgment-day hint; it does not enter the event score or comparison.",
+      "The event-day check compares the transits of the period and sub-period planets with that candidate's natal significators. Nataraj says to consider the Sun's current sub when rectifying. Nadi compares it with the rising degree's star and sub rulers using its own weights; this separate hint does not enter the event score or comparison.",
     short:
-      "On the event day the dasa and bhukti lords transit the sign, star and sub of significators of the matter. The Sun's judgment-day sub (N. Nataraj) is displayed separately and is not part of the event score or its random-date comparison.",
+      "On the event day the dasa and bhukti lords transit the sign, star and sub of significators of the matter. Nataraj's judgment-day Sun-sub hint does not specify an equality test or weights on p. 192. Nadi's comparison with the lagna star/sub lords and its 2:1 weights are app conventions; the hint is separate from the event score and random-date comparison.",
     source: "Astro Secrets & KP Part 2, p. 192 and p. 203",
     needsJudge: true,
     needsEvents: true,
@@ -226,12 +229,12 @@ export const RECTIFY_METHODS: Array<{
     label: "Lost horoscope",
     plainLabel: "Lost horoscope",
     plainShort:
-      "Varahamihira's check from the lost-horoscope chapter: the rising degree, multiplied by its sign's factor and by the factor of each planet in it, then by seven, reads a birth star; when it lands on the querent's star or its trines, the time is plausible.",
+      "At the time and place of the question, Varahamihira's procedure reads a birth star from the rising degree and planets there. It compares that star exactly with the candidate birth Moon's star. Explicitly select the question place and opt in to using scan start as question time; the check usually cannot distinguish minutes within the same birth star.",
     short:
-      "The lagna, multiplied by the Rasi factor (Aries/Libra 7, Taurus/Leo 10, Gemini/Scorpio 8, Cancer 4, Virgo/Capricorn 5, Sagittarius 9, Aquarius 11, Pisces 12) and by the Graha factor of each planet in the rising sign (Jupiter 10, Mars 8, Venus 7, others 5), the products reduced by 12 and summed, multiplied by 7, adjusted by 9 for the sign's character and reduced by 27, gives the birth nakshatra (26.9-10).",
+      "The query lagna, multiplied by its Rasi factor and by the Graha factor of each planet in its sign, the products reduced by 12 and summed, multiplied by 7, adjusted by 9 for the sign's character and reduced by 27, gives the querent's birth nakshatra (26.9-10). Compare the exact star; the cited verses do not specify a trine match. This is a question-time diagnostic, not proof of the candidate birth minute.",
     source:
-      "Brihat Jataka 26.9-10 (Usha-Shashi, Sagar Publications). The ±9 adjustment follows the text's note that every remainder is in signs; Bhatta-Utpala keys it to the rising drekkana, so it is provisional.",
-    needsJudge: false,
+      "Brihat Jataka 26.9-10 (Usha-Shashi, Sagar Publications). Only the seven planets with factors in the cited Graha Gunakara table are used; the table supplies no node factors. The ±9 adjustment follows the text's note that every remainder is in signs; Bhatta-Utpala keys it to the rising drekkana, so it is provisional.",
+    needsJudge: true,
     needsEvents: false,
   },
 ];
@@ -285,7 +288,10 @@ export function methodScore(
   }
   if (m === "bj-nashta") {
     const k = s.bjNashta;
-    return k ? { score: k.score, max: k.max } : { score: 0, max: 0 };
+    // Older results used a candidate natal frame and accepted trines; do not
+    // let a cached legacy result masquerade as the sourced query procedure.
+    return k?.basis === "query-26.9-10" && k.intervalStable !== false && typeof k.exact === "boolean"
+      ? { score: Number(k.exact), max: 1 } : { score: 0, max: 0 };
   }
   if (m === "kp-rp")
     // The book RP agreement (max 4) plus Dutta's RP-Moon three-level linkage (max 4, absent on
@@ -469,6 +475,7 @@ export interface RectifyExportState {
   judge?: JudgePlaceInput;
   /** The displayed scan's actual judgment instant, for reproducible export. */
   judgedAsOf?: string;
+  bjQueryAsOf?: string;
   /** Limbs the person confirmed a mark on (Brihat Jataka 5.24-26), for the marks method. */
   confirmedMarks: string[];
 }

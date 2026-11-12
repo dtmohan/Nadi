@@ -12,9 +12,9 @@
  * 2. Dated events (Part 1 pp. 167-172; Part 2 p. 203): at each event the dasa, bhukti and antara
  *    lords must be significators of the houses of that matter, and the cusp of the matter must
  *    promise it through its sub lord.
- * 3. Transits (Part 2 p. 192, N. Nataraj; Part 2 p. 203): the sub the Sun transits on the day one
- *    works points to the lagna sub; and on the day of an event the dasa and bhukti lords transit
- *    the sign, star and sub of significators of the matter.
+ * 3. Transits: Nataraj says to consider the Sun's sub on the day of judgment (Part 2 p. 192).
+ *    The lagna star/sub equality test and 2:1 weights are Nadi's separate interpretation. On an
+ *    event day, dasa and bhukti lords transit sign, star and sub of matter significators (p. 203).
  *
  * 4. Jaimini chara dasha (K.N. Rao, Predicting through Jaimini's Chara Dasa): the chara dasha and
  *    antardasha running at each event, for the lagna sign of the interval, must carry the matter's
@@ -371,31 +371,29 @@ export function kundaCheck(lagnaLon: number, moonLon: number): KundaCheck {
   };
 }
 
-/** Brihat Jataka 26.9-10 Lost Horoscope check: the nakshatra read from the lagna and its planets. */
-function bjNashtaCheck(
-  lagnaLon: number,
+/** Brihat Jataka 26.9-10: read from the question ascendant and question-time planets. */
+export function bjNashtaCheck(
+  queryLagnaLon: number,
   moonLon: number,
-  positions: { planet: string; signIndex: number }[],
+  queryPositions: { planet: string; signIndex: number }[],
 ): BjNashtaCheck {
   const norm = (x: number) => ((x % 360) + 360) % 360;
-  const signIdx = Math.floor(norm(lagnaLon) / 30);
-  const inSign = positions
+  const signIdx = Math.floor(norm(queryLagnaLon) / 30);
+  const inSign = queryPositions
     .filter((p) => p.signIndex === signIdx)
     .map((p) => p.planet as Planet);
-  const nakshatra = nashtaNakshatra(lagnaLon, inSign);
+  const nakshatra = nashtaNakshatra(queryLagnaLon, inSign);
   const birthStar = zodiacQuarter(moonLon).starIndex;
-  const trine =
-    nakshatra === birthStar ||
-    nakshatra === (birthStar + 9) % 27 ||
-    nakshatra === (birthStar + 18) % 27;
+  const exact = nakshatra === birthStar;
   return {
+    basis: "query-26.9-10",
     nakshatra,
     birthStar,
-    trine,
-    via: trine
-      ? `${NAKSHATRAS[nakshatra]} is the birth star ${NAKSHATRAS[birthStar]} or its trine — the lagna reads plausible (26.9-10)`
-      : `${NAKSHATRAS[nakshatra]} is not the birth star ${NAKSHATRAS[birthStar]} nor its trines — the lagna wants shifting (26.9-10)`,
-    score: trine ? 1 : 0,
+    exact,
+    via: exact
+      ? `The star read from the question, ${NAKSHATRAS[nakshatra]}, matches this candidate's birth star ${NAKSHATRAS[birthStar]} (26.9-10). This does not establish a birth minute`
+      : `The star read from the question, ${NAKSHATRAS[nakshatra]}, differs from this candidate's birth star ${NAKSHATRAS[birthStar]} (26.9-10). This does not establish a birth minute`,
+    score: exact ? 1 : 0,
     max: 1,
   };
 }
@@ -441,6 +439,17 @@ export function rectify(req: RectifyRequest): RectifyResult {
     opts.nodeType,
     req.judgedAsOf,
   );
+  // Nashta Jataka 26.9–10 uses the query sky, not each candidate's natal
+  // ascendant. An unspecified judge location is not evidence of where the
+  // question was asked, and the scan time is not automatically the question
+  // instant. Both must be supplied explicitly.
+  const queryTime = req.bjQueryAsOf ? DateTime.fromISO(req.bjQueryAsOf, { setZone: true }).toUTC() : undefined;
+  if (queryTime && !queryTime.isValid) throw new Error("Invalid Brihat Jataka question time");
+  const queryJd = queryTime ? julianDay(queryTime) : undefined;
+  const nashtaQuery = req.judge && queryJd !== undefined ? {
+    lagna: ascendantAt(queryJd, judge.latitude, judge.longitude, optsJ),
+    positions: positionsLite(queryJd, optsJ),
+  } : undefined;
   const ruling = rulingPlanets(now);
   const accepted = acceptedRuling(ruling, now);
   const acceptedSet = new Map(accepted.map((a) => [a.planet, a]));
@@ -1065,7 +1074,15 @@ export function rectify(req: RectifyRequest): RectifyResult {
       // chart's selected ayanamsa for their lagna and Moon.
       kunda: selectable ? kundaCheck(lagnaJ, moonJ) : undefined,
       kundaD81: kundaD81Check(lagnaJ, moonJ),
-      bjNashta: bjNashtaCheck(lagnaJ, moonJ, positionsLite(mid, optsJ)),
+      bjNashta: nashtaQuery ? (() => {
+        const check = bjNashtaCheck(nashtaQuery.lagna, moonJ, nashtaQuery.positions);
+        const first = zodiacQuarter(planetLonAt("Moon", a + EPS, optsJ).lon).starIndex;
+        const last = zodiacQuarter(planetLonAt("Moon", b - EPS, optsJ).lon).starIndex;
+        if (first !== last || first !== check.birthStar) {
+          return { ...check, intervalStable: false, score: 0, max: 0, via: "The candidate birth star changes within this interval; this midpoint cannot represent the whole interval." };
+        }
+        return { ...check, intervalStable: true };
+      })() : undefined,
       dutta,
       nemani,
       jaiminiSign: {
@@ -1107,6 +1124,7 @@ export function rectify(req: RectifyRequest): RectifyResult {
     .map((s, i) => (s.score === top && top > 0 ? i : -1))
     .filter((i) => i >= 0);
   return {
+    bjQueryAsOf: nashtaQuery ? queryTime!.toISO()! : undefined,
     hierarchySelections: req.events,
     ruling,
     judgedAt: {

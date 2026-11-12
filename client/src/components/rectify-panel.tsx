@@ -77,6 +77,7 @@ import { Cite } from "@/components/source-link";
 import { limbTermsFor, type BodyMarksResult } from "@shared/body-marks";
 import {
   RECTIFY_METHODS,
+  NATARAJ_SUN_HINT_SCOPE,
   QUALIFIED_RECTIFY_METHODS,
   EVENT_METHODS,
   methodLabel,
@@ -252,6 +253,7 @@ export function RectifyPanel({
   // Start with the explicitly labelled exploratory scan. Users can enable the
   // slower random-date comparison before treating a candidate as interesting.
   const [includeComparisons, setIncludeComparisons] = useState(false);
+  const [bjUseScanMoment, setBjUseScanMoment] = useState(false);
   const [sortByScore, setSortByScore] = useState(false);
   const [showAllKunda, setShowAllKunda] = useState(false);
   const [alpPage, setAlpPage] = useState(0);
@@ -299,6 +301,7 @@ export function RectifyPanel({
         windowMinutes,
         events: eventPayload,
         includeComparisons,
+        bjQueryAsOf: method === "bj-nashta" && bjUseScanMoment && judge ? new Date().toISOString() : undefined,
         judge: judge
           ? {
               latitude: judge.latitude,
@@ -320,7 +323,7 @@ export function RectifyPanel({
   const scanInputsKey = JSON.stringify([
     chart.id, chart.birthDate, chart.birthTime, chart.timezone, chart.timeStandard,
     chart.latitude, chart.longitude, chart.ayanamsa, chart.nodeType, chart.gender,
-    windowMinutes, eventPayload, judge, includeComparisons,
+    windowMinutes, eventPayload, judge, includeComparisons, bjUseScanMoment,
   ]);
   useEffect(() => {
     // Never keep displaying scores after any of their inputs have changed.
@@ -344,11 +347,12 @@ export function RectifyPanel({
           }
         : undefined,
       judgedAsOf: scan.data?.ruling.asOf,
+      bjQueryAsOf: scan.data?.bjQueryAsOf,
       confirmedMarks: Array.from(confirmedMarks),
     });
     return () => onExportState?.(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [method, windowMinutes, eventPayload, judge, confirmedMarks, includeComparisons, scan.data?.ruling.asOf]);
+  }, [method, windowMinutes, eventPayload, judge, confirmedMarks, includeComparisons, scan.data?.ruling.asOf, scan.data?.bjQueryAsOf]);
 
   /** Why this interval was chosen, for the notes of the copy or of this chart. */
   const provenance = (seg: RectifySegment | KundaD81Window | AlpComparisonBand) => {
@@ -362,8 +366,8 @@ export function RectifyPanel({
       return `by ${m.system} ${methodLabel(m)} (${m.source}): sampled midpoint ${seg.mid}; ${seg.kunda?.via ?? "no result"}. This is not a scan of the full interval`;
     }
     const inputs = [
-      m.needsJudge && data
-        ? `judged ${DateTime.fromISO(data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from ${data.judgedAt.label}`
+      m.needsJudge && data && (method !== "bj-nashta" || data.bjQueryAsOf)
+        ? `judged ${DateTime.fromISO(method === "bj-nashta" ? data.bjQueryAsOf! : data.ruling.asOf).setZone(data.judgedAt.timezone).toFormat("d LLL yyyy HH:mm")} from ${data.judgedAt.label}`
         : "",
       m.needsEvents && eventPayload.length
         ? `events ${eventPayload.map((e) => `${e.label} ${e.date}`).join("; ")}`
@@ -371,7 +375,7 @@ export function RectifyPanel({
     ]
       .filter(Boolean)
       .join("; ");
-    return `by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}${method === "bj-marks" && data ? ` (${data.marks[seg.marksKey ?? seg.drekkana]?.drekkanaLabel}; confirmed ${Array.from(confirmedMarks).join(", ") || "none"})` : ""}${method === "bj-nashta" && seg.bjNashta ? ` (${seg.bjNashta.via})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}`;
+    return `by ${m.system} ${methodLabel(m)} (${m.source}): interval ${seg.start} to ${seg.end}, lagna ${seg.sign} sub lord ${seg.subLord}${method === "jaimini-dasha" ? ` (Jaimini lagna ${seg.jaiminiSign.name}, chara dasha ${seg.jaiminiSign.direction})` : ""}${method === "kp-moon" ? ` (${seg.moonLords.star.via}; birth star ${seg.moonLords.birthStar}, Moon in ${seg.moonLords.moonSign})` : ""}${method === "bj-marks" && data ? ` (${data.marks[seg.marksKey ?? seg.drekkana]?.drekkanaLabel}; confirmed ${Array.from(confirmedMarks).join(", ") || "none"})` : ""}${method === "bj-nashta" && seg.bjNashta?.basis === "query-26.9-10" ? ` (${seg.bjNashta.via})` : ""}, score ${sc.score} of ${sc.max}${inputs ? "; " + inputs : ""}`;
   };
 
   const saveCopy = useMutation({
@@ -478,7 +482,7 @@ export function RectifyPanel({
   );
   const bestSet = useMemo(
     () =>
-      method === "kunda" || method === "alp-marriage" || (EVENT_METHODS.includes(method) && !parashariComparable) || (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow || !matchedComparableWindow
+      method === "kunda" || method === "bj-nashta" || method === "alp-marriage" || (EVENT_METHODS.includes(method) && !parashariComparable) || (isParashariMethod && !parashariComparable) || !qualifiedComparableWindow || !matchedComparableWindow
         ? new Set<number>() : new Set(highlightedCandidates(scored)),
     [scored, method, parashariComparable, isParashariMethod, qualifiedComparableWindow, matchedComparableWindow],
   );
@@ -501,7 +505,7 @@ export function RectifyPanel({
   };
   const segments = useMemo(
     () =>
-      sortByScore && (!EVENT_METHODS.includes(method) || parashariComparable)
+      sortByScore && method !== "bj-nashta" && (!EVENT_METHODS.includes(method) || parashariComparable)
         ? [...scored].sort(
             (a, b) =>
               compareRectifyScores(a, b) ||
@@ -552,7 +556,7 @@ export function RectifyPanel({
   const hasStability = !isParashariMethod && scored.some((r) => r.s.stability);
   // Body-mark maxima can differ by candidate; the Kunda variants use separate
   // sampling rules. Do not imply their midpoint scores are comparable here.
-  const coverage = method !== "alp-marriage" && method !== "bj-marks" && method !== "kunda" && method !== "kunda-d81" && !(method === "kp-nemani-rp" && top === 0) && maxOf > 0 && (!isParashariMethod || parashariComparable) && (!EVENT_METHODS.includes(method) || parashariComparable) && qualifiedComparableWindow
+  const coverage = method !== "bj-nashta" && method !== "alp-marriage" && method !== "bj-marks" && method !== "kunda" && method !== "kunda-d81" && !(method === "kp-nemani-rp" && top === 0) && maxOf > 0 && (!isParashariMethod || parashariComparable) && (!EVENT_METHODS.includes(method) || parashariComparable) && qualifiedComparableWindow
     ? rawScoreCoverage(scored.map((r) => ({ score: r.score, startIso: r.s.startIso, endIso: r.s.endIso, given: r.s.given })))
     : undefined;
 
@@ -852,7 +856,22 @@ export function RectifyPanel({
         <JudgePlaceControl
           birthPlace={chart.place}
           birthTimezone={chart.timezone}
+          requireExplicit={method === "bj-nashta"}
         />
+      )}
+      {method === "bj-nashta" && !judge && (
+        <p className="mt-2 text-xs text-muted-foreground" data-testid="bj-nashta-requires-place">
+          {locale === "ml" ? "പ്രശ്നം ചോദിക്കുന്ന സ്ഥലം വ്യക്തമായി തിരഞ്ഞെടുക്കണം; ജനനസ്ഥലം സ്വമേധയാ ഉപയോഗിക്കില്ല." : "Select the place where the question is being judged. This method does not assume it is the birth place."}
+        </p>
+      )}
+      {method === "bj-nashta" && (
+        <label className="mt-2 flex items-start gap-2 text-xs text-muted-foreground">
+          <input type="checkbox" checked={bjUseScanMoment} onChange={(e) => setBjUseScanMoment(e.target.checked)} />
+          <span>{locale === "ml" ? "ഈ പരിശോധന ആരംഭിക്കുന്ന നിമിഷം പ്രശ്നം ചോദിച്ച സമയമായി ഉപയോഗിക്കുക." : "Use the moment I start this scan as the time I ask the question."}</span>
+        </label>
+      )}
+      {method === "bj-nashta" && scan.data?.bjQueryAsOf && (
+        <p className="mt-2 text-xs text-muted-foreground">{locale === "ml" ? "ഉപയോഗിച്ച പ്രശ്നസമയം" : "Question time used"}: {scan.data.bjQueryAsOf} · {scan.data.judgedAt.label}</p>
       )}
       {method === "bj-marks" && (
         <MarksChecklist
@@ -899,7 +918,7 @@ export function RectifyPanel({
           size="sm"
           className="h-8"
           onClick={() => scan.mutate()}
-          disabled={scan.isPending}
+          disabled={scan.isPending || (method === "bj-nashta" && (!judge || !bjUseScanMoment))}
           data-testid="button-rectify-scan"
         >
           <span lang={locale}>{locale === "ml" ? (scan.isPending ? "പരിശോധിക്കുന്നു…" : data ? "വീണ്ടും പരിശോധിക്കുക" : "സമയപരിധി പരിശോധിക്കുക") : scan.isPending
@@ -1093,7 +1112,7 @@ export function RectifyPanel({
                   the matter.
                 </>
               )}
-              {" "}The Sun hint is separate from the event-transit score and comparison.
+              {" "}{NATARAJ_SUN_HINT_SCOPE}
             </p>
           )}
           <p className="mt-1 text-xs text-muted-foreground">
@@ -1138,6 +1157,7 @@ export function RectifyPanel({
                 ? `${data.kundaD81?.length ?? 0} D81 intervals · ${(data.kundaD81 ?? []).filter((s) => s.check.trine).length} match the birth star or a trine`
                 : method === "kunda"
                   ? `${data.segments.length} midpoint samples · Raman's arithmetic is not resolved into time intervals`
+                  : method === "bj-nashta" ? `${data.segments.length} intervals · exact birth-star comparison; no birth-time ranking`
                   : method === "jaimini-dasha"
                 ? `${signGroups.length} Jaimini result ${signGroups.length === 1 ? "group" : "groups"} in ± ${data.windowMinutes} min · ${groupComparable ? `highest raw score ${groupTop} of ${signGroups[0]?.max ?? 0}` : "event eligibility differs across the window"}`
                 : method === "bj-marks"
@@ -1148,7 +1168,7 @@ export function RectifyPanel({
                   ? `${data.segments.length} slices in ± ${data.windowMinutes} min · ${anyParashariScore ? "event eligibility differs across the window" : "no eligible events to score"}`
                   : `${data.segments.length} ${plain ? "slices" : "intervals"} in ± ${data.windowMinutes} min · ${m.system} ${plain ? m.plainLabel.toLowerCase() : methodLabel(m)} · highest raw score ${Number.isInteger(top) ? top : top.toFixed(1)} of ${maxOf}${baselined ? ` · highest difference from comparison mean ${topExcess >= 0 ? "+" : "−"}${Math.abs(topExcess).toFixed(1)}` : ""}`}
             </span>
-            {method !== "alp-marriage" && method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && (!isParashariMethod || parashariComparable) && (!EVENT_METHODS.includes(method) || parashariComparable) && qualifiedComparableWindow && <button
+            {method !== "bj-nashta" && method !== "alp-marriage" && method !== "kp-nemani-rp" && method !== "kunda-d81" && method !== "kunda" && (!isParashariMethod || parashariComparable) && (!EVENT_METHODS.includes(method) || parashariComparable) && qualifiedComparableWindow && <button
               type="button"
               className="underline decoration-muted-foreground/50 underline-offset-2 hover:text-foreground"
               onClick={() => setSortByScore((v) => !v)}
@@ -2181,16 +2201,17 @@ export function RectifyPanel({
                             </span>
                           </TableCell>
                         )}
-                        {method === "bj-nashta" && s.bjNashta && (
+                        {method === "bj-nashta" && (
                           <TableCell className="whitespace-nowrap">
+                            {s.bjNashta?.intervalStable === false ? <span className="text-muted-foreground" title={s.bjNashta.via}>{locale === "ml" ? "ജന്മനക്ഷത്രം മാറുന്നു" : "Birth star changes within interval"}</span> : s.bjNashta?.basis === "query-26.9-10" && typeof s.bjNashta.exact === "boolean" ? (
                             <span
                               className="inline-flex items-center gap-1.5"
                               title={s.bjNashta.via}
                             >
-                              <Mark on={s.bjNashta.trine} title={s.bjNashta.via} />
+                              <Mark on={s.bjNashta.exact} title={s.bjNashta.via} />
                               <span
                                 className={cn(
-                                  s.bjNashta.trine
+                                  s.bjNashta.exact
                                     ? "text-foreground"
                                     : "text-muted-foreground",
                                 )}
@@ -2201,6 +2222,7 @@ export function RectifyPanel({
                                 vs {NAKSHATRAS[s.bjNashta.birthStar]}
                               </span>
                             </span>
+                            ) : <span className="text-muted-foreground">{locale === "ml" ? "പ്രശ്നസമയവും സ്ഥലവും നൽകണം" : "Question time and place required"}</span>}
                           </TableCell>
                         )}
                         {method === "kp-transit" &&

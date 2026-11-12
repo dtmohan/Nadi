@@ -1288,8 +1288,11 @@ function KpMethod() {
           the books and is the app's convention, marked provisional.
         </li>
         <li>
-          KP, transits: the sub the Sun transits on the day one works points to
-          the lagna sub (N. Nataraj, Part 2 p. 192), scored as a hint; and on
+          KP, transits: N. Nataraj (Part 2 p. 192) says to consider the Sun's
+          sub on the day of judgment when correcting birth time. The app compares
+          that sub with the lagna star and sub rulers and uses a 1:2 hint weight;
+          the equality test and weights are app conventions, not a formula stated
+          on that page. This hint is separate from the event score. On
           the day of an event the dasa and bhukti lords transit the sign, star
           and sub of significators of the matter (Part 2 p. 203), checked for
           each candidate against its own significators.

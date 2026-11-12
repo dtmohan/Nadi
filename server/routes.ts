@@ -391,6 +391,7 @@ export async function registerRoutes(
             includeComparisons: state.includeComparisons,
             judge: state.judge,
             judgedAsOf: state.judgedAsOf,
+            bjQueryAsOf: state.bjQueryAsOf,
           }),
           state,
         };
@@ -732,6 +733,7 @@ export async function registerRoutes(
   const rectifySchema = z.object({
     chart: insertChartSchema,
     judge: judgeSchema.optional(),
+    bjQueryAsOf: z.string().datetime().optional(),
     windowMinutes: z.number().min(1).max(720).default(30),
     events: rectifyEventsSchema,
     includeComparisons: z.boolean().default(true),
@@ -746,6 +748,7 @@ export async function registerRoutes(
     includeComparisons: z.boolean().default(true),
     judge: judgeSchema.optional(),
     judgedAsOf: z.string().datetime().optional(),
+    bjQueryAsOf: z.string().datetime().optional(),
     confirmedMarks: z.array(z.string().max(60)).max(40).default([]),
   });
   // Check the saved life events against the chart as it stands (nothing is stored)

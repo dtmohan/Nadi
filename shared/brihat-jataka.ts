@@ -8,6 +8,7 @@ import type { Planet } from "./astro";
  * by 27 (10). The worked example (lagna 5s 10°20' in Virgo with Jupiter and Venus) gives a sum of
  * 9s 17°20'. The unit of the ±9 adjustment follows the text's own note that every remainder is in
  * signs; Bhatta-Utpala instead keys it to the rising drekkana, so the adjustment is provisional.
+ * The cited Graha Gunakara table has seven classical planets; it does not give node factors.
  */
 
 export const BJ_RASI_FACTOR: number[] = [
@@ -22,8 +23,6 @@ export const BJ_GRAHA_FACTOR: Partial<Record<Planet, number>> = {
   Jupiter: 10,
   Venus: 7,
   Saturn: 5,
-  Rahu: 5,
-  Ketu: 5,
 };
 
 const norm = (x: number, m: number) => ((x % m) + m) % m;
@@ -35,7 +34,10 @@ export function nashtaFactorSum(lagnaLon: number, planetsInSign: Planet[]): numb
   const rasi = BJ_RASI_FACTOR[signIdx];
   const R = norm(lagnaSigns * rasi, 12);
   const G = planetsInSign.reduce(
-    (acc, p) => acc + norm(lagnaSigns * (BJ_GRAHA_FACTOR[p] ?? 5), 12),
+    (acc, p) => {
+      const factor = BJ_GRAHA_FACTOR[p];
+      return factor === undefined ? acc : acc + norm(lagnaSigns * factor, 12);
+    },
     0,
   );
   return R + G;

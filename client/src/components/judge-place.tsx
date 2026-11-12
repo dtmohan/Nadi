@@ -13,9 +13,11 @@ import { useToast } from "@/hooks/use-toast";
 export function JudgePlaceControl({
   birthPlace,
   birthTimezone,
+  requireExplicit = false,
 }: {
   birthPlace: string;
   birthTimezone: string;
+  requireExplicit?: boolean;
 }) {
   const judge = useJudgePlace();
   const { toast } = useToast();
@@ -58,11 +60,11 @@ export function JudgePlaceControl({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <span className="text-muted-foreground">Judging from</span>
         <span className="font-medium" data-testid="text-judge-place">
-          {judge ? judge.label : birthPlace}
+          {judge ? judge.label : requireExplicit ? "Choose the question location" : birthPlace}
           <span className="ml-1.5 font-normal text-muted-foreground">
             {judge
               ? judge.timezone
-              : `${birthTimezone} · the birth place, until you set your own`}
+              : requireExplicit ? "" : `${birthTimezone} · the birth place, until you set your own`}
           </span>
         </span>
         <span className="ml-auto inline-flex flex-wrap items-center gap-1.5">
@@ -98,7 +100,7 @@ export function JudgePlaceControl({
               onClick={() => setJudgePlace(null)}
               data-testid="button-judge-reset"
             >
-              Birth place
+              {requireExplicit ? "Clear place" : "Birth place"}
             </Button>
           )}
         </span>
@@ -116,12 +118,12 @@ export function JudgePlaceControl({
         </div>
       )}
       <p className="mt-2 text-muted-foreground">
-        The rising sign and the day lord depend on where you sit, so KP takes
+        {requireExplicit ? "The lost-horoscope procedure uses the place where the question is asked. Select it explicitly; the birth place is not assumed." : <>The rising sign and the day lord depend on where you sit, so KP takes
         the ruling planets for the astrologer's place at the moment of
         judgement, not the birth place (Astro Secrets &amp; KP Part 3, pp.
         161-162). Only the Moon's lords are the same everywhere. Your choice
         stays on this device and is used for the ruling planets and the
-        rectification scan.
+        rectification scan.</>}
       </p>
     </div>
   );

@@ -54,6 +54,8 @@ export interface RectifyRequest {
   judge?: JudgePlaceInput;
   /** Preserve a scan's actual judgment instant when rebuilding its report. */
   judgedAsOf?: string;
+  /** Explicit question instant for Brihat Jataka, independently of KP judgment. */
+  bjQueryAsOf?: string;
 }
 
 export interface RectifyEventCheck extends KpEventRules {
@@ -181,11 +183,18 @@ export interface KundaD81Window {
   selectable: boolean;
 }
 
-/** Brihat Jataka 26.9-10 Lost Horoscope nakshatra check against the birth star. */
+/** Brihat Jataka 26.9-10: the star derived from the explicitly supplied query place and moment. */
 export interface BjNashtaCheck {
+  /** Missing on legacy scans, which incorrectly used the birth ascendant. */
+  basis?: "query-26.9-10";
   nakshatra: number;
   birthStar: number;
-  trine: boolean;
+  /** Exact star equality; trines are not part of this verse. */
+  exact?: boolean;
+  /** False when the birth star changes inside this candidate interval. */
+  intervalStable?: boolean;
+  /** Legacy only: do not interpret as a source-backed result. */
+  trine?: boolean;
   via: string;
   score: number;
   max: number;
@@ -247,7 +256,7 @@ export interface RectifySegment {
   dutta?: DuttaRpMoonCheck;
   /** Nemani's separate three-level test, using judgment-chart positions on both sides. */
   nemani?: NemaniRpMoonCheck;
-  /** Sun-transit hint (Part 2 p. 192): the lagna's sub (or star) lord is the sub lord the Sun transits on the day of judgement. */
+  /** Judgment-Sun hint: Nataraj (Part 2 p. 192) says to consider the Sun's sub. Matching it to the candidate's lagna sub/star and the 2:1 weights are Nadi conventions, not a formula stated on that page. */
   sunHint: { star: boolean; sub: boolean; score: number; max: number };
   /** Lagna sign in the chart's own ayanamsa, which the Jaimini check is read from (sign-level only). */
   jaiminiSign: {
@@ -358,6 +367,8 @@ export interface RectifySegmentBaseline {
 }
 
 export interface RectifyResult {
+  /** Explicit instant used to cast the lost-horoscope question, if supplied. */
+  bjQueryAsOf?: string;
   /** Snapshot of the inputs the hierarchy examined, in event order. */
   hierarchySelections?: RectifyEvent[];
   ruling: RulingPlanets;

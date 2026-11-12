@@ -32,6 +32,7 @@ import { createPlanetContext } from "../planet-context";
 import { nakshatraContextParas } from "./nakshatra-context";
 import {
   RECTIFY_METHODS,
+  NATARAJ_SUN_HINT_SCOPE,
   QUALIFIED_RECTIFY_METHODS,
   EVENT_METHODS,
   baselineFor,
@@ -224,7 +225,7 @@ export const rectifyModule: ReportModule = {
     const eventMethod = EVENT_METHODS.includes(state.method);
     const matchedRequested = isKpMatchedMethod(state.method) && scan.segments.some((s) => s.kpMatched);
     const matchedComparable = !matchedRequested || (kpMatchedComparable(scan.segments) && scored.every((r) => !!r.b));
-    const comparable = matchedComparable && (!eventMethod || (maxOf > 0 && scored.every((r) => r.sc.max === maxOf))) && (!qualifiedKey || (maxOf > 0 && scored.every((r) => r.sc.max === maxOf) &&
+    const comparable = state.method !== "bj-nashta" && matchedComparable && (!eventMethod || (maxOf > 0 && scored.every((r) => r.sc.max === maxOf))) && (!qualifiedKey || (maxOf > 0 && scored.every((r) => r.sc.max === maxOf) &&
       scored.every((r) => qualifiedComparable(scored[0].seg.events.map((e) => e.qualifiedScores), r.seg.events.map((e) => e.qualifiedScores), qualifiedKey)) &&
       (!scored.some((r) => r.b) || scored.every((r) => r.b))));
     const highlighted = new Set(comparable ? highlightedCandidates(scored.map((x) => ({ score: x.sc.score, b: x.b }))) : []);
@@ -232,7 +233,7 @@ export const rectifyModule: ReportModule = {
     const given = scan.segments.find((s) => s.given);
     const nemaniGroups = state.method === "kp-nemani-rp" ? groupNemaniSegments(scan.segments) : [];
     const zone = result.chart.timezone;
-    const judgedAt = DateTime.fromISO(scan.ruling.asOf).setZone(
+    const judgedAt = DateTime.fromISO(state.method === "bj-nashta" ? (scan.bjQueryAsOf ?? "") : scan.ruling.asOf).setZone(
       scan.judgedAt.timezone,
     );
     const src = cites.add(m.source);
@@ -246,7 +247,7 @@ export const rectifyModule: ReportModule = {
       },
       {
         kind: "p",
-        text: `The window runs ± ${scan.windowMinutes} minutes around the recorded time of ${scan.given.time} (${zone}), divided into ${scan.segments.length} sampled intervals. Each score uses its midpoint; other inputs can change within an interval. ALP boundaries for actual marriage dates are included; ALP changes at comparison dates are sampled at the midpoint.${m.needsJudge ? ` The judgment location is ${scan.judgedAt.label}, at ${judgedAt.toFormat("d LLL yyyy HH:mm:ss")}.` : ""}${m.needsEvents ? ` ${state.events.length} dated event${state.events.length === 1 ? "" : "s"} ${state.events.length === 1 ? "is" : "are"} read: ${list(state.events.map((e) => `${S(e.label)} (${e.date}, ${describeEventMoment(e, zone)})`))}. Without a time, noon is assumed; without a zone, the birth zone is assumed. Random dates retain each event's local time and zone.` : ""}${state.method === "bj-marks" ? ` Limbs confirmed to carry a mark: ${state.confirmedMarks.length ? list(state.confirmedMarks) : "none"}.` : ""}`,
+        text: `The window runs ± ${scan.windowMinutes} minutes around the recorded time of ${scan.given.time} (${zone}), divided into ${scan.segments.length} sampled intervals. Each score uses its midpoint; other inputs can change within an interval. ALP boundaries for actual marriage dates are included; ALP changes at comparison dates are sampled at the midpoint.${m.needsJudge && judgedAt.isValid ? ` The judgment location is ${scan.judgedAt.label}, at ${judgedAt.toFormat("d LLL yyyy HH:mm:ss")}.` : ""}${m.needsEvents ? ` ${state.events.length} dated event${state.events.length === 1 ? "" : "s"} ${state.events.length === 1 ? "is" : "are"} read: ${list(state.events.map((e) => `${S(e.label)} (${e.date}, ${describeEventMoment(e, zone)})`))}. Without a time, noon is assumed; without a zone, the birth zone is assumed. Random dates retain each event's local time and zone.` : ""}${state.method === "bj-marks" ? ` Limbs confirmed to carry a mark: ${state.confirmedMarks.length ? list(state.confirmedMarks) : "none"}.` : ""}`,
       },
     ];
     if (m.needsEvents) paras.push({ kind: "note", text: EVENT_TRANSIT_SCOPE });
@@ -288,7 +289,7 @@ export const rectifyModule: ReportModule = {
     } else {
       paras.push({
         kind: "p",
-        text: !comparable ? maxOf === 0 ? "No eligible events can be scored under this method." : "Eligibility or comparison availability differs across candidate intervals; these totals cannot be ranked." : eventMethod && hasSelectedComparison ? "No candidate meets the exploratory highlighting rule." : "No interval in the window scores under this method.",
+        text: state.method === "bj-nashta" ? "This star comparison does not rank birth times." : !comparable ? maxOf === 0 ? "No eligible events can be scored under this method." : "Eligibility or comparison availability differs across candidate intervals; these totals cannot be ranked." : eventMethod && hasSelectedComparison ? "No candidate meets the exploratory highlighting rule." : "No interval in the window scores under this method.",
       });
     }
     if (matchedRequested) paras.push(...kpMatchedParas(given?.kpMatched));
@@ -436,7 +437,7 @@ export const rectifyModule: ReportModule = {
       } else if (state.method === "bj-nashta") {
         ps.push({
           kind: "p",
-          text: focus.bjNashta ? `At the midpoint: ${focus.bjNashta.via}. Score ${focus.bjNashta.score} of ${focus.bjNashta.max}.` : "No lost-horoscope check was supplied.",
+          text: focus.bjNashta?.basis === "query-26.9-10" && scan.bjQueryAsOf ? `Question time ${scan.bjQueryAsOf}, place ${scan.judgedAt.label}. At the midpoint: ${focus.bjNashta.via}. ${focus.bjNashta.max ? `Score ${focus.bjNashta.score} of ${focus.bjNashta.max}.` : "This interval is unscored."}` : "No source-backed lost-horoscope check was supplied. It requires an explicit question time and place; older scans used a different natal heuristic.",
           cites: [src],
           provisional: true,
         });
@@ -517,7 +518,8 @@ export const rectifyModule: ReportModule = {
         if (state.method === "kp-transit")
           ps.push({
             kind: "note",
-            text: `Sun hint: the Sun's sub lord on the day of judgement is ${scan.sunNow.subLord}${focus.sunHint.sub ? ", which is this interval's lagna sub lord" : focus.sunHint.star ? ", which is this interval's lagna star lord" : ", which is neither the lagna's star nor sub lord here"} (${focus.sunHint.score} of ${focus.sunHint.max}). This hint is separate from the event-transit score and comparison.`,
+            text: `Sun hint: the Sun's sub lord on the day of judgement is ${scan.sunNow.subLord}${focus.sunHint.sub ? ", which is this interval's lagna sub lord" : focus.sunHint.star ? ", which is this interval's lagna star lord" : ", which is neither the lagna's star nor sub lord here"} (${focus.sunHint.score} of ${focus.sunHint.max}). ${NATARAJ_SUN_HINT_SCOPE}`,
+            provisional: true,
             cites: [src],
           });
         if (state.method === "kp-transit" && focus.candidate && scan.eventTransits) {

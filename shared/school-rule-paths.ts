@@ -56,9 +56,9 @@ export const SCHOOL_RULE_PATHS = {
   bjMarks: { school: "Brihat Jataka", label: "Body-mark rectification", evaluator: "computeBodyMarks", requires: ["candidate natal frame", "confirmed body marks"],
     paths: { chart: "not-implemented", "dated-reading": "not-implemented", validate: "not-implemented", rectify: "separate-method", comparison: "not-implemented" },
     limits: "A separate candidate-to-observed-marks comparison; it is not a dated-event score." },
-  bjNashta: { school: "Brihat Jataka", label: "Lost-horoscope diagnostic", evaluator: "nashtaNakshatra", requires: ["candidate ascendant", "natal planets", "natal Moon"],
+  bjNashta: { school: "Brihat Jataka", label: "Lost-horoscope diagnostic", evaluator: "nashtaNakshatra", requires: ["explicit question time and place", "question ascendant and planets", "candidate natal Moon"],
     paths: { chart: "not-implemented", "dated-reading": "not-implemented", validate: "not-implemented", rectify: "separate-method", comparison: "not-implemented" },
-    limits: "A separately qualified birth-star comparison; it is not a dated-event score." },
+    limits: "The cited factor table covers seven classical planets, not nodes. An exact birth-star comparison with a fixed question sky, not a dated-event score or a birth-minute determination. Intervals crossing a birth-star boundary are left unscored." },
 } as const satisfies Record<string, RuleFamilyPath>;
 
 /** Every selectable rectification method must be assigned to an audited family. */
